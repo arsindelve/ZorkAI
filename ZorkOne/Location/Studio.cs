@@ -5,7 +5,7 @@ using ZorkOne.Item;
 
 namespace ZorkOne.Location;
 
-internal class Studio : BaseLocation
+public class Studio : BaseLocation
 {
     public Studio()
     {

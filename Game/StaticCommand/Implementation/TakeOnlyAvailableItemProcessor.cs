@@ -34,7 +34,7 @@ public class TakeOnlyAvailableItemProcessor : IStatefulProcessor
                 return "What do you want to take? ";
             }
 
-            IItem itemToTake = itemsHere.Single();
+            var itemToTake = itemsHere.Single();
             nounToTake = itemToTake.NounsForMatching.First();
         }
 
@@ -49,9 +49,9 @@ public class TakeOnlyAvailableItemProcessor : IStatefulProcessor
         ContinueProcessing = false;
         Completed = true;
 
-        if(input?.ToLowerInvariant().Trim() == "take")
+        if (input?.ToLowerInvariant().Trim() == "take")
             result = $"({nounToTake})\n {result}";
-        
+
         return result;
     }
 

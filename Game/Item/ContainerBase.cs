@@ -7,6 +7,10 @@ namespace Game.Item;
 /// </summary>
 public abstract class ContainerBase : ItemBase, ICanHoldItems
 {
+    protected virtual int SpaceForLargeItems => 0;
+
+    protected virtual int SpaceForSmallItems => 2;
+    
     protected List<IItem> Items { get; } = new();
 
     public void RemoveItem(IItem item)
@@ -35,6 +39,16 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun));
 
         return hasMatch;
+    }
+
+    public virtual bool HaveRoomForItem(IItem item)
+    {
+        if (item.IsLarge)
+        {
+            return this.SpaceForLargeItems > 0;
+        }
+        
+        return Items.Count < SpaceForSmallItems;
     }
 
     /// <summary>

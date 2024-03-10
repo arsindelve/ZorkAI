@@ -16,4 +16,6 @@ public class Painting : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
 
     public override string NeverPickedUpDescription =>
         "Fortunately, there is still one chance for you to be a vandal, for on the far wall is a painting of unparalleled beauty. ";
+
+    public override bool IsLarge => true;
 }

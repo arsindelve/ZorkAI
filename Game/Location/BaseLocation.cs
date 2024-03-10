@@ -106,6 +106,11 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return hasMatch;
     }
 
+    public virtual bool HaveRoomForItem(IItem item)
+    {
+        return true;
+    }
+
     protected virtual void OnFirstTimeEnterLocation(IContext context)
     {
     }

@@ -90,6 +90,12 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         return hasMatch;
     }
 
+    public bool HaveRoomForItem(IItem item)
+    {
+        // TODO: Implement inventory item load; 
+        return true;
+    }
+
     public int AddPoints(int points)
     {
         Score += points;

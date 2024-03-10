@@ -27,4 +27,11 @@ public interface ICanHoldItems : IInteractionTarget
     /// <param name="noun">The noun to match against.</param>
     /// <returns>True if the container or context has an item with a matching noun, otherwise false.</returns>
     bool HasMatchingNoun(string? noun);
+
+    /// <summary>
+    /// Checks if the container or context has room to hold the given item.
+    /// </summary>
+    /// <param name="item">The item to be checked.</param>
+    /// <returns>True if there is room to hold the item, otherwise false.</returns>
+    bool HaveRoomForItem(IItem item);
 }

@@ -6,6 +6,7 @@ namespace Model.Item;
 public interface IItem : IInteractionTarget
 {
     string[] NounsForMatching { get; }
+    
     string InInventoryDescription { get; }
 
     /// <summary>
@@ -24,6 +25,12 @@ public interface IItem : IInteractionTarget
     /// </value>
     string? CannotBeTakenDescription { get; set; }
 
+    /// <summary>
+    ///     Gets or sets a value indicating whether the item is large, like a sword or a painting.
+    /// </summary>
+    bool IsLarge { get; }
+
     bool HasMatchingNoun(string? noun);
+    
     InteractionResult? RespondToSimpleInteraction(SimpleIntent action, IContext context);
 }
