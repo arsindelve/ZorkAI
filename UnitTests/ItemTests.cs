@@ -1,6 +1,3 @@
-using ZorkOne.Item;
-using ZorkOne.Location;
-
 namespace UnitTests;
 
 public class ItemTests : EngineTestsBase

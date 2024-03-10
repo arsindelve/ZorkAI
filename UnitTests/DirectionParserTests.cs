@@ -1,5 +1,3 @@
-using Model;
-
 namespace UnitTests;
 
 [TestFixture]

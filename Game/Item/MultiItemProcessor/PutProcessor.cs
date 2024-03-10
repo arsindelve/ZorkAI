@@ -20,7 +20,7 @@ public class PutProcessor : IMultiNounVerbProcessor
             case "put":
             case "place":
             case "shove":
-            case "push":        
+            case "push":
 
                 switch (action.Preposition.ToLowerInvariant().Trim())
                 {
@@ -38,21 +38,23 @@ public class PutProcessor : IMultiNounVerbProcessor
         return null;
     }
 
-    private static InteractionResult? PutTheThingIntoTheThing(IItem castItemOne, ICanHoldItems itemReceiver)
+    private static InteractionResult PutTheThingIntoTheThing(IItem item, ICanHoldItems itemReceiver)
     {
         // Do I have the thing? 
-        if (castItemOne.CurrentLocation is not IContext)
-            return new PositiveInteractionResult($"You don't have the {castItemOne.NounsForMatching.First()}");
+        if (item.CurrentLocation is not IContext)
+            return new PositiveInteractionResult($"You don't have the {item.NounsForMatching.First()}");
 
         // Is the recipient open?
         if (itemReceiver is IOpenAndClose { IsOpen: false })
             return new PositiveInteractionResult("It's closed. ");
 
         // TODO: Case where the item cannot be put there. 
+        if (!itemReceiver.HaveRoomForItem(item))
+            return new PositiveInteractionResult("There's no room. ");
 
-        castItemOne.CurrentLocation?.RemoveItem(castItemOne);
-        castItemOne.CurrentLocation = itemReceiver;
-        itemReceiver.ItemPlacedHere(castItemOne);
+        item.CurrentLocation?.RemoveItem(item);
+        item.CurrentLocation = itemReceiver;
+        itemReceiver.ItemPlacedHere(item);
         return new PositiveInteractionResult("Done.");
     }
 }

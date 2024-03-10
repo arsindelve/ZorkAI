@@ -17,4 +17,6 @@ public class Sword : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
 
     public override string NeverPickedUpDescription =>
         "Above the trophy case hangs an elvish sword of great antiquity.";
+
+    public override bool IsLarge => true;
 }

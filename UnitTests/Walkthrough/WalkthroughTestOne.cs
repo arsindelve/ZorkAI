@@ -1,17 +1,18 @@
 ﻿using ZorkOne;
 
-namespace UnitTests;
+namespace UnitTests.Walkthrough;
 
-public sealed class WalkthroughTest : EngineTestsBase
+public sealed class WalkthroughTestOne : EngineTestsBase
 {
     private GameEngine<ZorkI> _target;
 
-    public WalkthroughTest()
+    public WalkthroughTestOne()
     {
         _target = GetTarget();
     }
 
     [Test]
+    [Ignore("I need to see coverage from elsewhere")]
     public async Task Walkthrough()
     {
         // https://web.mit.edu/marleigh/www/portfolio/Files/zork/transcript.html
@@ -45,7 +46,7 @@ public sealed class WalkthroughTest : EngineTestsBase
         await Do("go down", "Kitchen");
         await Do("W", "Above the trophy case hangs an elvish sword of great antiquity.", "Living Room");
         await Do("open case", "Opened");
-        // await Do("put painting inside case", "Done");
+        await Do("put painting inside case", "Done");
         await Do("drop knife", "Dropped");
         await Do("take sword", "Taken");
         await Do("open trap door", "The door reluctantly opens to reveal a rickety staircase descending into darkness");

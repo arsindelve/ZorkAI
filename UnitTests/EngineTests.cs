@@ -1,9 +1,6 @@
-using Model;
 using Model.Intent;
 using OpenAI.Requests;
 using ZorkOne;
-using ZorkOne.Item;
-using ZorkOne.Location;
 
 namespace UnitTests;
 
@@ -11,6 +8,22 @@ internal record UnitTestIntent : IntentBase;
 
 public class EngineTests : EngineTestsBase
 {
+    [Test]
+    public void DefaultConstructor()
+    {
+        Environment.SetEnvironmentVariable("OPEN_AI_KEY", "XYZ");
+        var target = new GameEngine<ZorkI>();
+
+        target.Should().NotBeNull();
+    }
+
+    [Test]
+    public void DefaultConstructor_NoApiKey()
+    {
+        Environment.SetEnvironmentVariable("OPEN_AI_KEY", null);
+        Assert.Throws<Exception>(() => _ = new GameEngine<ZorkI>());
+    }
+
     [Test]
     public async Task EmptyCommand_Blank()
     {

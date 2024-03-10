@@ -1,5 +1,4 @@
 using Game.StaticCommand.Implementation;
-using Model;
 using Model.Intent;
 using ZorkOne;
 
@@ -145,6 +144,16 @@ public class EngineTestsBase
 
             mockParser.Setup(s => s.DetermineIntentType("i", It.IsAny<string>()))
                 .ReturnsAsync(new GlobalCommandIntent { Command = new InventoryProcessor() });
+            
+            mockParser.Setup(s => s.DetermineIntentType("put painting inside case", It.IsAny<string>()))
+                .ReturnsAsync(new MultiNounIntent
+                {
+                    NounOne = "painting",
+                    NounTwo = "case",
+                    Preposition = "inside",
+                    Verb = "put",
+                    OriginalInput = "put painting inside case"
+                });
         }
         else
         {

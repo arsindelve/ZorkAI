@@ -5,7 +5,7 @@ using ZorkOne.Item;
 
 namespace ZorkOne.Location;
 
-internal class Gallery : BaseLocation
+public class Gallery : BaseLocation
 {
     public Gallery()
     {

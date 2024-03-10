@@ -21,5 +21,5 @@ public interface IGlobalCommand
     ///     The input string may be null or empty if no input is provided by the user.
     ///     The <see cref="IContext" /> parameter provides access to game-related information and functionality.
     /// </remarks>
-    Task<string> Process(string? input, IContext context, IGenerationClient? client);
+    Task<string> Process(string? input, IContext context, IGenerationClient client);
 }
