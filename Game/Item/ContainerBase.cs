@@ -7,9 +7,7 @@ namespace Game.Item;
 /// </summary>
 public abstract class ContainerBase : ItemBase, ICanHoldItems
 {
-    protected virtual int SpaceForLargeItems => 0;
-
-    protected virtual int SpaceForSmallItems => 2;
+    protected virtual int SpaceForItems => 2;
     
     protected List<IItem> Items { get; } = new();
 
@@ -43,12 +41,7 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
 
     public virtual bool HaveRoomForItem(IItem item)
     {
-        if (item.IsLarge)
-        {
-            return this.SpaceForLargeItems > 0;
-        }
-        
-        return Items.Count < SpaceForSmallItems;
+        return Items.Sum(s => s.Size) + item.Size <= SpaceForItems;
     }
 
     /// <summary>

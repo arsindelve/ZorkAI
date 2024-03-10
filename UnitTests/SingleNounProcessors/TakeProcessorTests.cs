@@ -18,6 +18,19 @@ public class TakeProcessorTests : EngineTestsBase
         // Assert
         result.Should().Contain("Taken");
     }
+    
+    [Test]
+    public async Task Take_ItemInsideClosedItem()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
+
+        // Act
+        var result = await target.GetResponse("take lunch");
+
+        // Assert
+        result.Should().NotContain("Taken");
+    }
 
     [Test]
     public void CannotBeTaken_WrongType()
@@ -35,4 +48,25 @@ public class TakeProcessorTests : EngineTestsBase
 
         result.Should().Contain("securely");
     }
+
+    [Test]
+    public async Task TakeSecondItemFromContainer()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
+        await target.GetResponse("open sack");
+        var result = await target.GetResponse("take garlic");
+        result.Should().Contain("Taken");
+    }
+    
+    [Test]
+    public async Task TakeFirstItemFromContainer()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
+        await target.GetResponse("open sack");
+        var result = await target.GetResponse("take lunch");
+        result.Should().Contain("Taken");
+    }
+    
 }
