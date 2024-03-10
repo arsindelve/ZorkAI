@@ -18,7 +18,7 @@ public class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
     public virtual string NowClosed => "Closed.";
 
     public bool IsOpen { get; set; }
-    
+
     public virtual string NowOpen => "Opened";
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context)

@@ -1,7 +1,7 @@
 namespace Game.StaticCommand.Implementation;
 
 /// <summary>
-/// Represents a processor for the "Inventory" global command.
+///     Represents a processor for the "Inventory" global command.
 /// </summary>
 internal class InventoryProcessor : IGlobalCommand
 {

@@ -10,7 +10,7 @@ internal class QuitProcessor : IStatefulProcessor
     private bool _firstPass = true;
 
     protected virtual string ReturnValue => "-1";
-    
+
     protected virtual string Verb => "leave";
 
     public bool ContinueProcessing => false;

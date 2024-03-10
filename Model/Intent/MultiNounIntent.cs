@@ -11,9 +11,9 @@ public record MultiNounIntent : IntentBase
     public required string? NounOne { get; init; }
 
     public required string? NounTwo { get; init; }
-    
+
     public string? Preposition { get; set; }
-    
+
     public required string OriginalInput { get; set; }
 
     public bool MatchNoun(string[] nounOne, string[] nounTwo)
@@ -21,9 +21,9 @@ public record MultiNounIntent : IntentBase
         return nounOne.Any(s => s.Equals(NounOne, StringComparison.InvariantCultureIgnoreCase))
                && nounTwo.Any(s => s.Equals(NounTwo, StringComparison.InvariantCultureIgnoreCase));
     }
-    
+
     public override string ToString()
     {
         return $"Verb: {Verb}, NounOne: {NounOne}, NounTwo: {NounTwo}, Preposition: {Preposition}";
-    }   
+    }
 }

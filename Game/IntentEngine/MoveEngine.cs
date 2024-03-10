@@ -7,7 +7,7 @@ internal class MoveEngine : IIntentEngine
     public Task<string> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {
         if (intent is not MoveIntent moveTo)
-            throw new ArgumentException();
+            throw new ArgumentException("Cast error");
 
         var movement = context.CurrentLocation.Navigate(moveTo.Direction);
 
@@ -23,8 +23,9 @@ internal class MoveEngine : IIntentEngine
         context.LastNoun = "";
 
         context.CurrentLocation = movement.Location;
-        movement.Location.OnEnterLocation(context);
-        return Task.FromResult(new LookProcessor().Process(null, context) + Environment.NewLine);
+        var enteringText = movement.Location.OnEnterLocation(context);
+        var result = enteringText + new LookProcessor().Process(null, context) + Environment.NewLine;
+        return Task.FromResult(result);
     }
 
     private static Task<string> GetGeneratedCantGoThatWayResponse()

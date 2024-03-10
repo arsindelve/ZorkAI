@@ -28,6 +28,25 @@ public class TurnOnOrOffProcessor : IVerbProcessor
 
             case "turn off":
                 return TurnItOff(castItem, context);
+
+            // Sometimes, the parser can't determine the adverb "on" or "off". It that case, hopefully,
+            // the parser gave us the adverb. 
+            case "turn":
+
+                var adverb = action.Adverb?.ToLowerInvariant().Trim();
+                if (string.IsNullOrEmpty(action.Adverb?.ToLowerInvariant().Trim()))
+                    return null;
+
+                switch (adverb)
+                {
+                    case "on":
+                        return TurnItOn(castItem, context);
+                    case "off":
+                        return TurnItOff(castItem, context);
+
+                    default:
+                        return null;
+                }
         }
 
         return null;

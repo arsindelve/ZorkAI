@@ -5,6 +5,11 @@ namespace ZorkOne.Item;
 
 public class Bottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeExamined
 {
+    public Bottle()
+    {
+        StartWithItemInside<Water>();
+    }
+
     public override string[] NounsForMatching => ["bottle", "glass bottle"];
 
     public override string InInventoryDescription => Items.Any()
@@ -14,13 +19,8 @@ public class Bottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeEx
     public string ExaminationDescription => InInventoryDescription;
 
     string ICanBeTakenAndDropped.OnTheGroundDescription => !HasEverBeenOpened && !HasEverBeenPickedUp
-        ? "A bottle is sitting on the table."+ Environment.NewLine + ItemListDescription("glass bottle")
+        ? "A bottle is sitting on the table." + Environment.NewLine + ItemListDescription("glass bottle")
         : Items.Any()
             ? "There is a glass bottle here." + Environment.NewLine + ItemListDescription("glass bottle")
             : "There is a glass bottle here.";
-
-    public Bottle()
-    {
-        StartWithItemInside<Water>();
-    }
 }

@@ -2,7 +2,8 @@ namespace OpenAI.Requests;
 
 public class MissingSecondNounMultiNounOperationRequest : Request
 {
-    public MissingSecondNounMultiNounOperationRequest(string location, string? presentNoun, string? absentNoun, string? preposition, string verb)
+    public MissingSecondNounMultiNounOperationRequest(string location, string? presentNoun, string? absentNoun,
+        string? preposition, string verb)
     {
         SystemMessage = SystemPrompt;
         UserMessage =

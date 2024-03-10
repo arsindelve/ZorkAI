@@ -9,23 +9,6 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
 {
     protected List<IItem> Items { get; } = new();
 
-    /// <summary>
-    ///     Returns a description of the items contained in the specified container.
-    /// </summary>
-    /// <param name="name">The name of the container - might be needed as part of the description</param>
-    /// <returns>A string representing the items contained in the specified container.</returns>
-    public string ItemListDescription(string name)
-    {
-        if (!Items.Any())
-            return $"The {name} is empty.";
-
-        var sb = new StringBuilder();
-        sb.AppendLine($"   The {name} contains:");
-        Items.ForEach(s => sb.AppendLine($"      {s.InInventoryDescription}"));
-
-        return sb.ToString();
-    }
-
     public void RemoveItem(IItem item)
     {
         Items.Remove(item);
@@ -52,6 +35,23 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun));
 
         return hasMatch;
+    }
+
+    /// <summary>
+    ///     Returns a description of the items contained in the specified container.
+    /// </summary>
+    /// <param name="name">The name of the container - might be needed as part of the description</param>
+    /// <returns>A string representing the items contained in the specified container.</returns>
+    public string ItemListDescription(string name)
+    {
+        if (!Items.Any())
+            return $"The {name} is empty.";
+
+        var sb = new StringBuilder();
+        sb.AppendLine($"   The {name} contains:");
+        Items.ForEach(s => sb.AppendLine($"      {s.InInventoryDescription}"));
+
+        return sb.ToString();
     }
 
     protected void StartWithItemInside<T>() where T : ItemBase, new()

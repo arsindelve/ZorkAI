@@ -4,7 +4,9 @@ public static class DirectionParser
 {
     public static bool IsDirection(string intent, out Direction direction)
     {
-        direction = ParseDirection(intent);
+        intent = intent.Replace("go ", "");
+        var firstWord = intent.Split(' ')[0];
+        direction = ParseDirection(firstWord);
         return direction != Direction.Unknown;
     }
 

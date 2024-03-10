@@ -90,12 +90,6 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         return hasMatch;
     }
 
-
-    internal int IncreaseMoves()
-    {
-        return Moves++;
-    }
-
     public int AddPoints(int points)
     {
         Score += points;
@@ -153,5 +147,11 @@ public class Context<T> : IContext where T : IInfocomGame, new()
             result = item.RespondToSimpleInteraction(action, this);
 
         return result ?? new NoNounMatchInteractionResult();
+    }
+
+
+    internal int IncreaseMoves()
+    {
+        return Moves++;
     }
 }

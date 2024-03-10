@@ -8,8 +8,8 @@ namespace UnitTests;
 public class EngineTestsBase
 {
     protected Mock<IGenerationClient> Client = new();
-    protected IIntentParser Parser = new IntentParser(); 
-   
+    protected IIntentParser Parser = new IntentParser();
+
     protected GameEngine<ZorkI> GetTarget(IIntentParser? parser = null)
     {
         Client = new Mock<IGenerationClient>();
@@ -18,20 +18,23 @@ public class EngineTestsBase
         {
             Parser = Mock.Of<IIntentParser>();
 
-            Mock<IIntentParser> mockParser = Mock.Get(Parser);
+            var mockParser = Mock.Get(Parser);
 
             foreach (Direction direction in Enum.GetValues(typeof(Direction)))
-            {
                 mockParser.Setup(p => p.DetermineIntentType(direction.ToString(), It.IsAny<string>()))
                     .ReturnsAsync(new MoveIntent { Direction = direction });
-            }
-            
+
+            foreach (Direction direction in Enum.GetValues(typeof(Direction)))
+                mockParser.Setup(p =>
+                        p.DetermineIntentType("go " + direction.ToString().ToLowerInvariant(), It.IsAny<string>()))
+                    .ReturnsAsync(new MoveIntent { Direction = direction });
+
             mockParser.Setup(p => p.DetermineIntentType("open mailbox", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Noun = "mailbox", Verb = "open", OriginalInput = "open mailbox" });
-            
+
             mockParser.Setup(p => p.DetermineIntentType("take mailbox", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Noun = "mailbox", Verb = "take", OriginalInput = "take mailbox" });
-            
+
             mockParser.Setup(p => p.DetermineIntentType("eat mailbox", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Noun = "mailbox", Verb = "eat", OriginalInput = "eat mailbox" });
 
@@ -64,6 +67,9 @@ public class EngineTestsBase
 
             mockParser.Setup(p => p.DetermineIntentType("take lantern", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Noun = "lantern", Verb = "take", OriginalInput = "take lantern" });
+
+            mockParser.Setup(p => p.DetermineIntentType("take lamp", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Noun = "lamp", Verb = "take", OriginalInput = "take lamp" });
 
             mockParser.Setup(p => p.DetermineIntentType("drop lantern", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Noun = "lantern", Verb = "drop", OriginalInput = "drop lantern" });
@@ -109,7 +115,7 @@ public class EngineTestsBase
 
             mockParser.Setup(s => s.DetermineIntentType("eat lunch", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "eat", Noun = "lunch", OriginalInput = "eat lunch" });
-            
+
             mockParser.Setup(s => s.DetermineIntentType("throw lunch", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "throw", Noun = "lunch", OriginalInput = "throw lunch" });
 
@@ -118,13 +124,27 @@ public class EngineTestsBase
 
             mockParser.Setup(s => s.DetermineIntentType("open trap door", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "open", Noun = "trap door", OriginalInput = "open trap door" });
-            
-            mockParser.Setup(s => s.DetermineIntentType("look", It.IsAny<string>()))
-                .ReturnsAsync(new GlobalCommandIntent {Command = new LookProcessor()});
-            
-            mockParser.Setup(s => s.DetermineIntentType("i", It.IsAny<string>()))
-                .ReturnsAsync(new GlobalCommandIntent {Command = new InventoryProcessor()});
 
+            mockParser.Setup(s => s.DetermineIntentType("take painting", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "painting", OriginalInput = "take painting" });
+
+            mockParser.Setup(s => s.DetermineIntentType("take knife", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "knife", OriginalInput = "take knife" });
+
+            mockParser.Setup(s => s.DetermineIntentType("drop knife", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Verb = "drop", Noun = "knife", OriginalInput = "drop knife" });
+
+            mockParser.Setup(s => s.DetermineIntentType("take rope", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "rope", OriginalInput = "take rope" });
+
+            mockParser.Setup(s => s.DetermineIntentType("open case", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Verb = "open", Noun = "case", OriginalInput = "open case" });
+
+            mockParser.Setup(s => s.DetermineIntentType("look", It.IsAny<string>()))
+                .ReturnsAsync(new GlobalCommandIntent { Command = new LookProcessor() });
+
+            mockParser.Setup(s => s.DetermineIntentType("i", It.IsAny<string>()))
+                .ReturnsAsync(new GlobalCommandIntent { Command = new InventoryProcessor() });
         }
         else
         {
@@ -132,7 +152,7 @@ public class EngineTestsBase
         }
 
         Repository.Reset();
-        var engine = new GameEngine<ZorkI>( Parser, Client.Object);
+        var engine = new GameEngine<ZorkI>(Parser, Client.Object);
         return engine;
     }
 }

@@ -8,7 +8,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
     {
         if (item is not IItem castItem)
             throw new Exception();
-        
+
         switch (action.Verb.ToLowerInvariant().Trim())
         {
             case "hold":
@@ -18,11 +18,10 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             case "snatch":
                 context.Take(castItem);
                 return new PositiveInteractionResult("Taken.");
-            
+
             case "drop":
                 context.Drop(castItem);
                 return new PositiveInteractionResult("Dropped");
-       
         }
 
         return null;

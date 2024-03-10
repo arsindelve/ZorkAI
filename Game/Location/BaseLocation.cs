@@ -12,13 +12,15 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     ///     locations where we cannot go, but for which we want to provide a custom message such
     ///     as "The kitchen window is closed."
     /// </summary>
-    protected abstract Dictionary<Direction, MovementParameters> Map { get; } 
+    protected abstract Dictionary<Direction, MovementParameters> Map { get; }
 
     protected abstract string Name { get; }
 
     private int VisitCount { get; set; }
 
     private List<IItem> Items { get; } = new();
+
+    protected abstract string ContextBasedDescription { get; }
 
     // public virtual string ItemListDescription(string name)
     // {
@@ -35,18 +37,14 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         Items.Add(item);
     }
 
-    protected abstract string ContextBasedDescription { get; }
-
-    public virtual void OnEnterLocation(IContext context)
+    public virtual string OnEnterLocation(IContext context)
     {
         if (VisitCount == 0)
             OnFirstTimeEnterLocation(context);
-        
-        VisitCount++;
-    }
 
-    protected virtual void OnFirstTimeEnterLocation(IContext context)
-    {
+        VisitCount++;
+
+        return string.Empty;
     }
 
     public virtual string Description => Name + Environment.NewLine + ContextBasedDescription + GetItemDescriptions();
@@ -97,6 +95,18 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return Items.Contains(Repository.GetItem<T>());
     }
 
+    public bool HasMatchingNoun(string? noun)
+    {
+        var hasMatch = false;
+        Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun));
+
+        return hasMatch;
+    }
+
+    protected virtual void OnFirstTimeEnterLocation(IContext context)
+    {
+    }
+
     protected void StartWithItem(ItemBase item, ICanHoldItems location)
     {
         Items.Add(item);
@@ -131,13 +141,5 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
                 s.AppendLine(item.HasEverBeenPickedUp ? item.OnTheGroundDescription : item.NeverPickedUpDescription));
 
         return result.ToString();
-    }
-    
-    public bool HasMatchingNoun(string? noun)
-    {
-        bool hasMatch = false;
-        Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun));
-
-        return hasMatch;
     }
 }

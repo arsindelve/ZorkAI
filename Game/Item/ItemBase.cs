@@ -7,8 +7,6 @@ namespace Game.Item;
 /// </summary>
 public abstract class ItemBase : IItem
 {
-    public virtual string InInventoryDescription => "";
-
     /// <summary>
     ///     Gets the description when the item has never been picked up.
     /// </summary>
@@ -20,6 +18,8 @@ public abstract class ItemBase : IItem
     ///     The never picked up description of the item.
     /// </value>
     public virtual string NeverPickedUpDescription => InInventoryDescription;
+
+    public virtual string InInventoryDescription => "";
 
     public virtual string? CannotBeTakenDescription { get; set; }
 
@@ -54,6 +54,11 @@ public abstract class ItemBase : IItem
             return new NoNounMatchInteractionResult();
 
         return ApplyProcessors(action, context, null);
+    }
+
+    public virtual bool HasMatchingNoun(string? noun)
+    {
+        return NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
     }
 
     protected static List<IVerbProcessor> GetProcessors(ItemBase item)
@@ -92,10 +97,5 @@ public abstract class ItemBase : IItem
             => current ?? processor.Process(action, context, (IInteractionTarget)this));
 
         return result ?? new NoVerbMatchInteractionResult { Verb = action.Verb, Noun = action.Noun };
-    }
-
-    public virtual bool HasMatchingNoun(string? noun)
-    {
-        return NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
     }
 }

@@ -41,14 +41,13 @@ public static class GlobalCommandFactory
             case "score":
             case "what is my score":
                 return new ScoreProcessor();
-            
+
             case "restart":
             case "restart the game":
             case "start over":
             case "start the game over":
             case "start from the beginning":
                 return new RestartProcessor();
-                
         }
 
         return null;

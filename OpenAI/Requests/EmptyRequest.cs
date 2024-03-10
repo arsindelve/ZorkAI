@@ -6,6 +6,6 @@ public class EmptyRequest : Request
     {
         SystemMessage = SystemPrompt;
         UserMessage =
-            $"The player entered no command by accident. Provide the narrator's very succinct but sarcastic response";
+            "The player entered no command by accident. Provide the narrator's very succinct but sarcastic response";
     }
 }

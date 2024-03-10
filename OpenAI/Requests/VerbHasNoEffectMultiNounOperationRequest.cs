@@ -2,7 +2,8 @@ namespace OpenAI.Requests;
 
 public class VerbHasNoEffectMultiNounOperationRequest : Request
 {
-    public VerbHasNoEffectMultiNounOperationRequest(string location, string? nounOne, string? nounTwo, string? preposition, string verb)
+    public VerbHasNoEffectMultiNounOperationRequest(string location, string? nounOne, string? nounTwo,
+        string? preposition, string verb)
     {
         SystemMessage = SystemPrompt;
         UserMessage =

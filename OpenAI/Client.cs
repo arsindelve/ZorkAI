@@ -30,7 +30,7 @@ public class Client : IGenerationClient
     public async Task<string> CompleteChat(Request request)
     {
         Debug.WriteLine($"Sending request of type: {request.GetType().Name} ");
-        
+
         var chatCompletionsOptions = new ChatCompletionsOptions
         {
             DeploymentName = "gpt-4-turbo-preview",
@@ -40,7 +40,7 @@ public class Client : IGenerationClient
                 new ChatRequestUserMessage(request.UserMessage)
             }
         };
-        
+
         Debug.WriteLine(request.UserMessage);
 
         Response<ChatCompletions> response = await _client.GetChatCompletionsAsync(chatCompletionsOptions);

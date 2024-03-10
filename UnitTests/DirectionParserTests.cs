@@ -1,4 +1,3 @@
-
 using Model;
 
 namespace UnitTests;

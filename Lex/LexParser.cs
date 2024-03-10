@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Amazon.LexRuntimeV2.Model;
 using Model;
 using Model.Intent;
@@ -10,10 +11,11 @@ public class LexParser : IAIParser
 
     public async Task<IntentBase> AskTheAIParser(string input, string sessionId)
     {
-        RecognizeTextResponse parserResponse = await _client.SendTextMsgToLex(input, sessionId);
+        Debug.WriteLine($"Text: '{input}' was sent to Amazon Lex");
+        var parserResponse = await _client.SendTextMsgToLex(input, sessionId);
 
-        string intentName = ExtractIntentName(parserResponse);
-        double? score = ExtractIntentConfidence(parserResponse);
+        var intentName = ExtractIntentName(parserResponse);
+        var score = ExtractIntentConfidence(parserResponse);
 
         if (parserResponse.Messages.Any() && score.GetValueOrDefault() > 0.85)
             return BuildPromptIntent(parserResponse);
@@ -38,7 +40,7 @@ public class LexParser : IAIParser
                 if (score.GetValueOrDefault() < 0.90)
                     return new NullIntent();
 
-                return BuildSimpleInteractionIntent(parserResponse, input);
+                return BuildSimpleInteractionIntent(parserResponse, input, intentName);
         }
 
         return new NullIntent();
@@ -88,22 +90,30 @@ public class LexParser : IAIParser
         return new PromptIntent { Message = lexTextResponse.Messages.First().Content };
     }
 
-    private static IntentBase BuildSimpleInteractionIntent(RecognizeTextResponse lexTextResponse, string input)
+    private static IntentBase BuildSimpleInteractionIntent(RecognizeTextResponse lexTextResponse, string rawInput,
+        string inputType)
     {
+        string? adverb = null;
+
         var item = lexTextResponse.Interpretations?.FirstOrDefault()?.Intent?.Slots["Item"]?.Value
             ?.InterpretedValue;
 
         var verb = lexTextResponse.Interpretations?.FirstOrDefault()?.Intent?.Slots["Verb"]?.Value
             ?.InterpretedValue;
 
+        if (inputType == "SimpleActionWithAdverb")
+            adverb = lexTextResponse.Interpretations?.FirstOrDefault()?.Intent?.Slots["Adverb"]?.Value
+                ?.InterpretedValue;
+
         if (string.IsNullOrEmpty(verb) || string.IsNullOrEmpty(item))
             return new NullIntent();
 
         return new SimpleIntent
         {
-            OriginalInput = input,
+            OriginalInput = rawInput,
             Verb = verb,
-            Noun = item
+            Noun = item,
+            Adverb = adverb
         };
     }
 

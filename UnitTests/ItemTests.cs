@@ -62,8 +62,8 @@ public class ItemTests : EngineTestsBase
         await engine.GetResponse("drop leaflet");
 
         // Assert
-        WestOfHouse location = Repository.GetLocation<WestOfHouse>();
-        Leaflet item = Repository.GetItem<Leaflet>();
+        var location = Repository.GetLocation<WestOfHouse>();
+        var item = Repository.GetItem<Leaflet>();
         engine.Context.Items.Should().BeEmpty();
         item.CurrentLocation.Should().Be(location);
         location.HasItem<Leaflet>().Should().BeTrue();
@@ -139,12 +139,12 @@ public class ItemTests : EngineTestsBase
 
         engine.Context.CurrentLocation.HasMatchingNoun("mailbox").Should().BeTrue();
         engine.Context.CurrentLocation.HasMatchingNoun("leaflet").Should().BeFalse();
-        
+
         await engine.GetResponse("open mailbox");
-        
+
         engine.Context.CurrentLocation.HasMatchingNoun("leaflet").Should().BeTrue();
     }
-    
+
     [Test]
     public async Task NounMatch_Container_Nested()
     {
@@ -152,25 +152,23 @@ public class ItemTests : EngineTestsBase
 
         // Assert
         Repository.GetItem<Mailbox>().HasMatchingNoun("leaflet").Should().BeFalse();
-        
+
         // Act
         await engine.GetResponse("open mailbox");
-        
+
         // Assert 
         Repository.GetItem<Mailbox>().HasMatchingNoun("leaflet").Should().BeTrue();
     }
-    
+
     [Test]
     public void Repository_DoesNotExistInTheStory()
     {
         Repository.ItemExistsInTheStory("unicorn").Should().BeFalse();
     }
-    
+
     [Test]
     public void Repository_DoesNotExistInTheStory_Blank()
     {
         Repository.ItemExistsInTheStory("").Should().BeFalse();
     }
-    
-  
 }

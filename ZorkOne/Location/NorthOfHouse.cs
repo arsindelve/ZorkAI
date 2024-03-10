@@ -17,7 +17,7 @@ public class NorthOfHouse : BaseLocation
             Direction.E, new MovementParameters { Location = GetLocation<BehindHouse>() }
         },
         {
-            Direction.W, new MovementParameters { Location = GetLocation<WestOfHouse>()}
+            Direction.W, new MovementParameters { Location = GetLocation<WestOfHouse>() }
         }
     };
 }
