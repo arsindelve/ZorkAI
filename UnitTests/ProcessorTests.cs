@@ -239,19 +239,19 @@ public class ProcessorTests : EngineTestsBase
         // Assert
         result.Should().Contain("Taken");
     }
-    
+
     [Test]
     public void CannotBeTaken_WrongType()
     {
         IVerbProcessor target = new CannotBeTakenProcessor();
         Assert.Throws<Exception>(() => target.Process(Mock.Of<SimpleIntent>(), Mock.Of<IContext>(), new MadeUpItem()));
     }
-    
+
     [Test]
     public async Task CannotBeTaken_PositiveInteraction()
     {
         var target = GetTarget();
-        
+
         var result = await target.GetResponse("take mailbox");
 
         result.Should().Contain("securely");

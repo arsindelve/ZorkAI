@@ -12,12 +12,12 @@
             <_Parameter1>UnitTests</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
-    
+
     <ItemGroup>
-      <ProjectReference Include="..\Lex\Lex.csproj" />
-      <ProjectReference Include="..\Model\Model.csproj" />
-      <ProjectReference Include="..\OpenAI\OpenAI.csproj" />
-      <ProjectReference Include="..\Utilities\Utilities.csproj" />
+        <ProjectReference Include="..\Lex\Lex.csproj"/>
+        <ProjectReference Include="..\Model\Model.csproj"/>
+        <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>
+        <ProjectReference Include="..\Utilities\Utilities.csproj"/>
     </ItemGroup>
 
 </Project>

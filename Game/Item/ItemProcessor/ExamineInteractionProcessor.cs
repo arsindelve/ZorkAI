@@ -3,7 +3,7 @@ using Model.Item;
 namespace Game.Item.ItemProcessor;
 
 /// <summary>
-/// Represents a processor for examining an item.
+///     Represents a processor for examining an item.
 /// </summary>
 public class ExamineInteractionProcessor : IVerbProcessor
 {

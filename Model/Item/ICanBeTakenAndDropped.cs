@@ -27,8 +27,8 @@ public interface ICanBeTakenAndDropped : IInteractionTarget
     string? NeverPickedUpDescription { get; }
 
     /// <summary>
-    /// Indicates whether the item has ever been picked up.
+    ///     Indicates whether the item has ever been picked up.
     /// </summary>
-    /// <seealso cref="ICanBeTakenAndDropped"/>
+    /// <seealso cref="ICanBeTakenAndDropped" />
     bool HasEverBeenPickedUp { get; }
 }

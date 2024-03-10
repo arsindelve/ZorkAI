@@ -429,7 +429,7 @@ public class EngineTests : EngineTestsBase
 
         result.Should().Contain("boarded");
     }
-    
+
     [Test]
     public async Task Parser_DirectionMatch()
     {
@@ -442,7 +442,7 @@ public class EngineTests : EngineTestsBase
 
         result.Should().Contain("boarded");
     }
-    
+
     [Test]
     public void StartText_ShouldNotBeNullOrEmpty()
     {

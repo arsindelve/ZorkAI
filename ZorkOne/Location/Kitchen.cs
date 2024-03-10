@@ -7,14 +7,6 @@ namespace ZorkOne.Location;
 
 public class Kitchen : BaseLocation
 {
-    protected override string ContextBasedDescription =>
-        $"You are in the kitchen of the white house. A table seems to have been" +
-        $" used recently for the preparation of food. A passage leads to the west " +
-        $"and a dark staircase can be seen leading upward. A dark chimney leads down " +
-        $"and to the east is a small window which is {(Repository.GetItem<KitchenWindow>().IsOpen ? "open" : "closed")}.";
-
-    protected override string Name => "Kitchen";
-
     private static KitchenWindow? _window;
 
     public Kitchen()
@@ -25,11 +17,13 @@ public class Kitchen : BaseLocation
         StartWithItem(Repository.GetItem<Bottle>(), this);
     }
 
-    protected override void OnFirstTimeEnterLocation(IContext context)
-    {
-        context.AddPoints(10);
-        base.OnFirstTimeEnterLocation(context);
-    }
+    protected override string ContextBasedDescription =>
+        $"You are in the kitchen of the white house. A table seems to have been" +
+        $" used recently for the preparation of food. A passage leads to the west " +
+        $"and a dark staircase can be seen leading upward. A dark chimney leads down " +
+        $"and to the east is a small window which is {(Repository.GetItem<KitchenWindow>().IsOpen ? "open" : "closed")}.";
+
+    protected override string Name => "Kitchen";
 
     protected override Dictionary<Direction, MovementParameters> Map
     {
@@ -42,7 +36,7 @@ public class Kitchen : BaseLocation
                 Location = Repository.GetLocation<BehindHouse>()
             };
 
-            return new()
+            return new Dictionary<Direction, MovementParameters>
             {
                 {
                     Direction.Up, new MovementParameters { Location = GetLocation<Attic>() }
@@ -65,5 +59,11 @@ public class Kitchen : BaseLocation
                 }
             };
         }
+    }
+
+    protected override void OnFirstTimeEnterLocation(IContext context)
+    {
+        context.AddPoints(10);
+        base.OnFirstTimeEnterLocation(context);
     }
 }

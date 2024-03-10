@@ -1,7 +1,7 @@
 namespace Model.Item;
 
 /// <summary>
-/// Represents an item that can be turned on and off.
+///     Represents an item that can be turned on and off.
 /// </summary>
 public interface ICanBeTurnedOnAndOff : IInteractionTarget
 {
@@ -9,9 +9,9 @@ public interface ICanBeTurnedOnAndOff : IInteractionTarget
 
     public string NowOnText { get; }
 
-    public string NowOffText { get;  }
+    public string NowOffText { get; }
 
     public string AlreadyOffText { get; }
 
-    public string AlreadyOnText { get;  }
+    public string AlreadyOnText { get; }
 }

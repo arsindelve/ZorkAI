@@ -8,7 +8,7 @@ public class OpenAndCloseInteractionProcessor : IVerbProcessor
     {
         if (item is not IOpenAndClose castItem)
             throw new Exception("Cast Error");
-        
+
         switch (action.Verb.ToLowerInvariant().Trim())
         {
             case "open":
@@ -18,23 +18,23 @@ public class OpenAndCloseInteractionProcessor : IVerbProcessor
             case "shut":
                 return CloseMe(castItem);
         }
-        
+
         return null;
     }
-    
+
     private InteractionResult OpenMe(IOpenAndClose item)
     {
         if (item.IsOpen)
             return new PositiveInteractionResult(item.AlreadyOpen);
 
         var returnText = item.NowOpen;
-        
+
         item.IsOpen = true;
         item.HasEverBeenOpened = true;
-        
+
         return new PositiveInteractionResult(returnText);
     }
-    
+
     private InteractionResult CloseMe(IOpenAndClose item)
     {
         if (!item.IsOpen)

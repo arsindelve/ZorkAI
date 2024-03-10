@@ -12,7 +12,7 @@ public class IntentParser : IIntentParser
     private readonly IAIParser _parser;
 
     /// <summary>
-    /// Constructor for unit testing 
+    ///     Constructor for unit testing
     /// </summary>
     /// <param name="parser"></param>
     public IntentParser(IAIParser parser)
@@ -41,7 +41,7 @@ public class IntentParser : IIntentParser
 
         // At this point, we don't know the user's intent without asking the
         // AI parsing engine, so let's do that. 
-        
+
         return await _parser.AskTheAIParser(input, sessionId);
     }
 }

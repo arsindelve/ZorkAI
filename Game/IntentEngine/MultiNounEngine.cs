@@ -10,7 +10,7 @@ public class MultiNounEngine : IIntentEngine
             throw new ArgumentException();
 
         Debug.WriteLine(interaction);
-        
+
         // After a multi-noun interaction, we will lose the ability to understand "it"
         context.LastNoun = "";
 
@@ -36,7 +36,7 @@ public class MultiNounEngine : IIntentEngine
 
         // TODO: Neither noun here. 
         // TODO: Run the multi-interaction processing here. 
-        
+
         // If not positive interaction.....
         return await GetGeneratedVerbNotUsefulResponse(interaction, generationClient,
             context);

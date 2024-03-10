@@ -16,7 +16,7 @@ public class GlobalCommandsTests : EngineTestsBase
         // Assert
         response.Should().Contain("empty-handed");
     }
-    
+
     [Test]
     public async Task Static_Intent_Inventory_Alternate_Phrase()
     {
@@ -40,7 +40,7 @@ public class GlobalCommandsTests : EngineTestsBase
         // Assert
         result.Should().Contain("You are standing in an open field");
     }
-    
+
     [Test]
     public async Task Static_Intent_Look()
     {
@@ -52,7 +52,7 @@ public class GlobalCommandsTests : EngineTestsBase
         // Assert
         result.Should().Contain("You are standing in an open field");
     }
-    
+
     [Test]
     public async Task Look_ItemIsClosed_NeverBeenOpened()
     {
@@ -65,7 +65,7 @@ public class GlobalCommandsTests : EngineTestsBase
         // Assert
         result.Should().Contain("On the table is an elongated brown sack, smelling of hot peppers");
     }
-    
+
     [Test]
     public async Task Look_ItemIsClosed_AlreadyOpened()
     {
@@ -80,7 +80,7 @@ public class GlobalCommandsTests : EngineTestsBase
         // Assert
         result.Should().Contain("There is a brown sack here.");
     }
-    
+
     [Test]
     public async Task Look_ItemIsTakenAndDropped()
     {
@@ -95,7 +95,7 @@ public class GlobalCommandsTests : EngineTestsBase
         // Assert
         result.Should().Contain("There is a brown sack here.");
     }
-    
+
     [Test]
     public async Task Inventory_WithLeaflet()
     {
@@ -110,7 +110,7 @@ public class GlobalCommandsTests : EngineTestsBase
         // Assert
         response.Should().Contain("leaflet");
     }
-    
+
     [Test]
     public async Task Quit_Cancel()
     {
@@ -120,13 +120,13 @@ public class GlobalCommandsTests : EngineTestsBase
         await engine.GetResponse("quit");
         await engine.GetResponse("nevermind");
         await engine.GetResponse("look");
-        
+
         var response = await engine.GetResponse("look around");
 
         // Assert
         response.Should().Contain("You are standing in an open field");
     }
-    
+
     [Test]
     public async Task Quit_Cancel_WithBlankInput()
     {
@@ -136,13 +136,13 @@ public class GlobalCommandsTests : EngineTestsBase
         await engine.GetResponse("quit");
         await engine.GetResponse("");
         await engine.GetResponse("look");
-        
+
         var response = await engine.GetResponse("look around");
 
         // Assert
         response.Should().Contain("You are standing in an open field");
     }
-    
+
     [Test]
     public async Task Quit_Affirmative()
     {
@@ -155,7 +155,7 @@ public class GlobalCommandsTests : EngineTestsBase
         // Assert
         response.Should().Contain("-1");
     }
-    
+
     [Test]
     public async Task Quit_Affirmative_AlternativeResponse()
     {
@@ -168,7 +168,7 @@ public class GlobalCommandsTests : EngineTestsBase
         // Assert
         response.Should().Contain("-1");
     }
-    
+
     [Test]
     public async Task Score()
     {
@@ -193,7 +193,7 @@ public class GlobalCommandsTests : EngineTestsBase
         // Assert
         response.Should().Contain("Wizard");
     }
-    
+
     [Test]
     public async Task Restart_Affirmative()
     {
@@ -206,7 +206,7 @@ public class GlobalCommandsTests : EngineTestsBase
         // Assert
         response.Should().Contain("-2");
     }
-    
+
     [Test]
     public async Task Restart_Affirmative_AlternativeResponse()
     {
@@ -219,7 +219,7 @@ public class GlobalCommandsTests : EngineTestsBase
         // Assert
         response.Should().Contain("-2");
     }
-    
+
     [Test]
     public async Task Restart_Cancel_WithBlankInput()
     {
@@ -229,7 +229,7 @@ public class GlobalCommandsTests : EngineTestsBase
         await engine.GetResponse("restart");
         await engine.GetResponse("");
         await engine.GetResponse("look");
-        
+
         var response = await engine.GetResponse("look around");
 
         // Assert

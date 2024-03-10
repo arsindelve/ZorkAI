@@ -8,12 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Game\Game.csproj" />
-      <ProjectReference Include="..\Lex\Lex.csproj" />
-      <ProjectReference Include="..\OpenAI\OpenAI.csproj" />
-      <ProjectReference Include="..\Utilities\Utilities.csproj" />
-      <ProjectReference Include="..\ZorkOne\ZorkOne.csproj" />
-      <ProjectReference Include="..\ZorkTwo\ZorkTwo.csproj" />
+        <ProjectReference Include="..\Game\Game.csproj"/>
+        <ProjectReference Include="..\Lex\Lex.csproj"/>
+        <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>
+        <ProjectReference Include="..\Utilities\Utilities.csproj"/>
+        <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
+        <ProjectReference Include="..\ZorkTwo\ZorkTwo.csproj"/>
     </ItemGroup>
 
 </Project>

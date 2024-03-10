@@ -13,7 +13,7 @@ public interface ILocation
     /// <summary>
     ///     Gets called when we enter a location.
     /// </summary>
-    void OnEnterLocation(IContext context);
+    string OnEnterLocation(IContext context);
 
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="SimpleIntent" /> corresponding

@@ -1,7 +1,7 @@
 namespace Model;
 
 /// <summary>
-/// Represents the possible directions of movement.
+///     Represents the possible directions of movement.
 /// </summary>
 public enum Direction
 {
