@@ -13,5 +13,5 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
 
     public string ExaminationDescription => Items.Any() ? "" : "The trophy case is empty.";
 
-    protected override int SpaceForLargeItems => int.MaxValue;
+    protected override int SpaceForItems => int.MaxValue;
 }

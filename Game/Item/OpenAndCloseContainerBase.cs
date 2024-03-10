@@ -25,11 +25,14 @@ public class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
     {
         InteractionResult? result = null;
 
+        // See if one of the items inside me has a matching interaction.
         if (AmIOpen)
-            result = Items
-                .ToList()
-                .Aggregate(result,
-                    (current, item) => current ?? item.RespondToSimpleInteraction(action, context));
+            foreach (var item in Items.ToList())
+            {
+               result = item.RespondToSimpleInteraction(action, context);
+               if (result is { InteractionHappened: true }) 
+                   return result;
+            }
 
         if (result != null && result is not NoNounMatchInteractionResult)
             return result;

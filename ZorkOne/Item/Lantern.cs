@@ -24,5 +24,5 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBeTu
 
     string ICanBeTurnedOnAndOff.AlreadyOnText => "It is already on.";
 
-    public override bool IsLarge => true;
+    public override int Size => 3;
 }

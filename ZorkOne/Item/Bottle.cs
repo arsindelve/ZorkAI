@@ -10,7 +10,7 @@ public class Bottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeEx
         StartWithItemInside<Water>();
     }
 
-    protected override int SpaceForSmallItems => 0;
+    protected override int SpaceForItems => 0;
 
     public override string[] NounsForMatching => ["bottle", "glass bottle"];
 

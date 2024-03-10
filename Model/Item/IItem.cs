@@ -25,10 +25,7 @@ public interface IItem : IInteractionTarget
     /// </value>
     string? CannotBeTakenDescription { get; set; }
 
-    /// <summary>
-    ///     Gets or sets a value indicating whether the item is large, like a sword or a painting.
-    /// </summary>
-    bool IsLarge { get; }
+    int Size { get; }
 
     bool HasMatchingNoun(string? noun);
     

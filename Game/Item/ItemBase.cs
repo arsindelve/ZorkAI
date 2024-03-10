@@ -23,8 +23,6 @@ public abstract class ItemBase : IItem
 
     public virtual string? CannotBeTakenDescription { get; set; }
 
-    public virtual bool IsLarge => false;
-
     public bool HasEverBeenPickedUp { get; set; }
 
     /// <summary>
@@ -57,6 +55,8 @@ public abstract class ItemBase : IItem
 
         return ApplyProcessors(action, context, null);
     }
+
+    public virtual int Size => 1;
 
     public virtual bool HasMatchingNoun(string? noun)
     {

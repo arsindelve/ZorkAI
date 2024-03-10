@@ -81,7 +81,7 @@ public class PutProcessorTests : EngineTestsBase
         result!.InteractionHappened.Should().BeTrue();
         result.InteractionMessage.Should().Contain("You don't have the lantern");
     }
-    
+
     [Test]
     public void PutProcessor_TheContainerIsClosed()
     {
@@ -104,13 +104,14 @@ public class PutProcessorTests : EngineTestsBase
         result!.InteractionHappened.Should().BeTrue();
         result.InteractionMessage.Should().Contain("closed");
     }
-    
+
     [Test]
-    public void PutProcessor_Success()
+    public void PutProcessor_MailBoxOneItemSuccess()
     {
         var target = new PutProcessor();
         var leaflet = Repository.GetItem<Leaflet>();
         var mailbox = Repository.GetItem<Mailbox>();
+        mailbox.RemoveItem(leaflet);
         ((IOpenAndClose)mailbox).IsOpen = true;
         leaflet.CurrentLocation = new Context<ZorkI>();
 
@@ -118,7 +119,7 @@ public class PutProcessorTests : EngineTestsBase
         var result = target.Process(new MultiNounIntent
         {
             Verb = "put",
-            NounOne = "lantern",
+            NounOne = "leaflet",
             NounTwo = "mailbox",
             Preposition = "inside",
             OriginalInput = ""
@@ -130,7 +131,64 @@ public class PutProcessorTests : EngineTestsBase
         result.InteractionMessage.Should().Contain("Done");
         leaflet.CurrentLocation.Should().Be(mailbox);
     }
+
+    [Test]
+    public void PutProcessor_MailBoxRope_Success()
+    {
+        var target = new PutProcessor();
+        var leaflet = Repository.GetItem<Leaflet>();
+
+        var rope = Repository.GetItem<Rope>();
+        var mailbox = Repository.GetItem<Mailbox>();
+        mailbox.RemoveItem(leaflet);
+        ((IOpenAndClose)mailbox).IsOpen = true;
+        rope.CurrentLocation = new Context<ZorkI>();
+
+        // Act
+        var result = target.Process(new MultiNounIntent
+        {
+            Verb = "put",
+            NounOne = "rope",
+            NounTwo = "mailbox",
+            Preposition = "inside",
+            OriginalInput = ""
+        }, null!, rope, mailbox);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.InteractionHappened.Should().BeTrue();
+        result.InteractionMessage.Should().Contain("Done");
+        rope.CurrentLocation.Should().Be(mailbox);
+    }
     
+    [Test]
+    public void PutProcessor_MailBoxLantern_Fail()
+    {
+        var target = new PutProcessor();
+        var leaflet = Repository.GetItem<Leaflet>();
+
+        var lantern = Repository.GetItem<Lantern>();
+        var mailbox = Repository.GetItem<Mailbox>();
+        mailbox.RemoveItem(leaflet);
+        ((IOpenAndClose)mailbox).IsOpen = true;
+        lantern.CurrentLocation = new Context<ZorkI>();
+
+        // Act
+        var result = target.Process(new MultiNounIntent
+        {
+            Verb = "put",
+            NounOne = "lantern",
+            NounTwo = "mailbox",
+            Preposition = "inside",
+            OriginalInput = ""
+        }, null!, lantern, mailbox);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.InteractionHappened.Should().BeTrue();
+        result.InteractionMessage.Should().Contain("no room");
+    }
+
     [Test]
     public void PutProcessor_CaseCanHoldTwoLargeItems()
     {
@@ -159,7 +217,7 @@ public class PutProcessorTests : EngineTestsBase
         painting.CurrentLocation.Should().Be(trophyCase);
         sword.CurrentLocation.Should().Be(trophyCase);
     }
-    
+
     [Test]
     public void PutProcessor_MailBoxNoRoomForLargeItem()
     {
@@ -185,7 +243,7 @@ public class PutProcessorTests : EngineTestsBase
         result.InteractionMessage.Should().Contain("no room");
         sword.CurrentLocation.Should().NotBe(mailbox);
     }
-    
+
     [Test]
     public void PutProcessor_NothingCanGoInTheBottle()
     {
@@ -211,7 +269,7 @@ public class PutProcessorTests : EngineTestsBase
         result.InteractionMessage.Should().Contain("no room");
         garlic.CurrentLocation.Should().NotBe(bottle);
     }
-    
+
     [Test]
     public void PutProcessor_MailboxOnlyHoldTwoSmallItems()
     {
@@ -223,13 +281,13 @@ public class PutProcessorTests : EngineTestsBase
 
         mailbox.ItemPlacedHere(leaflet);
         mailbox.ItemPlacedHere(knife);
-        
+
         ((IOpenAndClose)mailbox).IsOpen = true;
         var context = new Context<ZorkI>();
         garlic.CurrentLocation = context;
         knife.CurrentLocation = context;
         leaflet.CurrentLocation = mailbox;
-        
+
         // Act
         var result = target.Process(new MultiNounIntent
         {
