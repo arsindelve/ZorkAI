@@ -8,7 +8,7 @@ Although there are fully AI generated dungeons and interactive fiction stories, 
 story, humor and puzzles of Zork, but use AI
 to make the interactivity much deeper. I want an intelligent text parser, and a "smart" narrator that understands everything you type.
 If your command moves the story forward, or changes the state of the game, then I want to preserve the original story. If not,
-the AI Narrator should give you a meaningful, funny response that keeps you immersed in the land of Frobozz. 
+the AI Narrator should give you a meaningful, funny response that keeps you immersed in the Great Underground Empire
 
 The code in this repository IS NOT a full game....yet. But it does demonstrate that this can work, and can have
 truly excellent results! (Thanks mostly to how good GPT4 is). When the game is ready to deploy, I'll update this readme with a link to the working prototype.  
@@ -66,7 +66,7 @@ _(These are all real responses generated from the source code in the repository)
 ----
 
 
-#### When you do something the original Zork does NOT understand, Zork AI gives gives you a deep, funny and immersive answer that keeps you in the story and the world of Frobozz
+#### When you do something the original Zork does NOT understand, Zork AI gives gives you a deep, funny and immersive answer that keeps you in the story and the Great Underground Empire
 
 ### Original Zork 1:
 
