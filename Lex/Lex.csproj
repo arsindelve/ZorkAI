@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AWSSDK.Core" Version="3.7.302.12" />
+      <PackageReference Include="AWSSDK.LexModelsV2" Version="3.7.302.5" />
+      <PackageReference Include="AWSSDK.LexRuntimeV2" Version="3.7.301.44" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Model\Model.csproj" />
+    </ItemGroup>
+
+</Project>

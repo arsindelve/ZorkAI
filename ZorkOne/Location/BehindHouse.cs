@@ -1,0 +1,52 @@
+using Game;
+using Game.Location;
+using Model;
+using ZorkOne.Item;
+
+namespace ZorkOne.Location;
+
+public class BehindHouse : BaseLocation
+{
+    public BehindHouse()
+    {
+        StartWithItem(Repository.GetItem<KitchenWindow>(), this);
+    }
+
+    protected override string ContextBasedDescription =>
+        $"You are behind the white house. A path leads into the forest to the east. In one corner " +
+        $"of the house there is a small window which is {(Repository.GetItem<KitchenWindow>().IsOpen ? "open" : "slightly ajar")}.";
+
+    protected override string Name => "Behind House";
+
+    protected override Dictionary<Direction, MovementParameters> Map
+    {
+        get
+        {
+            MovementParameters enterKitchen = new()
+            {
+                CanGo = _ => Repository.GetItem<KitchenWindow>().IsOpen,
+                CustomFailureMessage = "The kitchen window is closed.",
+                Location = Repository.GetLocation<Kitchen>()
+            };
+
+            return new Dictionary<Direction, MovementParameters>
+            {
+                {
+                    Direction.E, new MovementParameters { Location = GetLocation<ClearingBehindHouse>() }
+                },
+                {
+                    Direction.S, new MovementParameters { Location = GetLocation<SouthOfHouse>() }
+                },
+                {
+                    Direction.N, new MovementParameters { Location = GetLocation<NorthOfHouse>() }
+                },
+                {
+                    Direction.W, enterKitchen
+                },
+                {
+                    Direction.In, enterKitchen
+                }
+            };
+        }
+    }
+}
