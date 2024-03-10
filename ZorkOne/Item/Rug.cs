@@ -30,7 +30,7 @@ public class Rug : ItemBase, ICanBeExamined
                 "Having moved the carpet previously, you find it impossible to move it again.");
 
         HasBeenMovedAside = true;
-        Repository.GetLocation<LivingRoom>().ItemDropped(Repository.GetItem<TrapDoor>());
+        Repository.GetLocation<LivingRoom>().ItemPlacedHere(Repository.GetItem<TrapDoor>());
         return new PositiveInteractionResult(
             "With a great effort, the rug is moved to one side of the room. With the rug moved, " +
             "the dusty cover of a closed trap door appears.");

@@ -21,20 +21,20 @@ internal class QuitProcessor : IStatefulProcessor
     /// <param name="input">The input string to process.</param>
     /// <param name="context">The game context.</param>
     /// <returns>The output string based on the input and game context.</returns>
-    public string Process(string? input, IContext context)
+    public Task<string> Process(string? input, IContext context, IGenerationClient client)
     {
-        if (string.IsNullOrEmpty(input)) return CancelQuitting();
+        if (string.IsNullOrEmpty(input)) return Task.FromResult(CancelQuitting());
 
         Completed = false;
 
         if (_firstPass)
         {
             _firstPass = false;
-            return $"""
-                    Your score would be 0 (total of 350 points), in {context.Moves} moves.
-                    This score gives you the rank of Beginner.
-                    Do you wish to {Verb} the game? (Y is affirmative): >
-                    """;
+            return Task.FromResult($"""
+                                    Your score would be 0 (total of 350 points), in {context.Moves} moves.
+                                    This score gives you the rank of Beginner.
+                                    Do you wish to {Verb} the game? (Y is affirmative): >
+                                    """);
         }
 
         switch (input.ToLowerInvariant().StripNonChars().Trim())
@@ -49,11 +49,11 @@ internal class QuitProcessor : IStatefulProcessor
             case "ok":
             {
                 Completed = true;
-                return ReturnValue;
+                return Task.FromResult(ReturnValue);
             }
 
             default:
-                return CancelQuitting();
+                return Task.FromResult(CancelQuitting());
         }
     }
 

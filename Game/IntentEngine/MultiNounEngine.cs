@@ -1,9 +1,13 @@
 using System.Diagnostics;
+using Game.Item.MultiItemProcessor;
+using Model.Item;
 
 namespace Game.IntentEngine;
 
 public class MultiNounEngine : IIntentEngine
 {
+    private List<IMultiNounVerbProcessor> _processors = [new PutProcessor()];
+    
     public async Task<string> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {
         if (intent is not MultiNounIntent interaction)
@@ -34,9 +38,28 @@ public class MultiNounEngine : IIntentEngine
             return await GetGeneratedNounTwoNotFoundResponse(interaction, generationClient,
                 context);
 
-        // TODO: Neither noun here. 
-        // TODO: Run the multi-interaction processing here. 
+        IItem? itemOne = Repository.GetItem(interaction.NounOne);
+        IItem? itemTwo = Repository.GetItem(interaction.NounTwo);
 
+        // This should never happen, since we checked above that it exists. 
+        if (itemOne is null)
+            return await GetGeneratedNounOneNotFoundResponse(interaction, generationClient,
+                context);
+        
+        if (itemTwo is null)
+            return await GetGeneratedNounTwoNotFoundResponse(interaction, generationClient,
+                context);
+        
+        // Let all the processors decide if they can handle this interaction. 
+        foreach (IMultiNounVerbProcessor processor in _processors)
+        {
+            InteractionResult? result = processor.Process(interaction, context, itemOne,
+                itemTwo);
+
+            if (result is { InteractionHappened: true })
+                return result.InteractionMessage;
+        }
+        
         // If not positive interaction.....
         return await GetGeneratedVerbNotUsefulResponse(interaction, generationClient,
             context);

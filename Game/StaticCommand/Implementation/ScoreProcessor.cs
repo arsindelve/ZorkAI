@@ -2,15 +2,15 @@ namespace Game.StaticCommand.Implementation;
 
 internal class ScoreProcessor : IGlobalCommand
 {
-    public string Process(string? input, IContext context)
+    public Task<string> Process(string? input, IContext context, IGenerationClient client)
     {
-        return $"""
-                   Your score would be {context.Score} (total of 350 points), in {context.Moves} moves.
-                   This score gives you the rank of {GetScoreDescription(context.Score)}.
-                """;
+        return Task.FromResult($"""
+                                   Your score would be {context.Score} (total of 350 points), in {context.Moves} moves.
+                                   This score gives you the rank of {GetScoreDescription(context.Score)}.
+                                """);
     }
 
-    public string GetScoreDescription(int score)
+    private string GetScoreDescription(int score)
     {
         if (score < 25)
             return "Beginner";

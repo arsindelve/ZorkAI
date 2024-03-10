@@ -24,10 +24,10 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         {
             case "turn on":
             case "activate":
-                return TurnItOn(castItem, context);
+                return TurnItOn(castItem, context).Result;
 
             case "turn off":
-                return TurnItOff(castItem, context);
+                return TurnItOff(castItem, context).Result;
 
             // Sometimes, the parser can't determine the adverb "on" or "off". It that case, hopefully,
             // the parser gave us the adverb. 
@@ -40,9 +40,9 @@ public class TurnOnOrOffProcessor : IVerbProcessor
                 switch (adverb)
                 {
                     case "on":
-                        return TurnItOn(castItem, context);
+                        return TurnItOn(castItem, context).Result;
                     case "off":
-                        return TurnItOff(castItem, context);
+                        return TurnItOff(castItem, context).Result;
 
                     default:
                         return null;
@@ -52,7 +52,7 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         return null;
     }
 
-    private static InteractionResult TurnItOff(ICanBeTurnedOnAndOff item, IContext context)
+    private static async Task<InteractionResult> TurnItOff(ICanBeTurnedOnAndOff item, IContext context)
     {
         if (!item.IsOn)
             return new PositiveInteractionResult(item.AlreadyOffText);
@@ -60,12 +60,12 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         item.IsOn = false;
 
         if (item is IAmALightSource && context.CurrentLocation is IDarkLocation)
-            return new PositiveInteractionResult(new LookProcessor().Process(null, context));
+            return new PositiveInteractionResult(await new LookProcessor().Process(null, context, null));
 
         return new PositiveInteractionResult(item.NowOffText);
     }
 
-    private static InteractionResult TurnItOn(ICanBeTurnedOnAndOff item, IContext context)
+    private static async Task<InteractionResult> TurnItOn(ICanBeTurnedOnAndOff item, IContext context)
     {
         if (item.IsOn)
             return new PositiveInteractionResult(item.AlreadyOnText);
@@ -73,7 +73,7 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         item.IsOn = true;
 
         if (item is IAmALightSource && context.CurrentLocation is IDarkLocation)
-            return new PositiveInteractionResult(new LookProcessor().Process(null, context));
+            return new PositiveInteractionResult(await new LookProcessor().Process(null, context, null));
 
         return new PositiveInteractionResult(item.NowOnText);
     }

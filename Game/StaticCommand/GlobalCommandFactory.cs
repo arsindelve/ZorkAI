@@ -21,6 +21,9 @@ public static class GlobalCommandFactory
             case "what do i have on me":
                 return new InventoryProcessor();
 
+            case "take":
+                return new TakeOnlyAvailableItemProcessor();
+            
             case "look":
             case "where am i":
             case "examine my surroundings":

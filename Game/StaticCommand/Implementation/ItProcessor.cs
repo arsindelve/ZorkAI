@@ -17,24 +17,24 @@ internal class ItProcessor : IStatefulProcessor
 
     public bool ContinueProcessing { get; private set; }
 
-    public string Process(string? input, IContext context)
+    public Task<string> Process(string? input, IContext context, IGenerationClient client)
     {
         if (string.IsNullOrEmpty(input))
         {
             Completed = true;
-            return string.Empty;
+            return Task.FromResult(string.Empty);
         }
 
         if (string.IsNullOrEmpty(_lastInput))
         {
             Completed = true;
-            return string.Empty;
+            return Task.FromResult(string.Empty);
         }
 
         Completed = true;
         ContinueProcessing = true;
 
-        return Regex.Replace(_lastInput, @"\bit\b", input);
+        return Task.FromResult(Regex.Replace(_lastInput, @"\bit\b", input));
     }
 
     public ItProcessorResult Check(string input, IContext context)

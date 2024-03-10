@@ -4,7 +4,7 @@ namespace Game.IntentEngine;
 
 internal class MoveEngine : IIntentEngine
 {
-    public Task<string> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
+    public async Task<string> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {
         if (intent is not MoveIntent moveTo)
             throw new ArgumentException("Cast error");
@@ -12,20 +12,22 @@ internal class MoveEngine : IIntentEngine
         var movement = context.CurrentLocation.Navigate(moveTo.Direction);
 
         if (movement == null)
-            return GetGeneratedCantGoThatWayResponse();
+            return await GetGeneratedCantGoThatWayResponse();
 
         if (!movement.CanGo(context) || movement.Location == null)
             return !string.IsNullOrEmpty(movement.CustomFailureMessage)
-                ? Task.FromResult(movement.CustomFailureMessage + Environment.NewLine)
-                : GetGeneratedCantGoThatWayResponse();
+                ? movement.CustomFailureMessage + Environment.NewLine
+                : await GetGeneratedCantGoThatWayResponse();
 
         // Let's reset the noun context, so we don't get confused with "it" between locations
         context.LastNoun = "";
 
         context.CurrentLocation = movement.Location;
         var enteringText = movement.Location.OnEnterLocation(context);
-        var result = enteringText + new LookProcessor().Process(null, context) + Environment.NewLine;
-        return Task.FromResult(result);
+        var processorText = await new LookProcessor().Process(null, context, generationClient);
+        
+        var result = enteringText + processorText + Environment.NewLine;
+        return result;
     }
 
     private static Task<string> GetGeneratedCantGoThatWayResponse()

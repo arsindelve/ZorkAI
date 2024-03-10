@@ -14,7 +14,7 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         Items.Remove(item);
     }
 
-    public void ItemDropped(IItem item)
+    public void ItemPlacedHere(IItem item)
     {
         Items.Add(item);
     }
@@ -42,7 +42,7 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
     /// </summary>
     /// <param name="name">The name of the container - might be needed as part of the description</param>
     /// <returns>A string representing the items contained in the specified container.</returns>
-    public string ItemListDescription(string name)
+    protected string ItemListDescription(string name)
     {
         if (!Items.Any())
             return $"The {name} is empty.";

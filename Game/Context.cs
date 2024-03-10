@@ -64,10 +64,10 @@ public class Context<T> : IContext where T : IInfocomGame, new()
 
     public void RemoveItem(IItem item)
     {
-        Drop(item);
+        Items.Remove(item);
     }
 
-    public void ItemDropped(IItem item)
+    public void ItemPlacedHere(IItem item)
     {
         Take(item);
     }
@@ -130,7 +130,7 @@ public class Context<T> : IContext where T : IInfocomGame, new()
 
         Items.Remove(item);
         item.CurrentLocation = (ICanHoldItems)CurrentLocation;
-        newLocation.ItemDropped(item);
+        newLocation.ItemPlacedHere(item);
     }
 
     /// <summary>

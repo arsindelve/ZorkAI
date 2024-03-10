@@ -5,13 +5,13 @@ namespace Game.StaticCommand.Implementation;
 /// </summary>
 internal class LookProcessor : IGlobalCommand
 {
-    public string Process(string? input, IContext context)
+    public Task<string> Process(string? input, IContext context, IGenerationClient client)
     {
         var location = context.CurrentLocation;
 
         if (location is IDarkLocation darkLocation && !context.HasLightSource)
-            return darkLocation.DarkDescription;
+            return Task.FromResult(darkLocation.DarkDescription);
 
-        return context.CurrentLocation.Description;
+        return Task.FromResult(context.CurrentLocation.Description);
     }
 }

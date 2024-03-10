@@ -9,10 +9,10 @@ public interface ICanHoldItems : IInteractionTarget
     void RemoveItem(IItem item);
 
     /// <summary>
-    ///     Adds the dropped item to the container.
+    ///     Adds the item to the container.
     /// </summary>
-    /// <param name="item">The item to be dropped.</param>
-    void ItemDropped(IItem item);
+    /// <param name="item">The item to be placed.</param>
+    void ItemPlacedHere(IItem item);
 
     /// <summary>
     ///     Checks if this location currently has an item of type T.

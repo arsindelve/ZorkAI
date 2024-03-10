@@ -26,6 +26,8 @@ public static class Repository
         if (string.IsNullOrEmpty(item))
             return false;
 
+        item = item.ToLowerInvariant().Trim();
+        
         return _allItems
             .Any(i => i.Value.NounsForMatching.Any(s => s
                 .Equals(item, StringComparison.OrdinalIgnoreCase)));
@@ -37,6 +39,12 @@ public static class Repository
             _allItems.Add(typeof(T), new T());
 
         return (T)_allItems[typeof(T)];
+    }
+
+    public static IItem? GetItem(string noun)
+    {
+        noun = noun.ToLowerInvariant().Trim();
+        return _allItems.Values.FirstOrDefault(i => i.HasMatchingNoun(noun));
     }
 
     public static T GetLocation<T>() where T : class, ILocation, new()

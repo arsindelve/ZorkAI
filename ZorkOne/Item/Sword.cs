@@ -3,6 +3,8 @@ using Model.Item;
 
 namespace ZorkOne.Item;
 
+// TODO: The sword needs to glow near danger 
+
 public class Sword : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
 {
     public override string[] NounsForMatching => ["sword"];
