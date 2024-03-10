@@ -1,0 +1,157 @@
+using Model.Item;
+
+namespace Game;
+
+/// <summary>
+///     The "context" is anything we need to know about the state of the game that is not
+///     location or item state dependant. These include the score, number of moves, adventurer inventory...
+///     stuff like that. This, along with the state of all objects and locations, (stored in the <see cref="Repository" />
+///     encompasses everything we need to know to save and restore the game...i.e preserve the entire game state
+/// </summary>
+public class Context<T> : IContext where T : IInfocomGame, new()
+{
+    /// <summary>
+    ///     Starts the game in the default start location.
+    /// </summary>
+    public Context()
+    {
+        CurrentLocation = Repository.GetStartingLocation<T>();
+        Score = 0;
+        Moves = 0;
+    }
+
+    public string LastNoun { get; set; } = "";
+    public int Moves { get; private set; }
+    public int Score { get; private set; }
+
+    /// <summary>
+    ///     Gets or sets the current location of the player in the game.
+    /// </summary>
+    /// <value>The current location.</value>
+    public ILocation CurrentLocation { get; set; }
+
+    /// <summary>
+    ///     Represents the inventory of the game's adventurer. It holds various items that the player can carry.
+    /// </summary>
+    public List<IItem> Items { get; } = new();
+
+    /// <summary>
+    ///     Gets a value indicating whether the adventurer has a light source that is on
+    /// </summary>
+    /// <returns><c>true</c> if the context has a light source; otherwise, <c>false</c>.</returns>
+    public bool HasLightSource
+    {
+        get
+        {
+            return Items
+                .Where(s => s is IAmALightSource)
+                .Cast<ICanBeTurnedOnAndOff>()
+                .Any(s => s.IsOn);
+        }
+    }
+
+    public string ItemListDescription(string name)
+    {
+        if (!Items.Any())
+            return "You are empty-handed";
+
+        var sb = new StringBuilder();
+        sb.AppendLine("You are carrying:");
+        Items.ForEach(s => sb.AppendLine($"   {s.InInventoryDescription}"));
+
+        return sb.ToString();
+    }
+
+    public void RemoveItem(IItem item)
+    {
+        Drop(item);
+    }
+
+    public void ItemDropped(IItem item)
+    {
+        Take(item);
+    }
+
+    /// <summary>
+    ///     Checks if a location has an item of type T.
+    /// </summary>
+    /// <typeparam name="TItem">The type of item to check.</typeparam>
+    /// <returns>True if the location has an item of type T, otherwise false.</returns>
+    public bool HasItem<TItem>() where TItem : IItem, new()
+    {
+        return Items.Contains(Repository.GetItem<TItem>());
+    }
+
+    public bool HasMatchingNoun(string? noun)
+    {
+        var hasMatch = false;
+        Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun));
+
+        return hasMatch;
+    }
+
+
+    internal int IncreaseMoves()
+    {
+        return Moves++;
+    }
+
+    public int AddPoints(int points)
+    {
+        Score += points;
+        return Score;
+    }
+
+    /// <summary>
+    ///     Adds the specified item to the inventory of the game context and removes it from the current location
+    /// </summary>
+    /// <param name="item">The item to add to the inventory.</param>
+    /// <exception cref="Exception">Thrown if a null item is added to the inventory.</exception>
+    public void Take(IItem? item)
+    {
+        if (item == null)
+            throw new Exception("Null item was added to inventory");
+
+        Items.Add(item);
+        var previousOwner = item.CurrentLocation;
+        previousOwner?.RemoveItem(item);
+        item.CurrentLocation = this;
+        item.HasEverBeenPickedUp = true;
+    }
+
+    /// <summary>
+    ///     Drops an item from the inventory to the current location.
+    /// </summary>
+    /// <param name="item">The item to be dropped.</param>
+    /// <exception cref="Exception">Thrown when the item is null or the current location cannot hold the item.</exception>
+    public void Drop(IItem item)
+    {
+        if (item == null)
+            throw new Exception("Null item was dropped from inventory");
+
+        var newLocation = CurrentLocation as ICanHoldItems;
+
+        if (newLocation is null)
+            throw new Exception("Current location can't hold item");
+
+        Items.Remove(item);
+        item.CurrentLocation = (ICanHoldItems)CurrentLocation;
+        newLocation.ItemDropped(item);
+    }
+
+    /// <summary>
+    ///     We've determined that the user's input is a <see cref="SimpleIntent" /> which consists
+    ///     of a noun and a verb. Does this have any consequence with the Context itself? Usually
+    ///     this is only true where there's an interaction with an item in inventory.
+    /// </summary>
+    /// <param name="action">The simple interaction that the context needs to respond to.</param>
+    public InteractionResult RespondToSimpleInteraction(SimpleIntent action)
+    {
+        InteractionResult? result = null;
+
+        foreach (var item in Items.ToList().TakeWhile(_ => result is null or NoNounMatchInteractionResult))
+            result = item.RespondToSimpleInteraction(action, this);
+
+        return result ?? new NoNounMatchInteractionResult();
+    }
+}
