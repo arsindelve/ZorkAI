@@ -3,6 +3,8 @@ using Model.Item;
 
 namespace ZorkOne.Item;
 
+//TODO: The descriptions are not working, does not show items inside. 
+
 public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
 {
     public override string[] NounsForMatching => ["case", "trophy case"];

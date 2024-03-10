@@ -3,7 +3,7 @@ using Model.Interaction;
 
 namespace Model.Item;
 
-public interface IItem
+public interface IItem : IInteractionTarget
 {
     string[] NounsForMatching { get; }
     string InInventoryDescription { get; }

@@ -1,4 +1,5 @@
-﻿using Model.Item;
+﻿using System.Collections.ObjectModel;
+using Model.Item;
 
 namespace Game.Location;
 
@@ -20,6 +21,8 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
 
     private List<IItem> Items { get; } = new();
 
+    public ReadOnlyCollection<IItem> LocationItems => Items.AsReadOnly();
+
     protected abstract string ContextBasedDescription { get; }
 
     // public virtual string ItemListDescription(string name)
@@ -32,7 +35,7 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         Items.Remove(item);
     }
 
-    public void ItemDropped(IItem item)
+    public void ItemPlacedHere(IItem item)
     {
         Items.Add(item);
     }

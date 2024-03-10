@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Model.Intent;
 using Model.Interaction;
 using Model.Item;
@@ -11,7 +12,13 @@ public interface ILocation
     string DescriptionForGeneration { get; }
 
     /// <summary>
-    ///     Gets called when we enter a location.
+    ///     Get a read-only list of the items in the current location.
+    /// </summary>
+    ReadOnlyCollection<IItem> LocationItems { get; }
+
+    /// <summary>
+    ///     Gets called when we enter a location in case there are any interactions
+    ///     we need to process when we walk in the room.
     /// </summary>
     string OnEnterLocation(IContext context);
 

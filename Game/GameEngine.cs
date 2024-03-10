@@ -76,7 +76,7 @@ public class GameEngine<T> where T : IInfocomGame, new()
         // Defer all execution to that processor until it's complete. 
         if (_processorInProgress != null)
         {
-            processorOutput = _processorInProgress.Process(input, Context);
+            processorOutput = await _processorInProgress.Process(input, Context, _generator);
 
             // The processor is done. Clear it, and see what we want to do with the output. 
             if (_processorInProgress.Completed)
@@ -120,7 +120,7 @@ public class GameEngine<T> where T : IInfocomGame, new()
         switch (parsedResult)
         {
             case GlobalCommandIntent intent:
-                processorOutput = intent.Command.Process(input, Context);
+                processorOutput = await intent.Command.Process(input, Context, _generator);
                 if (intent.Command is IStatefulProcessor { Completed: false } statefulProcessor)
                     _processorInProgress = statefulProcessor;
                 return processorOutput + Environment.NewLine;
