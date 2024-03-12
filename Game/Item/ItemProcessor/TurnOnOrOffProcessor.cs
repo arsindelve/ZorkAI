@@ -60,6 +60,7 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         item.IsOn = false;
 
         if (item is IAmALightSource && context.CurrentLocation is IDarkLocation)
+            // TODO: Pass in a generator
             return new PositiveInteractionResult(await new LookProcessor().Process(null, context, null));
 
         return new PositiveInteractionResult(item.NowOffText);
@@ -73,6 +74,7 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         item.IsOn = true;
 
         if (item is IAmALightSource && context.CurrentLocation is IDarkLocation)
+            // TODO: Pass in a generator
             return new PositiveInteractionResult(await new LookProcessor().Process(null, context, null));
 
         return new PositiveInteractionResult(item.NowOnText);

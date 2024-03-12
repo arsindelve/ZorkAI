@@ -1,6 +1,4 @@
 using System.Drawing;
-using Game.Item;
-using Model.Item;
 
 namespace ZorkOne.Item;
 

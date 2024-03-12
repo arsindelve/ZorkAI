@@ -1,7 +1,4 @@
-﻿using Game.Location;
-using Model;
-
-namespace ZorkOne.Location;
+﻿namespace ZorkOne.Location;
 
 public class CanyonView : BaseLocation
 {

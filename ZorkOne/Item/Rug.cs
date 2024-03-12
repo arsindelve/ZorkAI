@@ -1,9 +1,5 @@
-using Game;
-using Game.Item;
-using Model;
 using Model.Intent;
 using Model.Interaction;
-using Model.Item;
 using ZorkOne.Location;
 
 namespace ZorkOne.Item;

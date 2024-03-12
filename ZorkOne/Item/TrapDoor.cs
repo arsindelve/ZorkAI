@@ -1,6 +1,3 @@
-using Game.Item;
-using Model.Item;
-
 namespace ZorkOne.Item;
 
 public class TrapDoor : ItemBase, ICanBeExamined, IOpenAndClose

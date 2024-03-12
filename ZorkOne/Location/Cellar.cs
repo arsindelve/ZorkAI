@@ -1,8 +1,3 @@
-using Game;
-using Game.Location;
-using Model;
-using ZorkOne.Item;
-
 namespace ZorkOne.Location;
 
 public class Cellar : DarkLocation
@@ -11,6 +6,9 @@ public class Cellar : DarkLocation
     {
         {
             Direction.S, new MovementParameters { Location = GetLocation<EastOfChasm>() }
+        },
+        {
+            Direction.N, new MovementParameters { Location = GetLocation<TrollRoom>() }
         },
         {
             Direction.W,
@@ -36,9 +34,9 @@ public class Cellar : DarkLocation
                                                          "leading north, and a crawlway to the south. On the west is the " +
                                                          "bottom of a steep metal ramp with is unclimbable. ";
 
-    public override string OnEnterLocation(IContext context)
+    public override string BeforeEnterLocation(IContext context)
     {
-        var result = base.OnEnterLocation(context);
+        var result = base.BeforeEnterLocation(context);
 
         if (Repository.GetItem<TrapDoor>().IsOpen)
         {
@@ -48,5 +46,16 @@ public class Cellar : DarkLocation
         }
 
         return result;
+    }
+
+    public override string AfterEnterLocation(IContext context)
+    {
+        var swordInPossession = context.HasItem<Sword>();
+        var trollIsAlive = Repository.GetItem<Troll>().CurrentLocation == Repository.GetLocation<TrollRoom>();
+
+        if (trollIsAlive && swordInPossession)
+            return "\nYour sword is glowing with a faint blue glow.";
+
+        return string.Empty;
     }
 }

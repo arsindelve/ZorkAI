@@ -1,6 +1,3 @@
-using Game.Item;
-using Model.Item;
-
 namespace ZorkOne.Item;
 
 public class Water : ItemBase, ICanBeTakenAndDropped, ICanBeExamined

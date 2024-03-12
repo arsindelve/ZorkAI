@@ -1,6 +1,3 @@
-using Game.Location;
-using Model;
-
 namespace ZorkOne.Location;
 
 public class ClearingBehindHouse : BaseLocation

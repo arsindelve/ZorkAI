@@ -25,11 +25,6 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
 
     protected abstract string ContextBasedDescription { get; }
 
-    // public virtual string ItemListDescription(string name)
-    // {
-    //     return GetItemDescriptions();
-    // }
-
     public void RemoveItem(IItem item)
     {
         Items.Remove(item);
@@ -40,7 +35,12 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         Items.Add(item);
     }
 
-    public virtual string OnEnterLocation(IContext context)
+    public virtual string AfterEnterLocation(IContext context)
+    {
+        return string.Empty;
+    }
+
+    public virtual string BeforeEnterLocation(IContext context)
     {
         if (VisitCount == 0)
             OnFirstTimeEnterLocation(context);
@@ -141,6 +141,7 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
 
         // Let's deal with all the "fixed" items like windows and mailboxes. 
         Items.Where(s => s is not ICanBeTakenAndDropped)
+            // TODO: This is the wrong property name. Why use "InInventory" for something that can't be picked up
             .Aggregate(result, (s, item) => s.AppendLine(item.InInventoryDescription));
 
         // Now let's deal with items that can be picked up. 
