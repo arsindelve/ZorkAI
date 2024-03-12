@@ -11,7 +11,13 @@ public class ForestPath : BaseLocation
             Direction.N, new MovementParameters { Location = GetLocation<Clearing>() }
         },
         {
+            Direction.E, new MovementParameters { Location = GetLocation<ForestTwo>() }
+        },
+        {
             Direction.Up, new MovementParameters { Location = GetLocation<UpATree>() }
+        },
+        {
+            Direction.W, new MovementParameters { Location = GetLocation<ForestOne>() }
         }
     };
 

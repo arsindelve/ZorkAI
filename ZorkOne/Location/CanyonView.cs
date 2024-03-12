@@ -19,6 +19,9 @@ public class CanyonView : BaseLocation
         },
         {
             Direction.Down, new MovementParameters { Location = GetLocation<RockyLedge>() }
+        },
+        {
+            Direction.W, new MovementParameters { Location = GetLocation<ForestThree>() }
         }
     };
 }

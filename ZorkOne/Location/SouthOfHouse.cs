@@ -16,6 +16,9 @@ public class SouthOfHouse : BaseLocation
             Direction.E, new MovementParameters { Location = GetLocation<BehindHouse>() }
         },
         {
+            Direction.S, new MovementParameters { Location = GetLocation<ForestThree>() }
+        },
+        {
             Direction.N,
             new MovementParameters
             {
