@@ -21,8 +21,6 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
 
     private List<IItem> Items { get; } = new();
 
-    public ReadOnlyCollection<IItem> LocationItems => Items.AsReadOnly();
-
     protected abstract string ContextBasedDescription { get; }
 
     public void RemoveItem(IItem item)
@@ -35,9 +33,21 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         Items.Add(item);
     }
 
+    public virtual bool HaveRoomForItem(IItem item)
+    {
+        return true;
+    }
+
+    public ReadOnlyCollection<IItem> LocationItems => Items.AsReadOnly();
+
     public virtual string AfterEnterLocation(IContext context)
     {
         return string.Empty;
+    }
+
+    public virtual InteractionResult RespondToSpecificLocationInteraction(string input, IContext context)
+    {
+        return new NoVerbMatchInteractionResult { Noun = string.Empty, Verb = input };
     }
 
     public virtual string BeforeEnterLocation(IContext context)
@@ -104,11 +114,6 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun));
 
         return hasMatch;
-    }
-
-    public virtual bool HaveRoomForItem(IItem item)
-    {
-        return true;
     }
 
     protected virtual void OnFirstTimeEnterLocation(IContext context)

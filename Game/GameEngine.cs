@@ -50,7 +50,6 @@ public class GameEngine<T> where T : IInfocomGame, new()
     /// <summary>
     ///     Constructor for unit test dependency injection.
     /// </summary>
-    /// <param name="game"></param>
     /// <param name="parser"></param>
     /// <param name="generationClient"></param>
     public GameEngine(IIntentParser parser, IGenerationClient generationClient)
@@ -71,6 +70,8 @@ public class GameEngine<T> where T : IInfocomGame, new()
     public async Task<string?> GetResponse(string? input)
     {
         string? processorOutput;
+
+        // TODO: Refactor this. It's ugly. 
 
         // When this is not null, it means we have another processor in progress.
         // Defer all execution to that processor until it's complete. 
@@ -102,6 +103,11 @@ public class GameEngine<T> where T : IInfocomGame, new()
             return await GetGeneratedNoCommandResponse();
 
         Context.IncreaseMoves();
+
+        // Does the location have a special interaction to input such as "jump"? 
+        var singleVerbResult = Context.CurrentLocation.RespondToSpecificLocationInteraction(input, Context);
+        if (singleVerbResult.InteractionHappened)
+            return singleVerbResult.InteractionMessage;
 
         // if the user referenced an object using "it", let's see 
         // if we can handle that. 
