@@ -48,7 +48,6 @@ public class PutProcessor : IMultiNounVerbProcessor
         if (itemReceiver is IOpenAndClose { IsOpen: false })
             return new PositiveInteractionResult("It's closed. ");
 
-        // TODO: Case where the item cannot be put there. 
         if (!itemReceiver.HaveRoomForItem(item))
             return new PositiveInteractionResult("There's no room. ");
 

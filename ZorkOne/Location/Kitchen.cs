@@ -1,8 +1,3 @@
-using Game;
-using Game.Location;
-using Model;
-using ZorkOne.Item;
-
 namespace ZorkOne.Location;
 
 public class Kitchen : BaseLocation

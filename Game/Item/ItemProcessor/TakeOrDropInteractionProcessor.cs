@@ -20,6 +20,9 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
                 return new PositiveInteractionResult("Taken.");
 
             case "drop":
+                if (!context.HasMatchingNoun(action.Noun))
+                    return new PositiveInteractionResult("You don't have that!");
+
                 context.Drop(castItem);
                 return new PositiveInteractionResult("Dropped");
         }

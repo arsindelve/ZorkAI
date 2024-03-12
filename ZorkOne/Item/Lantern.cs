@@ -1,6 +1,3 @@
-using Game.Item;
-using Model.Item;
-
 namespace ZorkOne.Item;
 
 public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBeTurnedOnAndOff, IAmALightSource

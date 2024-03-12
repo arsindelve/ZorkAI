@@ -1,6 +1,3 @@
-using Game.Item;
-using Model.Item;
-
 namespace ZorkOne.Item;
 
 //TODO: The descriptions are not working, does not show items inside. 

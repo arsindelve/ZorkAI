@@ -1,10 +1,14 @@
-﻿using Model;
-using ZorkOne.Location;
+﻿using ZorkOne.Location;
 
 namespace ZorkOne;
 
 public class ZorkI : IInfocomGame
 {
+    public ZorkI()
+    {
+        PreLoad();
+    }
+    
     public Type StartingLocation => typeof(WestOfHouse);
 
     public string StartText => """
@@ -14,4 +18,9 @@ public class ZorkI : IInfocomGame
                                Revision 76 / Serial number 840509
 
                                """;
+
+    public void PreLoad()
+    {
+        Repository.GetItem<Troll>().CurrentLocation = Repository.GetLocation<TrollRoom>();
+    }
 }

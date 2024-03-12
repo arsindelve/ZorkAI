@@ -18,9 +18,9 @@ public interface ILocation
 
     /// <summary>
     ///     Gets called when we enter a location in case there are any interactions
-    ///     we need to process when we walk in the room.
+    ///     we need to process when we walk in the room, BEFORE the description of the room
     /// </summary>
-    string OnEnterLocation(IContext context);
+    string BeforeEnterLocation(IContext context);
 
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="SimpleIntent" /> corresponding
@@ -59,4 +59,10 @@ public interface ILocation
     /// <param name="noun">The noun to match against the items in the location.</param>
     /// <returns>True if the location has an item that matches the given noun; otherwise, false.</returns>
     bool HasMatchingNoun(string? noun);
+
+    /// <summary>
+    ///     Gets called when we enter a location in case there are any interactions
+    ///     we need to process when we walk in the room, AFTER the description of the room
+    /// </summary>
+    string AfterEnterLocation(IContext context);
 }

@@ -23,10 +23,12 @@ internal class MoveEngine : IIntentEngine
         context.LastNoun = "";
 
         context.CurrentLocation = movement.Location;
-        var enteringText = movement.Location.OnEnterLocation(context);
-        var processorText = await new LookProcessor().Process(null, context, generationClient);
         
-        var result = enteringText + processorText + Environment.NewLine;
+        var beforeEnteringText = movement.Location.BeforeEnterLocation(context);
+        var processorText = await new LookProcessor().Process(null, context, generationClient);
+        var afterEnteringText = movement.Location.AfterEnterLocation(context);
+        
+        var result = beforeEnteringText + processorText + afterEnteringText + Environment.NewLine ;
         return result;
     }
 
