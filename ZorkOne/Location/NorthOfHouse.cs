@@ -15,6 +15,9 @@ public class NorthOfHouse : BaseLocation
         },
         {
             Direction.W, new MovementParameters { Location = GetLocation<WestOfHouse>() }
+        },
+        {
+            Direction.N, new MovementParameters { Location = GetLocation<ForestPath>() }
         }
     };
 }

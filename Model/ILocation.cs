@@ -65,4 +65,12 @@ public interface ILocation
     ///     we need to process when we walk in the room, AFTER the description of the room
     /// </summary>
     string AfterEnterLocation(IContext context);
+
+    /// <summary>
+    ///     Responds to a single verb interaction in the location, such as "jump" or "scream"
+    /// </summary>
+    /// <param name="input">The input string representing the interaction.</param>
+    /// <param name="context"></param>
+    /// <returns>An object of type InteractionResult that describes the result of the interaction.</returns>
+    InteractionResult RespondToSpecificLocationInteraction(string input, IContext context);
 }
