@@ -36,7 +36,6 @@ public class UpATree : BaseLocation
                     "In a feat of unaccustomed daring, you manage to land on your feet without killing yourself.\n\n";
                 message += Repository.GetLocation<ForestPath>().Description;
                 return new PositiveInteractionResult(message);
-               
         }
 
         return base.RespondToSpecificLocationInteraction(input, context);

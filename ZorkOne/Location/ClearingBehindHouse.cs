@@ -14,6 +14,12 @@ public class ClearingBehindHouse : BaseLocation
         },
         {
             Direction.E, new MovementParameters { Location = GetLocation<CanyonView>() }
+        },
+        {
+            Direction.S, new MovementParameters { Location = GetLocation<ForestThree>() }
+        },
+        {
+            Direction.N, new MovementParameters { Location = GetLocation<ForestTwo>() }
         }
     };
 }
