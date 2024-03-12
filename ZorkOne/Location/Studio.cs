@@ -1,3 +1,5 @@
+using Model.Interaction;
+
 namespace ZorkOne.Location;
 
 public class Studio : BaseLocation
@@ -20,4 +22,21 @@ public class Studio : BaseLocation
             { Direction.S, new MovementParameters { Location = GetLocation<Gallery>() } },
             { Direction.Up, new MovementParameters { Location = GetLocation<Kitchen>() } }
         };
+
+    public override InteractionResult RespondToSpecificLocationInteraction(string input, IContext context)
+    {
+        switch (input.ToLowerInvariant().Trim())
+        {
+            case "climb":
+            case "climb up":
+            case "climb up chimney":
+            case "climb chimney":
+
+                context.CurrentLocation = Repository.GetLocation<Kitchen>();
+                string message = Repository.GetLocation<Kitchen>().Description;
+                return new PositiveInteractionResult(message);
+        }
+        
+        return base.RespondToSpecificLocationInteraction(input, context);           
+    }
 }
