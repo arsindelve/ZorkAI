@@ -13,7 +13,7 @@ namespace Game;
 ///     To make this work, ALL requests for an item or a location MUST go through the repository.
 ///     They must never be instantiated outside of here, otherwise they will not be tracked
 ///     and will effectively be a duplicate.
-///     Some items, like the kitchen window, can exist in multiple located (outside the house and
+///     Some items, like the kitchen window, can exist in multiple locations (outside the house and
 ///     in the kitchen) but it is the same window and keeps its state of open or closed.
 /// </remarks>
 public static class Repository
