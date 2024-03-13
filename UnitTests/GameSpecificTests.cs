@@ -32,4 +32,30 @@ public class GameSpecificTests : EngineTestsBase
         // Assert
         target.Context.Score.Should().Be(10);
     }
+    
+    [Test]
+    public async Task JumpOutOfATree()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<UpATree>();
+
+        // Act
+        await target.GetResponse("jump");
+        
+        // Assert
+        target.Context.CurrentLocation.Should().Be(Repository.GetLocation<ForestPath>());
+    }
+    
+    [Test]
+    public async Task ClimbATree()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
+
+        // Act
+        await target.GetResponse("climb up the tree");
+        
+        // Assert
+        target.Context.CurrentLocation.Should().Be(Repository.GetLocation<UpATree>());
+    }
 }

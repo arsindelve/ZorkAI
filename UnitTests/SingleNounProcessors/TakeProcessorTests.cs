@@ -69,4 +69,23 @@ public class TakeProcessorTests : EngineTestsBase
         result.Should().Contain("Taken");
     }
     
+    [Test]
+    public async Task DropItemIDoNotHave()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Attic>();
+        var result = await target.GetResponse("drop rope");
+        result.Should().Contain("don't have that");
+    }
+    
+    [Test]
+    public async Task TakeItemIAlreadyHave()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Attic>();
+        await target.GetResponse("take rope");
+        var result = await target.GetResponse("take rope");
+        result.Should().Contain("already have that");
+    }
+    
 }
