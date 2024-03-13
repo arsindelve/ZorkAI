@@ -22,9 +22,20 @@ public class EatInteractionProcessor : IVerbProcessor
             case "snack on":
             case "eat":
             case "devour":
+
+                var message = "";
+                // We know the item is in this location, but it might be inside something else. If so
+                // we need to take it first. This will have no practical effect because we are just
+                // about to destroy it, but we do need to say "(Taken)" first. 
+
+                if (baseItem.CurrentLocation is not IContext)
+                    message = "(Taken)\n";
+
+                // It's destroyed now. 
+                baseItem.CurrentLocation?.RemoveItem(baseItem);
                 baseItem.CurrentLocation = null; // It's destroyed.
-                context.Items.Remove(baseItem);
-                return new PositiveInteractionResult(castItem.EatenDescription);
+
+                return new PositiveInteractionResult(message + castItem.EatenDescription);
         }
 
         return null;
