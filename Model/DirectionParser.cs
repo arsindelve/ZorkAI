@@ -55,6 +55,7 @@ public static class DirectionParser
 
             case "up":
             case "u":
+            case "climb":
                 return Direction.Up;
 
             case "down":
