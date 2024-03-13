@@ -22,6 +22,21 @@ public class EatProcessorTests : EngineTestsBase
     }
 
     [Test]
+    public async Task Eat_BeforeTakingIt()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
+
+        // Act
+        await target.GetResponse("open sack");
+        var result = await target.GetResponse("eat lunch");
+
+        // Assert
+        result.Should().Contain("hit the spot");
+        result.Should().Contain("Taken");
+    }
+
+    [Test]
     public async Task Eat_SecondTime()
     {
         var target = GetTarget();
@@ -30,10 +45,11 @@ public class EatProcessorTests : EngineTestsBase
         target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
 
         // Act
+        await target.GetResponse("take sack");
         await target.GetResponse("open sack");
         await target.GetResponse("take lunch");
-        await target.GetResponse("eat lunch");
         var result = await target.GetResponse("eat lunch");
+        result = await target.GetResponse("eat lunch");
 
         // Assert
         result.Should().Contain("BOB");
