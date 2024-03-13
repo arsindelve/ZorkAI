@@ -1,5 +1,4 @@
 using Model.Intent;
-using Model.Interaction;
 using ZorkOne.Location;
 
 namespace ZorkOne.Item;

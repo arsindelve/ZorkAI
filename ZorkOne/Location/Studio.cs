@@ -1,5 +1,3 @@
-using Model.Interaction;
-
 namespace ZorkOne.Location;
 
 public class Studio : BaseLocation

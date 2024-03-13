@@ -1,6 +1,4 @@
-﻿using Model.Interaction;
-
-namespace ZorkOne.Location;
+﻿namespace ZorkOne.Location;
 
 public class UpATree : BaseLocation
 {

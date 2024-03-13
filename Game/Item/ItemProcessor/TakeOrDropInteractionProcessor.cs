@@ -16,6 +16,9 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             case "pick up":
             case "acquire":
             case "snatch":
+                if (context.HasMatchingNoun(action.Noun))
+                    return new PositiveInteractionResult("You already have that!");
+
                 context.Take(castItem);
                 return new PositiveInteractionResult("Taken.");
 

@@ -155,7 +155,6 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         return result ?? new NoNounMatchInteractionResult();
     }
 
-
     internal int IncreaseMoves()
     {
         return Moves++;
