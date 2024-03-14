@@ -18,6 +18,61 @@ public class TurnOnOffProcessorTests : EngineTestsBase
         Repository.GetItem<Lantern>().IsOn.Should().BeTrue();
         result.Should().Contain("now on");
     }
+    
+    [Test]
+    public async Task TurnOnProcessor_NowOn_WithAdverb()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+
+        // Act
+        var result = await target.GetResponse("turn the lamp on");
+
+        // Assert
+        Repository.GetItem<Lantern>().IsOn.Should().BeTrue();
+        result.Should().Contain("now on");
+    }
+    
+    [Test]
+    public async Task TurnOnProcessor_NowOn_WithWrongAdverb()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+
+        // Act
+        var result = await target.GetResponse("turn the lamp around");
+
+        // Assert
+        result?.Trim().Should().BeEmpty();
+    }
+    
+    [Test]
+    public async Task TurnOnProcessor_NowOn_WithNoAdverb()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+
+        // Act
+        var result = await target.GetResponse("turn the lamp");
+
+        // Assert
+        result?.Trim().Should().BeEmpty();
+    }
+    
+    [Test]
+    public async Task TurnOnProcessor_NowOff_WithAdverb()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+
+        // Act
+        await target.GetResponse("turn on lantern");
+        var result = await target.GetResponse("turn the lamp off");
+
+        // Assert
+        Repository.GetItem<Lantern>().IsOn.Should().BeFalse();
+        result.Should().Contain("now off");
+    }
 
     [Test]
     public async Task TurnOnProcessor_NowOn_AlternateNoun()
