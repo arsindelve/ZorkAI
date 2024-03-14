@@ -33,6 +33,8 @@ public class Client : IGenerationClient
 
         var chatCompletionsOptions = new ChatCompletionsOptions
         {
+            // gpt-3.5-turbo
+            // gpt-4-turbo-preview
             DeploymentName = "gpt-4-turbo-preview",
             Messages =
             {
