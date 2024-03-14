@@ -6,7 +6,7 @@ namespace Game.IntentEngine;
 
 public class MultiNounEngine : IIntentEngine
 {
-    private List<IMultiNounVerbProcessor> _processors = [new PutProcessor()];
+    private readonly List<IMultiNounVerbProcessor> _processors = [new PutProcessor()];
     
     public async Task<string> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {
@@ -24,11 +24,8 @@ public class MultiNounEngine : IIntentEngine
             !Repository.ItemExistsInTheStory(interaction.NounTwo))
             return await GetGeneratedNoOpResponse(interaction.OriginalInput, generationClient, context);
 
-        var nounOneExistsHere = context.HasMatchingNoun(interaction.NounOne) ||
-                                context.CurrentLocation.HasMatchingNoun(interaction.NounOne);
-
-        var nounTwoExistsHere = context.HasMatchingNoun(interaction.NounTwo) ||
-                                context.CurrentLocation.HasMatchingNoun(interaction.NounTwo);
+        var nounOneExistsHere = IsItemHere(context, interaction.NounOne);
+        var nounTwoExistsHere = IsItemHere(context, interaction.NounTwo);
 
         if (!nounOneExistsHere & nounTwoExistsHere)
             return await GetGeneratedNounOneNotFoundResponse(interaction, generationClient,
@@ -36,6 +33,10 @@ public class MultiNounEngine : IIntentEngine
 
         if (nounOneExistsHere & !nounTwoExistsHere)
             return await GetGeneratedNounTwoNotFoundResponse(interaction, generationClient,
+                context);
+        
+        if (!nounOneExistsHere & !nounTwoExistsHere)
+            return await GetGeneratedNounOneAndNounTwoNotFoundResponse(interaction, generationClient,
                 context);
 
         IItem? itemOne = Repository.GetItem(interaction.NounOne);
@@ -65,6 +66,23 @@ public class MultiNounEngine : IIntentEngine
             context);
     }
 
+    private static bool IsItemHere(IContext context, string item)
+    {
+        return context.HasMatchingNoun(item) ||
+               context.CurrentLocation.HasMatchingNoun(item);
+    }
+
+    private async Task<string> GetGeneratedNounOneAndNounTwoNotFoundResponse(MultiNounIntent interaction, IGenerationClient generationClient, IContext context)
+    {
+        var request =
+            new MultiNounOperationBothMissingRequest(context.CurrentLocation.DescriptionForGeneration,
+                interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb);
+        var result = await generationClient.CompleteChat(request) + Environment.NewLine;
+        return result;
+    }
+
+    // TODO: Refactor these three methods into a single "generic" method. 
+    
     private async Task<string> GetGeneratedVerbNotUsefulResponse(MultiNounIntent interaction,
         IGenerationClient generationClient, IContext context)
     {
@@ -75,6 +93,17 @@ public class MultiNounEngine : IIntentEngine
         return result;
     }
 
+    private async Task<string> GetGeneratedResponse<T>(MultiNounIntent interaction,
+        IGenerationClient generationClient, IContext context) where T: Request, new()
+    {
+        var request =
+            new MissingSecondNounMultiNounOperationRequest(context.CurrentLocation.DescriptionForGeneration,
+                interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb);
+        var result = await generationClient.CompleteChat(request) + Environment.NewLine;
+        ;
+        return result;
+    }
+    
     private async Task<string> GetGeneratedNounTwoNotFoundResponse(MultiNounIntent interaction,
         IGenerationClient generationClient, IContext context)
     {
