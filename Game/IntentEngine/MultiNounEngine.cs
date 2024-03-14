@@ -1,13 +1,12 @@
 using System.Diagnostics;
 using Game.Item.MultiItemProcessor;
-using Model.Item;
 
 namespace Game.IntentEngine;
 
 public class MultiNounEngine : IIntentEngine
 {
     private readonly List<IMultiNounVerbProcessor> _processors = [new PutProcessor()];
-    
+
     public async Task<string> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {
         if (intent is not MultiNounIntent interaction)
@@ -34,33 +33,31 @@ public class MultiNounEngine : IIntentEngine
         if (nounOneExistsHere & !nounTwoExistsHere)
             return await GetGeneratedResponse<MissingSecondNounMultiNounOperationRequest>(interaction, generationClient,
                 context);
-        
+
         if (!nounOneExistsHere & !nounTwoExistsHere)
-            return await GetGeneratedResponse<MultiNounOperationBothMissingRequest>(interaction, generationClient,
+            return await GetGeneratedResponse<MissingBothNounsMultiNounOperationRequest>(interaction, generationClient,
                 context);
 
-        IItem? itemOne = Repository.GetItem(interaction.NounOne);
-        IItem? itemTwo = Repository.GetItem(interaction.NounTwo);
+        var itemOne = Repository.GetItem(interaction.NounOne);
+        var itemTwo = Repository.GetItem(interaction.NounTwo);
 
-        // This should never happen, since we checked above that it exists. 
-        if (itemOne is null)
-            return await GetGeneratedResponse<MissingFirstNounMultiNounOperationRequest>(interaction, generationClient,
+        // This indicates that one of the two items is not real, i.e. it's part of 
+        // the location description like the kitchen table. No real interaction is 
+        // possible.
+        if (itemOne is null || itemTwo is null)
+            return await GetGeneratedVerbNotUsefulResponse(interaction, generationClient,
                 context);
-        
-        if (itemTwo is null)
-            return await GetGeneratedResponse<MissingSecondNounMultiNounOperationRequest>(interaction, generationClient,
-                context);
-        
+
         // Let all the processors decide if they can handle this interaction. 
-        foreach (IMultiNounVerbProcessor processor in _processors)
+        foreach (var processor in _processors)
         {
-            InteractionResult? result = processor.Process(interaction, context, itemOne,
+            var result = processor.Process(interaction, context, itemOne,
                 itemTwo);
 
             if (result is { InteractionHappened: true })
                 return result.InteractionMessage;
         }
-        
+
         // If not positive interaction.....
         return await GetGeneratedVerbNotUsefulResponse(interaction, generationClient,
             context);
@@ -68,8 +65,18 @@ public class MultiNounEngine : IIntentEngine
 
     private static bool IsItemHere(IContext context, string item)
     {
-        return context.HasMatchingNoun(item) ||
-               context.CurrentLocation.HasMatchingNoun(item);
+        return
+
+            // Item can be in the description (like the table in the kitchen). There will
+            // be no verb match for this noun anyway, so this will fall through to the generator,
+            // but we want the generator to know it's here but not part of the story. 
+            context.CurrentLocation.DescriptionForGeneration.ToLower().Contains(item.ToLowerInvariant()) ||
+
+            // or a "real" item in the location that can be manipulated
+            context.HasMatchingNoun(item) ||
+
+            // or can be in inventory. 
+            context.CurrentLocation.HasMatchingNoun(item);
     }
 
     private async Task<string> GetGeneratedVerbNotUsefulResponse(MultiNounIntent interaction,
@@ -78,12 +85,13 @@ public class MultiNounEngine : IIntentEngine
         var request =
             new VerbHasNoEffectMultiNounOperationRequest(context.CurrentLocation.DescriptionForGeneration,
                 interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb);
+
         var result = await generationClient.CompleteChat(request) + Environment.NewLine;
         return result;
     }
 
     private async Task<string> GetGeneratedResponse<T>(MultiNounIntent interaction,
-        IGenerationClient generationClient, IContext context) where T: MultiNounRequest, new()
+        IGenerationClient generationClient, IContext context) where T : MultiNounRequest, new()
     {
         var request =
             new T
@@ -98,7 +106,7 @@ public class MultiNounEngine : IIntentEngine
         var result = await generationClient.CompleteChat(request) + Environment.NewLine;
         return result;
     }
-    
+
     private static async Task<string> GetGeneratedNoOpResponse(string input, IGenerationClient generationClient,
         IContext context)
     {

@@ -1,8 +1,8 @@
 ﻿namespace OpenAI.Requests;
 
-public class MultiNounOperationBothMissingRequest : MultiNounRequest
+public class MissingBothNounsMultiNounOperationRequest : MultiNounRequest
 {
-    public MultiNounOperationBothMissingRequest()
+    public MissingBothNounsMultiNounOperationRequest()
     {
         SystemMessage = SystemPrompt;
     }
