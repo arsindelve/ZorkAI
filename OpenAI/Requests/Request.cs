@@ -11,5 +11,5 @@ public abstract class Request
 
     public string? SystemMessage { get; protected init; }
 
-    public string? UserMessage { get; protected init; }
+    public virtual string? UserMessage { get; protected init; }
 }
