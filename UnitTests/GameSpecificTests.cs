@@ -49,7 +49,7 @@ public class GameSpecificTests : EngineTestsBase
     [Test]
     public async Task ClimbATree()
     {
-        var target = GetTarget();
+        var target = GetTarget(new IntentParser());
         target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
 
         // Act
