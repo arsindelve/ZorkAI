@@ -1,16 +1,16 @@
 ﻿namespace OpenAI.Requests;
 
-public class MultiNounOperationBothMissingRequest : Request
+public class MultiNounOperationBothMissingRequest : MultiNounRequest
 {
-    public MultiNounOperationBothMissingRequest(string location, string? nounOne, string? nounTwo,
-        string? preposition, string verb)
+    public MultiNounOperationBothMissingRequest()
     {
         SystemMessage = SystemPrompt;
-        UserMessage =
-            $"The player is in this location: \"{location}\". " +
-            $"They wrote \"{verb} the {nounOne} {preposition} the {nounTwo}\", but  " +
-            $"there is no \"{nounOne}\" here, and no {nounTwo} here, " +
-            "Provide the narrator's response indicating that their " +
-            "action impossible. ";
     }
+
+    public override string UserMessage =>
+        $"The player is in this location: \"{Location}\". " +
+        $"They wrote \"{Verb} the {NounOne} {Preposition} the {NounTwo}\", but  " +
+        $"there is no \"{NounOne}\" here, and no {NounTwo} here, " +
+        "Provide the narrator's response indicating that their " +
+        "action impossible. ";
 }

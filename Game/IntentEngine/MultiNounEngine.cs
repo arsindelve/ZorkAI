@@ -28,15 +28,15 @@ public class MultiNounEngine : IIntentEngine
         var nounTwoExistsHere = IsItemHere(context, interaction.NounTwo);
 
         if (!nounOneExistsHere & nounTwoExistsHere)
-            return await GetGeneratedNounOneNotFoundResponse(interaction, generationClient,
+            return await GetGeneratedResponse<MissingFirstNounMultiNounOperationRequest>(interaction, generationClient,
                 context);
 
         if (nounOneExistsHere & !nounTwoExistsHere)
-            return await GetGeneratedNounTwoNotFoundResponse(interaction, generationClient,
+            return await GetGeneratedResponse<MissingSecondNounMultiNounOperationRequest>(interaction, generationClient,
                 context);
         
         if (!nounOneExistsHere & !nounTwoExistsHere)
-            return await GetGeneratedNounOneAndNounTwoNotFoundResponse(interaction, generationClient,
+            return await GetGeneratedResponse<MultiNounOperationBothMissingRequest>(interaction, generationClient,
                 context);
 
         IItem? itemOne = Repository.GetItem(interaction.NounOne);
@@ -44,11 +44,11 @@ public class MultiNounEngine : IIntentEngine
 
         // This should never happen, since we checked above that it exists. 
         if (itemOne is null)
-            return await GetGeneratedNounOneNotFoundResponse(interaction, generationClient,
+            return await GetGeneratedResponse<MissingFirstNounMultiNounOperationRequest>(interaction, generationClient,
                 context);
         
         if (itemTwo is null)
-            return await GetGeneratedNounTwoNotFoundResponse(interaction, generationClient,
+            return await GetGeneratedResponse<MissingSecondNounMultiNounOperationRequest>(interaction, generationClient,
                 context);
         
         // Let all the processors decide if they can handle this interaction. 
@@ -72,17 +72,6 @@ public class MultiNounEngine : IIntentEngine
                context.CurrentLocation.HasMatchingNoun(item);
     }
 
-    private async Task<string> GetGeneratedNounOneAndNounTwoNotFoundResponse(MultiNounIntent interaction, IGenerationClient generationClient, IContext context)
-    {
-        var request =
-            new MultiNounOperationBothMissingRequest(context.CurrentLocation.DescriptionForGeneration,
-                interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb);
-        var result = await generationClient.CompleteChat(request) + Environment.NewLine;
-        return result;
-    }
-
-    // TODO: Refactor these three methods into a single "generic" method. 
-    
     private async Task<string> GetGeneratedVerbNotUsefulResponse(MultiNounIntent interaction,
         IGenerationClient generationClient, IContext context)
     {
@@ -94,37 +83,22 @@ public class MultiNounEngine : IIntentEngine
     }
 
     private async Task<string> GetGeneratedResponse<T>(MultiNounIntent interaction,
-        IGenerationClient generationClient, IContext context) where T: Request, new()
+        IGenerationClient generationClient, IContext context) where T: MultiNounRequest, new()
     {
         var request =
-            new MissingSecondNounMultiNounOperationRequest(context.CurrentLocation.DescriptionForGeneration,
-                interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb);
+            new T
+            {
+                Location = context.CurrentLocation.DescriptionForGeneration,
+                NounOne = interaction.NounOne,
+                NounTwo = interaction.NounTwo,
+                Preposition = interaction.Preposition,
+                Verb = interaction.Verb
+            };
+
         var result = await generationClient.CompleteChat(request) + Environment.NewLine;
-        ;
         return result;
     }
     
-    private async Task<string> GetGeneratedNounTwoNotFoundResponse(MultiNounIntent interaction,
-        IGenerationClient generationClient, IContext context)
-    {
-        var request =
-            new MissingSecondNounMultiNounOperationRequest(context.CurrentLocation.DescriptionForGeneration,
-                interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb);
-        var result = await generationClient.CompleteChat(request) + Environment.NewLine;
-        ;
-        return result;
-    }
-
-    private async Task<string> GetGeneratedNounOneNotFoundResponse(MultiNounIntent interaction,
-        IGenerationClient generationClient, IContext context)
-    {
-        var request =
-            new MissingFirstNounMultiNounOperationRequest(context.CurrentLocation.DescriptionForGeneration,
-                interaction.NounTwo, interaction.NounOne, interaction.Preposition, interaction.Verb);
-        var result = await generationClient.CompleteChat(request) + Environment.NewLine;
-        return result;
-    }
-
     private static async Task<string> GetGeneratedNoOpResponse(string input, IGenerationClient generationClient,
         IContext context)
     {

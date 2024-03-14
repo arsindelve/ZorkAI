@@ -1,15 +1,15 @@
 namespace OpenAI.Requests;
 
-public class MissingFirstNounMultiNounOperationRequest : Request
+public class MissingFirstNounMultiNounOperationRequest : MultiNounRequest
 {
-    public MissingFirstNounMultiNounOperationRequest(string location, string? presentNoun, string? absentNoun,
-        string? preposition, string verb)
+    public MissingFirstNounMultiNounOperationRequest()
     {
         SystemMessage = SystemPrompt;
-        UserMessage =
-            $"The player is in this location: \"{location}\". " +
-            $"They wrote \"{verb} the {absentNoun} {preposition} the {presentNoun}\", and while " +
-            $"there is a \"{presentNoun}\" here, there is no \"{absentNoun}\" here " +
-            $"so that action has no effect on the story. Provide the narrator's response";
     }
+
+    public override string UserMessage =>
+        $"The player is in this location: \"{Location}\". " +
+        $"They wrote \"{Verb} the {NounOne} {Preposition} the {NounTwo}\", and while " +
+        $"there is a \"{NounTwo}\" here, there is no \"{NounOne}\" here " +
+        $"so that action has no effect on the story. Provide the narrator's response";
 }
