@@ -8,8 +8,10 @@ namespace Game.Item;
 public abstract class ContainerBase : ItemBase, ICanHoldItems
 {
     protected virtual int SpaceForItems => 2;
-    
+
     protected List<IItem> Items { get; } = new();
+
+    public abstract string Name { get; }
 
     public void RemoveItem(IItem item)
     {
@@ -20,6 +22,8 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
     {
         Items.Add(item);
     }
+
+    public virtual bool IsTransparent => false;
 
     /// <summary>
     ///     Checks if a location has an item of type T.
@@ -55,8 +59,12 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
             return $"The {name} is empty.";
 
         var sb = new StringBuilder();
-        sb.AppendLine($"   The {name} contains:");
-        Items.ForEach(s => sb.AppendLine($"      {s.InInventoryDescription}"));
+        
+        if (IsTransparent || this is IOpenAndClose { IsOpen: true })
+        {
+            sb.AppendLine($"   The {name} contains:");
+            Items.ForEach(s => sb.AppendLine($"      {s.InInventoryDescription}"));
+        }
 
         return sb.ToString();
     }

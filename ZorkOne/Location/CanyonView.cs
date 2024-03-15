@@ -2,7 +2,7 @@
 
 public class CanyonView : BaseLocation
 {
-    protected override string Name => "Canyon View";
+    public override string Name => "Canyon View";
 
     protected override string ContextBasedDescription =>
         "You are at the top of the Great Canyon on its west wall. From here there is a marvelous " +

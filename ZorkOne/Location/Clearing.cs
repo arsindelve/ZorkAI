@@ -20,7 +20,7 @@ public class Clearing : BaseLocation
         }
     };
 
-    protected override string Name => "Clearing";
+    public override string Name => "Clearing";
 
     protected override string ContextBasedDescription =>
         "You are in a clearing, with a forest surrounding you on all sides. A path leads south.";

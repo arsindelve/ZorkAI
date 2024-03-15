@@ -27,4 +27,6 @@ public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenA
             : "There is a brown sack here.";
 
     public override string NeverPickedUpDescription => ((ICanBeTakenAndDropped)this).OnTheGroundDescription;
+
+    public override string Name => "brown sack";
 }
