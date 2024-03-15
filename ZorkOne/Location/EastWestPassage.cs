@@ -5,7 +5,8 @@ public class EastWestPassage : DarkLocation
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.W, new MovementParameters { Location = GetLocation<TrollRoom>() } }
+            { Direction.W, new MovementParameters { Location = GetLocation<TrollRoom>() } },
+            { Direction.E, new MovementParameters { Location = GetLocation<RoundRoom>() } }
             
         };
 
