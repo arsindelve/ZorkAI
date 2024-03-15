@@ -56,28 +56,3 @@ public class DomeRoom : BaseLocation
         return new PositiveInteractionResult("The rope drops over the side and comes within ten feet of the floor. ");
     }
 }
-
-public class TorchRoom : DarkLocation
-{
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
-        {
-            { Direction.W, new MovementParameters { Location = GetLocation<EngravingsCave>() } },
-            {
-                Direction.Up,
-                new MovementParameters
-                {
-                    CanGo = _ => false,
-                    CustomFailureMessage = "You cannot reach the rope."
-                }
-            }
-        };
-
-
-    protected override string Name => "Torch Room";
-
-    protected override string ContextBasedDescription =>
-        "This is a large room with a prominent doorway leading to a down staircase. To the west is a narrow twisting tunnel, " +
-        "covered with a thin layer of dust.  Above you is a large dome painted with scenes depicting elfin hacking rites. " +
-        "Up around the edge of the dome (20 feet up) is a wooden railing. In the center of the room there is a white marble pedestal.";
-}
