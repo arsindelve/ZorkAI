@@ -6,7 +6,7 @@ namespace ZorkOne.Item;
 
 public class Sword : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
 {
-    public override string[] NounsForMatching => ["sword"];
+    public override string[] NounsForMatching => ["sword", "glamdring", "orcrist"];
 
     public override string InInventoryDescription => "A sword";
 

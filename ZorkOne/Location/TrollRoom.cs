@@ -2,8 +2,8 @@ namespace ZorkOne.Location;
 
 public class TrollRoom : DarkLocation
 {
-    private bool TrollIsAlive => Repository.GetItem<Troll>().CurrentLocation == Repository.GetLocation<TrollRoom>();
-
+     private bool TrollIsAlive => Repository.GetItem<Troll>().CurrentLocation == Repository.GetLocation<TrollRoom>();
+    //private bool TrollIsAlive => false;
 
     public TrollRoom()
     {
