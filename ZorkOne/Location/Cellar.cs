@@ -28,7 +28,7 @@ public class Cellar : DarkLocation
         }
     };
 
-    protected override string Name => "Cellar";
+    public override string Name => "Cellar";
 
     protected override string ContextBasedDescription => "You are in a dark and damp cellar with a narrow passageway " +
                                                          "leading north, and a crawlway to the south. On the west is the " +

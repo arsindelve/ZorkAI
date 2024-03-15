@@ -8,17 +8,17 @@ public class Kitchen : BaseLocation
     {
         _window = Repository.GetItem<KitchenWindow>();
         StartWithItem(_window, this);
-        StartWithItem(Repository.GetItem<BrownSack>(), this);
-        StartWithItem(Repository.GetItem<Bottle>(), this);
+        StartWithItem(GetItem<BrownSack>(), this);
+        StartWithItem(GetItem<Bottle>(), this);
     }
 
     protected override string ContextBasedDescription =>
-        $"You are in the kitchen of the white house. A table seems to have been" +
-        $" used recently for the preparation of food. A passage leads to the west " +
+        $"You are in the kitchen of the white house. A table seems to have been " +
+        $"used recently for the preparation of food. A passage leads to the west " +
         $"and a dark staircase can be seen leading upward. A dark chimney leads down " +
-        $"and to the east is a small window which is {(Repository.GetItem<KitchenWindow>().IsOpen ? "open" : "closed")}.";
+        $"and to the east is a small window which is {(GetItem<KitchenWindow>().IsOpen ? "open" : "closed")}.";
 
-    protected override string Name => "Kitchen";
+    public override string Name => "Kitchen";
 
     protected override Dictionary<Direction, MovementParameters> Map
     {

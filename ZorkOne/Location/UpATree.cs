@@ -12,7 +12,7 @@ public class UpATree : BaseLocation
             }
         };
 
-    protected override string Name => "Up A Tree";
+    public override string Name => "Up A Tree";
 
     protected override string ContextBasedDescription =>
         "You are about 10 feet above the ground nestled among some large branches. The nearest branch above you is above your reach.\n\n" +
