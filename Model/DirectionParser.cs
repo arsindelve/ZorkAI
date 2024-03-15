@@ -36,21 +36,25 @@ public static class DirectionParser
             case "sw":
             case "south-west":
             case "south west":
+            case "southwest":
                 return Direction.SW;
 
             case "nw":
             case "north-west":
             case "north west":
+            case "northwest":
                 return Direction.NW;
 
             case "ne":
             case "north-east":
             case "north east":
+            case "northeast":
                 return Direction.NE;
 
             case "se":
             case "south-east":
             case "south east":
+            case "southeast":
                 return Direction.SE;
 
             case "up":

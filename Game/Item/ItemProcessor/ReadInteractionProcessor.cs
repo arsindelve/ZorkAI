@@ -14,7 +14,7 @@ public class ReadInteractionProcessor : IVerbProcessor
             case "read":
                 var result = string.Empty;
                 // The act of reading it picks it up.
-                if (!context.Items.Contains((IItem)item))
+                if (item is ICanBeTakenAndDropped && !context.Items.Contains((IItem)item))
                 {
                     result = "(Taken)\n\n";
                     context.Take((IItem)item);

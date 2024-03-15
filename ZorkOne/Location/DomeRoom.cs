@@ -49,10 +49,10 @@ public class DomeRoom : BaseLocation
 
         if (!context.HasItem<Rope>())
             return base.RespondToMultiNounInteraction(action, context);
-        
+
         GetItem<Rope>().TiedToRailing = true;
         context.Drop(GetItem<Rope>());
-        
+
         return new PositiveInteractionResult("The rope drops over the side and comes within ten feet of the floor. ");
     }
 }
