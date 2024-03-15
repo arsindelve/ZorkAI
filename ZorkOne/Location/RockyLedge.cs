@@ -2,7 +2,7 @@
 
 public class RockyLedge : BaseLocation
 {
-    protected override string Name => "Rocky Ledge";
+    public override string Name => "Rocky Ledge";
 
     protected override string ContextBasedDescription =>
         "You are on a ledge about halfway up the wall of the river canyon. You can see from here that " +

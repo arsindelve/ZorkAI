@@ -24,7 +24,7 @@ public class TrollRoom : DarkLocation
             }
         };
 
-    protected override string Name => "The Troll Room";
+    public override string Name => "The Troll Room";
 
     protected override string ContextBasedDescription =>
         "This is a small room with passages to the east and south and a forbidding hole leading west. " +

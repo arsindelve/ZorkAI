@@ -6,7 +6,7 @@ public class NorthOfHouse : BaseLocation
         "You are facing the north side of a white house. There is no door here, " +
         "and all the windows are boarded up. To the north a narrow path winds through the trees.";
 
-    protected override string Name => "North Of House";
+    public override string Name => "North Of House";
 
     protected override Dictionary<Direction, MovementParameters> Map => new()
     {

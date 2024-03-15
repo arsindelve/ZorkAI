@@ -4,7 +4,12 @@ namespace Model;
 
 public interface ICanHoldItems : IInteractionTarget
 {
-    // string ItemListDescription(string name);
+    /// <summary>
+    ///     When true, we can see the contents of the container even when it's closed.
+    /// </summary>
+    bool IsTransparent { get; }
+
+    string Name { get; }
 
     void RemoveItem(IItem item);
 
@@ -29,7 +34,7 @@ public interface ICanHoldItems : IInteractionTarget
     bool HasMatchingNoun(string? noun);
 
     /// <summary>
-    /// Checks if the container or context has room to hold the given item.
+    ///     Checks if the container or context has room to hold the given item.
     /// </summary>
     /// <param name="item">The item to be checked.</param>
     /// <returns>True if there is room to hold the item, otherwise false.</returns>

@@ -21,7 +21,7 @@ public class ForestThree : BaseLocation
         }
     };
 
-    protected override string Name => "Forest";
+    public override string Name => "Forest";
 
     protected override string ContextBasedDescription => "This is a dimly lit forest, with trees all around. ";
 }

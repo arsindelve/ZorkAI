@@ -8,7 +8,7 @@ public class Attic : DarkLocation
         StartWithItem(Repository.GetItem<Knife>(), this);
     }
 
-    protected override string Name => "Attic";
+    public override string Name => "Attic";
 
     protected override string ContextBasedDescription =>
         "This is the attic. The only exit is a stairway leading down. ";

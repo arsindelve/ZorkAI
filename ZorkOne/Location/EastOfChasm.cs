@@ -2,7 +2,7 @@ namespace ZorkOne.Location;
 
 public class EastOfChasm : BaseLocation
 {
-    protected override string Name => "East of Chasm";
+    public override string Name => "East of Chasm";
 
     protected override string ContextBasedDescription =>
         "You are on the east edge of a chasm, the bottom of which cannot be seen. A narrow passage goes north, " +

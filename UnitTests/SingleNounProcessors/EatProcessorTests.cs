@@ -75,14 +75,14 @@ public class EatProcessorTests : EngineTestsBase
     [Test]
     public void EatProcessor_WrongType()
     {
-        IVerbProcessor target = new EatInteractionProcessor();
-        Assert.Throws<Exception>(() => target.Process(Mock.Of<SimpleIntent>(), Mock.Of<IContext>(), new Lantern()));
+        IVerbProcessor target = new EatAndDrinkInteractionProcessor();
+        target.Process(Mock.Of<SimpleIntent>(), Mock.Of<IContext>(), new Lantern()).Should().BeNull();
     }
 
     [Test]
     public void EatProcessor_WrongBaseType()
     {
-        IVerbProcessor target = new EatInteractionProcessor();
+        IVerbProcessor target = new EatAndDrinkInteractionProcessor();
         Assert.Throws<Exception>(() => target.Process(Mock.Of<SimpleIntent>(), Mock.Of<IContext>(), new MadeUpItem()));
     }
 }

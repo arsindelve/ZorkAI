@@ -13,6 +13,8 @@ public interface IItem : IInteractionTarget
     ///     Gets or sets a value indicating whether the item has ever been picked up.
     /// </summary>
     bool HasEverBeenPickedUp { get; set; }
+    
+    string Name { get; }
 
 
     ICanHoldItems? CurrentLocation { get; set; }

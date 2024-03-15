@@ -5,10 +5,10 @@ namespace Game.Item;
 /// <summary>
 ///     Represents a base class for containers that can be opened and closed.
 /// </summary>
-public class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
+public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
 {
     public bool AmIOpen => ((IOpenAndClose)this).IsOpen;
-
+    
     public bool HasEverBeenOpened { get; set; }
 
     public virtual string AlreadyClosed => "It is already closed.";
@@ -26,7 +26,7 @@ public class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
         InteractionResult? result = null;
 
         // See if one of the items inside me has a matching interaction.
-        if (AmIOpen)
+        if (AmIOpen || IsTransparent)
             foreach (var item in Items.ToList())
             {
                result = item.RespondToSimpleInteraction(action, context);
