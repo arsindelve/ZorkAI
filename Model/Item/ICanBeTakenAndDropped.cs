@@ -31,4 +31,10 @@ public interface ICanBeTakenAndDropped : IInteractionTarget
     /// </summary>
     /// <seealso cref="ICanBeTakenAndDropped" />
     bool HasEverBeenPickedUp { get; }
+
+    /// <summary>
+    /// This method is called when the item is being taken by the player.
+    /// </summary>
+    /// <param name="context">The context of the game.</param>
+    void OnBeingTaken(IContext context);
 }

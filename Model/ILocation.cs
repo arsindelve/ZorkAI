@@ -34,6 +34,17 @@ public interface ILocation
     InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context);
 
     /// <summary>
+    ///     We have parsed the user input and determined that we have a <see cref="MultiNounIntent" /> corresponding
+    ///     of a verb and two nouns. Does that combination do anything in this location? The default implementation
+    ///     of the base class checks each item in this locations and asks them if they provide any interaction. This
+    ///     method will be frequently overriden in child locations.
+    /// </summary>
+    /// <param name="action">The multi-noun intent representing the interaction.</param>
+    /// <param name="context">The context in which the interaction occurs.</param>
+    /// <returns>An InteractionResult indicating the result of the interaction.</returns>
+    InteractionResult? RespondToMultiNounInteraction(MultiNounIntent action, IContext context);
+
+    /// <summary>
     ///     We're trying to move in a direction. Return the <see cref="MovementParameters" /> object
     ///     that tells us if we can get there, and if so, where we end up. If there is no <see cref="MovementParameters" />
     ///     object corresponding to that location, then we cannot, by default, go that way (indicated by

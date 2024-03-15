@@ -9,6 +9,9 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (item is not IItem castItem)
             throw new Exception();
 
+        if (item is not ICanBeTakenAndDropped takeItem)
+            throw new Exception();
+        
         switch (action.Verb.ToLowerInvariant().Trim())
         {
             case "hold":
@@ -20,6 +23,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
                     return new PositiveInteractionResult("You already have that!");
 
                 context.Take(castItem);
+                takeItem.OnBeingTaken(context);
                 return new PositiveInteractionResult("Taken.");
 
             case "drop":
