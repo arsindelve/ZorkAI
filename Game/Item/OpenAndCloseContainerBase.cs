@@ -26,7 +26,7 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
         InteractionResult? result = null;
 
         // See if one of the items inside me has a matching interaction.
-        if (AmIOpen)
+        if (AmIOpen || IsTransparent)
             foreach (var item in Items.ToList())
             {
                result = item.RespondToSimpleInteraction(action, context);

@@ -31,6 +31,8 @@ public abstract class ItemBase : IItem
     /// </summary>
     public virtual string[] NounsForMatching { get; } = [];
 
+    public virtual string Name => NounsForMatching.First();
+
     /// <summary>
     ///     Gets or sets the current location of the item. Is it in inventory? In the mailbox?
     ///     Beside the house?
@@ -63,7 +65,7 @@ public abstract class ItemBase : IItem
         return NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    protected static List<IVerbProcessor> GetProcessors(ItemBase item)
+    private static List<IVerbProcessor> GetProcessors(ItemBase item)
     {
         List<IVerbProcessor> result = new();
 
@@ -90,6 +92,9 @@ public abstract class ItemBase : IItem
         if (item is ICanBeEaten)
             result.Add(new EatAndDrinkInteractionProcessor());
 
+        if (item is IAmADrink)
+            result.Add(new EatAndDrinkInteractionProcessor());
+        
         return result;
     }
 

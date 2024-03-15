@@ -30,7 +30,7 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
                 message = item switch
                 {
                     ICanBeEaten food => EatIt(baseItem, message, food),
-                    IAmADrink drink => DrinkIt(baseItem, message, drink),
+                    IAmADrink drink => DrinkIt(baseItem, message, drink, context),
                     _ => throw new ArgumentException()
                 };
 
@@ -40,14 +40,17 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
         return null;
     }
 
-    private string DrinkIt(IItem item, string message, IAmADrink drink)
+    private string DrinkIt(IItem item, string message, IAmADrink drink, IContext context)
     {
         // Drinking is a little different, because liquid usually has to be inside a container
         // right up until the moment we drink it. We cannot "hold" water in inventory without
         // a bottle, the way we can "hold" a sandwich. 
 
-        var container = item.CurrentLocation;
+        var container = item.CurrentLocation as IItem;
 
+        if (container != null &&  container.CurrentLocation != context)
+            return $"You have to be holding the {container.Name}. ";
+        
         if (container is IOpenAndClose { IsOpen: false })
             return $"The {container.Name} is not open. ";
 
@@ -64,7 +67,7 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
         var container = item.CurrentLocation;
 
         // If it's in a container, is the container open? We might be able to see it but not 
-        // take it, if it's in the trophy case for examine
+        // take it, if it's in the trophy case for example
         if (container is IOpenAndClose { IsOpen: false })
             return $"The {container.Name} is not open. ";
 

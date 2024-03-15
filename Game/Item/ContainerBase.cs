@@ -11,8 +11,6 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
 
     protected List<IItem> Items { get; } = new();
 
-    public abstract string Name { get; }
-
     public void RemoveItem(IItem item)
     {
         Items.Remove(item);
