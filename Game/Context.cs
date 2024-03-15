@@ -129,13 +129,11 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         if (item == null)
             throw new Exception("Null item was dropped from inventory");
 
-        var newLocation = CurrentLocation as ICanHoldItems;
-
-        if (newLocation is null)
+        if (CurrentLocation is not ICanHoldItems newLocation)
             throw new Exception("Current location can't hold item");
 
         Items.Remove(item);
-        item.CurrentLocation = (ICanHoldItems)CurrentLocation;
+        item.CurrentLocation = newLocation;
         newLocation.ItemPlacedHere(item);
     }
 

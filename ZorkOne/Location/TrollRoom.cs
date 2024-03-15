@@ -3,7 +3,6 @@ namespace ZorkOne.Location;
 public class TrollRoom : DarkLocation
 {
      private bool TrollIsAlive => Repository.GetItem<Troll>().CurrentLocation == Repository.GetLocation<TrollRoom>();
-    //private bool TrollIsAlive => false;
 
     public TrollRoom()
     {
@@ -15,12 +14,13 @@ public class TrollRoom : DarkLocation
         {
             { Direction.S, new MovementParameters { Location = GetLocation<Cellar>() } },
             {
-                Direction.E,
-                new MovementParameters
-                {
-                    Location = GetLocation<EastWestPassage>(), CanGo = _ => !TrollIsAlive,
-                    CustomFailureMessage = "The troll fends you off with a menacing gesture."
-                }
+                // Direction.E,
+                // new MovementParameters
+                // {
+                //     Location = GetLocation<EastWestPassage>(), CanGo = _ => !TrollIsAlive,
+                //     CustomFailureMessage = "The troll fends you off with a menacing gesture."
+                // }
+                Direction.E, new MovementParameters{ Location = GetLocation<EastWestPassage>()}
             }
         };
 

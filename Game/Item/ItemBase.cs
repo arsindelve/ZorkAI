@@ -96,8 +96,12 @@ public abstract class ItemBase : IItem
     protected InteractionResult ApplyProcessors(SimpleIntent action, IContext context, InteractionResult? result)
     {
         result ??= GetProcessors(this).Aggregate<IVerbProcessor, InteractionResult?>(null, (current, processor)
-            => current ?? processor.Process(action, context, (IInteractionTarget)this));
+            => current ?? processor.Process(action, context, this));
 
         return result ?? new NoVerbMatchInteractionResult { Verb = action.Verb, Noun = action.Noun };
+    }
+
+    public virtual void OnBeingTaken(IContext context)
+    {
     }
 }

@@ -87,6 +87,11 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return result ?? new NoNounMatchInteractionResult();
     }
 
+    public virtual InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    {
+        return new NoNounMatchInteractionResult();
+    }
+
     /// <summary>
     ///     We're trying to move in a direction. Return the <see cref="MovementParameters" /> object
     ///     that tells us if we can get there, and if so, where we end up. If there is no <see cref="MovementParameters" />
@@ -135,6 +140,16 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     protected T GetLocation<T>() where T : class, ILocation, new()
     {
         return Repository.GetLocation<T>();
+    }
+
+    /// <summary>
+    /// Wrapper for base classes 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    protected T GetItem<T>() where T : class, IItem, new()
+    {
+        return Repository.GetItem<T>();
     }
 
     private string GetItemDescriptions()

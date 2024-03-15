@@ -11,4 +11,9 @@ internal class MadeUpItem : IInteractionTarget, ICanBeEaten, ICanBeTakenAndDropp
     public string? NeverPickedUpDescription => "";
 
     public bool HasEverBeenPickedUp => false;
+    
+    public void OnBeingTaken(IContext context)
+    {
+        throw new NotImplementedException();
+    }
 }

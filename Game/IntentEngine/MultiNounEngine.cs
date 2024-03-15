@@ -17,6 +17,17 @@ public class MultiNounEngine : IIntentEngine
         // After a multi-noun interaction, we will lose the ability to understand "it"
         context.LastNoun = "";
 
+        var result = context.CurrentLocation.RespondToMultiNounInteraction(interaction, context);
+        if (result?.InteractionHappened ?? false)
+            return result.InteractionMessage;
+
+        return await ProcessNonLocationTwoItemInteraction(context, generationClient, interaction);
+    }
+
+    private async Task<string> ProcessNonLocationTwoItemInteraction(IContext context,
+        IGenerationClient generationClient,
+        MultiNounIntent interaction)
+    {
         // There is no matching noun one or noun two at all, anywhere in the game. The user might have
         // talked about a unicorn, a bottle of tequila or some other meaningless item. 
         if (!Repository.ItemExistsInTheStory(interaction.NounOne) &&
