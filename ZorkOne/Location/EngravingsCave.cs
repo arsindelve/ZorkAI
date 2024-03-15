@@ -14,7 +14,7 @@ public class EngravingsCave : DarkLocation
         StartWithItem(Repository.GetItem<Engravings>(), this);
     }
     
-    protected override string Name => "Engravings Cave";
+    public override string Name => "Engravings Cave";
 
     protected override string ContextBasedDescription =>
         "You have entered a low cave with passages leading northwest and east.\n\nThere are old engravings on the walls here.";

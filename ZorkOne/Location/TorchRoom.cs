@@ -17,7 +17,7 @@ public class TorchRoom : DarkLocation
         };
 
 
-    protected override string Name => "Torch Room";
+    public override string Name => "Torch Room";
 
     protected override string ContextBasedDescription
     {

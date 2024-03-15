@@ -17,7 +17,7 @@ public class LivingRoom : BaseLocation
             ? $"and a rug lying beside {(Repository.GetItem<TrapDoor>().IsOpen ? "an open" : "a closed")} trap door"
             : "and a large oriental rug in the center of the room.")}";
 
-    protected override string Name => "Living Room";
+    public override string Name => "Living Room";
 
     protected override Dictionary<Direction, MovementParameters> Map => new()
     {

@@ -7,7 +7,7 @@ public class Gallery : BaseLocation
         StartWithItem(Repository.GetItem<Painting>(), this);
     }
 
-    protected override string Name => "Gallery";
+    public override string Name => "Gallery";
 
     protected override string ContextBasedDescription =>
         "This is an art gallery. Most of the paintings have been stolen by vandals with exceptional taste. The vandals left through either the north or west exits. ";

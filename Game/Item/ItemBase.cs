@@ -88,7 +88,7 @@ public abstract class ItemBase : IItem
             result.Add(new OpenAndCloseInteractionProcessor());
 
         if (item is ICanBeEaten)
-            result.Add(new EatInteractionProcessor());
+            result.Add(new EatAndDrinkInteractionProcessor());
 
         return result;
     }

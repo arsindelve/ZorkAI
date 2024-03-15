@@ -18,7 +18,7 @@ public class ForestOne : BaseLocation
         }
     };
 
-    protected override string Name => "Forest";
+    public override string Name => "Forest";
 
     protected override string ContextBasedDescription => "This is a forest, with trees in all directions. To the east, there appears to be sunlight. ";
 }

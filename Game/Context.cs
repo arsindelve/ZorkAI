@@ -62,6 +62,10 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         return sb.ToString();
     }
 
+    public bool IsTransparent => true;
+
+    public string Name => "Inventory";
+
     public void RemoveItem(IItem item)
     {
         Items.Remove(item);

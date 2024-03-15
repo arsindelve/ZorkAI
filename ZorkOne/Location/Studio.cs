@@ -7,7 +7,7 @@ public class Studio : BaseLocation
         StartWithItem(Repository.GetItem<Manual>(), this);
     }
 
-    protected override string Name => "Studio";
+    public override string Name => "Studio";
 
     protected override string ContextBasedDescription =>
         "This appears to have been an artist's studio. The walls and floors are splattered with paints of 69 different colors. " +

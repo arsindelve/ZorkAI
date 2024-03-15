@@ -19,7 +19,7 @@ public class DomeRoom : BaseLocation
             }
         };
 
-    protected override string Name => "Dome Room";
+    public override string Name => "Dome Room";
 
     // TODO: Implement fatal jump. 
 
