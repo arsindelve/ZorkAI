@@ -1,3 +1,5 @@
+using System.Transactions;
+
 namespace ZorkOne.Item;
 
 public class Bottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeExamined
@@ -8,6 +10,10 @@ public class Bottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeEx
     }
 
     protected override int SpaceForItems => 0;
+
+    public override bool IsTransparent => true;
+
+    public override string Name => "bottle";
 
     public override string[] NounsForMatching => ["bottle", "glass bottle"];
 

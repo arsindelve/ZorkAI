@@ -18,7 +18,7 @@ public class ForestFour : BaseLocation
         }
     };
 
-    protected override string Name => "Forest";
+    public override string Name => "Forest";
 
     protected override string ContextBasedDescription => "The forest thins out, revealing impassible mountains. ";
 }

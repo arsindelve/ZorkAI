@@ -15,7 +15,9 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     /// </summary>
     protected abstract Dictionary<Direction, MovementParameters> Map { get; }
 
-    protected abstract string Name { get; }
+    public bool IsTransparent => false;
+
+    public abstract string Name { get; }
 
     private int VisitCount { get; set; }
 

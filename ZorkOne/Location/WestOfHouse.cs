@@ -10,7 +10,7 @@ public class WestOfHouse : BaseLocation
     protected override string ContextBasedDescription =>
         "You are standing in an open field west of a white house, with a boarded front door. ";
 
-    protected override string Name => "West Of House";
+    public override string Name => "West Of House";
 
     protected override Dictionary<Direction, MovementParameters> Map => new()
     {

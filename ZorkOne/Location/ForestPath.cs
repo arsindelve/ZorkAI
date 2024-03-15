@@ -21,7 +21,7 @@ public class ForestPath : BaseLocation
         }
     };
 
-    protected override string Name => "Forest Path";
+    public override string Name => "Forest Path";
 
     protected override string ContextBasedDescription =>
         "This is a path winding through a dimly lit forest. The path heads north-south here. " +
