@@ -15,3 +15,8 @@ public interface ICanBeTurnedOnAndOff : IInteractionTarget
 
     public string AlreadyOnText { get; }
 }
+
+public interface ICannotBeTurnedOff : IInteractionTarget
+{
+    public string CannotBeTurnedOffMessage { get; }
+}

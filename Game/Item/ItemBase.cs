@@ -29,7 +29,7 @@ public abstract class ItemBase : IItem
     ///     When checking if an item matches the noun of a <see cref="SimpleIntent" />, this is the
     ///     property to check.
     /// </summary>
-    public virtual string[] NounsForMatching { get; } = [];
+    public abstract string[] NounsForMatching { get; }
 
     public virtual string Name => NounsForMatching.First();
 
@@ -86,6 +86,9 @@ public abstract class ItemBase : IItem
         if (item is ICanBeTurnedOnAndOff)
             result.Add(new TurnOnOrOffProcessor());
 
+        if (item is ICannotBeTurnedOff)
+            result.Add(new TurnOnOrOffProcessor());
+        
         if (item is IOpenAndClose)
             result.Add(new OpenAndCloseInteractionProcessor());
 

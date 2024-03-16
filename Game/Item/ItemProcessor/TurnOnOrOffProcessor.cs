@@ -17,39 +17,90 @@ public class TurnOnOrOffProcessor : IVerbProcessor
     /// <returns>An InteractionResult indicating the result of the action.</returns>
     public InteractionResult? Process(SimpleIntent action, IContext context, IInteractionTarget item)
     {
-        if (item is not ICanBeTurnedOnAndOff castItem)
-            throw new Exception("Cast error");
+        if (string.IsNullOrEmpty(action.Verb))
+            return null;
 
         switch (action.Verb.ToLowerInvariant().Trim())
         {
             case "turn on":
             case "activate":
-                return TurnItOn(castItem, context).Result;
+                return ProcessOn(context, item);
 
             case "turn off":
-                return TurnItOff(castItem, context).Result;
+            case "extinguish":
+                return ProcessOff(context, item);
 
             // Sometimes, the parser can't determine the adverb "on" or "off". It that case, hopefully,
             // the parser gave us the adverb. 
             case "turn":
+                return ProcessTurn(action, context, item);
+        }
 
-                var adverb = action.Adverb?.ToLowerInvariant().Trim();
-                if (string.IsNullOrEmpty(action.Adverb?.ToLowerInvariant().Trim()))
-                    return null;
+        return null;
+    }
+
+    private static InteractionResult? ProcessTurn(SimpleIntent action, IContext context, IInteractionTarget item)
+    {
+        var adverb = action.Adverb?.ToLowerInvariant().Trim();
+        if (string.IsNullOrEmpty(action.Adverb?.ToLowerInvariant().Trim()))
+            return null;
+
+        switch (item)
+        {
+            case ICanBeTurnedOnAndOff onAndOff:
 
                 switch (adverb)
                 {
                     case "on":
-                        return TurnItOn(castItem, context).Result;
+                        return TurnItOn(onAndOff, context).Result;
                     case "off":
-                        return TurnItOff(castItem, context).Result;
+                        return TurnItOff(onAndOff, context).Result;
 
                     default:
                         return null;
                 }
-        }
 
-        return null;
+            case ICannotBeTurnedOff noOnAndOff:
+
+                switch (adverb)
+                {
+                    case "off":
+                        return new PositiveInteractionResult(noOnAndOff.CannotBeTurnedOffMessage);
+
+                    default:
+                        return null;
+                }
+
+            default:
+                return null;
+        }
+    }
+
+    private static InteractionResult? ProcessOn(IContext context, IInteractionTarget item)
+    {
+        switch (item)
+        {
+            case ICanBeTurnedOnAndOff onAndOff:
+                return TurnItOn(onAndOff, context).Result;
+
+            default:
+                return null;
+        }
+    }
+
+    private static InteractionResult? ProcessOff(IContext context, IInteractionTarget item)
+    {
+        switch (item)
+        {
+            case ICanBeTurnedOnAndOff onAndOff:
+                return TurnItOff(onAndOff, context).Result;
+
+            case ICannotBeTurnedOff cannotBeTurnedOff:
+                return new PositiveInteractionResult(cannotBeTurnedOff.CannotBeTurnedOffMessage);
+
+            default:
+                return null;
+        }
     }
 
     private static async Task<InteractionResult> TurnItOff(ICanBeTurnedOnAndOff item, IContext context)

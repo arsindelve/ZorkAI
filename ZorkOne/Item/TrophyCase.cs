@@ -14,3 +14,4 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
 
     public override string Name => "trophy case";
 }
+
