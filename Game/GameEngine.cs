@@ -104,7 +104,7 @@ public class GameEngine<T> where T : IInfocomGame, new()
 
         Context.IncreaseMoves();
 
-        // Does the location have a special interaction to input such as "jump"? 
+        // Does the location have a special interaction to input such as "jump" or "pray"? 
         var singleVerbResult = Context.CurrentLocation.RespondToSpecificLocationInteraction(input, Context);
         if (singleVerbResult.InteractionHappened)
             return singleVerbResult.InteractionMessage;

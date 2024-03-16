@@ -17,4 +17,7 @@ public class Painting : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
         "Fortunately, there is still one chance for you to be a vandal, for on the far wall is a painting of unparalleled beauty. ";
 
     public override int Size => 4;
+    
+    // TODO: >cut painting with sword
+    // Your skillful swordsmanship slices the painting into innumerable slivers which blow away.
 }

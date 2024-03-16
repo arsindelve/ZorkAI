@@ -45,6 +45,9 @@ public static class GlobalCommandFactory
             case "what is my score":
                 return new ScoreProcessor();
 
+            case "xyzzy":
+                return new FoolProcessor();
+            
             case "restart":
             case "restart the game":
             case "start over":

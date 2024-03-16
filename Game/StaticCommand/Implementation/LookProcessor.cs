@@ -13,5 +13,7 @@ internal class LookProcessor : IGlobalCommand
             return Task.FromResult(darkLocation.DarkDescription);
 
         return Task.FromResult(context.CurrentLocation.Description);
+        
+        // TODO: Implement Verbosity 
     }
 }

@@ -58,4 +58,18 @@ public class GameSpecificTests : EngineTestsBase
         // Assert
         target.Context.CurrentLocation.Should().Be(Repository.GetLocation<UpATree>());
     }
+    
+    [Test]
+    public async Task PrayAtTheAltar()
+    {
+        var target = GetTarget(new IntentParser());
+        target.Context.CurrentLocation = Repository.GetLocation<Altar>();
+
+        // Act
+        string? result = await target.GetResponse("pray");
+        
+        // Assert
+        target.Context.CurrentLocation.Should().Be(Repository.GetLocation<ForestOne>());
+        result.Should().Contain("sunlight");
+    }
 }
