@@ -10,12 +10,23 @@ to make the interactivity much deeper. I want an intelligent text parser, and a 
 If your command moves the story forward, or changes the state of the game, then I want to preserve the original story. If not,
 the AI Narrator should give you a meaningful, funny response that keeps you immersed in the Great Underground Empire
 
+I've written a brand new Interactive Fiction Engine in C#, with corresponding C# game files for the first 30%
+of Zork I. I've also included the first location of Zork II to show the separation from the game implementation and the
+game files themselves. 
+
+For the input parser, I'm using AWS Lex. For the generated responses, I'm using Open AI's "gpt-4-turbo-preview". The code
+for implementing the Open AI API is really very simple, as one would expect, the challenge (and what I think makes this
+implementation work) is the creation of the prompts for various scenarios. I've spent hours tweaking them, and expect to spend
+many more 
+
 The code in this repository IS NOT a full game....yet. But it does demonstrate that this can work, and can have
-truly excellent results! (Thanks mostly to how good GPT4 is). When the game is ready to deploy, I'll update this readme with a link to the working prototype.  
+truly excellent results! (Thanks mostly to how good GPT4 is). I'll keep implementing the rest of the Zork I story,
+items and location, finding new scenarios that the engine can't handle (combat with the troll is and example), but the
+game is quite playable in it's current state. 
 
-**None of the source code or executable of the original Zork is being used in any way.** The code for ZorkAI is written in C# and uses 
-OpenAI and AmazonLex APIs
+**None of the source code or executable of the original Zork is being used in any way.** 
 
+Questions? Feedback? Want to test or help implement this? Drop me a line: zorkai@mikeindallas.com 
 
 
 - https://www.pcjs.org/software/pcx86/game/infocom/zork1/
@@ -24,7 +35,7 @@ OpenAI and AmazonLex APIs
 
 
 ## Teaser 
-_(These are all real responses generated from the source code in the repository)_
+These are all real responses generated from the source code in the repository. None of the source code or executable of the original Zork is being used in any way for the ZORK AI responses
 
 ----
 
@@ -82,7 +93,7 @@ _(These are all real responses generated from the source code in the repository)
 
 ### Original Zork 1:
 
-> what should I do now?
+>  what should I do now?
 
 > I don't know the word "should".
 
@@ -91,3 +102,19 @@ _(These are all real responses generated from the source code in the repository)
 >  what should I do now?
 
 > Ah, the smell of adventure in an open field, nothing quite like it! As for what to do, perhaps serenading the mailbox with your tales of yore might be entertaining. But remember, I'm merely the narrator; your destiny is yours to write.
+> 
+> 
+> <span class="c3"></span>
+
+----
+
+## Sample Transcript (Warning: Spoilers for Zork I)
+These are all real responses generated from the source code in the repository, compared
+with responses for the same inputs from the original Zork I. This transcript follows the adventurer all
+the way into the cellar. 
+
+----
+
+- https://docs.google.com/document/d/1gurLLw5nfs2lEjQZZH-aBQ5aeR-5lUsNage14F5C79s/edit?usp=sharing
+
+
