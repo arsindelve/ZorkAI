@@ -57,7 +57,12 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         await Do("E", "You are at the periphery of a large dome, which forms the ceiling of another room below", "Dome Room");
         await Do("tie rope to railing", "The rope drops over the side and comes within ten feet of the floor.");
         await Do("go down", "Torch Room", "Sitting on the pedestal is a flaming torch, made of ivory.");
-
+        await Do("S", "Temple");
+        
+        // Get the coffin 
+        
+        await Do("S", "Altar");
+        await Do("pray", "Forest", "sunlight");
         
     }
 

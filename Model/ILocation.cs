@@ -32,6 +32,7 @@ public interface ILocation
     /// <param name="context">The current context, in case we need it during action processing.</param>
     /// <returns>InteractionResult that describes if and and how the interaction took place.</returns>
     InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context);
+    
 
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="MultiNounIntent" /> corresponding

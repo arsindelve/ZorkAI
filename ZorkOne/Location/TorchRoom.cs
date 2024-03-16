@@ -10,6 +10,7 @@ public class TorchRoom : DarkLocation
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
+            { Direction.S, new MovementParameters { Location = GetLocation<Temple>() } },
             {
                 Direction.Up,
                 new MovementParameters

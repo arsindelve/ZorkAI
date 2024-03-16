@@ -88,7 +88,7 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
 
         return result ?? new NoNounMatchInteractionResult();
     }
-
+    
     public virtual InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
         return new NoNounMatchInteractionResult();
