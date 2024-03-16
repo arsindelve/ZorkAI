@@ -22,7 +22,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             case "snatch":
 
                 if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
-                    return new PositiveInteractionResult("It's too dark too see!");
+                    return new PositiveInteractionResult("It's too dark to see!");
                 
                 if (context.HasMatchingNoun(action.Noun))
                     return new PositiveInteractionResult("You already have that!");
