@@ -154,7 +154,7 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return Repository.GetItem<T>();
     }
 
-    private string GetItemDescriptions()
+    protected string GetItemDescriptions()
     {
         if (Items.Count == 0)
             return string.Empty;

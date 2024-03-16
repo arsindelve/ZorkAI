@@ -49,6 +49,16 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         await Do("open trap door", "The door reluctantly opens to reveal a rickety staircase descending into darkness");
         await Do("go down", "The trap door crashes shut", "faint blue glow");
         await Do("N", "Bloodstains", "very brightly", "nasty-looking troll");
+        // TODO: Kill the troll
+        await Do("drop sword", "Dropped");
+        await Do("E", "This is a narrow east-west passageway");
+        await Do("E", "This is a circular stone room with passages in all direction", "Round Room");
+        await Do("SE", "There are old engravings on the walls here", "Engravings Cave");
+        await Do("E", "You are at the periphery of a large dome, which forms the ceiling of another room below", "Dome Room");
+        await Do("tie rope to railing", "The rope drops over the side and comes within ten feet of the floor.");
+        await Do("go down", "Torch Room", "Sitting on the pedestal is a flaming torch, made of ivory.");
+
+        
     }
 
     private async Task Do(string input, params string[] outputs)

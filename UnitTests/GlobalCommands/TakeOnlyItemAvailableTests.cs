@@ -44,6 +44,9 @@ public class TakeOnlyItemAvailableTests : EngineTestsBase
     public async Task Take_MultipleItemsToTake_SecondPass()
     {
         var engine = GetTarget(new IntentParser());
+        Repository.GetItem<Lantern>().IsOn = true;
+        engine.Context.Take(Repository.GetItem<Lantern>());
+        engine.Context.CurrentLocation = Repository.GetLocation<Attic>();
         engine.Context.CurrentLocation = Repository.GetLocation<Attic>();
 
         // Act

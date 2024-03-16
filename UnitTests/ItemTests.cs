@@ -196,4 +196,14 @@ public class ItemTests : EngineTestsBase
         response.Should().NotContain("leaflet");
 
     }
+    
+    [Test]
+    public void TorchIsALightSource()
+    {
+        var engine = GetTarget();
+        engine.Context.Take(Repository.GetItem<Torch>());
+        
+        // Act, Assert
+        engine.Context.HasLightSource.Should().BeTrue();
+    }
 }

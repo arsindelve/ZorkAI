@@ -43,10 +43,15 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     {
         get
         {
-            return Items
+            var constantLightSources = Items
                 .Where(s => s is IAmALightSource)
-                .Cast<ICanBeTurnedOnAndOff>()
-                .Any(s => s.IsOn);
+                .Where(s => s is ICannotBeTurnedOff);
+
+            var lightSourcesThatAreOn = Items
+                .Where(s => s is IAmALightSource)
+                .Where(s => s is ICanBeTurnedOnAndOff { IsOn: true });
+            
+            return constantLightSources.Any() || lightSourcesThatAreOn.Any();
         }
     }
 

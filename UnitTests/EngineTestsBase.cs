@@ -174,6 +174,16 @@ public class EngineTestsBase
                     Verb = "put",
                     OriginalInput = "put painting inside case"
                 });
+            
+            mockParser.Setup(s => s.DetermineIntentType("tie rope to railing", It.IsAny<string>()))
+                .ReturnsAsync(new MultiNounIntent
+                {
+                    NounOne = "rope",
+                    NounTwo = "railing",
+                    Preposition = "to",
+                    Verb = "tie",
+                    OriginalInput = "tie rope to railing"
+                });
         }
         else
         {

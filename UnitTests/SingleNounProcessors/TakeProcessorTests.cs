@@ -82,6 +82,8 @@ public class TakeProcessorTests : EngineTestsBase
     public async Task TakeItemIAlreadyHave()
     {
         var target = GetTarget();
+        Repository.GetItem<Lantern>().IsOn = true;
+        target.Context.Take(Repository.GetItem<Lantern>());
         target.Context.CurrentLocation = Repository.GetLocation<Attic>();
         await target.GetResponse("take rope");
         var result = await target.GetResponse("take rope");
