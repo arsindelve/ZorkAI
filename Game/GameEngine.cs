@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Game.IntentEngine;
 using Game.StaticCommand;
 using Game.StaticCommand.Implementation;
+using Newtonsoft.Json;
 
 namespace Game;
 
@@ -24,7 +25,7 @@ public class GameEngine<T> where T : IInfocomGame, new()
     private readonly IIntentParser _parser;
 
     private readonly string _sessionId = Guid.NewGuid().ToString();
-    internal readonly Context<T> Context;
+    internal Context<T> Context;
 
     public readonly string IntroText;
     private IStatefulProcessor? _processorInProgress;
@@ -32,10 +33,10 @@ public class GameEngine<T> where T : IInfocomGame, new()
     public GameEngine()
     {
         var gameEngine = new T();
-        var instance = Activator.CreateInstance(gameEngine.StartingLocation) as ILocation;
 
-        if (instance == null)
+        if (Activator.CreateInstance(gameEngine.StartingLocation) is not ILocation)
             throw new Exception();
+        
         Context = new Context<T>();
         IntroText = $"""
                      {gameEngine.StartText}
@@ -174,4 +175,32 @@ public class GameEngine<T> where T : IInfocomGame, new()
         var result = await _generator.CompleteChat(request);
         return result;
     }
+    
+    internal void RestoreGame(string data)
+    {
+        var deserializeObject = JsonConvert.DeserializeObject<SavedGame<T>>(data, JsonSettings());
+        var allItems = deserializeObject?.AllItems ?? throw new ArgumentException();
+        var allLocations = deserializeObject?.AllLocations ?? throw new ArgumentException();
+
+        Repository.Restore(allItems, allLocations);
+        
+        Context = deserializeObject?.Context ?? throw new ArgumentException();
+    }
+    
+    internal string SaveGame()
+    {
+        var savedGame = Repository.Save<T>();
+        savedGame.Context = Context;
+        return JsonConvert.SerializeObject(savedGame, JsonSettings());
+    }
+    
+    private static JsonSerializerSettings? JsonSettings()
+    {
+        return new JsonSerializerSettings
+        {
+            TypeNameHandling = TypeNameHandling.All,
+            PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+        };
+    }
+
 }

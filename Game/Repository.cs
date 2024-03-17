@@ -21,13 +21,24 @@ public static class Repository
     private static Dictionary<Type, IItem> _allItems = new();
     private static Dictionary<Type, ILocation> _allLocations = new();
 
+
+    internal static SavedGame<T> Save<T>() where T : IInfocomGame, new()
+    {
+        return new SavedGame<T>
+        {
+            AllLocations = _allLocations,
+            AllItems = _allItems
+        };
+    }
+
+
     internal static bool ItemExistsInTheStory(string? item)
     {
         if (string.IsNullOrEmpty(item))
             return false;
 
         item = item.ToLowerInvariant().Trim();
-        
+
         return _allItems
             .Any(i => i.Value.NounsForMatching.Any(s => s
                 .Equals(item, StringComparison.OrdinalIgnoreCase)));
@@ -75,5 +86,11 @@ public static class Repository
 
         _allLocations.Add(gameEngine.StartingLocation, instance);
         return instance;
+    }
+
+    internal static void Restore(Dictionary<Type, IItem> allItems, Dictionary<Type, ILocation> allLocations)
+    {
+        _allItems = allItems;
+        _allLocations = allLocations;
     }
 }
