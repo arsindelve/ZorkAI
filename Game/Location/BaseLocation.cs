@@ -21,7 +21,7 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
 
     private int VisitCount { get; set; }
 
-    private List<IItem> Items { get; } = new();
+    public List<IItem> Items { get; set; } = new();
 
     protected abstract string ContextBasedDescription { get; }
 
@@ -39,8 +39,6 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     {
         return true;
     }
-
-    public ReadOnlyCollection<IItem> LocationItems => Items.AsReadOnly();
 
     public virtual string AfterEnterLocation(IContext context)
     {
@@ -63,6 +61,8 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     }
 
     public virtual string Description => Name + Environment.NewLine + ContextBasedDescription + GetItemDescriptions();
+
+    public abstract void Init();
 
     public virtual string DescriptionForGeneration => ContextBasedDescription;
 

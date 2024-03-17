@@ -2,14 +2,6 @@ namespace ZorkOne.Location;
 
 public class LivingRoom : BaseLocation
 {
-    public LivingRoom()
-    {
-        StartWithItem(Repository.GetItem<Sword>(), this);
-        StartWithItem(Repository.GetItem<Lantern>(), this);
-        StartWithItem(Repository.GetItem<Rug>(), this);
-        StartWithItem(Repository.GetItem<TrophyCase>(), this);
-    }
-
     protected override string ContextBasedDescription =>
         $"You are in the living room. There is a doorway to the east, a wooden door with strange gothic lettering to the west, " +
         $"which appears to be nailed shut, a trophy case, " +
@@ -45,4 +37,12 @@ public class LivingRoom : BaseLocation
             }
         }
     };
+
+    public override void Init()
+    {
+        StartWithItem(Repository.GetItem<Sword>(), this);
+        StartWithItem(Repository.GetItem<Lantern>(), this);
+        StartWithItem(Repository.GetItem<Rug>(), this);
+        StartWithItem(Repository.GetItem<TrophyCase>(), this);
+    }
 }

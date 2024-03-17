@@ -7,8 +7,6 @@ namespace Game.Item;
 /// </summary>
 public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
 {
-    public bool AmIOpen => ((IOpenAndClose)this).IsOpen;
-    
     public bool HasEverBeenOpened { get; set; }
 
     public virtual string AlreadyClosed => "It is already closed.";
@@ -26,7 +24,7 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
         InteractionResult? result = null;
 
         // See if one of the items inside me has a matching interaction.
-        if (AmIOpen || IsTransparent)
+        if (IsOpen || IsTransparent)
             foreach (var item in Items.ToList())
             {
                result = item.RespondToSimpleInteraction(action, context);
@@ -45,7 +43,7 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
 
     public override bool HasMatchingNoun(string? noun)
     {
-        return AmIOpen
+        return IsOpen
             ? base.HasMatchingNoun(noun)
             : NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
     }

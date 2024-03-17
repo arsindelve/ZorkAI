@@ -1,6 +1,6 @@
 ﻿namespace ZorkOne.Location;
 
-public class CanyonView : BaseLocation
+public class CanyonView : LocationWithNoStartingItems
 {
     public override string Name => "Canyon View";
 

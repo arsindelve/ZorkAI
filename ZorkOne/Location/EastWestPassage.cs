@@ -14,4 +14,8 @@ public class EastWestPassage : DarkLocation
 
     protected override string ContextBasedDescription =>
         "This is a narrow east-west passageway. There is a narrow stairway leading down at the north end of the room.";
+
+    public override void Init()
+    {
+    }
 }

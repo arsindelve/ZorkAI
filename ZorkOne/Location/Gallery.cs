@@ -2,11 +2,6 @@ namespace ZorkOne.Location;
 
 public class Gallery : BaseLocation
 {
-    public Gallery()
-    {
-        StartWithItem(Repository.GetItem<Painting>(), this);
-    }
-
     public override string Name => "Gallery";
 
     protected override string ContextBasedDescription =>
@@ -18,4 +13,9 @@ public class Gallery : BaseLocation
             { Direction.W, new MovementParameters { Location = GetLocation<EastOfChasm>() } },
             { Direction.N, new MovementParameters { Location = GetLocation<Studio>() } }
         };
+
+    public override void Init()
+    {
+        StartWithItem(Repository.GetItem<Painting>(), this);
+    }
 }

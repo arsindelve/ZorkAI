@@ -5,6 +5,10 @@ public class ClearingBehindHouse : BaseLocation
     protected override string ContextBasedDescription =>
         "You are in a small clearing in a well marked forest path that extends to the east and west.";
 
+    public override void Init()
+    {
+    }
+
     public override string Name => "Clearing";
 
     protected override Dictionary<Direction, MovementParameters> Map => new()

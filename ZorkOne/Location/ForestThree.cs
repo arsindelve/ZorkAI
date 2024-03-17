@@ -1,6 +1,6 @@
 ﻿namespace ZorkOne.Location;
 
-public class ForestThree : BaseLocation
+public class ForestThree : LocationWithNoStartingItems
 {
     protected override Dictionary<Direction, MovementParameters> Map => new()
     {

@@ -48,6 +48,10 @@ public class Cellar : DarkLocation
         return result;
     }
 
+    public override void Init()
+    {
+    }
+
     public override string AfterEnterLocation(IContext context)
     {
         var swordInPossession = context.HasItem<Sword>();

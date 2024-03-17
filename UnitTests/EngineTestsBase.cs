@@ -191,7 +191,10 @@ public class EngineTestsBase
         }
 
         Repository.Reset();
+       
         var engine = new GameEngine<ZorkI>(Parser, Client.Object);
+        Repository.GetLocation<WestOfHouse>().Init();
+      
         return engine;
     }
 }

@@ -2,12 +2,6 @@ namespace ZorkOne.Location;
 
 public class Attic : DarkLocation
 {
-    public Attic()
-    {
-        StartWithItem(Repository.GetItem<Rope>(), this);
-        StartWithItem(Repository.GetItem<Knife>(), this);
-    }
-
     public override string Name => "Attic";
 
     protected override string ContextBasedDescription =>
@@ -18,4 +12,10 @@ public class Attic : DarkLocation
         {
             { Direction.Down, new MovementParameters { Location = GetLocation<Kitchen>() } }
         };
+
+    public override void Init()
+    {
+        StartWithItem(Repository.GetItem<Rope>(), this);
+        StartWithItem(Repository.GetItem<Knife>(), this);
+    }
 }

@@ -25,8 +25,8 @@ public class TakeOnlyAvailableItemProcessor : IStatefulProcessor
             _secondTimeProcessing = true;
             ContinueProcessing = true;
 
-            var location = context.CurrentLocation;
-            var itemsHere = location.LocationItems.Where(s => s is ICanBeTakenAndDropped).ToList();
+            var location = context.CurrentLocation as ICanHoldItems;
+            var itemsHere = location.Items.Where(s => s is ICanBeTakenAndDropped).ToList();
 
             if (itemsHere.Count != 1)
             {

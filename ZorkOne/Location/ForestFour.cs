@@ -21,4 +21,8 @@ public class ForestFour : BaseLocation
     public override string Name => "Forest";
 
     protected override string ContextBasedDescription => "The forest thins out, revealing impassible mountains. ";
+    
+    public override void Init()
+    {
+    }
 }

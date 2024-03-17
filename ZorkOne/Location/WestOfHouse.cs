@@ -2,11 +2,6 @@ namespace ZorkOne.Location;
 
 public class WestOfHouse : BaseLocation
 {
-    public WestOfHouse()
-    {
-        StartWithItem(Repository.GetItem<Mailbox>(), this);
-    }
-
     protected override string ContextBasedDescription =>
         "You are standing in an open field west of a white house, with a boarded front door. ";
 
@@ -32,4 +27,9 @@ public class WestOfHouse : BaseLocation
             }
         }
     };
+
+    public override void Init()
+    {
+        StartWithItem(Repository.GetItem<Mailbox>(), this);
+    }
 }

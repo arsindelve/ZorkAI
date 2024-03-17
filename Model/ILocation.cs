@@ -9,12 +9,12 @@ public interface ILocation
 {
     string Description { get; }
 
-    string DescriptionForGeneration { get; }
-
     /// <summary>
-    ///     Get a read-only list of the items in the current location.
+    ///     Gets called the first time a location is referenced. 
     /// </summary>
-    ReadOnlyCollection<IItem> LocationItems { get; }
+    void Init(); 
+    
+    string DescriptionForGeneration { get; }
 
     /// <summary>
     ///     Gets called when we enter a location in case there are any interactions

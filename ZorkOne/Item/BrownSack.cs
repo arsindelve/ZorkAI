@@ -10,7 +10,7 @@ public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenA
 
     public override string[] NounsForMatching => ["sack", "brown sack"];
 
-    public override string InInventoryDescription => AmIOpen && Items.Any()
+    public override string InInventoryDescription => IsOpen && Items.Any()
         ? "A brown sack" + Environment.NewLine + ItemListDescription("brown sack")
         : "A brown sack";
 
@@ -22,7 +22,7 @@ public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenA
 
     string ICanBeTakenAndDropped.OnTheGroundDescription => !HasEverBeenOpened && !HasEverBeenPickedUp
         ? "On the table is an elongated brown sack, smelling of hot peppers. "
-        : AmIOpen && Items.Any()
+        : IsOpen && Items.Any()
             ? "There is a brown sack here." + Environment.NewLine + ItemListDescription("brown sack")
             : "There is a brown sack here.";
 

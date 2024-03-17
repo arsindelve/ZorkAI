@@ -33,6 +33,8 @@ public interface ICanHoldItems : IInteractionTarget
     /// <returns>True if the container or context has an item with a matching noun, otherwise false.</returns>
     bool HasMatchingNoun(string? noun);
 
+    List<IItem>? Items { get; }
+    
     /// <summary>
     ///     Checks if the container or context has room to hold the given item.
     /// </summary>
