@@ -28,6 +28,11 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
                     // We have to take it from the container. 
                     return new PositiveInteractionResult("You already have that!");
 
+                var container = castItem.CurrentLocation as IItem;
+                
+                if (container is IOpenAndClose { IsOpen: false })
+                    return new PositiveInteractionResult($"The {container.Name} is not open. ");
+                
                 context.Take(castItem);
                 takeItem.OnBeingTaken(context);
                 return new PositiveInteractionResult("Taken.");

@@ -60,6 +60,15 @@ public class TakeProcessorTests : EngineTestsBase
     }
     
     [Test]
+    public async Task TakeItemFromClosedTransparentContainer()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
+        var result = await target.GetResponse("take water");
+        result.Should().Contain("is not open");
+    }
+    
+    [Test]
     public async Task TakeFirstItemFromContainer()
     {
         var target = GetTarget();
@@ -88,6 +97,17 @@ public class TakeProcessorTests : EngineTestsBase
         await target.GetResponse("take rope");
         var result = await target.GetResponse("take rope");
         result.Should().Contain("already have that");
+    }
+    
+    [Test]
+    public async Task TakeItemIAlreadyHaveInsideAContainer()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
+        await target.GetResponse("take sack");
+        await target.GetResponse("open sack");
+        var result = await target.GetResponse("take garlic");
+        result.Should().Contain("Taken");
     }
     
 }

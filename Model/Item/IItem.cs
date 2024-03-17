@@ -29,7 +29,7 @@ public interface IItem : IInteractionTarget
 
     int Size { get; }
 
-    bool HasMatchingNoun(string? noun);
+    bool HasMatchingNoun(string? noun, bool lookInsideContainers = true);
     
     InteractionResult? RespondToSimpleInteraction(SimpleIntent action, IContext context);
 }

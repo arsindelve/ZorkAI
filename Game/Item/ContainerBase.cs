@@ -33,12 +33,12 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         return Items.Contains(Repository.GetItem<T>());
     }
 
-    public bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)
+    public override bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
         var hasMatch = NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
 
         if (lookInsideContainers)
-            Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun));
+            Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun, lookInsideContainers));
 
         return hasMatch;
     }

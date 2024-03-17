@@ -122,9 +122,7 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     public bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
         var hasMatch = false;
-
-        if (lookInsideContainers)
-            Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun));
+        Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun, lookInsideContainers ));
 
         return hasMatch;
     }
