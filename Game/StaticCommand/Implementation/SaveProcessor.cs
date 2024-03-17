@@ -15,7 +15,7 @@ internal class SaveProcessor : IStatefulProcessor
 
     public bool Completed { get; private set; }
 
-    public bool ContinueProcessing => false;
+    bool IStatefulProcessor.ContinueProcessing => false;
 
     private async Task<string> AttemptTheSave(string? input, IContext context, IGenerationClient client)
     {
