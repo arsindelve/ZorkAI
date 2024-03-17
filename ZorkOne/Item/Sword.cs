@@ -12,7 +12,7 @@ public class Sword : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
 
     public string ExaminationDescription => "There's nothing special about the sword.";
 
-    public string OnTheGroundDescription => "There is a sword here";
+    public string OnTheGroundDescription => "There is a sword here. ";
 
     public override string NeverPickedUpDescription =>
         "Above the trophy case hangs an elvish sword of great antiquity.";

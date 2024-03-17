@@ -11,6 +11,8 @@ public interface ICanHoldItems : IInteractionTarget
 
     string Name { get; }
 
+    List<IItem>? Items { get; }
+
     void RemoveItem(IItem item);
 
     /// <summary>
@@ -30,11 +32,13 @@ public interface ICanHoldItems : IInteractionTarget
     ///     Checks if the container or context has an item with a matching noun.
     /// </summary>
     /// <param name="noun">The noun to match against.</param>
+    /// <param name="lookInsideContainers">
+    ///     If true, the container will return true if the item
+    ///     is inside the given container, even if it's inside another container
+    /// </param>
     /// <returns>True if the container or context has an item with a matching noun, otherwise false.</returns>
-    bool HasMatchingNoun(string? noun);
+    bool HasMatchingNoun(string? noun, bool lookInsideContainers = true);
 
-    List<IItem>? Items { get; }
-    
     /// <summary>
     ///     Checks if the container or context has room to hold the given item.
     /// </summary>

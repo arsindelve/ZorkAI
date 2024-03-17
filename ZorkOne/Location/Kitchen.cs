@@ -8,7 +8,7 @@ public class Kitchen : BaseLocation
         $"You are in the kitchen of the white house. A table seems to have been " +
         $"used recently for the preparation of food. A passage leads to the west " +
         $"and a dark staircase can be seen leading upward. A dark chimney leads down " +
-        $"and to the east is a small window which is {(GetItem<KitchenWindow>().IsOpen ? "open" : "closed")}.";
+        $"and to the east is a small window which is {(GetItem<KitchenWindow>().IsOpen ? "open" : "closed")}. ";
 
     public override string Name => "Kitchen";
 

@@ -148,7 +148,7 @@ public class ItemTests : EngineTestsBase
         var engine = GetTarget();
 
         // Assert
-        Repository.GetItem<Mailbox>().HasMatchingNoun("leaflet").Should().BeFalse();
+        Repository.GetItem<Mailbox>().HasMatchingNoun("leaflet", false).Should().BeFalse();
 
         // Act
         await engine.GetResponse("open mailbox");

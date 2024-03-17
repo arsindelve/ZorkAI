@@ -69,8 +69,9 @@ public interface ILocation
     ///     Checks if the location has an item that matches the given noun.
     /// </summary>
     /// <param name="noun">The noun to match against the items in the location.</param>
+    /// <param name="lookInsideContainers"></param>
     /// <returns>True if the location has an item that matches the given noun; otherwise, false.</returns>
-    bool HasMatchingNoun(string? noun);
+    bool HasMatchingNoun(string? noun, bool lookInsideContainers = true);
 
     /// <summary>
     ///     Gets called when we enter a location in case there are any interactions

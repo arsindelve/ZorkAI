@@ -39,10 +39,10 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     public IGameEngine? Engine { get; set; }
 
     public string LastNoun { get; set; } = "";
-    
-    public int Moves { get;  set; }
-    
-    public int Score { get;  set; }
+
+    public int Moves { get; set; }
+
+    public int Score { get; set; }
 
     /// <summary>
     ///     Gets or sets the current location of the player in the game.
@@ -119,10 +119,12 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         return Items.Contains(Repository.GetItem<TItem>());
     }
 
-    public bool HasMatchingNoun(string? noun)
+    public bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
         var hasMatch = false;
-        Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun));
+
+        if (lookInsideContainers)
+            Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun));
 
         return hasMatch;
     }

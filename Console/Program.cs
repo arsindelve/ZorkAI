@@ -4,7 +4,7 @@ using ZorkOne;
 Console.ForegroundColor = ConsoleColor.DarkCyan;
 
 var engine = CreateEngine();
-Utilities.Utilities.WriteLineWordWrap(engine.IntroText);
+Utilities.Utilities.WriteLineWordWrap(engine.IntroText + Environment.NewLine);
 
 var result = string.Empty;
 
