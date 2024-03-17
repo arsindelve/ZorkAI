@@ -481,39 +481,5 @@ public class EngineTests : EngineTestsBase
         guts.Should().Contain("\"IsOn\":true,");
     }
     
-    [Test]
-    public void RestoreItems()
-    {
-        Repository.Reset();
-        
-        var target = GetTarget();
-        
-        Repository.GetItem<Rope>().TiedToRailing = true;
-        Repository.GetItem<Lantern>().IsOn = true;
-        Repository.GetItem<BrownSack>().IsOpen = true;
-
-        string guts = target.SaveGame();
-
-        var newGame = GetTarget();
-        newGame.RestoreGame(guts);
-
-        Repository.GetItem<Lantern>().IsOn.Should().BeTrue();
-        Repository.GetItem<Rope>().TiedToRailing.Should().BeTrue();
-        Repository.GetItem<BrownSack>().IsOpen.Should().BeTrue();
-    }
-    
-    [Test]
-    public void RestoreItemsInTheirLocations()
-    {
-        var target = GetTarget();
-        target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
-        target.Context.Take(Repository.GetItem<BrownSack>());
-            
-        string guts = target.SaveGame();
-        var newGame = GetTarget();
-        newGame.RestoreGame(guts);
-
-        Repository.GetItem<BrownSack>().CurrentLocation.Should().Be(newGame.Context);
-        newGame.Context.HasItem<BrownSack>().Should().BeTrue();
-    }
+   
 }

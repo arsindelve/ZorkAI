@@ -171,7 +171,7 @@ public class PutProcessorTests : EngineTestsBase
         var mailbox = Repository.GetItem<Mailbox>();
         mailbox.RemoveItem(leaflet);
         ((IOpenAndClose)mailbox).IsOpen = true;
-        lantern.CurrentLocation = new Context<ZorkI>(null);
+        lantern.CurrentLocation = new Context<ZorkI>(null, new ZorkI());
 
         // Act
         var result = target.Process(new MultiNounIntent

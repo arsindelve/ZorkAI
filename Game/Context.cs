@@ -13,9 +13,11 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     /// <summary>
     ///     Starts the game in the default start location.
     /// </summary>
-    public Context(IGameEngine engine)
+    public Context(IGameEngine engine, T gameType)
     {
+        GameType = gameType;
         Engine = engine;
+
         CurrentLocation = Repository.GetStartingLocation<T>();
         CurrentLocation.Init();
         Score = 0;
@@ -32,11 +34,15 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         Moves = 0;
     }
 
-    public IGameEngine? Engine { get; internal set; }
+    private T GameType { get; set; }
+
+    public IGameEngine? Engine { get; set; }
 
     public string LastNoun { get; set; } = "";
-    public int Moves { get; private set; }
-    public int Score { get; private set; }
+    
+    public int Moves { get;  set; }
+    
+    public int Score { get;  set; }
 
     /// <summary>
     ///     Gets or sets the current location of the player in the game.
@@ -80,6 +86,14 @@ public class Context<T> : IContext where T : IInfocomGame, new()
 
         return sb.ToString();
     }
+
+    public IInfocomGame Game
+    {
+        get => GameType;
+        internal set => GameType = (T)value;
+    }
+
+    public string LastSaveGameName { get; set; }
 
     public bool IsTransparent => true;
 
