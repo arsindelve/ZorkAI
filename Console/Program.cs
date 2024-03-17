@@ -20,9 +20,10 @@ while (result != "-1")
     {
         engine = CreateEngine();
         Utilities.Utilities.WriteLineWordWrap(engine.IntroText);
+        continue;
     }
 
-    else if (result?.Trim().StartsWith("-1") ?? false)
+    if (result?.Trim().StartsWith("-1") ?? false)
     {
         Environment.Exit(0);
     }

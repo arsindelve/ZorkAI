@@ -1,5 +1,4 @@
 using Model.Item;
-using Newtonsoft.Json;
 
 namespace Game;
 
@@ -14,12 +13,25 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     /// <summary>
     ///     Starts the game in the default start location.
     /// </summary>
+    public Context(IGameEngine engine)
+    {
+        Engine = engine;
+        CurrentLocation = Repository.GetStartingLocation<T>();
+        Score = 0;
+        Moves = 0;
+    }
+
+    /// <summary>
+    ///     Starts the game in the default start location.
+    /// </summary>
     public Context()
     {
         CurrentLocation = Repository.GetStartingLocation<T>();
         Score = 0;
         Moves = 0;
     }
+
+    public IGameEngine? Engine { get; internal set; }
 
     public string LastNoun { get; set; } = "";
     public int Moves { get; private set; }
@@ -51,7 +63,7 @@ public class Context<T> : IContext where T : IInfocomGame, new()
             var lightSourcesThatAreOn = Items
                 .Where(s => s is IAmALightSource)
                 .Where(s => s is ICanBeTurnedOnAndOff { IsOn: true });
-            
+
             return constantLightSources.Any() || lightSourcesThatAreOn.Any();
         }
     }

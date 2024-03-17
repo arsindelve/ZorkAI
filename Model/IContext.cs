@@ -10,6 +10,8 @@ public interface IContext : ICanHoldItems
     ///     Represents adventurer's current score.
     /// </summary>
     int Score { get; }
+    
+    IGameEngine? Engine { get; }
 
     /// <summary>
     ///     Gets or sets the last noun in the game context.
