@@ -8,6 +8,8 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
 
     public override string CannotBeTakenDescription => "The trophy case is securely fastened to the wall.";
 
+    public override bool IsTransparent => true;
+
     protected override int SpaceForItems => int.MaxValue;
 
     public override string Name => "trophy case";

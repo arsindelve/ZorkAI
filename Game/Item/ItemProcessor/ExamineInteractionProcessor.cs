@@ -20,6 +20,10 @@ public class ExamineInteractionProcessor : IVerbProcessor
             case "look at":
             case "peek at":
             case "look in":
+                
+                if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
+                    return new PositiveInteractionResult("It's too dark to see!");
+                
                 return new PositiveInteractionResult(castItem.ExaminationDescription);
         }
 

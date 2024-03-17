@@ -42,4 +42,17 @@ public class ExamineProcessorTests : EngineTestsBase
         result.Should().Contain("A lunch");
         result.Should().Contain("A clove of garlic");
     }
+    
+    [Test]
+    public async Task ExamineInTheDarkProcessor()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Attic>();
+        target.Context.Take(Repository.GetItem<Leaflet>());
+
+        // Act
+        var result = await target.GetResponse("examine leaflet");
+
+        result.Should().Contain("too dark");
+    }
 }

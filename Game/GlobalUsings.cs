@@ -3,6 +3,7 @@
 global using System.Text;
 global using Game.Item;
 global using Game.Item.ItemProcessor;
+global using Game.Location;
 global using Model;
 global using Model.Intent;
 global using Model.Interaction;
