@@ -12,5 +12,5 @@ public class MissingBothNounsMultiNounOperationRequest : MultiNounRequest
         $"They wrote \"{Verb} the {NounOne} {Preposition} the {NounTwo}\", but  " +
         $"there is no \"{NounOne}\" here, and no {NounTwo} here, " +
         "Provide the narrator's response indicating that their " +
-        "action impossible. ";
+        "action is impossible. ";
 }
