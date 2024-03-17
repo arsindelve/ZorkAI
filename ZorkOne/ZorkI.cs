@@ -6,6 +6,8 @@ public class ZorkI : IInfocomGame
 {
     public Type StartingLocation => typeof(WestOfHouse);
 
+    public string DefaultSaveGameName => "zork-ai.sav";
+
     public string StartText => """
 
                                ZORK AI One: The Great Underground Empire Re-Imagined
