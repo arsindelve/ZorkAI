@@ -5,5 +5,5 @@ namespace Model.Intent;
 /// </summary>
 public record GlobalCommandIntent : IntentBase
 {
-    public IGlobalCommand Command { get; init; }
+    public required IGlobalCommand Command { get; init; }
 }

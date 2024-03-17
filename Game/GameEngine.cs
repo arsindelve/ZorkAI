@@ -18,7 +18,7 @@ namespace Game;
 ///     (and their corresponding state). The <see cref="Repository" /> is static, self-contained and not owned by
 ///     anyone.
 /// </remarks>
-public class GameEngine<T> where T : IInfocomGame, new()
+public class GameEngine<T> : IGameEngine where T : IInfocomGame, new()
 {
     private readonly IGenerationClient _generator;
     private readonly ItProcessor _itProcessor;
@@ -37,7 +37,7 @@ public class GameEngine<T> where T : IInfocomGame, new()
         if (Activator.CreateInstance(gameEngine.StartingLocation) is not ILocation)
             throw new Exception();
         
-        Context = new Context<T>();
+        Context = new Context<T>(this);
         IntroText = $"""
                      {gameEngine.StartText}
                      {Context.CurrentLocation.Description}
@@ -55,7 +55,7 @@ public class GameEngine<T> where T : IInfocomGame, new()
     /// <param name="generationClient"></param>
     public GameEngine(IIntentParser parser, IGenerationClient generationClient)
     {
-        Context = new Context<T>();
+        Context = new Context<T>(this);
         IntroText = string.Empty;
         _parser = parser;
         _generator = generationClient;
@@ -175,8 +175,8 @@ public class GameEngine<T> where T : IInfocomGame, new()
         var result = await _generator.CompleteChat(request);
         return result;
     }
-    
-    internal void RestoreGame(string data)
+
+    public void RestoreGame(string data)
     {
         var deserializeObject = JsonConvert.DeserializeObject<SavedGame<T>>(data, JsonSettings());
         var allItems = deserializeObject?.AllItems ?? throw new ArgumentException();
@@ -185,16 +185,17 @@ public class GameEngine<T> where T : IInfocomGame, new()
         Repository.Restore(allItems, allLocations);
         
         Context = deserializeObject?.Context ?? throw new ArgumentException();
+        Context.Engine = this;
     }
-    
-    internal string SaveGame()
+
+    public string SaveGame()
     {
         var savedGame = Repository.Save<T>();
         savedGame.Context = Context;
         return JsonConvert.SerializeObject(savedGame, JsonSettings());
     }
     
-    private static JsonSerializerSettings? JsonSettings()
+    private static JsonSerializerSettings JsonSettings()
     {
         return new JsonSerializerSettings
         {

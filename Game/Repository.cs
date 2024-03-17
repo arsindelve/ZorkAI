@@ -20,8 +20,7 @@ public static class Repository
 {
     private static Dictionary<Type, IItem> _allItems = new();
     private static Dictionary<Type, ILocation> _allLocations = new();
-
-
+    
     internal static SavedGame<T> Save<T>() where T : IInfocomGame, new()
     {
         return new SavedGame<T>
@@ -79,9 +78,8 @@ public static class Repository
     {
         Reset();
         var gameEngine = new T();
-        var instance = Activator.CreateInstance(gameEngine.StartingLocation) as ILocation;
 
-        if (instance == null)
+        if (Activator.CreateInstance(gameEngine.StartingLocation) is not ILocation instance)
             throw new Exception();
 
         _allLocations.Add(gameEngine.StartingLocation, instance);
