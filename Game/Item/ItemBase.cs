@@ -88,7 +88,7 @@ public abstract class ItemBase : IItem
 
         if (item is ICannotBeTurnedOff)
             result.Add(new TurnOnOrOffProcessor());
-        
+
         if (item is IOpenAndClose)
             result.Add(new OpenAndCloseInteractionProcessor());
 
@@ -97,7 +97,7 @@ public abstract class ItemBase : IItem
 
         if (item is IAmADrink)
             result.Add(new EatAndDrinkInteractionProcessor());
-        
+
         return result;
     }
 
