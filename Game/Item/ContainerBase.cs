@@ -33,10 +33,12 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         return Items.Contains(Repository.GetItem<T>());
     }
 
-    public override bool HasMatchingNoun(string? noun)
+    public bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
         var hasMatch = NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
-        Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun));
+
+        if (lookInsideContainers)
+            Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun));
 
         return hasMatch;
     }
@@ -54,18 +56,21 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
     /// </summary>
     /// <param name="name">The name of the container - might be needed as part of the description</param>
     /// <returns>A string representing the items contained in the specified container.</returns>
-    protected string ItemListDescription(string name)
+    public virtual string ItemListDescription(string name)
     {
         if (!Items.Any())
             return $"The {name} is empty.";
 
         var sb = new StringBuilder();
-        
+
         if (IsTransparent || this is IOpenAndClose { IsOpen: true })
         {
             sb.AppendLine($"   The {name} contains:");
             Items.ForEach(s => sb.AppendLine($"      {s.InInventoryDescription}"));
         }
+
+        if (!IsTransparent && this is IOpenAndClose { IsOpen: false })
+            sb.AppendLine($"The {name} is closed.");
 
         return sb.ToString();
     }

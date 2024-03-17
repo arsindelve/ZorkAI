@@ -40,6 +40,16 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return true;
     }
 
+    public bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)
+    {
+        var hasMatch = false;
+
+        if (lookInsideContainers)
+            Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun));
+
+        return hasMatch;
+    }
+
     public virtual string AfterEnterLocation(IContext context)
     {
         return string.Empty;
@@ -115,14 +125,6 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return Items.Contains(Repository.GetItem<T>());
     }
 
-    public bool HasMatchingNoun(string? noun)
-    {
-        var hasMatch = false;
-        Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun));
-
-        return hasMatch;
-    }
-
     protected virtual void OnFirstTimeEnterLocation(IContext context)
     {
     }
@@ -171,6 +173,6 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
             .Aggregate(result, (s, item) =>
                 s.AppendLine(item.HasEverBeenPickedUp ? item.OnTheGroundDescription : item.NeverPickedUpDescription));
 
-        return result.ToString();
+        return result.ToString().Trim();
     }
 }

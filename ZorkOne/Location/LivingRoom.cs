@@ -6,8 +6,8 @@ public class LivingRoom : BaseLocation
         $"You are in the living room. There is a doorway to the east, a wooden door with strange gothic lettering to the west, " +
         $"which appears to be nailed shut, a trophy case, " +
         $"{(Repository.GetItem<Rug>().HasBeenMovedAside
-            ? $"and a rug lying beside {(Repository.GetItem<TrapDoor>().IsOpen ? "an open" : "a closed")} trap door"
-            : "and a large oriental rug in the center of the room.")}";
+            ? $"and a rug lying beside {(Repository.GetItem<TrapDoor>().IsOpen ? "an open" : "a closed")} trap door. "
+            : "and a large oriental rug in the center of the room.")}{GetItem<TrophyCase>().ItemListDescription("sack")}";
 
     public override string Name => "Living Room";
 

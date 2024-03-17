@@ -2,7 +2,7 @@ namespace ZorkOne.Item;
 
 public class Garlic : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeEaten
 {
-    public override string[] NounsForMatching => ["clove of garlic", "garlic"];
+    public override string[] NounsForMatching => ["clove of garlic", "garlic", "clove"];
 
     public override string InInventoryDescription => "A clove of garlic";
 
