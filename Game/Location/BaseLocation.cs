@@ -45,7 +45,7 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         var hasMatch = false;
 
         if (lookInsideContainers)
-            Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun));
+            Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun, lookInsideContainers));
 
         return hasMatch;
     }

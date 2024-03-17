@@ -60,7 +60,7 @@ public abstract class ItemBase : IItem
 
     public virtual int Size => 1;
 
-    public virtual bool HasMatchingNoun(string? noun)
+    public virtual bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
         return NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
     }
