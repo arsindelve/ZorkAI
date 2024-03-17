@@ -30,7 +30,6 @@ public static class Repository
         };
     }
 
-
     internal static bool ItemExistsInTheStory(string? item)
     {
         if (string.IsNullOrEmpty(item))
@@ -46,7 +45,12 @@ public static class Repository
     public static T GetItem<T>() where T : IItem, new()
     {
         if (!_allItems.ContainsKey(typeof(T)))
-            _allItems.Add(typeof(T), new T());
+        {
+            var item = new T();
+            if (item is ICanHoldItems container)
+                container.Init();
+            _allItems.Add(typeof(T), item);
+        }
 
         return (T)_allItems[typeof(T)];
     }
@@ -93,18 +97,5 @@ public static class Repository
     {
         _allLocations = allLocations;
         _allItems = allItems;
-
-        // foreach (var item in _allItems)
-        //     if (item.Value is null)
-        //         _allItems[item.Key] =
-        //             (IItem)Activator.CreateInstance(item.Key) ?? throw new InvalidOperationException();
-        //
-        // foreach (var location in _allLocations)
-        //     if (location.Value is null)
-        //     {
-        //         _allLocations[location.Key] =
-        //             (ILocation)Activator.CreateInstance(location.Key) ?? throw new InvalidOperationException();
-        //         _allLocations[location.Key].Init();
-        //     }
     }
 }

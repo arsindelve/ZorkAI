@@ -46,6 +46,9 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         return Items.Sum(s => s.Size) + item.Size <= SpaceForItems;
     }
 
+    public abstract void Init();
+
+
     /// <summary>
     ///     Returns a description of the items contained in the specified container.
     /// </summary>
