@@ -13,5 +13,9 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
     protected override int SpaceForItems => int.MaxValue;
 
     public override string Name => "trophy case";
+    public override void Init()
+    {
+        // Starts Empty
+    }
 }
 

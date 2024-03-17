@@ -25,6 +25,8 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
                     return new PositiveInteractionResult("It's too dark to see!");
                 
                 if (context.HasMatchingNoun(action.Noun))
+                    // TODO: It says this even when it's inside a container in inventory. 
+                    // We have to take it from the container. 
                     return new PositiveInteractionResult("You already have that!");
 
                 context.Take(castItem);

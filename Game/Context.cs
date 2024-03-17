@@ -119,6 +119,11 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         return true;
     }
 
+    public void Init()
+    {
+        // We start empty-handed
+    }
+
     public int AddPoints(int points)
     {
         Score += points;

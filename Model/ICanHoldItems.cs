@@ -41,4 +41,6 @@ public interface ICanHoldItems : IInteractionTarget
     /// <param name="item">The item to be checked.</param>
     /// <returns>True if there is room to hold the item, otherwise false.</returns>
     bool HaveRoomForItem(IItem item);
+
+    void Init();
 }

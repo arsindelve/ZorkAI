@@ -2,11 +2,6 @@ namespace ZorkOne.Item;
 
 public class Bottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeExamined
 {
-    public Bottle()
-    {
-        StartWithItemInside<Water>();
-    }
-
     protected override int SpaceForItems => 0;
 
     public override bool IsTransparent => true;
@@ -29,4 +24,9 @@ public class Bottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeEx
 
     public override string NeverPickedUpDescription => "A bottle is sitting on the table." + Environment.NewLine +
                                                        ItemListDescription("glass bottle");
+
+    public override void Init()
+    {
+        StartWithItemInside<Water>();
+    }
 }
