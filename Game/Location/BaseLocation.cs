@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using Model.Item;
+﻿using Model.Item;
 
 namespace Game.Location;
 
@@ -15,15 +14,16 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     /// </summary>
     protected abstract Dictionary<Direction, MovementParameters> Map { get; }
 
+    // ReSharper disable once MemberCanBePrivate.Global
+    public int VisitCount { get; set; }
+
+    protected abstract string ContextBasedDescription { get; }
+
     public bool IsTransparent => false;
 
     public abstract string Name { get; }
 
-    private int VisitCount { get; set; }
-
     public List<IItem> Items { get; set; } = new();
-
-    protected abstract string ContextBasedDescription { get; }
 
     public void RemoveItem(IItem item)
     {
@@ -88,7 +88,7 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
 
         return result ?? new NoNounMatchInteractionResult();
     }
-    
+
     public virtual InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
         return new NoNounMatchInteractionResult();
@@ -145,7 +145,7 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     }
 
     /// <summary>
-    /// Wrapper for base classes 
+    ///     Wrapper for base classes
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>

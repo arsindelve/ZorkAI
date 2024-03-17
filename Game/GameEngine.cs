@@ -32,12 +32,11 @@ public class GameEngine<T> : IGameEngine where T : IInfocomGame, new()
 
     public GameEngine()
     {
-        var gameEngine = new T();
-
-        Context = new Context<T>(this);
+        var gameType = new T();
+        Context = new Context<T>(this, gameType);
 
         IntroText = $"""
-                     {gameEngine.StartText}
+                     {gameType.StartText}
                      {Context.CurrentLocation.Description}
                      """;
 
@@ -53,28 +52,32 @@ public class GameEngine<T> : IGameEngine where T : IInfocomGame, new()
     /// <param name="generationClient"></param>
     public GameEngine(IIntentParser parser, IGenerationClient generationClient)
     {
-        Context = new Context<T>(this);
+        var gameType = new T();
+        Context = new Context<T>(this, gameType);
         IntroText = string.Empty;
         _parser = parser;
         _generator = generationClient;
         _itProcessor = new ItProcessor();
     }
 
-    public void RestoreGame(string data)
+    public IContext RestoreGame(string data)
     {
         var deserializeObject = JsonConvert.DeserializeObject<SavedGame<T>>(data, JsonSettings());
         var allItems = deserializeObject?.AllItems ?? throw new ArgumentException();
-        var allLocations = deserializeObject?.AllLocations ?? throw new ArgumentException();
+        var allLocations = deserializeObject.AllLocations ?? throw new ArgumentException();
 
         Repository.Restore(allItems, allLocations);
 
-        Context = deserializeObject?.Context ?? throw new ArgumentException();
+        Context = deserializeObject.Context ?? throw new ArgumentException();
         Context.Engine = this;
+        Context.Game = new T();
+        
+        return Context;
     }
 
     public string SaveGame()
     {
-        var savedGame = Repository.Save<T>();
+        SavedGame<T> savedGame = Repository.Save<T>();
         savedGame.Context = Context;
         return JsonConvert.SerializeObject(savedGame, JsonSettings());
     }

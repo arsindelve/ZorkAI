@@ -13,4 +13,11 @@ public class ZorkII : IInfocomGame
                                ZORK is a registered trademark of Infocom, Inc.
                                Release 63 / Serial number 860811
                                """;
+
+    public string DefaultSaveGameName => "zork2-ai.sav";
+    
+    public string GetScoreDescription(int score)
+    {
+        throw new NotImplementedException();
+    }
 }

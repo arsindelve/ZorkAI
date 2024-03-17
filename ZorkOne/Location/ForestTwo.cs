@@ -1,6 +1,6 @@
 ﻿namespace ZorkOne.Location;
 
-public class ForestTwo : BaseLocation
+public class ForestTwo : LocationWithNoStartingItems
 {
     protected override Dictionary<Direction, MovementParameters> Map => new()
     {
@@ -24,7 +24,4 @@ public class ForestTwo : BaseLocation
 
     protected override string ContextBasedDescription => "This is a dimly lit forest, with trees all around";
 
-    public override void Init()
-    {
-    }
 }

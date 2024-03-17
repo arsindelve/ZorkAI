@@ -62,4 +62,16 @@ public interface IContext : ICanHoldItems
     InteractionResult RespondToSimpleInteraction(SimpleIntent simpleInteraction);
 
     string ItemListDescription(string locationName);
+    
+    /// <summary>
+    ///     A reference to the "game", which can tell us constant, game specific
+    ///     things like how to calculate score, starting location, etc.
+    /// </summary>
+    IInfocomGame Game { get; }
+
+    /// <summary>
+    /// Gets or sets the name of the last saved game.
+    /// </summary>
+    /// <value>The name of the last saved game.</value>
+    string? LastSaveGameName { get; set; }
 }
