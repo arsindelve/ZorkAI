@@ -4,14 +4,6 @@ public class Kitchen : BaseLocation
 {
     private static KitchenWindow? _window;
 
-    public Kitchen()
-    {
-        _window = Repository.GetItem<KitchenWindow>();
-        StartWithItem(_window, this);
-        StartWithItem(GetItem<BrownSack>(), this);
-        StartWithItem(GetItem<Bottle>(), this);
-    }
-
     protected override string ContextBasedDescription =>
         $"You are in the kitchen of the white house. A table seems to have been " +
         $"used recently for the preparation of food. A passage leads to the west " +
@@ -54,6 +46,14 @@ public class Kitchen : BaseLocation
                 }
             };
         }
+    }
+
+    public override void Init()
+    {
+        _window = Repository.GetItem<KitchenWindow>();
+        StartWithItem(_window, this);
+        StartWithItem(GetItem<BrownSack>(), this);
+        StartWithItem(GetItem<Bottle>(), this);
     }
 
     protected override void OnFirstTimeEnterLocation(IContext context)

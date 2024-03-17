@@ -10,7 +10,7 @@ public class OpenProcessorTest : EngineTestsBase
         // Act
         var result = await target.GetResponse("open mailbox");
 
-        Repository.GetItem<Mailbox>().AmIOpen.Should().BeTrue();
+        Repository.GetItem<Mailbox>().IsOpen.Should().BeTrue();
         result.Should().Contain("Opening");
     }
 
@@ -24,7 +24,7 @@ public class OpenProcessorTest : EngineTestsBase
         // Act
         var result = await target.GetResponse("open sack");
 
-        Repository.GetItem<BrownSack>().AmIOpen.Should().BeTrue();
+        Repository.GetItem<BrownSack>().IsOpen.Should().BeTrue();
         Repository.GetItem<BrownSack>().HasEverBeenOpened.Should().BeTrue();
         result.Should().Contain("Opening the brown sack reveals a lunch, and a clove of garlic");
     }
@@ -41,7 +41,7 @@ public class OpenProcessorTest : EngineTestsBase
         await target.GetResponse("close sack");
         var result = await target.GetResponse("open sack");
 
-        Repository.GetItem<BrownSack>().AmIOpen.Should().BeTrue();
+        Repository.GetItem<BrownSack>().IsOpen.Should().BeTrue();
         Repository.GetItem<BrownSack>().HasEverBeenOpened.Should().BeTrue();
         result.Should().Contain("Opened");
     }
@@ -55,7 +55,7 @@ public class OpenProcessorTest : EngineTestsBase
         await target.GetResponse("open mailbox");
         var result = await target.GetResponse("open mailbox");
 
-        Repository.GetItem<Mailbox>().AmIOpen.Should().BeTrue();
+        Repository.GetItem<Mailbox>().IsOpen.Should().BeTrue();
         result.Should().Contain("already");
     }
 
@@ -68,7 +68,7 @@ public class OpenProcessorTest : EngineTestsBase
         await target.GetResponse("open mailbox");
         var result = await target.GetResponse("close mailbox");
 
-        Repository.GetItem<Mailbox>().AmIOpen.Should().BeFalse();
+        Repository.GetItem<Mailbox>().IsOpen.Should().BeFalse();
         result.Should().Contain("Closed");
     }
 
@@ -81,7 +81,7 @@ public class OpenProcessorTest : EngineTestsBase
         var result = await target.GetResponse("close mailbox");
 
         // Assert
-        Repository.GetItem<Mailbox>().AmIOpen.Should().BeFalse();
+        Repository.GetItem<Mailbox>().IsOpen.Should().BeFalse();
         result.Should().Contain("already");
     }
 }

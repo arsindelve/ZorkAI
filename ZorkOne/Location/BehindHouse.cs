@@ -2,14 +2,14 @@ namespace ZorkOne.Location;
 
 public class BehindHouse : BaseLocation
 {
-    public BehindHouse()
-    {
-        StartWithItem(Repository.GetItem<KitchenWindow>(), this);
-    }
-
     protected override string ContextBasedDescription =>
         $"You are behind the white house. A path leads into the forest to the east. In one corner " +
         $"of the house there is a small window which is {(Repository.GetItem<KitchenWindow>().IsOpen ? "open" : "slightly ajar")}.";
+
+    public override void Init()
+    {
+        StartWithItem(Repository.GetItem<KitchenWindow>(), this);
+    }
 
     public override string Name => "Behind House";
 

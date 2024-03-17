@@ -14,11 +14,17 @@ public class ForestTwo : BaseLocation
             Direction.S, new MovementParameters { Location = GetLocation<ClearingBehindHouse>() }
         },
         {
-            Direction.N, new MovementParameters { CanGo = _ => false, CustomFailureMessage = "The forest becomes impenetrable to the north. "}
+            Direction.N,
+            new MovementParameters
+                { CanGo = _ => false, CustomFailureMessage = "The forest becomes impenetrable to the north. " }
         }
     };
 
     public override string Name => "Forest";
 
     protected override string ContextBasedDescription => "This is a dimly lit forest, with trees all around";
+
+    public override void Init()
+    {
+    }
 }

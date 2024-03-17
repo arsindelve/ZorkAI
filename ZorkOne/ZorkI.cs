@@ -4,11 +4,6 @@ namespace ZorkOne;
 
 public class ZorkI : IInfocomGame
 {
-    public ZorkI()
-    {
-        PreLoad();
-    }
-    
     public Type StartingLocation => typeof(WestOfHouse);
 
     public string StartText => """
@@ -19,8 +14,4 @@ public class ZorkI : IInfocomGame
 
                                """;
 
-    public void PreLoad()
-    {
-        Repository.GetItem<Troll>().CurrentLocation = Repository.GetLocation<TrollRoom>();
-    }
 }

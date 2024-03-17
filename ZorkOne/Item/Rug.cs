@@ -5,7 +5,7 @@ namespace ZorkOne.Item;
 
 public class Rug : ItemBase, ICanBeExamined
 {
-    public bool HasBeenMovedAside { get; private set; }
+    public bool HasBeenMovedAside { get; set; }
 
     public override string CannotBeTakenDescription => "The rug is extremely heavy and cannot be carried.";
 

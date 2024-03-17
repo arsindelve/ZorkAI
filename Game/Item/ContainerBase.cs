@@ -9,7 +9,7 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
 {
     protected virtual int SpaceForItems => 2;
 
-    protected List<IItem> Items { get; } = new();
+    public List<IItem> Items { get; } = new();
 
     public void RemoveItem(IItem item)
     {

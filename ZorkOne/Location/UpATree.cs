@@ -38,4 +38,8 @@ public class UpATree : BaseLocation
 
         return base.RespondToSpecificLocationInteraction(input, context);
     }
+
+    public override void Init()
+    {
+    }
 }

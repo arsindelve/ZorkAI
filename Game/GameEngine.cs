@@ -25,19 +25,17 @@ public class GameEngine<T> : IGameEngine where T : IInfocomGame, new()
     private readonly IIntentParser _parser;
 
     private readonly string _sessionId = Guid.NewGuid().ToString();
-    internal Context<T> Context;
 
     public readonly string IntroText;
     private IStatefulProcessor? _processorInProgress;
+    internal Context<T> Context;
 
     public GameEngine()
     {
         var gameEngine = new T();
 
-        if (Activator.CreateInstance(gameEngine.StartingLocation) is not ILocation)
-            throw new Exception();
-        
         Context = new Context<T>(this);
+
         IntroText = $"""
                      {gameEngine.StartText}
                      {Context.CurrentLocation.Description}
@@ -60,6 +58,25 @@ public class GameEngine<T> : IGameEngine where T : IInfocomGame, new()
         _parser = parser;
         _generator = generationClient;
         _itProcessor = new ItProcessor();
+    }
+
+    public void RestoreGame(string data)
+    {
+        var deserializeObject = JsonConvert.DeserializeObject<SavedGame<T>>(data, JsonSettings());
+        var allItems = deserializeObject?.AllItems ?? throw new ArgumentException();
+        var allLocations = deserializeObject?.AllLocations ?? throw new ArgumentException();
+
+        Repository.Restore(allItems, allLocations);
+
+        Context = deserializeObject?.Context ?? throw new ArgumentException();
+        Context.Engine = this;
+    }
+
+    public string SaveGame()
+    {
+        var savedGame = Repository.Save<T>();
+        savedGame.Context = Context;
+        return JsonConvert.SerializeObject(savedGame, JsonSettings());
     }
 
     /// <summary>
@@ -176,32 +193,12 @@ public class GameEngine<T> : IGameEngine where T : IInfocomGame, new()
         return result;
     }
 
-    public void RestoreGame(string data)
-    {
-        var deserializeObject = JsonConvert.DeserializeObject<SavedGame<T>>(data, JsonSettings());
-        var allItems = deserializeObject?.AllItems ?? throw new ArgumentException();
-        var allLocations = deserializeObject?.AllLocations ?? throw new ArgumentException();
-
-        Repository.Restore(allItems, allLocations);
-        
-        Context = deserializeObject?.Context ?? throw new ArgumentException();
-        Context.Engine = this;
-    }
-
-    public string SaveGame()
-    {
-        var savedGame = Repository.Save<T>();
-        savedGame.Context = Context;
-        return JsonConvert.SerializeObject(savedGame, JsonSettings());
-    }
-    
     private static JsonSerializerSettings JsonSettings()
     {
         return new JsonSerializerSettings
         {
             TypeNameHandling = TypeNameHandling.All,
-            PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+            PreserveReferencesHandling = PreserveReferencesHandling.Objects
         };
     }
-
 }

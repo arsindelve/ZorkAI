@@ -20,7 +20,7 @@ public static class Repository
 {
     private static Dictionary<Type, IItem> _allItems = new();
     private static Dictionary<Type, ILocation> _allLocations = new();
-    
+
     internal static SavedGame<T> Save<T>() where T : IInfocomGame, new()
     {
         return new SavedGame<T>
@@ -59,9 +59,12 @@ public static class Repository
 
     public static T GetLocation<T>() where T : class, ILocation, new()
     {
-        if (!_allLocations.ContainsKey(typeof(T)))
-            _allLocations.Add(typeof(T), new T());
+        if (_allLocations.ContainsKey(typeof(T)))
+            return (T)_allLocations[typeof(T)];
 
+        var location = new T();
+        location.Init();
+        _allLocations.Add(typeof(T), location);
         return (T)_allLocations[typeof(T)];
     }
 
@@ -88,7 +91,20 @@ public static class Repository
 
     internal static void Restore(Dictionary<Type, IItem> allItems, Dictionary<Type, ILocation> allLocations)
     {
-        _allItems = allItems;
         _allLocations = allLocations;
+        _allItems = allItems;
+
+        // foreach (var item in _allItems)
+        //     if (item.Value is null)
+        //         _allItems[item.Key] =
+        //             (IItem)Activator.CreateInstance(item.Key) ?? throw new InvalidOperationException();
+        //
+        // foreach (var location in _allLocations)
+        //     if (location.Value is null)
+        //     {
+        //         _allLocations[location.Key] =
+        //             (ILocation)Activator.CreateInstance(location.Key) ?? throw new InvalidOperationException();
+        //         _allLocations[location.Key].Init();
+        //     }
     }
 }

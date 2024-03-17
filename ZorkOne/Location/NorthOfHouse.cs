@@ -1,6 +1,6 @@
 namespace ZorkOne.Location;
 
-public class NorthOfHouse : BaseLocation
+public class NorthOfHouse : LocationWithNoStartingItems
 {
     protected override string ContextBasedDescription =>
         "You are facing the north side of a white house. There is no door here, " +

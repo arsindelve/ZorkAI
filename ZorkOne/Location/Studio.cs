@@ -2,11 +2,6 @@ namespace ZorkOne.Location;
 
 public class Studio : BaseLocation
 {
-    public Studio()
-    {
-        StartWithItem(Repository.GetItem<Manual>(), this);
-    }
-
     public override string Name => "Studio";
 
     protected override string ContextBasedDescription =>
@@ -31,10 +26,15 @@ public class Studio : BaseLocation
             case "climb chimney":
 
                 context.CurrentLocation = Repository.GetLocation<Kitchen>();
-                string message = Repository.GetLocation<Kitchen>().Description;
+                var message = Repository.GetLocation<Kitchen>().Description;
                 return new PositiveInteractionResult(message);
         }
-        
-        return base.RespondToSpecificLocationInteraction(input, context);           
+
+        return base.RespondToSpecificLocationInteraction(input, context);
+    }
+
+    public override void Init()
+    {
+        StartWithItem(Repository.GetItem<Manual>(), this);
     }
 }

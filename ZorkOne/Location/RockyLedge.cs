@@ -1,6 +1,6 @@
 ﻿namespace ZorkOne.Location;
 
-public class RockyLedge : BaseLocation
+public class RockyLedge : LocationWithNoStartingItems
 {
     public override string Name => "Rocky Ledge";
 

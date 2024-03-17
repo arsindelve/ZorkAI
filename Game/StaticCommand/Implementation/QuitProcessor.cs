@@ -33,7 +33,7 @@ internal class QuitProcessor : IStatefulProcessor
             return Task.FromResult($"""
                                     Your score would be 0 (total of 350 points), in {context.Moves} moves.
                                     This score gives you the rank of Beginner.
-                                    Do you wish to {Verb} the game? (Y is affirmative): >
+                                    Do you wish to {Verb} the game? (Y is affirmative): 
                                     """);
         }
 

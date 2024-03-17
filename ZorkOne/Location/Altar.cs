@@ -24,4 +24,8 @@ public class Altar : BaseLocation
         context.CurrentLocation = newLocation;
         return new PositiveInteractionResult(newLocation.Description + Environment.NewLine);
     }
+
+    public override void Init()
+    {
+    }
 }
