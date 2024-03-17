@@ -63,9 +63,12 @@ public class TakeProcessorTests : EngineTestsBase
     public async Task TakeItemFromClosedTransparentContainer()
     {
         var target = GetTarget();
-        target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
-        var result = await target.GetResponse("take water");
-        result.Should().Contain("is not open");
+        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+        Repository.GetItem<TrophyCase>().ItemPlacedHere(Repository.GetItem<Torch>());
+        Repository.GetItem<Torch>().CurrentLocation = Repository.GetItem<TrophyCase>();
+        
+        var result = await target.GetResponse("take torch");
+        result.Should().Contain("closed container");
     }
     
     [Test]

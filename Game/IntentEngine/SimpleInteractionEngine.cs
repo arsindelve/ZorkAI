@@ -11,7 +11,7 @@ internal class SimpleInteractionEngine : IIntentEngine
 
         Debug.WriteLine(intent);
         context.LastNoun = simpleInteraction.Noun ?? "";
-
+        
         // Ask the context if it knows what to do with this interaction. Usually, this will only 
         // be true if there is an available interaction with one of the items in inventory. 
         var locationInteraction =

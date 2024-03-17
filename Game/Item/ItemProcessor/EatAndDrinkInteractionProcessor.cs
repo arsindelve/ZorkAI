@@ -27,6 +27,9 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
             case "eat":
             case "devour":
 
+                if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
+                    return new PositiveInteractionResult("It's too dark to see!");
+                        
                 message = item switch
                 {
                     ICanBeEaten food => EatIt(baseItem, message, food),

@@ -1,4 +1,3 @@
-using Game.Location;
 using Model.Item;
 
 namespace Game.Item.ItemProcessor;
@@ -28,16 +27,17 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
                     // We have to take it from the container. 
                     return new PositiveInteractionResult("You already have that!");
 
-                var container = castItem.CurrentLocation as IItem;
+                var container = castItem.CurrentLocation;
                 
                 if (container is IOpenAndClose { IsOpen: false })
-                    return new PositiveInteractionResult($"The {container.Name} is not open. ");
+                    return new PositiveInteractionResult($"You can't reach something that's inside a closed container.");
                 
                 context.Take(castItem);
                 takeItem.OnBeingTaken(context);
                 return new PositiveInteractionResult("Taken.");
 
             case "drop":
+                
                 if (!context.HasMatchingNoun(action.Noun))
                     return new PositiveInteractionResult("You don't have that!");
 
