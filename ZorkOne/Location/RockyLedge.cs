@@ -13,6 +13,9 @@ public class RockyLedge : LocationWithNoStartingItems
     {
         {
             Direction.Up, new MovementParameters { Location = GetLocation<CanyonView>() }
+        },
+        {
+            Direction.Down, new MovementParameters { Location = GetLocation<CanyonBottom>() }
         }
     };
 }
