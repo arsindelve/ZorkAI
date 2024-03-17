@@ -2,7 +2,7 @@ namespace ZorkOne.Item;
 
 public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndDropped
 {
-    public override string[] NounsForMatching => ["sack", "brown sack"];
+    public override string[] NounsForMatching => ["sack", "brown sack", "bag"];
 
     public override string InInventoryDescription =>
         !IsOpen ? "A brown sack" : $"A brown sack \n {ItemListDescription("brown sack")}";

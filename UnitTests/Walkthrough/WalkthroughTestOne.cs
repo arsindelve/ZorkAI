@@ -58,12 +58,30 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         await Do("tie rope to railing", "The rope drops over the side and comes within ten feet of the floor.");
         await Do("go down", "Torch Room", "Sitting on the pedestal is a flaming torch, made of ivory.");
         await Do("S", "Temple");
-        
+          
         // Get the coffin 
         
         await Do("S", "Altar");
         await Do("pray", "Forest", "sunlight");
+        await Do("turn off lantern", "The brass lantern is now off");
+        await Do("S", "This is a dimly lit forest");
+        await Do("N", "Clearing");
+        await Do("E", "Canyon View", "stretching for miles around");
+        await Do("Down", "Rocky Ledge", "which appears climbable");
+        await Do("Down", "Canyon Bottom", "Aragain Falls");
+        await Do("N", "End of Rainbow", "The beach is narrow due to the presence of the White Cliffs.");
         
+        // Wave the sceptre, get the gold
+        
+        await Do("SW", "Canyon Bottom");
+        await Do("Up", "Rocky Ledge");
+        await Do("Up", "Canyon View");
+        await Do("NW", "Clearing");
+        await Do("W", "Behind House");
+        await Do("In", "Kitchen", "A bottle is sitting on the table", "elongated");
+        await Do("open sack", "Opening the brown sack reveals a lunch, and a clove of garlic");
+        await Do("take garlic", "Taken");
+        await Do("W", "Living Room", "Your collection of treasures consists of", "A painting");
     }
 
     private async Task Do(string input, params string[] outputs)
