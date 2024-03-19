@@ -132,7 +132,7 @@ public class EngineTestsBase
 
             mockParser.Setup(s => s.DetermineIntentType("take knife", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "knife", OriginalInput = "take knife" });
-            
+
             mockParser.Setup(s => s.DetermineIntentType("take torch", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "torch", OriginalInput = "take torch" });
 
@@ -141,9 +141,21 @@ public class EngineTestsBase
 
             mockParser.Setup(s => s.DetermineIntentType("take rope", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "rope", OriginalInput = "take rope" });
-            
+
             mockParser.Setup(s => s.DetermineIntentType("take water", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "water", OriginalInput = "take water" });
+            
+            mockParser.Setup(s => s.DetermineIntentType("take coffin", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "coffin", OriginalInput = "take coffin" });
+            
+            mockParser.Setup(s => s.DetermineIntentType("drop coffin", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Verb = "drop", Noun = "coffin", OriginalInput = "drop coffin" });
+            
+            mockParser.Setup(s => s.DetermineIntentType("open coffin", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Verb = "open", Noun = "coffin", OriginalInput = "open coffin" });
+            
+            mockParser.Setup(s => s.DetermineIntentType("take sceptre", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "sceptre", OriginalInput = "take sceptre" });
 
             mockParser.Setup(s => s.DetermineIntentType("open case", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "open", Noun = "case", OriginalInput = "open case" });
@@ -170,7 +182,7 @@ public class EngineTestsBase
                 .ReturnsAsync(new SimpleIntent
                     { Adverb = "", Verb = "turn", Noun = "lamp", OriginalInput = "turn the lamp" });
 
-            
+
             mockParser.Setup(s => s.DetermineIntentType("put painting inside case", It.IsAny<string>()))
                 .ReturnsAsync(new MultiNounIntent
                 {
@@ -181,6 +193,36 @@ public class EngineTestsBase
                     OriginalInput = "put painting inside case"
                 });
             
+            mockParser.Setup(s => s.DetermineIntentType("put sceptre inside case", It.IsAny<string>()))
+                .ReturnsAsync(new MultiNounIntent
+                {
+                    NounOne = "sceptre",
+                    NounTwo = "case",
+                    Preposition = "inside",
+                    Verb = "put",
+                    OriginalInput = "put sceptre inside case"
+                });
+            
+            mockParser.Setup(s => s.DetermineIntentType("put leaflet inside case", It.IsAny<string>()))
+                .ReturnsAsync(new MultiNounIntent
+                {
+                    NounOne = "leaflet",
+                    NounTwo = "case",
+                    Preposition = "inside",
+                    Verb = "put",
+                    OriginalInput = "put leaflet inside case"
+                });
+            
+            mockParser.Setup(s => s.DetermineIntentType("put coffin inside case", It.IsAny<string>()))
+                .ReturnsAsync(new MultiNounIntent
+                {
+                    NounOne = "coffin",
+                    NounTwo = "case",
+                    Preposition = "inside",
+                    Verb = "put",
+                    OriginalInput = "put coffin inside case"
+                });
+
             mockParser.Setup(s => s.DetermineIntentType("tie rope to railing", It.IsAny<string>()))
                 .ReturnsAsync(new MultiNounIntent
                 {
@@ -197,10 +239,10 @@ public class EngineTestsBase
         }
 
         Repository.Reset();
-       
+
         var engine = new GameEngine<ZorkI>(Parser, Client.Object);
         Repository.GetLocation<WestOfHouse>().Init();
-      
+
         return engine;
     }
 }

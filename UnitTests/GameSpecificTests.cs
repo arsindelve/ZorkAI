@@ -32,7 +32,7 @@ public class GameSpecificTests : EngineTestsBase
         // Assert
         target.Context.Score.Should().Be(10);
     }
-    
+
     [Test]
     public async Task JumpOutOfATree()
     {
@@ -41,11 +41,11 @@ public class GameSpecificTests : EngineTestsBase
 
         // Act
         await target.GetResponse("jump");
-        
+
         // Assert
         target.Context.CurrentLocation.Should().Be(Repository.GetLocation<ForestPath>());
     }
-    
+
     [Test]
     public async Task ClimbATree()
     {
@@ -54,11 +54,11 @@ public class GameSpecificTests : EngineTestsBase
 
         // Act
         await target.GetResponse("climb up the tree");
-        
+
         // Assert
         target.Context.CurrentLocation.Should().Be(Repository.GetLocation<UpATree>());
     }
-    
+
     [Test]
     public async Task PrayAtTheAltar()
     {
@@ -66,10 +66,60 @@ public class GameSpecificTests : EngineTestsBase
         target.Context.CurrentLocation = Repository.GetLocation<Altar>();
 
         // Act
-        string? result = await target.GetResponse("pray");
-        
+        var result = await target.GetResponse("pray");
+
         // Assert
         target.Context.CurrentLocation.Should().Be(Repository.GetLocation<ForestOne>());
         result.Should().Contain("sunlight");
+    }
+    
+    [Test]
+    public async Task PuttingStuffInTheTrophyCase_IncreaseScore()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+        target.Context.Take(Repository.GetItem<Painting>());
+        Repository.GetItem<TrophyCase>().IsOpen = true;
+
+        // Act
+        string? response = await target.GetResponse("put painting inside case");
+
+        // Assert
+        response.Should().Contain("Done");
+        target.Context.Score.Should().Be(6);
+    }
+    
+    [Test]
+    public async Task PuttingStuffInTheTrophyCase_SecondTime_DoesNotIncreaseScore()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+        target.Context.Take(Repository.GetItem<Painting>());
+        Repository.GetItem<TrophyCase>().IsOpen = true;
+
+        // Act
+        await target.GetResponse("put painting inside case");
+        await target.GetResponse("take painting");
+        string? response = await target.GetResponse("put painting inside case");
+        
+        // Assert
+        response.Should().Contain("Done");
+        target.Context.Score.Should().Be(6);
+    }
+    
+    [Test]
+    public async Task PuttingGarbageInTheTrophyCase_DoesNotIncreaseScore()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+        target.Context.Take(Repository.GetItem<Leaflet>());
+        Repository.GetItem<TrophyCase>().IsOpen = true;
+
+        // Act
+        string? response = await target.GetResponse("put leaflet inside case");
+        
+        // Assert
+        response.Should().Contain("Done");
+        target.Context.Score.Should().Be(0);
     }
 }

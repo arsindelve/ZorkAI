@@ -470,16 +470,14 @@ public class EngineTests : EngineTestsBase
     public void SerializeItems()
     {
         var target = GetTarget();
-        
+
         Repository.Reset();
         Repository.GetItem<Rope>().TiedToRailing = true;
         Repository.GetItem<Lantern>().IsOn = true;
 
-        string guts = target.SaveGame();
-        
+        var guts = target.SaveGame();
+
         guts.Should().Contain("\"TiedToRailing\":true,");
         guts.Should().Contain("\"IsOn\":true,");
     }
-    
-   
 }

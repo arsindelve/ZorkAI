@@ -1,4 +1,5 @@
 using Model.Intent;
+using OpenAI;
 using ZorkOne.Location;
 
 namespace ZorkOne.Item;
@@ -13,12 +14,12 @@ public class Rug : ItemBase, ICanBeExamined
 
     public string ExaminationDescription => "There's nothing special about the carpet.";
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context)
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client)
     {
         string[] matchingVerbs = ["move", "slide"];
 
         if (!matchingVerbs.Contains(action.Verb.ToLowerInvariant()))
-            return base.RespondToSimpleInteraction(action, context);
+            return base.RespondToSimpleInteraction(action, context, client);
 
         if (HasBeenMovedAside)
             return new PositiveInteractionResult(

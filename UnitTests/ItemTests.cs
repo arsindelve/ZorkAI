@@ -168,14 +168,14 @@ public class ItemTests : EngineTestsBase
     {
         Repository.ItemExistsInTheStory("").Should().BeFalse();
     }
-    
+
     [Test]
     public async Task ClosedContainer_ShowsContents_Transparent()
     {
         var engine = GetTarget();
         var location = Repository.GetLocation<Kitchen>();
         engine.Context.CurrentLocation = location;
-        
+
         // Act
         var response = await engine.GetResponse("look");
 
@@ -188,21 +188,20 @@ public class ItemTests : EngineTestsBase
         var engine = GetTarget();
         var location = Repository.GetLocation<WestOfHouse>();
         engine.Context.CurrentLocation = location;
-        
+
         // Act
         var response = await engine.GetResponse("look");
 
         response.Should().Contain("mailbox");
         response.Should().NotContain("leaflet");
-
     }
-    
+
     [Test]
     public void TorchIsALightSource()
     {
         var engine = GetTarget();
         engine.Context.Take(Repository.GetItem<Torch>());
-        
+
         // Act, Assert
         engine.Context.HasLightSource.Should().BeTrue();
     }

@@ -7,7 +7,8 @@ namespace Game.Item.ItemProcessor;
 /// </summary>
 public class ExamineInteractionProcessor : IVerbProcessor
 {
-    InteractionResult? IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item)
+    InteractionResult? IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item,
+        IGenerationClient client)
     {
         if (item is not ICanBeExamined castItem)
             throw new Exception("Cast Error");
@@ -20,10 +21,10 @@ public class ExamineInteractionProcessor : IVerbProcessor
             case "look at":
             case "peek at":
             case "look in":
-                
+
                 if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
                     return new PositiveInteractionResult("It's too dark to see!");
-                
+
                 return new PositiveInteractionResult(castItem.ExaminationDescription);
         }
 

@@ -46,5 +46,16 @@ public interface ICanHoldItems : IInteractionTarget
     /// <returns>True if there is room to hold the item, otherwise false.</returns>
     bool HaveRoomForItem(IItem item);
 
+    /// <summary>
+    ///     Initializes the container with whichever items it's holding (if any)
+    ///     at the start of the game
+    /// </summary>
     void Init();
+
+    /// <summary>
+    ///     Event handler that is triggered when an item is placed into this container.
+    /// </summary>
+    /// <param name="item">The item being placed into the container.</param>
+    /// <param name="context"></param>
+    void OnItemPlacedHere(IItem item, IContext context);
 }

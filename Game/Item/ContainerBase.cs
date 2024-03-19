@@ -49,6 +49,11 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
     }
 
     public abstract void Init();
+    
+    public virtual void OnItemPlacedHere(IItem item, IContext context)
+    {
+        
+    }
 
 
     /// <summary>

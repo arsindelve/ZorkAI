@@ -10,7 +10,7 @@ public class Rope : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
 
     public bool TiedToRailing { get; set; }
 
-    string ICanBeExamined.ExaminationDescription => "There's nothing special about the rope. " ;
+    string ICanBeExamined.ExaminationDescription => "There's nothing special about the rope. ";
 
     string ICanBeTakenAndDropped.OnTheGroundDescription => TiedToRailing
         ? "Hanging down from the railing is a rope which ends about ten feet from the floor below. "

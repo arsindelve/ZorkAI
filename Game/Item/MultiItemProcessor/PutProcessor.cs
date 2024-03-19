@@ -28,7 +28,7 @@ public class PutProcessor : IMultiNounVerbProcessor
                     case "into":
                     case "inside":
 
-                        return PutTheThingIntoTheThing(castItemOne, itemReceiver);
+                        return PutTheThingIntoTheThing(castItemOne, itemReceiver, context);
 
                     default:
                         return null;
@@ -38,7 +38,7 @@ public class PutProcessor : IMultiNounVerbProcessor
         return null;
     }
 
-    private static InteractionResult PutTheThingIntoTheThing(IItem item, ICanHoldItems itemReceiver)
+    private static InteractionResult PutTheThingIntoTheThing(IItem item, ICanHoldItems itemReceiver, IContext context)
     {
         // Do I have the thing? 
         if (item.CurrentLocation is not IContext)
@@ -54,6 +54,7 @@ public class PutProcessor : IMultiNounVerbProcessor
         item.CurrentLocation?.RemoveItem(item);
         item.CurrentLocation = itemReceiver;
         itemReceiver.ItemPlacedHere(item);
+        itemReceiver.OnItemPlacedHere(item, context);
         return new PositiveInteractionResult("Done.");
     }
 }

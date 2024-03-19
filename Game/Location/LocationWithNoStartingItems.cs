@@ -4,6 +4,5 @@ public abstract class LocationWithNoStartingItems : BaseLocation
 {
     public override void Init()
     {
-        
     }
 }

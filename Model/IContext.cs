@@ -1,6 +1,7 @@
 using Model.Intent;
 using Model.Interaction;
 using Model.Item;
+using OpenAI;
 
 namespace Model;
 
@@ -10,7 +11,7 @@ public interface IContext : ICanHoldItems
     ///     Represents adventurer's current score.
     /// </summary>
     int Score { get; }
-    
+
     IGameEngine? Engine { get; }
 
     /// <summary>
@@ -48,6 +49,18 @@ public interface IContext : ICanHoldItems
 
     List<IItem> Items { get; }
 
+    /// <summary>
+    ///     A reference to the "game", which can tell us constant, game specific
+    ///     things like how to calculate score, starting location, etc.
+    /// </summary>
+    IInfocomGame Game { get; }
+
+    /// <summary>
+    ///     Gets or sets the name of the last saved game.
+    /// </summary>
+    /// <value>The name of the last saved game.</value>
+    string? LastSaveGameName { get; set; }
+
     void Take(IItem item);
 
     void Drop(IItem item);
@@ -59,19 +72,7 @@ public interface IContext : ICanHoldItems
     /// <returns>The updated score after adding the points.</returns>
     int AddPoints(int points);
 
-    InteractionResult RespondToSimpleInteraction(SimpleIntent simpleInteraction);
+    InteractionResult RespondToSimpleInteraction(SimpleIntent simpleInteraction, IGenerationClient client);
 
     string ItemListDescription(string locationName);
-    
-    /// <summary>
-    ///     A reference to the "game", which can tell us constant, game specific
-    ///     things like how to calculate score, starting location, etc.
-    /// </summary>
-    IInfocomGame Game { get; }
-
-    /// <summary>
-    /// Gets or sets the name of the last saved game.
-    /// </summary>
-    /// <value>The name of the last saved game.</value>
-    string? LastSaveGameName { get; set; }
 }

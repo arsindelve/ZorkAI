@@ -52,7 +52,7 @@ public class MultiNounEngineTests
         // Assert
         result.Should().Contain("bob");
     }
-    
+
     [Test]
     public async Task NounTwoDoesNotExistHereInTheStore()
     {
@@ -83,7 +83,7 @@ public class MultiNounEngineTests
         // Assert
         result.Should().Contain("bob");
     }
-    
+
     [Test]
     public async Task NounOneDoesNotExistHereInTheStore()
     {
@@ -114,7 +114,7 @@ public class MultiNounEngineTests
         // Assert
         result.Should().Contain("bob");
     }
-    
+
     [Test]
     public async Task NeitherNounExistsHereExistHereInTheStore()
     {
@@ -144,7 +144,7 @@ public class MultiNounEngineTests
         // Assert
         result.Should().Contain("bob");
     }
-    
+
     [Test]
     public async Task NeitherNounExistsHereExist()
     {

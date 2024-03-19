@@ -19,7 +19,8 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
 
     public virtual string NowOpen => "Opened";
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context)
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
     {
         InteractionResult? result = null;
 
@@ -27,9 +28,9 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
         if (IsOpen || IsTransparent)
             foreach (var item in Items.ToList())
             {
-               result = item.RespondToSimpleInteraction(action, context);
-               if (result is { InteractionHappened: true }) 
-                   return result;
+                result = item.RespondToSimpleInteraction(action, context, client);
+                if (result is { InteractionHappened: true })
+                    return result;
             }
 
         if (result != null && result is not NoNounMatchInteractionResult)
@@ -38,7 +39,7 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
         if (!action.MatchNoun(NounsForMatching))
             return new NoNounMatchInteractionResult();
 
-        return ApplyProcessors(action, context, null);
+        return ApplyProcessors(action, context, null, client);
     }
 
     public override bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)

@@ -1,6 +1,8 @@
-﻿namespace ZorkOne.Item;
+﻿using ZorkOne.Interface;
 
-public class Torch : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICannotBeTurnedOff, IAmALightSource
+namespace ZorkOne.Item;
+
+public class Torch : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICannotBeTurnedOff, IAmALightSource, IGivePointsWhenPlacedInTrophyCase
 {
     public override string[] NounsForMatching => ["torch", "ivory torch"];
 
@@ -13,4 +15,6 @@ public class Torch : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICannotBeT
     public string CannotBeTurnedOffMessage => "You nearly burn your hand trying to extinguish the flame. ";
 
     public override string InInventoryDescription => OnTheGroundDescription;
+
+    int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 6;
 }

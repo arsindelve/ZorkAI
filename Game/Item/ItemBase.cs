@@ -49,13 +49,15 @@ public abstract class ItemBase : IItem
     /// </summary>
     /// <param name="action">The simple intent representing the action.</param>
     /// <param name="context">The context in which the interaction takes place.</param>
+    /// <param name="client"></param>
     /// <returns>The interaction result.</returns>
-    public virtual InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context)
+    public virtual InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
     {
         if (!action.MatchNoun(NounsForMatching))
             return new NoNounMatchInteractionResult();
 
-        return ApplyProcessors(action, context, null);
+        return ApplyProcessors(action, context, null, client);
     }
 
     public virtual int Size => 1;
@@ -101,10 +103,11 @@ public abstract class ItemBase : IItem
         return result;
     }
 
-    protected InteractionResult ApplyProcessors(SimpleIntent action, IContext context, InteractionResult? result)
+    protected InteractionResult ApplyProcessors(SimpleIntent action, IContext context, InteractionResult? result,
+        IGenerationClient client)
     {
         result ??= GetProcessors(this).Aggregate<IVerbProcessor, InteractionResult?>(null, (current, processor)
-            => current ?? processor.Process(action, context, this));
+            => current ?? processor.Process(action, context, this, client));
 
         return result ?? new NoVerbMatchInteractionResult { Verb = action.Verb, Noun = action.Noun };
     }

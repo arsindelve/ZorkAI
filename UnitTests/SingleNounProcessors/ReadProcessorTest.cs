@@ -13,7 +13,7 @@ public class ReadProcessorTest : EngineTestsBase
 
         result.Should().Contain("low cunning");
     }
-    
+
     [Test]
     public async Task ReadInTheDarkProcessor()
     {
