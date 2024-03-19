@@ -1,9 +1,14 @@
 using System.Text;
+using ZorkOne.Interface;
 
 namespace ZorkOne.Item;
 
 public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
 {
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
+    // ReSharper disable once MemberCanBePrivate.Global
+    public List<IItem> ItemsPlacedInside = [];
+
     public override string[] NounsForMatching => ["case", "trophy case"];
 
     public override string CannotBeTakenDescription => "The trophy case is securely fastened to the wall.";
@@ -37,5 +42,21 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
         Items.ForEach(s => sb.AppendLine($"      {s.InInventoryDescription}"));
 
         return sb.ToString();
+    }
+
+    /// <summary>
+    /// Handles the action that takes place when an item is placed inside the TrophyCase.
+    /// </summary>
+    /// <param name="item">The item being placed inside the TrophyCase.</param>
+    /// <param name="context">The current game context.</param>
+    public override void OnItemPlacedHere(IItem item, IContext context)
+    {
+        base.OnItemPlacedHere(item, context);
+
+        if (item is not IGivePointsWhenPlacedInTrophyCase treasure) return;
+        if (ItemsPlacedInside.Contains(item)) return;
+
+        context.AddPoints(treasure.NumberOfPoints);
+        ItemsPlacedInside.Add(item);
     }
 }

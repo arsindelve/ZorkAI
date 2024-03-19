@@ -9,7 +9,7 @@ public interface ICanBeEaten : IInteractionTarget
 }
 
 /// <summary>
-///     Interface for an item that can be drunk (i.e consumed, not inebriated) 
+///     Interface for an item that can be drunk (i.e consumed, not inebriated)
 /// </summary>
 public interface IAmADrink : IInteractionTarget
 {

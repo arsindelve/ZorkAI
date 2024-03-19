@@ -4,14 +4,15 @@ namespace Game.Item.ItemProcessor;
 
 public class TakeOrDropInteractionProcessor : IVerbProcessor
 {
-    InteractionResult? IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item)
+    InteractionResult? IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item,
+        IGenerationClient client)
     {
         if (item is not IItem castItem)
             throw new Exception();
 
         if (item is not ICanBeTakenAndDropped takeItem)
             throw new Exception();
-        
+
         switch (action.Verb.ToLowerInvariant().Trim())
         {
             case "hold":
@@ -22,22 +23,22 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
 
                 if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
                     return new PositiveInteractionResult("It's too dark to see!");
-                
-                if (context.HasMatchingNoun(action.Noun, lookInsideContainers: false))
+
+                if (context.HasMatchingNoun(action.Noun, false))
                     // We have to take it from the container. 
                     return new PositiveInteractionResult("You already have that!");
 
                 var container = castItem.CurrentLocation;
-                
+
                 if (container is IOpenAndClose { IsOpen: false })
-                    return new PositiveInteractionResult($"You can't reach something that's inside a closed container.");
-                
+                    return new PositiveInteractionResult("You can't reach something that's inside a closed container.");
+
                 context.Take(castItem);
                 takeItem.OnBeingTaken(context);
                 return new PositiveInteractionResult("Taken.");
 
             case "drop":
-                
+
                 if (!context.HasMatchingNoun(action.Noun))
                     return new PositiveInteractionResult("You don't have that!");
 

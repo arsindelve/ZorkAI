@@ -18,7 +18,7 @@ public class TakeProcessorTests : EngineTestsBase
         // Assert
         result.Should().Contain("Taken");
     }
-    
+
     [Test]
     public async Task Take_ItemInsideClosedItem()
     {
@@ -36,7 +36,8 @@ public class TakeProcessorTests : EngineTestsBase
     public void CannotBeTaken_WrongType()
     {
         IVerbProcessor target = new CannotBeTakenProcessor();
-        Assert.Throws<Exception>(() => target.Process(Mock.Of<SimpleIntent>(), Mock.Of<IContext>(), new MadeUpItem()));
+        Assert.Throws<Exception>(() => target.Process(Mock.Of<SimpleIntent>(), Mock.Of<IContext>(), new MadeUpItem(),
+            Mock.Of<IGenerationClient>()));
     }
 
     [Test]
@@ -58,7 +59,7 @@ public class TakeProcessorTests : EngineTestsBase
         var result = await target.GetResponse("take garlic");
         result.Should().Contain("Taken");
     }
-    
+
     [Test]
     public async Task TakeItemFromClosedTransparentContainer()
     {
@@ -66,11 +67,11 @@ public class TakeProcessorTests : EngineTestsBase
         target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
         Repository.GetItem<TrophyCase>().ItemPlacedHere(Repository.GetItem<Torch>());
         Repository.GetItem<Torch>().CurrentLocation = Repository.GetItem<TrophyCase>();
-        
+
         var result = await target.GetResponse("take torch");
         result.Should().Contain("closed container");
     }
-    
+
     [Test]
     public async Task TakeFirstItemFromContainer()
     {
@@ -80,7 +81,7 @@ public class TakeProcessorTests : EngineTestsBase
         var result = await target.GetResponse("take lunch");
         result.Should().Contain("Taken");
     }
-    
+
     [Test]
     public async Task DropItemIDoNotHave()
     {
@@ -89,7 +90,7 @@ public class TakeProcessorTests : EngineTestsBase
         var result = await target.GetResponse("drop rope");
         result.Should().Contain("don't have that");
     }
-    
+
     [Test]
     public async Task TakeItemIAlreadyHave()
     {
@@ -101,7 +102,7 @@ public class TakeProcessorTests : EngineTestsBase
         var result = await target.GetResponse("take rope");
         result.Should().Contain("already have that");
     }
-    
+
     [Test]
     public async Task TakeItemIAlreadyHaveInsideAContainer()
     {
@@ -112,5 +113,4 @@ public class TakeProcessorTests : EngineTestsBase
         var result = await target.GetResponse("take garlic");
         result.Should().Contain("Taken");
     }
-    
 }

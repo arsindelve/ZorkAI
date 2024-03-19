@@ -4,7 +4,8 @@ namespace Game.Item.ItemProcessor;
 
 public class OpenAndCloseInteractionProcessor : IVerbProcessor
 {
-    InteractionResult? IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item)
+    InteractionResult? IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item,
+        IGenerationClient client)
     {
         if (item is not IOpenAndClose castItem)
             throw new Exception("Cast Error");

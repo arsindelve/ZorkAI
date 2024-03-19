@@ -7,7 +7,8 @@ namespace Game.Item.ItemProcessor;
 /// </summary>
 public class EatAndDrinkInteractionProcessor : IVerbProcessor
 {
-    InteractionResult? IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item)
+    InteractionResult? IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item,
+        IGenerationClient client)
     {
         if (item is not IItem baseItem)
             throw new Exception("Cast Error");
@@ -29,7 +30,7 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
 
                 if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
                     return new PositiveInteractionResult("It's too dark to see!");
-                        
+
                 message = item switch
                 {
                     ICanBeEaten food => EatIt(baseItem, message, food),
@@ -51,9 +52,9 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
 
         var container = item.CurrentLocation as IItem;
 
-        if (container != null &&  container.CurrentLocation != context)
+        if (container != null && container.CurrentLocation != context)
             return $"You have to be holding the {container.Name}. ";
-        
+
         if (container is IOpenAndClose { IsOpen: false })
             return $"The {container.Name} is not open. ";
 
@@ -84,8 +85,8 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
     }
 
     private static void DestroyIt(IItem item)
-    { 
+    {
         item.CurrentLocation?.RemoveItem(item);
-        item.CurrentLocation = null; 
+        item.CurrentLocation = null;
     }
 }

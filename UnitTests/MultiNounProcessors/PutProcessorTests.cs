@@ -160,7 +160,7 @@ public class PutProcessorTests : EngineTestsBase
         result.InteractionMessage.Should().Contain("Done");
         rope.CurrentLocation.Should().Be(mailbox);
     }
-    
+
     [Test]
     public void PutProcessor_MailBoxLantern_Fail()
     {
@@ -171,7 +171,7 @@ public class PutProcessorTests : EngineTestsBase
         var mailbox = Repository.GetItem<Mailbox>();
         mailbox.RemoveItem(leaflet);
         ((IOpenAndClose)mailbox).IsOpen = true;
-        lantern.CurrentLocation = new Context<ZorkI>(null, new ZorkI());
+        lantern.CurrentLocation = new Context<ZorkI>(Mock.Of<IGameEngine>(), new ZorkI());
 
         // Act
         var result = target.Process(new MultiNounIntent

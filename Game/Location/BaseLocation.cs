@@ -40,6 +40,10 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return true;
     }
 
+    public void OnItemPlacedHere(IItem item, IContext context)
+    {
+    }
+
     public bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
         var hasMatch = false;
@@ -84,14 +88,16 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     /// </summary>
     /// <param name="action">The action to examine. Can we do anything with it?</param>
     /// <param name="context">The current context, in case we need it during action processing.</param>
+    /// <param name="client"></param>
     /// <returns>InteractionResult that describes if and and how the interaction took place.</returns>
-    public virtual InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context)
+    public virtual InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
     {
         InteractionResult? result = null;
 
         foreach (var item in Items.ToList())
         {
-            result = item.RespondToSimpleInteraction(action, context);
+            result = item.RespondToSimpleInteraction(action, context, client);
             if (result is PositiveInteractionResult or NoVerbMatchInteractionResult)
                 return result;
         }

@@ -25,10 +25,10 @@ public class TakeOnlyAvailableItemProcessor : IStatefulProcessor
             _secondTimeProcessing = true;
             ContinueProcessing = true;
 
-            var location = context.CurrentLocation as ICanHoldItems;
-            var itemsHere = location.Items.Where(s => s is ICanBeTakenAndDropped).ToList();
+            var location = (ICanHoldItems)context.CurrentLocation;
+            var itemsHere = location.Items?.Where(s => s is ICanBeTakenAndDropped).ToList();
 
-            if (itemsHere.Count != 1)
+            if (itemsHere?.Count != 1)
             {
                 _secondTimeProcessing = true;
                 return "What do you want to take? ";

@@ -18,7 +18,7 @@ public class TurnOnOffProcessorTests : EngineTestsBase
         Repository.GetItem<Lantern>().IsOn.Should().BeTrue();
         result.Should().Contain("now on");
     }
-    
+
     [Test]
     public async Task TurnOnProcessor_NowOn_WithAdverb()
     {
@@ -32,7 +32,7 @@ public class TurnOnOffProcessorTests : EngineTestsBase
         Repository.GetItem<Lantern>().IsOn.Should().BeTrue();
         result.Should().Contain("now on");
     }
-    
+
     [Test]
     public async Task TurnOnProcessor_NowOn_WithWrongAdverb()
     {
@@ -45,7 +45,7 @@ public class TurnOnOffProcessorTests : EngineTestsBase
         // Assert
         result?.Trim().Should().BeEmpty();
     }
-    
+
     [Test]
     public async Task TurnOnProcessor_NowOn_WithNoAdverb()
     {
@@ -58,7 +58,7 @@ public class TurnOnOffProcessorTests : EngineTestsBase
         // Assert
         result?.Trim().Should().BeEmpty();
     }
-    
+
     [Test]
     public async Task TurnOnProcessor_NowOff_WithAdverb()
     {
@@ -136,6 +136,7 @@ public class TurnOnOffProcessorTests : EngineTestsBase
     public void TurnOnProcessor_WrongType()
     {
         IVerbProcessor target = new TurnOnOrOffProcessor();
-        target.Process(Mock.Of<SimpleIntent>(), Mock.Of<IContext>(), new Sword()).Should().BeNull();
+        target.Process(Mock.Of<SimpleIntent>(), Mock.Of<IContext>(), new Sword(), Mock.Of<IGenerationClient>()).Should()
+            .BeNull();
     }
 }

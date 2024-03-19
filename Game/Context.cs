@@ -25,13 +25,14 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     }
 
     /// <summary>
-    ///     Starts the game in the default start location.
+    ///     Constructor for unit testing
     /// </summary>
     public Context()
     {
         CurrentLocation = Repository.GetStartingLocation<T>();
         Score = 0;
         Moves = 0;
+        GameType = new T();
     }
 
     private T GameType { get; set; }
@@ -93,7 +94,7 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         internal set => GameType = (T)value;
     }
 
-    public string LastSaveGameName { get; set; }
+    public string? LastSaveGameName { get; set; } = "";
 
     public bool IsTransparent => true;
 
@@ -122,7 +123,7 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     public bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
         var hasMatch = false;
-        Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun, lookInsideContainers ));
+        Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun, lookInsideContainers));
 
         return hasMatch;
     }
@@ -136,6 +137,10 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     public void Init()
     {
         // We start empty-handed
+    }
+
+    public void OnItemPlacedHere(IItem item, IContext context)
+    {
     }
 
     public int AddPoints(int points)
@@ -185,12 +190,13 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     ///     this is only true where there's an interaction with an item in inventory.
     /// </summary>
     /// <param name="action">The simple interaction that the context needs to respond to.</param>
-    public InteractionResult RespondToSimpleInteraction(SimpleIntent action)
+    /// <param name="client"></param>
+    public InteractionResult RespondToSimpleInteraction(SimpleIntent action, IGenerationClient client)
     {
         InteractionResult? result = null;
 
         foreach (var item in Items.ToList().TakeWhile(_ => result is null or NoNounMatchInteractionResult))
-            result = item.RespondToSimpleInteraction(action, this);
+            result = item.RespondToSimpleInteraction(action, this, client);
 
         return result ?? new NoNounMatchInteractionResult();
     }

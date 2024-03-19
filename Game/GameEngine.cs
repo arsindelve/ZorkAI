@@ -71,13 +71,13 @@ public class GameEngine<T> : IGameEngine where T : IInfocomGame, new()
         Context = deserializeObject.Context ?? throw new ArgumentException();
         Context.Engine = this;
         Context.Game = new T();
-        
+
         return Context;
     }
 
     public string SaveGame()
     {
-        SavedGame<T> savedGame = Repository.Save<T>();
+        var savedGame = Repository.Save<T>();
         savedGame.Context = Context;
         return JsonConvert.SerializeObject(savedGame, JsonSettings());
     }

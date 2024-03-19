@@ -14,8 +14,10 @@ public class TurnOnOrOffProcessor : IVerbProcessor
     /// <param name="action">The simple intent representing the action to be performed.</param>
     /// <param name="context">The context in which the action is being performed.</param>
     /// <param name="item">The item to be turned on or off.</param>
+    /// <param name="client"></param>
     /// <returns>An InteractionResult indicating the result of the action.</returns>
-    public InteractionResult? Process(SimpleIntent action, IContext context, IInteractionTarget item)
+    public InteractionResult? Process(SimpleIntent action, IContext context, IInteractionTarget item,
+        IGenerationClient client)
     {
         if (string.IsNullOrEmpty(action.Verb))
             return null;
@@ -24,22 +26,23 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         {
             case "turn on":
             case "activate":
-                return ProcessOn(context, item);
+                return ProcessOn(context, item, client);
 
             case "turn off":
             case "extinguish":
-                return ProcessOff(context, item);
+                return ProcessOff(context, item, client);
 
             // Sometimes, the parser can't determine the adverb "on" or "off". It that case, hopefully,
             // the parser gave us the adverb. 
             case "turn":
-                return ProcessTurn(action, context, item);
+                return ProcessTurn(action, context, item, client);
         }
 
         return null;
     }
 
-    private static InteractionResult? ProcessTurn(SimpleIntent action, IContext context, IInteractionTarget item)
+    private static InteractionResult? ProcessTurn(SimpleIntent action, IContext context, IInteractionTarget item,
+        IGenerationClient client)
     {
         var adverb = action.Adverb?.ToLowerInvariant().Trim();
         if (string.IsNullOrEmpty(action.Adverb?.ToLowerInvariant().Trim()))
@@ -52,9 +55,9 @@ public class TurnOnOrOffProcessor : IVerbProcessor
                 switch (adverb)
                 {
                     case "on":
-                        return TurnItOn(onAndOff, context).Result;
+                        return TurnItOn(onAndOff, context, client).Result;
                     case "off":
-                        return TurnItOff(onAndOff, context).Result;
+                        return TurnItOff(onAndOff, context, client).Result;
 
                     default:
                         return null;
@@ -76,24 +79,24 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         }
     }
 
-    private static InteractionResult? ProcessOn(IContext context, IInteractionTarget item)
+    private static InteractionResult? ProcessOn(IContext context, IInteractionTarget item, IGenerationClient client)
     {
         switch (item)
         {
             case ICanBeTurnedOnAndOff onAndOff:
-                return TurnItOn(onAndOff, context).Result;
+                return TurnItOn(onAndOff, context, client).Result;
 
             default:
                 return null;
         }
     }
 
-    private static InteractionResult? ProcessOff(IContext context, IInteractionTarget item)
+    private static InteractionResult? ProcessOff(IContext context, IInteractionTarget item, IGenerationClient client)
     {
         switch (item)
         {
             case ICanBeTurnedOnAndOff onAndOff:
-                return TurnItOff(onAndOff, context).Result;
+                return TurnItOff(onAndOff, context, client).Result;
 
             case ICannotBeTurnedOff cannotBeTurnedOff:
                 return new PositiveInteractionResult(cannotBeTurnedOff.CannotBeTurnedOffMessage);
@@ -103,7 +106,8 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         }
     }
 
-    private static async Task<InteractionResult> TurnItOff(ICanBeTurnedOnAndOff item, IContext context)
+    private static async Task<InteractionResult> TurnItOff(ICanBeTurnedOnAndOff item, IContext context,
+        IGenerationClient client)
     {
         if (!item.IsOn)
             return new PositiveInteractionResult(item.AlreadyOffText);
@@ -111,13 +115,13 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         item.IsOn = false;
 
         if (item is IAmALightSource && context.CurrentLocation is IDarkLocation)
-            // TODO: Pass in a generator
-            return new PositiveInteractionResult(await new LookProcessor().Process(null, context, null));
+            return new PositiveInteractionResult(await new LookProcessor().Process(null, context, client));
 
         return new PositiveInteractionResult(item.NowOffText);
     }
 
-    private static async Task<InteractionResult> TurnItOn(ICanBeTurnedOnAndOff item, IContext context)
+    private static async Task<InteractionResult> TurnItOn(ICanBeTurnedOnAndOff item, IContext context,
+        IGenerationClient client)
     {
         if (item.IsOn)
             return new PositiveInteractionResult(item.AlreadyOnText);
@@ -125,8 +129,7 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         item.IsOn = true;
 
         if (item is IAmALightSource && context.CurrentLocation is IDarkLocation)
-            // TODO: Pass in a generator
-            return new PositiveInteractionResult(await new LookProcessor().Process(null, context, null));
+            return new PositiveInteractionResult(await new LookProcessor().Process(null, context, client));
 
         return new PositiveInteractionResult(item.NowOnText);
     }

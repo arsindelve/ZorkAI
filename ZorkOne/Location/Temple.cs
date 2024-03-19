@@ -1,8 +1,6 @@
-﻿using Model.Intent;
+﻿namespace ZorkOne.Location;
 
-namespace ZorkOne.Location;
-
-public class Temple : BaseLocation
+public class Temple : LocationWithNoStartingItems
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
@@ -19,7 +17,5 @@ public class Temple : BaseLocation
         "probably a prayer in a long-forgotten language. Below the prayer is a staircase leading down. " +
         "The west wall is solid granite. The exit to the north end of the room is through huge marble pillars.";
 
-    public override void Init()
-    {
-    }
+
 }

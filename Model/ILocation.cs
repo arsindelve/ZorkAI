@@ -1,7 +1,7 @@
-using System.Collections.ObjectModel;
 using Model.Intent;
 using Model.Interaction;
 using Model.Item;
+using OpenAI;
 
 namespace Model;
 
@@ -9,12 +9,12 @@ public interface ILocation
 {
     string Description { get; }
 
-    /// <summary>
-    ///     Gets called the first time a location is referenced. 
-    /// </summary>
-    void Init(); 
-    
     string DescriptionForGeneration { get; }
+
+    /// <summary>
+    ///     Gets called the first time a location is referenced.
+    /// </summary>
+    void Init();
 
     /// <summary>
     ///     Gets called when we enter a location in case there are any interactions
@@ -30,9 +30,10 @@ public interface ILocation
     /// </summary>
     /// <param name="action">The action to examine. Can we do anything with it?</param>
     /// <param name="context">The current context, in case we need it during action processing.</param>
+    /// <param name="client"></param>
     /// <returns>InteractionResult that describes if and and how the interaction took place.</returns>
-    InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context);
-    
+    InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client);
+
 
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="MultiNounIntent" /> corresponding

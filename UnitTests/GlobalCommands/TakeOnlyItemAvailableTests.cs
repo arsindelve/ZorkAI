@@ -13,7 +13,7 @@ public class TakeOnlyItemAvailableTests : EngineTestsBase
         // Assert
         response.Should().Contain("What do you");
     }
-    
+
     [Test]
     public async Task Take_NoItemsToTake()
     {
@@ -26,7 +26,7 @@ public class TakeOnlyItemAvailableTests : EngineTestsBase
         // Assert
         response.Should().Contain("What do you");
     }
-    
+
     [Test]
     public async Task Take_MultipleItemsToTake()
     {
@@ -39,7 +39,7 @@ public class TakeOnlyItemAvailableTests : EngineTestsBase
         // Assert
         response.Should().Contain("What do you");
     }
-    
+
     [Test]
     public async Task Take_MultipleItemsToTake_SecondPass()
     {
@@ -57,7 +57,7 @@ public class TakeOnlyItemAvailableTests : EngineTestsBase
         response.Should().Contain("Taken");
         engine.Context.HasItem<Rope>().Should().BeTrue();
     }
-    
+
     [Test]
     public async Task Take_NoItemsToTake_ReplyWithCustomString()
     {
@@ -70,7 +70,7 @@ public class TakeOnlyItemAvailableTests : EngineTestsBase
         // Assert
         response.Should().Contain("anchored");
     }
-    
+
     [Test]
     public async Task Take_SingleItemToTake()
     {

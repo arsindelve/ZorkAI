@@ -23,17 +23,17 @@ public static class GlobalCommandFactory
 
             case "take":
                 return new TakeOnlyAvailableItemProcessor();
-            
+
             case "save":
             case "save my game":
             case "save my progress":
                 return new SaveProcessor();
-            
+
             case "restore":
             case "restore my game":
             case "restore my progress":
                 return new RestoreProcessor();
-            
+
             case "look":
             case "where am i":
             case "examine my surroundings":
@@ -56,8 +56,9 @@ public static class GlobalCommandFactory
                 return new ScoreProcessor();
 
             case "xyzzy":
+            case "plugh":
                 return new FoolProcessor();
-            
+
             case "restart":
             case "restart the game":
             case "start over":

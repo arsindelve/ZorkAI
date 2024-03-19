@@ -6,6 +6,10 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBeTu
 
     public override string InInventoryDescription => $"A brass lantern {(IsOn ? "(providing light)" : string.Empty)}";
 
+    public bool CanBeTurnedOff => true;
+
+    public override int Size => 3;
+
     string ICanBeExamined.ExaminationDescription => IsOn ? "The lamp is on." : "The lamp is turned off.";
 
     string ICanBeTakenAndDropped.OnTheGroundDescription => "There is a brass lantern (battery-powered) here.";
@@ -20,8 +24,4 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBeTu
     string ICanBeTurnedOnAndOff.AlreadyOffText => "It is already off.";
 
     string ICanBeTurnedOnAndOff.AlreadyOnText => "It is already on.";
-
-    public bool CanBeTurnedOff => true;
-
-    public override int Size => 3;
 }

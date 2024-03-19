@@ -8,12 +8,13 @@ public class EgyptianRoom : DarkLocation
             { Direction.W, new MovementParameters { Location = GetLocation<Temple>() } }
         };
 
-    public override string Name => "Temple";
+    public override string Name => "Egyptian Room";
 
     protected override string ContextBasedDescription =>
-        "This is a room which looks like an Egyptian tomb. There is an ascending staircase to the west.";
+        "This is a room which looks like an Egyptian tomb. There is an ascending staircase to the west. ";
 
     public override void Init()
     {
+        StartWithItem(GetItem<Coffin>(), this);
     }
 }

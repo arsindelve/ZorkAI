@@ -42,7 +42,7 @@ public class ExamineProcessorTests : EngineTestsBase
         result.Should().Contain("A lunch");
         result.Should().Contain("A clove of garlic");
     }
-    
+
     [Test]
     public async Task ExamineInTheDarkProcessor()
     {
