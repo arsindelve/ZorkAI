@@ -7,6 +7,7 @@ public class Temple : LocationWithNoStartingItems
         {
             { Direction.N, new MovementParameters { Location = GetLocation<TorchRoom>() } },
             { Direction.E, new MovementParameters { Location = GetLocation<EgyptianRoom>() } },
+            { Direction.Down, new MovementParameters { Location = GetLocation<EgyptianRoom>() } },
             { Direction.S, new MovementParameters { Location = GetLocation<Altar>() } }
         };
 

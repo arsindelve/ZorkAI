@@ -59,4 +59,6 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
         context.AddPoints(treasure.NumberOfPoints);
         ItemsPlacedInside.Add(item);
     }
+    
+    // TODO: Score goes down if you take the item out!!!
 }
