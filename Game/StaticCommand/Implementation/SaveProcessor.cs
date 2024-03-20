@@ -2,8 +2,23 @@
 
 internal class SaveProcessor : IStatefulProcessor
 {
+    private readonly ISaveGameWriter _writer;
     private string _fileName = "";
     private bool _havePromptedForFilename;
+
+    public SaveProcessor()
+    {
+        _writer = new SaveGameWriter();
+    }
+
+    /// <summary>
+    ///     Constructor for unit testing
+    /// </summary>
+    /// <param name="writer"></param>
+    public SaveProcessor(ISaveGameWriter writer)
+    {
+        _writer = writer;
+    }
 
     public async Task<string> Process(string? input, IContext context, IGenerationClient client)
     {
@@ -21,7 +36,12 @@ internal class SaveProcessor : IStatefulProcessor
     {
         Completed = true;
         _havePromptedForFilename = false;
-        _fileName = string.IsNullOrEmpty(input) ? context.LastSaveGameName ?? context.Game.DefaultSaveGameName : input;
+        _fileName = string.IsNullOrEmpty(input)
+            ? string.IsNullOrEmpty(context.LastSaveGameName)
+                ? context.Game.DefaultSaveGameName
+                : context.LastSaveGameName
+            : input;
+
         context.LastSaveGameName = _fileName;
 
         try
@@ -48,7 +68,10 @@ internal class SaveProcessor : IStatefulProcessor
                 new BeforeSaveGameRequest(context.CurrentLocation.DescriptionForGeneration));
 
         return
-            $"{generatedResponse}\n\nEnter a file name.\nDefault is \"{context.LastSaveGameName ?? context.Game.DefaultSaveGameName}\":";
+            $"{generatedResponse}\n\nEnter a file name.\nDefault " +
+            $"is \"{(string.IsNullOrEmpty(context.LastSaveGameName)
+                ? context.Game.DefaultSaveGameName
+                : context.LastSaveGameName)}\":";
     }
 
     private async Task SaveGame(IContext context)
@@ -56,6 +79,19 @@ internal class SaveProcessor : IStatefulProcessor
         var data = context.Engine!.SaveGame();
         var bytesToEncode = Encoding.UTF8.GetBytes(data);
         var encodedText = Convert.ToBase64String(bytesToEncode);
-        await File.WriteAllTextAsync(_fileName, encodedText);
+        await _writer.Write(_fileName, encodedText);
+    }
+}
+
+public interface ISaveGameWriter
+{
+    Task Write(string filename, string data);
+}
+
+internal class SaveGameWriter : ISaveGameWriter
+{
+    public async Task Write(string filename, string data)
+    {
+        await File.WriteAllTextAsync(filename, data);
     }
 }
