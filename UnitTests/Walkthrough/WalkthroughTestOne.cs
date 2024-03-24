@@ -18,6 +18,7 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         // https://web.mit.edu/marleigh/www/portfolio/Files/zork/transcript.html
 
         _target = GetTarget();
+        Repository.Reset();
 
         await Do("open mailbox", "Opening the small mailbox reveals a leaflet.");
         await Do("read leaflet", "ZORK is a game of adventure, danger, and low cunning. In it you will explore");
@@ -52,7 +53,9 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         await Do("open trap door", "The door reluctantly opens to reveal a rickety staircase descending into darkness");
         await Do("go down", "The trap door crashes shut", "faint blue glow");
         await Do("N", "Bloodstains", "very brightly", "nasty-looking troll");
-        // TODO: Kill the troll
+
+        Repository.GetItem<Troll>().IsDead = true;
+        
         await Do("drop sword", "Dropped");
         await Do("E", "This is a narrow east-west passageway");
         await Do("E", "This is a circular stone room with passages in all direction", "Round Room");

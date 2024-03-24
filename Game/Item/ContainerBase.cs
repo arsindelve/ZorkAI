@@ -1,3 +1,4 @@
+using Amazon.LexModelsV2.Model.Internal.MarshallTransformations;
 using Model.Item;
 
 namespace Game.Item;
@@ -18,6 +19,9 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
 
     public void ItemPlacedHere(IItem item)
     {
+        var location = item.CurrentLocation;
+        location?.RemoveItem(item);
+        item.CurrentLocation = this;
         Items.Add(item);
     }
 
@@ -49,12 +53,32 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
     }
 
     public abstract void Init();
-    
+
     public virtual void OnItemPlacedHere(IItem item, IContext context)
     {
-        
     }
 
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
+    {
+        InteractionResult? result = null;
+
+        // See if one of the items inside me has a matching interaction.
+        foreach (var item in Items.ToList())
+        {
+            result = item.RespondToSimpleInteraction(action, context, client);
+            if (result is { InteractionHappened: true })
+                return result;
+        }
+
+        if (result != null && result is not NoNounMatchInteractionResult)
+            return result;
+
+        if (!action.MatchNoun(NounsForMatching))
+            return new NoNounMatchInteractionResult();
+
+        return ApplyProcessors(action, context, null, client);
+    }
 
     /// <summary>
     ///     Returns a description of the items contained in the specified container.

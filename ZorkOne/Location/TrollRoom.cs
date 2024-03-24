@@ -1,21 +1,24 @@
+using Model.Intent;
+using ZorkOne.Interface;
+
 namespace ZorkOne.Location;
 
 public class TrollRoom : DarkLocation
 {
-    private bool TrollIsAlive => Repository.GetItem<Troll>().CurrentLocation == Repository.GetLocation<TrollRoom>();
+    private bool TrollIsAwakeAndArmed => !GetItem<Troll>().IsDead && !GetItem<Troll>().IsUnconscious &&
+                                         GetItem<BloodyAxe>().CurrentLocation == GetItem<Troll>();
 
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
             { Direction.S, new MovementParameters { Location = GetLocation<Cellar>() } },
             {
-                // Direction.E,
-                // new MovementParameters
-                // {
-                //     Location = GetLocation<EastWestPassage>(), CanGo = _ => !TrollIsAlive,
-                //     CustomFailureMessage = "The troll fends you off with a menacing gesture."
-                // }
-                Direction.E, new MovementParameters { Location = GetLocation<EastWestPassage>() }
+                Direction.E,
+                new MovementParameters
+                {
+                    Location = GetLocation<EastWestPassage>(), CanGo = _ => !TrollIsAwakeAndArmed,
+                    CustomFailureMessage = "The troll fends you off with a menacing gesture."
+                }
             }
         };
 
@@ -25,11 +28,63 @@ public class TrollRoom : DarkLocation
         "This is a small room with passages to the east and south and a forbidding hole leading west. " +
         "Bloodstains and deep scratches (perhaps made by an axe) mar the walls. ";
 
+    public override string BeforeEnterLocation(IContext context)
+    {
+        var troll = GetItem<Troll>();
+
+        if(troll.IsDead)
+            return base.BeforeEnterLocation(context);
+        
+        var axe = GetItem<BloodyAxe>();
+
+        // If you leave him knocked out and then come back,
+        // he'll be awake and have picked up his axe. 
+
+        if (troll.IsUnconscious)
+        {
+            troll.IsUnconscious = false;
+        }
+        
+        if (axe.CurrentLocation == GetLocation<TrollRoom>())
+            troll.ItemPlacedHere(axe);
+
+        return base.BeforeEnterLocation(context);
+    }
+
+    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    {
+        string[] verbs = ["kill", "attack", "defeat", "destroy", "murder"];
+        string[] prepositions = ["with"];
+
+        if (!action.NounOne.ToLowerInvariant().Trim().Contains("troll"))
+            return base.RespondToMultiNounInteraction(action, context);
+
+        var nounTwo = Repository.GetItem(action.NounTwo);
+        {
+            if (nounTwo is not IWeapon)
+                return base.RespondToMultiNounInteraction(action, context);
+
+            if (nounTwo.CurrentLocation != context)
+                return base.RespondToMultiNounInteraction(action, context);
+        }
+
+        if (!verbs.Contains(action.Verb.ToLowerInvariant().Trim()))
+            return base.RespondToMultiNounInteraction(action, context);
+
+        if (!prepositions.Contains(action.Preposition.ToLowerInvariant().Trim()))
+            return base.RespondToMultiNounInteraction(action, context);
+
+        GetItem<Troll>().IsUnconscious = true;
+        ItemPlacedHere(GetItem<BloodyAxe>());
+
+        return new PositiveInteractionResult($"Your {nounTwo.Name} crashes down, knocking the troll into dreamland. ");
+    }
+
     public override string AfterEnterLocation(IContext context)
     {
         var swordInPossession = context.HasItem<Sword>();
 
-        if (TrollIsAlive && swordInPossession)
+        if (TrollIsAwakeAndArmed && swordInPossession)
             return "Your sword has begun to glow very brightly.";
 
         return string.Empty;

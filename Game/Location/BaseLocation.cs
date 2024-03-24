@@ -32,6 +32,9 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
 
     public void ItemPlacedHere(IItem item)
     {
+        var oldLocation = item.CurrentLocation;
+        oldLocation?.RemoveItem(item);
+        item.CurrentLocation = this;
         Items.Add(item);
     }
 

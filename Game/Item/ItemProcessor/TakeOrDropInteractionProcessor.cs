@@ -21,6 +21,9 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             case "acquire":
             case "snatch":
 
+                if (!string.IsNullOrEmpty(castItem.CannotBeTakenDescription))
+                    return new PositiveInteractionResult(castItem.CannotBeTakenDescription);
+
                 if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
                     return new PositiveInteractionResult("It's too dark to see!");
 
