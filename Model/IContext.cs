@@ -47,8 +47,6 @@ public interface IContext : ICanHoldItems
     /// </summary>
     int Moves { get; }
 
-    List<IItem> Items { get; }
-
     /// <summary>
     ///     A reference to the "game", which can tell us constant, game specific
     ///     things like how to calculate score, starting location, etc.
