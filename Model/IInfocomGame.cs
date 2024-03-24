@@ -32,6 +32,4 @@ public interface IInfocomGame
     string GetScoreDescription(int score);
 
     IGlobalCommandFactory GetGlobalCommandFactory();
-
-    T GetContext<T>() where T : IContext, new();
 }

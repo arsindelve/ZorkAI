@@ -33,17 +33,22 @@ where TContext : IContext, new()
 
     public GameEngine()
     {
-        var gameType = new TInfocomGame();
-        //Context = new Context<T>(this, gameType);
-        Context = gameType.GetContext<TContext>();
+        var gameInstance = new TInfocomGame();
+        Context = new TContext
+        {
+            Engine = this,
+            Game = gameInstance
+        };
         
+        Context.CurrentLocation.Init();
+
         IntroText = $"""
-                     {gameType.StartText}
+                     {gameInstance.StartText}
                      {Context.CurrentLocation.Description}
                      """;
 
         _generator = new Client();
-        _parser = new IntentParser(gameType.GetGlobalCommandFactory());
+        _parser = new IntentParser(gameInstance.GetGlobalCommandFactory());
         _itProcessor = new ItProcessor();
     }
 
@@ -54,8 +59,7 @@ where TContext : IContext, new()
     /// <param name="generationClient"></param>
     public GameEngine(IIntentParser parser, IGenerationClient generationClient)
     {
-        var gameType = new TInfocomGame();
-        Context = gameType.GetContext<TContext>();
+        Context = new TContext();
         IntroText = string.Empty;
         _parser = parser;
         _generator = generationClient;

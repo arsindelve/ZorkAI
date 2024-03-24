@@ -35,11 +35,6 @@ public class ZorkI : IInfocomGame
         return new ZorkOneGlobalCommandFactory();
     }
 
-    public T GetContext<T>() where T : IContext, new()
-    {
-        return new T();
-    }
-
     public string StartText => """
 
                                ZORK AI One: The Great Underground Empire Re-Imagined

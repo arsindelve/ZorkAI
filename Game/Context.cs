@@ -19,7 +19,6 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         Engine = engine;
 
         CurrentLocation = Repository.GetStartingLocation<T>();
-        CurrentLocation.Init();
         Score = 0;
         Moves = 0;
     }
