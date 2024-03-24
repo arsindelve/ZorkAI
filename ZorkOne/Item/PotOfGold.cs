@@ -11,7 +11,9 @@ public class PotOfGold :  ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IGive
     public string OnTheGroundDescription => "There is a pot of gold here. ";
 
     public int NumberOfPoints => 10;
-    
+
+    public override string InInventoryDescription => "A pot of gold ";
+
     public override string NeverPickedUpDescription =>
         "At the end of the rainbow is a pot of gold. ";
 }

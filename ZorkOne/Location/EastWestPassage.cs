@@ -6,8 +6,8 @@ public class EastWestPassage : DarkLocation
         new()
         {
             { Direction.W, new MovementParameters { Location = GetLocation<TrollRoom>() } },
-            { Direction.E, new MovementParameters { Location = GetLocation<RoundRoom>() } }
-            
+            { Direction.E, new MovementParameters { Location = GetLocation<RoundRoom>() } },
+            { Direction.N, new MovementParameters { Location = GetLocation<Chasm>() } }
         };
 
     public override string Name => "East-West Passage";

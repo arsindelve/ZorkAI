@@ -30,9 +30,15 @@ public class EngineTestsBase
 
             mockParser.Setup(p => p.DetermineIntentType("open mailbox", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Noun = "mailbox", Verb = "open", OriginalInput = "open mailbox" });
+            
+            mockParser.Setup(p => p.DetermineIntentType("wave sceptre", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Noun = "sceptre", Verb = "wave", OriginalInput = "wave sceptre" });
 
             mockParser.Setup(p => p.DetermineIntentType("take mailbox", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Noun = "mailbox", Verb = "take", OriginalInput = "take mailbox" });
+            
+            mockParser.Setup(p => p.DetermineIntentType("take gold", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Noun = "gold", Verb = "take", OriginalInput = "take gold" });
 
             mockParser.Setup(p => p.DetermineIntentType("eat mailbox", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Noun = "mailbox", Verb = "eat", OriginalInput = "eat mailbox" });
@@ -231,6 +237,16 @@ public class EngineTestsBase
                     Preposition = "to",
                     Verb = "tie",
                     OriginalInput = "tie rope to railing"
+                });
+            
+            mockParser.Setup(s => s.DetermineIntentType("put gold in case", It.IsAny<string>()))
+                .ReturnsAsync(new MultiNounIntent
+                {
+                    NounOne = "gold",
+                    NounTwo = "case",
+                    Preposition = "in",
+                    Verb = "put",
+                    OriginalInput = "put gold in case"
                 });
         }
         else

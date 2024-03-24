@@ -76,8 +76,8 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         await Do("drop coffin", "Dropped");
         await Do("open coffin", "The gold coffin opens", "sceptre is ornamented with colored enamel, and tapers to a ");
         await Do("take sceptre", "Taken");
-        // Wave the sceptre, get the gold
-
+        await Do("wave sceptre", "Suddenly, the rainbow appears to become solid", "A shimmering pot of gold");
+        await Do("take gold", "Taken");
         await Do("take coffin", "Taken");
         await Do("SW", "Canyon Bottom");
         await Do("Up", "Rocky Ledge");
@@ -92,12 +92,16 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         // Gold, sceptre and coffin
         await Do("put coffin inside case", "Done");
         await Do("put sceptre inside case", "Done");
+        await Do("put gold in case", "Done");
         
         await Do("open trap door", "The door reluctantly opens to reveal a rickety staircase descending into darkness");
         await Do("turn on lantern", "The brass lantern is now on.");
         await Do("go down", "The trap door crashes shut", "Cellar");
         await Do("N", "Bloodstains", "Troll Room");
         await Do("E", "This is a narrow east-west passageway");
+        await Do("N", "Chasm", "A chasm runs southwest to northeast and the path follows it");
+        await Do("NE", "Reservoir South", "far too deep and wide for crossing");
+        await Do("E", "Dam", "You are standing on the top of the Flood Control Dam #3");
         
     }
 
