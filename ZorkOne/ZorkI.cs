@@ -1,4 +1,5 @@
-﻿using ZorkOne.Location;
+﻿using ZorkOne.GlobalCommand;
+using ZorkOne.Location;
 
 namespace ZorkOne;
 
@@ -27,6 +28,16 @@ public class ZorkI : IInfocomGame
         if (score < 350)
             return "Wizard";
         return "Master Adventurer";
+    }
+
+    public IGlobalCommandFactory GetGlobalCommandFactory()
+    {
+        return new ZorkOneGlobalCommandFactory();
+    }
+
+    public T GetContext<T>() where T : IContext, new()
+    {
+        return new T();
     }
 
     public string StartText => """

@@ -1,3 +1,5 @@
+using ZorkOne.GlobalCommand;
+
 namespace UnitTests.GlobalCommands;
 
 public class TakeOnlyItemAvailableTests : EngineTestsBase
@@ -5,7 +7,7 @@ public class TakeOnlyItemAvailableTests : EngineTestsBase
     [Test]
     public async Task Take_NoItemsToTake_SingleItemIsRooted()
     {
-        var engine = GetTarget(new IntentParser());
+        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
 
         // Act
         var response = await engine.GetResponse("take");
@@ -17,7 +19,7 @@ public class TakeOnlyItemAvailableTests : EngineTestsBase
     [Test]
     public async Task Take_NoItemsToTake()
     {
-        var engine = GetTarget(new IntentParser());
+        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
         engine.Context.CurrentLocation = Repository.GetLocation<RockyLedge>();
 
         // Act
@@ -30,7 +32,7 @@ public class TakeOnlyItemAvailableTests : EngineTestsBase
     [Test]
     public async Task Take_MultipleItemsToTake()
     {
-        var engine = GetTarget(new IntentParser());
+        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
         engine.Context.CurrentLocation = Repository.GetLocation<Attic>();
 
         // Act
@@ -43,7 +45,7 @@ public class TakeOnlyItemAvailableTests : EngineTestsBase
     [Test]
     public async Task Take_MultipleItemsToTake_SecondPass()
     {
-        var engine = GetTarget(new IntentParser());
+        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
         Repository.GetItem<Lantern>().IsOn = true;
         engine.Context.Take(Repository.GetItem<Lantern>());
         engine.Context.CurrentLocation = Repository.GetLocation<Attic>();
@@ -61,7 +63,7 @@ public class TakeOnlyItemAvailableTests : EngineTestsBase
     [Test]
     public async Task Take_NoItemsToTake_ReplyWithCustomString()
     {
-        var engine = GetTarget(new IntentParser());
+        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
 
         // Act
         await engine.GetResponse("take");
@@ -74,7 +76,7 @@ public class TakeOnlyItemAvailableTests : EngineTestsBase
     [Test]
     public async Task Take_SingleItemToTake()
     {
-        var engine = GetTarget(new IntentParser());
+        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
         // There is a single item to be taken in this location 
         engine.Context.CurrentLocation = Repository.GetLocation<Gallery>();
 

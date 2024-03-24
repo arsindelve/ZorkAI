@@ -1,3 +1,5 @@
+using ZorkOne.GlobalCommand;
+
 namespace UnitTests;
 
 [TestFixture]
@@ -49,7 +51,7 @@ public class GameSpecificTests : EngineTestsBase
     [Test]
     public async Task ClimbATree()
     {
-        var target = GetTarget(new IntentParser());
+        var target = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
         target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
 
         // Act
@@ -62,7 +64,7 @@ public class GameSpecificTests : EngineTestsBase
     [Test]
     public async Task PrayAtTheAltar()
     {
-        var target = GetTarget(new IntentParser());
+        var target = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
         target.Context.CurrentLocation = Repository.GetLocation<Altar>();
 
         // Act

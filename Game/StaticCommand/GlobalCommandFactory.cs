@@ -9,9 +9,9 @@ namespace Game.StaticCommand;
 ///     and "look". This class attempts to match the user input to any of the these known,
 ///     global commands and if there is a match, returns a processor for that command.
 /// </summary>
-public static class GlobalCommandFactory
+public class GlobalCommandFactory : IGlobalCommandFactory
 {
-    internal static IGlobalCommand? GetGlobalCommands(string input)
+    public IGlobalCommand? GetGlobalCommands(string input)
     {
         switch (input.ToLowerInvariant().StripNonChars().Trim())
         {
@@ -54,10 +54,6 @@ public static class GlobalCommandFactory
             case "score":
             case "what is my score":
                 return new ScoreProcessor();
-
-            case "xyzzy":
-            case "plugh":
-                return new FoolProcessor();
 
             case "restart":
             case "restart the game":

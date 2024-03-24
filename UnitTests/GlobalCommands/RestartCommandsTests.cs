@@ -1,3 +1,5 @@
+using ZorkOne.GlobalCommand;
+
 namespace UnitTests.GlobalCommands;
 
 public class RestartCommandsTests : EngineTestsBase
@@ -5,7 +7,7 @@ public class RestartCommandsTests : EngineTestsBase
     [Test]
     public async Task Restart_Affirmative()
     {
-        var engine = GetTarget(new IntentParser());
+        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
 
         // Act
         await engine.GetResponse("start over");
@@ -18,7 +20,7 @@ public class RestartCommandsTests : EngineTestsBase
     [Test]
     public async Task Restart_Affirmative_AlternativeResponse()
     {
-        var engine = GetTarget(new IntentParser());
+        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
 
         // Act
         await engine.GetResponse("restart");
@@ -31,7 +33,7 @@ public class RestartCommandsTests : EngineTestsBase
     [Test]
     public async Task Restart_Cancel_WithBlankInput()
     {
-        var engine = GetTarget(new IntentParser());
+        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
 
         // Act
         await engine.GetResponse("restart");

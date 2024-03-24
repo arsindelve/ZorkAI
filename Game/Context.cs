@@ -91,7 +91,7 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     public IInfocomGame Game
     {
         get => GameType;
-        internal set => GameType = (T)value;
+        set => GameType = (T)value;
     }
 
     public string? LastSaveGameName { get; set; } = "";
@@ -201,7 +201,7 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         return result ?? new NoNounMatchInteractionResult();
     }
 
-    internal int IncreaseMoves()
+    public int IncreaseMoves()
     {
         return Moves++;
     }

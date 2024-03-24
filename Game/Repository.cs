@@ -21,7 +21,7 @@ public static class Repository
     private static Dictionary<Type, IItem> _allItems = new();
     private static Dictionary<Type, ILocation> _allLocations = new();
 
-    internal static SavedGame<T> Save<T>() where T : IInfocomGame, new()
+    internal static SavedGame<T> Save<T>() where T : IContext, new()
     {
         return new SavedGame<T>
         {

@@ -1,3 +1,5 @@
+using ZorkOne.GlobalCommand;
+
 namespace UnitTests.GlobalCommands;
 
 public class QuitCommandTests : EngineTestsBase
@@ -5,7 +7,7 @@ public class QuitCommandTests : EngineTestsBase
     [Test]
     public async Task Quit_Cancel()
     {
-        var engine = GetTarget(new IntentParser());
+        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
 
         // Act
         await engine.GetResponse("quit");
@@ -21,7 +23,7 @@ public class QuitCommandTests : EngineTestsBase
     [Test]
     public async Task Quit_Cancel_WithBlankInput()
     {
-        var engine = GetTarget(new IntentParser());
+        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
 
         // Act
         await engine.GetResponse("quit");
@@ -37,7 +39,7 @@ public class QuitCommandTests : EngineTestsBase
     [Test]
     public async Task Quit_Affirmative()
     {
-        var engine = GetTarget(new IntentParser());
+        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
 
         // Act
         await engine.GetResponse("quit");
@@ -50,7 +52,7 @@ public class QuitCommandTests : EngineTestsBase
     [Test]
     public async Task Quit_Affirmative_AlternativeResponse()
     {
-        var engine = GetTarget(new IntentParser());
+        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
 
         // Act
         await engine.GetResponse("I want to quit");

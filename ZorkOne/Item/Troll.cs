@@ -4,7 +4,7 @@ public class Troll : ItemBase, ICanBeExamined
 {
     public override string[] NounsForMatching => ["troll"];
     
-    public string ExaminationDescription => "A nasty-looking troll, brandishing a bloody axe, blocks all passages out of the room.";
+    public string ExaminationDescription => "A nasty-looking troll, brandishing a bloody axe, blocks all passages out of the room. ";
     
     public override string NeverPickedUpDescription => ExaminationDescription;
 

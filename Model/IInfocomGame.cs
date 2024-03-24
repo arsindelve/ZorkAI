@@ -30,4 +30,8 @@ public interface IInfocomGame
     /// <param name="score">The score to get the description for.</param>
     /// <returns>The description of the score.</returns>
     string GetScoreDescription(int score);
+
+    IGlobalCommandFactory GetGlobalCommandFactory();
+
+    T GetContext<T>() where T : IContext, new();
 }
