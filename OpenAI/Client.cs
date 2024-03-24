@@ -29,6 +29,8 @@ public class Client : IGenerationClient
     /// <returns>The generated response message from the chat conversation.</returns>
     public async Task<string> CompleteChat(Request request)
     {
+        return "Generated Result";
+        
         Debug.WriteLine($"Sending request of type: {request.GetType().Name} ");
 
         var chatCompletionsOptions = new ChatCompletionsOptions
