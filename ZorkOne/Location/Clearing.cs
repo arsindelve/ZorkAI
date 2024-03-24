@@ -25,6 +25,9 @@ public class Clearing : BaseLocation
     protected override string ContextBasedDescription =>
         "You are in a clearing, with a forest surrounding you on all sides. A path leads south.";
 
+    // TODO: Count the leaves: There are 69,105 leaves here
+    // TODO: > jump in leaves: Wheeeeeeeeee!!!!!
+    
     public override void Init()
     {
     }

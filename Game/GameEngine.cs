@@ -186,7 +186,14 @@ where TContext : IContext, new()
                 break;
         }
 
-        return turnCounterResponse + processorOutput?.Trim() + Environment.NewLine;
+        var actors = Context.CurrentLocation.GetActors().Union(Context.GetActors());
+        string actorResults = String.Empty;
+        foreach (ITurnBasedActor actor in actors)
+        {
+            actorResults += $"\n{actor.Act(Context)}";
+        }
+
+        return turnCounterResponse + processorOutput?.Trim() + actorResults + Environment.NewLine;
     }
 
     private static async Task<string> GetGeneratedNoOpResponse(string input, IGenerationClient generationClient,

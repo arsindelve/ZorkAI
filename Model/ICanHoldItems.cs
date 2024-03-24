@@ -11,7 +11,7 @@ public interface ICanHoldItems : IInteractionTarget
 
     string Name { get; }
 
-    List<IItem>? Items { get; }
+    List<IItem> Items { get; }
 
     void RemoveItem(IItem item);
 

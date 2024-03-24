@@ -1,10 +1,11 @@
 using System.Drawing;
+using ZorkOne.Interface;
 
 namespace ZorkOne.Item;
 
 // TODO: The sword needs to glow near danger 
 
-public class Sword : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
+public class Sword : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IWeapon
 {
     public override string[] NounsForMatching => ["sword", "glamdring", "orcrist"];
 

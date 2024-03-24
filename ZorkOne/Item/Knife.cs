@@ -1,6 +1,8 @@
+using ZorkOne.Interface;
+
 namespace ZorkOne.Item;
 
-public class Knife : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
+public class Knife : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IWeapon
 {
     public override string InInventoryDescription => "a nasty knife";
 

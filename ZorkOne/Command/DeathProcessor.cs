@@ -14,6 +14,7 @@ public class DeathProcessor
         context.CurrentLocation = newLocation;
         
         // TODO: Scatter inventory. 
+        // TODO: Die ?? number of times: Don't get another chance. 
 
         string result = death +
                         "\n\t*** You have died ***\n\n" +
