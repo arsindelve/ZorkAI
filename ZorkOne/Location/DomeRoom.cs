@@ -1,4 +1,5 @@
 ﻿using Model.Intent;
+using ZorkOne.Command;
 
 namespace ZorkOne.Location;
 
@@ -21,14 +22,25 @@ public class DomeRoom : BaseLocation
 
     public override string Name => "Dome Room";
 
-    // TODO: Implement fatal jump. 
-
     protected override string ContextBasedDescription =>
         "You are at the periphery of a large dome, which forms the ceiling of another room below. " +
         "Protecting you from a precipitous drop is a wooden railing which circles the dome. ";
 
     public override void Init()
     {
+    }
+
+    public override InteractionResult RespondToSpecificLocationInteraction(string input, IContext context)
+    {
+        switch (input)
+        {
+            case "jump":
+                var death =
+                    "This was not a very safe place to try jumping.\nYou should have looked before you leaped. \n";
+                return new DeathProcessor().Process(death, context);
+        }
+
+        return base.RespondToSpecificLocationInteraction(input, context);
     }
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)

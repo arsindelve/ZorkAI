@@ -45,7 +45,7 @@ public interface IContext : ICanHoldItems
     /// <summary>
     ///     Gets the number of moves made by the adventurer.
     /// </summary>
-    int Moves { get; }
+    int Moves { get; set; }
 
     /// <summary>
     ///     A reference to the "game", which can tell us constant, game specific
@@ -74,5 +74,5 @@ public interface IContext : ICanHoldItems
 
     string ItemListDescription(string locationName);
 
-    int IncreaseMoves();
+    string? ProcessTurnCounter();
 }

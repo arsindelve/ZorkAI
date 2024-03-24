@@ -13,7 +13,7 @@ public class EngineTests : EngineTestsBase
     public void DefaultConstructor()
     {
         Environment.SetEnvironmentVariable("OPEN_AI_KEY", "XYZ");
-        var target = new GameEngine<ZorkI, ZorkOneContext>();
+        var target = new GameEngine<ZorkI, ZorkIContext>();
 
         target.Should().NotBeNull();
     }
@@ -22,7 +22,7 @@ public class EngineTests : EngineTestsBase
     public void DefaultConstructor_NoApiKey()
     {
         Environment.SetEnvironmentVariable("OPEN_AI_KEY", null);
-        Assert.Throws<Exception>(() => _ = new GameEngine<ZorkI, ZorkOneContext>());
+        Assert.Throws<Exception>(() => _ = new GameEngine<ZorkI, ZorkIContext>());
     }
 
     [Test]

@@ -4,7 +4,7 @@ namespace UnitTests.Walkthrough;
 
 public sealed class WalkthroughTestOne : EngineTestsBase
 {
-    private GameEngine<ZorkI, ZorkOneContext> _target;
+    private GameEngine<ZorkI, ZorkIContext> _target;
 
     public WalkthroughTestOne()
     {
