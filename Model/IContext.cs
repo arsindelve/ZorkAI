@@ -12,7 +12,7 @@ public interface IContext : ICanHoldItems
     /// </summary>
     int Score { get; }
 
-    IGameEngine? Engine { get; }
+    IGameEngine? Engine { get; set; }
 
     /// <summary>
     ///     Gets or sets the last noun in the game context.
@@ -53,7 +53,7 @@ public interface IContext : ICanHoldItems
     ///     A reference to the "game", which can tell us constant, game specific
     ///     things like how to calculate score, starting location, etc.
     /// </summary>
-    IInfocomGame Game { get; }
+    IInfocomGame Game { get; set; }
 
     /// <summary>
     ///     Gets or sets the name of the last saved game.
@@ -75,4 +75,6 @@ public interface IContext : ICanHoldItems
     InteractionResult RespondToSimpleInteraction(SimpleIntent simpleInteraction, IGenerationClient client);
 
     string ItemListDescription(string locationName);
+
+    int IncreaseMoves();
 }

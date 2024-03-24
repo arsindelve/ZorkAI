@@ -1,3 +1,5 @@
+using ZorkOne.GlobalCommand;
+
 namespace UnitTests.GlobalCommands;
 
 public class ScoreCommandsTests : EngineTestsBase
@@ -5,7 +7,7 @@ public class ScoreCommandsTests : EngineTestsBase
     [Test]
     public async Task Score()
     {
-        var engine = GetTarget(new IntentParser());
+        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
 
         // Act
         var response = await engine.GetResponse("score");
@@ -17,7 +19,7 @@ public class ScoreCommandsTests : EngineTestsBase
     [Test]
     public async Task Score_AlternateScore_AlternateVery()
     {
-        var engine = GetTarget(new IntentParser());
+        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
         engine.Context.AddPoints(345);
 
         // Act

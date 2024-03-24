@@ -18,7 +18,8 @@ namespace Game;
 ///     (and their corresponding state). The <see cref="Repository" /> is static, self-contained and not owned by
 ///     anyone.
 /// </remarks>
-public class GameEngine<T> : IGameEngine where T : IInfocomGame, new()
+public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame : IInfocomGame, new()
+where TContext : IContext, new()
 {
     private readonly IGenerationClient _generator;
     private readonly ItProcessor _itProcessor;
@@ -28,20 +29,21 @@ public class GameEngine<T> : IGameEngine where T : IInfocomGame, new()
 
     public readonly string IntroText;
     private IStatefulProcessor? _processorInProgress;
-    internal Context<T> Context;
+    internal TContext Context;
 
     public GameEngine()
     {
-        var gameType = new T();
-        Context = new Context<T>(this, gameType);
-
+        var gameType = new TInfocomGame();
+        //Context = new Context<T>(this, gameType);
+        Context = gameType.GetContext<TContext>();
+        
         IntroText = $"""
                      {gameType.StartText}
                      {Context.CurrentLocation.Description}
                      """;
 
         _generator = new Client();
-        _parser = new IntentParser();
+        _parser = new IntentParser(gameType.GetGlobalCommandFactory());
         _itProcessor = new ItProcessor();
     }
 
@@ -52,8 +54,8 @@ public class GameEngine<T> : IGameEngine where T : IInfocomGame, new()
     /// <param name="generationClient"></param>
     public GameEngine(IIntentParser parser, IGenerationClient generationClient)
     {
-        var gameType = new T();
-        Context = new Context<T>(this, gameType);
+        var gameType = new TInfocomGame();
+        Context = gameType.GetContext<TContext>();
         IntroText = string.Empty;
         _parser = parser;
         _generator = generationClient;
@@ -62,7 +64,7 @@ public class GameEngine<T> : IGameEngine where T : IInfocomGame, new()
 
     public IContext RestoreGame(string data)
     {
-        var deserializeObject = JsonConvert.DeserializeObject<SavedGame<T>>(data, JsonSettings());
+        var deserializeObject = JsonConvert.DeserializeObject<SavedGame<TContext>>(data, JsonSettings());
         var allItems = deserializeObject?.AllItems ?? throw new ArgumentException();
         var allLocations = deserializeObject.AllLocations ?? throw new ArgumentException();
 
@@ -70,14 +72,14 @@ public class GameEngine<T> : IGameEngine where T : IInfocomGame, new()
 
         Context = deserializeObject.Context ?? throw new ArgumentException();
         Context.Engine = this;
-        Context.Game = new T();
+        Context.Game = new TInfocomGame();
 
         return Context;
     }
 
     public string SaveGame()
     {
-        var savedGame = Repository.Save<T>();
+        SavedGame<TContext> savedGame = Repository.Save<TContext>();
         savedGame.Context = Context;
         return JsonConvert.SerializeObject(savedGame, JsonSettings());
     }
@@ -181,7 +183,7 @@ public class GameEngine<T> : IGameEngine where T : IInfocomGame, new()
     }
 
     private static async Task<string> GetGeneratedNoOpResponse(string input, IGenerationClient generationClient,
-        Context<T> context)
+        IContext context)
     {
         var request =
             new CommandHasNoEffectOperationRequest(context.CurrentLocation.DescriptionForGeneration, input);

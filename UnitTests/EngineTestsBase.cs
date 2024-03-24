@@ -1,15 +1,16 @@
 using Game.StaticCommand.Implementation;
 using Model.Intent;
 using ZorkOne;
+using ZorkOne.GlobalCommand;
 
 namespace UnitTests;
 
 public class EngineTestsBase
 {
     protected Mock<IGenerationClient> Client = new();
-    protected IIntentParser Parser = new IntentParser();
+    protected IIntentParser Parser = new IntentParser(new ZorkOneGlobalCommandFactory());
 
-    protected GameEngine<ZorkI> GetTarget(IIntentParser? parser = null)
+    protected GameEngine<ZorkI, ZorkOneContext> GetTarget(IIntentParser? parser = null)
     {
         Client = new Mock<IGenerationClient>();
 
@@ -256,7 +257,7 @@ public class EngineTestsBase
 
         Repository.Reset();
 
-        var engine = new GameEngine<ZorkI>(Parser, Client.Object);
+        var engine = new GameEngine<ZorkI, ZorkOneContext>(Parser, Client.Object);
         Repository.GetLocation<WestOfHouse>().Init();
 
         return engine;

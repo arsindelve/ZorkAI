@@ -19,7 +19,6 @@ public class NorthOfHouse : LocationWithNoStartingItems
         {
             Direction.N, new MovementParameters { Location = GetLocation<ForestPath>() }
         },
-
         {
             Direction.S,
             new MovementParameters { CanGo = _ => false, CustomFailureMessage = "The windows are all boarded" }

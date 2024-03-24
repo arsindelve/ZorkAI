@@ -10,18 +10,23 @@ namespace Game;
 public class IntentParser : IIntentParser
 {
     private readonly IAIParser _parser;
+    private readonly IGlobalCommandFactory _defaultGlobalCommandFactory = new GlobalCommandFactory();
+    private readonly IGlobalCommandFactory _gameSpecificCommandFactory;
 
     /// <summary>
     ///     Constructor for unit testing
     /// </summary>
     /// <param name="parser"></param>
-    public IntentParser(IAIParser parser)
+    /// <param name="gameSpecificCommandFactory"></param>
+    public IntentParser(IAIParser parser, IGlobalCommandFactory gameSpecificCommandFactory)
     {
         _parser = parser;
+        _gameSpecificCommandFactory = gameSpecificCommandFactory;
     }
 
-    public IntentParser()
+    public IntentParser(IGlobalCommandFactory gameSpecificCommandFactory)
     {
+        _gameSpecificCommandFactory = gameSpecificCommandFactory;
         _parser = new LexParser();
     }
 
@@ -36,8 +41,11 @@ public class IntentParser : IIntentParser
         if (DirectionParser.IsDirection(input, out var moveTo))
             return new MoveIntent { Direction = moveTo };
 
-        if (GlobalCommandFactory.GetGlobalCommands(input) is { } command)
-            return new GlobalCommandIntent { Command = command };
+        if (_defaultGlobalCommandFactory.GetGlobalCommands(input) is { } globalCommand)
+            return new GlobalCommandIntent { Command = globalCommand };
+        
+        if (_gameSpecificCommandFactory.GetGlobalCommands(input) is { } gameSpecificGlobalCommand)
+            return new GlobalCommandIntent { Command = gameSpecificGlobalCommand };
 
         // At this point, we don't know the user's intent without asking the
         // AI parsing engine, so let's do that. 

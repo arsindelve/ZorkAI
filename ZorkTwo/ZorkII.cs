@@ -20,4 +20,14 @@ public class ZorkII : IInfocomGame
     {
         throw new NotImplementedException();
     }
+
+    public IGlobalCommandFactory GetGlobalCommandFactory()
+    {
+        throw new NotImplementedException();
+    }
+
+    public T GetContext<T>() where T : IContext, new()
+    {
+        throw new NotImplementedException();
+    }
 }

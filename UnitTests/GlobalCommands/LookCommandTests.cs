@@ -1,3 +1,5 @@
+using ZorkOne.GlobalCommand;
+
 namespace UnitTests.GlobalCommands;
 
 public class LookCommandTests : EngineTestsBase
@@ -5,7 +7,7 @@ public class LookCommandTests : EngineTestsBase
     [Test]
     public async Task Static_Intent_Look()
     {
-        var target = GetTarget(new IntentParser());
+        var target = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
 
         // Act
         var result = await target.GetResponse("Where am I? ");
@@ -17,7 +19,7 @@ public class LookCommandTests : EngineTestsBase
     [Test]
     public async Task Look_ItemIsClosed_NeverBeenOpened()
     {
-        var target = GetTarget(new IntentParser());
+        var target = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
         target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
 
         // Act

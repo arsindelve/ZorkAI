@@ -2,9 +2,24 @@
 
 internal class RestoreProcessor : IStatefulProcessor
 {
+    private readonly ISaveGameReader _reader;
     private string _fileName = "";
     private bool _havePromptedForFilename;
 
+    public RestoreProcessor()
+    {
+        _reader = new SaveGameReader();
+    }
+
+    /// <summary>
+    ///     Constructor for unit testing
+    /// </summary>
+    /// <param name="reader"></param>
+    public RestoreProcessor(ISaveGameReader reader)
+    {
+        _reader = reader;
+    }
+    
     public async Task<string> Process(string? input, IContext context, IGenerationClient client)
     {
         if (!_havePromptedForFilename) return await PromptForFilename(context, client);
@@ -21,7 +36,11 @@ internal class RestoreProcessor : IStatefulProcessor
     {
         Completed = true;
         _havePromptedForFilename = false;
-        _fileName = string.IsNullOrEmpty(input) ? context.LastSaveGameName ?? context.Game.DefaultSaveGameName : input;
+        _fileName = string.IsNullOrEmpty(input)
+            ? string.IsNullOrEmpty(context.LastSaveGameName)
+                ? context.Game.DefaultSaveGameName
+                : context.LastSaveGameName
+            : input;
         context.LastSaveGameName = _fileName;
         try
         {
@@ -52,14 +71,30 @@ internal class RestoreProcessor : IStatefulProcessor
                 new BeforeRestoreGameRequest(context.CurrentLocation.DescriptionForGeneration));
 
         return
-            $"{generatedResponse}\n\nEnter a file name.\nDefault is \"{context.LastSaveGameName ?? context.Game.DefaultSaveGameName}\":";
+            $"{generatedResponse}\n\nEnter a file name.\nDefault " +
+            $"is \"{(string.IsNullOrEmpty(context.LastSaveGameName)
+                ? context.Game.DefaultSaveGameName
+                : context.LastSaveGameName)}\":";
     }
 
     private async Task<IContext> RestoreGame(IGameEngine contextEngine)
     {
-        var contents = await File.ReadAllTextAsync(_fileName);
+        var contents = await _reader.Read(_fileName);
         var decodedBytes = Convert.FromBase64String(contents);
         var decodedText = Encoding.UTF8.GetString(decodedBytes);
         return contextEngine.RestoreGame(decodedText);
+    }
+}
+
+public interface ISaveGameReader
+{
+    Task<string> Read(string filename);
+}
+
+internal class SaveGameReader : ISaveGameReader
+{
+    public async Task<string> Read(string filename)
+    {
+        return await File.ReadAllTextAsync(filename);
     }
 }
