@@ -200,8 +200,9 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         return result ?? new NoNounMatchInteractionResult();
     }
 
-    public int IncreaseMoves()
+    public virtual string? ProcessTurnCounter()
     {
-        return Moves++;
+        Moves++;
+        return null;
     }
 }

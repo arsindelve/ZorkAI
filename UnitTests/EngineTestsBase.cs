@@ -10,7 +10,7 @@ public class EngineTestsBase
     protected Mock<IGenerationClient> Client = new();
     protected IIntentParser Parser = new IntentParser(new ZorkOneGlobalCommandFactory());
 
-    protected GameEngine<ZorkI, ZorkOneContext> GetTarget(IIntentParser? parser = null)
+    protected GameEngine<ZorkI, ZorkIContext> GetTarget(IIntentParser? parser = null)
     {
         Client = new Mock<IGenerationClient>();
 
@@ -257,7 +257,7 @@ public class EngineTestsBase
 
         Repository.Reset();
 
-        var engine = new GameEngine<ZorkI, ZorkOneContext>(Parser, Client.Object);
+        var engine = new GameEngine<ZorkI, ZorkIContext>(Parser, Client.Object);
         Repository.GetLocation<WestOfHouse>().Init();
 
         return engine;

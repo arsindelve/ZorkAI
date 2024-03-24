@@ -129,7 +129,9 @@ where TContext : IContext, new()
         if (string.IsNullOrEmpty(input))
             return await GetGeneratedNoCommandResponse();
 
-        Context.IncreaseMoves();
+        Context.Moves++;
+        // See if the context needs to notify us of anything. Are we sleepy? Hungry?
+        string? turnCounterResponse = Context.ProcessTurnCounter();
 
         // Does the location have a special interaction to input such as "jump" or "pray"? 
         var singleVerbResult = Context.CurrentLocation.RespondToSpecificLocationInteraction(input, Context);
@@ -138,16 +140,16 @@ where TContext : IContext, new()
 
         // if the user referenced an object using "it", let's see 
         // if we can handle that. 
-        var result = _itProcessor.Check(input, Context);
-        if (result.RequiresClarification)
+        var itCheck = _itProcessor.Check(input, Context);
+        if (itCheck.RequiresClarification)
         {
             _processorInProgress = _itProcessor;
-            return result.Output;
+            return itCheck.Output;
         }
 
-        input = result.Output;
+        input = itCheck.Output;
 
-        var parsedResult = await _parser.DetermineIntentType(input, _sessionId);
+        IntentBase parsedResult = await _parser.DetermineIntentType(input, _sessionId);
         Debug.WriteLine($"Input was parsed as {parsedResult.GetType().Name}");
 
         switch (parsedResult)
@@ -156,7 +158,8 @@ where TContext : IContext, new()
                 processorOutput = await intent.Command.Process(input, Context, _generator);
                 if (intent.Command is IStatefulProcessor { Completed: false } statefulProcessor)
                     _processorInProgress = statefulProcessor;
-                return processorOutput + Environment.NewLine;
+                processorOutput += Environment.NewLine;
+                break;
 
             case NullIntent:
                 processorOutput = await GetGeneratedNoOpResponse(input, _generator, Context);
@@ -183,7 +186,7 @@ where TContext : IContext, new()
                 break;
         }
 
-        return processorOutput?.Trim() + Environment.NewLine;
+        return turnCounterResponse + processorOutput?.Trim() + Environment.NewLine;
     }
 
     private static async Task<string> GetGeneratedNoOpResponse(string input, IGenerationClient generationClient,

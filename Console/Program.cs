@@ -29,7 +29,7 @@ while (result != "-1")
     Utilities.Utilities.WriteLineWordWrap(result);
 }
 
-GameEngine<ZorkI, ZorkOneContext> CreateEngine()
+GameEngine<ZorkI, ZorkIContext> CreateEngine()
 {
-    return new GameEngine<ZorkI, ZorkOneContext>();
+    return new GameEngine<ZorkI, ZorkIContext>();
 }
