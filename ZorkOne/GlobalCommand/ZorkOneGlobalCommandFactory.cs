@@ -19,6 +19,9 @@ public class ZorkOneGlobalCommandFactory : IGlobalCommandFactory
             
             case "zork":
                 return new SimpleResponseCommand("At your service!");
+            
+            case "frobozz":
+                return new SimpleResponseCommand("The FROBOZZ Corporation created, owns, and operates this dungeon.");
 
             case "lose":
             case "chomp":

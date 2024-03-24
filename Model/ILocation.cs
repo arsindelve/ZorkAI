@@ -87,4 +87,10 @@ public interface ILocation
     /// <param name="context"></param>
     /// <returns>An object of type InteractionResult that describes the result of the interaction.</returns>
     InteractionResult RespondToSpecificLocationInteraction(string input, IContext context);
+
+    /// <summary>
+    /// Retrieves a list of turn-based actors in the location.
+    /// </summary>
+    /// <returns>A list of objects implementing the ITurnBasedActor interface.</returns>
+    List<ITurnBasedActor> GetActors();
 }

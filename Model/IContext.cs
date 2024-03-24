@@ -32,6 +32,8 @@ public interface IContext : ICanHoldItems
     /// </remarks>
     ILocation CurrentLocation { get; set; }
 
+    List<ITurnBasedActor> GetActors();
+    
     /// <summary>
     ///     Property that indicates whether the context has a light source.
     /// </summary>

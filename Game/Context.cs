@@ -55,6 +55,11 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     public List<IItem> Items { get; } = new();
 
+    List<ITurnBasedActor> IContext.GetActors()
+    {
+        return Items.OfType<ITurnBasedActor>().ToList();
+    }
+
     /// <summary>
     ///     Gets a value indicating whether the adventurer has a light source that is on
     /// </summary>

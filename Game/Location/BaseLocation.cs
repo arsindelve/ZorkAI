@@ -64,6 +64,11 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return new NoVerbMatchInteractionResult { Noun = string.Empty, Verb = input };
     }
 
+    public List<ITurnBasedActor> GetActors()
+    {
+        return Items.OfType<ITurnBasedActor>().ToList();
+    }
+
     public virtual string BeforeEnterLocation(IContext context)
     {
         if (VisitCount == 0)
