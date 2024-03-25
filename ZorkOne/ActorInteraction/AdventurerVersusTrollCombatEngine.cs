@@ -1,20 +1,31 @@
+using ZorkOne.Interface;
 using ZorkOne.Location;
 
 namespace ZorkOne.ActorInteraction;
 
 internal class AdventurerVersusTrollCombatEngine
 {
+    private readonly IRandomChooser _chooser;
     private readonly List<(CombatOutcome outcome, string text)> _notStunnedOutcomes;
-    private readonly Random _rand;
 
     private IItem? _axe;
     private Troll? _troll;
     private TrollRoom? _trollRoom;
 
+    /// <summary>
+    ///     Constructor for unit testing
+    /// </summary>
+    /// <param name="chooser"></param>
+    public AdventurerVersusTrollCombatEngine(IRandomChooser chooser) : this()
+    {
+        _chooser = chooser;
+    }
+
     // ReSharper disable once ConvertConstructorToMemberInitializers
+    // ReSharper disable once ConvertToPrimaryConstructor
     public AdventurerVersusTrollCombatEngine()
     {
-        _rand = new Random();
+        _chooser = new RandomChooser();
         _notStunnedOutcomes =
         [
             (CombatOutcome.Miss, "A quick stroke, but the troll is on guard. "),
@@ -57,7 +68,7 @@ internal class AdventurerVersusTrollCombatEngine
         if (!_troll.HasItem<BloodyAxe>())
             return DeathBlow(context, "The unarmed troll cannot defend himself: He dies.");
 
-        var attack = _notStunnedOutcomes[_rand.Next(_notStunnedOutcomes.Count)];
+        var attack = _chooser.Choose(_notStunnedOutcomes);
 
         switch (attack.outcome)
         {
@@ -99,10 +110,10 @@ internal class AdventurerVersusTrollCombatEngine
     private PositiveInteractionResult Knockout(string text)
     {
         _troll!.IsUnconscious = true;
-        
+
         // Unconscious troll drops the axe
         _trollRoom!.ItemPlacedHere(_axe!);
-        
+
         return new PositiveInteractionResult(text);
     }
 }

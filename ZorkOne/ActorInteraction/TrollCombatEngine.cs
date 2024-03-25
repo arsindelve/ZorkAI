@@ -1,9 +1,12 @@
 using ZorkOne.Command;
+using ZorkOne.Interface;
 
 namespace ZorkOne.ActorInteraction;
 
 internal class TrollCombatEngine
 {
+    private readonly IRandomChooser _chooser;
+
     private readonly List<(CombatOutcome outcome, string text)> _haveWeaponOutcomes =
     [
         (CombatOutcome.Miss, "The troll's swing almost knocks you over as you barely parry in time."),
@@ -33,7 +36,19 @@ internal class TrollCombatEngine
             "head ruminatively:  Might you be magically protected, he wonders? Conquering his fears, the troll puts you to death. ")
     ];
 
-    private readonly Random _rand = new();
+    public TrollCombatEngine()
+    {
+        _chooser = new RandomChooser();
+    }
+
+    /// <summary>
+    ///     Constructor for unit testing
+    /// </summary>
+    /// <param name="chooser"></param>
+    public TrollCombatEngine(IRandomChooser chooser)
+    {
+        _chooser = chooser;
+    }
 
     public string Attack(IContext context)
     {
@@ -49,7 +64,7 @@ internal class TrollCombatEngine
         var fatal = false;
 
         var possibleOutcomes = zorkContext.HasWeapon ? _outcomes.Union(_haveWeaponOutcomes).ToList() : _outcomes;
-        var attack = possibleOutcomes[_rand.Next(possibleOutcomes.Count)];
+        var attack = _chooser.Choose(possibleOutcomes);
 
         switch (attack.outcome)
         {
