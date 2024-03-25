@@ -2,5 +2,5 @@ namespace ZorkOne.Interface;
 
 internal interface IGivePointsWhenPlacedInTrophyCase
 {
-    internal int NumberOfPoints { get;  }
+    internal int NumberOfPoints { get; }
 }

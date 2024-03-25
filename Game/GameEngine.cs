@@ -19,7 +19,7 @@ namespace Game;
 ///     anyone.
 /// </remarks>
 public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame : IInfocomGame, new()
-where TContext : IContext, new()
+    where TContext : IContext, new()
 {
     private readonly IGenerationClient _generator;
     private readonly ItProcessor _itProcessor;
@@ -39,7 +39,7 @@ where TContext : IContext, new()
             Engine = this,
             Game = gameInstance
         };
-        
+
         Context.CurrentLocation.Init();
 
         IntroText = $"""
@@ -83,7 +83,7 @@ where TContext : IContext, new()
 
     public string SaveGame()
     {
-        SavedGame<TContext> savedGame = Repository.Save<TContext>();
+        var savedGame = Repository.Save<TContext>();
         savedGame.Context = Context;
         return JsonConvert.SerializeObject(savedGame, JsonSettings());
     }
@@ -131,7 +131,7 @@ where TContext : IContext, new()
 
         Context.Moves++;
         // See if the context needs to notify us of anything. Are we sleepy? Hungry?
-        string? turnCounterResponse = Context.ProcessTurnCounter();
+        var turnCounterResponse = Context.ProcessTurnCounter();
 
         // Does the location have a special interaction to input such as "jump" or "pray"? 
         var singleVerbResult = Context.CurrentLocation.RespondToSpecificLocationInteraction(input, Context);
@@ -149,7 +149,7 @@ where TContext : IContext, new()
 
         input = itCheck.Output;
 
-        IntentBase parsedResult = await _parser.DetermineIntentType(input, _sessionId);
+        var parsedResult = await _parser.DetermineIntentType(input, _sessionId);
         Debug.WriteLine($"Input was parsed as {parsedResult.GetType().Name}");
 
         switch (parsedResult)
@@ -187,11 +187,8 @@ where TContext : IContext, new()
         }
 
         var actors = Context.CurrentLocation.GetActors().Union(Context.GetActors());
-        string actorResults = String.Empty;
-        foreach (ITurnBasedActor actor in actors)
-        {
-            actorResults += $"\n{actor.Act(Context)}";
-        }
+        var actorResults = string.Empty;
+        foreach (var actor in actors) actorResults += $"\n{actor.Act(Context)}";
 
         return turnCounterResponse + processorOutput?.Trim() + actorResults + Environment.NewLine;
     }

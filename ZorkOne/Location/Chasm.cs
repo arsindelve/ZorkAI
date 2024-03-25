@@ -7,7 +7,7 @@ public class Chasm : DarkLocation
         {
             { Direction.SW, new MovementParameters { Location = GetLocation<EastWestPassage>() } },
             { Direction.S, new MovementParameters { Location = GetLocation<NorthSouthPassage>() } },
-            { Direction.NE, new MovementParameters { Location = GetLocation<ReservoirSouth>() } },
+            { Direction.NE, new MovementParameters { Location = GetLocation<ReservoirSouth>() } }
         };
 
     protected override string ContextBasedDescription =>

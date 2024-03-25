@@ -45,7 +45,7 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
     }
 
     /// <summary>
-    /// Handles the action that takes place when an item is placed inside the TrophyCase.
+    ///     Handles the action that takes place when an item is placed inside the TrophyCase.
     /// </summary>
     /// <param name="item">The item being placed inside the TrophyCase.</param>
     /// <param name="context">The current game context.</param>
@@ -59,6 +59,6 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
         context.AddPoints(treasure.NumberOfPoints);
         ItemsPlacedInside.Add(item);
     }
-    
+
     // TODO: Score goes down if you take the item out!!!
 }

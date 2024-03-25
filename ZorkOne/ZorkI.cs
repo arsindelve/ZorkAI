@@ -12,7 +12,7 @@ public class ZorkI : IInfocomGame
     public string GetScoreDescription(int score)
     {
         // https://ganelson.github.io/inform-website/book/WI_9_3.html
-        
+
         if (score < 25)
             return "Beginner";
         if (score < 50)

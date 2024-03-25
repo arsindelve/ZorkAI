@@ -6,5 +6,6 @@ internal enum CombatOutcome
     SmallWound,
     DropWeapon,
     Stun,
-    Fatal
+    Fatal,
+    Knockout
 }

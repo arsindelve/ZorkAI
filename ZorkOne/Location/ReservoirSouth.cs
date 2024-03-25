@@ -7,8 +7,7 @@ public class ReservoirSouth : DarkLocation
         {
             { Direction.SW, new MovementParameters { Location = GetLocation<Chasm>() } },
             { Direction.SE, new MovementParameters { Location = GetLocation<DeepCanyon>() } },
-            { Direction.E, new MovementParameters { Location = GetLocation<Dam>() } },
-          
+            { Direction.E, new MovementParameters { Location = GetLocation<Dam>() } }
         };
 
     protected override string ContextBasedDescription =>

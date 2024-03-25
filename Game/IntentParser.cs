@@ -9,9 +9,9 @@ namespace Game;
 /// </summary>
 public class IntentParser : IIntentParser
 {
-    private readonly IAIParser _parser;
     private readonly IGlobalCommandFactory _defaultGlobalCommandFactory = new GlobalCommandFactory();
     private readonly IGlobalCommandFactory _gameSpecificCommandFactory;
+    private readonly IAIParser _parser;
 
     /// <summary>
     ///     Constructor for unit testing
@@ -43,7 +43,7 @@ public class IntentParser : IIntentParser
 
         if (_defaultGlobalCommandFactory.GetGlobalCommands(input) is { } globalCommand)
             return new GlobalCommandIntent { Command = globalCommand };
-        
+
         if (_gameSpecificCommandFactory.GetGlobalCommands(input) is { } gameSpecificGlobalCommand)
             return new GlobalCommandIntent { Command = gameSpecificGlobalCommand };
 

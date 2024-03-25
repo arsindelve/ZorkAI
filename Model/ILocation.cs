@@ -89,7 +89,7 @@ public interface ILocation
     InteractionResult RespondToSpecificLocationInteraction(string input, IContext context);
 
     /// <summary>
-    /// Retrieves a list of turn-based actors in the location.
+    ///     Retrieves a list of turn-based actors in the location.
     /// </summary>
     /// <returns>A list of objects implementing the ITurnBasedActor interface.</returns>
     List<ITurnBasedActor> GetActors();

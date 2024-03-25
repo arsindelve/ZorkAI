@@ -16,10 +16,9 @@ public class Altar : BaseLocation
 
     public override InteractionResult RespondToSpecificLocationInteraction(string action, IContext context)
     {
-
         if (!action.Trim().StartsWith("pray", StringComparison.InvariantCultureIgnoreCase))
             return base.RespondToSpecificLocationInteraction(action, context);
-        
+
         var newLocation = GetLocation<ForestOne>();
         context.CurrentLocation = newLocation;
         return new PositiveInteractionResult(newLocation.Description + Environment.NewLine);

@@ -12,7 +12,8 @@ public class Mailbox : OpenAndCloseContainerBase, ICanBeExamined
 
     public override string Name => "mailbox";
 
-    public string ExaminationDescription => ((IOpenAndClose)this).IsOpen ? "It's open. " : "The small mailbox is closed. ";
+    public string ExaminationDescription =>
+        ((IOpenAndClose)this).IsOpen ? "It's open. " : "The small mailbox is closed. ";
 
     public override void Init()
     {

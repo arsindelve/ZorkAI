@@ -14,12 +14,12 @@ public class ForestFour : LocationWithNoStartingItems
             Direction.S, new MovementParameters { Location = GetLocation<ForestTwo>() }
         },
         {
-            Direction.E, new MovementParameters { CanGo = _ => false, CustomFailureMessage = "The mountains are impassable. "}
+            Direction.E,
+            new MovementParameters { CanGo = _ => false, CustomFailureMessage = "The mountains are impassable. " }
         }
     };
 
     public override string Name => "Forest";
 
     protected override string ContextBasedDescription => "The forest thins out, revealing impassible mountains. ";
-
 }

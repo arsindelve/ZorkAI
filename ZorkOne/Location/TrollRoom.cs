@@ -1,11 +1,15 @@
 using Model.Intent;
+using ZorkOne.ActorInteraction;
 using ZorkOne.Interface;
 
 namespace ZorkOne.Location;
 
 public class TrollRoom : DarkLocation
 {
-    private bool TrollIsAwakeAndArmed => !GetItem<Troll>().IsDead && !GetItem<Troll>().IsUnconscious &&
+    private readonly AdventurerVersusTrollCombatEngine _attackEngine = new();
+
+    private bool TrollIsAwakeAndArmed => !GetItem<Troll>().IsDead &&
+                                         !GetItem<Troll>().IsUnconscious &&
                                          GetItem<BloodyAxe>().CurrentLocation == GetItem<Troll>();
 
     protected override Dictionary<Direction, MovementParameters> Map =>
@@ -17,7 +21,7 @@ public class TrollRoom : DarkLocation
                 new MovementParameters
                 {
                     Location = GetLocation<EastWestPassage>(), CanGo = _ => !TrollIsAwakeAndArmed,
-                    CustomFailureMessage = "The troll fends you off with a menacing gesture."
+                    CustomFailureMessage = "The troll fends you off with a menacing gesture. "
                 }
             }
         };
@@ -32,19 +36,16 @@ public class TrollRoom : DarkLocation
     {
         var troll = GetItem<Troll>();
 
-        if(troll.IsDead)
+        if (troll.IsDead)
             return base.BeforeEnterLocation(context);
-        
+
         var axe = GetItem<BloodyAxe>();
 
         // If you leave him knocked out and then come back,
-        // he'll be awake and have picked up his axe. 
+        // he'll be awake and have picked up his axe off the floor. 
 
-        if (troll.IsUnconscious)
-        {
-            troll.IsUnconscious = false;
-        }
-        
+        if (troll.IsUnconscious) troll.IsUnconscious = false;
+
         if (axe.CurrentLocation == GetLocation<TrollRoom>())
             troll.ItemPlacedHere(axe);
 
@@ -59,13 +60,16 @@ public class TrollRoom : DarkLocation
         if (!action.NounOne.ToLowerInvariant().Trim().Contains("troll"))
             return base.RespondToMultiNounInteraction(action, context);
 
+        if (GetItem<Troll>().IsDead)
+            return base.RespondToMultiNounInteraction(action, context);
+
         var nounTwo = Repository.GetItem(action.NounTwo);
         {
             if (nounTwo is not IWeapon)
                 return base.RespondToMultiNounInteraction(action, context);
 
             if (nounTwo.CurrentLocation != context)
-                return base.RespondToMultiNounInteraction(action, context);
+                return new PositiveInteractionResult($"You don't have the {nounTwo.Name}");
         }
 
         if (!verbs.Contains(action.Verb.ToLowerInvariant().Trim()))
@@ -74,10 +78,7 @@ public class TrollRoom : DarkLocation
         if (!prepositions.Contains(action.Preposition.ToLowerInvariant().Trim()))
             return base.RespondToMultiNounInteraction(action, context);
 
-        GetItem<Troll>().IsUnconscious = true;
-        ItemPlacedHere(GetItem<BloodyAxe>());
-
-        return new PositiveInteractionResult($"Your {nounTwo.Name} crashes down, knocking the troll into dreamland. ");
+        return _attackEngine.Attack(context);
     }
 
     public override string AfterEnterLocation(IContext context)
@@ -85,7 +86,7 @@ public class TrollRoom : DarkLocation
         var swordInPossession = context.HasItem<Sword>();
 
         if (TrollIsAwakeAndArmed && swordInPossession)
-            return "Your sword has begun to glow very brightly.";
+            return "Your sword has begun to glow very brightly. ";
 
         return string.Empty;
     }

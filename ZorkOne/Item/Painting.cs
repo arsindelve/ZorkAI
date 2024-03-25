@@ -20,6 +20,6 @@ public class Painting : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IGivePo
 
     // TODO: >cut painting with sword
     // Your skillful swordsmanship slices the painting into innumerable slivers which blow away.
-    
+
     int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 6;
 }

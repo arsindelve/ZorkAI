@@ -19,7 +19,7 @@ internal class RestoreProcessor : IStatefulProcessor
     {
         _reader = reader;
     }
-    
+
     public async Task<string> Process(string? input, IContext context, IGenerationClient client)
     {
         if (!_havePromptedForFilename) return await PromptForFilename(context, client);

@@ -7,7 +7,7 @@ public class NorthSouthPassage : DarkLocation
         {
             { Direction.S, new MovementParameters { Location = GetLocation<RoundRoom>() } },
             { Direction.N, new MovementParameters { Location = GetLocation<Chasm>() } },
-            { Direction.NE, new MovementParameters { Location = GetLocation<DeepCanyon>() } },
+            { Direction.NE, new MovementParameters { Location = GetLocation<DeepCanyon>() } }
         };
 
     protected override string ContextBasedDescription =>
