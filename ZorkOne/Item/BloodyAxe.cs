@@ -6,12 +6,6 @@ public class BloodyAxe : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IWeapo
 {
     public override string[] NounsForMatching => ["axe", "bloody axe"];
 
-    public string ExaminationDescription => "There's nothing special about the bloody axe. ";
-
-    string ICanBeTakenAndDropped.OnTheGroundDescription => "There is a bloody axe here. ";
-
-    public override string NeverPickedUpDescription => ((ICanBeTakenAndDropped)this).OnTheGroundDescription;
-    
     public override string InInventoryDescription => "A bloody axe ";
 
     public override string? CannotBeTakenDescription
@@ -25,4 +19,10 @@ public class BloodyAxe : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IWeapo
             return null;
         }
     }
+
+    public string ExaminationDescription => "There's nothing special about the bloody axe. ";
+
+    string ICanBeTakenAndDropped.OnTheGroundDescription => "There is a bloody axe here. ";
+
+    public override string NeverPickedUpDescription => ((ICanBeTakenAndDropped)this).OnTheGroundDescription;
 }

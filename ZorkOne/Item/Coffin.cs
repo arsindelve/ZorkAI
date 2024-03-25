@@ -2,7 +2,8 @@ using ZorkOne.Interface;
 
 namespace ZorkOne.Item;
 
-public class Coffin : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase
+public class Coffin : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndDropped,
+    IGivePointsWhenPlacedInTrophyCase
 {
     public override string[] NounsForMatching => ["coffin", "solid-gold coffin", "gold coffin"];
 
@@ -12,8 +13,6 @@ public class Coffin : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndD
 
     public override string InInventoryDescription =>
         !IsOpen ? "A gold coffin." : "A gold coffin " + (Items.Any() ? $"\n{ItemListDescription("gold coffin")}" : "");
-
-    int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 15;
 
     public string ExaminationDescription =>
         ((IOpenAndClose)this).IsOpen
@@ -28,6 +27,8 @@ public class Coffin : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndD
                                                 : "");
 
     public override string NeverPickedUpDescription => OnTheGroundDescription;
+
+    int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 15;
 
     public override void Init()
     {

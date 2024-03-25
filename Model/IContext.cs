@@ -32,8 +32,6 @@ public interface IContext : ICanHoldItems
     /// </remarks>
     ILocation CurrentLocation { get; set; }
 
-    List<ITurnBasedActor> GetActors();
-    
     /// <summary>
     ///     Property that indicates whether the context has a light source.
     /// </summary>
@@ -60,6 +58,8 @@ public interface IContext : ICanHoldItems
     /// </summary>
     /// <value>The name of the last saved game.</value>
     string? LastSaveGameName { get; set; }
+
+    List<ITurnBasedActor> GetActors();
 
     void Take(IItem item);
 

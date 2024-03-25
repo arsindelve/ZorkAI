@@ -62,7 +62,7 @@ public class Cellar : DarkLocation
 
         return string.Empty;
     }
-    
+
     protected override void OnFirstTimeEnterLocation(IContext context)
     {
         context.AddPoints(25);

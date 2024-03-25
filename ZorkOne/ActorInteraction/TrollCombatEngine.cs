@@ -28,8 +28,8 @@ internal class TrollCombatEngine
         (CombatOutcome.Miss, "The troll swings his axe, but it misses."),
         (CombatOutcome.Stun, "The troll hits you with a glancing blow, and you are momentarily stunned."),
         (CombatOutcome.Fatal,
-            "The flat of the troll's axe hits you delicately on the head, knocking you out. The troll scratches his head ruminatively:  Might you be magically protected, he wonders? Conquering his fears, the troll puts you to death. "),
-
+            "The flat of the troll's axe hits you delicately on the head, knocking you out. The troll scratches his " +
+            "head ruminatively:  Might you be magically protected, he wonders? Conquering his fears, the troll puts you to death. "),
         (CombatOutcome.Miss, "The troll swings; the blade turns on your armor but crashes broadside into your head."),
         (CombatOutcome.Miss, "The troll swings his axe, but it misses."),
         (CombatOutcome.SmallWound, "The troll swings his axe, and it nicks your arm as you dodge. "),
@@ -45,6 +45,12 @@ internal class TrollCombatEngine
         if (context is not ZorkIContext zorkContext)
             throw new ArgumentException();
 
+        if (Repository.GetItem<Troll>().IsStunned)
+        {
+            Repository.GetItem<Troll>().IsStunned = false;
+            return "The troll slowly regains his feet.";
+        }
+
         var fatal = false;
 
         var possibleOutcomes = zorkContext.HasWeapon ? _outcomes.Union(_haveWeaponOutcomes).ToList() : _outcomes;
@@ -57,19 +63,15 @@ internal class TrollCombatEngine
 
             case CombatOutcome.DropWeapon:
             {
-                var weapon = zorkContext.GetWeapon();
-                if (weapon is null)
-                    // this should not happen based on logic above.
-                    break;
-                context.Drop(weapon);
-                attack.text = attack.text.Replace("{weapon}", weapon.Name);
+                attack = DropWeapon(context, zorkContext, attack);
                 break;
             }
             case CombatOutcome.SmallWound:
-                if (zorkContext.LightWoundCounter > 0)
-                    fatal = true;
-                else
-                    zorkContext.LightWoundCounter = 30;
+                fatal = SmallWound(zorkContext, fatal);
+                break;
+            
+            case CombatOutcome.Stun:
+                zorkContext.IsStunned = true;
                 break;
 
             case CombatOutcome.Fatal:
@@ -84,5 +86,26 @@ internal class TrollCombatEngine
                     context).InteractionMessage;
 
         return attack.text;
+    }
+
+    private static bool SmallWound(ZorkIContext zorkContext, bool fatal)
+    {
+        if (zorkContext.LightWoundCounter > 0)
+            fatal = true;
+        else
+            zorkContext.LightWoundCounter = 30;
+        return fatal;
+    }
+
+    private static (CombatOutcome outcome, string text) DropWeapon(IContext context, ZorkIContext zorkContext,
+        (CombatOutcome outcome, string text) attack)
+    {
+        var weapon = zorkContext.GetWeapon();
+        if (weapon is null)
+            // this should not happen based on logic above.
+            return attack;
+        context.Drop(weapon);
+        attack.text = attack.text.Replace("{weapon}", weapon.Name);
+        return attack;
     }
 }

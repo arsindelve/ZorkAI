@@ -74,7 +74,7 @@ public class GameSpecificTests : EngineTestsBase
         target.Context.CurrentLocation.Should().Be(Repository.GetLocation<ForestOne>());
         result.Should().Contain("sunlight");
     }
-    
+
     [Test]
     public async Task PuttingStuffInTheTrophyCase_IncreaseScore()
     {
@@ -84,13 +84,13 @@ public class GameSpecificTests : EngineTestsBase
         Repository.GetItem<TrophyCase>().IsOpen = true;
 
         // Act
-        string? response = await target.GetResponse("put painting inside case");
+        var response = await target.GetResponse("put painting inside case");
 
         // Assert
         response.Should().Contain("Done");
         target.Context.Score.Should().Be(6);
     }
-    
+
     [Test]
     public async Task PuttingStuffInTheTrophyCase_SecondTime_DoesNotIncreaseScore()
     {
@@ -102,13 +102,13 @@ public class GameSpecificTests : EngineTestsBase
         // Act
         await target.GetResponse("put painting inside case");
         await target.GetResponse("take painting");
-        string? response = await target.GetResponse("put painting inside case");
-        
+        var response = await target.GetResponse("put painting inside case");
+
         // Assert
         response.Should().Contain("Done");
         target.Context.Score.Should().Be(6);
     }
-    
+
     [Test]
     public async Task PuttingGarbageInTheTrophyCase_DoesNotIncreaseScore()
     {
@@ -118,8 +118,8 @@ public class GameSpecificTests : EngineTestsBase
         Repository.GetItem<TrophyCase>().IsOpen = true;
 
         // Act
-        string? response = await target.GetResponse("put leaflet inside case");
-        
+        var response = await target.GetResponse("put leaflet inside case");
+
         // Assert
         response.Should().Contain("Done");
         target.Context.Score.Should().Be(0);

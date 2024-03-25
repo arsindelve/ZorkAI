@@ -14,10 +14,13 @@ public class ForestThree : LocationWithNoStartingItems
             Direction.W, new MovementParameters { Location = GetLocation<ForestOne>() }
         },
         {
-            Direction.S, new MovementParameters { CanGo = _ => false, CustomFailureMessage = "Storm-tossed trees block your way. "}
+            Direction.S,
+            new MovementParameters { CanGo = _ => false, CustomFailureMessage = "Storm-tossed trees block your way. " }
         },
         {
-            Direction.E, new MovementParameters { CanGo = _ => false, CustomFailureMessage = "The rank undergrowth prevents eastward movement. "}
+            Direction.E,
+            new MovementParameters
+                { CanGo = _ => false, CustomFailureMessage = "The rank undergrowth prevents eastward movement. " }
         }
     };
 

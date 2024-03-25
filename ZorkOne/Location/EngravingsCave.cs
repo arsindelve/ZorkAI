@@ -6,9 +6,9 @@ public class EngravingsCave : DarkLocation
         new()
         {
             { Direction.NW, new MovementParameters { Location = GetLocation<RoundRoom>() } },
-            { Direction.E, new MovementParameters { Location = GetLocation<DomeRoom>() } },
+            { Direction.E, new MovementParameters { Location = GetLocation<DomeRoom>() } }
         };
-    
+
     public override string Name => "Engravings Cave";
 
     protected override string ContextBasedDescription =>

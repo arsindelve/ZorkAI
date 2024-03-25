@@ -12,7 +12,7 @@ public class FoolTests : EngineTestsBase
         var response = await target.GetResponse("xyzzy");
         response.Should().Contain("fool");
     }
-    
+
     [Test]
     public async Task Plugh()
     {

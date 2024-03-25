@@ -4,10 +4,12 @@ namespace ZorkOne;
 
 public class ZorkIContext : Context<ZorkI>
 {
-    public int LightWoundCounter;
     public int DeathCounter;
+    public int LightWoundCounter;
 
     public bool HasWeapon => Items.OfType<IWeapon>().Any();
+
+    public bool IsStunned { get; set; }
 
     public IItem? GetWeapon()
     {

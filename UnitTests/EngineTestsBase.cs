@@ -31,13 +31,13 @@ public class EngineTestsBase
 
             mockParser.Setup(p => p.DetermineIntentType("open mailbox", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Noun = "mailbox", Verb = "open", OriginalInput = "open mailbox" });
-            
+
             mockParser.Setup(p => p.DetermineIntentType("wave sceptre", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Noun = "sceptre", Verb = "wave", OriginalInput = "wave sceptre" });
 
             mockParser.Setup(p => p.DetermineIntentType("take mailbox", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Noun = "mailbox", Verb = "take", OriginalInput = "take mailbox" });
-            
+
             mockParser.Setup(p => p.DetermineIntentType("take gold", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Noun = "gold", Verb = "take", OriginalInput = "take gold" });
 
@@ -151,16 +151,16 @@ public class EngineTestsBase
 
             mockParser.Setup(s => s.DetermineIntentType("take water", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "water", OriginalInput = "take water" });
-            
+
             mockParser.Setup(s => s.DetermineIntentType("take coffin", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "coffin", OriginalInput = "take coffin" });
-            
+
             mockParser.Setup(s => s.DetermineIntentType("drop coffin", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "drop", Noun = "coffin", OriginalInput = "drop coffin" });
-            
+
             mockParser.Setup(s => s.DetermineIntentType("open coffin", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "open", Noun = "coffin", OriginalInput = "open coffin" });
-            
+
             mockParser.Setup(s => s.DetermineIntentType("take sceptre", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "sceptre", OriginalInput = "take sceptre" });
 
@@ -199,7 +199,7 @@ public class EngineTestsBase
                     Verb = "put",
                     OriginalInput = "put painting inside case"
                 });
-            
+
             mockParser.Setup(s => s.DetermineIntentType("put sceptre inside case", It.IsAny<string>()))
                 .ReturnsAsync(new MultiNounIntent
                 {
@@ -209,7 +209,7 @@ public class EngineTestsBase
                     Verb = "put",
                     OriginalInput = "put sceptre inside case"
                 });
-            
+
             mockParser.Setup(s => s.DetermineIntentType("put leaflet inside case", It.IsAny<string>()))
                 .ReturnsAsync(new MultiNounIntent
                 {
@@ -219,7 +219,7 @@ public class EngineTestsBase
                     Verb = "put",
                     OriginalInput = "put leaflet inside case"
                 });
-            
+
             mockParser.Setup(s => s.DetermineIntentType("put coffin inside case", It.IsAny<string>()))
                 .ReturnsAsync(new MultiNounIntent
                 {
@@ -239,7 +239,7 @@ public class EngineTestsBase
                     Verb = "tie",
                     OriginalInput = "tie rope to railing"
                 });
-            
+
             mockParser.Setup(s => s.DetermineIntentType("put gold in case", It.IsAny<string>()))
                 .ReturnsAsync(new MultiNounIntent
                 {

@@ -15,7 +15,7 @@ public class ZorkII : IInfocomGame
                                """;
 
     public string DefaultSaveGameName => "zork2-ai.sav";
-    
+
     public string GetScoreDescription(int score)
     {
         throw new NotImplementedException();

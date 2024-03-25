@@ -14,7 +14,8 @@ public class Rug : ItemBase, ICanBeExamined
 
     public string ExaminationDescription => "There's nothing special about the carpet.";
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client)
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
     {
         string[] matchingVerbs = ["move", "slide"];
 

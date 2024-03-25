@@ -30,7 +30,7 @@ public class Client : IGenerationClient
     public async Task<string> CompleteChat(Request request)
     {
         return "Generated Result";
-        
+
         Debug.WriteLine($"Sending request of type: {request.GetType().Name} ");
 
         var chatCompletionsOptions = new ChatCompletionsOptions

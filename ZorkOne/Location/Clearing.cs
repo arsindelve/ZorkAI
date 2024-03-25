@@ -27,7 +27,7 @@ public class Clearing : BaseLocation
 
     // TODO: Count the leaves: There are 69,105 leaves here
     // TODO: > jump in leaves: Wheeeeeeeeee!!!!!
-    
+
     public override void Init()
     {
     }

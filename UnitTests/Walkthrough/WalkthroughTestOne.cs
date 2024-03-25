@@ -34,9 +34,10 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         await Do("turn on lantern", "The brass lantern is now on.");
         await Do("go down", "The trap door crashes shut", "You are in a dark and damp cellar with a narrow passageway");
         await Do("S", "You are on the east edge of a chasm");
-        await Do("E", "Most of the paintings have been stolen by", "Fortunately, there is still one chance for you to be");
+        await Do("E", "Most of the paintings have been stolen by",
+            "Fortunately, there is still one chance for you to be");
         await Do("take painting", "Taken");
-        await Do("N", "This appears to have been an artist's studio.","Loosely attached to a wall is a small");
+        await Do("N", "This appears to have been an artist's studio.", "Loosely attached to a wall is a small");
         await Do("Up", "Kitchen");
         await Do("Up", "Attic", "On a table is a nasty-looking knife", "A large coil of rope is lying in the corner");
         await Do("take knife", "Taken");
@@ -44,10 +45,10 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         await Do("go down", "Kitchen");
         await Do("W", "Above the trophy case hangs an elvish sword of great antiquity.", "Living Room");
         await Do("open case", "Opened");
-        
+
         // Painting
         await Do("put painting inside case", "Done");
-        
+
         await Do("drop knife", "Dropped");
         await Do("take sword", "Taken");
         await Do("open trap door", "The door reluctantly opens to reveal a rickety staircase descending into darkness");
@@ -55,7 +56,7 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         await Do("N", "Bloodstains", "very brightly", "nasty-looking troll");
 
         Repository.GetItem<Troll>().IsDead = true;
-        
+
         await Do("drop sword", "Dropped");
         await Do("E", "This is a narrow east-west passageway");
         await Do("E", "This is a circular stone room with passages in all direction", "Round Room");
@@ -96,7 +97,7 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         await Do("put coffin inside case", "Done");
         await Do("put sceptre inside case", "Done");
         await Do("put gold in case", "Done");
-        
+
         await Do("open trap door", "The door reluctantly opens to reveal a rickety staircase descending into darkness");
         await Do("turn on lantern", "The brass lantern is now on.");
         await Do("go down", "The trap door crashes shut", "Cellar");
@@ -105,7 +106,6 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         await Do("N", "Chasm", "A chasm runs southwest to northeast and the path follows it");
         await Do("NE", "Reservoir South", "far too deep and wide for crossing");
         await Do("E", "Dam", "You are standing on the top of the Flood Control Dam #3");
-        
     }
 
     private async Task Do(string input, params string[] outputs)

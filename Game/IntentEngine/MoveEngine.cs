@@ -7,7 +7,7 @@ internal class MoveEngine : IIntentEngine
     public async Task<string> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {
         // TODO: Move from a dark location to another dark location and you die. 
-        
+
         if (intent is not MoveIntent moveTo)
             throw new ArgumentException("Cast error");
 
