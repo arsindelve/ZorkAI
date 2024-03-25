@@ -7,14 +7,9 @@ internal class TrollCombatEngine
     private readonly List<(CombatOutcome outcome, string text)> _haveWeaponOutcomes =
     [
         (CombatOutcome.Miss, "The troll's swing almost knocks you over as you barely parry in time."),
-        (CombatOutcome.DropWeapon,
-            "The axe hits your {weapon} and knocks it spinning."),
-        (CombatOutcome.DropWeapon,
-            "The troll swings, you parry, but the force of his blow knocks your {weapon} away.")
+        (CombatOutcome.DropWeapon, "The axe hits your {weapon} and knocks it spinning."),
+        (CombatOutcome.DropWeapon, "The troll swings, you parry, but the force of his blow knocks your {weapon} away.")
     ];
-
-    // He's stunned
-    //  (CombatOutcome.Miss, "The troll stirs, quickly resuming a fighting stance."),
 
     private readonly List<(CombatOutcome outcome, string text)> _outcomes =
     [
@@ -27,15 +22,15 @@ internal class TrollCombatEngine
         (CombatOutcome.SmallWound, "The axe gets you right in the side. Ouch!"),
         (CombatOutcome.Miss, "The troll swings his axe, but it misses."),
         (CombatOutcome.Stun, "The troll hits you with a glancing blow, and you are momentarily stunned."),
-        (CombatOutcome.Fatal,
-            "The flat of the troll's axe hits you delicately on the head, knocking you out. The troll scratches his " +
-            "head ruminatively:  Might you be magically protected, he wonders? Conquering his fears, the troll puts you to death. "),
         (CombatOutcome.Miss, "The troll swings; the blade turns on your armor but crashes broadside into your head."),
         (CombatOutcome.Miss, "The troll swings his axe, but it misses."),
         (CombatOutcome.SmallWound, "The troll swings his axe, and it nicks your arm as you dodge. "),
         (CombatOutcome.SmallWound, "The flat of the troll's axe skins across your forearm. "),
         (CombatOutcome.Stun, "The troll's mighty blow drops you to your knees. "),
-        (CombatOutcome.Miss, "You stagger back under a hail of axe strokes. ")
+        (CombatOutcome.Miss, "You stagger back under a hail of axe strokes. "),
+        (CombatOutcome.Fatal,
+            "The flat of the troll's axe hits you delicately on the head, knocking you out. The troll scratches his " +
+            "head ruminatively:  Might you be magically protected, he wonders? Conquering his fears, the troll puts you to death. ")
     ];
 
     private readonly Random _rand = new();
@@ -48,7 +43,7 @@ internal class TrollCombatEngine
         if (Repository.GetItem<Troll>().IsStunned)
         {
             Repository.GetItem<Troll>().IsStunned = false;
-            return "The troll slowly regains his feet.";
+            return "The troll slowly regains his feet. ";
         }
 
         var fatal = false;
@@ -69,7 +64,7 @@ internal class TrollCombatEngine
             case CombatOutcome.SmallWound:
                 fatal = SmallWound(zorkContext, fatal);
                 break;
-            
+
             case CombatOutcome.Stun:
                 zorkContext.IsStunned = true;
                 break;

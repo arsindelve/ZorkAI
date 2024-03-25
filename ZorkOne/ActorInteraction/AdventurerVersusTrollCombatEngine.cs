@@ -4,13 +4,10 @@ namespace ZorkOne.ActorInteraction;
 
 internal class AdventurerVersusTrollCombatEngine
 {
-    //   (CombatOutcome.Miss, "You are still recovering from that last blow, so your attack is ineffective."),
-    //     
-
     private readonly List<(CombatOutcome outcome, string text)> _notStunnedOutcomes;
     private readonly Random _rand;
 
-    private IItem _axe;
+    private IItem? _axe;
     private Troll? _troll;
     private TrollRoom? _trollRoom;
 
@@ -41,13 +38,15 @@ internal class AdventurerVersusTrollCombatEngine
 
     public InteractionResult Attack(IContext context)
     {
+        // Don't assign these in the constructor or as initializers. You'll
+        // get stack overflow errors. 
         _troll = Repository.GetItem<Troll>();
         _trollRoom = Repository.GetLocation<TrollRoom>();
         _axe = Repository.GetItem<BloodyAxe>();
 
-        if (context is ZorkIContext { IsStunned: true } zorkIContext)
+        if (context is ZorkIContext { IsStunned: true } zorkContext)
         {
-            zorkIContext.IsStunned = false;
+            zorkContext.IsStunned = false;
             return new PositiveInteractionResult(
                 "You are still recovering from that last blow, so your attack is ineffective. ");
         }
@@ -83,9 +82,11 @@ internal class AdventurerVersusTrollCombatEngine
     {
         _troll!.IsDead = true;
 
+        // Dead troll drops the axe. 
         if (_troll.HasItem<BloodyAxe>())
-            _trollRoom!.ItemPlacedHere(_axe);
+            _trollRoom!.ItemPlacedHere(_axe!);
 
+        // And he vanishes. Poof. 
         _troll.CurrentLocation = null;
 
         return new PositiveInteractionResult($"{attackText}\nAlmost as soon as the troll breathes his last breath, a " +
@@ -98,7 +99,10 @@ internal class AdventurerVersusTrollCombatEngine
     private PositiveInteractionResult Knockout(string text)
     {
         _troll!.IsUnconscious = true;
-        _trollRoom!.ItemPlacedHere(_axe);
+        
+        // Unconscious troll drops the axe
+        _trollRoom!.ItemPlacedHere(_axe!);
+        
         return new PositiveInteractionResult(text);
     }
 }
