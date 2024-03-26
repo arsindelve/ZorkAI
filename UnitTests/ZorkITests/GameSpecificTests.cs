@@ -1,6 +1,6 @@
 using ZorkOne.GlobalCommand;
 
-namespace UnitTests;
+namespace UnitTests.ZorkITests;
 
 [TestFixture]
 public class GameSpecificTests : EngineTestsBase

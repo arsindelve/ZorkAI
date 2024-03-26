@@ -1,6 +1,6 @@
 ﻿using ZorkOne;
 
-namespace UnitTests.Walkthrough;
+namespace UnitTests.ZorkITests.Walkthrough;
 
 public sealed class WalkthroughTestOne : EngineTestsBase
 {

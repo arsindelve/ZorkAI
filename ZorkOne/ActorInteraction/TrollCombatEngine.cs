@@ -63,7 +63,10 @@ internal class TrollCombatEngine
 
         var fatal = false;
 
-        var possibleOutcomes = zorkContext.HasWeapon ? _outcomes.Union(_haveWeaponOutcomes).ToList() : _outcomes;
+        var possibleOutcomes = zorkContext.HasWeapon 
+            ? _outcomes.Union(_haveWeaponOutcomes).ToList() 
+            : _outcomes;
+        
         var attack = _chooser.Choose(possibleOutcomes);
 
         switch (attack.outcome)

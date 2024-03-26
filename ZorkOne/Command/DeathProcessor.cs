@@ -10,6 +10,7 @@ public class DeathProcessor
             throw new ArgumentException();
 
         zorkContext.DeathCounter++;
+        zorkContext.LightWoundCounter = 0;
         var newLocation = Repository.GetLocation<ForestOne>();
         context.CurrentLocation = newLocation;
 
