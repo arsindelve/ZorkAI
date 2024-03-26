@@ -7,7 +7,8 @@ public class Dam : LocationWithNoStartingItems
         {
             { Direction.SW, new MovementParameters { Location = GetLocation<Chasm>() } },
             { Direction.W, new MovementParameters { Location = GetLocation<ReservoirSouth>() } },
-            { Direction.S, new MovementParameters { Location = GetLocation<DeepCanyon>() } }
+            { Direction.S, new MovementParameters { Location = GetLocation<DeepCanyon>() } },
+            { Direction.N, new MovementParameters { Location = GetLocation<DamLobby>() } }
         };
 
     protected override string ContextBasedDescription =>
