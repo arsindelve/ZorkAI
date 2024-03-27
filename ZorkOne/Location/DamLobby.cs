@@ -5,7 +5,10 @@ public class DamLobby : BaseLocation
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.S, new MovementParameters { Location = GetLocation<Dam>() } }
+            { Direction.S, new MovementParameters { Location = GetLocation<Dam>() } },
+            { Direction.N, new MovementParameters { Location = GetLocation<MaintenanceRoom>() } },
+            { Direction.E, new MovementParameters { Location = GetLocation<MaintenanceRoom>() } },
+            
         };
 
     protected override string ContextBasedDescription =>
