@@ -8,7 +8,7 @@ public class ReservoirSouth : DarkLocation
             { Direction.SW, new MovementParameters { Location = GetLocation<Chasm>() } },
             { Direction.SE, new MovementParameters { Location = GetLocation<DeepCanyon>() } },
             { Direction.E, new MovementParameters { Location = GetLocation<Dam>() } },
-            { Direction.S, new MovementParameters{ CanGo = _=> false, CustomFailureMessage="You would drown." }}
+            { Direction.N, new MovementParameters { CanGo = _ => false, CustomFailureMessage = "You would drown." } }
         };
 
     protected override string ContextBasedDescription =>
@@ -16,7 +16,7 @@ public class ReservoirSouth : DarkLocation
         "There is a path along the stream to the east or west, a steep pathway climbing southwest along the edge " +
         "of a chasm, and a path leading into a canyon to the southeast.";
 
-    public override string Name => "Reservoir South\n";
+    public override string Name => "Reservoir South";
 
     public override void Init()
     {
