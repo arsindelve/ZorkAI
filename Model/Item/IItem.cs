@@ -1,6 +1,6 @@
+using Model.AIGeneration;
 using Model.Intent;
 using Model.Interaction;
-using OpenAI;
 
 namespace Model.Item;
 

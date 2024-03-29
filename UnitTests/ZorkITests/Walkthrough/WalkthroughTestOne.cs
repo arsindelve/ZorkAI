@@ -106,6 +106,20 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         await Do("N", "Chasm", "A chasm runs southwest to northeast and the path follows it");
         await Do("NE", "Reservoir South", "far too deep and wide for crossing");
         await Do("E", "Dam", "You are standing on the top of the Flood Control Dam #3");
+        await Do("N", "Lobby", "Some guidebooks", "Visit Beautiful");
+        await Do("take matches", "Taken"); 
+        await Do("N", "Maintenance", "ransacked", "blue", "yellow");
+        
+        // Take wrench
+        // Take screwdriver
+        await Do("press the yellow button", "Click");
+        await Do("S", "Dam Lobby");
+        await Do("S", "Dam", "glowing serenely"); 
+        
+        // turn bolt with wrench
+        // drop wrench
+        await Do("S", "Deep Canyon"); 
+        
     }
 
     private async Task Do(string input, params string[] outputs)

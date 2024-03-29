@@ -1,6 +1,6 @@
-using OpenAI.Requests;
+using Model.AIGeneration.Requests;
 
-namespace OpenAI;
+namespace Model.AIGeneration;
 
 /// <summary>
 ///     Interface for AI generation clients which can generate text for different scenarios in the game that don't have

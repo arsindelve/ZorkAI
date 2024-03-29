@@ -1,5 +1,6 @@
+using Model.AIGeneration.Requests;
+using Model.AIParsing;
 using Model.Intent;
-using OpenAI.Requests;
 using ZorkOne;
 using ZorkOne.GlobalCommand;
 

@@ -7,6 +7,7 @@ public class Manual : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRea
     public override string[] NounsForMatching => ["paper", "piece", "manual"];
 
     string ICanBeExamined.ExaminationDescription => ((ICanBeRead)this).ReadDescription;
+    
     string ICanBeRead.ReadDescription => "The piece of paper has some writing on it.";
 
     string ICanBeTakenAndDropped.OnTheGroundDescription => "There is a ZORK owner's manual here. ";

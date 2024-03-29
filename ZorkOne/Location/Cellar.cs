@@ -50,6 +50,7 @@ public class Cellar : DarkLocation
 
     public override void Init()
     {
+        StartWithItem(Repository.GetItem<TrapDoor>(), this);
     }
 
     public override string AfterEnterLocation(IContext context)

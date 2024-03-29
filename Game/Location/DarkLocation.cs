@@ -1,3 +1,5 @@
+using Model.Location;
+
 namespace Game.Location;
 
 /// <summary>

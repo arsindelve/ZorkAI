@@ -1,3 +1,4 @@
+using Model.AIGeneration;
 using Model.Item;
 
 namespace Game.Item;
@@ -112,7 +113,8 @@ public abstract class ItemBase : IItem
         return result ?? new NoVerbMatchInteractionResult { Verb = action.Verb, Noun = action.Noun };
     }
 
-    public virtual void OnBeingTaken(IContext context)
+    public virtual string? OnBeingTaken(IContext context)
     {
+        return null;
     }
 }

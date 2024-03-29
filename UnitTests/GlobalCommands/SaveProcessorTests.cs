@@ -1,7 +1,8 @@
 using System.Text;
 using Game.StaticCommand;
 using Game.StaticCommand.Implementation;
-using OpenAI.Requests;
+using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 
 namespace UnitTests.GlobalCommands;
 

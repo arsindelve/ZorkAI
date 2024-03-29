@@ -1,4 +1,4 @@
-namespace Model;
+namespace Model.Location;
 
 /// <summary>
 ///     Represents a dark location in the game, where interactions may be different when the

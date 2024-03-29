@@ -1,4 +1,4 @@
-﻿namespace OpenAI.Requests;
+﻿namespace Model.AIGeneration.Requests;
 
 public class MissingBothNounsMultiNounOperationRequest : MultiNounRequest
 {

@@ -1,4 +1,5 @@
 using Game.Item.ItemProcessor;
+using Model.AIGeneration;
 using Model.Intent;
 
 namespace UnitTests.SingleNounProcessors;

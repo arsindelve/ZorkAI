@@ -1,7 +1,8 @@
+using Model.AIGeneration;
 using Model.Intent;
 using Model.Interaction;
 using Model.Item;
-using OpenAI;
+using Model.Location;
 
 namespace Model;
 

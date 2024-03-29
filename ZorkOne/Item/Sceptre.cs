@@ -1,3 +1,4 @@
+using Model.AIGeneration;
 using Model.Intent;
 using OpenAI;
 using ZorkOne.Interface;

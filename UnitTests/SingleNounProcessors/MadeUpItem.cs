@@ -12,7 +12,7 @@ internal class MadeUpItem : IInteractionTarget, ICanBeEaten, ICanBeTakenAndDropp
 
     public bool HasEverBeenPickedUp => false;
 
-    public void OnBeingTaken(IContext context)
+    public string OnBeingTaken(IContext context)
     {
         throw new NotImplementedException();
     }
