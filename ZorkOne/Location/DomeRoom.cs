@@ -45,6 +45,8 @@ public class DomeRoom : BaseLocation
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
+
+
         string[] verbs = ["tie", "attach"];
         string[] prepositions = ["to", "onto", "on"];
 

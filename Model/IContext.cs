@@ -77,4 +77,6 @@ public interface IContext : ICanHoldItems
     string ItemListDescription(string locationName);
 
     string? ProcessTurnCounter();
+    
+    bool ItIsDarkHere { get; }
 }

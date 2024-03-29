@@ -20,6 +20,7 @@ public class TrollRoom : DarkLocation
                 Direction.E,
                 new MovementParameters
                 {
+                    // TODO: Even unarmed, the troll blocks your passage. 
                     Location = GetLocation<EastWestPassage>(), CanGo = _ => !TrollIsAwakeAndArmed,
                     CustomFailureMessage = "The troll fends you off with a menacing gesture. "
                 }
@@ -54,6 +55,8 @@ public class TrollRoom : DarkLocation
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
+
+        
         string[] verbs = ["kill", "attack", "defeat", "destroy", "murder"];
         string[] prepositions = ["with"];
 

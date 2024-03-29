@@ -210,4 +210,7 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         Moves++;
         return null;
     }
+
+    public bool ItIsDarkHere =>
+        CurrentLocation is IDarkLocation { IsNoLongerDark: false } darkLocation && !HasLightSource;
 }

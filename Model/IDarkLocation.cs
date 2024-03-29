@@ -18,4 +18,18 @@ public interface IDarkLocation
     ///     instead.
     /// </remarks>
     string DarkDescription { get; }
+
+    /// <summary>
+    /// Indicates whether the location is no longer dark.
+    /// </summary>
+    /// <remarks>
+    /// In the game, a location is considered dark if the adventurer is not carrying
+    /// an active light source. When the location is no longer dark, it means that
+    /// the adventurer has activated a light source in the location, making
+    /// it no longer require him/her to carry a light source.
+    /// </remarks>
+    /// <value>
+    /// <c>true</c> if the location is no longer dark; otherwise, <c>false</c>.
+    /// </value>
+    bool IsNoLongerDark { get; set; }
 }

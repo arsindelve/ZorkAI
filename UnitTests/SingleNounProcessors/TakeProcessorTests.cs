@@ -87,6 +87,8 @@ public class TakeProcessorTests : EngineTestsBase
     {
         var target = GetTarget();
         target.Context.CurrentLocation = Repository.GetLocation<Attic>();
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
         var result = await target.GetResponse("drop rope");
         result.Should().Contain("don't have that");
     }
