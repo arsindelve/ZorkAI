@@ -11,21 +11,28 @@ internal class SimpleInteractionEngine : IIntentEngine
 
         Debug.WriteLine(intent);
         context.LastNoun = simpleInteraction.Noun ?? "";
-
-        // Ask the context if it knows what to do with this interaction. Usually, this will only 
-        // be true if there is an available interaction with one of the items in inventory. 
-        var locationInteraction =
-            context.CurrentLocation.RespondToSimpleInteraction(simpleInteraction, context, generationClient);
-
-        // We got a meaningful interaction in the location that changed the state of the game
-        if (locationInteraction.InteractionHappened)
-            return locationInteraction.InteractionMessage + Environment.NewLine;
+        InteractionResult locationInteraction;
 
         var contextInteraction = context.RespondToSimpleInteraction(simpleInteraction, generationClient);
 
         // We got a meaningful interaction from one of the items in inventory that changed the state of the game
         if (contextInteraction.InteractionHappened)
             return contextInteraction.InteractionMessage + Environment.NewLine;
+
+        // If it's dark, you can interact with items in your possession (above), but not items in the room.
+        // There will be no more processing in a dark room. 
+        if (context.ItIsDarkHere)
+            return "It's too dark to see! ";
+
+        // Ask the context if it knows what to do with this interaction. Usually, this will only 
+        // be true if there is an available interaction with one of the items in inventory. 
+        locationInteraction =
+            context.CurrentLocation.RespondToSimpleInteraction(simpleInteraction, context, generationClient);
+
+        // We got a meaningful interaction in the location that changed the state of the game
+        if (locationInteraction.InteractionHappened)
+            return locationInteraction.InteractionMessage + Environment.NewLine;
+
 
         // The noun was present in the given LOCATION, but the verb applied to
         // it has no meaning in the story. I.E: push the sword...that will accomplish nothing. 

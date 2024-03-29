@@ -14,7 +14,7 @@ public class ReadInteractionProcessor : IVerbProcessor
             case "look at":
             case "read":
 
-                if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
+                if (context.ItIsDarkHere)
                     return new PositiveInteractionResult("It's too dark to see!");
 
                 var result = string.Empty;

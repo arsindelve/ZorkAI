@@ -11,7 +11,10 @@ public class MultiNounEngine : IIntentEngine
     {
         if (intent is not MultiNounIntent interaction)
             throw new ArgumentException();
-
+        
+        if (context.ItIsDarkHere)
+            return "It's too dark to see! ";
+        
         Debug.WriteLine(interaction);
 
         // After a multi-noun interaction, we will lose the ability to understand "it"
