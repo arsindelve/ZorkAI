@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 
 namespace Game.IntentEngine;
 
@@ -11,7 +13,6 @@ internal class SimpleInteractionEngine : IIntentEngine
 
         Debug.WriteLine(intent);
         context.LastNoun = simpleInteraction.Noun ?? "";
-        InteractionResult locationInteraction;
 
         var contextInteraction = context.RespondToSimpleInteraction(simpleInteraction, generationClient);
 
@@ -26,8 +27,7 @@ internal class SimpleInteractionEngine : IIntentEngine
 
         // Ask the context if it knows what to do with this interaction. Usually, this will only 
         // be true if there is an available interaction with one of the items in inventory. 
-        locationInteraction =
-            context.CurrentLocation.RespondToSimpleInteraction(simpleInteraction, context, generationClient);
+        var locationInteraction = context.CurrentLocation.RespondToSimpleInteraction(simpleInteraction, context, generationClient);
 
         // We got a meaningful interaction in the location that changed the state of the game
         if (locationInteraction.InteractionHappened)

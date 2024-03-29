@@ -1,3 +1,5 @@
+using ZorkOne.Location;
+
 namespace ZorkOne.Item;
 
 public class TrapDoor : ItemBase, ICanBeExamined, IOpenAndClose
@@ -18,4 +20,11 @@ public class TrapDoor : ItemBase, ICanBeExamined, IOpenAndClose
     public string AlreadyClosed => "Get your eyes checked.";
 
     public bool HasEverBeenOpened { get; set; }
+
+    public string? CannotBeOpenedDescription(IContext context)
+    {
+        return context.CurrentLocation == Repository.GetLocation<Cellar>()
+            ? "The door is locked from above. "
+            : null;
+    }
 }

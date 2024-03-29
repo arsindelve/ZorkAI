@@ -1,6 +1,6 @@
 using Model.Intent;
 
-namespace Model;
+namespace Model.AIParsing;
 
 public interface IAIParser
 {

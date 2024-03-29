@@ -74,7 +74,6 @@ public static class DirectionParser
             case "exit":
                 return Direction.Out;
 
-
             default:
                 return Direction.Unknown;
         }

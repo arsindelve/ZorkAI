@@ -1,3 +1,4 @@
+using Model.AIGeneration;
 using Model.Item;
 
 namespace Game.Item;
@@ -8,6 +9,11 @@ namespace Game.Item;
 public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
 {
     public bool HasEverBeenOpened { get; set; }
+
+    public virtual string? CannotBeOpenedDescription(IContext context)
+    {
+        return null;
+    }
 
     public virtual string AlreadyClosed => "It is already closed.";
 

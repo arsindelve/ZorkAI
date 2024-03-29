@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Amazon.LexRuntimeV2.Model;
 using Model;
+using Model.AIParsing;
 using Model.Intent;
 
 namespace Lex;

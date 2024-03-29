@@ -1,9 +1,9 @@
+using Model.AIGeneration;
 using Model.Intent;
 using Model.Interaction;
 using Model.Item;
-using OpenAI;
 
-namespace Model;
+namespace Model.Location;
 
 public interface ILocation
 {

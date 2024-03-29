@@ -19,4 +19,9 @@ public class KitchenWindow : ItemBase, IOpenAndClose, ICanBeExamined
     public string AlreadyClosed => "Too late for that.";
 
     public bool HasEverBeenOpened { get; set; }
+
+    public virtual string? CannotBeOpenedDescription(IContext context)
+    {
+        return null;
+    }
 }

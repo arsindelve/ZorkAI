@@ -1,4 +1,5 @@
 using Game.StaticCommand.Implementation;
+using Model.AIGeneration;
 using Model.Intent;
 using ZorkOne;
 using ZorkOne.GlobalCommand;
@@ -189,6 +190,37 @@ public class EngineTestsBase
                 .ReturnsAsync(new SimpleIntent
                     { Adverb = "", Verb = "turn", Noun = "lamp", OriginalInput = "turn the lamp" });
 
+            mockParser.Setup(s => s.DetermineIntentType("press the red button", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "press", Noun = "red button", OriginalInput = "press the red button" });
+
+            mockParser.Setup(s => s.DetermineIntentType("press the yellow button", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "press", Noun = "yellow button", OriginalInput = "press the yellow button" });
+
+            mockParser.Setup(s => s.DetermineIntentType("press the brown button", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "press", Noun = "brown button", OriginalInput = "press the brown button" });
+
+            mockParser.Setup(s => s.DetermineIntentType("move the leaves", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "move", Noun = "leaves", OriginalInput = "move the leaves" });
+
+            mockParser.Setup(s => s.DetermineIntentType("take the leaves", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "take", Noun = "leaves", OriginalInput = "take the leaves" });
+            
+            mockParser.Setup(s => s.DetermineIntentType("open the grating", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "open", Noun = "grating", OriginalInput = "open the grating" });
+
+            mockParser.Setup(s => s.DetermineIntentType("count the leaves", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "count", Noun = "leaves", OriginalInput = "count the leaves" });
+
+            mockParser.Setup(s => s.DetermineIntentType("take matches", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "take", Noun = "matches", OriginalInput = "take matches" });
 
             mockParser.Setup(s => s.DetermineIntentType("put painting inside case", It.IsAny<string>()))
                 .ReturnsAsync(new MultiNounIntent
@@ -249,6 +281,7 @@ public class EngineTestsBase
                     Verb = "put",
                     OriginalInput = "put gold in case"
                 });
+            
         }
         else
         {

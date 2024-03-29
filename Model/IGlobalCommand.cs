@@ -1,4 +1,4 @@
-using OpenAI;
+using Model.AIGeneration;
 
 namespace Model;
 

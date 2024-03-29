@@ -36,5 +36,5 @@ public interface ICanBeTakenAndDropped : IInteractionTarget
     ///     This method is called when the item is being taken by the player.
     /// </summary>
     /// <param name="context">The context of the game.</param>
-    void OnBeingTaken(IContext context);
+    string? OnBeingTaken(IContext context);
 }

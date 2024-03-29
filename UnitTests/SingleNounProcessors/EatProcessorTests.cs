@@ -1,6 +1,7 @@
 using Game.Item.ItemProcessor;
+using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 using Model.Intent;
-using OpenAI.Requests;
 
 namespace UnitTests.SingleNounProcessors;
 

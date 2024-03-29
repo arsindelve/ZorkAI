@@ -1,6 +1,8 @@
 using Game.IntentEngine;
+using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 using Model.Intent;
-using OpenAI.Requests;
+using Model.Location;
 
 namespace UnitTests;
 
@@ -26,7 +28,7 @@ public class MultiNounEngineTests
     }
 
     [Test]
-    public async Task NounOneAndNounTwoDoNotExistAnywhereInTheStore()
+    public async Task NounOneAndNounTwoDoNotExistAnywhereInTheStory()
     {
         var engine = new MultiNounEngine();
 
@@ -54,7 +56,7 @@ public class MultiNounEngineTests
     }
 
     [Test]
-    public async Task NounTwoDoesNotExistHereInTheStore()
+    public async Task NounTwoDoesNotExistHereInTheStory()
     {
         // Pre-load
         Repository.Reset();
@@ -85,7 +87,7 @@ public class MultiNounEngineTests
     }
 
     [Test]
-    public async Task NounOneDoesNotExistHereInTheStore()
+    public async Task NounOneDoesNotExistHereInTheStory()
     {
         // Pre-load
         Repository.Reset();
@@ -116,7 +118,7 @@ public class MultiNounEngineTests
     }
 
     [Test]
-    public async Task NeitherNounExistsHereExistHereInTheStore()
+    public async Task NeitherNounExistsHereExistHereInTheStory()
     {
         Repository.Reset();
         Repository.GetItem<Leaflet>();
@@ -174,5 +176,32 @@ public class MultiNounEngineTests
 
         // Assert
         result.Should().Contain("bob");
+    }
+    
+    [Test]
+    public async Task TooDark()
+    {
+        Repository.Reset();
+        var engine = new MultiNounEngine();
+        var intent = new MultiNounIntent
+        {
+            Verb = "put",
+            NounOne = "leaflet",
+            NounTwo = "mailbox",
+            Preposition = "in",
+            OriginalInput = "put leaflet in mailbox"
+        };
+
+        var location = new Mock<ILocation>();
+        location.Setup(s => s.DescriptionForGeneration).Returns("hello");
+        var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
+        Mock.Get(context).Setup(s => s.ItIsDarkHere).Returns(true);
+        var generationClient = new Mock<IGenerationClient>();
+
+        // Act
+        var result = await engine.Process(intent, context, generationClient.Object);
+
+        // Assert
+        result.Should().Contain("to see!");
     }
 }

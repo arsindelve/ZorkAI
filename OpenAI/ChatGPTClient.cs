@@ -1,18 +1,20 @@
 using System.Diagnostics;
 using Azure;
 using Azure.AI.OpenAI;
-using OpenAI.Requests;
+using Model;
+using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 
 namespace OpenAI;
 
 /// <summary>
 ///     Represents a client for interacting with OpenAI API to generate text.
 /// </summary>
-public class Client : IGenerationClient
+public class ChatGPTClient : IGenerationClient
 {
     private readonly OpenAIClient _client;
 
-    public Client()
+    public ChatGPTClient()
     {
         var key = Environment.GetEnvironmentVariable("OPEN_AI_KEY");
 

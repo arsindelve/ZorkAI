@@ -19,9 +19,9 @@ public class Rope : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
     public override string NeverPickedUpDescription =>
         "A large coil of rope is lying in the corner.";
 
-    public override void OnBeingTaken(IContext context)
+    public override string? OnBeingTaken(IContext context)
     {
         TiedToRailing = false;
-        base.OnBeingTaken(context);
+        return base.OnBeingTaken(context);
     }
 }

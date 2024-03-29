@@ -1,3 +1,5 @@
+using Model.AIGeneration;
+
 namespace Game.StaticCommand;
 
 public class SimpleResponseCommand(string response) : IGlobalCommand

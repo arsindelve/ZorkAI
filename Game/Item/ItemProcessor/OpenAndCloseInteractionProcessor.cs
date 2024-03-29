@@ -1,3 +1,4 @@
+using Model.AIGeneration;
 using Model.Item;
 
 namespace Game.Item.ItemProcessor;
@@ -13,7 +14,7 @@ public class OpenAndCloseInteractionProcessor : IVerbProcessor
         switch (action.Verb.ToLowerInvariant().Trim())
         {
             case "open":
-                return OpenMe(castItem);
+                return OpenMe(castItem, context);
 
             case "close":
             case "shut":
@@ -23,11 +24,15 @@ public class OpenAndCloseInteractionProcessor : IVerbProcessor
         return null;
     }
 
-    private InteractionResult OpenMe(IOpenAndClose item)
+    private InteractionResult OpenMe(IOpenAndClose item, IContext context)
     {
         if (item.IsOpen)
             return new PositiveInteractionResult(item.AlreadyOpen);
 
+        string? cannotBeOpenedReason = item.CannotBeOpenedDescription(context);
+        if (!string.IsNullOrEmpty(cannotBeOpenedReason))
+            return new PositiveInteractionResult(cannotBeOpenedReason);
+        
         var returnText = item.NowOpen;
 
         item.IsOpen = true;

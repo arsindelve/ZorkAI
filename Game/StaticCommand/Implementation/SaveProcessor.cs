@@ -1,4 +1,7 @@
-﻿namespace Game.StaticCommand.Implementation;
+﻿using Model.AIGeneration;
+using Model.AIGeneration.Requests;
+
+namespace Game.StaticCommand.Implementation;
 
 internal class SaveProcessor : IStatefulProcessor
 {

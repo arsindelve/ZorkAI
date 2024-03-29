@@ -8,4 +8,3 @@ global using Model;
 global using Model.Intent;
 global using Model.Interaction;
 global using OpenAI;
-global using OpenAI.Requests;

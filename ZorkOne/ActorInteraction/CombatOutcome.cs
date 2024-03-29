@@ -1,4 +1,4 @@
-namespace ZorkOne.Item;
+namespace ZorkOne.ActorInteraction;
 
 internal enum CombatOutcome
 {

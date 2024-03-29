@@ -1,3 +1,4 @@
+using Model.AIGeneration;
 using Model.Item;
 
 namespace Game.Item;

@@ -17,18 +17,21 @@ public class Clearing : BaseLocation
             Direction.N,
             new MovementParameters
                 { CanGo = _ => false, CustomFailureMessage = "The forest becomes impenetrable to the north." }
-        }
+        },
+        {
+        Direction.Down,
+        new MovementParameters
+            { CanGo = _ => false, CustomFailureMessage = "The grating is closed. " }
+    }
     };
 
     public override string Name => "Clearing";
 
     protected override string ContextBasedDescription =>
-        "You are in a clearing, with a forest surrounding you on all sides. A path leads south.";
-
-    // TODO: Count the leaves: There are 69,105 leaves here
-    // TODO: > jump in leaves: Wheeeeeeeeee!!!!!
+        "You are in a clearing, with a forest surrounding you on all sides. A path leads south. ";
 
     public override void Init()
     {
+        StartWithItem(GetItem<PileOfLeaves>(), this);
     }
 }

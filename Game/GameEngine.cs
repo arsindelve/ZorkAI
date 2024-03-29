@@ -2,6 +2,8 @@ using System.Diagnostics;
 using Game.IntentEngine;
 using Game.StaticCommand;
 using Game.StaticCommand.Implementation;
+using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 using Newtonsoft.Json;
 
 namespace Game;
@@ -47,7 +49,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
                      {Context.CurrentLocation.Description}
                      """;
 
-        _generator = new Client();
+        _generator = new ChatGPTClient();
         _parser = new IntentParser(gameInstance.GetGlobalCommandFactory());
         _itProcessor = new ItProcessor();
     }

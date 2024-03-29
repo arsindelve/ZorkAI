@@ -1,8 +1,14 @@
 using System.Diagnostics;
 using Game.Item.MultiItemProcessor;
+using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 
 namespace Game.IntentEngine;
 
+/// <summary>
+///     This is the engine for processing any multi-noun intents such as
+///     "put thing1 in thing2" or "kill thing1 with sharp-thing-2"
+/// </summary>
 public class MultiNounEngine : IIntentEngine
 {
     private readonly List<IMultiNounVerbProcessor> _processors = [new PutProcessor()];
@@ -11,10 +17,10 @@ public class MultiNounEngine : IIntentEngine
     {
         if (intent is not MultiNounIntent interaction)
             throw new ArgumentException();
-        
+
         if (context.ItIsDarkHere)
             return "It's too dark to see! ";
-        
+
         Debug.WriteLine(interaction);
 
         // After a multi-noun interaction, we will lose the ability to understand "it"

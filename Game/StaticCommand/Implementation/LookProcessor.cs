@@ -1,3 +1,5 @@
+using Model.AIGeneration;
+
 namespace Game.StaticCommand.Implementation;
 
 /// <summary>

@@ -1,4 +1,5 @@
 using Game.StaticCommand.Implementation;
+using Model.AIGeneration;
 
 namespace Game.IntentEngine;
 

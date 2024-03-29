@@ -1,3 +1,5 @@
+using Model.AIGeneration;
+
 namespace Game.IntentEngine;
 
 internal interface IIntentEngine
