@@ -37,7 +37,7 @@ public class IntentParser : IIntentParser
     /// <param name="input">The user input.</param>
     /// <param name="sessionId">The unique session ID.</param>
     /// <returns>The determined intent type.</returns>
-    public async Task<IntentBase> DetermineIntentType(string input, string sessionId)
+    public async Task<IntentBase> DetermineIntentType(string? input, string sessionId)
     {
         if (DirectionParser.IsDirection(input, out var moveTo))
             return new MoveIntent { Direction = moveTo };

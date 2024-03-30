@@ -24,8 +24,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     where TContext : IContext, new()
 {
     private readonly IGenerationClient _generator;
-    private readonly List<string> _inputs = new();
-    private readonly ItProcessor _itProcessor;
+    private readonly ItProcessor _itProcessor = new ItProcessor();
+    private readonly AgainProcessor _againProcessor = new AgainProcessor();
     private readonly IIntentParser _parser;
     private readonly string _sessionId = Guid.NewGuid().ToString();
 
@@ -53,7 +53,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
         _generator = new ChatGPTClient();
         _parser = new IntentParser(gameInstance.GetGlobalCommandFactory());
-        _itProcessor = new ItProcessor();
     }
 
     /// <summary>
@@ -69,7 +68,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         IntroText = string.Empty;
         _parser = parser;
         _generator = generationClient;
-        _itProcessor = new ItProcessor();
     }
 
     public IContext RestoreGame(string data)
@@ -94,6 +92,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         return JsonConvert.SerializeObject(savedGame, JsonSettings());
     }
 
+
     /// <summary>
     ///     Parse the input, determine the user's <see cref="IntentBase" /> and allow the
     ///     implementation of that specific intent to determine what to do next.
@@ -106,7 +105,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
         // See if we have something already running like a save, quit, etc..
         // and see if it has any output. 
-        var (returnProcessorInProgressOutput, processorInProgressOutput) = await RunProcessorInProgress();
+        (bool returnProcessorInProgressOutput, string? processorInProgressOutput) = await RunProcessorInProgress();
 
         if (returnProcessorInProgressOutput)
             return processorInProgressOutput + Environment.NewLine;
@@ -116,28 +115,34 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
         Context.Moves++;
 
+        // if the user referenced an object using "it", let's see 
+        // if we can handle that. 
+        (bool requiresClarification, string replacedInput) = _itProcessor.Check(_currentInput, Context);
+        if (requiresClarification)
+        {
+            _processorInProgress = _itProcessor;
+            return replacedInput;
+        }
+        _currentInput = replacedInput;
+
+        // See if the user typed "again" or some variation.
+        // if so, we'll replace the input with their previous input. 
+        (_currentInput, bool addToStack) = _againProcessor.Process(_currentInput, Context);
+
+        if (addToStack)
+            Context.Inputs.Add(_currentInput!);
+
         // See if the context needs to notify us of anything. Are we sleepy? Hungry?
         var turnCounterResponse = Context.ProcessTurnCounter();
+
+        // ----------------------------------------------------------------------------
+        // We're done now doing pre-processing, we're ready to actually look at what the
+        // user wrote and do something with it. 
 
         // Does the location have a special interaction to input such as "jump" or "pray"? 
         var singleVerbResult = Context.CurrentLocation.RespondToSpecificLocationInteraction(_currentInput, Context);
         if (singleVerbResult.InteractionHappened)
             return singleVerbResult.InteractionMessage;
-
-        // if the user referenced an object using "it", let's see 
-        // if we can handle that. 
-        var itCheck = _itProcessor.Check(_currentInput, Context);
-        if (itCheck.RequiresClarification)
-        {
-            _processorInProgress = _itProcessor;
-            return itCheck.Output;
-        }
-
-        _currentInput = itCheck.Output;
-        _inputs.Add(_currentInput);
-
-        // We're done now doing pre-processing, we're ready to actually look at what the
-        // user wrote and do something with it. 
 
         var parsedResult = await _parser.DetermineIntentType(_currentInput, _sessionId);
         Debug.WriteLine($"Input was parsed as {parsedResult.GetType().Name}");
@@ -164,60 +169,65 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
             _ => await GetGeneratedNoOpResponse(_currentInput, _generator, Context)
         };
 
+        // "Actors" are things that can occur each turn. Examples are the troll
+        // attacking, the maintenance room flooding, Floyd mumbling. 
         var actorResults = ProcessActors();
         return turnCounterResponse + intentResult?.Trim() + actorResults + Environment.NewLine;
     }
 
     private async Task<string> ProcessGlobalCommandIntent(GlobalCommandIntent intent)
     {
-        var ir = await intent.Command.Process(_currentInput, Context, _generator);
+        var intentResponse = await intent.Command.Process(_currentInput, Context, _generator);
         if (intent.Command is IStatefulProcessor { Completed: false } statefulProcessor)
             _processorInProgress = statefulProcessor;
-        ir += Environment.NewLine;
-        return ir;
+        intentResponse += Environment.NewLine;
+        return intentResponse;
     }
 
     private string ProcessActors()
     {
+        // There are location actors and context actors. 
         var actors = Context.CurrentLocation.GetActors().Union(Context.GetActors());
         var actorResults = string.Empty;
-        foreach (var actor in actors) actorResults += $"\n{actor.Act(Context)}";
+        foreach (var actor in actors)
+            actorResults += $"\n{actor.Act(Context)}";
+
         return actorResults;
     }
 
     private async Task<(bool, string?)> RunProcessorInProgress()
     {
         string? processorInProgressOutput = null;
-        var returnProcessorInProgressOutput = false;
+        var immediatelyReturn = false;
 
         // When this is not null, it means we have another processor in progress.
         // Defer all execution to that processor until it's complete. 
-        if (_processorInProgress != null)
+        if (_processorInProgress == null) 
+            return (immediatelyReturn, processorInProgressOutput);
+        
+        processorInProgressOutput = await _processorInProgress.Process(_currentInput, Context, _generator);
+
+        // The processor is done. Clear it, and see what we want to do with the output. 
+        if (_processorInProgress.Completed)
         {
-            processorInProgressOutput = await _processorInProgress.Process(_currentInput, Context, _generator);
+            var continueProcessingThisInput = _processorInProgress.ContinueProcessing;
+            _processorInProgress = null;
 
-            // The processor is done. Clear it, and see what we want to do with the output. 
-            if (_processorInProgress.Completed)
-            {
-                var continueProcessingThisInput = _processorInProgress.ContinueProcessing;
-                _processorInProgress = null;
+            // Does the processor want us to return what it outputted?....
+            if (!continueProcessingThisInput)
+                immediatelyReturn = true;
 
-                // Does the processor want us to return what it outputted?....
-                if (!continueProcessingThisInput)
-                    returnProcessorInProgressOutput = true;
-
-                // ....or does it want to push that output through for further processing? 
-                _currentInput = processorInProgressOutput;
-            }
-
-            // Return the output and keep processing? Or are we done here yet.  
-            else
-            {
-                returnProcessorInProgressOutput = true;
-            }
+            // ....or does it want to push that output through for further processing? 
+            _currentInput = processorInProgressOutput;
         }
 
-        return (returnProcessorInProgressOutput, processorInProgressOutput);
+        // Return the output and keep processing? Or are we done here yet.  
+        else
+        {
+            immediatelyReturn = true;
+        }
+
+        return (immediatelyReturn, processorInProgressOutput);
     }
 
     private static async Task<string> GetGeneratedNoOpResponse(string input, IGenerationClient generationClient,

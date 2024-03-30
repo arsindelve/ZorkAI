@@ -38,6 +38,8 @@ public class Context<T> : IContext where T : IInfocomGame, new()
 
     private T GameType { get; set; }
 
+    public List<string> Inputs { get; } = ["Good morning"];
+
     public IGameEngine? Engine { get; set; }
 
     public string LastNoun { get; set; } = "";
@@ -214,5 +216,5 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     }
 
     public bool ItIsDarkHere =>
-        CurrentLocation is IDarkLocation { IsNoLongerDark: false } darkLocation && !HasLightSource;
+        CurrentLocation is IDarkLocation { IsNoLongerDark: false } && !HasLightSource;
 }

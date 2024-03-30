@@ -14,5 +14,5 @@ public interface IIntentParser
     /// <param name="input">The user input.</param>
     /// <param name="sessionId">The session ID uniquely identifies this session and adventurer to the parser. </param>
     /// <returns>The intent type as an instance of IntentBase.</returns>
-    Task<IntentBase> DetermineIntentType(string input, string sessionId);
+    Task<IntentBase> DetermineIntentType(string? input, string sessionId);
 }

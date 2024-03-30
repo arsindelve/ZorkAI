@@ -5,7 +5,7 @@ namespace ZorkTwo.Location;
 
 public class InsideTheBarrow : BaseLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map { get; }
+    protected override Dictionary<Direction, MovementParameters> Map { get; } = new();
 
     public override string Name => "Inside the Barrow";
 

@@ -2,10 +2,10 @@ namespace Model;
 
 public static class DirectionParser
 {
-    public static bool IsDirection(string intent, out Direction direction)
+    public static bool IsDirection(string? intent, out Direction direction)
     {
-        intent = intent.Replace("go ", "");
-        var firstWord = intent.Split(' ')[0];
+        intent = intent?.Replace("go ", "");
+        var firstWord = intent?.Split(' ')[0];
         direction = ParseDirection(firstWord);
         return direction != Direction.Unknown;
     }

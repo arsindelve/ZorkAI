@@ -3,13 +3,6 @@ using Model.AIGeneration;
 
 namespace Game.StaticCommand.Implementation;
 
-internal record ItProcessorResult
-{
-    internal bool RequiresClarification { get; init; }
-
-    internal string Output { get; init; } = "";
-}
-
 internal class ItProcessor : IStatefulProcessor
 {
     private string? _lastInput;
@@ -38,13 +31,13 @@ internal class ItProcessor : IStatefulProcessor
         return Task.FromResult(Regex.Replace(_lastInput, @"\bit\b", input));
     }
 
-    public ItProcessorResult Check(string input, IContext context)
+    public (bool, string) Check(string input, IContext context)
     {
         if (!input.Contains(" it ", StringComparison.InvariantCultureIgnoreCase) &&
             !input.ToLowerInvariant().EndsWith(" it"))
         {
             Completed = true;
-            return new ItProcessorResult { Output = input, RequiresClarification = false };
+            return (false, input);
         }
 
         var lastNoun = context.LastNoun;
@@ -54,12 +47,12 @@ internal class ItProcessor : IStatefulProcessor
             _lastInput = input;
             Completed = false;
             ContinueProcessing = false;
-            return new ItProcessorResult { RequiresClarification = true, Output = "What item are you referring to?\n" };
+            return (true, "What item are you referring to?\n");
         }
 
         input = Regex.Replace(input, @"\bit\b", lastNoun);
         Completed = true;
 
-        return new ItProcessorResult { Output = input, RequiresClarification = false };
+        return (false, input);
     }
 }

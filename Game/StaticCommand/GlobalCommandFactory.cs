@@ -20,9 +20,13 @@ public class GlobalCommandFactory : IGlobalCommandFactory
             case "what am i holding":
             case "what do i have on me":
                 return new InventoryProcessor();
-
+            
             case "take":
                 return new TakeOnlyAvailableItemProcessor();
+            
+            case "wait":
+            case "z":
+                return new WaitProcessor();
 
             case "save":
             case "save my game":
@@ -53,6 +57,7 @@ public class GlobalCommandFactory : IGlobalCommandFactory
 
             case "score":
             case "what is my score":
+            case "tell me my score":
                 return new ScoreProcessor();
 
             case "restart":
