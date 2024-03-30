@@ -14,6 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Bedrock\Bedrock.csproj" />
         <ProjectReference Include="..\Lex\Lex.csproj"/>
         <ProjectReference Include="..\Model\Model.csproj"/>
         <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>

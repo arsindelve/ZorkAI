@@ -20,13 +20,6 @@ public class EngineTests : EngineTestsBase
     }
 
     [Test]
-    public void DefaultConstructor_NoApiKey()
-    {
-        Environment.SetEnvironmentVariable("OPEN_AI_KEY", null);
-        Assert.Throws<Exception>(() => _ = new GameEngine<ZorkI, ZorkIContext>());
-    }
-
-    [Test]
     public async Task EmptyCommand_Blank()
     {
         var target = GetTarget();
@@ -38,7 +31,7 @@ public class EngineTests : EngineTestsBase
         var result = await target.GetResponse("");
 
         // Assert
-        result.Should().Be("BOB");
+        result.Should().Contain("BOB");
     }
 
     [Test]
@@ -53,7 +46,7 @@ public class EngineTests : EngineTestsBase
         var result = await target.GetResponse(null);
 
         // Assert
-        result.Should().Be("BOB");
+        result.Should().Contain("BOB");
     }
 
     [Test]

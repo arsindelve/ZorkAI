@@ -3,6 +3,7 @@ using Model.Intent;
 using Model.Interaction;
 using Model.Item;
 using Model.Location;
+using Utilities;
 
 namespace Model;
 
@@ -13,8 +14,8 @@ public interface IContext : ICanHoldItems
     /// </summary>
     int Score { get; }
 
-    public List<string> Inputs { get; }
-    
+    public LimitedStack<string> Inputs { get; }
+
     IGameEngine? Engine { get; set; }
 
     /// <summary>
@@ -62,6 +63,8 @@ public interface IContext : ICanHoldItems
     /// <value>The name of the last saved game.</value>
     string? LastSaveGameName { get; set; }
 
+    bool ItIsDarkHere { get; }
+
     List<ITurnBasedActor> GetActors();
 
     void Take(IItem item);
@@ -80,6 +83,4 @@ public interface IContext : ICanHoldItems
     string ItemListDescription(string locationName);
 
     string? ProcessTurnCounter();
-    
-    bool ItIsDarkHere { get; }
 }

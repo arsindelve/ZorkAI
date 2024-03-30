@@ -18,9 +18,9 @@ public class UpATree : BaseLocation
         "You are about 10 feet above the ground nestled among some large branches. The nearest branch above you is above your reach.\n\n" +
         "Beside you on the branch is a small bird's nest.";
 
-    public override InteractionResult RespondToSpecificLocationInteraction(string input, IContext context)
+    public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
     {
-        switch (input.ToLowerInvariant().Trim())
+        switch (input?.ToLowerInvariant().Trim())
         {
             case "jump":
             case "leap":

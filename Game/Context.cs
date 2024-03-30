@@ -1,6 +1,7 @@
 using Model.AIGeneration;
 using Model.Item;
 using Model.Location;
+using Utilities;
 
 namespace Game;
 
@@ -38,7 +39,7 @@ public class Context<T> : IContext where T : IInfocomGame, new()
 
     private T GameType { get; set; }
 
-    public List<string> Inputs { get; } = ["Good morning"];
+    public LimitedStack<string> Inputs { get; } = new();
 
     public IGameEngine? Engine { get; set; }
 

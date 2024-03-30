@@ -14,9 +14,9 @@ public class Altar : BaseLocation
         "This is the south end of a large temple. In front of you is what appears to be an altar. " +
         "In one corner is a small hole in the floor which leads into darkness. You probably could not get back up it.";
 
-    public override InteractionResult RespondToSpecificLocationInteraction(string action, IContext context)
+    public override InteractionResult RespondToSpecificLocationInteraction(string? action, IContext context)
     {
-        if (!action.Trim().StartsWith("pray", StringComparison.InvariantCultureIgnoreCase))
+        if (!action?.Trim().StartsWith("pray", StringComparison.InvariantCultureIgnoreCase) ?? false)
             return base.RespondToSpecificLocationInteraction(action, context);
 
         var newLocation = GetLocation<ForestOne>();

@@ -64,9 +64,9 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return string.Empty;
     }
 
-    public virtual InteractionResult RespondToSpecificLocationInteraction(string input, IContext context)
+    public virtual InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
     {
-        return new NoVerbMatchInteractionResult { Noun = string.Empty, Verb = input };
+        return new NoVerbMatchInteractionResult { Noun = string.Empty, Verb = input! };
     }
 
     public List<ITurnBasedActor> GetActors()
@@ -88,7 +88,7 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
 
     public abstract void Init();
 
-    public virtual string DescriptionForGeneration => ContextBasedDescription;
+    public virtual string DescriptionForGeneration => Description;
 
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="SimpleIntent" /> corresponding

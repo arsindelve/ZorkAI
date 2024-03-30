@@ -6,9 +6,9 @@ namespace ZorkOne.GlobalCommand;
 
 public class ZorkOneGlobalCommandFactory : IGlobalCommandFactory
 {
-    public IGlobalCommand? GetGlobalCommands(string input)
+    public IGlobalCommand? GetGlobalCommands(string? input)
     {
-        switch (input.ToLowerInvariant().StripNonChars().Trim())
+        switch (input?.ToLowerInvariant().StripNonChars().Trim())
         {
             case "xyzzy":
             case "plugh":

@@ -16,9 +16,9 @@ public class Studio : BaseLocation
             { Direction.Up, new MovementParameters { Location = GetLocation<Kitchen>() } }
         };
 
-    public override InteractionResult RespondToSpecificLocationInteraction(string input, IContext context)
+    public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
     {
-        switch (input.ToLowerInvariant().Trim())
+        switch (input?.ToLowerInvariant().Trim())
         {
             case "climb":
             case "climb up":

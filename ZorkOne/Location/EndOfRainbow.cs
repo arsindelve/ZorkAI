@@ -21,7 +21,7 @@ public class EndOfRainbow : LocationWithNoStartingItems
 
     public override string Name => "End of Rainbow";
 
-    public override InteractionResult RespondToSpecificLocationInteraction(string input, IContext context)
+    public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
     {
         if (!context.HasItem<Sceptre>() && GetItem<Sceptre>().CurrentLocation == GetLocation<EndOfRainbow>())
             return new PositiveInteractionResult("You don't have the sceptre. ");
@@ -29,7 +29,7 @@ public class EndOfRainbow : LocationWithNoStartingItems
         if (!context.HasItem<Sceptre>())
             return new NoNounMatchInteractionResult();
 
-        switch (input.ToLowerInvariant().Trim())
+        switch (input?.ToLowerInvariant().Trim())
         {
             case "wave sceptre":
             case "wave the sceptre":
