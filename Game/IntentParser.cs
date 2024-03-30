@@ -51,6 +51,6 @@ public class IntentParser : IIntentParser
         // At this point, we don't know the user's intent without asking the
         // AI parsing engine, so let's do that. 
 
-        return await _parser.AskTheAIParser(input, sessionId);
+        return await _parser.AskTheAIParser(input!, sessionId);
     }
 }

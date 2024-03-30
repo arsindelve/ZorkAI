@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZorkOne", "ZorkOne\ZorkOne.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZorkTwo", "ZorkTwo\ZorkTwo.csproj", "{1CCFC98C-2A8E-476E-AA9F-8DEBC52A04C9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bedrock", "Bedrock\Bedrock.csproj", "{F52D2817-5239-4EDD-8C26-B3E6625A94B8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,5 +62,9 @@ Global
 		{1CCFC98C-2A8E-476E-AA9F-8DEBC52A04C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CCFC98C-2A8E-476E-AA9F-8DEBC52A04C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CCFC98C-2A8E-476E-AA9F-8DEBC52A04C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F52D2817-5239-4EDD-8C26-B3E6625A94B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F52D2817-5239-4EDD-8C26-B3E6625A94B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F52D2817-5239-4EDD-8C26-B3E6625A94B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F52D2817-5239-4EDD-8C26-B3E6625A94B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

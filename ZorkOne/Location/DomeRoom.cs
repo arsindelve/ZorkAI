@@ -30,7 +30,7 @@ public class DomeRoom : BaseLocation
     {
     }
 
-    public override InteractionResult RespondToSpecificLocationInteraction(string input, IContext context)
+    public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
     {
         switch (input)
         {

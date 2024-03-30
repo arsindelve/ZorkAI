@@ -9,6 +9,10 @@ public interface ILocation
 {
     string Description { get; }
 
+    /// <summary>
+    ///     This allows us to provide a different description of the current location when we use it as
+    ///     part of a prompt for AI.
+    /// </summary>
     string DescriptionForGeneration { get; }
 
     /// <summary>
@@ -33,7 +37,7 @@ public interface ILocation
     /// <param name="client"></param>
     /// <returns>InteractionResult that describes if and and how the interaction took place.</returns>
     InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client);
-    
+
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="MultiNounIntent" /> corresponding
     ///     of a verb and two nouns. Does that combination do anything in this location? The default implementation

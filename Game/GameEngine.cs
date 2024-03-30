@@ -1,10 +1,12 @@
 using System.Diagnostics;
+using Bedrock;
 using Game.IntentEngine;
 using Game.StaticCommand;
 using Game.StaticCommand.Implementation;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Newtonsoft.Json;
+using Utilities;
 
 namespace Game;
 
@@ -23,17 +25,19 @@ namespace Game;
 public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame : IInfocomGame, new()
     where TContext : IContext, new()
 {
+    private readonly AgainProcessor _againProcessor = new();
     private readonly IGenerationClient _generator;
-    private readonly ItProcessor _itProcessor = new ItProcessor();
-    private readonly AgainProcessor _againProcessor = new AgainProcessor();
+    private readonly ItProcessor _itProcessor = new();
     private readonly IIntentParser _parser;
     private readonly string _sessionId = Guid.NewGuid().ToString();
+    private readonly LimitedStack<(string, string, bool)> _inputOutputs = new ();
 
     public readonly string IntroText;
 
     private string? _currentInput;
     private IStatefulProcessor? _processorInProgress;
     internal TContext Context;
+    private bool _lastResponseWasGenerated;
 
     public GameEngine()
     {
@@ -51,8 +55,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
                      {Context.CurrentLocation.Description}
                      """;
 
-        _generator = new ChatGPTClient();
+        _generator = new ClaudeFourClient();
         _parser = new IntentParser(gameInstance.GetGlobalCommandFactory());
+        _generator.OnGenerate += () => _lastResponseWasGenerated = true;
     }
 
     /// <summary>
@@ -108,12 +113,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         (bool returnProcessorInProgressOutput, string? processorInProgressOutput) = await RunProcessorInProgress();
 
         if (returnProcessorInProgressOutput)
-            return processorInProgressOutput + Environment.NewLine;
+            return PostProcessing(processorInProgressOutput!);
 
         if (string.IsNullOrEmpty(_currentInput))
-            return await GetGeneratedNoCommandResponse();
-
-        Context.Moves++;
+            return PostProcessing(await GetGeneratedNoCommandResponse());
 
         // if the user referenced an object using "it", let's see 
         // if we can handle that. 
@@ -121,16 +124,18 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         if (requiresClarification)
         {
             _processorInProgress = _itProcessor;
-            return replacedInput;
+            return PostProcessing(replacedInput);
         }
+
         _currentInput = replacedInput;
 
         // See if the user typed "again" or some variation.
         // if so, we'll replace the input with their previous input. 
-        (_currentInput, bool addToStack) = _againProcessor.Process(_currentInput, Context);
+        (_currentInput, var returnResponseFromAgainProcessor) =
+            _againProcessor.Process(_currentInput, Context);
 
-        if (addToStack)
-            Context.Inputs.Add(_currentInput!);
+        if (returnResponseFromAgainProcessor)
+            return PostProcessing(_currentInput);
 
         // See if the context needs to notify us of anything. Are we sleepy? Hungry?
         var turnCounterResponse = Context.ProcessTurnCounter();
@@ -142,7 +147,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         // Does the location have a special interaction to input such as "jump" or "pray"? 
         var singleVerbResult = Context.CurrentLocation.RespondToSpecificLocationInteraction(_currentInput, Context);
         if (singleVerbResult.InteractionHappened)
-            return singleVerbResult.InteractionMessage;
+            return PostProcessing(singleVerbResult.InteractionMessage);
 
         var parsedResult = await _parser.DetermineIntentType(_currentInput, _sessionId);
         Debug.WriteLine($"Input was parsed as {parsedResult.GetType().Name}");
@@ -172,7 +177,21 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         // "Actors" are things that can occur each turn. Examples are the troll
         // attacking, the maintenance room flooding, Floyd mumbling. 
         var actorResults = ProcessActors();
-        return turnCounterResponse + intentResult?.Trim() + actorResults + Environment.NewLine;
+        return PostProcessing(turnCounterResponse + intentResult?.Trim() + actorResults);
+    }
+
+    private string PostProcessing(string finalResult)
+    {
+        Context.Moves++;
+
+        if (!string.IsNullOrEmpty(finalResult))
+        {
+            _inputOutputs.Push((_currentInput!, finalResult, _lastResponseWasGenerated));
+            _generator.LastFiveInputOutputs = _inputOutputs.GetAll();
+        }
+
+        _lastResponseWasGenerated = false;
+        return finalResult.Trim() + Environment.NewLine;
     }
 
     private async Task<string> ProcessGlobalCommandIntent(GlobalCommandIntent intent)
@@ -180,6 +199,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         var intentResponse = await intent.Command.Process(_currentInput, Context, _generator);
         if (intent.Command is IStatefulProcessor { Completed: false } statefulProcessor)
             _processorInProgress = statefulProcessor;
+        
         intentResponse += Environment.NewLine;
         return intentResponse;
     }
@@ -202,9 +222,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
         // When this is not null, it means we have another processor in progress.
         // Defer all execution to that processor until it's complete. 
-        if (_processorInProgress == null) 
+        if (_processorInProgress == null)
             return (immediatelyReturn, processorInProgressOutput);
-        
+
         processorInProgressOutput = await _processorInProgress.Process(_currentInput, Context, _generator);
 
         // The processor is done. Clear it, and see what we want to do with the output. 

@@ -11,9 +11,9 @@ namespace Game.StaticCommand;
 /// </summary>
 public class GlobalCommandFactory : IGlobalCommandFactory
 {
-    public IGlobalCommand? GetGlobalCommands(string input)
+    public IGlobalCommand? GetGlobalCommands(string? input)
     {
-        switch (input.ToLowerInvariant().StripNonChars().Trim())
+        switch (input?.ToLowerInvariant().StripNonChars().Trim())
         {
             case "inventory":
             case "i":
