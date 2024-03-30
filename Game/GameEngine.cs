@@ -103,7 +103,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     public async Task<string?> GetResponse(string? playerInput)
     {
         _currentInput = playerInput;
-        
+
         // See if we have something already running like a save, quit, etc..
         // and see if it has any output. 
         var (returnProcessorInProgressOutput, processorInProgressOutput) = await RunProcessorInProgress();
@@ -115,7 +115,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
             return await GetGeneratedNoCommandResponse();
 
         Context.Moves++;
-        
+
         // See if the context needs to notify us of anything. Are we sleepy? Hungry?
         var turnCounterResponse = Context.ProcessTurnCounter();
 
@@ -135,51 +135,46 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
         _currentInput = itCheck.Output;
         _inputs.Add(_currentInput);
-        
+
         // We're done now doing pre-processing, we're ready to actually look at what the
         // user wrote and do something with it. 
 
         var parsedResult = await _parser.DetermineIntentType(_currentInput, _sessionId);
         Debug.WriteLine($"Input was parsed as {parsedResult.GetType().Name}");
 
-        string? intentResult;
-        switch (parsedResult)
+        var intentResult = parsedResult switch
         {
-            case GlobalCommandIntent intent:
-                intentResult = await intent.Command.Process(_currentInput, Context, _generator);
-                if (intent.Command is IStatefulProcessor { Completed: false } statefulProcessor)
-                    _processorInProgress = statefulProcessor;
-                intentResult += Environment.NewLine;
-                break;
+            GlobalCommandIntent intent =>
+                await ProcessGlobalCommandIntent(intent),
 
-            case NullIntent:
-                intentResult = await GetGeneratedNoOpResponse(_currentInput, _generator, Context);
-                break;
+            NullIntent =>
+                await GetGeneratedNoOpResponse(_currentInput, _generator, Context),
 
-            case PromptIntent:
-                intentResult = parsedResult.Message;
-                break;
+            PromptIntent => parsedResult.Message,
 
-            case MoveIntent moveInteraction:
-                intentResult = await new MoveEngine().Process(moveInteraction, Context, _generator);
-                break;
+            MoveIntent moveInteraction =>
+                await new MoveEngine().Process(moveInteraction, Context, _generator),
 
-            case SimpleIntent simpleInteraction:
-                intentResult =
-                    await new SimpleInteractionEngine().Process(simpleInteraction, Context, _generator);
-                break;
+            SimpleIntent simpleInteraction =>
+                await new SimpleInteractionEngine().Process(simpleInteraction, Context, _generator),
 
-            case MultiNounIntent multiInteraction:
-                intentResult = await new MultiNounEngine().Process(multiInteraction, Context, _generator);
-                break;
+            MultiNounIntent multiInteraction =>
+                await new MultiNounEngine().Process(multiInteraction, Context, _generator),
 
-            default:
-                intentResult = await GetGeneratedNoOpResponse(_currentInput, _generator, Context);
-                break;
-        }
+            _ => await GetGeneratedNoOpResponse(_currentInput, _generator, Context)
+        };
 
-        string actorResults = ProcessActors();
+        var actorResults = ProcessActors();
         return turnCounterResponse + intentResult?.Trim() + actorResults + Environment.NewLine;
+    }
+
+    private async Task<string> ProcessGlobalCommandIntent(GlobalCommandIntent intent)
+    {
+        var ir = await intent.Command.Process(_currentInput, Context, _generator);
+        if (intent.Command is IStatefulProcessor { Completed: false } statefulProcessor)
+            _processorInProgress = statefulProcessor;
+        ir += Environment.NewLine;
+        return ir;
     }
 
     private string ProcessActors()
