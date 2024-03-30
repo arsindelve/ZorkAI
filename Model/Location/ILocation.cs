@@ -33,8 +33,7 @@ public interface ILocation
     /// <param name="client"></param>
     /// <returns>InteractionResult that describes if and and how the interaction took place.</returns>
     InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client);
-
-
+    
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="MultiNounIntent" /> corresponding
     ///     of a verb and two nouns. Does that combination do anything in this location? The default implementation
@@ -86,7 +85,7 @@ public interface ILocation
     /// <param name="input">The input string representing the interaction.</param>
     /// <param name="context"></param>
     /// <returns>An object of type InteractionResult that describes the result of the interaction.</returns>
-    InteractionResult RespondToSpecificLocationInteraction(string input, IContext context);
+    InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context);
 
     /// <summary>
     ///     Retrieves a list of turn-based actors in the location.

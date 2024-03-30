@@ -13,6 +13,8 @@ public interface IContext : ICanHoldItems
     /// </summary>
     int Score { get; }
 
+    public List<string> Inputs { get; }
+    
     IGameEngine? Engine { get; set; }
 
     /// <summary>
