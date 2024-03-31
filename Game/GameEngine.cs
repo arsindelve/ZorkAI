@@ -76,7 +76,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         _generator = generationClient;
     }
 
-    public List<ITurnBasedActor> Actors { get; } = new();
+    public List<ITurnBasedActor> Actors { get; set;  } = new();
 
     public IContext RestoreGame(string data)
     {

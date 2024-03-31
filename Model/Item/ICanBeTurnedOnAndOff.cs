@@ -14,6 +14,12 @@ public interface ICanBeTurnedOnAndOff : IInteractionTarget
     public string AlreadyOffText { get; }
 
     public string AlreadyOnText { get; }
+
+    string? CannotBeTurnedOnText { get;}
+
+    void OnBeingTurnedOn(IContext context);
+
+    void OnBeingTurnedOff(IContext context);
 }
 
 public interface ICannotBeTurnedOff : IInteractionTarget
