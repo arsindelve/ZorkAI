@@ -55,8 +55,6 @@ public class TrollRoom : DarkLocation
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-
-        
         string[] verbs = ["kill", "attack", "defeat", "destroy", "murder"];
         string[] prepositions = ["with"];
 
