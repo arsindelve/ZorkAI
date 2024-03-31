@@ -66,6 +66,9 @@ public class ClaudeFourClient : IGenerationClient
 
     private string BuildPayload(Request request)
     {
+        dynamic message;
+        dynamic textContent;
+
         // This will get the most recent generated inputs and outputs, stopping when we hit 
         // a non-generated response. We're going to pass those to the AI, as it will create
         // a conversational back-and-forth. 
@@ -85,14 +88,32 @@ public class ClaudeFourClient : IGenerationClient
 
         foreach ((string input, string output) next in lastGeneratedResults)
         {
-            
+            // Add the adventurer input
+            message = new ExpandoObject();
+            message.role = "user";
+            message.content = new List<dynamic>();
+            textContent = new ExpandoObject();
+            textContent.type = "text";
+            textContent.text = next.input;
+            message.content.Add(textContent);
+            payload.messages.Add(message);
+
+            // Add the AI generated response 
+            message = new ExpandoObject();
+            message.role = "assistant";
+            message.content = new List<dynamic>();
+            textContent = new ExpandoObject();
+            textContent.type = "text";
+            textContent.text = next.output;
+            message.content.Add(textContent);
+            payload.messages.Add(message);
         }
-        
-        dynamic message = new ExpandoObject();
+
+        message = new ExpandoObject();
         message.role = "user";
         message.content = new List<dynamic>();
 
-        dynamic textContent = new ExpandoObject();
+        textContent = new ExpandoObject();
         textContent.type = "text";
         textContent.text = request.UserMessage ?? string.Empty;
 
