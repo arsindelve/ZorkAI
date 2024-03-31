@@ -15,7 +15,7 @@ public abstract class Request
         "and sarcastic tone, you will use a second-person perspective to keep the player engaged in their journey " +
         "without adding unnecessary details. Do not give any suggestions or reveal any hints about the game. If " +
         "the player references any contemporary ideas, people or objects, remind them that this is a fantasy game.";
-    
+
     public string? SystemMessage { get; protected init; }
 
     public virtual string? UserMessage { get; protected init; }

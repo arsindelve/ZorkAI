@@ -1,6 +1,5 @@
 using Model.AIGeneration;
 using Model.Intent;
-using OpenAI;
 
 namespace ZorkOne.Item;
 
@@ -20,7 +19,7 @@ public class ControlPanel : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
 
     public override string NeverPickedUpDescription =>
         "There is a control panel here, on which a large metal bolt is mounted. " +
-        $"Directly above the bolt is a small green plastic bubble {(GreenBubbleGlowing ? "which is glowing serenely" : "")}.";
+        $"Directly above the bolt is a small green plastic bubble{(GreenBubbleGlowing ? " which is glowing serenely" : "")}.";
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)

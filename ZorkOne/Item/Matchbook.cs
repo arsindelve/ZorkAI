@@ -4,6 +4,10 @@ public class Matchbook : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDro
 {
     public override string[] NounsForMatching => ["matches", "matchbook"];
 
+    public override string InInventoryDescription => "A matchbook";
+
+    public string ExaminationDescription => "The matchbook isn't very interesting, except for what's written on it. ";
+
     public string ReadDescription => """
                                      (Close cover before striking)
 
@@ -16,11 +20,8 @@ public class Matchbook : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDro
                                      GUE Tech can't promise these fantastic results to everyone. But when you earn your degree from GUE Tech, your future will be brighter.
                                      """;
 
-    public string ExaminationDescription => "The matchbook isn't very interesting, except for what's written on it. ";
-
     public string OnTheGroundDescription => NeverPickedUpDescription;
 
-    public override string InInventoryDescription => "A matchbook";
-
-    public override string NeverPickedUpDescription => "There is a matchbook whose cover says \"Visit Beautiful FCD#3\" here. ";
+    public override string NeverPickedUpDescription =>
+        "There is a matchbook whose cover says \"Visit Beautiful FCD#3\" here. ";
 }

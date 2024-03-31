@@ -64,14 +64,13 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return string.Empty;
     }
 
+    public virtual void OnLeaveLocation(IContext context)
+    {
+    }
+
     public virtual InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
     {
         return new NoVerbMatchInteractionResult { Noun = string.Empty, Verb = input! };
-    }
-
-    public List<ITurnBasedActor> GetActors()
-    {
-        return Items.OfType<ITurnBasedActor>().ToList();
     }
 
     public virtual string BeforeEnterLocation(IContext context)
@@ -139,6 +138,11 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     public bool HasItem<T>() where T : IItem, new()
     {
         return Items.Contains(Repository.GetItem<T>());
+    }
+
+    public List<ITurnBasedActor> GetActors()
+    {
+        return Items.OfType<ITurnBasedActor>().ToList();
     }
 
     protected virtual void OnFirstTimeEnterLocation(IContext context)

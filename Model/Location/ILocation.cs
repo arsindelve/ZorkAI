@@ -84,16 +84,16 @@ public interface ILocation
     string AfterEnterLocation(IContext context);
 
     /// <summary>
+    ///     Gets called when the player leaves the current location and moves to a new location.
+    /// </summary>
+    /// <param name="context">The current context.</param>
+    void OnLeaveLocation(IContext context);
+
+    /// <summary>
     ///     Responds to a single verb interaction in the location, such as "jump" or "scream"
     /// </summary>
     /// <param name="input">The input string representing the interaction.</param>
     /// <param name="context"></param>
     /// <returns>An object of type InteractionResult that describes the result of the interaction.</returns>
     InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context);
-
-    /// <summary>
-    ///     Retrieves a list of turn-based actors in the location.
-    /// </summary>
-    /// <returns>A list of objects implementing the ITurnBasedActor interface.</returns>
-    List<ITurnBasedActor> GetActors();
 }

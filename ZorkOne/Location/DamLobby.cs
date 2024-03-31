@@ -6,8 +6,20 @@ public class DamLobby : BaseLocation
         new()
         {
             { Direction.S, new MovementParameters { Location = GetLocation<Dam>() } },
-            { Direction.N, new MovementParameters { Location = GetLocation<MaintenanceRoom>() } },
-            { Direction.E, new MovementParameters { Location = GetLocation<MaintenanceRoom>() } }
+            {
+                Direction.N, new MovementParameters
+                {
+                    Location = GetLocation<MaintenanceRoom>(), CanGo = _ => !GetLocation<MaintenanceRoom>().RoomFlooded,
+                    CustomFailureMessage = "The room is full of water and cannot be entered. "
+                }
+            },
+            {
+                Direction.E, new MovementParameters
+                {
+                    Location = GetLocation<MaintenanceRoom>(), CanGo = _ => !GetLocation<MaintenanceRoom>().RoomFlooded,
+                    CustomFailureMessage = "The room is full of water and cannot be entered. "
+                }
+            }
         };
 
     protected override string ContextBasedDescription =>

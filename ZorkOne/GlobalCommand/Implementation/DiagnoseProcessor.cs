@@ -1,5 +1,4 @@
 using Model.AIGeneration;
-using OpenAI;
 
 namespace ZorkOne.GlobalCommand.Implementation;
 

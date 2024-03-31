@@ -50,7 +50,7 @@ internal class TrollCombatEngine
         _chooser = chooser;
     }
 
-    public string Attack(IContext context)
+    internal string Attack(IContext context)
     {
         if (context is not ZorkIContext zorkContext)
             throw new ArgumentException();
@@ -63,10 +63,10 @@ internal class TrollCombatEngine
 
         var fatal = false;
 
-        var possibleOutcomes = zorkContext.HasWeapon 
-            ? _outcomes.Union(_haveWeaponOutcomes).ToList() 
+        var possibleOutcomes = zorkContext.HasWeapon
+            ? _outcomes.Union(_haveWeaponOutcomes).ToList()
             : _outcomes;
-        
+
         var attack = _chooser.Choose(possibleOutcomes);
 
         switch (attack.outcome)
@@ -93,10 +93,13 @@ internal class TrollCombatEngine
         }
 
         if (fatal)
+        {
+            context.RemoveActor(Repository.GetItem<Troll>());
             return new DeathProcessor()
                 .Process(
                     $"{attack.text} It appears that that last blow was too much for you. I'm afraid you are dead. \n",
                     context).InteractionMessage;
+        }
 
         return attack.text;
     }

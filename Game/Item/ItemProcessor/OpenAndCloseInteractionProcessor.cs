@@ -29,10 +29,10 @@ public class OpenAndCloseInteractionProcessor : IVerbProcessor
         if (item.IsOpen)
             return new PositiveInteractionResult(item.AlreadyOpen);
 
-        string? cannotBeOpenedReason = item.CannotBeOpenedDescription(context);
+        var cannotBeOpenedReason = item.CannotBeOpenedDescription(context);
         if (!string.IsNullOrEmpty(cannotBeOpenedReason))
             return new PositiveInteractionResult(cannotBeOpenedReason);
-        
+
         var returnText = item.NowOpen;
 
         item.IsOpen = true;

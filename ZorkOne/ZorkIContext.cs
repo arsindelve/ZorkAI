@@ -23,15 +23,15 @@ public class ZorkIContext : Context<ZorkI>
     public int LightWoundCounter { get; set; }
 
     /// <summary>
-    /// Gets a value indicating whether the player has a weapon.
+    ///     Gets a value indicating whether the player has a weapon.
     /// </summary>
     /// <remarks>
-    /// The HasWeapon property returns true if the player has a weapon in the ZorkIContext.
-    /// It checks if the GetWeapon() method returns a non-null value, indicating the
-    /// presence of a weapon.
+    ///     The HasWeapon property returns true if the player has a weapon in the ZorkIContext.
+    ///     It checks if the GetWeapon() method returns a non-null value, indicating the
+    ///     presence of a weapon.
     /// </remarks>
     /// <returns>
-    /// Returns true if the player has a weapon; otherwise, false.
+    ///     Returns true if the player has a weapon; otherwise, false.
     /// </returns>
     public bool HasWeapon => GetWeapon() != null;
 

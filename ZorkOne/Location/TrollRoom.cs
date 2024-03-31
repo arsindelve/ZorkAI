@@ -50,7 +50,15 @@ public class TrollRoom : DarkLocation
         if (axe.CurrentLocation == GetLocation<TrollRoom>())
             troll.ItemPlacedHere(axe);
 
+        context.RegisterActor(GetItem<Troll>());
+
         return base.BeforeEnterLocation(context);
+    }
+
+    public override void OnLeaveLocation(IContext context)
+    {
+        context.RemoveActor(GetItem<Troll>());
+        base.OnLeaveLocation(context);
     }
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)

@@ -11,7 +11,7 @@ public interface IGenerationClient
     public Action? OnGenerate { get; set; }
 
     List<(string, string, bool)> LastFiveInputOutputs { get; set; }
-    
+
     /// <summary>
     ///     Completes a chat operation based on the given request.
     /// </summary>

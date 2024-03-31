@@ -5,9 +5,9 @@ public class Guidebook : ItemBase, ICanBeTakenAndDropped, ICanBeRead, ICanBeExam
     public override string[] NounsForMatching =>
         ["book", "books", "guidebook", "guidebooks", "guide book", "guide books"];
 
-    string ICanBeExamined.ExaminationDescription => ReadDescription;
-
     public override string InInventoryDescription => "A tour guidebook ";
+
+    string ICanBeExamined.ExaminationDescription => ReadDescription;
 
     public string ReadDescription => """
 
@@ -28,4 +28,3 @@ public class Guidebook : ItemBase, ICanBeTakenAndDropped, ICanBeRead, ICanBeExam
     public override string NeverPickedUpDescription =>
         "Some guidebooks entitled \"Flood Control Dam #3\" are on the reception desk.";
 }
-

@@ -14,6 +14,6 @@ public class OnTheRainbow : LocationWithNoStartingItems
         "with a magnificent view of the Falls. The rainbow travels east-west here.";
 
     public override string Name => "On The Rainbow";
-    
+
     // TODO: Wave the sceptre while standing on the rainbow.
 }

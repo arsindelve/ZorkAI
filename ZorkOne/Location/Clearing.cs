@@ -19,10 +19,10 @@ public class Clearing : BaseLocation
                 { CanGo = _ => false, CustomFailureMessage = "The forest becomes impenetrable to the north." }
         },
         {
-        Direction.Down,
-        new MovementParameters
-            { CanGo = _ => false, CustomFailureMessage = "The grating is closed. " }
-    }
+            Direction.Down,
+            new MovementParameters
+                { CanGo = _ => false, CustomFailureMessage = "The grating is closed. " }
+        }
     };
 
     public override string Name => "Clearing";
