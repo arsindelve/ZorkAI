@@ -72,7 +72,7 @@ public class ClaudeFourClient : IGenerationClient
         // This will get the most recent generated inputs and outputs, stopping when we hit 
         // a non-generated response. We're going to pass those to the AI, as it will create
         // a conversational back-and-forth. 
-        var lastGeneratedResults = Enumerable.Reverse(LastFiveInputOutputs)
+        var lastGeneratedResults = LastFiveInputOutputs
             .TakeWhile(s => s.Item3)
             .Select(s => (s.Item1, s.Item2))
             .ToList();

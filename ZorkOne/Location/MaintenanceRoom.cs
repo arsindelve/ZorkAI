@@ -1,12 +1,13 @@
 using Model.AIGeneration;
 using Model.Intent;
-using OpenAI;
 
 namespace ZorkOne.Location;
 
 public class MaintenanceRoom : DarkLocation
 {
     public override string Name => "Maintenance Room";
+
+    public int CurrentWaterLevel { get; set; }
 
     protected override string ContextBasedDescription => "This is what appears to have been the maintenance room " +
                                                          "for Flood Control Dam #3. Apparently, this room has been " +
@@ -73,6 +74,27 @@ public class MaintenanceRoom : DarkLocation
 
     private InteractionResult BlueClick()
     {
-        throw new NotImplementedException();
+        return new PositiveInteractionResult(
+            "There is a rumbling sound and a stream of water appears to burst from the east wall of the room (apparently, a leak has occurred in a pipe).");
     }
+}
+
+internal class WaterLevel
+{
+    internal Dictionary<int, string> Map = new()
+    {
+        { 1, "ankle" },
+        { 2, "shin" },
+        { 3, "shin" },
+        { 4, "knees" },
+        { 5, "knees" },
+        { 6, "hips" },
+        { 7, "hips" },
+        { 8, "waist" },
+        { 9, "waist" },
+        { 10, "chest" },
+        { 11, "chest" },
+        { 12, "neck" },
+        { 13, "neck" }
+    };
 }
