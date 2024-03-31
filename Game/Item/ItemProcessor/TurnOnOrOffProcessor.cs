@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Game.StaticCommand.Implementation;
 using Model.AIGeneration;
 using Model.Item;
@@ -115,8 +116,9 @@ public class TurnOnOrOffProcessor : IVerbProcessor
             return new PositiveInteractionResult(item.AlreadyOffText);
 
         item.IsOn = false;
+        item.OnBeingTurnedOff(context);
 
-        if (item is IAmALightSource && context.CurrentLocation is IDarkLocation)
+        if (item is IAmALightSource && context.ItIsDarkHere)
             return new PositiveInteractionResult(await new LookProcessor().Process(null, context, client));
 
         return new PositiveInteractionResult(item.NowOffText);
@@ -128,7 +130,11 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         if (item.IsOn)
             return new PositiveInteractionResult(item.AlreadyOnText);
 
+        if (!string.IsNullOrEmpty(item.CannotBeTurnedOnText))
+            return new PositiveInteractionResult(item.CannotBeTurnedOnText);
+        
         item.IsOn = true;
+        item.OnBeingTurnedOn(context);
 
         if (item is IAmALightSource && context.CurrentLocation is IDarkLocation)
             return new PositiveInteractionResult(await new LookProcessor().Process(null, context, client));
