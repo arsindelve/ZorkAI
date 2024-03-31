@@ -38,7 +38,7 @@ public class TrollCombatTests : EngineTestsBase
         result.Should().Contain("The flat of the troll's");
         engine.Context.LightWoundCounter.Should().Be(30);
     }
-    
+
     [Test]
     public void Stun()
     {
@@ -59,7 +59,7 @@ public class TrollCombatTests : EngineTestsBase
         engine.Context.IsStunned.Should().BeTrue();
         engine.Context.LightWoundCounter.Should().Be(0);
     }
-    
+
     [Test]
     public void Miss()
     {
@@ -80,7 +80,7 @@ public class TrollCombatTests : EngineTestsBase
         engine.Context.IsStunned.Should().BeFalse();
         engine.Context.LightWoundCounter.Should().Be(0);
     }
-    
+
     [Test]
     public void Fatal()
     {
@@ -104,7 +104,7 @@ public class TrollCombatTests : EngineTestsBase
         engine.Context.LightWoundCounter.Should().Be(0);
         engine.Context.DeathCounter.Should().Be(1);
     }
-    
+
     [Test]
     public void SecondSmallWound()
     {
@@ -129,7 +129,7 @@ public class TrollCombatTests : EngineTestsBase
         engine.Context.LightWoundCounter.Should().Be(0);
         engine.Context.DeathCounter.Should().Be(1);
     }
-    
+
     [Test]
     public void DropSword()
     {
@@ -153,7 +153,7 @@ public class TrollCombatTests : EngineTestsBase
         engine.Context.HasWeapon.Should().BeFalse();
         engine.Context.HasItem<Sword>().Should().BeFalse();
     }
-    
+
     [Test]
     public void DropKnife()
     {

@@ -12,7 +12,7 @@ public class RestoreProcessorTests
     {
         new RestoreProcessor().Should().NotBeNull();
     }
-    
+
     [Test]
     public async Task PromptForFilename_GameDefault()
     {
@@ -34,7 +34,7 @@ public class RestoreProcessorTests
         target.Completed.Should().BeFalse();
         ((IStatefulProcessor)target).ContinueProcessing.Should().BeFalse();
     }
-    
+
     [Test]
     public async Task PromptForFilename_LastSaveGameName()
     {
@@ -57,5 +57,4 @@ public class RestoreProcessorTests
         response.Should().Contain("shelly");
         ((IStatefulProcessor)target).ContinueProcessing.Should().BeFalse();
     }
-
 }

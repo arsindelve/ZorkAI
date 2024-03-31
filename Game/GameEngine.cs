@@ -26,18 +26,19 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     where TContext : IContext, new()
 {
     private readonly AgainProcessor _againProcessor = new();
+
     private readonly IGenerationClient _generator;
+    private readonly LimitedStack<(string, string, bool)> _inputOutputs = new();
     private readonly ItProcessor _itProcessor = new();
     private readonly IIntentParser _parser;
     private readonly string _sessionId = Guid.NewGuid().ToString();
-    private readonly LimitedStack<(string, string, bool)> _inputOutputs = new ();
 
     public readonly string IntroText;
 
     private string? _currentInput;
+    private bool _lastResponseWasGenerated;
     private IStatefulProcessor? _processorInProgress;
     internal TContext Context;
-    private bool _lastResponseWasGenerated;
 
     public GameEngine()
     {
@@ -75,6 +76,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         _generator = generationClient;
     }
 
+    public List<ITurnBasedActor> Actors { get; } = new();
+
     public IContext RestoreGame(string data)
     {
         var deserializeObject = JsonConvert.DeserializeObject<SavedGame<TContext>>(data, JsonSettings());
@@ -97,6 +100,15 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         return JsonConvert.SerializeObject(savedGame, JsonSettings());
     }
 
+    public void RegisterActor(ITurnBasedActor actor)
+    {
+        Actors.Add(actor);
+    }
+
+    public void RemoveActor(ITurnBasedActor actor)
+    {
+        Actors.Remove(actor);
+    }
 
     /// <summary>
     ///     Parse the input, determine the user's <see cref="IntentBase" /> and allow the
@@ -110,7 +122,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
         // See if we have something already running like a save, quit, etc..
         // and see if it has any output. 
-        (bool returnProcessorInProgressOutput, string? processorInProgressOutput) = await RunProcessorInProgress();
+        var (returnProcessorInProgressOutput, processorInProgressOutput) = await RunProcessorInProgress();
 
         if (returnProcessorInProgressOutput)
             return PostProcessing(processorInProgressOutput!);
@@ -120,7 +132,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
         // if the user referenced an object using "it", let's see 
         // if we can handle that. 
-        (bool requiresClarification, string replacedInput) = _itProcessor.Check(_currentInput, Context);
+        var (requiresClarification, replacedInput) = _itProcessor.Check(_currentInput, Context);
         if (requiresClarification)
         {
             _processorInProgress = _itProcessor;
@@ -199,7 +211,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         var intentResponse = await intent.Command.Process(_currentInput, Context, _generator);
         if (intent.Command is IStatefulProcessor { Completed: false } statefulProcessor)
             _processorInProgress = statefulProcessor;
-        
+
         intentResponse += Environment.NewLine;
         return intentResponse;
     }
@@ -207,9 +219,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     private string ProcessActors()
     {
         // There are location actors and context actors. 
-        var actors = Context.CurrentLocation.GetActors().Union(Context.GetActors());
+        //var actors = Context.CurrentLocation.GetActors().Union(Context.GetActors());
         var actorResults = string.Empty;
-        foreach (var actor in actors)
+        foreach (var actor in Actors.ToList())
             actorResults += $"\n{actor.Act(Context)}";
 
         return actorResults;

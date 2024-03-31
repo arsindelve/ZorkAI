@@ -60,11 +60,6 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     public List<IItem> Items { get; } = new();
 
-    List<ITurnBasedActor> IContext.GetActors()
-    {
-        return Items.OfType<ITurnBasedActor>().ToList();
-    }
-
     /// <summary>
     ///     Gets a value indicating whether the adventurer has a light source that is on
     /// </summary>
@@ -218,4 +213,14 @@ public class Context<T> : IContext where T : IInfocomGame, new()
 
     public bool ItIsDarkHere =>
         CurrentLocation is IDarkLocation { IsNoLongerDark: false } && !HasLightSource;
+
+    public void RegisterActor(ITurnBasedActor actor)
+    {
+        Engine?.RegisterActor(actor);
+    }
+
+    public void RemoveActor(ITurnBasedActor actor)
+    {
+        Engine?.RemoveActor(actor);
+    }
 }

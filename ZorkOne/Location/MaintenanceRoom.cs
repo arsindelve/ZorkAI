@@ -1,9 +1,10 @@
 using Model.AIGeneration;
 using Model.Intent;
+using ZorkOne.Command;
 
 namespace ZorkOne.Location;
 
-public class MaintenanceRoom : DarkLocation
+public class MaintenanceRoom : DarkLocation, ITurnBasedActor
 {
     public override string Name => "Maintenance Room";
 
@@ -23,6 +24,38 @@ public class MaintenanceRoom : DarkLocation
             { Direction.W, new MovementParameters { Location = GetLocation<DamLobby>() } }
         };
 
+    public bool RoomFlooded { get; set; }
+
+    public bool LeakIsFixed { get; set; }
+
+    public string Act(IContext context)
+    {
+        CurrentWaterLevel++;
+
+        if (CurrentWaterLevel >= 13)
+        {
+            RoomFlooded = true;
+            context.RemoveActor(this);
+        }
+
+        // If we leave the room, the water level continues to rise, but
+        // we cannot die, and we're not notified of it. 
+        if (context.CurrentLocation != this)
+            return string.Empty;
+
+        if (CurrentWaterLevel >= 13)
+        {
+            context.RemoveActor(this);
+            context.RemoveActor(Repository.GetItem<Troll>());
+            return new DeathProcessor()
+                .Process(
+                    "I'm afraid you have done drowned yourself.\n",
+                    context).InteractionMessage;
+        }
+
+        return $"The water level here is now up to your {WaterLevel.Map[CurrentWaterLevel]}.";
+    }
+
     public override void Init()
     {
     }
@@ -39,7 +72,7 @@ public class MaintenanceRoom : DarkLocation
 
         return noun switch
         {
-            "blue button" or "blue" => BlueClick(),
+            "blue button" or "blue" => BlueClick(context),
             "red button" or "red" => RedClick(),
             "yellow button" or "yellow" => YellowClick(),
             "brown button" or "brown" => BrownClick(),
@@ -72,16 +105,20 @@ public class MaintenanceRoom : DarkLocation
         return new PositiveInteractionResult("The lights within the room come on. ");
     }
 
-    private InteractionResult BlueClick()
+    private InteractionResult BlueClick(IContext context)
     {
+        if (LeakIsFixed)
+            return new PositiveInteractionResult("The blue button appears to be jammed. ");
+
+        context.RegisterActor(this);
         return new PositiveInteractionResult(
             "There is a rumbling sound and a stream of water appears to burst from the east wall of the room (apparently, a leak has occurred in a pipe).");
     }
 }
 
-internal class WaterLevel
+internal static class WaterLevel
 {
-    internal Dictionary<int, string> Map = new()
+    internal static Dictionary<int, string> Map = new()
     {
         { 1, "ankle" },
         { 2, "shin" },

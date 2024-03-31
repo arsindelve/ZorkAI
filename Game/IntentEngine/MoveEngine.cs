@@ -25,6 +25,7 @@ internal class MoveEngine : IIntentEngine
         // Let's reset the noun context, so we don't get confused with "it" between locations
         context.LastNoun = "";
 
+        context.CurrentLocation.OnLeaveLocation(context);
         context.CurrentLocation = movement.Location;
 
         var beforeEnteringText = movement.Location.BeforeEnterLocation(context);

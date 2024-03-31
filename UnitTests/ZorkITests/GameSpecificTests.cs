@@ -1,4 +1,3 @@
-using ZorkOne;
 using ZorkOne.GlobalCommand;
 
 namespace UnitTests.ZorkITests;
@@ -193,7 +192,7 @@ public class GameSpecificTests : EngineTestsBase
         response.Should().Contain("grating is revealed");
         target.Context.CurrentLocation.HasItem<Grating>().Should().BeTrue();
     }
-    
+
     [Test]
     public async Task Clearing_TakeTheLeaves_RevealAGrate()
     {
@@ -223,7 +222,7 @@ public class GameSpecificTests : EngineTestsBase
         response.Should().Contain("locked");
         Repository.GetItem<Grating>().IsOpen.Should().BeFalse();
     }
-    
+
     [Test]
     public async Task Clearing_CountTheLeaves()
     {
@@ -270,7 +269,7 @@ public class GameSpecificTests : EngineTestsBase
         response.Should().Contain("drops over the side");
         Repository.GetItem<Rope>().TiedToRailing.Should().BeTrue();
     }
-    
+
     [Test]
     public async Task DomeRoom_TakingTheRopeUntiesIt()
     {
@@ -290,7 +289,7 @@ public class GameSpecificTests : EngineTestsBase
         Repository.GetItem<Rope>().TiedToRailing.Should().BeFalse();
         target.Context.HasItem<Rope>().Should().BeTrue();
     }
-    
+
     [Test]
     public async Task DomeRoom_Jump_Fatal()
     {
@@ -305,6 +304,6 @@ public class GameSpecificTests : EngineTestsBase
 
         // Assert
         response.Should().Contain("died");
-        ((ZorkIContext)target.Context).DeathCounter.Should().Be(1);
+        target.Context.DeathCounter.Should().Be(1);
     }
 }

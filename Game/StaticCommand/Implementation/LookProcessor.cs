@@ -12,7 +12,7 @@ internal class LookProcessor : IGlobalCommand
         var location = context.CurrentLocation;
 
         if (context.ItIsDarkHere)
-            return Task.FromResult( ((DarkLocation) location).DarkDescription);
+            return Task.FromResult(((DarkLocation)location).DarkDescription);
 
         return Task.FromResult(context.CurrentLocation.Description);
 

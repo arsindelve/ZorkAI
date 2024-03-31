@@ -13,10 +13,6 @@ public class ChatGPTClient : IGenerationClient
 {
     private readonly OpenAIClient _client;
 
-    public Action? OnGenerate { get; set; }
-
-    public List<(string, string, bool)> LastFiveInputOutputs { get; set; } = new();
-    
     public ChatGPTClient()
     {
         var key = Environment.GetEnvironmentVariable("OPEN_AI_KEY");
@@ -26,6 +22,10 @@ public class ChatGPTClient : IGenerationClient
 
         _client = new OpenAIClient(key);
     }
+
+    public Action? OnGenerate { get; set; }
+
+    public List<(string, string, bool)> LastFiveInputOutputs { get; set; } = new();
 
     /// <summary>
     ///     Completes a chat conversation using the OpenAI API.
@@ -52,9 +52,9 @@ public class ChatGPTClient : IGenerationClient
 
         Response<ChatCompletions> response = await _client.GetChatCompletionsAsync(chatCompletionsOptions);
         var responseMessage = response.Value.Choices[0].Message;
-        
+
         OnGenerate?.Invoke();
-        
+
         return responseMessage.Content;
     }
 }

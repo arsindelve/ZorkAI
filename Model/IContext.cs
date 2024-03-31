@@ -65,8 +65,6 @@ public interface IContext : ICanHoldItems
 
     bool ItIsDarkHere { get; }
 
-    List<ITurnBasedActor> GetActors();
-
     void Take(IItem item);
 
     void Drop(IItem item);
@@ -83,4 +81,18 @@ public interface IContext : ICanHoldItems
     string ItemListDescription(string locationName);
 
     string? ProcessTurnCounter();
+
+    /// <summary>
+    ///     Registers an actor with the game engine. Until the actor
+    ///     is removed, it will act every turn.
+    /// </summary>
+    /// <param name="actor">The actor to be registered.</param>
+    void RegisterActor(ITurnBasedActor actor);
+
+    /// <summary>
+    ///     Removes an actor from the game engine. Once removed,
+    ///     the actor will no longer act every turn.
+    /// </summary>
+    /// <param name="actor">The actor to be removed.</param>
+    void RemoveActor(ITurnBasedActor actor);
 }

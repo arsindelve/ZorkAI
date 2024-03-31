@@ -209,7 +209,7 @@ public class EngineTestsBase
             mockParser.Setup(s => s.DetermineIntentType("take the leaves", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent
                     { Adverb = "", Verb = "take", Noun = "leaves", OriginalInput = "take the leaves" });
-            
+
             mockParser.Setup(s => s.DetermineIntentType("open the grating", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent
                     { Adverb = "", Verb = "open", Noun = "grating", OriginalInput = "open the grating" });
@@ -281,7 +281,6 @@ public class EngineTestsBase
                     Verb = "put",
                     OriginalInput = "put gold in case"
                 });
-            
         }
         else
         {

@@ -23,4 +23,3 @@ public class Dam : BaseLocation
         StartWithItem(GetItem<ControlPanel>(), this);
     }
 }
- 

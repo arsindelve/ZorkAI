@@ -177,7 +177,7 @@ public class MultiNounEngineTests
         // Assert
         result.Should().Contain("bob");
     }
-    
+
     [Test]
     public async Task TooDark()
     {
