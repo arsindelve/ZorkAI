@@ -121,8 +121,8 @@ public class EngineTestsBase
                     { Verb = "turn off", Noun = "lantern", OriginalInput = "turn off lantern" });
 
             mockParser.Setup(s => s.DetermineIntentType("look", It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Verb = "look", Noun = "lantern", OriginalInput = "look" });
-
+                .ReturnsAsync(new SimpleIntent { Verb = "look", Noun = "", OriginalInput = "look" });
+            
             mockParser.Setup(s => s.DetermineIntentType("eat lunch", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "eat", Noun = "lunch", OriginalInput = "eat lunch" });
 
@@ -174,6 +174,9 @@ public class EngineTestsBase
             mockParser.Setup(s => s.DetermineIntentType("i", It.IsAny<string>()))
                 .ReturnsAsync(new GlobalCommandIntent { Command = new InventoryProcessor() });
 
+            mockParser.Setup(s => s.DetermineIntentType("wait", It.IsAny<string>()))
+                .ReturnsAsync(new GlobalCommandIntent { Command = new WaitProcessor() });
+            
             mockParser.Setup(s => s.DetermineIntentType("turn the lamp off", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent
                     { Adverb = "off", Verb = "turn", Noun = "lamp", OriginalInput = "turn the lamp off" });
