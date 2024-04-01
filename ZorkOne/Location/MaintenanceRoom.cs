@@ -15,7 +15,7 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
                                                          "ransacked recently, for most of the valuable equipment is " +
                                                          "gone. On the wall in front of you is a group of buttons " +
                                                          "colored blue, yellow, brown, and red. There are doorways to " +
-                                                         "the west and south.";
+                                                         "the west and south. \n";
 
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
@@ -58,7 +58,8 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
 
     public override void Init()
     {
-StartWithItem(Repository);
+        StartWithItem(GetItem<Wrench>(), this);
+        StartWithItem(GetItem<Screwdriver>(), this);
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,

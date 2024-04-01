@@ -9,4 +9,6 @@ public class Wrench : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
     public string ExaminationDescription => "There's nothing special about the wrench. ";
 
     public override string InInventoryDescription => "A wrench";
+
+    public override string NeverPickedUpDescription => OnTheGroundDescription;
 }
