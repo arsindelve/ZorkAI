@@ -212,6 +212,18 @@ public class EngineTestsBase
             mockParser.Setup(s => s.DetermineIntentType("take the leaves", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent
                     { Adverb = "", Verb = "take", Noun = "leaves", OriginalInput = "take the leaves" });
+            
+            mockParser.Setup(s => s.DetermineIntentType("take wrench", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "take", Noun = "wrench", OriginalInput = "take wrench" });
+            
+            mockParser.Setup(s => s.DetermineIntentType("drop wrench", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "drop", Noun = "wrench", OriginalInput = "drop wrench" });
+            
+            mockParser.Setup(s => s.DetermineIntentType("take screwdriver", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "take", Noun = "screwdriver", OriginalInput = "take screwdriver" });
 
             mockParser.Setup(s => s.DetermineIntentType("open the grating", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent

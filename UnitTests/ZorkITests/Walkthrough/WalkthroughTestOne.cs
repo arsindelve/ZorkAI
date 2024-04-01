@@ -110,14 +110,14 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         await Do("take matches", "Taken");
         await Do("N", "Maintenance", "ransacked", "blue", "yellow");
 
-        // Take wrench
-        // Take screwdriver
+        await Do("take wrench", "Taken");
+        await Do("take screwdriver", "Taken");
         await Do("press the yellow button", "Click");
         await Do("S", "Dam Lobby");
         await Do("S", "Dam", "glowing serenely");
 
         // turn bolt with wrench
-        // drop wrench
+        await Do("drop wrench", "Dropped");
         await Do("S", "Deep Canyon");
     }
 

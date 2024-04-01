@@ -14,5 +14,5 @@ public class Leaflet : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRe
 
     string ICanBeRead.ReadDescription => ((ICanBeExamined)this).ExaminationDescription;
 
-    string ICanBeTakenAndDropped.OnTheGroundDescription => "There is a leaflet here. ";
+    string ICanBeTakenAndDropped.OnTheGroundDescription => "A small leaflet is on the ground. ";
 }
