@@ -71,6 +71,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         Repository.Reset();
 
         Context = new TContext();
+        Context.Engine = this;
         IntroText = string.Empty;
         _parser = parser;
         _generator = generationClient;

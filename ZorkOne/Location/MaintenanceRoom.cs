@@ -58,6 +58,7 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
 
     public override void Init()
     {
+StartWithItem(Repository);
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
