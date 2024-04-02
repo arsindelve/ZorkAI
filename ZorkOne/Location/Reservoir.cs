@@ -34,7 +34,8 @@ public class Reservoir : DarkLocation, ITurnBasedActor
         }
 
         return
-            "You notice that the water level here is rising rapidly. The currents are also becoming stronger. Staying here seems quite perilous! ";
+            "You notice that the water level here is rising rapidly. The currents are also becoming " +
+            "stronger. Staying here seems quite perilous! ";
     }
 
     public override void Init()
