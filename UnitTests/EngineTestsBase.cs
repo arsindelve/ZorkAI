@@ -296,6 +296,16 @@ public class EngineTestsBase
                     Verb = "put",
                     OriginalInput = "put gold in case"
                 });
+            
+            mockParser.Setup(s => s.DetermineIntentType("turn bolt with wrench", It.IsAny<string>()))
+                .ReturnsAsync(new MultiNounIntent
+                {
+                    NounOne = "bolt",
+                    NounTwo = "wrench",
+                    Preposition = "with",
+                    Verb = "turn",
+                    OriginalInput = "turn bolt with wrench"
+                });
         }
         else
         {
