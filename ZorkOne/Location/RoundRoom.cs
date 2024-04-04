@@ -7,7 +7,8 @@ public class RoundRoom : DarkLocation
         {
             { Direction.W, new MovementParameters { Location = GetLocation<EastWestPassage>() } },
             { Direction.SE, new MovementParameters { Location = GetLocation<EngravingsCave>() } },
-            { Direction.N, new MovementParameters { Location = GetLocation<NorthSouthPassage>() } }
+            { Direction.N, new MovementParameters { Location = GetLocation<NorthSouthPassage>() } },
+            { Direction.E, new MovementParameters { Location = GetLocation<LoudRoom>() } }
         };
 
     public override string Name => "Round Room";

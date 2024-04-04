@@ -4,7 +4,7 @@ using ZorkOne;
 Console.ForegroundColor = ConsoleColor.DarkCyan;
 
 var engine = CreateEngine();
-Utilities.Utilities.WriteLineWordWrap(engine.IntroText + Environment.NewLine);
+Console.WriteLine(engine.IntroText + Environment.NewLine);
 
 var result = string.Empty;
 
@@ -19,7 +19,7 @@ while (result != "-1")
     if (result?.Trim().StartsWith("-2") ?? false)
     {
         engine = CreateEngine();
-        Utilities.Utilities.WriteLineWordWrap(engine.IntroText);
+        Console.WriteLine(engine.IntroText);
         continue;
     }
 

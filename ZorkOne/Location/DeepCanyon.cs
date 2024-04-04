@@ -7,7 +7,8 @@ public class DeepCanyon : DarkLocation
         {
             { Direction.NW, new MovementParameters { Location = GetLocation<ReservoirSouth>() } },
             { Direction.SW, new MovementParameters { Location = GetLocation<NorthSouthPassage>() } },
-            { Direction.E, new MovementParameters { Location = GetLocation<Dam>() } }
+            { Direction.E, new MovementParameters { Location = GetLocation<Dam>() } },
+            { Direction.Down, new MovementParameters { Location = GetLocation<LoudRoom>() } }
         };
 
     protected override string ContextBasedDescription =>

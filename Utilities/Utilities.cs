@@ -10,7 +10,7 @@ public static class Utilities
         return Regex.Replace(s, "[^a-zA-Z\\s]", string.Empty);
     }
 
-    public static void WriteLineWordWrap(string? paragraph, int tabSize = 8)
+    public static void WriteLineWordWrap(string? paragraph, int tabSize = 6)
     {
         if (string.IsNullOrEmpty(paragraph))
             return;
