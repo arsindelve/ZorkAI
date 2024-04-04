@@ -12,6 +12,7 @@ public class Studio : BaseLocation
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
+            // TODO: Implement weight limit to go up
             { Direction.S, new MovementParameters { Location = GetLocation<Gallery>() } },
             { Direction.Up, new MovementParameters { Location = GetLocation<Kitchen>() } }
         };

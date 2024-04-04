@@ -15,9 +15,10 @@ public class Dam : BaseLocation
             { Direction.N, new MovementParameters { Location = GetLocation<DamLobby>() } }
         };
 
+    // TODO: Update description based on gates 
     protected override string ContextBasedDescription =>
         "You are standing on the top of the Flood Control Dam #3, which was quite a tourist attraction in times far distant. " +
-        "There are paths to the north, south, and west, and a scramble down.\nThe sluice gates on the dam are " +
+        "There are paths to the north, south, and west, and a scramble down. The sluice gates on the dam are " +
         "closed. Behind the dam, there can be seen a wide reservoir. Water is pouring over the top of the now abandoned dam. ";
 
     public override string Name => "Dam";
