@@ -1,4 +1,4 @@
-﻿GET http://localhost:5147/zorkOne
+﻿GET http://localhost/zorkOne
 Accept: application/json
 
 ###
