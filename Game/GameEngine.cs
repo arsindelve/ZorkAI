@@ -1,7 +1,7 @@
-using System.Diagnostics;
 using Game.IntentEngine;
 using Game.StaticCommand;
 using Game.StaticCommand.Implementation;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
@@ -25,7 +25,7 @@ namespace Game;
 public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame : IInfocomGame, new()
     where TContext : IContext, new()
 {
-    private readonly ILogger _logger;
+    private readonly ILogger<GameEngine<TInfocomGame, TContext>>? _logger;
     private readonly AgainProcessor _againProcessor = new();
 
     private readonly IGenerationClient _generator;
@@ -41,13 +41,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     private IStatefulProcessor? _processorInProgress;
     internal TContext Context;
 
-    public GameEngine(ILogger logger) : this()
+    [ActivatorUtilitiesConstructor]
+    public GameEngine(ILogger<GameEngine<TInfocomGame, TContext>> logger)
     {
         _logger = logger;
-    }
-    
-    public GameEngine()
-    {
         var gameInstance = new TInfocomGame();
         Context = new TContext
         {
@@ -62,9 +59,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
                      {Context.CurrentLocation.Description}
                      """;
 
-        //_generator = new ClaudeFourClient();
         _generator = new ChatGPTClient(_logger);
-        _parser = new IntentParser(gameInstance.GetGlobalCommandFactory());
+        _parser = new IntentParser(gameInstance.GetGlobalCommandFactory(), _logger);
         _generator.OnGenerate += () => _lastResponseWasGenerated = true;
     }
 
@@ -73,11 +69,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     /// </summary>
     /// <param name="parser"></param>
     /// <param name="generationClient"></param>
-    /// <param name="logger"></param>
-    public GameEngine(IIntentParser parser, IGenerationClient generationClient, ILogger logger)
+    public GameEngine(IIntentParser parser, IGenerationClient generationClient)
     {
         Repository.Reset();
-
+    
         Context = new TContext
         {
             Engine = this
@@ -86,16 +81,16 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         IntroText = string.Empty;
         _parser = parser;
         _generator = generationClient;
-        _logger = logger;
     }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public List<ITurnBasedActor> Actors { get; set;  } = new();
 
     public string LocationName => Context.CurrentLocation.Name;
 
     public IContext RestoreGame(string data)
     {
-        var deserializeObject = JsonConvert.DeserializeObject<SavedGame<TContext>>(data, JsonSettings());
+        SavedGame<TContext>? deserializeObject = JsonConvert.DeserializeObject<SavedGame<TContext>>(data, JsonSettings());
         var allItems = deserializeObject?.AllItems ?? throw new ArgumentException();
         var allLocations = deserializeObject.AllLocations ?? throw new ArgumentException();
 
@@ -179,7 +174,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
             return PostProcessing(singleVerbResult.InteractionMessage);
 
         var parsedResult = await _parser.DetermineIntentType(_currentInput, _sessionId);
-        Debug.WriteLine($"Input was parsed as {parsedResult.GetType().Name}");
+        _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
 
         var intentResult = parsedResult switch
         {

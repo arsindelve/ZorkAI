@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Model.AIGeneration;
 using Model.Intent;
 using Model.Interaction;
@@ -16,6 +17,7 @@ public interface IContext : ICanHoldItems
 
     public LimitedStack<string> Inputs { get; }
 
+    [JsonIgnore]
     IGameEngine? Engine { get; set; }
 
     /// <summary>

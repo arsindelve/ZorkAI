@@ -315,7 +315,7 @@ public class EngineTestsBase
 
         Repository.Reset();
 
-        var engine = new GameEngine<ZorkI, ZorkIContext>(Parser, Client.Object, Mock.Of<ILogger<EngineTestsBase>>());
+        var engine = new GameEngine<ZorkI, ZorkIContext>(Parser, Client.Object);
         Repository.GetLocation<WestOfHouse>().Init();
 
         return engine;

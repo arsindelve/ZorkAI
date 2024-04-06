@@ -25,5 +25,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+using var serviceScope = app.Services.CreateScope();
+var logger = serviceScope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+logger.LogWarning("Ready. Let's play some Zork!");
 
 app.Run();
+
