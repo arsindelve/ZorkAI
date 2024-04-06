@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Bedrock;
 using Game.IntentEngine;
 using Game.StaticCommand;
 using Game.StaticCommand.Implementation;
@@ -71,14 +70,19 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     {
         Repository.Reset();
 
-        Context = new TContext();
-        Context.Engine = this;
+        Context = new TContext
+        {
+            Engine = this
+        };
+        
         IntroText = string.Empty;
         _parser = parser;
         _generator = generationClient;
     }
 
     public List<ITurnBasedActor> Actors { get; set;  } = new();
+
+    public string LocationName => Context.CurrentLocation.Name;
 
     public IContext RestoreGame(string data)
     {
@@ -111,6 +115,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     {
         Actors.Remove(actor);
     }
+
+    public int Moves => Context.Moves;
 
     /// <summary>
     ///     Parse the input, determine the user's <see cref="IntentBase" /> and allow the
@@ -193,6 +199,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         var actorResults = ProcessActors();
         return PostProcessing(turnCounterResponse + intentResult?.Trim() + actorResults);
     }
+
+    public int Score => Context.Score;
 
     private string PostProcessing(string finalResult)
     {
