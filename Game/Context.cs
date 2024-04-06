@@ -1,6 +1,7 @@
 using Model.AIGeneration;
 using Model.Item;
 using Model.Location;
+using Newtonsoft.Json;
 using Utilities;
 
 namespace Game;
@@ -41,6 +42,7 @@ public class Context<T> : IContext where T : IInfocomGame, new()
 
     public LimitedStack<string> Inputs { get; } = new();
 
+    [JsonIgnore]
     public IGameEngine? Engine { get; set; }
 
     public string LastNoun { get; set; } = "";

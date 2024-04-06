@@ -1,5 +1,6 @@
 using Game.StaticCommand;
 using Lex;
+using Microsoft.Extensions.Logging;
 using Model.AIParsing;
 
 namespace Game;
@@ -19,16 +20,17 @@ public class IntentParser : IIntentParser
     /// </summary>
     /// <param name="parser"></param>
     /// <param name="gameSpecificCommandFactory"></param>
-    public IntentParser(IAIParser parser, IGlobalCommandFactory gameSpecificCommandFactory)
+    /// <param name="logger"></param>
+    public IntentParser(IAIParser parser, IGlobalCommandFactory gameSpecificCommandFactory, ILogger? logger)
     {
         _parser = parser;
         _gameSpecificCommandFactory = gameSpecificCommandFactory;
     }
 
-    public IntentParser(IGlobalCommandFactory gameSpecificCommandFactory)
+    public IntentParser(IGlobalCommandFactory gameSpecificCommandFactory, ILogger? logger = null)
     {
         _gameSpecificCommandFactory = gameSpecificCommandFactory;
-        _parser = new LexParser();
+        _parser = new LexParser(logger);
     }
 
     /// <summary>

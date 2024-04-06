@@ -1,18 +1,18 @@
-using System.Diagnostics;
 using Amazon.LexRuntimeV2.Model;
+using Microsoft.Extensions.Logging;
 using Model;
 using Model.AIParsing;
 using Model.Intent;
 
 namespace Lex;
 
-public class LexParser : IAIParser
+public class LexParser(ILogger? logger) : IAIParser
 {
     private readonly LexClient _client = new();
 
     public async Task<IntentBase> AskTheAIParser(string input, string sessionId)
     {
-        Debug.WriteLine($"Text: '{input}' was sent to Amazon Lex");
+        logger?.LogDebug($"Text: '{input}' was sent to Amazon Lex");
         var parserResponse = await _client.SendTextMsgToLex(input, sessionId);
 
         var intentName = ExtractIntentName(parserResponse);

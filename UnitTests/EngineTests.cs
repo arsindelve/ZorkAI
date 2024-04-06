@@ -15,7 +15,7 @@ public class EngineTests : EngineTestsBase
     public void DefaultConstructor()
     {
         Environment.SetEnvironmentVariable("OPEN_AI_KEY", "XYZ");
-        var target = new GameEngine<ZorkI, ZorkIContext>(Mock.Of<ILogger<EngineTests>>());
+        var target = new GameEngine<ZorkI, ZorkIContext>(null);
 
         target.Should().NotBeNull();
     }
@@ -430,7 +430,7 @@ public class EngineTests : EngineTestsBase
         aiParser.Setup(s => s.AskTheAIParser("walk east", It.IsAny<string>()))
             .ReturnsAsync(new MoveIntent { Direction = Direction.E });
 
-        var parser = new IntentParser(aiParser.Object, new ZorkOneGlobalCommandFactory());
+        var parser = new IntentParser(aiParser.Object, new ZorkOneGlobalCommandFactory(), null);
         var target = GetTarget(parser);
 
         // Act
@@ -443,7 +443,7 @@ public class EngineTests : EngineTestsBase
     public async Task Parser_DirectionMatch()
     {
         var aiParser = new Mock<IAIParser>();
-        var parser = new IntentParser(aiParser.Object, new ZorkOneGlobalCommandFactory());
+        var parser = new IntentParser(aiParser.Object, new ZorkOneGlobalCommandFactory(), null);
         var target = GetTarget(parser);
 
         // Act
