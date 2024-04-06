@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Game.IntentEngine;
 using Game.StaticCommand;
 using Game.StaticCommand.Implementation;
+using Microsoft.Extensions.Logging;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Newtonsoft.Json;
@@ -24,6 +25,7 @@ namespace Game;
 public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame : IInfocomGame, new()
     where TContext : IContext, new()
 {
+    private readonly ILogger _logger;
     private readonly AgainProcessor _againProcessor = new();
 
     private readonly IGenerationClient _generator;
@@ -39,6 +41,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     private IStatefulProcessor? _processorInProgress;
     internal TContext Context;
 
+    public GameEngine(ILogger logger) : this()
+    {
+        _logger = logger;
+    }
+    
     public GameEngine()
     {
         var gameInstance = new TInfocomGame();
@@ -56,7 +63,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
                      """;
 
         //_generator = new ClaudeFourClient();
-        _generator = new ChatGPTClient();
+        _generator = new ChatGPTClient(_logger);
         _parser = new IntentParser(gameInstance.GetGlobalCommandFactory());
         _generator.OnGenerate += () => _lastResponseWasGenerated = true;
     }
@@ -66,7 +73,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     /// </summary>
     /// <param name="parser"></param>
     /// <param name="generationClient"></param>
-    public GameEngine(IIntentParser parser, IGenerationClient generationClient)
+    /// <param name="logger"></param>
+    public GameEngine(IIntentParser parser, IGenerationClient generationClient, ILogger logger)
     {
         Repository.Reset();
 
@@ -78,6 +86,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         IntroText = string.Empty;
         _parser = parser;
         _generator = generationClient;
+        _logger = logger;
     }
 
     public List<ITurnBasedActor> Actors { get; set;  } = new();

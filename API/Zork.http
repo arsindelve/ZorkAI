@@ -1,4 +1,4 @@
-﻿POST http://localhost/ZorkOne
+﻿POST http://localhost:5000/ZorkOne
 Content-Type: application/json
 
 {

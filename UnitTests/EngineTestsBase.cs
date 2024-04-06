@@ -1,4 +1,5 @@
 using Game.StaticCommand.Implementation;
+using Microsoft.Extensions.Logging;
 using Model.AIGeneration;
 using Model.Intent;
 using ZorkOne;
@@ -314,7 +315,7 @@ public class EngineTestsBase
 
         Repository.Reset();
 
-        var engine = new GameEngine<ZorkI, ZorkIContext>(Parser, Client.Object);
+        var engine = new GameEngine<ZorkI, ZorkIContext>(Parser, Client.Object, Mock.Of<ILogger<EngineTestsBase>>());
         Repository.GetLocation<WestOfHouse>().Init();
 
         return engine;
