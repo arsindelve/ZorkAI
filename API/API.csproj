@@ -24,12 +24,4 @@
       <ProjectReference Include="..\ZorkOne\ZorkOne.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Properties\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="Properties\launchSettings.json" />
-    </ItemGroup>
-
 </Project>
