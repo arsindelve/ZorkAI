@@ -18,7 +18,8 @@ namespace Bedrock;
 /// </summary>
 public class ClaudeFourClient : IGenerationClient
 {
-    private const string ClaudeModelId = "anthropic.claude-3-sonnet-20240229-v1:0";
+    //private const string ClaudeModelId = "anthropic.claude-3-sonnet-20240229-v1:0";
+    private const string ClaudeModelId = "anthropic.claude-3-haiku-20240307-v1:0";
     private const string AnthropicVersion = "bedrock-2023-05-31";
 
     public Action? OnGenerate { get; set; }
@@ -81,7 +82,7 @@ public class ClaudeFourClient : IGenerationClient
 
         payload.anthropic_version = AnthropicVersion;
         payload.max_tokens = 1024;
-        payload.temperature = 0.5;
+        payload.temperature = 0.45;
         payload.system = request.SystemMessage ?? string.Empty;
 
         payload.messages = new List<dynamic>();

@@ -13,6 +13,9 @@
 	
 	
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingMode/@EntryValue">OnlyMarkers</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b29072fe_002D4703_002D433f_002Daa0c_002D11780a8a5859/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from &amp;lt;UnitTests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Project Location="C:\Users\arsin\RiderProjects\ZorkAI\UnitTests" Presentation="&amp;lt;UnitTests&amp;gt;" /&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
 	
 	
 	

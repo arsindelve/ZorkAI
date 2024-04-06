@@ -56,7 +56,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
                      {Context.CurrentLocation.Description}
                      """;
 
-        _generator = new ClaudeFourClient();
+        //_generator = new ClaudeFourClient();
+        _generator = new ChatGPTClient();
         _parser = new IntentParser(gameInstance.GetGlobalCommandFactory());
         _generator.OnGenerate += () => _lastResponseWasGenerated = true;
     }

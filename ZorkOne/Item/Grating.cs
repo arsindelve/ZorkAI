@@ -12,13 +12,13 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
 
     public bool IsOpen { get; set; }
 
-    public string NowOpen => throw new NotImplementedException();
+    public string NowOpen => "";
 
-    public string NowClosed => throw new NotImplementedException();
+    public string NowClosed => "";
 
-    public string AlreadyOpen => throw new NotImplementedException();
+    public string AlreadyOpen => "";
 
-    public string AlreadyClosed => throw new NotImplementedException();
+    public string AlreadyClosed => "";
 
     public bool HasEverBeenOpened { get; set; }
 
