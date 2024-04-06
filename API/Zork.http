@@ -1,4 +1,8 @@
-﻿GET http://localhost/zorkOne
-Accept: application/json
+﻿POST http://localhost/ZorkOne
+Content-Type: application/json
+
+{
+  "input": "read it"
+}
 
 ###

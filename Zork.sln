@@ -31,6 +31,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D516818E-5BE4-4D9C-B3A6-886ACCAA0BDF}"
 	ProjectSection(SolutionItems) = preProject
 		docker-compose.yml = docker-compose.yml
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionFolder", "{BBBCB37A-4944-4BA8-B085-A60BDC1A8D89}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
 	EndProjectSection
 EndProject
 Global
