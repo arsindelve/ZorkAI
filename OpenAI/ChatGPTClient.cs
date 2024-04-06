@@ -1,6 +1,6 @@
-using System.Diagnostics;
 using Azure;
 using Azure.AI.OpenAI;
+using Microsoft.Extensions.Logging;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 
@@ -11,10 +11,12 @@ namespace OpenAI;
 /// </summary>
 public class ChatGPTClient : IGenerationClient
 {
+    private readonly ILogger? _logger;
     private readonly OpenAIClient _client;
 
-    public ChatGPTClient()
+    public ChatGPTClient(ILogger? logger)
     {
+        _logger = logger;
         var key = Environment.GetEnvironmentVariable("OPEN_AI_KEY");
 
         if (string.IsNullOrEmpty(key))
@@ -34,7 +36,7 @@ public class ChatGPTClient : IGenerationClient
     /// <returns>The generated response message from the chat conversation.</returns>
     public async Task<string> CompleteChat(Request request)
     {
-        Debug.WriteLine($"Sending request of type: {request.GetType().Name} ");
+        _logger?.LogDebug($"Sending request of type: {request.GetType().Name} ");
 
         var chatCompletionsOptions = new ChatCompletionsOptions
         {
@@ -48,7 +50,7 @@ public class ChatGPTClient : IGenerationClient
             }
         };
 
-        Debug.WriteLine(request.UserMessage);
+        _logger?.LogDebug(request.UserMessage);
 
         Response<ChatCompletions> response = await _client.GetChatCompletionsAsync(chatCompletionsOptions);
         var responseMessage = response.Value.Choices[0].Message;

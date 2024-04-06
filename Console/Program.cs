@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using DynamoDb;
 using Game;
+using Microsoft.Extensions.Logging;
 using ZorkOne;
 
 var database = new SessionRepository();
@@ -50,5 +51,7 @@ while (result != "-1")
 
 GameEngine<ZorkI, ZorkIContext> CreateEngine()
 {
-    return new GameEngine<ZorkI, ZorkIContext>();
+    using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+    ILogger logger = loggerFactory.CreateLogger<Program>();
+    return new GameEngine<ZorkI, ZorkIContext>(logger);
 }

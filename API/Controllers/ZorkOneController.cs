@@ -6,39 +6,22 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class ZorkOneController : ControllerBase
+public class ZorkOneController(
+    ILogger<ZorkOneController> logger,
+    IGameEngine engine,
+    ISessionRepository sessionRepository)
+    : ControllerBase
 {
     private readonly string _sessionId = Environment.MachineName;
-    private readonly ILogger<ZorkOneController> _logger;
-    private readonly ISessionRepository _database;
 
-    public ZorkOneController(ILogger<ZorkOneController> logger)
-    {
-        _logger = logger;
-        _database = new SessionRepository();
-    }
-
-    [HttpGet]
-    public string Index()
-    {
-        _logger.LogInformation("Hello!");
-        return "Hello!";
-    }
-    
     [HttpPost]
     public async Task<GameResponse> Index([FromBody] GameRequest request)
-    {
-        var engine = CreateEngine();
+    { var savedSession = await GetSavedSession();
+        if (!string.IsNullOrEmpty(savedSession)) RestoreSession(savedSession, engine);
 
-        var savedSession = await GetSavedSession();
-        if (!string.IsNullOrEmpty(savedSession))
-        {
-            RestoreSession(savedSession, engine);
-        }
-
-        _logger.LogInformation($"Request: {request.Input}");
+        logger.LogInformation($"Request: {request.Input}");
         var response = await engine.GetResponse(request.Input);
-        _logger.LogInformation($"Response: {response}");
+        logger.LogInformation($"Response: {response}");
 
         await WriteSession(engine);
         return new GameResponse(response!, engine.LocationName, engine.Moves, engine.Score);
@@ -48,7 +31,7 @@ public class ZorkOneController : ControllerBase
     {
         var bytesToEncode = Encoding.UTF8.GetBytes(engine.SaveGame());
         var encodedText = Convert.ToBase64String(bytesToEncode);
-        await _database.WriteSession(_sessionId, encodedText);
+        await sessionRepository.WriteSession(_sessionId, encodedText);
     }
 
     private void RestoreSession(string savedGame, IGameEngine engine)
@@ -60,12 +43,7 @@ public class ZorkOneController : ControllerBase
 
     private async Task<string?> GetSavedSession()
     {
-        var savedGame = await _database.GetSession(_sessionId);
+        var savedGame = await sessionRepository.GetSession(_sessionId);
         return savedGame;
-    }
-
-    private IGameEngine CreateEngine()
-    {
-        return new GameEngine<ZorkI, ZorkIContext>();
     }
 }

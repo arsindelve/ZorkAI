@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Model.AIGeneration.Requests;
 using Model.AIParsing;
 using Model.Intent;
@@ -14,7 +15,7 @@ public class EngineTests : EngineTestsBase
     public void DefaultConstructor()
     {
         Environment.SetEnvironmentVariable("OPEN_AI_KEY", "XYZ");
-        var target = new GameEngine<ZorkI, ZorkIContext>();
+        var target = new GameEngine<ZorkI, ZorkIContext>(Mock.Of<ILogger<EngineTests>>());
 
         target.Should().NotBeNull();
     }
