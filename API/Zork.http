@@ -1,8 +1,8 @@
-﻿POST http://localhost:5000/ZorkOne
+﻿POST https://zork.azurewebsites.net/ZorkOne
 Content-Type: application/json
 
 {
-  "input": "read it"
+  "input": "look"
 }
 
 ###
