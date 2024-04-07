@@ -1,8 +1,0 @@
-﻿POST https://zork.azurewebsites.net/ZorkOne
-Content-Type: application/json
-
-{
-  "input": "clean the kitchen"
-}
-
-###
