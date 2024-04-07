@@ -39,6 +39,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionF
 		docker-compose.yml = docker-compose.yml
 	EndProjectSection
 EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "zorkweb.client", "zorkweb.client\zorkweb.client.esproj", "{F26B8ED7-E39C-426D-BD87-6F9E6987F6BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZorkWeb.Server", "ZorkWeb.Server\ZorkWeb.Server.csproj", "{E129A81A-979F-456C-8E91-28C0B48A758D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +97,14 @@ Global
 		{0BB98F2E-7052-4BE2-819B-FFB749BA006C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BB98F2E-7052-4BE2-819B-FFB749BA006C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BB98F2E-7052-4BE2-819B-FFB749BA006C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F26B8ED7-E39C-426D-BD87-6F9E6987F6BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F26B8ED7-E39C-426D-BD87-6F9E6987F6BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F26B8ED7-E39C-426D-BD87-6F9E6987F6BE}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{F26B8ED7-E39C-426D-BD87-6F9E6987F6BE}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{E129A81A-979F-456C-8E91-28C0B48A758D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E129A81A-979F-456C-8E91-28C0B48A758D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E129A81A-979F-456C-8E91-28C0B48A758D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E129A81A-979F-456C-8E91-28C0B48A758D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0BB98F2E-7052-4BE2-819B-FFB749BA006C} = {0BD81EEF-68B0-4ACA-8E63-63EFC97663F7}
