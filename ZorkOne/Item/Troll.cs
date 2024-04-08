@@ -23,7 +23,7 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor
         : "The troll spits in your face, grunting \"Better luck next time\" in a rather barbarous accent. ";
 
     public string ExaminationDescription => IsUnconscious
-        ? "An unconscious troll is sprawled on the floor. All passages out of the room are open."
+        ? "An unconscious troll is sprawled on the floor. All passages out of the room are open. "
         : !HasItem<BloodyAxe>()
             ? ""
             : "A nasty-looking troll, brandishing a bloody axe, blocks all passages out of the room. ";

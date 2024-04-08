@@ -1,12 +1,7 @@
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import './App.css';
+import {Forecast} from "./Forecast.ts";
 
-interface Forecast {
-    date: string;
-    temperatureC: number;
-    temperatureF: number;
-    summary: string;
-}
 
 function App() {
     const [forecasts, setForecasts] = useState<Forecast[]>();
@@ -40,8 +35,8 @@ function App() {
 
     return (
         <div>
-            <h1 id="tabelLabel">Frobozz forecast</h1>
-            <p>This component demonstrates fetching data from the server.</p>
+            <h1 id="tabelLabel">Frobozz Forecast</h1>
+            <p>What is the weather like this week in our Great Underground Empire?</p>
             {contents}
         </div>
     );

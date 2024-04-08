@@ -150,6 +150,12 @@ public class EngineTestsBase
 
             mockParser.Setup(s => s.DetermineIntentType("take rope", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "rope", OriginalInput = "take rope" });
+            
+            mockParser.Setup(s => s.DetermineIntentType("take bell", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "bell", OriginalInput = "take bell" });
+            
+            mockParser.Setup(s => s.DetermineIntentType("ring bell", It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Verb = "ring", Noun = "bell", OriginalInput = "ring bell" });
 
             mockParser.Setup(s => s.DetermineIntentType("take water", It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "water", OriginalInput = "take water" });

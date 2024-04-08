@@ -1,6 +1,7 @@
 ﻿namespace ZorkOne.Location;
 
-public class Temple : LocationWithNoStartingItems
+// Strangely, this is not a dark location. 
+public class Temple : BaseLocation
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
@@ -12,6 +13,11 @@ public class Temple : LocationWithNoStartingItems
         };
 
     public override string Name => "Temple";
+    
+    public override void Init()
+    {
+       StartWithItem(GetItem<BrassBell>(), this);
+    }
 
     protected override string ContextBasedDescription =>
         "This is the north end of a large temple. On the east wall is an ancient inscription, " +
