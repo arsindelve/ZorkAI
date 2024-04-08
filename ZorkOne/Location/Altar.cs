@@ -1,5 +1,6 @@
 ﻿namespace ZorkOne.Location;
 
+// This is not a dark location either, oddly. 
 public class Altar : BaseLocation
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
@@ -26,5 +27,9 @@ public class Altar : BaseLocation
 
     public override void Init()
     {
+        StartWithItem(GetItem<BlackBook>(), this);
+        StartWithItem(GetItem<Candles>(), this);
+
+        GetItem<Candles>().Lit = true;
     }
 }

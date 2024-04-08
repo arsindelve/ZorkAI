@@ -54,6 +54,7 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         await Do("open trap door", "The door reluctantly opens to reveal a rickety staircase descending into darkness");
         await Do("go down", "The trap door crashes shut", "faint blue glow");
 
+        // For the test we have to take out the randomness and just kill the troll
         Repository.GetItem<Troll>().IsDead = true;
 
         await Do("N", "Bloodstains");
@@ -117,6 +118,20 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         await Do("turn bolt with wrench", "The sluice gates open and water pours through the dam.");
         await Do("drop wrench", "Dropped");
         await Do("S", "Deep Canyon");
+        await Do("go down", "It is unbearably loud here, with an ear-splitting");
+        
+        // Entering the loud room when it's draining will cause us to flee the room in a random 
+        // direction. For the test we need to remove the randomness and end up in the Round Room
+        _target.Context.CurrentLocation = Repository.GetLocation<RoundRoom>();
+        
+        await Do("SE", "There are old engravings on the walls here");
+        await Do("E", "Dome Room");
+        await Do("go down", "Torch Room", "flaming torch, made of ivory.");
+        await Do("take torch", "Taken");
+        await Do("turn off lantern", "The brass lantern is now off.");
+        await Do("S", "Temple", "There is a brass bell here.");
+        await Do("take bell", "Taken");
+        await Do("S", "Altar", "altar are burning candles.", "large black book");
     }
 
     private async Task Do(string input, params string[] outputs)
