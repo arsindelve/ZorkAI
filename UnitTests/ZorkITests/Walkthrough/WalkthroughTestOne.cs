@@ -132,6 +132,9 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         await Do("S", "Temple", "There is a brass bell here.");
         await Do("take bell", "Taken");
         await Do("S", "Altar", "altar are burning candles.", "large black book");
+        await Do("take book", "Taken");
+        await Do("take candles", "Taken");
+        await Do("go down", "Cave");
     }
 
     private async Task Do(string input, params string[] outputs)

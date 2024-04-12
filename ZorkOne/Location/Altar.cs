@@ -6,7 +6,9 @@ public class Altar : BaseLocation
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.N, new MovementParameters { Location = GetLocation<Temple>() } }
+            { Direction.N, new MovementParameters { Location = GetLocation<Temple>() } },
+            // TODO: Baggage limit to go down
+            { Direction.Down, new MovementParameters { Location = GetLocation<Cave>() } }
         };
 
     public override string Name => "Altar";
