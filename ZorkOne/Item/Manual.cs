@@ -8,6 +8,7 @@ public class Manual : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRea
 
     string ICanBeExamined.ExaminationDescription => ((ICanBeRead)this).ReadDescription;
 
+    // TODO: Implement the full text
     string ICanBeRead.ReadDescription => "The piece of paper has some writing on it.";
 
     string ICanBeTakenAndDropped.OnTheGroundDescription => "There is a ZORK owner's manual here. ";

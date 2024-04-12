@@ -60,6 +60,8 @@ public class Cellar : DarkLocation
 
         if (trollIsAlive && swordInPossession)
             return "\nYour sword is glowing with a faint blue glow.";
+        
+        // TODO: Your sword is no longer glowing.
 
         return string.Empty;
     }
