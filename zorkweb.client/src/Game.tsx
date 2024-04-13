@@ -10,8 +10,11 @@ function Game() {
 
     const [playerInput, setInput] = useState<string>("");
     const [gameText, setGameText] = useState<string[]>([])
-
-    const gameContentElement = React.useRef<HTMLUListElement>(null);
+    const [score, setScore] = useState<string>("0")
+    const [moves, setMoves] = useState<string>("0")
+    const [locationName, setLocationName] = useState<string>("");
+    
+    const gameContentElement = React.useRef<HTMLDivElement>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -40,11 +43,15 @@ function Game() {
         mutationFn: gameInput,
         onSuccess: (response) => {
             response.data.response = response.data.response.replace(/\n/g, "<br />");
-            setGameText((prevGameText) => [...prevGameText, response.data.response]);
+
+            let textToAppend = `<hr /><p class="text-indigo-900 font-extrabold mt-3 mb-3">> ${playerInput}</p>`
+                + response.data.response;
+
+            setGameText((prevGameText) => [...prevGameText, textToAppend]);
             setInput("");
-            console.log(response.data.locationName)
-            console.log(response.data.score)
-            console.log(response.data.moves)
+            setLocationName(response.data.locationName)
+            setScore(response.data.score.toString())
+            setMoves(response.data.moves.toString())
         },
     })
 
@@ -59,15 +66,26 @@ function Game() {
     }
 
     return (
-        <Container maxWidth="lg">
-            <Paper elevation={3} className={"m-8"}>
+
+        <Container maxWidth="xl">
+
+            <Paper elevation={2} className={"m-8 "}>
+
+                <div className="flex items-center bg-gray-900 p-3 text-white grid grid-cols-5 gap-4">
+                    <div>{locationName}</div>
+                    <div></div>
+                    <div></div>
+                    <div>Moves: {moves}</div>
+                    <div>Score: {score}</div>
+                </div>
 
                 <Typography style={{fontFamily: 'Roboto'}}>
-                    <ul ref={gameContentElement} className={"p-5 h-[65vh] overflow-auto"}>
+                    <div ref={gameContentElement} className={"p-10 h-[65vh] overflow-auto bg-gray-100"}>
                         {gameText.map((item: string, index: number) => (
-                            <li className={"mb-4"} key={index}>{item}</li>
+                            <p dangerouslySetInnerHTML={{__html: item}} className={"mb-4"} key={index}>
+                            </p>
                         ))}
-                    </ul>
+                    </div>
                 </Typography>
 
                 <div className="flex items-center">

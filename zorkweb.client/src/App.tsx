@@ -7,13 +7,10 @@ function App() {
     const queryClient = new QueryClient()
 
     return (
-        <div>
-
-
+        <div className="bg-[url('./src/assets/black-groove-stripes-repeating-background.jpg')] bg-repeat">
             <div className="flex flex-col min-h-screen">
                 <div className="flex-grow">
-                    <h1 className={"text-3xl m-4"}>Zork AI</h1>
-
+                   
                     <QueryClientProvider client={queryClient}>
                         <Game/>
                     </QueryClientProvider>
