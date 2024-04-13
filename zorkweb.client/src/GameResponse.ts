@@ -1,7 +1,7 @@
 export interface GameResponse {
     score: number,
     moves: number,
-    location: string,
+    locationName: string,
     response: string
 }
 
