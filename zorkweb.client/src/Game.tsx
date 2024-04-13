@@ -5,6 +5,7 @@ import {GameResponse} from "./GameResponse";
 import React, {useEffect, useState} from "react";
 import {Alert, CircularProgress, Container, Paper, Typography} from "@mui/material";
 import '@fontsource/roboto';
+import Header from "./Header.tsx";
 
 function Game() {
 
@@ -13,7 +14,7 @@ function Game() {
     const [score, setScore] = useState<string>("0")
     const [moves, setMoves] = useState<string>("0")
     const [locationName, setLocationName] = useState<string>("");
-    
+
     const gameContentElement = React.useRef<HTMLDivElement>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);
 
@@ -29,7 +30,7 @@ function Game() {
     }, []);
 
     const client = axios.create({
-        baseURL: import.meta.env.VITE_BASE_URL ?? "http://localhost:5223/ZorkOne/"
+        baseURL: "https://zork.azurewebsites.net/ZorkOne/"
     });
 
     const config: AxiosRequestConfig = {
@@ -69,18 +70,12 @@ function Game() {
 
         <Container maxWidth="xl">
 
-            <Paper elevation={2} className={"m-8 "}>
+            <Paper elevation={2} className={"m-8 mt-20 "}>
 
-                <div className="flex items-center bg-gray-900 p-3 text-white grid grid-cols-5 gap-4">
-                    <div>{locationName}</div>
-                    <div></div>
-                    <div></div>
-                    <div>Moves: {moves}</div>
-                    <div>Score: {score}</div>
-                </div>
+                <Header locationName={locationName} moves={moves} score={score}/>
 
                 <Typography style={{fontFamily: 'Roboto'}}>
-                    <div ref={gameContentElement} className={"p-10 h-[65vh] overflow-auto bg-gray-100"}>
+                    <div ref={gameContentElement} className={"p-10 h-[55vh] overflow-auto bg-gray-100"}>
                         {gameText.map((item: string, index: number) => (
                             <p dangerouslySetInnerHTML={{__html: item}} className={"mb-4"} key={index}>
                             </p>
