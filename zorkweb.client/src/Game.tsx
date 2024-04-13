@@ -3,7 +3,8 @@ import {useMutation} from "@tanstack/react-query";
 import {GameRequest} from "./GameRequest";
 import {GameResponse} from "./GameResponse";
 import React, {useEffect, useState} from "react";
-import {Alert, Container, Paper} from "@mui/material";
+import {Alert, CircularProgress, Container, Paper, Typography} from "@mui/material";
+import '@fontsource/roboto';
 
 function Game() {
 
@@ -61,32 +62,29 @@ function Game() {
         <Container maxWidth="lg">
             <Paper elevation={3} className={"m-8"}>
 
-                <ul ref={gameContentElement} className={"p-5 h-[65vh] overflow-auto"}>
-                    {gameText.map((item: string, index: number) => (
-                        <li className={"mb-4"} key={index}>{item}</li>
-                    ))}
-                </ul>
+                <Typography style={{fontFamily: 'Roboto'}}>
+                    <ul ref={gameContentElement} className={"p-5 h-[65vh] overflow-auto"}>
+                        {gameText.map((item: string, index: number) => (
+                            <li className={"mb-4"} key={index}>{item}</li>
+                        ))}
+                    </ul>
+                </Typography>
 
-                <input ref={playerInputElement}
-                       className={"w-full p-4 focus:border-transparent focus:outline-none focus:ring-0"}
-                       value={playerInput} placeholder={"Tell me what to do next"}
-                       onChange={(e) => setInput(e.target.value)}
-                       onKeyDown={handleKeyDown}
+                <div className="flex items-center">
+                    <input ref={playerInputElement}
+                           className={"w-full p-4 focus:border-transparent focus:outline-none focus:ring-0"}
+                           value={playerInput} placeholder={"Tell me what to do next, then press return."}
+                           onChange={(e) => setInput(e.target.value)}
+                           onKeyDown={handleKeyDown}
 
-                ></input>
+                    ></input>
+                    {mutation.isPending && <div className="mr-4"><CircularProgress size={20}/></div>}
 
-                <div>
-                    {mutation.isPending ? (
-                        'Thinking...'
-                    ) : (
-                        <>
-                            {mutation.isError ? (
-                                <Alert variant="filled" severity="error">Something went wrong with your
-                                    request. </Alert>
-                            ) : null}
-                        </>
-                    )}
                 </div>
+
+                {mutation.isError &&
+                    <Alert variant="filled" severity="error">Something went wrong with your
+                        request. </Alert>}
 
             </Paper>
 
