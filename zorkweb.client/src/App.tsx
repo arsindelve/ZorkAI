@@ -1,9 +1,8 @@
 import './App.css';
-import {QueryClient, QueryClientProvider, useMutation, useQuery} from '@tanstack/react-query'
+import {QueryClient, QueryClientProvider, useMutation} from '@tanstack/react-query'
 import axios, {AxiosRequestConfig, AxiosResponse, RawAxiosRequestHeaders} from 'axios';
 import {GameResponse} from "./GameResponse.ts";
 import {GameRequest} from "./GameRequest.ts";
-import {Forecast} from "./Forecast.ts";
 
 
 function App() {
@@ -22,12 +21,6 @@ function App() {
 
     );
 
-    async function populateWeatherData(): Promise<Forecast[]> {
-        const response = await fetch('weatherforecast');
-        return response.json();
-    }
-
-
     function Game() {
 
         const client = axios.create({
@@ -39,9 +32,6 @@ function App() {
                 'Accept': 'application/json',
             } as RawAxiosRequestHeaders,
         };
-
-        // Queries
-        const query = useQuery({queryKey: [], queryFn: populateWeatherData})
 
         // Mutations
         const mutation = useMutation({
@@ -58,40 +48,29 @@ function App() {
 
         return (
             <div>
-                <table className="table table-striped" aria-labelledby="tabelLabel">
-                    <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Temp. (C)</th>
-                        <th>Temp. (F)</th>
-                        <th>Summary</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                    {
-                        query.data?.map(forecast => {
-                                return <tr key={forecast.date}>
-                                    <td>{forecast.date}</td>
-                                    <td>{forecast.temperatureC}</td>
-                                    <td>{forecast.temperatureF}</td>
-                                    <td>{forecast.summary}</td>
-                                </tr>;
-                            }
-                        )}
-                    </tbody>
 
 
-                </table>
-                <p>
-                    <button
-                        onClick={() => {
-                            mutation.mutate(new GameRequest("hello"))
-                        }}
-                    >
-                        Create Shit
-                    </button>
-                </p>
+                <div>
+                    {mutation.isPending ? (
+                        'Adding todo...'
+                    ) : (
+                        <>
+                            {mutation.isError ? (
+                                <div>An error occurred: {mutation.error.message}</div>
+                            ) : null}
+
+                            {mutation.isSuccess ? <div>Todo added!</div> : null}
+
+                            <button
+                                onClick={() => {
+                                    mutation.mutate(new GameRequest("hello"))
+                                }}
+                            >
+                                Create Shit
+                            </button>
+                        </>
+                    )}
+                </div>
             </div>
         )
 
