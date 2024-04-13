@@ -3,6 +3,9 @@ import {useMutation} from "@tanstack/react-query";
 import {GameRequest} from "./GameRequest";
 import {GameResponse} from "./GameResponse";
 import {useState} from "react";
+import {Alert, Button, Container, Paper} from "@mui/material";
+import { TextareaAutosize  } from '@mui/base/TextareaAutosize';
+import React from 'react';
 
 function Game() {
 
@@ -31,39 +34,51 @@ function Game() {
         },
     })
 
+    function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+        if (event.key === 'Enter') {
+            mutation.mutate(new GameRequest(input))
+        }
+    }
+    
     async function gameInput(input: GameRequest): Promise<AxiosResponse<GameResponse>> {
         return await client.post<GameResponse, AxiosResponse>('', input, config);
     }
 
     return (
-        <div>
+        <Container maxWidth="lg">
+            <Paper elevation={3}>
+                <TextareaAutosize className={"w-5/6 m-4"} readOnly={true} value={gameText} minRows={30}/>
 
-            <textarea readOnly={true} value={gameText}></textarea>
+                <input value={input}
+                       onChange={(e) => setInput(e.target.value)}
+                       onKeyDown={handleKeyDown}
 
-            <input value={input}
-                   placeholder="input"
-                   onChange={(e) => setInput(e.target.value)}></input>
+                ></input>
 
-            <div>
-                {mutation.isPending ? (
-                    'Thinking...'
-                ) : (
-                    <>
-                        {mutation.isError ? (
-                            <div>An error occurred: {mutation.error.message}</div>
-                        ) : null}
+                <div>
+                    {mutation.isPending ? (
+                        'Thinking...'
+                    ) : (
+                        <>
+                            {mutation.isError ? (
+                                <Alert variant="filled" severity="error">Something went wrong with your request. </Alert>
+                            ) : null}
 
-                        <button
-                            onClick={() => {
-                                mutation.mutate(new GameRequest(input))
-                            }}
-                        >
-                            Do it.
-                        </button>
-                    </>
-                )}
-            </div>
-        </div>
+                            <Button variant={"contained"}
+                                    onClick={() => {
+                                        mutation.mutate(new GameRequest(input))
+                                    }}
+                            >
+                                Do it.
+                            </Button>
+
+                        </>
+                    )}
+                </div>
+
+            </Paper>
+
+        </Container>
     )
 }
 

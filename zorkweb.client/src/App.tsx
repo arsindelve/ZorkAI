@@ -9,6 +9,8 @@ function App() {
     return (
         <div>
             <QueryClientProvider client={queryClient}>
+                <h1 className={"text-3xl m-4"}>Zork AI</h1>
+             
                 <Game />
             </QueryClientProvider>
         </div>
