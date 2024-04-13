@@ -1,7 +1,7 @@
 import axios, {AxiosRequestConfig, AxiosResponse, RawAxiosRequestHeaders} from "axios";
 import {useMutation} from "@tanstack/react-query";
-import {GameRequest} from "./src/GameRequest";
-import {GameResponse} from "./src/GameResponse";
+import {GameRequest} from "./GameRequest";
+import {GameResponse} from "./GameResponse";
 import {useState} from "react";
 
 function Game() {
@@ -22,8 +22,12 @@ function Game() {
     // Mutations
     const mutation = useMutation({
         mutationFn: gameInput,
-        onSuccess: (data) => {
-            setResponse(response + data.data.response);
+        onSuccess: (response) => {
+            setResponse(response + response.data.response);
+            setInput("");
+            console.log(response.data.location)
+            console.log(response.data.score)
+            console.log(response.data.moves)
         },
     })
 
@@ -38,7 +42,7 @@ function Game() {
     return (
         <div>
 
-            <textarea value={response}></textarea>
+            <textarea readOnly={true} value={response}></textarea>
 
             <input value={input}
                    placeholder="input"
@@ -46,21 +50,19 @@ function Game() {
 
             <div>
                 {mutation.isPending ? (
-                    'Processing...'
+                    'Thinking...'
                 ) : (
                     <>
                         {mutation.isError ? (
                             <div>An error occurred: {mutation.error.message}</div>
                         ) : null}
 
-                        {mutation.isSuccess ? <div>Todo added!</div> : null}
-
                         <button
                             onClick={() => {
                                 mutation.mutate(new GameRequest(input))
                             }}
                         >
-                            Create Shit
+                            Do it.
                         </button>
                     </>
                 )}
