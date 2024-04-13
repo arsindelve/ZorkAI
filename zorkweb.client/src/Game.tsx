@@ -7,7 +7,7 @@ import {useState} from "react";
 function Game() {
 
     const [input, setInput] = useState("");
-    const [response, setResponse] = useState("")
+    const [gameText, setGameText] = useState("")
 
     const client = axios.create({
         baseURL: 'http://localhost:5223/ZorkOne/',
@@ -23,26 +23,22 @@ function Game() {
     const mutation = useMutation({
         mutationFn: gameInput,
         onSuccess: (response) => {
-            setResponse(response + response.data.response);
+            setGameText(gameText + response.data.response);
             setInput("");
-            console.log(response.data.location)
+            console.log(response.data.locationName)
             console.log(response.data.score)
             console.log(response.data.moves)
         },
     })
 
     async function gameInput(input: GameRequest): Promise<AxiosResponse<GameResponse>> {
-        try {
-            return await client.post<GameResponse, AxiosResponse>('', input, config);
-        } catch (e) {
-            throw e;
-        }
+        return await client.post<GameResponse, AxiosResponse>('', input, config);
     }
 
     return (
         <div>
 
-            <textarea readOnly={true} value={response}></textarea>
+            <textarea readOnly={true} value={gameText}></textarea>
 
             <input value={input}
                    placeholder="input"
