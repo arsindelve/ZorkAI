@@ -119,11 +119,11 @@ public sealed class WalkthroughTestOne : EngineTestsBase
         await Do("drop wrench", "Dropped");
         await Do("S", "Deep Canyon");
         await Do("go down", "It is unbearably loud here, with an ear-splitting");
-        
+
         // Entering the loud room when it's draining will cause us to flee the room in a random 
         // direction. For the test we need to remove the randomness and end up in the Round Room
         _target.Context.CurrentLocation = Repository.GetLocation<RoundRoom>();
-        
+
         await Do("SE", "There are old engravings on the walls here");
         await Do("E", "Dome Room");
         await Do("go down", "Torch Room", "flaming torch, made of ivory.");

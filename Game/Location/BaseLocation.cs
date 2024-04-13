@@ -23,8 +23,6 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
 
     public bool IsTransparent => false;
 
-    public abstract string Name { get; }
-
     public List<IItem> Items { get; set; } = new();
 
     public void RemoveItem(IItem item)
@@ -48,6 +46,8 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     public void OnItemPlacedHere(IItem item, IContext context)
     {
     }
+
+    public abstract string Name { get; }
 
     public bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {

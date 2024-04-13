@@ -17,8 +17,7 @@ public interface IContext : ICanHoldItems
 
     public LimitedStack<string> Inputs { get; }
 
-    [JsonIgnore]
-    IGameEngine? Engine { get; set; }
+    [JsonIgnore] IGameEngine? Engine { get; set; }
 
     /// <summary>
     ///     Gets or sets the last noun in the game context.

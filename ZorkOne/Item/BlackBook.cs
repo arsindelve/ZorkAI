@@ -4,6 +4,8 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
 {
     public override string[] NounsForMatching => ["book", "black book"];
 
+    public override string InInventoryDescription => "A black book";
+
     public string ExaminationDescription => """
                                             Commandment #12592
                                              
@@ -17,11 +19,9 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
                                             Surely thou shalt repent of thy cunning.
                                             """;
 
+    public string ReadDescription => ExaminationDescription;
+
     public string OnTheGroundDescription => "There is a black book here. ";
 
     public override string NeverPickedUpDescription => "On the altar is a large black book, open to page 569.";
-
-    public string ReadDescription => ExaminationDescription;
-
-    public override string InInventoryDescription => "A black book";
 }

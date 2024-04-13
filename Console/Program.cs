@@ -2,7 +2,6 @@
 using DynamoDb;
 using Game;
 using Microsoft.Extensions.Logging;
-using Model;
 using ZorkOne;
 
 var database = new SessionRepository();

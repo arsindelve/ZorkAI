@@ -25,12 +25,12 @@ namespace Game;
 public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame : IInfocomGame, new()
     where TContext : IContext, new()
 {
-    private readonly ILogger<GameEngine<TInfocomGame, TContext>>? _logger;
     private readonly AgainProcessor _againProcessor = new();
 
     private readonly IGenerationClient _generator;
     private readonly LimitedStack<(string, string, bool)> _inputOutputs = new();
     private readonly ItProcessor _itProcessor = new();
+    private readonly ILogger<GameEngine<TInfocomGame, TContext>>? _logger;
     private readonly IIntentParser _parser;
     private readonly string _sessionId = Guid.NewGuid().ToString();
 
@@ -72,25 +72,25 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     public GameEngine(IIntentParser parser, IGenerationClient generationClient)
     {
         Repository.Reset();
-    
+
         Context = new TContext
         {
             Engine = this
         };
-        
+
         IntroText = string.Empty;
         _parser = parser;
         _generator = generationClient;
     }
 
     // ReSharper disable once MemberCanBePrivate.Global
-    public List<ITurnBasedActor> Actors { get; set;  } = new();
+    public List<ITurnBasedActor> Actors { get; set; } = new();
 
     public string LocationName => Context.CurrentLocation.Name;
 
     public IContext RestoreGame(string data)
     {
-        SavedGame<TContext>? deserializeObject = JsonConvert.DeserializeObject<SavedGame<TContext>>(data, JsonSettings());
+        var deserializeObject = JsonConvert.DeserializeObject<SavedGame<TContext>>(data, JsonSettings());
         var allItems = deserializeObject?.AllItems ?? throw new ArgumentException();
         var allLocations = deserializeObject.AllLocations ?? throw new ArgumentException();
 

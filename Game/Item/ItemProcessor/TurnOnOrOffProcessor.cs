@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Game.StaticCommand.Implementation;
 using Model.AIGeneration;
 using Model.Item;
@@ -132,7 +131,7 @@ public class TurnOnOrOffProcessor : IVerbProcessor
 
         if (!string.IsNullOrEmpty(item.CannotBeTurnedOnText))
             return new PositiveInteractionResult(item.CannotBeTurnedOnText);
-        
+
         item.IsOn = true;
         item.OnBeingTurnedOn(context);
 

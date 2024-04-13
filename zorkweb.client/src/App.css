@@ -1,3 +1,7 @@
 ﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.input {
+    @apply focus:border-none;
+}

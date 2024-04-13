@@ -3,9 +3,9 @@ interface IGameRequest {
 }
 
 export class GameRequest implements IGameRequest {
-    
+
     input: string;
-    
+
     constructor(input: string) {
         this.input = input;
 

@@ -13,13 +13,6 @@ public interface IGameEngine
     int Moves { get; }
 
     /// <summary>
-    /// Retrieves the game engine's response based on the player's input.
-    /// </summary>
-    /// <param name="playerInput">The player's input.</param>
-    /// <returns>The game engine's response as a string.</returns>
-    Task<string?> GetResponse(string? playerInput);
-
-    /// <summary>
     ///     Represents the score of a game.
     /// </summary>
     /// <remarks>
@@ -33,6 +26,13 @@ public interface IGameEngine
     ///     Represents the name of the location in the game.
     /// </summary>
     string LocationName { get; }
+
+    /// <summary>
+    ///     Retrieves the game engine's response based on the player's input.
+    /// </summary>
+    /// <param name="playerInput">The player's input.</param>
+    /// <returns>The game engine's response as a string.</returns>
+    Task<string?> GetResponse(string? playerInput);
 
     /// <summary>
     ///     Restores a game from the provided data.

@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Model.AIGeneration.Requests;
 using Model.AIParsing;
 using Model.Intent;
