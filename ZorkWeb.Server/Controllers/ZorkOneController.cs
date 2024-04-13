@@ -16,7 +16,8 @@ public class ZorkOneController(
 
     [HttpPost]
     public async Task<GameResponse> Index([FromBody] GameRequest request)
-    { var savedSession = await GetSavedSession();
+    {
+        var savedSession = await GetSavedSession();
         if (!string.IsNullOrEmpty(savedSession)) RestoreSession(savedSession);
 
         logger.LogInformation($"Request: {request.Input}");
