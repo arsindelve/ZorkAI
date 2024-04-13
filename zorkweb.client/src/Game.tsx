@@ -25,7 +25,7 @@ function Game() {
     }, []);
 
     const client = axios.create({
-        baseURL: 'http://localhost:5223/ZorkOne/',
+        baseURL: import.meta.env.VITE_BASE_URL
     });
 
     const config: AxiosRequestConfig = {
@@ -38,6 +38,7 @@ function Game() {
     const mutation = useMutation({
         mutationFn: gameInput,
         onSuccess: (response) => {
+            response.data.response = response.data.response.replace(/\n/g, "<br />");
             setGameText((prevGameText) => [...prevGameText, response.data.response]);
             setInput("");
             console.log(response.data.locationName)
@@ -60,7 +61,7 @@ function Game() {
         <Container maxWidth="lg">
             <Paper elevation={3} className={"m-8"}>
 
-                <ul ref={gameContentElement} className={"p-5 h-[75vh] overflow-auto"}>
+                <ul ref={gameContentElement} className={"p-5 h-[65vh] overflow-auto"}>
                     {gameText.map((item: string, index: number) => (
                         <li className={"mb-4"} key={index}>{item}</li>
                     ))}
