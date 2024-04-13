@@ -6,9 +6,10 @@ export default {
     mode: 'jit',
     variants: {
         extend: {
-            borderColor: ['focus'],
-            boxShadow: ['focus'],
-            outline: ['focus'],
+
+            backgroundRepeat: {
+                'repeat': 'repeat',
+            },
         },
     },
     theme: {
