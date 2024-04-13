@@ -15,7 +15,7 @@ public interface ICanBeTurnedOnAndOff : IInteractionTarget
 
     public string AlreadyOnText { get; }
 
-    string? CannotBeTurnedOnText { get;}
+    string? CannotBeTurnedOnText { get; }
 
     void OnBeingTurnedOn(IContext context);
 

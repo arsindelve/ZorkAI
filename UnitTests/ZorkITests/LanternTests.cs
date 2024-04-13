@@ -53,7 +53,7 @@ public class LanternTests : EngineTestsBase
 
         response.Should().Contain("dimmer");
     }
-    
+
     [Test]
     public async Task GetWarningAtThreeHundredTurns()
     {
@@ -72,7 +72,7 @@ public class LanternTests : EngineTestsBase
 
         response.Should().Contain("definitely dimmer");
     }
-    
+
     [Test]
     public async Task GetWarningAtThreeHundredSeventyTurns()
     {
@@ -91,7 +91,7 @@ public class LanternTests : EngineTestsBase
 
         response.Should().Contain("nearly out");
     }
-    
+
     [Test]
     public async Task LanternBusted()
     {
@@ -107,7 +107,7 @@ public class LanternTests : EngineTestsBase
             await target.GetResponse("wait");
 
         target.Context.HasLightSource.Should().BeFalse();
-        
+
         var response = await target.GetResponse("turn on lantern");
         response.Should().Contain("A burned-out lamp won't light");
         lantern.IsOn.Should().BeFalse();

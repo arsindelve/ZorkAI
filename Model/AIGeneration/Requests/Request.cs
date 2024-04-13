@@ -17,7 +17,7 @@ public abstract class Request
         "or reveal any hints about the game. If " +
         "the player references any contemporary ideas, people or objects, remind them that this is a " +
         "fantasy game. ";
-     
+
     public string? SystemMessage { get; protected init; }
 
     public virtual string? UserMessage { get; protected init; }

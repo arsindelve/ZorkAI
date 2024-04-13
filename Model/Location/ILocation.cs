@@ -15,8 +15,8 @@ public interface ILocation
     /// </summary>
     string DescriptionForGeneration { get; }
 
-    string Name { get; } 
-    
+    string Name { get; }
+
     /// <summary>
     ///     Gets called the first time a location is referenced.
     /// </summary>

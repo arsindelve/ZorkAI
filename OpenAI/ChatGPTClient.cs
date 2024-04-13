@@ -11,8 +11,8 @@ namespace OpenAI;
 /// </summary>
 public class ChatGPTClient : IGenerationClient
 {
-    private readonly ILogger? _logger;
     private readonly OpenAIClient _client;
+    private readonly ILogger? _logger;
 
     public ChatGPTClient(ILogger? logger)
     {
