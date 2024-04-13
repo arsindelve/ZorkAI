@@ -24,6 +24,10 @@ if (app.Environment.IsDevelopment())
     Env.Load("../.env");
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseCors(b => b
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader());   
 }
 
 app.UseHttpsRedirection();
