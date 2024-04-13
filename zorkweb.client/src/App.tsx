@@ -1,15 +1,19 @@
 import './App.css';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import Game from "./Game.tsx";
+import GameMenu from "./GameMenu.tsx";
 
 function App() {
 
     const queryClient = new QueryClient()
 
     return (
-        <div className="bg-[url('./src/assets/black-groove-stripes-repeating-background.jpg')] bg-repeat">
+        <div
+            className="bg-[url('https://zorkai-assets.s3.amazonaws.com/black-groove-stripes-repeating-background.jpg')] bg-repeat">
             <div className="flex flex-col min-h-screen">
                 <div className="flex-grow">
+
+                    <GameMenu/>
 
                     <QueryClientProvider client={queryClient}>
                         <Game/>

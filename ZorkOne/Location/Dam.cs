@@ -1,4 +1,5 @@
-﻿using Model.Intent;
+﻿using Model.AIGeneration;
+using Model.Intent;
 
 namespace ZorkOne.Location;
 
@@ -26,6 +27,14 @@ public class Dam : BaseLocation
     public override void Init()
     {
         StartWithItem(GetItem<ControlPanel>(), this);
+    }
+
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client)
+    {
+        if (action.Verb.ToLowerInvariant() == "turn" && action.Noun?.ToLowerInvariant() == "bolt")
+            return new PositiveInteractionResult("Your bare hands don't appear to be enough.");
+        
+        return base.RespondToSimpleInteraction(action, context, client);
     }
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
