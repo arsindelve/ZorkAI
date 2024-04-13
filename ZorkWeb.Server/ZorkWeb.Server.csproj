@@ -27,4 +27,10 @@
         </ProjectReference>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="assets\src\assets\black-groove-stripes-repeating-background.jpg">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
