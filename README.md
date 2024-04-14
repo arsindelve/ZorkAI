@@ -1,19 +1,16 @@
-# ****All the greatness of the original Zork, but enhanced with AI text parsing and generation.****
+# ****All the greatness of the original Zork, enhanced with AI ****
 
-I LOVED Infocom games. In my youth, they gave me hours of intelligent entertainment, and began my love of personal
+I LOVED Infocom games. In my youth, they gave me hours of entertainment, and began my love of personal
 computing. I still collect and play the games, but I wanted to do something to enhance and expand those games for a new generation of players. What
 could I do to make those games feel richer, deeper and more alive?
 
 Although there are fully AI generated dungeons and interactive fiction stories, that wasn't what I was looking for. I
-don't want NEW games; I want to preserve all the settings, locations,
-story, humor and puzzles of Zork, but use AI
+don't want NEW games; I want to preserve all the settings, locations, story, humor and puzzles of Zork, but use AI
 to make the interactivity much deeper. I want an intelligent text parser, and a "smart" narrator that understands
-everything you type.
-If your command moves the story forward, or changes the state of the game, then I want to preserve the original story.
-If not,
-the AI Narrator should give you a meaningful, funny response that keeps you immersed in the Great Underground Empire
+everything you type. If your command moves the story forward, or changes the state of the game, then I want to preserve the original story.
+If not, the AI Narrator should give you a meaningful, funny response that keeps you immersed in the Great Underground Empire.
 
-I've written a brand new Interactive Fiction Engine in C#, with corresponding C# game files for the first 50%
+I've written a brand new Interactive Fiction Engine in C#, with corresponding C# game files for the first approximately 50%
 of Zork I. I've also included the first location of Zork II to show the separation between the game engine and the
 game files themselves. Ideally, this engine could be used to implement any first-generation Infocom game with minimal or no tweaking. 
 
@@ -35,7 +32,8 @@ The game is fully mobile responsive, so feel free to try it on your phone or tab
 - Ride the dragon
 - This game is dumb
 - I want to have dinner with George Bush
-- Fly away to Canada. 
+- Fly away to Canada.
+- Tell me how nuclear fission works
 
 In every case, the AI never breaks character as your exasperated fantasy game narrator, sarcastically guiding you through your adventure in the Great Underground Empire. 
 
