@@ -3,7 +3,7 @@ import {useMutation} from "@tanstack/react-query";
 import {GameRequest} from "./GameRequest";
 import {GameResponse} from "./GameResponse";
 import React, {useEffect, useState} from "react";
-import {Alert, CircularProgress, Container, Paper, Typography} from "@mui/material";
+import {Alert, CircularProgress} from "@mui/material";
 import '@fontsource/roboto';
 import Header from "./Header.tsx";
 
@@ -30,7 +30,7 @@ function Game() {
     }, []);
 
     const client = axios.create({
-        baseURL: "https://zork.azurewebsites.net/ZorkOne/"
+        baseURL: import.meta.env.VITE_BASE_URL
     });
 
     const config: AxiosRequestConfig = {
@@ -45,7 +45,7 @@ function Game() {
         onSuccess: (response) => {
             response.data.response = response.data.response.replace(/\n/g, "<br />");
 
-            let textToAppend = `<hr /><p class="text-indigo-900 font-extrabold mt-3 mb-3">> ${playerInput}</p>`
+            let textToAppend = `<p class="text-lime-600 font-extrabold mt-3 mb-3">> ${playerInput}</p>`
                 + response.data.response;
 
             setGameText((prevGameText) => [...prevGameText, textToAppend]);
@@ -67,41 +67,38 @@ function Game() {
     }
 
     return (
+        
+        <div className={"m-12"}>
 
-        <Container maxWidth="xl">
+            <Header locationName={locationName} moves={moves} score={score}/>
 
-            <Paper elevation={2} className={"m-8 mt-20 "}>
+            <div ref={gameContentElement} className={"p-12 h-[65vh] overflow-auto bg-stone-900"}>
+                {gameText.map((item: string, index: number) => (
+                    <p dangerouslySetInnerHTML={{__html: item}} className={"mb-4"} key={index}>
+                    </p>
+                ))}
+            </div>
 
-                <Header locationName={locationName} moves={moves} score={score}/>
 
-                <Typography style={{fontFamily: 'Roboto'}}>
-                    <div ref={gameContentElement} className={"p-10 h-[55vh] overflow-auto bg-gray-100"}>
-                        {gameText.map((item: string, index: number) => (
-                            <p dangerouslySetInnerHTML={{__html: item}} className={"mb-4"} key={index}>
-                            </p>
-                        ))}
-                    </div>
-                </Typography>
+            <div className="flex items-center bg-neutral-700">
+                <input ref={playerInputElement} readOnly={mutation.isPending}
+                       className={"w-full p-4 focus:border-transparent focus:outline-none focus:ring-0 bg-neutral-700"}
+                       value={playerInput} placeholder={"Tell me what you want to do next, then press return."}
+                       onChange={(e) => setInput(e.target.value)}
+                       onKeyDown={handleKeyDown}
 
-                <div className="flex items-center">
-                    <input ref={playerInputElement}
-                           className={"w-full p-4 focus:border-transparent focus:outline-none focus:ring-0"}
-                           value={playerInput} placeholder={"Tell me what to do next, then press return."}
-                           onChange={(e) => setInput(e.target.value)}
-                           onKeyDown={handleKeyDown}
+                ></input>
 
-                    ></input>
-                    {mutation.isPending && <div className="mr-4"><CircularProgress size={20}/></div>}
+                {mutation.isPending && <div className="mr-4 bg-neutral-700"><CircularProgress size={25}/></div>}
 
-                </div>
+            </div>
 
-                {mutation.isError &&
-                    <Alert variant="filled" severity="error">Something went wrong with your
-                        request. </Alert>}
+            {mutation.isError &&
+                <Alert variant="filled" severity="error">Something went wrong with your
+                    request. </Alert>}
 
-            </Paper>
-
-        </Container>
+        </div>
+        
     )
 }
 
