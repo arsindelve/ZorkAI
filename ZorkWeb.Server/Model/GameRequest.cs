@@ -1,3 +1,3 @@
 namespace ZorkWeb.Server.Model;
 
-public record GameRequest(string Input);
+public record GameRequest(string Input, string SessionId);

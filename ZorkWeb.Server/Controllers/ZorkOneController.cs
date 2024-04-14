@@ -12,27 +12,39 @@ public class ZorkOneController(
     ISessionRepository sessionRepository)
     : ControllerBase
 {
-    private readonly string _sessionId = Environment.MachineName;
-
     [HttpPost]
     public async Task<GameResponse> Index([FromBody] GameRequest request)
     {
-        var savedSession = await GetSavedSession();
+        var savedSession = await GetSavedSession(request.SessionId);
         if (!string.IsNullOrEmpty(savedSession)) RestoreSession(savedSession);
 
         logger.LogInformation($"Request: {request.Input}");
         var response = await engine.GetResponse(request.Input);
         logger.LogInformation($"Response: {response}");
 
-        await WriteSession();
+        await WriteSession(request.SessionId);
         return new GameResponse(response!, engine.LocationName, engine.Moves, engine.Score);
     }
 
-    private async Task WriteSession()
+    [HttpGet]
+    public async Task<GameResponse> Index([FromQuery] string sessionId)
+    {
+        var savedSession = await GetSavedSession(sessionId);
+        if (!string.IsNullOrEmpty(savedSession))
+        {
+            RestoreSession(savedSession);
+            var response = await engine.GetResponse("look");
+            return new GameResponse(response!, engine.LocationName, engine.Moves, engine.Score);
+        }
+        
+        return new GameResponse(engine.IntroText, engine.LocationName, engine.Moves, engine.Score);
+    }
+
+    private async Task WriteSession(string sessionId)
     {
         var bytesToEncode = Encoding.UTF8.GetBytes(engine.SaveGame());
         var encodedText = Convert.ToBase64String(bytesToEncode);
-        await sessionRepository.WriteSession(_sessionId, encodedText);
+        await sessionRepository.WriteSession(sessionId, encodedText);
     }
 
     private void RestoreSession(string savedGame)
@@ -42,9 +54,9 @@ public class ZorkOneController(
         engine.RestoreGame(decodedText);
     }
 
-    private async Task<string?> GetSavedSession()
+    private async Task<string?> GetSavedSession(string sessionId)
     {
-        var savedGame = await sessionRepository.GetSession(_sessionId);
+        var savedGame = await sessionRepository.GetSession(sessionId);
         return savedGame;
     }
 }

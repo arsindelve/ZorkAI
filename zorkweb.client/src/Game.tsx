@@ -6,6 +6,7 @@ import React, {useEffect, useState} from "react";
 import {Alert, CircularProgress} from "@mui/material";
 import '@fontsource/roboto';
 import Header from "./Header.tsx";
+import {SessionId} from "./SessionId.ts";
 
 function Game() {
 
@@ -14,6 +15,8 @@ function Game() {
     const [score, setScore] = useState<string>("0")
     const [moves, setMoves] = useState<string>("0")
     const [locationName, setLocationName] = useState<string>("");
+
+    const sessionId = new SessionId();
 
     const gameContentElement = React.useRef<HTMLDivElement>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);
@@ -39,35 +42,48 @@ function Game() {
         } as RawAxiosRequestHeaders,
     };
 
-    // Mutations
+    // const { data, isError, isLoading }: UseQueryResult<AxiosResponse<GameResponse>> = useQuery({ queryKey: ['gameInit'], queryFn: gameInit });
+
+    function handleResponse(data: GameResponse) {
+
+        // Replace newline chars with HTML line breaks. 
+        data.response = data.response.replace(/\n/g, "<br />");
+
+        let textToAppend = `<p class="text-lime-600 font-extrabold mt-3 mb-3">> ${playerInput}</p>`
+            + data.response;
+
+        setGameText((prevGameText) => [...prevGameText, textToAppend]);
+        setInput("");
+        setLocationName(data.locationName)
+        setScore(data.score.toString())
+        setMoves(data.moves.toString())
+    }
+
     const mutation = useMutation({
         mutationFn: gameInput,
         onSuccess: (response) => {
-            response.data.response = response.data.response.replace(/\n/g, "<br />");
-
-            let textToAppend = `<p class="text-lime-600 font-extrabold mt-3 mb-3">> ${playerInput}</p>`
-                + response.data.response;
-
-            setGameText((prevGameText) => [...prevGameText, textToAppend]);
-            setInput("");
-            setLocationName(response.data.locationName)
-            setScore(response.data.score.toString())
-            setMoves(response.data.moves.toString())
+            handleResponse(response.data);
         },
     })
 
     function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
         if (event.key === 'Enter') {
-            mutation.mutate(new GameRequest(playerInput))
+            mutation.mutate(new GameRequest(playerInput, sessionId.getSessionId()))
         }
     }
+
+    async function gameInit(): Promise<AxiosResponse<GameResponse>> {
+        const {data} = await axios.get<GameResponse, AxiosResponse>("?sessionId=" + sessionId.getSessionId());
+        return data;
+    }
+
 
     async function gameInput(input: GameRequest): Promise<AxiosResponse<GameResponse>> {
         return await client.post<GameResponse, AxiosResponse>('', input, config);
     }
 
     return (
-        
+
         <div className={"m-12"}>
 
             <Header locationName={locationName} moves={moves} score={score}/>
@@ -98,7 +114,7 @@ function Game() {
                     request. </Alert>}
 
         </div>
-        
+
     )
 }
 
