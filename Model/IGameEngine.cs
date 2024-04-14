@@ -27,6 +27,8 @@ public interface IGameEngine
     /// </summary>
     string LocationName { get; }
 
+    string IntroText { get; }
+
     /// <summary>
     ///     Retrieves the game engine's response based on the player's input.
     /// </summary>

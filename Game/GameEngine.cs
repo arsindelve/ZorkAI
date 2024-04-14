@@ -34,7 +34,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     private readonly IIntentParser _parser;
     private readonly string _sessionId = Guid.NewGuid().ToString();
 
-    public readonly string IntroText;
+    public string IntroText { get; }
 
     private string? _currentInput;
     private bool _lastResponseWasGenerated;
