@@ -1,4 +1,4 @@
-# ****All the greatness of the original Zork, enhanced with AI ****
+# All the greatness of the original Zork, enhanced with AI 
 
 I LOVED Infocom games. In my youth, they gave me hours of entertainment, and began my love of personal
 computing. I still collect and play the games, but I wanted to do something to enhance and expand those games for a new generation of players. What
