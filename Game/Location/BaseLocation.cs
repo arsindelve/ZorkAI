@@ -132,6 +132,9 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     /// </returns>
     public MovementParameters? Navigate(Direction direction)
     {
+        if (Map is null)
+            throw new Exception($"Location {Name} has a null map");
+
         return Map.ContainsKey(direction) ? Map[direction] : null;
     }
 
