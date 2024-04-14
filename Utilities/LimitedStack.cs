@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace Utilities;
 
 /// <summary>
@@ -8,6 +10,8 @@ namespace Utilities;
 public class LimitedStack<T>
 {
     private const int MaxCount = 5;
+    
+    [JsonProperty]
     private readonly LinkedList<T> _list = new();
 
     public void Push(T item)

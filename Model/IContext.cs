@@ -15,7 +15,7 @@ public interface IContext : ICanHoldItems
     /// </summary>
     int Score { get; }
 
-    public LimitedStack<string> Inputs { get; }
+    public LimitedStack<string> Inputs { get; set; }
 
     [JsonIgnore] IGameEngine? Engine { get; set; }
 
@@ -96,4 +96,9 @@ public interface IContext : ICanHoldItems
     /// </summary>
     /// <param name="actor">The actor to be removed.</param>
     void RemoveActor(ITurnBasedActor actor);
+
+    /// <summary>
+    /// Represents a collection of currently-active turn-based actors in the game.
+    /// </summary>
+    public List<ITurnBasedActor> Actors { get; set; }
 }
