@@ -21,9 +21,8 @@ function App() {
 
                 </div>
                 <footer className="bg-gray-200 py-2">
-                    <p className={"text-center text-black"}>Created
-                        By Mike in Dallas. <a target="_blank" href="https://github.com/arsindelve/ZorkAI">Check out the
-                            GitHub repository here.</a></p>
+                    <p className={"text-center text-black"}> <a target="_blank" href="https://github.com/arsindelve/ZorkAI">Created
+                        By Mike in Dallas.Check out the repository.</a></p>
                 </footer>
             </div>
         </div>

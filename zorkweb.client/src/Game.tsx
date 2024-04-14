@@ -91,12 +91,12 @@ function Game() {
 
     return (
 
-        <div className={"m-12"}>
+        <div className={"m-8"}>
 
             <WelcomeDialog open={welcomeDialogOpen} handleClose={handleWelcomeDialogClose}/>
             <Header locationName={locationName} moves={moves} score={score}/>
 
-            <div ref={gameContentElement} className={"p-12 h-[65vh] overflow-auto bg-stone-900"}>
+            <div ref={gameContentElement} className={"p-12 h-[65vh] overflow-auto bg-stone-900 font-mono"}>
                 {gameText.map((item: string, index: number) => (
                     <p dangerouslySetInnerHTML={{__html: item}} className={"mb-4"} key={index}>
                     </p>
