@@ -1,12 +1,16 @@
 ﻿export class SessionId {
 
     // Method
-    getSessionId(): string {
+    getSessionId(): [string, boolean] {
+        
+        let firstTime: boolean = false;
+        
         if (!localStorage.getItem("SessionId")) {
+            firstTime = true;
             localStorage.setItem("SessionId", this.generateRandomString());
         }
 
-        return localStorage.getItem("SessionId")!
+        return [localStorage.getItem("SessionId")!, firstTime];
     }
     generateRandomString(): string {
         let randomString = '';

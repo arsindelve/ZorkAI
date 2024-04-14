@@ -78,7 +78,7 @@ public class TrollRoom : DarkLocation
                 return base.RespondToMultiNounInteraction(action, context);
 
             if (nounTwo.CurrentLocation != context)
-                return new PositiveInteractionResult($"You don't have the {nounTwo.Name}");
+                return new PositiveInteractionResult($"You don't have the {nounTwo.Name}. ");
         }
 
         if (!verbs.Contains(action.Verb.ToLowerInvariant().Trim()))

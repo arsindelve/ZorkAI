@@ -1,7 +1,7 @@
 namespace Model;
 
 /// <summary>
-///     Represents an actor that can perform actions when present in the room with you.
+///     Represents an actor that can perform actions, even when you are in another location. 
 ///     For example, the troll (who will attack you as long as it is alive)
 ///     or Floyd, (who has a chance of saying something funny).
 /// </summary>

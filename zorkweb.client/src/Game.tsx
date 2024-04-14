@@ -1,4 +1,3 @@
-import axios, {AxiosRequestConfig, AxiosResponse, RawAxiosRequestHeaders} from "axios";
 import {useMutation} from "@tanstack/react-query";
 import {GameRequest} from "./GameRequest";
 import {GameResponse} from "./GameResponse";
@@ -7,6 +6,8 @@ import {Alert, CircularProgress} from "@mui/material";
 import '@fontsource/roboto';
 import Header from "./Header.tsx";
 import {SessionId} from "./SessionId.ts";
+import WelcomeDialog from "./WelcomeModal.tsx";
+import Server from './Server';
 
 function Game() {
 
@@ -15,41 +16,42 @@ function Game() {
     const [score, setScore] = useState<string>("0")
     const [moves, setMoves] = useState<string>("0")
     const [locationName, setLocationName] = useState<string>("");
+    const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
 
     const sessionId = new SessionId();
+    const server = new Server();
 
     const gameContentElement = React.useRef<HTMLDivElement>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);
 
+    // Scroll to the bottom of the container after we add text. 
     useEffect(() => {
         if (gameContentElement.current) {
             gameContentElement.current.scrollTop = gameContentElement.current.scrollHeight;
         }
     }, [gameText]);
 
+    // Set focus to the input box on load. 
     useEffect(() => {
         if (playerInputElement.current)
             playerInputElement.current.focus();
     }, []);
 
-    const client = axios.create({
-        baseURL: import.meta.env.VITE_BASE_URL
-    });
+    // Load the initial text, either from the new session, or loading their old session. 
+    useEffect(() => {
+        gameInit().then((data) => {
+            handleResponse(data);
+        })
+    }, []);
 
-    const config: AxiosRequestConfig = {
-        headers: {
-            'Accept': 'application/json',
-        } as RawAxiosRequestHeaders,
-    };
-
-    // const { data, isError, isLoading }: UseQueryResult<AxiosResponse<GameResponse>> = useQuery({ queryKey: ['gameInit'], queryFn: gameInit });
 
     function handleResponse(data: GameResponse) {
 
         // Replace newline chars with HTML line breaks. 
         data.response = data.response.replace(/\n/g, "<br />");
 
-        let textToAppend = `<p class="text-lime-600 font-extrabold mt-3 mb-3">> ${playerInput}</p>`
+        let textToAppend = `<p class="text-lime-600 font-extrabold mt-3 mb-3">`
+            + (!playerInput ? "" : `> ${playerInput}`) + `</p>`
             + data.response;
 
         setGameText((prevGameText) => [...prevGameText, textToAppend]);
@@ -60,32 +62,38 @@ function Game() {
     }
 
     const mutation = useMutation({
-        mutationFn: gameInput,
+        mutationFn: server.gameInput,
         onSuccess: (response) => {
             handleResponse(response.data);
         },
+        onError: (r => {
+            console.log(r);
+        })
     })
 
     function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
         if (event.key === 'Enter') {
-            mutation.mutate(new GameRequest(playerInput, sessionId.getSessionId()))
+            const [id] = sessionId.getSessionId()
+            mutation.mutate(new GameRequest(playerInput, id))
         }
     }
 
-    async function gameInit(): Promise<AxiosResponse<GameResponse>> {
-        const {data} = await axios.get<GameResponse, AxiosResponse>("?sessionId=" + sessionId.getSessionId());
-        return data;
-    }
 
+    const handleWelcomeDialogClose = () => {
+        setWelcomeDialogOpen(false);
+    };
 
-    async function gameInput(input: GameRequest): Promise<AxiosResponse<GameResponse>> {
-        return await client.post<GameResponse, AxiosResponse>('', input, config);
+    async function gameInit(): Promise<GameResponse> {
+        const [id, firstTime] = sessionId.getSessionId()
+        setWelcomeDialogOpen(firstTime);
+        return await server.gameInit(id)
     }
 
     return (
 
         <div className={"m-12"}>
 
+            <WelcomeDialog open={welcomeDialogOpen} handleClose={handleWelcomeDialogClose}/>
             <Header locationName={locationName} moves={moves} score={score}/>
 
             <div ref={gameContentElement} className={"p-12 h-[65vh] overflow-auto bg-stone-900"}>
@@ -94,7 +102,6 @@ function Game() {
                     </p>
                 ))}
             </div>
-
 
             <div className="flex items-center bg-neutral-700">
                 <input ref={playerInputElement} readOnly={mutation.isPending}
