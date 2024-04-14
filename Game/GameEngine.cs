@@ -83,9 +83,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         _generator = generationClient;
     }
 
-    // ReSharper disable once MemberCanBePrivate.Global
-    public List<ITurnBasedActor> Actors { get; set; } = new();
-
     public string LocationName => Context.CurrentLocation.Name;
 
     public IContext RestoreGame(string data)
@@ -108,16 +105,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         var savedGame = Repository.Save<TContext>();
         savedGame.Context = Context;
         return JsonConvert.SerializeObject(savedGame, JsonSettings());
-    }
-
-    public void RegisterActor(ITurnBasedActor actor)
-    {
-        Actors.Add(actor);
-    }
-
-    public void RemoveActor(ITurnBasedActor actor)
-    {
-        Actors.Remove(actor);
     }
 
     public int Moves => Context.Moves;
@@ -232,10 +219,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
     private string ProcessActors()
     {
-        // There are location actors and context actors. 
-        //var actors = Context.CurrentLocation.GetActors().Union(Context.GetActors());
         var actorResults = string.Empty;
-        foreach (var actor in Actors.ToList())
+        foreach (var actor in Context.Actors.ToList())
             actorResults += $"\n{actor.Act(Context)}";
 
         return actorResults;

@@ -46,20 +46,4 @@ public interface IGameEngine
     /// </summary>
     /// <returns>The serialized game data.</returns>
     string SaveGame();
-
-    /// <summary>
-    ///     Registers an actor with the game engine. Until the actor
-    ///     is removed, it will act every turn.
-    /// </summary>
-    /// <param name="actor">The actor to be registered.</param>
-    // TODO: This method should not be on the public interface. I hate it being here. 
-    void RegisterActor(ITurnBasedActor actor);
-
-    /// <summary>
-    ///     Removes an actor from the game engine. Once removed,
-    ///     the actor will no longer act every turn.
-    /// </summary>
-    /// <param name="actor">The actor to be removed.</param>
-    // TODO: This method should not be on the public interface. I hate it being here. 
-    void RemoveActor(ITurnBasedActor actor);
 }

@@ -27,6 +27,8 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         Moves = 0;
     }
 
+    public List<ITurnBasedActor> Actors { get; set; } = new();
+    
     /// <summary>
     ///     Constructor for unit testing
     /// </summary>
@@ -40,7 +42,7 @@ public class Context<T> : IContext where T : IInfocomGame, new()
 
     private T GameType { get; set; }
 
-    public LimitedStack<string> Inputs { get; } = new();
+    public LimitedStack<string> Inputs { get; set; } = new();
 
     [JsonIgnore] public IGameEngine? Engine { get; set; }
 
@@ -217,11 +219,11 @@ public class Context<T> : IContext where T : IInfocomGame, new()
 
     public void RegisterActor(ITurnBasedActor actor)
     {
-        Engine?.RegisterActor(actor);
+        Actors.Add(actor);
     }
 
     public void RemoveActor(ITurnBasedActor actor)
     {
-        Engine?.RemoveActor(actor);
+        Actors.Remove(actor);
     }
 }
