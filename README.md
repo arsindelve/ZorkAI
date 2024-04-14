@@ -1,10 +1,8 @@
 # ****All the greatness of the original Zork, but enhanced with AI text parsing and generation.****
 
 I LOVED Infocom games. In my youth, they gave me hours of intelligent entertainment, and began my love of personal
-computing. I still collect
-and play the games, but I wanted to do something to enhance and expand those games for a new generation of players. What
-could
-I do to make those games feel richer, deeper and more alive?
+computing. I still collect and play the games, but I wanted to do something to enhance and expand those games for a new generation of players. What
+could I do to make those games feel richer, deeper and more alive?
 
 Although there are fully AI generated dungeons and interactive fiction stories, that wasn't what I was looking for. I
 don't want NEW games; I want to preserve all the settings, locations,
@@ -15,29 +13,68 @@ If your command moves the story forward, or changes the state of the game, then 
 If not,
 the AI Narrator should give you a meaningful, funny response that keeps you immersed in the Great Underground Empire
 
-I've written a brand new Interactive Fiction Engine in C#, with corresponding C# game files for the first 30%
+I've written a brand new Interactive Fiction Engine in C#, with corresponding C# game files for the first 50%
 of Zork I. I've also included the first location of Zork II to show the separation from the game implementation and the
 game files themselves.
 
-For the input parser, I'm using AWS Lex. For the generated responses, I'm using Open AI's "gpt-4-turbo-preview". The
-code
-for implementing the Open AI API is really very simple, as one would expect, the challenge (and what I think makes this
-implementation work) is the creation of the prompts for various scenarios. I've spent hours tweaking them, and expect to
-spend
-many more
-
 The code in this repository IS NOT a full game....yet. But it does demonstrate that this can work, and can have
 truly excellent results! (Thanks mostly to how good GPT4 is). I'll keep implementing the rest of the Zork I story,
-items and location, finding new scenarios that the engine can't handle (combat with the troll is and example), but the
+items and location, finding new scenarios that the engine can't handle but the
 game is quite playable in it's current state.
+
+### [Play The Game Now](https://zork-ai.com)
+
+---
+
+### Try these in the game:
+
+
+- I’m bored
+- This game is dumb
+- I want to have dinner with George Bush
+- Fly away to Canada. 
+
+In every case, the AI never breaks character as your exasperated fantasy game narrator, sarcastically guiding you through your adventure in the Great Underground Empire. 
+
+
+
+### How does it work? 
+
+For the input parser, I'm using AWS Lex. For the generated responses, I'm using Open AI's "gpt-4-turbo-preview". The
+code for implementing the Open AI API is really very simple, as one would expect. The challenge (and what I think makes this
+implementation work) is the creation of the prompts for various scenarios. I've spent hours tweaking them, and expect to
+spend many more
+
+The front-end is built in React with Tailwind CSS and a Mix of Daily UI and MUI because I can't make up my mind. The game stores the player's current session in AWS Dynamo DB so that it can remember you on your 
+next visit. The engine is hosted in Azure, and is pure ASP.Net Core, written in C# 12, running on Linux. 
+
+
 
 **None of the source code or executable of the original Zork is being used in any way.**
 
-Questions? Feedback? Want to test or help implement this? Drop me a line: zorkai@mikeindallas.com
 
-- https://www.pcjs.org/software/pcx86/game/infocom/zork1/
-- https://en.wikipedia.org/wiki/Zork
-- https://github.com/MITDDC/zork
+
+### Contributing
+
+Please feel free to report issues and make PRs to help make the game better. I would love that! 
+
+
+### Read more about the World Of Zork
+
+- [Play Zork One on a Virtual PC](https://www.pcjs.org/software/pcx86/game/infocom/zork1/)
+- [Wikipedia Article](https://en.wikipedia.org/wiki/Zork)
+- [Original Zork Source Code](https://github.com/MITDDC/zork)
+
+
+## What's next?
+
+- Save, restore and restart. They work fine when you’re running the game as a console app, but I need to adapt them to the web. 
+- Frankly, the parser is not very good. If I’m being honest, it’s not much better than the original Zork parser. I need to find a solution that truly understands and processes every kind of sentence. 
+- Finish the game! There is still the maze, the coal mine, the thief, and more. 
+- The world of Zork has a rich lore and vocabulary, with words like “Zorkmid”, “Frobozz”, “Dimwit Flathead”. I want to fine-tune the LLM to make the responses  more Zork-like. 
+- Finally, I started with Zork because it’s the most well-known, and one of the simplest Infocom games. What I really want, though, is to implement one of my two favourites, “Planetfall” and “A Mind Forever Voyaging”. These two games by Steve Meretzky are brilliant works of fiction, and I would love to see them come alive with AI immersion. 
+
+
 
 ## Teaser
 
