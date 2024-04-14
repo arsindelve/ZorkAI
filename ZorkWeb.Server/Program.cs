@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.AddConsole();
 builder.Services.AddLogging();
+builder.Services.AddApplicationInsightsTelemetry();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
