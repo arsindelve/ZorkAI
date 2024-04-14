@@ -14,15 +14,16 @@ If not,
 the AI Narrator should give you a meaningful, funny response that keeps you immersed in the Great Underground Empire
 
 I've written a brand new Interactive Fiction Engine in C#, with corresponding C# game files for the first 50%
-of Zork I. I've also included the first location of Zork II to show the separation from the game implementation and the
-game files themselves.
+of Zork I. I've also included the first location of Zork II to show the separation between the game engine and the
+game files themselves. Ideally, this engine could be used to implement any first-generation Infocom game with minimal or no tweaking. 
 
 The code in this repository IS NOT a full game....yet. But it does demonstrate that this can work, and can have
 truly excellent results! (Thanks mostly to how good GPT4 is). I'll keep implementing the rest of the Zork I story,
-items and location, finding new scenarios that the engine can't handle but the
-game is quite playable in it's current state.
+items and location, finding new scenarios that the engine can't handle but the game is quite playable in it's current state.
 
 ### [Play The Game Now](https://zork-ai.com)
+
+The game is fully mobile responsive, so feel free to try it on your phone or tablet. However, it can be a little slow sometimes, because I’m on the free-tier of AWS and Azure. 
 
 ---
 
@@ -30,6 +31,8 @@ game is quite playable in it's current state.
 
 
 - I’m bored
+- Kick the mailbox
+- Ride the dragon
 - This game is dumb
 - I want to have dinner with George Bush
 - Fly away to Canada. 
@@ -45,7 +48,7 @@ code for implementing the Open AI API is really very simple, as one would expect
 implementation work) is the creation of the prompts for various scenarios. I've spent hours tweaking them, and expect to
 spend many more
 
-The front-end is built in React with Tailwind CSS and a Mix of Daily UI and MUI because I can't make up my mind. The game stores the player's current session in AWS Dynamo DB so that it can remember you on your 
+The front-end is built in React with Tailwind CSS and a Mix of Daisy UI and MUI because I can't make up my mind. The game stores the player's current session in AWS Dynamo DB so that it can remember you on your 
 next visit. The engine is hosted in Azure, and is pure ASP.Net Core, written in C# 12, running on Linux. 
 
 
