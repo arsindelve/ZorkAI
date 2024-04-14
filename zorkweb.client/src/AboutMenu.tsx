@@ -13,6 +13,11 @@ export default function AboutMenu() {
         setAnchorEl(null);
     };
 
+    const go = (url: string) => {
+        window.open(url, '_blank');
+        handleClose();
+    }
+
     return (
         <div>
             <Button
@@ -22,7 +27,7 @@ export default function AboutMenu() {
                 aria-expanded={open ? 'true' : undefined}
                 onClick={handleClick}
             >
-                About Zork AI
+                Help / About
             </Button>
             <Menu
                 id="basic-menu"
@@ -33,9 +38,13 @@ export default function AboutMenu() {
                     'aria-labelledby': 'basic-button',
                 }}
             >
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
-                <MenuItem onClick={handleClose}>Logout</MenuItem>
+                <MenuItem onClick={() => go("https://github.com/arsindelve/ZorkAI?tab=readme-ov-file#all-the-greatness-of-the-original-zork-but-enhanced-with-ai-text-parsing-and-generation")}>What is Zork AI?</MenuItem>
+                <MenuItem onClick={()=> go("https://infodoc.plover.net/manuals/zork1.pdf")}>Read the 1984 Infocom Manual</MenuItem>
+                <MenuItem onClick={() => go("https://www.mocagh.org/infocom/zorkps-manual.pdf")}>Read the 1982 Radio Shack TRS-80 Manual</MenuItem>
+                <MenuItem onClick={() => go("https://www.mocagh.org/infocom/zork-map-front.pdf")}>Look at a Map (spoilers)</MenuItem>
+                <MenuItem onClick={() => go("https://web.mit.edu/marleigh/www/portfolio/Files/zork/transcript.html")}>Look at a Walkthrough (major spoilers)</MenuItem>
+                <MenuItem onClick={() => go("https://iplayif.com/?story=https%3A%2F%2Feblong.com%2Finfocom%2Fgamefiles%2Fzork1-r119-s880429.z3")}>Play the original Zork One</MenuItem>
+                <MenuItem onClick={() => go("https://en.wikipedia.org/wiki/Zork")}>Wikipedia Article on Zork</MenuItem>
             </Menu>
         </div>
     );
