@@ -1,10 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Dynamic;
-using System.Net;
-using Amazon;
 using Amazon.BedrockRuntime;
-using Amazon.BedrockRuntime.Model;
-using Amazon.Util;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Newtonsoft.Json;
@@ -16,12 +12,8 @@ namespace Bedrock;
 ///     use the default AWS CLI credentials, so no additional environment variables or keys
 ///     are required.
 /// </summary>
-public class ClaudeFourClient : IGenerationClient
+public class ClaudeFourGenerationClient : ClaudeClientBase, IGenerationClient
 {
-    //private const string ClaudeModelId = "anthropic.claude-3-sonnet-20240229-v1:0";
-    private const string ClaudeModelId = "anthropic.claude-3-haiku-20240307-v1:0";
-    private const string AnthropicVersion = "bedrock-2023-05-31";
-
     public Action? OnGenerate { get; set; }
 
     public List<(string, string, bool)> LastFiveInputOutputs { get; set; } = new();
@@ -31,30 +23,12 @@ public class ClaudeFourClient : IGenerationClient
         Debug.WriteLine($"Sending request of type: {request.GetType().Name} ");
         Debug.WriteLine($"Prompt says: {request.UserMessage}");
 
-        AmazonBedrockRuntimeClient client = new(RegionEndpoint.USEast1);
-
         var jsonString = BuildPayload(request);
 
         var generatedText = "";
         try
         {
-            var response = await client.InvokeModelAsync(new InvokeModelRequest
-            {
-                ModelId = ClaudeModelId,
-                Body = AWSSDKUtils.GenerateMemoryStreamFromString(jsonString),
-                ContentType = "application/json",
-                Accept = "application/json"
-            });
-
-            if (response.HttpStatusCode == HttpStatusCode.OK)
-            {
-                using var streamReader = new StreamReader(response.Body);
-                var content = await streamReader.ReadToEndAsync();
-                var responseContent = JsonConvert.DeserializeObject<dynamic>(content) ??
-                                      throw new InvalidOperationException();
-
-                generatedText = responseContent.content[0].text;
-            }
+            generatedText = await GenerateResponse(jsonString);
         }
         catch (AmazonBedrockRuntimeException e)
         {
@@ -62,7 +36,7 @@ public class ClaudeFourClient : IGenerationClient
         }
 
         OnGenerate?.Invoke();
-        return generatedText;
+        return generatedText ?? string.Empty;
     }
 
     private string BuildPayload(Request request)

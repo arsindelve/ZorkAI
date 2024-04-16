@@ -39,8 +39,8 @@ public class Dam : BaseLocation
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-        string[] verbs = ["turn"];
-        string[] prepositions = ["with"];
+        string[] verbs = ["turn", "use"];
+        string[] prepositions = ["with", "to", "on", "using"];
 
         if (!action.NounOne.ToLowerInvariant().Trim().Contains("bolt"))
             return base.RespondToMultiNounInteraction(action, context);
