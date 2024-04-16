@@ -63,10 +63,10 @@ public class TrollRoom : DarkLocation
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-        string[] verbs = ["kill", "attack", "defeat", "destroy", "murder"];
-        string[] prepositions = ["with"];
+        string[] verbs = ["kill", "attack", "defeat", "destroy", "murder", "use"];
+        string[] prepositions = ["with", "using", "by", "to"];
 
-        if (!action.NounOne.ToLowerInvariant().Trim().Contains("troll"))
+        if (!action.NounOne.ToLowerInvariant().Trim().Contains("troll")  && !action.NounTwo.ToLowerInvariant().Trim().Contains("troll"))
             return base.RespondToMultiNounInteraction(action, context);
 
         if (GetItem<Troll>().IsDead)
