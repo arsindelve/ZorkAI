@@ -18,7 +18,7 @@ public class Dam : BaseLocation
 
     // TODO: Update description based on gates 
     protected override string ContextBasedDescription =>
-        "You are standing on the top of the Flood Control Dam #3, which was quite a tourist attraction in times far distant. " +
+        $"You are standing on the top of the Flood Control Dam #3, which was quite a tourist attraction in times far distant. " +
         "There are paths to the north, south, and west, and a scramble down. The sluice gates on the dam are " +
         "closed. Behind the dam, there can be seen a wide reservoir. Water is pouring over the top of the now abandoned dam. ";
 
@@ -39,13 +39,13 @@ public class Dam : BaseLocation
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-        string[] verbs = ["turn", "use"];
+        string[] verbs = ["turn", "use", "apply"];
         string[] prepositions = ["with", "to", "on", "using"];
 
-        if (!action.NounOne.ToLowerInvariant().Trim().Contains("bolt"))
+        if (!action.NounOne.ToLowerInvariant().Trim().Contains("bolt") && !action.NounTwo.ToLowerInvariant().Trim().Contains("bolt"))
             return base.RespondToMultiNounInteraction(action, context);
 
-        if (!action.NounTwo.ToLowerInvariant().Trim().Contains("wrench"))
+        if (!action.NounOne.ToLowerInvariant().Trim().Contains("wrench") && !action.NounTwo.ToLowerInvariant().Trim().Contains("wrench"))
             return base.RespondToMultiNounInteraction(action, context);
 
         if (!verbs.Contains(action.Verb.ToLowerInvariant().Trim()))
