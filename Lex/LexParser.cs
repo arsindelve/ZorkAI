@@ -10,7 +10,7 @@ public class LexParser(ILogger? logger) : IAIParser
 {
     private readonly LexClient _client = new();
 
-    public async Task<IntentBase> AskTheAIParser(string input, string sessionId)
+    public async Task<IntentBase> AskTheAIParser(string input, string locationDescription, string sessionId)
     {
         logger?.LogDebug($"Text: '{input}' was sent to Amazon Lex");
         var parserResponse = await _client.SendTextMsgToLex(input, sessionId);

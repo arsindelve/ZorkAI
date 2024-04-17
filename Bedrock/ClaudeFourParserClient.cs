@@ -3,7 +3,12 @@ using Newtonsoft.Json;
 
 namespace Bedrock;
 
-internal class ClaudeFourParserClient : ClaudeClientBase
+public interface IClaudeFourParserClient
+{
+    Task<string?> GetResponse(string location, string input);
+}
+
+internal class ClaudeFourParserClient : ClaudeClientBase, IClaudeFourParserClient
 {
     private const string Prompt =
         """
@@ -22,7 +27,7 @@ internal class ClaudeFourParserClient : ClaudeClientBase
         Do not provide any analysis or explanation, just the tags
         """;
 
-    internal Task<string?> GetResponse(string location, string input)
+    public Task<string?> GetResponse(string location, string input)
     {
         var request = string.Format(Prompt, location, input);
         return GenerateResponse(BuildPayload(request));

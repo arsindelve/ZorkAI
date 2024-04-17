@@ -14,7 +14,7 @@ public class EngineTests : EngineTestsBase
     public void DefaultConstructor()
     {
         Environment.SetEnvironmentVariable("OPEN_AI_KEY", "XYZ");
-        var target = new GameEngine<ZorkI, ZorkIContext>(null);
+        var target = new GameEngine<ZorkI, ZorkIContext>(null!);
 
         target.Should().NotBeNull();
     }
@@ -90,7 +90,7 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("BOB", It.IsAny<string>()))
+        Mock.Get(Parser).Setup(s => s.DetermineIntentType("BOB", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new NullIntent());
 
         Client.Setup(
@@ -110,7 +110,7 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("PROMPT", It.IsAny<string>()))
+        Mock.Get(Parser).Setup(s => s.DetermineIntentType("PROMPT", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new PromptIntent { Message = "Please enter a value:" });
 
         // Act
@@ -126,7 +126,7 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("push the mailbox", It.IsAny<string>()))
+        Mock.Get(Parser).Setup(s => s.DetermineIntentType("push the mailbox", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new SimpleIntent { Verb = "push", Noun = "mailbox", OriginalInput = "push the mailbox" });
 
         Client.Setup(
@@ -146,7 +146,7 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("push the leaflet", It.IsAny<string>()))
+        Mock.Get(Parser).Setup(s => s.DetermineIntentType("push the leaflet", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new SimpleIntent { Verb = "push", Noun = "leaflet", OriginalInput = "push the leaflet" });
 
         Client.Setup(
@@ -168,7 +168,7 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("push the leaflet", It.IsAny<string>()))
+        Mock.Get(Parser).Setup(s => s.DetermineIntentType("push the leaflet", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new SimpleIntent { Verb = "push", Noun = "leaflet", OriginalInput = "push the leaflet" });
 
         Client.Setup(
@@ -189,7 +189,7 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("push the unicorn", It.IsAny<string>()))
+        Mock.Get(Parser).Setup(s => s.DetermineIntentType("push the unicorn", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new SimpleIntent { Verb = "push", Noun = "unicorn", OriginalInput = "push the unicorn" });
 
         Client.Setup(
@@ -209,7 +209,7 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("go east", It.IsAny<string>()))
+        Mock.Get(Parser).Setup(s => s.DetermineIntentType("go east", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new MoveIntent { Direction = Direction.E });
 
         // Act
@@ -224,7 +224,7 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("go east", It.IsAny<string>()))
+        Mock.Get(Parser).Setup(s => s.DetermineIntentType("go east", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new UnitTestIntent { Message = "bob" });
 
         Client.Setup(
@@ -245,7 +245,7 @@ public class EngineTests : EngineTestsBase
         var target = GetTarget();
 
         target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("go west", It.IsAny<string>()))
+        Mock.Get(Parser).Setup(s => s.DetermineIntentType("go west", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new MoveIntent { Direction = Direction.W });
 
         // Act
@@ -262,7 +262,7 @@ public class EngineTests : EngineTestsBase
 
         Repository.GetItem<KitchenWindow>().IsOpen = true;
         target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("go west", It.IsAny<string>()))
+        Mock.Get(Parser).Setup(s => s.DetermineIntentType("go west", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new MoveIntent { Direction = Direction.W });
 
         // Act
@@ -402,7 +402,7 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("dig hole with shovel", It.IsAny<string>()))
+        Mock.Get(Parser).Setup(s => s.DetermineIntentType("dig hole with shovel", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new MultiNounIntent
             {
                 NounOne = "hole",
@@ -426,7 +426,7 @@ public class EngineTests : EngineTestsBase
         // Arrange 
         var aiParser = new Mock<IAIParser>();
 
-        aiParser.Setup(s => s.AskTheAIParser("walk east", It.IsAny<string>()))
+        aiParser.Setup(s => s.AskTheAIParser("walk east", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new MoveIntent { Direction = Direction.E });
 
         var parser = new IntentParser(aiParser.Object, new ZorkOneGlobalCommandFactory(), null);

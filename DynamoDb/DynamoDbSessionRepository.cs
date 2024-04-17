@@ -2,14 +2,15 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
+using Model;
 
 namespace DynamoDb;
 
-public class SessionRepository : ISessionRepository
+public class DynamoDbSessionRepository : ISessionRepository
 {
     private readonly AmazonDynamoDBClient _client;
 
-    public SessionRepository()
+    public DynamoDbSessionRepository()
     {
         var clientConfig = new AmazonDynamoDBConfig
         {

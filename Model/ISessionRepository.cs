@@ -1,4 +1,4 @@
-﻿namespace DynamoDb;
+namespace Model;
 
 public interface ISessionRepository
 {

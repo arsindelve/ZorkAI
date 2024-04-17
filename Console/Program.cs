@@ -1,10 +1,11 @@
 ﻿using System.Text;
+using Azure;
 using DynamoDb;
 using Game;
 using Microsoft.Extensions.Logging;
 using ZorkOne;
 
-var database = new SessionRepository();
+var database = new RedisSessionRepository();
 
 var sessionId = Environment.MachineName;
 var savedGame = await database.GetSession(sessionId);

@@ -1,3 +1,4 @@
+using Azure;
 using DotNetEnv;
 using Model;
 
@@ -11,7 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSingleton<ISessionRepository, SessionRepository>();
+builder.Services.AddSingleton<ISessionRepository, RedisSessionRepository>();
 builder.Services.AddScoped<IGameEngine, GameEngine<ZorkI, ZorkIContext>>();
 
 var app = builder.Build();
