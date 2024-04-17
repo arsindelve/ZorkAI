@@ -160,7 +160,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         if (singleVerbResult.InteractionHappened)
             return PostProcessing(singleVerbResult.InteractionMessage);
 
-        var parsedResult = await _parser.DetermineIntentType(_currentInput, _sessionId);
+        var parsedResult = await _parser.DetermineIntentType(_currentInput, Context.CurrentLocation.Description, _sessionId);
         _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
 
         var intentResult = parsedResult switch

@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.302.11"/>
+      <ProjectReference Include="..\Model\Model.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Model\Model.csproj" />
+      <PackageReference Include="StackExchange.Redis" Version="2.7.33" />
     </ItemGroup>
 
 </Project>

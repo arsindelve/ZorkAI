@@ -1,3 +1,4 @@
+using Bedrock;
 using Game.StaticCommand;
 using Lex;
 using Microsoft.Extensions.Logging;
@@ -30,16 +31,19 @@ public class IntentParser : IIntentParser
     public IntentParser(IGlobalCommandFactory gameSpecificCommandFactory, ILogger? logger = null)
     {
         _gameSpecificCommandFactory = gameSpecificCommandFactory;
-        _parser = new LexParser(logger);
+        //_parser = new LexParser(logger);
+        _parser = new ClaudeFourParser(logger);
     }
 
     /// <summary>
     ///     Determines the type of intent based on the input and session ID.
     /// </summary>
     /// <param name="input">The user input.</param>
+    /// <param name="locationDescription">This can be instrumental in determining what the user wants to do. If they
+    /// say "follow the path", we need the location description to tell us which way the path goes.</param>
     /// <param name="sessionId">The unique session ID.</param>
     /// <returns>The determined intent type.</returns>
-    public async Task<IntentBase> DetermineIntentType(string? input, string sessionId)
+    public async Task<IntentBase> DetermineIntentType(string? input, string locationDescription, string sessionId)
     {
         if (DirectionParser.IsDirection(input, out var moveTo))
             return new MoveIntent { Direction = moveTo };
@@ -53,6 +57,6 @@ public class IntentParser : IIntentParser
         // At this point, we don't know the user's intent without asking the
         // AI parsing engine, so let's do that. 
 
-        return await _parser.AskTheAIParser(input!, sessionId);
+        return await _parser.AskTheAIParser(input!, locationDescription, sessionId);
     }
 }

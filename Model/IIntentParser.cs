@@ -13,6 +13,11 @@ public interface IIntentParser
     /// </summary>
     /// <param name="input">The user input.</param>
     /// <param name="sessionId">The session ID uniquely identifies this session and adventurer to the parser. </param>
+    /// ///
+    /// <param name="locationDescription">
+    ///     This can be instrumental in determining what the user wants to do. If they
+    ///     say "follow the path", we need the location description to tell us which way the path goes.
+    /// </param>
     /// <returns>The intent type as an instance of IntentBase.</returns>
-    Task<IntentBase> DetermineIntentType(string? input, string sessionId);
+    Task<IntentBase> DetermineIntentType(string? input, string locationDescription, string sessionId);
 }
