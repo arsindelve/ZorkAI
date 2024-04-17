@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Azure\Azure.csproj" />
         <ProjectReference Include="..\DynamoDb\DynamoDb.csproj"/>
         <ProjectReference Include="..\Game\Game.csproj"/>
         <ProjectReference Include="..\Model\Model.csproj"/>
