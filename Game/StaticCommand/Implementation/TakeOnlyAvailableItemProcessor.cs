@@ -8,7 +8,7 @@ public class TakeOnlyAvailableItemProcessor : IStatefulProcessor
 {
     private bool _secondTimeProcessing;
 
-    public async Task<string> Process(string? input, IContext context, IGenerationClient client)
+    public async Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {
         IIntentEngine processor = new SimpleInteractionEngine();
         string nounToTake;

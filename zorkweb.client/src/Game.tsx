@@ -1,16 +1,21 @@
 import {useMutation} from "@tanstack/react-query";
 import {GameRequest} from "./GameRequest";
 import {GameResponse} from "./GameResponse";
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {Alert, CircularProgress} from "@mui/material";
 import '@fontsource/roboto';
 import Header from "./Header.tsx";
 import {SessionId} from "./SessionId.ts";
 import WelcomeDialog from "./WelcomeModal.tsx";
 import Server from './Server';
+import {AppStateContext} from "./App.tsx";
+import ConfirmDialog from "./ConfirmationDialog.tsx";
 
 function Game() {
 
+    const appState = useContext(AppStateContext);
+
+    const [confirmOpen, setConfirmRestartOpen] = useState<boolean>(false);
     const [playerInput, setInput] = useState<string>("");
     const [gameText, setGameText] = useState<string[]>([])
     const [score, setScore] = useState<string>("0")
@@ -31,6 +36,12 @@ function Game() {
         }
     }, [gameText]);
 
+    useEffect(() => {       
+        if(appState?.isRestarting)
+            setConfirmRestartOpen(true);
+        appState?.stopRestarting();
+    }, [appState?.isRestarting]);
+
     // Set focus to the input box on load. 
     useEffect(() => {
         if (playerInputElement.current)
@@ -44,7 +55,16 @@ function Game() {
         })
     }, []);
 
+    function restartGame() {
 
+        setConfirmRestartOpen(false);
+        setGameText([]);
+        sessionId.regenerate();
+        gameInit().then((data) => {
+            handleResponse(data);
+        })        
+    }
+    
     function handleResponse(data: GameResponse) {
 
         // Replace newline chars with HTML line breaks. 
@@ -61,6 +81,7 @@ function Game() {
         setMoves(data.moves.toString())
     }
 
+    // noinspection JSUnusedGlobalSymbols
     const mutation = useMutation({
         mutationFn: server.gameInput,
         onSuccess: (response) => {
@@ -78,7 +99,6 @@ function Game() {
         }
     }
 
-
     const handleWelcomeDialogClose = () => {
         setWelcomeDialogOpen(false);
     };
@@ -91,7 +111,15 @@ function Game() {
 
     return (
 
+     
         <div className={"m-8"}>
+            
+            <ConfirmDialog
+                title="Restart Your Game? Are you sure? "
+                open={confirmOpen}
+                setOpen={setConfirmRestartOpen}
+                onConfirm={restartGame}
+            />
 
             <WelcomeDialog open={welcomeDialogOpen} handleClose={handleWelcomeDialogClose}/>
             <Header locationName={locationName} moves={moves} score={score}/>

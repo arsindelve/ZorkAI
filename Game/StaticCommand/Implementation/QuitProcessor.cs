@@ -21,9 +21,14 @@ internal class QuitProcessor : IStatefulProcessor
     /// </summary>
     /// <param name="input">The input string to process.</param>
     /// <param name="context">The game context.</param>
+    /// <param name="client"></param>
+    /// <param name="runtime"></param>
     /// <returns>The output string based on the input and game context.</returns>
-    public Task<string> Process(string? input, IContext context, IGenerationClient client)
+    public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {
+        if (runtime == Runtime.Web)
+            return Task.FromResult("If you want to quit, just close the browser.");
+        
         if (string.IsNullOrEmpty(input)) return Task.FromResult(CancelQuitting());
 
         Completed = false;

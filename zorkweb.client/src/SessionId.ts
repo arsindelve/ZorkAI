@@ -12,6 +12,11 @@
 
         return [localStorage.getItem("SessionId")!, firstTime];
     }
+    
+    regenerate(): void{
+        localStorage.setItem("SessionId", this.generateRandomString());
+    }
+    
     generateRandomString(): string {
         let randomString = '';
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

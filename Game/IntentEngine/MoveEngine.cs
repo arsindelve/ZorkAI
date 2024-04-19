@@ -29,7 +29,7 @@ internal class MoveEngine : IIntentEngine
         context.CurrentLocation = movement.Location;
 
         var beforeEnteringText = movement.Location.BeforeEnterLocation(context);
-        var processorText = await new LookProcessor().Process(null, context, generationClient);
+        var processorText = await new LookProcessor().Process(null, context, generationClient, Runtime.Unknown);
         var afterEnteringText = movement.Location.AfterEnterLocation(context);
 
         var result = beforeEnteringText + processorText + afterEnteringText + Environment.NewLine;

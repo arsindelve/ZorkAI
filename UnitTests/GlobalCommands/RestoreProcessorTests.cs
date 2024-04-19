@@ -26,7 +26,7 @@ public class RestoreProcessorTests
         Mock.Get(context).Setup(s => s.CurrentLocation.DescriptionForGeneration).Returns("here");
 
         // Act
-        var response = await target.Process("input", context, client.Object);
+        var response = await target.Process("input", context, client.Object, Runtime.Unknown);
 
         // Assert
         response.Should().Contain("bobby");
@@ -49,7 +49,7 @@ public class RestoreProcessorTests
         Mock.Get(context).Setup(s => s.LastSaveGameName).Returns("jake");
 
         // Act
-        var response = await target.Process("input", context, client.Object);
+        var response = await target.Process("input", context, client.Object, Runtime.Unknown);
 
         // Assert
         response.Should().Contain("jake");

@@ -118,7 +118,7 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         item.OnBeingTurnedOff(context);
 
         if (item is IAmALightSource && context.ItIsDarkHere)
-            return new PositiveInteractionResult(await new LookProcessor().Process(null, context, client));
+            return new PositiveInteractionResult(await new LookProcessor().Process(null, context, client, Runtime.Unknown));
 
         return new PositiveInteractionResult(item.NowOffText);
     }
@@ -136,7 +136,7 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         item.OnBeingTurnedOn(context);
 
         if (item is IAmALightSource && context.CurrentLocation is IDarkLocation)
-            return new PositiveInteractionResult(await new LookProcessor().Process(null, context, client));
+            return new PositiveInteractionResult(await new LookProcessor().Process(null, context, client, Runtime.Unknown));
 
         return new PositiveInteractionResult(item.NowOnText);
     }

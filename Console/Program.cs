@@ -1,8 +1,10 @@
-﻿using System.Text;
+﻿using System.ComponentModel;
+using System.Text;
 using Azure;
 using DynamoDb;
 using Game;
 using Microsoft.Extensions.Logging;
+using Model;
 using ZorkOne;
 
 var database = new RedisSessionRepository();
@@ -54,5 +56,7 @@ GameEngine<ZorkI, ZorkIContext> CreateEngine()
 {
     using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
     var logger = loggerFactory.CreateLogger<GameEngine<ZorkI, ZorkIContext>>();
-    return new GameEngine<ZorkI, ZorkIContext>(logger);
+    var engine = new GameEngine<ZorkI, ZorkIContext>(logger);
+    engine.Runtime = Runtime.Console;
+    return engine;
 }

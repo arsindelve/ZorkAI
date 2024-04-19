@@ -4,7 +4,7 @@ namespace ZorkOne.GlobalCommand.Implementation;
 
 public class DiagnoseProcessor : IGlobalCommand
 {
-    public Task<string> Process(string? input, IContext context, IGenerationClient client)
+    public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {
         if (context is not ZorkIContext zorkContext)
             throw new ArgumentException();

@@ -7,7 +7,7 @@ namespace Game.StaticCommand.Implementation;
 /// </summary>
 internal class InventoryProcessor : IGlobalCommand
 {
-    public Task<string> Process(string? input, IContext context, IGenerationClient client)
+    public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {
         return Task.FromResult(context.ItemListDescription(string.Empty));
     }

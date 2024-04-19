@@ -23,8 +23,11 @@ internal class SaveProcessor : IStatefulProcessor
         _writer = writer;
     }
 
-    public async Task<string> Process(string? input, IContext context, IGenerationClient client)
+    public async Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {
+        if (runtime == Runtime.Web)
+            return "Please use the game's menu to save your game.";
+        
         if (!_havePromptedForFilename) return await PromptForFilename(context, client);
         if (context.Engine is not null) return await AttemptTheSave(input, context, client);
 
