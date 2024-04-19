@@ -38,7 +38,7 @@ export default function AboutMenu() {
                     'aria-labelledby': 'basic-button',
                 }}
             >
-                <MenuItem onClick={() => go("https://github.com/arsindelve/ZorkAI?tab=readme-ov-file#all-the-greatness-of-the-original-zork-but-enhanced-with-ai-text-parsing-and-generation")}>What is Zork AI?</MenuItem>
+                <MenuItem onClick={() => go("https://github.com/arsindelve/ZorkAI?tab=readme-ov-file#all-the-greatness-of-the-original-zork-enhanced-with-ai")}>What is Zork AI?</MenuItem>
                 <MenuItem onClick={()=> go("https://infodoc.plover.net/manuals/zork1.pdf")}>Read the 1984 Infocom Manual</MenuItem>
                 <MenuItem onClick={() => go("https://www.mocagh.org/infocom/zorkps-manual.pdf")}>Read the 1982 Radio Shack TRS-80 Manual</MenuItem>
                 <MenuItem onClick={() => go("https://www.mocagh.org/infocom/zork-map-front.pdf")}>Look at a Map (spoilers)</MenuItem>

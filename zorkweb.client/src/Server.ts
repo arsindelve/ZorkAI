@@ -6,11 +6,18 @@ export default class Server {
 
     async gameInput(input: GameRequest): Promise<AxiosResponse<GameResponse>> {
 
+        let here = location.href
+            .replace("http:", "https:")
+            .replace("127.0.0.1", "localhost")
+            .replace("5173", "7007") + "ZorkOne";
+
+        console.log(here);
+
         let client = axios.create({
-            baseURL: import.meta.env.VITE_BASE_URL
+            baseURL: here
         });
 
-        return client.post<GameResponse, AxiosResponse>("", input, {
+        return await client.post<GameResponse, AxiosResponse>("", input, {
             headers: {
                 'Accept': 'application/json',
             } as RawAxiosRequestHeaders,
@@ -19,8 +26,15 @@ export default class Server {
 
     async gameInit(sessionId: string): Promise<GameResponse> {
 
+        let here = location.href
+            .replace("http:", "https:")
+            .replace("127.0.0.1", "localhost")
+            .replace("5173", "7007") + "ZorkOne";
+
+        console.log(here);
+
         let client = axios.create({
-            baseURL: import.meta.env.VITE_BASE_URL
+            baseURL: here
         });
 
         const response = await client.get<GameResponse, AxiosResponse>("", {

@@ -53,7 +53,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         };
 
         Context.CurrentLocation.Init();
-
+        Runtime = Runtime.Web;
         IntroText = $"""
                      {gameInstance.StartText}
                      {Context.CurrentLocation.Description}
@@ -166,7 +166,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         var intentResult = parsedResult switch
         {
             GlobalCommandIntent intent =>
-                await ProcessGlobalCommandIntent(intent),
+                await ProcessGlobalCommandIntent(intent, Runtime),
 
             NullIntent =>
                 await GetGeneratedNoOpResponse(_currentInput, _generator, Context),
@@ -192,6 +192,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     }
 
     public int Score => Context.Score;
+    
+    public Runtime Runtime { get; set; }
 
     private string PostProcessing(string finalResult)
     {
@@ -207,9 +209,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         return finalResult.Trim() + Environment.NewLine;
     }
 
-    private async Task<string> ProcessGlobalCommandIntent(GlobalCommandIntent intent)
+    private async Task<string> ProcessGlobalCommandIntent(GlobalCommandIntent intent, Runtime runtime)
     {
-        var intentResponse = await intent.Command.Process(_currentInput, Context, _generator);
+        var intentResponse = await intent.Command.Process(_currentInput, Context, _generator, Runtime);
         if (intent.Command is IStatefulProcessor { Completed: false } statefulProcessor)
             _processorInProgress = statefulProcessor;
 
@@ -236,7 +238,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         if (_processorInProgress == null)
             return (immediatelyReturn, processorInProgressOutput);
 
-        processorInProgressOutput = await _processorInProgress.Process(_currentInput, Context, _generator);
+        processorInProgressOutput = await _processorInProgress.Process(_currentInput, Context, _generator, Runtime);
 
         // The processor is done. Clear it, and see what we want to do with the output. 
         if (_processorInProgress.Completed)

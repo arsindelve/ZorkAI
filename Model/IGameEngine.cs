@@ -28,6 +28,11 @@ public interface IGameEngine
     string LocationName { get; }
 
     string IntroText { get; }
+    
+    /// <summary>
+    /// Indicates the runtime container....is it Web, Console, other? 
+    /// </summary>
+    Runtime Runtime { get; set; }
 
     /// <summary>
     ///     Retrieves the game engine's response based on the player's input.

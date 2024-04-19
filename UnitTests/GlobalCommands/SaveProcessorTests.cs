@@ -27,7 +27,7 @@ public class SaveProcessorTests
         Mock.Get(context).Setup(s => s.CurrentLocation.DescriptionForGeneration).Returns("here");
 
         // Act
-        var response = await target.Process("input", context, client.Object);
+        var response = await target.Process("input", context, client.Object, Runtime.Unknown);
 
         // Assert
         response.Should().Contain("bobby");
@@ -50,7 +50,7 @@ public class SaveProcessorTests
         Mock.Get(context).Setup(s => s.LastSaveGameName).Returns("jake");
 
         // Act
-        var response = await target.Process("input", context, client.Object);
+        var response = await target.Process("input", context, client.Object, Runtime.Unknown);
 
         // Assert
         response.Should().Contain("jake");
@@ -77,8 +77,8 @@ public class SaveProcessorTests
         Mock.Get(context).Setup(s => s.Engine).Returns(engine);
 
         // Act
-        await target.Process("input", context, client.Object);
-        var response = await target.Process("", context, client.Object);
+        await target.Process("input", context, client.Object, Runtime.Unknown);
+        var response = await target.Process("", context, client.Object, Runtime.Unknown);
 
         // Assert
         response.Should().Contain("karen");
@@ -106,8 +106,8 @@ public class SaveProcessorTests
         Mock.Get(context).Setup(s => s.Engine).Returns(engine);
 
         // Act
-        await target.Process("save", context, client.Object);
-        var response = await target.Process("danny", context, client.Object);
+        await target.Process("save", context, client.Object, Runtime.Unknown);
+        var response = await target.Process("danny", context, client.Object, Runtime.Unknown);
 
         // Assert
         response.Should().Contain("karen");
@@ -138,8 +138,8 @@ public class SaveProcessorTests
         Mock.Get(context).Setup(s => s.Engine).Returns(engine);
 
         // Act
-        await target.Process("save", context, client.Object);
-        var response = await target.Process("danny", context, client.Object);
+        await target.Process("save", context, client.Object, Runtime.Unknown);
+        var response = await target.Process("danny", context, client.Object, Runtime.Unknown);
 
         // Assert
         response.Should().Contain("frank");

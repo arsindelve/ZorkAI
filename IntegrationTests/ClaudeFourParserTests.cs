@@ -63,12 +63,14 @@ public class ClaudeFourParserTests
     [TestCase(typeof(WestOfHouse), "light lantern", new[] { "<verb>light</verb>", "<noun>lantern</noun>", "<intent>act</intent>" })]
    
     // Multi noun
+    [TestCase(typeof(WestOfHouse), "tie the rope to the railing", new[] { "<verb>tie</verb>", "<noun>rope</noun>", "<noun>railing</noun>", "<intent>act</intent>", "<preposition>to</preposition>" })]
     [TestCase(typeof(WestOfHouse), "Use the wrench to turn the bolt.", new[] { "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>", "<preposition>to</preposition>" })]
     [TestCase(typeof(WestOfHouse), "With the wrench, turn the bolt", new[] { "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>", "<preposition>with</preposition>" })]
     [TestCase(typeof(WestOfHouse), "The wrench should be used to turn the bolt.", new[] { "<verb>use</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>", "<preposition>to</preposition>" })]
     [TestCase(typeof(WestOfHouse), "Turn the bolt using the wrench.", new[] { "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>", "<preposition>using</preposition>" })]
     
     [TestCase(typeof(WestOfHouse), "kill the troll with the sword", new[] { "<verb>kill</verb>", "<noun>troll</noun>", "<noun>sword</noun>", "<intent>act</intent>", "<preposition>with</preposition>" })]
+    [TestCase(typeof(WestOfHouse), "kill troll with sword", new[] { "<verb>kill</verb>", "<noun>troll</noun>", "<noun>sword</noun>", "<intent>act</intent>", "<preposition>with</preposition>" })]
     [TestCase(typeof(WestOfHouse), "let's turn the bolt with the wrench", new[] { "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>", "<preposition>with</preposition>" })]
     [TestCase(typeof(WestOfHouse), "use the wrench on the bolt", new[] { "<verb>use</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>", "<preposition>on</preposition>" })]
     [TestCase(typeof(WestOfHouse), "To turn the bolt, use the wrench.", new[] { "<verb>use</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>", "<preposition>to</preposition>" })]
