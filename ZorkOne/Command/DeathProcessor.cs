@@ -16,6 +16,7 @@ public class DeathProcessor
 
         // TODO: Scatter inventory. 
         // TODO: Die ?? number of times: Don't get another chance. 
+        // https://github.com/historicalsource/zork1/blob/7d54d16fca7a5dd7c6191c93651aad925f8c0922/1actions.zil#L4046
 
         var result = death +
                      "\n\t*** You have died ***\n\n" +
