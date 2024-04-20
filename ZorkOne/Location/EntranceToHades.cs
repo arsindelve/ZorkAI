@@ -52,14 +52,25 @@ internal class EntranceToHades : DarkLocation
     private InteractionResult RingTheBell(IContext context)
     {
         // TODO: Check spirits are still here. 
-        // TODO: Check I have the bell
 
         if (!context.HasItem<BrassBell>() && GetItem<BrassBell>().CurrentLocation == GetLocation<EntranceToHades>())
-            return new PositiveInteractionResult("You don't have the brass bell. ");
+            return new PositiveInteractionResult("The bell is too hot to reach. ");
 
         var returnValue = "";
         var bell = Repository.GetItem<BrassBell>();
+        var spirits = Repository.GetItem<Spirits>();
+        var candles = Repository.GetItem<Candles>();
+        
         returnValue += bell.BecomesRedHot(context);
+        returnValue +=  spirits.BecomeStunned(context);
+
+        if (context.HasItem<Candles>())
+        {
+            context.Drop(candles);
+            candles.Lit = false;
+            returnValue += "\rIn your confusion, the candles drop to the ground (and they are out).";
+            // TODO what if this was our light source? 
+        }
 
         return new PositiveInteractionResult(returnValue);
     }

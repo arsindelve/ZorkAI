@@ -56,7 +56,6 @@ public class BrassBell : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ITurnB
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        
         if (action.Verb.ToLowerInvariant() != "ring")
             return base.RespondToSimpleInteraction(action, context, client);
 

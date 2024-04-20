@@ -257,6 +257,21 @@ public class EngineTestsBase
                 .ReturnsAsync(new SimpleIntent
                     { Adverb = "", Verb = "ring", Noun = "bell", OriginalInput = "examine bell" });
 
+            mockParser.Setup(s => s.DetermineIntentType("eat the spirits", It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "eat", Noun = "spirits", OriginalInput = "eat the spirits" });
+
+            mockParser.Setup(s => s.DetermineIntentType("kiss the spirits", It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "kiss", Noun = "spirits", OriginalInput = "kiss the spirits" });
+            
+            mockParser.Setup(s => s.DetermineIntentType("take the spirits", It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "take", Noun = "spirits", OriginalInput = "take the spirits" });
+            
+            mockParser.Setup(s => s.DetermineIntentType("examine the spirits", It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "examine", Noun = "spirits", OriginalInput = "examine the spirits" });
             
             mockParser.Setup(s => s.DetermineIntentType("put painting inside case", It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new MultiNounIntent

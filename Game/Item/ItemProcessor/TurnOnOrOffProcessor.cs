@@ -26,12 +26,17 @@ public class TurnOnOrOffProcessor : IVerbProcessor
 
         switch (action.Verb.ToLowerInvariant().Trim())
         {
+            // TODO: The first two are specific to lights. Refactor this. 
+            case "light":
+            case "strike":
             case "turn on":
             case "activate":
                 return ProcessOn(context, item, client);
 
             case "turn off":
+            // TODO: Same here. Too specific to lights, does not belong here. 
             case "extinguish":
+            case "blow out":
                 return ProcessOff(context, item, client);
 
             // Sometimes, the parser can't determine the adverb "on" or "off". It that case, hopefully,
@@ -126,18 +131,22 @@ public class TurnOnOrOffProcessor : IVerbProcessor
     private static async Task<InteractionResult> TurnItOn(ICanBeTurnedOnAndOff item, IContext context,
         IGenerationClient client)
     {
+        string result = "";
+        
         if (item.IsOn)
             return new PositiveInteractionResult(item.AlreadyOnText);
 
         if (!string.IsNullOrEmpty(item.CannotBeTurnedOnText))
             return new PositiveInteractionResult(item.CannotBeTurnedOnText);
 
+        bool itWasDark = context.ItIsDarkHere;
+            
         item.IsOn = true;
         item.OnBeingTurnedOn(context);
-
-        if (item is IAmALightSource && context.CurrentLocation is IDarkLocation)
-            return new PositiveInteractionResult(await new LookProcessor().Process(null, context, client, Runtime.Unknown));
-
-        return new PositiveInteractionResult(item.NowOnText);
+     
+        if (item is IAmALightSource && itWasDark)
+            result += "\n" + await new LookProcessor().Process(null, context, client, Runtime.Unknown);
+        
+        return new PositiveInteractionResult(item.NowOnText + result);
     }
 }

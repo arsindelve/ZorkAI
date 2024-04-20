@@ -14,13 +14,23 @@ public record SimpleIntent : IntentBase
 
     public string? Adverb { get; init; }
 
-    public bool MatchNoun(string[] noun)
+    public bool MatchNoun(string[] nouns)
     {
-        return noun.Any(s => s.Equals(Noun, StringComparison.InvariantCultureIgnoreCase));
+        return nouns.Any(s => s.Equals(Noun, StringComparison.InvariantCultureIgnoreCase));
+    }
+    
+    public bool MatchVerb(string[] verbs)
+    {
+        return verbs.Any(s => s.Equals(Verb, StringComparison.InvariantCultureIgnoreCase));
     }
 
     public override string ToString()
     {
         return $"Verb: {Verb}, Noun: {Noun}";
+    }
+
+    public bool Match(string[] verbs, string[] nounsForMatching)
+    {
+        return MatchNoun(nounsForMatching) && MatchVerb(verbs);
     }
 }
