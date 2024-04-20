@@ -19,7 +19,10 @@ public class Cave : DarkLocation
         var returnValue = "";
         var swordInPossession = context.HasItem<Sword>();
         var litCandlesInPossession = context.HasItem<Candles>() && Repository.GetItem<Candles>().Lit;
-        var spiritsAlive = Repository.GetItem<Spirits>().CurrentLocation == Repository.GetLocation<EntranceToHades>();
+        
+        Spirits spirits = Repository.GetItem<Spirits>();
+        var entranceToHades = Repository.GetLocation<EntranceToHades>();
+        var spiritsAlive = spirits.CurrentLocation == entranceToHades;
 
         // TODO: Make this an actor, with a random chance (50%) to blow out the candles. I think that's what Zork does, needs to check source code. 
         // TODO: If your candles get blown out and it was the only light source, "It is now completely dark" 
