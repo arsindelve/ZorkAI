@@ -14,6 +14,6 @@ internal class MadeUpItem : IInteractionTarget, ICanBeEaten, ICanBeTakenAndDropp
 
     public string OnBeingTaken(IContext context)
     {
-        throw new NotImplementedException();
+        return "";
     }
 }
