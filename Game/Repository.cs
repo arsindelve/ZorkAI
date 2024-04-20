@@ -26,8 +26,8 @@ public static class Repository
     {
         return new SavedGame<T>
         {
-            AllLocations = _allLocations,
-            AllItems = _allItems
+            AllLocations = new Dictionary<Type, ILocation>(_allLocations),
+            AllItems = new Dictionary<Type, IItem>(_allItems)
         };
     }
 
