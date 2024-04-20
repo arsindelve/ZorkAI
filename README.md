@@ -69,8 +69,31 @@ Please feel free to report issues and make PRs to help make the game better. I w
 
 ## What's next?
 
-- Save, restore and restart. They work fine when you’re running the game as a console app, but I need to adapt them to the web. 
-- Frankly, the parser is not very good. If I’m being honest, it’s not much better than the original Zork parser. I need to find a solution that truly understands and processes every kind of sentence. 
+- Save, restore and ~~restart~~(done). They work fine when you’re running the game as a console app, but I need to adapt them to the web. 
+- ~~Frankly, the parser is not very good. If I’m being honest, it’s not much better than the original Zork parser. I need to find a solution that truly understands and processes every kind of sentence.~~ (I moved to Claude 4 for text parsing instead of AWS Lex, and the results are incredible. Check out this exchange):
+
+
+  
+      > Fine. so open up the mailbox, then
+      
+      Opening the small mailbox reveals a leaflet.
+      
+      > pick up the leaflet
+      
+      Taken.
+      
+      > now go ahead and close the mailbox please
+      
+      Closed.
+      
+      > nevermind open the mailbox back up again
+      
+      Opened.
+      
+      > next put the leaflet back in the mailbox
+      
+      Done.
+   
 - Finish the game! There is still the maze, the coal mine, the thief, and more. 
 - The world of Zork has a rich lore and vocabulary, with words like “Zorkmid”, “Frobozz”, “Dimwit Flathead”. I want to fine-tune the LLM to make the responses  more Zork-like. 
 - Finally, I started with Zork because it’s the most well-known, and one of the simplest Infocom games. What I really want, though, is to implement one of my two favourites, “Planetfall” and “A Mind Forever Voyaging”. These two games by Steve Meretzky are brilliant works of fiction, and I would love to see them come alive with AI immersion. 
