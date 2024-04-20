@@ -33,13 +33,31 @@ public class EndOfRainbow : LocationWithNoStartingItems
         {
             case "wave sceptre":
             case "wave the sceptre":
-                RainbowIsSolid = true;
-                ItemPlacedHere(GetItem<PotOfGold>());
-                return new PositiveInteractionResult(
-                    "Suddenly, the rainbow appears to become solid and, I venture, walkable (I think " +
-                    "the giveaway was the stairs and bannister). A shimmering pot of gold appears at the end of the rainbow. \n");
+                return WaveTheSceptre();
         }
 
         return base.RespondToSpecificLocationInteraction(input, context);
+    }
+
+    private InteractionResult WaveTheSceptre()
+    {
+        if (RainbowIsSolid)
+        {
+            RainbowIsSolid = false;
+            return new PositiveInteractionResult("The rainbow seems to have become somewhat run-of-the-mill.");
+        }
+
+        RainbowIsSolid = true;
+
+        var oldLocation = Repository.GetItem<PotOfGold>().CurrentLocation;
+        
+        if (oldLocation == null)
+            ItemPlacedHere(GetItem<PotOfGold>());
+
+        return new PositiveInteractionResult(
+            "Suddenly, the rainbow appears to become solid and, I venture, walkable (I think " +
+            "the giveaway was the stairs and bannister). " + (oldLocation != null 
+                ? ""
+                : " A shimmering pot of gold appears at the end of the rainbow. \n"));
     }
 }

@@ -5,7 +5,8 @@ public class WindingPassage : DarkLocation
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.N, new MovementParameters { Location = GetLocation<Temple>() } }
+            { Direction.N, new MovementParameters { Location = GetLocation<Temple>() } },
+            { Direction.E, new MovementParameters { Location = GetLocation<Cave>() } }
         };
 
     // TODO: Your sword is glowing with a faint blue glow.

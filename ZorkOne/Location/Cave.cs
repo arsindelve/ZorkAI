@@ -5,14 +5,36 @@ public class Cave : DarkLocation
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.W, new MovementParameters { Location = GetLocation<WindingPassage>() } }
+            { Direction.W, new MovementParameters { Location = GetLocation<WindingPassage>() } },
+            { Direction.Down, new MovementParameters { Location = GetLocation<EntranceToHades>() } }
         };
 
-    // TODO: Your sword is glowing with a faint blue glow.
     protected override string ContextBasedDescription =>
         "This is a tiny cave with entrances west and north, and a dark, forbidding staircase leading down. ";
 
     public override string Name => "Cave";
+
+    public override string AfterEnterLocation(IContext context)
+    {
+        var returnValue = "";
+        var swordInPossession = context.HasItem<Sword>();
+        var litCandlesInPossession = context.HasItem<Candles>() && Repository.GetItem<Candles>().Lit;
+        var spiritsAlive = Repository.GetItem<Spirits>().CurrentLocation == Repository.GetLocation<EntranceToHades>();
+
+        // TODO: Make this an actor, with a random chance (50%) to blow out the candles. I think that's what Zork does, needs to check source code. 
+        // TODO: If your candles get blown out and it was the only light source, "It is now completely dark" 
+        // https://github.com/historicalsource/zork1/blob/7d54d16fca7a5dd7c6191c93651aad925f8c0922/1actions.zil#L2424
+        if (litCandlesInPossession)
+            returnValue += "\nA gust of wind blows out your candles! ";
+
+        if (spiritsAlive && swordInPossession)
+            returnValue += "\nYour sword is glowing with a faint blue glow.";
+
+        if (string.IsNullOrWhiteSpace(returnValue))
+            return base.AfterEnterLocation(context);
+
+        return returnValue;
+    }
 
     public override void Init()
     {
