@@ -2,139 +2,143 @@
 
 namespace UnitTests.ZorkITests.Walkthrough;
 
+[TestFixture]
 public sealed class WalkthroughTestOne : EngineTestsBase
 {
-    private GameEngine<ZorkI, ZorkIContext> _target;
-
-    public WalkthroughTestOne()
+    [OneTimeSetUp]
+    public void Init()
     {
-        _target = GetTarget();
-    }
-
-    [Test]
-    //[Ignore("I need to see coverage from elsewhere")]
-    public async Task Walkthrough()
-    {
-        // https://web.mit.edu/marleigh/www/portfolio/Files/zork/transcript.html
-
         _target = GetTarget();
         Repository.Reset();
+    }
 
-        await Do("open mailbox", "Opening the small mailbox reveals a leaflet.");
-        await Do("read leaflet", "ZORK is a game of adventure, danger, and low cunning. In it you will explore");
-        await Do("drop leaflet", "Dropped");
-        await Do("S", "South of House");
-        await Do("E", "Behind House");
-        await Do("open window", "With great effort, you open the window far enough to allow entry.");
-        await Do("In", "Kitchen", "A quantity of water", "smelling of hot peppers.");
-        await Do("W", "Living Room", "A battery-powered brass lantern", "and a large oriental rug in the center of");
-        await Do("take lamp", "Taken");
-        await Do("move rug", "With a great effort,");
-        await Do("open trap door", "The door reluctantly opens to reveal a rickety staircase descending into darkness");
-        await Do("turn on lantern", "The brass lantern is now on.");
-        await Do("go down", "The trap door crashes shut", "You are in a dark and damp cellar with a narrow passageway");
-        await Do("S", "You are on the east edge of a chasm");
-        await Do("E", "Most of the paintings have been stolen by",
-            "Fortunately, there is still one chance for you to be");
-        await Do("take painting", "Taken");
-        await Do("N", "This appears to have been an artist's studio.", "Loosely attached to a wall is a small");
-        await Do("Up", "Kitchen");
-        await Do("Up", "Attic", "On a table is a nasty-looking knife", "A large coil of rope is lying in the corner");
-        await Do("take knife", "Taken");
-        await Do("take rope", "Taken");
-        await Do("go down", "Kitchen");
-        await Do("W", "Above the trophy case hangs an elvish sword of great antiquity.", "Living Room");
-        await Do("open case", "Opened");
+    private GameEngine<ZorkI, ZorkIContext> _target;
 
-        // Painting
-        await Do("put painting inside case", "Done");
+    [Test]
+    [TestCase("open mailbox", null, "Opening the small mailbox reveals a leaflet.")]
+    [TestCase("read leaflet", null, "ZORK is a game of adventure, danger, and low cunning. In it you will explore")]
+    [TestCase("drop leaflet", null, "Dropped")]
+    [TestCase("S", null, "South of House")]
+    [TestCase("E", null, "Behind House")]
+    [TestCase("open window", null, "With great effort, you open the window far enough to allow entry.")]
+    [TestCase("In", null, "Kitchen", "A quantity of water", "smelling of hot peppers.")]
+    [TestCase("W", null, "Living Room", "A battery-powered brass lantern", "and a large oriental rug in the center of")]
+    [TestCase("take lamp", null, "Taken")]
+    [TestCase("move rug", null, "With a great effort,")]
+    [TestCase("open trap door", null, "The door reluctantly opens to reveal a rickety staircase ")]
+    [TestCase("turn on lantern", null, "The brass lantern is now on.")]
+    [TestCase("go down", null, "The trap door crashes shut", "You are in a dark and damp cellar ")]
+    [TestCase("S", null, "You are on the east edge of a chasm")]
+    [TestCase("E", null, "Most of the paintings have been stolen by", "Fortunately, there is")]
+    [TestCase("take painting", null, "Taken")]
+    [TestCase("N", null, "This appears to have been an artist's studio.", "Loosely attached to a wall is a small")]
+    [TestCase("Up", null, "Kitchen")]
+    [TestCase("Up", null, "Attic", "a nasty-looking knife", "A large coil of rope is lying in the corner")]
+    [TestCase("take knife", null, "Taken")]
+    [TestCase("take rope", null, "Taken")]
+    [TestCase("go down", null, "Kitchen")]
+    [TestCase("W", null, "Above the trophy case hangs an elvish sword of great antiquity.", "Living Room")]
+    [TestCase("open case", null, "Opened")]
+    [TestCase("put painting inside case", null, "Done")]
+    [TestCase("drop knife", null, "Dropped")]
+    [TestCase("take sword", null, "Taken")]
+    [TestCase("open trap door", null, "The door reluctantly opens")]
+    [TestCase("go down", null, "The trap door crashes shut", "faint blue glow")]
+    [TestCase("N", "KillTroll", "Bloodstains")]
+    [TestCase("drop sword", null, "Dropped")]
+    [TestCase("E", null, "This is a narrow east-west passageway")]
+    [TestCase("E", null, "This is a circular stone room with passages in all direction", "Round Room")]
+    [TestCase("SE", null, "There are old engravings on the walls here", "Engravings Cave")]
+    [TestCase("E", null, "periphery of a large dome, which forms the ceiling of another room below", "Dome Room")]
+    [TestCase("tie rope to railing", null, "The rope drops over the side and comes within ten feet of the floor.")]
+    [TestCase("go down", null, "Torch Room", "Sitting on the pedestal is a flaming torch, made of ivory.")]
+    [TestCase("S", null, "Temple")]
+    [TestCase("E", null, "Egyptian Room", "The solid-gold coffin used for the burial of Ramses II is here.")]
+    [TestCase("take coffin", null, "Taken")]
+    [TestCase("W", null, "Temple")]
+    [TestCase("S", null, "Altar")]
+    [TestCase("pray", null, "Forest", "sunlight")]
+    [TestCase("turn off lantern", null, "The brass lantern is now off")]
+    [TestCase("S", null, "This is a dimly lit forest")]
+    [TestCase("N", null, "Clearing")]
+    [TestCase("E", null, "Canyon View", "stretching for miles around")]
+    [TestCase("Down", null, "Rocky Ledge", "which appears climbable")]
+    [TestCase("Down", null, "Canyon Bottom", "Aragain Falls")]
+    [TestCase("N", null, "End of Rainbow", "The beach is narrow due to the presence of the White Cliffs.")]
+    [TestCase("drop coffin", null, "Dropped")]
+    [TestCase("open coffin", null, "The gold coffin opens", "sceptre is ornamented with ")]
+    [TestCase("take sceptre", null, "Taken")]
+    [TestCase("wave sceptre", null, "Suddenly, the rainbow appears to become solid", "A shimmering pot of gold")]
+    [TestCase("take gold", null, "Taken")]
+    [TestCase("take coffin", null, "Taken")]
+    [TestCase("SW", null, "Canyon Bottom")]
+    [TestCase("Up", null, "Rocky Ledge")]
+    [TestCase("Up", null, "Canyon View")]
+    [TestCase("NW", null, "Clearing")]
+    [TestCase("W", null, "Behind House")]
+    [TestCase("In", null, "Kitchen", "A bottle is sitting on the table", "elongated")]
+    [TestCase("open sack", null, "Opening the brown sack reveals a lunch, and a clove of garlic")]
+    [TestCase("take garlic", null, "Taken")]
+    [TestCase("W", null, "Living Room", "Your collection of treasures consists of", "A painting")]
+    [TestCase("put coffin inside case", null, "Done")]
+    [TestCase("put sceptre inside case", null, "Done")]
+    [TestCase("put gold in case", null, "Done")]
+    [TestCase("open trap door", null, "The door reluctantly opens to reveal a")]
+    [TestCase("turn on lantern", null, "The brass lantern is now on.")]
+    [TestCase("go down", null, "The trap door crashes shut", "Cellar")]
+    [TestCase("N", null, "Bloodstains", "Troll Room")]
+    [TestCase("E", null, "This is a narrow east-west passageway")]
+    [TestCase("N", null, "Chasm", "A chasm runs southwest to northeast and the path follows it")]
+    [TestCase("NE", null, "Reservoir South", "far too deep and wide for crossing")]
+    [TestCase("E", null, "Dam", "You are standing on the top of the Flood Control Dam #3")]
+    [TestCase("N", null, "Lobby", "Some guidebooks", "Visit Beautiful")]
+    [TestCase("take matches", null, "Taken")]
+    [TestCase("N", null, "Maintenance", "ransacked", "blue", "yellow")]
+    [TestCase("take wrench", null, "Taken")]
+    [TestCase("take screwdriver", null, "Taken")]
+    [TestCase("press the yellow button", null, "Click")]
+    [TestCase("S", null, "Dam Lobby")]
+    [TestCase("S", null, "Dam", "glowing serenely")]
+    [TestCase("turn bolt with wrench", null, "The sluice gates open and water pours through the dam.")]
+    [TestCase("drop wrench", null, "Dropped")]
+    [TestCase("S", null, "Deep Canyon")]
+    [TestCase("go down", null, "It is unbearably loud here, with an ear-splitting")]
+    [TestCase("SE", "GoToRoundRoom", "There are old engravings on the walls here")]
+    [TestCase("E", null, "Dome Room")]
+    [TestCase("go down", null, "Torch Room", "flaming torch, made of ivory.")]
+    [TestCase("take torch", null, "Taken")]
+    [TestCase("turn off lantern", null, "The brass lantern is now off.")]
+    [TestCase("S", null,  "Temple", "There is a brass bell here.")]
+    [TestCase("take bell", null, "Taken")]
+    [TestCase("S", null, "Altar", "altar are burning candles.", "large black book")]
+    [TestCase("take book", null, "Taken")]
+    [TestCase("take candles", null, "Taken")]
+    [TestCase("go down", null, "Cave")]
+    public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
+    {
+        if (!string.IsNullOrWhiteSpace(setup))
+        {
+            var method = GetType().GetMethod(setup);
+            if (method == null) throw new ArgumentException("Method " + setup + " doesn't exist");
 
-        await Do("drop knife", "Dropped");
-        await Do("take sword", "Taken");
-        await Do("open trap door", "The door reluctantly opens to reveal a rickety staircase descending into darkness");
-        await Do("go down", "The trap door crashes shut", "faint blue glow");
+            // Invoke the method on the current instance
+            method.Invoke(this, null);
+        }
 
-        // For the test we have to take out the randomness and just kill the troll
+        await Do(input, expectedResponses);
+    }
+
+    public void KillTroll()
+    {
+        // We can't have the randomness of trying to kill the troll. Let's God-Mode the dude. 
         Repository.GetItem<Troll>().IsDead = true;
+    }
 
-        await Do("N", "Bloodstains");
-        await Do("drop sword", "Dropped");
-        await Do("E", "This is a narrow east-west passageway");
-        await Do("E", "This is a circular stone room with passages in all direction", "Round Room");
-        await Do("SE", "There are old engravings on the walls here", "Engravings Cave");
-        await Do("E", "periphery of a large dome, which forms the ceiling of another room below", "Dome Room");
-        await Do("tie rope to railing", "The rope drops over the side and comes within ten feet of the floor.");
-        await Do("go down", "Torch Room", "Sitting on the pedestal is a flaming torch, made of ivory.");
-        await Do("S", "Temple");
-        await Do("E", "Egyptian Room", "The solid-gold coffin used for the burial of Ramses II is here.");
-        await Do("take coffin", "Taken");
-        await Do("W", "Temple");
-        await Do("S", "Altar");
-        await Do("pray", "Forest", "sunlight");
-        await Do("turn off lantern", "The brass lantern is now off");
-        await Do("S", "This is a dimly lit forest");
-        await Do("N", "Clearing");
-        await Do("E", "Canyon View", "stretching for miles around");
-        await Do("Down", "Rocky Ledge", "which appears climbable");
-        await Do("Down", "Canyon Bottom", "Aragain Falls");
-        await Do("N", "End of Rainbow", "The beach is narrow due to the presence of the White Cliffs.");
-        await Do("drop coffin", "Dropped");
-        await Do("open coffin", "The gold coffin opens", "sceptre is ornamented with colored enamel, and tapers to a ");
-        await Do("take sceptre", "Taken");
-        await Do("wave sceptre", "Suddenly, the rainbow appears to become solid", "A shimmering pot of gold");
-        await Do("take gold", "Taken");
-        await Do("take coffin", "Taken");
-        await Do("SW", "Canyon Bottom");
-        await Do("Up", "Rocky Ledge");
-        await Do("Up", "Canyon View");
-        await Do("NW", "Clearing");
-        await Do("W", "Behind House");
-        await Do("In", "Kitchen", "A bottle is sitting on the table", "elongated");
-        await Do("open sack", "Opening the brown sack reveals a lunch, and a clove of garlic");
-        await Do("take garlic", "Taken");
-        await Do("W", "Living Room", "Your collection of treasures consists of", "A painting");
-
-        // Gold, sceptre and coffin
-        await Do("put coffin inside case", "Done");
-        await Do("put sceptre inside case", "Done");
-        await Do("put gold in case", "Done");
-
-        await Do("open trap door", "The door reluctantly opens to reveal a rickety staircase descending into darkness");
-        await Do("turn on lantern", "The brass lantern is now on.");
-        await Do("go down", "The trap door crashes shut", "Cellar");
-        await Do("N", "Bloodstains", "Troll Room");
-        await Do("E", "This is a narrow east-west passageway");
-        await Do("N", "Chasm", "A chasm runs southwest to northeast and the path follows it");
-        await Do("NE", "Reservoir South", "far too deep and wide for crossing");
-        await Do("E", "Dam", "You are standing on the top of the Flood Control Dam #3");
-        await Do("N", "Lobby", "Some guidebooks", "Visit Beautiful");
-        await Do("take matches", "Taken");
-        await Do("N", "Maintenance", "ransacked", "blue", "yellow");
-        await Do("take wrench", "Taken");
-        await Do("take screwdriver", "Taken");
-        await Do("press the yellow button", "Click");
-        await Do("S", "Dam Lobby");
-        await Do("S", "Dam", "glowing serenely");
-        await Do("turn bolt with wrench", "The sluice gates open and water pours through the dam.");
-        await Do("drop wrench", "Dropped");
-        await Do("S", "Deep Canyon");
-        await Do("go down", "It is unbearably loud here, with an ear-splitting");
-
+    public void GoToRoundRoom()
+    {
         // Entering the loud room when it's draining will cause us to flee the room in a random 
         // direction. For the test we need to remove the randomness and end up in the Round Room
         _target.Context.CurrentLocation = Repository.GetLocation<RoundRoom>();
-
-        await Do("SE", "There are old engravings on the walls here");
-        await Do("E", "Dome Room");
-        await Do("go down", "Torch Room", "flaming torch, made of ivory.");
-        await Do("take torch", "Taken");
-        await Do("turn off lantern", "The brass lantern is now off.");
-        await Do("S", "Temple", "There is a brass bell here.");
-        await Do("take bell", "Taken");
-        await Do("S", "Altar", "altar are burning candles.", "large black book");
-        await Do("take book", "Taken");
-        await Do("take candles", "Taken");
-        await Do("go down", "Cave");
     }
 
     private async Task Do(string input, params string[] outputs)
