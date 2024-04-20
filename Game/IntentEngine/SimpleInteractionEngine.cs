@@ -34,7 +34,6 @@ internal class SimpleInteractionEngine : IIntentEngine
         if (locationInteraction.InteractionHappened)
             return locationInteraction.InteractionMessage + Environment.NewLine;
 
-
         // The noun was present in the given LOCATION, but the verb applied to
         // it has no meaning in the story. I.E: push the sword...that will accomplish nothing. 
         if (locationInteraction is NoVerbMatchInteractionResult noVerb)

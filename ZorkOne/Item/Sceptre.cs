@@ -20,13 +20,14 @@ public class Sceptre : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IGivePoi
 
     int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 6;
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client)
     {
-        // TODO: Wave the sceptre 
-        // A dazzling display of color briefly emanates from the sceptre.
-
-
-        return base.RespondToSimpleInteraction(action, context, client);
+        if (action.Verb.ToLowerInvariant() != "wave")
+            return base.RespondToSimpleInteraction(action, context, client);
+    
+        if (!action.MatchNoun(NounsForMatching))
+            return base.RespondToSimpleInteraction(action, context, client);
+    
+        return new PositiveInteractionResult("A dazzling display of color briefly emanates from the sceptre.");
     }
 }
