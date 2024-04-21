@@ -5,7 +5,7 @@ internal class EntranceToHades : DarkLocation
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.Up, new MovementParameters { Location = GetLocation<Cave>() } },
+            { Direction.Up, new MovementParameters { Location = GetLocation<CaveSouth>() } },
             {
                 Direction.S,
                 new MovementParameters

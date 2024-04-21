@@ -3,12 +3,13 @@ using Model.Intent;
 
 namespace ZorkOne.Location;
 
-public class Cave : DarkLocation
+public class CaveSouth : DarkLocation
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
             { Direction.W, new MovementParameters { Location = GetLocation<WindingPassage>() } },
+            { Direction.N, new MovementParameters { Location = GetLocation<MirrorRoomSouth>() } },
             { Direction.Down, new MovementParameters { Location = GetLocation<EntranceToHades>() } }
         };
 
