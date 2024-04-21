@@ -1,3 +1,4 @@
+using Model.AIGeneration;
 using ZorkOne.ActorInteraction;
 
 namespace ZorkOne.Item;
@@ -28,7 +29,7 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor
             ? ""
             : "A nasty-looking troll, brandishing a bloody axe, blocks all passages out of the room. ";
 
-    public string? Act(IContext context)
+    public string? Act(IContext context, IGenerationClient client)
     {
         if (IsDead || IsUnconscious)
             return null;

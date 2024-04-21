@@ -28,7 +28,7 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
 
     public bool LeakIsFixed { get; set; }
 
-    public string Act(IContext context)
+    public string Act(IContext context, IGenerationClient client)
     {
         CurrentWaterLevel++;
 

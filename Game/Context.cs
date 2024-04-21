@@ -77,7 +77,7 @@ public class Context<T> : IContext where T : IInfocomGame, new()
 
             var lightSourcesThatAreOn = Items
                 .Where(s => s is IAmALightSource)
-                .Where(s => s is ICanBeTurnedOnAndOff { IsOn: true });
+                .Where(s => s is IAmALightSourceThatTurnsOnAndOff { IsOn: true });
 
             return constantLightSources.Any() || lightSourcesThatAreOn.Any();
         }

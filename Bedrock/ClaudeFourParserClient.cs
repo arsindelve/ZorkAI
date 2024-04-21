@@ -20,7 +20,7 @@ internal class ClaudeFourParserClient : ClaudeClientBase, IClaudeFourParserClien
              b) something else, put "Act"
 
         2. In verb tags, put the single most important verb I need to know, which best expresses the player's intention. If there is a simpler, more common synonym for the verb, use that instead.
-        3. For each of the noun or nouns that relate to the main verb, place each noun in a set of noun tags.
+        3. For each of the noun or nouns that relate to the main verb, place each noun in a set of noun tags. Replace any obvious typos with the correct noun.
         4. If there are two nouns, in preposition tags, put the preposition which connects the nouns. Otherwise, omit these tags
         5. If the sentence expresses a desire to move in a certain direction or a certain way, put in <direction> tags,  the exact word from this list which best describes where they want to go: "in, out, enter, exit, up, down, east, west, north, south, north-west, north-east, south-west or south-east" . If you cannot match any of these words, put "other"
 

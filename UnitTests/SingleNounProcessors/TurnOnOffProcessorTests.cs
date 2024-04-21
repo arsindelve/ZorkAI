@@ -136,7 +136,7 @@ public class TurnOnOffProcessorTests : EngineTestsBase
     [Test]
     public void TurnOnProcessor_WrongType()
     {
-        IVerbProcessor target = new TurnOnOrOffProcessor();
+        IVerbProcessor target = new TurnLightOnOrOffProcessor();
         target.Process(Mock.Of<SimpleIntent>(), Mock.Of<IContext>(), new Sword(), Mock.Of<IGenerationClient>()).Should()
             .BeNull();
     }

@@ -223,7 +223,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     {
         var actorResults = string.Empty;
         foreach (var actor in Context.Actors.ToList())
-            actorResults += $"\n{actor.Act(Context)}";
+            actorResults += $"{actor.Act(Context, _generator)}";
 
         return actorResults;
     }

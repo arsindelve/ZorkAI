@@ -1,4 +1,6 @@
-﻿namespace ZorkOne.Location;
+﻿using Model.AIGeneration;
+
+namespace ZorkOne.Location;
 
 public class ReservoirSouth : DarkLocation, ITurnBasedActor
 {
@@ -48,7 +50,7 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
 
     public override string Name => "Reservoir South";
 
-    public string Act(IContext context)
+    public string Act(IContext context, IGenerationClient client)
     {
         if (IsDraining)
         {

@@ -32,6 +32,6 @@ public class Altar : BaseLocation
         StartWithItem(GetItem<BlackBook>(), this);
         StartWithItem(GetItem<Candles>(), this);
 
-        GetItem<Candles>().Lit = true;
+        GetItem<Candles>().IsOn = true;
     }
 }

@@ -6,9 +6,9 @@ using Model.Location;
 namespace Game.Item.ItemProcessor;
 
 /// <summary>
-///     A class that handles the processing of turning an object on or off.
+///     A class that handles the processing of turning a light source on or off.
 /// </summary>
-public class TurnOnOrOffProcessor : IVerbProcessor
+public class TurnLightOnOrOffProcessor : IVerbProcessor
 {
     /// <summary>
     ///     Processes the action of turning on or off an object.
@@ -26,7 +26,6 @@ public class TurnOnOrOffProcessor : IVerbProcessor
 
         switch (action.Verb.ToLowerInvariant().Trim())
         {
-            // TODO: The first two are specific to lights. Refactor this. 
             case "light":
             case "strike":
             case "turn on":
@@ -34,7 +33,6 @@ public class TurnOnOrOffProcessor : IVerbProcessor
                 return ProcessOn(context, item, client);
 
             case "turn off":
-            // TODO: Same here. Too specific to lights, does not belong here. 
             case "extinguish":
             case "blow out":
                 return ProcessOff(context, item, client);
@@ -57,7 +55,7 @@ public class TurnOnOrOffProcessor : IVerbProcessor
 
         switch (item)
         {
-            case ICanBeTurnedOnAndOff onAndOff:
+            case IAmALightSourceThatTurnsOnAndOff onAndOff:
 
                 switch (adverb)
                 {
@@ -90,7 +88,7 @@ public class TurnOnOrOffProcessor : IVerbProcessor
     {
         switch (item)
         {
-            case ICanBeTurnedOnAndOff onAndOff:
+            case IAmALightSourceThatTurnsOnAndOff onAndOff:
                 return TurnItOn(onAndOff, context, client).Result;
 
             default:
@@ -102,7 +100,7 @@ public class TurnOnOrOffProcessor : IVerbProcessor
     {
         switch (item)
         {
-            case ICanBeTurnedOnAndOff onAndOff:
+            case IAmALightSourceThatTurnsOnAndOff onAndOff:
                 return TurnItOff(onAndOff, context, client).Result;
 
             case ICannotBeTurnedOff cannotBeTurnedOff:
@@ -113,7 +111,7 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         }
     }
 
-    private static async Task<InteractionResult> TurnItOff(ICanBeTurnedOnAndOff item, IContext context,
+    private static async Task<InteractionResult> TurnItOff(IAmALightSourceThatTurnsOnAndOff item, IContext context,
         IGenerationClient client)
     {
         if (!item.IsOn)
@@ -122,13 +120,13 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         item.IsOn = false;
         item.OnBeingTurnedOff(context);
 
-        if (item is IAmALightSource && context.ItIsDarkHere)
+        if (context.ItIsDarkHere)
             return new PositiveInteractionResult(await new LookProcessor().Process(null, context, client, Runtime.Unknown));
 
         return new PositiveInteractionResult(item.NowOffText);
     }
 
-    private static async Task<InteractionResult> TurnItOn(ICanBeTurnedOnAndOff item, IContext context,
+    private static async Task<InteractionResult> TurnItOn(IAmALightSourceThatTurnsOnAndOff item, IContext context,
         IGenerationClient client)
     {
         string result = "";
@@ -142,10 +140,10 @@ public class TurnOnOrOffProcessor : IVerbProcessor
         bool itWasDark = context.ItIsDarkHere;
             
         item.IsOn = true;
-        item.OnBeingTurnedOn(context);
+        result += item.OnBeingTurnedOn(context);
      
-        if (item is IAmALightSource && itWasDark)
-            result += "\n" + await new LookProcessor().Process(null, context, client, Runtime.Unknown);
+        if (itWasDark)
+            result += "\n\n" + await new LookProcessor().Process(null, context, client, Runtime.Unknown);
         
         return new PositiveInteractionResult(item.NowOnText + result);
     }

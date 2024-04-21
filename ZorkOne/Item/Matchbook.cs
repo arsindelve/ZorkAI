@@ -1,17 +1,44 @@
-﻿namespace ZorkOne.Item;
+﻿using Game.Item.ItemProcessor;
+using Model.AIGeneration;
+using Model.Intent;
 
-public class Matchbook : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDropped, IAmALightSource,
-    ICanBeTurnedOnAndOff, ITurnBasedActor
+namespace ZorkOne.Item;
+
+public class Matchbook : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDropped,
+    IAmALightSourceThatTurnsOnAndOff, ITurnBasedActor
 {
     public int TurnsRemainingLit { get; set; }
 
     public int MatchesUsed { get; set; }
 
-    public bool Lit { get; set; }
-
     public override string[] NounsForMatching => ["matches", "matchbook", "match"];
 
-    public override string InInventoryDescription => "A matchbook" + (Lit ? " (providing light)" : "");
+    public override string InInventoryDescription => "A matchbook" + (IsOn ? " (providing light)" : "");
+
+    public bool IsOn { get; set; }
+
+    public string NowOnText => "One of the matches starts to burn.";
+
+    public string NowOffText => "The match has gone out. ";
+
+    public string AlreadyOffText => "You can't turn that off. ";
+
+    public string AlreadyOnText => string.Empty;
+
+    public string? CannotBeTurnedOnText => MatchesUsed == 5 ? "I'm afraid that you have run out of matches. " : "";
+
+    public string OnBeingTurnedOn(IContext context)
+    {
+        TurnsRemainingLit = 1;
+        MatchesUsed++;
+        context.RegisterActor(this);
+        return string.Empty;
+    }
+
+    public void OnBeingTurnedOff(IContext context)
+    {
+        context.RemoveActor(this);
+    }
 
     public string ExaminationDescription => "The matchbook isn't very interesting, except for what's written on it. ";
 
@@ -32,38 +59,9 @@ public class Matchbook : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDro
     public override string NeverPickedUpDescription =>
         "There is a matchbook whose cover says \"Visit Beautiful FCD#3\" here. ";
 
-    public bool IsOn
+    public string Act(IContext context, IGenerationClient client)
     {
-        get => Lit;
-        set => Lit = value;
-    }
-
-    public string NowOnText => "One of the matches starts to burn.";
-
-    public string NowOffText { get; }
-
-    public string AlreadyOffText { get; }
-
-    public string AlreadyOnText { get; }
-
-    public string? CannotBeTurnedOnText => MatchesUsed == 5 ? "I'm afraid that you have run out of matches. " : "";
-
-    public void OnBeingTurnedOn(IContext context)
-    {
-        TurnsRemainingLit = 1;
-        MatchesUsed++;
-        Lit = true;
-        context.RegisterActor(this);
-    }
-
-    public void OnBeingTurnedOff(IContext context)
-    {
-        Lit = false;
-    }
-
-    public string? Act(IContext context)
-    {
-        if (!Lit)
+        if (!IsOn)
         {
             context.RemoveActor(this);
             return "";
@@ -75,12 +73,10 @@ public class Matchbook : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDro
             return "";
         }
 
-        TurnsRemainingLit = 0;
-        Lit = false;
-        
-        // TODO: Was this our only light source? Tell them it's dark 
-        
-        return "The match has gone out.";
+        InteractionResult? result = new TurnLightOnOrOffProcessor().Process(
+            new SimpleIntent { Verb = "turn off", Noun = NounsForMatching.First() },
+            context, this, client);
+
+        return result!.InteractionMessage;
     }
-    
 }

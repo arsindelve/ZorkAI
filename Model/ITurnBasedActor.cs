@@ -1,3 +1,5 @@
+using Model.AIGeneration;
+
 namespace Model;
 
 /// <summary>
@@ -11,6 +13,7 @@ public interface ITurnBasedActor
     ///     Performs an action based on the actor's behavior in the given context.
     /// </summary>
     /// <param name="context">The context in which the actor is present.</param>
+    /// <param name="client"></param>
     /// <returns>A description of the action performed by the actor.</returns>
-    string? Act(IContext context);
+    string? Act(IContext context, IGenerationClient client);
 }

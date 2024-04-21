@@ -1,3 +1,4 @@
+using Model.AIGeneration;
 using ZorkOne.Command;
 
 namespace ZorkOne.Location;
@@ -15,7 +16,7 @@ public class Reservoir : DarkLocation, ITurnBasedActor
 
     public override string Name => "Reservoir";
 
-    public string Act(IContext context)
+    public string Act(IContext context, IGenerationClient client)
     {
         var south = GetLocation<ReservoirSouth>();
 
