@@ -1,4 +1,6 @@
-﻿namespace ZorkOne.Location;
+﻿using Model.AIGeneration;
+
+namespace ZorkOne.Location;
 
 /// <summary>
 ///     When the dam is filling up, it's quiet in here and it's a normal room. When the dam is draining, it's so
@@ -29,7 +31,7 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
 
     public override string Name => "Loud Room";
 
-    public string? Act(IContext context)
+    public string? Act(IContext context, IGenerationClient client)
     {
         return string.Empty;
     }

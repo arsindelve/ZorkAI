@@ -26,7 +26,7 @@ public class Spirits : ItemBase, ICanBeExamined, ITurnBasedActor
             "The wraiths, as if paralyzed, stop their jeering and slowly turn to face you. On their ashen faces, the expression of a long-forgotten terror takes shape. ";
     }
     
-    public string? Act(IContext context)
+    public string? Act(IContext context, IGenerationClient client)
     {
         if (!Stunned)
         {
@@ -40,7 +40,7 @@ public class Spirits : ItemBase, ICanBeExamined, ITurnBasedActor
         {
             Stunned = false;
             if (context.CurrentLocation == Repository.GetLocation<EntranceToHades>())
-                return "The tension of this ceremony is broken, and the wraiths, amused but shaken at your clumsy attempt, resume their hideous jeering.";
+                return "\nThe tension of this ceremony is broken, and the wraiths, amused but shaken at your clumsy attempt, resume their hideous jeering.";
         }
 
         return "";

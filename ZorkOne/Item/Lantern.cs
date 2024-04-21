@@ -1,8 +1,11 @@
 using System.Diagnostics;
+using Game.Item.ItemProcessor;
+using Model.AIGeneration;
+using Model.Intent;
 
 namespace ZorkOne.Item;
 
-public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBeTurnedOnAndOff, IAmALightSource,
+public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IAmALightSourceThatTurnsOnAndOff,
     ITurnBasedActor
 {
     public int TurnsWhileOn { get; set; }
@@ -23,19 +26,20 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBeTu
 
     public bool IsOn { get; set; }
 
-    string ICanBeTurnedOnAndOff.NowOnText => "The brass lantern is now on.";
+    string IAmALightSourceThatTurnsOnAndOff.NowOnText => "The brass lantern is now on.";
 
-    string ICanBeTurnedOnAndOff.NowOffText => "The brass lantern is now off.";
+    string IAmALightSourceThatTurnsOnAndOff.NowOffText => "The brass lantern is now off.";
 
-    string ICanBeTurnedOnAndOff.AlreadyOffText => "It is already off.";
+    string IAmALightSourceThatTurnsOnAndOff.AlreadyOffText => "It is already off.";
 
-    string ICanBeTurnedOnAndOff.AlreadyOnText => "It is already on.";
+    string IAmALightSourceThatTurnsOnAndOff.AlreadyOnText => "It is already on.";
 
     public string CannotBeTurnedOnText => BurnedOut ? "A burned-out lamp won't light. " : string.Empty;
 
-    public void OnBeingTurnedOn(IContext context)
+    public string OnBeingTurnedOn(IContext context)
     {
         context.RegisterActor(this);
+        return string.Empty;
     }
 
     public void OnBeingTurnedOff(IContext context)
@@ -43,7 +47,7 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBeTu
         context.RemoveActor(this);
     }
 
-    public string Act(IContext context)
+    public string Act(IContext context, IGenerationClient client)
     {
         Debug.WriteLine($"Lantern counter: {TurnsWhileOn}");
         TurnsWhileOn++;
@@ -60,9 +64,12 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBeTu
                 return "The lamp is nearly out. ";
 
             case 375:
-                IsOn = false;
                 BurnedOut = true;
-                return "You'd better have more light than from the brass lantern. ";
+                var result = new TurnLightOnOrOffProcessor().Process(
+                    new SimpleIntent { Noun = NounsForMatching.First(), Verb = "turn off" }, context, this,
+                    client);
+                return "You'd better have more light than from the lantern. " + result!.InteractionMessage;
+
 
             default:
                 return string.Empty;

@@ -24,7 +24,7 @@ public class BrassBell : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ITurnB
 
     public override string NeverPickedUpDescription => OnTheGroundDescription;
 
-    public string Act(IContext context)
+    public string Act(IContext context, IGenerationClient client)
     {
         if (!BellIsRedHot)
         {

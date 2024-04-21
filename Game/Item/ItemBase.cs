@@ -86,11 +86,11 @@ public abstract class ItemBase : IItem
         if (item is ICanBeRead)
             result.Add(new ReadInteractionProcessor());
 
-        if (item is ICanBeTurnedOnAndOff)
-            result.Add(new TurnOnOrOffProcessor());
+        if (item is IAmALightSourceThatTurnsOnAndOff)
+            result.Add(new TurnLightOnOrOffProcessor());
 
         if (item is ICannotBeTurnedOff)
-            result.Add(new TurnOnOrOffProcessor());
+            result.Add(new TurnLightOnOrOffProcessor());
 
         if (item is IOpenAndClose)
             result.Add(new OpenAndCloseInteractionProcessor());
@@ -111,6 +111,11 @@ public abstract class ItemBase : IItem
             => current ?? processor.Process(action, context, this, client));
 
         return result ?? new NoVerbMatchInteractionResult { Verb = action.Verb, Noun = action.Noun };
+    }
+    
+    public virtual InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    {
+        return new NoNounMatchInteractionResult();
     }
 
     public virtual string? OnBeingTaken(IContext context)

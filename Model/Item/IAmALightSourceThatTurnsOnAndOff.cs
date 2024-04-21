@@ -3,7 +3,7 @@ namespace Model.Item;
 /// <summary>
 ///     Represents an item that can be turned on and off.
 /// </summary>
-public interface ICanBeTurnedOnAndOff : IInteractionTarget
+public interface IAmALightSourceThatTurnsOnAndOff : IInteractionTarget, IAmALightSource
 {
     bool IsOn { get; set; }
 
@@ -17,7 +17,7 @@ public interface ICanBeTurnedOnAndOff : IInteractionTarget
 
     string? CannotBeTurnedOnText { get; }
 
-    void OnBeingTurnedOn(IContext context);
+    string OnBeingTurnedOn(IContext context);
 
     void OnBeingTurnedOff(IContext context);
 }

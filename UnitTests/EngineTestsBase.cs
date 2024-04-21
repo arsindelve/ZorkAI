@@ -273,6 +273,14 @@ public class EngineTestsBase
                 .ReturnsAsync(new SimpleIntent
                     { Adverb = "", Verb = "examine", Noun = "spirits", OriginalInput = "examine the spirits" });
             
+            mockParser.Setup(s => s.DetermineIntentType("light a match", It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "light", Noun = "match", OriginalInput = "light a match" });
+            
+            mockParser.Setup(s => s.DetermineIntentType("read book", It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "read", Noun = "book", OriginalInput = "read book" });
+            
             mockParser.Setup(s => s.DetermineIntentType("put painting inside case", It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new MultiNounIntent
                 {
@@ -341,6 +349,16 @@ public class EngineTestsBase
                     Preposition = "with",
                     Verb = "turn",
                     OriginalInput = "turn bolt with wrench"
+                });
+            
+            mockParser.Setup(s => s.DetermineIntentType("light candles with match", It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new MultiNounIntent
+                {
+                    NounOne = "candles",
+                    NounTwo = "match",
+                    Preposition = "with",
+                    Verb = "light",
+                    OriginalInput = "light candles with match"
                 });
         }
         else

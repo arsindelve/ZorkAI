@@ -1,3 +1,7 @@
+using Model.AIGeneration;
+using Model.Intent;
+using ZorkOne.Location;
+
 namespace ZorkOne.Item;
 
 public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead
@@ -24,4 +28,29 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
     public string OnTheGroundDescription => "There is a black book here. ";
 
     public override string NeverPickedUpDescription => "On the altar is a large black book, open to page 569.";
+
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client)
+    {
+        if (action.Match(["read"], NounsForMatching))
+        {
+            var location = Repository.GetLocation<EntranceToHades>();
+            var spirits = Repository.GetItem<Spirits>();
+
+            if (context.CurrentLocation == location &&
+                spirits.CurrentLocation == location &&
+                spirits.Stunned)
+            {
+                // * POOF *
+                spirits.CurrentLocation = null;
+                location.RemoveItem(spirits);
+                
+                return new PositiveInteractionResult(
+                    "Each word of the prayer reverberates through the hall in a deafening confusion. " +
+                    "As the last word fades, a voice, loud and commanding, speaks: \"Begone, fiends!\" A heart-stopping " +
+                    "scream fills the cavern, and the spirits, sensing a greater power, flee through the walls.");
+            }
+        }
+        
+        return base.RespondToSimpleInteraction(action, context, client);
+    }
 }

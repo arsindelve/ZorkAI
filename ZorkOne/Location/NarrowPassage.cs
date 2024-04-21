@@ -5,7 +5,8 @@ public class NarrowPassage : DarkLocation
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.N, new MovementParameters { Location = GetLocation<RoundRoom>() } }
+            { Direction.N, new MovementParameters { Location = GetLocation<RoundRoom>() } },
+            { Direction.S, new MovementParameters { Location = GetLocation<MirrorRoomSouth>() } }
         };
 
     protected override string ContextBasedDescription =>

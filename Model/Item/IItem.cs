@@ -33,4 +33,14 @@ public interface IItem : IInteractionTarget
     bool HasMatchingNoun(string? noun, bool lookInsideContainers = true);
 
     InteractionResult? RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client);
+    
+    /// <summary>
+    ///     We have parsed the user input and determined that we have a <see cref="MultiNounIntent" /> corresponding
+    ///     of a verb and two nouns. Does that combination do anything with items in our inventory?  This
+    ///     method will be frequently overriden in child objects.
+    /// </summary>
+    /// <param name="action">The multi-noun intent representing the interaction.</param>
+    /// <param name="context">The context in which the interaction occurs.</param>
+    /// <returns>An InteractionResult indicating the result of the interaction.</returns>
+    InteractionResult? RespondToMultiNounInteraction(MultiNounIntent action, IContext context);
 }

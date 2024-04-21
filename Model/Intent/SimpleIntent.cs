@@ -6,7 +6,7 @@ namespace Model.Intent;
 /// </summary>
 public record SimpleIntent : IntentBase
 {
-    public required string OriginalInput { get; set; }
+    public string? OriginalInput { get; set; }
 
     public required string Verb { get; init; }
 

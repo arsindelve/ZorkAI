@@ -10,6 +10,7 @@ internal class EntranceToHades : DarkLocation
                 Direction.S,
                 new MovementParameters
                 {
+                    Location = GetLocation<LandOfTheDead>(),
                     CanGo = _ => !HasItem<Spirits>(),
                     CustomFailureMessage = "Some invisible force prevents you from passing through the gate."
                 }
@@ -22,7 +23,7 @@ internal class EntranceToHades : DarkLocation
                                                            Abandon every hope all ye who enter here!
                                                           
                                                          The gate is open; through it you can see a desolation, with a pile of mangled bodies in one corner. Thousands of voices, lamenting some hideous fate, can be heard.
-                                                         The way through the gate is barred by evil spirits, who jeer at your attempts to pass. 
+                                                         The way through the gate is barred by evil spirits, who jeer at your attempts to pass.
                                                          """;
 
     public override string Name => "Entrance to Hades";
@@ -42,17 +43,20 @@ internal class EntranceToHades : DarkLocation
     {
         if (string.IsNullOrWhiteSpace(input))
             return base.RespondToSpecificLocationInteraction(input, context);
-        
+
         if (input.ToLowerInvariant().Contains("ring") && input.ToLowerInvariant().Contains("bell"))
+        {
+            if (!Items.Contains(Repository.GetItem<Spirits>()))
+                return base.RespondToSpecificLocationInteraction(input, context);
+
             return RingTheBell(context);
+        }
 
         return base.RespondToSpecificLocationInteraction(input, context);
     }
 
     private InteractionResult RingTheBell(IContext context)
     {
-        // TODO: Check spirits are still here. 
-
         if (!context.HasItem<BrassBell>() && GetItem<BrassBell>().CurrentLocation == GetLocation<EntranceToHades>())
             return new PositiveInteractionResult("The bell is too hot to reach. ");
 
@@ -60,15 +64,16 @@ internal class EntranceToHades : DarkLocation
         var bell = Repository.GetItem<BrassBell>();
         var spirits = Repository.GetItem<Spirits>();
         var candles = Repository.GetItem<Candles>();
-        
+
         returnValue += bell.BecomesRedHot(context);
-        returnValue +=  spirits.BecomeStunned(context);
+        returnValue += spirits.BecomeStunned(context);
 
         if (context.HasItem<Candles>())
         {
             context.Drop(candles);
-            candles.Lit = false;
-            returnValue += "\rIn your confusion, the candles drop to the ground (and they are out).";
+            returnValue += "\rIn your confusion, the candles drop to the ground" +
+                           (candles.IsOn ? " and they are out." : ".");
+            candles.IsOn = false;
             // TODO what if this was our light source? 
         }
 

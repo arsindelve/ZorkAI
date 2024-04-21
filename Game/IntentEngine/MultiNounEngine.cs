@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Game.Item.MultiItemProcessor;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
+using Model.Item;
 
 namespace Game.IntentEngine;
 
@@ -30,7 +31,15 @@ public class MultiNounEngine : IIntentEngine
         if (result?.InteractionHappened ?? false)
             return result.InteractionMessage;
 
-        return await ProcessNonLocationTwoItemInteraction(context, generationClient, interaction);
+        if (context?.Items != null)
+            foreach (IItem nextItem in context.Items)
+            {
+                result = nextItem.RespondToMultiNounInteraction(interaction, context);
+                if (result?.InteractionHappened ?? false)
+                    return result.InteractionMessage;
+            }
+
+        return await ProcessNonLocationTwoItemInteraction(context!, generationClient, interaction);
     }
 
     private async Task<string> ProcessNonLocationTwoItemInteraction(IContext context,
