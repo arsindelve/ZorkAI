@@ -1,5 +1,3 @@
-using ZorkOne.Interface;
-
 namespace ZorkOne;
 
 /// <summary>

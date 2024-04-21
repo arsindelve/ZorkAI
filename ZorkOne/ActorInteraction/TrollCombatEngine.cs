@@ -1,5 +1,4 @@
 using ZorkOne.Command;
-using ZorkOne.Interface;
 
 namespace ZorkOne.ActorInteraction;
 

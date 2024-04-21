@@ -1,6 +1,5 @@
 using Model.AIGeneration;
 using Model.Intent;
-using ZorkOne.Interface;
 
 namespace ZorkOne.Item;
 

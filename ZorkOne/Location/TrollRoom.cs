@@ -1,6 +1,5 @@
 using Model.Intent;
 using ZorkOne.ActorInteraction;
-using ZorkOne.Interface;
 
 namespace ZorkOne.Location;
 

@@ -6,4 +6,6 @@ global using Game.Location;
 global using Model;
 global using Model.Interaction;
 global using Model.Item;
+global using ZorkOne.Interface;
 global using ZorkOne.Item;
+global using ZorkOne.Location;

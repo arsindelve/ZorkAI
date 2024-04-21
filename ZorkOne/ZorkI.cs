@@ -1,5 +1,4 @@
 ﻿using ZorkOne.GlobalCommand;
-using ZorkOne.Location;
 
 namespace ZorkOne;
 
