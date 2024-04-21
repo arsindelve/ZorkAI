@@ -15,7 +15,7 @@ public class Altar : BaseLocation
 
     protected override string ContextBasedDescription =>
         "This is the south end of a large temple. In front of you is what appears to be an altar. " +
-        "In one corner is a small hole in the floor which leads into darkness. You probably could not get back up it.";
+        "In one corner is a small hole in the floor which leads into darkness. You probably could not get back up it. ";
 
     public override InteractionResult RespondToSpecificLocationInteraction(string? action, IContext context)
     {

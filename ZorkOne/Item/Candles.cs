@@ -28,7 +28,7 @@ public class Candles : ItemBase, ICanBeExamined, ICanBeTakenAndDropped,
         get
         {
             if (BurnedOut)
-                return "Alas, there's not much left of the candles. Certainly not enough to burn.";
+                return "Alas, there's not much left of the candles. Certainly not enough to burn. ";
 
             var matches = Repository.GetItem<Matchbook>();
             if (matches.CurrentLocation!.Name == "Inventory" && matches.IsOn)
@@ -71,12 +71,18 @@ public class Candles : ItemBase, ICanBeExamined, ICanBeTakenAndDropped,
         return string.Empty;
     }
 
-    public string OnTheGroundDescription => "There is a pair of candles here" + (IsOn ? " (providing light). " : ".");
+    public string OnTheGroundDescription => "There is a pair of candles here" + (IsOn ? " (providing light). " : ". ");
 
     public override string NeverPickedUpDescription => "On the two ends of the altar are burning candles. ";
 
     public string Act(IContext context, IGenerationClient client)
     {
+        if (!IsOn)
+        {
+            context.RemoveActor(this);
+            return string.Empty;
+        }
+        
         Debug.WriteLine($"Candles counter: {TurnsWhileOn}");
         TurnsWhileOn++;
 

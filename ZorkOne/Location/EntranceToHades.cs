@@ -1,3 +1,6 @@
+using Game.Item.ItemProcessor;
+using Model.Intent;
+
 namespace ZorkOne.Location;
 
 internal class EntranceToHades : DarkLocation
@@ -12,7 +15,7 @@ internal class EntranceToHades : DarkLocation
                 {
                     Location = GetLocation<LandOfTheDead>(),
                     CanGo = _ => !HasItem<Spirits>(),
-                    CustomFailureMessage = "Some invisible force prevents you from passing through the gate."
+                    CustomFailureMessage = "Some invisible force prevents you from passing through the gate. "
                 }
             }
         };
@@ -72,9 +75,15 @@ internal class EntranceToHades : DarkLocation
         {
             context.Drop(candles);
             returnValue += "\rIn your confusion, the candles drop to the ground" +
-                           (candles.IsOn ? " and they are out." : ".");
-            candles.IsOn = false;
-            // TODO what if this was our light source? 
+                           (candles.IsOn ? " and they are out. " : ".");
+
+            if (candles.IsOn)
+                returnValue += new TurnLightOnOrOffProcessor().Process(new SimpleIntent
+                    {
+                        Noun = candles.NounsForMatching.First(),
+                        Verb = "turn off"
+                    }, context, candles, null!)
+                    ?.InteractionMessage;
         }
 
         return new PositiveInteractionResult(returnValue);
