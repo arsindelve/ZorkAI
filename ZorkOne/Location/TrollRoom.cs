@@ -28,6 +28,8 @@ public class TrollRoom : DarkLocation
 
     public override string Name => "The Troll Room";
 
+  
+    
     protected override string ContextBasedDescription =>
         "This is a small room with passages to the east and south and a forbidding hole leading west. " +
         "Bloodstains and deep scratches (perhaps made by an axe) mar the walls. ";
@@ -91,6 +93,8 @@ public class TrollRoom : DarkLocation
 
     public override string AfterEnterLocation(IContext context)
     {
+        // TODO: Sword should glow brightly even when the troll is disarmed 
+        
         var swordInPossession = context.HasItem<Sword>();
 
         if (TrollIsAwakeAndArmed && swordInPossession)
