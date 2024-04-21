@@ -1,5 +1,3 @@
-using ZorkOne.Location;
-
 namespace ZorkOne.Item;
 
 public class TrapDoor : ItemBase, ICanBeExamined, IOpenAndClose

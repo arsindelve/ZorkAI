@@ -32,6 +32,6 @@ public class Clearing : BaseLocation
 
     public override void Init()
     {
-        StartWithItem(GetItem<PileOfLeaves>(), this);
+        StartWithItem<PileOfLeaves>(this);
     }
 }

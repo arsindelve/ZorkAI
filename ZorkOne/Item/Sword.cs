@@ -1,5 +1,3 @@
-using ZorkOne.Interface;
-
 namespace ZorkOne.Item;
 
 // TODO: The sword needs to glow near danger 

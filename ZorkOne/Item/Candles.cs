@@ -2,7 +2,6 @@ using System.Diagnostics;
 using Game.Item.ItemProcessor;
 using Model.AIGeneration;
 using Model.Intent;
-using ZorkOne.Location;
 
 namespace ZorkOne.Item;
 
@@ -49,11 +48,9 @@ public class Candles : ItemBase, ICanBeExamined, ICanBeTakenAndDropped,
         if (context.CurrentLocation == location &&
             spirits.CurrentLocation == location &&
             spirits.Stunned)
-        {
             return
                 "\nThe flames flicker wildly and appear to dance. The earth beneath your feet trembles, " +
                 "and your legs nearly buckle beneath you. The spirits cower at your unearthly power. \n ";
-        }
 
         return string.Empty;
     }

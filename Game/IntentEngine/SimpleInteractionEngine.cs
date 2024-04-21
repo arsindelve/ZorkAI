@@ -52,7 +52,7 @@ internal class SimpleInteractionEngine : IIntentEngine
 
         // There is no matching noun at all, anywhere in the game. The user might have
         // talked about a unicorn, a bottle of tequila or some other meaningless item. 
-        return await GetGeneratedNoOpResponse(simpleInteraction.OriginalInput, generationClient, context);
+        return await GetGeneratedNoOpResponse(simpleInteraction.OriginalInput ?? "", generationClient, context);
     }
 
     private static async Task<string> GetGeneratedNoMatchingVerbResponse(string? noun, string verb,

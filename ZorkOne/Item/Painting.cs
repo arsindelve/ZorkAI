@@ -1,5 +1,3 @@
-using ZorkOne.Interface;
-
 namespace ZorkOne.Item;
 
 public class Painting : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IGivePointsWhenPlacedInTrophyCase

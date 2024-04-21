@@ -52,8 +52,8 @@ public class Kitchen : BaseLocation
     {
         _window = Repository.GetItem<KitchenWindow>();
         StartWithItem(_window, this);
-        StartWithItem(GetItem<BrownSack>(), this);
-        StartWithItem(GetItem<Bottle>(), this);
+        StartWithItem<BrownSack>(this);
+        StartWithItem<Bottle>(this);
     }
 
     protected override void OnFirstTimeEnterLocation(IContext context)

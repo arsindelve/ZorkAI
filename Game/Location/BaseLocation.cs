@@ -158,6 +158,13 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         item.CurrentLocation = location;
     }
 
+    protected void StartWithItem<T>(ICanHoldItems location) where T : IItem, new()
+    {
+        T item = Repository.GetItem<T>();
+        Items.Add(item);
+        item.CurrentLocation = location;
+    }
+    
     /// <summary>
     ///     This is a wrapper so that child classes have a shorter
     ///     syntax to reference a location in the repository.

@@ -1,6 +1,4 @@
-﻿using ZorkOne.Interface;
-
-namespace ZorkOne.Item;
+﻿namespace ZorkOne.Item;
 
 public class PotOfGold : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase
 {

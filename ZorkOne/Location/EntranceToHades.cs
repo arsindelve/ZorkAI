@@ -82,6 +82,6 @@ internal class EntranceToHades : DarkLocation
 
     public override void Init()
     {
-        StartWithItem(GetItem<Spirits>(), this);
+        StartWithItem<Spirits>(this);
     }
 }

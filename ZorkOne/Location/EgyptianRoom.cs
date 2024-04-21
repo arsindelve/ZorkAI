@@ -15,6 +15,6 @@ public class EgyptianRoom : DarkLocation
 
     public override void Init()
     {
-        StartWithItem(GetItem<Coffin>(), this);
+        StartWithItem<Coffin>(this);
     }
 }

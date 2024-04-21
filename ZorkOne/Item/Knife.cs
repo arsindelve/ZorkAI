@@ -1,5 +1,3 @@
-using ZorkOne.Interface;
-
 namespace ZorkOne.Item;
 
 public class Knife : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IWeapon
