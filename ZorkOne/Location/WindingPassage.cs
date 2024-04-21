@@ -1,29 +1,12 @@
 namespace ZorkOne.Location;
 
-public class MirrorRoomSouth : LocationWithNoStartingItems
-{
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
-        {
-            { Direction.N, new MovementParameters { Location = GetLocation<NarrowPassage>() } },
-            { Direction.E, new MovementParameters { Location = GetLocation<Cave>() } },
-            { Direction.W, new MovementParameters { Location = GetLocation<WindingPassage>() } }
-        };
-
-    protected override string ContextBasedDescription =>
-        "You are in a large square room with tall ceilings. On the south wall is an " +
-        "enormous mirror which fills the entire wall. There are exits on the other three sides of the room.";
-
-    public override string Name => "Mirror Room";
-}
-
 public class WindingPassage : DarkLocation
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
             { Direction.N, new MovementParameters { Location = GetLocation<MirrorRoomSouth>() } },
-            { Direction.E, new MovementParameters { Location = GetLocation<Cave>() } }
+            { Direction.E, new MovementParameters { Location = GetLocation<CaveSouth>() } }
         };
 
     // TODO: Your sword is glowing with a faint blue glow.

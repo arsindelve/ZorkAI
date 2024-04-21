@@ -120,7 +120,16 @@ public sealed class WalkthroughTestOne : EngineTestsBase
     [TestCase("light a match", null, "One of the matches starts to burn")]
     [TestCase("light candles with match", null, "candles are lit", "The match has gone", "The flames flicker")]
     [TestCase("read book", null, "Each word of the prayer reverberates through")]
-    [TestCase("S", null, "You have entered the Land of the Living Dead")]
+    [TestCase("drop book", null, "Dropped")]
+    [TestCase("S", null, "You have entered the Land of the Living Dead", "It appears to be grinning at you")]
+    [TestCase("take skull", null, "Taken")]
+    [TestCase("N", null, "bell", "There is a black book here.")]
+    [TestCase("Up", null, "Cave")]
+    [TestCase("N", null, "Mirror Room", "You are in a large square room with tall ceilings.")]
+    [TestCase("rub mirror", null, "There is a rumble from deep within the earth and the room shakes")]
+    [TestCase("N", null, "Cold Passage", "This is a cold and damp corridor")]
+    [TestCase("W", null, "Slide Room", "On the south wall of the chamber the letters \"Granite Wall\"")]
+    [TestCase("N", null, "Mine Entrance", "You are standing at the entrance of what might have been a coal mine.")]
     public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup))
