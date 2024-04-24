@@ -22,7 +22,8 @@ public class Spirits : ItemBase, ICanBeExamined, ITurnBasedActor
         StunnedCounter = 5; 
 
         return
-            "The wraiths, as if paralyzed, stop their jeering and slowly turn to face you. On their ashen faces, the expression of a long-forgotten terror takes shape. ";
+            "The wraiths, as if paralyzed, stop their jeering and slowly turn to face you. " +
+            "On their ashen faces, the expression of a long-forgotten terror takes shape. ";
     }
     
     public string? Act(IContext context, IGenerationClient client)
