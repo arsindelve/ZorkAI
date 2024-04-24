@@ -5,7 +5,8 @@ public class Gallery : BaseLocation
     public override string Name => "Gallery";
 
     protected override string ContextBasedDescription =>
-        "This is an art gallery. Most of the paintings have been stolen by vandals with exceptional taste. The vandals left through either the north or west exits. ";
+        "This is an art gallery. Most of the paintings have been stolen by vandals with exceptional taste. " +
+        "The vandals left through either the north or west exits. ";
 
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()

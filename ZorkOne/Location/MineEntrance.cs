@@ -1,11 +1,16 @@
 namespace ZorkOne.Location;
 
-public class MineEntrance : LocationWithNoStartingItems
+public class MineEntrance : DarkLocation
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.S, new MovementParameters { Location = GetLocation<SlideRoom>() } }
+            {
+                Direction.S, new MovementParameters { Location = GetLocation<SlideRoom>() }
+            },
+            {
+                Direction.W, new MovementParameters { Location = GetLocation<MineEntrance>() }
+            }
         };
 
     protected override string ContextBasedDescription =>
@@ -13,4 +18,8 @@ public class MineEntrance : LocationWithNoStartingItems
         "and there is another exit on the south end of the room.";
 
     public override string Name => "Mine Entrance";
+
+    public override void Init()
+    {
+    }
 }
