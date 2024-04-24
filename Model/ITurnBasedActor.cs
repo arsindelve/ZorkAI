@@ -5,7 +5,9 @@ namespace Model;
 /// <summary>
 ///     Represents an actor that can perform actions, even when you are in another location. 
 ///     For example, the troll (who will attack you as long as it is alive)
-///     or Floyd, (who has a chance of saying something funny).
+///     or Floyd, (who has a chance of saying something funny). Also represents "objects" that
+///     can act such as a Dam filling up, a room filling with water, or something like a
+///     lamp or candles burning out. 
 /// </summary>
 public interface ITurnBasedActor
 {
