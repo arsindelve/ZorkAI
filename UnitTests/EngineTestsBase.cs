@@ -32,6 +32,9 @@ public class EngineTestsBase
 
             mockParser.Setup(p => p.DetermineIntentType("open mailbox", It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Noun = "mailbox", Verb = "open", OriginalInput = "open mailbox" });
+            
+            mockParser.Setup(p => p.DetermineIntentType("turn the bolt", It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Noun = "bolt", Verb = "turn", OriginalInput = "turn the bolt" });
 
             mockParser.Setup(p => p.DetermineIntentType("wave sceptre", It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Noun = "sceptre", Verb = "wave", OriginalInput = "wave sceptre" });
