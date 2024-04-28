@@ -1,3 +1,4 @@
+using Model.AIGeneration;
 using Model.Intent;
 using ZorkOne.ActorInteraction;
 
@@ -5,6 +6,7 @@ namespace ZorkOne.Location;
 
 public class TrollRoom : DarkLocation
 {
+    private static readonly string[] KillVerbs = ["kill", "attack", "defeat", "destroy", "murder", "use", "stab"];
     private readonly AdventurerVersusTrollCombatEngine _attackEngine = new();
 
     private bool TrollIsAwakeAndArmed => !GetItem<Troll>().IsDead &&
@@ -28,8 +30,6 @@ public class TrollRoom : DarkLocation
 
     public override string Name => "The Troll Room";
 
-  
-    
     protected override string ContextBasedDescription =>
         "This is a small room with passages to the east and south and a forbidding hole leading west. " +
         "Bloodstains and deep scratches (perhaps made by an axe) mar the walls. ";
@@ -46,7 +46,8 @@ public class TrollRoom : DarkLocation
         // If you leave him knocked out and then come back,
         // he'll be awake and have picked up his axe off the floor. 
 
-        if (troll.IsUnconscious) troll.IsUnconscious = false;
+        if (troll.IsUnconscious)
+            troll.IsUnconscious = false;
 
         if (axe.CurrentLocation == GetLocation<TrollRoom>())
             troll.ItemPlacedHere(axe);
@@ -62,12 +63,40 @@ public class TrollRoom : DarkLocation
         base.OnLeaveLocation(context);
     }
 
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
+    {
+        if (action.MatchVerb(KillVerbs))
+        {
+            if (context.Items.OfType<IWeapon>().Count() == 1)
+            {
+                // Assume they want to kill the troll with the only weapon they have
+                var weaponName = context.Items.OfType<IWeapon>().Cast<IItem>().Single().NounsForMatching.First();
+                var multiNounIntent = new MultiNounIntent
+                {
+                    Verb = action.Verb,
+                    NounOne = action.Noun ?? "",
+                    Preposition = "with",
+                    OriginalInput = action.OriginalInput ?? "",
+                    NounTwo = weaponName
+                };
+                var response = RespondToMultiNounInteraction(multiNounIntent, context);
+                return new PositiveInteractionResult($"(with the {weaponName})\n" + response.InteractionMessage);
+            }
+
+            if (context.Items.OfType<IWeapon>().Count() > 1)
+                return new PositiveInteractionResult("You'll need to specify which weapon you want to use. ");
+        }
+
+        return base.RespondToSimpleInteraction(action, context, client);
+    }
+
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-        string[] verbs = ["kill", "attack", "defeat", "destroy", "murder", "use"];
         string[] prepositions = ["with", "using", "by", "to"];
 
-        if (!action.NounOne.ToLowerInvariant().Trim().Contains("troll")  && !action.NounTwo.ToLowerInvariant().Trim().Contains("troll"))
+        if (!action.NounOne.ToLowerInvariant().Trim().Contains("troll") &&
+            !action.NounTwo.ToLowerInvariant().Trim().Contains("troll"))
             return base.RespondToMultiNounInteraction(action, context);
 
         if (GetItem<Troll>().IsDead)
@@ -82,7 +111,7 @@ public class TrollRoom : DarkLocation
                 return new PositiveInteractionResult($"You don't have the {nounTwo.Name}. ");
         }
 
-        if (!verbs.Contains(action.Verb.ToLowerInvariant().Trim()))
+        if (!action.MatchVerb(KillVerbs))
             return base.RespondToMultiNounInteraction(action, context);
 
         if (!prepositions.Contains(action.Preposition.ToLowerInvariant().Trim()))
@@ -94,11 +123,11 @@ public class TrollRoom : DarkLocation
     public override string AfterEnterLocation(IContext context)
     {
         // TODO: Sword should glow brightly even when the troll is disarmed 
-        
+
         var swordInPossession = context.HasItem<Sword>();
 
         if (TrollIsAwakeAndArmed && swordInPossession)
-            return "Your sword has begun to glow very brightly. ";
+            return "\nYour sword has begun to glow very brightly. ";
 
         return string.Empty;
     }

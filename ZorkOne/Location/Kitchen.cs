@@ -2,8 +2,6 @@ namespace ZorkOne.Location;
 
 public class Kitchen : BaseLocation
 {
-    private static KitchenWindow? _window;
-
     protected override string ContextBasedDescription =>
         $"You are in the kitchen of the white house. A table seems to have been " +
         $"used recently for the preparation of food. A passage leads to the west " +
@@ -18,7 +16,7 @@ public class Kitchen : BaseLocation
         {
             var exit = new MovementParameters
             {
-                CanGo = _ => _window?.IsOpen ?? false,
+                CanGo = _ => GetItem<KitchenWindow>().IsOpen,
                 CustomFailureMessage = "The kitchen window is closed.",
                 Location = Repository.GetLocation<BehindHouse>()
             };
@@ -50,8 +48,7 @@ public class Kitchen : BaseLocation
 
     public override void Init()
     {
-        _window = Repository.GetItem<KitchenWindow>();
-        StartWithItem(_window, this);
+        StartWithItem<KitchenWindow>(this);
         StartWithItem<BrownSack>(this);
         StartWithItem<Bottle>(this);
     }

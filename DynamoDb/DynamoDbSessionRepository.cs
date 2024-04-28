@@ -22,7 +22,7 @@ public class DynamoDbSessionRepository : ISessionRepository
 
     public async Task<string?> GetSession(string sessionId)
     {
-        var table = Table.LoadTable(_client, "zork_session");
+        var table = Table.LoadTable(_client, "zork_session_ondemand");
         var result = await table.GetItemAsync(sessionId);
 
         if (result is null)
@@ -39,6 +39,6 @@ public class DynamoDbSessionRepository : ISessionRepository
             { "gameData", new AttributeValue(gameData) }
         };
 
-        await _client.PutItemAsync("zork_session", item);
+        await _client.PutItemAsync("zork_session_ondemand", item);
     }
 }

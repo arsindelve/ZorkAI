@@ -80,7 +80,6 @@ public class ClaudeFourParser : ClaudeClientBase, IAIParser
                 _logger?.LogDebug("No preposition was found trying to make a MultiNoun intent");
                 // TODO: Claude is inconsistent giving us the preposition. For now, hardcode the most common one if we don't get it. 
                 prepositionTag = "with";
-
             }
 
             return new MultiNounIntent
