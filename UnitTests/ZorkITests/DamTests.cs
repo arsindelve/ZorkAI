@@ -31,6 +31,41 @@ public class DamTests : EngineTestsBase
 
         response.Should().Contain("sluice gates open");
     }
+    
+    [Test]
+    public async Task PressYellow_NeedWrench()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MaintenanceRoom>();
+        target.Context.Take(Repository.GetItem<Wrench>());
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
+
+        await target.GetResponse("press the yellow button");
+        await target.GetResponse("S");
+        await target.GetResponse("S");
+
+        var response = await target.GetResponse("turn the bolt");
+
+        response.Should().Contain("Your bare hands don't appear to be enough");
+    }
+    
+    [Test]
+    public async Task NeedWrench()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MaintenanceRoom>();
+        target.Context.Take(Repository.GetItem<Wrench>());
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
+
+        await target.GetResponse("S");
+        await target.GetResponse("S");
+
+        var response = await target.GetResponse("turn the bolt");
+
+        response.Should().Contain("Your bare hands don't appear to be enough");
+    }
 
     [Test]
     public async Task PressYellow_ThenBrown_CannotTurnBolt()
