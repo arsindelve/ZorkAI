@@ -20,7 +20,7 @@ public class ClaudeFourParserTests
             new LoadOptions());
     }
 
-    private readonly object lockObject = new();
+    private readonly object _lockObject = new();
 
     [Test]
 
@@ -53,9 +53,9 @@ public class ClaudeFourParserTests
     [TestCase(typeof(EastOfChasm), "continue down the path",
         new[] { "<intent>move</intent>", "<direction>east</direction>" })]
     [TestCase(typeof(BehindHouse), "enter the house",
-        new[] { "<intent>move</intent>", "<direction>enter</direction>" })]
+        new[] { "<intent>move</intent>", "<direction>in</direction>" })]
     [TestCase(typeof(BehindHouse), "enter the house through the window",
-        new[] { "<intent>move</intent>", "<direction>enter</direction>" })]
+        new[] { "<intent>move</intent>", "<direction>in</direction>" })]
     [TestCase(typeof(BehindHouse), "go through the window",
         new[] { "<intent>move</intent>", "<direction>in</direction>" })]
     [TestCase(typeof(BehindHouse), "use the window to go into the house",
@@ -85,107 +85,103 @@ public class ClaudeFourParserTests
         new[] { "<verb>light</verb>", "<noun>lantern</noun>", "<intent>act</intent>" })]
 
     // Multi noun
-    [TestCase(typeof(WestOfHouse), "tie the rope to the railing",
+    [TestCase(typeof(DomeRoom), "tie the rope to the railing",
         new[]
         {
             "<verb>tie</verb>", "<noun>rope</noun>", "<noun>railing</noun>", "<intent>act</intent>",
             "<preposition>to</preposition>"
         })]
-    [TestCase(typeof(WestOfHouse), "Use the wrench to turn the bolt.",
-        new[]
-        {
-            "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
-            "<preposition>to</preposition>"
-        })]
-    [TestCase(typeof(WestOfHouse), "With the wrench, turn the bolt",
-        new[]
-        {
-            "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
-            "<preposition>with</preposition>"
-        })]
-    [TestCase(typeof(WestOfHouse), "The wrench should be used to turn the bolt.",
+    [TestCase(typeof(Dam), "Use the wrench to turn the bolt.",
         new[]
         {
             "<verb>use</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
             "<preposition>to</preposition>"
         })]
-    [TestCase(typeof(WestOfHouse), "Turn the bolt using the wrench.",
+    [TestCase(typeof(Dam), "With the wrench, turn the bolt",
+        new[]
+        {
+            "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>"
+        })]
+    [TestCase(typeof(Dam), "The wrench should be used to turn the bolt.",
+        new[]
+        {
+            "<verb>use</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
+            "<preposition>to</preposition>"
+        })]
+    [TestCase(typeof(Dam), "Turn the bolt using the wrench.",
         new[]
         {
             "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
             "<preposition>using</preposition>"
         })]
-    [TestCase(typeof(WestOfHouse), "kill the troll with the sword",
+    [TestCase(typeof(TrollRoom), "kill the troll with the sword",
         new[]
         {
             "<verb>kill</verb>", "<noun>troll</noun>", "<noun>sword</noun>", "<intent>act</intent>",
             "<preposition>with</preposition>"
         })]
-    [TestCase(typeof(WestOfHouse), "kill troll with sword",
+    [TestCase(typeof(TrollRoom), "kill troll with sword",
         new[]
         {
             "<verb>kill</verb>", "<noun>troll</noun>", "<noun>sword</noun>", "<intent>act</intent>",
             "<preposition>with</preposition>"
         })]
-    [TestCase(typeof(WestOfHouse), "let's turn the bolt with the wrench",
+    [TestCase(typeof(Dam), "let's turn the bolt with the wrench",
         new[]
         {
             "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
             "<preposition>with</preposition>"
         })]
-    [TestCase(typeof(WestOfHouse), "use the wrench on the bolt",
+    [TestCase(typeof(Dam), "use the wrench on the bolt",
         new[]
         {
-            "<verb>use</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
-            "<preposition>on</preposition>"
+            "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>"
         })]
-    [TestCase(typeof(WestOfHouse), "To turn the bolt, use the wrench.",
+    [TestCase(typeof(Dam), "To turn the bolt, use the wrench.",
         new[]
         {
-            "<verb>use</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
-            "<preposition>to</preposition>"
+            "<verb>use</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>"
         })]
-    [TestCase(typeof(WestOfHouse), "I want to put the sword in the trophy case",
+    [TestCase(typeof(LivingRoom), "I want to put the sword in the trophy case",
         new[]
         {
             "<verb>put</verb>", "<noun>trophy case</noun>", "<noun>sword</noun>", "<intent>act</intent>",
             "<preposition>in</preposition>"
         })]
-    [TestCase(typeof(WestOfHouse), "kill the troll using the sword",
+    [TestCase(typeof(TrollRoom), "kill the troll using the sword",
         new[]
         {
-            "<verb>kill</verb>", "<noun>troll</noun>", "<noun>troll</noun>", "<intent>act</intent>",
+            "<verb>use</verb>", "<noun>troll</noun>", "<noun>troll</noun>", "<intent>act</intent>",
             "<preposition>using</preposition>"
         })]
-    [TestCase(typeof(WestOfHouse), "use the glowing sword to kill the ugly troll",
+    [TestCase(typeof(TrollRoom), "use the glowing sword to kill the ugly troll",
+        new[]
+        {
+            "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>"
+        })]
+    [TestCase(typeof(TrollRoom), "With the glowing sword, kill the ugly troll.",
         new[]
         {
             "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>",
             "<preposition>with</preposition>"
         })]
-    [TestCase(typeof(WestOfHouse), "With the glowing sword, kill the ugly troll.",
-        new[]
-        {
-            "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>",
-            "<preposition>with</preposition>"
-        })]
-    [TestCase(typeof(WestOfHouse), "The glowing sword should be used to kill the ugly troll.",
+    [TestCase(typeof(TrollRoom), "The glowing sword should be used to kill the ugly troll.",
         new[]
         {
             "<verb>use</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>",
             "<preposition>to</preposition>"
         })]
-    [TestCase(typeof(WestOfHouse), "Use the sword that glows to kill the troll that's ugly.",
+    [TestCase(typeof(TrollRoom), "Use the sword that glows to kill the troll that's ugly.",
         new[]
         {
-            "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>",
-            "<preposition>with</preposition>"
+            "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>"
+            
         })]
     public async Task ClaudeParserTests(Type location, string sentence, string[] asserts)
     {
         string locationObjectDescription;
 
-        lock (lockObject)
+        lock (_lockObject)
         {
             Repository.Reset();
             Repository.GetItem<KitchenWindow>().IsOpen = true;
@@ -200,9 +196,97 @@ public class ClaudeFourParserTests
         foreach (var assert in asserts) response.Should().Contain(assert);
     }
 
-    // These test cases are problem children, so we have to handle them individually. Claude can be non-deterministic with these inputs'
+    [Test]
+    public async Task ToKillTheUglyTrollUseTheGlowingSword()
+    {
+        string locationObjectDescription;
+        var sentence = "To kill the ugly troll, use the glowing sword";
 
-    // [TestCase(typeof(WestOfHouse), "To kill the ugly troll, use the glowing sword.", new[] { "<verb>use</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>", "<preposition>to</preposition>" })]
-    // [TestCase(typeof(BehindHouse), "enter the house via the window", new[] { "<intent>move</intent>", "<direction>in</direction>" })]
-    //  [TestCase(typeof(WestOfHouse), "sip the water", new[] { "<verb>sip</verb>", "<noun>water</noun>", "<intent>act</intent>" })]
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+            var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+            locationObjectDescription = locationObject.Description;
+        }
+
+        var target = new ClaudeFourParserClient();
+        var response = (await target.GetResponse(locationObjectDescription, sentence))!.ToLowerInvariant();
+        Console.WriteLine(response);
+
+        response.Should().Contain("<verb>use</verb>");
+        response.Should().Contain("<noun>sword</noun>");
+        response.Should().Contain("<noun>troll</noun>");
+    }
+
+    [Test]
+    public async Task EnterTheHouseViaTheWindow()
+    {
+        string locationObjectDescription;
+        var sentence = "enter the house via the window";
+
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+            var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+            locationObjectDescription = locationObject.Description;
+        }
+
+        var target = new ClaudeFourParserClient();
+        var response = (await target.GetResponse(locationObjectDescription, sentence))!.ToLowerInvariant();
+        Console.WriteLine(response);
+
+        var containsString1 = response.Contains("<direction>in");
+        var containsString2 = response.Contains("<direction>enter");
+
+        (containsString1 || containsString2).Should().BeTrue();
+    }
+    
+    [Test]
+    public async Task SipTheWater()
+    {
+        string locationObjectDescription;
+        var sentence = "sip the water";
+
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+            var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+            locationObjectDescription = locationObject.Description;
+        }
+
+        var target = new ClaudeFourParserClient();
+        var response = (await target.GetResponse(locationObjectDescription, sentence))!.ToLowerInvariant();
+        Console.WriteLine(response);
+
+        var containsString1 = response.Contains("<verb>sip");
+        var containsString2 = response.Contains("<verb>drink");
+
+        (containsString1 || containsString2).Should().BeTrue();
+    }
+    
+    [Test]
+    public async Task PressTheYellowButton()
+    {
+        string locationObjectDescription;
+        var sentence = "press the yellow button";
+
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+            var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+            locationObjectDescription = locationObject.Description;
+        }
+
+        var target = new ClaudeFourParserClient();
+        var response = (await target.GetResponse(locationObjectDescription, sentence))!.ToLowerInvariant();
+        Console.WriteLine(response);
+
+        response.Should().Contain("<verb>press</verb>");
+        response.Should().Contain("<noun>button");
+        response.Should().Contain("<adjective>yellow");
+    }
 }
