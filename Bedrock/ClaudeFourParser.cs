@@ -71,7 +71,17 @@ public class ClaudeFourParser : ClaudeClientBase, IAIParser
             return null;
 
         if (nouns.Count == 1)
-            return new SimpleIntent { Verb = verbTag, Noun = nouns.Single(), Adverb = prepositionTag, OriginalInput = originalInput};
+        {
+            var adjectives = ExtractElementsByTag(response, "adjective").FirstOrDefault();
+            return new SimpleIntent
+            {
+                Verb = verbTag, 
+                Noun = nouns.Single(), 
+                Adverb = prepositionTag, 
+                Adjective = adjectives,
+                OriginalInput = originalInput
+            };
+        }
 
         if (nouns.Count == 2)
         {

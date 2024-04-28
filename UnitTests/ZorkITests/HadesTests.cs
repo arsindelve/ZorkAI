@@ -134,7 +134,7 @@ public class HadesTests : EngineTestsBase
         target.Context.CurrentLocation = Repository.GetLocation<EntranceToHades>();
 
         var response = await target.GetResponse(input);
-        response.Should().Contain("You seem unable to interact with these spirits.\n");
+        response.Should().Contain("You seem unable to interact with these spirits");
 
     }
 }

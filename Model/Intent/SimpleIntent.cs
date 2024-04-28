@@ -13,6 +13,8 @@ public record SimpleIntent : IntentBase
     public required string? Noun { get; init; }
 
     public string? Adverb { get; init; }
+    
+    public string? Adjective { get; set; }
 
     public bool MatchNoun(string[] nouns)
     {

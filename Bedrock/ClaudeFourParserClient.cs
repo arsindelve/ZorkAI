@@ -16,13 +16,13 @@ internal class ClaudeFourParserClient : ClaudeClientBase, IClaudeFourParserClien
 
         I need to know the player's intent. Given the sentence "{1}".
         1. tell me in <intent> tags if the sentence:
-             a) if the player is expressing a desire to move or go somewhere, put "Move"
+             a) if the player is expressing a desire to move, enter, go in or travel somewhere, put "Move"
              b) something else, put "Act"
 
         2. In verb tags, put the single most important verb I need to know, which best expresses the player's intention. If there is a simpler, more common synonym for the verb, use that instead.
-        3. For each of the noun or nouns that relate to the main verb, place each noun in a set of noun tags. Replace any obvious typos with the correct noun.
+        3. For each of the noun or nouns in their sentence that relate to the main verb, place each noun in a set of "noun" tags. If there is an adjective immediately preceding the nouns, include it in seperate "adjective" tags
         4. If there are two nouns, in preposition tags, put the preposition which connects the nouns. Otherwise, omit these tags
-        5. If the sentence expresses a desire to move in a certain direction or a certain way, put in <direction> tags,  the exact word from this list which best describes where they want to go: "in, out, enter, exit, up, down, east, west, north, south, north-west, north-east, south-west or south-east" . If you cannot match any of these words, put "other"
+        5. If the sentence expresses a desire to move in a certain directio or a certain way, based on their current location, put in <direction> tags, the exact word from this list which best describes where they want to go: "in, out, enter, exit, up, down, east, west, north, south, north-west, north-east, south-west or south-east" . If you cannot match any of these words, put "other"
 
         Do not provide any analysis or explanation, just the tags
         """;
