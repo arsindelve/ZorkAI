@@ -9,7 +9,7 @@ public class MineEntrance : DarkLocation
                 Direction.S, new MovementParameters { Location = GetLocation<SlideRoom>() }
             },
             {
-                Direction.W, new MovementParameters { Location = GetLocation<MineEntrance>() }
+                Direction.W, new MovementParameters { Location = GetLocation<SqueakyRoom>() }
             }
         };
 

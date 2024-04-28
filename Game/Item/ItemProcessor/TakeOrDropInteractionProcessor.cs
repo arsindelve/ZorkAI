@@ -19,6 +19,8 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             case "hold":
             case "take":
             case "pick up":
+            case "grab":
+            case "get":
             case "acquire":
             case "snatch":
                 return TakeIt(action, context, castItem, takeItem);

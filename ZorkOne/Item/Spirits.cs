@@ -39,7 +39,8 @@ public class Spirits : ItemBase, ICanBeExamined, ITurnBasedActor
         if (StunnedCounter == 0)
         {
             Stunned = false;
-            if (context.CurrentLocation == Repository.GetLocation<EntranceToHades>())
+            var hades = Repository.GetLocation<EntranceToHades>();
+            if (context.CurrentLocation == hades && Repository.GetItem<Spirits>().CurrentLocation == hades)
                 return "\nThe tension of this ceremony is broken, and the wraiths, amused but shaken at your clumsy attempt, resume their hideous jeering.";
         }
 

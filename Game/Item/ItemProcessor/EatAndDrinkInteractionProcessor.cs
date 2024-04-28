@@ -22,12 +22,14 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
         switch (action.Verb.ToLowerInvariant().Trim())
         {
             case "swallow":
+            case "sip":
             case "drink":
             case "consume":
             case "gobble":
             case "snack on":
             case "eat":
             case "devour":
+            case "chew":
 
                 if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
                     return new PositiveInteractionResult("It's too dark to see!");

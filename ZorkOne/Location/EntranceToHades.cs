@@ -26,8 +26,7 @@ internal class EntranceToHades : DarkLocation
                                                            Abandon every hope all ye who enter here!
                                                           
                                                          The gate is open; through it you can see a desolation, with a pile of mangled bodies in one corner. Thousands of voices, lamenting some hideous fate, can be heard.
-                                                         The way through the gate is barred by evil spirits, who jeer at your attempts to pass.
-                                                         """;
+                                                         """ + (HasItem<Spirits>()? "The way through the gate is barred by evil spirits, who jeer at your attempts to pass. \n" : "\n");
 
     public override string Name => "Entrance to Hades";
 
