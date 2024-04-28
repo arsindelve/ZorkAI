@@ -12,7 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSingleton<ISessionRepository, RedisSessionRepository>();
+builder.Services.AddSingleton<ISessionRepository, DynamoDbSessionRepository>();
 builder.Services.AddScoped<IGameEngine, GameEngine<ZorkI, ZorkIContext>>();
 
 var app = builder.Build();
