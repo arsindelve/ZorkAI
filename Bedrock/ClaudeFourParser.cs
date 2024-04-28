@@ -64,17 +64,17 @@ public class ClaudeFourParser : ClaudeClientBase, IAIParser
             return null;
         }
 
+        string? prepositionTag = ExtractElementsByTag(response, "preposition").SingleOrDefault();
+        
         var nouns = ExtractElementsByTag(response, "noun");
         if (!nouns.Any())
             return null;
 
         if (nouns.Count == 1)
-            return new SimpleIntent { Verb = verbTag, Noun = nouns.Single(), OriginalInput = originalInput};
+            return new SimpleIntent { Verb = verbTag, Noun = nouns.Single(), Adverb = prepositionTag, OriginalInput = originalInput};
 
         if (nouns.Count == 2)
         {
-            string? prepositionTag = ExtractElementsByTag(response, "preposition").SingleOrDefault();
-
             if (string.IsNullOrEmpty(prepositionTag))
             {
                 _logger?.LogDebug("No preposition was found trying to make a MultiNoun intent");

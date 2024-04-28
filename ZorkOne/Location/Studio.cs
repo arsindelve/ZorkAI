@@ -36,6 +36,6 @@ public class Studio : BaseLocation
 
     public override void Init()
     {
-        StartWithItem(Repository.GetItem<Manual>(), this);
+        StartWithItem<Manual>(this);
     }
 }

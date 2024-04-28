@@ -31,7 +31,7 @@ public class Candles : ItemBase, ICanBeExamined, ICanBeTakenAndDropped,
                 return "Alas, there's not much left of the candles. Certainly not enough to burn. ";
 
             var matches = Repository.GetItem<Matchbook>();
-            if (matches.CurrentLocation!.Name == "Inventory" && matches.IsOn)
+            if (matches.CurrentLocation?.Name == "Inventory" && matches.IsOn)
                 return string.Empty;
 
             return "You should say what to light them with. ";

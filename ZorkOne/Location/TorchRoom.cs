@@ -30,7 +30,7 @@ public class TorchRoom : DarkLocation
             if (GetItem<Rope>().TiedToRailing)
                 desc += "A piece of rope descends from the railing above, ending some five feet above your head. ";
 
-            return desc + GetItemDescriptions();
+            return desc;
         }
     }
 

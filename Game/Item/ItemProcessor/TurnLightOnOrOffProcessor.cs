@@ -1,7 +1,6 @@
 using Game.StaticCommand.Implementation;
 using Model.AIGeneration;
 using Model.Item;
-using Model.Location;
 
 namespace Game.Item.ItemProcessor;
 
@@ -38,7 +37,7 @@ public class TurnLightOnOrOffProcessor : IVerbProcessor
                 return ProcessOff(context, item, client);
 
             // Sometimes, the parser can't determine the adverb "on" or "off". It that case, hopefully,
-            // the parser gave us the adverb. 
+            // the parser gave us the preposition (it's really an adverb, but save it for the semantics dome, E.B. White)  
             case "turn":
                 return ProcessTurn(action, context, item, client);
         }
@@ -121,7 +120,8 @@ public class TurnLightOnOrOffProcessor : IVerbProcessor
         item.OnBeingTurnedOff(context);
 
         if (context.ItIsDarkHere)
-            return new PositiveInteractionResult(await new LookProcessor().Process(null, context, client, Runtime.Unknown));
+            return new PositiveInteractionResult(
+                await new LookProcessor().Process(null, context, client, Runtime.Unknown));
 
         return new PositiveInteractionResult(item.NowOffText);
     }
@@ -129,22 +129,22 @@ public class TurnLightOnOrOffProcessor : IVerbProcessor
     private static async Task<InteractionResult> TurnItOn(IAmALightSourceThatTurnsOnAndOff item, IContext context,
         IGenerationClient client)
     {
-        string result = "";
-        
+        var result = "";
+
         if (item.IsOn)
             return new PositiveInteractionResult(item.AlreadyOnText);
 
         if (!string.IsNullOrEmpty(item.CannotBeTurnedOnText))
             return new PositiveInteractionResult(item.CannotBeTurnedOnText);
 
-        bool itWasDark = context.ItIsDarkHere;
-            
+        var itWasDark = context.ItIsDarkHere;
+
         item.IsOn = true;
         result += item.OnBeingTurnedOn(context);
-     
+
         if (itWasDark)
             result += "\n\n" + await new LookProcessor().Process(null, context, client, Runtime.Unknown);
-        
+
         return new PositiveInteractionResult(item.NowOnText + result);
     }
 }

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Model;
 using ZorkOne;
 
-var database = new RedisSessionRepository();
+var database = new DynamoDbSessionRepository();
 
 var sessionId = Environment.MachineName;
 var savedGame = await database.GetSession(sessionId);
