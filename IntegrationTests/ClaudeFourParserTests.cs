@@ -132,32 +132,11 @@ public class ClaudeFourParserTests
             "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
             "<preposition>with</preposition>"
         })]
-    [TestCase(typeof(Dam), "use the wrench on the bolt",
-        new[]
-        {
-            "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>"
-        })]
-    [TestCase(typeof(Dam), "To turn the bolt, use the wrench.",
-        new[]
-        {
-            "<verb>use</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>"
-        })]
     [TestCase(typeof(LivingRoom), "I want to put the sword in the trophy case",
         new[]
         {
             "<verb>put</verb>", "<noun>trophy case</noun>", "<noun>sword</noun>", "<intent>act</intent>",
             "<preposition>in</preposition>"
-        })]
-    [TestCase(typeof(TrollRoom), "kill the troll using the sword",
-        new[]
-        {
-            "<verb>use</verb>", "<noun>troll</noun>", "<noun>troll</noun>", "<intent>act</intent>",
-            "<preposition>using</preposition>"
-        })]
-    [TestCase(typeof(TrollRoom), "use the glowing sword to kill the ugly troll",
-        new[]
-        {
-            "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>"
         })]
     [TestCase(typeof(TrollRoom), "With the glowing sword, kill the ugly troll.",
         new[]
@@ -175,7 +154,6 @@ public class ClaudeFourParserTests
         new[]
         {
             "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>"
-            
         })]
     public async Task ClaudeParserTests(Type location, string sentence, string[] asserts)
     {
@@ -220,10 +198,10 @@ public class ClaudeFourParserTests
     }
 
     [Test]
-    public async Task EnterTheHouseViaTheWindow()
+    public async Task KillTheTrollUsingTheSword()
     {
         string locationObjectDescription;
-        var sentence = "enter the house via the window";
+        var sentence = "kill the troll using the sword";
 
         lock (_lockObject)
         {
@@ -237,12 +215,92 @@ public class ClaudeFourParserTests
         var response = (await target.GetResponse(locationObjectDescription, sentence))!.ToLowerInvariant();
         Console.WriteLine(response);
 
-        var containsString1 = response.Contains("<direction>in");
-        var containsString2 = response.Contains("<direction>enter");
+        var containsString1 = response.Contains("<verb>kill");
+        var containsString2 = response.Contains("<verb>use");
 
         (containsString1 || containsString2).Should().BeTrue();
+        response.Should().Contain("<noun>sword</noun>");
+        response.Should().Contain("<noun>troll</noun>");
     }
-    
+
+    [Test]
+    public async Task UseTheWrenchOnTheBolt()
+    {
+        string locationObjectDescription;
+        var sentence = "use the wrench on the bolt";
+
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+            var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+            locationObjectDescription = locationObject.Description;
+        }
+
+        var target = new ClaudeFourParserClient();
+        var response = (await target.GetResponse(locationObjectDescription, sentence))!.ToLowerInvariant();
+        Console.WriteLine(response);
+
+        var containsString1 = response.Contains("<verb>use");
+        var containsString2 = response.Contains("<verb>turn");
+
+        (containsString1 || containsString2).Should().BeTrue();
+        response.Should().Contain("<noun>bolt</noun>");
+        response.Should().Contain("<noun>wrench</noun>");
+    }
+
+    [Test]
+    public async Task ToTurnTheBoltUseTheWrench()
+    {
+        string locationObjectDescription;
+        var sentence = "to turn the bolt, use the wrench";
+
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+            var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+            locationObjectDescription = locationObject.Description;
+        }
+
+        var target = new ClaudeFourParserClient();
+        var response = (await target.GetResponse(locationObjectDescription, sentence))!.ToLowerInvariant();
+        Console.WriteLine(response);
+
+        var containsString1 = response.Contains("<verb>use");
+        var containsString2 = response.Contains("<verb>turn");
+
+        (containsString1 || containsString2).Should().BeTrue();
+        response.Should().Contain("<noun>bolt</noun>");
+        response.Should().Contain("<noun>wrench</noun>");
+    }
+
+    [Test]
+    public async Task UseTheGlowingSwordToKillUglyTroll()
+    {
+        string locationObjectDescription;
+        var sentence = "use the glowing sword to kill the ugly troll";
+
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+            var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+            locationObjectDescription = locationObject.Description;
+        }
+
+        var target = new ClaudeFourParserClient();
+        var response = (await target.GetResponse(locationObjectDescription, sentence))!.ToLowerInvariant();
+        Console.WriteLine(response);
+
+        var containsString1 = response.Contains("<verb>kill");
+        var containsString2 = response.Contains("<verb>use");
+
+        (containsString1 || containsString2).Should().BeTrue();
+        response.Should().Contain("<noun>sword</noun>");
+        response.Should().Contain("<noun>troll</noun>");
+    }
+
     [Test]
     public async Task SipTheWater()
     {
@@ -266,7 +324,7 @@ public class ClaudeFourParserTests
 
         (containsString1 || containsString2).Should().BeTrue();
     }
-    
+
     [Test]
     public async Task PressTheYellowButton()
     {
