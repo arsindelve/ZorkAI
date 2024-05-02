@@ -41,7 +41,12 @@ In every case, the AI never breaks character as your exasperated fantasy game na
 
 ### How does it work? 
 
-For the input parser, I'm using AWS Lex. For the generated responses, I'm using Open AI's "gpt-4-turbo-preview". The
+For the input parser, I'm using Anthropic "Claude Haiku" on AWS Bedrock. For the generated responses, I'm using Open AI's "gpt-4-turbo-preview". Generally speaking,
+I find Claude better at parsing long input and telling you what's there, and I find GPT better for creative text generation, at least in my
+limited experience. 
+
+
+The
 code for implementing the Open AI API is really very simple, as one would expect. The challenge (and what I think makes this
 implementation work) is the creation of the prompts for various scenarios. I've spent hours tweaking them, and expect to
 spend many more
