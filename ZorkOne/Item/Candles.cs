@@ -22,7 +22,7 @@ public class Candles : ItemBase, ICanBeExamined, ICanBeTakenAndDropped,
    
     public string NowOffText => "The flame is extinguished. ";
     
-    public string AlreadyOffText => "The candles are not lighted.";
+    public string AlreadyOffText => "The candles are not lighted. ";
     
     public string AlreadyOnText => "The candles are already lit.";
 
