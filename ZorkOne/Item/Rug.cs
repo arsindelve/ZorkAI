@@ -3,15 +3,13 @@ using Model.Intent;
 
 namespace ZorkOne.Item;
 
-public class Rug : ItemBase, ICanBeExamined
+public class Rug : ItemBase
 {
     public bool HasBeenMovedAside { get; set; }
 
     public override string CannotBeTakenDescription => "The rug is extremely heavy and cannot be carried.";
 
     public override string[] NounsForMatching => ["rug", "carpet"];
-
-    public string ExaminationDescription => "There's nothing special about the carpet.";
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)

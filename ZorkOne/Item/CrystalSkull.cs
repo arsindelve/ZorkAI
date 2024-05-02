@@ -1,12 +1,10 @@
 namespace ZorkOne.Item;
 
-public class CrystalSkull : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase, IGivePointsWhenFirstPickedUp
+public class CrystalSkull : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase, IGivePointsWhenFirstPickedUp
 {
     public override string[] NounsForMatching => ["skull", "crystal skull"];
 
     public override string InInventoryDescription => "A crystal skull";
-    
-    public string ExaminationDescription => "There's nothing special about the crystal skull. ";
     
     public string OnTheGroundDescription => "There is a crystal skull here. ";
 

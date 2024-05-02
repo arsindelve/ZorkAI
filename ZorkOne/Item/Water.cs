@@ -1,6 +1,6 @@
 namespace ZorkOne.Item;
 
-public class Water : ItemBase, ICanBeExamined, IAmADrink
+public class Water : ItemBase, IAmADrink
 {
     public override string[] NounsForMatching => ["water", "quantity of water"];
 
@@ -10,5 +10,4 @@ public class Water : ItemBase, ICanBeExamined, IAmADrink
 
     public string DrankDescription => "Thank you very much -- I was very thirsty (probably from all this talking).";
 
-    string ICanBeExamined.ExaminationDescription => "There's nothing special about the quantity of water.";
 }

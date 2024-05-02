@@ -68,12 +68,18 @@ public abstract class ItemBase : IItem
         return NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
     }
 
+    public virtual InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    {
+        return new NoNounMatchInteractionResult();
+    }
+
     private static List<IVerbProcessor> GetProcessors(ItemBase item)
     {
-        List<IVerbProcessor> result = new();
-
-        if (item is ICanBeExamined)
-            result.Add(new ExamineInteractionProcessor());
+        List<IVerbProcessor> result =
+        [
+            // anything can be examined
+            new ExamineInteractionProcessor()
+        ];
 
         if (item is ICanBeTakenAndDropped)
             result.Add(new TakeOrDropInteractionProcessor());
@@ -111,11 +117,6 @@ public abstract class ItemBase : IItem
             => current ?? processor.Process(action, context, this, client));
 
         return result ?? new NoVerbMatchInteractionResult { Verb = action.Verb, Noun = action.Noun };
-    }
-    
-    public virtual InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
-    {
-        return new NoNounMatchInteractionResult();
     }
 
     public virtual string? OnBeingTaken(IContext context)

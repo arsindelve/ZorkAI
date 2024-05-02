@@ -1,6 +1,6 @@
 namespace ZorkOne.Item;
 
-public class Painting : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IGivePointsWhenPlacedInTrophyCase,
+public class Painting : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase,
     IGivePointsWhenFirstPickedUp
 {
     public override string[] NounsForMatching => ["painting"];
@@ -8,9 +8,6 @@ public class Painting : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IGivePo
     public override string InInventoryDescription => "A painting";
 
     public override int Size => 4;
-
-    public string ExaminationDescription =>
-        "There is nothing special about the painting. ";
 
     public string OnTheGroundDescription => "A painting by a neglected artist is here. ";
 

@@ -3,14 +3,12 @@ using Model.Intent;
 
 namespace ZorkOne.Item;
 
-public class Sceptre : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase,
+public class Sceptre : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase,
     IGivePointsWhenFirstPickedUp
 {
     public override string[] NounsForMatching => ["sceptre", "ornamental sceptre"];
 
     public override string InInventoryDescription => "A sceptre";
-
-    public string ExaminationDescription => "There's nothing special about the sceptre. ";
 
     public string OnTheGroundDescription => "An ornamented sceptre, tapering to a sharp point, is here.";
 

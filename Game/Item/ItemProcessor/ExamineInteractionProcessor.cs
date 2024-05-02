@@ -11,9 +11,6 @@ public class ExamineInteractionProcessor : IVerbProcessor
     InteractionResult? IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item,
         IGenerationClient client)
     {
-        if (item is not ICanBeExamined castItem)
-            throw new Exception("Cast Error");
-
         switch (action.Verb.ToLowerInvariant().Trim())
         {
             case "examine":
@@ -26,7 +23,14 @@ public class ExamineInteractionProcessor : IVerbProcessor
                 if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
                     return new PositiveInteractionResult("It's too dark to see!");
 
-                return new PositiveInteractionResult(castItem.ExaminationDescription);
+                if (item is ICanBeExamined castItemToExamine)
+                    return new PositiveInteractionResult(castItemToExamine.ExaminationDescription);
+
+                if (item is ItemBase castItem)
+                    return new PositiveInteractionResult(
+                        $"There is nothing special about the {castItem.NounsForMatching.First()}");
+                
+                return null;
         }
 
         return null;

@@ -19,8 +19,11 @@ public class Candles : ItemBase, ICanBeExamined, ICanBeTakenAndDropped,
     public bool IsOn { get; set; }
 
     public string NowOnText => "The candles are lit. ";
+   
     public string NowOffText => "The flame is extinguished. ";
+    
     public string AlreadyOffText => "The candles are not lighted.";
+    
     public string AlreadyOnText => "The candles are already lit.";
 
     public string CannotBeTurnedOnText
