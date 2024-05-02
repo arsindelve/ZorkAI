@@ -14,10 +14,9 @@ public class SqueakyRoom : DarkLocation
         };
 
     protected override string ContextBasedDescription =>
-        "You are standing at the entrance of what might have been a coal mine. The shaft enters " +
-        "the west wall, and there is another exit on the south end of the room.";
+        "You are in a small room. Strange squeaky sounds may be heard coming from the passage at the north end. You may also escape to the east. ";
 
-    public override string Name => "Mine Entrance";
+    public override string Name => "Squeaky Room ";
 
     public override void Init()
     {

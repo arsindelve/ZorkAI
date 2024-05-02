@@ -1,6 +1,7 @@
 ﻿namespace ZorkOne.Item;
 
-public class PotOfGold : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase
+public class PotOfGold : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase,
+    IGivePointsWhenFirstPickedUp
 {
     public override string[] NounsForMatching => ["pot", "gold", "pot of gold"];
 
@@ -13,5 +14,7 @@ public class PotOfGold : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IGiveP
     public override string NeverPickedUpDescription =>
         "At the end of the rainbow is a pot of gold. ";
 
-    public int NumberOfPoints => 10;
+    int IGivePointsWhenFirstPickedUp.NumberOfPoints => 10;
+
+    int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 10;
 }
