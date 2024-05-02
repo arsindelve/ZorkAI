@@ -72,6 +72,10 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
         if (!verbs.Contains(verb))
             return base.RespondToSimpleInteraction(action, context, client);
 
+        // If they said "blue button", simplify and replace "button" with "blue"
+        if (action.MatchNoun(["button"]) && !string.IsNullOrEmpty(action.Adjective))
+            noun = action.Adjective.ToLowerInvariant();
+        
         return noun switch
         {
             "blue button" or "blue" => BlueClick(context),
