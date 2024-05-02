@@ -14,6 +14,7 @@ public class ExamineInteractionProcessor : IVerbProcessor
         switch (action.Verb.ToLowerInvariant().Trim())
         {
             case "examine":
+            case "x":
             case "check":
             case "look":
             case "look at":
@@ -21,14 +22,14 @@ public class ExamineInteractionProcessor : IVerbProcessor
             case "look in":
 
                 if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
-                    return new PositiveInteractionResult("It's too dark to see!");
+                    return new PositiveInteractionResult("It's too dark to see! ");
 
                 if (item is ICanBeExamined castItemToExamine)
                     return new PositiveInteractionResult(castItemToExamine.ExaminationDescription);
 
                 if (item is ItemBase castItem)
                     return new PositiveInteractionResult(
-                        $"There is nothing special about the {castItem.NounsForMatching.First()}");
+                        $"There is nothing special about the {castItem.NounsForMatching.MaxBy(s => s.Length)}. ");
                 
                 return null;
         }

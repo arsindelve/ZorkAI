@@ -19,6 +19,7 @@ internal class BatRoom : DarkLocation
     {
         if (!context.HasItem<Garlic>())
         {
+            // TODO: Come from the east without the garlic, he's dropping you in the mine! 
             context.CurrentLocation = GetLocation<MineEntrance>();
             var batText = """
                           A large vampire bat, hanging from the ceiling, swoops down at you!
@@ -38,6 +39,8 @@ internal class BatRoom : DarkLocation
 
     public override string AfterEnterLocation(IContext context)
     {
+        // TODO: Sword glows. 
+        
         if (context.HasItem<Garlic>())
             return
                 "\nIn the corner of the room on the ceiling is a large vampire bat who is obviously deranged and holding his nose. ";
