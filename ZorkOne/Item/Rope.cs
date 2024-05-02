@@ -1,6 +1,6 @@
 namespace ZorkOne.Item;
 
-public class Rope : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
+public class Rope : ItemBase, ICanBeTakenAndDropped
 {
     public override string[] NounsForMatching => ["rope"];
 
@@ -9,8 +9,6 @@ public class Rope : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
     public override int Size => 2;
 
     public bool TiedToRailing { get; set; }
-
-    string ICanBeExamined.ExaminationDescription => "There's nothing special about the rope. ";
 
     string ICanBeTakenAndDropped.OnTheGroundDescription => TiedToRailing
         ? "Hanging down from the railing is a rope which ends about ten feet from the floor below. "

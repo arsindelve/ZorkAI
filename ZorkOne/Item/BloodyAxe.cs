@@ -1,6 +1,6 @@
 namespace ZorkOne.Item;
 
-public class BloodyAxe : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IWeapon
+public class BloodyAxe : ItemBase, ICanBeTakenAndDropped, IWeapon
 {
     public override string[] NounsForMatching => ["axe", "bloody axe"];
 
@@ -17,8 +17,6 @@ public class BloodyAxe : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IWeapo
             return null;
         }
     }
-
-    public string ExaminationDescription => "There's nothing special about the bloody axe. ";
 
     string ICanBeTakenAndDropped.OnTheGroundDescription => "There is a bloody axe here. ";
 

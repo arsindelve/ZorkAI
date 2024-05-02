@@ -3,13 +3,11 @@ using Model.Intent;
 
 namespace ZorkOne.Item;
 
-public class Bat : ItemBase, ICanBeExamined
+public class Bat : ItemBase
 {
     public override string[] NounsForMatching => ["bat", "vampire bat", "vampire"];
 
     public override string CannotBeTakenDescription => "You can't reach him; he's on the ceiling. ";
-    
-    public string ExaminationDescription => "There's nothing special about the bat. ";
 
     public override string NeverPickedUpDescription =>
         "In the corner of the room on the ceiling is a large vampire bat who is obviously deranged and holding his nose.";

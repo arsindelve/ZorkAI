@@ -3,7 +3,7 @@ using Model.Intent;
 
 namespace ZorkOne.Item;
 
-public class ControlPanel : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
+public class ControlPanel : ItemBase, ICanBeTakenAndDropped
 {
     public bool GreenBubbleGlowing { get; set; }
 
@@ -12,8 +12,6 @@ public class ControlPanel : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
     public override string CannotBeTakenDescription => "You can't be serious.";
 
     public override string Name => "control panel";
-
-    public string ExaminationDescription => "There's nothing special about the control panel.";
 
     public string OnTheGroundDescription => NeverPickedUpDescription;
 
