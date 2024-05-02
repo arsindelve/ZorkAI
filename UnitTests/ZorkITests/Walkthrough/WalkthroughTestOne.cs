@@ -130,6 +130,9 @@ public sealed class WalkthroughTestOne : EngineTestsBase
     [TestCase("N", null, "Cold Passage", "This is a cold and damp corridor")]
     [TestCase("W", null, "Slide Room", "On the south wall of the chamber the letters \"Granite Wall\"")]
     [TestCase("N", null, "Mine Entrance", "You are standing at the entrance of what might have been a coal mine.")]
+    [TestCase("W", null, "Squeaky Room", "You may also escape to the east.")]
+    [TestCase("inventory", null, "garlic", "skull", "candles", "lantern", "torch (providing", "match", "screw")]
+    [TestCase("N", null, "Bat Room", "holding his nose", "exquisite jade figurine")]
     public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup))
@@ -146,7 +149,7 @@ public sealed class WalkthroughTestOne : EngineTestsBase
 
     public void KillTroll()
     {
-        // We can't have the randomness of trying to kill the troll. Let's God-Mode the dude. 
+        // We can't have the randomness of trying to kill the troll. Let's God-Mode this dude. 
         Repository.GetItem<Troll>().IsDead = true;
     }
 
@@ -160,6 +163,7 @@ public sealed class WalkthroughTestOne : EngineTestsBase
     private async Task Do(string input, params string[] outputs)
     {
         var result = await _target.GetResponse(input);
+        Console.WriteLine(result);
         foreach (var output in outputs) result.Should().Contain(output);
     }
 }

@@ -8,5 +8,7 @@ public class Screwdriver : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
 
     public string OnTheGroundDescription => "There is a screwdriver here. ";
 
+    public override string InInventoryDescription => "A screwdriver";
+
     public override string NeverPickedUpDescription => OnTheGroundDescription;
 }

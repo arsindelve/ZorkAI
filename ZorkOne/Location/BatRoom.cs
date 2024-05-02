@@ -17,22 +17,37 @@ internal class BatRoom : DarkLocation
 
     public override string BeforeEnterLocation(IContext context)
     {
-        context.CurrentLocation = GetLocation<MineEntrance>();
-        var batText = """
-                      A large vampire bat, hanging from the ceiling, swoops down at you!
-                       
-                          Fweep!
-                          Fweep!
-                          Fweep!
-                       
-                      The bat grabs you by the scruff of your neck and lifts you away....
-                      """;
+        if (!context.HasItem<Garlic>())
+        {
+            context.CurrentLocation = GetLocation<MineEntrance>();
+            var batText = """
+                          A large vampire bat, hanging from the ceiling, swoops down at you!
+                           
+                              Fweep!
+                              Fweep!
+                              Fweep!
+                           
+                          The bat grabs you by the scruff of your neck and lifts you away....
+                          """;
 
-        return $"{batText}\n\n{context.CurrentLocation.Description} ";
+            return $"{batText}\n\n{context.CurrentLocation.Description} ";
+        }
+
+        return base.BeforeEnterLocation(context);
+    }
+
+    public override string AfterEnterLocation(IContext context)
+    {
+        if (context.HasItem<Garlic>())
+            return
+                "\nIn the corner of the room on the ceiling is a large vampire bat who is obviously deranged and holding his nose. ";
+
+        return base.AfterEnterLocation(context);
     }
 
     public override void Init()
     {
         StartWithItem<Bat>(this);
+        StartWithItem<JadeFigurine>(this);
     }
 }

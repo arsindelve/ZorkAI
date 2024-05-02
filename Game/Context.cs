@@ -161,7 +161,7 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     /// <param name="item">The item to add to the inventory.</param>
     /// <exception cref="Exception">Thrown if a null item is added to the inventory.</exception>
-    public void Take(IItem? item)
+    public virtual void Take(IItem? item)
     {
         if (item == null)
             throw new Exception("Null item was added to inventory");

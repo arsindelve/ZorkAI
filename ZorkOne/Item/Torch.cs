@@ -1,7 +1,7 @@
 ﻿namespace ZorkOne.Item;
 
 public class Torch : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICannotBeTurnedOff, IAmALightSource,
-    IGivePointsWhenPlacedInTrophyCase
+    IGivePointsWhenPlacedInTrophyCase, IGivePointsWhenFirstPickedUp
 {
     public override string[] NounsForMatching => ["torch", "ivory torch"];
 
@@ -14,6 +14,8 @@ public class Torch : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICannotBeT
     public override string NeverPickedUpDescription => "Sitting on the pedestal is a flaming torch, made of ivory. ";
 
     public string CannotBeTurnedOffMessage => "You nearly burn your hand trying to extinguish the flame. ";
+
+    int IGivePointsWhenFirstPickedUp.NumberOfPoints => 14;
 
     int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 6;
 }

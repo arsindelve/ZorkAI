@@ -6,3 +6,11 @@
     @apply focus:border-none;
 }
 
+.fade {
+    transition: opacity 2s linear;
+    opacity: 1;
+}
+
+.fade:hover {
+    opacity: 0;
+}

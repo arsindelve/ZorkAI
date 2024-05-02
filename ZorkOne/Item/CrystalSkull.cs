@@ -1,6 +1,6 @@
 namespace ZorkOne.Item;
 
-public class CrystalSkull : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase
+public class CrystalSkull : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase, IGivePointsWhenFirstPickedUp
 {
     public override string[] NounsForMatching => ["skull", "crystal skull"];
 
@@ -13,5 +13,7 @@ public class CrystalSkull : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IGi
     public override string NeverPickedUpDescription =>
         "Lying in one corner of the room is a beautifully carved crystal skull. It appears to be grinning at you rather nastily. ";
 
-    public int NumberOfPoints => 10;
+    int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 10;
+    
+    int IGivePointsWhenFirstPickedUp.NumberOfPoints => 10;
 }

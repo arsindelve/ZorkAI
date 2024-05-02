@@ -1,3 +1,4 @@
+using System.Configuration;
 using Game.StaticCommand.Implementation;
 using Model.AIGeneration;
 using Model.Intent;
@@ -21,6 +22,9 @@ public class EngineTestsBase
 
             var mockParser = Mock.Get(Parser);
 
+            mockParser.Setup(p => p.DetermineIntentType("inventory", It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new GlobalCommandIntent { Command = new InventoryProcessor() });
+            
             foreach (Direction direction in Enum.GetValues(typeof(Direction)))
                 mockParser.Setup(p => p.DetermineIntentType(direction.ToString(), It.IsAny<string>(), It.IsAny<string>()))
                     .ReturnsAsync(new MoveIntent { Direction = direction });
@@ -167,6 +171,9 @@ public class EngineTestsBase
 
             mockParser.Setup(s => s.DetermineIntentType("drop coffin", It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "drop", Noun = "coffin", OriginalInput = "drop coffin" });
+            
+            mockParser.Setup(s => s.DetermineIntentType("drop figurine", It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Verb = "drop", Noun = "figurine", OriginalInput = "drop figurine" });
 
             mockParser.Setup(s => s.DetermineIntentType("open coffin", It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "open", Noun = "coffin", OriginalInput = "open coffin" });
@@ -260,6 +267,10 @@ public class EngineTestsBase
             mockParser.Setup(s => s.DetermineIntentType("take matches", It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent
                     { Adverb = "", Verb = "take", Noun = "matches", OriginalInput = "take matches" });
+            
+            mockParser.Setup(s => s.DetermineIntentType("take figurine", It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent
+                    { Adverb = "", Verb = "take", Noun = "figurine", OriginalInput = "take figurine" });
 
             mockParser.Setup(s => s.DetermineIntentType("ring bell", It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent
