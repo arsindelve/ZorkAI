@@ -59,7 +59,7 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return hasMatch;
     }
 
-    public virtual string AfterEnterLocation(IContext context)
+    public virtual string AfterEnterLocation(IContext context, ILocation previousLocation)
     {
         return string.Empty;
     }
@@ -73,7 +73,7 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return new NoVerbMatchInteractionResult { Noun = string.Empty, Verb = input! };
     }
 
-    public virtual string BeforeEnterLocation(IContext context)
+    public virtual string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
         if (VisitCount == 0)
             OnFirstTimeEnterLocation(context);

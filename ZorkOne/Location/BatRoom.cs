@@ -18,7 +18,7 @@ internal class BatRoom : DarkLocation
 
     public override string Name => "Bat Room";
 
-    public override string BeforeEnterLocation(IContext context)
+    public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
         if (!context.HasItem<Garlic>())
         {
@@ -37,18 +37,23 @@ internal class BatRoom : DarkLocation
             return $"{batText}\n\n{context.CurrentLocation.Description} ";
         }
 
-        return base.BeforeEnterLocation(context);
+        return base.BeforeEnterLocation(context, previousLocation);
     }
 
-    public override string AfterEnterLocation(IContext context)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
     {
-        // TODO: Sword glows. 
-
+        string response = "";
+       
         if (context.HasItem<Garlic>())
-            return
+            response +=
                 "\nIn the corner of the room on the ceiling is a large vampire bat who is obviously deranged and holding his nose. ";
 
-        return base.AfterEnterLocation(context);
+        var swordInPossession = context.HasItem<Sword>();
+
+        if (swordInPossession)
+            response += "\n\nYour sword has begun to glow very brightly. ";
+
+        return response;
     }
 
     public override void Init()

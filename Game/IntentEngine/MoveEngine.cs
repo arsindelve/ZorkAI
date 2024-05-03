@@ -1,5 +1,6 @@
 using Game.StaticCommand.Implementation;
 using Model.AIGeneration;
+using Model.Location;
 
 namespace Game.IntentEngine;
 
@@ -28,12 +29,13 @@ internal class MoveEngine : IIntentEngine
         // Let's reset the noun context, so we don't get confused with "it" between locations
         context.LastNoun = "";
 
+        ILocation previousLocation = context.CurrentLocation;
         context.CurrentLocation.OnLeaveLocation(context);
         context.CurrentLocation = movement.Location;
 
-        var beforeEnteringText = movement.Location.BeforeEnterLocation(context);
+        var beforeEnteringText = movement.Location.BeforeEnterLocation(context, previousLocation);
         var processorText = await new LookProcessor().Process(null, context, generationClient, Runtime.Unknown);
-        var afterEnteringText = movement.Location.AfterEnterLocation(context);
+        var afterEnteringText = movement.Location.AfterEnterLocation(context, previousLocation);
 
         var result = beforeEnteringText + processorText + afterEnteringText + Environment.NewLine;
         return result;

@@ -21,4 +21,14 @@ public class SqueakyRoom : DarkLocation
     public override void Init()
     {
     }
+    
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
+    {
+        var swordInPossession = context.HasItem<Sword>();
+
+        if (swordInPossession)
+            return "\nYour sword is glowing with a faint blue glow.";
+
+        return string.Empty;
+    }
 }

@@ -34,12 +34,12 @@ public class TrollRoom : DarkLocation
         "This is a small room with passages to the east and south and a forbidding hole leading west. " +
         "Bloodstains and deep scratches (perhaps made by an axe) mar the walls. ";
 
-    public override string BeforeEnterLocation(IContext context)
+    public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
         var troll = GetItem<Troll>();
 
         if (troll.IsDead)
-            return base.BeforeEnterLocation(context);
+            return base.BeforeEnterLocation(context, previousLocation);
 
         var axe = GetItem<BloodyAxe>();
 
@@ -54,7 +54,7 @@ public class TrollRoom : DarkLocation
 
         context.RegisterActor(GetItem<Troll>());
 
-        return base.BeforeEnterLocation(context);
+        return base.BeforeEnterLocation(context, previousLocation);
     }
 
     public override void OnLeaveLocation(IContext context)
@@ -120,7 +120,7 @@ public class TrollRoom : DarkLocation
         return _attackEngine.Attack(context);
     }
 
-    public override string AfterEnterLocation(IContext context)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
     {
         // TODO: Sword should glow brightly even when the troll is disarmed 
 
@@ -129,7 +129,7 @@ public class TrollRoom : DarkLocation
         if (TrollIsAwakeAndArmed && swordInPossession)
             return "\nYour sword has begun to glow very brightly. ";
 
-        return string.Empty;
+        return base.AfterEnterLocation(context, previousLocation);
     }
 
     public override void Init()

@@ -34,9 +34,9 @@ public class Cellar : DarkLocation
                                                          "leading north, and a crawlway to the south. On the west is the " +
                                                          "bottom of a steep metal ramp which is unclimbable. ";
 
-    public override string BeforeEnterLocation(IContext context)
+    public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
-        var result = base.BeforeEnterLocation(context);
+        var result = base.BeforeEnterLocation(context, previousLocation);
 
         if (Repository.GetItem<TrapDoor>().IsOpen)
         {
@@ -53,7 +53,7 @@ public class Cellar : DarkLocation
         StartWithItem(Repository.GetItem<TrapDoor>(), this);
     }
 
-    public override string AfterEnterLocation(IContext context)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
     {
         var swordInPossession = context.HasItem<Sword>();
         var trollIsAlive = Repository.GetItem<Troll>().CurrentLocation == Repository.GetLocation<TrollRoom>();
@@ -61,7 +61,7 @@ public class Cellar : DarkLocation
         if (trollIsAlive && swordInPossession)
             return "\nYour sword is glowing with a faint blue glow.";
 
-        return base.AfterEnterLocation(context);
+        return base.AfterEnterLocation(context, previousLocation);
     }
 
     protected override void OnFirstTimeEnterLocation(IContext context)
