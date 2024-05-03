@@ -34,4 +34,6 @@ public class Coffin : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndD
     {
         StartWithItemInside<Sceptre>();
     }
+
+    public override int Size => 15;
 }

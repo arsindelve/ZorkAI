@@ -333,7 +333,26 @@ public class EngineTestsBase
                     Verb = "put",
                     OriginalInput = "put leaflet inside case"
                 });
-
+            
+            mockParser.Setup(s => s.DetermineIntentType("put torch in basket", It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new MultiNounIntent
+                {
+                    NounOne = "torch",
+                    NounTwo = "basket",
+                    Preposition = "in",
+                    Verb = "put",
+                    OriginalInput = "put torch in basket"
+                });
+            
+            mockParser.Setup(s => s.DetermineIntentType("put screwdriver in basket", It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new MultiNounIntent
+                {
+                    NounOne = "screwdriver",
+                    NounTwo = "basket",
+                    Preposition = "in",
+                    Verb = "put",
+                    OriginalInput = "put screwdriver in basket"
+                });
             mockParser.Setup(s => s.DetermineIntentType("put coffin inside case", It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new MultiNounIntent
                 {

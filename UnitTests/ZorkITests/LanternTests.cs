@@ -3,6 +3,20 @@ namespace UnitTests.ZorkITests;
 public class LanternTests : EngineTestsBase
 {
     [Test]
+    public async Task LightSourceDoesNotNeedToBeInPossession()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<ShaftRoom>();
+        var torch = Repository.GetItem<Torch>();
+        target.Context.Take(torch);
+
+        string? response = await target.GetResponse("put torch in basket");
+        Console.WriteLine(response);
+
+        target.Context.ItIsDarkHere.Should().BeFalse();
+    }
+    
+    [Test]
     public async Task CounterIncreases_WhenLanternIsOn()
     {
         var target = GetTarget();

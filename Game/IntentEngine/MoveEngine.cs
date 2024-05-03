@@ -16,6 +16,9 @@ internal class MoveEngine : IIntentEngine
 
         if (movement == null)
             return await GetGeneratedCantGoThatWayResponse();
+        
+        if (movement.WeightLimit < context.CarryingWeight)
+            return movement.WeightLimitFailureMessage;
 
         if (!movement.CanGo(context) || movement.Location == null)
             return !string.IsNullOrEmpty(movement.CustomFailureMessage)

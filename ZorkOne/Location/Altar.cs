@@ -7,8 +7,12 @@ public class Altar : BaseLocation
         new()
         {
             { Direction.N, new MovementParameters { Location = GetLocation<Temple>() } },
-            // TODO: Baggage limit to go down
-            { Direction.Down, new MovementParameters { Location = GetLocation<CaveSouth>() } }
+            { Direction.Down, new MovementParameters
+            {
+                WeightLimit = 12, 
+                WeightLimitFailureMessage = "You haven't a prayer of getting down there with what you're carrying. ", 
+                Location = GetLocation<CaveSouth>()
+            } }
         };
 
     public override string Name => "Altar";
