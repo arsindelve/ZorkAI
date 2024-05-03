@@ -12,9 +12,16 @@ public class Studio : BaseLocation
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            // TODO: Implement weight limit to go up
             { Direction.S, new MovementParameters { Location = GetLocation<Gallery>() } },
-            { Direction.Up, new MovementParameters { Location = GetLocation<Kitchen>() } }
+            {
+                Direction.Up,
+                new MovementParameters
+                {
+                    Location = GetLocation<Kitchen>(), 
+                    WeightLimit = 7,
+                    WeightLimitFailureMessage = "You can't get up there with what you're carrying. "
+                }
+            }
         };
 
     public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)

@@ -27,8 +27,6 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         Moves = 0;
     }
 
-    public List<ITurnBasedActor> Actors { get; set; } = new();
-    
     /// <summary>
     ///     Constructor for unit testing
     /// </summary>
@@ -41,6 +39,9 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     }
 
     private T GameType { get; set; }
+
+    public List<ITurnBasedActor> Actors { get; set; } = new();
+    public int CarryingWeight => Items.Sum(s => s.Size);
 
     public LimitedStack<string> Inputs { get; set; } = new();
 
@@ -73,13 +74,29 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         {
             var constantLightSources = Items
                 .Where(s => s is IAmALightSource)
-                .Where(s => s is ICannotBeTurnedOff);
+                .Any(s => s is ICannotBeTurnedOff);
 
-            var lightSourcesThatAreOn = Items
+            var lightSourcesThatAreInMyPossession = Items
                 .Where(s => s is IAmALightSource)
-                .Where(s => s is IAmALightSourceThatTurnsOnAndOff { IsOn: true });
+                .Any(s => s is IAmALightSourceThatTurnsOnAndOff { IsOn: true });
 
-            return constantLightSources.Any() || lightSourcesThatAreOn.Any();
+            var lightSourcesInTheRoom = ((ICanHoldItems)CurrentLocation).Items
+                .Any(s => s is IAmALightSourceThatTurnsOnAndOff { IsOn: true });
+
+            // Really? Yes, really. This is an important part of the "shaft"
+            // puzzle in Zork One. You put the torch in the basket, and it's 
+            // your only light source. 
+            var lightSourcesInAContainerInTheRoom = ((ICanHoldItems)CurrentLocation).Items
+                .OfType<ICanHoldItems>()
+                .Any(container =>
+                    container is IOpenAndClose { IsOpen: true } or ContainerBase { IsTransparent: true } &&
+                    container.Items.Any(s =>
+                        s is IAmALightSource or IAmALightSourceThatTurnsOnAndOff { IsOn: true }));
+
+            return constantLightSources ||
+                   lightSourcesThatAreInMyPossession ||
+                   lightSourcesInTheRoom ||
+                   lightSourcesInAContainerInTheRoom;
         }
     }
 

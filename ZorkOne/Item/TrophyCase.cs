@@ -4,8 +4,9 @@ namespace ZorkOne.Item;
 
 public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
 {
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    // ReSharper disable once MemberCanBePrivate.Global
+    // This is a list of every item that's ever been placed here. 
+    // We track this so you don't get double points for putting something 
+    // in the case, taking it out and putting it back again. 
     public List<IItem> ItemsPlacedInside = [];
 
     public override string[] NounsForMatching => ["case", "trophy case"];

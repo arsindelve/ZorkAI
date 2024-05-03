@@ -7,6 +7,9 @@ internal class BatRoom : DarkLocation
         {
             {
                 Direction.S, new MovementParameters { Location = GetLocation<SqueakyRoom>() }
+            },
+            {
+                Direction.E, new MovementParameters { Location = GetLocation<ShaftRoom>() }
             }
         };
 
@@ -40,7 +43,7 @@ internal class BatRoom : DarkLocation
     public override string AfterEnterLocation(IContext context)
     {
         // TODO: Sword glows. 
-        
+
         if (context.HasItem<Garlic>())
             return
                 "\nIn the corner of the room on the ceiling is a large vampire bat who is obviously deranged and holding his nose. ";

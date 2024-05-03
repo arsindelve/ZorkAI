@@ -66,6 +66,16 @@ public interface IContext : ICanHoldItems
 
     bool ItIsDarkHere { get; }
 
+    /// <summary>
+    ///     Represents a collection of currently-active turn-based actors in the game.
+    /// </summary>
+    public List<ITurnBasedActor> Actors { get; set; }
+
+    /// <summary>
+    ///     What is the total weight of everything we're carrying?
+    /// </summary>
+    int CarryingWeight { get; }
+
     void Take(IItem item);
 
     void Drop(IItem item);
@@ -96,9 +106,4 @@ public interface IContext : ICanHoldItems
     /// </summary>
     /// <param name="actor">The actor to be removed.</param>
     void RemoveActor(ITurnBasedActor actor);
-
-    /// <summary>
-    /// Represents a collection of currently-active turn-based actors in the game.
-    /// </summary>
-    public List<ITurnBasedActor> Actors { get; set; }
 }

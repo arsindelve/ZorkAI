@@ -9,4 +9,6 @@ public class Screwdriver : ItemBase, ICanBeTakenAndDropped
     public override string InInventoryDescription => "A screwdriver";
 
     public override string NeverPickedUpDescription => OnTheGroundDescription;
+
+    public override int Size => 1;
 }

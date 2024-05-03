@@ -56,4 +56,6 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
 
         return base.RespondToSimpleInteraction(action, context, client);
     }
+
+    public override int Size => 2;
 }

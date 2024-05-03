@@ -34,4 +34,18 @@ public record MovementParameters
     ///     </example>
     /// </summary>
     public string? CustomFailureMessage { get; init; }
+
+    /// <summary>
+    ///     Is there a limited number of items you can carry to traverse this path?
+    ///     Is it a tight squeeze? By default, no, but some locations may override
+    ///     this.
+    /// </summary>
+    public int WeightLimit { get; init; } = int.MaxValue;
+
+    /// <summary>
+    ///     If the adventurer cannot get there with what they're carrying
+    ///     in their inventory (see what I did there? HA!),
+    ///     what message shall we give them?
+    /// </summary>
+    public string WeightLimitFailureMessage { get; init; } = string.Empty;
 }

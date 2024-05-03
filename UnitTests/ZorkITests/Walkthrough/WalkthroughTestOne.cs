@@ -133,6 +133,10 @@ public sealed class WalkthroughTestOne : EngineTestsBase
     [TestCase("W", null, "Squeaky Room", "You may also escape to the east.")]
     [TestCase("inventory", null, "garlic", "skull", "candles", "lantern", "torch (providing", "match", "screw")]
     [TestCase("N", null, "Bat Room", "holding his nose", "exquisite jade figurine")]
+    [TestCase("E", null, "Shaft Room", "the chain is a basket")]
+    [TestCase("put torch in basket", null, "Done")]
+    [TestCase("put screwdriver in basket", null, "Done")]
+    [TestCase("turn on lantern", null, "The brass lantern is now on")]
     public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup))
