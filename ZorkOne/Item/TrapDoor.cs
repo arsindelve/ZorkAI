@@ -2,7 +2,7 @@ namespace ZorkOne.Item;
 
 public class TrapDoor : ItemBase, ICanBeExamined, IOpenAndClose
 {
-    public override string[] NounsForMatching => ["door", "trap door"];
+    public override string[] NounsForMatching => ["door", "trap door", "trapdoor"];
 
     public string ExaminationDescription =>
         IsOpen ? "The trap door is open, but I can't tell what's beyond it." : "The trap door is closed.";

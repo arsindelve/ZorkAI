@@ -1,6 +1,6 @@
 namespace ZorkOne.Location;
 
-public class MirrorRoomSouth : MirrorRoom
+internal class MirrorRoomSouth : MirrorRoom
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()

@@ -1,6 +1,6 @@
 namespace ZorkOne.Location;
 
-internal class SmellyRoom : DarkLocation
+internal class SmellyRoom : DarkLocationWithNoStartingItems
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
@@ -15,10 +15,6 @@ internal class SmellyRoom : DarkLocation
         "descending staircase a foul odor can be detected. To the south is a narrow tunnel.";
 
     public override string Name => "Smelly Room";
-
-    public override void Init()
-    {
-    }
 
     public override string AfterEnterLocation(IContext context, ILocation previousLocation)
     {

@@ -1,6 +1,6 @@
 namespace ZorkOne.Location;
 
-public class SqueakyRoom : DarkLocation
+public class SqueakyRoom : DarkLocationWithNoStartingItems
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
@@ -17,10 +17,6 @@ public class SqueakyRoom : DarkLocation
         "You are in a small room. Strange squeaky sounds may be heard coming from the passage at the north end. You may also escape to the east. ";
 
     public override string Name => "Squeaky Room ";
-
-    public override void Init()
-    {
-    }
     
     public override string AfterEnterLocation(IContext context, ILocation previousLocation)
     {
