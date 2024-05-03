@@ -18,7 +18,7 @@ public class CaveSouth : DarkLocation
 
     public override string Name => "Cave";
 
-    public override string AfterEnterLocation(IContext context)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
     {
         var returnValue = "";
         var swordInPossession = context.HasItem<Sword>();
@@ -43,7 +43,7 @@ public class CaveSouth : DarkLocation
             returnValue += "\nYour sword is glowing with a faint blue glow.";
 
         if (string.IsNullOrWhiteSpace(returnValue))
-            return base.AfterEnterLocation(context);
+            return base.AfterEnterLocation(context, previousLocation);
 
         return returnValue;
     }

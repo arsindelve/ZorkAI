@@ -46,14 +46,14 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
         base.OnLeaveLocation(context);
     }
 
-    public override string AfterEnterLocation(IContext context)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
     {
         if (Repository.GetLocation<ReservoirSouth>().IsDraining)
             return "With a tremendous effort, you scramble out of the room. \n\n" +
                    Flee(context).InteractionMessage;
 
         context.RegisterActor(this);
-        return base.AfterEnterLocation(context);
+        return base.AfterEnterLocation(context, previousLocation);
     }
 
     /// <summary>

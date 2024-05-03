@@ -25,7 +25,7 @@ function App() {
     const [isRestarting, setIsRestarting] = useState<boolean>(false);
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const [isRestoring, setIsRestoring] = useState<boolean>(false);
-    const [imageIsVisible, setImageIsVisible] = useState(true);
+    //const [imageIsVisible, setImageIsVisible] = useState(true);
  
     const queryClient = new QueryClient()
 
@@ -67,14 +67,14 @@ function App() {
                     <GameMenu gameMethods={[restart, restore, save]}/>
 
                         <QueryClientProvider client={queryClient}>
-                            <div className="App">
-                                {imageIsVisible &&
-                                    <div className="fade">
-                                        <img src="https://zorkai-assets.s3.amazonaws.com/locations/WestOfHouse.webp" alt="description"
-                                             onClick={() => setImageIsVisible(false)}/>
-                                    </div>
-                                }
-                            </div>
+                            {/*<div className="App">*/}
+                            {/*    {imageIsVisible &&*/}
+                            {/*        <div className="fade">*/}
+                            {/*            <img src="https://zorkai-assets.s3.amazonaws.com/locations/WestOfHouse.webp" alt="description"*/}
+                            {/*                 onClick={() => setImageIsVisible(false)}/>*/}
+                            {/*        </div>*/}
+                            {/*    }*/}
+                            {/*</div>*/}
                             <Game/>
                         </QueryClientProvider>
                     </AppStateContext.Provider>

@@ -26,7 +26,7 @@ public interface ILocation
     ///     Gets called when we enter a location in case there are any interactions
     ///     we need to process when we walk in the room, BEFORE the description of the room
     /// </summary>
-    string BeforeEnterLocation(IContext context);
+    string BeforeEnterLocation(IContext context, ILocation previousLocation);
 
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="SimpleIntent" /> corresponding
@@ -83,7 +83,7 @@ public interface ILocation
     ///     Gets called when we enter a location in case there are any interactions
     ///     we need to process when we walk in the room, AFTER the description of the room
     /// </summary>
-    string AfterEnterLocation(IContext context);
+    string AfterEnterLocation(IContext context, ILocation previousLocation);
 
     /// <summary>
     ///     Gets called when the player leaves the current location and moves to a new location.

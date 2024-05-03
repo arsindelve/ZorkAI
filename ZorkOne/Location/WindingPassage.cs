@@ -8,16 +8,24 @@ public class WindingPassage : DarkLocation
             { Direction.N, new MovementParameters { Location = GetLocation<MirrorRoomSouth>() } },
             { Direction.E, new MovementParameters { Location = GetLocation<CaveSouth>() } }
         };
-
-    // TODO: Your sword is glowing with a faint blue glow.
+    
     protected override string ContextBasedDescription =>
         "This is a winding passage. It seems that there are only exits on the east and north. ";
-
-    // TODO: Your sword is no longer glowing.
 
     public override string Name => "Winding Passage";
 
     public override void Init()
     {
+    }
+    
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
+    {
+        var swordInPossession = context.HasItem<Sword>();
+        var spiritsAlive = Repository.GetItem<Spirits>().CurrentLocation == Repository.GetLocation<EntranceToHades>();
+
+        if (spiritsAlive && swordInPossession && previousLocation is CaveSouth)
+            return "\nYour sword is no longer glowing. ";
+
+        return base.AfterEnterLocation(context, previousLocation);
     }
 }

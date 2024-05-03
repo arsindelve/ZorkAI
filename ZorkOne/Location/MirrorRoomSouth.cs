@@ -9,4 +9,15 @@ public class MirrorRoomSouth : MirrorRoom
             { Direction.E, new MovementParameters { Location = GetLocation<CaveSouth>() } },
             { Direction.W, new MovementParameters { Location = GetLocation<WindingPassage>() } }
         };
+    
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
+    {
+        var swordInPossession = context.HasItem<Sword>();
+        var spiritsAlive = Repository.GetItem<Spirits>().CurrentLocation == Repository.GetLocation<EntranceToHades>();
+
+        if (spiritsAlive && swordInPossession && previousLocation is CaveSouth)
+            return "\nYour sword is no longer glowing. ";
+
+        return base.AfterEnterLocation(context, previousLocation);
+    }
 }

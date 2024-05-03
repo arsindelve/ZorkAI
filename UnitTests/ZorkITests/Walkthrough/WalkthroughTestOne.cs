@@ -137,6 +137,8 @@ public sealed class WalkthroughTestOne : EngineTestsBase
     [TestCase("put torch in basket", null, "Done")]
     [TestCase("put screwdriver in basket", null, "Done")]
     [TestCase("turn on lantern", null, "The brass lantern is now on")]
+    [TestCase("N", null, "Smelly Room", "To the south is a narrow tunnel")]
+
     public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup))

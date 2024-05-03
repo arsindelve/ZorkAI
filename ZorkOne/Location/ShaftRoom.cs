@@ -7,6 +7,14 @@ internal class ShaftRoom : DarkLocation
         {
             {
                 Direction.W, new MovementParameters { Location = GetLocation<BatRoom>() }
+            },
+            {
+                Direction.Down,
+                new MovementParameters
+                    { CanGo = _ => false, CustomFailureMessage = "You wouldn't fit and would die if you could. " }
+            },
+            {
+                Direction.N, new MovementParameters { Location = GetLocation<SmellyRoom>() }
             }
         };
 
@@ -18,7 +26,7 @@ internal class ShaftRoom : DarkLocation
 
     public override string Name => "Shaft Room";
 
-    public override string AfterEnterLocation(IContext context)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
     {
         var swordInPossession = context.HasItem<Sword>();
 
