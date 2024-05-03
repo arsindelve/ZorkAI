@@ -9,9 +9,8 @@ public class TrollRoom : DarkLocation
     private static readonly string[] KillVerbs = ["kill", "attack", "defeat", "destroy", "murder", "use", "stab"];
     private readonly AdventurerVersusTrollCombatEngine _attackEngine = new();
 
-    private bool TrollIsAwakeAndArmed => !GetItem<Troll>().IsDead &&
-                                         !GetItem<Troll>().IsUnconscious &&
-                                         GetItem<BloodyAxe>().CurrentLocation == GetItem<Troll>();
+    private bool TrollIsAwake => !GetItem<Troll>().IsDead &&
+                                 !GetItem<Troll>().IsUnconscious;
 
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
@@ -21,8 +20,7 @@ public class TrollRoom : DarkLocation
                 Direction.E,
                 new MovementParameters
                 {
-                    // TODO: Even unarmed, the troll blocks your passage. 
-                    Location = GetLocation<EastWestPassage>(), CanGo = _ => !TrollIsAwakeAndArmed,
+                    Location = GetLocation<EastWestPassage>(), CanGo = _ => !TrollIsAwake,
                     CustomFailureMessage = "The troll fends you off with a menacing gesture. "
                 }
             }
@@ -122,11 +120,9 @@ public class TrollRoom : DarkLocation
 
     public override string AfterEnterLocation(IContext context, ILocation previousLocation)
     {
-        // TODO: Sword should glow brightly even when the troll is disarmed 
-
         var swordInPossession = context.HasItem<Sword>();
 
-        if (TrollIsAwakeAndArmed && swordInPossession)
+        if (TrollIsAwake && swordInPossession)
             return "\nYour sword has begun to glow very brightly. ";
 
         return base.AfterEnterLocation(context, previousLocation);
