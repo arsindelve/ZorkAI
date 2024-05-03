@@ -36,7 +36,7 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor
 
         if (!HasItem<BloodyAxe>())
             return
-                "The troll, disarmed, cowers in terror, pleading for his life in the guttural tongue of the trolls. ";
+                "\nThe troll, disarmed, cowers in terror, pleading for his life in the guttural tongue of the trolls. ";
 
         return _trollAttackEngine.Attack(context);
     }

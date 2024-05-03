@@ -36,7 +36,7 @@ public class ZorkI : IInfocomGame
 
     public ZorkI()
     {
-        Repository.GetLocation<TrollRoom>().Init();
+        _ = Repository.GetLocation<TrollRoom>();
     }
 
     public string StartText => """
