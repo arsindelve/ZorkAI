@@ -1,4 +1,5 @@
 using Model;
+using Model.Interface;
 using ZorkTwo.Location;
 
 namespace ZorkTwo;

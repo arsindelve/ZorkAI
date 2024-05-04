@@ -1,6 +1,6 @@
 using Model.AIGeneration;
 
-namespace Model;
+namespace Model.Interface;
 
 /// <summary>
 ///     Represents a global command that can be processed by the game engine.

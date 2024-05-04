@@ -1,4 +1,6 @@
 ﻿using Model.AIGeneration;
+using Model.Interface;
+using Model.Movement;
 
 namespace ZorkOne.Location;
 

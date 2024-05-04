@@ -3,6 +3,7 @@ using Game.StaticCommand;
 using Game.StaticCommand.Implementation;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
+using Model.Interface;
 
 namespace UnitTests.GlobalCommands;
 

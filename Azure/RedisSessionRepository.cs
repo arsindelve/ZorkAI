@@ -1,4 +1,5 @@
 ﻿using Model;
+using Model.Interface;
 using StackExchange.Redis;
 
 namespace Azure;

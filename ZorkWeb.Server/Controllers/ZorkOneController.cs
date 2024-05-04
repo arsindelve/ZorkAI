@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Model;
+using Model.Interface;
 using ZorkWeb.Server.Model;
 
 namespace ZorkWeb.Server.Controllers;

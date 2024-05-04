@@ -1,6 +1,7 @@
 using Model.AIGeneration;
 using Model.Intent;
 using Model.Interaction;
+using Model.Interface;
 
 namespace Model.Item;
 

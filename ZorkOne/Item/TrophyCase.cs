@@ -1,4 +1,5 @@
 using System.Text;
+using Model.Interface;
 
 namespace ZorkOne.Item;
 

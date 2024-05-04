@@ -1,6 +1,8 @@
 ﻿using Model.AIGeneration;
+using Model.Interface;
 using Model.Item;
 using Model.Location;
+using Model.Movement;
 
 namespace Game.Location;
 

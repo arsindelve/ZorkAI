@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Lambda.Model;
 using Microsoft.AspNetCore.Mvc;
-using Model;
+using Model.Interface;
 
 namespace Lambda.Controllers;
 
@@ -10,7 +10,9 @@ namespace Lambda.Controllers;
 public class ZorkOneController(
     ILogger<ZorkOneController> logger,
     IGameEngine engine,
-    ISessionRepository sessionRepository)
+    ISessionRepository sessionRepository,
+    ISavedGameRepository savedGameRepository
+)
     : ControllerBase
 {
     [HttpPost]
@@ -27,6 +29,25 @@ public class ZorkOneController(
         return new GameResponse(response!, engine.LocationName, engine.Moves, engine.Score);
     }
 
+    [HttpPost]
+    [Route("saveGame")]
+    public async Task<string> SaveGame([FromBody] SaveGameRequest request)
+    {
+        var encodedText = GetGameData();
+        return await savedGameRepository.SaveGame(request.SessionId, request.Name, encodedText);
+    }
+    
+    [HttpGet]
+    [Route("saveGame")]
+    public async Task<List<SavedGame>> GetAllSavedGames([FromQuery] string sessionId)
+    {
+        List<(string Id, string Name, DateTime SavedOn)> results = await savedGameRepository.GetSavedGames(sessionId);
+        return results
+            .OrderByDescending(s => s.SavedOn)
+            .Select(s => new SavedGame(s.Id, s.Name, s.SavedOn))
+            .ToList();
+    }
+
     [HttpGet]
     public async Task<GameResponse> Index([FromQuery] string sessionId)
     {
@@ -37,15 +58,21 @@ public class ZorkOneController(
             var response = await engine.GetResponse("look");
             return new GameResponse(response!, engine.LocationName, engine.Moves, engine.Score);
         }
-        
+
         return new GameResponse(engine.IntroText, engine.LocationName, engine.Moves, engine.Score);
     }
 
     private async Task WriteSession(string sessionId)
     {
+        var encodedText = GetGameData();
+        await sessionRepository.WriteSession(sessionId, encodedText);
+    }
+
+    private string GetGameData()
+    {
         var bytesToEncode = Encoding.UTF8.GetBytes(engine.SaveGame());
         var encodedText = Convert.ToBase64String(bytesToEncode);
-        await sessionRepository.WriteSession(sessionId, encodedText);
+        return encodedText;
     }
 
     private void RestoreSession(string savedGame)

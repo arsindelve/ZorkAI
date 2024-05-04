@@ -25,6 +25,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Bedrock\Bedrock.csproj" />
+      <ProjectReference Include="..\DynamoDb\DynamoDb.csproj" />
       <ProjectReference Include="..\Game\Game.csproj" />
       <ProjectReference Include="..\ZorkOne\ZorkOne.csproj" />
     </ItemGroup>

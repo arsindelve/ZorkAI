@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
+using Model.Interface;
 
 namespace Game.IntentEngine;
 

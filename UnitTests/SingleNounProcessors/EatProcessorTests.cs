@@ -2,6 +2,7 @@ using Game.Item.ItemProcessor;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Intent;
+using Model.Interface;
 
 namespace UnitTests.SingleNounProcessors;
 

@@ -1,5 +1,7 @@
 using Model.AIGeneration;
 using Model.Intent;
+using Model.Interface;
+using Model.Movement;
 using ZorkOne.Command;
 
 namespace ZorkOne.Location;

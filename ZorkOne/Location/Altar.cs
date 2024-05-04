@@ -1,4 +1,7 @@
-﻿namespace ZorkOne.Location;
+﻿using Model.Interface;
+using Model.Movement;
+
+namespace ZorkOne.Location;
 
 // This is not a dark location either, oddly. 
 public class Altar : BaseLocation
