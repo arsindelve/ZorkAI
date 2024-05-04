@@ -1,6 +1,7 @@
 using Model.AIGeneration.Requests;
 using Model.AIParsing;
 using Model.Intent;
+using Model.Movement;
 using ZorkOne;
 using ZorkOne.GlobalCommand;
 

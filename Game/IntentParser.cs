@@ -3,6 +3,8 @@ using Game.StaticCommand;
 using Lex;
 using Microsoft.Extensions.Logging;
 using Model.AIParsing;
+using Model.Interface;
+using Model.Movement;
 
 namespace Game;
 

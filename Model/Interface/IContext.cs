@@ -6,7 +6,7 @@ using Model.Item;
 using Model.Location;
 using Utilities;
 
-namespace Model;
+namespace Model.Interface;
 
 public interface IContext : ICanHoldItems
 {

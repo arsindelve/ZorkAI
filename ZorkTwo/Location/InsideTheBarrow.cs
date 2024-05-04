@@ -1,5 +1,6 @@
 using Game.Location;
 using Model;
+using Model.Movement;
 
 namespace ZorkTwo.Location;
 

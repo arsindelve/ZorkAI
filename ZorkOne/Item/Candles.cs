@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Game.Item.ItemProcessor;
 using Model.AIGeneration;
 using Model.Intent;
+using Model.Interface;
 
 namespace ZorkOne.Item;
 

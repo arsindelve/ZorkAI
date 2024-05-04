@@ -2,6 +2,7 @@ using Game.IntentEngine;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Intent;
+using Model.Interface;
 using Model.Location;
 
 namespace UnitTests;

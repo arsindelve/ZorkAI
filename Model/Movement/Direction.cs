@@ -1,4 +1,4 @@
-namespace Model;
+namespace Model.Movement;
 
 /// <summary>
 ///     Represents the possible directions of movement.

@@ -1,3 +1,5 @@
+using Model.Interface;
+
 namespace ZorkOne.Item;
 
 public class KitchenWindow : ItemBase, IOpenAndClose, ICanBeExamined

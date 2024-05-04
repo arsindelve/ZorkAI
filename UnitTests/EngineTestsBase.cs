@@ -2,6 +2,8 @@ using System.Configuration;
 using Game.StaticCommand.Implementation;
 using Model.AIGeneration;
 using Model.Intent;
+using Model.Interface;
+using Model.Movement;
 using ZorkOne;
 using ZorkOne.GlobalCommand;
 

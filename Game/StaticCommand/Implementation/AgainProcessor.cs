@@ -1,3 +1,5 @@
+using Model.Interface;
+
 namespace Game.StaticCommand.Implementation;
 
 /// <summary>

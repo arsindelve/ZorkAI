@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Game.Item.MultiItemProcessor;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
+using Model.Interface;
 using Model.Item;
 
 namespace Game.IntentEngine;

@@ -3,6 +3,7 @@ using Model;
 using Model.AIParsing;
 using Model.Intent;
 using Microsoft.Extensions.Logging;
+using Model.Movement;
 
 namespace Bedrock;
 

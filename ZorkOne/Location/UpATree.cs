@@ -1,4 +1,7 @@
-﻿namespace ZorkOne.Location;
+﻿using Model.Interface;
+using Model.Movement;
+
+namespace ZorkOne.Location;
 
 public class UpATree : BaseLocation
 {

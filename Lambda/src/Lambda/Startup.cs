@@ -1,6 +1,6 @@
 ﻿using DynamoDb;
 using Game;
-using Model;
+using Model.Interface;
 using ZorkOne;
 
 namespace Lambda;
@@ -25,6 +25,7 @@ public class Startup
 
         services.AddSingleton<ISessionRepository, DynamoDbSessionRepository>();
         services.AddScoped<IGameEngine, GameEngine<ZorkI, ZorkIContext>>();
+        services.AddScoped<ISavedGameRepository, DynamoDbSavedGameRepository>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline

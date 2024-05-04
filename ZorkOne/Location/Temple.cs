@@ -1,4 +1,6 @@
-﻿namespace ZorkOne.Location;
+﻿using Model.Movement;
+
+namespace ZorkOne.Location;
 
 // Strangely, this is not a dark location. 
 public class Temple : BaseLocation

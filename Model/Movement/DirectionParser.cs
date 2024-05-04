@@ -1,4 +1,4 @@
-namespace Model;
+namespace Model.Movement;
 
 public static class DirectionParser
 {

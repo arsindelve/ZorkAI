@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Model.AIParsing;
 using Model.Intent;
+using Model.Movement;
 
 namespace Lex;
 

@@ -1,3 +1,4 @@
+using Model.Interface;
 using ZorkOne.GlobalCommand;
 
 namespace UnitTests.ZorkITests;

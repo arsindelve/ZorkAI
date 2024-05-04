@@ -1,5 +1,7 @@
 using Game.Item.ItemProcessor;
 using Model.Intent;
+using Model.Interface;
+using Model.Movement;
 
 namespace ZorkOne.Location;
 

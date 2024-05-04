@@ -1,3 +1,5 @@
+using Model.Interface;
+
 namespace ZorkOne.Command;
 
 public class DeathProcessor

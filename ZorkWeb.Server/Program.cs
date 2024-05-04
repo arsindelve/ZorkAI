@@ -1,6 +1,7 @@
 using Azure;
 using DotNetEnv;
 using Model;
+using Model.Interface;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

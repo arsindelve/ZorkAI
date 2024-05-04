@@ -1,3 +1,5 @@
+using Model.Movement;
+
 namespace ZorkOne.Location;
 
 public class NorthOfHouse : LocationWithNoStartingItems

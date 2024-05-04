@@ -1,3 +1,6 @@
+using Model.Interface;
+using Model.Movement;
+
 namespace ZorkOne.Location;
 
 internal class EastWestPassage : DarkLocationWithNoStartingItems

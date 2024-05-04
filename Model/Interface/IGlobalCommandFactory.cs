@@ -1,4 +1,4 @@
-namespace Model;
+namespace Model.Interface;
 
 public interface IGlobalCommandFactory
 {

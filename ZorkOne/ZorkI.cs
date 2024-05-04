@@ -1,4 +1,5 @@
-﻿using ZorkOne.GlobalCommand;
+﻿using Model.Interface;
+using ZorkOne.GlobalCommand;
 
 namespace ZorkOne;
 

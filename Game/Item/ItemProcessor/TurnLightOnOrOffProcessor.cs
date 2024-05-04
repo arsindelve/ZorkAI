@@ -1,5 +1,6 @@
 using Game.StaticCommand.Implementation;
 using Model.AIGeneration;
+using Model.Interface;
 using Model.Item;
 
 namespace Game.Item.ItemProcessor;

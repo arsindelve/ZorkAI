@@ -1,3 +1,5 @@
+using Model.Movement;
+
 namespace ZorkOne.Location;
 
 internal class NarrowPassage : DarkLocationWithNoStartingItems

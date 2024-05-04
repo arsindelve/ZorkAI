@@ -1,4 +1,4 @@
-namespace Model;
+namespace Model.Interface;
 
 /// <summary>
 ///     Represents the details of an Infocom game that the game engine can

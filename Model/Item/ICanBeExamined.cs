@@ -1,3 +1,5 @@
+using Model.Interface;
+
 namespace Model.Item;
 
 /// <summary>

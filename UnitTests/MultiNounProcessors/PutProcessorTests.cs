@@ -1,5 +1,6 @@
 using Game.Item.MultiItemProcessor;
 using Model.Intent;
+using Model.Interface;
 using Model.Item;
 using UnitTests.SingleNounProcessors;
 using ZorkOne;

@@ -1,6 +1,7 @@
+using Model.Interface;
 using Model.Location;
 
-namespace Model;
+namespace Model.Movement;
 
 /// <summary>
 ///     This class tells us about movement from one location to another. Is it possible? Under

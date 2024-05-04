@@ -1,4 +1,5 @@
 using Game.StaticCommand;
+using Model.Interface;
 using Utilities;
 using ZorkOne.GlobalCommand.Implementation;
 

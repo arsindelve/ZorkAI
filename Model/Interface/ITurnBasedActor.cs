@@ -1,6 +1,6 @@
 using Model.AIGeneration;
 
-namespace Model;
+namespace Model.Interface;
 
 /// <summary>
 ///     Represents an actor that can perform actions, even when you are in another location. 
