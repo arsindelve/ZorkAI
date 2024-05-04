@@ -2,7 +2,7 @@ using Azure;
 using DotNetEnv;
 using Model;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.AddConsole();
 builder.Services.AddLogging();
