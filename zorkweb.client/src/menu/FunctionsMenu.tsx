@@ -1,23 +1,30 @@
 import * as React from 'react';
+import {useEffect} from 'react';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
 interface FunctionsMenuProps {
     gameMethods: (() => void)[]
+    forceClose: boolean
 }
 
-export default function FunctionsMenu({gameMethods}: FunctionsMenuProps) {
+export default function FunctionsMenu({gameMethods, forceClose}: FunctionsMenuProps) {
+
+    useEffect(() => {
+        if (forceClose)
+            handleClose();
+    }, [forceClose]);
 
     const [restart, restore, save] = gameMethods;
 
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const open = Boolean(anchorEl);
+    const [anchorElement, setAnchorElement] = React.useState<null | HTMLElement>(null);
+    const open = Boolean(anchorElement);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
+        setAnchorElement(event.currentTarget);
     };
     const handleClose = () => {
-        setAnchorEl(null);
+        setAnchorElement(null);
     };
 
     return (
@@ -33,7 +40,7 @@ export default function FunctionsMenu({gameMethods}: FunctionsMenuProps) {
             </Button>
             <Menu
                 id="basic-menu"
-                anchorEl={anchorEl}
+                anchorEl={anchorElement}
                 open={open}
                 onClose={handleClose}
                 MenuListProps={{
@@ -42,7 +49,7 @@ export default function FunctionsMenu({gameMethods}: FunctionsMenuProps) {
             >
                 <MenuItem onClick={() => restart()}>Restart Your Game</MenuItem>
                 <MenuItem onClick={() => restore()}>Restore a Previous Saved Game</MenuItem>
-                <MenuItem onClick={() => save()}>Save your Session</MenuItem>
+                <MenuItem onClick={() => save()}>Save your Game</MenuItem>
             </Menu>
         </div>
     );

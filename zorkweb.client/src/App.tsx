@@ -22,13 +22,14 @@ export {AppStateContext};
 
 function App() {
 
+    const [forceMenuClose, setMenuForceClose] = useState<boolean>(false);
+    const [gameSaved, setGameSaved] = useState<boolean>(false);
     const [restoreGameId, setRestoreGameId] = useState<string | undefined>(undefined);
     const [restoreDialogOpen, setRestoreDialogOpen] = useState<boolean>(false);
     const [saveDialogOpen, setSaveDialogOpen] = useState<boolean>(false);
     const [availableSavedGames, setAvailableSavedGames] = useState<ISavedGame[]>([]);
     const [isRestarting, setIsRestarting] = useState<boolean>(false);
     //const [imageIsVisible, setImageIsVisible] = useState(true);
-
 
     const server = new Server();
     const sessionId = new SessionId();
@@ -39,6 +40,7 @@ function App() {
     }
 
     async function restore(): Promise<void> {
+        setMenuForceClose(false);
         await getSavedGames();
         setRestoreDialogOpen(true);
     }
@@ -50,6 +52,7 @@ function App() {
     }
 
     async function save(): Promise<void> {
+        setMenuForceClose(false);
         await getSavedGames();
         setSaveDialogOpen(true);
     }
@@ -63,15 +66,19 @@ function App() {
         if (id)
             setRestoreGameId(id);
         setRestoreDialogOpen(false);
+        setMenuForceClose(true);
     }
 
     async function handleSaveModalClose(request: ISaveGameRequest | undefined): Promise<void> {
+        setGameSaved(false);
         if (request) {
             const [id] = sessionId.getSessionId();
             request.sessionId = id;
             await server.saveGame(request);
         }
         setSaveDialogOpen(false);
+        setMenuForceClose(true);
+        setGameSaved(true);
     }
 
     return (
@@ -81,11 +88,11 @@ function App() {
                 <div className="flex-grow">
 
                     <AppStateContext.Provider value={value}>
-                        <GameMenu gameMethods={[restart, restore, save]}/>
+                        <GameMenu forceClose={forceMenuClose} gameMethods={[restart, restore, save]}/>
 
                         <QueryClientProvider client={queryClient}>
 
-                            <Game restoreGameId={restoreGameId}/>
+                            <Game restoreGameId={restoreGameId} gaveSaved={gameSaved}/>
 
                             <RestoreModal games={availableSavedGames} open={restoreDialogOpen}
                                           handleClose={handleRestoreModalClose}/>

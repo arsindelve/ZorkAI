@@ -58,7 +58,8 @@ function RestoreModal(props: RestoreModalProps) {
                                     </div>
 
                                     <div className="text-right">
-                                        <Button onClick={() => handleClose(game)}>Restore</Button>
+                                        <Button size={"small"} variant="outlined"
+                                                onClick={() => handleClose(game)}>Restore</Button>
                                     </div>
 
                                 </div>
@@ -71,7 +72,7 @@ function RestoreModal(props: RestoreModalProps) {
 
 
             <DialogActions>
-                <Button onClick={() => handleClose(undefined)}>
+                <Button onClick={() => handleClose(undefined)} variant={"contained"}>
                     Cancel
                 </Button>
             </DialogActions>
