@@ -9,6 +9,9 @@ on:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'
 
+permissions:
+  contents: write   # This is required to create/push the new git tag
+
 jobs:
   deployment:
 
