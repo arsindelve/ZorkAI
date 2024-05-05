@@ -48,10 +48,9 @@ jobs:
         dotnet lambda deploy-serverless -sb zorkai-assets -sn ZorkStack --region us-east-1
 
 
-      
     - name: Create Release
       id: create_release
-      uses: actions/create-release@latest
+      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
