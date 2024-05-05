@@ -57,7 +57,7 @@ jobs:
           write-mode: overwrite
           contents: |
             {
-              "base_url": "https://bxqzfka0hc.execute-api.us-east-1.amazonaws.com/Prod",
+              "base_url": "https://bxqzfka0hc.execute-api.us-east-1.amazonaws.com/Prod/ZorkOne",
               "version": "${{ github.ref_name }}"
             }
             
