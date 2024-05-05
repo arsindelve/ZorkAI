@@ -54,9 +54,8 @@ code for implementing the Open AI API is really very simple, as one would expect
 implementation work) is the creation of the prompts for various scenarios. I've spent hours tweaking them, and expect to
 spend many more
 
-The front-end is built in React with Tailwind CSS and a Mix of Daisy UI and MUI because I can't make up my mind. The game stores the player's current session in AWS Dynamo DB so that it can remember you on your 
-next visit. The engine is hosted in a Lambda in AWS, and is pure ASP.Net Core, written in C# 12, running on Linux. Saved
-games are stores in DynamoDB.
+The front-end is built in React with Tailwind CSS, some Daisy UI and some MUI. The game stores the player's current session in AWS Dynamo DB so that it can remember you on your 
+next visit. The engine is hosted in a Lambda in AWS, and is pure ASP.Net Core, written in C# 12, running on Linux. 
 
 
 
