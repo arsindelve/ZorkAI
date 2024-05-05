@@ -16,7 +16,7 @@ game files themselves. Ideally, this engine could be used to implement any first
 
 The code in this repository IS NOT a full game....yet. But it does demonstrate that this can work, and can have
 truly excellent results! (Thanks mostly to how good GPT4 is). I'll keep implementing the rest of the Zork I story,
-items and location, finding new scenarios that the engine can't handle but the game is quite playable in it's current state.
+items and location, finding new scenarios that the engine can't handle but the game is quite playable in its current state.
 
 ### [Play The Game Now](https://newzork.ai)
 
@@ -44,7 +44,7 @@ In every case, the AI never breaks character as your exasperated fantasy game na
 
 ### How does it work? 
 
-For the input parser, I'm using Anthropic "Claude Haiku" on AWS Bedrock. For the generated responses, I'm using Open AI's "gpt-4-turbo-preview". Generally speaking,
+For the input parser, I'm using Anthropic "Claude Sonnet" on AWS Bedrock. For the generated responses, I'm using Open AI's "gpt-4-turbo-preview". Generally speaking,
 I find Claude better at parsing long input and telling you what's there, and I find GPT better for creative text generation, at least in my
 limited experience. 
 
@@ -55,7 +55,8 @@ implementation work) is the creation of the prompts for various scenarios. I've 
 spend many more
 
 The front-end is built in React with Tailwind CSS and a Mix of Daisy UI and MUI because I can't make up my mind. The game stores the player's current session in AWS Dynamo DB so that it can remember you on your 
-next visit. The engine is hosted in Azure, and is pure ASP.Net Core, written in C# 12, running on Linux. 
+next visit. The engine is hosted in a Lambda in AWS, and is pure ASP.Net Core, written in C# 12, running on Linux. Saved
+games are stores in DynamoDB.
 
 
 
