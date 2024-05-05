@@ -50,7 +50,18 @@ jobs:
         cd /home/runner/work/ZorkAI/ZorkAI/Lambda/src/Lambda
         dotnet lambda deploy-serverless -sb zorkai-assets -sn ZorkStack --region us-east-1
         
-        
+    - name: Overwrite file
+      uses: "DamianReeves/write-file-action@master"
+      with:
+          path: /home/runner/work/ZorkAI/ZorkAI/zorkweb.client/config.json
+          write-mode: overwrite
+          contents: |
+            {
+              "base_url": "https://bxqzfka0hc.execute-api.us-east-1.amazonaws.com/Prod",
+              "version": ${{ github.ref }}
+            }
+            
+            
     - name: Build Front End
       run: |
         cd /home/runner/work/ZorkAI/ZorkAI/zorkweb.client
