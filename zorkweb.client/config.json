@@ -1,4 +1,4 @@
 {
-  "base_url": "https://bxqzfka0hc.execute-api.us-east-1.amazonaws.com/Prod/ZorkOne",
+  "base_url": "http://localhost:5000/ZorkOne",
   "version": "0.2.12"
 }

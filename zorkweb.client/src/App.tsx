@@ -4,17 +4,15 @@ import Game from "./Game.tsx";
 import GameMenu from "./menu/GameMenu.tsx";
 import {createContext, useState} from "react";
 import Server from "./Server.ts";
-import {SaveGameRequest} from "./model/SaveGameRequest.ts";
 import {SessionId} from "./SessionId.ts";
 import RestoreModal from "./modal/RestoreModal.tsx";
 import {ISavedGame} from "./model/SavedGame.ts";
+import SaveModal from "./modal/SaveModal.tsx";
+import {ISaveGameRequest} from "./model/SaveGameRequest.ts";
 
 
 interface AppState {
     isRestarting: boolean
-    isSaving: boolean
-    isRestoring: boolean
-
     stopRestarting: () => void;
 }
 
@@ -26,10 +24,9 @@ function App() {
 
     const [restoreGameId, setRestoreGameId] = useState<string | undefined>(undefined);
     const [restoreDialogOpen, setRestoreDialogOpen] = useState<boolean>(false);
+    const [saveDialogOpen, setSaveDialogOpen] = useState<boolean>(false);
     const [availableSavedGames, setAvailableSavedGames] = useState<ISavedGame[]>([]);
     const [isRestarting, setIsRestarting] = useState<boolean>(false);
-    const [isSaving, setIsSaving] = useState<boolean>(false);
-    const [isRestoring, setIsRestoring] = useState<boolean>(false);
     //const [imageIsVisible, setImageIsVisible] = useState(true);
 
 
@@ -42,22 +39,23 @@ function App() {
     }
 
     async function restore(): Promise<void> {
-        setIsRestoring(!setIsRestoring);
-        const [id] = sessionId.getSessionId();
-        const savedGames = await server.getSavedGames(id);
-        setAvailableSavedGames(savedGames);
+        await getSavedGames();
         setRestoreDialogOpen(true);
     }
 
-    async function save(): Promise<void> {
-        setIsSaving(!isSaving);
+    async function getSavedGames() {
         const [id] = sessionId.getSessionId();
-        await server.saveGame(new SaveGameRequest("I Love Bob", id));
+        const savedGames = await server.getSavedGames(id);
+        setAvailableSavedGames(savedGames);
+    }
 
+    async function save(): Promise<void> {
+        await getSavedGames();
+        setSaveDialogOpen(true);
     }
 
     const value = {
-        isRestarting, isRestoring, isSaving,
+        isRestarting,
         stopRestarting: () => setIsRestarting(false)
     };
 
@@ -65,6 +63,15 @@ function App() {
         if (id)
             setRestoreGameId(id);
         setRestoreDialogOpen(false);
+    }
+
+    async function handleSaveModalClose(request: ISaveGameRequest | undefined): Promise<void> {
+        if (request) {
+            const [id] = sessionId.getSessionId();
+            request.sessionId = id;
+            await server.saveGame(request);
+        }
+        setSaveDialogOpen(false);
     }
 
     return (
@@ -77,17 +84,14 @@ function App() {
                         <GameMenu gameMethods={[restart, restore, save]}/>
 
                         <QueryClientProvider client={queryClient}>
-                            {/*<div className="App">*/}
-                            {/*    {imageIsVisible &&*/}
-                            {/*        <div className="fade">*/}
-                            {/*            <img src="https://zorkai-assets.s3.amazonaws.com/locations/WestOfHouse.webp" alt="description"*/}
-                            {/*                 onClick={() => setImageIsVisible(false)}/>*/}
-                            {/*        </div>*/}
-                            {/*    }*/}
-                            {/*</div>*/}
+
                             <Game restoreGameId={restoreGameId}/>
+
                             <RestoreModal games={availableSavedGames} open={restoreDialogOpen}
                                           handleClose={handleRestoreModalClose}/>
+
+                            <SaveModal games={availableSavedGames} open={saveDialogOpen}
+                                       handleClose={handleSaveModalClose}/>
 
                         </QueryClientProvider>
                     </AppStateContext.Provider>
@@ -104,3 +108,21 @@ function App() {
 }
 
 export default App;
+
+
+{/*<div className="App">*/
+}
+{/*    {imageIsVisible &&*/
+}
+{/*        <div className="fade">*/
+}
+{/*            <img src="https://zorkai-assets.s3.amazonaws.com/locations/WestOfHouse.webp" alt="description"*/
+}
+{/*                 onClick={() => setImageIsVisible(false)}/>*/
+}
+{/*        </div>*/
+}
+{/*    }*/
+}
+{/*</div>*/
+}

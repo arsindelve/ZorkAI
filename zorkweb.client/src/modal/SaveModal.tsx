@@ -5,19 +5,23 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import moment from 'moment';
+import {ISaveGameRequest, SaveGameRequest} from "../model/SaveGameRequest.ts";
+import {Input} from "@mui/material";
+import {useState} from "react";
 
-interface RestoreModalProps {
+interface SaveModalProps {
     open: boolean;
-    handleClose: (id: string | undefined) => void;
+    handleClose: (savedGame: ISaveGameRequest | undefined) => void;
     games: ISavedGame[]
 }
 
 
-function RestoreModal(props: RestoreModalProps) {
+function SaveModal(props: SaveModalProps) {
 
-    function handleClose(item: ISavedGame | undefined) {
+    const [newName, setNewName] = useState<string>("");
 
-        props.handleClose(item?.id);
+    function handleClose(savedGame: ISaveGameRequest | undefined) {
+        props.handleClose(savedGame);
     }
 
     return (<Dialog
@@ -29,20 +33,26 @@ function RestoreModal(props: RestoreModalProps) {
             aria-describedby="alert-dialog-description"
         >
             <DialogTitle id="alert-dialog-title">
-                {"Restore A Previously Saved Game:"}
+                {"Save Your Game"}
                 <hr/>
             </DialogTitle>
 
-            {!props.games.length && (
+            <DialogContent className={"max-h-60 overflow-auto"}>
 
-                <h3 className={"text-center m-10"}>You don't have any previously saved games.</h3>
 
-            )}
+                <div className={"columns-3"}>
+                    <div className={"mt-3"}>Name your saved game:</div>
+                    <Input autoFocus inputProps={{maxlength: 15}} onChange={(event) => setNewName(event.target.value)}/>
+                    <Button onClick={() => handleClose(new SaveGameRequest(newName, undefined))}>Save</Button>
+                </div>
+            </DialogContent>
 
             {props.games.length > 0 && (
 
                 <DialogContent className={"max-h-60 overflow-auto"}>
-                    <div>
+                    <h1>Overwrite a previously saved game: </h1>
+                    <hr/>
+                    <div className={"mt-5"}>
                         <div>
                             {props.games.map((game) => (
 
@@ -58,7 +68,12 @@ function RestoreModal(props: RestoreModalProps) {
                                     </div>
 
                                     <div className="text-right">
-                                        <Button onClick={() => handleClose(game)}>Restore</Button>
+                                        <Button
+                                            onClick={() => handleClose({
+                                                name: game.name,
+                                                id: game.id,
+                                                sessionId: undefined
+                                            })}>Overwrite</Button>
                                     </div>
 
                                 </div>
@@ -79,4 +94,4 @@ function RestoreModal(props: RestoreModalProps) {
     );
 }
 
-export default RestoreModal;
+export default SaveModal;

@@ -1,3 +1,3 @@
 namespace Lambda.Model;
 
-public record SaveGameRequest(string SessionId, string Name);
+public record SaveGameRequest(string SessionId, string Name, string? Id);

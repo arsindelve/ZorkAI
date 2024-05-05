@@ -34,7 +34,7 @@ public class ZorkOneController(
     public async Task<string> SaveGame([FromBody] SaveGameRequest request)
     {
         var encodedText = GetGameData();
-        return await savedGameRepository.SaveGame(request.SessionId, request.Name, encodedText);
+        return await savedGameRepository.SaveGame(request.Id, request.SessionId, request.Name, encodedText);
     }
     
     [HttpGet]
