@@ -26,3 +26,6 @@ jobs:
       run: dotnet build --no-restore
     - name: AWS CLI
       run: dotnet tool install -g Amazon.Lambda.Tools
+    - name: Lambda
+      run: dotnet lambda deploy-serverless -sb zorkai-assets -sn ZorkStack --region us-east-1
+      
