@@ -26,9 +26,9 @@ public class DynamoDbSavedGameRepository : DynamoDbRepositoryBase, ISavedGameRep
         return response.Item["gameData"].S;
     }
 
-    public async Task<string> SaveGame(string sessionId, string name, string gameData)
+    public async Task<string> SaveGame(string? id, string sessionId, string name, string gameData)
     {
-        var id = Guid.NewGuid().ToString();
+        id ??= Guid.NewGuid().ToString();
         var item = new Dictionary<string, AttributeValue>
         {
             { "id", new AttributeValue(id) },
