@@ -46,7 +46,7 @@ In every case, the AI never breaks character as your exasperated fantasy game na
 
 For the input parser, I'm using Anthropic "Claude Sonnet" on AWS Bedrock. For the generated responses, I'm using Open AI's "gpt-4-turbo-preview". Generally speaking,
 I find Claude better at parsing long input and telling you what's there, and I find GPT better for creative text generation, at least in my
-limited experience.   
+limited experience.    
 
 
 The
