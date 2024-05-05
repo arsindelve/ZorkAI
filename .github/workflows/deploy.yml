@@ -12,6 +12,7 @@ on:
 permissions:
   contents: write   # This is required to create/push the new git tag
 
+
 jobs:
   deployment:
 
@@ -19,8 +20,7 @@ jobs:
     environment: production
 
     steps:
-    
-    
+        
     - uses: actions/checkout@v4
     
     
@@ -51,15 +51,15 @@ jobs:
         dotnet lambda deploy-serverless -sb zorkai-assets -sn ZorkStack --region us-east-1
 
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        body: |
-          ${{ steps.Changelog.outputs.changelog }}
-        draft: false
-        prerelease: false
+#    - name: Create Release
+#      id: create_release
+#      uses: actions/create-release@v1
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      with:
+#        tag_name: ${{ github.ref }}
+#        release_name: Release ${{ github.ref }}
+#        body: |
+#          ${{ steps.Changelog.outputs.changelog }}
+#        draft: false
+#        prerelease: false
