@@ -5,7 +5,7 @@ import React, {useContext, useEffect, useState} from "react";
 import {Alert, CircularProgress, Snackbar} from "@mui/material";
 import '@fontsource/roboto';
 import Header from "./Header.tsx";
-import {SessionId} from "./SessionId.ts";
+import {SessionHandler} from "./SessionHandler.ts";
 import WelcomeDialog from "./modal/WelcomeModal.tsx";
 import Server from './Server';
 import {AppStateContext} from "./App.tsx";
@@ -13,10 +13,11 @@ import ConfirmDialog from "./modal/ConfirmationDialog.tsx";
 
 interface GameProps {
     restoreGameId?: string | undefined
+    onRestoreDone: () => void
     gaveSaved: boolean;
 }
 
-function Game({restoreGameId, gaveSaved}: GameProps) {
+function Game({restoreGameId, gaveSaved, onRestoreDone}: GameProps) {
 
     const appState = useContext(AppStateContext);
 
@@ -30,7 +31,7 @@ function Game({restoreGameId, gaveSaved}: GameProps) {
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
     const [snackBarMessage, setSnackBarMessage] = useState<string>("");
 
-    const sessionId = new SessionId();
+    const sessionId = new SessionHandler();
     const server = new Server();
 
     const gameContentElement = React.useRef<HTMLDivElement>(null);
@@ -56,7 +57,7 @@ function Game({restoreGameId, gaveSaved}: GameProps) {
         setGameText([]);
         gameRestore(restoreGameId!).then((data) => {
             handleResponse(data);
-            restoreGameId = undefined;
+            onRestoreDone();
             if (playerInputElement.current)
                 playerInputElement.current.focus();
         })
@@ -144,7 +145,7 @@ function Game({restoreGameId, gaveSaved}: GameProps) {
 
     async function gameRestore(restoreGameId: string): Promise<GameResponse> {
         const [id] = sessionId.getSessionId();
-        const response = server.gameRestore(restoreGameId, id);
+        const response = server.gameRestore(restoreGameId, sessionId.getClientId(), id);
         setSnackBarMessage("Game Restored Successfully");
         setSnackBarOpen(true);
         return response;

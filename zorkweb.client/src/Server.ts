@@ -9,7 +9,6 @@ import {RestoreGameRequest} from "./model/RestoreGameRequest.ts";
 export default class Server {
 
     baseUrl = config.base_url;
-    //baseUrl = "http://localhost:5000/ZorkOne";
 
     gameInput = async (input: GameRequest): Promise<GameResponse> => {
 
@@ -26,14 +25,14 @@ export default class Server {
         return response.data;
     };
 
-    async getSavedGames(sessionId: string): Promise<ISavedGame[]> {
+    async getSavedGames(clientId: string): Promise<ISavedGame[]> {
         const client = axios.create({
             baseURL: this.baseUrl
         });
 
         const response = await client.get<ISavedGame[], AxiosResponse>("saveGame", {
             params: {
-                sessionId: sessionId
+                sessionId: clientId
             }
         });
         return response.data;
@@ -71,13 +70,13 @@ export default class Server {
 
     }
 
-    async gameRestore(restoreGameId: string, sessionId: string) {
+    async gameRestore(restoreGameId: string, clientId: string, sessionId: string) {
 
         const client = axios.create({
             baseURL: this.baseUrl
         });
 
-        const request = new RestoreGameRequest(restoreGameId, sessionId);
+        const request = new RestoreGameRequest(restoreGameId, sessionId, clientId);
 
         const response = await client.post<GameResponse, AxiosResponse>("restoreGame", request, {
             headers: {

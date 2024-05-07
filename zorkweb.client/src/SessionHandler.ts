@@ -1,10 +1,9 @@
-﻿export class SessionId {
-
-    // Method
+﻿export class SessionHandler {
+    
     getSessionId(): [string, boolean] {
-        
+
         let firstTime: boolean = false;
-        
+
         if (!localStorage.getItem("SessionId")) {
             firstTime = true;
             localStorage.setItem("SessionId", this.generateRandomString());
@@ -12,11 +11,20 @@
 
         return [localStorage.getItem("SessionId")!, firstTime];
     }
-    
-    regenerate(): void{
+
+    getClientId(): string {
+        
+        if (!localStorage.getItem("ClientId")) {
+            localStorage.setItem("ClientId", this.generateRandomString());
+        }
+
+        return localStorage.getItem("ClientId")!;
+    }
+
+    regenerate(): void {
         localStorage.setItem("SessionId", this.generateRandomString());
     }
-    
+
     generateRandomString(): string {
         let randomString = '';
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
