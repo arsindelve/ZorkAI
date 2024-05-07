@@ -5,7 +5,7 @@ import React, {useContext, useEffect, useState} from "react";
 import {Alert, CircularProgress, Snackbar} from "@mui/material";
 import '@fontsource/roboto';
 import Header from "./Header.tsx";
-import {SessionId} from "./SessionId.ts";
+import {SessionHandler} from "./SessionHandler.ts";
 import WelcomeDialog from "./modal/WelcomeModal.tsx";
 import Server from './Server';
 import {AppStateContext} from "./App.tsx";
@@ -30,7 +30,7 @@ function Game({restoreGameId, gaveSaved}: GameProps) {
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
     const [snackBarMessage, setSnackBarMessage] = useState<string>("");
 
-    const sessionId = new SessionId();
+    const sessionId = new SessionHandler();
     const server = new Server();
 
     const gameContentElement = React.useRef<HTMLDivElement>(null);
@@ -51,7 +51,7 @@ function Game({restoreGameId, gaveSaved}: GameProps) {
 
 
     useEffect(() => {
-        if (!restoreGameId)
+        if (!restoreGameId || restoreGameId == "-1")
             return;
         setGameText([]);
         gameRestore(restoreGameId!).then((data) => {
@@ -144,7 +144,7 @@ function Game({restoreGameId, gaveSaved}: GameProps) {
 
     async function gameRestore(restoreGameId: string): Promise<GameResponse> {
         const [id] = sessionId.getSessionId();
-        const response = server.gameRestore(restoreGameId, id);
+        const response = server.gameRestore(restoreGameId, sessionId.getClientId(), id);
         setSnackBarMessage("Game Restored Successfully");
         setSnackBarOpen(true);
         return response;
