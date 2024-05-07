@@ -1,38 +1,41 @@
 import {useMutation} from "@tanstack/react-query";
 import {GameRequest} from "./model/GameRequest.ts";
 import {GameResponse} from "./model/GameResponse.ts";
-import React, {useContext, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Alert, CircularProgress, Snackbar} from "@mui/material";
 import '@fontsource/roboto';
 import Header from "./Header.tsx";
 import {SessionHandler} from "./SessionHandler.ts";
 import WelcomeDialog from "./modal/WelcomeModal.tsx";
 import Server from './Server';
-import {AppStateContext} from "./App.tsx";
-import ConfirmDialog from "./modal/ConfirmationDialog.tsx";
 
 interface GameProps {
     restoreGameId?: string | undefined
+    restartGame: boolean
     onRestoreDone: () => void
+    onRestartDone: () => void
     openRestoreModal: () => void
     openSaveModal: () => void
+    openRestartModal: () => void
     gaveSaved: boolean;
+
 }
 
 function Game({
+                  restartGame,
                   restoreGameId,
                   gaveSaved,
                   onRestoreDone,
+                  onRestartDone,
                   openRestoreModal,
-                  openSaveModal
+                  openSaveModal,
+                  openRestartModal,
               }: GameProps) {
 
     const restoreResponse = "<Restore>\n";
     const saveResponse = "<Save>\n"
     const restartResponse = "<Restart>\n"
-    const appState = useContext(AppStateContext);
 
-    const [confirmOpen, setConfirmRestartOpen] = useState<boolean>(false);
     const [playerInput, setInput] = useState<string>("");
     const [gameText, setGameText] = useState<string[]>(["Your game is loading...."]);
     const [score, setScore] = useState<string>("0");
@@ -49,19 +52,24 @@ function Game({
     const playerInputElement = React.useRef<HTMLInputElement>(null);
 
 
-    useEffect(() => {
+    function focusOnPlayerInput() {
+        if (playerInputElement.current)
+            window.setTimeout(() =>
+                playerInputElement!.current!.focus(), 100);
+    }
 
+    // Save the game. 
+    useEffect(() => {
         if (gaveSaved) {
             gaveSaved = false;
-            setSnackBarMessage("Game Saved Successfully");
+            setSnackBarMessage("Game Saved Successfully.");
             setSnackBarOpen(true);
-
         }
-        if (playerInputElement.current)
-            playerInputElement.current.focus();
+        focusOnPlayerInput();
     }, [gaveSaved]);
 
 
+    // Restore a saved game
     useEffect(() => {
         if (!restoreGameId)
             return;
@@ -69,8 +77,7 @@ function Game({
         gameRestore(restoreGameId!).then((data) => {
             handleResponse(data);
             onRestoreDone();
-            if (playerInputElement.current)
-                playerInputElement.current.focus();
+            focusOnPlayerInput();
         })
     }, [restoreGameId]);
 
@@ -81,16 +88,23 @@ function Game({
         }
     }, [gameText]);
 
+    // Restart the game. 
     useEffect(() => {
-        if (appState?.isRestarting)
-            setConfirmRestartOpen(true);
-        appState?.stopRestarting();
-    }, [appState?.isRestarting]);
+        if (!restartGame)
+            return
+        sessionId.regenerate();
+        setGameText([""]);
+        gameInit().then((data) => {
+            handleResponse(data);
+            onRestartDone();
+            focusOnPlayerInput();
+        })
+    }, [restartGame]);
+
 
     // Set focus to the input box on load. 
     useEffect(() => {
-        if (playerInputElement.current)
-            playerInputElement.current.focus();
+        focusOnPlayerInput();
     }, []);
 
     // Load the initial text, either from the new session, or loading their old session. 
@@ -100,15 +114,6 @@ function Game({
         })
     }, []);
 
-    function restartGame() {
-
-        setConfirmRestartOpen(false);
-        setGameText([]);
-        sessionId.regenerate();
-        gameInit().then((data) => {
-            handleResponse(data);
-        })
-    }
 
     function handleResponse(data: GameResponse) {
 
@@ -125,7 +130,7 @@ function Game({
         }
 
         if (data.response === restartResponse) {
-            setConfirmRestartOpen(true);
+            openRestartModal();
             setInput("");
             return;
         }
@@ -178,7 +183,6 @@ function Game({
         setSnackBarMessage("Game Restored Successfully");
         setSnackBarOpen(true);
         return response;
-
     }
 
     function handleSnackbarClose() {
@@ -188,13 +192,6 @@ function Game({
     return (
 
         <div className={"m-8"}>
-
-            <ConfirmDialog
-                title="Restart Your Game? Are you sure? "
-                open={confirmOpen}
-                setOpen={setConfirmRestartOpen}
-                onConfirm={restartGame}
-            />
 
             <div>
                 <Snackbar
@@ -234,7 +231,6 @@ function Game({
                     request. </Alert>}
 
         </div>
-
     )
 }
 
