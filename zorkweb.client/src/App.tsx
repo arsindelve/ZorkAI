@@ -2,26 +2,19 @@ import './App.css';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import Game from "./Game.tsx";
 import GameMenu from "./menu/GameMenu.tsx";
-import {createContext, useState} from "react";
+import {useState} from "react";
 import Server from "./Server.ts";
 import {SessionHandler} from "./SessionHandler.ts";
 import RestoreModal from "./modal/RestoreModal.tsx";
 import {ISavedGame} from "./model/SavedGame.ts";
 import SaveModal from "./modal/SaveModal.tsx";
 import {ISaveGameRequest} from "./model/SaveGameRequest.ts";
+import ConfirmDialog from "./modal/ConfirmationDialog.tsx";
 
-
-interface AppState {
-    isRestarting: boolean
-    stopRestarting: () => void;
-}
-
-// State context
-const AppStateContext = createContext<AppState | null>(null);
-export {AppStateContext};
 
 function App() {
 
+    const [confirmOpen, setConfirmRestartOpen] = useState<boolean>(false);
     const [forceMenuClose, setMenuForceClose] = useState<boolean>(false);
     const [gameSaved, setGameSaved] = useState<boolean>(false);
     const [restoreGameId, setRestoreGameId] = useState<string | undefined>(undefined);
@@ -35,8 +28,9 @@ function App() {
     const sessionId = new SessionHandler();
     const queryClient = new QueryClient();
 
-    function restart(): void {
-        setIsRestarting(!isRestarting)
+    function restart() {
+        setIsRestarting(false);
+        setConfirmRestartOpen(true);
     }
 
     async function restore(): Promise<void> {
@@ -57,10 +51,9 @@ function App() {
         setSaveDialogOpen(true);
     }
 
-    const value = {
-        isRestarting,
-        stopRestarting: () => setIsRestarting(false)
-    };
+    function handleRestartGameConfirmClose() {
+        setIsRestarting(true);
+    }
 
     function handleRestoreModalClose(id: string | undefined): void {
         if (id)
@@ -74,7 +67,6 @@ function App() {
         if (request) {
             request.sessionId = sessionId.getSessionId()[0];
             request.clientId = sessionId.getClientId()
-            console.log(request)
             await server.saveGame(request);
         }
         setSaveDialogOpen(false);
@@ -88,26 +80,39 @@ function App() {
             <div className="flex flex-col min-h-screen">
                 <div className="flex-grow">
 
-                    <AppStateContext.Provider value={value}>
-                        <GameMenu forceClose={forceMenuClose} gameMethods={[restart, restore, save]}/>
+                    <GameMenu forceClose={forceMenuClose} gameMethods={[restart, restore, save]}/>
 
-                        <QueryClientProvider client={queryClient}>
+                    <QueryClientProvider client={queryClient}>
 
-                            <Game
-                                onRestoreDone={() => setRestoreGameId(undefined)}
-                                restoreGameId={restoreGameId}
-                                gaveSaved={gameSaved}
-                                openRestoreModal={restore}
-                                openSaveModal={save}/>
+                        <Game
+                            restartGame={isRestarting}
+                            onRestoreDone={() => setRestoreGameId(undefined)}
+                            restoreGameId={restoreGameId}
+                            gaveSaved={gameSaved}
+                            openRestoreModal={restore}
+                            openSaveModal={save}
+                            openRestartModal={restore}
+                            onRestartDone={() => {
+                                setConfirmRestartOpen(false);
+                                setMenuForceClose(true);
+                            }}/>
 
-                            <RestoreModal games={availableSavedGames} open={restoreDialogOpen}
-                                          handleClose={handleRestoreModalClose}/>
 
-                            <SaveModal games={availableSavedGames} open={saveDialogOpen}
-                                       handleClose={handleSaveModalClose}/>
+                        <ConfirmDialog
+                            title="Restart Your Game? Are you sure? "
+                            open={confirmOpen}
+                            setOpen={setConfirmRestartOpen}
+                            onConfirm={handleRestartGameConfirmClose}
+                        />
 
-                        </QueryClientProvider>
-                    </AppStateContext.Provider>
+                        <RestoreModal games={availableSavedGames} open={restoreDialogOpen}
+                                      handleClose={handleRestoreModalClose}/>
+
+                        <SaveModal games={availableSavedGames} open={saveDialogOpen}
+                                   handleClose={handleSaveModalClose}/>
+
+                    </QueryClientProvider>
+
 
                 </div>
                 <footer className="bg-gray-200 py-2">

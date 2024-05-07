@@ -77,7 +77,7 @@ Please feel free to report issues and make PRs to help make the game better. I w
 
 ## What's next?
 
-- Save, restore and ~~restart~~(done). They work fine when you’re running the game as a console app, but I need to adapt them to the web. 
+- ~~Save, restore and restart~~(done). 
 - ~~Frankly, the parser is not very good. If I’m being honest, it’s not much better than the original Zork parser. I need to find a solution that truly understands and processes every kind of sentence.~~ (I moved to Claude 4 for text parsing instead of AWS Lex, and the results are incredible. Check out this exchange):
 
 
