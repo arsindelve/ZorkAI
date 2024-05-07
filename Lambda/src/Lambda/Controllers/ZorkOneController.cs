@@ -33,7 +33,7 @@ public class ZorkOneController(
     [Route("restoreGame")]
     public async Task<GameResponse> RestoreGame([FromBody] RestoreGameRequest request)
     {
-        var gameData = await savedGameRepository.GetSavedGame(request.Id, request.SessionId);
+        var gameData = await savedGameRepository.GetSavedGame(request.Id, request.ClientId);
 
         if (string.IsNullOrEmpty(gameData))
             throw new ArgumentException($"Saved gamed {request.Id} had empty game data");
@@ -57,7 +57,7 @@ public class ZorkOneController(
         
         RestoreSession(savedSession);
         var encodedText = GetGameData();
-        return await savedGameRepository.SaveGame(request.Id, request.SessionId, request.Name, encodedText);
+        return await savedGameRepository.SaveGame(request.Id, request.ClientId, request.Name, encodedText);
     }
 
     [HttpGet]
