@@ -13,10 +13,11 @@ import ConfirmDialog from "./modal/ConfirmationDialog.tsx";
 
 interface GameProps {
     restoreGameId?: string | undefined
+    onRestoreDone: () => void
     gaveSaved: boolean;
 }
 
-function Game({restoreGameId, gaveSaved}: GameProps) {
+function Game({restoreGameId, gaveSaved, onRestoreDone}: GameProps) {
 
     const appState = useContext(AppStateContext);
 
@@ -51,12 +52,12 @@ function Game({restoreGameId, gaveSaved}: GameProps) {
 
 
     useEffect(() => {
-        if (!restoreGameId || restoreGameId == "-1")
+        if (!restoreGameId)
             return;
         setGameText([]);
         gameRestore(restoreGameId!).then((data) => {
             handleResponse(data);
-            restoreGameId = undefined;
+            onRestoreDone();
             if (playerInputElement.current)
                 playerInputElement.current.focus();
         })

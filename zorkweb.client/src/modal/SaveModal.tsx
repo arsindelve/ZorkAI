@@ -84,7 +84,8 @@ function SaveModal(props: SaveModalProps) {
                                                 onClick={() => handleClose({
                                                     name: game.name,
                                                     id: game.id,
-                                                    sessionId: undefined
+                                                    sessionId: undefined,
+                                                    clientId: undefined
                                                 })}>Overwrite</Button>
                                     </div>
 

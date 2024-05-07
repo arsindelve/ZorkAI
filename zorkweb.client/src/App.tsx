@@ -67,7 +67,6 @@ function App() {
             setRestoreGameId(id);
         setRestoreDialogOpen(false);
         setMenuForceClose(true);
-        setRestoreGameId("-1");
     }
 
     async function handleSaveModalClose(request: ISaveGameRequest | undefined): Promise<void> {
@@ -94,7 +93,7 @@ function App() {
 
                         <QueryClientProvider client={queryClient}>
 
-                            <Game restoreGameId={restoreGameId} gaveSaved={gameSaved}/>
+                            <Game onRestoreDone={() => setRestoreGameId(undefined)} restoreGameId={restoreGameId} gaveSaved={gameSaved}/>
 
                             <RestoreModal games={availableSavedGames} open={restoreDialogOpen}
                                           handleClose={handleRestoreModalClose}/>
