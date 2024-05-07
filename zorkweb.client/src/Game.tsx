@@ -14,11 +14,22 @@ import ConfirmDialog from "./modal/ConfirmationDialog.tsx";
 interface GameProps {
     restoreGameId?: string | undefined
     onRestoreDone: () => void
+    openRestoreModal: () => void
+    openSaveModal: () => void
     gaveSaved: boolean;
 }
 
-function Game({restoreGameId, gaveSaved, onRestoreDone}: GameProps) {
+function Game({
+                  restoreGameId,
+                  gaveSaved,
+                  onRestoreDone,
+                  openRestoreModal,
+                  openSaveModal
+              }: GameProps) {
 
+    const restoreResponse = "<Restore>\n";
+    const saveResponse = "<Save>\n"
+    const restartResponse = "<Restart>\n"
     const appState = useContext(AppStateContext);
 
     const [confirmOpen, setConfirmRestartOpen] = useState<boolean>(false);
@@ -100,6 +111,24 @@ function Game({restoreGameId, gaveSaved, onRestoreDone}: GameProps) {
     }
 
     function handleResponse(data: GameResponse) {
+
+        if (data.response === saveResponse) {
+            openSaveModal();
+            setInput("");
+            return;
+        }
+
+        if (data.response === restoreResponse) {
+            openRestoreModal();
+            setInput("");
+            return;
+        }
+
+        if (data.response === restartResponse) {
+            setConfirmRestartOpen(true);
+            setInput("");
+            return;
+        }
 
         // Replace newline chars with HTML line breaks. 
         data.response = data.response.replace(/\n/g, "<br />");

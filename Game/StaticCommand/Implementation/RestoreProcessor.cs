@@ -27,7 +27,7 @@ internal class RestoreProcessor : IStatefulProcessor
     public async Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {
         if (runtime == Runtime.Web)
-            return "Please use the game's menu to restore your game.";
+            return "<Restore>";
         
         if (!_havePromptedForFilename) return await PromptForFilename(context, client);
         if (context.Engine is not null) return await AttemptTheRestore(input, context, client);

@@ -28,7 +28,7 @@ internal class QuitProcessor : IStatefulProcessor
     public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {
         if (runtime == Runtime.Web)
-            return Task.FromResult("If you want to quit, just close the browser.");
+            return Task.FromResult("<Restart>");
         
         if (string.IsNullOrEmpty(input)) return Task.FromResult(CancelQuitting());
 

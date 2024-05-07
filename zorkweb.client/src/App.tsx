@@ -46,7 +46,7 @@ function App() {
     }
 
     async function getSavedGames() {
-        const [id] = sessionId.getClientId();
+        const id = sessionId.getClientId();
         const savedGames = await server.getSavedGames(id);
         setAvailableSavedGames(savedGames);
     }
@@ -93,7 +93,12 @@ function App() {
 
                         <QueryClientProvider client={queryClient}>
 
-                            <Game onRestoreDone={() => setRestoreGameId(undefined)} restoreGameId={restoreGameId} gaveSaved={gameSaved}/>
+                            <Game
+                                onRestoreDone={() => setRestoreGameId(undefined)}
+                                restoreGameId={restoreGameId}
+                                gaveSaved={gameSaved}
+                                openRestoreModal={restore}
+                                openSaveModal={save}/>
 
                             <RestoreModal games={availableSavedGames} open={restoreDialogOpen}
                                           handleClose={handleRestoreModalClose}/>
