@@ -10,6 +10,9 @@ internal class SmellyRoom : DarkLocationWithNoStartingItems
         {
             {
                 Direction.S, new MovementParameters { Location = GetLocation<ShaftRoom>() }
+            },
+            {
+                Direction.Down, new MovementParameters { Location = GetLocation<GasRoom>() }
             }
         };
 

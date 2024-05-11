@@ -1,4 +1,5 @@
 using Model.Interface;
+using ZorkOne.Location.ForestLocation;
 
 namespace ZorkOne.Command;
 
