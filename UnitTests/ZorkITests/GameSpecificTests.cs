@@ -1,4 +1,5 @@
 using ZorkOne.GlobalCommand;
+using ZorkOne.Location.ForestLocation;
 
 namespace UnitTests.ZorkITests;
 
