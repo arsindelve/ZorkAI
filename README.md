@@ -1,34 +1,39 @@
-# All the greatness of the original Zork, enhanced with AI 
+# All the greatness of the original Zork, enhanced with AI
 
 I LOVED Infocom games. In my youth, they gave me hours of entertainment, and began my love of personal
-computing. I still collect and play the games, but I wanted to do something to enhance and expand those games for a new generation of players. What
+computing. I still collect and play the games, but I wanted to do something to enhance and expand those games for a new
+generation of players. What
 could I do to make those games feel richer, deeper and more alive?
 
 Although there are fully AI generated dungeons and interactive fiction stories, that wasn't what I was looking for. I
 don't want NEW games; I want to preserve all the settings, locations, story, humor and puzzles of Zork, but use AI
 to make the interactivity much deeper. I want an intelligent text parser, and a "smart" narrator that understands
-everything you type. If your command moves the story forward, or changes the state of the game, then I want to preserve the original story.
-If not, the AI Narrator should give you a meaningful, funny response that keeps you immersed in the Great Underground Empire.
+everything you type. If your command moves the story forward, or changes the state of the game, then I want to preserve
+the original story.
+If not, the AI Narrator should give you a meaningful, funny response that keeps you immersed in the Great Underground
+Empire.
 
-I've written a brand new Interactive Fiction Engine in C#, with corresponding C# game files for the first approximately 50%
+I've written a brand new Interactive Fiction Engine in C#, with corresponding C# game files for the first approximately
+50%
 of Zork I. I've also included the first location of Zork II to show the separation between the game engine and the
-game files themselves. Ideally, this engine could be used to implement any first-generation Infocom game with minimal or no tweaking. 
+game files themselves. Ideally, this engine could be used to implement any first-generation Infocom game with minimal or
+no tweaking.
 
 The code in this repository IS NOT a full game....yet. But it does demonstrate that this can work, and can have
 truly excellent results! (Thanks mostly to how good GPT4 is). I'll keep implementing the rest of the Zork I story,
-items and location, finding new scenarios that the engine can't handle but the game is quite playable in its current state.
+items and location, finding new scenarios that the engine can't handle but the game is quite playable in its current
+state.
 
 ### [Play The Game Now](https://newzork.ai)
 
-The game is fully mobile responsive, so feel free to try it on your phone or tablet. However, it can be a little slow sometimes, because I’m on the free-tier of AWS and Azure. 
-
+The game is fully mobile responsive, so feel free to try it on your phone or tablet. However, it can be a little slow
+sometimes, because I’m on the free-tier of AWS and Azure.
 
 [![.NET](https://github.com/arsindelve/ZorkAI/actions/workflows/dotnet.yml/badge.svg)](https://github.com/arsindelve/ZorkAI/actions/workflows/dotnet.yml)
 
 ---
 
 ### Try these in the game:
-
 
 - I’m bored
 - Kick the mailbox
@@ -38,35 +43,32 @@ The game is fully mobile responsive, so feel free to try it on your phone or tab
 - Fly away to Canada.
 - Tell me how nuclear fission works
 
-In every case, the AI never breaks character as your exasperated fantasy game narrator, sarcastically guiding you through your adventure in the Great Underground Empire. 
+In every case, the AI never breaks character as your exasperated fantasy game narrator, sarcastically guiding you
+through your adventure in the Great Underground Empire.
 
+### How does it work?
 
-
-### How does it work? 
-
-For the input parser, I'm using Anthropic "Claude Sonnet" on AWS Bedrock. For the generated responses, I'm using Open AI's "gpt-4-turbo-preview". Generally speaking,
-I find Claude better at parsing long input and telling you what's there, and I find GPT better for creative text generation, at least in my
-limited experience.    
-
+For the input parser, I'm using Anthropic "Claude Sonnet" on AWS Bedrock. For the generated responses, I'm using Open
+AI's "gpt-4-turbo-preview". Generally speaking,
+I find Claude better at parsing long input and telling you what's there, and I find GPT better for creative text
+generation, at least in my
+limited experience.
 
 The
-code for implementing the Open AI API is really very simple, as one would expect. The challenge (and what I think makes this
+code for implementing the Open AI API is really very simple, as one would expect. The challenge (and what I think makes
+this
 implementation work) is the creation of the prompts for various scenarios. I've spent hours tweaking them, and expect to
 spend many more
 
-The front-end is built in React with Tailwind CSS, some Daisy UI and some MUI. The game stores the player's current session in AWS Dynamo DB so that it can remember you on your 
-next visit. The engine is hosted in a Lambda in AWS, and is pure ASP.Net Core, written in C# 12, running on Linux. 
-
-
+The front-end is built in React with Tailwind CSS, some Daisy UI and some MUI. The game stores the player's current
+session in AWS Dynamo DB so that it can remember you on your
+next visit. The engine is hosted in a Lambda in AWS, and is pure ASP.Net Core, written in C# 12, running on Linux.
 
 **None of the source code or executable of the original Zork is being used in any way.**
 
-
-
 ### Contributing
 
-Please feel free to report issues and make PRs to help make the game better. I would love that! 
-
+Please feel free to report issues and make PRs to help make the game better. I would love that!
 
 ### Read more about the World Of Zork
 
@@ -74,14 +76,13 @@ Please feel free to report issues and make PRs to help make the game better. I w
 - [Wikipedia Article](https://en.wikipedia.org/wiki/Zork)
 - [Original Zork Source Code](https://github.com/MITDDC/zork)
 
-
 ## What's next?
 
-- ~~Save, restore and restart~~(done). 
-- ~~Frankly, the parser is not very good. If I’m being honest, it’s not much better than the original Zork parser. I need to find a solution that truly understands and processes every kind of sentence.~~ (I moved to Claude 4 for text parsing instead of AWS Lex, and the results are incredible. Check out this exchange):
+- ~~Save, restore and restart~~(done).
+- ~~Frankly, the parser is not very good. If I’m being honest, it’s not much better than the original Zork parser. I
+  need to find a solution that truly understands and processes every kind of sentence.~~ (I moved to Claude 4 for text
+  parsing instead of AWS Lex, and the results are incredible. Check out this exchange):
 
-
-  
       > Fine. so open up the mailbox, then
       
       Opening the small mailbox reveals a leaflet.
@@ -101,12 +102,13 @@ Please feel free to report issues and make PRs to help make the game better. I w
       > next put the leaflet back in the mailbox
       
       Done.
-   
-- Finish the game! There is still the maze, the coal mine, the thief, and more. 
-- The world of Zork has a rich lore and vocabulary, with words like “Zorkmid”, “Frobozz”, “Dimwit Flathead”. I want to fine-tune the LLM to make the responses  more Zork-like. 
-- Finally, I started with Zork because it’s the most well-known, and one of the simplest Infocom games. What I really want, though, is to implement one of my two favourites, “Planetfall” and “A Mind Forever Voyaging”. These two games by Steve Meretzky are brilliant works of fiction, and I would love to see them come alive with AI immersion. 
 
-
+- Finish the game! There is still the maze, the coal mine, the thief, and more.
+- The world of Zork has a rich lore and vocabulary, with words like “Zorkmid”, “Frobozz”, “Dimwit Flathead”. I want to
+  fine-tune the LLM to make the responses more Zork-like.
+- Finally, I started with Zork because it’s the most well-known, and one of the simplest Infocom games. What I really
+  want, though, is to implement one of my two favourites, “Planetfall” and “A Mind Forever Voyaging”. These two games by
+  Steve Meretzky are brilliant works of fiction, and I would love to see them come alive with AI immersion.
 
 ## Teaser
 

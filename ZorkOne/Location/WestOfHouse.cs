@@ -1,3 +1,6 @@
+using Model.AIGeneration;
+using Model.Intent;
+using Model.Interface;
 using Model.Movement;
 using ZorkOne.Location.ForestLocation;
 
@@ -30,6 +33,24 @@ public class WestOfHouse : BaseLocation
             }
         }
     };
+    
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
+    {
+        string[] nouns = ["door", "front door"];
+
+        if (action.Match(["examine", "look"], nouns))
+            return new PositiveInteractionResult("The door is closed. ");
+
+        if (action.Match(["open"], nouns))
+            return new PositiveInteractionResult("The door cannot be opened. ");
+
+        if (action.Match(["examine", "look"], ["house", "white house"]))
+            return new PositiveInteractionResult(
+                "The house is a beautiful colonial house which is painted white. It is clear that the owners must have been extremely wealthy. ");
+
+        return base.RespondToSimpleInteraction(action, context, client);
+    }
 
     public override void Init()
     {

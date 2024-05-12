@@ -35,8 +35,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     private readonly IIntentParser _parser;
     private readonly string _sessionId = Guid.NewGuid().ToString();
 
-    public string IntroText { get; }
-
     private string? _currentInput;
     private bool _lastResponseWasGenerated;
     private IStatefulProcessor? _processorInProgress;
@@ -83,6 +81,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         _parser = parser;
         _generator = generationClient;
     }
+
+    public string IntroText { get; }
 
     public string LocationName => Context.CurrentLocation.Name;
 
@@ -161,7 +161,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         if (singleVerbResult.InteractionHappened)
             return PostProcessing(singleVerbResult.InteractionMessage);
 
-        var parsedResult = await _parser.DetermineIntentType(_currentInput, Context.CurrentLocation.Description, _sessionId);
+        var parsedResult =
+            await _parser.DetermineIntentType(_currentInput, Context.CurrentLocation.Description, _sessionId);
         _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
 
         var intentResult = parsedResult switch
@@ -193,7 +194,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     }
 
     public int Score => Context.Score;
-    
+
     public Runtime Runtime { get; set; }
 
     private string PostProcessing(string finalResult)

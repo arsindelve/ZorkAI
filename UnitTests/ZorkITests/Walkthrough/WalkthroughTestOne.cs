@@ -1,19 +1,9 @@
-﻿using ZorkOne;
-
-namespace UnitTests.ZorkITests.Walkthrough;
+﻿namespace UnitTests.ZorkITests.Walkthrough;
 
 [TestFixture]
-public sealed class WalkthroughTestOne : EngineTestsBase
+public sealed class WalkthroughTestOne : WalkthroughTestBase
 {
-    [OneTimeSetUp]
-    public void Init()
-    {
-        _target = GetTarget();
-        Repository.Reset();
-    }
-
-    private GameEngine<ZorkI, ZorkIContext> _target;
-
+    // https://web.mit.edu/marleigh/www/portfolio/Files/zork/transcript.html
     [Test]
     [TestCase("open mailbox", null, "Opening the small mailbox reveals a leaflet.")]
     [TestCase("read leaflet", null, "ZORK is a game of adventure, danger, and low cunning. In it you will explore")]
@@ -145,35 +135,8 @@ public sealed class WalkthroughTestOne : EngineTestsBase
     [TestCase("SW", null, "Coal Mine", "This is a nondescript part of a coal mine")]
     public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
     {
-        if (!string.IsNullOrWhiteSpace(setup))
-        {
-            var method = GetType().GetMethod(setup);
-            if (method == null) throw new ArgumentException("Method " + setup + " doesn't exist");
-
-            // Invoke the method on the current instance
-            method.Invoke(this, null);
-        }
+        if (!string.IsNullOrWhiteSpace(setup)) InvokeGodMode(setup);
 
         await Do(input, expectedResponses);
-    }
-
-    public void KillTroll()
-    {
-        // We can't have the randomness of trying to kill the troll. Let's God-Mode this dude. 
-        Repository.GetItem<Troll>().IsDead = true;
-    }
-
-    public void GoToRoundRoom()
-    {
-        // Entering the loud room when it's draining will cause us to flee the room in a random 
-        // direction. For the test we need to remove the randomness and end up in the Round Room
-        _target.Context.CurrentLocation = Repository.GetLocation<RoundRoom>();
-    }
-
-    private async Task Do(string input, params string[] outputs)
-    {
-        var result = await _target.GetResponse(input);
-        Console.WriteLine(result);
-        foreach (var output in outputs) result.Should().Contain(output);
     }
 }

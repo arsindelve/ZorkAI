@@ -35,7 +35,7 @@ public class HadesTests : EngineTestsBase
         response.Should().Contain("On the ground is a red hot brass bell.");
         Repository.GetItem<BrassBell>().BellIsRedHot.Should().BeTrue();
     }
-    
+
     [Test]
     public async Task InHades_RingBell_SpiritsThere_SpiritsGetStunned()
     {
@@ -91,13 +91,13 @@ public class HadesTests : EngineTestsBase
         await target.GetResponse("wait");
         await target.GetResponse("wait");
         var response = await target.GetResponse("wait");
-        
+
         response.Should().Contain("The bell appears to have cooled down.");
         response = await target.GetResponse("take bell");
         response.Should().Contain("Taken");
         target.Context.HasItem<BrassBell>().Should().BeTrue();
     }
-    
+
     [Test]
     public async Task SpiritsResumeJeering()
     {
@@ -115,12 +115,12 @@ public class HadesTests : EngineTestsBase
         await target.GetResponse("wait");
         await target.GetResponse("wait");
         var response = await target.GetResponse("wait");
-        
+
         response.Should().Contain("The tension of this ceremony is broken");
         Repository.GetItem<Spirits>().Stunned.Should().BeFalse();
     }
 
-    
+
     [Test]
     [TestCase("eat the spirits")]
     [TestCase("kiss the spirits")]
@@ -135,6 +135,5 @@ public class HadesTests : EngineTestsBase
 
         var response = await target.GetResponse(input);
         response.Should().Contain("You seem unable to interact with these spirits");
-
     }
 }

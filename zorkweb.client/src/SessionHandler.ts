@@ -1,5 +1,5 @@
 ﻿export class SessionHandler {
-    
+
     getSessionId(): [string, boolean] {
 
         let firstTime: boolean = false;
@@ -13,7 +13,7 @@
     }
 
     getClientId(): string {
-        
+
         if (!localStorage.getItem("ClientId")) {
             localStorage.setItem("ClientId", this.generateRandomString());
         }
