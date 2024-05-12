@@ -11,8 +11,8 @@
 
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.0"/>
-        <PackageReference Include="DotNetEnv" Version="3.0.0" />
-        <PackageReference Include="FluentAssertions" Version="6.12.0" />
+        <PackageReference Include="DotNetEnv" Version="3.0.0"/>
+        <PackageReference Include="FluentAssertions" Version="6.12.0"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
         <PackageReference Include="NUnit" Version="3.14.0"/>
         <PackageReference Include="NUnit.Analyzers" Version="3.9.0"/>
@@ -24,10 +24,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Bedrock\Bedrock.csproj" />
-      <ProjectReference Include="..\DynamoDb\DynamoDb.csproj" />
-      <ProjectReference Include="..\Game\Game.csproj" />
-      <ProjectReference Include="..\ZorkOne\ZorkOne.csproj" />
+        <ProjectReference Include="..\Bedrock\Bedrock.csproj"/>
+        <ProjectReference Include="..\DynamoDb\DynamoDb.csproj"/>
+        <ProjectReference Include="..\Game\Game.csproj"/>
+        <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
     </ItemGroup>
 
 </Project>

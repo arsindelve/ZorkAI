@@ -9,12 +9,15 @@ public class NorthOfHouse : LocationWithNoStartingItems
         "You are facing the north side of a white house. There is no door here, " +
         "and all the windows are boarded up. To the north a narrow path winds through the trees.";
 
-    public override string Name => "North Of House";
+    public override string Name => "North of House";
 
     protected override Dictionary<Direction, MovementParameters> Map => new()
     {
         {
             Direction.E, new MovementParameters { Location = GetLocation<BehindHouse>() }
+        },
+        {
+            Direction.SE, new MovementParameters { Location = GetLocation<BehindHouse>() }
         },
         {
             Direction.W, new MovementParameters { Location = GetLocation<WestOfHouse>() }

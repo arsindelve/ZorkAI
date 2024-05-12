@@ -1,6 +1,5 @@
 using Bedrock;
 using Game.StaticCommand;
-using Lex;
 using Microsoft.Extensions.Logging;
 using Model.AIParsing;
 using Model.Interface;
@@ -41,8 +40,10 @@ public class IntentParser : IIntentParser
     ///     Determines the type of intent based on the input and session ID.
     /// </summary>
     /// <param name="input">The user input.</param>
-    /// <param name="locationDescription">This can be instrumental in determining what the user wants to do. If they
-    /// say "follow the path", we need the location description to tell us which way the path goes.</param>
+    /// <param name="locationDescription">
+    ///     This can be instrumental in determining what the user wants to do. If they
+    ///     say "follow the path", we need the location description to tell us which way the path goes.
+    /// </param>
     /// <param name="sessionId">The unique session ID.</param>
     /// <returns>The determined intent type.</returns>
     public async Task<IntentBase> DetermineIntentType(string? input, string locationDescription, string sessionId)

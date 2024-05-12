@@ -1,12 +1,10 @@
 using Model.Interface;
-using ZorkOne.GlobalCommand;
 
 namespace UnitTests.ZorkITests;
 
 [TestFixture]
 public class DomeTests : EngineTestsBase
 {
-    
     [Test]
     public async Task DomeRoom_TieRopeToRailing_DoNotHaveTheRope()
     {
