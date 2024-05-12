@@ -67,6 +67,9 @@ public class EngineTestsBase
             mockParser.Setup(p => p.DetermineIntentType("examine case", It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Noun = "case", Verb = "examine", OriginalInput = "examine case" });
             
+            mockParser.Setup(p => p.DetermineIntentType("close case", It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new SimpleIntent { Noun = "case", Verb = "close", OriginalInput = "close case" });
+            
             mockParser.Setup(p => p.DetermineIntentType("take leaves", It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Noun = "leaves", Verb = "take", OriginalInput = "take leaves" });
             
