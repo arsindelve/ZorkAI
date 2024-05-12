@@ -19,8 +19,7 @@ public class UpATree : BaseLocation
     public override string Name => "Up A Tree";
 
     protected override string ContextBasedDescription =>
-        "You are about 10 feet above the ground nestled among some large branches. The nearest branch above you is above your reach.\n\n" +
-        "Beside you on the branch is a small bird's nest.";
+        "You are about 10 feet above the ground nestled among some large branches. The nearest branch above you is above your reach. ";
 
     public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
     {
@@ -43,7 +42,14 @@ public class UpATree : BaseLocation
         return base.RespondToSpecificLocationInteraction(input, context);
     }
 
+    // TODO: Drop the egg from the tree
+    // The egg falls to the ground and springs open, seriously damaged. There is a golden clockwork canary nestled in the egg.
+    // It seems to have recently had a bad experience. The mountings for its jewel-like eyes are empty, and its silver beak is crumpled.
+    // Through a cracked crystal window below its left wing you can see the remains of intricate machinery. It is not clear what
+    // result winding it would have, as the mainspring seems sprung.
+    
     public override void Init()
     {
+        StartWithItem<Nest>(this);
     }
 }

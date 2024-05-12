@@ -8,7 +8,7 @@ public class KitchenWindow : ItemBase, IOpenAndClose, ICanBeExamined
 
     public string ExaminationDescription => IsOpen
         ? "The kitchen window is open, but I can't tell what's beyond it."
-        : "The kitchen window is closed.";
+        : !HasEverBeenOpened ? "The window is slightly ajar, but not enough to allow entry" : "The kitchen window is closed.";
 
     public bool IsOpen { get; set; }
 

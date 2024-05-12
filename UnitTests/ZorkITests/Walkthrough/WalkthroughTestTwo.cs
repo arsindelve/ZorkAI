@@ -42,6 +42,20 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("open grating", null, "grating is locked")]
     [TestCase("N", null, "The forest becomes impenetrable to the north")]
     [TestCase("S", null, "Forest Path", "low branches")]
+    [TestCase("examine tree", null, "There's nothing special about the tree")]
+    [TestCase("examine branches", null, "There's nothing special about the tree")]
+    [TestCase("Up", null, "Up A Tree", "you is above your reach")]
+    [TestCase("take egg", null, "Taken")]
+    [TestCase("examine egg", null, "The jewel-encrusted egg is closed")]
+    [TestCase("open egg", null, "You have neither the tools nor the expertise")]
+    [TestCase("Down", null, "Forest Path", "low branches")]
+    [TestCase("inventory", null, "You are carrying", "A leaflet", "egg", "leaves")]
+    [TestCase("count leaves", null, "There are 69,105 leaves here")]
+    [TestCase("S", null, "North of House")]
+    [TestCase("SE", null, "Behind House")]
+    [TestCase("examine window", null, "The window is slightly ajar, but not enough to allow entry")]
+    [TestCase("open window", null, "With great effort, you open the window far enough to allow entry.")]
+    [TestCase("W", null, "Kitchen")]
     public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) InvokeGodMode(setup);
