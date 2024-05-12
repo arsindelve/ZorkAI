@@ -1,3 +1,6 @@
+using Model.AIGeneration;
+using Model.Intent;
+using Model.Interface;
 using Model.Movement;
 
 namespace ZorkOne.Location;
@@ -13,6 +16,16 @@ public class LivingRoom : BaseLocation
 
     public override string Name => "Living Room";
 
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client)
+    {
+        string[] nouns = ["lettering", "engraving", "engravings", "door"];
+        string[] verbs = ["read", "examine"];
+
+        if (action.Match(verbs, nouns))
+            return new PositiveInteractionResult("The engravings translate to \"This space intentionally left blank.\"");
+
+        return base.RespondToSimpleInteraction(action, context, client);
+    }
     protected override Dictionary<Direction, MovementParameters> Map => new()
     {
         {

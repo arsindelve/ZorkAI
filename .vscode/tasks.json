@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "build",
+			"path": "zorkweb.client",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "npm: build - zorkweb.client",
+			"detail": "tsc && vite build"
+		}
+	]
+}

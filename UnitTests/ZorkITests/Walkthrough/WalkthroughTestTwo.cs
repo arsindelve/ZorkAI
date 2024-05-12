@@ -56,6 +56,29 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("examine window", null, "The window is slightly ajar, but not enough to allow entry")]
     [TestCase("open window", null, "With great effort, you open the window far enough to allow entry.")]
     [TestCase("W", null, "Kitchen")]
+    // TODO: Take All
+    [TestCase("take sack", null, "Taken")]
+    [TestCase("take bottle", null, "Taken")]
+    [TestCase("Up", null, "pitch black")]
+    [TestCase("Down", null, "Kitchen")]
+    // TODO: > Examine table. "The kitchen table is empty."
+    [TestCase("W", null, "Living Room")]
+    [TestCase("take lantern", null, "Taken")]
+    [TestCase("examine rug", null, "nothing special about the carpet")]
+    [TestCase("take rug", null, "extremely heavy and cannot be")]
+    [TestCase("move rug", null, "With a great effort")]
+    [TestCase("look", null, "closed trap door")]
+    [TestCase("W", null, "nailed shut")]
+    [TestCase("examine lettering", null, "left blank")]
+    [TestCase("examine case", null, "case is empty")]
+    [TestCase("put egg in case", null, "closed")]
+    [TestCase("open case", null, "Opened")]
+    [TestCase("put egg in case", null, "Done")]
+    [TestCase("close case", null, "Closed")]
+   
+    
+    
+
     public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) InvokeGodMode(setup);
