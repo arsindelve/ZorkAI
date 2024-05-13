@@ -1,6 +1,6 @@
 
 hidden = ["bin", "obj"]
-modules = ["dotnet-8.0"]
+modules = ["dotnet-8.0", "nodejs-20:v8-20230920-bd784b9"]
 run = "dotnet test"
 language = "c#"
 
@@ -18,3 +18,6 @@ channel = "stable-23_11"
 [deployment]
 run = ["sh", "-c", "dotnet run"]
 deploymentTarget = "cloudrun"
+
+[[ports]]
+localPort = 5173

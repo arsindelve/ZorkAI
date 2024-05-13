@@ -32,6 +32,11 @@ public static class Repository
         };
     }
 
+    public static string[] GetNouns()
+    {
+        return _allItems.Select(s => s.Value).Cast<ItemBase>().SelectMany(x => x.NounsForMatching).ToArray();
+    }
+
     internal static bool ItemExistsInTheStory(string? item)
     {
         if (string.IsNullOrEmpty(item))

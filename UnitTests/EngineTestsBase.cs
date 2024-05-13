@@ -23,6 +23,23 @@ public class EngineTestsBase
 
             var mockParser = Mock.Get(Parser);
 
+            string[] verbs = { "take", "drop", "open", "close", "examine", "look", "eat", 
+                "drink", "use", "count", "touch", "read", "turn", "wave", "move", 
+                "smell", "turn on", "turn off", "throw", "light"};
+
+            string[] nouns = Repository.GetNouns();
+
+            foreach (var verb in verbs)
+                foreach (var noun in nouns)
+                {
+                    mockParser.Setup(p => p.DetermineIntentType($"{verb} {noun}", It.IsAny<string>(), It.IsAny<string>()))
+                            .ReturnsAsync(new SimpleIntent { Noun = noun, Verb = verb, OriginalInput = "" });
+
+                    mockParser.Setup(p => p.DetermineIntentType($"{verb} the {noun}", It.IsAny<string>(), It.IsAny<string>()))
+                        .ReturnsAsync(new SimpleIntent { Noun = noun, Verb = verb, OriginalInput = "" });
+
+                }
+            
             mockParser.Setup(p => p.DetermineIntentType("inventory", It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new GlobalCommandIntent { Command = new InventoryProcessor() });
 
@@ -36,172 +53,6 @@ public class EngineTestsBase
                         p.DetermineIntentType("go " + direction.ToString().ToLowerInvariant(), It.IsAny<string>(),
                             It.IsAny<string>()))
                     .ReturnsAsync(new MoveIntent { Direction = direction });
-
-            mockParser.Setup(p => p.DetermineIntentType("open mailbox", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "mailbox", Verb = "open", OriginalInput = "open mailbox" });
-
-            mockParser.Setup(p => p.DetermineIntentType("turn the bolt", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "bolt", Verb = "turn", OriginalInput = "turn the bolt" });
-
-            mockParser.Setup(p => p.DetermineIntentType("wave sceptre", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "sceptre", Verb = "wave", OriginalInput = "wave sceptre" });
-
-            mockParser.Setup(p => p.DetermineIntentType("take mailbox", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "mailbox", Verb = "take", OriginalInput = "take mailbox" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("take sack", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "sack", Verb = "take", OriginalInput = "take sack" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("take bottle", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "bottle", Verb = "take", OriginalInput = "take bottle" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("take rug", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "rug", Verb = "take", OriginalInput = "take rug" });
-           
-            mockParser.Setup(p => p.DetermineIntentType("examine rug", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "rug", Verb = "examine", OriginalInput = "examine rug" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("examine lettering", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "lettering", Verb = "examine", OriginalInput = "examine lettering" });
-
-            mockParser.Setup(p => p.DetermineIntentType("examine case", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "case", Verb = "examine", OriginalInput = "examine case" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("close case", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "case", Verb = "close", OriginalInput = "close case" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("take leaves", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "leaves", Verb = "take", OriginalInput = "take leaves" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("count leaves", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "leaves", Verb = "count", OriginalInput = "count leaves" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("examine grating", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "grating", Verb = "examine", OriginalInput = "examine grating" });
-
-            mockParser.Setup(p => p.DetermineIntentType("open grating", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "grating", Verb = "open", OriginalInput = "open grating" });
-
-            mockParser.Setup(p => p.DetermineIntentType("examine door", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "door", Verb = "examine", OriginalInput = "examine door" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("examine window", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "window", Verb = "examine", OriginalInput = "examine window" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("examine tree", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "tree", Verb = "examine", OriginalInput = "examine tree" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("examine egg", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "egg", Verb = "examine", OriginalInput = "examine egg" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("take egg", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "egg", Verb = "take", OriginalInput = "take egg" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("open egg", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "egg", Verb = "open", OriginalInput = "open egg" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("examine branches", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "branches", Verb = "examine", OriginalInput = "examine branches" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("examine house", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "house", Verb = "examine", OriginalInput = "examine house" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("open door", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "door", Verb = "open", OriginalInput = "open door" });
-            
-            mockParser.Setup(p => p.DetermineIntentType("take gold", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "gold", Verb = "take", OriginalInput = "take gold" });
-
-            mockParser.Setup(p => p.DetermineIntentType("eat mailbox", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "mailbox", Verb = "eat", OriginalInput = "eat mailbox" });
-
-            mockParser.Setup(p => p.DetermineIntentType("open sack", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "sack", Verb = "open", OriginalInput = "open sack" });
-
-            mockParser.Setup(p => p.DetermineIntentType("drop sack", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "sack", Verb = "drop", OriginalInput = "drop sack" });
-
-            mockParser.Setup(p => p.DetermineIntentType("take sack", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "sack", Verb = "take", OriginalInput = "take sack" });
-
-            mockParser.Setup(p => p.DetermineIntentType("close sack", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "sack", Verb = "close", OriginalInput = "close sack" });
-
-            mockParser.Setup(p => p.DetermineIntentType("examine sack", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "sack", Verb = "examine", OriginalInput = "examine sack" });
-
-            mockParser.Setup(p => p.DetermineIntentType("open window", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "window", Verb = "open", OriginalInput = "open window" });
-
-            mockParser.Setup(p => p.DetermineIntentType("close mailbox", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "mailbox", Verb = "close", OriginalInput = "close mailbox" });
-
-            mockParser.Setup(p => p.DetermineIntentType("take leaflet", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "leaflet", Verb = "take", OriginalInput = "take leaflet" });
-
-            mockParser.Setup(p => p.DetermineIntentType("take lunch", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "lunch", Verb = "take", OriginalInput = "take lunch" });
-
-            mockParser.Setup(p => p.DetermineIntentType("take lantern", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "lantern", Verb = "take", OriginalInput = "take lantern" });
-
-            mockParser.Setup(p => p.DetermineIntentType("take lamp", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "lamp", Verb = "take", OriginalInput = "take lamp" });
-
-            mockParser.Setup(p => p.DetermineIntentType("drop lantern", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "lantern", Verb = "drop", OriginalInput = "drop lantern" });
-
-            mockParser.Setup(p => p.DetermineIntentType("drop rope", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "rope", Verb = "drop", OriginalInput = "drop rope" });
-
-            mockParser.Setup(p => p.DetermineIntentType("take garlic", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "garlic", Verb = "take", OriginalInput = "take garlic" });
-
-            mockParser.Setup(p => p.DetermineIntentType("drop sword", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "sword", Verb = "drop", OriginalInput = "drop sword" });
-
-            mockParser.Setup(p => p.DetermineIntentType("take sword", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "sword", Verb = "take", OriginalInput = "take sword" });
-
-            mockParser.Setup(p => p.DetermineIntentType("drop leaflet", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Noun = "leaflet", Verb = "drop", OriginalInput = "drop leaflet" });
-
-            mockParser.Setup(s => s.DetermineIntentType("read leaflet", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Verb = "read", Noun = "leaflet", OriginalInput = "read leaflet" });
-
-            mockParser.Setup(s => s.DetermineIntentType("examine leaflet", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(
-                    new SimpleIntent { Verb = "examine", Noun = "leaflet", OriginalInput = "examine leaflet" });
-
-            mockParser.Setup(s => s.DetermineIntentType("examine sword", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Verb = "examine", Noun = "sword", OriginalInput = "examine sword" });
-
-            mockParser.Setup(s => s.DetermineIntentType("examine lunch", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Verb = "examine", Noun = "lunch", OriginalInput = "examine lunch" });
-
-            mockParser.Setup(s => s.DetermineIntentType("examine bottle", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Verb = "examine", Noun = "bottle", OriginalInput = "examine bottle" });
-
-
-            mockParser.Setup(s => s.DetermineIntentType("drop sword", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Verb = "drop", Noun = "sword", OriginalInput = "drop sword" });
-
-            mockParser.Setup(s => s.DetermineIntentType("turn on lantern", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(
-                    new SimpleIntent { Verb = "turn on", Noun = "lantern", OriginalInput = "turn on lantern" });
-
-            mockParser.Setup(s => s.DetermineIntentType("turn on lamp", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Verb = "turn on", Noun = "lamp", OriginalInput = "turn on lamp" });
-
-            mockParser.Setup(s => s.DetermineIntentType("turn off lantern", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent
-                    { Verb = "turn off", Noun = "lantern", OriginalInput = "turn off lantern" });
-
-            mockParser.Setup(s => s.DetermineIntentType("look", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Verb = "look", Noun = "", OriginalInput = "look" });
-
-            mockParser.Setup(s => s.DetermineIntentType("eat lunch", It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new SimpleIntent { Verb = "eat", Noun = "lunch", OriginalInput = "eat lunch" });
 
             mockParser.Setup(s => s.DetermineIntentType("throw lunch", It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new SimpleIntent { Verb = "throw", Noun = "lunch", OriginalInput = "throw lunch" });
