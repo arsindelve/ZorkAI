@@ -1,7 +1,7 @@
 
 hidden = ["bin", "obj"]
-modules = ["dotnet-7.0:v3-20231201-3b22c78"]
-run = "dotnet run"
+modules = ["dotnet-8.0"]
+run = "dotnet test"
 language = "c#"
 
 [env]
