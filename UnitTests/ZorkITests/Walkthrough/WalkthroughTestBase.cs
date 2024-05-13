@@ -38,7 +38,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     protected async Task Do(string input, params string[] outputs)
     {
         var result = await _target.GetResponse(input);
-        Console.WriteLine(result);
+        //Console.WriteLine(result);
         foreach (var output in outputs) result.Should().Contain(output);
     }
 }

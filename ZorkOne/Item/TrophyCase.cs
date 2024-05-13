@@ -20,7 +20,7 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
 
     public override string Name => "trophy case";
 
-    public string ExaminationDescription => Items.Any() ? "" : "The trophy case is empty.";
+    public string ExaminationDescription => Items.Any() ? ItemListDescription("") : "The trophy case is empty.";
 
     public override void Init()
     {
