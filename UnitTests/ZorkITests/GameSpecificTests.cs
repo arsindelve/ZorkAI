@@ -85,7 +85,7 @@ public class GameSpecificTests : EngineTestsBase
         Repository.GetItem<TrophyCase>().IsOpen = true;
 
         // Act
-        var response = await target.GetResponse("put painting inside case");
+        var response = await target.GetResponse("put painting in case");
 
         // Assert
         response.Should().Contain("Done");
@@ -103,7 +103,7 @@ public class GameSpecificTests : EngineTestsBase
         // Act
         await target.GetResponse("put painting inside case");
         await target.GetResponse("take painting");
-        var response = await target.GetResponse("put painting inside case");
+        var response = await target.GetResponse("put painting in case");
 
         // Assert
         response.Should().Contain("Done");
@@ -119,7 +119,7 @@ public class GameSpecificTests : EngineTestsBase
         Repository.GetItem<TrophyCase>().IsOpen = true;
 
         // Act
-        var response = await target.GetResponse("put leaflet inside case");
+        var response = await target.GetResponse("put leaflet in case");
 
         // Assert
         response.Should().Contain("Done");
