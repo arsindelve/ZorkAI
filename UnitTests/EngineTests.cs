@@ -1,6 +1,7 @@
 using Model.AIGeneration.Requests;
 using Model.AIParsing;
 using Model.Intent;
+using Model.Interface;
 using Model.Movement;
 using ZorkOne;
 using ZorkOne.GlobalCommand;
@@ -89,7 +90,7 @@ public class EngineTests : EngineTestsBase
     [Test]
     public async Task Null_Intent()
     {
-        var target = GetTarget();
+        var target = GetTarget(Mock.Of<IIntentParser>());
 
         Mock.Get(Parser).Setup(s => s.DetermineIntentType("BOB", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new NullIntent());
@@ -109,7 +110,7 @@ public class EngineTests : EngineTestsBase
     [Test]
     public async Task Prompt_Intent()
     {
-        var target = GetTarget();
+        var target = GetTarget(Mock.Of<IIntentParser>());
 
         Mock.Get(Parser).Setup(s => s.DetermineIntentType("PROMPT", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new PromptIntent { Message = "Please enter a value:" });
@@ -125,7 +126,7 @@ public class EngineTests : EngineTestsBase
     [Test]
     public async Task SimpleIntent_NoVerbMatch()
     {
-        var target = GetTarget();
+        var target = GetTarget(Mock.Of<IIntentParser>());
 
         Mock.Get(Parser).Setup(s => s.DetermineIntentType("push the mailbox", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new SimpleIntent { Verb = "push", Noun = "mailbox", OriginalInput = "push the mailbox" });
@@ -145,10 +146,16 @@ public class EngineTests : EngineTestsBase
     [Test]
     public async Task SimpleIntent_NoVerbMatch_ItemInInventory()
     {
-        var target = GetTarget();
+        var target = GetTarget(Mock.Of<IIntentParser>());
 
         Mock.Get(Parser).Setup(s => s.DetermineIntentType("push the leaflet", It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new SimpleIntent { Verb = "push", Noun = "leaflet", OriginalInput = "push the leaflet" });
+            .ReturnsAsync(new SimpleIntent { Verb = "push", Noun = "leaflet", OriginalInput = "" });
+        
+        Mock.Get(Parser).Setup(s => s.DetermineIntentType("take leaflet", It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "leaflet", OriginalInput = "" });
+        
+        Mock.Get(Parser).Setup(s => s.DetermineIntentType("open mailbox", It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new SimpleIntent { Verb = "open", Noun = "mailbox", OriginalInput = "" });
 
         Client.Setup(
                 s => s.CompleteChat(It.Is<VerbHasNoEffectOperationRequest>(m =>
@@ -156,9 +163,9 @@ public class EngineTests : EngineTestsBase
             .ReturnsAsync("no");
 
         // Act
-        await target.GetResponse("open mailbox");
-        await target.GetResponse("take leaflet");
-        var result = await target.GetResponse("push the leaflet");
+        var result = await target.GetResponse("open mailbox");
+        result =await target.GetResponse("take leaflet");
+        result = await target.GetResponse("push the leaflet");
 
         // Assert
         result.Should().Contain("no");
@@ -167,7 +174,7 @@ public class EngineTests : EngineTestsBase
     [Test]
     public async Task SimpleIntent_NounNotPresent()
     {
-        var target = GetTarget();
+        var target = GetTarget(Mock.Of<IIntentParser>());
 
         Mock.Get(Parser).Setup(s => s.DetermineIntentType("push the leaflet", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new SimpleIntent { Verb = "push", Noun = "leaflet", OriginalInput = "push the leaflet" });
@@ -188,7 +195,7 @@ public class EngineTests : EngineTestsBase
     [Test]
     public async Task SimpleIntent_MadeUpNoun()
     {
-        var target = GetTarget();
+        var target = GetTarget(Mock.Of<IIntentParser>());
 
         Mock.Get(Parser).Setup(s => s.DetermineIntentType("push the unicorn", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new SimpleIntent { Verb = "push", Noun = "unicorn", OriginalInput = "push the unicorn" });
@@ -208,7 +215,7 @@ public class EngineTests : EngineTestsBase
     [Test]
     public async Task ParsedMoveIntent()
     {
-        var target = GetTarget();
+        var target = GetTarget(Mock.Of<IIntentParser>());
 
         Mock.Get(Parser).Setup(s => s.DetermineIntentType("go east", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new MoveIntent { Direction = Direction.E });
@@ -223,7 +230,7 @@ public class EngineTests : EngineTestsBase
     [Test]
     public async Task NoMatchingIntent()
     {
-        var target = GetTarget();
+        var target = GetTarget(Mock.Of<IIntentParser>());
 
         Mock.Get(Parser).Setup(s => s.DetermineIntentType("go east", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new UnitTestIntent { Message = "bob" });
@@ -243,7 +250,7 @@ public class EngineTests : EngineTestsBase
     [Test]
     public async Task ConditionalMoveToLocation_Failure()
     {
-        var target = GetTarget();
+        var target = GetTarget(Mock.Of<IIntentParser>());
 
         target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
         Mock.Get(Parser).Setup(s => s.DetermineIntentType("go west", It.IsAny<string>(), It.IsAny<string>()))
@@ -259,7 +266,7 @@ public class EngineTests : EngineTestsBase
     [Test]
     public async Task ConditionalMoveToLocation_Success()
     {
-        var target = GetTarget();
+        var target = GetTarget(Mock.Of<IIntentParser>());
 
         Repository.GetItem<KitchenWindow>().IsOpen = true;
         target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
@@ -401,7 +408,7 @@ public class EngineTests : EngineTestsBase
     [Test]
     public async Task MultiNoun_NeitherExistsInTheGame()
     {
-        var target = GetTarget();
+        var target = GetTarget(Mock.Of<IIntentParser>());
 
         Mock.Get(Parser).Setup(s => s.DetermineIntentType("dig hole with shovel", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new MultiNounIntent
