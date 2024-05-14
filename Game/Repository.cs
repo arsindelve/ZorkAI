@@ -1,3 +1,4 @@
+using System.Reflection;
 using Model.Interface;
 using Model.Item;
 using Model.Location;
@@ -23,6 +24,9 @@ public static class Repository
     private static Dictionary<Type, IItem> _allItems = new();
     private static Dictionary<Type, ILocation> _allLocations = new();
 
+    private static string[] _allNouns = [];
+    private static string[] _allContainers = [];
+
     internal static SavedGame<T> Save<T>() where T : IContext, new()
     {
         return new SavedGame<T>
@@ -30,11 +34,6 @@ public static class Repository
             AllLocations = new Dictionary<Type, ILocation>(_allLocations),
             AllItems = new Dictionary<Type, IItem>(_allItems)
         };
-    }
-
-    public static string[] GetNouns()
-    {
-        return _allItems.Select(s => s.Value).Cast<ItemBase>().SelectMany(x => x.NounsForMatching).ToArray();
     }
 
     internal static bool ItemExistsInTheStory(string? item)
@@ -104,5 +103,53 @@ public static class Repository
     {
         _allLocations = allLocations;
         _allItems = allItems;
+    }
+
+    public static string[] GetNouns()
+    {
+        if (_allNouns.Length > 0) return _allNouns;
+
+        lock (_allNouns)
+        {
+            var allItems = new List<ItemBase>();
+            var assembly = Assembly.Load("ZorkOne");
+
+            var types = assembly.GetTypes();
+
+            foreach (var type in types)
+
+                if (type.IsClass && type.IsSubclassOf(typeof(ItemBase)))
+                {
+                    var instance = (ItemBase)Activator.CreateInstance(type)!;
+                    allItems.Add(instance);
+                }
+
+            _allNouns = allItems.SelectMany(s => s.NounsForMatching).ToArray();
+            return _allNouns;
+        }
+    }
+    
+    public static string[] GetContainers()
+    {
+        if (_allContainers.Length > 0) return _allContainers;
+
+        lock (_allContainers)
+        {
+            var allItems = new List<ItemBase>();
+            var assembly = Assembly.Load("ZorkOne");
+
+            var types = assembly.GetTypes();
+
+            foreach (var type in types)
+
+                if (type.IsClass && type.IsSubclassOf(typeof(ContainerBase)))
+                {
+                    var instance = (ItemBase)Activator.CreateInstance(type)!;
+                    allItems.Add(instance);
+                }
+
+            _allContainers = allItems.SelectMany(s => s.NounsForMatching).ToArray();
+            return _allContainers;
+        }
     }
 }
