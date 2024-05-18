@@ -17,7 +17,8 @@ internal class TestParser : IIntentParser
         [
             "take", "drop", "open", "close", "examine", "look", "eat", "press",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move",
-            "smell", "turn on", "turn off", "throw", "light", "rub", "kiss"
+            "smell", "turn on", "turn off", "throw", "light", "rub", "kiss",
+            "lower", "raise"
         ];
 
         _allNouns = Repository.GetNouns();
