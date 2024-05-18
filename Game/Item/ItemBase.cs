@@ -79,7 +79,9 @@ public abstract class ItemBase : IItem
         List<IVerbProcessor> result =
         [
             // anything can be examined
-            new ExamineInteractionProcessor()
+            new ExamineInteractionProcessor(),
+            // and smelled 
+            new SmellInteractionProcessor()
         ];
 
         if (item is ICanBeTakenAndDropped)
