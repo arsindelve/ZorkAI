@@ -1,6 +1,7 @@
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Item;
+using Newtonsoft.Json;
 
 namespace Game.Item;
 
@@ -57,6 +58,25 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
 
     public virtual void OnItemPlacedHere(IItem item, IContext context)
     {
+    }
+
+    [JsonIgnore]
+    public List<IItem> GetAllItemsRecursively
+    {
+        get
+        {
+            var result = new List<IItem>();
+
+            if (this is IOpenAndClose { IsOpen: true })
+                foreach (var item in Items)
+                {
+                    result.Add(item);
+                    if (item is ICanHoldItems holder)
+                        result.AddRange(holder.GetAllItemsRecursively);
+                }
+
+            return result;
+        }
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,

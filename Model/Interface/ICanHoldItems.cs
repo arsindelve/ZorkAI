@@ -1,4 +1,5 @@
 using Model.Item;
+using Newtonsoft.Json;
 
 namespace Model.Interface;
 
@@ -58,4 +59,11 @@ public interface ICanHoldItems : IInteractionTarget
     /// <param name="item">The item being placed into the container.</param>
     /// <param name="context"></param>
     void OnItemPlacedHere(IItem item, IContext context);
+
+    /// <summary>
+    /// Retrieves all items recursively from the container
+    /// </summary>
+    /// <returns>A list of all items recursively.</returns>
+    [JsonIgnore]
+    List<IItem> GetAllItemsRecursively { get; }
 }

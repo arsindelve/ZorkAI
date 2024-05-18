@@ -1,7 +1,80 @@
+using Model.Interface;
+
 namespace UnitTests;
 
 public class ItemTests : EngineTestsBase
 {
+    [Test]
+    public void GetEverythingInALocationDoesNotGetThingsInsideClosedContainer()
+    {
+        var engine = GetTarget();
+        var here = engine.Context.CurrentLocation as ICanHoldItems;
+        here!.GetAllItemsRecursively.Should().Contain(Repository.GetItem<Mailbox>());
+        here.GetAllItemsRecursively.Count.Should().Be(1);
+        here.GetAllItemsRecursively.Should().NotContain(Repository.GetItem<Leaflet>());
+    }
+
+    [Test]
+    public async Task GetEverythingInALocationGetItemsInAnOpenContainer()
+    {
+        var engine = GetTarget();
+        var here = engine.Context.CurrentLocation as ICanHoldItems;
+        // Act
+        await engine.GetResponse("open mailbox");
+        here!.GetAllItemsRecursively.Count.Should().Be(2);
+        here.GetAllItemsRecursively.Should().Contain(Repository.GetItem<Leaflet>());
+        here.GetAllItemsRecursively.Should().Contain(Repository.GetItem<Mailbox>());
+    }
+
+    [Test]
+    public async Task GetEverythingInALocationGetItemsInAnOpenContainerAndOnTheGround()
+    {
+        var engine = GetTarget();
+        Repository.GetLocation<WestOfHouse>().ItemPlacedHere(Repository.GetItem<Sword>());
+        var here = engine.Context.CurrentLocation as ICanHoldItems;
+        // Act
+        await engine.GetResponse("open mailbox");
+        here!.GetAllItemsRecursively.Count.Should().Be(3);
+        here.GetAllItemsRecursively.Should().Contain(Repository.GetItem<Leaflet>());
+        here.GetAllItemsRecursively.Should().Contain(Repository.GetItem<Mailbox>());
+        here.GetAllItemsRecursively.Should().Contain(Repository.GetItem<Sword>());
+    }
+
+    [Test]
+    public async Task ClosedContainerInsideAnotherContainer()
+    {
+        var engine = GetTarget();
+        Repository.GetLocation<WestOfHouse>().ItemPlacedHere(Repository.GetItem<Sword>());
+        Repository.GetItem<Mailbox>().ItemPlacedHere(Repository.GetItem<BrownSack>());
+        var here = engine.Context.CurrentLocation as ICanHoldItems;
+        // Act
+        await engine.GetResponse("open mailbox");
+        here!.GetAllItemsRecursively.Count.Should().Be(4);
+        here.GetAllItemsRecursively.Should().Contain(Repository.GetItem<Leaflet>());
+        here.GetAllItemsRecursively.Should().Contain(Repository.GetItem<Mailbox>());
+        here.GetAllItemsRecursively.Should().Contain(Repository.GetItem<Sword>());
+        here.GetAllItemsRecursively.Should().Contain(Repository.GetItem<BrownSack>());
+    }
+
+    [Test]
+    public async Task OpenContainerInsideAnotherContainer()
+    {
+        var engine = GetTarget();
+        Repository.GetLocation<WestOfHouse>().ItemPlacedHere(Repository.GetItem<Sword>());
+        Repository.GetItem<Mailbox>().ItemPlacedHere(Repository.GetItem<BrownSack>());
+        var here = engine.Context.CurrentLocation as ICanHoldItems;
+        // Act
+        await engine.GetResponse("open mailbox");
+        await engine.GetResponse("open sack");
+        here!.GetAllItemsRecursively.Count.Should().Be(6);
+        here.GetAllItemsRecursively.Should().Contain(Repository.GetItem<Leaflet>());
+        here.GetAllItemsRecursively.Should().Contain(Repository.GetItem<Mailbox>());
+        here.GetAllItemsRecursively.Should().Contain(Repository.GetItem<Sword>());
+        here.GetAllItemsRecursively.Should().Contain(Repository.GetItem<BrownSack>());
+        here.GetAllItemsRecursively.Should().Contain(Repository.GetItem<Garlic>());
+        here.GetAllItemsRecursively.Should().Contain(Repository.GetItem<Lunch>());
+    }
+
     [Test]
     public async Task PickingSomethingUpPutsItInInventory()
     {

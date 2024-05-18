@@ -45,10 +45,33 @@ public class ChatGPTClient : IGenerationClient
             DeploymentName = "gpt-4-turbo-preview",
             Messages =
             {
-                new ChatRequestSystemMessage(request.SystemMessage),
-                new ChatRequestUserMessage(request.UserMessage)
+                new ChatRequestSystemMessage(request.SystemMessage)
             }
         };
+
+        var reverse = LastFiveInputOutputs.ToList();
+        reverse.Reverse();
+
+        // This will get the most recent generated inputs and outputs, stopping when we hit 
+        // a non-generated response. We're going to pass those to the AI, as it will create
+        // a conversational back-and-forth. 
+        List<(string, string)> lastGeneratedResults = reverse
+            
+            .TakeWhile(s => s.Item3)
+            .Select(s => (s.Item1, s.Item2))
+            .ToList();
+        
+        // Add the history
+        lastGeneratedResults.Reverse();
+
+        foreach ((string input, string output) next in lastGeneratedResults)
+        {
+            chatCompletionsOptions.Messages.Add(new ChatRequestUserMessage(next.input));
+            chatCompletionsOptions.Messages.Add(new ChatRequestAssistantMessage(next.output));
+        }
+
+        // Add the most recent request
+        chatCompletionsOptions.Messages.Add(new ChatRequestUserMessage(request.UserMessage));
 
         _logger?.LogDebug(request.UserMessage);
 

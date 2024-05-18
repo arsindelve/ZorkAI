@@ -168,6 +168,8 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     {
     }
 
+    [JsonIgnore] public List<IItem> GetAllItemsRecursively => new();
+
     public int AddPoints(int points)
     {
         Score += points;
