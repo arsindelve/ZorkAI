@@ -70,8 +70,7 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IAmALigh
                     new SimpleIntent { Noun = NounsForMatching.First(), Verb = "turn off" }, context, this,
                     client);
                 return "You'd better have more light than from the lantern. " + result!.InteractionMessage;
-
-
+            
             default:
                 return string.Empty;
         }

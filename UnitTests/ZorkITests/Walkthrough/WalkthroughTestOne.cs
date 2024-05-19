@@ -147,6 +147,21 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("Up", null, "Smelly Room")]
     [TestCase("S", null, "Shaft Room", "A screwdriver", "A torch (p")]
     [TestCase("put coal in basket", null, "Done")]
+    [TestCase("lower basket", null, "The basket is lowered to the bottom of the shaft.")]
+    [TestCase("N", null, "Smelly Room", "To the south is a narrow tunnel")]
+    [TestCase("Down", null, "Gas Room", "sapphire-encrusted", "short climb up some stairs")]
+    [TestCase("E", null, "Coal Mine", "This is a nondescript part of a coal mine")]
+    [TestCase("NE", null, "Coal Mine", "This is a nondescript part of a coal mine")]
+    [TestCase("SE", null, "Coal Mine", "This is a nondescript part of a coal mine")]
+    [TestCase("SW", null, "Coal Mine", "This is a nondescript part of a coal mine")]
+    [TestCase("Down", null, "Ladder Top", "This is a very small room")]
+    [TestCase("Down", null, "Ladder Bottom", "This is a rather wide room")]
+    [TestCase("W", null, "Timber Room", "This is a long and narrow passage", "a broken timber here")]
+    [TestCase("drop all", null, "skull: Dropped", "garlic: Dropped", "lantern: Dropped")]
+    [TestCase("W", null, "Drafty Room", "contains", "torch (pr","coal")]
+    [TestCase("take coal", null, "Taken")]
+    [TestCase("take screwdriver", null, "Taken")]
+    [TestCase("take torch", null, "Taken")]
     public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) InvokeGodMode(setup);

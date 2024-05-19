@@ -12,6 +12,8 @@ public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenA
 
     public override string Name => "brown sack";
 
+    protected override int SpaceForItems => 3;
+
     public string ExaminationDescription =>
         ((IOpenAndClose)this).IsOpen ? ItemListDescription("brown sack") : "The brown sack is closed. ";
 

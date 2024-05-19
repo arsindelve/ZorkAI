@@ -13,9 +13,11 @@
 	
 	
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingMode/@EntryValue">OnlyMarkers</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f03f6fb4_002Dd59b_002D4756_002Db46a_002D187bc8d50c59/@EntryIndexedValue">&lt;SessionState ContinuousTestingIsOn="True" ContinuousTestingMode="3" IsActive="True" Name="All tests from &amp;lt;UnitTests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Project Location="C:\Users\arsin\RiderProjects\ZorkAI\UnitTests" Presentation="&amp;lt;UnitTests&amp;gt;" /&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=dfcb1fbb_002D3fa0_002D4b08_002Da56e_002D261af9d60bff/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Walkthrough" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;ProjectFolder&gt;96A95934-3628-4245-988A-716C5ADD375A/d:ZorkITests/d:Walkthrough&lt;/ProjectFolder&gt;
 &lt;/SessionState&gt;</s:String>
+	
+	
 	
 	
 	

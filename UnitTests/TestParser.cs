@@ -6,13 +6,13 @@ using Model.Movement;
 namespace UnitTests;
 
 /// <summary>
-/// Represents a unit test appropriate implementation of the IIntentParser interface.
+///     Represents a unit test appropriate implementation of the IIntentParser interface.
 /// </summary>
 internal class TestParser : IIntentParser
 {
+    private readonly string[] _allContainers;
     private readonly string[] _allNouns;
     private readonly string[] _verbs;
-    private readonly string[] _allContainers;
 
     public TestParser()
     {
@@ -21,7 +21,7 @@ internal class TestParser : IIntentParser
             "take", "drop", "open", "close", "examine", "look", "eat", "press",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss",
-            "lower", "raise"
+            "lower", "raise", "get"
         ];
 
         _allNouns = Repository.GetNouns();
@@ -50,13 +50,13 @@ internal class TestParser : IIntentParser
 
         if (input is "inventory" or "i")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new InventoryProcessor() });
-        
-        if (input is "take all")
+
+        if (input is "take all" or "get all")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new TakeEverythingProcessor() });
 
         if (input is "drop all")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new DropEverythingProcessor() });
-        
+
         if (input is "wait" or "z")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new WaitProcessor() });
 
@@ -115,7 +115,7 @@ internal class TestParser : IIntentParser
         if (input == "turn off lantern")
             return Task.FromResult<IntentBase>(new SimpleIntent
                 { Adverb = "off", Verb = "turn", Noun = "lamp", OriginalInput = "turn the lamp on" });
-        
+
         if (input == "light a match")
             return Task.FromResult<IntentBase>(new SimpleIntent
                 { Adverb = "a", Verb = "light", Noun = "match", OriginalInput = "" });
