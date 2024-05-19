@@ -24,7 +24,7 @@ public class TakeEverythingProcessor : IGlobalCommand
 
             if (nextItem is ICanBeTakenAndDropped)
             {
-                sb.AppendLine($"{nextItem.Name}: Taken.");
+                sb.AppendLine($"{nextItem.Name}: Taken. ");
                 context.ItemPlacedHere(nextItem);
             }
         }

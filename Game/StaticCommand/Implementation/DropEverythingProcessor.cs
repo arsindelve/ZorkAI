@@ -11,7 +11,7 @@ public class DropEverythingProcessor : IGlobalCommand
         var sb = new StringBuilder();
         var items = context.Items;
 
-        foreach (var nextItem in items)
+        foreach (var nextItem in items.ToList())
             if (nextItem is ICanBeTakenAndDropped)
             {
                 sb.AppendLine($"{nextItem.Name}: Dropped.");
