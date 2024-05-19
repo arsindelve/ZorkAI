@@ -3,6 +3,9 @@ using Newtonsoft.Json;
 
 namespace Model.Interface;
 
+/// <summary>
+///     Represents an object (item, location or context) that can hold other items.
+/// </summary>
 public interface ICanHoldItems : IInteractionTarget
 {
     /// <summary>
@@ -13,6 +16,13 @@ public interface ICanHoldItems : IInteractionTarget
     string Name { get; }
 
     List<IItem> Items { get; }
+
+    /// <summary>
+    ///     Retrieves all items recursively from the container
+    /// </summary>
+    /// <returns>A list of all items recursively.</returns>
+    [JsonIgnore]
+    List<IItem> GetAllItemsRecursively { get; }
 
     void RemoveItem(IItem item);
 
@@ -59,11 +69,4 @@ public interface ICanHoldItems : IInteractionTarget
     /// <param name="item">The item being placed into the container.</param>
     /// <param name="context"></param>
     void OnItemPlacedHere(IItem item, IContext context);
-
-    /// <summary>
-    /// Retrieves all items recursively from the container
-    /// </summary>
-    /// <returns>A list of all items recursively.</returns>
-    [JsonIgnore]
-    List<IItem> GetAllItemsRecursively { get; }
 }

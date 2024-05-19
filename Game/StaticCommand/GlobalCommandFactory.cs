@@ -30,6 +30,10 @@ public class GlobalCommandFactory : IGlobalCommandFactory
             case "pick up all":
             case "pick up everything":
                 return new TakeEverythingProcessor();
+            
+            case "drop all":
+            case "drop everything":
+                return new DropEverythingProcessor();
 
             case "wait":
             case "z":

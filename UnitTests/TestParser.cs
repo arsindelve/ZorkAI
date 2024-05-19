@@ -5,6 +5,9 @@ using Model.Movement;
 
 namespace UnitTests;
 
+/// <summary>
+/// Represents a unit test appropriate implementation of the IIntentParser interface.
+/// </summary>
 internal class TestParser : IIntentParser
 {
     private readonly string[] _allNouns;
@@ -47,6 +50,9 @@ internal class TestParser : IIntentParser
 
         if (input is "inventory" or "i")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new InventoryProcessor() });
+        
+        if (input is "take all")
+            return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new TakeEverythingProcessor() });
 
         if (input is "wait" or "z")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new WaitProcessor() });
