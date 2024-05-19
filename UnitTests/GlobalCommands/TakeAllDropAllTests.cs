@@ -20,4 +20,14 @@ public class TakeAllDropAllTests : EngineTestsBase
         response.Should().Contain("anchored");
         response.Should().Contain("leaflet: Taken");
     }
+    
+    [Test]
+    public async Task TakeTheMailboxAndTheLeafletThenDropIt()
+    {
+        var target = GetTarget();
+        Repository.GetItem<Mailbox>().IsOpen = true;
+        await target.GetResponse("take all");
+        var response = await target.GetResponse("drop all");
+        response.Should().Contain("leaflet: Dropped");
+    }
 }
