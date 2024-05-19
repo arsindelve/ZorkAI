@@ -1,3 +1,5 @@
+using System.Text;
+using DynamoDb;
 using ZorkOne;
 
 namespace UnitTests.ZorkITests.Walkthrough;
@@ -5,14 +7,15 @@ namespace UnitTests.ZorkITests.Walkthrough;
 public abstract class WalkthroughTestBase : EngineTestsBase
 {
     private GameEngine<ZorkI, ZorkIContext> _target;
+    private readonly DynamoDbSessionRepository _database = new();
 
     [OneTimeSetUp]
     public void Init()
     {
         _target = GetTarget();
-        Repository.Reset();
+        //Repository.Reset();
     }
-    
+
     protected void InvokeGodMode(string setup)
     {
         var method = GetType().GetMethod(setup);
@@ -21,7 +24,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         // Invoke the method on the current instance
         method.Invoke(this, null);
     }
-    
+
     public void KillTroll()
     {
         // We can't have the randomness of trying to kill the troll. Let's God-Mode this dude. 
@@ -34,11 +37,20 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         // direction. For the test we need to remove the randomness and end up in the Round Room
         _target.Context.CurrentLocation = Repository.GetLocation<RoundRoom>();
     }
-    
+
     protected async Task Do(string input, params string[] outputs)
     {
         var result = await _target.GetResponse(input);
-        //Console.WriteLine(result);
+        if (System.Diagnostics.Debugger.IsAttached)
+        {
+            Console.WriteLine(result);
+            var sessionId = Environment.MachineName;
+            var bytesToEncode = Encoding.UTF8.GetBytes(_target.Context.Engine!.SaveGame());
+            var encodedText = Convert.ToBase64String(bytesToEncode);
+            await _database.WriteSession(sessionId, encodedText);
+            //Console.WriteLine(Repository.ItemDump());
+        }
+
         foreach (var output in outputs) result.Should().Contain(output);
     }
 }

@@ -1,3 +1,5 @@
+using Model.AIGeneration;
+using Model.Intent;
 using Model.Interface;
 using Model.Movement;
 
@@ -37,6 +39,31 @@ internal class ShaftRoom : DarkLocation
             return "\nYour sword is glowing with a faint blue glow.";
 
         return string.Empty;
+    }
+
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
+    {
+        var basket = Repository.GetItem<Basket>();
+        if (action.Match(["raise"], basket.NounsForMatching))
+        {
+            if (Items.Contains(basket)) 
+                return new PositiveInteractionResult("Too late for that. ");
+
+            ItemPlacedHere(basket);
+            return new PositiveInteractionResult("The basket is raised to the top of the shaft. ");
+        }
+
+        if (action.Match(["lower"], basket.NounsForMatching))
+        {
+            if (!Items.Contains(basket))
+                return new PositiveInteractionResult("Too late for that. ");
+
+            Repository.GetLocation<DraftyRoom>().ItemPlacedHere(basket);
+            return new PositiveInteractionResult("The basket is lowered to the bottom of the shaft. ");
+        }
+
+        return base.RespondToSimpleInteraction(action, context, client);
     }
 
     public override void Init()

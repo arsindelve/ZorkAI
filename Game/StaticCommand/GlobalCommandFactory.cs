@@ -26,6 +26,8 @@ public class GlobalCommandFactory : IGlobalCommandFactory
                 return new TakeOnlyAvailableItemProcessor();
 
             case "take all":
+            case "get all":
+            case "get everything":
             case "take everything":
             case "pick up all":
             case "pick up everything":

@@ -56,9 +56,7 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("examine window", null, "The window is slightly ajar, but not enough to allow entry")]
     [TestCase("open window", null, "With great effort, you open the window far enough to allow entry.")]
     [TestCase("W", null, "Kitchen")]
-    // TODO: Take All
-    [TestCase("take sack", null, "Taken")]
-    [TestCase("take bottle", null, "Taken")]
+    [TestCase("take all", null, "sack: Taken", "bottle: Taken")]
     [TestCase("Up", null, "pitch black")]
     [TestCase("Down", null, "Kitchen")]
     // TODO: > Examine table. "The kitchen table is empty."
@@ -86,14 +84,28 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("open sack", null, "reveals a lunch", "clove of garlic")]
     [TestCase("examine lunch", null, "nothing special about the lunch")]
     [TestCase("smell garlic", null, "It smells like a clove of garlic")]
-
-
-    
-    
-
+    // TODO: Put all in sack
+    [TestCase("put leaflet in sack", null, "Done")]
+    [TestCase("drop leaves", null, "Dropped")]
+    [TestCase("drop leaflet", null, "Dropped")]
+    [TestCase("inventory", null, "sword", "bottle", "water", "lunch", "garlic", "lantern")]
+    [TestCase("look", null, "closed trap door", "egg", "pile of leaves")]
+    [TestCase("E", null, "Kitchen")]
+    [TestCase("turn on lantern", null, "now on")]
+    [TestCase("Up", null, "Attic","rope", "knife")]
+    [TestCase("get all", null, "rope: Taken", "knife: Taken")]
+    // TODO: > Examine table. "The table is empty."
+    [TestCase("Down", null, "Kitchen")]
+    [TestCase("Down", null, "Santa")]
+    [TestCase("W", null, "Living Room")]
+    [TestCase("Down", null, "closed")]
+    [TestCase("open trap door", null, "The door reluctantly opens to reveal a rickety staircase")]
+    [TestCase("Down", null, "faint blue glow", "barring it")]
+    [TestCase("N", "KillTroll", "Bloodstains")]
     public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
     {
-        if (!string.IsNullOrWhiteSpace(setup)) InvokeGodMode(setup);
+        if (!string.IsNullOrWhiteSpace(setup)) 
+            InvokeGodMode(setup);
 
         await Do(input, expectedResponses);
     }
