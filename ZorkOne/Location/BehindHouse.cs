@@ -6,7 +6,7 @@ public class BehindHouse : BaseLocation
 {
     protected override string ContextBasedDescription =>
         $"You are behind the white house. A path leads into the forest to the east. In one corner " +
-        $"of the house there is a small window which is {(Repository.GetItem<KitchenWindow>().IsOpen ? "open" : "slightly ajar")}.";
+        $"of the house there is a small window which is {(Repository.GetItem<KitchenWindow>().IsOpen ? "open" : "slightly ajar" )}. ";
 
     public override string Name => "Behind House";
 
@@ -17,7 +17,7 @@ public class BehindHouse : BaseLocation
             MovementParameters enterKitchen = new()
             {
                 CanGo = _ => Repository.GetItem<KitchenWindow>().IsOpen,
-                CustomFailureMessage = "The kitchen window is closed.",
+                CustomFailureMessage = "The kitchen window is closed. ",
                 Location = Repository.GetLocation<Kitchen>()
             };
 

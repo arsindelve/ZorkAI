@@ -25,11 +25,11 @@ public class Egg : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IGivePointsW
 
     public bool IsOpen { get; set; }
 
-    public string NowOpen { get; }
+    public string NowOpen { get; } = "";
 
-    public string NowClosed { get; }
+    public string NowClosed { get; } = "";
 
-    public string AlreadyOpen { get; }
+    public string AlreadyOpen { get; } = "";
 
     public override int Size => 1;
 
@@ -37,7 +37,7 @@ public class Egg : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IGivePointsW
 
     public bool HasEverBeenOpened { get; set; }
 
-    public string? CannotBeOpenedDescription(IContext context)
+    public string CannotBeOpenedDescription(IContext context)
     {
         return "You have neither the tools nor the expertise. ";
     }

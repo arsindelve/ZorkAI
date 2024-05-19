@@ -8,6 +8,12 @@ using Utilities;
 
 namespace Model.Interface;
 
+/// <summary>
+///     The "context" is anything we need to know about the state of the game that is not
+///     location or item state dependant. These include the score, number of moves, adventurer inventory...
+///     stuff like that. This, along with the state of all objects and locations, (stored in the <see cref="Repository") />
+///     encompasses everything we need to know to save and restore the game...i.e preserve the entire game state
+/// </summary>
 public interface IContext : ICanHoldItems
 {
     /// <summary>

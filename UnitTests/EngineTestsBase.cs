@@ -10,6 +10,12 @@ public class EngineTestsBase
     protected Mock<IGenerationClient> Client = new();
     protected IIntentParser Parser = new IntentParser(new ZorkOneGlobalCommandFactory());
 
+    /// <summary>
+    ///     Returns an instance of the GameEngine class with the specified parser and client.
+    ///     If parser is not provided, a default TestParser instance is used.
+    /// </summary>
+    /// <param name="parser">Optional parameter for the intent parser.</param>
+    /// <returns>An instance of the GameEngine class.</returns>
     protected GameEngine<ZorkI, ZorkIContext> GetTarget(IIntentParser? parser = null)
     {
         Client = new Mock<IGenerationClient>();
