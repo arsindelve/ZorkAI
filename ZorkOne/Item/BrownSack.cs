@@ -1,6 +1,6 @@
 namespace ZorkOne.Item;
 
-public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndDropped
+public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndDropped, ISmell
 {
     public override string[] NounsForMatching => ["sack", "brown sack", "bag"];
 
@@ -28,4 +28,6 @@ public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenA
         StartWithItemInside<Lunch>();
         StartWithItemInside<Garlic>();
     }
+
+    public string SmellDescription => "It smells of hot peppers. ";
 }
