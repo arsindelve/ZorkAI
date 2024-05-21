@@ -117,6 +117,34 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("examine control panel", null, "nothing special")]
     [TestCase("take bolt", null, "It is an integral part of the control panel")]
     [TestCase("take bubble", null, "It is an integral part of the control panel")]
+    [TestCase("examine bubble", null, "nothing special")]
+    [TestCase("look", null, "abandoned dam")]
+    [TestCase("N", null, "Dam Lobby")]
+    [TestCase("N", null, "Maintenance Room")]
+    [TestCase("N", null, "go that way")]
+    [TestCase("S", null, "Dam Lobby")]
+    [TestCase("take matchbook", null, "Taken")]
+    [TestCase("examine matchbook", null, "except for what")]
+    [TestCase("S", null, "Dam")]
+    // TODO: [TestCase("Down", null, "Dam Base")]
+    // TODO:> Take Pile > Your load is too heavy
+    // TODO: [TestCase("Up", null, "Dam")]
+    [TestCase("W", null, "Reservoir South")]
+    [TestCase("SW", null, "Chasm")]
+    [TestCase("S", null, "North-South")]
+    [TestCase("S", null, "Round Room")]
+    [TestCase("S", null, "Narrow Passage")]
+    [TestCase("N", null, "Round Room")]
+    [TestCase("S", null, "Narrow Passage")]
+    [TestCase("S", null, "Mirror Room")]
+    // TOOO: [TestCase("examine mirror", null, "ugly person")]
+    [TestCase("W", null, "Winding Passage")]
+    [TestCase("N", null, "Mirror Room")]
+    [TestCase("W", null, "Winding Passage")]
+
+
+
+
     public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) 
