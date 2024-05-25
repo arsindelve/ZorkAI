@@ -30,7 +30,7 @@ internal class TestParser : IIntentParser
         IEnumerable<string> specialNouns =
         [
             "tree", "branches", "house", "lettering", "mirror", "match", "yellow button", "red button",
-            "blue button", "brown button", "bolt", "bubble"
+            "blue button", "brown button", "bolt", "bubble", "bodies", "gate"
         ];
 
         _allNouns = _allNouns.Union(specialNouns).ToArray();
