@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using DynamoDb;
 using ZorkOne;
@@ -6,14 +7,13 @@ namespace UnitTests.ZorkITests.Walkthrough;
 
 public abstract class WalkthroughTestBase : EngineTestsBase
 {
+    private readonly DynamoDbSessionRepository _database = new();
     private GameEngine<ZorkI, ZorkIContext> _target;
-    //private readonly DynamoDbSessionRepository _database = new();
 
     [OneTimeSetUp]
     public void Init()
     {
         _target = GetTarget();
-        //Repository.Reset();
     }
 
     protected void InvokeGodMode(string setup)
@@ -41,14 +41,13 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     protected async Task Do(string input, params string[] outputs)
     {
         var result = await _target.GetResponse(input);
-        if (System.Diagnostics.Debugger.IsAttached)
+        if (Debugger.IsAttached)
         {
             Console.WriteLine(result);
-            // var sessionId = Environment.MachineName;
-            // var bytesToEncode = Encoding.UTF8.GetBytes(_target.Context.Engine!.SaveGame());
-            // var encodedText = Convert.ToBase64String(bytesToEncode);
-            // await _database.WriteSession(sessionId, encodedText);
-            //Console.WriteLine(Repository.ItemDump());
+            var sessionId = Environment.MachineName;
+            var bytesToEncode = Encoding.UTF8.GetBytes(_target.Context.Engine!.SaveGame());
+            var encodedText = Convert.ToBase64String(bytesToEncode);
+            await _database.WriteSession(sessionId, encodedText);
         }
 
         foreach (var output in outputs) result.Should().Contain(output);
