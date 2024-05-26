@@ -2,12 +2,21 @@ using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
 using Model.Movement;
+using ZorkOne.Location.CoalMineLocation;
 
 namespace ZorkOne.Location;
 
 internal class DraftyRoom : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map { get; }
+    protected override Dictionary<Direction, MovementParameters> Map => new()
+    {
+        {
+            Direction.E, new MovementParameters { Location = GetLocation<TimberRoom>(), WeightLimit = 2 }
+        },
+        {
+            Direction.S, new MovementParameters { Location = GetLocation<MachineRoom>() }
+        }
+    };
 
     protected override string ContextBasedDescription =>
         "This is a small drafty room in which is the bottom of a long shaft. To the south is a passageway and to " +
