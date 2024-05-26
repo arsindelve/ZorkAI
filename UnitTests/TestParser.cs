@@ -30,7 +30,7 @@ internal class TestParser : IIntentParser
         IEnumerable<string> specialNouns =
         [
             "tree", "branches", "house", "lettering", "mirror", "match", "yellow button", "red button",
-            "blue button", "brown button", "bolt", "bubble", "bodies", "gate"
+            "blue button", "brown button", "bolt", "bubble", "bodies", "gate", "lid", "switch"
         ];
 
         _allNouns = _allNouns.Union(specialNouns).ToArray();
@@ -78,6 +78,16 @@ internal class TestParser : IIntentParser
                 Preposition = "with",
                 Verb = "turn",
                 OriginalInput = "turn bolt with wrench"
+            });
+        
+        if (input == "turn switch with screwdriver")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "switch",
+                NounTwo = "screwdriver",
+                Preposition = "with",
+                Verb = "turn",
+                OriginalInput = "turn switch with screwdriver"
             });
 
         if (input == "press the yellow button")

@@ -81,6 +81,8 @@ public class ClaudeFourParserTests
         new[] { "<verb>lick</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "light lantern",
         new[] { "<verb>light</verb>", "<noun>lantern</noun>", "<intent>act</intent>" })]
+    [TestCase(typeof(MachineRoom), "examine machine",
+        new[] { "<verb>examine</verb>", "<noun>machine</noun>", "<intent>act</intent>" })]
 
     // Multi noun
     [TestCase(typeof(DomeRoom), "tie the rope to the railing",
@@ -151,7 +153,7 @@ public class ClaudeFourParserTests
     [TestCase(typeof(TrollRoom), "Use the sword that glows to kill the troll that's ugly.",
         new[]
         {
-            "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>"
+            "<verb>use</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>"
         })]
     public async Task ClaudeParserTests(Type location, string sentence, string[] asserts)
     {

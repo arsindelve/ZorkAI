@@ -25,8 +25,9 @@ public class Cellar : DarkLocation
             Direction.Up,
             new MovementParameters
             {
-                CanGo = _ => false,
-                CustomFailureMessage = "The trap door is closed. "
+                CanGo = _ => GetItem<TrapDoor>().IsOpen,
+                CustomFailureMessage = "The trap door is closed. ",
+                Location = GetLocation<LivingRoom>()
             }
         }
     };
@@ -41,7 +42,7 @@ public class Cellar : DarkLocation
     {
         var result = base.BeforeEnterLocation(context, previousLocation);
 
-        if (Repository.GetItem<TrapDoor>().IsOpen)
+        if (Repository.GetItem<TrapDoor>().IsOpen && VisitCount == 1)
         {
             Repository.GetItem<TrapDoor>().IsOpen = false;
             result += "The trap door crashes shut, and you hear someone barring it." + Environment.NewLine +

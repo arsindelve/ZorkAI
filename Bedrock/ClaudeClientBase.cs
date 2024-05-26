@@ -9,6 +9,7 @@ namespace Bedrock;
 
 public abstract class ClaudeClientBase
 {
+    //private const string ClaudeModelId = "amazon.titan-text-premier-v1:0";
     private const string ClaudeModelId = "anthropic.claude-3-sonnet-20240229-v1:0";
     //private const string ClaudeModelId = "anthropic.claude-3-haiku-20240307-v1:0";
     protected const string AnthropicVersion = "bedrock-2023-05-31";
