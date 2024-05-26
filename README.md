@@ -103,7 +103,7 @@ Please feel free to report issues and make PRs to help make the game better. I w
       
       Done.
 
-- Finish the game! There is still the maze, the coal mine, the thief, and more.
+- Finish the game! There is still the maze, ~~the coal mine~~, the river, the thief, and more.
 - The world of Zork has a rich lore and vocabulary, with words like “Zorkmid”, “Frobozz”, “Dimwit Flathead”. I want to
   fine-tune the LLM to make the responses more Zork-like.
 - Finally, I started with Zork because it’s the most well-known, and one of the simplest Infocom games. What I really

@@ -79,6 +79,23 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         }
     }
 
+    protected string SingleLineListOfItems()
+    {
+        var nouns = Items.Select(s => s.NounsForMatching.OrderByDescending(q => q.Length).First()).ToList();
+        if (!nouns.Any())
+        {
+            return "";
+        }
+
+        var convertNouns = nouns.ConvertAll(noun => "a " + noun);
+        string lastNoun = convertNouns.Last();
+        convertNouns.Remove(lastNoun);
+
+        return convertNouns.Count > 0
+            ? $"{string.Join(", ", convertNouns)} and {lastNoun}"
+            : lastNoun;
+    }
+
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
@@ -115,7 +132,7 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
 
         if (IsTransparent || this is IOpenAndClose { IsOpen: true })
         {
-            sb.AppendLine($"   The {name} contains:");
+            sb.AppendLine($"The {name} contains:");
             Items.ForEach(s => sb.AppendLine($"      {s.InInventoryDescription}"));
         }
 

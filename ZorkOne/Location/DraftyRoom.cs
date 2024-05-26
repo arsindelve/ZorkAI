@@ -20,8 +20,8 @@ internal class DraftyRoom : DarkLocation
 
     protected override string ContextBasedDescription =>
         "This is a small drafty room in which is the bottom of a long shaft. To the south is a passageway and to " +
-        "the east a very narrow passage. In the shaft can be seen a heavy iron chain.  \n"
-        + (GetItem<Basket>().Items.Any() ? GetItem<Basket>().ItemListDescription("basket") : "");
+        $"the east a very narrow passage. In the shaft can be seen a heavy iron chain. {(Items.Contains(Repository.GetItem<Basket>()) ? "\nAt the end of the chain is a basket. "
+            + (GetItem<Basket>().Items.Any() ? GetItem<Basket>().ItemListDescription("basket") : "") : "")} \n";
 
     public override string Name => "Drafty Room";
 
@@ -42,9 +42,9 @@ internal class DraftyRoom : DarkLocation
 
         if (action.Match(["lower"], basket.NounsForMatching))
         {
-            if (Items.Contains(basket)) 
+            if (Items.Contains(basket))
                 return new PositiveInteractionResult("Too late for that. ");
-            
+
             ItemPlacedHere(basket);
             return new PositiveInteractionResult("The basket is lowered to the bottom of the shaft. ");
         }
