@@ -162,6 +162,7 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("take coal", null, "Taken")]
     [TestCase("take screwdriver", null, "Taken")]
     [TestCase("take torch", null, "Taken")]
+    [TestCase("S", null, "Machine Room", "large lid, which is closed.")]
     public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) InvokeGodMode(setup);
