@@ -63,7 +63,7 @@ public class ClaudeFourParser : ClaudeClientBase, IAIParser
         if (!nouns.Any())
             return null;
 
-        return new ExitSubLocationIntent { Noun = nouns.First() };
+        return new ExitSubLocationIntent { NounOne = nouns.First(), NounTwo = nouns.LastOrDefault()};
     }
 
     private EnterSubLocationIntent? DetermineBoardIntent(string? response)

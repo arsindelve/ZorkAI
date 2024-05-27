@@ -80,7 +80,7 @@ internal class TestParser : IIntentParser
         if (input == "get out of the boat")
             return Task.FromResult<IntentBase>(new ExitSubLocationIntent
             {
-                Noun = "boat",
+                NounOne = "boat",
             });
         
         if (input == "inflate plastic with pump")

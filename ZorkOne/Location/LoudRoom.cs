@@ -42,10 +42,10 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
     {
     }
 
-    public override void OnLeaveLocation(IContext context)
+    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
     {
         context.RemoveActor(this);
-        base.OnLeaveLocation(context);
+        base.OnLeaveLocation(context, newLocation, previousLocation);
     }
 
     public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)

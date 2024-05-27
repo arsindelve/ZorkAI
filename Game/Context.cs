@@ -42,6 +42,7 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     private T GameType { get; set; }
 
     public List<ITurnBasedActor> Actors { get; set; } = new();
+    
     public int CarryingWeight => Items.Sum(s => s.Size);
 
     public LimitedStack<string> Inputs { get; set; } = new();
@@ -63,7 +64,8 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     /// <summary>
     ///     Represents the inventory of the game's adventurer. It holds various items that the player can carry.
     /// </summary>
-    public List<IItem> Items { get; } = new();
+    // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global: Deserializer needs it. 
+    public List<IItem> Items { get; set; } = new();
 
     /// <summary>
     ///     Gets a value indicating whether the adventurer has a light source that is on

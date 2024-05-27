@@ -26,6 +26,7 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
 
     public bool IsTransparent => false;
 
+    // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global: Needed by deserializer.
     public List<IItem> Items { get; set; } = new();
 
     public void RemoveItem(IItem item)
@@ -96,7 +97,7 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return string.Empty;
     }
 
-    public virtual void OnLeaveLocation(IContext context)
+    public virtual void OnLeaveLocation(IContext context,  ILocation newLocation, ILocation previousLocation)
     {
     }
 

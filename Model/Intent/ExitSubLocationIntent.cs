@@ -5,5 +5,7 @@ namespace Model.Intent;
 /// </summary>
 public record ExitSubLocationIntent : IntentBase
 {
-    public required string Noun { get; init; }
+    public required string NounOne { get; init; }
+    
+    public string? NounTwo { get; init; }
 }

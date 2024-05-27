@@ -53,9 +53,9 @@ public class Reservoir : DarkLocation, ITurnBasedActor
         return base.AfterEnterLocation(context, previousLocation);
     }
 
-    public override void OnLeaveLocation(IContext context)
+    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
     {
         context.RemoveActor(this);
-        base.OnLeaveLocation(context);
+        base.OnLeaveLocation(context, newLocation, previousLocation);
     }
 }

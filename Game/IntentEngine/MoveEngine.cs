@@ -31,7 +31,7 @@ internal class MoveEngine : IIntentEngine
         context.LastNoun = "";
 
         var previousLocation = context.CurrentLocation;
-        context.CurrentLocation.OnLeaveLocation(context);
+        context.CurrentLocation.OnLeaveLocation(context, movement.Location, previousLocation);
         context.CurrentLocation = movement.Location;
 
         var beforeEnteringText = movement.Location.BeforeEnterLocation(context, previousLocation);

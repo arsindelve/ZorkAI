@@ -109,4 +109,20 @@ public class SubLocationTests : EngineTestsBase
         response.Should().Contain("You realize that getting out here would be fatal");
         target.Context.CurrentLocation.SubLocation.Should().NotBeNull();
     }
+    
+    [Test]
+    public async Task InTheBoat_GoSomewhereOnLand()
+    {
+        var target = GetTarget();
+
+        target.Context.CurrentLocation = Repository.GetLocation<DamBase>();
+        var boat = Repository.GetItem<PileOfPlastic>();
+        boat.IsInflated = true;
+        
+        await target.GetResponse("get in the boat");
+        var response = await target.GetResponse("N");
+        
+        response.Should().Contain("You can't go there in a magic boat");
+        target.Context.CurrentLocation.SubLocation.Should().NotBeNull();
+    }
 }

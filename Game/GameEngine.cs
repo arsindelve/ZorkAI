@@ -1,3 +1,4 @@
+using System.Reflection;
 using Game.IntentEngine;
 using Game.StaticCommand;
 using Game.StaticCommand.Implementation;
@@ -7,6 +8,7 @@ using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Interface;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Utilities;
 
 namespace Game;
@@ -294,7 +296,25 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             TypeNameHandling = TypeNameHandling.All,
-            PreserveReferencesHandling = PreserveReferencesHandling.Objects
+            PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+            ContractResolver = new DoNotSerializeReadOnlyPropertiesResolver(),
+            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
         };
     }
 }
+
+public class DoNotSerializeReadOnlyPropertiesResolver : DefaultContractResolver
+{
+    protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+    {
+        JsonProperty property = base.CreateProperty(member, memberSerialization);
+    
+        if (!property.Writable)
+        {
+            property.ShouldSerialize = _ => false;
+        }
+    
+        return property;
+    }
+}
+

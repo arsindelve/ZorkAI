@@ -4,18 +4,24 @@ using Model.Interface;
 
 namespace ZorkOne.Item;
 
-public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation
+public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation, ICanBeExamined
 {
     public bool IsInflated { get; set; }
 
-    public override string[] NounsForMatching => ["pile", "pile of plastic", "plastic", "boat", "raft"];
+    public override bool IsTransparent => true;
+
+    public override string[] NounsForMatching => ["pile", "pile of plastic", "plastic", "boat", "raft", "magic boat"];
 
     public override string InInventoryDescription => "A pile of plastic";
 
     public override int Size => 14;
 
+    public string ExaminationDescription => IsInflated
+        ? "There's nothing special about the magic boat. "
+        : "There's nothing special about the pile of plastic. ";
+
     public string OnTheGroundDescription => IsInflated
-        ? "There is a magic boat here. "
+        ? "There is a magic boat here. " + (Items.Any() ? ItemListDescription("magic boat") : "") 
         : "There is a folded pile of plastic here which has a small valve attached. ";
 
     public override string NeverPickedUpDescription => OnTheGroundDescription;
@@ -53,6 +59,15 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation
 
             return new PositiveInteractionResult("You don't have enough lung power to inflate it. ");
         }
+
+        // TODO: 
+        // if (action.Match(["deflate"], NounsForMatching))
+        // {
+        //     if (context.HasItem<PileOfPlastic>())
+        //         return new PositiveInteractionResult("The boat must be on the ground to be inflated. ");
+        //
+        //     return new PositiveInteractionResult("You don't have enough lung power to inflate it. ");
+        // }
 
         return base.RespondToSimpleInteraction(action, context, client);
     }

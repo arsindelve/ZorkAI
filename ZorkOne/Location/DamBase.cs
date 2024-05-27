@@ -8,8 +8,22 @@ public class DamBase : BaseLocation
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.N, new MovementParameters { Location = GetLocation<Dam>() } },
-            { Direction.Up, new MovementParameters { Location = GetLocation<Dam>() } }
+            {
+                Direction.N,
+                new MovementParameters
+                {
+                    Location = GetLocation<Dam>(), CanGo = _ => SubLocation == null,
+                    CustomFailureMessage = "You can't go there in a magic boat"
+                }
+            },
+            {
+                Direction.Up,
+                new MovementParameters
+                {
+                    Location = GetLocation<Dam>(), CanGo = _ => SubLocation == null,
+                    CustomFailureMessage = "You can't go there in a magic boat"
+                }
+            }
         };
 
     protected override string ContextBasedDescription =>
@@ -22,12 +36,14 @@ public class DamBase : BaseLocation
     public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
     {
         if (string.IsNullOrEmpty(input))
-            return base.RespondToSpecificLocationInteraction(input, context);;
-        
+            return base.RespondToSpecificLocationInteraction(input, context);
+        ;
+
         var preppedInput = input.ToLowerInvariant().Trim();
-        
+
         if (SubLocation is null)
-            return base.RespondToSpecificLocationInteraction(input, context);;
+            return base.RespondToSpecificLocationInteraction(input, context);
+        ;
 
         if (preppedInput.StartsWith("launch"))
         {
@@ -35,10 +51,10 @@ public class DamBase : BaseLocation
             context.CurrentLocation = Repository.GetLocation<FrigidRiverOne>();
             context.CurrentLocation.SubLocation = Repository.GetItem<PileOfPlastic>();
             ((ICanHoldItems)context.CurrentLocation).ItemPlacedHere(Repository.GetItem<PileOfPlastic>());
-            
+
             return new PositiveInteractionResult(context.CurrentLocation.Description);
         }
-        
+
         return base.RespondToSpecificLocationInteraction(input, context);
     }
 
