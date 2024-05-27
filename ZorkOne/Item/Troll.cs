@@ -44,6 +44,7 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor
 
     // TODO: Give the axe back to the troll: The troll scratches his head in confusion, then takes the axe.
     // TODO: Give other stuff to the troll: The troll, who is not overly proud, graciously accepts the gift and, being for the moment sated, throws it back. Fortunately, the troll has poor control, and the sword falls to the floor. He does not look pleased.
+    // TODO: >give knife to troll The troll, who is not overly proud, graciously accepts the gift and eats it hungrily. Poor troll, he dies from an internal hemorrhage and his carcass disappears in a sinister black fog. Your sword is no longer glowing.
 
     public override void Init()
     {

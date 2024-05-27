@@ -30,7 +30,7 @@ public class ClaudeFourParser : ClaudeClientBase, IAIParser
     public async Task<IntentBase> AskTheAIParser(string input, string locationDescription, string sessionId)
     {
         var response = await _client.GetResponse(locationDescription, input);
-        _logger?.LogDebug($"Response from Claude Parser: {response}");
+        _logger?.LogDebug($"Response from Claude Parser: \n\t{response}");
 
         EnterSubLocationIntent? boardIntent = DetermineBoardIntent(response?.ToLower());
         if (boardIntent != null) 
