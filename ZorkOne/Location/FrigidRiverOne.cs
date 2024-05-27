@@ -1,10 +1,15 @@
+using Game.IntentEngine;
+using Model.AIGeneration;
+using Model.Intent;
 using Model.Interface;
 using Model.Movement;
 
 namespace ZorkOne.Location;
 
-public class FrigidRiverOne : LocationWithNoStartingItems, IFrigidRiver
+public class FrigidRiverOne : LocationWithNoStartingItems, IFrigidRiver, ITurnBasedActor
 {
+    public int TurnsInThisLocation { get; set; }
+    
     private static PileOfPlastic Boat => Repository.GetItem<PileOfPlastic>();
 
     public override string Description => Name +
@@ -25,11 +30,31 @@ public class FrigidRiverOne : LocationWithNoStartingItems, IFrigidRiver
 
     public override string Name => "Frigid River";
 
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
+    {
+        context.RegisterActor(this);
+        return base.AfterEnterLocation(context, previousLocation);
+    }
+
     public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
     {
         newLocation.SubLocation = SubLocation;
         SubLocation = null;
         ((ICanHoldItems)newLocation).ItemPlacedHere(Boat);
+        context.RemoveActor(this);
         base.OnLeaveLocation(context, newLocation, previousLocation);
+    }
+
+    public string Act(IContext context, IGenerationClient client)
+    {
+        TurnsInThisLocation++;
+        if (TurnsInThisLocation == 3)
+        {
+            //var moveInteraction = new MoveIntent { Direction = Direction.S };
+            //await new MoveEngine().Process(moveInteraction, context, null),
+            //return "The flow of the river carries you downstream. " + 
+        }
+
+        return string.Empty;
     }
 }
