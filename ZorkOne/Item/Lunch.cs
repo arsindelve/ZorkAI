@@ -11,4 +11,6 @@ public class Lunch : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeEate
     string ICanBeExamined.ExaminationDescription => "There's nothing special about the lunch.";
 
     string ICanBeTakenAndDropped.OnTheGroundDescription => "A hot pepper sandwich is here.";
+
+    public override int Size => 2;
 }

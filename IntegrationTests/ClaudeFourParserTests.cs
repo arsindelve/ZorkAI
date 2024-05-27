@@ -83,6 +83,10 @@ public class ClaudeFourParserTests
         new[] { "<verb>light</verb>", "<noun>lantern</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(MachineRoom), "examine machine",
         new[] { "<verb>examine</verb>", "<noun>machine</noun>", "<intent>act</intent>" })]
+    [TestCase(typeof(DamBase), "take plastic",
+        new[] { "<verb>take</verb>", "<noun>plastic</noun>", "<intent>act</intent>" })]
+    [TestCase(typeof(DamBase), "take pile",
+        new[] { "<verb>take</verb>", "<noun>pile</noun>", "<intent>act</intent>" })]
 
     // Multi noun
     [TestCase(typeof(DomeRoom), "tie the rope to the railing",
@@ -90,6 +94,18 @@ public class ClaudeFourParserTests
         {
             "<verb>tie</verb>", "<noun>rope</noun>", "<noun>railing</noun>", "<intent>act</intent>",
             "<preposition>to</preposition>"
+        })]
+    [TestCase(typeof(DomeRoom), "inflate the pile of plastic with the air pump",
+        new[]
+        {
+            "<verb>inflate</verb>", "<noun>pile</noun>", "<noun>pump</noun>", "<intent>act</intent>",
+            "<preposition>with</preposition>"
+        })]
+    [TestCase(typeof(DomeRoom), "blow up the pile of plastic using the air pump",
+        new[]
+        {
+            "<verb>blow up</verb>", "<noun>pile</noun>", "<noun>air pump</noun>", "<intent>act</intent>",
+            "<preposition>using</preposition>"
         })]
     [TestCase(typeof(Dam), "Use the wrench to turn the bolt.",
         new[]

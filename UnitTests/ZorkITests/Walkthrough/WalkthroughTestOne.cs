@@ -208,7 +208,22 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("E", null, "East-West")]
     [TestCase("N", null, "Chasm")]
     [TestCase("NE", null, "Reservoir South", "formerly a lake")]
-    //[TestCase("N", null, "Reservoir", "used to be a", "mud pile", "bulging with jewels")]
+    [TestCase("N", null, "Reservoir", "used to be a", "mud pile", "bulging with jewels")]
+    [TestCase("take trunk", null, "Taken")]
+    [TestCase("N", null, "Reservoir North", "cavernous", "There is a hand-held air pump here")]
+    [TestCase("take pump", null, "Taken")]
+    [TestCase("N", null, "Atlantis Room", "long under water", "On the shore lies Poseidon's own crystal trident")]
+    [TestCase("take trident", null, "Your load is too heavy")]
+    [TestCase("inventory", null, "pump", "trunk", "torch", "garlic", "lantern")]
+    [TestCase("drop torch", null, "Dropped")]
+    [TestCase("take trident", null, "Taken")]
+    [TestCase("S", null, "Reservoir N")]
+    [TestCase("S", null, "Reservoir")]
+    [TestCase("S", null, "Reservoir S")]
+    [TestCase("E", null, "Dam", "wrench here")]
+    [TestCase("E", null, "Dam Base", "river as it winds its way downstream", "There is a folded pile of plastic")]
+    [TestCase("inflate plastic with pump", null, "The boat inflates and appears seaworthy")]
+    [TestCase("drop pump", null, "Dropped")]
     public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) InvokeGodMode(setup);

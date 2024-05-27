@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 namespace ZorkOne;
 
 /// <summary>
@@ -68,5 +70,10 @@ public class ZorkIContext : Context<ZorkI>
         }
 
         base.Take(item);
+    }
+    
+    public override bool HaveRoomForItem(IItem item)
+    { 
+        return CalculateTotalSize() < 21;
     }
 }

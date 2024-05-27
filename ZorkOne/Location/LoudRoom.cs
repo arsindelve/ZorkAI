@@ -48,6 +48,15 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
         base.OnLeaveLocation(context);
     }
 
+    public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
+    {
+        if (DirectionParser.IsDirection(input, out Direction _))
+            return base.RespondToSpecificLocationInteraction(input, context);
+        
+        string lastWord = input!.Split(" ").Last();
+        return new PositiveInteractionResult($"{lastWord} {lastWord} ...");
+    }
+
     public override string AfterEnterLocation(IContext context, ILocation previousLocation)
     {
         if (Repository.GetLocation<ReservoirSouth>().IsDraining)

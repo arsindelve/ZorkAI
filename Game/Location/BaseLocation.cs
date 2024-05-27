@@ -225,4 +225,10 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
 
         return result.ToString().Trim();
     }
+    
+    public int CalculateTotalSize()
+    {
+        // This makes no sense for locations.
+        return 0;
+    }
 }
