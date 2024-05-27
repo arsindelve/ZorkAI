@@ -2,6 +2,13 @@ namespace Model.Movement;
 
 public static class DirectionParser
 {
+    /// <summary>
+    ///     Determines if the given intent represents a valid direction and assigns the parsed direction to the output
+    ///     parameter.
+    /// </summary>
+    /// <param name="intent">The intent to parse.</param>
+    /// <param name="direction">The parsed direction.</param>
+    /// <returns>True if the intent represents a valid direction; otherwise, false.</returns>
     public static bool IsDirection(string? intent, out Direction direction)
     {
         intent = intent?.Replace("go ", "");

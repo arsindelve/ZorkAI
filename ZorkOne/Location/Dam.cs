@@ -12,17 +12,32 @@ public class Dam : BaseLocation
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.SW, new MovementParameters { Location = GetLocation<Chasm>() } },
             { Direction.W, new MovementParameters { Location = GetLocation<ReservoirSouth>() } },
             { Direction.S, new MovementParameters { Location = GetLocation<DeepCanyon>() } },
-            { Direction.N, new MovementParameters { Location = GetLocation<DamLobby>() } }
+            { Direction.N, new MovementParameters { Location = GetLocation<DamLobby>() } },
+            { Direction.E, new MovementParameters { Location = GetLocation<DamBase>() } },
+            { Direction.Down, new MovementParameters { Location = GetLocation<DamBase>() } }
         };
 
-    // TODO: Update description based on gates 
-    protected override string ContextBasedDescription =>
-        $"You are standing on the top of the Flood Control Dam #3, which was quite a tourist attraction in times far distant. " +
-        "There are paths to the north, south, and west, and a scramble down. The sluice gates on the dam are " +
-        "closed. Behind the dam, there can be seen a wide reservoir. Water is pouring over the top of the now abandoned dam. ";
+    protected override string ContextBasedDescription => 
+        "You are standing on the top of the Flood Control Dam #3, which was quite a tourist attraction in times far distant. " +
+        "There are paths to the north, south, and west, and a scramble down. " + GatesDescription();
+
+    private string GatesDescription()
+    {
+        var reservoir = GetLocation<ReservoirSouth>();
+        if (reservoir.IsDrained && SluiceGatesOpen)
+            return
+                "The water level behind the dam is low: The sluice gates have been opened. Water rushes through the dam and downstream. ";
+
+        if (reservoir.IsFull && !SluiceGatesOpen)
+            return
+                "The sluice gates on the dam are closed. Behind the dam, there can be seen a wide reservoir. Water is pouring over the top of the now abandoned dam. ";
+
+        return !SluiceGatesOpen ? 
+            "The sluice gates are closed. The water level in the reservoir is quite low, but the level is rising quickly. " : 
+            "The sluice gates are open, and water rushes through the dam. The water level behind the dam is still high. ";
+    }
 
     public override string Name => "Dam";
 
@@ -31,11 +46,12 @@ public class Dam : BaseLocation
         StartWithItem(GetItem<ControlPanel>(), this);
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client)
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
     {
         if (action.Verb.ToLowerInvariant() == "turn" && action.Noun?.ToLowerInvariant() == "bolt")
             return new PositiveInteractionResult("Your bare hands don't appear to be enough.");
-        
+
         return base.RespondToSimpleInteraction(action, context, client);
     }
 
@@ -44,10 +60,12 @@ public class Dam : BaseLocation
         string[] verbs = ["turn", "use", "apply"];
         string[] prepositions = ["with", "to", "on", "using"];
 
-        if (!action.NounOne.ToLowerInvariant().Trim().Contains("bolt") && !action.NounTwo.ToLowerInvariant().Trim().Contains("bolt"))
+        if (!action.NounOne.ToLowerInvariant().Trim().Contains("bolt") &&
+            !action.NounTwo.ToLowerInvariant().Trim().Contains("bolt"))
             return base.RespondToMultiNounInteraction(action, context);
 
-        if (!action.NounOne.ToLowerInvariant().Trim().Contains("wrench") && !action.NounTwo.ToLowerInvariant().Trim().Contains("wrench"))
+        if (!action.NounOne.ToLowerInvariant().Trim().Contains("wrench") &&
+            !action.NounTwo.ToLowerInvariant().Trim().Contains("wrench"))
             return base.RespondToMultiNounInteraction(action, context);
 
         if (!verbs.Contains(action.Verb.ToLowerInvariant().Trim()))

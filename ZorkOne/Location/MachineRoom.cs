@@ -63,14 +63,22 @@ public class MachineRoom : DarkLocation
             coal.CurrentLocation = null;
             machine.Items.Remove(coal);
             machine.ItemPlacedHere(Repository.GetItem<Diamond>()); 
+            
+            // Note: When coal is present, other items in the machine are unaffected. 
         }
         else
         {
-            // Destroy any items, add slag.
+            foreach (IItem next in machine.Items.ToList())
+            {
+                // Goodbye forever. You've been slagged.
+                next.CurrentLocation = null;
+                machine.Items.Remove(next);
+            }
+            machine.ItemPlacedHere(Repository.GetItem<Slag>()); 
         }
-
+        
         return new PositiveInteractionResult(
             "The machine comes to life (figuratively) with a dazzling display of colored lights and bizarre " +
-            "noises. After a few moments, the excitement abates.");
+            "noises. After a few moments, the excitement abates. ");
     }
 }

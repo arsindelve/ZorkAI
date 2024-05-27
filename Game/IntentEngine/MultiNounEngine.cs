@@ -1,9 +1,7 @@
-using System.Diagnostics;
 using Game.Item.MultiItemProcessor;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Interface;
-using Model.Item;
 
 namespace Game.IntentEngine;
 
@@ -23,17 +21,26 @@ public class MultiNounEngine : IIntentEngine
         if (context.ItIsDarkHere)
             return "It's too dark to see! ";
 
-        Debug.WriteLine(interaction);
-
         // After a multi-noun interaction, we will lose the ability to understand "it"
         context.LastNoun = "";
 
+        // Does the location itself have a positive interaction? 
         var result = context.CurrentLocation.RespondToMultiNounInteraction(interaction, context);
         if (result?.InteractionHappened ?? false)
             return result.InteractionMessage;
 
+        // Do any of the items on the ground have a positive interaction? 
+        if(context.CurrentLocation is ICanHoldItems items)
+            foreach (var nextItem in items.Items)
+            {
+                result = nextItem.RespondToMultiNounInteraction(interaction, context);
+                if (result?.InteractionHappened ?? false)
+                    return result.InteractionMessage;
+            }
+
+        // Do any of the items in inventory have a positive interaction? 
         if (context?.Items != null)
-            foreach (IItem nextItem in context.Items)
+            foreach (var nextItem in context.Items)
             {
                 result = nextItem.RespondToMultiNounInteraction(interaction, context);
                 if (result?.InteractionHappened ?? false)

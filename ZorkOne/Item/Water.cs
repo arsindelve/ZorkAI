@@ -10,4 +10,5 @@ public class Water : ItemBase, IAmADrink
 
     public string DrankDescription => "Thank you very much -- I was very thirsty (probably from all this talking).";
 
+    public override int Size => 2;
 }

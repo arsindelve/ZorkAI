@@ -39,4 +39,10 @@ public interface ICanBeTakenAndDropped : IInteractionTarget
     /// </summary>
     /// <param name="context">The context of the game.</param>
     string? OnBeingTaken(IContext context);
+
+    /// <summary>
+    ///     This method is called when the item fails to be taken by the player.
+    /// </summary>
+    /// <param name="context">The context of the game.</param>
+    void OnFailingToBeTaken(IContext context);
 }

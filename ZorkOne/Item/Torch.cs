@@ -19,5 +19,5 @@ public class Torch : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICannotBeT
 
     int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 6;
 
-    public override int Size => 1;
+    public override int Size => 3;
 }

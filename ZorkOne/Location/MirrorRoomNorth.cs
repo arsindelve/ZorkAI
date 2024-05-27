@@ -7,6 +7,8 @@ internal class MirrorRoomNorth : MirrorRoom
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.N, new MovementParameters { Location = GetLocation<ColdPassage>() } }
+            { Direction.N, new MovementParameters { Location = GetLocation<ColdPassage>() } },
+            { Direction.E, new MovementParameters { Location = GetLocation<CaveNorth>() } },
+            { Direction.W, new MovementParameters { Location = GetLocation<TwistingPassage>() } }
         };
 }

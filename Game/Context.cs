@@ -153,10 +153,16 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         return hasMatch;
     }
 
-    public bool HaveRoomForItem(IItem item)
+    public virtual bool HaveRoomForItem(IItem item)
     {
-        // TODO: Implement inventory item load; 
+        // If you want the adventurer to have a weight limit, override this in the game context
         return true;
+    }
+
+    public int CalculateTotalSize()
+    {
+        // Also add the Size of items inside Containers
+        return Items.Sum(item => item.Size) + Items.OfType<ContainerBase>().Sum(container => container.CalculateTotalSize());
     }
 
     public void Init()

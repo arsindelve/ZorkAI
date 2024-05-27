@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using DynamoDb;
 using Game;
 using Microsoft.Extensions.Logging;
@@ -13,7 +14,6 @@ var savedGame = await database.GetSession(sessionId);
 Console.ForegroundColor = ConsoleColor.DarkCyan;
 
 var engine = CreateEngine();
-
 Console.WriteLine(engine.IntroText + Environment.NewLine);
 
 if (!string.IsNullOrEmpty(savedGame))
@@ -50,9 +50,45 @@ while (result != "-1")
     Utilities.Utilities.WriteLineWordWrap(result);
 }
 
+
 GameEngine<ZorkI, ZorkIContext> CreateEngine()
 {
-    using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+    ILoggerFactory loggerFactory;
+    
+    if (Debugger.IsAttached)
+    {
+        loggerFactory = LoggerFactory.Create(builder =>
+        
+            builder
+                .AddConsole()
+                .AddDebug()
+                .AddFilter((category, level) =>
+                {
+                    if (category!.Contains("Game.GameEngine"))
+                        return true;
+
+                    return false;
+                })
+                .SetMinimumLevel(LogLevel.Debug)
+        );
+    }
+    else
+    {
+        loggerFactory = LoggerFactory.Create(builder =>
+        
+            builder
+                .AddDebug()
+                .AddFilter((category, level) =>
+                {
+                    if (category!.Contains("Game.GameEngine"))
+                        return true;
+
+                    return false;
+                })
+                .SetMinimumLevel(LogLevel.Warning)
+        );
+    }
+
     var logger = loggerFactory.CreateLogger<GameEngine<ZorkI, ZorkIContext>>();
     var engine = new GameEngine<ZorkI, ZorkIContext>(logger);
     engine.Runtime = Runtime.Console;
