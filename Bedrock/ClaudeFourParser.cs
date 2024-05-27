@@ -1,16 +1,15 @@
 using HtmlAgilityPack;
-using Model;
+using Microsoft.Extensions.Logging;
 using Model.AIParsing;
 using Model.Intent;
-using Microsoft.Extensions.Logging;
 using Model.Movement;
 
 namespace Bedrock;
 
 public class ClaudeFourParser : ClaudeClientBase, IAIParser
 {
-    private readonly ILogger? _logger;
     private readonly IClaudeFourParserClient _client;
+    private readonly ILogger? _logger;
 
     /// <summary>
     ///     Constructor for unit testing.
@@ -32,40 +31,60 @@ public class ClaudeFourParser : ClaudeClientBase, IAIParser
         var response = await _client.GetResponse(locationDescription, input);
         _logger?.LogDebug($"Response from Claude Parser: \n\t{response}");
 
-        EnterSubLocationIntent? boardIntent = DetermineBoardIntent(response?.ToLower());
-        if (boardIntent != null) 
+        var boardIntent = DetermineBoardIntent(response?.ToLower());
+        if (boardIntent != null)
             return boardIntent;
-            
-        MoveIntent? moveIntent = DetermineMoveIntent(response?.ToLowerInvariant());
+
+        var disembarkIntent = DetermineDisembarkIntent(response?.ToLower());
+        if (disembarkIntent != null)
+            return disembarkIntent;
+
+        var moveIntent = DetermineMoveIntent(response?.ToLowerInvariant());
         if (moveIntent != null)
             return moveIntent;
 
-        IntentBase? actionIntent = DetermineActionIntent(response?.ToLowerInvariant(), input);
+        var actionIntent = DetermineActionIntent(response?.ToLowerInvariant(), input);
         if (actionIntent != null)
             return actionIntent;
 
         return new NullIntent();
     }
 
+    private ExitSubLocationIntent? DetermineDisembarkIntent(string? response)
+    {
+        var intentTag = ExtractElementsByTag(response, "intent").SingleOrDefault();
+        if (string.IsNullOrEmpty(intentTag))
+            return null;
+
+        if (intentTag != "disembark")
+            return null;
+
+        var nouns = ExtractElementsByTag(response, "noun");
+        if (!nouns.Any())
+            return null;
+
+        return new ExitSubLocationIntent { Noun = nouns.First() };
+    }
+
     private EnterSubLocationIntent? DetermineBoardIntent(string? response)
-    { 
+    {
         var intentTag = ExtractElementsByTag(response, "intent").SingleOrDefault();
         if (string.IsNullOrEmpty(intentTag))
             return null;
 
         if (intentTag != "board")
             return null;
-        
+
         var nouns = ExtractElementsByTag(response, "noun");
         if (!nouns.Any())
             return null;
-        
+
         return new EnterSubLocationIntent { Noun = nouns.First() };
     }
 
     private IntentBase? DetermineActionIntent(string? response, string originalInput)
     {
-        string? intentTag = ExtractElementsByTag(response, "intent").SingleOrDefault();
+        var intentTag = ExtractElementsByTag(response, "intent").SingleOrDefault();
         if (string.IsNullOrEmpty(intentTag))
         {
             _logger?.LogDebug("No intent tag was found trying to make an act intent");
@@ -77,16 +96,16 @@ public class ClaudeFourParser : ClaudeClientBase, IAIParser
             _logger?.LogDebug("The intent tag was not 'act' trying to make an act intent");
             return null;
         }
-        
-        string? verbTag = ExtractElementsByTag(response, "verb").SingleOrDefault();
+
+        var verbTag = ExtractElementsByTag(response, "verb").SingleOrDefault();
         if (string.IsNullOrEmpty(verbTag))
         {
             _logger?.LogDebug("No verb was found trying to make an act intent");
             return null;
         }
 
-        string? prepositionTag = ExtractElementsByTag(response, "preposition").SingleOrDefault();
-        
+        var prepositionTag = ExtractElementsByTag(response, "preposition").SingleOrDefault();
+
         var nouns = ExtractElementsByTag(response, "noun");
         if (!nouns.Any())
             return null;
@@ -96,9 +115,9 @@ public class ClaudeFourParser : ClaudeClientBase, IAIParser
             var adjectives = ExtractElementsByTag(response, "adjective").FirstOrDefault();
             return new SimpleIntent
             {
-                Verb = verbTag, 
-                Noun = nouns.Single(), 
-                Adverb = prepositionTag, 
+                Verb = verbTag,
+                Noun = nouns.Single(),
+                Adverb = prepositionTag,
                 Adjective = adjectives,
                 OriginalInput = originalInput
             };
@@ -124,7 +143,6 @@ public class ClaudeFourParser : ClaudeClientBase, IAIParser
         }
 
         return null;
-
     }
 
     private MoveIntent? DetermineMoveIntent(string? response)

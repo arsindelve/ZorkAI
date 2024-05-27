@@ -4,7 +4,7 @@ using Model.Interface;
 
 namespace ZorkOne.Item;
 
-public class PileOfPlastic : ItemBase, ICanBeTakenAndDropped, ISubLocation
+public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation
 {
     public bool IsInflated { get; set; }
 
@@ -14,9 +14,34 @@ public class PileOfPlastic : ItemBase, ICanBeTakenAndDropped, ISubLocation
 
     public override int Size => 14;
 
-    public string OnTheGroundDescription => "There is a folded pile of plastic here which has a small valve attached. ";
+    public string OnTheGroundDescription => IsInflated
+        ? "There is a magic boat here. "
+        : "There is a folded pile of plastic here which has a small valve attached. ";
 
     public override string NeverPickedUpDescription => OnTheGroundDescription;
+
+    string ISubLocation.GetIn(IContext context)
+    {
+        // TODO: Sharp items
+        // TODO: Can be fixed with the goo.
+        context.CurrentLocation.SubLocation = this;
+        return "You are now in the magic boat. ";
+    }
+
+    string ISubLocation.GetOut(IContext context)
+    {
+        if (context.CurrentLocation is IFrigidRiver)
+            return "You realize that getting out here would be fatal. ";
+
+        context.CurrentLocation.SubLocation = null;
+        return "You are on your own feet again. ";
+    }
+
+    public string LocationDescription => ", in the magic boat";
+
+    public override void Init()
+    {
+    }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
@@ -59,23 +84,8 @@ public class PileOfPlastic : ItemBase, ICanBeTakenAndDropped, ISubLocation
             return new PositiveInteractionResult("Inflating it further would probably burst it. ");
 
         IsInflated = true;
+        ItemPlacedHere(Repository.GetItem<Label>());
         return new PositiveInteractionResult(
             "The boat inflates and appears seaworthy. A tan label is lying inside the boat. ");
     }
-
-    public string GetIn(IContext context)
-    {
-        // TODO: Sharp items
-        context.CurrentLocation.SubLocation = this;
-        return "You are now in the magic boat. ";
-    }
-
-    public string GetOut(IContext context)
-    {
-        // TODO: You realize that getting out here would be fatal.
-        context.CurrentLocation.SubLocation = null;
-        return "You are on your own feet again. ";
-    }
-
-    public string LocationDescription => ", in the magic boat";
 }

@@ -97,7 +97,9 @@ public interface ILocation
     ///     Gets called when the player leaves the current location and moves to a new location.
     /// </summary>
     /// <param name="context">The current context.</param>
-    void OnLeaveLocation(IContext context);
+    /// <param name="newLocation"></param>
+    /// <param name="previousLocation"></param>
+    void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation);
 
     /// <summary>
     ///     Responds to a single verb interaction in the location, such as "jump" or "scream"

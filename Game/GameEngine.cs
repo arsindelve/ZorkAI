@@ -178,6 +178,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
             
             EnterSubLocationIntent subLocationIntent =>
                 await new EnterSubLocationEngine().Process(subLocationIntent, Context, _generator),
+            
+            ExitSubLocationIntent exitSubLocationIntent =>
+                await new ExitSubLocationEngine().Process(exitSubLocationIntent, Context, _generator),
 
             MoveIntent moveInteraction =>
                 await new MoveEngine().Process(moveInteraction, Context, _generator),

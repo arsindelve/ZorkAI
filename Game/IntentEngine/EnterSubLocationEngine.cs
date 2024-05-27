@@ -17,19 +17,22 @@ internal class EnterSubLocationEngine : IIntentEngine
 
         var subLocation = Repository.GetItem(enter.Noun);
         if (subLocation == null)
-            return await GetGeneratedCantGoThatWayResponse(generationClient, context);
+            return await GetGeneratedCantGoThatWayResponse(generationClient, context, enter.Noun);
 
         if (subLocation is not ISubLocation subLocationInstance)
-            return await GetGeneratedCantGoThatWayResponse(generationClient, context);
+            return await GetGeneratedCantGoThatWayResponse(generationClient, context, enter.Noun);
 
+        if (context.CurrentLocation.SubLocation == subLocationInstance)
+            return $"You're already in the {enter.Noun}. ";
+        
         return subLocationInstance.GetIn(context);
     }
 
     private static async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient,
-        IContext context)
+        IContext context, string noun)
     {
         //return Task.FromResult("You cannot go that way." + Environment.NewLine);
-        var request = new CannotEnterSubLocationRequest(context.CurrentLocation.Description);
+        var request = new CannotEnterSubLocationRequest(context.CurrentLocation.Description, noun);
         var result = await generationClient.CompleteChat(request);
         return result;
     }

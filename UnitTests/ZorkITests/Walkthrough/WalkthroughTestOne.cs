@@ -224,6 +224,8 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("E", null, "Dam Base", "river as it winds its way downstream", "There is a folded pile of plastic")]
     [TestCase("inflate plastic with pump", null, "The boat inflates and appears seaworthy")]
     [TestCase("drop pump", null, "Dropped")]
+    [TestCase("get in the boat", null, "You are now in the magic boat")]
+    [TestCase("launch", null, "Frigid River, in the magic boat", "tan label", "White Cliffs")]
     public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) InvokeGodMode(setup);

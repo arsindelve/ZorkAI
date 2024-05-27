@@ -179,6 +179,16 @@ public class ClaudeFourParserTests
         {
             "<intent>board</intent>",  "<noun>boat</noun>"
         })]
+    [TestCase(typeof(DamBase), "let's go for a ride in the magic boat",
+        new[]
+        {
+            "<intent>board</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "get inside the boat",
+        new[]
+        {
+            "<intent>board</intent>",  "<noun>boat</noun>"
+        })]
     [TestCase(typeof(DamBase), "enter the boat",
         new[]
         {
