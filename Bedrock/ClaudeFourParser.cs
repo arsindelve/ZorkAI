@@ -32,6 +32,10 @@ public class ClaudeFourParser : ClaudeClientBase, IAIParser
         var response = await _client.GetResponse(locationDescription, input);
         _logger?.LogDebug($"Response from Claude Parser: {response}");
 
+        EnterSubLocationIntent? boardIntent = DetermineBoardIntent(response?.ToLower());
+        if (boardIntent != null) 
+            return boardIntent;
+            
         MoveIntent? moveIntent = DetermineMoveIntent(response?.ToLowerInvariant());
         if (moveIntent != null)
             return moveIntent;
@@ -41,6 +45,22 @@ public class ClaudeFourParser : ClaudeClientBase, IAIParser
             return actionIntent;
 
         return new NullIntent();
+    }
+
+    private EnterSubLocationIntent? DetermineBoardIntent(string? response)
+    { 
+        var intentTag = ExtractElementsByTag(response, "intent").SingleOrDefault();
+        if (string.IsNullOrEmpty(intentTag))
+            return null;
+
+        if (intentTag != "board")
+            return null;
+        
+        var nouns = ExtractElementsByTag(response, "noun");
+        if (!nouns.Any())
+            return null;
+        
+        return new EnterSubLocationIntent { Noun = nouns.First() };
     }
 
     private IntentBase? DetermineActionIntent(string? response, string originalInput)

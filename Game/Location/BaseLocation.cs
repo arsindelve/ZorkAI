@@ -67,6 +67,18 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         }
     }
 
+    public int CalculateTotalSize()
+    {
+        // This makes no sense for locations.
+        return 0;
+    }
+
+    /// <summary>
+    ///     This property represents a sub-location inside another location. It can be used to define a location
+    ///     that exists within another location, such as a vehicle or a specific area within a larger space.
+    /// </summary>
+    public virtual ISubLocation? SubLocation { get; set; }
+
     public abstract string Name { get; }
 
     public bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)
@@ -103,7 +115,11 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return string.Empty;
     }
 
-    public virtual string Description => Name + Environment.NewLine + ContextBasedDescription + GetItemDescriptions();
+    public virtual string Description => Name +
+                                         SubLocation?.LocationDescription +
+                                         Environment.NewLine +
+                                         ContextBasedDescription +
+                                         GetItemDescriptions();
 
     public abstract void Init();
 
@@ -224,11 +240,5 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
                 s.AppendLine(item.HasEverBeenPickedUp ? item.OnTheGroundDescription : item.NeverPickedUpDescription));
 
         return result.ToString().Trim();
-    }
-    
-    public int CalculateTotalSize()
-    {
-        // This makes no sense for locations.
-        return 0;
     }
 }

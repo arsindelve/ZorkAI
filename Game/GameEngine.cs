@@ -175,6 +175,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
                 await GetGeneratedNoOpResponse(_currentInput, _generator, Context),
 
             PromptIntent => parsedResult.Message,
+            
+            EnterSubLocationIntent subLocationIntent =>
+                await new EnterSubLocationEngine().Process(subLocationIntent, Context, _generator),
 
             MoveIntent moveInteraction =>
                 await new MoveEngine().Process(moveInteraction, Context, _generator),

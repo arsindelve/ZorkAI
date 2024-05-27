@@ -16,10 +16,12 @@ internal class ClaudeFourParserClient : ClaudeClientBase, IClaudeFourParserClien
         
         I need to know the player's intent. Given the sentence "{1}":
         
-        1. Tell me in <intent> tags if the sentence:
+        1. Tell me in <intent> tags if:
             a) If the player is expressing a desire to move, enter, go in, or travel somewhere, put "Move"
-            b) Something else, put "Act"
-        
+            b) If the player wants to enter a vehicle or sub-location, put "Board"
+            c) If the player wants to exit a vehicle or sub-location, put "Disembark"
+            d) Something else, put "Act"
+             
         2. In <verb> tags, put the single most important verb I need to know, which best expresses the player's intention. If there is a simpler, more common synonym for the verb, use that instead.
         
         3. For each noun in the sentence that relates to the main verb, place each noun in a set of <noun> tags. If there is an adjective immediately preceding a noun, include it in separate <adjective> tags.

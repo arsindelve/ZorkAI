@@ -4,7 +4,7 @@ using Model.Interface;
 
 namespace ZorkOne.Item;
 
-public class PileOfPlastic : ItemBase, ICanBeTakenAndDropped
+public class PileOfPlastic : ItemBase, ICanBeTakenAndDropped, ISubLocation
 {
     public bool IsInflated { get; set; }
 
@@ -62,4 +62,20 @@ public class PileOfPlastic : ItemBase, ICanBeTakenAndDropped
         return new PositiveInteractionResult(
             "The boat inflates and appears seaworthy. A tan label is lying inside the boat. ");
     }
+
+    public string GetIn(IContext context)
+    {
+        // TODO: Sharp items
+        context.CurrentLocation.SubLocation = this;
+        return "You are now in the magic boat. ";
+    }
+
+    public string GetOut(IContext context)
+    {
+        // TODO: You realize that getting out here would be fatal.
+        context.CurrentLocation.SubLocation = null;
+        return "You are on your own feet again. ";
+    }
+
+    public string LocationDescription => ", in the magic boat";
 }

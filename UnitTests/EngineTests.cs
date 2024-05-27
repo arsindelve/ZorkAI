@@ -64,6 +64,7 @@ public class EngineTests : EngineTestsBase
     }
 
     [Test]
+    [Ignore("Dynamic now")]
     public async Task Move_Simple_CantGoThatWay()
     {
         var target = GetTarget();

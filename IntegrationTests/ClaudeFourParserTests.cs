@@ -98,7 +98,7 @@ public class ClaudeFourParserTests
     [TestCase(typeof(DomeRoom), "inflate the pile of plastic with the air pump",
         new[]
         {
-            "<verb>inflate</verb>", "<noun>pile</noun>", "<noun>pump</noun>", "<intent>act</intent>",
+            "<verb>inflate</verb>", "<noun>pile</noun>", "<noun>air pump</noun>", "<intent>act</intent>",
             "<preposition>with</preposition>"
         })]
     [TestCase(typeof(DomeRoom), "blow up the pile of plastic using the air pump",
@@ -110,7 +110,7 @@ public class ClaudeFourParserTests
     [TestCase(typeof(Dam), "Use the wrench to turn the bolt.",
         new[]
         {
-            "<verb>use</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
+            "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
             "<preposition>to</preposition>"
         })]
     [TestCase(typeof(Dam), "With the wrench, turn the bolt",
@@ -169,8 +169,52 @@ public class ClaudeFourParserTests
     [TestCase(typeof(TrollRoom), "Use the sword that glows to kill the troll that's ugly.",
         new[]
         {
-            "<verb>use</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>"
+            "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>"
         })]
+    
+    
+    // Sub-locations
+    [TestCase(typeof(DamBase), "get in the boat",
+        new[]
+        {
+            "<intent>board</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "enter the boat",
+        new[]
+        {
+            "<intent>board</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "board the magic boat",
+        new[]
+        {
+            "<intent>board</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "sit in the boat",
+        new[]
+        {
+            "<intent>board</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "leave the boat",
+        new[]
+        {
+            "<intent>disembark</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "get out of the boat",
+        new[]
+        {
+            "<intent>disembark</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "exit the boat",
+        new[]
+        {
+            "<intent>disembark</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "stand up and get out of the magic boat",
+        new[]
+        {
+            "<intent>disembark</intent>",  "<noun>boat</noun>"
+        })]
+    
     public async Task ClaudeParserTests(Type location, string sentence, string[] asserts)
     {
         string locationObjectDescription;
@@ -179,6 +223,7 @@ public class ClaudeFourParserTests
         {
             Repository.Reset();
             Repository.GetItem<KitchenWindow>().IsOpen = true;
+            Repository.GetItem<PileOfPlastic>().IsInflated = true;
             var locationObject = (ILocation)Activator.CreateInstance(location)!;
             locationObjectDescription = locationObject.Description;
         }

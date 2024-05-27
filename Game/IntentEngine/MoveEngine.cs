@@ -1,7 +1,7 @@
 using Game.StaticCommand.Implementation;
 using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 using Model.Interface;
-using Model.Location;
 
 namespace Game.IntentEngine;
 
@@ -17,20 +17,20 @@ internal class MoveEngine : IIntentEngine
         var movement = context.CurrentLocation.Navigate(moveTo.Direction);
 
         if (movement == null)
-            return await GetGeneratedCantGoThatWayResponse();
-        
+            return await GetGeneratedCantGoThatWayResponse(generationClient, context);
+
         if (movement.WeightLimit < context.CarryingWeight)
             return movement.WeightLimitFailureMessage;
 
         if (!movement.CanGo(context) || movement.Location == null)
             return !string.IsNullOrEmpty(movement.CustomFailureMessage)
                 ? movement.CustomFailureMessage + Environment.NewLine
-                : await GetGeneratedCantGoThatWayResponse();
+                : await GetGeneratedCantGoThatWayResponse(generationClient, context);
 
         // Let's reset the noun context, so we don't get confused with "it" between locations
         context.LastNoun = "";
 
-        ILocation previousLocation = context.CurrentLocation;
+        var previousLocation = context.CurrentLocation;
         context.CurrentLocation.OnLeaveLocation(context);
         context.CurrentLocation = movement.Location;
 
@@ -42,11 +42,12 @@ internal class MoveEngine : IIntentEngine
         return result;
     }
 
-    private static Task<string> GetGeneratedCantGoThatWayResponse()
+    private static async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient,
+        IContext context)
     {
-        return Task.FromResult("You cannot go that way." + Environment.NewLine);
-        // var request = new CannotGoThatWayRequest(_context.CurrentLocation.Description);
-        // var result = await _generator.CompleteChat(request);
-        // return result;
+        //return Task.FromResult("You cannot go that way." + Environment.NewLine);
+        var request = new CannotGoThatWayRequest(context.CurrentLocation.Description);
+        var result = await generationClient.CompleteChat(request);
+        return result;
     }
 }
