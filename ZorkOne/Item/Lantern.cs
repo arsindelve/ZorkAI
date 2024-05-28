@@ -48,7 +48,7 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IAmALigh
         context.RemoveActor(this);
     }
 
-    public string Act(IContext context, IGenerationClient client)
+    public Task<string> Act(IContext context, IGenerationClient client)
     {
         Debug.WriteLine($"Lantern counter: {TurnsWhileOn}");
         TurnsWhileOn++;
@@ -56,23 +56,23 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IAmALigh
         switch (TurnsWhileOn)
         {
             case 200:
-                return "The lamp appears a bit dimmer. ";
+                return Task.FromResult("The lamp appears a bit dimmer. ");
 
             case 300:
-                return "The lamp is definitely dimmer now. ";
+                return Task.FromResult("The lamp is definitely dimmer now. ");
 
             case 370:
-                return "The lamp is nearly out. ";
+                return Task.FromResult("The lamp is nearly out. ");
 
             case 375:
                 BurnedOut = true;
                 var result = new TurnLightOnOrOffProcessor().Process(
                     new SimpleIntent { Noun = NounsForMatching.First(), Verb = "turn off" }, context, this,
                     client);
-                return "You'd better have more light than from the lantern. " + result!.InteractionMessage;
+                return Task.FromResult("You'd better have more light than from the lantern. " + result!.InteractionMessage);
             
             default:
-                return string.Empty;
+                return Task.FromResult(string.Empty);
         }
     }
 }

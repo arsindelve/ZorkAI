@@ -34,7 +34,7 @@ public class MoveEngine : IIntentEngine
         return await Go(context, generationClient, movement);
     }
 
-    private static async Task<string> Go(IContext context, IGenerationClient generationClient, MovementParameters movement)
+    public static async Task<string> Go(IContext context, IGenerationClient generationClient, MovementParameters movement)
     {
         var previousLocation = context.CurrentLocation;
         context.CurrentLocation.OnLeaveLocation(context, movement.Location!, previousLocation);

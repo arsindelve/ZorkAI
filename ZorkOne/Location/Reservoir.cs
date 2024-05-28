@@ -19,27 +19,27 @@ public class Reservoir : DarkLocation, ITurnBasedActor
 
     public override string Name => "Reservoir";
 
-    public string Act(IContext context, IGenerationClient client)
+    public Task<string> Act(IContext context, IGenerationClient client)
     {
         var south = GetLocation<ReservoirSouth>();
 
         if (south is { IsFilling: false, IsFull: false })
-            return string.Empty;
+            return Task.FromResult(string.Empty);
 
         if (south.IsFull)
         {
             context.RemoveActor(this);
-            return new DeathProcessor().Process(
+            return Task.FromResult(new DeathProcessor().Process(
                 "You are lifted up by the rising river! You try to swim, but the currents are too strong. " +
                 "You come closer, closer to the awesome structure of Flood Control Dam #3. The dam beckons to you. " +
                 "The roar of the water nearly deafens you, but you remain conscious as you tumble over the dam toward " +
                 "your certain doom among the rocks at its base.",
-                context).InteractionMessage;
+                context).InteractionMessage);
         }
 
         return
-            "You notice that the water level here is rising rapidly. The currents are also becoming " +
-            "stronger. Staying here seems quite perilous! ";
+            Task.FromResult("You notice that the water level here is rising rapidly. The currents are also becoming " +
+                            "stronger. Staying here seems quite perilous! ");
     }
 
     public override void Init()

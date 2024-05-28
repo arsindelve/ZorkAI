@@ -30,7 +30,7 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
 
     public bool LeakIsFixed { get; set; }
 
-    public string Act(IContext context, IGenerationClient client)
+    public Task<string> Act(IContext context, IGenerationClient client)
     {
         CurrentWaterLevel++;
 
@@ -43,19 +43,19 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
         // If we leave the room, the water level continues to rise, but
         // we cannot die, and we're not notified of it. 
         if (context.CurrentLocation != this)
-            return string.Empty;
+            return Task.FromResult(string.Empty);
 
         if (CurrentWaterLevel >= 13)
         {
             context.RemoveActor(this);
             context.RemoveActor(Repository.GetItem<Troll>());
-            return new DeathProcessor()
+            return Task.FromResult(new DeathProcessor()
                 .Process(
                     "I'm afraid you have done drowned yourself.\n",
-                    context).InteractionMessage;
+                    context).InteractionMessage);
         }
 
-        return $"The water level here is now up to your {WaterLevel.Map[CurrentWaterLevel]}.";
+        return Task.FromResult($"The water level here is now up to your {WaterLevel.Map[CurrentWaterLevel]}.");
     }
 
     public override void Init()

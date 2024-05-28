@@ -37,18 +37,18 @@ public class DamBase : BaseLocation
     {
         if (string.IsNullOrEmpty(input))
             return base.RespondToSpecificLocationInteraction(input, context);
-        ;
-
+        
         var preppedInput = input.ToLowerInvariant().Trim();
 
         if (SubLocation is null)
             return base.RespondToSpecificLocationInteraction(input, context);
-        ;
-
+        
         if (preppedInput.StartsWith("launch"))
         {
+            // TODO: move some of this logic to the move engine, but only after tests are passing. 
             context.CurrentLocation.SubLocation = null;
             context.CurrentLocation = Repository.GetLocation<FrigidRiverOne>();
+            context.CurrentLocation.AfterEnterLocation(context, this);
             context.CurrentLocation.SubLocation = Repository.GetItem<PileOfPlastic>();
             ((ICanHoldItems)context.CurrentLocation).ItemPlacedHere(Repository.GetItem<PileOfPlastic>());
 

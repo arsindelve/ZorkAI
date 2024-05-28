@@ -198,7 +198,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
         // "Actors" are things that can occur each turn. Examples are the troll
         // attacking, the maintenance room flooding, Floyd mumbling. 
-        var actorResults = ProcessActors();
+        string actorResults = await ProcessActors();
         return PostProcessing(turnCounterResponse + intentResult?.Trim() + actorResults);
     }
 
@@ -230,11 +230,14 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         return intentResponse;
     }
 
-    private string ProcessActors()
+    private async Task<string> ProcessActors()
     {
         var actorResults = string.Empty;
         foreach (var actor in Context.Actors.ToList())
-            actorResults += $"{actor.Act(Context, _generator)} ";
+        {
+            var task = await actor.Act(Context, _generator);
+            actorResults += $"{task} ";
+        }
 
         return actorResults;
     }

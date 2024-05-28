@@ -33,9 +33,9 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
 
     public override string Name => "Loud Room";
 
-    public string? Act(IContext context, IGenerationClient client)
+    public Task<string> Act(IContext context, IGenerationClient client)
     {
-        return string.Empty;
+        return Task.FromResult(string.Empty);
     }
 
     public override void Init()

@@ -125,4 +125,28 @@ public class SubLocationTests : EngineTestsBase
         response.Should().Contain("You can't go there in a magic boat");
         target.Context.CurrentLocation.SubLocation.Should().NotBeNull();
     }
+    
+    [Test]
+    public async Task InTheBoat_GoDownRiver()
+    {
+        var target = GetTarget();
+
+        target.Context.CurrentLocation = Repository.GetLocation<DamBase>();
+        PileOfPlastic boat = Repository.GetItem<PileOfPlastic>();
+        boat.IsInflated = true;
+        
+        await target.GetResponse("get in the boat");
+        await target.GetResponse("launch");
+        var response = await target.GetResponse("wait");
+        
+        response.Should().Contain("The flow of the river carries you downstream");
+        response.Should().Contain("in the magic boat");
+        response.Should().Contain("The river turns a corner here making it impossible to see the Dam");
+
+        var frigidRiverTwo = Repository.GetLocation<FrigidRiverTwo>();
+
+        target.Context.CurrentLocation.SubLocation.Should().Be(boat);
+        target.Context.CurrentLocation.Should().Be(frigidRiverTwo);
+        boat.CurrentLocation.Should().Be(frigidRiverTwo);
+    }
 }
