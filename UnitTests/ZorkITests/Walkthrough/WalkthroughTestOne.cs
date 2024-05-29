@@ -229,7 +229,7 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("wait", null, "Frigid River, in the magic boat", "carries you", "The river turns a corner", "Time passes")]
     [TestCase("wait", null, "Time passes")]
     [TestCase("wait", null, "Frigid River, in the magic boat", "descends here into a valley", "Time passes", "carries you")]
-    [TestCase("wait", null, "Frigid River, in the magic boat", "running faster here", "Time passes", "carries you")]
+    [TestCase("wait", null, "Frigid River, in the magic boat", "running faster here", "Time passes", "carries you", "sandy beach")]
     public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) InvokeGodMode(setup);
