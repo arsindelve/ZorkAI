@@ -1,0 +1,27 @@
+using Model.AIGeneration;
+using Model.Interface;
+using Model.Movement;
+using ZorkOne.Command;
+
+namespace ZorkOne.Location;
+
+public class FrigidRiverFive : FrigidRiverBase
+{
+    protected override Dictionary<Direction, MovementParameters> Map => new();
+
+    protected override string ContextBasedDescription =>
+        "The sound of rushing water is nearly unbearable here. On the east shore is a large landing area. ";
+
+    public override string Name => "Frigid River";
+
+    public override Task<string> Act(IContext context, IGenerationClient client)
+    {
+        context.RemoveActor(this);
+        
+        string result = "\nUnfortunately, the magic boat doesn't provide protection from the rocks and boulders " +
+                        "one meets at the bottom of waterfalls. Including this one. \n\n";
+
+        return Task.FromResult(new DeathProcessor()
+            .Process(result, context).InteractionMessage);
+    }
+}
