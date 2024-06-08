@@ -3,7 +3,7 @@ using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
 
-namespace ZorkOne.Location;
+namespace ZorkOne.Location.RiverLocation;
 
 public class FrigidRiverOne : FrigidRiverBase
 {

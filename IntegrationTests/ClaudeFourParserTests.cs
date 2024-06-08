@@ -3,6 +3,7 @@ using Game;
 using Model.Location;
 using ZorkOne.Item;
 using ZorkOne.Location;
+using ZorkOne.Location.CoalMineLocation;
 
 namespace IntegrationTests;
 

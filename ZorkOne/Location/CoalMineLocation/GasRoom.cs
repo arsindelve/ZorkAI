@@ -1,7 +1,6 @@
 using Model.Movement;
-using ZorkOne.Location.CoalMineLocation;
 
-namespace ZorkOne.Location;
+namespace ZorkOne.Location.CoalMineLocation;
 
 internal class GasRoom : DarkLocation
 {

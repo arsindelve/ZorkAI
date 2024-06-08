@@ -2,9 +2,8 @@ using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
 using Model.Movement;
-using ZorkOne.Location.CoalMineLocation;
 
-namespace ZorkOne.Location;
+namespace ZorkOne.Location.CoalMineLocation;
 
 internal class DraftyRoom : DarkLocation
 {

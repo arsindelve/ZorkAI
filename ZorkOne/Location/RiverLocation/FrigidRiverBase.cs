@@ -1,7 +1,7 @@
 using Model.AIGeneration;
 using Model.Interface;
 
-namespace ZorkOne.Location;
+namespace ZorkOne.Location.RiverLocation;
 
 public abstract class FrigidRiverBase : LocationWithNoStartingItems, ITurnBasedActor, IFrigidRiver
 {

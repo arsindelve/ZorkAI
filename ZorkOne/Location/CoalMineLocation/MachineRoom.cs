@@ -2,7 +2,7 @@
 using Model.Interface;
 using Model.Movement;
 
-namespace ZorkOne.Location;
+namespace ZorkOne.Location.CoalMineLocation;
 
 public class MachineRoom : DarkLocation
 {
