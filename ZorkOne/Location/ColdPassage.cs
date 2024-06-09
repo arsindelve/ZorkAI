@@ -1,4 +1,5 @@
 using Model.Movement;
+using ZorkOne.Location.CoalMineLocation;
 
 namespace ZorkOne.Location;
 

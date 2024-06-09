@@ -1,3 +1,5 @@
+using ZorkOne.Location.RiverLocation;
+
 namespace UnitTests.ZorkITests;
 
 public class SubLocationTests : EngineTestsBase

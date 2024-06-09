@@ -1,5 +1,6 @@
 using Model.Interface;
 using ZorkOne;
+using ZorkOne.Location.CoalMineLocation;
 
 namespace UnitTests.ZorkITests;
 

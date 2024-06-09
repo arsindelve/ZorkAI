@@ -1,5 +1,6 @@
 using Model.Interface;
 using Model.Movement;
+using ZorkOne.Location.RiverLocation;
 
 namespace ZorkOne.Location;
 
