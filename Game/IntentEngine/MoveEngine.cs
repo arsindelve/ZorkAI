@@ -18,7 +18,7 @@ public class MoveEngine : IIntentEngine
         var movement = context.CurrentLocation.Navigate(moveTo.Direction);
 
         if (movement == null)
-            return await GetGeneratedCantGoThatWayResponse(generationClient, context);
+            return await GetGeneratedCantGoThatWayResponse(generationClient, moveTo.Direction.ToString(), context);
 
         if (movement.WeightLimit < context.CarryingWeight)
             return movement.WeightLimitFailureMessage;
@@ -26,7 +26,7 @@ public class MoveEngine : IIntentEngine
         if (!movement.CanGo(context) || movement.Location == null)
             return !string.IsNullOrEmpty(movement.CustomFailureMessage)
                 ? movement.CustomFailureMessage + Environment.NewLine
-                : await GetGeneratedCantGoThatWayResponse(generationClient, context);
+                : await GetGeneratedCantGoThatWayResponse(generationClient, moveTo.Direction.ToString(), context);
 
         // Let's reset the noun context, so we don't get confused with "it" between locations
         context.LastNoun = "";
@@ -48,11 +48,11 @@ public class MoveEngine : IIntentEngine
         return result;
     }
 
-    private static async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient,
+    private static async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient, string direction, 
         IContext context)
     {
         //return Task.FromResult("You cannot go that way." + Environment.NewLine);
-        var request = new CannotGoThatWayRequest(context.CurrentLocation.Description);
+        var request = new CannotGoThatWayRequest(context.CurrentLocation.Description, direction);
         var result = await generationClient.CompleteChat(request);
         return result;
     }
