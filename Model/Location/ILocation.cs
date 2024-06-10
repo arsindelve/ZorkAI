@@ -108,4 +108,11 @@ public interface ILocation
     /// <param name="context"></param>
     /// <returns>An object of type InteractionResult that describes the result of the interaction.</returns>
     InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context);
+
+    /// <summary>
+    ///     Event handler for a location when the player has waited. Rarely used, but some locations
+    ///     will have a special action (waiting in the river causes the boat to go downstream immediately) 
+    /// </summary>
+    /// <param name="context"></param>
+    void OnWaiting(IContext context);
 }

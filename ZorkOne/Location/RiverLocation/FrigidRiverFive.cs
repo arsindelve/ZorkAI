@@ -7,6 +7,10 @@ namespace ZorkOne.Location.RiverLocation;
 
 public class FrigidRiverFive : FrigidRiverBase
 {
+    protected override FrigidRiverBase CarriedToLocation => Repository.GetLocation<FrigidRiverFive>();
+    
+    protected override int TurnsUntilSweptDownstream => 3;
+    
     protected override Dictionary<Direction, MovementParameters> Map => new();
 
     protected override string ContextBasedDescription =>
