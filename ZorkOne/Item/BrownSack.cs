@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace ZorkOne.Item;
 
 public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndDropped, ISmell
@@ -13,7 +15,7 @@ public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenA
     public override string Name => "brown sack";
 
     protected override int SpaceForItems => 4;
-
+    
     public string ExaminationDescription =>
         ((IOpenAndClose)this).IsOpen ? ItemListDescription("brown sack") : "The brown sack is closed. ";
 

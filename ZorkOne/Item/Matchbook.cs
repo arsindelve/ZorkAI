@@ -60,24 +60,24 @@ public class Matchbook : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDro
     public override string NeverPickedUpDescription =>
         "There is a matchbook whose cover says \"Visit Beautiful FCD#3\" here. ";
 
-    public string Act(IContext context, IGenerationClient client)
+    public Task<string> Act(IContext context, IGenerationClient client)
     {
         if (!IsOn)
         {
             context.RemoveActor(this);
-            return "";
+            return Task.FromResult("");
         }
 
         if (TurnsRemainingLit == 1)
         {
             TurnsRemainingLit = 0;
-            return "";
+            return Task.FromResult("");
         }
 
         InteractionResult? result = new TurnLightOnOrOffProcessor().Process(
             new SimpleIntent { Verb = "turn off", Noun = NounsForMatching.First() },
             context, this, client);
 
-        return result!.InteractionMessage;
+        return Task.FromResult(result!.InteractionMessage);
     }
 }

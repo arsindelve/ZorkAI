@@ -4,35 +4,49 @@ using Model.Interface;
 
 namespace ZorkOne.Item;
 
-public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ICanHoldItems
+public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation, ICanBeExamined
 {
-    private List<IItem> _sharpItems =
-    [
-        Repository.GetItem<Sword>(),
-        Repository.GetItem<Knife>(),
-        Repository.GetItem<Trident>(),
-        Repository.GetItem<Sceptre>()
-    ];
-
     public bool IsInflated { get; set; }
 
-    public override string[] NounsForMatching => ["pile", "pile of plastic", "plastic", "boat", "raft"];
+    public override bool IsTransparent => true;
 
-    public override string InInventoryDescription => IsInflated ? "A magic boat here. " : "A pile of plastic";
+    public override string[] NounsForMatching => ["pile", "pile of plastic", "plastic", "boat", "raft", "magic boat"];
+
+    public override string InInventoryDescription => "A pile of plastic";
 
     public override int Size => 14;
 
+    public string ExaminationDescription => IsInflated
+        ? "There's nothing special about the magic boat. "
+        : "There's nothing special about the pile of plastic. ";
+
     public string OnTheGroundDescription => IsInflated
-        ? "There is a magic boat here. " + (Items.Any() ? ItemListDescription("magic boat") : "")
+        ? "There is a magic boat here. " + (Items.Any() ? ItemListDescription("magic boat") : "") 
         : "There is a folded pile of plastic here which has a small valve attached. ";
 
     public override string NeverPickedUpDescription => OnTheGroundDescription;
 
-    public override bool IsTransparent => true;
+    string ISubLocation.GetIn(IContext context)
+    {
+        // TODO: Sharp items
+        // TODO: Can be fixed with the goo.
+        context.CurrentLocation.SubLocation = this;
+        return "You are now in the magic boat. ";
+    }
+
+    string ISubLocation.GetOut(IContext context)
+    {
+        if (context.CurrentLocation is IFrigidRiver)
+            return "You realize that getting out here would be fatal. ";
+
+        context.CurrentLocation.SubLocation = null;
+        return "You are on your own feet again. ";
+    }
+
+    public string LocationDescription => ", in the magic boat";
 
     public override void Init()
     {
-        // Starts empty 
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
@@ -46,14 +60,14 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ICanHoldItems
             return new PositiveInteractionResult("You don't have enough lung power to inflate it. ");
         }
 
-        if (action.Match(["deflate"], NounsForMatching))
-        {
-            if (context.HasItem<PileOfPlastic>())
-                return new PositiveInteractionResult("The boat must be on the ground to be deflated. ");
-
-            IsInflated = false;
-            return new PositiveInteractionResult("The boat deflates. ");
-        }
+        // TODO: 
+        // if (action.Match(["deflate"], NounsForMatching))
+        // {
+        //     if (context.HasItem<PileOfPlastic>())
+        //         return new PositiveInteractionResult("The boat must be on the ground to be inflated. ");
+        //
+        //     return new PositiveInteractionResult("You don't have enough lung power to inflate it. ");
+        // }
 
         return base.RespondToSimpleInteraction(action, context, client);
     }
@@ -87,8 +101,6 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ICanHoldItems
         IsInflated = true;
         ItemPlacedHere(Repository.GetItem<Label>());
         return new PositiveInteractionResult(
-            "The boat inflates and appears seaworthy. " + (Repository.GetItem<Label>().CurrentLocation == this
-                ? "\nA tan label is lying inside the boat. "
-                : ""));
+            "The boat inflates and appears seaworthy. A tan label is lying inside the boat. ");
     }
 }

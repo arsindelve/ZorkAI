@@ -70,6 +70,19 @@ internal class TestParser : IIntentParser
                 OriginalInput = "tie rope to railing"
             });
         
+        
+        if (input == "get in the boat")
+            return Task.FromResult<IntentBase>(new EnterSubLocationIntent
+            {
+                Noun = "boat",
+            });
+        
+        if (input == "get out of the boat")
+            return Task.FromResult<IntentBase>(new ExitSubLocationIntent
+            {
+                NounOne = "boat",
+            });
+        
         if (input == "inflate plastic with pump")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {

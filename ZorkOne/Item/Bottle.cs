@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace ZorkOne.Item;
 
 public class Bottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeExamined

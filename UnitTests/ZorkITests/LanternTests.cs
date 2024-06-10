@@ -1,3 +1,5 @@
+using ZorkOne.Location.CoalMineLocation;
+
 namespace UnitTests.ZorkITests;
 
 public class LanternTests : EngineTestsBase

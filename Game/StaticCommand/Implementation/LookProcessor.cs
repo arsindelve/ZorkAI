@@ -15,7 +15,8 @@ internal class LookProcessor : IGlobalCommand
         if (context.ItIsDarkHere)
             return Task.FromResult(((DarkLocation)location).DarkDescription);
 
-        return Task.FromResult(context.CurrentLocation.Description);
+        string currentLocationDescription = context.CurrentLocation.Description;
+        return Task.FromResult(currentLocationDescription);
 
         // TODO: Implement Verbosity 
     }

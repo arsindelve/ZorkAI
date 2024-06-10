@@ -3,7 +3,7 @@ using Model.Intent;
 using Model.Interface;
 using Model.Movement;
 
-namespace ZorkOne.Location;
+namespace ZorkOne.Location.CoalMineLocation;
 
 internal class ShaftRoom : DarkLocation
 {
