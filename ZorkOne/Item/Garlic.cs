@@ -6,6 +6,8 @@ public class Garlic : ItemBase, ICanBeTakenAndDropped, ICanBeEaten
 
     public override string InInventoryDescription => "A clove of garlic";
 
+    public override int Size => 1;
+
     string ICanBeEaten.EatenDescription =>
         "What the heck! You won't make friends this way, but nobody around here is too friendly anyhow. Gulp!";
 
