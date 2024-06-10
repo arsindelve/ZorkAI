@@ -7,6 +7,10 @@ namespace ZorkOne.Location.RiverLocation;
 
 public class FrigidRiverOne : FrigidRiverBase
 {
+    protected override FrigidRiverBase CarriedToLocation => Repository.GetLocation<FrigidRiverTwo>();
+    
+    protected override int TurnsUntilSweptDownstream => 3;
+    
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
@@ -16,11 +20,5 @@ public class FrigidRiverOne : FrigidRiverBase
     protected override string ContextBasedDescription =>
         "You are on the Frigid River in the vicinity of the Dam. The river flows quietly here. There is a landing on the west shore. " +
         (Boat.Items.Any() ? Environment.NewLine + Boat.ItemListDescription("magic boat") : "");
-
-    public override async Task<string> Act(IContext context, IGenerationClient client)
-    {
-        var moveInteraction = new MovementParameters { Location = Repository.GetLocation<FrigidRiverTwo>() };
-        var result = await MoveEngine.Go(context, client, moveInteraction);
-        return "\nThe flow of the river carries you downstream. \n\n" + result;
-    }
+    
 }

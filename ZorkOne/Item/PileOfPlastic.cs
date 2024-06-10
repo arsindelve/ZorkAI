@@ -25,7 +25,9 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
         : "There is a folded pile of plastic here which has a small valve attached. ";
 
     public override string NeverPickedUpDescription => OnTheGroundDescription;
-
+    
+    // TODO: Items on the ground outside the boat: There is a shovel here. (outside the magic boat)
+    
     string ISubLocation.GetIn(IContext context)
     {
         // TODO: Sharp items
