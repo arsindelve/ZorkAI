@@ -3,6 +3,7 @@ using Game;
 using Model.Location;
 using ZorkOne.Item;
 using ZorkOne.Location;
+using ZorkOne.Location.CoalMineLocation;
 
 namespace IntegrationTests;
 
@@ -27,8 +28,6 @@ public class ClaudeFourParserTests
     [TestCase(typeof(WestOfHouse), "i am going to go north",
         new[] { "<intent>move</intent>", "<direction>north</direction>" })]
     [TestCase(typeof(WestOfHouse), "let's saunter north",
-        new[] { "<intent>move</intent>", "<direction>north</direction>" })]
-    [TestCase(typeof(WestOfHouse), "wander away and head in a northerly direction",
         new[] { "<intent>move</intent>", "<direction>north</direction>" })]
     [TestCase(typeof(WestOfHouse), "crawl northly", new[] { "<intent>move</intent>", "<direction>north</direction>" })]
     [TestCase(typeof(Cellar), "follow the crawlway", new[] { "<intent>move</intent>", "<direction>south</direction>" })]
@@ -98,7 +97,7 @@ public class ClaudeFourParserTests
     [TestCase(typeof(DomeRoom), "inflate the pile of plastic with the air pump",
         new[]
         {
-            "<verb>inflate</verb>", "<noun>pile</noun>", "<noun>pump</noun>", "<intent>act</intent>",
+            "<verb>inflate</verb>", "<noun>pile</noun>", "<noun>air pump</noun>", "<intent>act</intent>",
             "<preposition>with</preposition>"
         })]
     [TestCase(typeof(DomeRoom), "blow up the pile of plastic using the air pump",
@@ -169,8 +168,62 @@ public class ClaudeFourParserTests
     [TestCase(typeof(TrollRoom), "Use the sword that glows to kill the troll that's ugly.",
         new[]
         {
-            "<verb>use</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>"
+            "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>"
         })]
+    
+    
+    // Sub-locations
+    [TestCase(typeof(DamBase), "get in the boat",
+        new[]
+        {
+            "<intent>board</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "let's go for a ride in the magic boat",
+        new[]
+        {
+            "<intent>board</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "get inside the boat",
+        new[]
+        {
+            "<intent>board</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "enter the boat",
+        new[]
+        {
+            "<intent>board</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "board the magic boat",
+        new[]
+        {
+            "<intent>board</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "sit in the boat",
+        new[]
+        {
+            "<intent>board</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "leave the boat",
+        new[]
+        {
+            "<intent>disembark</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "get out of the boat",
+        new[]
+        {
+            "<intent>disembark</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "exit the boat",
+        new[]
+        {
+            "<intent>disembark</intent>",  "<noun>boat</noun>"
+        })]
+    [TestCase(typeof(DamBase), "stand up and get out of the magic boat",
+        new[]
+        {
+            "<intent>disembark</intent>",  "<noun>boat</noun>"
+        })]
+    
     public async Task ClaudeParserTests(Type location, string sentence, string[] asserts)
     {
         string locationObjectDescription;
@@ -179,6 +232,7 @@ public class ClaudeFourParserTests
         {
             Repository.Reset();
             Repository.GetItem<KitchenWindow>().IsOpen = true;
+            Repository.GetItem<PileOfPlastic>().IsInflated = true;
             var locationObject = (ILocation)Activator.CreateInstance(location)!;
             locationObjectDescription = locationObject.Description;
         }

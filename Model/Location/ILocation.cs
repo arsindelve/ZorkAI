@@ -29,6 +29,12 @@ public interface ILocation
     ///     we need to process when we walk in the room, BEFORE the description of the room
     /// </summary>
     string BeforeEnterLocation(IContext context, ILocation previousLocation);
+    
+    /// <summary>
+    /// This property represents a sub-location inside another location. It can be used to define a location
+    /// that exists within another location, such as a vehicle or a specific area within a larger space.
+    /// </summary>
+    ISubLocation? SubLocation { get; set; }
 
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="SimpleIntent" /> corresponding
@@ -91,7 +97,9 @@ public interface ILocation
     ///     Gets called when the player leaves the current location and moves to a new location.
     /// </summary>
     /// <param name="context">The current context.</param>
-    void OnLeaveLocation(IContext context);
+    /// <param name="newLocation"></param>
+    /// <param name="previousLocation"></param>
+    void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation);
 
     /// <summary>
     ///     Responds to a single verb interaction in the location, such as "jump" or "scream"

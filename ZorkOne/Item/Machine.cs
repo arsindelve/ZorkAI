@@ -1,6 +1,7 @@
 ﻿using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
+using Newtonsoft.Json;
 
 namespace ZorkOne.Item;
 
@@ -17,7 +18,8 @@ public class Machine : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAnd
 
     public override string CannotBeTakenDescription => "It is far too large to carry. ";
 
-    public string ExaminationDescription => IsOpen
+    [JsonIgnore]
+    string ICanBeExamined.ExaminationDescription => IsOpen
         ? Items.Any() ? base.ItemListDescription("machine") : "The machine is empty. "
         : "The machine is closed. ";
 

@@ -8,6 +8,7 @@ public class DampCave : DarkLocation
         new()
         {
             { Direction.W, new MovementParameters { Location = GetLocation<LoudRoom>() } },
+            { Direction.E, new MovementParameters { Location = GetLocation<WhiteCliffsBeachNorth>() } },
             {
                 Direction.S,
                 new MovementParameters

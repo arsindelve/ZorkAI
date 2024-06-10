@@ -1,3 +1,4 @@
+using System.Reflection;
 using Game.IntentEngine;
 using Game.StaticCommand;
 using Game.StaticCommand.Implementation;
@@ -7,6 +8,7 @@ using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Interface;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Utilities;
 
 namespace Game;
@@ -175,6 +177,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
                 await GetGeneratedNoOpResponse(_currentInput, _generator, Context),
 
             PromptIntent => parsedResult.Message,
+            
+            EnterSubLocationIntent subLocationIntent =>
+                await new EnterSubLocationEngine().Process(subLocationIntent, Context, _generator),
+            
+            ExitSubLocationIntent exitSubLocationIntent =>
+                await new ExitSubLocationEngine().Process(exitSubLocationIntent, Context, _generator),
 
             MoveIntent moveInteraction =>
                 await new MoveEngine().Process(moveInteraction, Context, _generator),
@@ -190,7 +198,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
         // "Actors" are things that can occur each turn. Examples are the troll
         // attacking, the maintenance room flooding, Floyd mumbling. 
-        var actorResults = ProcessActors();
+        string actorResults = await ProcessActors();
         return PostProcessing(turnCounterResponse + intentResult?.Trim() + actorResults);
     }
 
@@ -222,11 +230,14 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         return intentResponse;
     }
 
-    private string ProcessActors()
+    private async Task<string> ProcessActors()
     {
         var actorResults = string.Empty;
         foreach (var actor in Context.Actors.ToList())
-            actorResults += $"{actor.Act(Context, _generator)} ";
+        {
+            var task = await actor.Act(Context, _generator);
+            actorResults += $"{task} ";
+        }
 
         return actorResults;
     }
@@ -288,7 +299,25 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             TypeNameHandling = TypeNameHandling.All,
-            PreserveReferencesHandling = PreserveReferencesHandling.Objects
+            PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+            ContractResolver = new DoNotSerializeReadOnlyPropertiesResolver(),
+            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
         };
     }
 }
+
+public class DoNotSerializeReadOnlyPropertiesResolver : DefaultContractResolver
+{
+    protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+    {
+        JsonProperty property = base.CreateProperty(member, memberSerialization);
+    
+        if (!property.Writable)
+        {
+            property.ShouldSerialize = _ => false;
+        }
+    
+        return property;
+    }
+}
+

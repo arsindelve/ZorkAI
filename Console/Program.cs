@@ -33,7 +33,8 @@ while (result != "-1")
     var command = Console.ReadLine();
     result = await engine.GetResponse(command);
 
-    var bytesToEncode = Encoding.UTF8.GetBytes(engine.SaveGame());
+    string json = engine.SaveGame();
+    var bytesToEncode = Encoding.UTF8.GetBytes(json);
     var encodedText = Convert.ToBase64String(bytesToEncode);
     await database.WriteSession(sessionId, encodedText);
 
