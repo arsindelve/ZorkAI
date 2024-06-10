@@ -12,6 +12,8 @@ public class SapphireBracelet : ItemBase, ICanBeTakenAndDropped, IGivePointsWhen
 
     public override string NeverPickedUpDescription => OnTheGroundDescription;
 
+    public override int Size => 1;
+
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 5;
 
     int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 5;

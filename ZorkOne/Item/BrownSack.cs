@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-
 namespace ZorkOne.Item;
 
 public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndDropped, ISmell
@@ -15,8 +13,8 @@ public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenA
     public override string Name => "brown sack";
 
     protected override int SpaceForItems => 4;
-    
-    public string ExaminationDescription =>
+
+    string ICanBeExamined.ExaminationDescription =>
         ((IOpenAndClose)this).IsOpen ? ItemListDescription("brown sack") : "The brown sack is closed. ";
 
     string ICanBeTakenAndDropped.OnTheGroundDescription => "There is a brown sack here. ";
@@ -25,11 +23,11 @@ public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenA
         ? ((ICanBeTakenAndDropped)this).OnTheGroundDescription
         : "On the table is an elongated brown sack, smelling of hot peppers. ";
 
+    string ISmell.SmellDescription => "It smells of hot peppers. ";
+
     public override void Init()
     {
         StartWithItemInside<Lunch>();
         StartWithItemInside<Garlic>();
     }
-
-    public string SmellDescription => "It smells of hot peppers. ";
 }
