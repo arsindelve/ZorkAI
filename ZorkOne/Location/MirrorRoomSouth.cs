@@ -23,4 +23,9 @@ internal class MirrorRoomSouth : MirrorRoom
 
         return base.AfterEnterLocation(context, previousLocation);
     }
+    
+    public override void Init()
+    {
+        StartWithItem<Mirror>(this);
+    }
 }
