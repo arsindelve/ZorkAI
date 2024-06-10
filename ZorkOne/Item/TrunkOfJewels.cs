@@ -16,5 +16,5 @@ public class TrunkOfJewels : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPla
 
     int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 5;
 
-    public override int Size => 9; 
+    public override int Size => 7; 
 }
