@@ -30,7 +30,7 @@ public class TurnLightOnOrOffProcessor : IVerbProcessor
             case "strike":
             case "turn on":
             case "activate":
-                return ProcessOn(context, item, client);
+                return ProcessOn(context, item);
 
             case "turn off":
             case "extinguish":
@@ -60,7 +60,7 @@ public class TurnLightOnOrOffProcessor : IVerbProcessor
                 switch (adverb)
                 {
                     case "on":
-                        return TurnItOn(onAndOff, context, client).Result;
+                        return TurnItOn(onAndOff, context).Result;
                     case "off":
                         return TurnItOff(onAndOff, context, client).Result;
 
@@ -84,12 +84,12 @@ public class TurnLightOnOrOffProcessor : IVerbProcessor
         }
     }
 
-    private static InteractionResult? ProcessOn(IContext context, IInteractionTarget item, IGenerationClient client)
+    private static InteractionResult? ProcessOn(IContext context, IInteractionTarget item)
     {
         switch (item)
         {
             case IAmALightSourceThatTurnsOnAndOff onAndOff:
-                return TurnItOn(onAndOff, context, client).Result;
+                return TurnItOn(onAndOff, context).Result;
 
             default:
                 return null;
@@ -127,16 +127,15 @@ public class TurnLightOnOrOffProcessor : IVerbProcessor
         return new PositiveInteractionResult(item.NowOffText);
     }
 
-    private static async Task<InteractionResult> TurnItOn(IAmALightSourceThatTurnsOnAndOff item, IContext context,
-        IGenerationClient client)
+    private static Task<InteractionResult> TurnItOn(IAmALightSourceThatTurnsOnAndOff item, IContext context)
     {
         var result = "";
 
         if (item.IsOn)
-            return new PositiveInteractionResult(item.AlreadyOnText);
+            return Task.FromResult<InteractionResult>(new PositiveInteractionResult(item.AlreadyOnText));
 
         if (!string.IsNullOrEmpty(item.CannotBeTurnedOnText))
-            return new PositiveInteractionResult(item.CannotBeTurnedOnText);
+            return Task.FromResult<InteractionResult>(new PositiveInteractionResult(item.CannotBeTurnedOnText));
 
         var itWasDark = context.ItIsDarkHere;
 
@@ -144,8 +143,8 @@ public class TurnLightOnOrOffProcessor : IVerbProcessor
         result += item.OnBeingTurnedOn(context);
 
         if (itWasDark)
-            result += "\n\n" + await new LookProcessor().Process(null, context, client, Runtime.Unknown);
+            result += "\n\n" + LookProcessor.LookAround(context, Verbosity.Verbose);
 
-        return new PositiveInteractionResult(item.NowOnText + result);
+        return Task.FromResult<InteractionResult>(new PositiveInteractionResult(item.NowOnText + result));
     }
 }
