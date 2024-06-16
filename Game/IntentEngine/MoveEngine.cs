@@ -34,18 +34,18 @@ public class MoveEngine : IIntentEngine
         return await Go(context, generationClient, movement);
     }
 
-    public static async Task<string> Go(IContext context, IGenerationClient generationClient, MovementParameters movement)
+    public static Task<string> Go(IContext context, IGenerationClient generationClient, MovementParameters movement)
     {
         var previousLocation = context.CurrentLocation;
         context.CurrentLocation.OnLeaveLocation(context, movement.Location!, previousLocation);
         context.CurrentLocation = movement.Location!;
 
         var beforeEnteringText = movement.Location!.BeforeEnterLocation(context, previousLocation);
-        var processorText = await new LookProcessor().Process(null, context, generationClient, Runtime.Unknown);
+        var processorText = LookProcessor.LookAround(context);
         var afterEnteringText = movement.Location.AfterEnterLocation(context, previousLocation);
 
         var result = beforeEnteringText + processorText + afterEnteringText + Environment.NewLine;
-        return result;
+        return Task.FromResult(result);
     }
 
     private static async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient, string direction, 

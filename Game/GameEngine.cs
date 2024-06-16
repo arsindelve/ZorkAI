@@ -50,7 +50,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         Context = new TContext
         {
             Engine = this,
-            Game = gameInstance
+            Game = gameInstance,
+            Verbosity = Verbosity.Brief
         };
 
         Context.CurrentLocation.Init();

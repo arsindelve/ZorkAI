@@ -82,6 +82,12 @@ public interface IContext : ICanHoldItems
     /// </summary>
     int CarryingWeight { get; }
 
+    /// <summary>
+    /// Gets or sets the verbosity - how descriptive are we when we enter
+    /// a new location? 
+    /// </summary>
+    Verbosity Verbosity { get; set; }
+
     void Take(IItem item);
 
     void Drop(IItem item);
