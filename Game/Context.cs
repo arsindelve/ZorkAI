@@ -20,6 +20,7 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     public Context(IGameEngine engine, T gameType)
     {
+        Verbosity = Verbosity.Brief;
         GameType = gameType;
         Engine = engine;
 
@@ -44,6 +45,12 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     public List<ITurnBasedActor> Actors { get; set; } = new();
     
     public int CarryingWeight => Items.Sum(s => s.Size);
+    
+    /// <summary>
+    /// Gets/sets the verbosity, which is how detailed the player
+    /// wants the room description to be when they enter the room. 
+    /// </summary>
+    public Verbosity Verbosity { get; set; }
 
     public LimitedStack<string> Inputs { get; set; } = new();
 

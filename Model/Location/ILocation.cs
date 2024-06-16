@@ -37,6 +37,11 @@ public interface ILocation
     ISubLocation? SubLocation { get; set; }
 
     /// <summary>
+    /// How many times have we been here before? 
+    /// </summary>
+    int VisitCount { get; set; }
+
+    /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="SimpleIntent" /> corresponding
     ///     of a verb and a noun. Does that combination do anything in this location? The default implementation
     ///     of the base class checks each item in this locations and asks them if they provide any interaction. This
