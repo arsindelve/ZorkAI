@@ -1,23 +1,24 @@
 using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 using Model.Interface;
 
 namespace Game.StaticCommand.Implementation;
 
 internal class VerbosityProcessor : IGlobalCommand
 {
-    public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
+    public async Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {
         switch (input)
         {
             case "verbose":
                 context.Verbosity = Verbosity.Verbose;
-                return Task.FromResult("Maximum verbosity. ");
+                return await client.CompleteChat(new MaximumVerbosityRequest());
             case "brief":
                 context.Verbosity = Verbosity.Brief;
-                return Task.FromResult("Brief descriptions. ");
+                return await client.CompleteChat(new MediumVerbosityRequest());
             case "superbrief":
                 context.Verbosity = Verbosity.SuperBrief;
-                return Task.FromResult("Superbrief descriptions. ");
+                return await client.CompleteChat(new MinimumVerbosityRequest());
         }
 
         throw new ArgumentOutOfRangeException();
