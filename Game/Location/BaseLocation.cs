@@ -185,11 +185,6 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return Items.Contains(Repository.GetItem<T>());
     }
 
-    public List<ITurnBasedActor> GetActors()
-    {
-        return Items.OfType<ITurnBasedActor>().ToList();
-    }
-
     protected virtual void OnFirstTimeEnterLocation(IContext context)
     {
     }
