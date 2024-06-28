@@ -61,7 +61,8 @@ public class ZorkOneController(
         
         RestoreSession(savedSession);
         var encodedText = GetGameData();
-        return await savedGameRepository.SaveGame(request.Id, request.ClientId, request.Name, encodedText);
+        await savedGameRepository.SaveGame(request.Id, request.ClientId, request.Name, encodedText);
+        return await engine.GenerationClient.CompleteChat(new AfterSaveGameRequest(engine.LocationDescription));
     }
 
     [HttpGet]
