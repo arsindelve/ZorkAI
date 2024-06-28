@@ -13,6 +13,8 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
     public string ExaminationDescription => $"The grating is {(IsOpen ? "open" : "closed")}. ";
 
     public bool IsOpen { get; set; }
+    
+    public bool IsLocked { get; set; }
 
     public string NowOpen => "";
 
@@ -24,8 +26,8 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
 
     public bool HasEverBeenOpened { get; set; }
 
-    public string CannotBeOpenedDescription(IContext context)
+    public string? CannotBeOpenedDescription(IContext context)
     {
-        return "The grating is locked. ";
+        return IsLocked ? "The grating is locked. " : null;
     }
 }

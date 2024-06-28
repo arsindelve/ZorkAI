@@ -1,6 +1,6 @@
 using Model.Movement;
 
-namespace ZorkOne.Location.Maze;
+namespace ZorkOne.Location.MazeLocation;
 
 public abstract class MazeBase : DarkLocationWithNoStartingItems
 {
@@ -135,10 +135,10 @@ public class MazeEleven : MazeBase
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.E, Go<MazeNine>() },
             { Direction.SW, Go<MazeTwelve>() },
             { Direction.NW, Go<MazeThirteen>() },
-            { Direction.Down, Go<MazeTen>() }
+            { Direction.Down, Go<MazeTen>() },
+            { Direction.NE, Go<GratingRoom>() }
         };
 }
 

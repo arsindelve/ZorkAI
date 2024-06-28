@@ -3,7 +3,7 @@ using Model.Intent;
 using Model.Interface;
 using Model.Movement;
 using ZorkOne.ActorInteraction;
-using ZorkOne.Location.Maze;
+using ZorkOne.Location.MazeLocation;
 
 namespace ZorkOne.Location;
 
