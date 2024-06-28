@@ -38,6 +38,7 @@ public class MazeThree : MazeBase
         new()
         {
             { Direction.W, Go<MazeTwo>() },
+            { Direction.N, Go<MazeFour>() },
             { Direction.Up, Go<MazeFive>() }
         };
 }
