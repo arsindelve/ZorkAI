@@ -14,12 +14,3 @@ public class Skeleton : ItemBase, ICanBeTakenAndDropped
         //TODO: "He casts a curse on your valuables and banishes them to the Land of the Living Dead. " +
         "The ghost leaves, muttering obscenities. ";
 }
-
-public class BurnedOutLantern : ItemBase, ICanBeTakenAndDropped
-{
-    public override string[] NounsForMatching => ["lantern", "busted", "busted lantern"];
-    
-    public string OnTheGroundDescription => "There is a burned-out lantern here. ";
-
-    public override string NeverPickedUpDescription => "The deceased adventurer's useless lantern is here. ";
-}
