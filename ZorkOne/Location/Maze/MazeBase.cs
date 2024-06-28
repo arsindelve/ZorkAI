@@ -15,9 +15,10 @@ public class MazeOne : MazeBase
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.E, new MovementParameters { Location = GetLocation<TrollRoom>() } },
-            { Direction.N, new MovementParameters { Location = GetLocation<MazeOne>() } },
-            { Direction.S, new MovementParameters { Location = GetLocation<MazeTwo>() } }
+            { Direction.E, Go<TrollRoom>() },
+            { Direction.N, Go<MazeOne>() },
+            { Direction.S, Go<MazeTwo>() },
+            { Direction.W, Go<MazeFour>() }
         };
 }
 
@@ -26,8 +27,8 @@ public class MazeTwo : MazeBase
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.E, new MovementParameters { Location = GetLocation<MazeThree>() } },
-            { Direction.Down, new MovementParameters { Location = GetLocation<MazeFour>() } }
+            { Direction.E, Go<MazeThree>() },
+            { Direction.Down, Go<MazeFour>() }
         };
 }
 
@@ -36,8 +37,8 @@ public class MazeThree : MazeBase
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.W, new MovementParameters { Location = GetLocation<MazeTwo>() } },
-            { Direction.Up, new MovementParameters { Location = GetLocation<MazeFive>() } }
+            { Direction.W, Go<MazeTwo>() },
+            { Direction.Up, Go<MazeFive>() }
         };
 }
 
@@ -46,9 +47,9 @@ public class MazeFour : MazeBase
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.W, new MovementParameters { Location = GetLocation<MazeThree>() } },
-            { Direction.N, new MovementParameters { Location = GetLocation<MazeOne>() } },
-            { Direction.E, new MovementParameters { Location = GetLocation<DeadEndOne>() } }
+            { Direction.W, Go<MazeThree>() },
+            { Direction.N, Go<MazeOne>() },
+            { Direction.E, Go<DeadEndOne>() }
         };
 }
 
@@ -57,7 +58,111 @@ public class MazeFive : MazeBase
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.N, new MovementParameters { Location = GetLocation<MazeThree>() } },
-            { Direction.E, new MovementParameters { Location = GetLocation<DeadEndTwo>() } },
+            { Direction.N, Go<MazeThree>() },
+            { Direction.E, Go<DeadEndTwo>() },
+            { Direction.SW, Go<MazeSix>() }
+        };
+
+    public override void Init()
+    {
+        StartWithItem<Skeleton>(this);
+        StartWithItem<BurnedOutLantern>(this);
+        base.Init();
+    }
+}
+
+public class MazeSix : MazeBase
+{
+    protected override Dictionary<Direction, MovementParameters> Map =>
+        new()
+        {
+            { Direction.Down, Go<MazeFive>() },
+            { Direction.W, Go<MazeSix>() },
+            { Direction.E, Go<MazeSeven>() },
+            { Direction.Up, Go<MazeNine>() }
+        };
+}
+
+public class MazeSeven : MazeBase
+{
+    protected override Dictionary<Direction, MovementParameters> Map =>
+        new()
+        {
+            { Direction.W, Go<MazeSix>() },
+            { Direction.E, Go<MazeEight>() },
+            { Direction.Down, Go<DeadEndOne>() }
+        };
+}
+
+public class MazeEight : MazeBase
+{
+    protected override Dictionary<Direction, MovementParameters> Map =>
+        new()
+        {
+            { Direction.W, Go<MazeEight>() },
+            { Direction.NE, Go<MazeSeven>() },
+            { Direction.SE, Go<DeadEndThree>() }
+        };
+}
+
+public class MazeNine : MazeBase
+{
+    protected override Dictionary<Direction, MovementParameters> Map =>
+        new()
+        {
+            { Direction.NW, Go<MazeNine>() },
+            { Direction.N, Go<MazeSix>() },
+            { Direction.W, Go<MazeTwelve>() },
+            { Direction.E, Go<MazeTen>() },
+            { Direction.S, Go<MazeThirteen>() },
+            { Direction.Down, Go<MazeEleven>() }
+        };
+}
+
+public class MazeTen : MazeBase
+{
+    protected override Dictionary<Direction, MovementParameters> Map =>
+        new()
+        {
+            { Direction.E, Go<MazeNine>() },
+            { Direction.W, Go<MazeThirteen>() },
+            { Direction.Up, Go<MazeEleven>() }
+        };
+}
+
+public class MazeEleven : MazeBase
+{
+    protected override Dictionary<Direction, MovementParameters> Map =>
+        new()
+        {
+            { Direction.E, Go<MazeNine>() },
+            { Direction.SW, Go<MazeTwelve>() },
+            { Direction.NW, Go<MazeThirteen>() },
+            { Direction.Down, Go<MazeTen>() }
+        };
+}
+
+public class MazeTwelve : MazeBase
+{
+    protected override Dictionary<Direction, MovementParameters> Map =>
+        new()
+        {
+            { Direction.Down, Go<MazeFive>() },
+            { Direction.Up, Go<MazeNine>() },
+            { Direction.N, Go<DeadEndFour>() },
+            { Direction.SW, Go<MazeEleven>() },
+            { Direction.E, Go<MazeThirteen>() }
+        };
+}
+
+public class MazeThirteen : MazeBase
+{
+    protected override Dictionary<Direction, MovementParameters> Map =>
+        new()
+        {
+            { Direction.Down, Go<MazeTwelve>() },
+            { Direction.W, Go<MazeEleven>() },
+            { Direction.S, Go<MazeTen>() },
+            { Direction.E, Go<MazeNine>() }
         };
 }

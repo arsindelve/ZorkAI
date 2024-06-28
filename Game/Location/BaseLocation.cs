@@ -19,9 +19,6 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     /// </summary>
     protected abstract Dictionary<Direction, MovementParameters> Map { get; }
 
-    // ReSharper disable once MemberCanBePrivate.Global
-    public int VisitCount { get; set; }
-
     protected abstract string ContextBasedDescription { get; }
 
     public bool IsTransparent => false;
@@ -74,6 +71,9 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return 0;
     }
 
+    // ReSharper disable once MemberCanBePrivate.Global
+    public int VisitCount { get; set; }
+
     /// <summary>
     ///     This property represents a sub-location inside another location. It can be used to define a location
     ///     that exists within another location, such as a vehicle or a specific area within a larger space.
@@ -97,7 +97,7 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return string.Empty;
     }
 
-    public virtual void OnLeaveLocation(IContext context,  ILocation newLocation, ILocation previousLocation)
+    public virtual void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
     {
     }
 
@@ -246,5 +246,11 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
                 s.AppendLine(item.HasEverBeenPickedUp ? item.OnTheGroundDescription : item.NeverPickedUpDescription));
 
         return result.ToString().Trim();
+    }
+
+    // Syntactic sugar 
+    protected MovementParameters Go<T>() where T : class, ILocation, new()
+    {
+        return new MovementParameters { Location = GetLocation<T>() };
     }
 }
