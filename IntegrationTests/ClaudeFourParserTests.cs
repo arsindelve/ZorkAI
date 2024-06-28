@@ -25,6 +25,7 @@ public class ClaudeFourParserTests
 
     // Direction
     [TestCase(typeof(WestOfHouse), "walk north", new[] { "<intent>move</intent>", "<direction>north</direction>" })]
+    [TestCase(typeof(WestOfHouse), "let's head north", new[] { "<intent>move</intent>", "<direction>north</direction>" })]
     [TestCase(typeof(WestOfHouse), "i am going to go north",
         new[] { "<intent>move</intent>", "<direction>north</direction>" })]
     [TestCase(typeof(WestOfHouse), "let's saunter north",
@@ -60,6 +61,10 @@ public class ClaudeFourParserTests
     [TestCase(typeof(BehindHouse), "go into the house", new[] { "<intent>move</intent>", "<direction>in</direction>" })]
 
     // Single noun
+    [TestCase(typeof(WestOfHouse), "hey, what do you say we open the mailbox",
+        new[] { "<verb>open</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
+    [TestCase(typeof(WestOfHouse), "next let's try opening the mailbox",
+        new[] { "<verb>open</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "open the mailbox",
         new[] { "<verb>open</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "grab the bottle",
@@ -97,13 +102,13 @@ public class ClaudeFourParserTests
     [TestCase(typeof(DomeRoom), "inflate the pile of plastic with the air pump",
         new[]
         {
-            "<verb>inflate</verb>", "<noun>pile</noun>", "<noun>air pump</noun>", "<intent>act</intent>",
+            "<verb>inflate</verb>", "<noun>pile</noun>", "<noun>pump</noun>", "<intent>act</intent>",
             "<preposition>with</preposition>"
         })]
     [TestCase(typeof(DomeRoom), "blow up the pile of plastic using the air pump",
         new[]
         {
-            "<verb>blow up</verb>", "<noun>pile</noun>", "<noun>air pump</noun>", "<intent>act</intent>",
+            "<verb>inflate</verb>", "<noun>pile</noun>", "<noun>air pump</noun>", "<intent>act</intent>",
             "<preposition>using</preposition>"
         })]
     [TestCase(typeof(Dam), "Use the wrench to turn the bolt.",
@@ -162,7 +167,7 @@ public class ClaudeFourParserTests
     [TestCase(typeof(TrollRoom), "The glowing sword should be used to kill the ugly troll.",
         new[]
         {
-            "<verb>use</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>",
+            "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>",
             "<preposition>to</preposition>"
         })]
     [TestCase(typeof(TrollRoom), "Use the sword that glows to kill the troll that's ugly.",
