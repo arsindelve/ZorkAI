@@ -12,18 +12,19 @@ import Server from './Server';
 interface GameProps {
     restoreGameId?: string | undefined
     restartGame: boolean
+    serverText: string | undefined
     onRestoreDone: () => void
     onRestartDone: () => void
     openRestoreModal: () => void
     openSaveModal: () => void
     openRestartModal: () => void
     gaveSaved: boolean;
-
 }
 
 function Game({
                   restartGame,
                   restoreGameId,
+                  serverText,  
                   gaveSaved,
                   onRestoreDone,
                   onRestartDone,
@@ -50,7 +51,6 @@ function Game({
 
     const gameContentElement = React.useRef<HTMLDivElement>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);
-
 
     function focusOnPlayerInput() {
         if (playerInputElement.current)
@@ -101,6 +101,9 @@ function Game({
         })
     }, [restartGame]);
 
+    useEffect(() => {
+        setGameText((prevGameText) => [...prevGameText, serverText]); 
+    }, [serverText]);
 
     // Set focus to the input box on load. 
     useEffect(() => {
