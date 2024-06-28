@@ -87,7 +87,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
     public string IntroText { get; }
 
+    public IGenerationClient GenerationClient => _generator;
+
     public string LocationName => Context.CurrentLocation.Name;
+
+    public string LocationDescription => Context.CurrentLocation.DescriptionForGeneration;
 
     public IContext RestoreGame(string data)
     {

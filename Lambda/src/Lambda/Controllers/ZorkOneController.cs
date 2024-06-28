@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Lambda.Model;
 using Microsoft.AspNetCore.Mvc;
+using Model.AIGeneration.Requests;
 using Model.Interface;
 
 namespace Lambda.Controllers;
@@ -40,10 +41,13 @@ public class ZorkOneController(
 
         RestoreSession(gameData);
 
-        var response = await engine.GetResponse("look");
+        var sb = new StringBuilder();
+        sb.AppendLine(await engine.GenerationClient.CompleteChat(new AfterRestoreGameRequest(engine.LocationDescription)));
+        sb.AppendLine();
+        sb.AppendLine(await engine.GetResponse("look"));
 
         await WriteSession(request.SessionId);
-        return new GameResponse(response!, engine.LocationName, engine.Moves, engine.Score);
+        return new GameResponse(sb.ToString(), engine.LocationName, engine.Moves, engine.Score);
     }
 
     [HttpPost]
