@@ -27,7 +27,7 @@ internal class ClaudeFourParserClient : ClaudeClientBase, IClaudeFourParserClien
         3. For each noun in the sentence that relates to the main verb, place each noun in a set of <noun> tags. If there is an adjective immediately preceding a noun, include it in separate <adjective> tags outside the <noun> tags. 
         Use context to distinguish between adjectives and nouns. Tag words as adjectives only if they immediately precede a noun and fit common adjective patterns.
         
-        4. If there are two nouns, in <preposition> tags, put the preposition which connects the nouns. Otherwise, omit these tags.
+        4. If there are two nouns, in separate <preposition> tags outside any other tags, put the preposition which connects the nouns. Otherwise, omit these tags.
         
         5. If the sentence expresses a desire to move in a certain direction or fo a certain way based on their current location, put in <direction> tags the exact word from this list which 
         best describes where they want to go: "in, out, enter, exit, up, down, east, west, north, south, north-west, north-east, south-west, or south-east." If the sentence includes a term like 
