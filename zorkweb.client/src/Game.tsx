@@ -12,7 +12,7 @@ import Server from './Server';
 interface GameProps {
     restoreGameId?: string | undefined
     restartGame: boolean
-    serverText: string | undefined
+    serverText: string
     onRestoreDone: () => void
     onRestartDone: () => void
     openRestoreModal: () => void

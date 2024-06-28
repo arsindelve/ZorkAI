@@ -16,12 +16,12 @@ public class Spirits : ItemBase, ICanBeExamined, ITurnBasedActor
 
     public string ExaminationDescription => "You seem unable to interact with these spirits. ";
 
-    public async Task<string> Act(IContext context, IGenerationClient client)
+    public Task<string> Act(IContext context, IGenerationClient client)
     {
         if (!Stunned)
         {
             context.RemoveActor(this);
-            return "";
+            return Task.FromResult("");
         }
 
         StunnedCounter--;
@@ -32,10 +32,10 @@ public class Spirits : ItemBase, ICanBeExamined, ITurnBasedActor
             var hades = Repository.GetLocation<EntranceToHades>();
             if (context.CurrentLocation == hades && Repository.GetItem<Spirits>().CurrentLocation == hades)
                 return
-                    "\nThe tension of this ceremony is broken, and the wraiths, amused but shaken at your clumsy attempt, resume their hideous jeering.";
+                    Task.FromResult("\nThe tension of this ceremony is broken, and the wraiths, amused but shaken at your clumsy attempt, resume their hideous jeering.");
         }
 
-        return "";
+        return Task.FromResult("");
     }
 
     public string BecomeStunned(IContext context)

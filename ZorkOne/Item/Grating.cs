@@ -13,8 +13,8 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
     public string ExaminationDescription => $"The grating is {(IsOpen ? "open" : "closed")}. ";
 
     public bool IsOpen { get; set; }
-    
-    public bool IsLocked { get; set; }
+
+    public bool IsLocked { get; set; } = true;
 
     public string NowOpen => "";
 

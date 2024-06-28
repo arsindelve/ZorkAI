@@ -6,7 +6,7 @@ namespace UnitTests.ZorkITests;
 
 public class MachineTests : EngineTestsBase
 {
-    private Machine _machine;
+    private Machine _machine = Mock.Of<Machine>();
 
     // List things in the machine
     [Test]
