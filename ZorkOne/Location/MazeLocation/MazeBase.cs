@@ -89,8 +89,10 @@ public class MazeSeven : MazeBase
         new()
         {
             { Direction.W, Go<MazeSix>() },
+            { Direction.S, Go<MazeFifteen>() },
             { Direction.E, Go<MazeEight>() },
-            { Direction.Down, Go<DeadEndOne>() }
+            { Direction.Down, Go<DeadEndOne>() },
+            { Direction.Up, Go<MazeFourteen>() }
         };
 }
 
@@ -164,5 +166,26 @@ public class MazeThirteen : MazeBase
             { Direction.W, Go<MazeEleven>() },
             { Direction.S, Go<MazeTen>() },
             { Direction.E, Go<MazeNine>() }
+        };
+}
+
+public class MazeFourteen : MazeBase
+{
+    protected override Dictionary<Direction, MovementParameters> Map =>
+        new()
+        {
+            { Direction.NW, Go<MazeFourteen>() },
+            { Direction.NE, Go<MazeSeven>() },
+            { Direction.S, Go<MazeSeven>() }
+        };
+}
+
+public class MazeFifteen : MazeBase
+{
+    protected override Dictionary<Direction, MovementParameters> Map =>
+        new()
+        {
+            { Direction.W, Go<MazeFourteen>() },
+            { Direction.S, Go<MazeSeven>() },
         };
 }
