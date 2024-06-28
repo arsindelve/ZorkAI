@@ -3,6 +3,7 @@ using Model.Intent;
 using Model.Interface;
 using Model.Movement;
 using ZorkOne.ActorInteraction;
+using ZorkOne.Location.Maze;
 
 namespace ZorkOne.Location;
 
@@ -23,6 +24,14 @@ public class TrollRoom : DarkLocation
                 new MovementParameters
                 {
                     Location = GetLocation<EastWestPassage>(), CanGo = _ => !TrollIsAwake,
+                    CustomFailureMessage = "The troll fends you off with a menacing gesture. "
+                }
+            },
+            {
+                Direction.W,
+                new MovementParameters
+                {
+                    Location = GetLocation<MazeOne>(), CanGo = _ => !TrollIsAwake,
                     CustomFailureMessage = "The troll fends you off with a menacing gesture. "
                 }
             }
