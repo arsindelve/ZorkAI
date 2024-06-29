@@ -1,3 +1,4 @@
+using System.Text;
 using Azure;
 using Azure.AI.OpenAI;
 using Microsoft.Extensions.Logging;
@@ -51,24 +52,17 @@ public class ChatGPTClient : IGenerationClient
 
         var reverse = LastFiveInputOutputs.ToList();
         reverse.Reverse();
-
-        // This will get the most recent generated inputs and outputs, stopping when we hit 
-        // a non-generated response. We're going to pass those to the AI, as it will create
-        // a conversational back-and-forth. 
-        List<(string, string)> lastGeneratedResults = reverse
-            
-            .TakeWhile(s => s.Item3)
-            .Select(s => (s.Item1, s.Item2))
-            .ToList();
         
-        // Add the history
-        lastGeneratedResults.Reverse();
+        StringBuilder lastInputs = new();
+        lastInputs.AppendLine(
+            "For reference and context, here are the player's last five interactions with the narrator:");
 
-        foreach ((string input, string output) next in lastGeneratedResults)
+        foreach (var tuple in reverse)
         {
-            chatCompletionsOptions.Messages.Add(new ChatRequestUserMessage(next.input));
-            chatCompletionsOptions.Messages.Add(new ChatRequestAssistantMessage(next.output));
+            lastInputs.AppendLine($"Input: {tuple.Item1}. Output: {tuple.Item2}");
         }
+        
+        chatCompletionsOptions.Messages.Add(new ChatRequestSystemMessage(lastInputs.ToString()));
 
         // Add the most recent request
         chatCompletionsOptions.Messages.Add(new ChatRequestUserMessage(request.UserMessage));
