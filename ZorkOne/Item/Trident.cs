@@ -11,7 +11,7 @@ public class Trident : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInT
 
     public override string NeverPickedUpDescription => "On the shore lies Poseidon's own crystal trident. ";
 
-    public override int Size => 7;
+    public override int Size => 5;
 
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 4;
 

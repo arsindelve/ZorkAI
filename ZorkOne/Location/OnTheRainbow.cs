@@ -7,7 +7,10 @@ public class OnTheRainbow : LocationWithNoStartingItems
     protected override Dictionary<Direction, MovementParameters> Map => new()
     {
         {
-            Direction.W, new MovementParameters { Location = GetLocation<EndOfRainbow>() }
+            Direction.W, Go<EndOfRainbow>()
+        },
+        {
+            Direction.E, Go<AragainFalls>()
         }
     };
 

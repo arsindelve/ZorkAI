@@ -1,3 +1,5 @@
+using Model.AIGeneration;
+using Model.Intent;
 using Model.Interface;
 using Model.Movement;
 
@@ -24,6 +26,22 @@ public class EndOfRainbow : LocationWithNoStartingItems
 
     public override string Name => "End of Rainbow";
 
+    
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
+    {
+        if (action.Match(["cross"], ["rainbow"]))
+        {
+            if (!GetLocation<EndOfRainbow>().RainbowIsSolid)
+                return new PositiveInteractionResult("Can you walk on water vapor? ");
+
+            context.CurrentLocation = GetLocation<AragainFalls>();
+            return new PositiveInteractionResult(context.CurrentLocation.Description);
+        }
+
+        return base.RespondToSimpleInteraction(action, context, client);
+    }
+    
     public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
     {
         if (!context.HasItem<Sceptre>() && GetItem<Sceptre>().CurrentLocation == GetLocation<EndOfRainbow>())
