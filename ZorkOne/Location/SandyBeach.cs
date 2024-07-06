@@ -2,9 +2,13 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-public class SandyBeach : BaseLocation
+public class SandyBeach : DarkLocation // Explain to me how a beach can be a dark location? Well, it is. 
 {
-    protected override Dictionary<Direction, MovementParameters> Map { get; }
+    protected override Dictionary<Direction, MovementParameters> Map => new()
+    {
+        { Direction.NE, Go<SandyCave>() },
+        { Direction.S, Go<Shore>()}
+    };
 
     protected override string ContextBasedDescription =>
         "You are on a large sandy beach on the east shore of the river, which is flowing quickly by. " +

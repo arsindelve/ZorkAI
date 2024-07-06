@@ -15,4 +15,6 @@ public class CrystalSkull : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlac
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 10;
 
     int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 10;
+
+    public override int Size => 1;
 }
