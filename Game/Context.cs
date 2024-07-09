@@ -183,7 +183,22 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     {
     }
 
-    [JsonIgnore] public List<IItem> GetAllItemsRecursively => new();
+    [JsonIgnore]
+    public List<IItem> GetAllItemsRecursively
+    {
+        get
+        {
+            var result = new List<IItem>();
+            
+            foreach (var item in Items)
+            {
+                result.Add(item);
+                if (item is ICanHoldItems holder)
+                    result.AddRange(holder.GetAllItemsRecursively);
+            }
+            return result;
+        }
+    }
 
     public int AddPoints(int points)
     {

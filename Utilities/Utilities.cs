@@ -10,6 +10,29 @@ public static class Utilities
         return Regex.Replace(s, "[^a-zA-Z\\s]", string.Empty);
     }
 
+    // "A sword, a diamond and a pile of leaves. 
+    public static string SingleLineListWithAnd(this List<string> nouns)
+    {
+        return SingleLineList(nouns, "and");
+    }
+    
+    // "The brass lantern, the green lantern or the useless lantern
+    public static string SingleLineListWithOr(this List<string> nouns)
+    {
+        return SingleLineList(nouns, "or");
+    }
+    
+    private static string SingleLineList(this List<string> nouns, string connector)
+    {
+        var convertNouns = nouns.ConvertAll(noun => "a " + noun);
+        string lastNoun = convertNouns.Last();
+        convertNouns.Remove(lastNoun);
+
+        return convertNouns.Count > 0
+            ? $"{string.Join(", ", convertNouns)} {connector} {lastNoun}"
+            : lastNoun;
+    }
+
     public static void WriteLineWordWrap(string? paragraph, int tabSize = 6)
     {
         if (string.IsNullOrEmpty(paragraph))
