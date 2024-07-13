@@ -2,6 +2,7 @@ using Model.AIGeneration;
 using Model.Interface;
 using Model.Item;
 using Newtonsoft.Json;
+using Utilities;
 
 namespace Game.Item;
 
@@ -68,33 +69,23 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         {
             var result = new List<IItem>();
 
-            if (this is IOpenAndClose { IsOpen: true })
-                foreach (var item in Items)
-                {
-                    result.Add(item);
-                    if (item is ICanHoldItems holder)
-                        result.AddRange(holder.GetAllItemsRecursively);
-                }
-
+            if (this is not IOpenAndClose { IsOpen: true }) 
+                return result;
+            
+            foreach (var item in Items)
+            {
+                result.Add(item);
+                if (item is ICanHoldItems holder)
+                    result.AddRange(holder.GetAllItemsRecursively);
+            }
             return result;
         }
     }
 
-    protected string SingleLineListOfItems()
+    public string SingleLineListOfItems()
     {
         var nouns = Items.Select(s => s.NounsForMatching.OrderByDescending(q => q.Length).First()).ToList();
-        if (!nouns.Any())
-        {
-            return "";
-        }
-
-        var convertNouns = nouns.ConvertAll(noun => "a " + noun);
-        string lastNoun = convertNouns.Last();
-        convertNouns.Remove(lastNoun);
-
-        return convertNouns.Count > 0
-            ? $"{string.Join(", ", convertNouns)} and {lastNoun}"
-            : lastNoun;
+        return !nouns.Any() ? "" : nouns.SingleLineListWithAnd();
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,

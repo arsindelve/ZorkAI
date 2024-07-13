@@ -7,7 +7,7 @@ namespace Game.IntentEngine;
 
 internal class ExitSubLocationEngine : IIntentEngine
 {
-    public async Task<string> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
+    public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {
         if (intent is not ExitSubLocationIntent exit)
             throw new ArgumentException("Cast error");
@@ -24,21 +24,21 @@ internal class ExitSubLocationEngine : IIntentEngine
             {
                 subLocation = Repository.GetItem(exit.NounTwo);
                 if (subLocation == null)
-                    return await GetGeneratedCantGoThatWayResponse(generationClient, context, exit.NounOne);
+                    return (null, await GetGeneratedCantGoThatWayResponse(generationClient, context, exit.NounOne));
             }
             else
             {
-                return await GetGeneratedCantGoThatWayResponse(generationClient, context, exit.NounOne);
+                return (null, await GetGeneratedCantGoThatWayResponse(generationClient, context, exit.NounOne));
             }
         }
 
         if (subLocation is not ISubLocation subLocationInstance)
-            return await GetGeneratedCantGoThatWayResponse(generationClient, context, exit.NounOne);
+            return (null, await GetGeneratedCantGoThatWayResponse(generationClient, context, exit.NounOne));
 
         if (context.CurrentLocation.SubLocation != subLocationInstance)
-            return $"You're not in the {exit.NounOne}. ";
+            return (null, $"You're not in the {exit.NounOne}. ");
 
-        return subLocationInstance.GetOut(context);
+        return (null, subLocationInstance.GetOut(context));
     }
 
     private async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient, IContext context,
