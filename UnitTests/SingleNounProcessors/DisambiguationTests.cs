@@ -45,4 +45,37 @@ public class DisambiguationTests : EngineTestsBase
 
         response.Should().Contain("Time passes");
     }
+    
+    [Test]
+    public async Task SoManyKnives()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MaintenanceRoom>();
+        room.IsNoLongerDark = true;
+        engine.Context.ItemPlacedHere(Repository.GetItem<NastyKnife>());
+        engine.Context.ItemPlacedHere(Repository.GetItem<RustyKnife>());
+        
+        engine.Context.CurrentLocation = room;
+        
+        var response = await engine.GetResponse("drop knife");
+
+        response.Should().Contain("Do you mean the nasty knife or the rusty knife");
+    }
+    
+    [Test]
+    public async Task SoManyKnives_Dropped()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MaintenanceRoom>();
+        room.IsNoLongerDark = true;
+        engine.Context.ItemPlacedHere(Repository.GetItem<NastyKnife>());
+        engine.Context.ItemPlacedHere(Repository.GetItem<RustyKnife>());
+        
+        engine.Context.CurrentLocation = room;
+        
+        await engine.GetResponse("drop knife");
+        var response = await engine.GetResponse("rusty");
+
+        response.Should().Contain("Dropped");
+    }
 }

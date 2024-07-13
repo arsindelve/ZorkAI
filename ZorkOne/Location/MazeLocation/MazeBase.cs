@@ -69,6 +69,7 @@ public class MazeFive : MazeBase
     {
         StartWithItem<Skeleton>(this);
         StartWithItem<BurnedOutLantern>(this);
+        StartWithItem<RustyKnife>(this);
         base.Init();
     }
 }

@@ -24,7 +24,7 @@ interface GameProps {
 function Game({
                   restartGame,
                   restoreGameId,
-                  serverText,  
+                  serverText,
                   gaveSaved,
                   onRestoreDone,
                   onRestartDone,
@@ -102,7 +102,7 @@ function Game({
     }, [restartGame]);
 
     useEffect(() => {
-        setGameText((prevGameText) => [...prevGameText, serverText]); 
+        setGameText((prevGameText) => [...prevGameText, serverText]);
     }, [serverText]);
 
     // Set focus to the input box on load. 

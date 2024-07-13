@@ -2,18 +2,25 @@ using System.Diagnostics;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Interface;
+using Model.Item;
+using Utilities;
 
 namespace Game.IntentEngine;
 
 internal class SimpleInteractionEngine : IIntentEngine
 {
-    public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
+    public async Task<(InteractionResult? resultObject, string ResultMessage)>
+        Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {
         if (intent is not SimpleIntent simpleInteraction)
             throw new ArgumentException();
 
         Debug.WriteLine(intent);
         context.LastNoun = simpleInteraction.Noun ?? "";
+
+        var requireDisambiguation = CheckDisambiguation(simpleInteraction, context);
+        if (requireDisambiguation is not null)
+            return (requireDisambiguation, requireDisambiguation.InteractionMessage);
 
         var contextInteraction = context.RespondToSimpleInteraction(simpleInteraction, generationClient);
 
@@ -44,7 +51,8 @@ internal class SimpleInteractionEngine : IIntentEngine
         // The noun was present in INVENTORY but the verb applied to
         // it has no meaning in the story. I.E: push the sword...that will accomplish nothing. 
         if (contextInteraction is NoVerbMatchInteractionResult noVerbContext)
-            return (contextInteraction, await GetGeneratedNoMatchingVerbResponse(noVerbContext.Noun, noVerbContext.Verb, generationClient,
+            return (contextInteraction, await GetGeneratedNoMatchingVerbResponse(noVerbContext.Noun, noVerbContext.Verb,
+                generationClient,
                 context));
 
         // The noun exists in the game, but is not currently present. It might be in another location
@@ -55,6 +63,39 @@ internal class SimpleInteractionEngine : IIntentEngine
         // There is no matching noun at all, anywhere in the game. The user might have
         // talked about a unicorn, a bottle of tequila or some other meaningless item. 
         return (null, await GetGeneratedNoOpResponse(simpleInteraction.OriginalInput ?? "", generationClient, context));
+    }
+
+    private SimpleInteractionDisambiguationInteractionResult? CheckDisambiguation(SimpleIntent intent, IContext context)
+    {
+        var ambiguousItems = new List<IItem>();
+
+        IEnumerable<IItem> allItemsInSight =
+            context.GetAllItemsRecursively
+                .Union((context.CurrentLocation as ICanHoldItems)!.GetAllItemsRecursively)
+                .ToList();
+
+        foreach (var item in allItemsInSight)
+            if (intent.MatchNoun(item.NounsForMatching))
+                ambiguousItems.Add(item);
+
+        // We have one or fewer items that match the noun. Good to go. 
+        if (ambiguousItems.Count <= 1) 
+            return null;
+        
+        var itemNouns = ambiguousItems
+            .Select(s => s.NounsForMatching.MaxBy(n => n.Length))
+            .ToList()!
+            .SingleLineListWithOr();
+        var message = $"Do you mean {itemNouns}?";
+           
+        return new SimpleInteractionDisambiguationInteractionResult(
+            message,
+            intent.Verb,
+            ambiguousItems
+                .SelectMany(s => s.NounsForMatching)
+                .ToArray()
+        );
+
     }
 
     private static async Task<string> GetGeneratedNoMatchingVerbResponse(string? noun, string verb,

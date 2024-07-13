@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\DynamoDb\DynamoDb.csproj" />
+        <ProjectReference Include="..\DynamoDb\DynamoDb.csproj"/>
         <ProjectReference Include="..\Game\Game.csproj"/>
         <ProjectReference Include="..\Lex\Lex.csproj"/>
         <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>

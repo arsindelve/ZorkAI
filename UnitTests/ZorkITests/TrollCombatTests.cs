@@ -164,7 +164,7 @@ public class TrollCombatTests : EngineTestsBase
             .Returns((CombatOutcome.DropWeapon, "{weapon}"));
 
         var engine = GetTarget();
-        engine.Context.Take(Repository.GetItem<Knife>());
+        engine.Context.Take(Repository.GetItem<NastyKnife>());
         var target = new TrollCombatEngine(chooser.Object);
 
         // Act
@@ -175,6 +175,6 @@ public class TrollCombatTests : EngineTestsBase
         engine.Context.IsStunned.Should().BeFalse();
         engine.Context.LightWoundCounter.Should().Be(0);
         engine.Context.HasWeapon.Should().BeFalse();
-        engine.Context.HasItem<Knife>().Should().BeFalse();
+        engine.Context.HasItem<NastyKnife>().Should().BeFalse();
     }
 }

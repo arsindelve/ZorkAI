@@ -13,13 +13,9 @@
 	
 	
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingMode/@EntryValue">OnlyMarkers</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=78dfef6b_002D20fe_002D427c_002D82dd_002D1064d6b25134/@EntryIndexedValue">&lt;SessionState ContinuousTestingIsOn="True" ContinuousTestingMode="2" IsActive="True" Name="All tests from &amp;lt;UnitTests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;Or&gt;
-    &lt;Project Location="/Users/michael/RiderProjects/ZorkAI/UnitTests" Presentation="&amp;lt;UnitTests&amp;gt;" /&gt;
-    &lt;TestAncestor&gt;
-      &lt;TestId&gt;NUnit3x::97ECA2A8-BB16-4B1F-9E62-4F0F22F92D90::net8.0::IntegrationTests.ClaudeFourParserTests&lt;/TestId&gt;
-    &lt;/TestAncestor&gt;
-  &lt;/Or&gt;
+	
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=c1056917_002D64fc_002D4321_002Dbea2_002D669e9426b2e2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Project Location="/Users/michael/RiderProjects/ZorkAI/UnitTests" Presentation="&amp;lt;UnitTests&amp;gt;" /&gt;
 &lt;/SessionState&gt;</s:String>
 	
 	
