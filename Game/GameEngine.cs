@@ -127,7 +127,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     {
         _currentInput = playerInput;
 
-        // See if we have something already running like a save, quit, etc..
+        // See if we have something already running like a save, quit, etc.
         // and see if it has any output. 
         var (returnProcessorInProgressOutput, processorInProgressOutput) = await RunProcessorInProgress();
 
@@ -168,12 +168,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         if (singleVerbResult.InteractionHappened)
             return PostProcessing(singleVerbResult.InteractionMessage);
 
-        var parsedResult =
+        IntentBase parsedResult =
             await _parser.DetermineIntentType(_currentInput, Context.CurrentLocation.Description, _sessionId);
         
         _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
 
-        (InteractionResult? result, string? resultMessage) intentResult = parsedResult switch
+        (InteractionResult? ResultObject, string? ResultMessage) intentResult = parsedResult switch
         {
             GlobalCommandIntent intent =>
                 (null, await ProcessGlobalCommandIntent(intent)),
@@ -201,10 +201,15 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
             _ => (null, await GetGeneratedNoOpResponse(_currentInput, _generator, Context))
         };
 
+        if (intentResult.ResultObject is SimpleInteractionDisambiguationInteractionResult result)
+        {
+            _processorInProgress = new SimpleActionDisambiguationProcessor(result);
+        }
+
         // "Actors" are things that can occur each turn. Examples are the troll
         // attacking, the maintenance room flooding, Floyd mumbling. 
         string actorResults = await ProcessActors();
-        return PostProcessing(turnCounterResponse + intentResult.resultMessage?.Trim() + actorResults);
+        return PostProcessing(turnCounterResponse + intentResult.ResultMessage?.Trim() + actorResults);
     }
 
     public int Score => Context.Score;

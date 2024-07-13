@@ -136,6 +136,14 @@ internal class TestParser : IIntentParser
             return Task.FromResult<IntentBase>(new SimpleIntent
                 { Adverb = "the", Verb = "press", Noun = "yellow button", OriginalInput = "" });
 
+        if (input == "press yellow")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+                { Adverb = "the", Verb = "press", Noun = "yellow button", OriginalInput = "" });
+        
+        if (input == "press yellow button")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+                { Adverb = "", Verb = "press", Noun = "yellow", OriginalInput = "" });
+        
         if (input == "press the brown button")
             return Task.FromResult<IntentBase>(new SimpleIntent
                 { Adverb = "the", Verb = "press", Noun = "brown button", OriginalInput = "" });

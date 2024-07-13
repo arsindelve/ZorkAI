@@ -1,19 +1,21 @@
 namespace Model.Interaction;
 
 /// <summary>
-/// 
+/// Our simple interaction (one noun, one verb) requires disambiguation.
+/// The verb and possible response nouns are contained in this object's properties. 
 /// </summary>
 public sealed record SimpleInteractionDisambiguationInteractionResult : InteractionResult
 {
-    public string Verb { get; }
-    public string[] PossibleResponses { get; }
-
     public SimpleInteractionDisambiguationInteractionResult(string message, string verb, string[] possibleResponses)
     {
         Verb = verb;
         PossibleResponses = possibleResponses;
         InteractionMessage = message;
     }
+
+    public string Verb { get; set; }
+    
+    public string[] PossibleResponses { get; set; }
 
     public override bool InteractionHappened => true;
 }

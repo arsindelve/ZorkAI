@@ -85,7 +85,7 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
                 return new SimpleInteractionDisambiguationInteractionResult(
                     $"Which button do you mean, {new List<string> { "blue button", "red button", "yellow button", "brown button" }.SingleLineListWithOr()}?",
                     "press",
-                    ["blue button", "red button", "yellow button", "brown button", "brown", "yellow", "red", "blue"]
+                    ["brown", "yellow", "red", "blue"]
                 );
             }
         }
