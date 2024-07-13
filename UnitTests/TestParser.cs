@@ -56,14 +56,14 @@ internal class TestParser : IIntentParser
 
         if (input is "drop all")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new DropEverythingProcessor() });
-        
+
         if (input is "cross the rainbow")
             return Task.FromResult<IntentBase>(new SimpleIntent
             {
                 Noun = "rainbow",
-                Verb = "cross",
+                Verb = "cross"
             });
-        
+
         if (input is "wait" or "z")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new WaitProcessor() });
 
@@ -76,26 +76,32 @@ internal class TestParser : IIntentParser
                 Verb = "tie",
                 OriginalInput = "tie rope to railing"
             });
-        
-        
+
+        if (input == "press button")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "button",
+                Verb = "press"
+            });
+
         if (input == "get in the boat")
             return Task.FromResult<IntentBase>(new EnterSubLocationIntent
             {
-                Noun = "boat",
+                Noun = "boat"
             });
-        
+
         if (input == "get out of the boat")
             return Task.FromResult<IntentBase>(new ExitSubLocationIntent
             {
-                NounOne = "boat",
+                NounOne = "boat"
             });
-        
+
         if (input == "leave boat")
             return Task.FromResult<IntentBase>(new ExitSubLocationIntent
             {
-                NounOne = "boat",
+                NounOne = "boat"
             });
-        
+
         if (input == "inflate plastic with pump")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -115,7 +121,7 @@ internal class TestParser : IIntentParser
                 Verb = "turn",
                 OriginalInput = "turn bolt with wrench"
             });
-        
+
         if (input == "turn switch with screwdriver")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -179,7 +185,7 @@ internal class TestParser : IIntentParser
                 Verb = "light",
                 OriginalInput = "light candles with match"
             });
-        
+
         if (input == "dig in sand with shovel")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {

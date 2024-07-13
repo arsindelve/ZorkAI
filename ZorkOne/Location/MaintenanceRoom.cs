@@ -2,6 +2,7 @@ using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
 using Model.Movement;
+using Utilities;
 using ZorkOne.Command;
 
 namespace ZorkOne.Location;
@@ -10,6 +11,7 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
 {
     public override string Name => "Maintenance Room";
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public int CurrentWaterLevel { get; set; }
 
     protected override string ContextBasedDescription => "This is what appears to have been the maintenance room " +
@@ -48,7 +50,6 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
         if (CurrentWaterLevel >= 13)
         {
             context.RemoveActor(this);
-            context.RemoveActor(Repository.GetItem<Troll>());
             return Task.FromResult(new DeathProcessor()
                 .Process(
                     "I'm afraid you have done drowned yourself.\n",
@@ -70,14 +71,25 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
         string[] verbs = ["push", "press", "activate", "toggle"];
         var verb = action.Verb.ToLowerInvariant().Trim();
         var noun = action.Noun?.ToLowerInvariant().ToLowerInvariant().Trim();
-
+        
         if (!verbs.Contains(verb))
             return base.RespondToSimpleInteraction(action, context, client);
 
         // If they said "blue button", simplify and replace "button" with "blue"
-        if (action.MatchNoun(["button"]) && !string.IsNullOrEmpty(action.Adjective))
-            noun = action.Adjective.ToLowerInvariant();
-        
+        if (action.MatchNoun(["button"]))
+        {
+            if (!string.IsNullOrEmpty(action.Adjective)) 
+                noun = action.Adjective.ToLowerInvariant();
+            else
+            {
+                return new SimpleInteractionDisambiguationInteractionResult(
+                    $"Which button do you mean, {new List<string> { "blue button", "red button", "yellow button", "brown button" }.SingleLineListWithOr()}?",
+                    "press",
+                    ["blue button", "red button", "yellow button", "brown button", "brown", "yellow", "red", "blue"]
+                );
+            }
+        }
+
         return noun switch
         {
             "blue button" or "blue" => BlueClick(context),
@@ -126,7 +138,7 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
 
 internal static class WaterLevel
 {
-    internal static Dictionary<int, string> Map = new()
+    internal static readonly Dictionary<int, string> Map = new()
     {
         { 1, "ankle" },
         { 2, "shin" },

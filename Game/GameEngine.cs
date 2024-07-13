@@ -173,38 +173,38 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         
         _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
 
-        var intentResult = parsedResult switch
+        (InteractionResult? result, string? resultMessage) intentResult = parsedResult switch
         {
             GlobalCommandIntent intent =>
-                await ProcessGlobalCommandIntent(intent),
+                (null, await ProcessGlobalCommandIntent(intent)),
 
             NullIntent =>
-                await GetGeneratedNoOpResponse(_currentInput, _generator, Context),
+                (null, await GetGeneratedNoOpResponse(_currentInput, _generator, Context)),
 
-            PromptIntent => parsedResult.Message,
+            PromptIntent => (null, parsedResult.Message),
             
             EnterSubLocationIntent subLocationIntent =>
-                await new EnterSubLocationEngine().Process(subLocationIntent, Context, _generator),
+                (null, await new EnterSubLocationEngine().Process(subLocationIntent, Context, _generator)),
             
             ExitSubLocationIntent exitSubLocationIntent =>
-                await new ExitSubLocationEngine().Process(exitSubLocationIntent, Context, _generator),
+                (null, await new ExitSubLocationEngine().Process(exitSubLocationIntent, Context, _generator)),
 
             MoveIntent moveInteraction =>
-                await new MoveEngine().Process(moveInteraction, Context, _generator),
+                (null, await new MoveEngine().Process(moveInteraction, Context, _generator)),
 
             SimpleIntent simpleInteraction =>
-                await new SimpleInteractionEngine().Process(simpleInteraction, Context, _generator),
+                (null, await new SimpleInteractionEngine().Process(simpleInteraction, Context, _generator)),
 
             MultiNounIntent multiInteraction =>
-                await new MultiNounEngine().Process(multiInteraction, Context, _generator),
+                (null, await new MultiNounEngine().Process(multiInteraction, Context, _generator)),
 
-            _ => await GetGeneratedNoOpResponse(_currentInput, _generator, Context)
+            _ => (null, await GetGeneratedNoOpResponse(_currentInput, _generator, Context))
         };
 
         // "Actors" are things that can occur each turn. Examples are the troll
         // attacking, the maintenance room flooding, Floyd mumbling. 
         string actorResults = await ProcessActors();
-        return PostProcessing(turnCounterResponse + intentResult?.Trim() + actorResults);
+        return PostProcessing(turnCounterResponse + intentResult.resultMessage?.Trim() + actorResults);
     }
 
     public int Score => Context.Score;
