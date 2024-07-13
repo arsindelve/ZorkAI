@@ -13,13 +13,14 @@ public class MultiNounEngine : IIntentEngine
 {
     private readonly List<IMultiNounVerbProcessor> _processors = [new PutProcessor()];
 
-    public async Task<string> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
+    public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent,
+        IContext context, IGenerationClient generationClient)
     {
         if (intent is not MultiNounIntent interaction)
             throw new ArgumentException();
 
         if (context.ItIsDarkHere)
-            return "It's too dark to see! ";
+            return (null, "It's too dark to see! ");
 
         // After a multi-noun interaction, we will lose the ability to understand "it"
         context.LastNoun = "";
@@ -27,30 +28,30 @@ public class MultiNounEngine : IIntentEngine
         // Does the location itself have a positive interaction? 
         var result = context.CurrentLocation.RespondToMultiNounInteraction(interaction, context);
         if (result?.InteractionHappened ?? false)
-            return result.InteractionMessage;
+            return (result, result.InteractionMessage);
 
         // Do any of the items on the ground have a positive interaction? 
-        if(context.CurrentLocation is ICanHoldItems items)
+        if (context.CurrentLocation is ICanHoldItems items)
             foreach (var nextItem in items.Items)
             {
                 result = nextItem.RespondToMultiNounInteraction(interaction, context);
                 if (result?.InteractionHappened ?? false)
-                    return result.InteractionMessage;
+                    return (result, result.InteractionMessage);
             }
 
         // Do any of the items in inventory have a positive interaction? 
-        if (context?.Items != null)
-            foreach (var nextItem in context.Items)
-            {
-                result = nextItem.RespondToMultiNounInteraction(interaction, context);
-                if (result?.InteractionHappened ?? false)
-                    return result.InteractionMessage;
-            }
+        foreach (var nextItem in context.Items)
+        {
+            result = nextItem.RespondToMultiNounInteraction(interaction, context);
+            if (result?.InteractionHappened ?? false)
+                return (result, result.InteractionMessage);
+        }
 
-        return await ProcessNonLocationTwoItemInteraction(context!, generationClient, interaction);
+        return await ProcessNonLocationTwoItemInteraction(context, generationClient, interaction);
     }
 
-    private async Task<string> ProcessNonLocationTwoItemInteraction(IContext context,
+    private async Task<(InteractionResult? resultObject, string ResultMessage)> ProcessNonLocationTwoItemInteraction(
+        IContext context,
         IGenerationClient generationClient,
         MultiNounIntent interaction)
     {
@@ -58,22 +59,25 @@ public class MultiNounEngine : IIntentEngine
         // talked about a unicorn, a bottle of tequila or some other meaningless item. 
         if (!Repository.ItemExistsInTheStory(interaction.NounOne) &&
             !Repository.ItemExistsInTheStory(interaction.NounTwo))
-            return await GetGeneratedNoOpResponse(interaction.OriginalInput, generationClient, context);
+            return (null, await GetGeneratedNoOpResponse(interaction.OriginalInput, generationClient, context));
 
         var nounOneExistsHere = IsItemHere(context, interaction.NounOne);
         var nounTwoExistsHere = IsItemHere(context, interaction.NounTwo);
 
         if (!nounOneExistsHere & nounTwoExistsHere)
-            return await GetGeneratedResponse<MissingFirstNounMultiNounOperationRequest>(interaction, generationClient,
-                context);
+            return (null, await GetGeneratedResponse<MissingFirstNounMultiNounOperationRequest>(interaction,
+                generationClient,
+                context));
 
         if (nounOneExistsHere & !nounTwoExistsHere)
-            return await GetGeneratedResponse<MissingSecondNounMultiNounOperationRequest>(interaction, generationClient,
-                context);
+            return (null, await GetGeneratedResponse<MissingSecondNounMultiNounOperationRequest>(interaction,
+                generationClient,
+                context));
 
         if (!nounOneExistsHere & !nounTwoExistsHere)
-            return await GetGeneratedResponse<MissingBothNounsMultiNounOperationRequest>(interaction, generationClient,
-                context);
+            return (null, await GetGeneratedResponse<MissingBothNounsMultiNounOperationRequest>(interaction,
+                generationClient,
+                context));
 
         var itemOne = Repository.GetItem(interaction.NounOne);
         var itemTwo = Repository.GetItem(interaction.NounTwo);
@@ -82,8 +86,8 @@ public class MultiNounEngine : IIntentEngine
         // the location description like the kitchen table. No real interaction is 
         // possible.
         if (itemOne is null || itemTwo is null)
-            return await GetGeneratedVerbNotUsefulResponse(interaction, generationClient,
-                context);
+            return (null, await GetGeneratedVerbNotUsefulResponse(interaction, generationClient,
+                context));
 
         // Let all the processors decide if they can handle this interaction. 
         foreach (var processor in _processors)
@@ -92,12 +96,12 @@ public class MultiNounEngine : IIntentEngine
                 itemTwo);
 
             if (result is { InteractionHappened: true })
-                return result.InteractionMessage;
+                return (result, result.InteractionMessage);
         }
 
         // If not positive interaction.....
-        return await GetGeneratedVerbNotUsefulResponse(interaction, generationClient,
-            context);
+        return (null, await GetGeneratedVerbNotUsefulResponse(interaction, generationClient,
+            context));
     }
 
     private static bool IsItemHere(IContext context, string item)

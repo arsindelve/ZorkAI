@@ -28,9 +28,9 @@ public class TakeOnlyAvailableItemProcessor : IStatefulProcessor
             ContinueProcessing = true;
 
             var location = (ICanHoldItems)context.CurrentLocation;
-            var itemsHere = location.Items?.Where(s => s is ICanBeTakenAndDropped).ToList();
+            var itemsHere = location.Items.Where(s => s is ICanBeTakenAndDropped).ToList();
 
-            if (itemsHere?.Count != 1)
+            if (itemsHere.Count != 1)
             {
                 _secondTimeProcessing = true;
                 return "What do you want to take? ";
@@ -47,7 +47,7 @@ public class TakeOnlyAvailableItemProcessor : IStatefulProcessor
             Verb = "take"
         };
 
-        var result = await processor.Process(intent, context, client);
+        string result = (await processor.Process(intent, context, client)).ResultMessage;
         ContinueProcessing = false;
         Completed = true;
 

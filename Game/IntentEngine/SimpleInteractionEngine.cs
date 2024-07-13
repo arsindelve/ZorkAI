@@ -2,12 +2,15 @@ using System.Diagnostics;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Interface;
+using Model.Item;
+using Utilities;
 
 namespace Game.IntentEngine;
 
 internal class SimpleInteractionEngine : IIntentEngine
 {
-    public async Task<string> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
+    public async Task<(InteractionResult? resultObject, string ResultMessage)>
+        Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {
         if (intent is not SimpleIntent simpleInteraction)
             throw new ArgumentException();
@@ -15,16 +18,20 @@ internal class SimpleInteractionEngine : IIntentEngine
         Debug.WriteLine(intent);
         context.LastNoun = simpleInteraction.Noun ?? "";
 
+        var requireDisambiguation = CheckDisambiguation(simpleInteraction, context);
+        if (requireDisambiguation is not null)
+            return (requireDisambiguation, requireDisambiguation.InteractionMessage);
+
         var contextInteraction = context.RespondToSimpleInteraction(simpleInteraction, generationClient);
 
         // We got a meaningful interaction from one of the items in inventory that changed the state of the game
         if (contextInteraction.InteractionHappened)
-            return contextInteraction.InteractionMessage + Environment.NewLine;
+            return (contextInteraction, contextInteraction.InteractionMessage + Environment.NewLine);
 
         // If it's dark, you can interact with items in your possession (above), but not items in the room.
         // There will be no more processing in a dark room. 
         if (context.ItIsDarkHere)
-            return "It's too dark to see! ";
+            return (null, "It's too dark to see! ");
 
         // Ask the context if it knows what to do with this interaction. Usually, this will only 
         // be true if there is an available interaction with one of the items in inventory. 
@@ -33,27 +40,62 @@ internal class SimpleInteractionEngine : IIntentEngine
 
         // We got a meaningful interaction in the location that changed the state of the game
         if (locationInteraction.InteractionHappened)
-            return locationInteraction.InteractionMessage + Environment.NewLine;
+            return (locationInteraction, locationInteraction.InteractionMessage + Environment.NewLine);
 
         // The noun was present in the given LOCATION, but the verb applied to
         // it has no meaning in the story. I.E: push the sword...that will accomplish nothing. 
         if (locationInteraction is NoVerbMatchInteractionResult noVerb)
-            return await GetGeneratedNoMatchingVerbResponse(noVerb.Noun, noVerb.Verb, generationClient, context);
+            return (locationInteraction,
+                await GetGeneratedNoMatchingVerbResponse(noVerb.Noun, noVerb.Verb, generationClient, context));
 
         // The noun was present in INVENTORY but the verb applied to
         // it has no meaning in the story. I.E: push the sword...that will accomplish nothing. 
         if (contextInteraction is NoVerbMatchInteractionResult noVerbContext)
-            return await GetGeneratedNoMatchingVerbResponse(noVerbContext.Noun, noVerbContext.Verb, generationClient,
-                context);
+            return (contextInteraction, await GetGeneratedNoMatchingVerbResponse(noVerbContext.Noun, noVerbContext.Verb,
+                generationClient,
+                context));
 
         // The noun exists in the game, but is not currently present. It might be in another location
         // or is hidden inside something else (like the leaflet in the mailbox) 
         if (Repository.ItemExistsInTheStory(simpleInteraction.Noun))
-            return await GetGeneratedNounNotPresentResponse(simpleInteraction.Noun, generationClient, context);
+            return (null, await GetGeneratedNounNotPresentResponse(simpleInteraction.Noun, generationClient, context));
 
         // There is no matching noun at all, anywhere in the game. The user might have
         // talked about a unicorn, a bottle of tequila or some other meaningless item. 
-        return await GetGeneratedNoOpResponse(simpleInteraction.OriginalInput ?? "", generationClient, context);
+        return (null, await GetGeneratedNoOpResponse(simpleInteraction.OriginalInput ?? "", generationClient, context));
+    }
+
+    private SimpleInteractionDisambiguationInteractionResult? CheckDisambiguation(SimpleIntent intent, IContext context)
+    {
+        var ambiguousItems = new List<IItem>();
+
+        IEnumerable<IItem> allItemsInSight =
+            context.GetAllItemsRecursively
+                .Union((context.CurrentLocation as ICanHoldItems)!.GetAllItemsRecursively)
+                .ToList();
+
+        foreach (var item in allItemsInSight)
+            if (intent.MatchNoun(item.NounsForMatching))
+                ambiguousItems.Add(item);
+
+        // We have one or fewer items that match the noun. Good to go. 
+        if (ambiguousItems.Count <= 1) 
+            return null;
+        
+        var itemNouns = ambiguousItems
+            .Select(s => s.NounsForMatching.MaxBy(n => n.Length))
+            .ToList()!
+            .SingleLineListWithOr();
+        var message = $"Do you mean {itemNouns}?";
+           
+        return new SimpleInteractionDisambiguationInteractionResult(
+            message,
+            intent.Verb,
+            ambiguousItems
+                .SelectMany(s => s.NounsForMatching)
+                .ToArray()
+        );
+
     }
 
     private static async Task<string> GetGeneratedNoMatchingVerbResponse(string? noun, string verb,

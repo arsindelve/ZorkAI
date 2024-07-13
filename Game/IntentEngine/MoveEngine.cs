@@ -8,30 +8,30 @@ namespace Game.IntentEngine;
 
 public class MoveEngine : IIntentEngine
 {
-    public async Task<string> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
+    public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {
         // TODO: Move from a dark location to another dark location and you die. 
 
         if (intent is not MoveIntent moveTo)
             throw new ArgumentException("Cast error");
 
-        var movement = context.CurrentLocation.Navigate(moveTo.Direction);
+        MovementParameters? movement = context.CurrentLocation.Navigate(moveTo.Direction);
 
         if (movement == null)
-            return await GetGeneratedCantGoThatWayResponse(generationClient, moveTo.Direction.ToString(), context);
+            return (null, await GetGeneratedCantGoThatWayResponse(generationClient, moveTo.Direction.ToString(), context));
 
         if (movement.WeightLimit < context.CarryingWeight)
-            return movement.WeightLimitFailureMessage;
+            return (null, movement.WeightLimitFailureMessage);
 
         if (!movement.CanGo(context) || movement.Location == null)
-            return !string.IsNullOrEmpty(movement.CustomFailureMessage)
+            return (null, !string.IsNullOrEmpty(movement.CustomFailureMessage)
                 ? movement.CustomFailureMessage + Environment.NewLine
-                : await GetGeneratedCantGoThatWayResponse(generationClient, moveTo.Direction.ToString(), context);
+                : await GetGeneratedCantGoThatWayResponse(generationClient, moveTo.Direction.ToString(), context));
 
         // Let's reset the noun context, so we don't get confused with "it" between locations
         context.LastNoun = "";
 
-        return await Go(context, generationClient, movement);
+        return (null, await Go(context, generationClient, movement));
     }
 
     public static Task<string> Go(IContext context, IGenerationClient generationClient, MovementParameters movement)

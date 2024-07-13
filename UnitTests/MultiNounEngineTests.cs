@@ -2,7 +2,9 @@ using Game.IntentEngine;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Intent;
+using Model.Interaction;
 using Model.Interface;
+using Model.Item;
 using Model.Location;
 
 namespace UnitTests;
@@ -45,6 +47,7 @@ public class MultiNounEngineTests
         var location = new Mock<ILocation>();
         location.Setup(s => s.DescriptionForGeneration).Returns("hello!");
         var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
+        Mock.Get(context).Setup(s => s.Items).Returns(new List<IItem>());
         var generationClient = new Mock<IGenerationClient>();
         generationClient.Setup(s => s.CompleteChat(It.IsAny<CommandHasNoEffectOperationRequest>()))
             .ReturnsAsync("bob");
@@ -53,7 +56,7 @@ public class MultiNounEngineTests
         var result = await engine.Process(intent, context, generationClient.Object);
 
         // Assert
-        result.Should().Contain("bob");
+        result.ResultMessage.Should().Contain("bob");
     }
 
     [Test]
@@ -76,6 +79,7 @@ public class MultiNounEngineTests
         var location = new Mock<ILocation>();
         location.Setup(s => s.DescriptionForGeneration).Returns("troll!");
         var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
+        Mock.Get(context).Setup(s => s.Items).Returns(new List<IItem>());
         var generationClient = new Mock<IGenerationClient>();
         generationClient.Setup(s => s.CompleteChat(It.IsAny<MissingSecondNounMultiNounOperationRequest>()))
             .ReturnsAsync("bob");
@@ -84,7 +88,7 @@ public class MultiNounEngineTests
         var result = await engine.Process(intent, context, generationClient.Object);
 
         // Assert
-        result.Should().Contain("bob");
+        result.ResultMessage.Should().Contain("bob");
     }
 
     [Test]
@@ -107,6 +111,7 @@ public class MultiNounEngineTests
         var location = new Mock<ILocation>();
         location.Setup(s => s.DescriptionForGeneration).Returns("sword!");
         var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
+        Mock.Get(context).Setup(s => s.Items).Returns(new List<IItem>());
         var generationClient = new Mock<IGenerationClient>();
         generationClient.Setup(s => s.CompleteChat(It.IsAny<MissingFirstNounMultiNounOperationRequest>()))
             .ReturnsAsync("bob");
@@ -115,7 +120,7 @@ public class MultiNounEngineTests
         var result = await engine.Process(intent, context, generationClient.Object);
 
         // Assert
-        result.Should().Contain("bob");
+        result.ResultMessage.Should().Contain("bob");
     }
 
     [Test]
@@ -137,6 +142,7 @@ public class MultiNounEngineTests
         var location = new Mock<ILocation>();
         location.Setup(s => s.DescriptionForGeneration).Returns("mailbox leaflet!");
         var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
+        Mock.Get(context).Setup(s => s.Items).Returns(new List<IItem>());
         var generationClient = new Mock<IGenerationClient>();
         generationClient.Setup(s => s.CompleteChat(It.IsAny<VerbHasNoEffectMultiNounOperationRequest>()))
             .ReturnsAsync("bob");
@@ -145,7 +151,7 @@ public class MultiNounEngineTests
         var result = await engine.Process(intent, context, generationClient.Object);
 
         // Assert
-        result.Should().Contain("bob");
+        result.ResultMessage.Should().Contain("bob");
     }
 
     [Test]
@@ -168,15 +174,16 @@ public class MultiNounEngineTests
         var location = new Mock<ILocation>();
         location.Setup(s => s.DescriptionForGeneration).Returns("hello");
         var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
+        Mock.Get(context).Setup(s => s.Items).Returns(new List<IItem>());
         var generationClient = new Mock<IGenerationClient>();
         generationClient.Setup(s => s.CompleteChat(It.IsAny<MissingBothNounsMultiNounOperationRequest>()))
             .ReturnsAsync("bob");
 
         // Act
-        var result = await engine.Process(intent, context, generationClient.Object);
+        (InteractionResult? resultObject, string ResultMessage) result = await engine.Process(intent, context, generationClient.Object);
 
         // Assert
-        result.Should().Contain("bob");
+        result.ResultMessage.Should().Contain("bob");
     }
 
     [Test]
@@ -203,6 +210,6 @@ public class MultiNounEngineTests
         var result = await engine.Process(intent, context, generationClient.Object);
 
         // Assert
-        result.Should().Contain("to see!");
+        result.ResultMessage.Should().Contain("to see!");
     }
 }
