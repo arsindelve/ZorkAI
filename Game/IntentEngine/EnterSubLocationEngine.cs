@@ -1,13 +1,14 @@
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Interface;
+using Model.Item;
 using Model.Location;
 
 namespace Game.IntentEngine;
 
 internal class EnterSubLocationEngine : IIntentEngine
 {
-    public async Task<string> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
+    public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {
         if (intent is not EnterSubLocationIntent enter)
             throw new ArgumentException("Cast error");
@@ -15,17 +16,17 @@ internal class EnterSubLocationEngine : IIntentEngine
         if (string.IsNullOrEmpty(enter.Noun))
             throw new ArgumentException("Null or empty noun. What's up with that?");
 
-        var subLocation = Repository.GetItem(enter.Noun);
+        IItem? subLocation = Repository.GetItem(enter.Noun);
         if (subLocation == null)
-            return await GetGeneratedCantGoThatWayResponse(generationClient, context, enter.Noun);
+            return (null, await GetGeneratedCantGoThatWayResponse(generationClient, context, enter.Noun));
 
         if (subLocation is not ISubLocation subLocationInstance)
-            return await GetGeneratedCantGoThatWayResponse(generationClient, context, enter.Noun);
+            return (null, await GetGeneratedCantGoThatWayResponse(generationClient, context, enter.Noun));
 
         if (context.CurrentLocation.SubLocation == subLocationInstance)
-            return $"You're already in the {enter.Noun}. ";
+            return (null, $"You're already in the {enter.Noun}. ");
         
-        return subLocationInstance.GetIn(context);
+        return (null, subLocationInstance.GetIn(context));
     }
 
     private static async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient,

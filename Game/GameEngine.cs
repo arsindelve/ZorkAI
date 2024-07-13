@@ -184,19 +184,19 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
             PromptIntent => (null, parsedResult.Message),
             
             EnterSubLocationIntent subLocationIntent =>
-                (null, await new EnterSubLocationEngine().Process(subLocationIntent, Context, _generator)),
+                await new EnterSubLocationEngine().Process(subLocationIntent, Context, _generator),
             
             ExitSubLocationIntent exitSubLocationIntent =>
-                (null, await new ExitSubLocationEngine().Process(exitSubLocationIntent, Context, _generator)),
+                await new ExitSubLocationEngine().Process(exitSubLocationIntent, Context, _generator),
 
             MoveIntent moveInteraction =>
-                (null, await new MoveEngine().Process(moveInteraction, Context, _generator)),
+                await new MoveEngine().Process(moveInteraction, Context, _generator),
 
             SimpleIntent simpleInteraction =>
-                (null, await new SimpleInteractionEngine().Process(simpleInteraction, Context, _generator)),
+                await new SimpleInteractionEngine().Process(simpleInteraction, Context, _generator),
 
             MultiNounIntent multiInteraction =>
-                (null, await new MultiNounEngine().Process(multiInteraction, Context, _generator)),
+                await new MultiNounEngine().Process(multiInteraction, Context, _generator),
 
             _ => (null, await GetGeneratedNoOpResponse(_currentInput, _generator, Context))
         };
