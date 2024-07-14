@@ -16,4 +16,16 @@
         <ProjectReference Include="..\Model\Model.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="FineTune\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="FineTune\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="FineTune\**" />
+    </ItemGroup>
+
 </Project>

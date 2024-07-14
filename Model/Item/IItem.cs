@@ -31,7 +31,23 @@ public interface IItem : IInteractionTarget
 
     int Size { get; }
 
+    /// <summary>
+    /// Determines whether the given noun matches any of the nouns for matching of an item.
+    /// </summary>
+    /// <param name="noun">The noun to match.</param>
+    /// <param name="lookInsideContainers">Indicates whether to also look inside containers for matches.</param>
+    /// <returns>True if the noun matches any of the item's nouns for matching or any of its contained items' nouns for matching; otherwise, false.</returns>
     bool HasMatchingNoun(string? noun, bool lookInsideContainers = true);
+
+    /// <summary>
+    /// Determines whether the item has a matching noun and adjective. This method checks if the item's noun and adjective
+    /// matches the provided noun and adjective, respectively. It also has an option to look inside containers for a match.
+    /// </summary>
+    /// <param name="noun">The noun to match against.</param>
+    /// <param name="adjective">The adjective to match against.</param>
+    /// <param name="lookInsideContainers">A flag indicating whether to look inside containers for a match. Default is true.</param>
+    /// <returns>True if the item has a matching noun and adjective; otherwise, false.</returns>
+    bool HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true);
 
     InteractionResult? RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client);
     

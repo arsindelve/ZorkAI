@@ -35,7 +35,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
 
     private static InteractionResult DropIt(SimpleIntent action, IContext context, IItem castItem)
     {
-        if (!context.HasMatchingNoun(action.Noun))
+        if (!context.HasMatchingNounAndAdjective(action.Noun, action.Adjective))
             return new PositiveInteractionResult("You don't have that!");
 
         context.Drop(castItem);
@@ -54,7 +54,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
             return new PositiveInteractionResult("It's too dark to see!");
 
-        if (context.HasMatchingNoun(action.Noun, false))
+        if (context.HasMatchingNounAndAdjective(action.Noun, action.Adjective, false))
             return new PositiveInteractionResult("You already have that!");
 
         var container = castItem.CurrentLocation;

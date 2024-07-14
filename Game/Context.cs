@@ -162,6 +162,22 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         return hasMatch;
     }
 
+    public bool HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true)
+    {
+        if (string.IsNullOrEmpty(adjective))
+            return HasMatchingNoun(noun, lookInsideContainers);
+        
+        var hasMatch = false;
+        Items.ForEach(i => hasMatch |= i.HasMatchingNounAndAdjective(noun, adjective, lookInsideContainers));
+
+        return hasMatch;
+    }
+
+    public bool HasMatchingNounAndAdjective(string? noun,  bool lookInsideContainers = true)
+    {
+        throw new NotImplementedException();
+    }
+
     public virtual bool HaveRoomForItem(IItem item)
     {
         // If you want the adventurer to have a weight limit, override this in the game context

@@ -4,7 +4,7 @@ public class NastyKnife : ItemBase, ICanBeTakenAndDropped, IWeapon
 {
     public override string InInventoryDescription => "a nasty knife";
 
-    public override string[] NounsForMatching => ["knife", "nasty knife"];
+    public override string[] NounsForMatching => ["knife", "nasty knife", "nasty"];
 
     string ICanBeTakenAndDropped.OnTheGroundDescription => "There is a nasty knife here. ";
 

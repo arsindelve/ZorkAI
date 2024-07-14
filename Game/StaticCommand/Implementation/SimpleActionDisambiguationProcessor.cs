@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Model.AIGeneration;
 using Model.Interface;
 
@@ -11,10 +12,16 @@ internal class SimpleActionDisambiguationProcessor(SimpleInteractionDisambiguati
         if (string.IsNullOrEmpty(input))
             return Task.FromResult("");
 
-        foreach (var possibleResponse in disambiguator.PossibleResponses)
+        // The order by here makes sure we get the most precise (longest) matching description 
+        foreach (string possibleResponse in disambiguator.PossibleResponses.Keys)
             if (input.ToLowerInvariant().Trim().Contains(possibleResponse))
-                return Task.FromResult($"{disambiguator.Verb} {possibleResponse}");
+            {
+                var result = $"{disambiguator.Verb} {disambiguator.PossibleResponses[possibleResponse]}";
+                Debug.WriteLine($"SimpleActionDisambiguationProcessor: {result}");
+                return Task.FromResult(result);
+            }
 
+        Debug.WriteLine($"SimpleActionDisambiguationProcessor: {input}");
         return Task.FromResult(input);
     }
 
