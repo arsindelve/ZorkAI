@@ -70,6 +70,9 @@ public class MazeFive : MazeBase
         StartWithItem<Skeleton>(this);
         StartWithItem<BurnedOutLantern>(this);
         StartWithItem<RustyKnife>(this);
+        StartWithItem<SkeletonKey>(this);
+        StartWithItem<BagOfCoins>(this);
+        
         base.Init();
     }
 }
@@ -190,5 +193,7 @@ public class MazeFifteen : MazeBase
         {
             { Direction.W, Go<MazeFourteen>() },
             { Direction.S, Go<MazeSeven>() },
+            { Direction.SE, Go<CyclopsRoom>() },
+            
         };
 }

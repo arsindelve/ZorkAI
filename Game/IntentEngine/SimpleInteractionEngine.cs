@@ -75,7 +75,7 @@ internal class SimpleInteractionEngine : IIntentEngine
                 .ToList();
 
         foreach (var item in allItemsInSight)
-            if (intent.MatchNoun(item.NounsForMatching))
+            if (intent.MatchNounAndAdjective(item.NounsForMatching))
                 ambiguousItems.Add(item);
 
         // We have one or fewer items that match the noun. Good to go. 
@@ -87,13 +87,24 @@ internal class SimpleInteractionEngine : IIntentEngine
             .ToList()!
             .SingleLineListWithOr();
         var message = $"Do you mean {itemNouns}?";
-           
+          
+        // For each item, we need a map of all possible nouns, to the longest noun, and then 
+        // we will replace the matching noun with the longest noun. If we don't do
+        // this, we'll loop around disambiguating forver. 
+        var nounToLongestNounMap = new Dictionary<string, string>();
+        foreach (var item in ambiguousItems)
+        {
+            string? longestNoun = item.NounsForMatching.MaxBy(noun => noun.Length);
+            foreach (var noun in item.NounsForMatching)
+            {
+                nounToLongestNounMap[noun] = longestNoun ?? string.Empty;
+            }
+        }
+        
         return new SimpleInteractionDisambiguationInteractionResult(
             message,
             intent.Verb,
-            ambiguousItems
-                .SelectMany(s => s.NounsForMatching)
-                .ToArray()
+            nounToLongestNounMap
         );
 
     }

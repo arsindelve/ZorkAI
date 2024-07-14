@@ -57,6 +57,18 @@ public interface ICanHoldItems : IInteractionTarget
     bool HasMatchingNoun(string? noun, bool lookInsideContainers = true);
 
     /// <summary>
+    ///     Checks if the container or context has an item with a matching noun and adjective, if one was provided in the input.
+    /// </summary>
+    /// <param name="noun">The noun to match against.</param>
+    /// <param name="adjective"></param>
+    /// <param name="lookInsideContainers">
+    ///     If true, the container will return true if the item
+    ///     is inside the given container, even if it's inside another container
+    /// </param>
+    /// <returns>True if the container or context has an item with a matching noun, otherwise false.</returns>
+    bool HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true);
+
+    /// <summary>
     ///     Checks if the container or context has room to hold the given item.
     /// </summary>
     /// <param name="item">The item to be checked.</param>

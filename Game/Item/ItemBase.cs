@@ -44,6 +44,14 @@ public abstract class ItemBase : IItem
     /// </value>
     public ICanHoldItems? CurrentLocation { get; set; }
 
+    public bool HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true)
+    {
+        if (string.IsNullOrEmpty(adjective))
+            return HasMatchingNoun(noun, lookInsideContainers);
+
+        return NounsForMatching.Any(s => s.Equals($"{adjective} {noun}", StringComparison.InvariantCultureIgnoreCase));
+    }
+
     /// <summary>
     ///     Responds to a simple interaction based on the given action and context. Does the user's intent
     ///     "noun" match our <see cref="NounsForMatching" />? If so, does the user's intent have any effect on this
