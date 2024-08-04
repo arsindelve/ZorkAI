@@ -64,7 +64,7 @@ public abstract class ItemBase : IItem
     public virtual InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        if (!action.MatchNoun(NounsForMatching))
+        if (!action.MatchNounAndAdjective(NounsForMatching))
             return new NoNounMatchInteractionResult();
 
         return ApplyProcessors(action, context, null, client);
