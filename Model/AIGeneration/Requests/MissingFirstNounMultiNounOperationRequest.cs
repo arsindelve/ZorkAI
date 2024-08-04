@@ -2,11 +2,6 @@ namespace Model.AIGeneration.Requests;
 
 public class MissingFirstNounMultiNounOperationRequest : MultiNounRequest
 {
-    public MissingFirstNounMultiNounOperationRequest()
-    {
-        SystemMessage = SystemPrompt;
-    }
-
     public override string UserMessage =>
         $"The player is in this location: \"{Location}\". " +
         $"They wrote \"{Verb} the {NounOne} {Preposition} the {NounTwo}\", and while " +

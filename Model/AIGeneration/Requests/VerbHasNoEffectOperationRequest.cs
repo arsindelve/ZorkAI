@@ -4,7 +4,6 @@ public class VerbHasNoEffectOperationRequest : Request
 {
     public VerbHasNoEffectOperationRequest(string location, string? noun, string verb)
     {
-        SystemMessage = SystemPrompt;
         UserMessage =
             $"The player is in this location: \"{location}\". " +
             $"They wrote \"{verb} the {noun}\", and while there is a \"{noun}\" here, " +
