@@ -16,6 +16,9 @@ public class ZorkOneController(
 )
     : ControllerBase
 {
+    private const string SaveGameTableName = "zork_savegame";
+    private const string SessionTableName = "zork_session_ondemand";
+
     [HttpPost]
     public async Task<GameResponse> Index([FromBody] GameRequest request)
     {
@@ -34,7 +37,7 @@ public class ZorkOneController(
     [Route("restoreGame")]
     public async Task<GameResponse> RestoreGame([FromBody] RestoreGameRequest request)
     {
-        var gameData = await savedGameRepository.GetSavedGame(request.Id, request.ClientId);
+        var gameData = await savedGameRepository.GetSavedGame(request.Id, request.ClientId, SaveGameTableName);
 
         if (string.IsNullOrEmpty(gameData))
             throw new ArgumentException($"Saved gamed {request.Id} had empty game data");
@@ -42,7 +45,8 @@ public class ZorkOneController(
         RestoreSession(gameData);
 
         var sb = new StringBuilder();
-        sb.AppendLine(await engine.GenerationClient.CompleteChat(new AfterRestoreGameRequest(engine.LocationDescription)));
+        sb.AppendLine(
+            await engine.GenerationClient.CompleteChat(new AfterRestoreGameRequest(engine.LocationDescription)));
         sb.AppendLine();
         sb.AppendLine(await engine.GetResponse("look"));
 
@@ -55,13 +59,13 @@ public class ZorkOneController(
     public async Task<string> SaveGame([FromBody] SaveGameRequest request)
     {
         var savedSession = await GetSavedSession(request.SessionId);
-        
+
         if (string.IsNullOrEmpty(savedSession))
-            throw new ArgumentException($"Session had empty game data before attempting save game.");
-        
+            throw new ArgumentException("Session had empty game data before attempting save game.");
+
         RestoreSession(savedSession);
         var encodedText = GetGameData();
-        await savedGameRepository.SaveGame(request.Id, request.ClientId, request.Name, encodedText);
+        await savedGameRepository.SaveGame(request.Id, request.ClientId, request.Name, encodedText, SaveGameTableName);
         return await engine.GenerationClient.CompleteChat(new AfterSaveGameRequest(engine.LocationDescription));
     }
 
@@ -69,7 +73,7 @@ public class ZorkOneController(
     [Route("saveGame")]
     public async Task<List<SavedGame>> GetAllSavedGames([FromQuery] string sessionId)
     {
-        var results = await savedGameRepository.GetSavedGames(sessionId);
+        var results = await savedGameRepository.GetSavedGames(sessionId, SaveGameTableName);
         return results
             .OrderByDescending(s => s.SavedOn)
             .Select(s => new SavedGame(s.Id, s.Name, s.SavedOn))
@@ -93,7 +97,7 @@ public class ZorkOneController(
     private async Task WriteSession(string sessionId)
     {
         var encodedText = GetGameData();
-        await sessionRepository.WriteSession(sessionId, encodedText);
+        await sessionRepository.WriteSession(sessionId, encodedText, SessionTableName);
     }
 
     private string GetGameData()
@@ -112,7 +116,7 @@ public class ZorkOneController(
 
     private async Task<string?> GetSavedSession(string sessionId)
     {
-        var savedGame = await sessionRepository.GetSession(sessionId);
+        var savedGame = await sessionRepository.GetSession(sessionId, SessionTableName);
         return savedGame;
     }
 }

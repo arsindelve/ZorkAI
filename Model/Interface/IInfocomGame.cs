@@ -32,4 +32,14 @@ public interface IInfocomGame
     string GetScoreDescription(int score);
 
     IGlobalCommandFactory GetGlobalCommandFactory();
+
+    /// <summary>
+    /// Represents the DynamoDb session table name of an Infocom game. The session table
+    /// name is used to store and retrieve game session data in the database.
+    /// </summary>
+    /// <remarks>
+    /// The session table name should be a unique identifier for each game,
+    /// ensuring that the session data is stored and retrieved correctly.
+    /// </remarks>
+    string SessionTableName { get; }
 }

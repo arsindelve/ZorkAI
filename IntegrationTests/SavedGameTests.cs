@@ -20,11 +20,11 @@ public class SavedGameTests
         var name = Guid.NewGuid().ToString();
         var target = new DynamoDbSavedGameRepository();
 
-        var id = await target.SaveGame(null, "bob", name, "GameEngine Data");
+        var id = await target.SaveGame(null, "bob", name, "GameEngine Data", "zork_savegame");
 
         id.Should().NotBeEmpty();
 
-        var allGames = await target.GetSavedGames("bob");
+        var allGames = await target.GetSavedGames("bob", "zork_savegame");
         allGames.Select(s => s.Name).Should().Contain(name);
     }
     
@@ -34,12 +34,12 @@ public class SavedGameTests
         var name = Guid.NewGuid().ToString();
         var target = new DynamoDbSavedGameRepository();
 
-        var id = await target.SaveGame(null, "bob", name, "GameEngine Data");
-        await target.SaveGame(id, "bob", name, "GameEngine Data #2");
+        var id = await target.SaveGame(null, "bob", name, "GameEngine Data", "zork_savegame");
+        await target.SaveGame(id, "bob", name, "GameEngine Data #2", "zork_savegame");
 
         id.Should().NotBeEmpty();
 
-        var result = await target.GetSavedGame(id, "bob");
+        var result = await target.GetSavedGame(id, "bob", "zork_savegame");
         result.Should().Be("GameEngine Data #2");
     }
 
@@ -50,9 +50,9 @@ public class SavedGameTests
         var name = Guid.NewGuid().ToString();
         var target = new DynamoDbSavedGameRepository();
 
-        string id = await target.SaveGame(null, "bob", name, "GameEngine Data");
+        string id = await target.SaveGame(null, "bob", name, "GameEngine Data","zork_savegame");
 
-        var result = await target.GetSavedGame(id, "bob");
+        var result = await target.GetSavedGame(id, "bob","zork_savegame");
         result.Should().Be("GameEngine Data");
     }
 }

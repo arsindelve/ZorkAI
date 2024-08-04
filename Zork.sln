@@ -28,7 +28,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Games", "Games", "{293EFDCF
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D516818E-5BE4-4D9C-B3A6-886ACCAA0BDF}"
 	ProjectSection(SolutionItems) = preProject
-		docker-compose.yml = docker-compose.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -41,6 +40,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Planetfall", "Planetfall\Planetfall.csproj", "{55D88ED2-8738-4EFC-869D-24150B9D7058}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZorkOne.Tests", "ZorkOne.Tests\ZorkOne.Tests.csproj", "{66E96ECC-B4B3-4DAE-864D-4FE10FCF95AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Planetfall.Tests", "Planetfall.Tests\Planetfall.Tests.csproj", "{6B26CCCB-25F0-4CF8-9A6B-E7D07DA8F197}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -112,6 +113,10 @@ Global
 		{66E96ECC-B4B3-4DAE-864D-4FE10FCF95AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66E96ECC-B4B3-4DAE-864D-4FE10FCF95AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66E96ECC-B4B3-4DAE-864D-4FE10FCF95AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B26CCCB-25F0-4CF8-9A6B-E7D07DA8F197}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B26CCCB-25F0-4CF8-9A6B-E7D07DA8F197}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B26CCCB-25F0-4CF8-9A6B-E7D07DA8F197}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B26CCCB-25F0-4CF8-9A6B-E7D07DA8F197}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0BB98F2E-7052-4BE2-819B-FFB749BA006C} = {0BD81EEF-68B0-4ACA-8E63-63EFC97663F7}
@@ -122,5 +127,6 @@ Global
 		{0065BD33-9073-4DBF-B499-CF5E101A908C} = {0BD81EEF-68B0-4ACA-8E63-63EFC97663F7}
 		{55D88ED2-8738-4EFC-869D-24150B9D7058} = {293EFDCF-F6DD-47EC-BF1A-479B24DA5CF6}
 		{66E96ECC-B4B3-4DAE-864D-4FE10FCF95AF} = {293EFDCF-F6DD-47EC-BF1A-479B24DA5CF6}
+		{6B26CCCB-25F0-4CF8-9A6B-E7D07DA8F197} = {293EFDCF-F6DD-47EC-BF1A-479B24DA5CF6}
 	EndGlobalSection
 EndGlobal

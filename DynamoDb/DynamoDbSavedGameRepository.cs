@@ -1,18 +1,15 @@
 using Amazon.DynamoDBv2.Model;
-using Model;
 using Model.Interface;
 
 namespace DynamoDb;
 
 public class DynamoDbSavedGameRepository : DynamoDbRepositoryBase, ISavedGameRepository
 {
-    private const string TableName = "zork_savegame";
-
-    public async Task<string?> GetSavedGame(string id, string sessionId)
+    public async Task<string?> GetSavedGame(string id, string sessionId, string tableName)
     {
         var request = new GetItemRequest
         {
-            TableName = TableName,
+            TableName = tableName,
             Key = new Dictionary<string, AttributeValue>
             {
                 { "id", new AttributeValue { S = id } },
@@ -26,7 +23,7 @@ public class DynamoDbSavedGameRepository : DynamoDbRepositoryBase, ISavedGameRep
         return response.Item["gameData"].S;
     }
 
-    public async Task<string> SaveGame(string? id, string clientId, string name, string gameData)
+    public async Task<string> SaveGame(string? id, string clientId, string name, string gameData, string tableName)
     {
         id ??= Guid.NewGuid().ToString();
         var item = new Dictionary<string, AttributeValue>
@@ -38,15 +35,16 @@ public class DynamoDbSavedGameRepository : DynamoDbRepositoryBase, ISavedGameRep
             { "date", new AttributeValue(DateTime.UtcNow.Ticks.ToString()) }
         };
 
-        await Client.PutItemAsync(TableName, item);
+        await Client.PutItemAsync(tableName, item);
         return id;
     }
 
-    public async Task<List<(string Id, string Name, DateTime SavedOn)>> GetSavedGames(string sessionId)
+    public async Task<List<(string Id, string Name, DateTime SavedOn)>> GetSavedGames(string sessionId,
+        string tableName)
     {
         var request = new QueryRequest
         {
-            TableName = TableName,
+            TableName = tableName,
             IndexName = "session_id-index",
             KeyConditionExpression = "#session_id = :sessionIdVal",
             ExpressionAttributeNames = new Dictionary<string, string> { { "#session_id", "session_id" } },

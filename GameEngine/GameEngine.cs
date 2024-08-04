@@ -41,28 +41,29 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     private bool _lastResponseWasGenerated;
     private IStatefulProcessor? _processorInProgress;
     internal TContext Context;
+    private TInfocomGame _gameInstance;
 
     [ActivatorUtilitiesConstructor]
     public GameEngine(ILogger<GameEngine<TInfocomGame, TContext>> logger)
     {
         _logger = logger;
-        var gameInstance = new TInfocomGame();
+        _gameInstance = new TInfocomGame();
         Context = new TContext
         {
             Engine = this,
-            Game = gameInstance,
+            Game = _gameInstance,
             Verbosity = Verbosity.Brief
         };
 
         Context.CurrentLocation.Init();
         Runtime = Runtime.Web;
         IntroText = $"""
-                     {gameInstance.StartText}
+                     {_gameInstance.StartText}
                      {Context.CurrentLocation.Description}
                      """;
 
         _generator = new ChatGPTClient(_logger);
-        _parser = new IntentParser(gameInstance.GetGlobalCommandFactory(), _logger);
+        _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
         _generator.OnGenerate += () => _lastResponseWasGenerated = true;
     }
 
@@ -215,6 +216,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     public int Score => Context.Score;
 
     public Runtime Runtime { get; set; }
+
+    public string SessionTableName => _gameInstance.SessionTableName;
 
     private string PostProcessing(string finalResult)
     {

@@ -36,6 +36,8 @@ public class ZorkI : IInfocomGame
         return new ZorkOneGlobalCommandFactory();
     }
 
+    public string SessionTableName => "zork_session_ondemand";
+
     public ZorkI()
     {
         _ = Repository.GetLocation<TrollRoom>();
