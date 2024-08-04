@@ -13,9 +13,18 @@
 	
 	
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingMode/@EntryValue">OnlyMarkers</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=917dee8b_002D04a6_002D42b6_002D908a_002Dc0566002be46/@EntryIndexedValue">&lt;SessionState ContinuousTestingIsOn="True" ContinuousTestingMode="2" IsActive="True" Name="All tests from &amp;lt;UnitTests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;Project Location="/Users/michael/RiderProjects/ZorkAI/UnitTests" Presentation="&amp;lt;UnitTests&amp;gt;" /&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=c5eeb015_002D7d69_002D4570_002Da374_002Da0ce7a5b77e3/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Or&gt;
+    &lt;And&gt;
+      &lt;Project Location="/Users/michael/RiderProjects/ZorkAI" Presentation="&amp;lt;Games&amp;gt;" /&gt;
+      &lt;Project Location="/Users/michael/RiderProjects/ZorkAI/ZorkOne.Tests" Presentation="&amp;lt;Games&amp;gt;\&amp;lt;ZorkOne.Tests&amp;gt;" /&gt;
+    &lt;/And&gt;
+    &lt;Project Location="/Users/michael/RiderProjects/ZorkAI/IntegrationTests" Presentation="&amp;lt;IntegrationTests&amp;gt;" /&gt;
+    &lt;Project Location="/Users/michael/RiderProjects/ZorkAI/UnitTests" Presentation="&amp;lt;UnitTests&amp;gt;" /&gt;
+  &lt;/Or&gt;
 &lt;/SessionState&gt;</s:String>
+	
+	
 	
 	
 	

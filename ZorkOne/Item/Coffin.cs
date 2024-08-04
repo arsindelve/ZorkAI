@@ -1,3 +1,5 @@
+using GameEngine;
+using GameEngine.Item;
 using Newtonsoft.Json;
 
 namespace ZorkOne.Item;

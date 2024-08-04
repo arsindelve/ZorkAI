@@ -1,4 +1,5 @@
-﻿using Game.Item.ItemProcessor;
+﻿using GameEngine.Item;
+using GameEngine.Item.ItemProcessor;
 using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;

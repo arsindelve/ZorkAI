@@ -1,4 +1,5 @@
-﻿using Model.Interface;
+﻿using GameEngine;
+using Model.Interface;
 using ZorkOne.GlobalCommand;
 
 namespace ZorkOne;

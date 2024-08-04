@@ -1,5 +1,5 @@
 ﻿using DynamoDb;
-using Game;
+using GameEngine;
 using Model.AIGeneration;
 using Model.Interface;
 using OpenAI;

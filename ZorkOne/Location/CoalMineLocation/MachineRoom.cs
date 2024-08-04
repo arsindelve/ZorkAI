@@ -1,4 +1,6 @@
-﻿using Model.Intent;
+﻿using GameEngine;
+using GameEngine.Location;
+using Model.Intent;
 using Model.Interface;
 using Model.Movement;
 

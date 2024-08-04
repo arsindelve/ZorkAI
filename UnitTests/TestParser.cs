@@ -1,4 +1,5 @@
-using Game.StaticCommand.Implementation;
+using GameEngine;
+using GameEngine.StaticCommand.Implementation;
 using Model.Intent;
 using Model.Interface;
 using Model.Movement;

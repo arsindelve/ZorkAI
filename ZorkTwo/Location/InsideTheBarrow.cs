@@ -1,4 +1,4 @@
-using Game.Location;
+using GameEngine.Location;
 using Model;
 using Model.Movement;
 

@@ -1,3 +1,4 @@
+using GameEngine;
 using ZorkOne.GlobalCommand;
 
 namespace UnitTests.GlobalCommands;

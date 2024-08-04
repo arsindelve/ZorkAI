@@ -1,3 +1,5 @@
+using GameEngine.Item;
+
 namespace ZorkOne.Item;
 
 public class Leaflet : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRead

@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using GameEngine;
 
 namespace ZorkOne;
 

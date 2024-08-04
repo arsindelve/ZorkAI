@@ -1,4 +1,6 @@
-using Game.Item.ItemProcessor;
+using GameEngine;
+using GameEngine.Item.ItemProcessor;
+using GameEngine.Location;
 using Model.Intent;
 using Model.Interface;
 using Model.Movement;

@@ -1,4 +1,6 @@
-﻿namespace UnitTests.GlobalCommands;
+﻿using GameEngine;
+
+namespace UnitTests.GlobalCommands;
 
 public class TakeAllDropAllTests : EngineTestsBase
 {

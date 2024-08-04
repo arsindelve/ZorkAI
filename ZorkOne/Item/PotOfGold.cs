@@ -1,4 +1,6 @@
-﻿namespace ZorkOne.Item;
+﻿using GameEngine.Item;
+
+namespace ZorkOne.Item;
 
 public class PotOfGold : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase,
     IGivePointsWhenFirstPickedUp

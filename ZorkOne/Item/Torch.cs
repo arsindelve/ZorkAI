@@ -1,4 +1,6 @@
-﻿namespace ZorkOne.Item;
+﻿using GameEngine.Item;
+
+namespace ZorkOne.Item;
 
 public class Torch : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICannotBeTurnedOff, IAmALightSource,
     IGivePointsWhenPlacedInTrophyCase, IGivePointsWhenFirstPickedUp

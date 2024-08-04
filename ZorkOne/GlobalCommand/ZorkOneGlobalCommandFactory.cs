@@ -1,4 +1,4 @@
-using Game.StaticCommand;
+using GameEngine.StaticCommand;
 using Model.Interface;
 using Utilities;
 using ZorkOne.GlobalCommand.Implementation;

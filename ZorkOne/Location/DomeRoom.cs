@@ -1,4 +1,5 @@
-﻿using Model.Intent;
+﻿using GameEngine.Location;
+using Model.Intent;
 using Model.Interface;
 using Model.Movement;
 using ZorkOne.Command;
