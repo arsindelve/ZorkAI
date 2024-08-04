@@ -36,7 +36,7 @@ public class ZorkI : IInfocomGame
         return new ZorkOneGlobalCommandFactory();
     }
 
-    public string SessionTableName => "zork_session_ondemand";
+    public string SessionTableName => "zork1_session";
 
     public ZorkI()
     {
