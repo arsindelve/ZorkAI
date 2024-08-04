@@ -1,0 +1,17 @@
+{
+    "AttributeDefinitions": [
+        {
+            "AttributeName": "session_id",
+            "AttributeType": "S"
+        }
+    ],
+    "TableName": "zork1_session",
+    "KeySchema": [
+        {
+            "AttributeName": "session_id",
+            "KeyType": "HASH"
+        }
+    ],
+    "BillingMode": "PAY_PER_REQUEST", 
+    "DeletionProtectionEnabled": false
+}
