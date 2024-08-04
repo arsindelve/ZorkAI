@@ -16,8 +16,8 @@ public class ZorkOneController(
 )
     : ControllerBase
 {
-    private const string SaveGameTableName = "zork_savegame";
-    private const string SessionTableName = "zork_session_ondemand";
+    private const string SaveGameTableName = "zork1_savegame";
+    private const string SessionTableName = "zork1_session";
 
     [HttpPost]
     public async Task<GameResponse> Index([FromBody] GameRequest request)
