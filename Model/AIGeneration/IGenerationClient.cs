@@ -10,6 +10,12 @@ public interface IGenerationClient
 {
     public Action? OnGenerate { get; set; }
 
+    /// <summary>
+    /// Sets the system prompt for AI generation.
+    /// </summary>
+    /// <param name="prompt">The system prompt to be set.</param>
+    string SystemPrompt { set; }
+
     List<(string, string, bool)> LastFiveInputOutputs { get; set; }
 
     /// <summary>

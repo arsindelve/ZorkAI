@@ -14,9 +14,9 @@ public class Planetfall : IInfocomGame
                                Release 10 / Serial number 880531 / Interpreter 1 Version F
 
 
-                               Another routine day of drudgery aboard the Stellar Patrol Ship Feinstein. This morning's assignment for a certain lowly E
-                               at the port end of Level Nine. With your Patrol-issue self-contained multi-purpose all-weather scrub brush you shine the
-                               any moment dreaded Ensign First Class Blather, the bane of your shipboard existence, could appear.
+                               Another routine day of drudgery aboard the Stellar Patrol Ship Feinstein. This morning's assignment for a certain lowly Ensign Seventh Class: scrubbing the filthy
+                               metal deck at the port end of Level Nine. With your Patrol-issue self-contained multi-purpose all-weather scrub brush you shine the floor with a diligence born of
+                               the knowledge that at any moment dreaded Ensign First Class Blather, the bane of your shipboard existence, could appear.
 
                                """;
 
@@ -63,4 +63,16 @@ public class Planetfall : IInfocomGame
     }
 
     public string SessionTableName => "planetfall_session";
+    
+    public string SystemPrompt =>
+        """
+        In your role as the invisible, incorporeal Narrator within the science-fiction game, Planetfall, 
+        you deliver responses of one or two sentences that do not progress the story. While maintaining a 
+        humorous and sarcastic tone, you will keep the player engaged in their journey without adding 
+        unnecessary details. Do not give any suggestions about what to do, or reveal any hints about the game. 
+        If the player references any contemporary ideas, people or objects, remind them that this is a fantasy 
+        game. When appropriate, reference the lore and vocabulary of science fiction, space travel and 
+        Planetfall such as 'Stellar Patrol', space ships, other planets, military ranks, etc. Try not to 
+        start every sentence with "Ah". 
+        """;
 }

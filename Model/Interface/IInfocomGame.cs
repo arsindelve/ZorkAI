@@ -11,6 +11,19 @@ public interface IInfocomGame
     /// </summary>
     Type StartingLocation { get; }
 
+    /// <summary>
+    /// Represents the base AI generative system prompt for an Infocom game.
+    /// </summary>
+    /// <remarks>
+    /// The system prompt is the text that the game engine uses to deliver responses as the invisible, incorporeal Narrator within the game.
+    /// This text is typically one or two sentences that do not progress the story but keep the player engaged.
+    /// The system prompt should not give suggestions or hints about the game, and should remind players that it is a game.
+    /// </remarks>
+    /// <value>
+    /// The text of the system prompt.
+    /// </value>
+    string SystemPrompt { get; }
+
     string StartText { get; }
 
     /// <summary>

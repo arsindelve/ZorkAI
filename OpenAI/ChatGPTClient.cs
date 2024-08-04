@@ -28,6 +28,8 @@ public class ChatGPTClient : IGenerationClient
 
     public Action? OnGenerate { get; set; }
 
+    public string SystemPrompt { private get; set; }
+    
     public List<(string, string, bool)> LastFiveInputOutputs { get; set; } = new();
 
     /// <summary>
@@ -46,7 +48,7 @@ public class ChatGPTClient : IGenerationClient
             DeploymentName = "gpt-4o",
             Messages =
             {
-                new ChatRequestSystemMessage(request.SystemMessage)
+                new ChatRequestSystemMessage(SystemPrompt)
             }
         };
 
