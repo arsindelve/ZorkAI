@@ -1,4 +1,3 @@
-using GameEngine;
 using Model.Interface;
 using Planetfall.Location;
 
@@ -6,11 +5,6 @@ namespace Planetfall;
 
 public class Planetfall : IInfocomGame
 {
-    public Planetfall()
-    {
-       // _ = Repository.GetLocation<DeckNine>();
-    }
-
     public Type StartingLocation => typeof(DeckNine);
 
     public string StartText => """
@@ -67,4 +61,6 @@ public class Planetfall : IInfocomGame
     {
         throw new NotImplementedException();
     }
+
+    public string SessionTableName => "planetfall_session";
 }
