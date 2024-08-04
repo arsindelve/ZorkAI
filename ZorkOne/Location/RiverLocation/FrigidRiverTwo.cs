@@ -1,4 +1,4 @@
-using Game.IntentEngine;
+using GameEngine;
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;

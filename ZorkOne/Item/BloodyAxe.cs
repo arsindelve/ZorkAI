@@ -1,3 +1,6 @@
+using GameEngine;
+using GameEngine.Item;
+
 namespace ZorkOne.Item;
 
 public class BloodyAxe : ItemBase, ICanBeTakenAndDropped, IWeapon

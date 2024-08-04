@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Game\Game.csproj"/>
+        <ProjectReference Include="..\GameEngine\GameEngine.csproj" />
         <ProjectReference Include="..\Model\Model.csproj"/>
     </ItemGroup>
 

@@ -1,4 +1,5 @@
-﻿using Model.Movement;
+﻿using GameEngine.Location;
+using Model.Movement;
 
 namespace ZorkOne.Location.ForestLocation;
 

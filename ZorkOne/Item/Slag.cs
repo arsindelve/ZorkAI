@@ -1,3 +1,5 @@
+using GameEngine;
+using GameEngine.Item;
 using Model.Interface;
 
 namespace ZorkOne.Item;

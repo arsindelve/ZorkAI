@@ -1,4 +1,5 @@
-﻿using Model.AIGeneration;
+﻿using GameEngine.Item;
+using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
 using Newtonsoft.Json;

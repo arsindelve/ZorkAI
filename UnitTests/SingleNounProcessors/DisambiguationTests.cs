@@ -1,3 +1,5 @@
+using GameEngine;
+
 namespace UnitTests.SingleNounProcessors;
 
 public class DisambiguationTests : EngineTestsBase
