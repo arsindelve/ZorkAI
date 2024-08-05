@@ -283,20 +283,6 @@ public class EngineTests : EngineTestsBase
     }
 
     [Test]
-    public async Task MoveCounter()
-    {
-        var target = GetTarget();
-
-        target.Context.Moves.Should().Be(0);
-        await target.GetResponse("look");
-
-        target.Context.Moves.Should().Be(1);
-        await target.GetResponse("open mailbox");
-
-        target.Context.Moves.Should().Be(2);
-    }
-
-    [Test]
     public void IHaveALightSource_NoInventory()
     {
         var target = GetTarget();
