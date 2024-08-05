@@ -44,7 +44,7 @@ public class Dam : BaseLocation
 
     public override void Init()
     {
-        StartWithItem(GetItem<ControlPanel>(), this);
+        StartWithItem<ControlPanel>();
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,

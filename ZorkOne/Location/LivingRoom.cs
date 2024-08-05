@@ -57,9 +57,9 @@ public class LivingRoom : BaseLocation
 
     public override void Init()
     {
-        StartWithItem<Sword>(this);
-        StartWithItem<Lantern>(this);
-        StartWithItem<Rug>(this);
-        StartWithItem<TrophyCase>(this);
+        StartWithItem<Sword>();
+        StartWithItem<Lantern>();
+        StartWithItem<Rug>();
+        StartWithItem<TrophyCase>();
     }
 }

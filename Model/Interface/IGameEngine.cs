@@ -13,6 +13,8 @@ public interface IGameEngine
     ///     with the game environment.
     /// </remarks>
     int Moves { get; }
+    
+    string SessionTableName { get;  }
 
     /// <summary>
     /// Represents the client responsible for generating text for different scenarios in the game that don't have

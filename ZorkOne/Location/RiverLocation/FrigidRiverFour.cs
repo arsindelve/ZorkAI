@@ -32,6 +32,6 @@ public class FrigidRiverFour : FrigidRiverBase
 
     public override void Init()
     {
-        StartWithItem<Buoy>(this);
+        StartWithItem<Buoy>();
     }
 }

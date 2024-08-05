@@ -63,7 +63,7 @@ internal class BatRoom : DarkLocation
 
     public override void Init()
     {
-        StartWithItem<Bat>(this);
-        StartWithItem<JadeFigurine>(this);
+        StartWithItem<Bat>();
+        StartWithItem<JadeFigurine>();
     }
 }

@@ -45,7 +45,7 @@ public class Reservoir : DarkLocation, ITurnBasedActor
 
     public override void Init()
     {
-        StartWithItem<TrunkOfJewels>(this);
+        StartWithItem<TrunkOfJewels>();
     }
 
     public override string AfterEnterLocation(IContext context, ILocation previousLocation)

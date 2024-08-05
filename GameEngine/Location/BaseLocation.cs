@@ -201,17 +201,11 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     {
     }
 
-    protected void StartWithItem(ItemBase item, ICanHoldItems location)
-    {
-        Items.Add(item);
-        item.CurrentLocation = location;
-    }
-
-    protected void StartWithItem<T>(ICanHoldItems location) where T : IItem, new()
+    protected void StartWithItem<T>() where T : IItem, new()
     {
         var item = Repository.GetItem<T>();
         Items.Add(item);
-        item.CurrentLocation = location;
+        item.CurrentLocation = this;
     }
 
     /// <summary>

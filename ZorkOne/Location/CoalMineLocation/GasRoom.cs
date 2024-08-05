@@ -24,6 +24,6 @@ internal class GasRoom : DarkLocation
 
     public override void Init()
     {
-        StartWithItem<SapphireBracelet>(this);
+        StartWithItem<SapphireBracelet>();
     }
 }

@@ -20,6 +20,6 @@ internal class LandOfTheDead : DarkLocation
 
     public override void Init()
     {
-        StartWithItem<CrystalSkull>(this);
+        StartWithItem<CrystalSkull>();
     }
 }

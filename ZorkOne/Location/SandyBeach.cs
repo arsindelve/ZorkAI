@@ -19,6 +19,6 @@ public class SandyBeach : DarkLocation // Explain to me how a beach can be a dar
     
     public override void Init()
     {
-       StartWithItem<Shovel>(this);
+       StartWithItem<Shovel>();
     }
 }
