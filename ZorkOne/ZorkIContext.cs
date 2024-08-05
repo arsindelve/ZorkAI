@@ -16,6 +16,11 @@ public class ZorkIContext : Context<ZorkI>
     ///     The Death Counter keeps track of the number of times the player character has died.
     /// </remarks>
     public int DeathCounter { get; set; }
+    
+    public override string CurrentScore => $"""
+                                              Your score would be {Score} (total of 350 points), in {Moves} moves.
+                                              This score gives you the rank of {Game.GetScoreDescription(Score)}.
+                                           """;
 
     /// <summary>
     ///     The player can only have one light wound. A second will kill them. This counter tracks how much

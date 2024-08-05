@@ -25,17 +25,21 @@ public static class DirectionParser
         switch (rawDirection.ToLowerInvariant().Trim())
         {
             case "n":
+            case "fore":
             case "north":
                 return Direction.N;
 
+            case "starboard":
             case "e":
             case "east":
                 return Direction.E;
 
+            case "aft":
             case "s":
             case "south":
                 return Direction.S;
 
+            case "port":
             case "w":
             case "west":
                 return Direction.W;

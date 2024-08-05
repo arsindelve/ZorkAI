@@ -1,7 +1,6 @@
 using GameEngine;
 using GameEngine.Item.MultiItemProcessor;
 using Model.Intent;
-using Model.Interface;
 using Model.Item;
 using UnitTests.SingleNounProcessors;
 using ZorkOne;
@@ -21,7 +20,7 @@ public class PutProcessorTests : EngineTestsBase
     public void PutProcessor_ReceiverCannotHoldItems()
     {
         var target = new PutProcessor();
-        var result = target.Process(null!, null!, new Lantern()!, new Sword());
+        var result = target.Process(null!, null!, new Lantern(), new Sword());
         result.Should().BeNull();
     }
 
@@ -38,7 +37,7 @@ public class PutProcessorTests : EngineTestsBase
             NounTwo = "mailbox",
             Preposition = "with",
             OriginalInput = ""
-        }, null!, new Lantern()!, new Mailbox());
+        }, null!, new Lantern(), new Mailbox());
 
         // Assert
         result.Should().BeNull();
@@ -57,7 +56,7 @@ public class PutProcessorTests : EngineTestsBase
             NounTwo = "mailbox",
             Preposition = "on",
             OriginalInput = ""
-        }, null!, new Lantern()!, new Mailbox());
+        }, null!, new Lantern(), new Mailbox());
 
         // Assert
         result.Should().BeNull();
@@ -76,7 +75,7 @@ public class PutProcessorTests : EngineTestsBase
             NounTwo = "mailbox",
             Preposition = "inside",
             OriginalInput = ""
-        }, null!, new Lantern()!, new Mailbox());
+        }, null!, new Lantern(), new Mailbox());
 
         // Assert
         result.Should().NotBeNull();
@@ -89,7 +88,7 @@ public class PutProcessorTests : EngineTestsBase
     {
         var target = new PutProcessor();
         var lantern = Repository.GetItem<Lantern>();
-        lantern.CurrentLocation = new Context<ZorkI>();
+        lantern.CurrentLocation = new ZorkIContext();
 
         // Act
         var result = target.Process(new MultiNounIntent
@@ -115,7 +114,7 @@ public class PutProcessorTests : EngineTestsBase
         var mailbox = Repository.GetItem<Mailbox>();
         mailbox.RemoveItem(leaflet);
         ((IOpenAndClose)mailbox).IsOpen = true;
-        leaflet.CurrentLocation = new Context<ZorkI>();
+        leaflet.CurrentLocation = new ZorkIContext();
 
         // Act
         var result = target.Process(new MultiNounIntent
@@ -144,7 +143,7 @@ public class PutProcessorTests : EngineTestsBase
         var mailbox = Repository.GetItem<Mailbox>();
         mailbox.RemoveItem(leaflet);
         ((IOpenAndClose)mailbox).IsOpen = true;
-        rope.CurrentLocation = new Context<ZorkI>();
+        rope.CurrentLocation = new ZorkIContext();
 
         // Act
         var result = target.Process(new MultiNounIntent
@@ -173,7 +172,7 @@ public class PutProcessorTests : EngineTestsBase
         var mailbox = Repository.GetItem<Mailbox>();
         mailbox.RemoveItem(leaflet);
         ((IOpenAndClose)mailbox).IsOpen = true;
-        lantern.CurrentLocation = new Context<ZorkI>(Mock.Of<IGameEngine>(), new ZorkI());
+        lantern.CurrentLocation = new ZorkIContext();
 
         // Act
         var result = target.Process(new MultiNounIntent
@@ -200,7 +199,7 @@ public class PutProcessorTests : EngineTestsBase
         var trophyCase = Repository.GetItem<TrophyCase>();
         ((IOpenAndClose)trophyCase).IsOpen = true;
         painting.CurrentLocation = trophyCase;
-        sword.CurrentLocation = new Context<ZorkI>();
+        sword.CurrentLocation = new ZorkIContext();
 
         // Act
         var result = target.Process(new MultiNounIntent
@@ -227,7 +226,7 @@ public class PutProcessorTests : EngineTestsBase
         var sword = Repository.GetItem<Sword>();
         var mailbox = Repository.GetItem<Mailbox>();
         ((IOpenAndClose)mailbox).IsOpen = true;
-        sword.CurrentLocation = new Context<ZorkI>();
+        sword.CurrentLocation = new ZorkIContext();
 
         // Act
         var result = target.Process(new MultiNounIntent
@@ -253,7 +252,7 @@ public class PutProcessorTests : EngineTestsBase
         var garlic = Repository.GetItem<Garlic>();
         var bottle = Repository.GetItem<Bottle>();
         ((IOpenAndClose)bottle).IsOpen = true;
-        garlic.CurrentLocation = new Context<ZorkI>();
+        garlic.CurrentLocation = new ZorkIContext();
 
         // Act
         var result = target.Process(new MultiNounIntent
@@ -285,7 +284,7 @@ public class PutProcessorTests : EngineTestsBase
         mailbox.ItemPlacedHere(knife);
 
         ((IOpenAndClose)mailbox).IsOpen = true;
-        var context = new Context<ZorkI>();
+        var context = new ZorkIContext();
         garlic.CurrentLocation = context;
         knife.CurrentLocation = context;
         leaflet.CurrentLocation = mailbox;

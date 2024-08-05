@@ -11,10 +11,10 @@ namespace GameEngine;
 /// <summary>
 ///     The "context" is anything we need to know about the state of the game that is not
 ///     location or item state dependant. These include the score, number of moves, adventurer inventory...
-///     stuff like that. This, along with the state of all objects and locations, (stored in the <see cref="Repository") />
+///     stuff like that. This, along with the state of all objects and locations, (stored in the Repository) />
 ///     encompasses everything we need to know to save and restore the game...i.e preserve the entire game state
 /// </summary>
-public class Context<T> : IContext where T : IInfocomGame, new()
+public abstract class Context<T> : IContext where T : IInfocomGame, new()
 {
     /// <summary>
     ///     Starts the game in the default start location.
@@ -191,9 +191,9 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         return Items.Sum(item => item.Size) + Items.OfType<ContainerBase>().Sum(container => container.CalculateTotalSize());
     }
 
-    public void Init()
+    public virtual void Init()
     {
-        // We start empty-handed
+        // We start empty-handed, unless overriden by the game specific context. 
     }
 
     public void OnItemPlacedHere(IItem item, IContext context)
@@ -222,6 +222,8 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         Score += points;
         return Score;
     }
+
+    public abstract string CurrentScore { get; }
 
     /// <summary>
     ///     Adds the specified item to the inventory of the game context and removes it from the current location
@@ -289,6 +291,13 @@ public class Context<T> : IContext where T : IInfocomGame, new()
         Actors.Add(actor);
     }
 
+    protected void StartWithItem<T>(ICanHoldItems location) where T : IItem, new()
+    {
+        var item = Repository.GetItem<T>();
+        Items.Add(item);
+        item.CurrentLocation = location;
+    }
+    
     public void RemoveActor(ITurnBasedActor actor)
     {
         Actors.Remove(actor);
