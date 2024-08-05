@@ -53,9 +53,9 @@ public class Kitchen : BaseLocation
 
     public override void Init()
     {
-        StartWithItem<KitchenWindow>(this);
-        StartWithItem<BrownSack>(this);
-        StartWithItem<Bottle>(this);
+        StartWithItem<KitchenWindow>();
+        StartWithItem<BrownSack>();
+        StartWithItem<Bottle>();
     }
 
     protected override void OnFirstTimeEnterLocation(IContext context)

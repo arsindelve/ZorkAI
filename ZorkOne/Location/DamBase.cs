@@ -65,6 +65,6 @@ public class DamBase : BaseLocation
 
     public override void Init()
     {
-        StartWithItem<PileOfPlastic>(this);
+        StartWithItem<PileOfPlastic>();
     }
 }

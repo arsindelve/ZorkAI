@@ -143,6 +143,6 @@ public class TrollRoom : DarkLocation
 
     public override void Init()
     {
-        StartWithItem(Repository.GetItem<Troll>(), this);
+        StartWithItem<Troll>();
     }
 }

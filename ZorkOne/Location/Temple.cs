@@ -24,6 +24,6 @@ public class Temple : BaseLocation
 
     public override void Init()
     {
-        StartWithItem<BrassBell>(this);
+        StartWithItem<BrassBell>();
     }
 }

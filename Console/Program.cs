@@ -13,8 +13,7 @@ var sessionId = Environment.MachineName;
 
 Console.ForegroundColor = ConsoleColor.DarkCyan;
 
-//var engine = CreateEngine<ZorkI, ZorkIContext>();
-var engine = CreateEngine<Planetfall.Planetfall, PlanetfallContext>();
+var engine = GetEngine();
 
 var savedGame = await database.GetSession(sessionId, engine.SessionTableName);
 Console.WriteLine(engine.IntroText + Environment.NewLine);
@@ -36,15 +35,14 @@ while (result != "-1")
     var command = Console.ReadLine();
     result = await engine.GetResponse(command);
 
-    string json = engine.SaveGame();
+    var json = engine.SaveGame();
     var bytesToEncode = Encoding.UTF8.GetBytes(json);
     var encodedText = Convert.ToBase64String(bytesToEncode);
     await database.WriteSession(sessionId, encodedText, engine.SessionTableName);
 
     if (result?.Trim().StartsWith("-2") ?? false)
     {
-        // engine = CreateEngine<ZorkI, ZorkIContext>();
-        engine = CreateEngine<Planetfall.Planetfall, PlanetfallContext>();
+        engine = GetEngine();
         Console.WriteLine(engine.IntroText);
         continue;
     }
@@ -56,19 +54,18 @@ while (result != "-1")
 }
 
 
-GameEngine<TGame, TContext> CreateEngine<TGame, TContext>() 
+GameEngine<TGame, TContext> CreateEngine<TGame, TContext>()
     where TContext : Context<TGame>, new()
     where TGame : class, IInfocomGame, new()
 {
     ILoggerFactory loggerFactory;
-    
+
     if (Debugger.IsAttached)
-    {
         loggerFactory = LoggerFactory.Create(builder =>
             builder
                 .AddConsole()
                 .AddDebug()
-                .AddFilter((category, level) =>
+                .AddFilter((category, _) =>
                 {
                     if (category!.Contains("GameEngine.GameEngine"))
                         return true;
@@ -77,14 +74,11 @@ GameEngine<TGame, TContext> CreateEngine<TGame, TContext>()
                 })
                 .SetMinimumLevel(LogLevel.Debug)
         );
-    }
     else
-    {
         loggerFactory = LoggerFactory.Create(builder =>
-        
             builder
                 .AddDebug()
-                .AddFilter((category, level) =>
+                .AddFilter((category, _) =>
                 {
                     if (category!.Contains("GameEngine.GameEngine"))
                         return true;
@@ -93,7 +87,6 @@ GameEngine<TGame, TContext> CreateEngine<TGame, TContext>()
                 })
                 .SetMinimumLevel(LogLevel.Warning)
         );
-    }
 
     var logger = loggerFactory.CreateLogger<GameEngine<TGame, TContext>>();
     var gameEngine = new GameEngine<TGame, TContext>(logger)
@@ -101,4 +94,18 @@ GameEngine<TGame, TContext> CreateEngine<TGame, TContext>()
         Runtime = Runtime.Console
     };
     return gameEngine;
+}
+
+IGameEngine GetEngine()
+{
+    IGameEngine newEngine = args[0] switch
+    {
+        "Planetfall" => CreateEngine<Planetfall.Planetfall, PlanetfallContext>(),
+        "ZorkOne" => CreateEngine<ZorkI, ZorkIContext>(),
+        //"ZorkTwo" => CreateEngine<ZorkII, ZorkIIContext>(),
+
+        _ => throw new InvalidOperationException($"Unsupported engine type: {args[0]}")
+    };
+
+    return newEngine;
 }

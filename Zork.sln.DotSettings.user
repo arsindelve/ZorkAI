@@ -13,7 +13,7 @@
 	
 	
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingMode/@EntryValue">OnlyMarkers</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=461a5e0f_002Dea97_002D4080_002Da782_002Df6a2332300d8/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=461a5e0f_002Dea97_002D4080_002Da782_002Df6a2332300d8/@EntryIndexedValue">&lt;SessionState ContinuousTestingIsOn="True" ContinuousTestingMode="3" IsActive="True" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Or&gt;
     &lt;Project Location="/Users/michael/RiderProjects/ZorkAI" Presentation="&amp;lt;Games&amp;gt;" /&gt;
     &lt;Project Location="/Users/michael/RiderProjects/ZorkAI/IntegrationTests" Presentation="&amp;lt;IntegrationTests&amp;gt;" /&gt;

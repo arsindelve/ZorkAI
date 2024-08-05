@@ -24,6 +24,6 @@ internal class TimberRoom : DarkLocation
 
     public override void Init()
     {
-        StartWithItem<Timber>(this);
+        StartWithItem<Timber>();
     }
 }

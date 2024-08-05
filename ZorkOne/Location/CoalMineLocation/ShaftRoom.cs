@@ -70,7 +70,7 @@ internal class ShaftRoom : DarkLocation
 
     public override void Init()
     {
-        StartWithItem<Chain>(this);
-        StartWithItem<Basket>(this);
+        StartWithItem<Chain>();
+        StartWithItem<Basket>();
     }
 }

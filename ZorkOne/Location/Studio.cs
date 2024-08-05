@@ -48,6 +48,6 @@ public class Studio : BaseLocation
 
     public override void Init()
     {
-        StartWithItem<Manual>(this);
+        StartWithItem<Manual>();
     }
 }

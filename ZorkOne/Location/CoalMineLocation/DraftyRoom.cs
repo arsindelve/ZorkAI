@@ -55,7 +55,7 @@ internal class DraftyRoom : DarkLocation
 
     public override void Init()
     {
-        StartWithItem<Chain>(this);
+        StartWithItem<Chain>();
     }
     
     protected override void OnFirstTimeEnterLocation(IContext context)

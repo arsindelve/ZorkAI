@@ -21,6 +21,6 @@ public class Gallery : BaseLocation
 
     public override void Init()
     {
-        StartWithItem(Repository.GetItem<Painting>(), this);
+        StartWithItem<Painting>();
     }
 }

@@ -56,6 +56,6 @@ public class WestOfHouse : BaseLocation
 
     public override void Init()
     {
-        StartWithItem(Repository.GetItem<Mailbox>(), this);
+        StartWithItem<Mailbox>();
     }
 }
