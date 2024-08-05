@@ -88,6 +88,15 @@ public interface IContext : ICanHoldItems
     /// </summary>
     Verbosity Verbosity { get; set; }
 
+    /// <summary>
+    /// Represents the current score of the adventurer.
+    /// </summary>
+    /// <remarks>
+    /// The score is used to keep track of the player's progress and achievements in the game.
+    /// It is an integer value and can be accessed through the "CurrentScore" property.
+    /// </remarks>
+    string CurrentScore { get; }
+
     void Take(IItem item);
 
     void Drop(IItem item);

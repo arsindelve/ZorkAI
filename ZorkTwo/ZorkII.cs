@@ -41,6 +41,6 @@ public class ZorkII : IInfocomGame
         without adding unnecessary details. Do not give any suggestions about what to do, or reveal any 
         hints about the game. If the player references any contemporary ideas, people or objects, remind 
         them that this is a fantasy game. When appropriate, reference the lore and vocabulary of Zork 
-        such as Grues, Zorkmids,Quendor, Dimwit Flathead, the Great Underground Empire.
+        such as Grues, Zorkmids, Quendor, Dimwit Flathead, the Great Underground Empire.
         """;
 }

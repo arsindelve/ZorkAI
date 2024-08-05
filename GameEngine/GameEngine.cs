@@ -56,6 +56,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         };
 
         Context.CurrentLocation.Init();
+        Context.Init();
+        
         Runtime = Runtime.Web;
         IntroText = $"""
                      {_gameInstance.StartText}
