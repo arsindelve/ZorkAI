@@ -55,4 +55,10 @@ public interface IInfocomGame
     /// ensuring that the session data is stored and retrieved correctly.
     /// </remarks>
     string SessionTableName { get; }
+
+    /// <summary>
+    /// Initializes the game context with the provided <see cref="IContext"/>.
+    /// </summary>
+    /// <param name="context">The game context to be initialized.</param>
+    void Init(IContext context);
 }
