@@ -57,6 +57,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
         Context.CurrentLocation.Init();
         Context.Init();
+        _gameInstance.Init(Context);
         
         Runtime = Runtime.Web;
         IntroText = $"""
@@ -89,6 +90,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         IntroText = string.Empty;
         _parser = parser;
         _generator = generationClient;
+        _gameInstance = (TInfocomGame)Context.Game;
+        _gameInstance.Init(Context);
     }
 
     public string IntroText { get; }
@@ -226,7 +229,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
     private string PostProcessing(string finalResult)
     {
-        Context.Moves++;
+        _logger?.LogDebug($"Moves: {Context.Moves}");
 
         if (!string.IsNullOrEmpty(finalResult))
         {
@@ -253,6 +256,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         var actorResults = string.Empty;
         foreach (var actor in Context.Actors.ToList())
         {
+            _logger?.LogDebug($"Processing actor: {actor.GetType()}");
             var task = await actor.Act(Context, _generator);
             actorResults += $"{task} ";
         }

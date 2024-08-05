@@ -38,6 +38,11 @@ public class ZorkI : IInfocomGame
 
     public string SessionTableName => "zork1_session";
 
+    public void Init(IContext context)
+    {
+
+    }
+
     public ZorkI()
     {
         _ = Repository.GetLocation<TrollRoom>();
