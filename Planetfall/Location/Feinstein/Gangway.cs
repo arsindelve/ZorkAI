@@ -8,7 +8,8 @@ public class Gangway : LocationWithNoStartingItems
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.Down, Go<DeckNine>() }
+            { Direction.Down, Go<DeckNine>() },
+            { Direction.Up, Go<DeckEight>() }
         };
 
     protected override string ContextBasedDescription =>
