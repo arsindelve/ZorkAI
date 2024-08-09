@@ -1,6 +1,7 @@
 using GameEngine;
 using GameEngine.Item.ItemProcessor;
 using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
 using Model.Movement;
@@ -34,7 +35,8 @@ internal class EntranceToHades : DarkLocation
 
     public override string Name => "Entrance to Hades";
 
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient? generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
         var spiritsAlive = Repository.GetItem<Spirits>().CurrentLocation == Repository.GetLocation<EntranceToHades>();
@@ -42,7 +44,7 @@ internal class EntranceToHades : DarkLocation
         if (spiritsAlive && swordInPossession)
             return "\nYour sword has begun to glow very brightly. ";
 
-        return base.AfterEnterLocation(context, previousLocation);
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 
     public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)

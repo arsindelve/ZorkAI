@@ -1,6 +1,7 @@
 using GameEngine;
 using GameEngine.Item.ItemProcessor;
 using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
 using Model.Movement;
@@ -22,7 +23,8 @@ public class CaveSouth : DarkLocation
 
     public override string Name => "Cave";
 
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient? generationClient)
     {
         var returnValue = "";
         var swordInPossession = context.HasItem<Sword>();
@@ -47,7 +49,7 @@ public class CaveSouth : DarkLocation
             returnValue += "\nYour sword is glowing with a faint blue glow.";
 
         if (string.IsNullOrWhiteSpace(returnValue))
-            return base.AfterEnterLocation(context, previousLocation);
+            return base.AfterEnterLocation(context, previousLocation, generationClient);
 
         return returnValue;
     }

@@ -33,7 +33,8 @@ internal class ShaftRoom : DarkLocation
 
     public override string Name => "Shaft Room";
 
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient? generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
 

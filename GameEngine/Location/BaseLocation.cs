@@ -104,7 +104,8 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return hasMatch;
     }
 
-    public virtual string AfterEnterLocation(IContext context, ILocation previousLocation)
+    public virtual string AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient? generationClient)
     {
         return string.Empty;
     }

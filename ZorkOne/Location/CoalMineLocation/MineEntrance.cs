@@ -1,4 +1,5 @@
 using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
 
@@ -23,13 +24,14 @@ public class MineEntrance : DarkLocationWithNoStartingItems
 
     public override string Name => "Mine Entrance";
     
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient? generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
 
         if (swordInPossession && previousLocation is SqueakyRoom)
             return "\n\nYour sword is no longer glowing. ";
 
-        return base.AfterEnterLocation(context, previousLocation);
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 }

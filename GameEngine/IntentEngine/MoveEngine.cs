@@ -42,7 +42,7 @@ public class MoveEngine : IIntentEngine
 
         var beforeEnteringText = movement.Location!.BeforeEnterLocation(context, previousLocation);
         var processorText = LookProcessor.LookAround(context);
-        var afterEnteringText = movement.Location.AfterEnterLocation(context, previousLocation);
+        var afterEnteringText = movement.Location.AfterEnterLocation(context, previousLocation, generationClient);
 
         var result = beforeEnteringText + processorText + afterEnteringText + Environment.NewLine;
         return Task.FromResult(result);
