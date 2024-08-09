@@ -8,7 +8,7 @@ using Planetfall.Item;
 
 namespace Planetfall.Location.Feinstein;
 
-public class DeckNine : BaseLocation, ITurnBasedActor
+internal class DeckNine : BaseLocation, ITurnBasedActor
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
