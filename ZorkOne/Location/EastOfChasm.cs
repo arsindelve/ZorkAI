@@ -1,5 +1,6 @@
 using GameEngine;
 using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
 
@@ -9,7 +10,8 @@ public class EastOfChasm : LocationWithNoStartingItems
 {
     public override string Name => "East of Chasm";
 
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient? generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
         var trollIsAlive = Repository.GetItem<Troll>().CurrentLocation == Repository.GetLocation<TrollRoom>();
@@ -17,7 +19,7 @@ public class EastOfChasm : LocationWithNoStartingItems
         if (trollIsAlive && swordInPossession && previousLocation is Cellar)
             return "\nYour sword is no longer glowing. ";
 
-        return base.AfterEnterLocation(context, previousLocation);
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
     
     protected override string ContextBasedDescription =>

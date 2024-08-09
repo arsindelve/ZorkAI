@@ -131,14 +131,15 @@ public class TrollRoom : DarkLocation
         return _attackEngine.Attack(context);
     }
 
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient? generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
 
         if (TrollIsAwake && swordInPossession)
             return "\nYour sword has begun to glow very brightly. ";
 
-        return base.AfterEnterLocation(context, previousLocation);
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 
     public override void Init()

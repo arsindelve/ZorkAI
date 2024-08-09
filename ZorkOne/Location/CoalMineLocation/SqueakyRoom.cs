@@ -1,4 +1,5 @@
 using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
 
@@ -22,7 +23,8 @@ public class SqueakyRoom : DarkLocationWithNoStartingItems
 
     public override string Name => "Squeaky Room ";
     
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient? generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
 

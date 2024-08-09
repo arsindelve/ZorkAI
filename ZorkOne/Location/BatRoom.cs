@@ -1,4 +1,5 @@
 using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
 using ZorkOne.Location.CoalMineLocation;
@@ -45,7 +46,8 @@ internal class BatRoom : DarkLocation
         return base.BeforeEnterLocation(context, previousLocation);
     }
 
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient? generationClient)
     {
         string response = "";
        
