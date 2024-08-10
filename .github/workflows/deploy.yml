@@ -75,7 +75,7 @@ jobs:
     - name: Overwrite file Planetfall
       uses: "DamianReeves/write-file-action@master"
       with:
-        path: /home/runner/work/ZorkAI/ZorkAI/zorkweb.client/config.json
+        path: /home/runner/work/ZorkAI/ZorkAI/planetfallweb.client/config.json
         write-mode: overwrite
         contents: |
           {
