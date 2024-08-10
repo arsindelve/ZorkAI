@@ -1,8 +1,8 @@
 ﻿using System.Text;
-using Lambda.Model;
 using Microsoft.AspNetCore.Mvc;
 using Model.AIGeneration.Requests;
 using Model.Interface;
+using Model.Web;
 
 namespace Lambda.Controllers;
 

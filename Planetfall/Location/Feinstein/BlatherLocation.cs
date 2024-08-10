@@ -1,6 +1,7 @@
 ﻿using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Location;
+using Model.Movement;
 using Planetfall.Item;
 
 namespace Planetfall.Location.Feinstein;
@@ -24,5 +25,26 @@ internal abstract class BlatherLocation : BaseLocation
     public override void Init()
     {
         StartWithItem<Blather>();
+    }
+
+    protected MovementParameters BlatherBlocksYou() =>
+        new()
+        {
+            CanGo = _ => false,
+            CustomFailureMessage = RandomBlatherBlock()
+        };
+
+    private string? RandomBlatherBlock()
+    {
+        string[] array =
+        {
+            "Blather blocks your path, growling about extra galley duty.",
+            "Blather throws you to the deck and makes you do 20 push-ups.",
+            "Ensign Blather pushes you roughly back toward your post.",
+            "Ensign Blather blocks your way, snarling angrily."
+        };
+        Random random = new Random();
+        int index = random.Next(array.Length);
+        return array[index];
     }
 }
