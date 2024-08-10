@@ -9,18 +9,7 @@ public class PlanetfallGame : IInfocomGame
 {
     public Type StartingLocation => typeof(DeckNine);
 
-    public string StartText => """
-                               Infocom interactive fiction - a science fiction story
-                               Copyright (c) 1983, 1988 by Infocom, Inc. All rights reserved.
-                               PLANETFALL is a registered trademark of Infocom, Inc.
-                               Release 10 / Serial number 880531 / Interpreter 1 Version F
-
-
-                               Another routine day of drudgery aboard the Stellar Patrol Ship Feinstein. This morning's assignment for a certain lowly Ensign Seventh Class: scrubbing the filthy
-                               metal deck at the port end of Level Nine. With your Patrol-issue self-contained multi-purpose all-weather scrub brush you shine the floor with a diligence born of
-                               the knowledge that at any moment dreaded Ensign First Class Blather, the bane of your shipboard existence, could appear.
-
-                               """;
+    public string StartText => "Infocom interactive fiction - a science fiction story\nCopyright (c) 1983, 1988 by Infocom, Inc. All rights reserved.\nPLANETFALL is a registered trademark of Infocom, Inc.\nRelease 10 / Serial number 880531 / Interpreter 1 Version F\n\n\nAnother routine day of drudgery aboard the Stellar Patrol Ship Feinstein. This morning's assignment for a certain lowly Ensign Seventh Class: scrubbing the filthy metal deck at the port end of Level Nine. With your Patrol-issue self-contained multi-purpose all-weather scrub brush you shine the floor with a diligence born of the knowledge that at any moment dreaded Ensign First Class Blather, the bane of your shipboard existence, could appear.\n";
 
     public string DefaultSaveGameName => "planetfall-ai.sav";
     
