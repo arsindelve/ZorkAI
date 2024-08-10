@@ -1,4 +1,4 @@
-﻿namespace Lambda;
+﻿namespace Planetfall_Lambda;
 
 /// <summary>
 /// The Main function can be used to run the ASP.NET Core application locally using the Kestrel webserver.
@@ -12,5 +12,8 @@ public class LocalEntryPoint
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
-            .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
 }

@@ -6,7 +6,7 @@ using Amazon.Lambda.APIGatewayEvents;
 
 
 
-namespace Lambda.Tests;
+namespace Planetfall_Lambda.Tests;
 
 public class ValuesControllerTests
 {
