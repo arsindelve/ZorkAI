@@ -43,7 +43,7 @@ jobs:
       run: dotnet tool install -g Amazon.Lambda.Tools
   
     
-    - name: Deploy AWS Lambda
+    - name: Deploy AWS Lambda Zork
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -51,7 +51,17 @@ jobs:
         cd /home/runner/work/ZorkAI/ZorkAI/Lambda/src/Lambda
         dotnet lambda deploy-serverless -sb zorkai-assets -sn ZorkStack --region us-east-1
         
-    - name: Overwrite file
+        
+    - name: Deploy AWS Lambda Planetfall
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: |
+        cd /home/runner/work/ZorkAI/ZorkAI/PlanetfallLambda/src/PlanetfallLambda
+        dotnet lambda deploy-serverless -sb planetfallai-assets -sn PlanetfallStack --region us-east-1
+        
+        
+    - name: Overwrite file Zork
       uses: "DamianReeves/write-file-action@master"
       with:
           path: /home/runner/work/ZorkAI/ZorkAI/zorkweb.client/config.json
@@ -62,15 +72,28 @@ jobs:
               "version": "${{ github.ref_name }}"
             }
             
+    - name: Overwrite file Planetfall
+      uses: "DamianReeves/write-file-action@master"
+      with:
+        path: /home/runner/work/ZorkAI/ZorkAI/zorkweb.client/config.json
+        write-mode: overwrite
+        contents: |
+          {
+            "base_url": "https://6kvs9n5pj4.execute-api.us-east-1.amazonaws.com/Prod/Planetfall",
+            "version": "${{ github.ref_name }}"
+          }
+          
     - name: Build Front End Zork
       run: |
         cd /home/runner/work/ZorkAI/ZorkAI/zorkweb.client
         npm run build
 
+
     - name: Build Front End Planetfall
       run: |
         cd /home/runner/work/ZorkAI/ZorkAI/planetfallweb.client
         npm run build
+
 
     - name: Setup AWS CLI
       uses: aws-actions/configure-aws-credentials@v1
@@ -83,10 +106,23 @@ jobs:
       run: |
           aws s3 sync /home/runner/work/ZorkAI/ZorkAI/zorkweb.client/dist s3://zork-ai.com --delete
 
+
     - name: Sync files to S3 bucket for Planetfall
       run: |
           aws s3 sync /home/runner/work/ZorkAI/ZorkAI/planetfallweb.client/dist s3://planetfall.ai --delete
 
+
+    - name: Invalidate Zork CloudFront cache
+      run: |
+        aws cloudfront create-invalidation --distribution-id E2RTQPAFHN8ORD --paths /*    
+
+
+    - name: Invalidate Planetfall CloudFront cache
+      run: |
+        aws cloudfront create-invalidation --distribution-id EJYJYZ3BM3O3Z --paths /*    
+        
+        
+        
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
