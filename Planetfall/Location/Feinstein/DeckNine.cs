@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.AIGeneration;
+using Model.Location;
 using Model.Movement;
 using Planetfall.Command;
 using Planetfall.Item;
@@ -11,7 +12,17 @@ internal class DeckNine : BaseLocation, ITurnBasedActor
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.Up, Go<Gangway>() }
+            { Direction.Up, Go<Gangway>() },
+            { Direction.E, Go<ReactorLobby>() },
+            {
+                Direction.W,
+                new MovementParameters
+                {
+                    Location = Repository.GetLocation<EscapePod>(),
+                    CanGo = _ => Repository.GetItem<BulkheadDoor>().IsOpen,
+                    CustomFailureMessage = "The escape pod bulkhead is closed. "
+                }
+            }
         };
 
     protected override string ContextBasedDescription =>

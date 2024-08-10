@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Lambda.Model;
+namespace Model.Web;
 
 public record GameResponse
 {

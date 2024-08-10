@@ -10,27 +10,15 @@ internal class DeckEight : BlatherLocation
             { Direction.Down, Go<Gangway>() },
             {
                 Direction.W,
-                new MovementParameters
-                {
-                    CanGo = _ => false,
-                    CustomFailureMessage = "Blather throws you to the deck and makes you do 20 push-ups. "
-                }
+                BlatherBlocksYou()
             },
             {
                 Direction.N,
-                new MovementParameters
-                {
-                    CanGo = _ => false,
-                    CustomFailureMessage = "Blather throws you to the deck and makes you do 20 push-ups. "
-                }
+                BlatherBlocksYou()
             },
             {
                 Direction.E,
-                new MovementParameters
-                {
-                    CanGo = _ => false,
-                    CustomFailureMessage = "Blather throws you to the deck and makes you do 20 push-ups. "
-                }
+                BlatherBlocksYou()
             }
         };
 

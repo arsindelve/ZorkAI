@@ -1,5 +1,6 @@
 ﻿using DynamoDb;
 using GameEngine;
+using GameEngine.Web;
 using Model.AIGeneration;
 using Model.Interface;
 using OpenAI;
@@ -23,11 +24,9 @@ public class Startup
 
         services.AddControllers();
         services.AddEndpointsApiExplorer();
-
-        services.AddSingleton<ISessionRepository, DynamoDbSessionRepository>();
+        
         services.AddScoped<IGameEngine, GameEngine<PlanetfallGame, PlanetfallContext>>();
-        services.AddScoped<ISavedGameRepository, DynamoDbSavedGameRepository>();
-        services.AddScoped<IGenerationClient, ChatGPTClient>();
+        ServicesHelper.ConfigureCommonServices(services);
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
