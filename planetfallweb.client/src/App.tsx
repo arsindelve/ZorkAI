@@ -67,7 +67,7 @@ function App() {
         setGameSaved(false);
         if (request) {
             request.sessionId = sessionId.getSessionId()[0];
-            request.clientId = sessionId.getClientId()
+            request.clientId = sessionId.getClientId();
             setServerText(await server.saveGame(request));
         }
         setSaveDialogOpen(false);
@@ -77,7 +77,7 @@ function App() {
 
     return (
         <div
-            className="bg-[url('https://planetfallai-assets.s3.amazonaws.com/seamless-2033674_1280.webp')] bg-repeat">
+            className="bg-[url('https://planetfallai-assets.s3.amazonaws.com/Blue+Nebula+2+-+1024x1024.png')] bg-repeat">
             <div className="flex flex-col min-h-screen">
                 <div className="flex-grow">
 
@@ -129,20 +129,3 @@ function App() {
 
 export default App;
 
-
-{/*<div className="App">*/
-}
-{/*    {imageIsVisible &&*/
-}
-{/*        <div className="fade">*/
-}
-{/*            <img src="https://zorkai-assets.s3.amazonaws.com/locations/WestOfHouse.webp" alt="description"*/
-}
-{/*                 onClick={() => setImageIsVisible(false)}/>*/
-}
-{/*        </div>*/
-}
-{/*    }*/
-}
-{/*</div>*/
-}
