@@ -74,9 +74,14 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
       
-    - name: Sync files to S3 bucket
+    - name: Sync files to S3 bucket for Zork
       run: |
           aws s3 sync /home/runner/work/ZorkAI/ZorkAI/zorkweb.client/dist s3://zork-ai.com --delete
+
+
+    - name: Sync files to S3 bucket for Planetfall
+      run: |
+          aws s3 sync /home/runner/work/ZorkAI/ZorkAI/zorkweb.client/dist s3://planetfall.ai --delete
 
     - name: Create Release
       id: create_release
