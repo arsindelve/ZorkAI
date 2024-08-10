@@ -57,7 +57,7 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
-        cd /home/runner/work/ZorkAI/ZorkAI/PlanetfallLambda/src/PlanetfallLambda
+        cd /home/runner/work/ZorkAI/ZorkAI/Planetfall-Lambda/src/Planetfall-Lambda
         dotnet lambda deploy-serverless -sb planetfallai-assets -sn PlanetfallStack --region us-east-1
         
         

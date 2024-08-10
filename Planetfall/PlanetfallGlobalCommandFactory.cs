@@ -1,5 +1,3 @@
-using Model.Interface;
-
 namespace Planetfall;
 
 public class PlanetfallGlobalCommandFactory : IGlobalCommandFactory

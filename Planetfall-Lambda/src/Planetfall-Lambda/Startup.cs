@@ -4,9 +4,8 @@ using Model.AIGeneration;
 using Model.Interface;
 using OpenAI;
 using Planetfall;
-using ZorkOne;
 
-namespace Lambda;
+namespace Planetfall_Lambda;
 
 public class Startup
 {
@@ -24,7 +23,6 @@ public class Startup
 
         services.AddControllers();
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
 
         services.AddSingleton<ISessionRepository, DynamoDbSessionRepository>();
         services.AddScoped<IGameEngine, GameEngine<PlanetfallGame, PlanetfallContext>>();
@@ -39,7 +37,6 @@ public class Startup
             .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader());
-        app.UseSwagger();
         app.UseHttpsRedirection();
         app.UseRouting();
 

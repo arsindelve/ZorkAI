@@ -1,4 +1,4 @@
-﻿{
+{
   "Information": [
     "This file provides default values for the deployment wizard inside Visual Studio and the AWS Lambda commands added to the .NET Core CLI.",
     "To learn more about the Lambda commands with the .NET Core CLI execute the following command at the command line in the project root directory.",
@@ -8,7 +8,7 @@
   "profile": "",
   "region": "",
   "configuration": "Release",
-  "s3-prefix": "Lambda/",
+  "s3-prefix": "Planetfall-Lambda/",
   "template": "serverless.template",
   "template-parameters": ""
 }

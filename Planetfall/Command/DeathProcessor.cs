@@ -1,6 +1,3 @@
-using GameEngine;
-using Model.Interaction;
-using Model.Interface;
 using Planetfall.Location;
 using Planetfall.Location.Feinstein;
 using ZorkOne;
