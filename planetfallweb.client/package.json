@@ -12,6 +12,7 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@fontsource/bebas-neue": "^5.0.20",
     "@fontsource/platypi": "^5.0.1",
     "@fontsource/roboto": "^5.0.12",
     "@microsoft/applicationinsights-react-js": "^17.1.2",
