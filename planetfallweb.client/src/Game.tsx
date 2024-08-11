@@ -219,7 +219,7 @@ function Game({
             <div className="flex items-center bg-neutral-700">
                 <input ref={playerInputElement} readOnly={mutation.isPending}
                        className={"w-full p-4 focus:border-transparent focus:outline-none focus:ring-0 bg-neutral-700"}
-                       value={playerInput} placeholder={"Tell me what you want to do next, then press return."}
+                       value={playerInput} placeholder={"Enter your request then press enter / return."}
                        onChange={(e) => setInput(e.target.value)}
                        onKeyDown={handleKeyDown}
 
