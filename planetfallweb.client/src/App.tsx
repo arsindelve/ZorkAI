@@ -23,7 +23,6 @@ function App() {
     const [availableSavedGames, setAvailableSavedGames] = useState<ISavedGame[]>([]);
     const [isRestarting, setIsRestarting] = useState<boolean>(false);
     const [serverText, setServerText] = useState<string>("");
-    //const [imageIsVisible, setImageIsVisible] = useState(true);
 
     const server = new Server();
     const sessionId = new SessionHandler();
