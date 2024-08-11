@@ -25,7 +25,9 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({open, handleClose}) => (
             <DialogContentText id="alert-dialog-description">
                 This is a re-imagining of the original 1980's classic adventure game Planetfall by Steve Meretzky.
                 The story is the same, but we've added AI enhanced parsing and response generation for
-                a more immersive experience. To get started, type your input in the grey box below, and press
+                a more immersive experience. Using AI, the narrator will understand and respond to
+                anything you type, always in character and always keeping you in the bounds of the original game.
+                To get started, type your input in the grey box below, and press
                 'return'. Click the menu on the top left for more information. Enjoy!
             </DialogContentText>
         </DialogContent>
