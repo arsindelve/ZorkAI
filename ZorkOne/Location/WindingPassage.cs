@@ -24,14 +24,14 @@ public class WindingPassage : DarkLocation
     {
     }
     
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
         var spiritsAlive = Repository.GetItem<Spirits>().CurrentLocation == Repository.GetLocation<EntranceToHades>();
 
         if (spiritsAlive && swordInPossession && previousLocation is CaveSouth)
-            return "\nYour sword is no longer glowing. ";
+            return Task.FromResult("\nYour sword is no longer glowing. ");
 
         return base.AfterEnterLocation(context, previousLocation, generationClient);
     }

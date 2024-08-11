@@ -35,14 +35,14 @@ internal class EntranceToHades : DarkLocation
 
     public override string Name => "Entrance to Hades";
 
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
         var spiritsAlive = Repository.GetItem<Spirits>().CurrentLocation == Repository.GetLocation<EntranceToHades>();
 
         if (spiritsAlive && swordInPossession)
-            return "\nYour sword has begun to glow very brightly. ";
+            return Task.FromResult("\nYour sword has begun to glow very brightly. ");
 
         return base.AfterEnterLocation(context, previousLocation, generationClient);
     }

@@ -24,13 +24,13 @@ public class MineEntrance : DarkLocationWithNoStartingItems
 
     public override string Name => "Mine Entrance";
     
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
 
         if (swordInPossession && previousLocation is SqueakyRoom)
-            return "\n\nYour sword is no longer glowing. ";
+            return Task.FromResult("\n\nYour sword is no longer glowing. ");
 
         return base.AfterEnterLocation(context, previousLocation, generationClient);
     }

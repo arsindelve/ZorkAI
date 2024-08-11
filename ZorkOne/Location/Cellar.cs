@@ -60,14 +60,14 @@ public class Cellar : DarkLocation
         StartWithItem<TrapDoor>();
     }
 
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
         var trollIsAlive = Repository.GetItem<Troll>().CurrentLocation == Repository.GetLocation<TrollRoom>();
 
         if (trollIsAlive && swordInPossession)
-            return "\nYour sword is glowing with a faint blue glow.";
+            return Task.FromResult("\nYour sword is glowing with a faint blue glow.");
 
         return base.AfterEnterLocation(context, previousLocation, generationClient);
     }

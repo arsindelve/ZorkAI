@@ -46,7 +46,7 @@ internal class BatRoom : DarkLocation
         return base.BeforeEnterLocation(context, previousLocation);
     }
 
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient? generationClient)
     {
         string response = "";
@@ -60,7 +60,7 @@ internal class BatRoom : DarkLocation
         if (swordInPossession)
             response += "\n\nYour sword has begun to glow very brightly. ";
 
-        return response;
+        return Task.FromResult(response);
     }
 
     public override void Init()
