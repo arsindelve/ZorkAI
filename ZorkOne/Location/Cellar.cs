@@ -61,7 +61,7 @@ public class Cellar : DarkLocation
     }
 
     public override string AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient? generationClient)
+        IGenerationClient generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
         var trollIsAlive = Repository.GetItem<Troll>().CurrentLocation == Repository.GetLocation<TrollRoom>();

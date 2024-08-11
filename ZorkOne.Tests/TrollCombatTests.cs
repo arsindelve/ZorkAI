@@ -2,11 +2,12 @@
 using GameEngine;
 using Moq;
 using NUnit.Framework;
+using UnitTests;
 using ZorkOne.ActorInteraction;
 using ZorkOne.Interface;
 using ZorkOne.Item;
 
-namespace UnitTests.ZorkITests;
+namespace ZorkOne.Tests;
 
 public class TrollCombatTests : EngineTestsBase
 {

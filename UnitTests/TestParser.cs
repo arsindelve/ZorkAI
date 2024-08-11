@@ -9,7 +9,7 @@ namespace UnitTests;
 /// <summary>
 ///     Represents a unit test appropriate implementation of the IIntentParser interface.
 /// </summary>
-internal class TestParser : IIntentParser
+public class TestParser : IIntentParser
 {
     private readonly string[] _allContainers;
     private readonly string[] _allNouns;

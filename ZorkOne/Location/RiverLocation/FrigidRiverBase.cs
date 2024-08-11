@@ -27,7 +27,7 @@ public abstract class FrigidRiverBase : LocationWithNoStartingItems, ITurnBasedA
     public override string Name => "Frigid River";
 
     public override string AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient? generationClient)
+        IGenerationClient generationClient)
     {
         context.RegisterActor(this);
         return base.AfterEnterLocation(context, previousLocation, generationClient);
