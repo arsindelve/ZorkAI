@@ -45,12 +45,17 @@ public abstract class ItemBase : IItem
     /// </value>
     public ICanHoldItems? CurrentLocation { get; set; }
 
-    public bool HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true)
+    public (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true)
     {
         if (string.IsNullOrEmpty(adjective))
             return HasMatchingNoun(noun, lookInsideContainers);
 
-        return NounsForMatching.Any(s => s.Equals($"{adjective} {noun}", StringComparison.InvariantCultureIgnoreCase));
+        bool match = NounsForMatching.Any(s => s.Equals($"{adjective} {noun}", StringComparison.InvariantCultureIgnoreCase));
+
+        if (match)
+            return (true, this);
+
+        return (false, null);
     }
 
     /// <summary>
@@ -73,9 +78,13 @@ public abstract class ItemBase : IItem
 
     public virtual int Size => 1;
 
-    public virtual bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)
+    public virtual (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
-        return NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
+        bool hasItem = NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
+        if (hasItem)
+            return (true, this);
+
+        return (false, null);
     }
 
     public virtual InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
