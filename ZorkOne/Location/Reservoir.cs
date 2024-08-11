@@ -48,8 +48,8 @@ public class Reservoir : DarkLocation, ITurnBasedActor
         StartWithItem<TrunkOfJewels>();
     }
 
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient? generationClient)
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient generationClient)
     {
         context.RegisterActor(this);
         return base.AfterEnterLocation(context, previousLocation, generationClient);

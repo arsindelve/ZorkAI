@@ -4,11 +4,11 @@ using DynamoDb;
 using FluentAssertions;
 using GameEngine;
 using NUnit.Framework;
-using ZorkOne;
+using UnitTests;
 using ZorkOne.Item;
 using ZorkOne.Location;
 
-namespace UnitTests.ZorkITests.Walkthrough;
+namespace ZorkOne.Tests.Walkthrough;
 
 public abstract class WalkthroughTestBase : EngineTestsBase
 {
