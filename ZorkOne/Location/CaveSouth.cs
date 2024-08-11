@@ -24,7 +24,7 @@ public class CaveSouth : DarkLocation
     public override string Name => "Cave";
 
     public override string AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient? generationClient)
+        IGenerationClient generationClient)
     {
         var returnValue = "";
         var swordInPossession = context.HasItem<Sword>();

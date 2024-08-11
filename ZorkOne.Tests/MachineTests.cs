@@ -3,11 +3,11 @@ using GameEngine;
 using Model.Interface;
 using Moq;
 using NUnit.Framework;
-using ZorkOne;
+using UnitTests;
 using ZorkOne.Item;
 using ZorkOne.Location.CoalMineLocation;
 
-namespace UnitTests.ZorkITests;
+namespace ZorkOne.Tests;
 
 public class MachineTests : EngineTestsBase
 {

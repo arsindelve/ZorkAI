@@ -60,7 +60,7 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
     }
 
     public override string AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient? generationClient)
+        IGenerationClient generationClient)
     {
         if (Repository.GetLocation<ReservoirSouth>().IsDraining)
             return "With a tremendous effort, you scramble out of the room. \n\n" +

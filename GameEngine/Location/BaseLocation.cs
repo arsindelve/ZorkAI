@@ -105,7 +105,7 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     }
 
     public virtual string AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient? generationClient)
+        IGenerationClient generationClient)
     {
         return string.Empty;
     }

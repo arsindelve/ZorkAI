@@ -49,7 +49,7 @@ namespace IntegrationTests
             // Verify the table is empty
             var emptyScan = _table.Scan(scanFilter);
             var result = await emptyScan.GetNextSetAsync();
-            Assert.IsEmpty(result);
+            result.Should().BeEmpty();
         }
 
         [TearDown]

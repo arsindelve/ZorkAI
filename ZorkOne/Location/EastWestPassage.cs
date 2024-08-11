@@ -23,7 +23,7 @@ internal class EastWestPassage : DarkLocationWithNoStartingItems
         "This is a narrow east-west passageway. There is a narrow stairway leading down at the north end of the room. ";
     
     public override string AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient? generationClient)
+        IGenerationClient generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
         var trollIsAlive = Repository.GetItem<Troll>().CurrentLocation == Repository.GetLocation<TrollRoom>();
