@@ -1,12 +1,13 @@
 using FluentAssertions;
 using GameEngine;
 using NUnit.Framework;
+using UnitTests;
 using ZorkOne.GlobalCommand;
 using ZorkOne.Item;
 using ZorkOne.Location;
 using ZorkOne.Location.ForestLocation;
 
-namespace UnitTests.ZorkITests;
+namespace ZorkOne.Tests;
 
 [TestFixture]
 public class GameSpecificTests : EngineTestsBase

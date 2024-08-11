@@ -24,13 +24,13 @@ internal class SmellyRoom : DarkLocationWithNoStartingItems
 
     public override string Name => "Smelly Room";
 
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient? generationClient)
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
 
         if (swordInPossession && previousLocation is ShaftRoom)
-            return "\n\nYour sword is no longer glowing. ";
+            return Task.FromResult("\n\nYour sword is no longer glowing. ");
 
         return base.AfterEnterLocation(context, previousLocation, generationClient);
     }

@@ -7,11 +7,15 @@ public class DirectionParserTests
 {
     [TestCase("n", Direction.N)]
     [TestCase("north", Direction.N)]
+    [TestCase("fore", Direction.N)]
     [TestCase("e", Direction.E)]
     [TestCase("east", Direction.E)]
+    [TestCase("port", Direction.W)]
     [TestCase("s", Direction.S)]
     [TestCase("south", Direction.S)]
+    [TestCase("aft", Direction.S)]
     [TestCase("w", Direction.W)]
+    [TestCase("starboard", Direction.E)]
     [TestCase("west", Direction.W)]
     [TestCase("sw", Direction.SW)]
     [TestCase("south-west", Direction.SW)]
@@ -34,7 +38,6 @@ public class DirectionParserTests
     [TestCase("out", Direction.Out)]
     [TestCase("exit", Direction.Out)]
     [TestCase("", Direction.Unknown)]
-    [TestCase(null, Direction.Unknown)]
     [TestCase("unknown direction", Direction.Unknown)]
     public void TestParseDirection(string rawDirection, Direction expectedDirection)
     {

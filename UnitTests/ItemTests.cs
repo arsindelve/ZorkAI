@@ -152,7 +152,7 @@ public class ItemTests : EngineTestsBase
 
         // Assert
         engine.Context.HasItem<Sword>().Should().BeTrue();
-        engine.Context.HasMatchingNoun("sword").Should().BeTrue();
+        engine.Context.HasMatchingNoun("sword").HasItem.Should().BeTrue();
     }
 
     [Test]
@@ -167,7 +167,7 @@ public class ItemTests : EngineTestsBase
 
         // Assert
         location.HasItem<Sword>().Should().BeTrue();
-        location.HasMatchingNoun("sword").Should().BeTrue();
+        location.HasMatchingNoun("sword").HasItem.Should().BeTrue();
     }
 
     [Test]
@@ -182,7 +182,7 @@ public class ItemTests : EngineTestsBase
 
         // Assert
         location.HasItem<Sword>().Should().BeFalse();
-        location.HasMatchingNoun("sword").Should().BeFalse();
+        location.HasMatchingNoun("sword").HasItem.Should().BeFalse();
     }
 
     [Test]
@@ -199,9 +199,9 @@ public class ItemTests : EngineTestsBase
 
         // Assert
         engine.Context.CurrentLocation.HasItem<Sword>().Should().BeTrue();
-        engine.Context.CurrentLocation.HasMatchingNoun("sword").Should().BeTrue();
+        engine.Context.CurrentLocation.HasMatchingNoun("sword").HasItem.Should().BeTrue();
         livingRoom.HasItem<Sword>().Should().BeFalse();
-        livingRoom.HasMatchingNoun("sword").Should().BeFalse();
+        livingRoom.HasMatchingNoun("sword").HasItem.Should().BeFalse();
     }
 
     [Test]
@@ -209,12 +209,12 @@ public class ItemTests : EngineTestsBase
     {
         var engine = GetTarget();
 
-        engine.Context.CurrentLocation.HasMatchingNoun("mailbox").Should().BeTrue();
-        engine.Context.CurrentLocation.HasMatchingNoun("leaflet").Should().BeFalse();
+        engine.Context.CurrentLocation.HasMatchingNoun("mailbox").HasItem.Should().BeTrue();
+        engine.Context.CurrentLocation.HasMatchingNoun("leaflet").HasItem.Should().BeFalse();
 
         await engine.GetResponse("open mailbox");
 
-        engine.Context.CurrentLocation.HasMatchingNoun("leaflet").Should().BeTrue();
+        engine.Context.CurrentLocation.HasMatchingNoun("leaflet").HasItem.Should().BeTrue();
     }
 
     [Test]
@@ -223,13 +223,13 @@ public class ItemTests : EngineTestsBase
         var engine = GetTarget();
 
         // Assert
-        Repository.GetItem<Mailbox>().HasMatchingNoun("leaflet", false).Should().BeFalse();
+        Repository.GetItem<Mailbox>().HasMatchingNoun("leaflet", false).HasItem.Should().BeFalse();
 
         // Act
         await engine.GetResponse("open mailbox");
 
         // Assert 
-        Repository.GetItem<Mailbox>().HasMatchingNoun("leaflet").Should().BeTrue();
+        Repository.GetItem<Mailbox>().HasMatchingNoun("leaflet").HasItem.Should().BeTrue();
     }
 
     [Test]

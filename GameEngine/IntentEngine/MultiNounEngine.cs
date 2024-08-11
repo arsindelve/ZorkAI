@@ -1,9 +1,9 @@
-using GameEngine.Item;
 using GameEngine.Item.ItemProcessor;
 using GameEngine.Item.MultiItemProcessor;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Interface;
+using Model.Item;
 
 namespace GameEngine.IntentEngine;
 
@@ -63,26 +63,42 @@ public class MultiNounEngine : IIntentEngine
             !Repository.ItemExistsInTheStory(interaction.NounTwo))
             return (null, await GetGeneratedNoOpResponse(interaction.OriginalInput, generationClient, context));
 
-        var (nounOneExistsHere, _) = IsItemHere(context, interaction.NounOne);
-        var (nounTwoExistsHere, _) = IsItemHere(context, interaction.NounTwo);
+        var (nounOneExistsHere, itemOne) = IsItemHere(context, interaction.NounOne);
+        var (nounTwoExistsHere, itemTwo) = IsItemHere(context, interaction.NounTwo);
+
+        interaction.ItemOne = itemOne;
+        interaction.ItemTwo = itemTwo;
 
         if (!nounOneExistsHere & nounTwoExistsHere)
+        {
+            if (itemTwo is IAmAPerson)
+                return (null, await GetGeneratedResponse<MissingFirstNounMultiNounWithPersonOperationRequest>(
+                    interaction,
+                    generationClient,
+                    context));
+
             return (null, await GetGeneratedResponse<MissingFirstNounMultiNounOperationRequest>(interaction,
                 generationClient,
                 context));
+        }
 
         if (nounOneExistsHere & !nounTwoExistsHere)
+        {
+            if (itemOne is IAmAPerson)
+                return (null, await GetGeneratedResponse<MissingSecondNounWithPersonMultiNounOperationRequest>(
+                    interaction,
+                    generationClient,
+                    context));
+
             return (null, await GetGeneratedResponse<MissingSecondNounMultiNounOperationRequest>(interaction,
                 generationClient,
                 context));
+        }
 
         if (!nounOneExistsHere & !nounTwoExistsHere)
             return (null, await GetGeneratedResponse<MissingBothNounsMultiNounOperationRequest>(interaction,
                 generationClient,
                 context));
-
-        var itemOne = Repository.GetItem(interaction.NounOne);
-        var itemTwo = Repository.GetItem(interaction.NounTwo);
 
         // This indicates that one of the two items is not real, i.e. it's part of 
         // the location description like the kitchen table. No real interaction is 
@@ -106,28 +122,37 @@ public class MultiNounEngine : IIntentEngine
             context));
     }
 
-    private static (bool IsHere, ItemBase? item) IsItemHere(IContext context, string item)
+    private static (bool IsHere, IItem? item) IsItemHere(IContext context, string item)
     {
+        var result = context.HasMatchingNoun(item);
+        if (result.HasItem)
+            return result;
+
+        result = context.CurrentLocation.HasMatchingNoun(item);
+        if (result.HasItem)
+            return result;
+
         return
-
-            // Item can be in the description (like the table in the kitchen). There will
-            // be no verb match for this noun anyway, so this will fall through to the generator,
-            // but we want the generator to know it's here but not part of the story. 
-            (context.CurrentLocation.DescriptionForGeneration.ToLower().Contains(item.ToLowerInvariant()) ||
-
-             // or a "real" item in the location that can be manipulated
-             context.HasMatchingNoun(item) ||
-
-             // or can be in inventory. 
-             context.CurrentLocation.HasMatchingNoun(item), null);
+            (context.CurrentLocation.DescriptionForGeneration.ToLower().Contains(item.ToLowerInvariant()), null);
     }
 
     private async Task<string> GetGeneratedVerbNotUsefulResponse(MultiNounIntent interaction,
         IGenerationClient generationClient, IContext context)
     {
-        var request =
-            new VerbHasNoEffectMultiNounOperationRequest(context.CurrentLocation.DescriptionForGeneration,
-                interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb);
+        Request request = new VerbHasNoEffectMultiNounOperationRequest(context.CurrentLocation.DescriptionForGeneration,
+            interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb);
+
+        if (interaction.ItemOne is IAmAPerson personOne)
+            request = new VerbHasNoEffectMultiNounOperationItemOneIsAPersonRequest(
+                context.CurrentLocation.DescriptionForGeneration,
+                interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb,
+                personOne.ExaminationDescription);
+
+        if (interaction.ItemTwo is IAmAPerson personTwo)
+            request = new VerbHasNoEffectMultiNounOperationItemTwoIsAPersonRequest(
+                context.CurrentLocation.DescriptionForGeneration,
+                interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb,
+                personTwo.ExaminationDescription);
 
         var result = await generationClient.CompleteChat(request) + Environment.NewLine;
         return result;
@@ -143,7 +168,13 @@ public class MultiNounEngine : IIntentEngine
                 NounOne = interaction.NounOne,
                 NounTwo = interaction.NounTwo,
                 Preposition = interaction.Preposition,
-                Verb = interaction.Verb
+                Verb = interaction.Verb,
+                PersonOneDescription = interaction.ItemOne is IAmAPerson personOne
+                    ? personOne.ExaminationDescription
+                    : string.Empty,
+                PersonTwoDescription = interaction.ItemTwo is IAmAPerson personTwo
+                    ? personTwo.ExaminationDescription
+                    : string.Empty
             };
 
         var result = await generationClient.CompleteChat(request) + Environment.NewLine;

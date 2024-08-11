@@ -1,10 +1,11 @@
 using FluentAssertions;
 using GameEngine;
 using NUnit.Framework;
+using UnitTests;
 using ZorkOne.Item;
 using ZorkOne.Location;
 
-namespace UnitTests.ZorkITests;
+namespace ZorkOne.Tests;
 
 public class ClearingTests : EngineTestsBase
 {

@@ -34,7 +34,7 @@ public class MoveEngine : IIntentEngine
         return (null, await Go(context, generationClient, movement));
     }
 
-    public static Task<string> Go(IContext context, IGenerationClient generationClient, MovementParameters movement)
+    public static async Task<string> Go(IContext context, IGenerationClient generationClient, MovementParameters movement)
     {
         var previousLocation = context.CurrentLocation;
         context.CurrentLocation.OnLeaveLocation(context, movement.Location!, previousLocation);
@@ -42,10 +42,10 @@ public class MoveEngine : IIntentEngine
 
         var beforeEnteringText = movement.Location!.BeforeEnterLocation(context, previousLocation);
         var processorText = LookProcessor.LookAround(context);
-        var afterEnteringText = movement.Location.AfterEnterLocation(context, previousLocation, generationClient);
+        var afterEnteringText = await movement.Location.AfterEnterLocation(context, previousLocation, generationClient);
 
         var result = beforeEnteringText + processorText + afterEnteringText + Environment.NewLine;
-        return Task.FromResult(result);
+        return result;
     }
 
     private static async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient, string direction, 

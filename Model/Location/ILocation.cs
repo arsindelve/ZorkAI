@@ -90,13 +90,13 @@ public interface ILocation
     /// <param name="noun">The noun to match against the items in the location.</param>
     /// <param name="lookInsideContainers"></param>
     /// <returns>True if the location has an item that matches the given noun; otherwise, false.</returns>
-    bool HasMatchingNoun(string? noun, bool lookInsideContainers = true);
+    (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true);
 
     /// <summary>
     ///     Gets called when we enter a location in case there are any interactions
     ///     we need to process when we walk in the room, AFTER the description of the room
     /// </summary>
-    string AfterEnterLocation(IContext context, ILocation previousLocation, IGenerationClient generationClient);
+    Task<string> AfterEnterLocation(IContext context, ILocation previousLocation, IGenerationClient generationClient);
 
     /// <summary>
     ///     Gets called when the player leaves the current location and moves to a new location.

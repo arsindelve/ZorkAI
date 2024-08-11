@@ -17,6 +17,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Bedrock\Bedrock.csproj"/>
+        <ProjectReference Include="..\DynamoDb\DynamoDb.csproj" />
         <ProjectReference Include="..\Lex\Lex.csproj"/>
         <ProjectReference Include="..\Model\Model.csproj"/>
         <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>

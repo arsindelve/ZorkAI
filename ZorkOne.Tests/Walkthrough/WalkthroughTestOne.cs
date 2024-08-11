@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace UnitTests.ZorkITests.Walkthrough;
+namespace ZorkOne.Tests.Walkthrough;
 
 [TestFixture]
 public sealed class WalkthroughTestOne : WalkthroughTestBase
@@ -291,7 +291,7 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     // [TestCase("S", null, "Maze", "twisty little passages, all alike")]
     // [TestCase("SE", null, "Cyclops Room", "A cyclops, who looks prepared to eat horses")]
     
-    public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
+    public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) InvokeGodMode(setup);
 

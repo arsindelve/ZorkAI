@@ -59,12 +59,12 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
         return new PositiveInteractionResult($"{lastWord} {lastWord} ...");
     }
 
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient? generationClient)
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient generationClient)
     {
         if (Repository.GetLocation<ReservoirSouth>().IsDraining)
-            return "With a tremendous effort, you scramble out of the room. \n\n" +
-                   Flee(context).InteractionMessage;
+            return Task.FromResult("With a tremendous effort, you scramble out of the room. \n\n" +
+                                   Flee(context).InteractionMessage);
 
         context.RegisterActor(this);
         return base.AfterEnterLocation(context, previousLocation, generationClient);
