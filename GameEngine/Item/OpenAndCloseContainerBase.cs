@@ -49,10 +49,12 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
         return ApplyProcessors(action, context, null, client);
     }
 
-    public override bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)
+    public override (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
-        return IsOpen
-            ? base.HasMatchingNoun(noun, lookInsideContainers)
-            : NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
+        if (IsOpen)
+            return base.HasMatchingNoun(noun, lookInsideContainers);
+
+        var hasMatch = NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
+        return hasMatch ? (true, this) : (false, null);
     }
 }

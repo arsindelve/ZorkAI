@@ -41,14 +41,22 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         return Items.Contains(Repository.GetItem<T>());
     }
 
-    public override bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)
+    public override (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
         var hasMatch = NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
 
-        if (lookInsideContainers)
-            Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun, lookInsideContainers));
+        if (hasMatch)
+            return (true, this);
 
-        return hasMatch;
+        if (lookInsideContainers)
+            foreach (var i in Items)
+            {
+                var result = i.HasMatchingNoun(noun, lookInsideContainers);
+                if (result.HasItem)
+                    return result;
+            }
+
+        return (false, null);
     }
 
     public virtual bool HaveRoomForItem(IItem item)
@@ -69,17 +77,28 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         {
             var result = new List<IItem>();
 
-            if (this is not IOpenAndClose { IsOpen: true }) 
+            if (this is not IOpenAndClose { IsOpen: true })
                 return result;
-            
+
             foreach (var item in Items)
             {
                 result.Add(item);
                 if (item is ICanHoldItems holder)
                     result.AddRange(holder.GetAllItemsRecursively);
             }
+
             return result;
         }
+    }
+
+    public int CalculateTotalSize()
+    {
+        var totalSize = Items.Sum(item => item.Size);
+
+        // Also add the Size of items inside Containers
+        foreach (var container in Items.OfType<ContainerBase>()) totalSize += container.CalculateTotalSize();
+
+        return totalSize;
     }
 
     public string SingleLineListOfItems()
@@ -139,18 +158,5 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         var item = Repository.GetItem<T>();
         Items.Add(item);
         item.CurrentLocation = this;
-    }
-    
-    public int CalculateTotalSize()
-    {
-        int totalSize = Items.Sum(item => item.Size);
-
-        // Also add the Size of items inside Containers
-        foreach (var container in Items.OfType<ContainerBase>())
-        {
-            totalSize += container.CalculateTotalSize();
-        }
-
-        return totalSize;
     }
 }
