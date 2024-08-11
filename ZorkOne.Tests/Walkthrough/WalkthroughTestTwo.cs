@@ -188,7 +188,7 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("drop all", null, "sword: Dropped")]
     [TestCase("get painting", null, "Taken")]
     //[TestCase("Up", null, "with what you're carrying")]
-    public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
+    public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) 
             InvokeGodMode(setup);
