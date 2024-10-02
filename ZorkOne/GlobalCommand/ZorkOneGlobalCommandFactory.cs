@@ -15,6 +15,9 @@ public class ZorkOneGlobalCommandFactory : IGlobalCommandFactory
             case "plugh":
                 return new SimpleResponseCommand("A hollow voice says 'fool'");
 
+            case "ulysses":
+                return new SimpleResponseCommand("Wasn't he a sailor? ");
+            
             case "win":
                 return new SimpleResponseCommand("Naturally!");
 
