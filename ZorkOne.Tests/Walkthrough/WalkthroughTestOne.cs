@@ -286,10 +286,10 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("Up", null, "Maze", "skeleton", "lantern", "key", "coins")]
     [TestCase("take coins", null, "Taken")]
     [TestCase("take key", null, "Taken")]
-    // [TestCase("SW", null, "Maze", "twisty little passages, all alike")]
-    // [TestCase("E", null, "Maze", "twisty little passages, all alike")]
-    // [TestCase("S", null, "Maze", "twisty little passages, all alike")]
-    // [TestCase("SE", null, "Cyclops Room", "A cyclops, who looks prepared to eat horses")]
+    [TestCase("SW", null, "Maze", "twisty little passages, all alike")]
+    [TestCase("E", null, "Maze", "twisty little passages, all alike")]
+    [TestCase("S", null, "Maze", "twisty little passages, all alike")]
+    [TestCase("SE", null, "Cyclops Room", "A cyclops, who looks prepared to eat horses")]
     
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
