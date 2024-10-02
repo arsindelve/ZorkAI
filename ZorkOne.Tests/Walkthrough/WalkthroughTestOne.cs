@@ -290,7 +290,24 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("E", null, "Maze", "twisty little passages, all alike")]
     [TestCase("S", null, "Maze", "twisty little passages, all alike")]
     [TestCase("SE", null, "Cyclops Room", "A cyclops, who looks prepared to eat horses")]
-    
+    [TestCase("Ulysses", null, "name of his father's deadly nemesis, flees the room by knocking ")]
+    // Down to treasure room
+    // >give egg to thief
+    // back up 
+    [TestCase("E", null, "Strange Passage", "On the east there is an old wooden door, with a")]
+    [TestCase("E", null, "Living Room", "coffin", "emerald", "diamond")]
+    [TestCase("put coins in case", null, "Done")]
+    [TestCase("take knife", null, "Taken")]
+    [TestCase("W", null, "Strange Passage", "On the east there is an old wooden door, with a")]
+    [TestCase("W", null, "Cyclops Room")]
+    // Kill the thief and take his stuff
+    [TestCase("NW", null, "Maze", "twisty little passages, all alike")]
+    [TestCase("S", null, "Maze", "twisty little passages, all alike")]
+    [TestCase("W", null, "Maze", "twisty little passages, all alike")]
+    [TestCase("Up", null, "Maze", "twisty little passages, all alike")]
+    [TestCase("Down", null, "Maze", "You won't be able to get back up to the tunnel")]
+    [TestCase("NE", null, "Grating Room", "Above you is a grating locked with a skull-and-crossbones lock.")]
+
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) InvokeGodMode(setup);

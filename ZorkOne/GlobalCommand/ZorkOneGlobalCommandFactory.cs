@@ -13,7 +13,7 @@ public class ZorkOneGlobalCommandFactory : IGlobalCommandFactory
         {
             case "xyzzy":
             case "plugh":
-                return new SimpleResponseCommand("A hollow voice says 'fool'");
+                return new SimpleResponseCommand("A hollow voice says 'fool' ");
 
             case "ulysses":
                 return new SimpleResponseCommand("Wasn't he a sailor? ");
