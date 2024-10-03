@@ -10,13 +10,19 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
 {
     public override string[] NounsForMatching => ["leaves", "pile", "pile of leaves"];
 
-    public override string InInventoryDescription => "A pile of leaves";
+    public override string GenericDescription(ILocation currentLocation) => "A pile of leaves";
 
     public string ExaminationDescription => "There's nothing special about the pile of leaves. ";
 
-    public string OnTheGroundDescription => "On the ground is a pile of leaves. ";
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "On the ground is a pile of leaves. ";
+    }
 
-    public override string NeverPickedUpDescription => OnTheGroundDescription;
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return OnTheGroundDescription(currentLocation);
+    }
 
     public override string OnBeingTaken(IContext context)
     {

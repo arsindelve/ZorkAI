@@ -20,7 +20,7 @@ public class LivingRoom : BaseLocation
         "a trophy case, " +
         $"{(Repository.GetItem<Rug>().HasBeenMovedAside
             ? $"and a rug lying beside {(Repository.GetItem<TrapDoor>().IsOpen ? "an open" : "a closed")} trap door. "
-            : "and a large oriental rug in the center of the room. ")}{GetItem<TrophyCase>().ItemListDescription("trophy case")}";
+            : "and a large oriental rug in the center of the room. ")}{GetItem<TrophyCase>().ItemListDescription("trophy case", null)}";
 
     public override string Name => "Living Room";
 

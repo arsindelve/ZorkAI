@@ -17,9 +17,9 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor
 
     public override string[] NounsForMatching => ["troll"];
 
-    public override string NeverPickedUpDescription => ExaminationDescription;
+    public override string NeverPickedUpDescription(ILocation currentLocation) => ExaminationDescription;
 
-    public override string InInventoryDescription => ExaminationDescription;
+    public override string GenericDescription(ILocation currentLocation) => ExaminationDescription;
 
     public override string CannotBeTakenDescription => IsUnconscious
         ? ""

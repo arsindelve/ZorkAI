@@ -111,14 +111,14 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         }
     }
 
-    public string ItemListDescription(string name)
+    public string ItemListDescription(string name, ILocation? location)
     {
         if (!Items.Any())
             return "You are empty-handed";
 
         var sb = new StringBuilder();
         sb.AppendLine("You are carrying:");
-        Items.ForEach(s => sb.AppendLine($"   {s.InInventoryDescription}"));
+        Items.ForEach(s => sb.AppendLine($"   {s.GenericDescription(CurrentLocation)}"));
 
         return sb.ToString();
     }

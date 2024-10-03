@@ -6,7 +6,7 @@ public class Mailbox : OpenAndCloseContainerBase, ICanBeExamined
 {
     public override string? CannotBeTakenDescription => "It is securely anchored";
 
-    public override string InInventoryDescription => "There is a small mailbox here.";
+    public override string GenericDescription(ILocation currentLocation) => "There is a small mailbox here.";
 
     public override string[] NounsForMatching => ["mailbox"];
 

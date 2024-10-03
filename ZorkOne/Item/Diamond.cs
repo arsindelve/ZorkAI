@@ -7,9 +7,9 @@ public class Diamond : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInT
 {
     public override string[] NounsForMatching => ["diamond", "huge diamond"];
 
-    public override string InInventoryDescription => "A huge diamond";
+    public override string GenericDescription(ILocation currentLocation) => "A huge diamond";
 
-    public string OnTheGroundDescription => "There is a huge diamond here. ";
+    public string OnTheGroundDescription(ILocation currentLocation) => "There is a huge diamond here. ";
 
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 10;
 

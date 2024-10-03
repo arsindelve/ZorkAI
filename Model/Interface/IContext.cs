@@ -110,7 +110,7 @@ public interface IContext : ICanHoldItems
 
     InteractionResult RespondToSimpleInteraction(SimpleIntent simpleInteraction, IGenerationClient client);
 
-    string ItemListDescription(string locationName);
+    string ItemListDescription(string locationName, ILocation? location);
 
     string? ProcessTurnCounter();
 

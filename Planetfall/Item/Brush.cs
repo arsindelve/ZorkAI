@@ -1,3 +1,5 @@
+using Model.Location;
+
 namespace Planetfall.Item;
 
 public class Brush : ItemBase, ICanBeTakenAndDropped
@@ -7,9 +9,18 @@ public class Brush : ItemBase, ICanBeTakenAndDropped
         "brush", "scrub brush", "multi-purpose scrub brush", "Patrol-issue self-contained multi-purpose scrub brush"
     ];
 
-    public string OnTheGroundDescription => "There is a Patrol-issue self-contained multi-purpose scrub brush here.";
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "There is a Patrol-issue self-contained multi-purpose scrub brush here.";
+    }
 
-    public override string NeverPickedUpDescription => OnTheGroundDescription;
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return OnTheGroundDescription(currentLocation);
+    }
 
-    public override string InInventoryDescription => "A Patrol-issue self-contained multi-purpose scrub brush ";
+    public override string GenericDescription(ILocation currentLocation)
+    {
+        return "A Patrol-issue self-contained multi-purpose scrub brush ";
+    }
 }

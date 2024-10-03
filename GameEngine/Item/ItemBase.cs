@@ -2,6 +2,7 @@ using GameEngine.Item.ItemProcessor;
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Item;
+using Model.Location;
 
 namespace GameEngine.Item;
 
@@ -20,9 +21,9 @@ public abstract class ItemBase : IItem
     ///     </remarks>
     ///     The never picked up description of the item.
     /// </value>
-    public virtual string NeverPickedUpDescription => InInventoryDescription;
+    public virtual string NeverPickedUpDescription(ILocation currentLocation) => GenericDescription(currentLocation);
 
-    public virtual string InInventoryDescription => "";
+    public virtual string GenericDescription(ILocation currentLocation) => "";
 
     public virtual string? CannotBeTakenDescription { get; set; }
 

@@ -1,4 +1,5 @@
 using Model.Interface;
+using Model.Location;
 
 namespace Model.Item;
 
@@ -14,7 +15,7 @@ public interface ICanBeTakenAndDropped : IInteractionTarget
     /// <remarks>
     ///     This property should provide a description of the item when it is lying on the ground in the game world.
     /// </remarks>
-    string OnTheGroundDescription { get; }
+    string OnTheGroundDescription(ILocation currentLocation);
 
     /// <summary>
     ///     Gets the description when the item has never been picked up.
@@ -26,7 +27,7 @@ public interface ICanBeTakenAndDropped : IInteractionTarget
     ///     </remarks>
     ///     The never picked up description of the item.
     /// </value>
-    string? NeverPickedUpDescription { get; }
+    string? NeverPickedUpDescription(ILocation currentLocation);
 
     /// <summary>
     ///     Indicates whether the item has ever been picked up.

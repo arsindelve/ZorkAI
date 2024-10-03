@@ -9,7 +9,7 @@ public class Slag : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
     public override string[] NounsForMatching => ["slag", "vitreous slag", "small piece of vitreous slag"];
     
     // Can never exist anywhere but in the machine
-    public string OnTheGroundDescription => "";
+    public string OnTheGroundDescription(ILocation currentLocation) => "";
     
     public string ExaminationDescription => "The slag was rather insubstantial, and crumbles to dust at your touch. ";
 

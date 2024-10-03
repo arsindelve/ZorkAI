@@ -13,14 +13,14 @@ public class Cyclops : ItemBase, ICanBeExamined, ITurnBasedActor
 
     public int TurnsSinceAttacked { get; set; }
 
-    public override string NeverPickedUpDescription => HasBeenAttacked
+    public override string NeverPickedUpDescription(ILocation currentLocation) => HasBeenAttacked
         ? "he cyclops is standing in the corner, eyeing you closely. I don't think he likes you very much. He " +
           "looks extremely hungry, even for a cyclops."
         : "A cyclops, who looks prepared to eat horses (much less mere adventurers), blocks the staircase. " +
           "From his state of health, and the bloodstains on the walls, you gather that he is not very friendly, " +
           "though he likes people. ";
 
-    public override string InInventoryDescription => NeverPickedUpDescription;
+    public override string GenericDescription(ILocation currentLocation) => NeverPickedUpDescription(currentLocation);
 
     public override string[] NounsForMatching => ["cyclops"];
 

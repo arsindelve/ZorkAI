@@ -7,11 +7,11 @@ public class PotOfGold : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedI
 {
     public override string[] NounsForMatching => ["pot", "gold", "pot of gold"];
 
-    public override string InInventoryDescription => "A pot of gold ";
+    public override string GenericDescription(ILocation currentLocation) => "A pot of gold ";
 
-    public string OnTheGroundDescription => "There is a pot of gold here. ";
+    public string OnTheGroundDescription(ILocation currentLocation) => "There is a pot of gold here. ";
 
-    public override string NeverPickedUpDescription =>
+    public override string NeverPickedUpDescription(ILocation currentLocation) =>
         "At the end of the rainbow is a pot of gold. ";
 
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 10;

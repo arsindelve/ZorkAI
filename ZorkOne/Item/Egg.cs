@@ -8,17 +8,25 @@ public class Egg : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IGivePointsW
 {
     public override string[] NounsForMatching => ["egg", "jewel-encrusted egg", "jewel encrusted egg"];
 
-    public override string InInventoryDescription => "A jewel-encrusted egg";
+    public override string GenericDescription(ILocation currentLocation) => "A jewel-encrusted egg";
+
+    public override int Size => 1;
 
     public string ExaminationDescription => IsOpen ? "" : "The jewel-encrusted egg is closed. ";
 
-    public string OnTheGroundDescription => "There is a jewel-encrusted egg here. ";
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "There is a jewel-encrusted egg here. ";
+    }
 
-    public override string NeverPickedUpDescription =>
-        "In the bird's nest is a large egg encrusted with precious jewels, apparently scavenged by a childless " +
-        "songbird. The egg is covered with fine gold inlay, and ornamented in lapis lazuli and mother-of-pearl. " +
-        "Unlike most eggs, this one is hinged and closed with a delicate looking clasp. The egg appears " +
-        "extremely fragile. ";
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return
+            "In the bird's nest is a large egg encrusted with precious jewels, apparently scavenged by a childless " +
+            "songbird. The egg is covered with fine gold inlay, and ornamented in lapis lazuli and mother-of-pearl. " +
+            "Unlike most eggs, this one is hinged and closed with a delicate looking clasp. The egg appears " +
+            "extremely fragile. ";
+    }
 
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 5;
 
@@ -31,8 +39,6 @@ public class Egg : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IGivePointsW
     public string NowClosed { get; } = "";
 
     public string AlreadyOpen { get; } = "";
-
-    public override int Size => 1;
 
     public string AlreadyClosed => "It is already closed. ";
 
