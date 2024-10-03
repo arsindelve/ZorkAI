@@ -15,7 +15,7 @@ public class Matchbook : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDro
 
     public override string[] NounsForMatching => ["matches", "matchbook", "match"];
 
-    public override string InInventoryDescription => "A matchbook" + (IsOn ? " (providing light)" : "");
+    public override string GenericDescription(ILocation currentLocation) => "A matchbook" + (IsOn ? " (providing light)" : "");
 
     public bool IsOn { get; set; }
 
@@ -56,10 +56,15 @@ public class Matchbook : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDro
                                      GUE Tech can't promise these fantastic results to everyone. But when you earn your degree from GUE Tech, your future will be brighter.
                                      """;
 
-    public string OnTheGroundDescription => NeverPickedUpDescription;
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return NeverPickedUpDescription(currentLocation);
+    }
 
-    public override string NeverPickedUpDescription =>
-        "There is a matchbook whose cover says \"Visit Beautiful FCD#3\" here. ";
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return "There is a matchbook whose cover says \"Visit Beautiful FCD#3\" here. ";
+    }
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
@@ -75,7 +80,7 @@ public class Matchbook : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDro
             return Task.FromResult("");
         }
 
-        InteractionResult? result = new TurnLightOnOrOffProcessor().Process(
+        var result = new TurnLightOnOrOffProcessor().Process(
             new SimpleIntent { Verb = "turn off", Noun = NounsForMatching.First() },
             context, this, client);
 

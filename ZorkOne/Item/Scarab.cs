@@ -6,11 +6,11 @@ public class Scarab : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenFirstPicke
 {
     public override string[] NounsForMatching => ["scarab", "jeweled scarab", "beautiful jeweled scarab"];
 
-    public string OnTheGroundDescription => "There is a beautiful jeweled scarab here. ";
+    public string OnTheGroundDescription(ILocation currentLocation) => "There is a beautiful jeweled scarab here. ";
 
-    public override string NeverPickedUpDescription => OnTheGroundDescription;
+    public override string NeverPickedUpDescription(ILocation currentLocation) => OnTheGroundDescription(currentLocation);
 
-    public override string InInventoryDescription => "A beautiful jeweled scarab";
+    public override string GenericDescription(ILocation currentLocation) => "A beautiful jeweled scarab";
 
     public override int Size => 1;
 

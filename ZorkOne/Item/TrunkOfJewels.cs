@@ -7,11 +7,11 @@ public class TrunkOfJewels : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPla
 {
     public override string[] NounsForMatching => ["trunk", "jewels", "trunk of jewels"];
 
-    public override string InInventoryDescription => "A trunk of jewels";
+    public override string GenericDescription(ILocation currentLocation) => "A trunk of jewels";
 
-    public string OnTheGroundDescription => "There is a trunk of jewels here. ";
+    public string OnTheGroundDescription(ILocation currentLocation) => "There is a trunk of jewels here. ";
 
-    public override string NeverPickedUpDescription =>
+    public override string NeverPickedUpDescription(ILocation currentLocation) =>
         "Lying half buried in the mud is an old trunk, bulging with jewels. ";
 
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 15;

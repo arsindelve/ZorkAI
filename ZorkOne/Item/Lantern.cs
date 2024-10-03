@@ -16,15 +16,9 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IAmALigh
 
     public override string[] NounsForMatching => ["lantern", "lamp", "light"];
 
-    public override string InInventoryDescription => $"A brass lantern {(IsOn ? "(providing light)" : string.Empty)}";
+    public override string GenericDescription(ILocation currentLocation) => $"A brass lantern {(IsOn ? "(providing light)" : string.Empty)}";
 
     public override int Size => 3;
-
-    string ICanBeExamined.ExaminationDescription => IsOn ? "The lamp is on." : "The lamp is turned off.";
-
-    string ICanBeTakenAndDropped.OnTheGroundDescription => "There is a brass lantern (battery-powered) here.";
-
-    public override string NeverPickedUpDescription => "A battery-powered brass lantern is on the trophy case.";
 
     public bool IsOn { get; set; }
 
@@ -49,6 +43,18 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IAmALigh
         context.RemoveActor(this);
     }
 
+    string ICanBeExamined.ExaminationDescription => IsOn ? "The lamp is on." : "The lamp is turned off.";
+
+    string ICanBeTakenAndDropped.OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "There is a brass lantern (battery-powered) here.";
+    }
+
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return "A battery-powered brass lantern is on the trophy case.";
+    }
+
     public Task<string> Act(IContext context, IGenerationClient client)
     {
         Debug.WriteLine($"Lantern counter: {TurnsWhileOn}");
@@ -70,8 +76,9 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IAmALigh
                 var result = new TurnLightOnOrOffProcessor().Process(
                     new SimpleIntent { Noun = NounsForMatching.First(), Verb = "turn off" }, context, this,
                     client);
-                return Task.FromResult("You'd better have more light than from the lantern. " + result!.InteractionMessage);
-            
+                return Task.FromResult("You'd better have more light than from the lantern. " +
+                                       result!.InteractionMessage);
+
             default:
                 return Task.FromResult(string.Empty);
         }
