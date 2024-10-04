@@ -186,8 +186,16 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("examine paper", null, "ZORK I")]
     [TestCase("Up", null, "with what you're carrying")]
     [TestCase("drop all", null, "sword: Dropped")]
-    [TestCase("get painting", null, "Taken")]
-    //[TestCase("Up", null, "with what you're carrying")]
+    [TestCase("take lantern", null, "Taken")]
+    [TestCase("Up", null, "Kitchen")]
+    [TestCase("W", null, "Living Room")]
+    [TestCase("Down", null, "is closed")]
+    [TestCase("open trap door", null, "opens to reveal")]
+    [TestCase("Down", null, "Cellar")]
+    [TestCase("W", null, "impossible")]
+    [TestCase("S", null, "East of Chasm")]
+    [TestCase("E", null, "Gallery")]
+    
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) 

@@ -200,6 +200,8 @@ public class MazeFourteen : MazeBase
 
 public class MazeFifteen : MazeBase
 {
+    // TODO: sword glowing faintly if Cyclops alive 
+    
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {

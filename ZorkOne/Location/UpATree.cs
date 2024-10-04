@@ -14,7 +14,7 @@ public class UpATree : BaseLocation
             { Direction.Down, new MovementParameters { Location = GetLocation<ForestPath>() } },
             {
                 Direction.Up,
-                new MovementParameters { CanGo = _ => false, CustomFailureMessage = "You cannot climb any higher" }
+                new MovementParameters { CanGo = _ => false, CustomFailureMessage = "You cannot climb any higher. " }
             }
         };
 
@@ -49,6 +49,8 @@ public class UpATree : BaseLocation
     // It seems to have recently had a bad experience. The mountings for its jewel-like eyes are empty, and its silver beak is crumpled.
     // Through a cracked crystal window below its left wing you can see the remains of intricate machinery. It is not clear what
     // result winding it would have, as the mainspring seems sprung.
+    
+    // TODO: You hear in the distance the chirping of a song bird.
     
     public override void Init()
     {

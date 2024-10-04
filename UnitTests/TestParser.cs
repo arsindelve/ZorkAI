@@ -22,7 +22,7 @@ public class TestParser : IIntentParser
             "take", "drop", "open", "close", "examine", "look", "eat", "press",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss",
-            "lower", "raise", "get", "inflate", "leave", "unlock", "lock"
+            "lower", "raise", "get", "inflate", "leave", "unlock", "lock", "climb"
         ];
 
         _allNouns = Repository.GetNouns();

@@ -291,16 +291,16 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("S", null, "Maze", "twisty little passages, all alike")]
     [TestCase("SE", null, "Cyclops Room", "A cyclops, who looks prepared to eat horses")]
     [TestCase("Ulysses", null, "name of his father's deadly nemesis, flees the room by knocking ")]
-    // Down to treasure room
-    // >give egg to thief
-    // back up 
+    // TODO: Down to treasure room
+    // TODO: give egg to thief
+    // TODO: back up 
     [TestCase("E", null, "Strange Passage", "On the east there is an old wooden door, with a")]
     [TestCase("E", null, "Living Room", "coffin", "emerald", "diamond")]
     [TestCase("put coins in case", null, "Done")]
     [TestCase("take knife", null, "Taken")]
     [TestCase("W", null, "Strange Passage", "On the east there is an old wooden door, with a")]
     [TestCase("W", null, "Cyclops Room")]
-    // Kill the thief and take his stuff
+    // TODO: kill the thief and take his stuff
     [TestCase("NW", null, "Maze", "twisty little passages, all alike")]
     [TestCase("S", null, "Maze", "twisty little passages, all alike")]
     [TestCase("W", null, "Maze", "twisty little passages, all alike")]
@@ -309,6 +309,11 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("NE", null, "Grating Room", "Above you is a grating locked with a skull-and-crossbones lock.")]
     [TestCase("unlock grate", null, "(with the skeleton key)", "The grate is unlocked")]
     [TestCase("open grate", null, "The grating opens to reveal trees above you.", "A pile of leaves falls onto")]
+    [TestCase("Up", null, "Clearing", "There is an open grating, descending into darkness")]
+    [TestCase("S", null, "Forest Path")]
+    [TestCase("Up", null, "Up A Tree")]
+    // TODO: Wind up canary 
+
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) InvokeGodMode(setup);

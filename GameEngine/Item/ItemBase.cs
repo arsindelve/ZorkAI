@@ -79,6 +79,8 @@ public abstract class ItemBase : IItem
 
     public virtual int Size => 1;
 
+    public virtual string OnOpening(IContext context) => "";
+    
     public virtual (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
         bool hasItem = NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
