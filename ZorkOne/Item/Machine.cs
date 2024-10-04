@@ -12,11 +12,6 @@ public class Machine : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAnd
 
     protected override int SpaceForItems => 6;
 
-    public override string NowOpen =>
-        Items.Any() ? $"The lid opens revealing {SingleLineListOfItems()}. " : "The lid opens. ";
-
-    public override string NowClosed => "The lid closes.";
-
     public override string CannotBeTakenDescription => "It is far too large to carry. ";
 
     [JsonIgnore]
@@ -24,7 +19,20 @@ public class Machine : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAnd
         ? Items.Any() ? base.ItemListDescription("machine", null) : "The machine is empty. "
         : "The machine is closed. ";
 
-    public string OnTheGroundDescription(ILocation currentLocation) => string.Empty;
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return string.Empty;
+    }
+
+    public override string NowOpen(ILocation currentLocation)
+    {
+        return Items.Any() ? $"The lid opens revealing {SingleLineListOfItems()}. " : "The lid opens. ";
+    }
+
+    public override string NowClosed(ILocation currentLocation)
+    {
+        return "The lid closes.";
+    }
 
     public override void Init()
     {
@@ -37,13 +45,13 @@ public class Machine : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAnd
         if (!IsOpen && action.Match(["open"], ["lid"]))
         {
             IsOpen = true;
-            return new PositiveInteractionResult(NowOpen);
+            return new PositiveInteractionResult(NowOpen(context.CurrentLocation));
         }
 
         if (IsOpen && action.Match(["close"], ["lid"]))
         {
             IsOpen = false;
-            return new PositiveInteractionResult(NowClosed);
+            return new PositiveInteractionResult(NowClosed(context.CurrentLocation));
         }
 
         if (action.Verb.ToLowerInvariant() == "turn" && action.Noun?.ToLowerInvariant() == "switch")
@@ -51,6 +59,4 @@ public class Machine : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAnd
 
         return base.RespondToSimpleInteraction(action, context, client);
     }
-
- 
 }

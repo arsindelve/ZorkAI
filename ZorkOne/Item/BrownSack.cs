@@ -9,7 +9,7 @@ public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenA
     public override string GenericDescription(ILocation currentLocation) =>
         !IsOpen ? "A brown sack" : $"A brown sack \n {ItemListDescription("brown sack", null)}";
 
-    public override string NowOpen =>
+    public override string NowOpen(ILocation currentLocation) =>
         !HasEverBeenOpened ? "Opening the brown sack reveals a lunch, and a clove of garlic." : "Opened.";
 
     public override string Name => "brown sack";

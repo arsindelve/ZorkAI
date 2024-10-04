@@ -40,7 +40,10 @@ public class CyclopsRoom : DarkLocation
 
     public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
     {
-        if (input?.ToLower().Trim() != "ulysses" || !HasItem<Cyclops>())
+        if (string.IsNullOrEmpty(input))
+            return base.RespondToSpecificLocationInteraction(input, context);
+
+        if (new List<string> { "ulysses", "odysseus" }.Contains(input.ToLower().Trim()) || !HasItem<Cyclops>())
             return base.RespondToSpecificLocationInteraction(input, context);
 
         var message =

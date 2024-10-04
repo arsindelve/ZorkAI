@@ -23,6 +23,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
 
     protected void InvokeGodMode(string setup)
     {
+        // Ooooooh! Reflection!! 
         var method = GetType().GetMethod(setup);
         if (method == null) throw new ArgumentException("Method " + setup + " doesn't exist");
 

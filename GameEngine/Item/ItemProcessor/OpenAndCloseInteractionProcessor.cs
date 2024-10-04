@@ -19,7 +19,7 @@ public class OpenAndCloseInteractionProcessor : IVerbProcessor
 
             case "close":
             case "shut":
-                return CloseMe(castItem);
+                return CloseMe(castItem, context);
         }
 
         return null;
@@ -34,7 +34,7 @@ public class OpenAndCloseInteractionProcessor : IVerbProcessor
         if (!string.IsNullOrEmpty(cannotBeOpenedReason))
             return new PositiveInteractionResult(cannotBeOpenedReason);
 
-        var returnText = item.NowOpen;
+        var returnText = item.NowOpen(context.CurrentLocation);
 
         item.IsOpen = true;
         item.HasEverBeenOpened = true;
@@ -42,12 +42,12 @@ public class OpenAndCloseInteractionProcessor : IVerbProcessor
         return new PositiveInteractionResult(returnText);
     }
 
-    private InteractionResult CloseMe(IOpenAndClose item)
+    private InteractionResult CloseMe(IOpenAndClose item, IContext context)
     {
         if (!item.IsOpen)
             return new PositiveInteractionResult(item.AlreadyClosed);
 
         item.IsOpen = false;
-        return new PositiveInteractionResult(item.NowClosed);
+        return new PositiveInteractionResult(item.NowClosed(context.CurrentLocation));
     }
 }
