@@ -38,6 +38,7 @@ public class OpenAndCloseInteractionProcessor : IVerbProcessor
 
         item.IsOpen = true;
         item.HasEverBeenOpened = true;
+        returnText += item.OnOpening(context);
 
         return new PositiveInteractionResult(returnText);
     }

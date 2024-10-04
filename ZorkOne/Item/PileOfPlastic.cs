@@ -64,7 +64,7 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
             return new PositiveInteractionResult("You don't have enough lung power to inflate it. ");
         }
 
-        // TODO: 
+        // TODO: Deflate
         // if (action.Match(["deflate"], NounsForMatching))
         // {
         //     if (context.HasItem<PileOfPlastic>())

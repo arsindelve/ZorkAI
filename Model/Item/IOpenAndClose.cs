@@ -43,4 +43,11 @@ public interface IOpenAndClose : IInteractionTarget
     /// <param name="context">The context in which the method is executed.</param>
     /// <returns>The description of why the object cannot be opened, or null if it can be opened.</returns>
     string? CannotBeOpenedDescription(IContext context);
+
+    /// <summary>
+    /// Called when the item is opened. The return text is appended to the output. 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    string OnOpening(IContext context);
 }

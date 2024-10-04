@@ -2,8 +2,6 @@ using GameEngine.Item;
 
 namespace ZorkOne.Item;
 
-// TODO: The sword needs to glow near danger 
-
 public class Sword : ItemBase, ICanBeTakenAndDropped, IWeapon
 {
     public override string[] NounsForMatching => ["sword", "glamdring", "orcrist"];

@@ -48,6 +48,7 @@ public class CyclopsRoom : DarkLocation
 
         var message =
             "The cyclops, hearing the name of his father's deadly nemesis, flees the room by knocking down the wall on the east of the room. ";
+        
         if (context.HasItem<Sword>())
             message += "\nYour sword is no longer glowing. ";
 
