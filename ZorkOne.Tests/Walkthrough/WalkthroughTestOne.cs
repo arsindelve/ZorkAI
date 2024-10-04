@@ -307,7 +307,8 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("Up", null, "Maze", "twisty little passages, all alike")]
     [TestCase("Down", null, "Maze", "You won't be able to get back up to the tunnel")]
     [TestCase("NE", null, "Grating Room", "Above you is a grating locked with a skull-and-crossbones lock.")]
-
+    [TestCase("unlock grate", null, "(with the skeleton key)", "The grate is unlocked")]
+    [TestCase("open grate", null, "The grating opens to reveal trees above you.", "A pile of leaves falls onto")]
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) InvokeGodMode(setup);

@@ -6,9 +6,18 @@ public class SkeletonKey : ItemBase, ICanBeTakenAndDropped
 {
     public override string[] NounsForMatching => ["key", "skeleton", "skeleton key"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A skeleton key";
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "There is a skeleton key here. ";
+    }
 
-    public string OnTheGroundDescription(ILocation currentLocation) => "There is a skeleton key here. ";
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return OnTheGroundDescription(currentLocation);
+    }
 
-    public override string NeverPickedUpDescription(ILocation currentLocation) => OnTheGroundDescription(currentLocation);
+    public override string GenericDescription(ILocation currentLocation)
+    {
+        return "A skeleton key";
+    }
 }

@@ -1,4 +1,5 @@
 using Model.Interface;
+using Model.Location;
 
 namespace Model.Item;
 
@@ -9,9 +10,23 @@ public interface IOpenAndClose : IInteractionTarget
 {
     bool IsOpen { get; set; }
 
-    string NowOpen { get; }
+    /// <summary>
+    /// Tell the user that it's open now
+    /// </summary>
+    /// <param name="currentLocation">Why? Because of the grate in Zork One - Different behavior
+    /// if you are above it (clearing) or below it (grating room). The kitchen window could
+    /// also behave this way (but doesn't)</param>
+    /// <returns></returns>
+    string NowOpen(ILocation currentLocation);
 
-    string NowClosed { get; }
+    /// <summary>
+    /// Tell the user that it's closed now
+    /// </summary>
+    /// <param name="currentLocation">Why? Because of the grate in Zork One - Different behavior
+    /// if you are above it (clearing) or below it (grating room). The kitchen window could
+    /// also behave this way (but doesn't)</param>
+    /// <returns></returns>
+    string NowClosed(ILocation currentLocation);
 
     string AlreadyOpen { get; }
 
