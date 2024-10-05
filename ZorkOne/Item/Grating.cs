@@ -33,9 +33,9 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
         return "The grating is now closed";
     }
 
-    public string AlreadyOpen => "";
+    public string AlreadyOpen => "Too late. ";
 
-    public string AlreadyClosed => "";
+    public string AlreadyClosed => "Too late. ";
 
     public bool HasEverBeenOpened { get; set; }
 
@@ -50,7 +50,7 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
 
         if (leaves.HasEverBeenPickedUp)
             return string.Empty;
-        
+
         leaves.HasEverBeenPickedUp = true;
 
         Repository.GetLocation<GratingRoom>().ItemPlacedHere(leaves);
@@ -134,7 +134,9 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
                 : "There is a grating securely fastened into the ground. ",
             GratingRoom => IsOpen
                 ? "Above you is an open grating with sunlight pouring in. "
-                : "Above you is a grating locked with a skull-and-crossbones lock. ",
+                : IsLocked
+                    ? "Above you is a grating locked with a skull-and-crossbones lock. "
+                    : "Above you is a grating. ",
             _ => throw new NotSupportedException()
         };
     }
