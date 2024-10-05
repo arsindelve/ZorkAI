@@ -15,10 +15,13 @@ public class OpenAndCloseInteractionProcessor : IVerbProcessor
         switch (action.Verb.ToLowerInvariant().Trim())
         {
             case "open":
+            case "lift":
                 return OpenMe(castItem, context);
 
             case "close":
             case "shut":
+            case "bar":
+            case "lower":
                 return CloseMe(castItem, context);
         }
 

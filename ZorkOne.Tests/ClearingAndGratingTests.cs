@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using FluentAssertions;
 using GameEngine;
 using NUnit.Framework;
@@ -144,10 +145,85 @@ public class ClearingAndGratingTests : EngineTestsBase
         response.Should().Contain("The grate is locked");
     }
     
-    // TODO: Open with leaves on top, dump on my head
-    // TODO: Open it, no leaves, no dump
+    [Test]
+    public async Task GratingRoom_HaveKey_Open_FirstTime_DumpLeavesOnMyHead()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<GratingRoom>();
+        target.Context.Take(Repository.GetItem<SkeletonKey>());
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
+
+        // Act
+        await target.GetResponse("unlock the grate with the key");
+        var response = await target.GetResponse("open the grate");
+
+        // Assert
+        response.Should().Contain("reveal trees above you");
+        response.Should().Contain("A pile of leaves falls onto your head and to the ground.");
+    }
+    
+    [Test]
+    public async Task GratingRoom_AlreadyTookTheLeaves_DoesNotDumpLeavesOnMyHead()
+    {
+        var target = GetTarget();
+        target.Context.Take(Repository.GetItem<SkeletonKey>());
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
+
+        // Act
+        
+        target.Context.CurrentLocation = Repository.GetLocation<Clearing>();
+        await target.GetResponse("move the leaves");
+        target.Context.CurrentLocation = Repository.GetLocation<GratingRoom>();
+        await target.GetResponse("unlock the grate with the key");
+        var response = await target.GetResponse("open the grate");
+
+        // Assert
+        response.Should().Contain("reveal trees above you");
+        response.Should().NotContain("A pile of leaves falls onto your head and to the ground.");
+    }
+    
+    [Test]
+    public async Task GratingRoom_HaveKey_Open_FirstTime_LeavesAreHereNow()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<GratingRoom>();
+        target.Context.Take(Repository.GetItem<SkeletonKey>());
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
+
+        // Act
+        await target.GetResponse("unlock the grate with the key");
+        await target.GetResponse("open the grate");
+        var response = await target.GetResponse("take leaves");
+
+        // Assert
+        response.Should().Contain("Taken");
+    }
+    
+    [Test]
+    public async Task GratingRoom_HaveKey_Open_SecondTime_DoesNotDumpLeavesOnMyHead()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<GratingRoom>();
+        target.Context.Take(Repository.GetItem<SkeletonKey>());
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
+
+        // Act
+        Console.WriteLine(await target.GetResponse("unlock the grate with the key"));
+        Console.WriteLine(await target.GetResponse("open the grate"));
+        Console.WriteLine(await target.GetResponse("close the grate"));
+        var response = await target.GetResponse("open the grate");
+
+        // Assert
+        response.Should().Contain("reveal trees above you");
+        response.Should().NotContain("A pile of leaves falls onto your head and to the ground.");
+    }
+
+    
     // TODO: close it
-    // TODO: open it without leaves on top
     // TODO: open without unlocking 
     // TODO: lock when open (it DOES lock and then you can't close it. BUG!!)
     
