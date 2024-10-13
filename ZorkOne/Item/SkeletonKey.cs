@@ -16,7 +16,7 @@ public class SkeletonKey : ItemBase, ICanBeTakenAndDropped
         return OnTheGroundDescription(currentLocation);
     }
 
-    public override string GenericDescription(ILocation currentLocation)
+    public override string GenericDescription(ILocation? currentLocation)
     {
         return "A skeleton key";
     }

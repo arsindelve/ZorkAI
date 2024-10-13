@@ -23,7 +23,7 @@ public abstract class ItemBase : IItem
     /// </value>
     public virtual string NeverPickedUpDescription(ILocation currentLocation) => GenericDescription(currentLocation);
 
-    public virtual string GenericDescription(ILocation currentLocation) => "";
+    public virtual string GenericDescription(ILocation? currentLocation) => "";
 
     public virtual string? CannotBeTakenDescription { get; set; }
 

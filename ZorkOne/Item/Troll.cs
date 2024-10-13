@@ -5,7 +5,7 @@ using ZorkOne.ActorInteraction;
 
 namespace ZorkOne.Item;
 
-public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor
+public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked
 {
     private readonly TrollCombatEngine _trollAttackEngine = new();
 
@@ -19,7 +19,7 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor
 
     public override string NeverPickedUpDescription(ILocation currentLocation) => ExaminationDescription;
 
-    public override string GenericDescription(ILocation currentLocation) => ExaminationDescription;
+    public override string GenericDescription(ILocation? currentLocation) => ExaminationDescription;
 
     public override string CannotBeTakenDescription => IsUnconscious
         ? ""
