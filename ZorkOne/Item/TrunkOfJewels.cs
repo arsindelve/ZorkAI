@@ -3,7 +3,7 @@ using GameEngine.Item;
 namespace ZorkOne.Item;
 
 public class TrunkOfJewels : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase,
-    IGivePointsWhenFirstPickedUp
+    IGivePointsWhenFirstPickedUp, ICanBeExamined
 {
     public override string[] NounsForMatching => ["trunk", "jewels", "trunk of jewels"];
 
@@ -18,5 +18,7 @@ public class TrunkOfJewels : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPla
 
     int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 5;
 
-    public override int Size => 7; 
+    public override int Size => 7;
+    
+    public string ExaminationDescription => "There are lots of jewels in there. ";
 }

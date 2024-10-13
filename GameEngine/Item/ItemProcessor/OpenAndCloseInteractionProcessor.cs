@@ -12,18 +12,11 @@ public class OpenAndCloseInteractionProcessor : IVerbProcessor
         if (item is not IOpenAndClose castItem)
             throw new Exception("Cast Error");
 
-        switch (action.Verb.ToLowerInvariant().Trim())
-        {
-            case "open":
-            case "lift":
-                return OpenMe(castItem, context);
-
-            case "close":
-            case "shut":
-            case "bar":
-            case "lower":
-                return CloseMe(castItem, context);
-        }
+        if (Verbs.OpenVerbs.Contains(action.Verb.ToLowerInvariant().Trim()))
+            return OpenMe(castItem, context);
+        
+        if (Verbs.CloseVerbs.Contains(action.Verb.ToLowerInvariant().Trim())) 
+            return CloseMe(castItem, context);
 
         return null;
     }
