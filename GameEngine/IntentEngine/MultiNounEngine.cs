@@ -71,7 +71,7 @@ public class MultiNounEngine : IIntentEngine
 
         if (!nounOneExistsHere & nounTwoExistsHere)
         {
-            if (itemTwo is IAmAPerson)
+            if (itemTwo is IAmANamedPerson)
                 return (null, await GetGeneratedResponse<MissingFirstNounMultiNounWithPersonOperationRequest>(
                     interaction,
                     generationClient,
@@ -84,7 +84,7 @@ public class MultiNounEngine : IIntentEngine
 
         if (nounOneExistsHere & !nounTwoExistsHere)
         {
-            if (itemOne is IAmAPerson)
+            if (itemOne is IAmANamedPerson)
                 return (null, await GetGeneratedResponse<MissingSecondNounWithPersonMultiNounOperationRequest>(
                     interaction,
                     generationClient,
@@ -142,13 +142,13 @@ public class MultiNounEngine : IIntentEngine
         Request request = new VerbHasNoEffectMultiNounOperationRequest(context.CurrentLocation.DescriptionForGeneration,
             interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb);
 
-        if (interaction.ItemOne is IAmAPerson personOne)
+        if (interaction.ItemOne is IAmANamedPerson personOne)
             request = new VerbHasNoEffectMultiNounOperationItemOneIsAPersonRequest(
                 context.CurrentLocation.DescriptionForGeneration,
                 interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb,
                 personOne.ExaminationDescription);
 
-        if (interaction.ItemTwo is IAmAPerson personTwo)
+        if (interaction.ItemTwo is IAmANamedPerson personTwo)
             request = new VerbHasNoEffectMultiNounOperationItemTwoIsAPersonRequest(
                 context.CurrentLocation.DescriptionForGeneration,
                 interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb,
@@ -169,10 +169,10 @@ public class MultiNounEngine : IIntentEngine
                 NounTwo = interaction.NounTwo,
                 Preposition = interaction.Preposition,
                 Verb = interaction.Verb,
-                PersonOneDescription = interaction.ItemOne is IAmAPerson personOne
+                PersonOneDescription = interaction.ItemOne is IAmANamedPerson personOne
                     ? personOne.ExaminationDescription
                     : string.Empty,
-                PersonTwoDescription = interaction.ItemTwo is IAmAPerson personTwo
+                PersonTwoDescription = interaction.ItemTwo is IAmANamedPerson personTwo
                     ? personTwo.ExaminationDescription
                     : string.Empty
             };

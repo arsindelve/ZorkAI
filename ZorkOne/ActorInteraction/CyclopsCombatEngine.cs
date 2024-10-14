@@ -16,6 +16,7 @@ internal class CyclopsCombatEngine : ICombatEngine
     {
         var cyclops = Repository.GetItem<Cyclops>();
         cyclops.IsAgitated = true;
+        cyclops.IsSleeping = false;
         return new PositiveInteractionResult("The cyclops shrugs but otherwise ignores your pitiful attempt. \n");
     }
 }
