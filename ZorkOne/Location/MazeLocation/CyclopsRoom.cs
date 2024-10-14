@@ -17,7 +17,7 @@ internal class CyclopsRoom : DarkLocation
     {
         _decisionEngine = new KillSomeoneDecisionEngine<Cyclops>(_combatEngine);
     }
-    
+
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
@@ -26,7 +26,8 @@ internal class CyclopsRoom : DarkLocation
                 Direction.E,
                 new MovementParameters
                 {
-                    CanGo = _ => !HasItem<Cyclops>(), Location = GetLocation<StrangePassage>(),
+                    CanGo = _ => !HasItem<Cyclops>(),
+                    Location = GetLocation<StrangePassage>(),
                     CustomFailureMessage = "The east wall is solid rock. "
                 }
             },
@@ -35,7 +36,7 @@ internal class CyclopsRoom : DarkLocation
                 new MovementParameters
                 {
                     Location = GetLocation<TreasureRoom>(),
-                    CanGo = _ => !HasItem<Cyclops>() || GetItem<Cyclops>().HasGoneToSleep,
+                    CanGo = _ => !HasItem<Cyclops>() || GetItem<Cyclops>().IsSleeping,
                     CustomFailureMessage = "The cyclops doesn't look like he'll let you past. "
                 }
             }
@@ -51,22 +52,24 @@ internal class CyclopsRoom : DarkLocation
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        InteractionResult? killInteraction = _decisionEngine.DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(action, context);
+        var killInteraction = _decisionEngine.DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(action, context);
         return killInteraction ?? base.RespondToSimpleInteraction(action, context, client);
     }
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-        InteractionResult? result = _decisionEngine.DoYouWantToKillSomeone(action, context);
+        var result = _decisionEngine.DoYouWantToKillSomeone(action, context);
         return result ?? base.RespondToMultiNounInteraction(action, context);
     }
-    
+
     public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
     {
         if (string.IsNullOrEmpty(input))
             return base.RespondToSpecificLocationInteraction(input, context);
 
-        if (!new List<string> { "ulysses", "odysseus" }.Contains(input.ToLower().Trim()) || !HasItem<Cyclops>())
+        if (!new List<string> { "ulysses", "odysseus" }.Contains(input.ToLower().Trim()) 
+            || !HasItem<Cyclops>() 
+            || GetItem<Cyclops>().IsSleeping)
             return base.RespondToSpecificLocationInteraction(input, context);
 
         var message =
@@ -75,12 +78,12 @@ internal class CyclopsRoom : DarkLocation
 
         if (context.HasItem<Sword>())
             message += "\nYour sword is no longer glowing. ";
-        
+
         var loser = GetItem<Cyclops>();
         RemoveItem(loser);
         loser.CurrentLocation = null;
         context.RemoveActor(loser);
-        
+
         return new PositiveInteractionResult(message);
     }
 
