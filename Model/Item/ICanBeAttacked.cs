@@ -1,6 +1,6 @@
 ﻿namespace Model.Item;
 
-public interface ICanBeAttacked
-{
-    public bool IsDead { get; set; }
-}
+/// <summary>
+/// Marker interface for object that can be attacked by the adventurer. 
+/// </summary>
+public interface ICanBeAttacked;

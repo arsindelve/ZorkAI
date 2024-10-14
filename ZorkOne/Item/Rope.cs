@@ -7,7 +7,7 @@ public class Rope : ItemBase, ICanBeTakenAndDropped
 {
     public override string[] NounsForMatching => ["rope"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A rope";
+    public override string GenericDescription(ILocation? currentLocation) => "A rope";
 
     public override int Size => 2;
 

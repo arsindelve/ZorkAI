@@ -14,9 +14,11 @@ public class TestParser : IIntentParser
     private readonly string[] _allContainers;
     private readonly string[] _allNouns;
     private readonly string[] _verbs;
+    private readonly IGlobalCommandFactory _gameSpecificCommandFactory;
 
-    public TestParser()
+    public TestParser(IGlobalCommandFactory gameSpecificCommandFactory)
     {
+        _gameSpecificCommandFactory = gameSpecificCommandFactory;
         _verbs =
         [
             "take", "drop", "open", "close", "examine", "look", "eat", "press",
@@ -42,6 +44,9 @@ public class TestParser : IIntentParser
         if (string.IsNullOrEmpty(input))
             return Task.FromResult<IntentBase>(new NullIntent());
 
+        if (_gameSpecificCommandFactory.GetGlobalCommands(input) is { } gameSpecificGlobalCommand)
+            return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = gameSpecificGlobalCommand });
+        
         foreach (Direction direction in Enum.GetValues(typeof(Direction)))
             if (input == direction.ToString() || input == $"go {direction.ToString()}")
                 return Task.FromResult<IntentBase>(new MoveIntent { Direction = direction });
@@ -214,6 +219,16 @@ public class TestParser : IIntentParser
                 Preposition = "with",
                 Verb = "light",
                 OriginalInput = "light candles with match"
+            });
+        
+        if (input == "kill the cyclops with the sword")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "cyclops",
+                NounTwo = "sword",
+                Preposition = "with",
+                Verb = "kill",
+                OriginalInput = "kill the cyclops with the sword"
             });
 
         if (input == "dig in sand with shovel")

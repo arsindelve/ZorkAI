@@ -7,7 +7,7 @@ public class Guidebook : ItemBase, ICanBeTakenAndDropped, ICanBeRead, ICanBeExam
     public override string[] NounsForMatching =>
         ["book", "books", "guidebook", "guidebooks", "guide book", "guide books"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A tour guidebook ";
+    public override string GenericDescription(ILocation? currentLocation) => "A tour guidebook ";
 
     string ICanBeExamined.ExaminationDescription => ReadDescription;
 

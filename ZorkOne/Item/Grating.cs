@@ -125,7 +125,7 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
         return base.RespondToSimpleInteraction(action, context, client);
     }
 
-    public override string NeverPickedUpDescription(ILocation currentLocation)
+    public override string NeverPickedUpDescription(ILocation? currentLocation)
     {
         return currentLocation switch
         {
@@ -141,7 +141,7 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
         };
     }
 
-    public override string GenericDescription(ILocation currentLocation)
+    public override string GenericDescription(ILocation? currentLocation)
     {
         return NeverPickedUpDescription(currentLocation);
     }

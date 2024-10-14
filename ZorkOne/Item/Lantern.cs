@@ -16,7 +16,7 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IAmALigh
 
     public override string[] NounsForMatching => ["lantern", "lamp", "light"];
 
-    public override string GenericDescription(ILocation currentLocation) => $"A brass lantern {(IsOn ? "(providing light)" : string.Empty)}";
+    public override string GenericDescription(ILocation? currentLocation) => $"A brass lantern {(IsOn ? "(providing light)" : string.Empty)}";
 
     public override int Size => 3;
 

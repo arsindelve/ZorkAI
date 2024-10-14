@@ -8,7 +8,7 @@ public class SapphireBracelet : ItemBase, ICanBeTakenAndDropped, IGivePointsWhen
     public override string[] NounsForMatching =>
         ["bracelet", "sapphire bracelet", "sapphire", "sapphire-encrusted bracelet"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A sapphire-encrusted bracelet ";
+    public override string GenericDescription(ILocation? currentLocation) => "A sapphire-encrusted bracelet ";
 
     public string OnTheGroundDescription(ILocation currentLocation) => "There is a sapphire-encrusted bracelet here. ";
 

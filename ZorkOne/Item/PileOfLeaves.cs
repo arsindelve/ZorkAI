@@ -10,7 +10,7 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
 {
     public override string[] NounsForMatching => ["leaves", "pile", "pile of leaves"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A pile of leaves";
+    public override string GenericDescription(ILocation? currentLocation) => "A pile of leaves";
 
     public string ExaminationDescription => "There's nothing special about the pile of leaves. ";
 

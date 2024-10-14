@@ -9,7 +9,7 @@ public class Emerald : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInT
     
     public string OnTheGroundDescription(ILocation currentLocation) => "There is a large emerald here. ";
 
-    public override string GenericDescription(ILocation currentLocation) => "A large emerald ";
+    public override string GenericDescription(ILocation? currentLocation) => "A large emerald ";
 
     public override string NeverPickedUpDescription(ILocation currentLocation) => OnTheGroundDescription(currentLocation);
 

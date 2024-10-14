@@ -5,7 +5,7 @@ namespace ZorkOne.Item;
 
 public class RustyKnife : ItemBase, ICanBeTakenAndDropped, IWeapon
 {
-    public override string GenericDescription(ILocation currentLocation) => "a rusty knife";
+    public override string GenericDescription(ILocation? currentLocation) => "a rusty knife";
 
     public override string[] NounsForMatching => ["knife", "rusty knife", "rusty"];
 

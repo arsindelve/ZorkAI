@@ -32,7 +32,7 @@ public class Bottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeEx
                ItemListDescription("glass bottle", null);
     }
 
-    public override string GenericDescription(ILocation currentLocation)
+    public override string GenericDescription(ILocation? currentLocation)
     {
         return Items.Any()
             ? "A glass bottle" + Environment.NewLine + ItemListDescription("glass bottle", currentLocation)

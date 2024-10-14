@@ -13,7 +13,7 @@ public class Mailbox : OpenAndCloseContainerBase, ICanBeExamined
     public string ExaminationDescription =>
         ((IOpenAndClose)this).IsOpen ? "It's open. " : "The small mailbox is closed. ";
 
-    public override string GenericDescription(ILocation currentLocation)
+    public override string GenericDescription(ILocation? currentLocation)
     {
         return "There is a small mailbox here.";
     }

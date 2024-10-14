@@ -6,7 +6,7 @@ public class Lunch : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeEate
 {
     public override string[] NounsForMatching => ["lunch", "sandwich"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A lunch";
+    public override string GenericDescription(ILocation? currentLocation) => "A lunch";
 
     public override int Size => 2;
 

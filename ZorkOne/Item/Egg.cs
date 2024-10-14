@@ -53,7 +53,7 @@ public class Egg : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IGivePointsW
         return "You have neither the tools nor the expertise. ";
     }
 
-    public override string GenericDescription(ILocation currentLocation)
+    public override string GenericDescription(ILocation? currentLocation)
     {
         return "A jewel-encrusted egg";
     }

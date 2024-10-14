@@ -14,7 +14,7 @@ public class LivingRoom : BaseLocation
 
     protected override string ContextBasedDescription =>
         "You are in the living room.  " +
-        (CyclopsHasCrashedThrough
+        (!CyclopsHasCrashedThrough
             ? "There is a doorway to the east, a wooden door with strange gothic lettering to the west, which appears to be nailed shut, "
             : "There is a doorway to the east. To the west is a cyclops-shaped opening in an old wooden door, above which is some strange gothic lettering, ") +
         "a trophy case, " +
