@@ -14,7 +14,7 @@ public class BrassBell : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ITurnB
 
     public override string[] NounsForMatching => ["bell", "brass bell"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A brass bell";
+    public override string GenericDescription(ILocation? currentLocation) => "A brass bell";
 
     public override string? CannotBeTakenDescription =>
         BellIsRedHot ? "The bell is very hot and cannot be taken. " : null;

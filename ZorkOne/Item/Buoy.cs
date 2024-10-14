@@ -11,7 +11,7 @@ public class Buoy : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndDro
         StartWithItemInside<Emerald>();
     }
     
-    public override string GenericDescription(ILocation currentLocation) =>
+    public override string GenericDescription(ILocation? currentLocation) =>
         !IsOpen ? "A red buoy" : $"A red buoy \n {ItemListDescription("red buoy", null)}";
 
     public override string NowOpen(ILocation currentLocation) =>

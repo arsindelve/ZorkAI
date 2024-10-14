@@ -17,7 +17,7 @@ public class Candles : ItemBase, ICanBeExamined, ICanBeTakenAndDropped,
 
     public override string[] NounsForMatching => ["candle", "candles", "pair of candles"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A pair of candles" + (IsOn ? " (providing light)" : "");
+    public override string GenericDescription(ILocation? currentLocation) => "A pair of candles" + (IsOn ? " (providing light)" : "");
 
     public bool IsOn { get; set; }
 

@@ -7,7 +7,7 @@ public class CrystalSkull : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlac
 {
     public override string[] NounsForMatching => ["skull", "crystal skull"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A crystal skull";
+    public override string GenericDescription(ILocation? currentLocation) => "A crystal skull";
 
     public override int Size => 1;
 

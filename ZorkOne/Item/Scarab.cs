@@ -10,7 +10,7 @@ public class Scarab : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenFirstPicke
 
     public override string NeverPickedUpDescription(ILocation currentLocation) => OnTheGroundDescription(currentLocation);
 
-    public override string GenericDescription(ILocation currentLocation) => "A beautiful jeweled scarab";
+    public override string GenericDescription(ILocation? currentLocation) => "A beautiful jeweled scarab";
 
     public override int Size => 1;
 

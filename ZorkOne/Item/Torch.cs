@@ -7,7 +7,7 @@ public class Torch : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICannotBeT
 {
     public override string[] NounsForMatching => ["torch", "ivory torch"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A torch (providing light) ";
+    public override string GenericDescription(ILocation? currentLocation) => "A torch (providing light) ";
 
     public string ExaminationDescription => "The torch is burning. ";
 

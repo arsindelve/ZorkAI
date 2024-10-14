@@ -19,7 +19,7 @@ public class Brush : ItemBase, ICanBeTakenAndDropped
         return OnTheGroundDescription(currentLocation);
     }
 
-    public override string GenericDescription(ILocation currentLocation)
+    public override string GenericDescription(ILocation? currentLocation)
     {
         return "A Patrol-issue self-contained multi-purpose scrub brush ";
     }

@@ -15,7 +15,7 @@ public class Matchbook : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDro
 
     public override string[] NounsForMatching => ["matches", "matchbook", "match"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A matchbook" + (IsOn ? " (providing light)" : "");
+    public override string GenericDescription(ILocation? currentLocation) => "A matchbook" + (IsOn ? " (providing light)" : "");
 
     public bool IsOn { get; set; }
 

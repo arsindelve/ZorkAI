@@ -6,7 +6,7 @@ public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenA
 {
     public override string[] NounsForMatching => ["sack", "brown sack", "bag"];
 
-    public override string GenericDescription(ILocation currentLocation) =>
+    public override string GenericDescription(ILocation? currentLocation) =>
         !IsOpen ? "A brown sack" : $"A brown sack \n {ItemListDescription("brown sack", null)}";
 
     public override string NowOpen(ILocation currentLocation) =>

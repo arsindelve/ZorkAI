@@ -10,7 +10,7 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
 {
     public override string[] NounsForMatching => ["book", "black book"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A black book";
+    public override string GenericDescription(ILocation? currentLocation) => "A black book";
 
     public string ExaminationDescription => """
                                             Commandment #12592

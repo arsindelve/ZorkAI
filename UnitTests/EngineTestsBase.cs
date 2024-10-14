@@ -20,7 +20,7 @@ public class EngineTestsBase
     protected GameEngine<ZorkI, ZorkIContext> GetTarget(IIntentParser? parser = null)
     {
         Client = new Mock<IGenerationClient>();
-        Parser = parser ?? new TestParser();
+        Parser = parser ?? new TestParser(new ZorkOneGlobalCommandFactory());
 
         Repository.Reset();
 

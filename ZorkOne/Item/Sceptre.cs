@@ -10,7 +10,7 @@ public class Sceptre : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInT
 {
     public override string[] NounsForMatching => ["sceptre", "ornamental sceptre"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A sceptre";
+    public override string GenericDescription(ILocation? currentLocation) => "A sceptre";
 
     public string OnTheGroundDescription(ILocation currentLocation) => "An ornamented sceptre, tapering to a sharp point, is here.";
 
