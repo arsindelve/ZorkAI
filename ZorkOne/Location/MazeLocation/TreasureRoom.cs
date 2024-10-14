@@ -1,4 +1,5 @@
 ﻿using GameEngine.Location;
+using Model.Interface;
 using Model.Movement;
 
 namespace ZorkOne.Location.MazeLocation;
@@ -19,5 +20,11 @@ public class TreasureRoom : BaseLocation
     public override void Init()
     {
        
+    }
+    
+    protected override void OnFirstTimeEnterLocation(IContext context)
+    {
+        context.AddPoints(25);
+        base.OnFirstTimeEnterLocation(context);
     }
 }
