@@ -1,4 +1,5 @@
 ﻿using GameEngine;
+using GameEngine.IntentEngine;
 using GameEngine.Item;
 using Model.AIGeneration;
 using Model.Intent;
@@ -8,8 +9,9 @@ using ZorkOne.Location.MazeLocation;
 
 namespace ZorkOne.Item;
 
-public class Cyclops : ItemBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked
+public class Cyclops : ItemBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked, ICanBeGivenThings
 {
+    private readonly GiveSomethingToSomeoneDecisionEngine<Cyclops> _giveHimSomethingEngine = new();
     public override string Name => "Cyclops";
 
     /// <summary>
@@ -33,6 +35,17 @@ public class Cyclops : ItemBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked
     public string ExaminationDescription => IsSleeping
         ? "The cyclops is sleeping like a baby, albeit a very ugly one. "
         : "A hungry cyclops is standing at the foot of the stairs. ";
+
+    InteractionResult ICanBeGivenThings.OfferThisThing(IItem item, IContext context)
+    {
+        return item switch
+        {
+            Bottle => OfferTheBottle(context),
+            Lunch => OfferTheLunch(context),
+            Garlic => new PositiveInteractionResult("The cyclops may be hungry, but there is a limit. "),
+            _ => new PositiveInteractionResult("The cyclops is not so stupid as to eat THAT! ")
+        };
+    }
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
@@ -74,31 +87,25 @@ public class Cyclops : ItemBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-        var thing = AreWeGivingSomethingToSomeone(action, NounsForMatching, context);
-        
-        if (thing is null)
-            return base.RespondToMultiNounInteraction(action, context);
+        var result = _giveHimSomethingEngine.AreWeGivingSomethingToSomeone(action, this, context);
 
-        return thing switch
-        {
-            Bottle => OfferTheBottle(context),
-            Lunch => OfferTheLunch(context),
-            Garlic => new PositiveInteractionResult("The cyclops may be hungry, but there is a limit. "),
-            _ => new PositiveInteractionResult("The cyclops is not so stupid as to eat THAT! ")
-        };
+        if (result is not null) 
+            return result;
+        
+        return base.RespondToMultiNounInteraction(action, context);
     }
 
     private InteractionResult OfferTheLunch(IContext context)
     {
         IsAgitated = true;
-        string message =
+        var message =
             " The cyclops says \"Mmm Mmm. I love hot peppers! But oh, could I use a drink. Perhaps I could drink " +
             "the blood of that thing.\"  From the gleam in his eye, it could be surmised that you are \"that thing\".";
 
         var lunch = Repository.GetItem<Lunch>();
         context.RemoveItem(lunch);
         lunch.CurrentLocation = null;
-        
+
         return new PositiveInteractionResult(message);
     }
 
@@ -107,50 +114,21 @@ public class Cyclops : ItemBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked
         if (!IsAgitated)
             return new PositiveInteractionResult(
                 "The cyclops apparently is not thirsty and refuses your generous offer. ");
-        
+
         IsSleeping = true;
         IsAgitated = false;
         context.RemoveActor(this);
 
         var bottle = Repository.GetItem<Bottle>();
         var water = Repository.GetItem<Water>();
-        
+
         water.CurrentLocation = null;
         bottle.RemoveItem(water);
         context.Drop(bottle);
-       
+
         return new PositiveInteractionResult(
             "The cyclops takes the bottle and drinks the water. A moment later, he lets out a yawn " +
             "that nearly blows you over, and then falls fast asleep (what did you put in that drink, anyway?). ");
-    }
-
-    private IItem? AreWeGivingSomethingToSomeone(MultiNounIntent action, string[] recipientNounsForMatching, IContext context)
-    {
-        if (!action.MatchVerb(Verbs.GiveVerbs))
-            return null;
-
-        // Recipient can be in either noun...."give thing to recipient" or "offer recipient the thing"
-        string? otherThingNoun;
-        if (action.MatchNounOne(recipientNounsForMatching))
-        {
-            otherThingNoun = action.NounTwo;
-        }
-        else
-        {
-            if (action.MatchNounTwo(recipientNounsForMatching))
-                otherThingNoun = action.NounOne;
-            else
-                return null;
-        }
-
-        var thing = Repository.GetItem(otherThingNoun);
-        if (thing is null)
-            return null;
-
-        if (!context.Items.Contains(thing))
-            return null;
-        
-        return thing;
     }
 
     public override string NeverPickedUpDescription(ILocation? currentLocation)

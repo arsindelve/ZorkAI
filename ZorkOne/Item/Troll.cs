@@ -1,12 +1,16 @@
+using GameEngine;
+using GameEngine.IntentEngine;
 using GameEngine.Item;
 using Model.AIGeneration;
+using Model.Intent;
 using Model.Interface;
 using ZorkOne.ActorInteraction;
 
 namespace ZorkOne.Item;
 
-public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked
+public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked, ICanBeGivenThings
 {
+    private readonly GiveSomethingToSomeoneDecisionEngine<Troll> _giveHimSomethingEngine = new();
     private readonly TrollCombatEngine _trollAttackEngine = new();
 
     public bool IsUnconscious { get; set; }
@@ -15,11 +19,7 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 
     public bool IsDead { get; set; }
 
-    public override string[] NounsForMatching => ["troll"];
-
-    public override string NeverPickedUpDescription(ILocation currentLocation) => ExaminationDescription;
-
-    public override string GenericDescription(ILocation? currentLocation) => ExaminationDescription;
+    public override string[] NounsForMatching => ["troll", "monster"];
 
     public override string CannotBeTakenDescription => IsUnconscious
         ? ""
@@ -30,6 +30,15 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
         : !HasItem<BloodyAxe>()
             ? ""
             : "A nasty-looking troll, brandishing a bloody axe, blocks all passages out of the room. ";
+
+    InteractionResult ICanBeGivenThings.OfferThisThing(IItem item, IContext context)
+    {
+        return item switch
+        {
+            BloodyAxe => OfferTheAxe(item, context),
+            _ => OfferOtherItem(item, context)
+        };
+    }
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
@@ -44,13 +53,48 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
         return Task.FromResult(_trollAttackEngine.Attack(context));
     }
 
-    // TODO: Give the axe back to the troll: The troll scratches his head in confusion, then takes the axe.
-    // TODO: Give other stuff to the troll: The troll, who is not overly proud, graciously accepts the gift and, being for the moment sated, throws it back. Fortunately, the troll has poor control, and the sword falls to the floor. He does not look pleased.
-    // TODO: >give knife to troll The troll, who is not overly proud, graciously accepts the gift and eats it hungrily. Poor troll, he dies from an internal hemorrhage and his carcass disappears in a sinister black fog. Your sword is no longer glowing.
+    private InteractionResult OfferOtherItem(IItem item, IContext context)
+    {
+        context.Drop(item);
+        return new PositiveInteractionResult(
+            $"The troll, who is not overly proud, graciously accepts the " +
+            $"gift and, being for the moment sated, throws it back. Fortunately, " +
+            $"the troll has poor control, and the {item.NounsForMatching[0]} falls " +
+            $"to the floor. He does not look pleased. ");
+    }
+
+    private InteractionResult OfferTheAxe(IItem item, IContext context)
+    {
+        item.CurrentLocation = this;
+        Items.Add(item);
+        context.RemoveItem(item);
+        
+        return new PositiveInteractionResult("The troll scratches his head in confusion, then takes the axe. ");
+    }
+
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return ExaminationDescription;
+    }
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return ExaminationDescription;
+    }
 
     public override void Init()
     {
         StartWithItemInside<BloodyAxe>();
+    }
+
+    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    {
+        var result = _giveHimSomethingEngine.AreWeGivingSomethingToSomeone(action, this, context);
+
+        if (result is not null)
+            return result;
+
+        return base.RespondToMultiNounInteraction(action, context);
     }
 }
 

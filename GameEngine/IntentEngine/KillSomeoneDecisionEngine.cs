@@ -41,7 +41,7 @@ public class KillSomeoneDecisionEngine<TFoe>(ICombatEngine combatEngine) where T
             ? null
             : combatEngine.Attack(context, nounTwo as IWeapon);
     }
-    
+
     public InteractionResult? DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(SimpleIntent action, IContext context)
     {
         InteractionResult? result = null;
@@ -59,7 +59,7 @@ public class KillSomeoneDecisionEngine<TFoe>(ICombatEngine combatEngine) where T
 
                 // Bare-knuckle brawl, old-school! 
                 return combatEngine.Attack(context, null);
-            
+
             case 1:
             {
                 // Assume they want to kill the foe with the only weapon they have
@@ -73,11 +73,12 @@ public class KillSomeoneDecisionEngine<TFoe>(ICombatEngine combatEngine) where T
                     NounTwo = weaponName
                 };
                 var withWeaponResponse = DoYouWantToKillSomeone(multiNounIntent, context);
-                
+
                 if (withWeaponResponse is null)
                     return result;
 
-                result = new PositiveInteractionResult($"(with the {weaponName})\n" + withWeaponResponse.InteractionMessage);
+                result = new PositiveInteractionResult($"(with the {weaponName})\n" +
+                                                       withWeaponResponse.InteractionMessage);
                 break;
             }
             default:
@@ -87,5 +88,4 @@ public class KillSomeoneDecisionEngine<TFoe>(ICombatEngine combatEngine) where T
 
         return result;
     }
-
 }
