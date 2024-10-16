@@ -1,4 +1,3 @@
-using GameEngine;
 using GameEngine.IntentEngine;
 using GameEngine.Item;
 using Model.AIGeneration;
@@ -68,7 +67,7 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
         item.CurrentLocation = this;
         Items.Add(item);
         context.RemoveItem(item);
-        
+
         return new PositiveInteractionResult("The troll scratches his head in confusion, then takes the axe. ");
     }
 
