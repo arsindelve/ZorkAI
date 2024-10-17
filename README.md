@@ -18,9 +18,12 @@ The code in this repository IS NOT a full game....yet. But it does demonstrate t
 truly excellent results! (Thanks mostly to how good GPT4 is). I'll keep implementing the rest of the Zork I story,
 items and location, finding new scenarios that the engine can't handle but the game is quite playable in it's current state.
 
-### [Play The Game Now](https://zork-ai.com)
+### [Play The Game Now](https://newzork.ai)
 
 The game is fully mobile responsive, so feel free to try it on your phone or tablet. However, it can be a little slow sometimes, because I’m on the free-tier of AWS and Azure. 
+
+
+[![.NET](https://github.com/arsindelve/ZorkAI/actions/workflows/dotnet.yml/badge.svg)](https://github.com/arsindelve/ZorkAI/actions/workflows/dotnet.yml)
 
 ---
 
