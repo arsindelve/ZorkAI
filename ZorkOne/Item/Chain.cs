@@ -1,3 +1,5 @@
+using GameEngine.Item;
+
 namespace ZorkOne.Item;
 
 internal class Chain : ItemBase, ICanBeExamined

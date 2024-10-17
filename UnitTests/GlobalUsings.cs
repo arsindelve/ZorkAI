@@ -1,5 +1,4 @@
 global using FluentAssertions;
-global using Game;
 global using Lex;
 global using Model;
 global using Moq;

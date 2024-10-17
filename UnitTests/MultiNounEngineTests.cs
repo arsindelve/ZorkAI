@@ -1,4 +1,5 @@
-using Game.IntentEngine;
+using GameEngine;
+using GameEngine.IntentEngine;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Intent;

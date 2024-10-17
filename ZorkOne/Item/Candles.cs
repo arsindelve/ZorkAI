@@ -1,5 +1,7 @@
 using System.Diagnostics;
-using Game.Item.ItemProcessor;
+using GameEngine;
+using GameEngine.Item;
+using GameEngine.Item.ItemProcessor;
 using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;

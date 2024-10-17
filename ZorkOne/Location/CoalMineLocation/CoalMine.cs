@@ -1,3 +1,5 @@
+using GameEngine.Location;
+
 namespace ZorkOne.Location.CoalMineLocation;
 
 internal abstract class CoalMine : DarkLocationWithNoStartingItems

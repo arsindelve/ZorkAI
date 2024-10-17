@@ -1,19 +1,20 @@
 ﻿using System.Diagnostics;
 using System.Text;
 using DynamoDb;
-using Game;
+using GameEngine;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.Interface;
+using Planetfall;
 using ZorkOne;
 
 var database = new DynamoDbSessionRepository();
-
 var sessionId = Environment.MachineName;
 var savedGame = await database.GetSession(sessionId);
 
 Console.ForegroundColor = ConsoleColor.DarkCyan;
 
-var engine = CreateEngine();
+var engine = CreateEngine<Planetfall.Planetfall, PlanetfallContext>();
 Console.WriteLine(engine.IntroText + Environment.NewLine);
 
 if (!string.IsNullOrEmpty(savedGame))
@@ -40,7 +41,7 @@ while (result != "-1")
 
     if (result?.Trim().StartsWith("-2") ?? false)
     {
-        engine = CreateEngine();
+        engine = CreateEngine<Planetfall.Planetfall, PlanetfallContext>();
         Console.WriteLine(engine.IntroText);
         continue;
     }
@@ -52,20 +53,21 @@ while (result != "-1")
 }
 
 
-GameEngine<ZorkI, ZorkIContext> CreateEngine()
+GameEngine<TGame, TContext> CreateEngine<TGame, TContext>() 
+    where TContext : Context<TGame>, new()
+    where TGame : class, IInfocomGame, new()
 {
     ILoggerFactory loggerFactory;
     
     if (Debugger.IsAttached)
     {
         loggerFactory = LoggerFactory.Create(builder =>
-        
             builder
                 .AddConsole()
                 .AddDebug()
                 .AddFilter((category, level) =>
                 {
-                    if (category!.Contains("Game.GameEngine"))
+                    if (category!.Contains("GameEngine.GameEngine"))
                         return true;
 
                     return false;
@@ -81,7 +83,7 @@ GameEngine<ZorkI, ZorkIContext> CreateEngine()
                 .AddDebug()
                 .AddFilter((category, level) =>
                 {
-                    if (category!.Contains("Game.GameEngine"))
+                    if (category!.Contains("GameEngine.GameEngine"))
                         return true;
 
                     return false;
@@ -90,8 +92,10 @@ GameEngine<ZorkI, ZorkIContext> CreateEngine()
         );
     }
 
-    var logger = loggerFactory.CreateLogger<GameEngine<ZorkI, ZorkIContext>>();
-    var engine = new GameEngine<ZorkI, ZorkIContext>(logger);
-    engine.Runtime = Runtime.Console;
-    return engine;
+    var logger = loggerFactory.CreateLogger<GameEngine<TGame, TContext>>();
+    var gameEngine = new GameEngine<TGame, TContext>(logger)
+    {
+        Runtime = Runtime.Console
+    };
+    return gameEngine;
 }
