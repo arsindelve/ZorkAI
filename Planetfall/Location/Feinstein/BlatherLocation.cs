@@ -1,11 +1,11 @@
 ﻿using GameEngine.Location;
 using Model.AIGeneration;
-using Model.Interface;
 using Model.Location;
+using Planetfall.Item;
 
 namespace Planetfall.Location.Feinstein;
 
-internal abstract class BlatherLocation : LocationWithNoStartingItems
+internal abstract class BlatherLocation : BaseLocation
 {
     public override string AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient? generationClient)
@@ -19,5 +19,10 @@ internal abstract class BlatherLocation : LocationWithNoStartingItems
             _ =>
                 "\n\nEnsign First Class Blather is standing before you, furiously scribbling demerits onto an oversized clipboard. \"I said to return to your post, Ensign Seventh Class!\" bellows Blather, turning a deepening shade of crimson. "
         };
+    }
+
+    public override void Init()
+    {
+        StartWithItem<Blather>();
     }
 }
