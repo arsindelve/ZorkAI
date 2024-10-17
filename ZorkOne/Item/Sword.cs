@@ -6,7 +6,7 @@ public class Sword : ItemBase, ICanBeTakenAndDropped, IWeapon
 {
     public override string[] NounsForMatching => ["sword", "glamdring", "orcrist"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A sword";
+    public override string GenericDescription(ILocation? currentLocation) => "A sword";
 
     public override int Size => 4;
 

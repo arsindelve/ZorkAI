@@ -10,7 +10,7 @@ public class Shovel : ItemBase, ICanBeTakenAndDropped
 
     public override string NeverPickedUpDescription(ILocation currentLocation) => OnTheGroundDescription(currentLocation);
 
-    public override string GenericDescription(ILocation currentLocation) => "A shovel";
+    public override string GenericDescription(ILocation? currentLocation) => "A shovel";
 
     public override int Size => 3;
 }

@@ -1,4 +1,5 @@
 using GameEngine;
+using GameEngine.IntentEngine;
 using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Intent;
@@ -11,9 +12,15 @@ namespace ZorkOne.Location;
 
 public class TrollRoom : DarkLocation
 {
-    private static readonly string[] KillVerbs = ["kill", "attack", "defeat", "destroy", "murder", "use", "stab"];
-    private readonly AdventurerVersusTrollCombatEngine _attackEngine = new();
+    private readonly ICombatEngine _trollAttackEngine = new AdventurerVersusTrollCombatEngine();
 
+    private KillSomeoneDecisionEngine<Troll> _killDecisionEngine;
+
+    public TrollRoom()
+    {
+        _killDecisionEngine = new KillSomeoneDecisionEngine<Troll>(_trollAttackEngine);
+    }
+    
     private bool TrollIsAwake => !GetItem<Troll>().IsDead &&
                                  !GetItem<Troll>().IsUnconscious;
 
@@ -77,60 +84,16 @@ public class TrollRoom : DarkLocation
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        if (action.MatchVerb(KillVerbs))
-        {
-            if (context.Items.OfType<IWeapon>().Count() == 1)
-            {
-                // Assume they want to kill the troll with the only weapon they have
-                var weaponName = context.Items.OfType<IWeapon>().Cast<IItem>().Single().NounsForMatching.First();
-                var multiNounIntent = new MultiNounIntent
-                {
-                    Verb = action.Verb,
-                    NounOne = action.Noun ?? "",
-                    Preposition = "with",
-                    OriginalInput = action.OriginalInput ?? "",
-                    NounTwo = weaponName
-                };
-                var response = RespondToMultiNounInteraction(multiNounIntent, context);
-                return new PositiveInteractionResult($"(with the {weaponName})\n" + response.InteractionMessage);
-            }
-
-            if (context.Items.OfType<IWeapon>().Count() > 1)
-                return new PositiveInteractionResult("You'll need to specify which weapon you want to use. ");
-        }
-
-        return base.RespondToSimpleInteraction(action, context, client);
+        InteractionResult? killInteraction = _killDecisionEngine.DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(action, context);
+        return killInteraction ?? base.RespondToSimpleInteraction(action, context, client);
     }
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-        string[] prepositions = ["with", "using", "by", "to"];
-
-        if (!action.NounOne.ToLowerInvariant().Trim().Contains("troll") &&
-            !action.NounTwo.ToLowerInvariant().Trim().Contains("troll"))
-            return base.RespondToMultiNounInteraction(action, context);
-
-        if (GetItem<Troll>().IsDead)
-            return base.RespondToMultiNounInteraction(action, context);
-
-        var nounTwo = Repository.GetItem(action.NounTwo);
-        {
-            if (nounTwo is not IWeapon)
-                return base.RespondToMultiNounInteraction(action, context);
-
-            if (nounTwo.CurrentLocation != context)
-                return new PositiveInteractionResult($"You don't have the {nounTwo.Name}. ");
-        }
-
-        if (!action.MatchVerb(KillVerbs))
-            return base.RespondToMultiNounInteraction(action, context);
-
-        if (!prepositions.Contains(action.Preposition.ToLowerInvariant().Trim()))
-            return base.RespondToMultiNounInteraction(action, context);
-
-        return _attackEngine.Attack(context);
+        InteractionResult? result = _killDecisionEngine.DoYouWantToKillSomeone(action, context);
+        return result ?? base.RespondToMultiNounInteraction(action, context);
     }
-
+    
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {

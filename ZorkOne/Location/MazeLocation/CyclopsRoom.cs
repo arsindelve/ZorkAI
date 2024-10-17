@@ -7,8 +7,6 @@ namespace ZorkOne.Location.MazeLocation;
 
 public class CyclopsRoom : DarkLocation
 {
-    private static readonly string[] KillVerbs = ["kill", "attack", "defeat", "destroy", "murder", "use", "stab"];
-
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
@@ -25,7 +23,8 @@ public class CyclopsRoom : DarkLocation
                 Direction.Up,
                 new MovementParameters
                 {
-                    CanGo = _ => !HasItem<Cyclops>(),
+                    Location = GetLocation<TreasureRoom>(),
+                    CanGo = _ => !HasItem<Cyclops>() || GetItem<Cyclops>().HasGoneToSleep,
                     CustomFailureMessage = "The cyclops doesn't look like he'll let you past. "
                 }
             }
@@ -43,12 +42,12 @@ public class CyclopsRoom : DarkLocation
         if (string.IsNullOrEmpty(input))
             return base.RespondToSpecificLocationInteraction(input, context);
 
-        if (! (new List<string> { "ulysses", "odysseus" }.Contains(input.ToLower().Trim())) || !HasItem<Cyclops>())
+        if (!new List<string> { "ulysses", "odysseus" }.Contains(input.ToLower().Trim()) || !HasItem<Cyclops>())
             return base.RespondToSpecificLocationInteraction(input, context);
 
         var message =
             "The cyclops, hearing the name of his father's deadly nemesis, flees the room by knocking down the wall on the east of the room. ";
-        
+
         if (context.HasItem<Sword>())
             message += "\nYour sword is no longer glowing. ";
 
@@ -67,6 +66,7 @@ public class CyclopsRoom : DarkLocation
     {
         if (HasItem<Cyclops>())
             context.RegisterActor(GetItem<Cyclops>());
+
         return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 
