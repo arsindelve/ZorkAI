@@ -276,7 +276,7 @@ public class PutProcessorTests : EngineTestsBase
     {
         var target = new PutProcessor();
         var garlic = Repository.GetItem<Garlic>();
-        var knife = Repository.GetItem<Knife>();
+        var knife = Repository.GetItem<NastyKnife>();
         var leaflet = Repository.GetItem<Leaflet>();
         var mailbox = Repository.GetItem<Mailbox>();
 

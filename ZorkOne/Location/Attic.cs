@@ -18,6 +18,6 @@ public class Attic : DarkLocation
     public override void Init()
     {
         StartWithItem(Repository.GetItem<Rope>(), this);
-        StartWithItem(Repository.GetItem<Knife>(), this);
+        StartWithItem(Repository.GetItem<NastyKnife>(), this);
     }
 }

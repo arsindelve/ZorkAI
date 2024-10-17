@@ -1,4 +1,5 @@
 using Model.Interface;
+using Model.Item;
 
 namespace UnitTests;
 
@@ -277,5 +278,163 @@ public class ItemTests : EngineTestsBase
 
         // Act, Assert
         engine.Context.HasLightSource.Should().BeTrue();
+    }
+
+    [Test]
+    public void ListOfItemsInContainer_ThreeItems()
+    {
+        Repository.Reset();
+        var machine = Repository.GetItem<Machine>();
+        machine.ItemPlacedHere(Repository.GetItem<Diamond>());
+        machine.ItemPlacedHere(Repository.GetItem<PileOfLeaves>());
+        machine.ItemPlacedHere(Repository.GetItem<Emerald>());
+
+        string list = machine.SingleLineListOfItems();
+
+        list.Should().Be("a huge diamond, a pile of leaves and a large emerald");
+    }
+    
+    [Test]
+    public void ListOfItemsInContainer_TwoItems()
+    {
+        Repository.Reset();
+        var machine = Repository.GetItem<Machine>();
+        machine.ItemPlacedHere(Repository.GetItem<Diamond>());
+        machine.ItemPlacedHere(Repository.GetItem<PileOfLeaves>());
+
+        string list = machine.SingleLineListOfItems();
+
+        list.Should().Be("a huge diamond and a pile of leaves");
+    }
+    
+    [Test]
+    public void ListOfItemsInContainer_OneItem()
+    {
+        Repository.Reset();
+        var machine = Repository.GetItem<Machine>();
+        machine.ItemPlacedHere(Repository.GetItem<Diamond>());
+
+        string list = machine.SingleLineListOfItems();
+
+        list.Should().Be("a huge diamond");
+    }
+    
+    [Test]
+    public void ListOfItemsInContainer_NoItems()
+    {
+        Repository.Reset();
+        var machine = Repository.GetItem<Machine>();
+
+        string list = machine.SingleLineListOfItems();
+
+        list.Should().Be("");
+    }
+    
+    [Test]
+    public void GetAllItemsRecursively_ThreeItems()
+    {
+        Repository.Reset();
+        Repository.Reset();
+        var machine = Repository.GetItem<Machine>();
+        machine.IsOpen = true;
+        machine.ItemPlacedHere(Repository.GetItem<Diamond>());
+        machine.ItemPlacedHere(Repository.GetItem<PileOfLeaves>());
+        machine.ItemPlacedHere(Repository.GetItem<Emerald>());
+        
+        List<IItem> list = machine.GetAllItemsRecursively;
+
+        list.Should().Contain(Repository.GetItem<Diamond>());
+        list.Should().Contain(Repository.GetItem<PileOfLeaves>());
+        list.Should().Contain(Repository.GetItem<Emerald>());
+    }
+    
+    [Test]
+    public void GetAllItemsRecursively_ThreeItems_Closed()
+    {
+        Repository.Reset();
+        Repository.Reset();
+        var machine = Repository.GetItem<Machine>();
+        machine.IsOpen = false;
+        machine.ItemPlacedHere(Repository.GetItem<Diamond>());
+        machine.ItemPlacedHere(Repository.GetItem<PileOfLeaves>());
+        machine.ItemPlacedHere(Repository.GetItem<Emerald>());
+        
+        List<IItem> list = machine.GetAllItemsRecursively;
+
+        list.Should().BeEmpty();
+    }
+    
+    [Test]
+    public void GetAllItemsRecursively_ContainerInsideContainer()
+    {
+        Repository.Reset();
+        Repository.Reset();
+        var machine = Repository.GetItem<Machine>();
+        var sack = Repository.GetItem<BrownSack>();
+        machine.ItemPlacedHere(Repository.GetItem<Emerald>());
+        machine.IsOpen = true;
+        sack.IsOpen = true;
+        machine.ItemPlacedHere(sack);
+        
+        List<IItem> list = machine.GetAllItemsRecursively;
+
+        list.Should().Contain(Repository.GetItem<Emerald>());
+        list.Should().Contain(Repository.GetItem<Lunch>());
+        list.Should().Contain(Repository.GetItem<Garlic>());
+        list.Should().Contain(Repository.GetItem<BrownSack>());
+    }
+    
+    [Test]
+    public void GetAllItemsRecursively_ContainerInsideContainer_InnerContainerIsClosed()
+    {
+        Repository.Reset();
+        Repository.Reset();
+        var machine = Repository.GetItem<Machine>();
+        var sack = Repository.GetItem<BrownSack>();
+        machine.ItemPlacedHere(Repository.GetItem<Emerald>());
+        machine.IsOpen = true;
+        sack.IsOpen = false;
+        machine.ItemPlacedHere(sack);
+        
+        List<IItem> list = machine.GetAllItemsRecursively;
+
+        list.Should().Contain(Repository.GetItem<Emerald>());
+        list.Should().Contain(Repository.GetItem<BrownSack>());
+    }
+    
+    [Test]
+    public void Context_GetAllItemsRecursively_ContainerInsideContainer_InnerContainerIsClosed()
+    {
+        Repository.Reset();
+        Repository.Reset();
+        var context = GetTarget().Context;
+        var sack = Repository.GetItem<BrownSack>();
+        context.ItemPlacedHere(Repository.GetItem<Emerald>());
+        sack.IsOpen = false;
+        context.ItemPlacedHere(sack);
+        
+        List<IItem> list = context.GetAllItemsRecursively;
+
+        list.Should().Contain(Repository.GetItem<Emerald>());
+        list.Should().Contain(Repository.GetItem<BrownSack>());
+    }
+    
+    [Test]
+    public void Context_GetAllItemsRecursively_ContainerInsideContainer()
+    {
+        Repository.Reset();
+        Repository.Reset();
+        var context = GetTarget().Context;
+        var sack = Repository.GetItem<BrownSack>();
+        context.ItemPlacedHere(Repository.GetItem<Emerald>());
+        sack.IsOpen = true;
+        context.ItemPlacedHere(sack);
+        
+        List<IItem> list = context.GetAllItemsRecursively;
+
+        list.Should().Contain(Repository.GetItem<Emerald>());
+        list.Should().Contain(Repository.GetItem<BrownSack>());
+        list.Should().Contain(Repository.GetItem<Lunch>());
+        list.Should().Contain(Repository.GetItem<Garlic>());
     }
 }

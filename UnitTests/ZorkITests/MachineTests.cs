@@ -48,7 +48,7 @@ public class MachineTests : EngineTestsBase
         var target = Setup();
         _machine.ItemPlacedHere(Repository.GetItem<Garlic>());
         _machine.ItemPlacedHere(Repository.GetItem<Sword>());
-        _machine.ItemPlacedHere(Repository.GetItem<Knife>());
+        _machine.ItemPlacedHere(Repository.GetItem<NastyKnife>());
 
         var response = await target.GetResponse("open lid");
 
@@ -127,7 +127,7 @@ public class MachineTests : EngineTestsBase
         target.Context.ItemPlacedHere(Repository.GetItem<Screwdriver>());
         _machine.ItemPlacedHere(Repository.GetItem<Garlic>());
         _machine.ItemPlacedHere(Repository.GetItem<CrystalSkull>());   
-        _machine.ItemPlacedHere(Repository.GetItem<Knife>());
+        _machine.ItemPlacedHere(Repository.GetItem<NastyKnife>());
         _machine.IsOpen = false;
 
         var response = await target.GetResponse("turn switch with screwdriver");
@@ -144,7 +144,7 @@ public class MachineTests : EngineTestsBase
         target.Context.ItemPlacedHere(Repository.GetItem<Screwdriver>());
         _machine.ItemPlacedHere(Repository.GetItem<Coal>());
         _machine.ItemPlacedHere(Repository.GetItem<CrystalSkull>());   
-        _machine.ItemPlacedHere(Repository.GetItem<Knife>());
+        _machine.ItemPlacedHere(Repository.GetItem<NastyKnife>());
         _machine.IsOpen = false;
 
         var response = await target.GetResponse("turn switch with screwdriver");
