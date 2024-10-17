@@ -9,7 +9,7 @@ public class Nest : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined
 
     public override bool IsTransparent => true;
 
-    public override string GenericDescription(ILocation currentLocation) =>
+    public override string GenericDescription(ILocation? currentLocation) =>
         "A bird's nest " + (Items.Any() ? $"\n{ItemListDescription("bird's nest", currentLocation)}" : "");
 
     public override int Size => 1;

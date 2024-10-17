@@ -1,12 +1,23 @@
+using GameEngine.IntentEngine;
 using GameEngine.Location;
 using Model.AIGeneration;
+using Model.Intent;
 using Model.Interface;
 using Model.Movement;
+using ZorkOne.ActorInteraction;
 
 namespace ZorkOne.Location.MazeLocation;
 
-public class CyclopsRoom : DarkLocation
+internal class CyclopsRoom : DarkLocation
 {
+    private readonly ICombatEngine _combatEngine = new CyclopsCombatEngine();
+    private readonly KillSomeoneDecisionEngine<Cyclops> _decisionEngine;
+
+    public CyclopsRoom()
+    {
+        _decisionEngine = new KillSomeoneDecisionEngine<Cyclops>(_combatEngine);
+    }
+    
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
@@ -37,6 +48,19 @@ public class CyclopsRoom : DarkLocation
 
     public override string Name => "Cyclops Room";
 
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
+    {
+        InteractionResult? killInteraction = _decisionEngine.DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(action, context);
+        return killInteraction ?? base.RespondToSimpleInteraction(action, context, client);
+    }
+
+    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    {
+        InteractionResult? result = _decisionEngine.DoYouWantToKillSomeone(action, context);
+        return result ?? base.RespondToMultiNounInteraction(action, context);
+    }
+    
     public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
     {
         if (string.IsNullOrEmpty(input))
@@ -46,19 +70,18 @@ public class CyclopsRoom : DarkLocation
             return base.RespondToSpecificLocationInteraction(input, context);
 
         var message =
-            "The cyclops, hearing the name of his father's deadly nemesis, flees the room by knocking down the wall on the east of the room. ";
+            "The cyclops, hearing the name of his father's deadly nemesis, flees the room by knocking " +
+            "down the wall on the east of the room. ";
 
         if (context.HasItem<Sword>())
             message += "\nYour sword is no longer glowing. ";
-
-        RemoveItem(GetItem<Cyclops>());
+        
+        var loser = GetItem<Cyclops>();
+        RemoveItem(loser);
+        loser.CurrentLocation = null;
+        context.RemoveActor(loser);
+        
         return new PositiveInteractionResult(message);
-    }
-
-    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
-    {
-        context.RemoveActor(GetItem<Cyclops>());
-        base.OnLeaveLocation(context, newLocation, previousLocation);
     }
 
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,

@@ -8,7 +8,7 @@ public class BagOfCoins : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IGive
     public override string[] NounsForMatching =>
         ["bag", "bag of coins", "coins", "leather", "leather bag", "leather bag of coins"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A leather bag of coins";
+    public override string GenericDescription(ILocation? currentLocation) => "A leather bag of coins";
 
     public string ExaminationDescription => "There are lots of coins in there. ";
     

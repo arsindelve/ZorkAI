@@ -38,7 +38,7 @@ public class Coffin : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndD
 
     int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 15;
 
-    public override string GenericDescription(ILocation currentLocation)
+    public override string GenericDescription(ILocation? currentLocation)
     {
         return !IsOpen
             ? "A gold coffin."

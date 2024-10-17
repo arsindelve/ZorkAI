@@ -14,7 +14,7 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
 
     public override string[] NounsForMatching => ["pile", "pile of plastic", "plastic", "boat", "raft", "magic boat"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A pile of plastic";
+    public override string GenericDescription(ILocation? currentLocation) => "A pile of plastic";
 
     public override int Size => 14;
 

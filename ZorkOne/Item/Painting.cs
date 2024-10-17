@@ -7,7 +7,7 @@ public class Painting : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedIn
 {
     public override string[] NounsForMatching => ["painting"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A painting";
+    public override string GenericDescription(ILocation? currentLocation) => "A painting";
 
     public override int Size => 4;
 

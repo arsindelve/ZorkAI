@@ -25,9 +25,6 @@ public class KillSomeoneDecisionEngine<TFoe>(ICombatEngine combatEngine) where T
             !action.MatchNounTwo(_foe.NounsForMatching))
             return null;
 
-        if (_foe.IsDead)
-            return null;
-
         var nounTwo = Repository.GetItem(action.NounTwo);
         {
             if (nounTwo is not IWeapon)
@@ -52,6 +49,7 @@ public class KillSomeoneDecisionEngine<TFoe>(ICombatEngine combatEngine) where T
         if (!action.MatchVerb(Verbs.KillVerbs))
             return result;
 
+        // Got some weapons on you? 
         switch (context.Items.OfType<IWeapon>().Count())
         {
             case 0:
@@ -59,15 +57,12 @@ public class KillSomeoneDecisionEngine<TFoe>(ICombatEngine combatEngine) where T
                     !action.MatchNoun(_foe.NounsForMatching))
                     return null;
 
-                if (_foe.IsDead)
-                    return null;
-
                 // Bare-knuckle brawl, old-school! 
                 return combatEngine.Attack(context, null);
             
             case 1:
             {
-                // Assume they want to kill the thing with the only weapon they have
+                // Assume they want to kill the foe with the only weapon they have
                 var weaponName = context.Items.OfType<IWeapon>().Cast<IItem>().Single().NounsForMatching.First();
                 var multiNounIntent = new MultiNounIntent
                 {

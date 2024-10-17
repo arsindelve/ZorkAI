@@ -7,7 +7,7 @@ public class TrunkOfJewels : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPla
 {
     public override string[] NounsForMatching => ["trunk", "jewels", "trunk of jewels"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A trunk of jewels";
+    public override string GenericDescription(ILocation? currentLocation) => "A trunk of jewels";
 
     public string OnTheGroundDescription(ILocation currentLocation) => "There is a trunk of jewels here. ";
 

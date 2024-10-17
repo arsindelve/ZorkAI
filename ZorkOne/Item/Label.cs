@@ -7,7 +7,7 @@ public class Label : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
     public override string[] NounsForMatching => ["label", "tan label"];
     public string OnTheGroundDescription(ILocation currentLocation) => "There is a tan label here. ";
 
-    public override string GenericDescription(ILocation currentLocation) => "A tan label";
+    public override string GenericDescription(ILocation? currentLocation) => "A tan label";
     public string ExaminationDescription => ReadDescription;
 
     public string ReadDescription => """

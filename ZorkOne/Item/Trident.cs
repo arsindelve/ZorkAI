@@ -7,7 +7,7 @@ public class Trident : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInT
 {
     public override string[] NounsForMatching => ["trident", "crystal trident", "poseidon's trident", "poseidon's own trident"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A crystal trident";
+    public override string GenericDescription(ILocation? currentLocation) => "A crystal trident";
 
     public string OnTheGroundDescription(ILocation currentLocation) => "There is a crystal trident here. ";
 
