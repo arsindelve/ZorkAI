@@ -13,16 +13,9 @@
 	
 	
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingMode/@EntryValue">OnlyMarkers</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1eb33e9a_002D481a_002D40e8_002D801e_002Df19ca6b1df6f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="WriteSaveGame" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::97ECA2A8-BB16-4B1F-9E62-4F0F22F92D90::net8.0::IntegrationTests.SavedGameTests.WriteSaveGame&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::97ECA2A8-BB16-4B1F-9E62-4F0F22F92D90::net8.0::IntegrationTests.SavedGameTests.GetSaveGame&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=ad2f659b_002D74d5_002D4c3a_002Dbb82_002D4d010333de03/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GetSaveGame" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::97ECA2A8-BB16-4B1F-9E62-4F0F22F92D90::net8.0::IntegrationTests.SavedGameTests&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
+	
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=ad2f659b_002D74d5_002D4c3a_002Dbb82_002D4d010333de03/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="GetSaveGame" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Solution /&gt;
 &lt;/SessionState&gt;</s:String>
 	
 	
@@ -35,7 +28,7 @@
 	
 	
 	
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=ca3dc622_002D9ac9_002D46ba_002Dbc1a_002Dc7bde0e491f8/@EntryIndexedValue">&lt;SessionState ContinuousTestingIsOn="True" ContinuousTestingMode="3" Name="All tests from Solution #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=ca3dc622_002D9ac9_002D46ba_002Dbc1a_002Dc7bde0e491f8/@EntryIndexedValue">&lt;SessionState ContinuousTestingIsOn="True" ContinuousTestingMode="3" IsActive="True" Name="All tests from Solution #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Solution /&gt;
 &lt;/SessionState&gt;</s:String>
 	
