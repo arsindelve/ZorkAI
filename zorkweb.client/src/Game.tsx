@@ -2,7 +2,7 @@ import {useMutation} from "@tanstack/react-query";
 import {GameRequest} from "./model/GameRequest.ts";
 import {GameResponse} from "./model/GameResponse.ts";
 import React, {useContext, useEffect, useState} from "react";
-import {Alert, CircularProgress} from "@mui/material";
+import {Alert, CircularProgress, Snackbar} from "@mui/material";
 import '@fontsource/roboto';
 import Header from "./Header.tsx";
 import {SessionId} from "./SessionId.ts";
@@ -13,9 +13,10 @@ import ConfirmDialog from "./modal/ConfirmationDialog.tsx";
 
 interface GameProps {
     restoreGameId?: string | undefined
+    gaveSaved: boolean;
 }
 
-function Game({restoreGameId}: GameProps) {
+function Game({restoreGameId, gaveSaved}: GameProps) {
 
     const appState = useContext(AppStateContext);
 
@@ -26,6 +27,8 @@ function Game({restoreGameId}: GameProps) {
     const [moves, setMoves] = useState<string>("0");
     const [locationName, setLocationName] = useState<string>("");
     const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
+    const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
+    const [snackBarMessage, setSnackBarMessage] = useState<string>("");
 
     const sessionId = new SessionId();
     const server = new Server();
@@ -33,8 +36,30 @@ function Game({restoreGameId}: GameProps) {
     const gameContentElement = React.useRef<HTMLDivElement>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);
 
+
     useEffect(() => {
-        console.log("Let's restore this game: " + restoreGameId);
+
+        if (gaveSaved) {
+            gaveSaved = false;
+            setSnackBarMessage("Game Saved Successfully");
+            setSnackBarOpen(true);
+
+        }
+        if (playerInputElement.current)
+            playerInputElement.current.focus();
+    }, [gaveSaved]);
+
+
+    useEffect(() => {
+        if (!restoreGameId)
+            return;
+        setGameText([]);
+        gameRestore(restoreGameId!).then((data) => {
+            handleResponse(data);
+            restoreGameId = undefined;
+            if (playerInputElement.current)
+                playerInputElement.current.focus();
+        })
     }, [restoreGameId]);
 
     // Scroll to the bottom of the container after we add text. 
@@ -117,6 +142,19 @@ function Game({restoreGameId}: GameProps) {
         return await server.gameInit(id)
     }
 
+    async function gameRestore(restoreGameId: string): Promise<GameResponse> {
+        const [id] = sessionId.getSessionId();
+        const response = server.gameRestore(restoreGameId, id);
+        setSnackBarMessage("Game Restored Successfully");
+        setSnackBarOpen(true);
+        return response;
+
+    }
+
+    function handleSnackbarClose() {
+        setSnackBarOpen(false);
+    }
+
     return (
 
         <div className={"m-8"}>
@@ -127,6 +165,16 @@ function Game({restoreGameId}: GameProps) {
                 setOpen={setConfirmRestartOpen}
                 onConfirm={restartGame}
             />
+
+            <div>
+                <Snackbar
+                    anchorOrigin={{vertical: 'top', horizontal: 'center'}}
+                    onClose={handleSnackbarClose}
+                    open={snackBarOpen}
+                    autoHideDuration={5000}
+                    message={snackBarMessage}
+                />
+            </div>
 
             <WelcomeDialog open={welcomeDialogOpen} handleClose={handleWelcomeDialogClose}/>
             <Header locationName={locationName} moves={moves} score={score}/>

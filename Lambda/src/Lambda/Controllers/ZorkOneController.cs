@@ -30,18 +30,41 @@ public class ZorkOneController(
     }
 
     [HttpPost]
+    [Route("restoreGame")]
+    public async Task<GameResponse> RestoreGame([FromBody] RestoreGameRequest request)
+    {
+        var gameData = await savedGameRepository.GetSavedGame(request.Id, request.SessionId);
+
+        if (string.IsNullOrEmpty(gameData))
+            throw new ArgumentException($"Saved gamed {request.Id} had empty game data");
+
+        RestoreSession(gameData);
+
+        var response = await engine.GetResponse("look");
+
+        await WriteSession(request.SessionId);
+        return new GameResponse(response!, engine.LocationName, engine.Moves, engine.Score);
+    }
+
+    [HttpPost]
     [Route("saveGame")]
     public async Task<string> SaveGame([FromBody] SaveGameRequest request)
     {
+        var savedSession = await GetSavedSession(request.SessionId);
+        
+        if (string.IsNullOrEmpty(savedSession))
+            throw new ArgumentException($"Session had empty game data before attempting save game.");
+        
+        RestoreSession(savedSession);
         var encodedText = GetGameData();
         return await savedGameRepository.SaveGame(request.Id, request.SessionId, request.Name, encodedText);
     }
-    
+
     [HttpGet]
     [Route("saveGame")]
     public async Task<List<SavedGame>> GetAllSavedGames([FromQuery] string sessionId)
     {
-        List<(string Id, string Name, DateTime SavedOn)> results = await savedGameRepository.GetSavedGames(sessionId);
+        var results = await savedGameRepository.GetSavedGames(sessionId);
         return results
             .OrderByDescending(s => s.SavedOn)
             .Select(s => new SavedGame(s.Id, s.Name, s.SavedOn))

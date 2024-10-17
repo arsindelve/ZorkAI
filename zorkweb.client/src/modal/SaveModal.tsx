@@ -7,7 +7,7 @@ import Button from "@mui/material/Button";
 import moment from 'moment';
 import {ISaveGameRequest, SaveGameRequest} from "../model/SaveGameRequest.ts";
 import {Input} from "@mui/material";
-import {useState} from "react";
+import React, {useState} from "react";
 
 interface SaveModalProps {
     open: boolean;
@@ -23,6 +23,13 @@ function SaveModal(props: SaveModalProps) {
     function handleClose(savedGame: ISaveGameRequest | undefined) {
         props.handleClose(savedGame);
     }
+
+    function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>, savedGame: ISaveGameRequest) {
+        if (event.key === 'Enter') {
+            handleClose(savedGame);
+        }
+    }
+
 
     return (<Dialog
 
@@ -42,15 +49,20 @@ function SaveModal(props: SaveModalProps) {
 
                 <div className={"columns-3"}>
                     <div className={"mt-3"}>Name your saved game:</div>
-                    <Input autoFocus inputProps={{maxlength: 15}} onChange={(event) => setNewName(event.target.value)}/>
-                    <Button onClick={() => handleClose(new SaveGameRequest(newName, undefined))}>Save</Button>
+                    <div className={"w-full"}>
+                        <Input autoFocus inputProps={{maxLength: 25}} className={"w-full"}
+                               onKeyDown={(e) => handleKeyDown(e, new SaveGameRequest(newName, undefined))}
+                               onChange={(event) => setNewName(event.target.value)}/></div>
+                    <div className={"text-right"}><Button variant="outlined"
+                                                          onClick={() => handleClose(new SaveGameRequest(newName, undefined))}>Save</Button>
+                    </div>
                 </div>
             </DialogContent>
 
             {props.games.length > 0 && (
 
                 <DialogContent className={"max-h-60 overflow-auto"}>
-                    <h1>Overwrite a previously saved game: </h1>
+                    <h1 className={"mt-3 mb-3 "}>Overwrite a previously saved game: </h1>
                     <hr/>
                     <div className={"mt-5"}>
                         <div>
@@ -68,12 +80,12 @@ function SaveModal(props: SaveModalProps) {
                                     </div>
 
                                     <div className="text-right">
-                                        <Button
-                                            onClick={() => handleClose({
-                                                name: game.name,
-                                                id: game.id,
-                                                sessionId: undefined
-                                            })}>Overwrite</Button>
+                                        <Button variant="outlined" size="small"
+                                                onClick={() => handleClose({
+                                                    name: game.name,
+                                                    id: game.id,
+                                                    sessionId: undefined
+                                                })}>Overwrite</Button>
                                     </div>
 
                                 </div>
@@ -86,7 +98,7 @@ function SaveModal(props: SaveModalProps) {
 
 
             <DialogActions>
-                <Button onClick={() => handleClose(undefined)}>
+                <Button onClick={() => handleClose(undefined)} variant="contained">
                     Cancel
                 </Button>
             </DialogActions>
