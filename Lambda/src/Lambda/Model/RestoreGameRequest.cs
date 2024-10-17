@@ -1,3 +1,3 @@
 namespace Lambda.Model;
 
-public record RestoreGameRequest(string SessionId, string Id);
+public record RestoreGameRequest(string SessionId, string ClientId, string Id);

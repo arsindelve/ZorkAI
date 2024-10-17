@@ -4,7 +4,7 @@ import Game from "./Game.tsx";
 import GameMenu from "./menu/GameMenu.tsx";
 import {createContext, useState} from "react";
 import Server from "./Server.ts";
-import {SessionId} from "./SessionId.ts";
+import {SessionHandler} from "./SessionHandler.ts";
 import RestoreModal from "./modal/RestoreModal.tsx";
 import {ISavedGame} from "./model/SavedGame.ts";
 import SaveModal from "./modal/SaveModal.tsx";
@@ -32,7 +32,7 @@ function App() {
     //const [imageIsVisible, setImageIsVisible] = useState(true);
 
     const server = new Server();
-    const sessionId = new SessionId();
+    const sessionId = new SessionHandler();
     const queryClient = new QueryClient();
 
     function restart(): void {
@@ -46,7 +46,7 @@ function App() {
     }
 
     async function getSavedGames() {
-        const [id] = sessionId.getSessionId();
+        const [id] = sessionId.getClientId();
         const savedGames = await server.getSavedGames(id);
         setAvailableSavedGames(savedGames);
     }
@@ -67,13 +67,15 @@ function App() {
             setRestoreGameId(id);
         setRestoreDialogOpen(false);
         setMenuForceClose(true);
+        setRestoreGameId("-1");
     }
 
     async function handleSaveModalClose(request: ISaveGameRequest | undefined): Promise<void> {
         setGameSaved(false);
         if (request) {
-            const [id] = sessionId.getSessionId();
-            request.sessionId = id;
+            request.sessionId = sessionId.getSessionId()[0];
+            request.clientId = sessionId.getClientId()
+            console.log(request)
             await server.saveGame(request);
         }
         setSaveDialogOpen(false);
