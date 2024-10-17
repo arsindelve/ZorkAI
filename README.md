@@ -1,33 +1,37 @@
-# All the greatness of the original Zork, enhanced with AI
+# All the greatness of the original Zork and Planetfall, enhanced with AI
 
 I LOVED Infocom games. In my youth, they gave me hours of entertainment, and began my love of personal
-computing. I still collect and play the games, but I wanted to do something to enhance and expand those games for a new
+computing. My two favorites were Planetfall and A Mind Forever Voyaging by legendary implementor Steve Meretzky. 
+I still collect and play the games, but I wanted to do something to enhance and expand those games for a new
 generation of players. What
 could I do to make those games feel richer, deeper and more alive?
 
 Although there are fully AI generated dungeons and interactive fiction stories, that wasn't what I was looking for. I
-don't want NEW games; I want to preserve all the settings, locations, story, humor and puzzles of Zork, but use AI
-to make the interactivity much deeper. I want an intelligent text parser, and a "smart" narrator that understands
-everything you type. If your command moves the story forward, or changes the state of the game, then I want to preserve
+don't want NEW games; I wanted to preserve all the settings, locations, story, humor and puzzles of Zork and Planetfall, but use AI
+to make the interactivity much deeper. I wanted an intelligent text parser, and a "smart" narrator that understands
+everything you type. If your command moves the story forward, or changes the state of the game, then I wanted to preserve
 the original story.
 If not, the AI Narrator should give you a meaningful, funny response that keeps you immersed in the Great Underground
-Empire.
+Empire or the lonely planet of Resida.
 
-I've written a brand new Interactive Fiction Engine in C#, with corresponding C# game files for the first approximately
-50%
-of Zork I. I've also included the first location of Zork II to show the separation between the game engine and the
-game files themselves. Ideally, this engine could be used to implement any first-generation Infocom game with minimal or
+So I built all that and had so much fun doing it! 
+
+I've written a brand new Interactive Fiction Engine in C#, with corresponding game files for the first approximately
+80%
+of Zork I and 5% of Planetfall. Ideally, this engine could be used to implement any first-generation Infocom game with minimal or
 no tweaking.
 
-The code in this repository IS NOT a full game....yet. But it does demonstrate that this can work, and can have
-truly excellent results! (Thanks mostly to how good GPT4 is). I'll keep implementing the rest of the Zork I story,
-items and location, finding new scenarios that the engine can't handle but the game is quite playable in its current
-state.
+The code in this repository IS NOT a full games....yet. But it does demonstrate that this can work, and can have
+truly excellent results! (Thanks mostly to how good GPT4 is). I'll keep implementing the rest of the Zork I and Planetfall stories,
+items and locations, finding new scenarios that the engine can't handle but the game is quite playable in its current
+state. One of the biggest challenges I'm looking forward to is bringing Floyd to life. I want to see how far I can go in allowing you to have conversations with him while still preserving 
+all the childlike charm that made him the star of the game [(and frankly, caused a lot of press in 1983)](https://web.archive.org/web/19990222125344/http://www.csd.uwo.ca/Infocom/Articles/globe84.html) 
 
-### [Play The Game Now](https://newzork.ai)
+### [Play Zork AI Now](https://newzork.ai)
+### [Play Planetfall AI Now](https://planetfall.ai)
 
 The game is fully mobile responsive, so feel free to try it on your phone or tablet. However, it can be a little slow
-sometimes, because I’m on the free-tier of AWS and Azure.
+sometimes, because I’m on the free-tier of AWS
 
 [![.NET](https://github.com/arsindelve/ZorkAI/actions/workflows/dotnet.yml/badge.svg)](https://github.com/arsindelve/ZorkAI/actions/workflows/dotnet.yml)
 
@@ -43,7 +47,7 @@ sometimes, because I’m on the free-tier of AWS and Azure.
 - Fly away to Canada.
 - Tell me how nuclear fission works
 
-In every case, the AI never breaks character as your exasperated fantasy game narrator, sarcastically guiding you
+In every case, the AI never breaks character as your exasperated fantasy or science fiction game narrator, sarcastically guiding you
 through your adventure in the Great Underground Empire.
 
 ### How does it work?
@@ -64,7 +68,7 @@ The front-end is built in React with Tailwind CSS, some Daisy UI and some MUI. T
 session in AWS Dynamo DB so that it can remember you on your
 next visit. The engine is hosted in a Lambda in AWS, and is pure ASP.Net Core, written in C# 12, running on Linux.
 
-**None of the source code or executable of the original Zork is being used in any way.**
+**None of the source code or executable of the original Zork or Planetfall is being used in any way.**
 
 ### Contributing
 
