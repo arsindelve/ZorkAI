@@ -3,10 +3,10 @@ import {GameRequest} from './model/GameRequest.ts';
 import {GameResponse} from "./model/GameResponse.ts";
 import {ISaveGameRequest} from "./model/SaveGameRequest.ts";
 import {ISavedGame} from "./model/SavedGame.ts";
-
+import config from '../config.json';
 export default class Server {
 
-    baseUrl = "https://bxqzfka0hc.execute-api.us-east-1.amazonaws.com/Prod/ZorkOne"
+    baseUrl = config.base_url;
     //baseUrl = "http://localhost:5000/ZorkOne";
 
     gameInput = async (input: GameRequest): Promise<GameResponse> => {
