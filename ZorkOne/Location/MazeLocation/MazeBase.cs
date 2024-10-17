@@ -1,4 +1,5 @@
 using GameEngine.Location;
+using Model.Interface;
 using Model.Movement;
 
 namespace ZorkOne.Location.MazeLocation;
@@ -141,6 +142,14 @@ public class MazeTen : MazeBase
 
 public class MazeEleven : MazeBase
 {
+    public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
+    {
+        if (previousLocation is MazeNine)
+            return "You won't be able to get back up to the tunnel you are going through when it gets to the next room.\n ";
+        
+        return base.BeforeEnterLocation(context, previousLocation);
+    }
+
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
