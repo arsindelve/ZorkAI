@@ -1,4 +1,4 @@
-namespace ZorkOne.Location.Maze;
+namespace ZorkOne.Location.MazeLocation;
 
 public abstract class DeadEndBase : DarkLocationWithNoStartingItems
 {

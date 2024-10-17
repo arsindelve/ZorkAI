@@ -1,6 +1,6 @@
 using Model.Movement;
 
-namespace ZorkOne.Location.Maze;
+namespace ZorkOne.Location.MazeLocation;
 
 public class DeadEndTwo : DeadEndBase
 {
