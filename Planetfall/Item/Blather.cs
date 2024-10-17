@@ -1,6 +1,6 @@
 ﻿namespace Planetfall.Item;
 
-public class Blather : ItemBase, IAmAPerson
+public class Blather : ItemBase, IAmANamedPerson
 {
     public override string[] NounsForMatching => ["blather", "ensign blather"];
 

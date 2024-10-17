@@ -86,4 +86,6 @@ public class SceptreTests : EngineTestsBase
         response.Should().NotContain("A shimmering pot of gold appears at the end of the rainbow.");
         target.Context.HasItem<PotOfGold>().Should().BeTrue();
     }
+    
+    // TODO: Wave it standing on the rainbow and die. 
 }

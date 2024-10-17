@@ -240,6 +240,56 @@ public class TestParser : IIntentParser
                 Verb = "dig",
                 OriginalInput = "dig in sand with shovel"
             });
+        
+        if (input == "offer the cyclops the lunch")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "cyclops",
+                NounTwo = "lunch",
+                Preposition = "",
+                Verb = "offer",
+                OriginalInput = "offer the cyclops the lunch"
+            });
+        
+        if (input == "give the lunch to the cyclops")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "lunch",
+                NounTwo = "cyclops",
+                Preposition = "to",
+                Verb = "give",
+                OriginalInput = "give the lunch to the cyclops"
+            });
+        
+        if (input == "give the bottle to the cyclops")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "bottle",
+                NounTwo = "cyclops",
+                Preposition = "to",
+                Verb = "give",
+                OriginalInput = "give the bottle to the cyclops"
+            });
+        
+        if (input == "give the garlic to the cyclops")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "garlic",
+                NounTwo = "cyclops",
+                Preposition = "to",
+                Verb = "give",
+                OriginalInput = "give the garlic to the cyclops"
+            });
+        
+        if (input == "give the axe to the cyclops")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "axe",
+                NounTwo = "cyclops",
+                Preposition = "to",
+                Verb = "give",
+                OriginalInput = "give the axe to the cyclops"
+            });
 
         if (input.StartsWith("put"))
         {
