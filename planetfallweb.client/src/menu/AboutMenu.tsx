@@ -2,6 +2,7 @@ import * as React from 'react';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import config from "../../config.json";
 
 export default function AboutMenu() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -27,7 +28,7 @@ export default function AboutMenu() {
                 aria-expanded={open ? 'true' : undefined}
                 onClick={handleClick}
             >
-                Help / About
+                About
             </Button>
             <Menu
                 id="basic-menu"
@@ -48,6 +49,8 @@ export default function AboutMenu() {
                 <MenuItem onClick={() => go("http://www.eristic.net/games/infocom/planetfall.html")}>Look
                     at a Walkthrough (major spoilers)</MenuItem>
                 <MenuItem onClick={() => go("https://en.wikipedia.org/wiki/Planetfall")}>Wikipedia Article on Planetfall</MenuItem>
+                <MenuItem><hr /></MenuItem>
+                <MenuItem>Version {config.version}</MenuItem>
             </Menu>
         </div>
     );

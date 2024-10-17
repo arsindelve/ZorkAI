@@ -28,7 +28,7 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({open, handleClose}) => (
                 a more immersive experience. Using AI, the narrator will understand and respond to
                 anything you type, always in character and always keeping you in the bounds of the original game.
                 To get started, type your input in the grey box below, and press
-                'return'. Click the menu on the top left for more information. Enjoy!
+                'return'. Click the menu on the top right for more information. Enjoy!
             </DialogContentText>
         </DialogContent>
         <DialogActions>
