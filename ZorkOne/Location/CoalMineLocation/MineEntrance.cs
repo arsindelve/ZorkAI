@@ -25,7 +25,7 @@ public class MineEntrance : DarkLocationWithNoStartingItems
     public override string Name => "Mine Entrance";
     
     public override string AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient? generationClient)
+        IGenerationClient generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
 

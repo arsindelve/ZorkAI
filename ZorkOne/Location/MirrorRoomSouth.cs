@@ -16,7 +16,7 @@ internal class MirrorRoomSouth : MirrorRoom
         };
     
     public override string AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient? generationClient)
+        IGenerationClient generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
         var spiritsAlive = Repository.GetItem<Spirits>().CurrentLocation == Repository.GetLocation<EntranceToHades>();

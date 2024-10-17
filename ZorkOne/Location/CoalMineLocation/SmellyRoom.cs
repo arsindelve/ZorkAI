@@ -25,7 +25,7 @@ internal class SmellyRoom : DarkLocationWithNoStartingItems
     public override string Name => "Smelly Room";
 
     public override string AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient? generationClient)
+        IGenerationClient generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
 
