@@ -23,7 +23,7 @@ public class CaveSouth : DarkLocation
 
     public override string Name => "Cave";
 
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
         var returnValue = "";
@@ -51,7 +51,7 @@ public class CaveSouth : DarkLocation
         if (string.IsNullOrWhiteSpace(returnValue))
             return base.AfterEnterLocation(context, previousLocation, generationClient);
 
-        return returnValue;
+        return Task.FromResult(returnValue);
     }
 
     public override void Init()

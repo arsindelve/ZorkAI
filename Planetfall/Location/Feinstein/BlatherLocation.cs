@@ -10,7 +10,7 @@ namespace Planetfall.Location.Feinstein;
 
 internal abstract class BlatherLocation : BaseLocation
 {
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+    public override async Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
         switch (VisitCount)
@@ -27,14 +27,13 @@ internal abstract class BlatherLocation : BaseLocation
                     "\n\nEnsign First Class Blather is standing before you, furiously scribbling demerits onto " +
                     "an oversized clipboard. Blather loses his last vestige of patience and drags you to the " +
                     "Feinstein's brig. He throws you in, and the door clangs shut behind you. \n\n" +
-                    new LookProcessor().Process(string.Empty, context, generationClient, Runtime.Unknown).Result;
-
+                    await new LookProcessor().Process(string.Empty, context, generationClient, Runtime.Unknown);
             }
             default:
-                return
-                    "\n\nEnsign First Class Blather is standing before you, furiously scribbling demerits onto " +
-                    "an oversized clipboard. \"I said to return to your post, Ensign Seventh Class!\" bellows " +
-                    "Blather, turning a deepening shade of crimson. ";
+
+                return "\n\nEnsign First Class Blather is standing before you, furiously scribbling demerits onto " +
+                       "an oversized clipboard. \"I said to return to your post, Ensign Seventh Class!\" bellows " +
+                       "Blather, turning a deepening shade of crimson. ";
         }
     }
 
@@ -43,12 +42,14 @@ internal abstract class BlatherLocation : BaseLocation
         StartWithItem<Blather>();
     }
 
-    protected MovementParameters BlatherBlocksYou() =>
-        new()
+    protected MovementParameters BlatherBlocksYou()
+    {
+        return new MovementParameters
         {
             CanGo = _ => false,
             CustomFailureMessage = RandomBlatherBlock()
         };
+    }
 
     private string? RandomBlatherBlock()
     {
@@ -59,8 +60,8 @@ internal abstract class BlatherLocation : BaseLocation
             "Ensign Blather pushes you roughly back toward your post.",
             "Ensign Blather blocks your way, snarling angrily."
         };
-        Random random = new Random();
-        int index = random.Next(array.Length);
+        var random = new Random();
+        var index = random.Next(array.Length);
         return array[index];
     }
 }

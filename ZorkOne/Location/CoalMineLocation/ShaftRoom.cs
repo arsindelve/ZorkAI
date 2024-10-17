@@ -33,15 +33,15 @@ internal class ShaftRoom : DarkLocation
 
     public override string Name => "Shaft Room";
 
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient? generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
 
         if (swordInPossession)
-            return "\nYour sword is glowing with a faint blue glow.";
+            return Task.FromResult("\nYour sword is glowing with a faint blue glow.");
 
-        return string.Empty;
+        return Task.FromResult(string.Empty);
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
