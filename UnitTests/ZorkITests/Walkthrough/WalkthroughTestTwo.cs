@@ -75,7 +75,18 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("open case", null, "Opened")]
     [TestCase("put egg in case", null, "Done")]
     [TestCase("close case", null, "Closed")]
-   
+    [TestCase("examine case", null, "consists of", "egg")]
+    [TestCase("open case", null, "Opened")]
+    [TestCase("take sword", null, "Taken")]
+    [TestCase("put sword in case", null, "Done")]
+    [TestCase("take sword", null, "Taken")]
+    [TestCase("inventory", null, "sword", "glass bottle contains")]
+    [TestCase("examine bottle", null, "A quantity of water")]
+    [TestCase("examine sack", null, "brown sack is closed")]
+    [TestCase("open sack", null, "reveals a lunch", "clove of garlic")]
+    [TestCase("examine lunch", null, "nothing special about the lunch")]
+
+
     
     
 
