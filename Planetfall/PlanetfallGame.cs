@@ -5,7 +5,7 @@ using Planetfall.Location.Feinstein;
 
 namespace Planetfall;
 
-public class Planetfall : IInfocomGame
+public class PlanetfallGame : IInfocomGame
 {
     public Type StartingLocation => typeof(DeckNine);
 

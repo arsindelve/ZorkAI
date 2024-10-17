@@ -3,7 +3,7 @@ using Planetfall.Item;
 
 namespace Planetfall;
 
-public class PlanetfallContext: Context<Planetfall>
+public class PlanetfallContext: Context<PlanetfallGame>
 {
     public override void Init()
     {

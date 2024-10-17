@@ -100,7 +100,7 @@ IGameEngine GetEngine()
 {
     IGameEngine newEngine = args[0] switch
     {
-        "Planetfall" => CreateEngine<Planetfall.Planetfall, PlanetfallContext>(),
+        "Planetfall" => CreateEngine<PlanetfallGame, PlanetfallContext>(),
         "ZorkOne" => CreateEngine<ZorkI, ZorkIContext>(),
         //"ZorkTwo" => CreateEngine<ZorkII, ZorkIIContext>(),
 
