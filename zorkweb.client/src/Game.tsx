@@ -194,7 +194,7 @@ function Game({
 
     return (
 
-        <div className={"m-8"}>
+        <div className={"m-10"}>
 
             <div>
                 <Snackbar

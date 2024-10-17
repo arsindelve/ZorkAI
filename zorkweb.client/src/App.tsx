@@ -77,7 +77,8 @@ function App() {
 
     return (
         <div
-            className="bg-[url('https://zorkai-assets.s3.amazonaws.com/black-groove-stripes-repeating-background.jpg')] bg-repeat">
+            className="bg-[url('https://zorkai-assets.s3.amazonaws.com/brick-wall-background-texture.jpg')] bg-repeat bg-[size:500px_500px]">
+
             <div className="flex flex-col min-h-screen">
                 <div className="flex-grow">
 
