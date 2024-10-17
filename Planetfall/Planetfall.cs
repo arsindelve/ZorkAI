@@ -59,7 +59,7 @@ public class Planetfall : IInfocomGame
 
     public IGlobalCommandFactory GetGlobalCommandFactory()
     {
-        throw new NotImplementedException();
+        return new PlanetfallGlobalCommandFactory();
     }
 
     public string SessionTableName => "planetfall_session";
