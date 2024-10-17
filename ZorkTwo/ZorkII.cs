@@ -27,6 +27,10 @@ public class ZorkII : IInfocomGame
     }
 
     public string SessionTableName => "zork2_session";
+    
+    public void Init(IContext context)
+    {
+    }
 
     public T GetContext<T>() where T : IContext, new()
     {

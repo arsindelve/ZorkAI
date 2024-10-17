@@ -14,7 +14,7 @@ public class DeckNine : BaseLocation, ITurnBasedActor
     protected override string ContextBasedDescription =>
         "This is a featureless corridor similar to every other corridor on the ship. It curves away to starboard," +
         " and a gangway leads up. To port is the entrance to one of the ship's primary escape pods. " +
-        "The pod bulkhead is closed. ";
+        $"The pod bulkhead is {(Repository.GetItem<BulkheadDoor>().IsOpen ? "open" : "closed")}. ";
 
     public override string Name => "Deck Nine";
 
@@ -24,7 +24,8 @@ public class DeckNine : BaseLocation, ITurnBasedActor
         {
             Repository.GetItem<BulkheadDoor>().IsOpen = true;
             return Task.FromResult(
-                "A massive explosion rocks the ship. Echoes from the explosion resound deafeningly down the halls. The door to port slides open.");
+                $" A massive explosion rocks the ship. Echoes from the explosion resound deafeningly down the halls. " +
+                $"{ (context.CurrentLocation == this ?  "The door to port slides open." : "")}");
         }
 
         return Task.FromResult<string>("");

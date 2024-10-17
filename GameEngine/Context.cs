@@ -19,7 +19,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// <summary>
     ///     Starts the game in the default start location.
     /// </summary>
-    public Context(IGameEngine engine, T gameType)
+    protected Context(IGameEngine engine, T gameType)
     {
         Verbosity = Verbosity.Brief;
         GameType = gameType;
@@ -33,7 +33,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// <summary>
     ///     Constructor for unit testing
     /// </summary>
-    public Context()
+    protected Context()
     {
         CurrentLocation = Repository.GetStartingLocation<T>();
         Score = 0;
@@ -291,9 +291,9 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         Actors.Add(actor);
     }
 
-    protected void StartWithItem<T>(ICanHoldItems location) where T : IItem, new()
+    protected void StartWithItem<TItem>(ICanHoldItems location) where TItem : IItem, new()
     {
-        var item = Repository.GetItem<T>();
+        var item = Repository.GetItem<TItem>();
         Items.Add(item);
         item.CurrentLocation = location;
     }

@@ -1,3 +1,4 @@
+using GameEngine;
 using Model.Interface;
 using Planetfall.Location;
 
@@ -64,6 +65,11 @@ public class Planetfall : IInfocomGame
 
     public string SessionTableName => "planetfall_session";
     
+    public void Init(IContext context)
+    {
+        context.RegisterActor(Repository.GetLocation<DeckNine>());
+    }
+
     public string SystemPrompt =>
         """
         In your role as the invisible, incorporeal Narrator within the science-fiction game, Planetfall, 
