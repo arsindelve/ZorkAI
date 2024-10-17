@@ -12,6 +12,9 @@ internal class LadderBottom : DarkLocation
             },
             {
                 Direction.S, new MovementParameters { Location = GetLocation<DeadEnd>() }
+            },
+            {
+                Direction.W, new MovementParameters { Location = GetLocation<TimberRoom>() }
             }
         };
 

@@ -42,8 +42,8 @@ public class PutProcessor : IMultiNounVerbProcessor
     private static InteractionResult PutTheThingIntoTheThing(IItem item, ICanHoldItems itemReceiver, IContext context)
     {
         // Do I have the thing? 
-        if (item.CurrentLocation is not IContext)
-            return new PositiveInteractionResult($"You don't have the {item.NounsForMatching.First()}");
+        if (!context.Items.Contains(item))
+            return new PositiveInteractionResult($"You don't have the {item.NounsForMatching.First()}. ");
 
         // Is the recipient open?
         if (itemReceiver is IOpenAndClose { IsOpen: false })
