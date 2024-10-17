@@ -16,6 +16,8 @@ public class ClaudeFourGenerationClient : ClaudeClientBase, IGenerationClient
 {
     public Action? OnGenerate { get; set; }
 
+    public required string SystemPrompt { private get; set; }
+    
     public List<(string, string, bool)> LastFiveInputOutputs { get; set; } = new();
 
     public async Task<string> CompleteChat(Request request)
@@ -57,7 +59,7 @@ public class ClaudeFourGenerationClient : ClaudeClientBase, IGenerationClient
         payload.anthropic_version = AnthropicVersion;
         payload.max_tokens = 1024;
         payload.temperature = 0.45;
-        payload.system = request.SystemMessage ?? string.Empty;
+        payload.system = SystemPrompt;
 
         payload.messages = new List<dynamic>();
 

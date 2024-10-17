@@ -4,7 +4,6 @@ public class CannotGoThatWayRequest : Request
 {
     public CannotGoThatWayRequest(string location, string direction)
     {
-        SystemMessage = SystemPrompt;
         UserMessage =
             $"The player is in this location: \"{location}\". They tried to go {direction} but going that way is  " +
             $"not possible from this location. Respond with a very short, sarcastic and simple message informing them " +

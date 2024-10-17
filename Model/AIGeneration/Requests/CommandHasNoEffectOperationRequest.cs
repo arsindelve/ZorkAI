@@ -4,7 +4,6 @@ public class CommandHasNoEffectOperationRequest : Request
 {
     public CommandHasNoEffectOperationRequest(string location, string? command)
     {
-        SystemMessage = SystemPrompt;
         UserMessage =
             
             @$"The player is in this location: ""{location}"". They wrote ""{command}"". If the player references any object of any kind, 

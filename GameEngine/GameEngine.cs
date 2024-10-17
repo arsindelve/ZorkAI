@@ -63,8 +63,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
                      """;
 
         _generator = new ChatGPTClient(_logger);
-        _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
+        _generator.SystemPrompt = _gameInstance.SystemPrompt;
         _generator.OnGenerate += () => _lastResponseWasGenerated = true;
+        
+        _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
+      
     }
 
     /// <summary>
