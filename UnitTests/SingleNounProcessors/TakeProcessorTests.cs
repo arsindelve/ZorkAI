@@ -117,4 +117,30 @@ public class TakeProcessorTests : EngineTestsBase
         var result = await target.GetResponse("take garlic");
         result.Should().Contain("Taken");
     }
+    
+    [Test]
+    public async Task TakeItem_Disambiguation()
+    {
+        var target = GetTarget();
+        var location = Repository.GetLocation<Kitchen>();
+        target.Context.CurrentLocation = location;
+        location.ItemPlacedHere(Repository.GetItem<NastyKnife>());
+        location.ItemPlacedHere(Repository.GetItem<RustyKnife>());
+       
+        target.Context.HasItem<NastyKnife>().Should().BeFalse();
+        target.Context.HasItem<RustyKnife>().Should().BeFalse();
+       
+        await target.GetResponse("take knife");
+        var result = await target.GetResponse("rusty");
+        
+        result.Should().Contain("Taken");
+        target.Context.HasItem<RustyKnife>().Should().BeTrue();
+        
+        await target.GetResponse("take knife");
+        await target.GetResponse("nasty");
+        
+        result.Should().Contain("Taken");
+        target.Context.HasItem<NastyKnife>().Should().BeTrue();
+
+    }
 }
