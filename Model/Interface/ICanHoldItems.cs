@@ -24,6 +24,12 @@ public interface ICanHoldItems : IInteractionTarget
     [JsonIgnore]
     List<IItem> GetAllItemsRecursively { get; }
 
+    /// <summary>
+    ///     Calculates the total size of all the items in the container or context.
+    /// </summary>
+    /// <returns>The total size of the container or context.</returns>
+    int CalculateTotalSize();
+
     void RemoveItem(IItem item);
 
     /// <summary>

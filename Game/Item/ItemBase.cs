@@ -126,4 +126,13 @@ public abstract class ItemBase : IItem
     {
         return null;
     }
+
+    public virtual void OnFailingToBeTaken(IContext context)
+    {
+    }
+
+    public virtual void OnBeingExamined(IContext context)
+    {
+        
+    }
 }

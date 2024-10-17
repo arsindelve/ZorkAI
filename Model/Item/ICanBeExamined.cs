@@ -8,4 +8,9 @@ namespace Model.Item;
 public interface ICanBeExamined : IInteractionTarget
 {
     public string ExaminationDescription { get; }
+
+    /// <summary>
+    ///     Executes a specific behavior when the item is being examined or looked at.
+    /// </summary>
+    public void OnBeingExamined(IContext context);
 }

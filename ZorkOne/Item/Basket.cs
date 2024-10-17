@@ -6,7 +6,7 @@ public class Basket : ContainerBase, ICanBeExamined
 
     public override string CannotBeTakenDescription => "The cage is securely fastened to the iron chain. ";
 
-    protected override int SpaceForItems => 8;
+    protected override int SpaceForItems => 12;
 
     public override string Name => "basket";
 

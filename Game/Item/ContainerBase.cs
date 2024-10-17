@@ -148,4 +148,17 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         Items.Add(item);
         item.CurrentLocation = this;
     }
+    
+    public int CalculateTotalSize()
+    {
+        int totalSize = Items.Sum(item => item.Size);
+
+        // Also add the Size of items inside Containers
+        foreach (var container in Items.OfType<ContainerBase>())
+        {
+            totalSize += container.CalculateTotalSize();
+        }
+
+        return totalSize;
+    }
 }

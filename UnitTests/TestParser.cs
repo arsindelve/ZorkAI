@@ -21,7 +21,7 @@ internal class TestParser : IIntentParser
             "take", "drop", "open", "close", "examine", "look", "eat", "press",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss",
-            "lower", "raise", "get"
+            "lower", "raise", "get", "inflate"
         ];
 
         _allNouns = Repository.GetNouns();
@@ -30,7 +30,7 @@ internal class TestParser : IIntentParser
         IEnumerable<string> specialNouns =
         [
             "tree", "branches", "house", "lettering", "mirror", "match", "yellow button", "red button",
-            "blue button", "brown button", "bolt", "bubble", "bodies", "gate", "lid", "switch"
+            "blue button", "brown button", "bolt", "bubble", "bodies", "gate", "lid", "switch", "slag"
         ];
 
         _allNouns = _allNouns.Union(specialNouns).ToArray();
@@ -68,6 +68,16 @@ internal class TestParser : IIntentParser
                 Preposition = "to",
                 Verb = "tie",
                 OriginalInput = "tie rope to railing"
+            });
+        
+        if (input == "inflate plastic with pump")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "boat",
+                NounTwo = "pump",
+                Preposition = "with",
+                Verb = "inflate",
+                OriginalInput = "inflate plastic with pump"
             });
 
         if (input == "turn bolt with wrench")

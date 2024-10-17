@@ -46,7 +46,10 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         ICanBeTakenAndDropped takeItem)
     {
         if (!string.IsNullOrEmpty(castItem.CannotBeTakenDescription))
+        {
+            ((ItemBase)castItem).OnFailingToBeTaken(context);
             return new PositiveInteractionResult(castItem.CannotBeTakenDescription);
+        }
 
         if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
             return new PositiveInteractionResult("It's too dark to see!");
@@ -58,6 +61,9 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
 
         if (container is IOpenAndClose { IsOpen: false })
             return new PositiveInteractionResult("You can't reach something that's inside a closed container.");
+
+        if (!context.HaveRoomForItem(castItem))
+            return new PositiveInteractionResult("Your load is too heavy. ");
 
         context.Take(castItem);
         var onTakenText = takeItem.OnBeingTaken(context);

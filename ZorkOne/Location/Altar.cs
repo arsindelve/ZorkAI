@@ -13,7 +13,7 @@ public class Altar : BaseLocation
             { Direction.N, new MovementParameters { Location = GetLocation<Temple>() } },
             { Direction.Down, new MovementParameters
             {
-                WeightLimit = 12, 
+                WeightLimit = 15, 
                 WeightLimitFailureMessage = "You haven't a prayer of getting down there with what you're carrying. ", 
                 Location = GetLocation<CaveSouth>()
             } }

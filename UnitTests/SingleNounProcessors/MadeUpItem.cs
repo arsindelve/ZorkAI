@@ -17,4 +17,8 @@ internal class MadeUpItem : IInteractionTarget, ICanBeEaten, ICanBeTakenAndDropp
     {
         return "";
     }
+
+    public void OnFailingToBeTaken(IContext context)
+    {
+    }
 }

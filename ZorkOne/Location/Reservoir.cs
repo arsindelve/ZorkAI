@@ -10,7 +10,8 @@ public class Reservoir : DarkLocation, ITurnBasedActor
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.S, new MovementParameters { Location = GetLocation<ReservoirSouth>() } }
+            { Direction.S, new MovementParameters { Location = GetLocation<ReservoirSouth>() } },
+            { Direction.N, new MovementParameters { Location = GetLocation<ReservoirNorth>() } }
         };
 
     protected override string ContextBasedDescription =>
@@ -43,6 +44,7 @@ public class Reservoir : DarkLocation, ITurnBasedActor
 
     public override void Init()
     {
+        StartWithItem<TrunkOfJewels>(this);
     }
 
     public override string AfterEnterLocation(IContext context, ILocation previousLocation)

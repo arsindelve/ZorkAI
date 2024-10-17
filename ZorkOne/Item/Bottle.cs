@@ -29,4 +29,6 @@ public class Bottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeEx
     {
         StartWithItemInside<Water>();
     }
+
+    public override int Size => 3;
 }

@@ -111,7 +111,7 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("W", null, "East-West")]
     [TestCase("E", null, "Round Room")]
     [TestCase("E", null, "Loud Room")]
-    // TODO: Echo here
+    [TestCase("take bar", null, "bar bar ...")]
     [TestCase("Up", null, "Deep Canyon")]
     [TestCase("E", null, "Dam")]
     [TestCase("examine control panel", null, "nothing special")]
@@ -126,9 +126,9 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("take matchbook", null, "Taken")]
     [TestCase("examine matchbook", null, "except for what")]
     [TestCase("S", null, "Dam")]
-    // TODO: [TestCase("Down", null, "Dam Base")]
-    // TODO:> Take Pile > Your load is too heavy
-    // TODO: [TestCase("Up", null, "Dam")]
+    [TestCase("Down", null, "Dam Base")]
+    [TestCase("take pile", null, "Your load is too heavy")]
+    [TestCase("Up", null, "Dam")]
     [TestCase("W", null, "Reservoir South")]
     [TestCase("SW", null, "Chasm")]
     [TestCase("S", null, "North-South")]
