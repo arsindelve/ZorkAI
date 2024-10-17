@@ -10,11 +10,13 @@ using ZorkOne;
 
 var database = new DynamoDbSessionRepository();
 var sessionId = Environment.MachineName;
-var savedGame = await database.GetSession(sessionId);
 
 Console.ForegroundColor = ConsoleColor.DarkCyan;
 
+//var engine = CreateEngine<ZorkI, ZorkIContext>();
 var engine = CreateEngine<Planetfall.Planetfall, PlanetfallContext>();
+
+var savedGame = await database.GetSession(sessionId, engine.SessionTableName);
 Console.WriteLine(engine.IntroText + Environment.NewLine);
 
 if (!string.IsNullOrEmpty(savedGame))
@@ -37,10 +39,11 @@ while (result != "-1")
     string json = engine.SaveGame();
     var bytesToEncode = Encoding.UTF8.GetBytes(json);
     var encodedText = Convert.ToBase64String(bytesToEncode);
-    await database.WriteSession(sessionId, encodedText);
+    await database.WriteSession(sessionId, encodedText, engine.SessionTableName);
 
     if (result?.Trim().StartsWith("-2") ?? false)
     {
+        // engine = CreateEngine<ZorkI, ZorkIContext>();
         engine = CreateEngine<Planetfall.Planetfall, PlanetfallContext>();
         Console.WriteLine(engine.IntroText);
         continue;

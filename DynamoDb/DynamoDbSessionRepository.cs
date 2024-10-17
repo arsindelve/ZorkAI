@@ -6,12 +6,9 @@ namespace DynamoDb;
 
 public class DynamoDbSessionRepository : DynamoDbRepositoryBase, ISessionRepository
 {
-    private const string TableName = "zork_session_ondemand";
-
-
-    public async Task<string?> GetSession(string sessionId)
+    public async Task<string?> GetSession(string sessionId, string tableName)
     {
-        var table = Table.LoadTable(Client, TableName);
+        var table = Table.LoadTable(Client, tableName);
         var result = await table.GetItemAsync(sessionId);
 
         if (result is null)
@@ -20,7 +17,7 @@ public class DynamoDbSessionRepository : DynamoDbRepositoryBase, ISessionReposit
         return result["gameData"];
     }
 
-    public async Task WriteSession(string sessionId, string gameData)
+    public async Task WriteSession(string sessionId, string gameData, string tableName)
     {
         var item = new Dictionary<string, AttributeValue>
         {
@@ -28,6 +25,6 @@ public class DynamoDbSessionRepository : DynamoDbRepositoryBase, ISessionReposit
             { "gameData", new AttributeValue(gameData) }
         };
 
-        await Client.PutItemAsync(TableName, item);
+        await Client.PutItemAsync(tableName, item);
     }
 }

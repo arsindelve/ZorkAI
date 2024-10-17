@@ -26,6 +26,8 @@ public class ZorkII : IInfocomGame
         throw new NotImplementedException();
     }
 
+    public string SessionTableName => "zork2_session";
+
     public T GetContext<T>() where T : IContext, new()
     {
         throw new NotImplementedException();
