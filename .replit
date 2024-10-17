@@ -1,0 +1,20 @@
+
+hidden = ["bin", "obj"]
+modules = ["dotnet-7.0:v3-20231201-3b22c78"]
+run = "dotnet run"
+language = "c#"
+
+[env]
+DOTNET_NOLOGO = "1"
+DOTNET_CLI_TELEMETRY_OPTOUT = "1"
+DOTNET_CLI_HOME = "$XDG_CACHE_HOME"
+
+[gitHubImport]
+requiredFiles = [".replit", "replit.nix"]
+
+[nix]
+channel = "stable-23_11"
+
+[deployment]
+run = ["sh", "-c", "dotnet run"]
+deploymentTarget = "cloudrun"
