@@ -102,6 +102,7 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
       
+      
     - name: Sync files to S3 bucket for Zork
       run: |
           aws s3 sync /home/runner/work/ZorkAI/ZorkAI/zorkweb.client/dist s3://zork-ai.com --delete
@@ -114,13 +115,12 @@ jobs:
 
     - name: Invalidate Zork CloudFront cache
       run: |
-        aws cloudfront create-invalidation --distribution-id E2RTQPAFHN8ORD --paths /*    
+        aws cloudfront create-invalidation --distribution-id E2RTQPAFHN8ORD --paths "/*"    
 
 
     - name: Invalidate Planetfall CloudFront cache
       run: |
-        aws cloudfront create-invalidation --distribution-id EJYJYZ3BM3O3Z --paths /*    
-        
+        aws cloudfront create-invalidation --distribution-id EJYJYZ3BM3O3Z --paths "/*"    
         
         
     - name: Create Release
