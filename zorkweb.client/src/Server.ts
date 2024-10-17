@@ -10,6 +10,8 @@ export default class Server {
             .replace("http:", "https:")
             .replace("127.0.0.1", "localhost")
             .replace("5173", "7007") + "ZorkOne";
+        
+        here = "https://bxqzfka0hc.execute-api.us-east-1.amazonaws.com/Prod/ZorkOne"
 
         console.log(here);
 
