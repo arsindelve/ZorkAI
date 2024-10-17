@@ -1,4 +1,5 @@
 ﻿using Model.Movement;
+using ZorkOne.Location.ForestLocation;
 
 namespace ZorkOne.Location;
 

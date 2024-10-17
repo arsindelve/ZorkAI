@@ -138,7 +138,11 @@ public sealed class WalkthroughTestOne : EngineTestsBase
     [TestCase("put screwdriver in basket", null, "Done")]
     [TestCase("turn on lantern", null, "The brass lantern is now on")]
     [TestCase("N", null, "Smelly Room", "To the south is a narrow tunnel")]
-
+    [TestCase("Down", null, "Gas Room", "sapphire-encrusted", "short climb up some stairs")]
+    [TestCase("E", null, "Coal Mine", "This is a nondescript part of a coal mine")]
+    [TestCase("NE", null, "Coal Mine", "This is a nondescript part of a coal mine")]
+    [TestCase("SE", null, "Coal Mine", "This is a nondescript part of a coal mine")]
+    [TestCase("SW", null, "Coal Mine", "This is a nondescript part of a coal mine")]
     public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup))

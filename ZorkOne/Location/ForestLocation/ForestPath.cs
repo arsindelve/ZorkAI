@@ -1,6 +1,6 @@
 ﻿using Model.Movement;
 
-namespace ZorkOne.Location;
+namespace ZorkOne.Location.ForestLocation;
 
 public class ForestPath : LocationWithNoStartingItems
 {
