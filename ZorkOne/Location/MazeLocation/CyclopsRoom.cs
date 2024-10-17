@@ -43,7 +43,7 @@ public class CyclopsRoom : DarkLocation
         if (string.IsNullOrEmpty(input))
             return base.RespondToSpecificLocationInteraction(input, context);
 
-        if (new List<string> { "ulysses", "odysseus" }.Contains(input.ToLower().Trim()) || !HasItem<Cyclops>())
+        if (! (new List<string> { "ulysses", "odysseus" }.Contains(input.ToLower().Trim())) || !HasItem<Cyclops>())
             return base.RespondToSpecificLocationInteraction(input, context);
 
         var message =

@@ -7,8 +7,8 @@ using Model.Movement;
 namespace ZorkOne.Location;
 
 /// <summary>
-///     When the dam is filling up, it's quiet in here and it's a normal room. When the dam is draining, it's so
-///     loud you have to leave the room. Otherwise, it's pretty loud and you cannot perform any action - it
+///     When the dam is filling up, it's quiet in here, and it's a normal room. When the dam is draining, it's so
+///     loud you have to leave the room. Otherwise, it's pretty loud, and you cannot perform any action - it
 ///     just echos.
 /// </summary>
 public class LoudRoom : DarkLocation, ITurnBasedActor
@@ -49,6 +49,10 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
         context.RemoveActor(this);
         base.OnLeaveLocation(context, newLocation, previousLocation);
     }
+    
+    // TODO: Platinum bar
+    // TODO: Echo solution
+    // TODO: Dam solution. 
 
     public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
     {
