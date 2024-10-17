@@ -85,6 +85,7 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("examine sack", null, "brown sack is closed")]
     [TestCase("open sack", null, "reveals a lunch", "clove of garlic")]
     [TestCase("examine lunch", null, "nothing special about the lunch")]
+    [TestCase("smell garlic", null, "It smells like a clove of garlic")]
 
 
     

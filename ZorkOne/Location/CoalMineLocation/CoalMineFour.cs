@@ -11,6 +11,9 @@ internal class CoalMineFour : CoalMine
         },
         {
             Direction.N, new MovementParameters { Location = GetLocation<CoalMineThree>() }
+        },
+        {
+            Direction.Down, new MovementParameters { Location = GetLocation<LadderTop>() }
         }
     };
 }
