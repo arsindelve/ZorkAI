@@ -137,11 +137,19 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("N", null, "Round Room")]
     [TestCase("S", null, "Narrow Passage")]
     [TestCase("S", null, "Mirror Room")]
-    // TOOO: [TestCase("examine mirror", null, "ugly person")]
+    [TestCase("examine mirror", null, "ugly person")]
     [TestCase("W", null, "Winding Passage")]
     [TestCase("N", null, "Mirror Room")]
     [TestCase("W", null, "Winding Passage")]
-
+    [TestCase("E", null, "Cave")]
+    [TestCase("W", null, "Winding Passage")]
+    [TestCase("N", null, "Mirror Room")]
+    [TestCase("W", null, "Winding Passage")]
+    [TestCase("E", null, "Cave")]
+    [TestCase("Down", null, "Hades")]
+    [TestCase("examine bodies", null, "nothing special about")]
+    [TestCase("examine spirits", null, "unable to interact")]
+    [TestCase("examine gate", null, "The gate is protected by an invisible force")]
 
 
 
