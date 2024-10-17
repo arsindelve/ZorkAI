@@ -62,10 +62,14 @@ jobs:
               "version": "${{ github.ref_name }}"
             }
             
-            
-    - name: Build Front End
+    - name: Build Front End Zork
       run: |
         cd /home/runner/work/ZorkAI/ZorkAI/zorkweb.client
+        npm run build
+
+    - name: Build Front End Planetfall
+      run: |
+        cd /home/runner/work/ZorkAI/ZorkAI/planetfallweb.client
         npm run build
 
     - name: Setup AWS CLI
@@ -79,10 +83,9 @@ jobs:
       run: |
           aws s3 sync /home/runner/work/ZorkAI/ZorkAI/zorkweb.client/dist s3://zork-ai.com --delete
 
-
     - name: Sync files to S3 bucket for Planetfall
       run: |
-          aws s3 sync /home/runner/work/ZorkAI/ZorkAI/zorkweb.client/dist s3://planetfall.ai --delete
+          aws s3 sync /home/runner/work/ZorkAI/ZorkAI/planetfall.client/dist s3://planetfall.ai --delete
 
     - name: Create Release
       id: create_release
