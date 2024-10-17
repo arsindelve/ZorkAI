@@ -262,7 +262,7 @@ public class ClaudeFourParserTests
         var response = (await target.GetResponse(locationObjectDescription, sentence))!.ToLowerInvariant();
         Console.WriteLine(response);
 
-        response.Should().Contain("<verb>use</verb>");
+        response.Should().Contain("<verb>kill</verb>");
         response.Should().Contain("<noun>sword</noun>");
         response.Should().Contain("<noun>troll</noun>");
     }
