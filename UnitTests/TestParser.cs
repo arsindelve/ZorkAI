@@ -21,7 +21,7 @@ internal class TestParser : IIntentParser
             "take", "drop", "open", "close", "examine", "look", "eat", "press",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss",
-            "lower", "raise", "get", "inflate"
+            "lower", "raise", "get", "inflate", "leave"
         ];
 
         _allNouns = Repository.GetNouns();
@@ -78,6 +78,12 @@ internal class TestParser : IIntentParser
             });
         
         if (input == "get out of the boat")
+            return Task.FromResult<IntentBase>(new ExitSubLocationIntent
+            {
+                NounOne = "boat",
+            });
+        
+        if (input == "leave boat")
             return Task.FromResult<IntentBase>(new ExitSubLocationIntent
             {
                 NounOne = "boat",

@@ -13,16 +13,18 @@ public class DamBase : BaseLocation
                 Direction.N,
                 new MovementParameters
                 {
+                    // TODO: This needs to be implemented globally, for every location. 
                     Location = GetLocation<Dam>(), CanGo = _ => SubLocation == null,
-                    CustomFailureMessage = "You can't go there in a magic boat"
+                    CustomFailureMessage = "You can't go there in a magic boat. "
                 }
             },
             {
                 Direction.Up,
                 new MovementParameters
                 {
+                    // TODO: This needs to be implemented globally, for every location. 
                     Location = GetLocation<Dam>(), CanGo = _ => SubLocation == null,
-                    CustomFailureMessage = "You can't go there in a magic boat"
+                    CustomFailureMessage = "You can't go there in a magic boat. "
                 }
             }
         };
