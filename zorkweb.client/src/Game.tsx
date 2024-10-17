@@ -209,23 +209,26 @@ function Game({
             <WelcomeDialog open={welcomeDialogOpen} handleClose={handleWelcomeDialogClose}/>
             <Header locationName={locationName} moves={moves} score={score}/>
 
-            <div ref={gameContentElement} className={"p-12 h-[65vh] overflow-auto bg-stone-900 font-mono"}>
+            <div ref={gameContentElement} className={"p-12 bg-opacity-85 h-[65vh] overflow-auto bg-stone-900 font-mono"}>
                 {gameText.map((item: string, index: number) => (
                     <p dangerouslySetInnerHTML={{__html: item}} className={"mb-4"} key={index}>
                     </p>
                 ))}
             </div>
 
-            <div className="flex items-center bg-neutral-700">
+            <div className="flex items-center bg-stone-700">
                 <input ref={playerInputElement} readOnly={mutation.isPending}
-                       className={"w-full p-4 focus:border-transparent focus:outline-none focus:ring-0 bg-neutral-700"}
-                       value={playerInput} placeholder={"Tell me what you want to do next, then press return."}
+                       className={"w-full p-4 focus:border-transparent focus:outline-none focus:ring-0 bg-stone-700"}
+                       value={playerInput} placeholder={"Type what you want to do, then press return."}
                        onChange={(e) => setInput(e.target.value)}
                        onKeyDown={handleKeyDown}
 
                 ></input>
 
-                {mutation.isPending && <div className="mr-4 bg-neutral-700"><CircularProgress size={25}/></div>}
+                {mutation.isPending && <div className="mr-4 bg-neutral-700 p-2">
+                    <CircularProgress size={25} sx={{color: 'white'}}/>
+                </div>
+                }
 
             </div>
 
