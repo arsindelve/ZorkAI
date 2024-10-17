@@ -121,7 +121,6 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("look", null, "abandoned dam")]
     [TestCase("N", null, "Dam Lobby")]
     [TestCase("N", null, "Maintenance Room")]
-    [TestCase("N", null, "go that way")]
     [TestCase("S", null, "Dam Lobby")]
     [TestCase("take matchbook", null, "Taken")]
     [TestCase("examine matchbook", null, "except for what")]

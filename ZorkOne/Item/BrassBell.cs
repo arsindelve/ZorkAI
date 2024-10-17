@@ -24,12 +24,12 @@ public class BrassBell : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ITurnB
 
     public override string NeverPickedUpDescription => OnTheGroundDescription;
 
-    public string Act(IContext context, IGenerationClient client)
+    public Task<string> Act(IContext context, IGenerationClient client)
     {
         if (!BellIsRedHot)
         {
             context.RemoveActor(this);
-            return "";
+            return Task.FromResult("");
         }
 
         BellHotCounter--;
@@ -38,10 +38,10 @@ public class BrassBell : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ITurnB
         {
             BellIsRedHot = false;
             if (context.CurrentLocation == Repository.GetLocation<EntranceToHades>())
-                return "The bell appears to have cooled down.";
+                return Task.FromResult("The bell appears to have cooled down.");
         }
 
-        return "";
+        return Task.FromResult("");
     }
 
     public string BecomesRedHot(IContext context)

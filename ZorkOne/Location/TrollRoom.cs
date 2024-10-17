@@ -57,10 +57,10 @@ public class TrollRoom : DarkLocation
         return base.BeforeEnterLocation(context, previousLocation);
     }
 
-    public override void OnLeaveLocation(IContext context)
+    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
     {
         context.RemoveActor(GetItem<Troll>());
-        base.OnLeaveLocation(context);
+        base.OnLeaveLocation(context, newLocation, previousLocation);
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,

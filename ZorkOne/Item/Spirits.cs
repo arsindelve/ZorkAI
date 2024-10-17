@@ -16,7 +16,7 @@ public class Spirits : ItemBase, ICanBeExamined, ITurnBasedActor
 
     public string ExaminationDescription => "You seem unable to interact with these spirits. ";
 
-    public string? Act(IContext context, IGenerationClient client)
+    public async Task<string> Act(IContext context, IGenerationClient client)
     {
         if (!Stunned)
         {

@@ -30,16 +30,17 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor
             ? ""
             : "A nasty-looking troll, brandishing a bloody axe, blocks all passages out of the room. ";
 
-    public string? Act(IContext context, IGenerationClient client)
+    public Task<string> Act(IContext context, IGenerationClient client)
     {
         if (IsDead || IsUnconscious)
-            return null;
+            return Task.FromResult(string.Empty);
 
         if (!HasItem<BloodyAxe>())
             return
-                "\nThe troll, disarmed, cowers in terror, pleading for his life in the guttural tongue of the trolls. ";
+                Task.FromResult(
+                    "\nThe troll, disarmed, cowers in terror, pleading for his life in the guttural tongue of the trolls. ");
 
-        return _trollAttackEngine.Attack(context);
+        return Task.FromResult(_trollAttackEngine.Attack(context));
     }
 
     // TODO: Give the axe back to the troll: The troll scratches his head in confusion, then takes the axe.

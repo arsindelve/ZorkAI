@@ -52,24 +52,22 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
 
     public override string Name => "Reservoir South";
 
-    public string Act(IContext context, IGenerationClient client)
+    public Task<string> Act(IContext context, IGenerationClient client)
     {
         if (IsDraining)
         {
             DrainingCountDown--;
 
             if (DrainingCountDown != 0)
-                return string.Empty;
+                return Task.FromResult(string.Empty);
 
-            IsDraining = false;
+            IsDraining = IsFilling = IsFull = false;
             IsDrained = true;
-            IsFilling = false;
-            IsFull = false;
-
+             
             context.RemoveActor(this);
 
             if (context.CurrentLocation == this)
-                return "The water level is now quite low here and you could easily cross over to the other side. ";
+                return Task.FromResult("The water level is now quite low here and you could easily cross over to the other side. ");
         }
 
         if (IsFilling)
@@ -77,20 +75,18 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
             FillingCountDown--;
 
             if (FillingCountDown != 0)
-                return string.Empty;
+                return Task.FromResult(string.Empty);
 
             IsFull = true;
-            IsFilling = false;
-            IsDraining = false;
-            IsDrained = false;
+            IsDrained =IsFilling = IsDraining = false;
 
             context.RemoveActor(this);
 
             if (context.CurrentLocation == this)
-                return "You notice that the water level has risen to the point that it is impossible to cross. ";
+                return Task.FromResult("You notice that the water level has risen to the point that it is impossible to cross. ");
         }
 
-        return string.Empty;
+        return Task.FromResult(string.Empty);
     }
 
     public override void Init()
@@ -100,9 +96,7 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
 
     public void StartDraining(IContext context)
     {
-        IsDrained = false;
-        IsFilling = false;
-        IsFull = false;
+        IsDrained = IsFull = IsFilling = false;
         IsDraining = true;
         DrainingCountDown = 7;
         context.RegisterActor(this);
@@ -110,9 +104,7 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
 
     public void StartFilling(IContext context)
     {
-        IsFull = false;
-        IsDrained = false;
-        IsDraining = false;
+        IsFull = IsDrained = IsDraining = false;
         IsFilling = true;
         FillingCountDown = 4;
         context.RegisterActor(this);

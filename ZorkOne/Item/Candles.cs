@@ -79,12 +79,12 @@ public class Candles : ItemBase, ICanBeExamined, ICanBeTakenAndDropped,
 
     public override string NeverPickedUpDescription => "On the two ends of the altar are burning candles. ";
 
-    public string Act(IContext context, IGenerationClient client)
+    public Task<string> Act(IContext context, IGenerationClient client)
     {
         if (!IsOn)
         {
             context.RemoveActor(this);
-            return string.Empty;
+            return Task.FromResult(string.Empty);
         }
 
         Debug.WriteLine($"Candles counter: {TurnsWhileOn}");
@@ -93,23 +93,23 @@ public class Candles : ItemBase, ICanBeExamined, ICanBeTakenAndDropped,
         switch (TurnsWhileOn)
         {
             case 13:
-                return "The candles grow shorter.";
+                return Task.FromResult("The candles grow shorter.");
 
             case 20:
-                return "The candles are becoming quite short.";
+                return Task.FromResult("The candles are becoming quite short.");
 
             case 24:
-                return "The candles won't last long now.";
+                return Task.FromResult("The candles won't last long now.");
 
             case 26:
                 BurnedOut = true;
                 var result = new TurnLightOnOrOffProcessor().Process(
                     new SimpleIntent { Noun = NounsForMatching.First(), Verb = "turn off" }, context, this,
                     client);
-                return "You'd better have more light than from the pair of candles. " + result!.InteractionMessage;
+                return Task.FromResult("You'd better have more light than from the pair of candles. " + result!.InteractionMessage);
 
             default:
-                return string.Empty;
+                return Task.FromResult(string.Empty);
         }
     }
 
