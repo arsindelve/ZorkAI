@@ -19,20 +19,18 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
 
     public string NowOpen(ILocation currentLocation)
     {
-        var message = "";
-        if (currentLocation is GratingRoom)
+        return currentLocation switch
         {
-            message = "The grating opens to reveal trees above you.";
-            if (!Repository.GetItem<PileOfLeaves>().HasEverBeenPickedUp)
-                message += "\nA pile of leaves falls onto your head and to the ground. ";
-        }
-
-        return message;
+            GratingRoom => "The grating opens to reveal trees above you. ",
+            // Note: Try this in the real game. It's a bug! 
+            Clearing => "The grating open to reveal darkness below. ",
+            _ => ""
+        };
     }
 
     public string NowClosed(ILocation currentLocation)
     {
-        return "";
+        return "The grating is now closed";
     }
 
     public string AlreadyOpen => "";
@@ -44,6 +42,20 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
     public string? CannotBeOpenedDescription(IContext context)
     {
         return IsLocked ? "The grating is locked. " : null;
+    }
+
+    public override string OnOpening(IContext context)
+    {
+        var leaves = Repository.GetItem<PileOfLeaves>();
+
+        if (leaves.HasEverBeenPickedUp)
+            return string.Empty;
+        
+        leaves.HasEverBeenPickedUp = true;
+
+        Repository.GetLocation<GratingRoom>().ItemPlacedHere(leaves);
+        Repository.GetLocation<Clearing>().Items.Add(this);
+        return "\nA pile of leaves falls onto your head and to the ground. ";
     }
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
@@ -75,18 +87,6 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
             }
 
         return base.RespondToMultiNounInteraction(action, context);
-    }
-
-    public override string OnOpening(IContext context)
-    {
-        var leaves = Repository.GetItem<PileOfLeaves>();
-        
-        if (leaves.HasEverBeenPickedUp)
-            return string.Empty;
-        
-        Repository.GetLocation<GratingRoom>().ItemPlacedHere(leaves);
-        Repository.GetLocation<Clearing>().ItemPlacedHere(this);
-        return "\nA pile of leaves falls onto your head and to the ground. ";
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
