@@ -146,6 +146,82 @@ public class ClearingAndGratingTests : EngineTestsBase
     }
     
     [Test]
+    public async Task GratingRoom_Locked_Look()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<GratingRoom>();
+        target.Context.Take(Repository.GetItem<SkeletonKey>());
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
+
+        // Act
+        var response = await target.GetResponse("look");
+
+        // Assert
+        response.Should().Contain("skull-and-crossbones lock");
+    }
+    
+    [Test]
+    public async Task GratingRoom_Unlocked_Look()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<GratingRoom>();
+        target.Context.Take(Repository.GetItem<SkeletonKey>());
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
+
+        // Act
+        await target.GetResponse("unlock grate with the key");
+        var response = await target.GetResponse("look");
+
+        // Assert
+        response.Should().Contain("Above you is a grating");
+        response.Should().NotContain("skull-and-crossbones lock");
+    }
+    
+    [Test]
+    public async Task GratingRoom_Open_Look()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<GratingRoom>();
+        target.Context.Take(Repository.GetItem<SkeletonKey>());
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
+
+        // Act
+        await target.GetResponse("unlock grate with the key");
+        await target.GetResponse("open grate");
+        var response = await target.GetResponse("look");
+
+        // Assert
+        response.Should().Contain("Above you is an open grating");
+        response.Should().Contain("sunlight pouring in");
+        response.Should().NotContain("skull-and-crossbones lock");
+    }
+    
+    [Test]
+    public async Task GratingRoom_OpenWithoutUnlocking_Look()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<GratingRoom>();
+        target.Context.Take(Repository.GetItem<SkeletonKey>());
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
+
+        // Act
+        var response = await target.GetResponse("open grate");
+
+        // Assert
+        response.Should().Contain("locked");
+        
+        // Act
+        response = await target.GetResponse("look");
+
+        // Assert
+        response.Should().Contain("skull-and-crossbones lock");
+    }
+    
+    [Test]
     public async Task GratingRoom_HaveKey_Open_FirstTime_DumpLeavesOnMyHead()
     {
         var target = GetTarget();
@@ -172,7 +248,6 @@ public class ClearingAndGratingTests : EngineTestsBase
         Repository.GetItem<Lantern>().IsOn = true;
 
         // Act
-        
         target.Context.CurrentLocation = Repository.GetLocation<Clearing>();
         await target.GetResponse("move the leaves");
         target.Context.CurrentLocation = Repository.GetLocation<GratingRoom>();
@@ -221,10 +296,36 @@ public class ClearingAndGratingTests : EngineTestsBase
         response.Should().Contain("reveal trees above you");
         response.Should().NotContain("A pile of leaves falls onto your head and to the ground.");
     }
+    
+    [Test]
+    public async Task Clearing_GratingOpen_Look()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Clearing>();
+        Repository.GetItem<Grating>().IsLocked = false;
+        Repository.GetItem<Grating>().IsOpen = true;
+        
+        // Act
+        await target.GetResponse("move the leaves");
+        var response = await target.GetResponse("look");
 
+        // Assert
+        response.Should().Contain("There is an open grating, descending into darkness");
+    }
     
-    // TODO: close it
-    // TODO: open without unlocking 
-    // TODO: lock when open (it DOES lock and then you can't close it. BUG!!)
-    
+    [Test]
+    public async Task Clearing_GratingClosed_Look()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Clearing>();
+        Repository.GetItem<Grating>().IsLocked = false;
+        Repository.GetItem<Grating>().IsOpen = false;
+        
+        // Act
+        await target.GetResponse("move the leaves");
+        var response = await target.GetResponse("look");
+
+        // Assert
+        response.Should().Contain("securely fastened into the ground");
+    }
 }

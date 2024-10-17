@@ -10,9 +10,23 @@ public class Cyclops : ItemBase, ICanBeExamined, ITurnBasedActor
     public override string Name => "Cyclops";
 
     public bool HasBeenAttacked { get; set; }
+    
+    public bool HasGoneToSleep { get; set; }
+    
+    public bool HasBeenFed { get; set; }
 
     public int TurnsSinceAttacked { get; set; }
-
+    
+    // >give bottle to cyclops
+    // The cyclops apparently is not thirsty and refuses your generous offer.
+    
+    //The cyclops says "Mmm Mmm. I love hot peppers! But oh, could I use a drink. Perhaps I could drink the blood of that thing."  From
+    //    the gleam in his eye, it could be surmised that you are "that thing".
+    
+    // >give garlic to cyclops
+    // The cyclops may be hungry, but there is a limit.
+    
+    
     public override string NeverPickedUpDescription(ILocation currentLocation) => HasBeenAttacked
         ? "he cyclops is standing in the corner, eyeing you closely. I don't think he likes you very much. He " +
           "looks extremely hungry, even for a cyclops."
@@ -28,13 +42,13 @@ public class Cyclops : ItemBase, ICanBeExamined, ITurnBasedActor
 
     public string ExaminationDescription => "A hungry cyclops is standing at the foot of the stairs. ";
     
-    // TODO: Turn on the actor when you attack him
+    // TODO: Turn on the actor when you attack him or feed him. 
     // TODO: Other solution with peppers and water. 
     // TODO: Glowing sword. 
     
     public Task<string> Act(IContext context, IGenerationClient client)
     {
-        if (!HasBeenAttacked)
+        if (!HasBeenAttacked && !HasBeenFed)
             return Task.FromResult(string.Empty);
 
         TurnsSinceAttacked++;
