@@ -24,7 +24,7 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
 
     public bool HasEverBeenOpened { get; set; }
 
-    public virtual string? CannotBeOpenedDescription(IContext context)
+    public string CannotBeOpenedDescription(IContext context)
     {
         return "The grating is locked. ";
     }

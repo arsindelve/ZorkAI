@@ -22,7 +22,7 @@ public class KitchenWindow : ItemBase, IOpenAndClose, ICanBeExamined
 
     public bool HasEverBeenOpened { get; set; }
 
-    public virtual string? CannotBeOpenedDescription(IContext context)
+    public string? CannotBeOpenedDescription(IContext context)
     {
         return null;
     }
