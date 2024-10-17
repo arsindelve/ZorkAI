@@ -1,6 +1,7 @@
 ﻿using GameEngine.Location;
 using Model.Movement;
 using ZorkOne.Location.ForestLocation;
+using ZorkOne.Location.MazeLocation;
 
 namespace ZorkOne.Location;
 
@@ -25,7 +26,10 @@ public class Clearing : BaseLocation
         {
             Direction.Down,
             new MovementParameters
-                { CanGo = _ => false, CustomFailureMessage = "The grating is closed. " }
+            {
+                CanGo = _ => false, CustomFailureMessage = "The grating is closed. ",
+                Location = GetLocation<GratingRoom>()
+            }
         }
     };
 

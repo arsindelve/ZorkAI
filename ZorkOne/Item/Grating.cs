@@ -77,6 +77,18 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
         return base.RespondToMultiNounInteraction(action, context);
     }
 
+    public override string OnOpening(IContext context)
+    {
+        var leaves = Repository.GetItem<PileOfLeaves>();
+        
+        if (leaves.HasEverBeenPickedUp)
+            return string.Empty;
+        
+        Repository.GetLocation<GratingRoom>().ItemPlacedHere(leaves);
+        Repository.GetLocation<Clearing>().ItemPlacedHere(this);
+        return "\nA pile of leaves falls onto your head and to the ground. ";
+    }
+
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
@@ -91,7 +103,6 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
                 Repository.GetItem<Grating>().IsLocked = true;
                 return new PositiveInteractionResult("The grate is locked");
             }
-
 
         if (action.Match(["unlock"], NounsForMatching))
             if (context.HasItem<SkeletonKey>())
@@ -118,8 +129,12 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
     {
         return currentLocation switch
         {
-            Clearing => "There is a grating securely fastened into the ground. ",
-            GratingRoom => "Above you is a grating locked with a skull-and-crossbones lock. ",
+            Clearing => IsOpen
+                ? "There is an open grating, descending into darkness."
+                : "There is a grating securely fastened into the ground. ",
+            GratingRoom => IsOpen
+                ? "Above you is an open grating with sunlight pouring in. "
+                : "Above you is a grating locked with a skull-and-crossbones lock. ",
             _ => throw new NotSupportedException()
         };
     }
