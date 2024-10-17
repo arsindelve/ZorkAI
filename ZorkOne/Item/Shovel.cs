@@ -6,11 +6,11 @@ public class Shovel : ItemBase, ICanBeTakenAndDropped
 {
     public override string[] NounsForMatching => ["shovel"];
     
-    public string OnTheGroundDescription => "There is a shovel here. ";
+    public string OnTheGroundDescription(ILocation currentLocation) => "There is a shovel here. ";
 
-    public override string NeverPickedUpDescription => OnTheGroundDescription;
+    public override string NeverPickedUpDescription(ILocation currentLocation) => OnTheGroundDescription(currentLocation);
 
-    public override string InInventoryDescription => "A shovel";
+    public override string GenericDescription(ILocation currentLocation) => "A shovel";
 
     public override int Size => 3;
 }

@@ -11,7 +11,7 @@ public class Bat : ItemBase
 
     public override string CannotBeTakenDescription => "You can't reach him; he's on the ceiling. ";
 
-    public override string NeverPickedUpDescription =>
+    public override string NeverPickedUpDescription(ILocation currentLocation) =>
         "In the corner of the room on the ceiling is a large vampire bat who is obviously deranged and holding his nose.";
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,

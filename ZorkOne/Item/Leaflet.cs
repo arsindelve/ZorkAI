@@ -6,7 +6,7 @@ public class Leaflet : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRe
 {
     public override string[] NounsForMatching => ["leaflet"];
 
-    public override string InInventoryDescription => "A leaflet";
+    public override string GenericDescription(ILocation currentLocation) => "A leaflet";
 
     string ICanBeExamined.ExaminationDescription => """
                                                     "WELCOME TO ZORK!
@@ -16,5 +16,8 @@ public class Leaflet : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRe
 
     string ICanBeRead.ReadDescription => ((ICanBeExamined)this).ExaminationDescription;
 
-    string ICanBeTakenAndDropped.OnTheGroundDescription => "A small leaflet is on the ground. ";
+    string ICanBeTakenAndDropped.OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "A small leaflet is on the ground. ";
+    }
 }

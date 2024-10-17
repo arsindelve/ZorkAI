@@ -2,6 +2,7 @@ using Model.AIGeneration;
 using Model.Intent;
 using Model.Interaction;
 using Model.Interface;
+using Model.Location;
 
 namespace Model.Item;
 
@@ -9,7 +10,7 @@ public interface IItem : IInteractionTarget
 {
     string[] NounsForMatching { get; }
 
-    string InInventoryDescription { get; }
+    string GenericDescription(ILocation? currentLocation);
 
     /// <summary>
     ///     Gets or sets a value indicating whether the item has ever been picked up.

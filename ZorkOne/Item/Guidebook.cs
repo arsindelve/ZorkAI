@@ -7,7 +7,7 @@ public class Guidebook : ItemBase, ICanBeTakenAndDropped, ICanBeRead, ICanBeExam
     public override string[] NounsForMatching =>
         ["book", "books", "guidebook", "guidebooks", "guide book", "guide books"];
 
-    public override string InInventoryDescription => "A tour guidebook ";
+    public override string GenericDescription(ILocation currentLocation) => "A tour guidebook ";
 
     string ICanBeExamined.ExaminationDescription => ReadDescription;
 
@@ -25,8 +25,13 @@ public class Guidebook : ItemBase, ICanBeTakenAndDropped, ICanBeRead, ICanBeExam
 
                                      """;
 
-    public string OnTheGroundDescription => "There is a tour guidebook here.";
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "There is a tour guidebook here.";
+    }
 
-    public override string NeverPickedUpDescription =>
-        "Some guidebooks entitled \"Flood Control Dam #3\" are on the reception desk.";
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return "Some guidebooks entitled \"Flood Control Dam #3\" are on the reception desk.";
+    }
 }

@@ -1,6 +1,7 @@
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Item;
+using Model.Location;
 using Newtonsoft.Json;
 using Utilities;
 
@@ -134,7 +135,7 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
     /// </summary>
     /// <param name="name">The name of the container - might be needed as part of the description</param>
     /// <returns>A string representing the items contained in the specified container.</returns>
-    public virtual string ItemListDescription(string name)
+    public virtual string ItemListDescription(string name, ILocation? location)
     {
         if (!Items.Any())
             return $"The {name} is empty.";
@@ -144,7 +145,7 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         if (IsTransparent || this is IOpenAndClose { IsOpen: true })
         {
             sb.AppendLine($"The {name} contains:");
-            Items.ForEach(s => sb.AppendLine($"      {s.InInventoryDescription}"));
+            Items.ForEach(s => sb.AppendLine($"      {s.GenericDescription(location)}"));
         }
 
         if (!IsTransparent && this is IOpenAndClose { IsOpen: false })

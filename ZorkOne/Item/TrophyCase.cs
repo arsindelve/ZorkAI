@@ -21,7 +21,7 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
 
     public override string Name => "trophy case";
 
-    public string ExaminationDescription => Items.Any() ? ItemListDescription("") : "The trophy case is empty.";
+    public string ExaminationDescription => Items.Any() ? ItemListDescription("", null) : "The trophy case is empty.";
 
     public override void Init()
     {
@@ -33,7 +33,7 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
     /// </summary>
     /// <param name="name">The name of the container - might be needed as part of the description</param>
     /// <returns>A string representing the items contained in the specified container.</returns>
-    public override string ItemListDescription(string name)
+    public override string ItemListDescription(string name, ILocation? location)
     {
         if (!Items.Any())
             return string.Empty;
@@ -41,7 +41,7 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
         var sb = new StringBuilder();
 
         sb.AppendLine("Your collection of treasures consists of:");
-        Items.ForEach(s => sb.AppendLine($"      {s.InInventoryDescription}"));
+        Items.ForEach(s => sb.AppendLine($"      {s.GenericDescription(location)}"));
 
         return sb.ToString();
     }

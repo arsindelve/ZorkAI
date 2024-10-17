@@ -17,7 +17,7 @@ public class Candles : ItemBase, ICanBeExamined, ICanBeTakenAndDropped,
 
     public override string[] NounsForMatching => ["candle", "candles", "pair of candles"];
 
-    public override string InInventoryDescription => "A pair of candles" + (IsOn ? " (providing light)" : "");
+    public override string GenericDescription(ILocation currentLocation) => "A pair of candles" + (IsOn ? " (providing light)" : "");
 
     public bool IsOn { get; set; }
 
@@ -77,9 +77,9 @@ public class Candles : ItemBase, ICanBeExamined, ICanBeTakenAndDropped,
         return string.Empty;
     }
 
-    public string OnTheGroundDescription => "There is a pair of candles here" + (IsOn ? " (providing light). " : ". ");
+    public string OnTheGroundDescription(ILocation currentLocation) => "There is a pair of candles here" + (IsOn ? " (providing light). " : ". ");
 
-    public override string NeverPickedUpDescription => "On the two ends of the altar are burning candles. ";
+    public override string NeverPickedUpDescription(ILocation currentLocation) => "On the two ends of the altar are burning candles. ";
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {

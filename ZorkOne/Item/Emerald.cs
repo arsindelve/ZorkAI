@@ -7,11 +7,11 @@ public class Emerald : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInT
 {
     public override string[] NounsForMatching => ["emerald", "large emerald"];
     
-    public string OnTheGroundDescription => "There is a large emerald here. ";
+    public string OnTheGroundDescription(ILocation currentLocation) => "There is a large emerald here. ";
 
-    public override string InInventoryDescription => "A large emerald ";
+    public override string GenericDescription(ILocation currentLocation) => "A large emerald ";
 
-    public override string NeverPickedUpDescription => OnTheGroundDescription;
+    public override string NeverPickedUpDescription(ILocation currentLocation) => OnTheGroundDescription(currentLocation);
 
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 5;
 

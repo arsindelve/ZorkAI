@@ -14,7 +14,7 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
 
     public override string[] NounsForMatching => ["pile", "pile of plastic", "plastic", "boat", "raft", "magic boat"];
 
-    public override string InInventoryDescription => "A pile of plastic";
+    public override string GenericDescription(ILocation currentLocation) => "A pile of plastic";
 
     public override int Size => 14;
 
@@ -22,11 +22,11 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
         ? "There's nothing special about the magic boat. "
         : "There's nothing special about the pile of plastic. ";
 
-    public string OnTheGroundDescription => IsInflated
-        ? "There is a magic boat here. " + (Items.Any() ? ItemListDescription("magic boat") : "") 
+    public string OnTheGroundDescription(ILocation currentLocation) => IsInflated
+        ? "There is a magic boat here. " + (Items.Any() ? ItemListDescription("magic boat", currentLocation) : "") 
         : "There is a folded pile of plastic here which has a small valve attached. ";
 
-    public override string NeverPickedUpDescription => OnTheGroundDescription;
+    public override string NeverPickedUpDescription(ILocation currentLocation) => OnTheGroundDescription(currentLocation);
     
     // TODO: Items on the ground outside the boat: There is a shovel here. (outside the magic boat)
     

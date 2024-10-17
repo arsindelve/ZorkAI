@@ -15,9 +15,9 @@ public class ControlPanel : ItemBase, ICanBeTakenAndDropped
 
     public override string Name => "control panel";
 
-    public string OnTheGroundDescription => NeverPickedUpDescription;
+    public string OnTheGroundDescription(ILocation currentLocation) => NeverPickedUpDescription(currentLocation);
 
-    public override string NeverPickedUpDescription =>
+    public override string NeverPickedUpDescription(ILocation currentLocation) =>
         "There is a control panel here, on which a large metal bolt is mounted. " +
         $"Directly above the bolt is a small green plastic bubble{(GreenBubbleGlowing ? " which is glowing serenely" : "")}.";
 

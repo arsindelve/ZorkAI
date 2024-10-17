@@ -1,5 +1,4 @@
-﻿using GameEngine.Item;
-using Model.AIGeneration;
+﻿using Model.AIGeneration;
 using Model.Interface;
 using Model.Item;
 using Model.Location;
@@ -40,7 +39,8 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         Items.Add(item);
     }
 
-    public (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true)
+    public (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective,
+        bool lookInsideContainers = true)
     {
         if (string.IsNullOrEmpty(adjective))
             return HasMatchingNoun(noun, lookInsideContainers);
@@ -154,13 +154,13 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="SimpleIntent" /> corresponding
     ///     of a verb and a noun. Does that combination do anything in this location? The default implementation
-    ///     of the base class checks each item in this locations and asks them if they provide any interaction. This
+    ///     of the base class checks each item in these locations and asks them if they provide any interaction. This
     ///     method will be frequently overriden in child locations.
     /// </summary>
     /// <param name="action">The action to examine. Can we do anything with it?</param>
     /// <param name="context">The current context, in case we need it during action processing.</param>
     /// <param name="client"></param>
-    /// <returns>InteractionResult that describes if and and how the interaction took place.</returns>
+    /// <returns>InteractionResult that describes if and how the interaction took place.</returns>
     public virtual InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
@@ -246,13 +246,14 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
 
         // Let's deal with all the "fixed" items like windows and mailboxes. 
         Items.Where(s => s is not ICanBeTakenAndDropped)
-            // TODO: This is the wrong property name. Why use "InInventory" for something that can't be picked up
-            .Aggregate(result, (s, item) => s.AppendLine(item.InInventoryDescription));
+            .Aggregate(result, (s, item) => s.AppendLine(item.GenericDescription(this)));
 
         // Now let's deal with items that can be picked up. 
         Items.Where(s => s is ICanBeTakenAndDropped).Cast<ICanBeTakenAndDropped>()
             .Aggregate(result, (s, item) =>
-                s.AppendLine(item.HasEverBeenPickedUp ? item.OnTheGroundDescription : item.NeverPickedUpDescription));
+                s.AppendLine(item.HasEverBeenPickedUp
+                    ? item.OnTheGroundDescription(this)
+                    : item.NeverPickedUpDescription(this)));
 
         return result.ToString().Trim();
     }

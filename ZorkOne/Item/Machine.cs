@@ -21,10 +21,10 @@ public class Machine : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAnd
 
     [JsonIgnore]
     string ICanBeExamined.ExaminationDescription => IsOpen
-        ? Items.Any() ? base.ItemListDescription("machine") : "The machine is empty. "
+        ? Items.Any() ? base.ItemListDescription("machine", null) : "The machine is empty. "
         : "The machine is closed. ";
 
-    public string OnTheGroundDescription => string.Empty;
+    public string OnTheGroundDescription(ILocation currentLocation) => string.Empty;
 
     public override void Init()
     {

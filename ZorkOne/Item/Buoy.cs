@@ -11,8 +11,8 @@ public class Buoy : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndDro
         StartWithItemInside<Emerald>();
     }
     
-    public override string InInventoryDescription =>
-        !IsOpen ? "A red buoy" : $"A red buoy \n {ItemListDescription("red buoy")}";
+    public override string GenericDescription(ILocation currentLocation) =>
+        !IsOpen ? "A red buoy" : $"A red buoy \n {ItemListDescription("red buoy", null)}";
 
     public override string NowOpen =>
         !HasEverBeenOpened ? "Opening the red buoy reveals a large emerald. " : "Opened.";
@@ -20,10 +20,10 @@ public class Buoy : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndDro
     public override int Size => 4;
 
     public string ExaminationDescription =>
-        ((IOpenAndClose)this).IsOpen ? ItemListDescription("red buoy") : "The buoy is closed. ";
+        ((IOpenAndClose)this).IsOpen ? ItemListDescription("red buoy", null) : "The buoy is closed. ";
 
-    string ICanBeTakenAndDropped.OnTheGroundDescription =>
-        "There is a red buoy here. " + (Items.Any() ? ItemListDescription("red buoy") : "");
+    string ICanBeTakenAndDropped.OnTheGroundDescription(ILocation currentLocation) =>
+        "There is a red buoy here. " + (Items.Any() ? ItemListDescription("red buoy", null) : "");
 
-    public override string NeverPickedUpDescription => "There is a red buoy here (probably a warning). ";
+    public override string NeverPickedUpDescription(ILocation currentLocation) => "There is a red buoy here (probably a warning). ";
 }

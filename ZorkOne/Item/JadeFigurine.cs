@@ -7,11 +7,11 @@ public class JadeFigurine : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlac
 {
     public override string[] NounsForMatching => ["jade", "jade figurine", "figurine"];
 
-    public override string InInventoryDescription => "A jade figurine";
+    public override string GenericDescription(ILocation currentLocation) => "A jade figurine";
 
-    public string OnTheGroundDescription => "There is an exquisite jade figurine here. ";
+    public string OnTheGroundDescription(ILocation currentLocation) => "There is an exquisite jade figurine here. ";
 
-    public override string NeverPickedUpDescription => OnTheGroundDescription;
+    public override string NeverPickedUpDescription(ILocation currentLocation) => OnTheGroundDescription(currentLocation);
 
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 5;
 
