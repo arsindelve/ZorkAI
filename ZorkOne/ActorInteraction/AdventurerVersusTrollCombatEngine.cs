@@ -1,3 +1,5 @@
+using Model.Interface;
+
 namespace ZorkOne.ActorInteraction;
 
 internal class AdventurerVersusTrollCombatEngine

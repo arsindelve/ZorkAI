@@ -1,4 +1,5 @@
 using Game.StaticCommand.Implementation;
+using Model.Interface;
 using Utilities;
 
 namespace Game.StaticCommand;

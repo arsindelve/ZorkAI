@@ -1,3 +1,5 @@
+using Model.Movement;
+
 namespace UnitTests;
 
 [TestFixture]

@@ -1,6 +1,6 @@
 using Model.Intent;
 
-namespace Model;
+namespace Model.Interface;
 
 /// <summary>
 ///     Interface for a parser that can take user's input and determine their intent. Do they want to move? Quit

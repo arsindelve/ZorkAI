@@ -1,6 +1,6 @@
 using Model.Item;
 
-namespace Model;
+namespace Model.Interface;
 
 public interface ICanHoldItems : IInteractionTarget
 {

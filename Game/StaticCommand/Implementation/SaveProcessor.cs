@@ -1,5 +1,6 @@
 ﻿using Model.AIGeneration;
 using Model.AIGeneration.Requests;
+using Model.Interface;
 
 namespace Game.StaticCommand.Implementation;
 

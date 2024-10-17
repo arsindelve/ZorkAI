@@ -1,62 +1,72 @@
 import './App.css';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import Game from "./Game.tsx";
-import GameMenu from "./GameMenu.tsx";
-import {ApplicationInsights} from '@microsoft/applicationinsights-web';
-import {ReactPlugin} from '@microsoft/applicationinsights-react-js';
-import { createContext, useState } from "react";
+import GameMenu from "./menu/GameMenu.tsx";
+import {createContext, useState} from "react";
+import Server from "./Server.ts";
+import {SaveGameRequest} from "./model/SaveGameRequest.ts";
+import {SessionId} from "./SessionId.ts";
+import RestoreModal from "./modal/RestoreModal.tsx";
+import {ISavedGame} from "./model/SavedGame.ts";
 
 
 interface AppState {
     isRestarting: boolean
     isSaving: boolean
     isRestoring: boolean
-    
-    stopRestarting: ()=> void;
+
+    stopRestarting: () => void;
 }
 
 // State context
 const AppStateContext = createContext<AppState | null>(null);
-
-export { AppStateContext };
+export {AppStateContext};
 
 function App() {
 
+    const [restoreGameId, setRestoreGameId] = useState<string | undefined>(undefined);
+    const [restoreDialogOpen, setRestoreDialogOpen] = useState<boolean>(false);
+    const [availableSavedGames, setAvailableSavedGames] = useState<ISavedGame[]>([]);
     const [isRestarting, setIsRestarting] = useState<boolean>(false);
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const [isRestoring, setIsRestoring] = useState<boolean>(false);
     //const [imageIsVisible, setImageIsVisible] = useState(true);
- 
-    const queryClient = new QueryClient()
 
-    var reactPlugin = new ReactPlugin();
-    var appInsights = new ApplicationInsights({
-        config: {
-            connectionString: 'InstrumentationKey=249aa317-9170-4f53-8c39-ac618ebc77c5;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/;ApplicationId=b661a178-eb89-4a3f-bd5d-24d8ed8c9e04',
-            enableAutoRouteTracking: true,
-            extensions: [reactPlugin]
-        }
-    });
-    appInsights.loadAppInsights();
+
+    const server = new Server();
+    const sessionId = new SessionId();
+    const queryClient = new QueryClient();
 
     function restart(): void {
         setIsRestarting(!isRestarting)
     }
 
-    function restore(): void {
+    async function restore(): Promise<void> {
         setIsRestoring(!setIsRestoring);
-        console.log('Called restore from the child component');
+        const [id] = sessionId.getSessionId();
+        const savedGames = await server.getSavedGames(id);
+        setAvailableSavedGames(savedGames);
+        setRestoreDialogOpen(true);
     }
 
-    function save(): void {
+    async function save(): Promise<void> {
         setIsSaving(!isSaving);
-        console.log('Called save from the child component');
+        const [id] = sessionId.getSessionId();
+        await server.saveGame(new SaveGameRequest("I Love Bob", id));
+
     }
-    
-    const value = { isRestarting, isRestoring, isSaving, 
-        
-        stopRestarting: () => setIsRestarting(false) };
-    
+
+    const value = {
+        isRestarting, isRestoring, isSaving,
+        stopRestarting: () => setIsRestarting(false)
+    };
+
+    function handleRestoreModalClose(id: string | undefined): void {
+        if (id)
+            setRestoreGameId(id);
+        setRestoreDialogOpen(false);
+    }
+
     return (
         <div
             className="bg-[url('https://zorkai-assets.s3.amazonaws.com/black-groove-stripes-repeating-background.jpg')] bg-repeat">
@@ -64,7 +74,7 @@ function App() {
                 <div className="flex-grow">
 
                     <AppStateContext.Provider value={value}>
-                    <GameMenu gameMethods={[restart, restore, save]}/>
+                        <GameMenu gameMethods={[restart, restore, save]}/>
 
                         <QueryClientProvider client={queryClient}>
                             {/*<div className="App">*/}
@@ -75,7 +85,10 @@ function App() {
                             {/*        </div>*/}
                             {/*    }*/}
                             {/*</div>*/}
-                            <Game/>
+                            <Game restoreGameId={restoreGameId}/>
+                            <RestoreModal games={availableSavedGames} open={restoreDialogOpen}
+                                          handleClose={handleRestoreModalClose}/>
+
                         </QueryClientProvider>
                     </AppStateContext.Provider>
 

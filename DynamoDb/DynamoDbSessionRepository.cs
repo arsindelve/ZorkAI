@@ -1,28 +1,17 @@
-﻿using Amazon;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DocumentModel;
+﻿using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
-using Model;
+using Model.Interface;
 
 namespace DynamoDb;
 
-public class DynamoDbSessionRepository : ISessionRepository
+public class DynamoDbSessionRepository : DynamoDbRepositoryBase, ISessionRepository
 {
-    private readonly AmazonDynamoDBClient _client;
+    private const string TableName = "zork_session_ondemand";
 
-    public DynamoDbSessionRepository()
-    {
-        var clientConfig = new AmazonDynamoDBConfig
-        {
-            RegionEndpoint = RegionEndpoint.USEast1
-        };
-
-        _client = new AmazonDynamoDBClient(clientConfig);
-    }
 
     public async Task<string?> GetSession(string sessionId)
     {
-        var table = Table.LoadTable(_client, "zork_session_ondemand");
+        var table = Table.LoadTable(Client, TableName);
         var result = await table.GetItemAsync(sessionId);
 
         if (result is null)
@@ -39,6 +28,6 @@ public class DynamoDbSessionRepository : ISessionRepository
             { "gameData", new AttributeValue(gameData) }
         };
 
-        await _client.PutItemAsync("zork_session_ondemand", item);
+        await Client.PutItemAsync(TableName, item);
     }
 }

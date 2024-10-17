@@ -1,4 +1,5 @@
-﻿using Model.Item;
+﻿using Model.Interface;
+using Model.Item;
 using Model.Location;
 
 namespace Game;

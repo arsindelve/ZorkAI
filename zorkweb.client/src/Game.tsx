@@ -1,25 +1,29 @@
 import {useMutation} from "@tanstack/react-query";
-import {GameRequest} from "./GameRequest";
-import {GameResponse} from "./GameResponse";
+import {GameRequest} from "./model/GameRequest.ts";
+import {GameResponse} from "./model/GameResponse.ts";
 import React, {useContext, useEffect, useState} from "react";
 import {Alert, CircularProgress} from "@mui/material";
 import '@fontsource/roboto';
 import Header from "./Header.tsx";
 import {SessionId} from "./SessionId.ts";
-import WelcomeDialog from "./WelcomeModal.tsx";
+import WelcomeDialog from "./modal/WelcomeModal.tsx";
 import Server from './Server';
 import {AppStateContext} from "./App.tsx";
-import ConfirmDialog from "./ConfirmationDialog.tsx";
+import ConfirmDialog from "./modal/ConfirmationDialog.tsx";
 
-function Game() {
+interface GameProps {
+    restoreGameId?: string | undefined
+}
+
+function Game({restoreGameId}: GameProps) {
 
     const appState = useContext(AppStateContext);
 
     const [confirmOpen, setConfirmRestartOpen] = useState<boolean>(false);
     const [playerInput, setInput] = useState<string>("");
-    const [gameText, setGameText] = useState<string[]>([])
-    const [score, setScore] = useState<string>("0")
-    const [moves, setMoves] = useState<string>("0")
+    const [gameText, setGameText] = useState<string[]>([]);
+    const [score, setScore] = useState<string>("0");
+    const [moves, setMoves] = useState<string>("0");
     const [locationName, setLocationName] = useState<string>("");
     const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
 
@@ -29,6 +33,10 @@ function Game() {
     const gameContentElement = React.useRef<HTMLDivElement>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);
 
+    useEffect(() => {
+        console.log("Let's restore this game: " + restoreGameId);
+    }, [restoreGameId]);
+
     // Scroll to the bottom of the container after we add text. 
     useEffect(() => {
         if (gameContentElement.current) {
@@ -36,8 +44,8 @@ function Game() {
         }
     }, [gameText]);
 
-    useEffect(() => {       
-        if(appState?.isRestarting)
+    useEffect(() => {
+        if (appState?.isRestarting)
             setConfirmRestartOpen(true);
         appState?.stopRestarting();
     }, [appState?.isRestarting]);
@@ -62,22 +70,22 @@ function Game() {
         sessionId.regenerate();
         gameInit().then((data) => {
             handleResponse(data);
-        })        
+        })
     }
-    
+
     function handleResponse(data: GameResponse) {
 
         // Replace newline chars with HTML line breaks. 
         data.response = data.response.replace(/\n/g, "<br />");
 
-        let textToAppend = `<p class="text-lime-600 font-extrabold mt-3 mb-3">`
+        const textToAppend = `<p class="text-lime-600 font-extrabold mt-3 mb-3">`
             + (!playerInput ? "" : `> ${playerInput}`) + `</p>`
             + data.response;
 
         setGameText((prevGameText) => [...prevGameText, textToAppend]);
         setInput("");
-        setLocationName(data.locationName)
-        setScore(data.score.toString())
+        setLocationName(data.locationName);
+        setScore(data.score.toString());
         setMoves(data.moves.toString())
     }
 
@@ -85,16 +93,16 @@ function Game() {
     const mutation = useMutation({
         mutationFn: server.gameInput,
         onSuccess: (response) => {
-            handleResponse(response.data);
+            handleResponse(response);
         },
         onError: (r => {
             console.log(r);
         })
-    })
+    });
 
     function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
         if (event.key === 'Enter') {
-            const [id] = sessionId.getSessionId()
+            const [id] = sessionId.getSessionId();
             mutation.mutate(new GameRequest(playerInput, id))
         }
     }
@@ -104,16 +112,15 @@ function Game() {
     };
 
     async function gameInit(): Promise<GameResponse> {
-        const [id, firstTime] = sessionId.getSessionId()
+        const [id, firstTime] = sessionId.getSessionId();
         setWelcomeDialogOpen(firstTime);
         return await server.gameInit(id)
     }
 
     return (
 
-     
         <div className={"m-8"}>
-            
+
             <ConfirmDialog
                 title="Restart Your Game? Are you sure? "
                 open={confirmOpen}

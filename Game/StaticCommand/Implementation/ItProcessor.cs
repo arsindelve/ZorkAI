@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Model.AIGeneration;
+using Model.Interface;
 
 namespace Game.StaticCommand.Implementation;
 

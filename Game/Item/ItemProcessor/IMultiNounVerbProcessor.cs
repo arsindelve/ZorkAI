@@ -1,3 +1,5 @@
+using Model.Interface;
+
 namespace Game.Item.ItemProcessor;
 
 public interface IMultiNounVerbProcessor

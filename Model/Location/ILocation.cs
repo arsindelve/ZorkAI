@@ -1,7 +1,9 @@
 using Model.AIGeneration;
 using Model.Intent;
 using Model.Interaction;
+using Model.Interface;
 using Model.Item;
+using Model.Movement;
 
 namespace Model.Location;
 

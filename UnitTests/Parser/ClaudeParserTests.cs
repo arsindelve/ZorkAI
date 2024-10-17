@@ -1,5 +1,6 @@
 using Bedrock;
 using Model.Intent;
+using Model.Movement;
 
 namespace UnitTests.Parser;
 

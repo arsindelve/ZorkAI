@@ -1,4 +1,6 @@
-﻿namespace ZorkOne.Location;
+﻿using Model.Movement;
+
+namespace ZorkOne.Location;
 
 public class Clearing : BaseLocation
 {

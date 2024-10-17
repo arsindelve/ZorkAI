@@ -1,4 +1,5 @@
 using Model.AIGeneration;
+using Model.Interface;
 
 namespace Game.IntentEngine;
 
