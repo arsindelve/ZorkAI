@@ -7,7 +7,7 @@ public class NorthOfHouse : LocationWithNoStartingItems
 {
     protected override string ContextBasedDescription =>
         "You are facing the north side of a white house. There is no door here, " +
-        "and all the windows are boarded up. To the north a narrow path winds through the trees.";
+        "and all the windows are boarded up. To the north a narrow path winds through the trees. ";
 
     public override string Name => "North of House";
 

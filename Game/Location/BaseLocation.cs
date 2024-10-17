@@ -3,6 +3,7 @@ using Model.Interface;
 using Model.Item;
 using Model.Location;
 using Model.Movement;
+using Newtonsoft.Json;
 
 namespace Game.Location;
 
@@ -47,6 +48,23 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
 
     public void OnItemPlacedHere(IItem item, IContext context)
     {
+    }
+
+    [JsonIgnore]
+    public List<IItem> GetAllItemsRecursively
+    {
+        get
+        {
+            var result = new List<IItem>();
+            foreach (var item in Items)
+            {
+                result.Add(item);
+                if (item is ICanHoldItems holder)
+                    result.AddRange(holder.GetAllItemsRecursively);
+            }
+
+            return result;
+        }
     }
 
     public abstract string Name { get; }
@@ -162,11 +180,11 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
 
     protected void StartWithItem<T>(ICanHoldItems location) where T : IItem, new()
     {
-        T item = Repository.GetItem<T>();
+        var item = Repository.GetItem<T>();
         Items.Add(item);
         item.CurrentLocation = location;
     }
-    
+
     /// <summary>
     ///     This is a wrapper so that child classes have a shorter
     ///     syntax to reference a location in the repository.

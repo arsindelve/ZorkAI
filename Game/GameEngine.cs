@@ -163,12 +163,13 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
         var parsedResult =
             await _parser.DetermineIntentType(_currentInput, Context.CurrentLocation.Description, _sessionId);
+        
         _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
 
         var intentResult = parsedResult switch
         {
             GlobalCommandIntent intent =>
-                await ProcessGlobalCommandIntent(intent, Runtime),
+                await ProcessGlobalCommandIntent(intent),
 
             NullIntent =>
                 await GetGeneratedNoOpResponse(_currentInput, _generator, Context),
@@ -211,7 +212,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         return finalResult.Trim() + Environment.NewLine;
     }
 
-    private async Task<string> ProcessGlobalCommandIntent(GlobalCommandIntent intent, Runtime runtime)
+    private async Task<string> ProcessGlobalCommandIntent(GlobalCommandIntent intent)
     {
         var intentResponse = await intent.Command.Process(_currentInput, Context, _generator, Runtime);
         if (intent.Command is IStatefulProcessor { Completed: false } statefulProcessor)
@@ -285,6 +286,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     {
         return new JsonSerializerSettings
         {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             TypeNameHandling = TypeNameHandling.All,
             PreserveReferencesHandling = PreserveReferencesHandling.Objects
         };

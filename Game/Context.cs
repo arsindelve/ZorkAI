@@ -10,7 +10,7 @@ namespace Game;
 /// <summary>
 ///     The "context" is anything we need to know about the state of the game that is not
 ///     location or item state dependant. These include the score, number of moves, adventurer inventory...
-///     stuff like that. This, along with the state of all objects and locations, (stored in the <see cref="Repository" />
+///     stuff like that. This, along with the state of all objects and locations, (stored in the <see cref="Repository") />
 ///     encompasses everything we need to know to save and restore the game...i.e preserve the entire game state
 /// </summary>
 public class Context<T> : IContext where T : IInfocomGame, new()
@@ -167,6 +167,8 @@ public class Context<T> : IContext where T : IInfocomGame, new()
     public void OnItemPlacedHere(IItem item, IContext context)
     {
     }
+
+    [JsonIgnore] public List<IItem> GetAllItemsRecursively => new();
 
     public int AddPoints(int points)
     {
