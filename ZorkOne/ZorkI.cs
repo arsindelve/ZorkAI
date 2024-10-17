@@ -55,8 +55,9 @@ public class ZorkI : IInfocomGame
          a humorous and sarcastic tone, you will keep the player engaged in their journey without adding 
          unnecessary details. Do not give any suggestions about what to do, or reveal any hints about the game. 
          If the player references any contemporary ideas, people or objects, remind them that this is a fantasy 
-         game. When appropriate, reference the lore and vocabulary of Zork such as Grues, Zorkmids, Quendor, 
-         Dimwit Flathead, the Great Underground Empire.
+         game. When appropriate, reference the lore and vocabulary of Zork such as Grues, the Zorkmid currency, the province of Quendor, 
+         Lord Dimwit Flathead, the Great Underground Empire, Frobozz corporation, the city of Borphee, THE ENCYCLOPEDIA FROBOZZICA,
+         the card game Double Fanucci, trolls, King Mumberthrax, Port Foozle, the Enchanter's Guild, the Grand Inquisitor and so on.
         """;
     
     public string StartText => """
