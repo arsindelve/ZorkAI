@@ -1,5 +1,6 @@
 using Model.AIGeneration;
 using Model.Interface;
+using Model.Location;
 
 namespace Game.StaticCommand.Implementation;
 
@@ -10,14 +11,24 @@ internal class LookProcessor : IGlobalCommand
 {
     public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {
-        var location = context.CurrentLocation;
+        return Task.FromResult(LookAround(context, Verbosity.Verbose));
+    }
+
+    internal static string LookAround(IContext context, Verbosity? verbosity = null)
+    {
+        ILocation location = context.CurrentLocation;
 
         if (context.ItIsDarkHere)
-            return Task.FromResult(((DarkLocation)location).DarkDescription);
+            return (((DarkLocation)location).DarkDescription);
 
-        string currentLocationDescription = context.CurrentLocation.Description;
-        return Task.FromResult(currentLocationDescription);
+        string currentLocationDescription = (verbosity ?? context.Verbosity) switch
+        {
+            Verbosity.SuperBrief => context.CurrentLocation.Name,
+            Verbosity.Brief => location.VisitCount == 1 ? context.CurrentLocation.Description : location.Name,
+            Verbosity.Verbose => context.CurrentLocation.Description,
+            _ => throw new ArgumentOutOfRangeException()
+        };
 
-        // TODO: Implement Verbosity 
+        return currentLocationDescription;
     }
 }
