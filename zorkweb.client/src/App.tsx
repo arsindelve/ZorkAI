@@ -22,6 +22,7 @@ function App() {
     const [saveDialogOpen, setSaveDialogOpen] = useState<boolean>(false);
     const [availableSavedGames, setAvailableSavedGames] = useState<ISavedGame[]>([]);
     const [isRestarting, setIsRestarting] = useState<boolean>(false);
+    const [serverText, setServerText] = useState<string>("");
     //const [imageIsVisible, setImageIsVisible] = useState(true);
 
     const server = new Server();
@@ -67,7 +68,7 @@ function App() {
         if (request) {
             request.sessionId = sessionId.getSessionId()[0];
             request.clientId = sessionId.getClientId()
-            await server.saveGame(request);
+            setServerText(await server.saveGame(request));
         }
         setSaveDialogOpen(false);
         setMenuForceClose(true);
@@ -86,6 +87,7 @@ function App() {
 
                         <Game
                             restartGame={isRestarting}
+                            serverText={serverText}
                             onRestoreDone={() => setRestoreGameId(undefined)}
                             restoreGameId={restoreGameId}
                             gaveSaved={gameSaved}
