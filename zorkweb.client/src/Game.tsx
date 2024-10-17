@@ -22,7 +22,7 @@ function Game({restoreGameId, gaveSaved}: GameProps) {
 
     const [confirmOpen, setConfirmRestartOpen] = useState<boolean>(false);
     const [playerInput, setInput] = useState<string>("");
-    const [gameText, setGameText] = useState<string[]>([]);
+    const [gameText, setGameText] = useState<string[]>(["Your game is loading...."]);
     const [score, setScore] = useState<string>("0");
     const [moves, setMoves] = useState<string>("0");
     const [locationName, setLocationName] = useState<string>("");
