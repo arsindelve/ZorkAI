@@ -102,6 +102,21 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("open trap door", null, "The door reluctantly opens to reveal a rickety staircase")]
     [TestCase("Down", null, "faint blue glow", "barring it")]
     [TestCase("N", "KillTroll", "Bloodstains")]
+    [TestCase("E", null, "East-West")]
+    [TestCase("E", null, "Round Room")]
+    [TestCase("N", null, "North-South")]
+    [TestCase("N", null, "Chasm")]
+    [TestCase("S", null, "North-South")]
+    [TestCase("S", null, "Round Room")]
+    [TestCase("W", null, "East-West")]
+    [TestCase("E", null, "Round Room")]
+    [TestCase("E", null, "Loud Room")]
+    // TODO: Echo here
+    [TestCase("Up", null, "Deep Canyon")]
+    [TestCase("E", null, "Dam")]
+    [TestCase("examine control panel", null, "nothing special")]
+    [TestCase("take bolt", null, "It is an integral part of the control panel")]
+    [TestCase("take bubble", null, "It is an integral part of the control panel")]
     public async Task Walkthrough(string input, string setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) 

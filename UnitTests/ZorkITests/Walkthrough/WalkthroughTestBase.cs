@@ -7,7 +7,7 @@ namespace UnitTests.ZorkITests.Walkthrough;
 public abstract class WalkthroughTestBase : EngineTestsBase
 {
     private GameEngine<ZorkI, ZorkIContext> _target;
-    private readonly DynamoDbSessionRepository _database = new();
+    //private readonly DynamoDbSessionRepository _database = new();
 
     [OneTimeSetUp]
     public void Init()
@@ -44,10 +44,10 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         if (System.Diagnostics.Debugger.IsAttached)
         {
             Console.WriteLine(result);
-            var sessionId = Environment.MachineName;
-            var bytesToEncode = Encoding.UTF8.GetBytes(_target.Context.Engine!.SaveGame());
-            var encodedText = Convert.ToBase64String(bytesToEncode);
-            await _database.WriteSession(sessionId, encodedText);
+            // var sessionId = Environment.MachineName;
+            // var bytesToEncode = Encoding.UTF8.GetBytes(_target.Context.Engine!.SaveGame());
+            // var encodedText = Convert.ToBase64String(bytesToEncode);
+            // await _database.WriteSession(sessionId, encodedText);
             //Console.WriteLine(Repository.ItemDump());
         }
 
