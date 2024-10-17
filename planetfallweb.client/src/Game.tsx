@@ -34,8 +34,8 @@ function Game({
               }: GameProps) {
 
     const restoreResponse = "<Restore>\n";
-    const saveResponse = "<Save>\n"
-    const restartResponse = "<Restart>\n"
+    const saveResponse = "<Save>\n";
+    const restartResponse = "<Restart>\n";
 
     const [playerInput, setInput] = useState<string>("");
     const [gameText, setGameText] = useState<string[]>(["Your game is loading...."]);
@@ -91,7 +91,7 @@ function Game({
     // Restart the game. 
     useEffect(() => {
         if (!restartGame)
-            return
+            return;
         sessionId.regenerate();
         setGameText([""]);
         gameInit().then((data) => {
