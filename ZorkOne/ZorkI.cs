@@ -34,6 +34,11 @@ public class ZorkI : IInfocomGame
         return new ZorkOneGlobalCommandFactory();
     }
 
+    public ZorkI()
+    {
+        Repository.GetLocation<TrollRoom>().Init();
+    }
+
     public string StartText => """
 
                                ZORK AI One: The Great Underground Empire Re-Imagined

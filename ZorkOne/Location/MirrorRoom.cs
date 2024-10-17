@@ -3,7 +3,7 @@ using Model.Intent;
 
 namespace ZorkOne.Location;
 
-public abstract class MirrorRoom : LocationWithNoStartingItems
+internal abstract class MirrorRoom : LocationWithNoStartingItems
 {
     protected override string ContextBasedDescription =>
         "You are in a large square room with tall ceilings. On the south wall is an " +
