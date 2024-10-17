@@ -1,3 +1,5 @@
+using Model.Item;
+
 namespace Model.Interaction;
 
 /// <summary>
@@ -6,7 +8,7 @@ namespace Model.Interaction;
 /// </summary>
 public sealed record SimpleInteractionDisambiguationInteractionResult : InteractionResult
 {
-    public SimpleInteractionDisambiguationInteractionResult(string message, string verb, string[] possibleResponses)
+    public SimpleInteractionDisambiguationInteractionResult(string message, string verb, Dictionary<string, string> possibleResponses)
     {
         Verb = verb;
         PossibleResponses = possibleResponses;
@@ -15,7 +17,7 @@ public sealed record SimpleInteractionDisambiguationInteractionResult : Interact
 
     public string Verb { get; set; }
     
-    public string[] PossibleResponses { get; set; }
+    public Dictionary<string, string> PossibleResponses { get; set; }
 
     public override bool InteractionHappened => true;
 }

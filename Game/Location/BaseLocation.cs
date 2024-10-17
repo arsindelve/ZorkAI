@@ -39,6 +39,17 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         Items.Add(item);
     }
 
+    public bool HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true)
+    {
+        if (string.IsNullOrEmpty(adjective))
+            return HasMatchingNoun(noun, lookInsideContainers);
+        
+        var hasMatch = false;
+        Items.ForEach(i => hasMatch |= i.HasMatchingNounAndAdjective(noun, adjective, lookInsideContainers));
+
+        return hasMatch;
+    }
+
     public virtual bool HaveRoomForItem(IItem item)
     {
         return true;

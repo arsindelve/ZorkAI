@@ -20,6 +20,14 @@ public record SimpleIntent : IntentBase
     {
         return nouns.Any(s => s.Equals(Noun, StringComparison.InvariantCultureIgnoreCase));
     }
+
+    public bool MatchNounAndAdjective(string[] nouns)
+    {
+        if (string.IsNullOrEmpty(Adjective))
+            return MatchNoun(nouns);
+        
+        return nouns.Any(s => s.Equals($"{Adjective} {Noun}", StringComparison.InvariantCultureIgnoreCase));
+    }
     
     public bool MatchVerb(string[] verbs)
     {
