@@ -4,30 +4,26 @@ using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
 using Model.Movement;
+using ZorkOne.Location.MazeLocation;
 
 namespace ZorkOne.Location;
 
 public class LivingRoom : BaseLocation
 {
+    private bool CyclopsHasCrashedThrough => !GetLocation<CyclopsRoom>().HasItem<Cyclops>();
+
     protected override string ContextBasedDescription =>
-        $"You are in the living room. There is a doorway to the east, a wooden door with strange gothic lettering to the west, " +
-        $"which appears to be nailed shut, a trophy case, " +
+        "You are in the living room.  " +
+        (CyclopsHasCrashedThrough
+            ? "There is a doorway to the east, a wooden door with strange gothic lettering to the west, which appears to be nailed shut, "
+            : "There is a doorway to the east. To the west is a cyclops-shaped opening in an old wooden door, above which is some strange gothic lettering, ") +
+        "a trophy case, " +
         $"{(Repository.GetItem<Rug>().HasBeenMovedAside
             ? $"and a rug lying beside {(Repository.GetItem<TrapDoor>().IsOpen ? "an open" : "a closed")} trap door. "
             : "and a large oriental rug in the center of the room. ")}{GetItem<TrophyCase>().ItemListDescription("trophy case")}";
 
     public override string Name => "Living Room";
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client)
-    {
-        string[] nouns = ["lettering", "engraving", "engravings", "door"];
-        string[] verbs = ["read", "examine"];
-
-        if (action.Match(verbs, nouns))
-            return new PositiveInteractionResult("The engravings translate to \"This space intentionally left blank.\"");
-
-        return base.RespondToSimpleInteraction(action, context, client);
-    }
     protected override Dictionary<Direction, MovementParameters> Map => new()
     {
         {
@@ -37,8 +33,9 @@ public class LivingRoom : BaseLocation
             Direction.W,
             new MovementParameters
             {
-                CanGo = _ => false,
-                CustomFailureMessage = "The door is nailed shut."
+                CanGo = _ => CyclopsHasCrashedThrough,
+                CustomFailureMessage = "The door is nailed shut.",
+                Location = GetLocation<StrangePassage>()
             }
         },
         {
@@ -54,6 +51,19 @@ public class LivingRoom : BaseLocation
             }
         }
     };
+
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
+    {
+        string[] nouns = ["lettering", "engraving", "engravings", "door"];
+        string[] verbs = ["read", "examine"];
+
+        if (action.Match(verbs, nouns))
+            return new PositiveInteractionResult(
+                "The engravings translate to \"This space intentionally left blank.\"");
+
+        return base.RespondToSimpleInteraction(action, context, client);
+    }
 
     public override void Init()
     {
