@@ -56,7 +56,14 @@ internal class TestParser : IIntentParser
 
         if (input is "drop all")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new DropEverythingProcessor() });
-
+        
+        if (input is "cross the rainbow")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "rainbow",
+                Verb = "cross",
+            });
+        
         if (input is "wait" or "z")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new WaitProcessor() });
 
@@ -171,6 +178,16 @@ internal class TestParser : IIntentParser
                 Preposition = "with",
                 Verb = "light",
                 OriginalInput = "light candles with match"
+            });
+        
+        if (input == "dig in sand with shovel")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "sand",
+                NounTwo = "shovel",
+                Preposition = "with",
+                Verb = "dig",
+                OriginalInput = "dig in sand with shovel"
             });
 
         if (input.StartsWith("put"))
