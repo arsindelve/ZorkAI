@@ -13,9 +13,9 @@ public class KitchenWindow : ItemBase, IOpenAndClose, ICanBeExamined
 
     public bool IsOpen { get; set; }
 
-    public string NowOpen => "With great effort, you open the window far enough to allow entry.";
+    public string NowOpen(ILocation currentLocation) => "With great effort, you open the window far enough to allow entry.";
 
-    public string NowClosed => "The window closes (more easily than it opened).";
+    public string NowClosed(ILocation currentLocation) => "The window closes (more easily than it opened).";
 
     public string AlreadyOpen => "Too late for that";
 

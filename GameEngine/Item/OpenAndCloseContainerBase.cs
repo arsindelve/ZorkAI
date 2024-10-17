@@ -1,6 +1,7 @@
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Item;
+using Model.Location;
 
 namespace GameEngine.Item;
 
@@ -20,11 +21,11 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
 
     public virtual string AlreadyOpen => "It is already open.";
 
-    public virtual string NowClosed => "Closed.";
+    public virtual string NowClosed(ILocation currentLocation) => "Closed.";
 
     public bool IsOpen { get; set; }
 
-    public virtual string NowOpen => "Opened";
+    public virtual string NowOpen(ILocation currentLocation) => "Opened";
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)

@@ -67,6 +67,8 @@ public class MazeFive : MazeBase
             { Direction.SW, Go<MazeSix>() }
         };
 
+    // TODO: Shit happens when you fuck with the skeleton
+    
     public override void Init()
     {
         StartWithItem<Skeleton>();

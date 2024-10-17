@@ -8,8 +8,6 @@ public class Egg : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IGivePointsW
 {
     public override string[] NounsForMatching => ["egg", "jewel-encrusted egg", "jewel encrusted egg"];
 
-    public override string GenericDescription(ILocation currentLocation) => "A jewel-encrusted egg";
-
     public override int Size => 1;
 
     public string ExaminationDescription => IsOpen ? "" : "The jewel-encrusted egg is closed. ";
@@ -34,9 +32,15 @@ public class Egg : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IGivePointsW
 
     public bool IsOpen { get; set; }
 
-    public string NowOpen { get; } = "";
+    public string NowOpen(ILocation currentLocation)
+    {
+        return string.Empty;
+    }
 
-    public string NowClosed { get; } = "";
+    public string NowClosed(ILocation currentLocation)
+    {
+        return string.Empty;
+    }
 
     public string AlreadyOpen { get; } = "";
 
@@ -47,5 +51,10 @@ public class Egg : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IGivePointsW
     public string CannotBeOpenedDescription(IContext context)
     {
         return "You have neither the tools nor the expertise. ";
+    }
+
+    public override string GenericDescription(ILocation currentLocation)
+    {
+        return "A jewel-encrusted egg";
     }
 }

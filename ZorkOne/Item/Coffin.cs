@@ -8,7 +8,7 @@ public class Coffin : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndD
 {
     public override string[] NounsForMatching => ["coffin", "solid-gold coffin", "solid gold coffin", "gold coffin"];
 
-    public override string NowOpen => "The gold coffin opens. " + (Items.Contains(Repository.GetItem<Sceptre>())
+    public override string NowOpen(ILocation currentLocation) => "The gold coffin opens. " + (Items.Contains(Repository.GetItem<Sceptre>())
         ? "A sceptre, possibly that of ancient Egypt itself, is in the coffin. The sceptre is ornamented with colored enamel, and tapers to a sharp point."
         : "");
 

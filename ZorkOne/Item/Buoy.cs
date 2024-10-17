@@ -14,7 +14,7 @@ public class Buoy : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndDro
     public override string GenericDescription(ILocation currentLocation) =>
         !IsOpen ? "A red buoy" : $"A red buoy \n {ItemListDescription("red buoy", null)}";
 
-    public override string NowOpen =>
+    public override string NowOpen(ILocation currentLocation) =>
         !HasEverBeenOpened ? "Opening the red buoy reveals a large emerald. " : "Opened.";
 
     public override int Size => 4;

@@ -22,7 +22,7 @@ public class TestParser : IIntentParser
             "take", "drop", "open", "close", "examine", "look", "eat", "press",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss",
-            "lower", "raise", "get", "inflate", "leave"
+            "lower", "raise", "get", "inflate", "leave", "unlock", "lock"
         ];
 
         _allNouns = Repository.GetNouns();
@@ -91,6 +91,7 @@ public class TestParser : IIntentParser
                 Noun = "boat"
             });
 
+     
         if (input == "get out of the boat")
             return Task.FromResult<IntentBase>(new ExitSubLocationIntent
             {
@@ -113,6 +114,26 @@ public class TestParser : IIntentParser
                 OriginalInput = "inflate plastic with pump"
             });
 
+        if (input == "unlock grate with the key")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                Verb = "unlock",
+                NounOne = "grate",
+                NounTwo = "key",
+                Preposition = "with",
+                OriginalInput = "unlock grate with the key"
+            });
+
+        if (input == "lock the grate with the key")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                Verb = "lock",
+                NounOne = "grate",
+                NounTwo = "key",
+                Preposition = "with",
+                OriginalInput = "lock the grate with the key"
+            });
+        
         if (input == "turn bolt with wrench")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
