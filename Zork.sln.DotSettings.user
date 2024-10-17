@@ -13,12 +13,9 @@
 	
 	
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingMode/@EntryValue">OnlyMarkers</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=461a5e0f_002Dea97_002D4080_002Da782_002Df6a2332300d8/@EntryIndexedValue">&lt;SessionState ContinuousTestingIsOn="True" ContinuousTestingMode="3" IsActive="True" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;Or&gt;
-    &lt;Project Location="/Users/michael/RiderProjects/ZorkAI" Presentation="&amp;lt;Games&amp;gt;" /&gt;
-    &lt;Project Location="/Users/michael/RiderProjects/ZorkAI/IntegrationTests" Presentation="&amp;lt;IntegrationTests&amp;gt;" /&gt;
-    &lt;Project Location="/Users/michael/RiderProjects/ZorkAI/UnitTests" Presentation="&amp;lt;UnitTests&amp;gt;" /&gt;
-  &lt;/Or&gt;
+	
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=68e9522f_002D36f2_002D46c4_002Db49e_002Db02457c9fa4b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from &amp;lt;UnitTests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Solution /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	
 	

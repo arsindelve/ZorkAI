@@ -1,4 +1,5 @@
 using GameEngine;
+using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
 
@@ -14,7 +15,8 @@ internal class MirrorRoomSouth : MirrorRoom
             { Direction.W, new MovementParameters { Location = GetLocation<WindingPassage>() } }
         };
     
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient? generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
         var spiritsAlive = Repository.GetItem<Spirits>().CurrentLocation == Repository.GetLocation<EntranceToHades>();
@@ -22,7 +24,7 @@ internal class MirrorRoomSouth : MirrorRoom
         if (spiritsAlive && swordInPossession && previousLocation is CaveSouth)
             return "\nYour sword is no longer glowing. ";
 
-        return base.AfterEnterLocation(context, previousLocation);
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
     
     public override void Init()

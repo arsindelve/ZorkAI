@@ -53,7 +53,7 @@ public class DamBase : BaseLocation
             // TODO: move some of this logic to the move engine, but only after tests are passing. 
             context.CurrentLocation.SubLocation = null;
             context.CurrentLocation = Repository.GetLocation<FrigidRiverOne>();
-            context.CurrentLocation.AfterEnterLocation(context, this);
+            context.CurrentLocation.AfterEnterLocation(context, this, null!);
             context.CurrentLocation.SubLocation = Repository.GetItem<PileOfPlastic>();
             ((ICanHoldItems)context.CurrentLocation).ItemPlacedHere(Repository.GetItem<PileOfPlastic>());
 

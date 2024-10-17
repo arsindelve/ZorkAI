@@ -1,4 +1,5 @@
 ﻿using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Interface;
 using Model.Location;
 
@@ -6,7 +7,8 @@ namespace Planetfall.Location.Feinstein;
 
 internal abstract class BlatherLocation : LocationWithNoStartingItems
 {
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient? generationClient)
     {
         return VisitCount switch
         {

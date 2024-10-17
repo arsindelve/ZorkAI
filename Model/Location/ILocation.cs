@@ -96,7 +96,7 @@ public interface ILocation
     ///     Gets called when we enter a location in case there are any interactions
     ///     we need to process when we walk in the room, AFTER the description of the room
     /// </summary>
-    string AfterEnterLocation(IContext context, ILocation previousLocation);
+    string AfterEnterLocation(IContext context, ILocation previousLocation, IGenerationClient generationClient);
 
     /// <summary>
     ///     Gets called when the player leaves the current location and moves to a new location.

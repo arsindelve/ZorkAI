@@ -1,5 +1,6 @@
 using GameEngine;
 using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
 
@@ -21,7 +22,8 @@ internal class EastWestPassage : DarkLocationWithNoStartingItems
     protected override string ContextBasedDescription =>
         "This is a narrow east-west passageway. There is a narrow stairway leading down at the north end of the room. ";
     
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient? generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
         var trollIsAlive = Repository.GetItem<Troll>().CurrentLocation == Repository.GetLocation<TrollRoom>();
@@ -29,7 +31,7 @@ internal class EastWestPassage : DarkLocationWithNoStartingItems
         if (trollIsAlive && swordInPossession && previousLocation is Cellar)
             return "\nYour sword is glowing with a faint blue glow.";
 
-        return base.AfterEnterLocation(context, previousLocation);
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
     
     protected override void OnFirstTimeEnterLocation(IContext context)

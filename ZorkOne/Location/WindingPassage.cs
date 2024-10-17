@@ -1,5 +1,6 @@
 using GameEngine;
 using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
 
@@ -23,7 +24,8 @@ public class WindingPassage : DarkLocation
     {
     }
     
-    public override string AfterEnterLocation(IContext context, ILocation previousLocation)
+    public override string AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient? generationClient)
     {
         var swordInPossession = context.HasItem<Sword>();
         var spiritsAlive = Repository.GetItem<Spirits>().CurrentLocation == Repository.GetLocation<EntranceToHades>();
@@ -31,6 +33,6 @@ public class WindingPassage : DarkLocation
         if (spiritsAlive && swordInPossession && previousLocation is CaveSouth)
             return "\nYour sword is no longer glowing. ";
 
-        return base.AfterEnterLocation(context, previousLocation);
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 }
