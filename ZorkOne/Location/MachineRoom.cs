@@ -1,8 +1,10 @@
-﻿using Model.Movement;
+﻿using Model.Intent;
+using Model.Interface;
+using Model.Movement;
 
 namespace ZorkOne.Location;
 
-internal class MachineRoom : DarkLocation
+public class MachineRoom : DarkLocation
 {
     protected override Dictionary<Direction, MovementParameters> Map => new()
     {
@@ -22,5 +24,53 @@ internal class MachineRoom : DarkLocation
     public override void Init()
     {
         StartWithItem<Machine>(this);
+    }
+    
+    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    {
+        string[] verbs = ["turn", "use", "apply"];
+        string[] prepositions = ["with", "to", "on", "using"];
+
+        if (!action.NounOne.ToLowerInvariant().Trim().Contains("switch") &&
+            !action.NounTwo.ToLowerInvariant().Trim().Contains("switch"))
+            return base.RespondToMultiNounInteraction(action, context);
+
+        if (!action.NounOne.ToLowerInvariant().Trim().Contains("screwdriver") &&
+            !action.NounTwo.ToLowerInvariant().Trim().Contains("screwdriver"))
+            return base.RespondToMultiNounInteraction(action, context);
+
+        if (!verbs.Contains(action.Verb.ToLowerInvariant().Trim()))
+            return base.RespondToMultiNounInteraction(action, context);
+
+        if (!prepositions.Contains(action.Preposition.ToLowerInvariant().Trim()))
+            return base.RespondToMultiNounInteraction(action, context);
+
+        if (!context.HasItem<Screwdriver>() && HasItem<Screwdriver>())
+            return new PositiveInteractionResult("You don't have the screwdriver.");
+
+        if (!context.HasItem<Screwdriver>())
+            return base.RespondToMultiNounInteraction(action, context);
+
+        var machine = Repository.GetItem<Machine>();
+        
+        if (machine.IsOpen)
+            return new PositiveInteractionResult("The machine doesn't seem to want to do anything. ");
+
+        if (machine.HasItem<Coal>())
+        {
+            // Replace the coal with diamond
+            Coal coal = Repository.GetItem<Coal>();
+            coal.CurrentLocation = null;
+            machine.Items.Remove(coal);
+            machine.ItemPlacedHere(Repository.GetItem<Diamond>()); 
+        }
+        else
+        {
+            // Destroy any items, add slag.
+        }
+
+        return new PositiveInteractionResult(
+            "The machine comes to life (figuratively) with a dazzling display of colored lights and bizarre " +
+            "noises. After a few moments, the excitement abates.");
     }
 }

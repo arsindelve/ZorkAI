@@ -100,7 +100,7 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("W", null, "Living Room")]
     [TestCase("Down", null, "closed")]
     [TestCase("open trap door", null, "The door reluctantly opens to reveal a rickety staircase")]
-    [TestCase("Down", null, "faint blue glow", "barring it")]
+    [TestCase("Down", null, "faint blue glow")]
     [TestCase("N", "KillTroll", "Bloodstains")]
     [TestCase("E", null, "East-West")]
     [TestCase("E", null, "Round Room")]

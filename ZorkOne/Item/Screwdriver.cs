@@ -10,5 +10,5 @@ public class Screwdriver : ItemBase, ICanBeTakenAndDropped
 
     public override string NeverPickedUpDescription => OnTheGroundDescription;
 
-    public override int Size => 1;
+    public override int Size => 2;
 }
