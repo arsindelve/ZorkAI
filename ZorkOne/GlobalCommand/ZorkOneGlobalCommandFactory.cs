@@ -32,6 +32,10 @@ public class ZorkOneGlobalCommandFactory : IGlobalCommandFactory
             case "chomp":
             case "vomit":
                 return new SimpleResponseCommand("Preposterous!");
+            
+            case "sigh":
+            case "mumble":
+                return new SimpleResponseCommand("You'll have to speak up if you expect me to hear you! !");
 
             case "diagnose":
                 return new DiagnoseProcessor();
