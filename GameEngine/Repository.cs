@@ -65,7 +65,7 @@ public static class Repository
     public static IItem? GetItem(string noun)
     {
         noun = noun.ToLowerInvariant().Trim();
-        return _allItems.Values.FirstOrDefault(i => i.HasMatchingNoun(noun));
+        return _allItems.Values.FirstOrDefault(i => i.HasMatchingNoun(noun).HasItem);
     }
 
     public static T GetLocation<T>() where T : class, ILocation, new()

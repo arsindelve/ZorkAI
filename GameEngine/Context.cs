@@ -155,23 +155,31 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         return Items.Contains(Repository.GetItem<TItem>());
     }
 
-    public bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)
+    public (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
-        var hasMatch = false;
-        Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun, lookInsideContainers));
+        foreach (var i in Items)
+        {
+            var match = i.HasMatchingNoun(noun, lookInsideContainers);
+            if (match.HasItem)
+                return match;
+        }
 
-        return hasMatch;
+        return (false, null);
     }
 
-    public bool HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true)
+    public (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true)
     {
         if (string.IsNullOrEmpty(adjective))
             return HasMatchingNoun(noun, lookInsideContainers);
         
-        var hasMatch = false;
-        Items.ForEach(i => hasMatch |= i.HasMatchingNounAndAdjective(noun, adjective, lookInsideContainers));
+        foreach (var i in Items)
+        {
+            var result = i.HasMatchingNounAndAdjective(noun, adjective, lookInsideContainers);
+            if (result.HasItem)
+                return result;
+        }
 
-        return hasMatch;
+        return (false, null);
     }
 
     public bool HasMatchingNounAndAdjective(string? noun,  bool lookInsideContainers = true)

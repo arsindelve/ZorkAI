@@ -54,7 +54,7 @@ public interface ICanHoldItems : IInteractionTarget
     ///     is inside the given container, even if it's inside another container
     /// </param>
     /// <returns>True if the container or context has an item with a matching noun, otherwise false.</returns>
-    bool HasMatchingNoun(string? noun, bool lookInsideContainers = true);
+    (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true);
 
     /// <summary>
     ///     Checks if the container or context has an item with a matching noun and adjective, if one was provided in the input.
@@ -66,7 +66,7 @@ public interface ICanHoldItems : IInteractionTarget
     ///     is inside the given container, even if it's inside another container
     /// </param>
     /// <returns>True if the container or context has an item with a matching noun, otherwise false.</returns>
-    bool HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true);
+    (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true);
 
     /// <summary>
     ///     Checks if the container or context has room to hold the given item.

@@ -40,15 +40,19 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         Items.Add(item);
     }
 
-    public bool HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true)
+    public (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true)
     {
         if (string.IsNullOrEmpty(adjective))
             return HasMatchingNoun(noun, lookInsideContainers);
-        
-        var hasMatch = false;
-        Items.ForEach(i => hasMatch |= i.HasMatchingNounAndAdjective(noun, adjective, lookInsideContainers));
 
-        return hasMatch;
+        foreach (var i in Items)
+        {
+            var result = i.HasMatchingNounAndAdjective(noun, adjective, lookInsideContainers);
+            if (result.HasItem)
+                return result;
+        }
+
+        return (false, null);
     }
 
     public virtual bool HaveRoomForItem(IItem item)
@@ -94,14 +98,17 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
 
     public abstract string Name { get; }
 
-    public bool HasMatchingNoun(string? noun, bool lookInsideContainers = true)
+    public (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
-        var hasMatch = false;
-
         if (lookInsideContainers)
-            Items.ForEach(i => hasMatch |= i.HasMatchingNoun(noun, lookInsideContainers));
+            foreach (var i in Items)
+            {
+                var result = i.HasMatchingNoun(noun, lookInsideContainers);
+                if (result.HasItem)
+                    return result;
+            }
 
-        return hasMatch;
+        return (false, null);
     }
 
     public virtual Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
