@@ -9,7 +9,7 @@ const ConfirmDialog = (props: any) => {
     const {title, children, open, setOpen, onConfirm} = props;
     return (
         <Dialog
-            open={open} fullWidth={false} 
+            open={open} fullWidth={false}
             onClose={() => setOpen(false)}
             aria-labelledby="confirm-dialog"
         >
@@ -29,7 +29,7 @@ const ConfirmDialog = (props: any) => {
                         setOpen(false);
                         onConfirm();
                     }}
-                    
+
                 >
                     Yes
                 </Button>

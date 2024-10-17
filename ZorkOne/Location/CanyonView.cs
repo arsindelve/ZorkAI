@@ -24,6 +24,9 @@ public class CanyonView : LocationWithNoStartingItems
             Direction.Down, new MovementParameters { Location = GetLocation<RockyLedge>() }
         },
         {
+            Direction.E, new MovementParameters { Location = GetLocation<RockyLedge>() }
+        },
+        {
             Direction.W, new MovementParameters { Location = GetLocation<ForestThree>() }
         }
     };

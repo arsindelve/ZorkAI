@@ -3,7 +3,8 @@ namespace ZorkOne.Item;
 public class SapphireBracelet : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenFirstPickedUp,
     IGivePointsWhenPlacedInTrophyCase
 {
-    public override string[] NounsForMatching => ["bracelet", "sapphire bracelet", "sapphire", "sapphire-encrusted bracelet"];
+    public override string[] NounsForMatching =>
+        ["bracelet", "sapphire bracelet", "sapphire", "sapphire-encrusted bracelet"];
 
     public override string InInventoryDescription => "A sapphire-encrusted bracelet ";
 
