@@ -94,8 +94,8 @@ internal class EntranceToHades : DarkLocation
 
     public override void Init()
     {
-        StartWithItem<Spirits>(this);
-        StartWithItem<Bodies>(this);
-        StartWithItem<Gate>(this);
+        StartWithItem<Spirits>();
+        StartWithItem<Bodies>();
+        StartWithItem<Gate>();
     }
 }

@@ -21,6 +21,6 @@ public class ReservoirNorth : DarkLocation
 
     public override void Init()
     {
-        StartWithItem<AirPump>(this);
+        StartWithItem<AirPump>();
     }
 }

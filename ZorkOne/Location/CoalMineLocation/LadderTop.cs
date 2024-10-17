@@ -23,6 +23,6 @@ internal class LadderTop : DarkLocation
 
     public override void Init()
     {
-        StartWithItem<WoodenLadder>(this);
+        StartWithItem<WoodenLadder>();
     }
 }

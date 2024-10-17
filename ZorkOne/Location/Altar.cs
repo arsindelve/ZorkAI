@@ -38,8 +38,8 @@ public class Altar : BaseLocation
 
     public override void Init()
     {
-        StartWithItem(GetItem<BlackBook>(), this);
-        StartWithItem(GetItem<Candles>(), this);
+        StartWithItem<BlackBook>();
+        StartWithItem<Candles>();
 
         GetItem<Candles>().IsOn = true;
     }

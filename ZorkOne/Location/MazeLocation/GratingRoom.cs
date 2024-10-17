@@ -25,6 +25,6 @@ public class GratingRoom : DarkLocation
 
     public override void Init()
     {
-        StartWithItem<Grating>(this);
+        StartWithItem<Grating>();
     }
 }

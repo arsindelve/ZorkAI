@@ -19,6 +19,6 @@ public class AtlantisRoom : DarkLocation
 
     public override void Init()
     {
-        StartWithItem<Trident>(this);
+        StartWithItem<Trident>();
     }
 }

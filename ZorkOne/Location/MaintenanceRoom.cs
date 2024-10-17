@@ -62,8 +62,8 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
 
     public override void Init()
     {
-        StartWithItem<Wrench>(this);
-        StartWithItem<Screwdriver>(this);
+        StartWithItem<Wrench>();
+        StartWithItem<Screwdriver>();
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,

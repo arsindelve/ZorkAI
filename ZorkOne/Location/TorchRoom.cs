@@ -39,6 +39,6 @@ public class TorchRoom : DarkLocation
 
     public override void Init()
     {
-        StartWithItem(GetItem<Torch>(), this);
+        StartWithItem<Torch>();
     }
 }

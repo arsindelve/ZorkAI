@@ -14,6 +14,6 @@ internal class MirrorRoomNorth : MirrorRoom
 
     public override void Init()
     {
-        StartWithItem<Mirror>(this);
+        StartWithItem<Mirror>();
     }
 }

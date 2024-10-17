@@ -68,11 +68,11 @@ public class MazeFive : MazeBase
 
     public override void Init()
     {
-        StartWithItem<Skeleton>(this);
-        StartWithItem<BurnedOutLantern>(this);
-        StartWithItem<RustyKnife>(this);
-        StartWithItem<SkeletonKey>(this);
-        StartWithItem<BagOfCoins>(this);
+        StartWithItem<Skeleton>();
+        StartWithItem<BurnedOutLantern>();
+        StartWithItem<RustyKnife>();
+        StartWithItem<SkeletonKey>();
+        StartWithItem<BagOfCoins>();
         
         base.Init();
     }

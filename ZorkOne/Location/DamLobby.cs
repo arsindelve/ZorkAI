@@ -33,7 +33,7 @@ public class DamLobby : BaseLocation
 
     public override void Init()
     {
-        StartWithItem<Guidebook>(this);
-        StartWithItem<Matchbook>(this);
+        StartWithItem<Guidebook>();
+        StartWithItem<Matchbook>();
     }
 }

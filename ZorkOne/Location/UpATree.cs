@@ -52,6 +52,6 @@ public class UpATree : BaseLocation
     
     public override void Init()
     {
-        StartWithItem<Nest>(this);
+        StartWithItem<Nest>();
     }
 }

@@ -25,7 +25,7 @@ public class MachineRoom : DarkLocation
 
     public override void Init()
     {
-        StartWithItem<Machine>(this);
+        StartWithItem<Machine>();
     }
     
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)

@@ -20,6 +20,6 @@ public class EngravingsCave : DarkLocation
 
     public override void Init()
     {
-        StartWithItem(Repository.GetItem<Engravings>(), this);
+        StartWithItem<Engravings>();
     }
 }

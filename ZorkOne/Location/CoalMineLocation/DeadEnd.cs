@@ -20,6 +20,6 @@ internal class DeadEnd : DarkLocation
 
     public override void Init()
     {
-        StartWithItem<Coal>(this);
+        StartWithItem<Coal>();
     }
 }
