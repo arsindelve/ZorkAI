@@ -88,4 +88,10 @@ public interface IGameEngine
     /// </summary>
     /// <returns>The serialized game data.</returns>
     string SaveGame();
+    
+    /// <summary>
+    /// Call this before you try to use the engine. 
+    /// </summary>
+    /// <returns></returns>
+    Task InitializeEngine();
 }

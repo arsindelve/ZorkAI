@@ -40,6 +40,7 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
       
 
     Kill You:
+  
       Finishing you off, the thief inserts his blade into your heart.
       The thief neatly flips your nasty knife out of your hands, and it drops to the floor.
       The stiletto severs your jugular.  It looks like the end.

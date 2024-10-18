@@ -23,7 +23,5 @@ public class CommandHasNoEffectOperationRequest : Request
             AI response: ""You consider breaking the window, but then think better of it. Maybe there's another way to solve this problem.""
 
             Please follow these guidelines when generating responses. ";
-            
-            
     }
 }

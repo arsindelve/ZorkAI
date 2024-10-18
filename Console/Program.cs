@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Model.Interface;
 using Planetfall;
+using SecretsManager;
 using ZorkOne;
 
 var database = new DynamoDbSessionRepository();
@@ -13,7 +14,7 @@ var sessionId = Environment.MachineName;
 
 Console.ForegroundColor = ConsoleColor.DarkCyan;
 
-var engine = GetEngine();
+var engine = await GetEngine();
 
 var savedGame = await database.GetSession(sessionId, engine.SessionTableName);
 Console.WriteLine(engine.IntroText + Environment.NewLine);
@@ -42,7 +43,7 @@ while (result != "-1")
 
     if (result?.Trim().StartsWith("-2") ?? false)
     {
-        engine = GetEngine();
+        engine = await GetEngine();
         Console.WriteLine(engine.IntroText);
         continue;
     }
@@ -54,7 +55,7 @@ while (result != "-1")
 }
 
 
-GameEngine<TGame, TContext> CreateEngine<TGame, TContext>()
+async Task<GameEngine<TGame, TContext>> CreateEngine<TGame, TContext>()
     where TContext : Context<TGame>, new()
     where TGame : class, IInfocomGame, new()
 {
@@ -89,19 +90,20 @@ GameEngine<TGame, TContext> CreateEngine<TGame, TContext>()
         );
 
     var logger = loggerFactory.CreateLogger<GameEngine<TGame, TContext>>();
-    var gameEngine = new GameEngine<TGame, TContext>(logger)
+    var gameEngine = new GameEngine<TGame, TContext>(logger, new AmazonSecretsManager() )
     {
         Runtime = Runtime.Console
     };
+    await gameEngine.InitializeEngine();
     return gameEngine;
 }
 
-IGameEngine GetEngine()
+async Task<IGameEngine> GetEngine()
 {
     IGameEngine newEngine = args[0] switch
     {
-        "Planetfall" => CreateEngine<PlanetfallGame, PlanetfallContext>(),
-        "ZorkOne" => CreateEngine<ZorkI, ZorkIContext>(),
+        "Planetfall" => await CreateEngine<PlanetfallGame, PlanetfallContext>(),
+        "ZorkOne" => await CreateEngine<ZorkI, ZorkIContext>(),
         //"ZorkTwo" => CreateEngine<ZorkII, ZorkIIContext>(),
 
         _ => throw new InvalidOperationException($"Unsupported engine type: {args[0]}")

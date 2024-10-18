@@ -22,7 +22,7 @@ public interface IInfocomGame
     /// <value>
     /// The text of the system prompt.
     /// </value>
-    string SystemPrompt { get; }
+    string SystemPromptSecretKey { get; }
 
     string StartText { get; }
 

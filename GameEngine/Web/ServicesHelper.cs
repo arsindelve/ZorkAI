@@ -2,6 +2,7 @@ using DynamoDb;
 using Microsoft.Extensions.DependencyInjection;
 using Model.AIGeneration;
 using Model.Interface;
+using SecretsManager;
 
 namespace GameEngine.Web;
 
@@ -12,5 +13,6 @@ public static class ServicesHelper
         services.AddSingleton<ISessionRepository, DynamoDbSessionRepository>();
         services.AddScoped<ISavedGameRepository, DynamoDbSavedGameRepository>();
         services.AddScoped<IGenerationClient, ChatGPTClient>();
+        services.AddScoped<ISecretsManager, AmazonSecretsManager>();
     }
 }

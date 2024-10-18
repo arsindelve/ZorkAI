@@ -15,7 +15,7 @@ namespace GameEngine;
 
 /// <summary>
 ///     The engine takes the input, figures our what to do with it, adjusts the state of the game
-///     as required, and returns the output. It has a single method <see cref="GetResponse" />"
+///     as required, and returns the output. It has a single method for this: <see cref="GetResponse" />"
 /// </summary>
 /// <remarks>
 ///     Most of the work of figuring out what to do is deferred to the specific location we're in,
@@ -34,6 +34,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     private readonly LimitedStack<(string, string, bool)> _inputOutputs = new();
     private readonly ItProcessor _itProcessor = new();
     private readonly ILogger<GameEngine<TInfocomGame, TContext>>? _logger;
+    private readonly ISecretsManager _secretsManager;
     private readonly IIntentParser _parser;
     private readonly string _sessionId = Guid.NewGuid().ToString();
 
@@ -44,9 +45,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     private TInfocomGame _gameInstance;
 
     [ActivatorUtilitiesConstructor]
-    public GameEngine(ILogger<GameEngine<TInfocomGame, TContext>> logger)
+    public GameEngine(ILogger<GameEngine<TInfocomGame, TContext>> logger, ISecretsManager secretsManager)
     {
         _logger = logger;
+        _secretsManager = secretsManager;
         _gameInstance = new TInfocomGame();
         Context = new TContext
         {
@@ -66,11 +68,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
                      """;
 
         _generator = new ChatGPTClient(_logger);
-        _generator.SystemPrompt = _gameInstance.SystemPrompt;
         _generator.OnGenerate += () => _lastResponseWasGenerated = true;
         
         _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
-      
     }
 
     /// <summary>
@@ -122,6 +122,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         var savedGame = Repository.Save<TContext>();
         savedGame.Context = Context;
         return JsonConvert.SerializeObject(savedGame, JsonSettings());
+    }
+
+    public async Task InitializeEngine()
+    {
+        _generator.SystemPrompt = await _secretsManager.GetSecret(_gameInstance.SystemPromptSecretKey);
     }
 
     public int Moves => Context.Moves;
@@ -342,4 +347,6 @@ public class DoNotSerializeReadOnlyPropertiesResolver : DefaultContractResolver
         return property;
     }
 }
+
+
 
