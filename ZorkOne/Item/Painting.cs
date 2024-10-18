@@ -23,9 +23,6 @@ public class Painting : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedIn
     }
 
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 4;
-
-    // TODO: >cut painting with sword
-    // Your skillful swordsmanship slices the painting into innumerable slivers which blow away.
-
+    
     int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 6;
 }

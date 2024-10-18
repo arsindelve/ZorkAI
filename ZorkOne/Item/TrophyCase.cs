@@ -9,6 +9,7 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
     // This is a list of every item that's ever been placed here. 
     // We track this so you don't get double points for putting something 
     // in the case, taking it out and putting it back again. 
+    // ReSharper disable once MemberCanBePrivate.Global
     public List<IItem> ItemsPlacedInside = [];
 
     public override string[] NounsForMatching => ["case", "trophy case"];
@@ -61,6 +62,4 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
         context.AddPoints(treasure.NumberOfPoints);
         ItemsPlacedInside.Add(item);
     }
-
-    // TODO: Score goes down if you take the item out!!!
 }

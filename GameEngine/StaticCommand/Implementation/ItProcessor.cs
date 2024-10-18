@@ -34,7 +34,6 @@ internal class ItProcessor : IStatefulProcessor
 
     public (bool, string) Check(string input, IContext context)
     {
-        // TODO: Needs to respond to "them" to work with the candles. 
         if (!input.Contains(" it ", StringComparison.InvariantCultureIgnoreCase) &&
             !input.ToLowerInvariant().EndsWith(" it"))
         {

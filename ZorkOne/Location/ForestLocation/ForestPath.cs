@@ -8,8 +8,6 @@ namespace ZorkOne.Location.ForestLocation;
 
 public class ForestPath : LocationWithNoStartingItems
 {
-    // TODO: You hear in the distance the chirping of a song bird.
-    
     protected override Dictionary<Direction, MovementParameters> Map => new()
     {
         {
