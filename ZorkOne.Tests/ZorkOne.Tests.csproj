@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+        <AssemblyName>ZorkOne.Tests</AssemblyName>
+        <RootNamespace>ZorkOne.Tests</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\DynamoDb\DynamoDb.csproj"/>
+        <ProjectReference Include="..\GameEngine\GameEngine.csproj" />
+        <ProjectReference Include="..\Lex\Lex.csproj"/>
+        <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>
+        <ProjectReference Include="..\UnitTests\UnitTests.csproj" />
+        <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentAssertions" Version="6.12.0"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0"/>
+        <PackageReference Include="Moq" Version="4.20.70"/>
+        <PackageReference Include="NUnit" Version="4.1.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+        <PackageReference Include="NUnit.Analyzers" Version="4.3.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="coverlet.collector" Version="6.0.0"/>
+    </ItemGroup>
+
+</Project>
