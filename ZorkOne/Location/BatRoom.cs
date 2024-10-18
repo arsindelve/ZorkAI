@@ -28,7 +28,6 @@ internal class BatRoom : DarkLocation
     {
         if (!context.HasItem<Garlic>())
         {
-            // TODO: Come from the east without the garlic, he's dropping you in the mine! 
             context.CurrentLocation = GetLocation<MineEntrance>();
             var batText = """
                           A large vampire bat, hanging from the ceiling, swoops down at you!

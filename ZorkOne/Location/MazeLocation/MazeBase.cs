@@ -66,8 +66,6 @@ public class MazeFive : MazeBase
             { Direction.E, Go<DeadEndTwo>() },
             { Direction.SW, Go<MazeSix>() }
         };
-
-    // TODO: Shit happens when you fuck with the skeleton
     
     public override void Init()
     {
@@ -200,8 +198,6 @@ public class MazeFourteen : MazeBase
 
 public class MazeFifteen : MazeBase
 {
-    // TODO: sword glowing faintly if Cyclops alive 
-    
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
