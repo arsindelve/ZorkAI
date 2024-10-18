@@ -1,0 +1,11 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+.idea
+*/Properties/launchSettings.json* 
+.env
+.vscocde
+Zork.sln.DotSettings.user
+Zork.sln.DotSettings

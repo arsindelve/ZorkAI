@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>GameEngine</AssemblyName>
+        <RootNamespace>GameEngine</RootNamespace>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>UnitTests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Bedrock\Bedrock.csproj"/>
+        <ProjectReference Include="..\DynamoDb\DynamoDb.csproj" />
+        <ProjectReference Include="..\Lex\Lex.csproj"/>
+        <ProjectReference Include="..\Model\Model.csproj"/>
+        <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>
+        <ProjectReference Include="..\SecretsManager\SecretsManager.csproj" />
+        <ProjectReference Include="..\Utilities\Utilities.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+    </ItemGroup>
+
+</Project>
