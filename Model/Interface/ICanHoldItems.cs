@@ -57,7 +57,8 @@ public interface ICanHoldItems : IInteractionTarget
     (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true);
 
     /// <summary>
-    ///     Checks if the container or context has an item with a matching noun and adjective, if one was provided in the input.
+    ///     Checks if the container or context has an item with a matching noun and adjective, if one was provided in the
+    ///     input.
     /// </summary>
     /// <param name="noun">The noun to match against.</param>
     /// <param name="adjective"></param>
@@ -66,7 +67,8 @@ public interface ICanHoldItems : IInteractionTarget
     ///     is inside the given container, even if it's inside another container
     /// </param>
     /// <returns>True if the container or context has an item with a matching noun, otherwise false.</returns>
-    (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true);
+    (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective,
+        bool lookInsideContainers = true);
 
     /// <summary>
     ///     Checks if the container or context has room to hold the given item.
@@ -87,4 +89,11 @@ public interface ICanHoldItems : IInteractionTarget
     /// <param name="item">The item being placed into the container.</param>
     /// <param name="context"></param>
     void OnItemPlacedHere(IItem item, IContext context);
+
+    /// <summary>
+    ///     Event handler that is triggered when an item is removed from this container.
+    /// </summary>
+    /// <param name="item"></param>
+    /// <param name="context"></param>
+    void OnItemRemovedFromHere(IItem item, IContext context);
 }
