@@ -65,7 +65,7 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("W", null, "Living Room")]
     [TestCase("take lantern", null, "Taken")]
     [TestCase("examine rug", null, "nothing special about the carpet")]
-    [TestCase("take rug", null, "extremely heavy and cannot be")]
+    [TestCase("take rug", null, "but in trying to take it you have noticed an")]
     [TestCase("move rug", null, "With a great effort")]
     [TestCase("look", null, "closed trap door")]
     [TestCase("W", null, "nailed shut")]
