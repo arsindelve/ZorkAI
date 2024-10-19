@@ -27,12 +27,7 @@ public class WindingPassage : DarkLocation
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        var swordInPossession = context.HasItem<Sword>();
-        var spiritsAlive = Repository.GetItem<Spirits>().CurrentLocation == Repository.GetLocation<EntranceToHades>();
-
-        if (spiritsAlive && swordInPossession && previousLocation is CaveSouth)
-            return Task.FromResult("\nYour sword is no longer glowing. ");
-
-        return base.AfterEnterLocation(context, previousLocation, generationClient);
+        string? glow = this.CheckSwordNoLongerGlowing<Spirits, EntranceToHades, CaveSouth>(previousLocation, context);
+        return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 }
