@@ -19,11 +19,6 @@ jobs:
     environment: production
 
     steps:
-
-      - name: Check if on main branch
-        id: check_branch
-        run: echo "branch_name=$(echo ${{ github.ref }} | sed 's/refs\/heads\///' | sed 's/refs\/tags\///')" >> $GITHUB_ENV
-
       - uses: actions/checkout@v4
 
       - name: Setup .NET
@@ -33,19 +28,15 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore dependencies
-        if: env.branch_name == 'main'
         run: dotnet restore
 
       - name: Build
-        if: env.branch_name == 'main'
         run: dotnet build --no-restore
 
       - name: AWS CLI
-        if: env.branch_name == 'main'
         run: dotnet tool install -g Amazon.Lambda.Tools
 
       - name: Deploy AWS Lambda Zork
-        if: env.branch_name == 'main'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -54,7 +45,6 @@ jobs:
           dotnet lambda deploy-serverless -sb zorkai-assets -sn ZorkStack --region us-east-1
 
       - name: Deploy AWS Lambda Planetfall
-        if: env.branch_name == 'main'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -63,7 +53,6 @@ jobs:
           dotnet lambda deploy-serverless -sb planetfallai-assets -sn PlanetfallStack --region us-east-1
 
       - name: Overwrite file Zork
-        if: env.branch_name == 'main'
         uses: "DamianReeves/write-file-action@master"
         with:
           path: /home/runner/work/ZorkAI/ZorkAI/zorkweb.client/config.json
@@ -75,7 +64,6 @@ jobs:
             }
 
       - name: Overwrite file Planetfall
-        if: env.branch_name == 'main'
         uses: "DamianReeves/write-file-action@master"
         with:
           path: /home/runner/work/ZorkAI/ZorkAI/planetfallweb.client/config.json
@@ -87,19 +75,16 @@ jobs:
             }
 
       - name: Build Front End Zork
-        if: env.branch_name == 'main'
         run: |
           cd /home/runner/work/ZorkAI/ZorkAI/zorkweb.client
           npm run build
 
       - name: Build Front End Planetfall
-        if: env.branch_name == 'main'
         run: |
           cd /home/runner/work/ZorkAI/ZorkAI/planetfallweb.client
           npm run build
 
       - name: Setup AWS CLI
-        if: env.branch_name == 'main'
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -107,35 +92,17 @@ jobs:
           aws-region: us-east-1
 
       - name: Sync files to S3 bucket for Zork
-        if: env.branch_name == 'main'
         run: |
           aws s3 sync /home/runner/work/ZorkAI/ZorkAI/zorkweb.client/dist s3://zork-ai.com --delete
 
       - name: Sync files to S3 bucket for Planetfall
-        if: env.branch_name == 'main'
         run: |
           aws s3 sync /home/runner/work/ZorkAI/ZorkAI/planetfallweb.client/dist s3://planetfall.ai --delete
 
       - name: Invalidate Zork CloudFront cache
-        if: env.branch_name == 'main'
         run: |
           aws cloudfront create-invalidation --distribution-id E2RTQPAFHN8ORD --paths "/*"    
 
       - name: Invalidate Planetfall CloudFront cache
-        if: env.branch_name == 'main'
         run: |
           aws cloudfront create-invalidation --distribution-id EJYJYZ3BM3O3Z --paths "/*"    
-
-      - name: Create Release
-        if: env.branch_name == 'main'
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          body: |
-            ${{ steps.Changelog.outputs.changelog }}
-          draft: false
-          prerelease: false
