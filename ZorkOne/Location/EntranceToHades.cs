@@ -38,7 +38,7 @@ internal class EntranceToHades : DarkLocation
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        var glow = this.CheckSwordGlowingBrightly<Spirits, EntranceToHades>(context);
+        var glow = LocationHelper.CheckSwordGlowingBrightly<Spirits, EntranceToHades>(context);
         return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 
