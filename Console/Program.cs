@@ -51,7 +51,7 @@ while (result != "-1")
     if (result?.Trim().StartsWith("-1") ?? false) Environment.Exit(0);
 
     Console.ForegroundColor = ConsoleColor.DarkCyan;
-    Utilities.Utilities.WriteLineWordWrap(result);
+    Console.WriteLine(result);
 }
 
 
