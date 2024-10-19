@@ -71,6 +71,10 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
     {
     }
 
+    public virtual void OnItemRemovedFromHere(IItem item, IContext context)
+    {
+    }
+
     [JsonIgnore]
     public List<IItem> GetAllItemsRecursively
     {
