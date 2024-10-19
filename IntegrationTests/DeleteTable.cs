@@ -10,7 +10,7 @@ namespace IntegrationTests
     {
         private AmazonDynamoDBClient _dynamoDbClient;
         private Table _table;
-        private const string TableName = "zork_session_ondemand";
+        private const string TableName = "zork1_savegame";
 
         [SetUp]
         public void Setup()
