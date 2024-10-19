@@ -8,7 +8,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-public class CaveSouth : DarkLocation
+public class CaveSouth : DarkLocationWithNoStartingItems
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
@@ -27,16 +27,8 @@ public class CaveSouth : DarkLocation
         IGenerationClient generationClient)
     {
         var returnValue = "";
-        var swordInPossession = context.HasItem<Sword>();
         var litCandlesInPossession = context.HasItem<Candles>() && Repository.GetItem<Candles>().IsOn;
-        
-        Spirits spirits = Repository.GetItem<Spirits>();
-        var entranceToHades = Repository.GetLocation<EntranceToHades>();
-        var spiritsAlive = spirits.CurrentLocation == entranceToHades;
 
-        // TODO: Make this an actor, with a random chance (50%) to blow out the candles. I think that's what Zork does, needs to check source code. 
-        // TODO: If your candles get blown out and it was the only light source, "It is now completely dark" 
-        // https://github.com/historicalsource/zork1/blob/7d54d16fca7a5dd7c6191c93651aad925f8c0922/1actions.zil#L2424
         if (litCandlesInPossession)
         {
             var result = new TurnLightOnOrOffProcessor().Process(
@@ -45,16 +37,7 @@ public class CaveSouth : DarkLocation
             returnValue += "\nA gust of wind blows out your candles! " + result!.InteractionMessage;
         }
 
-        if (spiritsAlive && swordInPossession)
-            returnValue += "\nYour sword is glowing with a faint blue glow.";
-
-        if (string.IsNullOrWhiteSpace(returnValue))
-            return base.AfterEnterLocation(context, previousLocation, generationClient);
-
-        return Task.FromResult(returnValue);
-    }
-
-    public override void Init()
-    {
+        returnValue += this.CheckSwordGlowingFaintly<Spirits, EntranceToHades>(context);
+        return !string.IsNullOrWhiteSpace(returnValue) ? Task.FromResult(returnValue) : base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 }

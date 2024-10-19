@@ -38,13 +38,8 @@ internal class EntranceToHades : DarkLocation
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        var swordInPossession = context.HasItem<Sword>();
-        var spiritsAlive = Repository.GetItem<Spirits>().CurrentLocation == Repository.GetLocation<EntranceToHades>();
-
-        if (spiritsAlive && swordInPossession)
-            return Task.FromResult("\nYour sword has begun to glow very brightly. ");
-
-        return base.AfterEnterLocation(context, previousLocation, generationClient);
+        var glow = this.CheckSwordGlowingBrightly<Spirits, EntranceToHades>(context);
+        return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 
     public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)

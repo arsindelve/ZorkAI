@@ -1,4 +1,5 @@
 using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
 
@@ -198,6 +199,17 @@ public class MazeFourteen : MazeBase
 
 public class MazeFifteen : MazeBase
 {
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient generationClient)
+    {
+        var glow = this.CheckSwordGlowingFaintly<Cyclops, CyclopsRoom>(context);
+
+        if (!string.IsNullOrEmpty(glow))
+            return Task.FromResult(glow);
+
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
+    }
+    
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
