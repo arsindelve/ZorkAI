@@ -6,7 +6,7 @@ using ZorkOne.Location.ForestLocation;
 
 namespace ZorkOne.Location;
 
-public class UpATree : BaseLocation
+public class UpATree : BaseLocation, IDropSpecialLocation
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
@@ -47,5 +47,25 @@ public class UpATree : BaseLocation
     public override void Init()
     {
         StartWithItem<Nest>();
+    }
+
+    public InteractionResult DropSpecial(IItem item, IContext context)
+    {
+        Repository.GetLocation<ForestPath>().ItemPlacedHere(item);
+
+        if (item is not Egg)
+            return new PositiveInteractionResult($"The {item.NounsForMatching[0]} falls to the ground. ");
+        
+        var egg = Repository.GetItem<Egg>();
+        egg.IsDestroyed = true;
+        egg.IsOpen = true;
+            
+        return new PositiveInteractionResult(
+            "The egg falls to the ground and springs open, seriously damaged. There is a golden " +
+            "clockwork canary nestled in the egg. It seems to have recently had a bad experience. The mountings " +
+            "for its jewel-like eyes are empty, and its silver beak is crumpled. Through a cracked crystal " +
+            "window below its left wing you can see the remains of intricate machinery. It is not clear what " +
+            "result winding it would have, as the mainspring seems sprung. ");
+
     }
 }
