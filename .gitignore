@@ -9,3 +9,5 @@ riderModule.iml
 .vscocde
 Zork.sln.DotSettings.user
 Zork.sln.DotSettings
+.vscode/launch.json
+.vscode/tasks.json
