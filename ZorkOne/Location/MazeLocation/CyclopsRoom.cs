@@ -93,7 +93,7 @@ internal class CyclopsRoom : DarkLocation
         if (HasItem<Cyclops>())
             context.RegisterActor(GetItem<Cyclops>());
         
-        var glow = this.CheckSwordGlowingBrightly<Cyclops, CyclopsRoom>(context);
+        var glow = LocationHelper.CheckSwordGlowingBrightly<Cyclops, CyclopsRoom>(context);
         return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 

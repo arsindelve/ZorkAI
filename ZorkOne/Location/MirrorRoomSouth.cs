@@ -1,4 +1,3 @@
-using GameEngine;
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
@@ -14,14 +13,14 @@ internal class MirrorRoomSouth : MirrorRoom
             { Direction.E, new MovementParameters { Location = GetLocation<CaveSouth>() } },
             { Direction.W, new MovementParameters { Location = GetLocation<WindingPassage>() } }
         };
-    
+
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        string? glow = this.CheckSwordNoLongerGlowing<Spirits, EntranceToHades, CaveSouth>(previousLocation, context);
-        return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
+        return LocationHelper.CheckSwordNoLongerGlowing<Spirits, EntranceToHades, CaveSouth>(previousLocation, context,
+            base.AfterEnterLocation(context, previousLocation, generationClient));
     }
-    
+
     public override void Init()
     {
         StartWithItem<Mirror>();

@@ -26,7 +26,7 @@ public class SqueakyRoom : DarkLocationWithNoStartingItems
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        var glow = this.CheckSwordGlowingFaintly<Bat, BatRoom>(context);
+        var glow = LocationHelper.CheckSwordGlowingFaintly<Bat, BatRoom>(context);
         return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 }

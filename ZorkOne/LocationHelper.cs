@@ -1,13 +1,11 @@
 ﻿using GameEngine;
-using GameEngine.Location;
 using Model.Interface;
 
 namespace ZorkOne;
 
-internal static class ExtensionMethods
+internal static class LocationHelper
 {
-    internal static string? CheckSwordGlowingFaintly<TCreature, TCheckRoom>(this BaseLocation location,
-        IContext context)
+    internal static string? CheckSwordGlowingFaintly<TCreature, TCheckRoom>(IContext context)
         where TCreature : IItem, new()
         where TCheckRoom : class, ILocation, new()
     {
@@ -20,8 +18,8 @@ internal static class ExtensionMethods
         return null;
     }
 
-    internal static string? CheckSwordNoLongerGlowing<TCreature, TCheckRoom, TPreviousRoom>(this BaseLocation location, ILocation previousLocation,
-        IContext context)
+    internal static async Task<string> CheckSwordNoLongerGlowing<TCreature, TCheckRoom, TPreviousRoom>(ILocation previousLocation,
+        IContext context, Task<string> afterEnterLocation)
         where TCreature : IItem, new()
         where TCheckRoom : class, ILocation, new()
         where TPreviousRoom : class, ILocation, new()
@@ -30,14 +28,13 @@ internal static class ExtensionMethods
         var creatureIsInLocation =
             Repository.GetItem<TCreature>().CurrentLocation == Repository.GetLocation<TCheckRoom>();
 
-        if (creatureIsInLocation && swordInPossession && previousLocation is TPreviousRoom) return "\nYour sword is glowing with a faint blue glow. ";
+        if (creatureIsInLocation && swordInPossession && previousLocation is TPreviousRoom)
+            return "\nYour sword is now longer glowing. ";
 
-        return null;
+        return await afterEnterLocation;
     }
 
-    
-    internal static string? CheckSwordGlowingBrightly<TCreature, TCheckRoom>(this BaseLocation location,
-        IContext context)
+    internal static string? CheckSwordGlowingBrightly<TCreature, TCheckRoom>(IContext context)
         where TCreature : IItem, new()
         where TCheckRoom : class, ILocation, new()
     {
