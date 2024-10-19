@@ -2,6 +2,7 @@ using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Item;
+using Model.Location;
 
 namespace GameEngine.Item.ItemProcessor;
 
@@ -38,7 +39,12 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
     {
         if (!context.HasMatchingNounAndAdjective(action.Noun, action.Adjective).HasItem)
             return new PositiveInteractionResult("You don't have that!");
-
+        
+        if (context.CurrentLocation is IDropSpecialLocation specialLocation)
+        {
+            return specialLocation.DropSpecial(castItem, context);
+        }
+        
         context.Drop(castItem);
         return new PositiveInteractionResult("Dropped");
     }
