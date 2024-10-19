@@ -10,7 +10,7 @@ public class Egg : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IGivePointsW
 
     public override int Size => 1;
 
-    public string ExaminationDescription => IsOpen ? "" : "The jewel-encrusted egg is closed. ";
+    public string ExaminationDescription => IsOpen ? "" : $"The {(IsDestroyed ? "broken " : "")}jewel-encrusted egg is closed. ";
 
     public string OnTheGroundDescription(ILocation currentLocation)
     {
@@ -28,9 +28,11 @@ public class Egg : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IGivePointsW
 
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 5;
 
-    int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 5;
+    int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => IsDestroyed ? 2 : 5;
 
     public bool IsOpen { get; set; }
+    
+    public bool IsDestroyed { get; set; }
 
     public string NowOpen(ILocation currentLocation)
     {

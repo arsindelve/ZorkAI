@@ -4,10 +4,12 @@
 name: Deploy To AWS
 
 on:
-  push:
-    tags:
-      - '[0-9]+.[0-9]+.[0-9]+' # Match version tag patterns like 1.0.0, 2.0.0, etc.
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'The version number to deploy (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
 
 permissions:
   contents: write   # This is required to create/push the new git tag
@@ -22,7 +24,6 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup .NET
-        if: env.branch_name == 'main'
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
@@ -60,7 +61,7 @@ jobs:
           contents: |
             {
               "base_url": "https://bxqzfka0hc.execute-api.us-east-1.amazonaws.com/Prod/ZorkOne",
-              "version": "${{ github.ref_name }}"
+              "version": "${{ github.event.inputs.version }}"
             }
 
       - name: Overwrite file Planetfall
@@ -71,7 +72,7 @@ jobs:
           contents: |
             {
               "base_url": "https://6kvs9n5pj4.execute-api.us-east-1.amazonaws.com/Prod/Planetfall",
-              "version": "${{ github.ref_name }}"
+              "version": "${{ github.event.inputs.version }}"
             }
 
       - name: Build Front End Zork
@@ -106,3 +107,17 @@ jobs:
       - name: Invalidate Planetfall CloudFront cache
         run: |
           aws cloudfront create-invalidation --distribution-id EJYJYZ3BM3O3Z --paths "/*"    
+          
+      - name: Create Release
+        if: env.branch_name == 'main'
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.event.inputs.version }}
+          body: |
+            ${{ steps.Changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
