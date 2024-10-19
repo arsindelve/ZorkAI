@@ -1,4 +1,5 @@
 ﻿using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 using Model.Interface;
 using Model.Item;
 
@@ -9,10 +10,18 @@ namespace GameEngine.StaticCommand.Implementation;
 /// </summary>
 public class TakeEverythingProcessor : IGlobalCommand
 {
-    public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
+    public async Task<string> Process(
+        string? input,
+        IContext context,
+        IGenerationClient client,
+        Runtime runtime
+    )
     {
         var sb = new StringBuilder();
         var items = ((ICanHoldItems)context.CurrentLocation).GetAllItemsRecursively;
+
+        if (!items.Any())
+            return await client.CompleteChat(new TakeAllNothingHere());
 
         foreach (var nextItem in items)
         {
@@ -29,6 +38,6 @@ public class TakeEverythingProcessor : IGlobalCommand
             }
         }
 
-        return Task.FromResult(sb.ToString());
+        return sb.ToString();
     }
 }
