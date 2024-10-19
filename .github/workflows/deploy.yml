@@ -5,6 +5,8 @@ name: Deploy To AWS
 
 on:
   push:
+    branches:
+      - main
     # Sequence of patterns matched against refs/tags
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'
