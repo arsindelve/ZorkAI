@@ -23,11 +23,11 @@ public class MineEntrance : DarkLocationWithNoStartingItems
         "and there is another exit on the south end of the room.";
 
     public override string Name => "Mine Entrance";
-    
+
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        string? glow = this.CheckSwordNoLongerGlowing<Bat, BatRoom, SqueakyRoom>(previousLocation, context);
-        return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
+        return LocationHelper.CheckSwordNoLongerGlowing<Bat, BatRoom, SqueakyRoom>(previousLocation, context,
+            base.AfterEnterLocation(context, previousLocation, generationClient));
     }
 }

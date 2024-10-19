@@ -27,7 +27,7 @@ internal class SmellyRoom : DarkLocationWithNoStartingItems
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        string? glow = this.CheckSwordNoLongerGlowing<Bat, BatRoom, ShaftRoom>(previousLocation, context);
-        return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
+        return LocationHelper.CheckSwordNoLongerGlowing<Bat, BatRoom, ShaftRoom>(previousLocation, context,
+            base.AfterEnterLocation(context, previousLocation, generationClient));
     }
 }

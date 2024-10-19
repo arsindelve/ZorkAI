@@ -67,7 +67,7 @@ public class MazeFive : MazeBase
             { Direction.E, Go<DeadEndTwo>() },
             { Direction.SW, Go<MazeSix>() }
         };
-    
+
     public override void Init()
     {
         StartWithItem<Skeleton>();
@@ -75,7 +75,7 @@ public class MazeFive : MazeBase
         StartWithItem<RustyKnife>();
         StartWithItem<SkeletonKey>();
         StartWithItem<BagOfCoins>();
-        
+
         base.Init();
     }
 }
@@ -94,13 +94,6 @@ public class MazeSix : MazeBase
 
 public class MazeSeven : MazeBase
 {
-    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient generationClient)
-    {
-        string? glow = this.CheckSwordNoLongerGlowing<Cyclops, CyclopsRoom, MazeFifteen>(previousLocation, context);
-        return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
-    }
-    
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
@@ -110,6 +103,13 @@ public class MazeSeven : MazeBase
             { Direction.Down, Go<DeadEndOne>() },
             { Direction.Up, Go<MazeFourteen>() }
         };
+
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient generationClient)
+    {
+        return LocationHelper.CheckSwordNoLongerGlowing<Cyclops, CyclopsRoom, MazeFifteen>(previousLocation, context,
+            base.AfterEnterLocation(context, previousLocation, generationClient));
+    }
 }
 
 public class MazeEight : MazeBase
@@ -150,14 +150,6 @@ public class MazeTen : MazeBase
 
 public class MazeEleven : MazeBase
 {
-    public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
-    {
-        if (previousLocation is MazeNine)
-            return "You won't be able to get back up to the tunnel you are going through when it gets to the next room.\n ";
-        
-        return base.BeforeEnterLocation(context, previousLocation);
-    }
-
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
@@ -166,6 +158,15 @@ public class MazeEleven : MazeBase
             { Direction.Down, Go<MazeTen>() },
             { Direction.NE, Go<GratingRoom>() }
         };
+
+    public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
+    {
+        if (previousLocation is MazeNine)
+            return
+                "You won't be able to get back up to the tunnel you are going through when it gets to the next room.\n ";
+
+        return base.BeforeEnterLocation(context, previousLocation);
+    }
 }
 
 public class MazeTwelve : MazeBase
@@ -195,13 +196,6 @@ public class MazeThirteen : MazeBase
 
 public class MazeFourteen : MazeBase
 {
-    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient generationClient)
-    {
-        string? glow = this.CheckSwordNoLongerGlowing<Cyclops, CyclopsRoom, MazeFifteen>(previousLocation, context);
-        return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
-    }
-    
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
@@ -209,27 +203,34 @@ public class MazeFourteen : MazeBase
             { Direction.NE, Go<MazeSeven>() },
             { Direction.S, Go<MazeSeven>() }
         };
+
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient generationClient)
+    {
+        return
+            LocationHelper.CheckSwordNoLongerGlowing<Cyclops, CyclopsRoom, MazeFifteen>(previousLocation, context,
+                base.AfterEnterLocation(context, previousLocation, generationClient));
+    }
 }
 
 public class MazeFifteen : MazeBase
 {
+    protected override Dictionary<Direction, MovementParameters> Map =>
+        new()
+        {
+            { Direction.W, Go<MazeFourteen>() },
+            { Direction.S, Go<MazeSeven>() },
+            { Direction.SE, Go<CyclopsRoom>() }
+        };
+
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        var glow = this.CheckSwordGlowingFaintly<Cyclops, CyclopsRoom>(context);
+        var glow = LocationHelper.CheckSwordGlowingFaintly<Cyclops, CyclopsRoom>(context);
 
         if (!string.IsNullOrEmpty(glow))
             return Task.FromResult(glow);
 
         return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
-    
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
-        {
-            { Direction.W, Go<MazeFourteen>() },
-            { Direction.S, Go<MazeSeven>() },
-            { Direction.SE, Go<CyclopsRoom>() },
-            
-        };
 }

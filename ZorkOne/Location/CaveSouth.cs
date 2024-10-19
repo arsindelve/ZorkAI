@@ -37,7 +37,7 @@ public class CaveSouth : DarkLocationWithNoStartingItems
             returnValue += "\nA gust of wind blows out your candles! " + result!.InteractionMessage;
         }
 
-        returnValue += this.CheckSwordGlowingFaintly<Spirits, EntranceToHades>(context);
+        returnValue += LocationHelper.CheckSwordGlowingFaintly<Spirits, EntranceToHades>(context);
         return !string.IsNullOrWhiteSpace(returnValue) ? Task.FromResult(returnValue) : base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 }
