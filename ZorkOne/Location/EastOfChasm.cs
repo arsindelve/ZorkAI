@@ -13,13 +13,8 @@ public class EastOfChasm : LocationWithNoStartingItems
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        var swordInPossession = context.HasItem<Sword>();
-        var trollIsAlive = Repository.GetItem<Troll>().CurrentLocation == Repository.GetLocation<TrollRoom>();
-
-        if (trollIsAlive && swordInPossession && previousLocation is Cellar)
-            return Task.FromResult("\nYour sword is no longer glowing. ");
-
-        return base.AfterEnterLocation(context, previousLocation, generationClient);
+        string? glow = this.CheckSwordNoLongerGlowing<Troll, TrollRoom, Cellar>(previousLocation, context);
+        return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
     }
     
     protected override string ContextBasedDescription =>

@@ -3,6 +3,7 @@ using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
+using ZorkOne.Location.MazeLocation;
 
 namespace ZorkOne.Location;
 
@@ -63,13 +64,8 @@ public class Cellar : DarkLocation
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        var swordInPossession = context.HasItem<Sword>();
-        var trollIsAlive = Repository.GetItem<Troll>().CurrentLocation == Repository.GetLocation<TrollRoom>();
-
-        if (trollIsAlive && swordInPossession)
-            return Task.FromResult("\nYour sword is glowing with a faint blue glow.");
-
-        return base.AfterEnterLocation(context, previousLocation, generationClient);
+        var glow = this.CheckSwordGlowingFaintly<Cyclops, CyclopsRoom>(context);
+        return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 
     protected override void OnFirstTimeEnterLocation(IContext context)
