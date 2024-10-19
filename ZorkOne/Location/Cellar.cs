@@ -64,7 +64,7 @@ public class Cellar : DarkLocation
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        var glow = LocationHelper.CheckSwordGlowingFaintly<Cyclops, CyclopsRoom>(context);
+        var glow = LocationHelper.CheckSwordGlowingFaintly<Troll, TrollRoom>(context);
         return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 
