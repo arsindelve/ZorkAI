@@ -64,6 +64,10 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     {
     }
 
+    public void OnItemRemovedFromHere(IItem item, IContext context)
+    {
+    }
+
     [JsonIgnore]
     public List<IItem> GetAllItemsRecursively
     {

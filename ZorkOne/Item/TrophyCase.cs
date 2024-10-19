@@ -6,12 +6,6 @@ namespace ZorkOne.Item;
 
 public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
 {
-    // This is a list of every item that's ever been placed here. 
-    // We track this so you don't get double points for putting something 
-    // in the case, taking it out and putting it back again. 
-    // ReSharper disable once MemberCanBePrivate.Global
-    public List<IItem> ItemsPlacedInside = [];
-
     public override string[] NounsForMatching => ["case", "trophy case"];
 
     public override string CannotBeTakenDescription => "The trophy case is securely fastened to the wall.";
@@ -33,6 +27,7 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
     ///     Returns a description of the items contained in the specified container.
     /// </summary>
     /// <param name="name">The name of the container - might be needed as part of the description</param>
+    /// <param name="location"></param>
     /// <returns>A string representing the items contained in the specified container.</returns>
     public override string ItemListDescription(string name, ILocation? location)
     {
@@ -56,10 +51,19 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
     {
         base.OnItemPlacedHere(item, context);
 
-        if (item is not IGivePointsWhenPlacedInTrophyCase treasure) return;
-        if (ItemsPlacedInside.Contains(item)) return;
+        if (item is not IGivePointsWhenPlacedInTrophyCase treasure)
+            return;
 
         context.AddPoints(treasure.NumberOfPoints);
-        ItemsPlacedInside.Add(item);
+    }
+
+    public override void OnItemRemovedFromHere(IItem item, IContext context)
+    {
+        base.OnItemRemovedFromHere(item, context);
+
+        if (item is not IGivePointsWhenPlacedInTrophyCase treasure)
+            return;
+
+        context.AddPoints(-1 * treasure.NumberOfPoints);
     }
 }
