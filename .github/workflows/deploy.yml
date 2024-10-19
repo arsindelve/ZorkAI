@@ -109,7 +109,6 @@ jobs:
           aws cloudfront create-invalidation --distribution-id EJYJYZ3BM3O3Z --paths "/*"    
           
       - name: Create Release
-        if: env.branch_name == 'main'
         id: create_release
         uses: actions/create-release@v1
         env:
