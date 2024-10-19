@@ -68,6 +68,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
 
         context.Take(castItem);
         var onTakenText = takeItem.OnBeingTaken(context);
+        container?.OnItemRemovedFromHere(castItem, context);
 
         return new PositiveInteractionResult(
             $"Taken. {(!string.IsNullOrEmpty(onTakenText) ? onTakenText + Environment.NewLine : string.Empty)} ");
