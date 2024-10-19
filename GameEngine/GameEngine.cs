@@ -128,7 +128,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
     public async Task InitializeEngine()
     {
-        _generator.SystemPrompt = await _secretsManager.GetSecret(_gameInstance.SystemPromptSecretKey);
+        string prompt = await _secretsManager.GetSecret(_gameInstance.SystemPromptSecretKey);
+        _generator.SystemPrompt = prompt;
     }
 
     public int Moves => Context.Moves;
