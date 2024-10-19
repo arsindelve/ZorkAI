@@ -54,7 +54,7 @@ internal class BatRoom : DarkLocation
             response +=
                 "\nIn the corner of the room on the ceiling is a large vampire bat who is obviously deranged and holding his nose. ";
 
-        response += this.CheckSwordGlowingBrightly<Bat, BatRoom>(context);
+        response += LocationHelper.CheckSwordGlowingBrightly<Bat, BatRoom>(context);
         
         if (!string.IsNullOrEmpty(response))
             return Task.FromResult(response);

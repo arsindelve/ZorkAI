@@ -96,7 +96,7 @@ public class TrollRoom : DarkLocation
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        var glow = this.CheckSwordGlowingBrightly<Troll, TrollRoom>(context);
+        var glow = LocationHelper.CheckSwordGlowingBrightly<Troll, TrollRoom>(context);
         if (!string.IsNullOrEmpty(glow))
             return Task.FromResult(glow);
 
