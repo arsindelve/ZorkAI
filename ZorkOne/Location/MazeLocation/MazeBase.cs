@@ -1,4 +1,5 @@
 using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
 
@@ -93,6 +94,13 @@ public class MazeSix : MazeBase
 
 public class MazeSeven : MazeBase
 {
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient generationClient)
+    {
+        string? glow = this.CheckSwordNoLongerGlowing<Cyclops, CyclopsRoom, MazeFifteen>(previousLocation, context);
+        return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
+    }
+    
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
@@ -187,6 +195,13 @@ public class MazeThirteen : MazeBase
 
 public class MazeFourteen : MazeBase
 {
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient generationClient)
+    {
+        string? glow = this.CheckSwordNoLongerGlowing<Cyclops, CyclopsRoom, MazeFifteen>(previousLocation, context);
+        return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
+    }
+    
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
@@ -198,6 +213,17 @@ public class MazeFourteen : MazeBase
 
 public class MazeFifteen : MazeBase
 {
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient generationClient)
+    {
+        var glow = this.CheckSwordGlowingFaintly<Cyclops, CyclopsRoom>(context);
+
+        if (!string.IsNullOrEmpty(glow))
+            return Task.FromResult(glow);
+
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
+    }
+    
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {

@@ -22,15 +22,11 @@ public class SqueakyRoom : DarkLocationWithNoStartingItems
         "You are in a small room. Strange squeaky sounds may be heard coming from the passage at the north end. You may also escape to the east. ";
 
     public override string Name => "Squeaky Room ";
-    
+
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient? generationClient)
+        IGenerationClient generationClient)
     {
-        var swordInPossession = context.HasItem<Sword>();
-
-        if (swordInPossession)
-            return Task.FromResult("\nYour sword is glowing with a faint blue glow.");
-
-        return Task.FromResult(string.Empty);
+        var glow = this.CheckSwordGlowingFaintly<Bat, BatRoom>(context);
+        return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 }

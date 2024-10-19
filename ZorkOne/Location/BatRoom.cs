@@ -46,7 +46,7 @@ internal class BatRoom : DarkLocation
     }
 
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient? generationClient)
+        IGenerationClient generationClient)
     {
         string response = "";
        
@@ -54,12 +54,12 @@ internal class BatRoom : DarkLocation
             response +=
                 "\nIn the corner of the room on the ceiling is a large vampire bat who is obviously deranged and holding his nose. ";
 
-        var swordInPossession = context.HasItem<Sword>();
+        response += this.CheckSwordGlowingBrightly<Bat, BatRoom>(context);
+        
+        if (!string.IsNullOrEmpty(response))
+            return Task.FromResult(response);
 
-        if (swordInPossession)
-            response += "\n\nYour sword has begun to glow very brightly. ";
-
-        return Task.FromResult(response);
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 
     public override void Init()

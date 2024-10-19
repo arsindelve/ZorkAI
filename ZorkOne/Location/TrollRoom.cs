@@ -1,4 +1,3 @@
-using GameEngine;
 using GameEngine.IntentEngine;
 using GameEngine.Location;
 using Model.AIGeneration;
@@ -14,7 +13,7 @@ public class TrollRoom : DarkLocation
 {
     private readonly ICombatEngine _trollAttackEngine = new AdventurerVersusTrollCombatEngine();
 
-    private KillSomeoneDecisionEngine<Troll> _killDecisionEngine;
+    private readonly KillSomeoneDecisionEngine<Troll> _killDecisionEngine;
 
     public TrollRoom()
     {
@@ -97,10 +96,9 @@ public class TrollRoom : DarkLocation
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        var swordInPossession = context.HasItem<Sword>();
-
-        if (TrollIsAwake && swordInPossession)
-            return Task.FromResult("\nYour sword has begun to glow very brightly. ");
+        var glow = this.CheckSwordGlowingBrightly<Troll, TrollRoom>(context);
+        if (!string.IsNullOrEmpty(glow))
+            return Task.FromResult(glow);
 
         return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
