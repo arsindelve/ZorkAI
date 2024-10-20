@@ -27,10 +27,6 @@ public class Startup
         services.AddSwaggerGen();
       
         services.AddScoped<IGameEngine, GameEngine<ZorkI, ZorkIContext>>();
-        
-        // Register the hosted service that will initialize GameEngine asynchronously
-        services.AddHostedService<GameEngineInitializer>();
-        
         ServicesHelper.ConfigureCommonServices(services);
     }
 
@@ -54,25 +50,5 @@ public class Startup
                     await context.Response.WriteAsync("Welcome to running ASP.NET Core on AWS Lambda");
                 });
         });
-    }
-}
-
-public class GameEngineInitializer(IGameEngine gameEngine) : IHostedService
-{
-    // Inject the GameEngine into the initializer
-
-    // This will be called when the application starts
-    public async Task StartAsync(CancellationToken cancellationToken)
-    {
-        // Call the async initialization method on GameEngine
-        await gameEngine.InitializeEngine();
-        Console.WriteLine("GameEngine initialized!");
-    }
-
-    // Optional: This method is called during application shutdown
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        // Perform any cleanup or shutdown logic if necessary
-        return Task.CompletedTask;
     }
 }
