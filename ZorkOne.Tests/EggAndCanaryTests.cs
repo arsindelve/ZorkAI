@@ -373,73 +373,69 @@ public class EggAndCanaryTests : EngineTestsBase
         Repository.GetItem<Nest>().CurrentLocation.Should().BeOfType<ForestPath>();
     }
 
-        [Test]
-        public async Task OpenEggWithSword()
-        {
-            var target = GetTarget();
-            target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
-            target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
-            target.Context.ItemPlacedHere(Repository.GetItem<Sword>());
-            
-            var response = await target.GetResponse("open the egg with the sword");
-            Console.WriteLine(response);
-    
-            response.Should().Contain("The egg is now open, but the clumsiness of your attempt has seriously compromised");
-            Repository.GetItem<Canary>().IsDestroyed.Should().BeTrue();
-            Repository.GetItem<Egg>().IsDestroyed.Should().BeTrue();
-            Repository.GetItem<Egg>().IsOpen.Should().BeTrue();
-        }
-        
-        [Test]
-        public async Task OpenEggWithKnife()
-        {
-            var target = GetTarget();
-            target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
-            target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
-            target.Context.ItemPlacedHere(Repository.GetItem<NastyKnife>());
-            
-            var response = await target.GetResponse("open the egg with the knife");
-            Console.WriteLine(response);
-    
-            response.Should().Contain("The egg is now open, but the clumsiness of your attempt has seriously compromised");
-            Repository.GetItem<Canary>().IsDestroyed.Should().BeTrue();
-            Repository.GetItem<Egg>().IsDestroyed.Should().BeTrue();
-            Repository.GetItem<Egg>().IsOpen.Should().BeTrue();
-        }
-        
-        [Test]
-        public async Task OpenEggWithScrewdriver()
-        {
-            var target = GetTarget();
-            target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
-            target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
-            target.Context.ItemPlacedHere(Repository.GetItem<Screwdriver>());
-            
-            var response = await target.GetResponse("open the egg with the screwdriver");
-            Console.WriteLine(response);
-    
-            response.Should().Contain("The egg is now open, but the clumsiness of your attempt has seriously compromised");
-            Repository.GetItem<Canary>().IsDestroyed.Should().BeTrue();
-            Repository.GetItem<Egg>().IsDestroyed.Should().BeTrue();
-            Repository.GetItem<Egg>().IsOpen.Should().BeTrue();
-        }
-        
-        [Test]
-        public async Task ExamineEggAfterOpenEggWithScrewdriver()
-        {
-            var target = GetTarget();
-            target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
-            target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
-            target.Context.ItemPlacedHere(Repository.GetItem<Screwdriver>());
-            
-            await target.GetResponse("open the egg with the screwdriver");
-            var response = await target.GetResponse("examine egg");
-            Console.WriteLine(response);
-    
-            response.Should().Contain("It seems to have recently had a bad");
-        }
+    [Test]
+    public async Task OpenEggWithSword()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
+        target.Context.ItemPlacedHere(Repository.GetItem<Sword>());
 
-    //>examine egg
-    //The broken jewel-encrusted egg contains:
-    //A broken clockwork canary
+        var response = await target.GetResponse("open the egg with the sword");
+        Console.WriteLine(response);
+
+        response.Should().Contain("The egg is now open, but the clumsiness of your attempt has seriously compromised");
+        Repository.GetItem<Canary>().IsDestroyed.Should().BeTrue();
+        Repository.GetItem<Egg>().IsDestroyed.Should().BeTrue();
+        Repository.GetItem<Egg>().IsOpen.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task OpenEggWithKnife()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
+        target.Context.ItemPlacedHere(Repository.GetItem<NastyKnife>());
+
+        var response = await target.GetResponse("open the egg with the knife");
+        Console.WriteLine(response);
+
+        response.Should().Contain("The egg is now open, but the clumsiness of your attempt has seriously compromised");
+        Repository.GetItem<Canary>().IsDestroyed.Should().BeTrue();
+        Repository.GetItem<Egg>().IsDestroyed.Should().BeTrue();
+        Repository.GetItem<Egg>().IsOpen.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task OpenEggWithScrewdriver()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
+        target.Context.ItemPlacedHere(Repository.GetItem<Screwdriver>());
+
+        var response = await target.GetResponse("open the egg with the screwdriver");
+        Console.WriteLine(response);
+
+        response.Should().Contain("The egg is now open, but the clumsiness of your attempt has seriously compromised");
+        Repository.GetItem<Canary>().IsDestroyed.Should().BeTrue();
+        Repository.GetItem<Egg>().IsDestroyed.Should().BeTrue();
+        Repository.GetItem<Egg>().IsOpen.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task ExamineEggAfterOpenEggWithScrewdriver()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
+        target.Context.ItemPlacedHere(Repository.GetItem<Screwdriver>());
+
+        await target.GetResponse("open the egg with the screwdriver");
+        var response = await target.GetResponse("examine egg");
+        Console.WriteLine(response);
+
+        response.Should().Contain("It seems to have recently had a bad");
+    }
 }
