@@ -120,4 +120,10 @@ public interface ILocation
     /// </summary>
     /// <param name="context"></param>
     void OnWaiting(IContext context);
+
+    /// <summary>
+    /// Some item got "put" here, or appeared suddenly like when the canary drops the bauble. 
+    /// </summary>
+    /// <param name="item"></param>
+    void ItemPlacedHere(IItem item);
 }

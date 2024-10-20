@@ -47,6 +47,9 @@ public class Nest : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined
 
     public override string ItemListDescription(string name, ILocation? location)
     {
+        if (HasEverBeenPickedUp && Items.Count == 1 && HasItem<Egg>())
+            return "The bird's nest contains:\n" + Repository.GetItem<Egg>().GenericDescription(location);
+        
         if (Items.Count == 1 && HasItem<Egg>() && !Repository.GetItem<Egg>().HasEverBeenPickedUp)
             return ExaminationDescription;
 

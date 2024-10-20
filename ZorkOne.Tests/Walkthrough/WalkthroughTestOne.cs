@@ -264,8 +264,6 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("put scarab in case", null, "Done")]
     [TestCase("put trident in case", null, "Done")]
     [TestCase("put jewels in case", null, "Done")]
-    [TestCase("put skull in case", null, "Done")]
-    [TestCase("put bracelet in case", null, "Done")]
     [TestCase("E", null, "Kitchen", "water")]
     [TestCase("E", null, "Behind House")]
     [TestCase("N", null, "North of House")]
@@ -312,7 +310,21 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("Up", null, "Clearing", "There is an open grating, descending into darkness")]
     [TestCase("S", null, "Forest Path")]
     [TestCase("Up", null, "Up A Tree")]
-    // TODO: Wind up canary 
+    [TestCase("wind canary", "HaveOpenEgg", "The canary chirps, slightly off-key, an aria from a forgotten opera")]
+    [TestCase("Down", null, "There is a beautiful brass bauble here")]
+    [TestCase("take bauble", null, "Taken")]
+    [TestCase("drop knife", null, "Dropped")]
+    [TestCase("S", null, "North of House")]
+    [TestCase("E", null, "Behind House")]
+    [TestCase("W", null, "Kitchen")] 
+    [TestCase("W", null, "Living Room")]
+    [TestCase("put bauble in case", null, "Done")]
+    // TODO [TestCase("put chalice in case", null, "Done")]
+    [TestCase("take canary", null, "Taken")]
+    [TestCase("put canary in case", null, "Done")]
+    [TestCase("put egg in case", null, "Done")]
+    [TestCase("put bracelet in case", null, "Done")]
+    [TestCase("put skull in case", null, "Done")]
 
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {

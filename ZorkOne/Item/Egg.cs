@@ -16,9 +16,9 @@ public class Egg : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, IGivePo
 
     public string ExaminationDescription => IsOpen
         ? Items.Count == 0
-            ? "The jewel-encrusted egg is empty. "
-            : Repository.GetItem<Canary>().HasEverBeenPickedUp
-                ? ItemListDescription("jewel-encrusted egg", null)
+            ? $"The {(IsDestroyed ? "broken": "")} jewel-encrusted egg is empty. "
+            : Repository.GetItem<Canary>().HasEverBeenPickedUp || IsDestroyed
+                ? ItemListDescription($"{(IsDestroyed ? "broken": "")} jewel-encrusted egg", null)
                 : "There is a golden clockwork canary nestled in the egg. It has ruby eyes and a silver beak. Through a crystal window below its left wing you can see intricate machinery inside. It appears to have wound down. "
         : $"The {(IsDestroyed ? "broken " : "")}jewel-encrusted egg is closed. ";
 
@@ -113,7 +113,7 @@ public class Egg : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, IGivePo
 
         if (Items.Contains(canary) && canary.IsDestroyed)
             return
-                "\nThere is a golden clockwork canary nestled in the egg. " + Canary.DestroyedMessage;
+                "\nThere is a golden clockwork canary nestled in the broken egg. " + Canary.DestroyedMessage;
 
         if (Items.Contains(canary))
             return

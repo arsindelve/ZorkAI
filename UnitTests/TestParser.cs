@@ -13,8 +13,8 @@ public class TestParser : IIntentParser
 {
     private readonly string[] _allContainers;
     private readonly string[] _allNouns;
-    private readonly string[] _verbs;
     private readonly IGlobalCommandFactory _gameSpecificCommandFactory;
+    private readonly string[] _verbs;
 
     public TestParser(IGlobalCommandFactory gameSpecificCommandFactory)
     {
@@ -23,7 +23,7 @@ public class TestParser : IIntentParser
         [
             "take", "drop", "open", "close", "examine", "look", "eat", "press",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move",
-            "smell", "turn on", "turn off", "throw", "light", "rub", "kiss",
+            "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind",
             "lower", "raise", "get", "inflate", "leave", "unlock", "lock", "climb"
         ];
 
@@ -46,7 +46,7 @@ public class TestParser : IIntentParser
 
         if (_gameSpecificCommandFactory.GetGlobalCommands(input) is { } gameSpecificGlobalCommand)
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = gameSpecificGlobalCommand });
-        
+
         foreach (Direction direction in Enum.GetValues(typeof(Direction)))
             if (input == direction.ToString() || input == $"go {direction.ToString()}")
                 return Task.FromResult<IntentBase>(new MoveIntent { Direction = direction });
@@ -96,7 +96,7 @@ public class TestParser : IIntentParser
                 Noun = "boat"
             });
 
-     
+
         if (input == "get out of the boat")
             return Task.FromResult<IntentBase>(new ExitSubLocationIntent
             {
@@ -138,7 +138,7 @@ public class TestParser : IIntentParser
                 Preposition = "with",
                 OriginalInput = "lock the grate with the key"
             });
-        
+
         if (input == "turn bolt with wrench")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -159,6 +159,36 @@ public class TestParser : IIntentParser
                 OriginalInput = "turn switch with screwdriver"
             });
 
+        if (input == "open the egg with the screwdriver")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "egg",
+                NounTwo = "screwdriver",
+                Preposition = "with",
+                Verb = "open",
+                OriginalInput = "open the egg with the screwdriver"
+            });
+
+        if (input == "open the egg with the knife")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "egg",
+                NounTwo = "knife",
+                Preposition = "with",
+                Verb = "open",
+                OriginalInput = "open the egg with the knife"
+            });
+
+        if (input == "open the egg with the sword")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "egg",
+                NounTwo = "sword",
+                Preposition = "with",
+                Verb = "open",
+                OriginalInput = "open the egg with the sword"
+            });
+
         if (input == "press the yellow button")
             return Task.FromResult<IntentBase>(new SimpleIntent
                 { Adverb = "the", Verb = "press", Noun = "yellow button", OriginalInput = "" });
@@ -166,11 +196,11 @@ public class TestParser : IIntentParser
         if (input == "press yellow")
             return Task.FromResult<IntentBase>(new SimpleIntent
                 { Adverb = "the", Verb = "press", Noun = "yellow button", OriginalInput = "" });
-        
+
         if (input == "press yellow button")
             return Task.FromResult<IntentBase>(new SimpleIntent
                 { Adverb = "", Verb = "press", Noun = "yellow", OriginalInput = "" });
-        
+
         if (input == "press the brown button")
             return Task.FromResult<IntentBase>(new SimpleIntent
                 { Adverb = "the", Verb = "press", Noun = "brown button", OriginalInput = "" });
@@ -220,7 +250,7 @@ public class TestParser : IIntentParser
                 Verb = "light",
                 OriginalInput = "light candles with match"
             });
-        
+
         if (input == "kill the cyclops with the sword")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -240,7 +270,7 @@ public class TestParser : IIntentParser
                 Verb = "dig",
                 OriginalInput = "dig in sand with shovel"
             });
-        
+
         if (input == "offer the cyclops the lunch")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -250,7 +280,7 @@ public class TestParser : IIntentParser
                 Verb = "offer",
                 OriginalInput = "offer the cyclops the lunch"
             });
-        
+
         if (input == "give the lunch to the cyclops")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -260,7 +290,7 @@ public class TestParser : IIntentParser
                 Verb = "give",
                 OriginalInput = "give the lunch to the cyclops"
             });
-        
+
         if (input == "give the bottle to the cyclops")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -270,7 +300,7 @@ public class TestParser : IIntentParser
                 Verb = "give",
                 OriginalInput = "give the bottle to the cyclops"
             });
-        
+
         if (input == "give the garlic to the cyclops")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -280,7 +310,7 @@ public class TestParser : IIntentParser
                 Verb = "give",
                 OriginalInput = "give the garlic to the cyclops"
             });
-        
+
         if (input == "give the axe to the cyclops")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {

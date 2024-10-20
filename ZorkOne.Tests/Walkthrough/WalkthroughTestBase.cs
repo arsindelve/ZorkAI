@@ -37,6 +37,12 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         Repository.GetItem<Troll>().IsDead = true;
     }
 
+    public void HaveOpenEgg()
+    {
+        _target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
+        Repository.GetItem<Egg>().IsOpen = true;
+    }
+    
     public void GoToRoundRoom()
     {
         // Entering the loud room when it's draining will cause us to flee the room in a random 

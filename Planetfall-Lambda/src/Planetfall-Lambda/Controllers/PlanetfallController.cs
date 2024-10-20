@@ -22,6 +22,7 @@ public class PlanetfallController(
     [HttpPost]
     public async Task<GameResponse> Index([FromBody] GameRequest request)
     {
+        await engine.InitializeEngine();
         var savedSession = await GetSavedSession(request.SessionId);
         if (!string.IsNullOrEmpty(savedSession)) RestoreSession(savedSession);
 
@@ -37,6 +38,7 @@ public class PlanetfallController(
     [Route("restoreGame")]
     public async Task<GameResponse> RestoreGame([FromBody] RestoreGameRequest request)
     {
+        await engine.InitializeEngine();
         var gameData = await savedGameRepository.GetSavedGame(request.Id, request.ClientId, SaveGameTableName);
 
         if (string.IsNullOrEmpty(gameData))
@@ -58,6 +60,7 @@ public class PlanetfallController(
     [Route("saveGame")]
     public async Task<string> SaveGame([FromBody] SaveGameRequest request)
     {
+        await engine.InitializeEngine();
         var savedSession = await GetSavedSession(request.SessionId);
 
         if (string.IsNullOrEmpty(savedSession))
@@ -83,6 +86,7 @@ public class PlanetfallController(
     [HttpGet]
     public async Task<GameResponse> Index([FromQuery] string sessionId)
     {
+        await engine.InitializeEngine();
         var savedSession = await GetSavedSession(sessionId);
         if (!string.IsNullOrEmpty(savedSession))
         {
