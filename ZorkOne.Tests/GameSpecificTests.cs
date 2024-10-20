@@ -164,4 +164,23 @@ public class GameSpecificTests : EngineTestsBase
         // Assert
         target.Context.Score.Should().Be(5);
     }
+    
+    [Test]
+    public async Task DropStuffFromTheChasm_NeverSeenAgain()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Chasm>();
+        target.Context.Take(Repository.GetItem<Leaflet>());
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
+    
+        // Act
+        var response = await target.GetResponse("drop leaflet");
+        
+        // Assert
+        response.Should().Contain($"The leaflet drops out of sight and into the chasm");
+        target.Context.Items.Count.Should().Be(1);
+        Repository.GetItem<Leaflet>().CurrentLocation.Should().BeNull();
+        target.Context.HasItem<Leaflet>().Should().BeFalse();
+    }
 }

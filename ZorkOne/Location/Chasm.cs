@@ -1,9 +1,10 @@
 ﻿using GameEngine.Location;
+using Model.Interface;
 using Model.Movement;
 
 namespace ZorkOne.Location;
 
-public class Chasm : DarkLocation
+public class Chasm : DarkLocationWithNoStartingItems, IDropSpecialLocation
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
@@ -20,7 +21,11 @@ public class Chasm : DarkLocation
 
     public override string Name => "Chasm";
 
-    public override void Init()
+    public InteractionResult DropSpecial(IItem item, IContext context)
     {
+        context.Items.Remove(item);
+        item.CurrentLocation = null;
+        string message = $"The {item.NounsForMatching[0]} drops out of sight and into the chasm. ";
+        return new PositiveInteractionResult(message);
     }
 }
