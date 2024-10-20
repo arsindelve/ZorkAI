@@ -13,13 +13,17 @@ internal static class LocationHelper
         var creatureIsInLocation =
             Repository.GetItem<TCreature>().CurrentLocation == Repository.GetLocation<TCheckRoom>();
 
-        if (creatureIsInLocation && swordInPossession) return "\nYour sword is glowing with a faint blue glow. ";
+        if (creatureIsInLocation && swordInPossession)
+            return "\nYour sword is glowing with a faint blue glow. ";
 
         return null;
     }
 
-    internal static async Task<string> CheckSwordNoLongerGlowing<TCreature, TCheckRoom, TPreviousRoom>(ILocation previousLocation,
-        IContext context, Task<string> afterEnterLocation)
+    internal static async Task<string> CheckSwordNoLongerGlowing<
+        TCreature,
+        TCheckRoom,
+        TPreviousRoom
+    >(ILocation previousLocation, IContext context, Task<string> afterEnterLocation)
         where TCreature : IItem, new()
         where TCheckRoom : class, ILocation, new()
         where TPreviousRoom : class, ILocation, new()
@@ -29,7 +33,7 @@ internal static class LocationHelper
             Repository.GetItem<TCreature>().CurrentLocation == Repository.GetLocation<TCheckRoom>();
 
         if (creatureIsInLocation && swordInPossession && previousLocation is TPreviousRoom)
-            return "\nYour sword is now longer glowing. ";
+            return "\nYour sword is no longer glowing. ";
 
         return await afterEnterLocation;
     }
@@ -42,7 +46,8 @@ internal static class LocationHelper
         var creatureIsInLocation =
             Repository.GetItem<TCreature>().CurrentLocation == Repository.GetLocation<TCheckRoom>();
 
-        if (creatureIsInLocation && swordInPossession) return "\nYour sword has begun to glow very brightly. ";
+        if (creatureIsInLocation && swordInPossession)
+            return "\nYour sword has begun to glow very brightly. ";
 
         return null;
     }
