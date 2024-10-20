@@ -20,8 +20,11 @@ public class EggAndCanaryTests : EngineTestsBase
         var response = await target.GetResponse("look");
         Console.WriteLine(response);
 
-        response.Should().Contain(
-            "In the bird's nest is a large egg encrusted with precious jewels, apparently scavenged by a childless songbird. The egg is covered with fine gold inlay, and ornamented in lapis lazuli and mother-of-pearl. Unlike most eggs, this one is hinged and closed with a delicate looking clasp. The egg appears extremely fragile");
+        response
+            .Should()
+            .Contain(
+                "In the bird's nest is a large egg encrusted with precious jewels, apparently scavenged by a childless songbird. The egg is covered with fine gold inlay, and ornamented in lapis lazuli and mother-of-pearl. Unlike most eggs, this one is hinged and closed with a delicate looking clasp. The egg appears extremely fragile"
+            );
     }
 
     [Test]
@@ -34,7 +37,11 @@ public class EggAndCanaryTests : EngineTestsBase
         var response = await target.GetResponse("drop nest");
         Console.WriteLine(response);
 
-        response.Should().Contain("The nest falls to the ground, and the egg spills out of it, seriously damaged");
+        response
+            .Should()
+            .Contain(
+                "The nest falls to the ground, and the egg spills out of it, seriously damaged"
+            );
         Repository.GetItem<Egg>().IsOpen.Should().BeTrue();
         Repository.GetItem<Egg>().IsDestroyed.Should().BeTrue();
         Repository.GetItem<Egg>().CurrentLocation.Should().BeOfType<ForestPath>();
@@ -51,8 +58,11 @@ public class EggAndCanaryTests : EngineTestsBase
         var response = await target.GetResponse("look");
         Console.WriteLine(response);
 
-        response.Should().NotContain(
-            "In the bird's nest is a large egg encrusted with precious jewels, apparently scavenged by a childless songbird. The egg is covered with fine gold inlay, and ornamented in lapis lazuli and mother-of-pearl. Unlike most eggs, this one is hinged and closed with a delicate looking clasp. The egg appears extremely fragile");
+        response
+            .Should()
+            .NotContain(
+                "In the bird's nest is a large egg encrusted with precious jewels, apparently scavenged by a childless songbird. The egg is covered with fine gold inlay, and ornamented in lapis lazuli and mother-of-pearl. Unlike most eggs, this one is hinged and closed with a delicate looking clasp. The egg appears extremely fragile"
+            );
     }
 
     [Test]
@@ -65,8 +75,11 @@ public class EggAndCanaryTests : EngineTestsBase
         var response = await target.GetResponse("drop egg");
         Console.WriteLine(response);
 
-        response.Should().Contain(
-            "The egg falls to the ground and springs open, seriously damaged. There is a golden clockwork canary nestled in the egg. It seems to have recently had a bad experience. The mountings for its jewel-like eyes are empty, and its silver beak is crumpled. Through a cracked crystal window below its left wing you can see the remains of intricate machinery. It is not clear what result winding it would have, as the mainspring seems sprung");
+        response
+            .Should()
+            .Contain(
+                "The egg falls to the ground and springs open, seriously damaged. There is a golden clockwork canary nestled in the egg. It seems to have recently had a bad experience. The mountings for its jewel-like eyes are empty, and its silver beak is crumpled. Through a cracked crystal window below its left wing you can see the remains of intricate machinery. It is not clear what result winding it would have, as the mainspring seems sprung"
+            );
 
         Repository.GetItem<Egg>().IsOpen.Should().BeTrue();
         Repository.GetItem<Egg>().IsDestroyed.Should().BeTrue();
@@ -99,8 +112,29 @@ public class EggAndCanaryTests : EngineTestsBase
         var response = await target.GetResponse("Down");
         Console.WriteLine(response);
 
-        response.Should().Contain(
-            "There is a golden clockwork canary nestled in the broken egg. It seems to have recently had a bad experience. The mountings for its jewel-like eyes are empty, and its silver beak is crumpled. Through a cracked crystal window below its left wing you can see the remains of intricate machinery. It is not clear what result winding it would have, as the mainspring seems sprung.");
+        response
+            .Should()
+            .Contain(
+                "There is a golden clockwork canary nestled in the broken egg. It seems to have recently had a bad experience. The mountings for its jewel-like eyes are empty, and its silver beak is crumpled. Through a cracked crystal window below its left wing you can see the remains of intricate machinery. It is not clear what result winding it would have, as the mainspring seems sprung."
+            );
+    }
+
+    [Test]
+    public async Task DropTheNestFromTheTree_SeeCanaryOnTheGround()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<UpATree>();
+
+        await target.GetResponse("take nest");
+        await target.GetResponse("drop nest");
+        var response = await target.GetResponse("Down");
+        Console.WriteLine(response);
+
+        response
+            .Should()
+            .Contain(
+                "There is a golden clockwork canary nestled in the broken egg. It seems to have recently had a bad experience. The mountings for its jewel-like eyes are empty, and its silver beak is crumpled. Through a cracked crystal window below its left wing you can see the remains of intricate machinery. It is not clear what result winding it would have, as the mainspring seems sprung."
+            );
     }
 
     [Test]
@@ -115,8 +149,11 @@ public class EggAndCanaryTests : EngineTestsBase
         var response = await target.GetResponse("close egg");
         Console.WriteLine(response);
 
-        response.Should().NotContain(
-            "There is a golden clockwork canary nestled in the egg. It seems to have recently had a bad experience. The mountings for its jewel-like eyes are empty, and its silver beak is crumpled. Through a cracked crystal window below its left wing you can see the remains of intricate machinery. It is not clear what result winding it would have, as the mainspring seems sprung.");
+        response
+            .Should()
+            .NotContain(
+                "There is a golden clockwork canary nestled in the egg. It seems to have recently had a bad experience. The mountings for its jewel-like eyes are empty, and its silver beak is crumpled. Through a cracked crystal window below its left wing you can see the remains of intricate machinery. It is not clear what result winding it would have, as the mainspring seems sprung."
+            );
     }
 
     [Test]
@@ -151,8 +188,11 @@ public class EggAndCanaryTests : EngineTestsBase
 
         response.Should().Contain("There is a somewhat ruined egg here");
         response.Should().Contain("There is a broken clockwork canary here");
-        response.Should().NotContain(
-            "There is a golden clockwork canary nestled in the egg. It seems to have recently had a bad experience. The mountings for its jewel-like eyes are empty, and its silver beak is crumpled. Through a cracked crystal window below its left wing you can see the remains of intricate machinery. It is not clear what result winding it would have, as the mainspring seems sprung.");
+        response
+            .Should()
+            .NotContain(
+                "There is a golden clockwork canary nestled in the egg. It seems to have recently had a bad experience. The mountings for its jewel-like eyes are empty, and its silver beak is crumpled. Through a cracked crystal window below its left wing you can see the remains of intricate machinery. It is not clear what result winding it would have, as the mainspring seems sprung."
+            );
     }
 
     [Test]
@@ -210,37 +250,25 @@ public class EggAndCanaryTests : EngineTestsBase
         Console.WriteLine(response);
 
         response.Should().Contain("There is a jewel-encrusted egg here");
-        response.Should()
+        response
+            .Should()
             .Contain(
-                "There is a golden clockwork canary nestled in the egg. It has ruby eyes and a silver beak. Through a crystal window below its left wing you can see intricate machinery inside. It appears to have wound down");
+                "There is a golden clockwork canary nestled in the egg. It has ruby eyes and a silver beak. Through a crystal window below its left wing you can see intricate machinery inside. It appears to have wound down"
+            );
     }
 
     [Test]
-    public async Task OpenTheBrokenEgg_BrokenCanaryInside()
+    public async Task OpenTheEgg_EvenDamaged_YouCannot()
     {
         var target = GetTarget();
         target.Context.CurrentLocation = Repository.GetLocation<UpATree>();
         Repository.GetItem<Egg>().IsDestroyed = true;
-        Repository.GetItem<Canary>().IsDestroyed = true;
 
+        await target.GetResponse("take egg");
         var response = await target.GetResponse("open egg");
         Console.WriteLine(response);
 
-        response.Should().Contain("Opening the broken jewel-encrusted egg reveals a broken clockwork canary");
-    }
-
-    [Test]
-    public async Task OpenTheBrokenEgg_Empty()
-    {
-        var target = GetTarget();
-        target.Context.CurrentLocation = Repository.GetLocation<UpATree>();
-        Repository.GetItem<Egg>().IsDestroyed = true;
-        Repository.GetLocation<Cellar>().ItemPlacedHere(Repository.GetItem<Canary>());
-
-        var response = await target.GetResponse("open egg");
-        Console.WriteLine(response);
-
-        response.Should().Contain("Opened");
+        response.Should().Contain("You have neither the tools nor the expertise");
     }
 
     [Test]
@@ -267,7 +295,9 @@ public class EggAndCanaryTests : EngineTestsBase
         var response = await target.GetResponse("wind canary");
         Console.WriteLine(response);
 
-        response.Should().Contain("The canary chirps blithely, if somewhat tinnily, for a short time");
+        response
+            .Should()
+            .Contain("The canary chirps blithely, if somewhat tinnily, for a short time");
     }
 
     [Test]
@@ -280,7 +310,11 @@ public class EggAndCanaryTests : EngineTestsBase
         var response = await target.GetResponse("wind canary");
         Console.WriteLine(response);
 
-        response.Should().Contain("The canary chirps, slightly off-key, an aria from a forgotten opera. From out of");
+        response
+            .Should()
+            .Contain(
+                "The canary chirps, slightly off-key, an aria from a forgotten opera. From out of"
+            );
     }
 
     [Test]
@@ -293,7 +327,11 @@ public class EggAndCanaryTests : EngineTestsBase
         var response = await target.GetResponse("wind canary");
         Console.WriteLine(response);
 
-        response.Should().Contain("The canary chirps, slightly off-key, an aria from a forgotten opera. From out of");
+        response
+            .Should()
+            .Contain(
+                "The canary chirps, slightly off-key, an aria from a forgotten opera. From out of"
+            );
     }
 
     [Test]
@@ -307,7 +345,9 @@ public class EggAndCanaryTests : EngineTestsBase
         var response = await target.GetResponse("wind canary");
         Console.WriteLine(response);
 
-        response.Should().Contain("The canary chirps blithely, if somewhat tinnily, for a short time");
+        response
+            .Should()
+            .Contain("The canary chirps blithely, if somewhat tinnily, for a short time");
     }
 
     [Test]
@@ -365,7 +405,11 @@ public class EggAndCanaryTests : EngineTestsBase
         var response = await target.GetResponse("drop nest");
         Console.WriteLine(response);
 
-        response.Should().Contain("The nest falls to the ground, and the egg spills out of it, seriously damaged");
+        response
+            .Should()
+            .Contain(
+                "The nest falls to the ground, and the egg spills out of it, seriously damaged"
+            );
         Repository.GetItem<Canary>().IsDestroyed.Should().BeTrue();
         Repository.GetItem<Egg>().IsDestroyed.Should().BeTrue();
         Repository.GetItem<Egg>().IsOpen.Should().BeTrue();
@@ -384,7 +428,11 @@ public class EggAndCanaryTests : EngineTestsBase
         var response = await target.GetResponse("open the egg with the sword");
         Console.WriteLine(response);
 
-        response.Should().Contain("The egg is now open, but the clumsiness of your attempt has seriously compromised");
+        response
+            .Should()
+            .Contain(
+                "The egg is now open, but the clumsiness of your attempt has seriously compromised"
+            );
         Repository.GetItem<Canary>().IsDestroyed.Should().BeTrue();
         Repository.GetItem<Egg>().IsDestroyed.Should().BeTrue();
         Repository.GetItem<Egg>().IsOpen.Should().BeTrue();
@@ -401,7 +449,11 @@ public class EggAndCanaryTests : EngineTestsBase
         var response = await target.GetResponse("open the egg with the knife");
         Console.WriteLine(response);
 
-        response.Should().Contain("The egg is now open, but the clumsiness of your attempt has seriously compromised");
+        response
+            .Should()
+            .Contain(
+                "The egg is now open, but the clumsiness of your attempt has seriously compromised"
+            );
         Repository.GetItem<Canary>().IsDestroyed.Should().BeTrue();
         Repository.GetItem<Egg>().IsDestroyed.Should().BeTrue();
         Repository.GetItem<Egg>().IsOpen.Should().BeTrue();
@@ -418,7 +470,11 @@ public class EggAndCanaryTests : EngineTestsBase
         var response = await target.GetResponse("open the egg with the screwdriver");
         Console.WriteLine(response);
 
-        response.Should().Contain("The egg is now open, but the clumsiness of your attempt has seriously compromised");
+        response
+            .Should()
+            .Contain(
+                "The egg is now open, but the clumsiness of your attempt has seriously compromised"
+            );
         Repository.GetItem<Canary>().IsDestroyed.Should().BeTrue();
         Repository.GetItem<Egg>().IsDestroyed.Should().BeTrue();
         Repository.GetItem<Egg>().IsOpen.Should().BeTrue();

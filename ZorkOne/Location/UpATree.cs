@@ -11,11 +11,18 @@ public class UpATree : BaseLocation, IDropSpecialLocation
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.Down, new MovementParameters { Location = GetLocation<ForestPath>() } },
+            {
+                Direction.Down,
+                new MovementParameters { Location = GetLocation<ForestPath>() }
+            },
             {
                 Direction.Up,
-                new MovementParameters { CanGo = _ => false, CustomFailureMessage = "You cannot climb any higher. " }
-            }
+                new MovementParameters
+                {
+                    CanGo = _ => false,
+                    CustomFailureMessage = "You cannot climb any higher. ",
+                }
+            },
         };
 
     public override string Name => "Up A Tree";
@@ -26,35 +33,46 @@ public class UpATree : BaseLocation, IDropSpecialLocation
     public InteractionResult DropSpecial(IItem item, IContext context)
     {
         var egg = Repository.GetItem<Egg>();
+        Canary canary = Repository.GetItem<Canary>();
+
         Repository.GetLocation<ForestPath>().ItemPlacedHere(item);
 
         if (item is Egg)
         {
             egg.IsDestroyed = true;
             egg.IsOpen = true;
-
-            Repository.GetItem<Canary>().IsDestroyed = true;
+            canary.IsDestroyed = true;
 
             return new PositiveInteractionResult(
-                "The egg falls to the ground and springs open, seriously damaged. There is a golden " +
-                "clockwork canary nestled in the egg. " + Canary.DestroyedMessage);
+                "The egg falls to the ground and springs open, seriously damaged. There is a golden "
+                    + "clockwork canary nestled in the egg. "
+                    + Canary.DestroyedMessage
+            );
         }
 
         if (item is Nest && egg.CurrentLocation is Nest)
         {
             egg.IsDestroyed = true;
             egg.IsOpen = true;
+            egg.HasEverBeenPickedUp = true;
             Repository.GetLocation<ForestPath>().ItemPlacedHere(egg);
-            Repository.GetItem<Canary>().IsDestroyed = true;
+
+            canary.IsDestroyed = true;
 
             return new PositiveInteractionResult(
-                "The nest falls to the ground, and the egg spills out of it, seriously damaged. ");
+                "The nest falls to the ground, and the egg spills out of it, seriously damaged. "
+            );
         }
 
-        return new PositiveInteractionResult($"The {item.NounsForMatching[0]} falls to the ground. ");
+        return new PositiveInteractionResult(
+            $"The {item.NounsForMatching[0]} falls to the ground. "
+        );
     }
 
-    public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
+    public override InteractionResult RespondToSpecificLocationInteraction(
+        string? input,
+        IContext context
+    )
     {
         switch (input?.ToLowerInvariant().Trim())
         {
