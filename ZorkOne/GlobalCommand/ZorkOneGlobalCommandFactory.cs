@@ -11,10 +11,17 @@ public class ZorkOneGlobalCommandFactory : IGlobalCommandFactory
     {
         switch (input?.ToLowerInvariant().StripNonChars().Trim())
         {
+            case "repent":
+                return new SimpleResponseCommand("It could very well be too late! ");
+            
+            // More super nerdy Easter eggs. References the "Colossal Cave" game that inspired Zork.  
             case "xyzzy":
             case "plugh":
                 return new SimpleResponseCommand("A hollow voice says 'fool' ");
 
+            case "echo":
+                return new SimpleResponseCommand("echo echo...");
+            
             case "ulysses":
             case "odysseus":
                 return new SimpleResponseCommand("Wasn't he a sailor? ");
@@ -26,9 +33,10 @@ public class ZorkOneGlobalCommandFactory : IGlobalCommandFactory
                 return new SimpleResponseCommand("At your service!");
 
             case "frobozz":
-                return new SimpleResponseCommand("The FROBOZZ Corporation created, owns, and operates this dungeon.");
+                return new SimpleResponseCommand("The FROBOZZ Corporation created, owns, and operates this dungeon. ");
 
             case "lose":
+            // Look this up - it's a command in the MDL language. Super nerdy Easter egg. 
             case "chomp":
             case "vomit":
                 return new SimpleResponseCommand("Preposterous!");

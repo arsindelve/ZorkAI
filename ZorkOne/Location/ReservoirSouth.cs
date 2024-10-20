@@ -64,11 +64,12 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
 
             IsDraining = IsFilling = IsFull = false;
             IsDrained = true;
-             
+
             context.RemoveActor(this);
 
             if (context.CurrentLocation == this)
-                return Task.FromResult("The water level is now quite low here and you could easily cross over to the other side. ");
+                return Task.FromResult(
+                    "The water level is now quite low here and you could easily cross over to the other side. ");
         }
 
         if (IsFilling)
@@ -79,12 +80,13 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
                 return Task.FromResult(string.Empty);
 
             IsFull = true;
-            IsDrained =IsFilling = IsDraining = false;
+            IsDrained = IsFilling = IsDraining = false;
 
             context.RemoveActor(this);
 
             if (context.CurrentLocation == this)
-                return Task.FromResult("You notice that the water level has risen to the point that it is impossible to cross. ");
+                return Task.FromResult(
+                    "You notice that the water level has risen to the point that it is impossible to cross. ");
         }
 
         return Task.FromResult(string.Empty);
@@ -107,7 +109,7 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
     {
         IsFull = IsDrained = IsDraining = false;
         IsFilling = true;
-        FillingCountDown = 4;
+        FillingCountDown = 7;
         context.RegisterActor(this);
     }
 }
