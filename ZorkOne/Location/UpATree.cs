@@ -1,12 +1,13 @@
 ﻿using GameEngine;
 using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
 using ZorkOne.Location.ForestLocation;
 
 namespace ZorkOne.Location;
 
-public class UpATree : BaseLocation, IDropSpecialLocation
+public class UpATree : BaseLocation, IDropSpecialLocation, ITurnBasedActor
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
@@ -26,7 +27,7 @@ public class UpATree : BaseLocation, IDropSpecialLocation
         };
 
     public override string Name => "Up A Tree";
-
+    
     protected override string ContextBasedDescription =>
         "You are about 10 feet above the ground nestled among some large branches. The nearest branch above you is above your reach. ";
 
@@ -69,6 +70,18 @@ public class UpATree : BaseLocation, IDropSpecialLocation
         );
     }
 
+    public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
+    {
+        context.RegisterActor(this);
+        return base.BeforeEnterLocation(context, previousLocation);
+    }
+
+    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
+    {
+        context.RemoveActor(this);
+        base.OnLeaveLocation(context, newLocation, previousLocation);
+    }
+
     public override InteractionResult RespondToSpecificLocationInteraction(
         string? input,
         IContext context
@@ -96,5 +109,14 @@ public class UpATree : BaseLocation, IDropSpecialLocation
     public override void Init()
     {
         StartWithItem<Nest>();
+    }
+
+    public Task<string> Act(IContext context, IGenerationClient client)
+    {
+        var random = new Random();
+        var randomNumber = random.Next(0, 4);
+        if (randomNumber == 0) return Task.FromResult("\nIn the distance you hear the chirping of a song bird. ");
+
+        return Task.FromResult(string.Empty);
     }
 }
