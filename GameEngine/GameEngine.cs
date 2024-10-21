@@ -25,7 +25,8 @@ namespace GameEngine;
 ///     (and their corresponding state). The <see cref="Repository" /> is static, self-contained and not owned by
 ///     anyone.
 /// </remarks>
-public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame : IInfocomGame, new()
+public class GameEngine<TInfocomGame, TContext> : IGameEngine
+    where TInfocomGame : IInfocomGame, new()
     where TContext : IContext, new()
 {
     private readonly AgainProcessor _againProcessor = new();
@@ -45,7 +46,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     private TInfocomGame _gameInstance;
 
     [ActivatorUtilitiesConstructor]
-    public GameEngine(ILogger<GameEngine<TInfocomGame, TContext>> logger, ISecretsManager secretsManager)
+    public GameEngine(
+        ILogger<GameEngine<TInfocomGame, TContext>> logger,
+        ISecretsManager secretsManager
+    )
     {
         _logger = logger;
         _secretsManager = secretsManager;
@@ -54,22 +58,22 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         {
             Engine = this,
             Game = _gameInstance,
-            Verbosity = Verbosity.Brief
+            Verbosity = Verbosity.Brief,
         };
 
         Context.CurrentLocation.Init();
         Context.Init();
         _gameInstance.Init(Context);
-        
+
         Runtime = Runtime.Web;
         IntroText = $"""
-                     {_gameInstance.StartText}
-                     {Context.CurrentLocation.Description}
-                     """;
+            {_gameInstance.StartText}
+            {Context.CurrentLocation.Description}
+            """;
 
         _generator = new ChatGPTClient(_logger);
         _generator.OnGenerate += () => _lastResponseWasGenerated = true;
-        
+
         _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
     }
 
@@ -79,14 +83,15 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
     /// <param name="parser"></param>
     /// <param name="generationClient"></param>
     /// <param name="secretsManager"></param>
-    public GameEngine(IIntentParser parser, IGenerationClient generationClient, ISecretsManager secretsManager)
+    public GameEngine(
+        IIntentParser parser,
+        IGenerationClient generationClient,
+        ISecretsManager secretsManager
+    )
     {
         Repository.Reset();
 
-        Context = new TContext
-        {
-            Engine = this
-        };
+        Context = new TContext { Engine = this };
 
         IntroText = string.Empty;
         _parser = parser;
@@ -106,7 +111,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
     public IContext RestoreGame(string data)
     {
-        var deserializeObject = JsonConvert.DeserializeObject<SavedGame<TContext>>(data, JsonSettings());
+        var deserializeObject = JsonConvert.DeserializeObject<SavedGame<TContext>>(
+            data,
+            JsonSettings()
+        );
         var allItems = deserializeObject?.AllItems ?? throw new ArgumentException();
         var allLocations = deserializeObject.AllLocations ?? throw new ArgumentException();
 
@@ -128,7 +136,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
     public async Task InitializeEngine()
     {
-        _generator.SystemPrompt = await _secretsManager.GetSecret(_gameInstance.SystemPromptSecretKey);
+        _generator.SystemPrompt = await _secretsManager.GetSecret(
+            _gameInstance.SystemPromptSecretKey
+        );
     }
 
     public int Moves => Context.Moves;
@@ -144,8 +154,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         _currentInput = playerInput;
 
         // See if we have something already running like a save, quit, etc.
-        // and see if it has any output. 
-        var (returnProcessorInProgressOutput, processorInProgressOutput) = await RunProcessorInProgress();
+        // and see if it has any output.
+        var (returnProcessorInProgressOutput, processorInProgressOutput) =
+            await RunProcessorInProgress();
 
         if (returnProcessorInProgressOutput)
             return PostProcessing(processorInProgressOutput!);
@@ -153,8 +164,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         if (string.IsNullOrEmpty(_currentInput))
             return PostProcessing(await GetGeneratedNoCommandResponse());
 
-        // if the user referenced an object using "it", let's see 
-        // if we can handle that. 
+        // if the user referenced an object using "it", let's see
+        // if we can handle that.
         var (requiresClarification, replacedInput) = _itProcessor.Check(_currentInput, Context);
         if (requiresClarification)
         {
@@ -165,9 +176,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         _currentInput = replacedInput;
 
         // See if the user typed "again" or some variation.
-        // if so, we'll replace the input with their previous input. 
-        (_currentInput, var returnResponseFromAgainProcessor) =
-            _againProcessor.Process(_currentInput, Context);
+        // if so, we'll replace the input with their previous input.
+        (_currentInput, var returnResponseFromAgainProcessor) = _againProcessor.Process(
+            _currentInput,
+            Context
+        );
 
         if (returnResponseFromAgainProcessor)
             return PostProcessing(_currentInput);
@@ -177,44 +190,67 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
         // ----------------------------------------------------------------------------
         // We're done now doing pre-processing, we're ready to actually look at what the
-        // user wrote and do something with it. 
+        // user wrote and do something with it.
 
-        // Does the location have a special interaction to input such as "jump" or "pray"? 
-        var singleVerbResult = Context.CurrentLocation.RespondToSpecificLocationInteraction(_currentInput, Context);
+        // Does the location have a special interaction to input such as "jump" or "pray"?
+        var singleVerbResult = Context.CurrentLocation.RespondToSpecificLocationInteraction(
+            _currentInput,
+            Context
+        );
         if (singleVerbResult.InteractionHappened)
             return PostProcessing(singleVerbResult.InteractionMessage);
 
-        IntentBase parsedResult =
-            await _parser.DetermineIntentType(_currentInput, Context.CurrentLocation.Description, _sessionId);
-        
+        IntentBase parsedResult = await _parser.DetermineIntentType(
+            _currentInput,
+            Context.CurrentLocation.Description,
+            _sessionId
+        );
+
         _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
 
         (InteractionResult? ResultObject, string? ResultMessage) intentResult = parsedResult switch
         {
-            GlobalCommandIntent intent =>
-                (null, await ProcessGlobalCommandIntent(intent)),
+            GlobalCommandIntent intent => (null, await ProcessGlobalCommandIntent(intent)),
 
-            NullIntent =>
-                (null, await GetGeneratedNoOpResponse(_currentInput, _generator, Context)),
+            NullIntent => (
+                null,
+                await GetGeneratedNoOpResponse(_currentInput, _generator, Context)
+            ),
 
             PromptIntent => (null, parsedResult.Message),
-            
-            EnterSubLocationIntent subLocationIntent =>
-                await new EnterSubLocationEngine().Process(subLocationIntent, Context, _generator),
-            
+
+            EnterSubLocationIntent subLocationIntent => await new EnterSubLocationEngine().Process(
+                subLocationIntent,
+                Context,
+                _generator
+            ),
+
             ExitSubLocationIntent exitSubLocationIntent =>
-                await new ExitSubLocationEngine().Process(exitSubLocationIntent, Context, _generator),
+                await new ExitSubLocationEngine().Process(
+                    exitSubLocationIntent,
+                    Context,
+                    _generator
+                ),
 
-            MoveIntent moveInteraction =>
-                await new MoveEngine().Process(moveInteraction, Context, _generator),
+            MoveIntent moveInteraction => await new MoveEngine().Process(
+                moveInteraction,
+                Context,
+                _generator
+            ),
 
-            SimpleIntent simpleInteraction =>
-                await new SimpleInteractionEngine().Process(simpleInteraction, Context, _generator),
+            SimpleIntent simpleInteraction => await new SimpleInteractionEngine().Process(
+                simpleInteraction,
+                Context,
+                _generator
+            ),
 
-            MultiNounIntent multiInteraction =>
-                await new MultiNounEngine().Process(multiInteraction, Context, _generator),
+            MultiNounIntent multiInteraction => await new MultiNounEngine().Process(
+                multiInteraction,
+                Context,
+                _generator
+            ),
 
-            _ => (null, await GetGeneratedNoOpResponse(_currentInput, _generator, Context))
+            _ => (null, await GetGeneratedNoOpResponse(_currentInput, _generator, Context)),
         };
 
         if (intentResult.ResultObject is SimpleInteractionDisambiguationInteractionResult result)
@@ -223,9 +259,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         }
 
         // "Actors" are things that can occur each turn. Examples are the troll
-        // attacking, the maintenance room flooding, Floyd mumbling. 
+        // attacking, the maintenance room flooding, Floyd mumbling.
         string actorResults = await ProcessActors();
-        return PostProcessing(turnCounterResponse + intentResult.ResultMessage?.Trim() + actorResults);
+        return PostProcessing(
+            turnCounterResponse + intentResult.ResultMessage?.Trim() + actorResults
+        );
     }
 
     public int Score => Context.Score;
@@ -250,7 +288,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
 
     private async Task<string> ProcessGlobalCommandIntent(GlobalCommandIntent intent)
     {
-        var intentResponse = await intent.Command.Process(_currentInput, Context, _generator, Runtime);
+        var intentResponse = await intent.Command.Process(
+            _currentInput,
+            Context,
+            _generator,
+            Runtime
+        );
         if (intent.Command is IStatefulProcessor { Completed: false } statefulProcessor)
             _processorInProgress = statefulProcessor;
 
@@ -277,13 +320,18 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         var immediatelyReturn = false;
 
         // When this is not null, it means we have another processor in progress.
-        // Defer all execution to that processor until it's complete. 
+        // Defer all execution to that processor until it's complete.
         if (_processorInProgress == null)
             return (immediatelyReturn, processorInProgressOutput);
 
-        processorInProgressOutput = await _processorInProgress.Process(_currentInput, Context, _generator, Runtime);
+        processorInProgressOutput = await _processorInProgress.Process(
+            _currentInput,
+            Context,
+            _generator,
+            Runtime
+        );
 
-        // The processor is done. Clear it, and see what we want to do with the output. 
+        // The processor is done. Clear it, and see what we want to do with the output.
         if (_processorInProgress.Completed)
         {
             var continueProcessingThisInput = _processorInProgress.ContinueProcessing;
@@ -293,11 +341,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
             if (!continueProcessingThisInput)
                 immediatelyReturn = true;
 
-            // ....or does it want to push that output through for further processing? 
+            // ....or does it want to push that output through for further processing?
             _currentInput = processorInProgressOutput;
         }
-
-        // Return the output and keep processing? Or are we done here yet.  
+        // Return the output and keep processing? Or are we done here yet.
         else
         {
             immediatelyReturn = true;
@@ -306,11 +353,16 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
         return (immediatelyReturn, processorInProgressOutput);
     }
 
-    private static async Task<string> GetGeneratedNoOpResponse(string input, IGenerationClient generationClient,
-        IContext context)
+    private static async Task<string> GetGeneratedNoOpResponse(
+        string input,
+        IGenerationClient generationClient,
+        IContext context
+    )
     {
-        var request =
-            new CommandHasNoEffectOperationRequest(context.CurrentLocation.DescriptionForGeneration, input);
+        var request = new CommandHasNoEffectOperationRequest(
+            context.CurrentLocation.DescriptionForGeneration,
+            input
+        );
         var result = await generationClient.CompleteChat(request);
         return result + Environment.NewLine;
     }
@@ -330,25 +382,25 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine where TInfocomGame
             TypeNameHandling = TypeNameHandling.All,
             PreserveReferencesHandling = PreserveReferencesHandling.Objects,
             ContractResolver = new DoNotSerializeReadOnlyPropertiesResolver(),
-            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
+            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
         };
     }
 }
 
 public class DoNotSerializeReadOnlyPropertiesResolver : DefaultContractResolver
 {
-    protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+    protected override JsonProperty CreateProperty(
+        MemberInfo member,
+        MemberSerialization memberSerialization
+    )
     {
         JsonProperty property = base.CreateProperty(member, memberSerialization);
-    
+
         if (!property.Writable)
         {
             property.ShouldSerialize = _ => false;
         }
-    
+
         return property;
     }
 }
-
-
-

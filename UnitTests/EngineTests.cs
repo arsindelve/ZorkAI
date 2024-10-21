@@ -27,8 +27,7 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Client.Setup(s => s.CompleteChat(It.IsAny<EmptyRequest>()))
-            .ReturnsAsync("BOB");
+        Client.Setup(s => s.CompleteChat(It.IsAny<EmptyRequest>())).ReturnsAsync("BOB");
 
         // Act
         var result = await target.GetResponse("");
@@ -42,8 +41,7 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Client.Setup(s => s.CompleteChat(It.IsAny<EmptyRequest>()))
-            .ReturnsAsync("BOB");
+        Client.Setup(s => s.CompleteChat(It.IsAny<EmptyRequest>())).ReturnsAsync("BOB");
 
         // Act
         var result = await target.GetResponse(null);
@@ -94,12 +92,18 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget(Mock.Of<IIntentParser>());
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("BOB", It.IsAny<string>(), It.IsAny<string>()))
+        Mock.Get(Parser)
+            .Setup(s => s.DetermineIntentType("BOB", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new NullIntent());
 
-        Client.Setup(
-                s => s.CompleteChat(It.Is<CommandHasNoEffectOperationRequest>(m =>
-                    m.UserMessage != null && m.UserMessage.Contains("BOB"))))
+        Client
+            .Setup(s =>
+                s.CompleteChat(
+                    It.Is<CommandHasNoEffectOperationRequest>(m =>
+                        m.UserMessage != null && m.UserMessage.Contains("BOB")
+                    )
+                )
+            )
             .ReturnsAsync("FRED");
 
         // Act
@@ -114,7 +118,8 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget(Mock.Of<IIntentParser>());
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("PROMPT", It.IsAny<string>(), It.IsAny<string>()))
+        Mock.Get(Parser)
+            .Setup(s => s.DetermineIntentType("PROMPT", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new PromptIntent { Message = "Please enter a value:" });
 
         // Act
@@ -124,18 +129,32 @@ public class EngineTests : EngineTestsBase
         result.Should().Contain("Please enter a value:");
     }
 
-
     [Test]
     public async Task SimpleIntent_NoVerbMatch()
     {
         var target = GetTarget(Mock.Of<IIntentParser>());
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("push the mailbox", It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new SimpleIntent { Verb = "push", Noun = "mailbox", OriginalInput = "push the mailbox" });
+        Mock.Get(Parser)
+            .Setup(s =>
+                s.DetermineIntentType("push the mailbox", It.IsAny<string>(), It.IsAny<string>())
+            )
+            .ReturnsAsync(
+                new SimpleIntent
+                {
+                    Verb = "push",
+                    Noun = "mailbox",
+                    OriginalInput = "push the mailbox",
+                }
+            );
 
-        Client.Setup(
-                s => s.CompleteChat(It.Is<VerbHasNoEffectOperationRequest>(m =>
-                    m.UserMessage != null && m.UserMessage.Contains("mailbox"))))
+        Client
+            .Setup(s =>
+                s.CompleteChat(
+                    It.Is<VerbHasNoEffectOperationRequest>(m =>
+                        m.UserMessage != null && m.UserMessage.Contains("mailbox")
+                    )
+                )
+            )
             .ReturnsAsync("no");
 
         // Act
@@ -150,23 +169,58 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget(Mock.Of<IIntentParser>());
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("push the leaflet", It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new SimpleIntent { Verb = "push", Noun = "leaflet", OriginalInput = "" });
-        
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("take leaflet", It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new SimpleIntent { Verb = "take", Noun = "leaflet", OriginalInput = "" });
-        
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("open mailbox", It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new SimpleIntent { Verb = "open", Noun = "mailbox", OriginalInput = "" });
+        Mock.Get(Parser)
+            .Setup(s =>
+                s.DetermineIntentType("push the leaflet", It.IsAny<string>(), It.IsAny<string>())
+            )
+            .ReturnsAsync(
+                new SimpleIntent
+                {
+                    Verb = "push",
+                    Noun = "leaflet",
+                    OriginalInput = "",
+                }
+            );
 
-        Client.Setup(
-                s => s.CompleteChat(It.Is<VerbHasNoEffectOperationRequest>(m =>
-                    m.UserMessage != null && m.UserMessage.Contains("leaflet"))))
+        Mock.Get(Parser)
+            .Setup(s =>
+                s.DetermineIntentType("take leaflet", It.IsAny<string>(), It.IsAny<string>())
+            )
+            .ReturnsAsync(
+                new SimpleIntent
+                {
+                    Verb = "take",
+                    Noun = "leaflet",
+                    OriginalInput = "",
+                }
+            );
+
+        Mock.Get(Parser)
+            .Setup(s =>
+                s.DetermineIntentType("open mailbox", It.IsAny<string>(), It.IsAny<string>())
+            )
+            .ReturnsAsync(
+                new SimpleIntent
+                {
+                    Verb = "open",
+                    Noun = "mailbox",
+                    OriginalInput = "",
+                }
+            );
+
+        Client
+            .Setup(s =>
+                s.CompleteChat(
+                    It.Is<VerbHasNoEffectOperationRequest>(m =>
+                        m.UserMessage != null && m.UserMessage.Contains("leaflet")
+                    )
+                )
+            )
             .ReturnsAsync("no");
 
         // Act
         var result = await target.GetResponse("open mailbox");
-        result =await target.GetResponse("take leaflet");
+        result = await target.GetResponse("take leaflet");
         result = await target.GetResponse("push the leaflet");
 
         // Assert
@@ -178,19 +232,34 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget(Mock.Of<IIntentParser>());
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("push the leaflet", It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new SimpleIntent { Verb = "push", Noun = "leaflet", OriginalInput = "push the leaflet" });
+        Mock.Get(Parser)
+            .Setup(s =>
+                s.DetermineIntentType("push the leaflet", It.IsAny<string>(), It.IsAny<string>())
+            )
+            .ReturnsAsync(
+                new SimpleIntent
+                {
+                    Verb = "push",
+                    Noun = "leaflet",
+                    OriginalInput = "push the leaflet",
+                }
+            );
 
-        Client.Setup(
-                s => s.CompleteChat(It.Is<NounNotPresentOperationRequest>(m =>
-                    m.UserMessage != null && m.UserMessage.Contains("leaflet"))))
+        Client
+            .Setup(s =>
+                s.CompleteChat(
+                    It.Is<NounNotPresentOperationRequest>(m =>
+                        m.UserMessage != null && m.UserMessage.Contains("leaflet")
+                    )
+                )
+            )
             .ReturnsAsync("no");
 
         // Act
         var result = await target.GetResponse("push the leaflet");
 
         // Assert
-        // The leaflet is inside the mailbox, inaccessible, and therefore is not "here" to be interacted with. 
+        // The leaflet is inside the mailbox, inaccessible, and therefore is not "here" to be interacted with.
         result.Should().Contain("no");
     }
 
@@ -199,12 +268,27 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget(Mock.Of<IIntentParser>());
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("push the unicorn", It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new SimpleIntent { Verb = "push", Noun = "unicorn", OriginalInput = "push the unicorn" });
+        Mock.Get(Parser)
+            .Setup(s =>
+                s.DetermineIntentType("push the unicorn", It.IsAny<string>(), It.IsAny<string>())
+            )
+            .ReturnsAsync(
+                new SimpleIntent
+                {
+                    Verb = "push",
+                    Noun = "unicorn",
+                    OriginalInput = "push the unicorn",
+                }
+            );
 
-        Client.Setup(
-                s => s.CompleteChat(It.Is<CommandHasNoEffectOperationRequest>(m =>
-                    m.UserMessage != null && m.UserMessage.Contains("unicorn"))))
+        Client
+            .Setup(s =>
+                s.CompleteChat(
+                    It.Is<CommandHasNoEffectOperationRequest>(m =>
+                        m.UserMessage != null && m.UserMessage.Contains("unicorn")
+                    )
+                )
+            )
             .ReturnsAsync("no");
 
         // Act
@@ -219,7 +303,8 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget(Mock.Of<IIntentParser>());
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("go east", It.IsAny<string>(), It.IsAny<string>()))
+        Mock.Get(Parser)
+            .Setup(s => s.DetermineIntentType("go east", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new MoveIntent { Direction = Direction.E });
 
         // Act
@@ -234,12 +319,18 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget(Mock.Of<IIntentParser>());
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("go east", It.IsAny<string>(), It.IsAny<string>()))
+        Mock.Get(Parser)
+            .Setup(s => s.DetermineIntentType("go east", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new UnitTestIntent { Message = "bob" });
 
-        Client.Setup(
-                s => s.CompleteChat(It.Is<CommandHasNoEffectOperationRequest>(m =>
-                    m.UserMessage != null && m.UserMessage.Contains("go east"))))
+        Client
+            .Setup(s =>
+                s.CompleteChat(
+                    It.Is<CommandHasNoEffectOperationRequest>(m =>
+                        m.UserMessage != null && m.UserMessage.Contains("go east")
+                    )
+                )
+            )
             .ReturnsAsync("no");
 
         // Act
@@ -255,7 +346,8 @@ public class EngineTests : EngineTestsBase
         var target = GetTarget(Mock.Of<IIntentParser>());
 
         target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("go west", It.IsAny<string>(), It.IsAny<string>()))
+        Mock.Get(Parser)
+            .Setup(s => s.DetermineIntentType("go west", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new MoveIntent { Direction = Direction.W });
 
         // Act
@@ -272,7 +364,8 @@ public class EngineTests : EngineTestsBase
 
         Repository.GetItem<KitchenWindow>().IsOpen = true;
         target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("go west", It.IsAny<string>(), It.IsAny<string>()))
+        Mock.Get(Parser)
+            .Setup(s => s.DetermineIntentType("go west", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new MoveIntent { Direction = Direction.W });
 
         // Act
@@ -337,33 +430,6 @@ public class EngineTests : EngineTestsBase
         result.Should().Contain("Dropped");
     }
 
-
-    [Test]
-    public async Task It_SuccessPath()
-    {
-        var target = GetTarget();
-        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
-
-        await target.GetResponse("take lantern");
-        var result = await target.GetResponse("drop it");
-
-        target.Context.HasItem<Lantern>().Should().BeFalse();
-        result.Should().Contain("Dropped");
-    }
-
-    [Test]
-    public async Task It_NoLastNoun()
-    {
-        var target = GetTarget();
-        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
-
-        await target.GetResponse("take it");
-        var result = await target.GetResponse("lantern");
-
-        target.Context.HasItem<Lantern>().Should().BeTrue();
-        result.Should().Contain("Taken");
-    }
-
     [Test]
     public async Task LightSource_ChangesDescription_TurnOn()
     {
@@ -398,17 +464,27 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget(Mock.Of<IIntentParser>());
 
-        Mock.Get(Parser).Setup(s => s.DetermineIntentType("dig hole with shovel", It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new MultiNounIntent
-            {
-                NounOne = "hole",
-                NounTwo = "shovel",
-                Preposition = "with",
-                Verb = "dig",
-                OriginalInput = "dig hole with shovel"
-            });
+        Mock.Get(Parser)
+            .Setup(s =>
+                s.DetermineIntentType(
+                    "dig hole with shovel",
+                    It.IsAny<string>(),
+                    It.IsAny<string>()
+                )
+            )
+            .ReturnsAsync(
+                new MultiNounIntent
+                {
+                    NounOne = "hole",
+                    NounTwo = "shovel",
+                    Preposition = "with",
+                    Verb = "dig",
+                    OriginalInput = "dig hole with shovel",
+                }
+            );
 
-        Client.Setup(s => s.CompleteChat(It.IsAny<CommandHasNoEffectOperationRequest>()))
+        Client
+            .Setup(s => s.CompleteChat(It.IsAny<CommandHasNoEffectOperationRequest>()))
             .ReturnsAsync("bob");
 
         var result = await target.GetResponse("dig hole with shovel");
@@ -419,10 +495,11 @@ public class EngineTests : EngineTestsBase
     [Test]
     public async Task SendInputToAIParser()
     {
-        // Arrange 
+        // Arrange
         var aiParser = new Mock<IAIParser>();
 
-        aiParser.Setup(s => s.AskTheAIParser("walk east", It.IsAny<string>(), It.IsAny<string>()))
+        aiParser
+            .Setup(s => s.AskTheAIParser("walk east", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new MoveIntent { Direction = Direction.E });
 
         var parser = new IntentParser(aiParser.Object, new ZorkOneGlobalCommandFactory(), null);

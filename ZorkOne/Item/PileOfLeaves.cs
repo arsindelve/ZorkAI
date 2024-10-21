@@ -6,7 +6,7 @@ using Model.Interface;
 
 namespace ZorkOne.Item;
 
-public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
+public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IPluralNoun
 {
     public override string[] NounsForMatching => ["leaves", "pile", "pile of leaves"];
 
@@ -30,8 +30,11 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
         return "In disturbing the pile of leaves, a grating is revealed. ";
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override InteractionResult RespondToSimpleInteraction(
+        SimpleIntent action,
+        IContext context,
+        IGenerationClient client
+    )
     {
         if (action.Verb.ToLowerInvariant().Trim() == "count")
             if (action.Noun?.ToLowerInvariant().Trim() == "leaves")
@@ -42,7 +45,9 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
             {
                 HasEverBeenPickedUp = true;
                 Repository.GetLocation<Clearing>().ItemPlacedHere(Repository.GetItem<Grating>());
-                return new PositiveInteractionResult("In disturbing the pile of leaves, a grating is revealed. ");
+                return new PositiveInteractionResult(
+                    "In disturbing the pile of leaves, a grating is revealed. "
+                );
             }
 
         return base.RespondToSimpleInteraction(action, context, client);

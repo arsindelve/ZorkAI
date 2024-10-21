@@ -6,8 +6,14 @@ using Model.Interface;
 
 namespace ZorkOne.Item;
 
-public class Matchbook : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDropped,
-    IAmALightSourceThatTurnsOnAndOff, ITurnBasedActor
+public class Matchbook
+    : ItemBase,
+        ICanBeRead,
+        ICanBeExamined,
+        ICanBeTakenAndDropped,
+        IAmALightSourceThatTurnsOnAndOff,
+        ITurnBasedActor,
+        IPluralNoun
 {
     public int TurnsRemainingLit { get; set; }
 
@@ -15,7 +21,8 @@ public class Matchbook : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDro
 
     public override string[] NounsForMatching => ["matches", "matchbook", "match"];
 
-    public override string GenericDescription(ILocation? currentLocation) => "A matchbook" + (IsOn ? " (providing light)" : "");
+    public override string GenericDescription(ILocation? currentLocation) =>
+        "A matchbook" + (IsOn ? " (providing light)" : "");
 
     public bool IsOn { get; set; }
 
@@ -27,7 +34,8 @@ public class Matchbook : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDro
 
     public string AlreadyOnText => string.Empty;
 
-    public string? CannotBeTurnedOnText => MatchesUsed == 5 ? "I'm afraid that you have run out of matches. " : "";
+    public string? CannotBeTurnedOnText =>
+        MatchesUsed == 5 ? "I'm afraid that you have run out of matches. " : "";
 
     public string OnBeingTurnedOn(IContext context)
     {
@@ -42,19 +50,21 @@ public class Matchbook : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDro
         context.RemoveActor(this);
     }
 
-    public string ExaminationDescription => "The matchbook isn't very interesting, except for what's written on it. ";
+    public string ExaminationDescription =>
+        "The matchbook isn't very interesting, except for what's written on it. ";
 
-    public string ReadDescription => """
-                                     (Close cover before striking)
+    public string ReadDescription =>
+        """
+            (Close cover before striking)
 
-                                     YOU too can make BIG MONEY in the exciting field of PAPER SHUFFLING!
+            YOU too can make BIG MONEY in the exciting field of PAPER SHUFFLING!
 
-                                     Mr. Anderson of Muddle, Mass. says: "Before I took this course I was a lowly bit twiddler. Now with what I learned at GUE Tech I feel really important and can obfuscate and confuse with the best."
+            Mr. Anderson of Muddle, Mass. says: "Before I took this course I was a lowly bit twiddler. Now with what I learned at GUE Tech I feel really important and can obfuscate and confuse with the best."
 
-                                     Dr. Blank had this to say: "Ten short days ago all I could look forward to was a dead-end job as a doctor. Now I have a promising future and make really big Zorkmids."
+            Dr. Blank had this to say: "Ten short days ago all I could look forward to was a dead-end job as a doctor. Now I have a promising future and make really big Zorkmids."
 
-                                     GUE Tech can't promise these fantastic results to everyone. But when you earn your degree from GUE Tech, your future will be brighter.
-                                     """;
+            GUE Tech can't promise these fantastic results to everyone. But when you earn your degree from GUE Tech, your future will be brighter.
+            """;
 
     public string OnTheGroundDescription(ILocation currentLocation)
     {
@@ -82,7 +92,10 @@ public class Matchbook : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDro
 
         var result = new TurnLightOnOrOffProcessor().Process(
             new SimpleIntent { Verb = "turn off", Noun = NounsForMatching.First() },
-            context, this, client);
+            context,
+            this,
+            client
+        );
 
         return Task.FromResult(result!.InteractionMessage);
     }
