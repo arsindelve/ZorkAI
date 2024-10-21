@@ -6,7 +6,7 @@ using Model.Interface;
 
 namespace ZorkOne.Item;
 
-public class Spirits : ItemBase, ICanBeExamined, ITurnBasedActor
+public class Spirits : ItemBase, ICanBeExamined, ITurnBasedActor, IPluralNoun
 {
     public bool Stunned { get; set; }
 
@@ -32,10 +32,13 @@ public class Spirits : ItemBase, ICanBeExamined, ITurnBasedActor
         {
             Stunned = false;
             var hades = Repository.GetLocation<EntranceToHades>();
-            if (context.CurrentLocation == hades && Repository.GetItem<Spirits>().CurrentLocation == hades)
-                return
-                    Task.FromResult(
-                        "\nThe tension of this ceremony is broken, and the wraiths, amused but shaken at your clumsy attempt, resume their hideous jeering.");
+            if (
+                context.CurrentLocation == hades
+                && Repository.GetItem<Spirits>().CurrentLocation == hades
+            )
+                return Task.FromResult(
+                    "\nThe tension of this ceremony is broken, and the wraiths, amused but shaken at your clumsy attempt, resume their hideous jeering."
+                );
         }
 
         return Task.FromResult("");
@@ -47,13 +50,15 @@ public class Spirits : ItemBase, ICanBeExamined, ITurnBasedActor
         Stunned = true;
         StunnedCounter = 5;
 
-        return
-            "The wraiths, as if paralyzed, stop their jeering and slowly turn to face you. " +
-            "On their ashen faces, the expression of a long-forgotten terror takes shape. ";
+        return "The wraiths, as if paralyzed, stop their jeering and slowly turn to face you. "
+            + "On their ashen faces, the expression of a long-forgotten terror takes shape. ";
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override InteractionResult RespondToSimpleInteraction(
+        SimpleIntent action,
+        IContext context,
+        IGenerationClient client
+    )
     {
         if (action.MatchNoun(NounsForMatching))
             return new PositiveInteractionResult(ExaminationDescription);
