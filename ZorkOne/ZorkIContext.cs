@@ -16,11 +16,18 @@ public class ZorkIContext : Context<ZorkI>
     ///     The Death Counter keeps track of the number of times the player character has died.
     /// </remarks>
     public int DeathCounter { get; set; }
-    
-    public override string CurrentScore => $"""
-                                              Your score would be {Score} (total of 350 points), in {Moves} moves.
-                                              This score gives you the rank of {Game.GetScoreDescription(Score)}.
-                                           """;
+
+    /// <summary>
+    /// This flag is set once the score hits 350. The score can still go down again, if you take
+    /// something out of the case, but this flag will never get turned off.
+    /// </summary>
+    public bool GameOver { get; set; }
+
+    public override string CurrentScore =>
+        $"""
+               Your score would be {Score} (total of 350 points), in {Moves} moves.
+               This score gives you the rank of {Game.GetScoreDescription(Score)}.
+            """;
 
     /// <summary>
     ///     The player can only have one light wound. A second will kill them. This counter tracks how much
@@ -54,13 +61,19 @@ public class ZorkIContext : Context<ZorkI>
     public override string? ProcessTurnCounter()
     {
         Moves++;
-        
+
         if (LightWoundCounter > 0)
             LightWoundCounter--;
 
+        if (Score == 350 && !GameOver)
+        {
+            Repository.GetItem<TrophyCase>().ItemPlacedHere(Repository.GetItem<Map>());
+            GameOver = true;
+            return "An almost inaudible voice whispers in your ear, \"Look to your treasures for the final secret.\"";
+        }
+
         return null;
     }
-
 
     /// <summary>
     ///     Some items in Zork1 give points for picking them up.
@@ -79,9 +92,9 @@ public class ZorkIContext : Context<ZorkI>
 
         base.Take(item);
     }
-    
+
     public override bool HaveRoomForItem(IItem item)
-    { 
+    {
         return CalculateTotalSize() < 21;
     }
 }

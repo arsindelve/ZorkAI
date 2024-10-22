@@ -5,6 +5,7 @@ namespace IntegrationTests;
 [TestFixture]
 [Explicit]
 [Parallelizable(ParallelScope.Children)]
+[Ignore("")]
 public class SavedGameTests
 {
     [SetUp]

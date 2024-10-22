@@ -15,29 +15,44 @@ public class WestOfHouse : BaseLocation
 
     public override string Name => "West Of House";
 
-    protected override Dictionary<Direction, MovementParameters> Map => new()
-    {
+    protected override Dictionary<Direction, MovementParameters> Map =>
+        new()
         {
-            Direction.S, new MovementParameters { Location = GetLocation<SouthOfHouse>() }
-        },
-        {
-            Direction.N, new MovementParameters { Location = GetLocation<NorthOfHouse>() }
-        },
-        {
-            Direction.W, new MovementParameters { Location = GetLocation<ForestOne>() }
-        },
-        {
-            Direction.E,
-            new MovementParameters
             {
-                CanGo = _ => false,
-                CustomFailureMessage = "The door is boarded and you can't remove the boards."
-            }
-        }
-    };
-    
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+                Direction.S,
+                new MovementParameters { Location = GetLocation<SouthOfHouse>() }
+            },
+            {
+                Direction.N,
+                new MovementParameters { Location = GetLocation<NorthOfHouse>() }
+            },
+            {
+                Direction.W,
+                new MovementParameters { Location = GetLocation<ForestOne>() }
+            },
+            {
+                Direction.E,
+                new MovementParameters
+                {
+                    CanGo = _ => false,
+                    CustomFailureMessage = "The door is boarded and you can't remove the boards.",
+                }
+            },
+            {
+                Direction.SW,
+                new MovementParameters
+                {
+                    CanGo = context => ((ZorkIContext)context).GameOver,
+                    Location = GetLocation<StoneBarrow>(),
+                }
+            },
+        };
+
+    public override InteractionResult RespondToSimpleInteraction(
+        SimpleIntent action,
+        IContext context,
+        IGenerationClient client
+    )
     {
         string[] nouns = ["door", "front door"];
 
@@ -49,7 +64,8 @@ public class WestOfHouse : BaseLocation
 
         if (action.Match(["examine", "look"], ["house", "white house"]))
             return new PositiveInteractionResult(
-                "The house is a beautiful colonial house which is painted white. It is clear that the owners must have been extremely wealthy. ");
+                "The house is a beautiful colonial house which is painted white. It is clear that the owners must have been extremely wealthy. "
+            );
 
         return base.RespondToSimpleInteraction(action, context, client);
     }

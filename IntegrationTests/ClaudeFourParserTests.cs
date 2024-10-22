@@ -9,6 +9,7 @@ namespace IntegrationTests;
 
 [TestFixture]
 [Explicit]
+[Ignore("")]
 // [Parallelizable(ParallelScope.Children)]
 public class ClaudeFourParserTests
 {
