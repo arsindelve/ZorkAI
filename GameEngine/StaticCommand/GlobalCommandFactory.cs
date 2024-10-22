@@ -12,7 +12,7 @@ namespace GameEngine.StaticCommand;
 /// </summary>
 public class GlobalCommandFactory : IGlobalCommandFactory
 {
-    public IGlobalCommand? GetGlobalCommands(string? input)
+    public virtual IGlobalCommand? GetGlobalCommands(string? input)
     {
         switch (input?.ToLowerInvariant().StripNonChars().Trim())
         {

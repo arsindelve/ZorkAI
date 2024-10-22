@@ -8,30 +8,64 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     // https://web.mit.edu/marleigh/www/portfolio/Files/zork/transcript.html
     [Test]
     [TestCase("open mailbox", null, "Opening the small mailbox reveals a leaflet.")]
-    [TestCase("read leaflet", null, "ZORK is a game of adventure, danger, and low cunning. In it you will explore")]
+    [TestCase(
+        "read leaflet",
+        null,
+        "ZORK is a game of adventure, danger, and low cunning. In it you will explore"
+    )]
     [TestCase("drop leaflet", null, "Dropped")]
     [TestCase("S", null, "South of House")]
     [TestCase("E", null, "Behind House")]
-    [TestCase("open window", null, "With great effort, you open the window far enough to allow entry.")]
+    [TestCase(
+        "open window",
+        null,
+        "With great effort, you open the window far enough to allow entry."
+    )]
     [TestCase("In", null, "Kitchen", "A quantity of water", "smelling of hot peppers.")]
-    [TestCase("W", null, "Living Room", "A battery-powered brass lantern", "and a large oriental rug in the center of")]
+    [TestCase(
+        "W",
+        null,
+        "Living Room",
+        "A battery-powered brass lantern",
+        "and a large oriental rug in the center of"
+    )]
+    [TestCase("score", null, "10")]
     [TestCase("take lamp", null, "Taken")]
     [TestCase("move rug", null, "With a great effort,")]
     [TestCase("open trap door", null, "The door reluctantly opens to reveal a rickety staircase ")]
     [TestCase("turn on lantern", null, "The brass lantern is now on.")]
     [TestCase("Down", null, "The trap door crashes shut", "You are in a dark and damp cellar ")]
+    [TestCase("score", null, "35")]
     [TestCase("S", null, "You are on the east edge of a chasm")]
     [TestCase("E", null, "Most of the paintings have been stolen by", "Fortunately, there is")]
     [TestCase("take painting", null, "Taken")]
-    [TestCase("N", null, "This appears to have been an artist's studio.", "Loosely attached to a wall is a small")]
+    [TestCase(
+        "N",
+        null,
+        "This appears to have been an artist's studio.",
+        "Loosely attached to a wall is a small"
+    )]
+    [TestCase("score", null, "39")]
     [TestCase("Up", null, "Kitchen")]
-    [TestCase("Up", null, "Attic", "a nasty-looking knife", "A large coil of rope is lying in the corner")]
+    [TestCase(
+        "Up",
+        null,
+        "Attic",
+        "a nasty-looking knife",
+        "A large coil of rope is lying in the corner"
+    )]
     [TestCase("take knife", null, "Taken")]
     [TestCase("take rope", null, "Taken")]
     [TestCase("Down", null, "Kitchen")]
-    [TestCase("W", null, "Above the trophy case hangs an elvish sword of great antiquity.", "Living Room")]
+    [TestCase(
+        "W",
+        null,
+        "Above the trophy case hangs an elvish sword of great antiquity.",
+        "Living Room"
+    )]
     [TestCase("open case", null, "Opened")]
     [TestCase("put painting in case", null, "Done")]
+    [TestCase("score", null, "45")]
     [TestCase("drop knife", null, "Dropped")]
     [TestCase("take sword", null, "Taken")]
     [TestCase("open trap door", null, "The door reluctantly opens")]
@@ -39,14 +73,40 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("N", "KillTroll", "Bloodstains")]
     [TestCase("drop sword", null, "Dropped")]
     [TestCase("E", null, "This is a narrow east-west passageway")]
-    [TestCase("E", null, "This is a circular stone room with passages in all direction", "Round Room")]
+    [TestCase(
+        "E",
+        null,
+        "This is a circular stone room with passages in all direction",
+        "Round Room"
+    )]
+    [TestCase("score", null, "50")]
     [TestCase("SE", null, "There are old engravings on the walls here", "Engravings Cave")]
-    [TestCase("E", null, "periphery of a large dome, which forms the ceiling of another room below", "Dome Room")]
-    [TestCase("tie rope to railing", null, "The rope drops over the side and comes within ten feet of the floor.")]
-    [TestCase("Down", null, "Torch Room", "Sitting on the pedestal is a flaming torch, made of ivory.")]
+    [TestCase(
+        "E",
+        null,
+        "periphery of a large dome, which forms the ceiling of another room below",
+        "Dome Room"
+    )]
+    [TestCase(
+        "tie rope to railing",
+        null,
+        "The rope drops over the side and comes within ten feet of the floor."
+    )]
+    [TestCase(
+        "Down",
+        null,
+        "Torch Room",
+        "Sitting on the pedestal is a flaming torch, made of ivory."
+    )]
     [TestCase("S", null, "Temple")]
-    [TestCase("E", null, "Egyptian Room", "The solid-gold coffin used for the burial of Ramses II is here.")]
+    [TestCase(
+        "E",
+        null,
+        "Egyptian Room",
+        "The solid-gold coffin used for the burial of Ramses II is here."
+    )]
     [TestCase("take coffin", null, "Taken")]
+    [TestCase("score", null, "60")]
     [TestCase("W", null, "Temple")]
     [TestCase("S", null, "Altar")]
     [TestCase("pray", null, "Forest", "sunlight")]
@@ -56,13 +116,26 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("E", null, "Canyon View", "stretching for miles around")]
     [TestCase("Down", null, "Rocky Ledge", "which appears climbable")]
     [TestCase("Down", null, "Canyon Bottom", "Aragain Falls")]
-    [TestCase("N", null, "End of Rainbow", "The beach is narrow due to the presence of the White Cliffs.")]
+    [TestCase(
+        "N",
+        null,
+        "End of Rainbow",
+        "The beach is narrow due to the presence of the White Cliffs."
+    )]
     [TestCase("drop coffin", null, "Dropped")]
     [TestCase("open coffin", null, "The gold coffin opens", "sceptre is ornamented with ")]
     [TestCase("take sceptre", null, "Taken")]
-    [TestCase("wave sceptre", null, "Suddenly, the rainbow appears to become solid", "A shimmering pot of gold")]
+    [TestCase("score", null, "64")]
+    [TestCase(
+        "wave sceptre",
+        null,
+        "Suddenly, the rainbow appears to become solid",
+        "A shimmering pot of gold"
+    )]
     [TestCase("take gold", null, "Taken")]
+    [TestCase("score", null, "74")]
     [TestCase("take coffin", null, "Taken")]
+    [TestCase("score", null, "74")]
     [TestCase("SW", null, "Canyon Bottom")]
     [TestCase("Up", null, "Rocky Ledge")]
     [TestCase("Up", null, "Canyon View")]
@@ -73,8 +146,11 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("take garlic", null, "Taken")]
     [TestCase("W", null, "Living Room", "Your collection of treasures consists of", "A painting")]
     [TestCase("put coffin in case", null, "Done")]
+    [TestCase("score", null, "89")]
     [TestCase("put sceptre in case", null, "Done")]
+    [TestCase("score", null, "95")]
     [TestCase("put gold in case", null, "Done")]
+    [TestCase("score", null, "105")]
     [TestCase("turn on lantern", null, "The brass lantern is now on.")]
     [TestCase("Down", null, "Cellar")]
     [TestCase("N", null, "Bloodstains", "Troll Room")]
@@ -90,7 +166,11 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("press the yellow button", null, "Click")]
     [TestCase("S", null, "Dam Lobby")]
     [TestCase("S", null, "Dam", "glowing serenely")]
-    [TestCase("turn bolt with wrench", null, "The sluice gates open and water pours through the dam.")]
+    [TestCase(
+        "turn bolt with wrench",
+        null,
+        "The sluice gates open and water pours through the dam."
+    )]
     [TestCase("drop wrench", null, "Dropped")]
     [TestCase("S", null, "Deep Canyon")]
     [TestCase("Down", null, "It is unbearably loud here, with an ear-splitting")]
@@ -109,20 +189,56 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("ring bell", null, "red hot", "as if paralyzed", "candles drop to the ground")]
     [TestCase("take candles", null, "Taken")]
     [TestCase("light a match", null, "One of the matches starts to burn")]
-    [TestCase("light candles with match", null, "candles are lit", "The match has gone", "The flames flicker")]
+    [TestCase(
+        "light candles with match",
+        null,
+        "candles are lit",
+        "The match has gone",
+        "The flames flicker"
+    )]
     [TestCase("read book", null, "Each word of the prayer reverberates through")]
     [TestCase("drop book", null, "Dropped")]
-    [TestCase("S", null, "You have entered the Land of the Living Dead", "It appears to be grinning at you")]
+    [TestCase(
+        "S",
+        null,
+        "You have entered the Land of the Living Dead",
+        "It appears to be grinning at you"
+    )]
     [TestCase("take skull", null, "Taken")]
+    [TestCase("score", null, "115")]
     [TestCase("N", null, "bell", "There is a black book here.")]
     [TestCase("Up", null, "Cave")]
     [TestCase("N", null, "Mirror Room", "You are in a large square room with tall ceilings.")]
-    [TestCase("rub mirror", null, "There is a rumble from deep within the earth and the room shakes")]
+    [TestCase(
+        "rub mirror",
+        null,
+        "There is a rumble from deep within the earth and the room shakes"
+    )]
     [TestCase("N", null, "Cold Passage", "This is a cold and damp corridor")]
-    [TestCase("W", null, "Slide Room", "On the south wall of the chamber the letters \"Granite Wall\"")]
-    [TestCase("N", null, "Mine Entrance", "You are standing at the entrance of what might have been a coal mine.")]
+    [TestCase(
+        "W",
+        null,
+        "Slide Room",
+        "On the south wall of the chamber the letters \"Granite Wall\""
+    )]
+    [TestCase(
+        "N",
+        null,
+        "Mine Entrance",
+        "You are standing at the entrance of what might have been a coal mine."
+    )]
     [TestCase("W", null, "Squeaky Room", "You may also escape to the east.")]
-    [TestCase("inventory", null, "garlic", "skull", "candles", "lantern", "torch (providing", "match", "screw")]
+    [TestCase(
+        "inventory",
+        null,
+        "garlic",
+        "skull",
+        "candles",
+        "lantern",
+        "torch (providing",
+        "match",
+        "screw"
+    )]
     [TestCase("N", null, "Bat Room", "holding his nose", "exquisite jade figurine")]
     [TestCase("E", null, "Shaft Room", "the chain is a basket")]
     [TestCase("put torch in basket", null, "Done")]
@@ -157,9 +273,16 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("SW", null, "Coal Mine", "This is a nondescript part of a coal mine")]
     [TestCase("Down", null, "Ladder Top", "This is a very small room")]
     [TestCase("Down", null, "Ladder Bottom", "This is a rather wide room")]
-    [TestCase("W", null, "Timber Room", "This is a long and narrow passage", "a broken timber here")]
+    [TestCase(
+        "W",
+        null,
+        "Timber Room",
+        "This is a long and narrow passage",
+        "a broken timber here"
+    )]
     [TestCase("drop all", null, "skull: Dropped", "garlic: Dropped", "lantern: Dropped")]
-    [TestCase("W", null, "Drafty Room", "contains", "torch (pr","coal")]
+    [TestCase("W", null, "Drafty Room", "contains", "torch (pr", "coal")]
+    [TestCase("score", null, "128")]
     [TestCase("take coal", null, "Taken")]
     [TestCase("take screwdriver", null, "Taken")]
     [TestCase("take torch", null, "Taken")]
@@ -171,6 +294,7 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("drop screwdriver", null, "Dropped")]
     [TestCase("open lid", null, "The lid opens revealing a huge diamond")]
     [TestCase("take diamond", null, "Taken")]
+    [TestCase("score", null, "138")]
     [TestCase("N", null, "Drafty Room", "At the end of the chain is a basket")]
     [TestCase("put torch in basket", null, "Done")]
     [TestCase("put diamond in basket", null, "Done")]
@@ -213,7 +337,13 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("take trunk", null, "Taken")]
     [TestCase("N", null, "Reservoir North", "cavernous", "There is a hand-held air pump here")]
     [TestCase("take pump", null, "Taken")]
-    [TestCase("N", null, "Atlantis Room", "long under water", "On the shore lies Poseidon's own crystal trident")]
+    [TestCase(
+        "N",
+        null,
+        "Atlantis Room",
+        "long under water",
+        "On the shore lies Poseidon's own crystal trident"
+    )]
     [TestCase("take trident", null, "Your load is too heavy")]
     [TestCase("inventory", null, "pump", "trunk", "torch", "garlic", "lantern")]
     [TestCase("drop torch", null, "Dropped")]
@@ -222,16 +352,57 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("S", null, "Reservoir")]
     [TestCase("S", null, "Reservoir S")]
     [TestCase("E", null, "Dam", "wrench here")]
-    [TestCase("E", null, "Dam Base", "river as it winds its way downstream", "There is a folded pile of plastic")]
+    [TestCase(
+        "E",
+        null,
+        "Dam Base",
+        "river as it winds its way downstream",
+        "There is a folded pile of plastic"
+    )]
     [TestCase("inflate plastic with pump", null, "The boat inflates and appears seaworthy")]
     [TestCase("drop pump", null, "Dropped")]
     [TestCase("get in the boat", null, "You are now in the magic boat")]
-    [TestCase("launch", null, "Frigid River, in the magic boat", "tan label", "vicinity of the Dam")]
-    [TestCase("wait", null, "Frigid River, in the magic boat", "carries you", "The river turns a corner", "Time passes")]
-    [TestCase("wait", null, "Frigid River, in the magic boat", "descends here into a valley", "Time passes", "carries you")]
-    [TestCase("wait", null, "Frigid River, in the magic boat", "running faster here", "Time passes", "carries you", "sandy beach", "red buoy")]
+    [TestCase(
+        "launch",
+        null,
+        "Frigid River, in the magic boat",
+        "tan label",
+        "vicinity of the Dam"
+    )]
+    [TestCase(
+        "wait",
+        null,
+        "Frigid River, in the magic boat",
+        "carries you",
+        "The river turns a corner",
+        "Time passes"
+    )]
+    [TestCase(
+        "wait",
+        null,
+        "Frigid River, in the magic boat",
+        "descends here into a valley",
+        "Time passes",
+        "carries you"
+    )]
+    [TestCase(
+        "wait",
+        null,
+        "Frigid River, in the magic boat",
+        "running faster here",
+        "Time passes",
+        "carries you",
+        "sandy beach",
+        "red buoy"
+    )]
     [TestCase("take buoy", null, "Taken")]
-    [TestCase("E", null, "Sandy Beach, in the magic boat", "large sandy beach on the east shore", "shovel here")]
+    [TestCase(
+        "E",
+        null,
+        "Sandy Beach, in the magic boat",
+        "large sandy beach on the east shore",
+        "shovel here"
+    )]
     [TestCase("leave boat", null, "You are on your own feet again")]
     [TestCase("take shovel", null, "Your load is too heavy")]
     [TestCase("drop garlic", null, "Dropped")]
@@ -248,7 +419,12 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("SW", null, "Sandy Beach", "red buoy", "clove", "magic boat")]
     [TestCase("open buoy", null, "Opening the red buoy reveals a large emerald")]
     [TestCase("take emerald", null, "Taken")]
-    [TestCase("S", null, "Shore", "You are on the east shore of the river. The water here seems somewhat")]
+    [TestCase(
+        "S",
+        null,
+        "Shore",
+        "You are on the east shore of the river. The water here seems somewhat"
+    )]
     [TestCase("S", null, "Aragain", "A solid rainbow spans the falls")]
     [TestCase("cross the rainbow", null, "End of Rainbow")]
     [TestCase("turn off lantern", null, "The brass lantern is now off")]
@@ -291,7 +467,7 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("Ulysses", null, "name of his father's deadly nemesis, flees the room by knocking ")]
     // TODO: Up to treasure room
     // TODO: give egg to thief
-    // TODO: back up 
+    // TODO: back up
     [TestCase("E", null, "Strange Passage", "On the east there is an old wooden door, with a")]
     [TestCase("E", null, "Living Room", "coffin", "emerald", "diamond")]
     [TestCase("put coins in case", null, "Done")]
@@ -304,19 +480,33 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("W", null, "Maze", "twisty little passages, all alike")]
     [TestCase("Up", null, "Maze", "twisty little passages, all alike")]
     [TestCase("Down", null, "Maze", "You won't be able to get back up to the tunnel")]
-    [TestCase("NE", null, "Grating Room", "Above you is a grating locked with a skull-and-crossbones lock.")]
+    [TestCase(
+        "NE",
+        null,
+        "Grating Room",
+        "Above you is a grating locked with a skull-and-crossbones lock."
+    )]
     [TestCase("unlock grate", null, "(with the skeleton key)", "The grate is unlocked")]
-    [TestCase("open grate", null, "The grating opens to reveal trees above you.", "A pile of leaves falls onto")]
+    [TestCase(
+        "open grate",
+        null,
+        "The grating opens to reveal trees above you.",
+        "A pile of leaves falls onto"
+    )]
     [TestCase("Up", null, "Clearing", "There is an open grating, descending into darkness")]
     [TestCase("S", null, "Forest Path")]
     [TestCase("Up", null, "Up A Tree")]
-    [TestCase("wind canary", "HaveOpenEgg", "The canary chirps, slightly off-key, an aria from a forgotten opera")]
+    [TestCase(
+        "wind canary",
+        "HaveOpenEgg",
+        "The canary chirps, slightly off-key, an aria from a forgotten opera"
+    )]
     [TestCase("Down", null, "There is a beautiful brass bauble here")]
     [TestCase("take bauble", null, "Taken")]
     [TestCase("drop knife", null, "Dropped")]
     [TestCase("S", null, "North of House")]
     [TestCase("E", null, "Behind House")]
-    [TestCase("W", null, "Kitchen")] 
+    [TestCase("W", null, "Kitchen")]
     [TestCase("W", null, "Living Room")]
     [TestCase("put bauble in case", null, "Done")]
     // TODO [TestCase("put chalice in case", null, "Done")]
@@ -325,10 +515,24 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("put egg in case", null, "Done")]
     [TestCase("put bracelet in case", null, "Done")]
     [TestCase("put skull in case", null, "Done")]
-
+    [TestCase("Down", null, "Cellar")]
+    [TestCase("N", null, "Troll Room")]
+    [TestCase("E", null, "East-West")]
+    [TestCase("E", null, "Round Room")]
+    [TestCase("E", null, "Loud Room")]
+    [TestCase("echo", null, "The acoustics of the room")]
+    [TestCase("take bar", null, "Taken")]
+    [TestCase("W", null, "Round Room")]
+    [TestCase("W", null, "East-West")]
+    [TestCase("W", null, "Troll Room")]
+    [TestCase("S", null, "Cellar")]
+    [TestCase("Up", null, "Living Room")]
+    [TestCase("put bar in case", null, "Done")]
+    //[TestCase("score", null, "335")]
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
-        if (!string.IsNullOrWhiteSpace(setup)) InvokeGodMode(setup);
+        if (!string.IsNullOrWhiteSpace(setup))
+            InvokeGodMode(setup);
 
         await Do(input, expectedResponses);
     }
