@@ -7,6 +7,7 @@ using NUnit.Framework;
 using UnitTests;
 using ZorkOne.Item;
 using ZorkOne.Location;
+using ZorkOne.Location.MazeLocation;
 
 namespace ZorkOne.Tests.Walkthrough;
 
@@ -38,6 +39,11 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         Repository.GetItem<Troll>().IsDead = true;
     }
 
+    public void PutTheTorchHere()
+    {
+        Repository.GetLocation<TreasureRoom>().ItemPlacedHere(Repository.GetItem<Torch>());
+    }
+    
     public void HaveOpenEgg()
     {
         _target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
