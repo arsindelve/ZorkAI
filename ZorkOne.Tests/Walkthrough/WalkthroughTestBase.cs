@@ -7,6 +7,7 @@ using NUnit.Framework;
 using UnitTests;
 using ZorkOne.Item;
 using ZorkOne.Location;
+using ZorkOne.Location.MazeLocation;
 
 namespace ZorkOne.Tests.Walkthrough;
 
@@ -23,9 +24,10 @@ public abstract class WalkthroughTestBase : EngineTestsBase
 
     protected void InvokeGodMode(string setup)
     {
-        // Ooooooh! Reflection!! 
+        // Ooooooh! Reflection!!
         var method = GetType().GetMethod(setup);
-        if (method == null) throw new ArgumentException("Method " + setup + " doesn't exist");
+        if (method == null)
+            throw new ArgumentException("Method " + setup + " doesn't exist");
 
         // Invoke the method on the current instance
         method.Invoke(this, null);
@@ -33,19 +35,24 @@ public abstract class WalkthroughTestBase : EngineTestsBase
 
     public void KillTroll()
     {
-        // We can't have the randomness of trying to kill the troll. Let's God-Mode this dude. 
+        // We can't have the randomness of trying to kill the troll. Let's God-Mode this dude.
         Repository.GetItem<Troll>().IsDead = true;
     }
 
+    public void PutTheTorchHere()
+    {
+        Repository.GetLocation<TreasureRoom>().ItemPlacedHere(Repository.GetItem<Torch>());
+    }
+    
     public void HaveOpenEgg()
     {
         _target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
         Repository.GetItem<Egg>().IsOpen = true;
     }
-    
+
     public void GoToRoundRoom()
     {
-        // Entering the loud room when it's draining will cause us to flee the room in a random 
+        // Entering the loud room when it's draining will cause us to flee the room in a random
         // direction. For the test we need to remove the randomness and end up in the Round Room
         _target.Context.CurrentLocation = Repository.GetLocation<RoundRoom>();
     }
@@ -62,6 +69,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
             await _database.WriteSession(sessionId, encodedText, _target.SessionTableName);
         }
 
-        foreach (var output in outputs) result.Should().Contain(output);
+        foreach (var output in outputs)
+            result.Should().Contain(output);
     }
 }

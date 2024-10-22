@@ -19,7 +19,8 @@ public class TreasureRoom : BaseLocation
 
     public override void Init()
     {
-       
+        // TODO not until you kill the thief! 
+       StartWithItem<SilverChalice>();
     }
     
     protected override void OnFirstTimeEnterLocation(IContext context)
