@@ -131,7 +131,7 @@ public class GameSpecificTests : EngineTestsBase
         response.Should().Contain("Done");
         target.Context.Score.Should().Be(0);
     }
-    
+
     [Test]
     public async Task PickingUpTreasure_AddPoints()
     {
@@ -143,11 +143,11 @@ public class GameSpecificTests : EngineTestsBase
         // Act
         var response = await target.GetResponse("take figurine");
         Console.WriteLine(response);
-        
+
         // Assert
         target.Context.Score.Should().Be(5);
     }
-    
+
     [Test]
     public async Task PickingUpTreasure_NoExtraPointsForPickingItUpAgain()
     {
@@ -155,16 +155,16 @@ public class GameSpecificTests : EngineTestsBase
         target.Context.CurrentLocation = Repository.GetLocation<BatRoom>();
         target.Context.Take(Repository.GetItem<Lantern>());
         Repository.GetItem<Lantern>().IsOn = true;
-    
+
         // Act
         await target.GetResponse("take figurine");
         await target.GetResponse("drop figurine");
         await target.GetResponse("take figurine");
-        
+
         // Assert
         target.Context.Score.Should().Be(5);
     }
-    
+
     [Test]
     public async Task DropStuffFromTheChasm_NeverSeenAgain()
     {
@@ -173,12 +173,12 @@ public class GameSpecificTests : EngineTestsBase
         target.Context.Take(Repository.GetItem<Leaflet>());
         target.Context.Take(Repository.GetItem<Lantern>());
         Repository.GetItem<Lantern>().IsOn = true;
-    
+
         // Act
         var response = await target.GetResponse("drop leaflet");
-        
+
         // Assert
-        response.Should().Contain($"The leaflet drops out of sight and into the chasm");
+        response.Should().Contain("The leaflet drops out of sight and into the chasm");
         target.Context.Items.Count.Should().Be(1);
         Repository.GetItem<Leaflet>().CurrentLocation.Should().BeNull();
         target.Context.HasItem<Leaflet>().Should().BeFalse();

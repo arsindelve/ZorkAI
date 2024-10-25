@@ -9,10 +9,10 @@
 
     <ItemGroup>
         <ProjectReference Include="..\DynamoDb\DynamoDb.csproj"/>
-        <ProjectReference Include="..\GameEngine\GameEngine.csproj" />
+        <ProjectReference Include="..\GameEngine\GameEngine.csproj"/>
         <ProjectReference Include="..\Lex\Lex.csproj"/>
         <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>
-        <ProjectReference Include="..\Planetfall\Planetfall.csproj" />
+        <ProjectReference Include="..\Planetfall\Planetfall.csproj"/>
         <ProjectReference Include="..\Utilities\Utilities.csproj"/>
         <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
         <ProjectReference Include="..\ZorkTwo\ZorkTwo.csproj"/>

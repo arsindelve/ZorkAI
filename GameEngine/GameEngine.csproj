@@ -17,11 +17,11 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Bedrock\Bedrock.csproj"/>
-        <ProjectReference Include="..\DynamoDb\DynamoDb.csproj" />
+        <ProjectReference Include="..\DynamoDb\DynamoDb.csproj"/>
         <ProjectReference Include="..\Lex\Lex.csproj"/>
         <ProjectReference Include="..\Model\Model.csproj"/>
         <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>
-        <ProjectReference Include="..\SecretsManager\SecretsManager.csproj" />
+        <ProjectReference Include="..\SecretsManager\SecretsManager.csproj"/>
         <ProjectReference Include="..\Utilities\Utilities.csproj"/>
     </ItemGroup>
 

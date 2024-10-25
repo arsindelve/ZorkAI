@@ -7,9 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\GameEngine\GameEngine.csproj" />
-      <ProjectReference Include="..\Model\Model.csproj" />
-      <ProjectReference Include="..\ZorkOne\ZorkOne.csproj" />
+        <ProjectReference Include="..\GameEngine\GameEngine.csproj"/>
+        <ProjectReference Include="..\Model\Model.csproj"/>
+        <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
     </ItemGroup>
 
 </Project>
