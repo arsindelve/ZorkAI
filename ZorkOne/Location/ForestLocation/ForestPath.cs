@@ -69,6 +69,12 @@ public class ForestPath : LocationWithNoStartingItems, ITurnBasedActor
     
     public Task<string> Act(IContext context, IGenerationClient client)
     {
+        if (context.CurrentLocation is not ForestPath)
+        {
+            context.RemoveActor(this);
+            return Task.FromResult(string.Empty); 
+        }
+        
         var random = new Random();
         var randomNumber = random.Next(0, 4);
         if (randomNumber == 0) return Task.FromResult("\nIn the distance you hear the chirping of a song bird. ");
