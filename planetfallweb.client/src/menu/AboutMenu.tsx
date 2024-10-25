@@ -42,14 +42,18 @@ export default function AboutMenu() {
                 <MenuItem
                     onClick={() => go("https://github.com/arsindelve/ZorkAI?tab=readme-ov-file#all-the-greatness-of-the-original-zork-enhanced-with-ai")}>What
                     is Planetfall.AI?</MenuItem>
-                <MenuItem onClick={() => go("https://infodoc.plover.net/manuals/planetfa.pdf")}>Read the Original Infocom
+                <MenuItem onClick={() => go("https://infodoc.plover.net/manuals/planetfa.pdf")}>Read the Original
+                    Infocom
                     Manual</MenuItem>
                 <MenuItem onClick={() => go("https://infodoc.plover.net/maps/planetfa.pdf")}>Look at a Map
                     (spoilers)</MenuItem>
                 <MenuItem onClick={() => go("http://www.eristic.net/games/infocom/planetfall.html")}>Look
                     at a Walkthrough (major spoilers)</MenuItem>
-                <MenuItem onClick={() => go("https://en.wikipedia.org/wiki/Planetfall")}>Wikipedia Article on Planetfall</MenuItem>
-                <MenuItem><hr /></MenuItem>
+                <MenuItem onClick={() => go("https://en.wikipedia.org/wiki/Planetfall")}>Wikipedia Article on
+                    Planetfall</MenuItem>
+                <MenuItem>
+                    <hr/>
+                </MenuItem>
                 <MenuItem>Version {config.version}</MenuItem>
             </Menu>
         </div>

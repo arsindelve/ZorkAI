@@ -19,7 +19,7 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\..\DynamoDb\DynamoDb.csproj"/>
-        <ProjectReference Include="..\..\..\GameEngine\GameEngine.csproj" />
+        <ProjectReference Include="..\..\..\GameEngine\GameEngine.csproj"/>
         <ProjectReference Include="..\..\..\Model\Model.csproj"/>
         <ProjectReference Include="..\..\..\ZorkOne\ZorkOne.csproj"/>
     </ItemGroup>
