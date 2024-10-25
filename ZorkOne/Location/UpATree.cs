@@ -92,6 +92,7 @@ public class UpATree : BaseLocation, IDropSpecialLocation, ITurnBasedActor
             case "jump":
             case "leap":
             case "jump down":
+            case "climb down":
             case "jump out of tree":
             case "jump out of the tree":
             case "jump down from the tree":
