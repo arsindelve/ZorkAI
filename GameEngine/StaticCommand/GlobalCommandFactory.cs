@@ -25,6 +25,10 @@ public class GlobalCommandFactory : IGlobalCommandFactory
             case "i":
             case "what am i holding":
             case "what do i have on me":
+            case "check inventory":
+            case "what do I have in my inventory":
+            case "look in my inventory":
+            case "look in inventory":
                 return new InventoryProcessor();
 
             case "take":
