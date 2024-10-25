@@ -2,6 +2,7 @@ import * as React from 'react';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import config from "../../config.json";
 
 export default function AboutMenu() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -19,7 +20,7 @@ export default function AboutMenu() {
     }
 
     return (
-        <div>
+        <div className={"text-xs  font-['Press_Start_2P']"}>
             <Button
                 id="basic-button"
                 aria-controls={open ? 'basic-menu' : undefined}
@@ -27,9 +28,9 @@ export default function AboutMenu() {
                 aria-expanded={open ? 'true' : undefined}
                 onClick={handleClick}
             >
-                Help / About
+                About
             </Button>
-            <Menu
+            <Menu 
                 id="basic-menu"
                 anchorEl={anchorEl}
                 open={open}
@@ -38,7 +39,7 @@ export default function AboutMenu() {
                     'aria-labelledby': 'basic-button',
                 }}
             >
-                <MenuItem
+                <MenuItem 
                     onClick={() => go("https://github.com/arsindelve/ZorkAI?tab=readme-ov-file#all-the-greatness-of-the-original-zork-and-planetfall-enhanced-with-ai")}>What
                     is this game?</MenuItem>
                 <MenuItem onClick={() => go("https://infodoc.plover.net/manuals/zork1.pdf")}>Read the 1984 Infocom
@@ -53,6 +54,7 @@ export default function AboutMenu() {
                     onClick={() => go("https://iplayif.com/?story=https%3A%2F%2Feblong.com%2Finfocom%2Fgamefiles%2Fzork1-r119-s880429.z3")}>Play
                     the original Zork One</MenuItem>
                 <MenuItem onClick={() => go("https://en.wikipedia.org/wiki/Zork")}>Wikipedia Article on Zork</MenuItem>
+                <MenuItem>Version {config.version}</MenuItem>
             </Menu>
         </div>
     );

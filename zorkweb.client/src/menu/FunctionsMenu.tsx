@@ -36,7 +36,7 @@ export default function FunctionsMenu({gameMethods, forceClose}: FunctionsMenuPr
                 aria-expanded={open ? 'true' : undefined}
                 onClick={handleClick}
             >
-                Game Menu
+                Game
             </Button>
             <Menu
                 id="basic-menu"
