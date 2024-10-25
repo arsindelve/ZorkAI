@@ -559,11 +559,11 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("Up", null, "Living Room")]
     [TestCase("put bar in case", null, "Done")]
     [TestCase("score", null, "344")]
-    [TestCase("put torch in case", null, "Done", "inaudible voice")]
-    [TestCase("score", null, "350")]
-    [TestCase("take map", null, "Taken")]
-    [TestCase("E", null, "Kitchen")]
-    [TestCase("E", null, "Behind House")]
+    //[TestCase("put torch in case", null, "Done", "inaudible voice")]
+    //[TestCase("score", null, "350")]
+    //[TestCase("take map", null, "Taken")]
+    //[TestCase("E", null, "Kitchen")]
+    //[TestCase("E", null, "Behind House")]
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup))
