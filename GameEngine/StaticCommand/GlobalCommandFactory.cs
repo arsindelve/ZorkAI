@@ -63,6 +63,10 @@ public class GlobalCommandFactory : IGlobalCommandFactory
             case "look":
             case "where am i":
             case "examine my surroundings":
+            case "examine surroundings":
+            case "examine area":
+            case "examine the area":
+            case "examine the surroundings":
             case "l":
             case "look around":
             case "look around me":
