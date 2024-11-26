@@ -1,4 +1,5 @@
 ﻿using Model.AIGeneration;
+using Model.Movement;
 
 namespace Model.Interface;
 
@@ -13,20 +14,21 @@ public interface IGameEngine
     ///     with the game environment.
     /// </remarks>
     int Moves { get; }
-    
-    string SessionTableName { get;  }
+
+    string SessionTableName { get; }
 
     /// <summary>
-    /// Represents the client responsible for generating text for different scenarios in the game that don't have
-    /// pre-determined outcomes.
+    ///     Represents the client responsible for generating text for different scenarios in the game that don't have
+    ///     pre-determined outcomes.
     /// </summary>
     /// <remarks>
-    /// The "GenerationClient" property provides access to an object that implements the <see cref="IGenerationClient"/> interface.
-    /// This interface contains methods to generate chat responses based on the provided request object.
+    ///     The "GenerationClient" property provides access to an object that implements the <see cref="IGenerationClient" />
+    ///     interface.
+    ///     This interface contains methods to generate chat responses based on the provided request object.
     /// </remarks>
-    /// <seealso cref="IGenerationClient"/>
+    /// <seealso cref="IGenerationClient" />
     IGenerationClient GenerationClient { get; }
-    
+
     /// <summary>
     ///     Represents the score of a game.
     /// </summary>
@@ -43,29 +45,46 @@ public interface IGameEngine
     string LocationName { get; }
 
     /// <summary>
-    /// Gets the description of the current location in the game.
+    ///     Represents the name of the location the player was in BEFORE this location.
+    ///     Will be null at the beginning of the game.
+    /// </summary>
+    string? PreviousLocationName { get; }
+
+    /// <summary>
+    /// If, during the previous turn, the adventurer moved from one location to another,
+    /// this property represents the direction they travelled to reach the new location.
+    /// Will be null at the beginning of the game, or if the player's previous command
+    /// kept them in the same location. 
+    /// </summary>
+    Direction? LastMovementDirection { get; }
+
+    /// <summary>
+    ///     Gets the description of the current location in the game.
     /// </summary>
     /// <value>
-    /// The description of the current location in the game.
+    ///     The description of the current location in the game.
     /// </value>
     /// <remarks>
-    /// The "LocationDescription" property represents the descriptive text that provides information about the current location
-    /// in the game. This text can include details about the surroundings, objects in the location, and any other relevant information.
-    /// It is used to give players a visual representation of the game world and guide them in making decisions and interacting with their environment.
+    ///     The "LocationDescription" property represents the descriptive text that provides information about the current
+    ///     location
+    ///     in the game. This text can include details about the surroundings, objects in the location, and any other relevant
+    ///     information.
+    ///     It is used to give players a visual representation of the game world and guide them in making decisions and
+    ///     interacting with their environment.
     /// </remarks>
-    string LocationDescription { get;  }
-    
+    string LocationDescription { get; }
+
     /// <summary>
-    /// Represents the introductory text of the game.
+    ///     Represents the introductory text of the game.
     /// </summary>
     /// <remarks>
-    /// The "IntroText" property contains the initial text that is displayed to the player at the start of the game.
-    /// It provides information about the game's setting, story, and objectives.
+    ///     The "IntroText" property contains the initial text that is displayed to the player at the start of the game.
+    ///     It provides information about the game's setting, story, and objectives.
     /// </remarks>
     string IntroText { get; }
 
     /// <summary>
-    /// Indicates the runtime container....is it Web, Console, other? 
+    ///     Indicates the runtime container....is it Web, Console, other?
     /// </summary>
     Runtime Runtime { get; set; }
 
@@ -88,9 +107,9 @@ public interface IGameEngine
     /// </summary>
     /// <returns>The serialized game data.</returns>
     string SaveGame();
-    
+
     /// <summary>
-    /// Call this before you try to use the engine. 
+    ///     Call this before you try to use the engine.
     /// </summary>
     /// <returns></returns>
     Task InitializeEngine();

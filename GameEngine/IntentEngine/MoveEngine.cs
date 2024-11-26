@@ -30,7 +30,8 @@ public class MoveEngine : IIntentEngine
 
         // Let's reset the noun context, so we don't get confused with "it" between locations
         context.LastNoun = "";
-
+        context.LastMovementDirection = moveTo.Direction;
+        
         return (null, await Go(context, generationClient, movement));
     }
 

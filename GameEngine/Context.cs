@@ -3,6 +3,7 @@ using Model.AIGeneration;
 using Model.Interface;
 using Model.Item;
 using Model.Location;
+using Model.Movement;
 using Newtonsoft.Json;
 using Utilities;
 
@@ -236,6 +237,8 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     }
 
     public abstract string CurrentScore { get; }
+    
+    public Direction? LastMovementDirection { get; set; }
 
     /// <summary>
     ///     Adds the specified item to the inventory of the game context and removes it from the current location

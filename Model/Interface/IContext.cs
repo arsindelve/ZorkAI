@@ -4,6 +4,7 @@ using Model.Intent;
 using Model.Interaction;
 using Model.Item;
 using Model.Location;
+using Model.Movement;
 using Utilities;
 
 namespace Model.Interface;
@@ -96,6 +97,12 @@ public interface IContext : ICanHoldItems
     /// It is an integer value and can be accessed through the "CurrentScore" property.
     /// </remarks>
     string CurrentScore { get; }
+
+    /// <summary>
+    /// If the adventurer has moved from one location to another in the last turn, in which
+    /// direction did they travel to get there?
+    /// </summary>
+    Direction? LastMovementDirection { get; set; }
 
     void Take(IItem item);
 
