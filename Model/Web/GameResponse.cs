@@ -1,40 +1,29 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Model.Interface;
+using Model.Movement;
 
 namespace Model.Web;
 
-public record GameResponse
+[method: SetsRequiredMembers]
+public record GameResponse(
+    string Response,
+    string LocationName,
+    int Moves,
+    int Score,
+    string? PreviousLocationName,
+    string? LastMovementDirection)
 {
     [SetsRequiredMembers]
-    public GameResponse(string response, string locationName, int moves, int score)
+    public GameResponse(string response, IGameEngine gameEngine) : this(response, gameEngine.LocationName,
+        gameEngine.Moves, gameEngine.Score, gameEngine.PreviousLocationName, gameEngine.LastMovementDirection.ToString())
     {
-        Response = response;
-        LocationName = locationName;
-        Moves = moves;
-        Score = score;
     }
 
-    public required string Response { get; init; }
+    public required string Response { get; init; } = Response;
 
-    public required string LocationName { get; init; }
+    public required string LocationName { get; init; } = LocationName;
 
-    public required int Moves { get; init; }
+    public required int Moves { get; init; } = Moves;
 
-    public required int Score { get; init; }
-}
-
-public record SavedGame
-{
-    [SetsRequiredMembers]
-    public SavedGame(string id, string name, DateTime date)
-    {
-        Id = id;
-        Name = name;
-        Date = date;
-    }
-    
-    public required string Id { get; init; }
-    
-    public required string Name { get; init; }
-    
-    public required DateTime Date { get; init; }
+    public required int Score { get; init; } = Score;
 }

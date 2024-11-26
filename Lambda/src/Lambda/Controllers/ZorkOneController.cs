@@ -31,7 +31,7 @@ public class ZorkOneController(
         logger.LogInformation($"Response: {response}");
 
         await WriteSession(request.SessionId);
-        return new GameResponse(response!, engine.LocationName, engine.Moves, engine.Score);
+        return new GameResponse(response!, engine);
     }
 
     [HttpPost]
@@ -53,7 +53,7 @@ public class ZorkOneController(
         sb.AppendLine(await engine.GetResponse("look"));
 
         await WriteSession(request.SessionId);
-        return new GameResponse(sb.ToString(), engine.LocationName, engine.Moves, engine.Score);
+        return new GameResponse(sb.ToString(), engine);
     }
 
     [HttpPost]
@@ -93,10 +93,10 @@ public class ZorkOneController(
         {
             RestoreSession(savedSession);
             var response = await engine.GetResponse("look");
-            return new GameResponse(response!, engine.LocationName, engine.Moves, engine.Score);
+            return new GameResponse(response!, engine);
         }
 
-        return new GameResponse(engine.IntroText, engine.LocationName, engine.Moves, engine.Score);
+        return new GameResponse(engine.IntroText, engine);
     }
 
     private async Task WriteSession(string sessionId)
