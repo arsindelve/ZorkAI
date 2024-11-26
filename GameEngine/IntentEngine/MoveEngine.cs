@@ -14,13 +14,13 @@ public class MoveEngine : IIntentEngine
 
         if (intent is not MoveIntent moveTo)
             throw new ArgumentException("Cast error");
-
+        
+        context.LastMovementDirection = moveTo.Direction;
+        
         MovementParameters? movement = context.CurrentLocation.Navigate(moveTo.Direction);
 
         if (movement == null)
             return (null, await GetGeneratedCantGoThatWayResponse(generationClient, moveTo.Direction.ToString(), context));
-
-        context.LastMovementDirection = moveTo.Direction;
         
         if (movement.WeightLimit < context.CarryingWeight)
             return (null, movement.WeightLimitFailureMessage);
