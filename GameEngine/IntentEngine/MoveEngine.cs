@@ -20,6 +20,8 @@ public class MoveEngine : IIntentEngine
         if (movement == null)
             return (null, await GetGeneratedCantGoThatWayResponse(generationClient, moveTo.Direction.ToString(), context));
 
+        context.LastMovementDirection = moveTo.Direction;
+        
         if (movement.WeightLimit < context.CarryingWeight)
             return (null, movement.WeightLimitFailureMessage);
 
@@ -30,7 +32,6 @@ public class MoveEngine : IIntentEngine
 
         // Let's reset the noun context, so we don't get confused with "it" between locations
         context.LastNoun = "";
-        context.LastMovementDirection = moveTo.Direction;
         
         return (null, await Go(context, generationClient, movement));
     }
