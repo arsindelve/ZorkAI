@@ -47,9 +47,8 @@ public class TestParser : IIntentParser
         if (_gameSpecificCommandFactory.GetGlobalCommands(input) is { } gameSpecificGlobalCommand)
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = gameSpecificGlobalCommand });
 
-        foreach (Direction direction in Enum.GetValues(typeof(Direction)))
-            if (input == direction.ToString() || input == $"go {direction.ToString()}")
-                return Task.FromResult<IntentBase>(new MoveIntent { Direction = direction });
+        if (DirectionParser.IsDirection(input, out var letsGo))
+                return Task.FromResult<IntentBase>(new MoveIntent { Direction = letsGo });
 
         if (input is "look" or "l")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new LookProcessor() });
