@@ -1,3 +1,5 @@
+using Utilities;
+
 namespace Model.Movement;
 
 public static class DirectionParser
@@ -11,7 +13,19 @@ public static class DirectionParser
     /// <returns>True if the intent represents a valid direction; otherwise, false.</returns>
     public static bool IsDirection(string? intent, out Direction direction)
     {
-        intent = intent?.Replace("go ", "");
+        if (string.IsNullOrEmpty(intent))
+        {
+            direction = Direction.Unknown;
+            return false;
+        }
+
+        intent = intent.ToLowerInvariant().StripNonChars();
+        
+        foreach (string verb in Verbs.MoveVerbs)
+        {
+            intent = intent?.Replace($"{verb} ", "");
+        }
+
         var firstWord = intent?.Split(' ')[0];
         direction = ParseDirection(firstWord);
         return direction != Direction.Unknown;
