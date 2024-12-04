@@ -101,9 +101,7 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
         if (input == "echo")
             return true;
 
-        bool hasVerb = input.StartsWith("say") || input.StartsWith("shout") || input.StartsWith("scream") ||
-                       input.StartsWith("yell");
-
+        bool hasVerb = Verbs.SayVerbs.Any(s => input.StartsWith(s));
         return hasVerb && input.EndsWith("echo");
     }
 

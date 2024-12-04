@@ -2,6 +2,7 @@
 using GameEngine;
 using NUnit.Framework;
 using UnitTests;
+using ZorkOne.Item;
 using ZorkOne.Location;
 
 namespace ZorkOne.Tests;
@@ -9,6 +10,24 @@ namespace ZorkOne.Tests;
 [TestFixture]
 public class LoudRoomTests : EngineTestsBase
 {
+    [Test]
+    [TestCase("W")]
+    [TestCase("walk w")]
+    [TestCase("go west")]
+    [TestCase("head 'west'")]
+    [TestCase("move \"west\"")]
+    public async Task CanLeave(string command)
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<LoudRoom>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
+
+        string? response = await target.GetResponse(command);
+        Console.WriteLine(response);
+
+        response.Should().Contain("Round Room");
+    }
+    
     [Test]
     public async Task EchosLastWordsByDefault()
     {
