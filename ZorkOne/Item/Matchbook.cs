@@ -26,7 +26,7 @@ public class Matchbook
 
     public bool IsOn { get; set; }
 
-    public string NowOnText => "One of the matches starts to burn.";
+    public string NowOnText => "One of the matches starts to burn. ";
 
     public string NowOffText => "The match has gone out. ";
 
