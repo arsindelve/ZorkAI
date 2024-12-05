@@ -7,6 +7,10 @@ using Model.Movement;
 
 namespace Model.Location;
 
+/// <summary>
+/// Represents a location the adventurer can be in. It can hold items, has a name, a description and usually
+/// can be moved in and out of using a "Map" that defines the exits. 
+/// </summary>
 public interface ILocation
 {
     string Description { get; }

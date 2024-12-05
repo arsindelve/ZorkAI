@@ -5,7 +5,8 @@ using Model.Item;
 namespace Model.Location;
 
 /// <summary>
-/// Interface for locations where dropping things requires special handling 
+/// Interface for locations where dropping things requires special handling. Maybe it goes into hot lava,
+/// or down into a rift never to be seen again. 
 /// </summary>
 public interface IDropSpecialLocation
 {
