@@ -20,9 +20,11 @@ public class Dam : BaseLocation
             { Direction.Down, new MovementParameters { Location = GetLocation<DamBase>() } }
         };
 
-    protected override string ContextBasedDescription => 
+    protected override string ContextBasedDescription =>
         "You are standing on the top of the Flood Control Dam #3, which was quite a tourist attraction in times far distant. " +
         "There are paths to the north, south, and west, and a scramble down. " + GatesDescription();
+
+    public override string Name => "Dam";
 
     private string GatesDescription()
     {
@@ -35,12 +37,10 @@ public class Dam : BaseLocation
             return
                 "The sluice gates on the dam are closed. Behind the dam, there can be seen a wide reservoir. Water is pouring over the top of the now abandoned dam. ";
 
-        return !SluiceGatesOpen ? 
-            "The sluice gates are closed. The water level in the reservoir is quite low, but the level is rising quickly. " : 
-            "The sluice gates are open, and water rushes through the dam. The water level behind the dam is still high. ";
+        return !SluiceGatesOpen
+            ? "The sluice gates are closed. The water level in the reservoir is quite low, but the level is rising quickly. "
+            : "The sluice gates are open, and water rushes through the dam. The water level behind the dam is still high. ";
     }
-
-    public override string Name => "Dam";
 
     public override void Init()
     {

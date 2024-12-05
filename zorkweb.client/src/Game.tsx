@@ -194,7 +194,7 @@ function Game({
 
     return (
 
-        <div className={"m-10"}>
+        <div className={"m-10 mt-20"}>
 
             <div>
                 <Snackbar
@@ -209,7 +209,8 @@ function Game({
             <WelcomeDialog open={welcomeDialogOpen} handleClose={handleWelcomeDialogClose}/>
             <Header locationName={locationName} moves={moves} score={score}/>
 
-            <div ref={gameContentElement} className={"p-12 bg-opacity-85 h-[65vh] overflow-auto bg-stone-900 font-mono"}>
+            <div ref={gameContentElement}
+                 className={"p-12 bg-opacity-85 h-[65vh] overflow-auto bg-stone-900 font-mono"}>
                 {gameText.map((item: string, index: number) => (
                     <p dangerouslySetInnerHTML={{__html: item}} className={"mb-4"} key={index}>
                     </p>
@@ -218,7 +219,7 @@ function Game({
 
             <div className="flex items-center bg-stone-700">
                 <input ref={playerInputElement} readOnly={mutation.isPending}
-                       className={"w-full p-4 focus:border-transparent focus:outline-none focus:ring-0 bg-stone-700"}
+                       className={"w-full p-4  focus:border-transparent focus:outline-none focus:ring-0 bg-stone-700"}
                        value={playerInput} placeholder={"Type what you want to do, then press return."}
                        onChange={(e) => setInput(e.target.value)}
                        onKeyDown={handleKeyDown}

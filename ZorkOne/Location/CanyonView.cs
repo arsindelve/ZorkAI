@@ -1,4 +1,6 @@
-﻿using GameEngine.Location;
+﻿using GameEngine;
+using GameEngine.Location;
+using Model.Interface;
 using Model.Movement;
 using ZorkOne.Location.ForestLocation;
 
@@ -31,4 +33,20 @@ public class CanyonView : LocationWithNoStartingItems
             Direction.W, new MovementParameters { Location = GetLocation<ForestThree>() }
         }
     };
+    
+    public override InteractionResult RespondToSpecificLocationInteraction(
+        string? input,
+        IContext context
+        )
+    {
+        switch (input?.ToLowerInvariant().Trim())
+        {
+            case "climb down":
+                context.CurrentLocation = Repository.GetLocation<RockyLedge>();
+                string message = Repository.GetLocation<RockyLedge>().Description;
+                return new PositiveInteractionResult(message);
+        }
+
+        return base.RespondToSpecificLocationInteraction(input, context);
+    }
 }

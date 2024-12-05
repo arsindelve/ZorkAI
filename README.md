@@ -1,33 +1,39 @@
 # All the greatness of the original Zork and Planetfall, enhanced with AI
 
 I LOVE Infocom games. In my youth, they gave me hours of entertainment, and began my love of personal
-computing. My two favorites were Planetfall and A Mind Forever Voyaging by legendary implementor Steve Meretzky. 
+computing. My two favorites were Planetfall and A Mind Forever Voyaging by legendary implementor Steve Meretzky.
 I still collect and play the games, but I wanted to do something to enhance and expand those games for a new
 generation of players. What could I do to make those games feel richer, deeper and more alive?
 
 Although there are fully AI generated dungeons and interactive fiction stories, that wasn't what I was looking for. I
-don't want NEW games; I wanted to preserve all the settings, locations, story, humor and puzzles of Zork and Planetfall, but use AI
+don't want NEW games; I wanted to preserve all the settings, locations, story, humor and puzzles of Zork and Planetfall,
+but use AI
 to make the interactivity much deeper. I wanted an intelligent text parser, and a "smart" narrator that understands
-everything you type. If your command moves the story forward, or changes the state of the game, then I wanted to preserve
+everything you type. If your command moves the story forward, or changes the state of the game, then I wanted to
+preserve
 the original story.
 If not, the AI Narrator should give you a meaningful, funny response that keeps you immersed in the Great Underground
 Empire or the lonely planet of Resida.
 
-So I built all that and had so much fun doing it! 
+So I built all that and had so much fun doing it!
 
 I've written a brand new Interactive Fiction Engine in C#, with corresponding game files for approximately 90%
-of Zork I and 5% of Planetfall. Ideally, this engine could be used to implement any first-generation Infocom game with minimal or
+of Zork I and 5% of Planetfall. Ideally, this engine could be used to implement any first-generation Infocom game with
+minimal or
 no tweaking.
 
 I'll keep implementing the rest of the Zork I and Planetfall stories,
 items and locations, finding new scenarios that the engine can't handle but the game is quite playable in its current
-state. One of the biggest challenges I'm looking forward to is bringing Floyd to life. I want to see how far I can go in allowing you to have conversations with him while still preserving 
-all the childlike charm that made him the star of the game [(and frankly, caused a lot of press in 1983)](https://web.archive.org/web/19990222125344/http://www.csd.uwo.ca/Infocom/Articles/globe84.html) 
+state. One of the biggest challenges I'm looking forward to is bringing Floyd to life. I want to see how far I can go in
+allowing you to have conversations with him while still preserving
+all the childlike charm that made him the star of the
+game [(and frankly, caused a lot of press in 1983)](https://web.archive.org/web/19990222125344/http://www.csd.uwo.ca/Infocom/Articles/globe84.html)
 
 ### [Play Zork AI Now](https://newzork.ai)
+
 ### [Play Planetfall AI Now](https://planetfall.ai)
 
-The game is fully mobile responsive, so feel free to try it on your phone or tablet. 
+The game is fully mobile responsive, so feel free to try it on your phone or tablet.
 
 [![.NET](https://github.com/arsindelve/ZorkAI/actions/workflows/dotnet.yml/badge.svg)](https://github.com/arsindelve/ZorkAI/actions/workflows/dotnet.yml)
 
@@ -43,7 +49,8 @@ The game is fully mobile responsive, so feel free to try it on your phone or tab
 - Fly away to Canada.
 - Tell me how nuclear fission works
 
-In every case, the AI never breaks character as your exasperated fantasy or science fiction game narrator, sarcastically guiding you
+In every case, the AI never breaks character as your exasperated fantasy or science fiction game narrator, sarcastically
+guiding you
 through your adventure in the Great Underground Empire or the depths of space.
 
 ### How does it work?
@@ -60,7 +67,8 @@ this
 implementation work) is the creation of the prompts for various scenarios. I've spent hours tweaking them, and expect to
 spend many more
 
-The front-end is built in React. The game stores the player's current session in AWS Dynamo DB so that it can remember you on your
+The front-end is built in React. The game stores the player's current session in AWS Dynamo DB so that it can remember
+you on your
 next visit. The engine is hosted in a Lambda in AWS, and is ASP.Net Core, written in C# 12, running on Linux.
 
 **None of the source code or executable of the original Zork or Planetfall is being used in any way.**
@@ -79,7 +87,8 @@ Please feel free to report issues and make PRs to help make the game better. I w
 
 - ~~Save, restore and restart~~(done).
 - ~~Frankly, the parser is not very good. If I’m being honest, it’s not much better than the original Zork parser. I
-  need to find a solution that truly understands and processes every kind of sentence.~~ (I moved to Claude 3.5 Sonnet for text
+  need to find a solution that truly understands and processes every kind of sentence.~~ (I moved to Claude 3.5 Sonnet
+  for text
   parsing instead of AWS Lex, and the results are incredible. Check out this exchange):
 
       > Fine. so open up the mailbox, then

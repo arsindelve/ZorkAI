@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Interface;
+using Model.Movement;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Utilities;
@@ -107,6 +108,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public string LocationName => Context.CurrentLocation.Name;
 
+    public string? PreviousLocationName { get; private set; }
+
+    public Direction? LastMovementDirection => Context.LastMovementDirection;
+
     public string LocationDescription => Context.CurrentLocation.DescriptionForGeneration;
 
     public IContext RestoreGame(string data)
@@ -152,6 +157,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     public async Task<string?> GetResponse(string? playerInput)
     {
         _currentInput = playerInput;
+        PreviousLocationName = LocationName;
 
         // See if we have something already running like a save, quit, etc.
         // and see if it has any output.
@@ -285,7 +291,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             _inputOutputs.Push((_currentInput!, finalResult, _lastResponseWasGenerated));
             _generator.LastFiveInputOutputs = _inputOutputs.GetAll();
         }
-
+        
         _lastResponseWasGenerated = false;
         return finalResult.Trim() + Environment.NewLine;
     }

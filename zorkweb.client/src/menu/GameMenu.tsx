@@ -1,7 +1,6 @@
 import '@fontsource/platypi/500.css';
 import AboutMenu from "./AboutMenu.tsx";
 import FunctionsMenu from "./FunctionsMenu.tsx";
-import config from '../../config.json';
 
 interface GameMenuProps {
     gameMethods: (() => void)[]
@@ -10,15 +9,22 @@ interface GameMenuProps {
 
 export default function GameMenu({gameMethods, forceClose}: GameMenuProps) {
     return (
-        <div className="p-1 grid grid-cols-10 bg-gray-200 gap-2">
+        <div className="p-1 grid grid-cols-10 bg-gray-200 gap-2 w-full fixed top-0 z-10">
             <div className="col-span-7 flex items-center">
-                <img src="https://zorkai-assets.s3.amazonaws.com/Zork.webp" style={{ width: '18%', margin: '3px'  }}/>
-                <h1 className="text-l text-black m-3 font-poppins">Zork One AI version {config.version}</h1>
+                <img src="https://zorkai-assets.s3.amazonaws.com/Zork.webp" className="w-[100px] md:w-[120px] m-[3px]"
+                     alt="Logo"/>
+
+                <h1 className="hidden lg:block text-xl text-black m-3 ml-20 font-['Lato']">Generative AI-Enhanced Zork I</h1>
+
+
             </div>
-            <div className="col-span-3 flex justify-end mt-2">
-                <div className="mr-10"><FunctionsMenu forceClose={forceClose} gameMethods={gameMethods}/></div>
+            <div className="col-span-3 flex justify-end items-center">
+                <div className="mr-10">
+                <FunctionsMenu forceClose={forceClose} gameMethods={gameMethods}/>
+                </div>
                 <AboutMenu/>
             </div>
         </div>
+
     );
 }

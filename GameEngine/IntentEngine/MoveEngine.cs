@@ -14,12 +14,14 @@ public class MoveEngine : IIntentEngine
 
         if (intent is not MoveIntent moveTo)
             throw new ArgumentException("Cast error");
-
+        
+        context.LastMovementDirection = moveTo.Direction;
+        
         MovementParameters? movement = context.CurrentLocation.Navigate(moveTo.Direction);
 
         if (movement == null)
             return (null, await GetGeneratedCantGoThatWayResponse(generationClient, moveTo.Direction.ToString(), context));
-
+        
         if (movement.WeightLimit < context.CarryingWeight)
             return (null, movement.WeightLimitFailureMessage);
 
@@ -30,7 +32,7 @@ public class MoveEngine : IIntentEngine
 
         // Let's reset the noun context, so we don't get confused with "it" between locations
         context.LastNoun = "";
-
+        
         return (null, await Go(context, generationClient, movement));
     }
 

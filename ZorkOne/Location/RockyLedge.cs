@@ -1,4 +1,6 @@
-﻿using GameEngine.Location;
+﻿using GameEngine;
+using GameEngine.Location;
+using Model.Interface;
 using Model.Movement;
 
 namespace ZorkOne.Location;
@@ -21,4 +23,20 @@ public class RockyLedge : LocationWithNoStartingItems
             Direction.Down, new MovementParameters { Location = GetLocation<CanyonBottom>() }
         }
     };
+    
+    public override InteractionResult RespondToSpecificLocationInteraction(
+        string? input,
+        IContext context
+        )
+    {
+        switch (input?.ToLowerInvariant().Trim())
+        {
+            case "climb down":
+                context.CurrentLocation = Repository.GetLocation<CanyonBottom>();
+                string message = Repository.GetLocation<CanyonBottom>().Description;
+                return new PositiveInteractionResult(message);
+        }
+
+        return base.RespondToSpecificLocationInteraction(input, context);
+    }
 }

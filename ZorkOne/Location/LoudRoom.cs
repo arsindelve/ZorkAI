@@ -3,6 +3,7 @@ using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
+using Utilities;
 
 namespace ZorkOne.Location;
 
@@ -17,7 +18,7 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
 
     // ReSharper disable once MemberCanBePrivate.Global
     public bool EchoHasBeenSpoken { get; set; }
-    
+
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
@@ -44,13 +45,13 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
             else
                 description += "The room is deafeningly loud with an undetermined rushing sound. The sound seems to " +
                                "reverberate from all of the walls, making it difficult even to think. ";
-            
+
             return description;
         }
     }
 
     public override string Name => "Loud Room";
-    
+
     public override void Init()
     {
         StartWithItem<PlatinumBar>();
@@ -69,18 +70,18 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
 
     public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
     {
-        if (!string.IsNullOrWhiteSpace(input) && input.ToLowerInvariant().Equals("echo") && !EchoHasBeenSpoken )
+        if (DidTheAdventurerSayEcho(input) && !EchoHasBeenSpoken)
         {
             EchoHasBeenSpoken = true;
             return new PositiveInteractionResult("The acoustics of the room change subtly. ");
         }
-        
+
         // When the dam is filling, this room behaves normally. 
         if (Repository.GetLocation<ReservoirSouth>().IsFilling || EchoHasBeenSpoken)
         {
             return new NoNounMatchInteractionResult();
         }
-        
+
         // Otherwise, direction commands are the only ones available.  
         if (DirectionParser.IsDirection(input, out _))
             return base.RespondToSpecificLocationInteraction(input, context);
@@ -88,6 +89,20 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
         // Everything else echos....
         var lastWord = input!.Split(" ").Last();
         return new PositiveInteractionResult($"{lastWord} {lastWord} ...");
+    }
+
+    private static bool DidTheAdventurerSayEcho(string? input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return false;
+
+        input = input.StripNonChars().ToLowerInvariant();
+
+        if (input == "echo")
+            return true;
+
+        bool hasVerb = Verbs.SayVerbs.Any(s => input.StartsWith(s));
+        return hasVerb && input.EndsWith("echo");
     }
 
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,

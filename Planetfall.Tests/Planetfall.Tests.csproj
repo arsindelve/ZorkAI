@@ -11,15 +11,15 @@
 
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.0"/>
-        <PackageReference Include="FluentAssertions" Version="6.12.0" />
+        <PackageReference Include="FluentAssertions" Version="6.12.0"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
-        <PackageReference Include="Moq" Version="4.20.70" />
-        <PackageReference Include="NUnit" Version="4.1.0" />
+        <PackageReference Include="Moq" Version="4.20.70"/>
+        <PackageReference Include="NUnit" Version="4.1.0"/>
         <PackageReference Include="NUnit.Analyzers" Version="4.3.0">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.6.0"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -27,9 +27,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\GameEngine\GameEngine.csproj" />
-      <ProjectReference Include="..\Planetfall\Planetfall.csproj" />
-      <ProjectReference Include="..\UnitTests\UnitTests.csproj" />
+        <ProjectReference Include="..\GameEngine\GameEngine.csproj"/>
+        <ProjectReference Include="..\Planetfall\Planetfall.csproj"/>
+        <ProjectReference Include="..\UnitTests\UnitTests.csproj"/>
     </ItemGroup>
 
 </Project>

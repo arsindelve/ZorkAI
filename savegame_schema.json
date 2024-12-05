@@ -1,39 +1,39 @@
 {
-    "AttributeDefinitions": [
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "id",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "session_id",
+      "AttributeType": "S"
+    }
+  ],
+  "TableName": "planetfall_savegame",
+  "KeySchema": [
+    {
+      "AttributeName": "id",
+      "KeyType": "HASH"
+    },
+    {
+      "AttributeName": "session_id",
+      "KeyType": "RANGE"
+    }
+  ],
+  "BillingMode": "PAY_PER_REQUEST",
+  "GlobalSecondaryIndexes": [
+    {
+      "IndexName": "session_id-index",
+      "KeySchema": [
         {
-            "AttributeName": "id",
-            "AttributeType": "S"
-        },
-        {
-            "AttributeName": "session_id",
-            "AttributeType": "S"
+          "AttributeName": "session_id",
+          "KeyType": "HASH"
         }
-    ],
-    "TableName": "planetfall_savegame",
-    "KeySchema": [
-        {
-            "AttributeName": "id",
-            "KeyType": "HASH"
-        },
-        {
-            "AttributeName": "session_id",
-            "KeyType": "RANGE"
-        }
-    ],
-    "BillingMode": "PAY_PER_REQUEST",
-    "GlobalSecondaryIndexes": [
-        {
-            "IndexName": "session_id-index",
-            "KeySchema": [
-                {
-                    "AttributeName": "session_id",
-                    "KeyType": "HASH"
-                }
-            ],
-            "Projection": {
-                "ProjectionType": "ALL"
-            }
-        }
-    ],
-    "DeletionProtectionEnabled": false
+      ],
+      "Projection": {
+        "ProjectionType": "ALL"
+      }
+    }
+  ],
+  "DeletionProtectionEnabled": false
 }

@@ -17,15 +17,15 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove="FineTune\**" />
+        <Compile Remove="FineTune\**"/>
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Remove="FineTune\**" />
+        <EmbeddedResource Remove="FineTune\**"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="FineTune\**" />
+        <None Remove="FineTune\**"/>
     </ItemGroup>
 
 </Project>

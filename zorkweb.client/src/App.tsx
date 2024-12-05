@@ -76,55 +76,51 @@ function App() {
     }
 
     return (
+
         <div
-            className="bg-[url('https://zorkai-assets.s3.amazonaws.com/brick-wall-background-texture.jpg')] bg-repeat bg-[size:500px_500px]">
+            className="bg-[url('https://zorkai-assets.s3.amazonaws.com/brick-wall-background-texture.jpg')] bg-repeat bg-[size:500px_500px] min-h-screen flex flex-col justify-between">
+            <div className="flex-grow flex flex-col min-h-0 mt">
+                <GameMenu forceClose={forceMenuClose} gameMethods={[restart, restore, save]}/>
 
-            <div className="flex flex-col min-h-screen">
-                <div className="flex-grow">
+                <QueryClientProvider client={queryClient}>
+                    <Game 
+                        restartGame={isRestarting}
+                        serverText={serverText}
+                        onRestoreDone={() => setRestoreGameId(undefined)}
+                        restoreGameId={restoreGameId}
+                        gaveSaved={gameSaved}
+                        openRestoreModal={restore}
+                        openSaveModal={save}
+                        openRestartModal={restore}
+                        onRestartDone={() => {
+                            setConfirmRestartOpen(false);
+                            setMenuForceClose(true);
+                        }}
+                    />
 
-                    <GameMenu forceClose={forceMenuClose} gameMethods={[restart, restore, save]}/>
+                    <ConfirmDialog
+                        title="Restart Your Game? Are you sure?"
+                        open={confirmOpen}
+                        setOpen={setConfirmRestartOpen}
+                        onConfirm={handleRestartGameConfirmClose}
+                    />
 
-                    <QueryClientProvider client={queryClient}>
+                    <RestoreModal games={availableSavedGames} open={restoreDialogOpen}
+                                  handleClose={handleRestoreModalClose}/>
 
-                        <Game
-                            restartGame={isRestarting}
-                            serverText={serverText}
-                            onRestoreDone={() => setRestoreGameId(undefined)}
-                            restoreGameId={restoreGameId}
-                            gaveSaved={gameSaved}
-                            openRestoreModal={restore}
-                            openSaveModal={save}
-                            openRestartModal={restore}
-                            onRestartDone={() => {
-                                setConfirmRestartOpen(false);
-                                setMenuForceClose(true);
-                            }}/>
-
-
-                        <ConfirmDialog
-                            title="Restart Your Game? Are you sure? "
-                            open={confirmOpen}
-                            setOpen={setConfirmRestartOpen}
-                            onConfirm={handleRestartGameConfirmClose}
-                        />
-
-                        <RestoreModal games={availableSavedGames} open={restoreDialogOpen}
-                                      handleClose={handleRestoreModalClose}/>
-
-                        <SaveModal games={availableSavedGames} open={saveDialogOpen}
-                                   handleClose={handleSaveModalClose}/>
-
-                    </QueryClientProvider>
-
-
-                </div>
-                <footer className="bg-gray-200 py-2">
-                    <p className={"text-center text-black"}><a target="_blank"
-                                                               href="https://github.com/arsindelve/ZorkAI">Created
-                        By Mike in Dallas. Check out the repository.</a></p>
-                </footer>
+                    <SaveModal games={availableSavedGames} open={saveDialogOpen} handleClose={handleSaveModalClose}/>
+                </QueryClientProvider>
             </div>
+
+            <footer className="bg-gray-200 py-2">
+                <p className="text-center text-sm text-black font-['Lato']">
+                    <a target="_blank" href="https://github.com/arsindelve/ZorkAI">Created By Mike in Dallas. Check out
+                        the repository.</a>
+                </p>
+            </footer>
         </div>
+
+
     );
 }
 

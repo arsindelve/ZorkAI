@@ -31,6 +31,8 @@ public class UpATree : BaseLocation, IDropSpecialLocation, ITurnBasedActor
     protected override string ContextBasedDescription =>
         "You are about 10 feet above the ground nestled among some large branches. The nearest branch above you is above your reach. ";
 
+    
+    // Being up a tree, whatever we drop from here will end up on the ground below. 
     public InteractionResult DropSpecial(IItem item, IContext context)
     {
         var egg = Repository.GetItem<Egg>();
@@ -92,6 +94,7 @@ public class UpATree : BaseLocation, IDropSpecialLocation, ITurnBasedActor
             case "jump":
             case "leap":
             case "jump down":
+            case "climb down":
             case "jump out of tree":
             case "jump out of the tree":
             case "jump down from the tree":
@@ -113,6 +116,12 @@ public class UpATree : BaseLocation, IDropSpecialLocation, ITurnBasedActor
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
+        if (context.CurrentLocation is not UpATree)
+        {
+            context.RemoveActor(this);
+            return Task.FromResult(string.Empty); 
+        }
+        
         var random = new Random();
         var randomNumber = random.Next(0, 4);
         if (randomNumber == 0) return Task.FromResult("\nIn the distance you hear the chirping of a song bird. ");
