@@ -71,7 +71,7 @@ public class GameSpecificTests : EngineTestsBase
     [Test]
     public async Task PrayAtTheAltar()
     {
-        var target = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
+        var target = GetTarget(new TestParser(new ZorkOneGlobalCommandFactory()));
         target.Context.CurrentLocation = Repository.GetLocation<Altar>();
 
         // Act

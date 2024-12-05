@@ -8,7 +8,7 @@ namespace GameEngine.StaticCommand;
 ///     the request. An example is a "quit" processor. It will need to confirm that the user really
 ///     wants to quit or not. If not, it will hand back execution to the engine.
 /// </summary>
-internal interface IStatefulProcessor : IGlobalCommand
+internal interface IStatefulProcessor : ISystemCommand
 {
     /// <summary>
     ///     This property indicates whether the stateful processor has completed its execution.

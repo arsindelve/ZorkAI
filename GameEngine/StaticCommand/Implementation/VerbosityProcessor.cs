@@ -4,7 +4,7 @@ using Model.Interface;
 
 namespace GameEngine.StaticCommand.Implementation;
 
-internal class VerbosityProcessor : IGlobalCommand
+internal class VerbosityProcessor : ISystemCommand
 {
     public async Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {

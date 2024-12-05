@@ -1,5 +1,6 @@
 ﻿using GameEngine;
 using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
 using ZorkOne.Location.ForestLocation;
@@ -34,9 +35,10 @@ public class CanyonView : LocationWithNoStartingItems
         }
     };
     
-    public override InteractionResult RespondToSpecificLocationInteraction(
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(
         string? input,
-        IContext context
+        IContext context,
+        IGenerationClient client
         )
     {
         switch (input?.ToLowerInvariant().Trim())
@@ -47,6 +49,6 @@ public class CanyonView : LocationWithNoStartingItems
                 return new PositiveInteractionResult(message);
         }
 
-        return base.RespondToSpecificLocationInteraction(input, context);
+        return await base.RespondToSpecificLocationInteraction(input, context, client);
     }
 }

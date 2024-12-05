@@ -62,15 +62,15 @@ internal class CyclopsRoom : DarkLocation
         return result ?? base.RespondToMultiNounInteraction(action, context);
     }
 
-    public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client)
     {
         if (string.IsNullOrEmpty(input))
-            return base.RespondToSpecificLocationInteraction(input, context);
+            return await base.RespondToSpecificLocationInteraction(input, context, client);
 
         if (!new List<string> { "ulysses", "odysseus" }.Contains(input.ToLower().Trim()) 
             || !HasItem<Cyclops>() 
             || GetItem<Cyclops>().IsSleeping)
-            return base.RespondToSpecificLocationInteraction(input, context);
+            return await base.RespondToSpecificLocationInteraction(input, context, client);
 
         var message =
             "The cyclops, hearing the name of his father's deadly nemesis, flees the room by knocking " +

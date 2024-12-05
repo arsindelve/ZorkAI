@@ -1,4 +1,5 @@
 using System.Text;
+using GameEngine;
 using GameEngine.Item;
 using Model.Interface;
 
@@ -36,8 +37,16 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
 
         var sb = new StringBuilder();
 
+        // Map is handled differently
+        if (Items.Contains(Repository.GetItem<Map>()))
+            sb.AppendLine("In the trophy case is an ancient parchment which appears to be a map.");
+
         sb.AppendLine("Your collection of treasures consists of:");
-        Items.ForEach(s => sb.AppendLine($"      {s.GenericDescription(location)}"));
+        Items
+            .Where(s => s is not Map)
+            .OrderBy(s => s.GenericDescription(location))
+            .ToList()
+            .ForEach(s => sb.AppendLine($"      {s.GenericDescription(location)}"));
 
         return sb.ToString();
     }

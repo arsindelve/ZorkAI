@@ -42,20 +42,20 @@ internal class EntranceToHades : DarkLocation
         return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 
-    public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client)
     {
         if (string.IsNullOrWhiteSpace(input))
-            return base.RespondToSpecificLocationInteraction(input, context);
+            return await base.RespondToSpecificLocationInteraction(input, context, client);
 
         if (input.ToLowerInvariant().Contains("ring") && input.ToLowerInvariant().Contains("bell"))
         {
             if (!Items.Contains(Repository.GetItem<Spirits>()))
-                return base.RespondToSpecificLocationInteraction(input, context);
+                return await base.RespondToSpecificLocationInteraction(input, context, client);
 
             return RingTheBell(context);
         }
 
-        return base.RespondToSpecificLocationInteraction(input, context);
+        return await base.RespondToSpecificLocationInteraction(input, context, client);
     }
 
     private InteractionResult RingTheBell(IContext context)

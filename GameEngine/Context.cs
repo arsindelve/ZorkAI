@@ -292,7 +292,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         return result ?? new NoNounMatchInteractionResult();
     }
 
-    public virtual string? ProcessTurnCounter()
+    public virtual string? ProcessBeginningOfTurn()
     {
         Moves++;
         return null;
@@ -316,5 +316,10 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     public void RemoveActor(ITurnBasedActor actor)
     {
         Actors.Remove(actor);
+    }
+
+    public virtual string? ProcessEndOfTurn()
+    {
+        return null;
     }
 }

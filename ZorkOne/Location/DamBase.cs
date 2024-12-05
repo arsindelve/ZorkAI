@@ -1,5 +1,6 @@
 using GameEngine;
 using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
 using ZorkOne.Location.RiverLocation;
@@ -38,29 +39,29 @@ public class DamBase : BaseLocation
 
     public override string Name => "Dam Base";
 
-    public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client)
     {
         if (string.IsNullOrEmpty(input))
-            return base.RespondToSpecificLocationInteraction(input, context);
+            return await base.RespondToSpecificLocationInteraction(input, context, client);
         
         var preppedInput = input.ToLowerInvariant().Trim();
 
         if (SubLocation is null)
-            return base.RespondToSpecificLocationInteraction(input, context);
+            return await base.RespondToSpecificLocationInteraction(input, context, client);
         
         if (preppedInput.StartsWith("launch"))
         {
             // TODO: move some of this logic to the move engine, but only after tests are passing. 
             context.CurrentLocation.SubLocation = null;
             context.CurrentLocation = Repository.GetLocation<FrigidRiverOne>();
-            context.CurrentLocation.AfterEnterLocation(context, this, null!);
+            await context.CurrentLocation.AfterEnterLocation(context, this, null!);
             context.CurrentLocation.SubLocation = Repository.GetItem<PileOfPlastic>();
             ((ICanHoldItems)context.CurrentLocation).ItemPlacedHere(Repository.GetItem<PileOfPlastic>());
 
             return new PositiveInteractionResult(context.CurrentLocation.Description);
         }
 
-        return base.RespondToSpecificLocationInteraction(input, context);
+        return await base.RespondToSpecificLocationInteraction(input, context, client);
     }
 
     public override void Init()
