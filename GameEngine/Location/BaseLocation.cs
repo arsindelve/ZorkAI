@@ -125,7 +125,7 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     {
     }
 
-    public virtual InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
+    public virtual async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client)
     {
         return new NoVerbMatchInteractionResult { Noun = string.Empty, Verb = input! };
     }

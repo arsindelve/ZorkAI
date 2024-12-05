@@ -1,4 +1,5 @@
 ﻿using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
 using ZorkOne.Location.ForestLocation;
@@ -26,10 +27,10 @@ public class Altar : BaseLocation
         "This is the south end of a large temple. In front of you is what appears to be an altar. " +
         "In one corner is a small hole in the floor which leads into darkness. You probably could not get back up it. ";
 
-    public override InteractionResult RespondToSpecificLocationInteraction(string? action, IContext context)
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? action, IContext context, IGenerationClient client)
     {
         if (!action?.Trim().StartsWith("pray", StringComparison.InvariantCultureIgnoreCase) ?? false)
-            return base.RespondToSpecificLocationInteraction(action, context);
+            return await base.RespondToSpecificLocationInteraction(action, context, client);
 
         var newLocation = GetLocation<ForestOne>();
         context.CurrentLocation = newLocation;

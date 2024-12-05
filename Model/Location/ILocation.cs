@@ -111,12 +111,16 @@ public interface ILocation
     void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation);
 
     /// <summary>
-    ///     Responds to a single verb interaction in the location, such as "jump" or "scream"
+    ///     Responds to a (usually) simple, single verb interaction in the location, such as "jump" or "scream". 
+    ///     This method is called very early in the response pipeline, even before the input is parsed so the
+    ///     input is raw, and locations should only override this if they need to give a very specific response
+    ///     to a very specific raw input. 
     /// </summary>
     /// <param name="input">The input string representing the interaction.</param>
     /// <param name="context"></param>
+    /// <param name="client">AI generation client</param>
     /// <returns>An object of type InteractionResult that describes the result of the interaction.</returns>
-    InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context);
+    Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client);
 
     /// <summary>
     ///     Event handler for a location when the player has waited. Rarely used, but some locations

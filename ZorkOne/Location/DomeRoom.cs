@@ -1,4 +1,5 @@
 ﻿using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
 using Model.Movement;
@@ -33,7 +34,7 @@ public class DomeRoom : BaseLocation
     {
     }
 
-    public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client)
     {
         switch (input)
         {
@@ -43,7 +44,7 @@ public class DomeRoom : BaseLocation
                 return new DeathProcessor().Process(death, context);
         }
 
-        return base.RespondToSpecificLocationInteraction(input, context);
+        return await base.RespondToSpecificLocationInteraction(input, context, client);
     }
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)

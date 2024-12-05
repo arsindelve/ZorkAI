@@ -68,7 +68,7 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
         base.OnLeaveLocation(context, newLocation, previousLocation);
     }
 
-    public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client)
     {
         if (DidTheAdventurerSayEcho(input) && !EchoHasBeenSpoken)
         {
@@ -84,7 +84,7 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
 
         // Otherwise, direction commands are the only ones available.  
         if (DirectionParser.IsDirection(input, out _))
-            return base.RespondToSpecificLocationInteraction(input, context);
+            return await base.RespondToSpecificLocationInteraction(input, context, client);
 
         // Everything else echos....
         var lastWord = input!.Split(" ").Last();

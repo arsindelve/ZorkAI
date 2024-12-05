@@ -84,9 +84,10 @@ public class UpATree : BaseLocation, IDropSpecialLocation, ITurnBasedActor
         base.OnLeaveLocation(context, newLocation, previousLocation);
     }
 
-    public override InteractionResult RespondToSpecificLocationInteraction(
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(
         string? input,
-        IContext context
+        IContext context,
+        IGenerationClient client
     )
     {
         switch (input?.ToLowerInvariant().Trim())
@@ -106,7 +107,7 @@ public class UpATree : BaseLocation, IDropSpecialLocation, ITurnBasedActor
                 return new PositiveInteractionResult(message);
         }
 
-        return base.RespondToSpecificLocationInteraction(input, context);
+        return await base.RespondToSpecificLocationInteraction(input, context, client);
     }
 
     public override void Init()

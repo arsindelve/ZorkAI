@@ -198,11 +198,14 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // We're done now doing pre-processing, we're ready to actually look at what the
         // user wrote and do something with it.
 
-        // Does the location have a special interaction to input such as "jump" or "pray"?
-        var singleVerbResult = Context.CurrentLocation.RespondToSpecificLocationInteraction(
+        // This input is not even parsed yet, But some locations have a special interaction
+        // to raw input such as "jump" or "pray" or "echo"? 
+        var singleVerbResult = await Context.CurrentLocation.RespondToSpecificLocationInteraction(
             _currentInput,
-            Context
+            Context,    
+            _generator
         );
+        
         if (singleVerbResult.InteractionHappened)
             return PostProcessing(singleVerbResult.InteractionMessage);
 
