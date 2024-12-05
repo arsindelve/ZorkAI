@@ -20,7 +20,7 @@ public class TakeEverythingProcessor : IGlobalCommand
         var sb = new StringBuilder();
         var items = ((ICanHoldItems)context.CurrentLocation).GetAllItemsRecursively;
 
-        if (!items.Any())
+        if (!items.Any(s => s is ICanBeTakenAndDropped || !string.IsNullOrEmpty(s.CannotBeTakenDescription)))
             return await client.CompleteChat(new TakeAllNothingHere());
 
         foreach (var nextItem in items)
@@ -31,11 +31,11 @@ public class TakeEverythingProcessor : IGlobalCommand
                 continue;
             }
 
-            if (nextItem is ICanBeTakenAndDropped)
-            {
-                sb.AppendLine($"{nextItem.Name}: Taken. ");
-                context.ItemPlacedHere(nextItem);
-            }
+            if (nextItem is not ICanBeTakenAndDropped) 
+                continue;
+            
+            sb.AppendLine($"{nextItem.Name}: Taken. ");
+            context.ItemPlacedHere(nextItem);
         }
 
         return sb.ToString();

@@ -31,6 +31,8 @@ public class UpATree : BaseLocation, IDropSpecialLocation, ITurnBasedActor
     protected override string ContextBasedDescription =>
         "You are about 10 feet above the ground nestled among some large branches. The nearest branch above you is above your reach. ";
 
+    
+    // Being up a tree, whatever we drop from here will end up on the ground below. 
     public InteractionResult DropSpecial(IItem item, IContext context)
     {
         var egg = Repository.GetItem<Egg>();
