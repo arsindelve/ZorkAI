@@ -6,6 +6,7 @@ namespace IntegrationTests
 {
     [TestFixture]
     [Explicit]
+    [Ignore("")]
     public class DynamoDbTests
     {
         private AmazonDynamoDBClient _dynamoDbClient;

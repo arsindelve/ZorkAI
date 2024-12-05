@@ -31,14 +31,6 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         Items.Remove(item);
     }
 
-    public void ItemPlacedHere(IItem item)
-    {
-        var oldLocation = item.CurrentLocation;
-        oldLocation?.RemoveItem(item);
-        item.CurrentLocation = this;
-        Items.Add(item);
-    }
-
     public (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective,
         bool lookInsideContainers = true)
     {
@@ -91,6 +83,14 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return 0;
     }
 
+    public void ItemPlacedHere(IItem item)
+    {
+        var oldLocation = item.CurrentLocation;
+        oldLocation?.RemoveItem(item);
+        item.CurrentLocation = this;
+        Items.Add(item);
+    }
+
     // ReSharper disable once MemberCanBePrivate.Global
     public int VisitCount { get; set; }
 
@@ -125,9 +125,11 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
     {
     }
 
-    public virtual InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
+    public virtual Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
+        IGenerationClient client)
     {
-        return new NoVerbMatchInteractionResult { Noun = string.Empty, Verb = input! };
+        return Task.FromResult<InteractionResult>(new NoVerbMatchInteractionResult
+            { Noun = string.Empty, Verb = input! });
     }
 
     public virtual void OnWaiting(IContext context)

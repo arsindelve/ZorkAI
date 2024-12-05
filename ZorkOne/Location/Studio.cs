@@ -1,5 +1,6 @@
 using GameEngine;
 using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
 
@@ -29,7 +30,7 @@ public class Studio : BaseLocation
             }
         };
 
-    public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client)
     {
         switch (input?.ToLowerInvariant().Trim())
         {
@@ -43,7 +44,7 @@ public class Studio : BaseLocation
                 return new PositiveInteractionResult(message);
         }
 
-        return base.RespondToSpecificLocationInteraction(input, context);
+        return await base.RespondToSpecificLocationInteraction(input, context, client);
     }
 
     public override void Init()

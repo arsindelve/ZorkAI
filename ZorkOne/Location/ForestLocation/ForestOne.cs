@@ -5,23 +5,30 @@ namespace ZorkOne.Location.ForestLocation;
 
 public class ForestOne : LocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map => new()
-    {
+    protected override Dictionary<Direction, MovementParameters> Map =>
+        new()
         {
-            Direction.E, new MovementParameters { Location = GetLocation<ForestPath>() }
-        },
-        {
-            Direction.N, new MovementParameters { Location = GetLocation<Clearing>() }
-        },
-        {
-            Direction.S, new MovementParameters { Location = GetLocation<ForestThree>() }
-        },
-        {
-            Direction.W,
-            new MovementParameters
-                { CanGo = _ => false, CustomFailureMessage = "You would need a machete to go further west. " }
-        }
-    };
+            {
+                Direction.E,
+                new MovementParameters { Location = GetLocation<ForestPath>() }
+            },
+            {
+                Direction.N,
+                new MovementParameters { Location = GetLocation<Clearing>() }
+            },
+            {
+                Direction.S,
+                new MovementParameters { Location = GetLocation<ForestThree>() }
+            },
+            {
+                Direction.W,
+                new MovementParameters
+                {
+                    CanGo = _ => false,
+                    CustomFailureMessage = "You would need a machete to go further west. ",
+                }
+            },
+        };
 
     public override string Name => "Forest";
 

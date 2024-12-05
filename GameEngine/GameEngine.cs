@@ -192,19 +192,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return PostProcessing(_currentInput);
 
         // See if the context needs to notify us of anything. Are we sleepy? Hungry?
-        var turnCounterResponse = Context.ProcessTurnCounter();
+        var contextPrepend = Context.ProcessBeginningOfTurn();
 
         // ----------------------------------------------------------------------------
         // We're done now doing pre-processing, we're ready to actually look at what the
         // user wrote and do something with it.
-
-        // Does the location have a special interaction to input such as "jump" or "pray"?
-        var singleVerbResult = Context.CurrentLocation.RespondToSpecificLocationInteraction(
-            _currentInput,
-            Context
-        );
-        if (singleVerbResult.InteractionHappened)
-            return PostProcessing(singleVerbResult.InteractionMessage);
 
         IntentBase parsedResult = await _parser.DetermineIntentType(
             _currentInput,
@@ -213,6 +205,21 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         );
 
         _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
+        
+        // Bypass this for System commands. They must supersede everything. 
+        if (parsedResult is not SystemCommandIntent)
+        {
+            // This input is not even parsed yet, But some locations have a special interaction
+            // to raw input such as "jump" or "pray" or "echo"? 
+            var singleVerbResult = await Context.CurrentLocation.RespondToSpecificLocationInteraction(
+                _currentInput,
+                Context,
+                _generator
+            );
+
+            if (singleVerbResult.InteractionHappened)
+                return PostProcessing(singleVerbResult.InteractionMessage);
+        }
 
         (InteractionResult? ResultObject, string? ResultMessage) intentResult = parsedResult switch
         {
@@ -264,11 +271,15 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             _processorInProgress = new SimpleActionDisambiguationProcessor(result);
         }
 
+        string? contextAppend = Context.ProcessEndOfTurn();
+        
         // "Actors" are things that can occur each turn. Examples are the troll
         // attacking, the maintenance room flooding, Floyd mumbling.
         string actorResults = await ProcessActors();
+        
+        // Put it all together
         return PostProcessing(
-            turnCounterResponse + intentResult.ResultMessage?.Trim() + actorResults
+            contextPrepend + intentResult.ResultMessage?.Trim() + actorResults + contextAppend
         );
     }
 

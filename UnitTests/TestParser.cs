@@ -46,6 +46,9 @@ public class TestParser : IIntentParser
 
         if (_gameSpecificCommandFactory.GetGlobalCommands(input) is { } gameSpecificGlobalCommand)
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = gameSpecificGlobalCommand });
+        
+        if (_gameSpecificCommandFactory.GetSystemCommands(input) is { } systemCommand)
+            return Task.FromResult<IntentBase>(new SystemCommandIntent { Command = systemCommand });
 
         if (DirectionParser.IsDirection(input, out var letsGo))
                 return Task.FromResult<IntentBase>(new MoveIntent { Direction = letsGo });

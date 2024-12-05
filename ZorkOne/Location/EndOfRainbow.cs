@@ -44,7 +44,7 @@ public class EndOfRainbow : LocationWithNoStartingItems
         return base.RespondToSimpleInteraction(action, context, client);
     }
     
-    public override InteractionResult RespondToSpecificLocationInteraction(string? input, IContext context)
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client)
     {
         if (!context.HasItem<Sceptre>() && GetItem<Sceptre>().CurrentLocation == GetLocation<EndOfRainbow>())
             return new PositiveInteractionResult("You don't have the sceptre. ");
@@ -59,7 +59,7 @@ public class EndOfRainbow : LocationWithNoStartingItems
                 return WaveTheSceptre();
         }
 
-        return base.RespondToSpecificLocationInteraction(input, context);
+        return await base.RespondToSpecificLocationInteraction(input, context, client);
     }
 
     private InteractionResult WaveTheSceptre()

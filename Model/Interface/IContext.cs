@@ -84,17 +84,17 @@ public interface IContext : ICanHoldItems
     int CarryingWeight { get; }
 
     /// <summary>
-    /// Gets or sets the verbosity - how descriptive are we when we enter
-    /// a new location? 
+    ///     Gets or sets the verbosity - how descriptive are we when we enter
+    ///     a new location?
     /// </summary>
     Verbosity Verbosity { get; set; }
 
     /// <summary>
-    /// Represents the current score of the adventurer.
+    ///     Represents the current score of the adventurer.
     /// </summary>
     /// <remarks>
-    /// The score is used to keep track of the player's progress and achievements in the game.
-    /// It is an integer value and can be accessed through the "CurrentScore" property.
+    ///     The score is used to keep track of the player's progress and achievements in the game.
+    ///     It is an integer value and can be accessed through the "CurrentScore" property.
     /// </remarks>
     string CurrentScore { get; }
 
@@ -119,7 +119,11 @@ public interface IContext : ICanHoldItems
 
     string ItemListDescription(string locationName, ILocation? location);
 
-    string? ProcessTurnCounter();
+    /// <summary>
+    /// Does the context need to do any processing at the beginning of the turn? 
+    /// </summary>
+    /// <returns>Text to prepend to the response, if any. </returns>
+    string? ProcessBeginningOfTurn();
 
     /// <summary>
     ///     Registers an actor with the game engine. Until the actor
@@ -134,4 +138,10 @@ public interface IContext : ICanHoldItems
     /// </summary>
     /// <param name="actor">The actor to be removed.</param>
     void RemoveActor(ITurnBasedActor actor);
+
+    /// <summary>
+    ///     See if the context needs to do any processing at the end of the turn. Append the output, if any
+    /// </summary>
+    /// <returns></returns>
+    string? ProcessEndOfTurn();
 }

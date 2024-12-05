@@ -41,6 +41,18 @@ public class LoudRoomTests : EngineTestsBase
     }
     
     [Test]
+    public async Task CanStillQuit()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<LoudRoom>();
+
+        string? response = await target.GetResponse("quit");
+        Console.WriteLine(response);
+
+        response.Should().Contain("Do you wish");
+    }
+    
+    [Test]
     public async Task EchosLastWorkByDefault_MultiPhrase()
     {
         var target = GetTarget();
