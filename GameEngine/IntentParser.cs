@@ -22,8 +22,7 @@ public class IntentParser : IIntentParser
     /// </summary>
     /// <param name="parser"></param>
     /// <param name="gameSpecificCommandFactory"></param>
-    /// <param name="logger"></param>
-    public IntentParser(IAIParser parser, IGlobalCommandFactory gameSpecificCommandFactory, ILogger? logger)
+    public IntentParser(IAIParser parser, IGlobalCommandFactory gameSpecificCommandFactory)
     {
         _parser = parser;
         _gameSpecificCommandFactory = gameSpecificCommandFactory;
@@ -53,6 +52,9 @@ public class IntentParser : IIntentParser
 
         if (_defaultGlobalCommandFactory.GetGlobalCommands(input) is { } globalCommand)
             return new GlobalCommandIntent { Command = globalCommand };
+        
+        if (_defaultGlobalCommandFactory.GetSystemCommands(input) is { } systemCommand)
+            return new SystemCommandIntent { Command = systemCommand };
 
         if (_gameSpecificCommandFactory.GetGlobalCommands(input) is { } gameSpecificGlobalCommand)
             return new GlobalCommandIntent { Command = gameSpecificGlobalCommand };

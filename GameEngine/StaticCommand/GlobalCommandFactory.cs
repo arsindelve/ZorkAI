@@ -16,11 +16,6 @@ public class GlobalCommandFactory : IGlobalCommandFactory
     {
         switch (input?.ToLowerInvariant().StripNonChars().Trim())
         {
-            case "verbose":
-            case "brief":
-            case "superbrief":
-                return new VerbosityProcessor();
-
             case "inventory":
             case "i":
             case "what am i holding":
@@ -50,16 +45,6 @@ public class GlobalCommandFactory : IGlobalCommandFactory
             case "z":
                 return new WaitProcessor();
 
-            case "save":
-            case "save my game":
-            case "save my progress":
-                return new SaveProcessor();
-
-            case "restore":
-            case "restore my game":
-            case "restore my progress":
-                return new RestoreProcessor();
-
             case "look":
             case "where am i":
             case "examine my surroundings":
@@ -72,6 +57,44 @@ public class GlobalCommandFactory : IGlobalCommandFactory
             case "look around me":
                 return new LookProcessor();
 
+
+            case "score":
+            case "what is my score":
+            case "tell me my score":
+                return new ScoreProcessor();
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// System commands are slightly different - they are commands that affect
+    /// the game itself, as opposed to the state of the game. These are commands
+    /// like "save" and "quit" that should always work, no matter the state of the game.
+    /// They should also be executed before any other kind of command, and not be intercepted
+    /// by locations like the "loud room". 
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public ISystemCommand? GetSystemCommands(string? input)
+    {
+        switch (input?.ToLowerInvariant().StripNonChars().Trim())
+        {
+            case "verbose":
+            case "brief":
+            case "superbrief":
+                return new VerbosityProcessor();
+
+            case "save":
+            case "save my game":
+            case "save my progress":
+                return new SaveProcessor();
+
+            case "restore":
+            case "restore my game":
+            case "restore my progress":
+                return new RestoreProcessor();
+
             case "quit":
             case "quit the game":
             case "stop":
@@ -81,10 +104,6 @@ public class GlobalCommandFactory : IGlobalCommandFactory
             case "stop the game":
                 return new QuitProcessor();
 
-            case "score":
-            case "what is my score":
-            case "tell me my score":
-                return new ScoreProcessor();
 
             case "restart":
             case "restart the game":

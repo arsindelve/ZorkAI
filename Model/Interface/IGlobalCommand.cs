@@ -24,3 +24,5 @@ public interface IGlobalCommand
     /// </remarks>
     Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime);
 }
+
+public interface ISystemCommand : IGlobalCommand;

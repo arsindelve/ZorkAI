@@ -198,17 +198,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // We're done now doing pre-processing, we're ready to actually look at what the
         // user wrote and do something with it.
 
-        // This input is not even parsed yet, But some locations have a special interaction
-        // to raw input such as "jump" or "pray" or "echo"? 
-        var singleVerbResult = await Context.CurrentLocation.RespondToSpecificLocationInteraction(
-            _currentInput,
-            Context,    
-            _generator
-        );
-        
-        if (singleVerbResult.InteractionHappened)
-            return PostProcessing(singleVerbResult.InteractionMessage);
-
         IntentBase parsedResult = await _parser.DetermineIntentType(
             _currentInput,
             Context.CurrentLocation.Description,
@@ -216,6 +205,21 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         );
 
         _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
+        
+        // Bypass this for System commands. They must supersede everything. 
+        if (parsedResult is not SystemCommandIntent)
+        {
+            // This input is not even parsed yet, But some locations have a special interaction
+            // to raw input such as "jump" or "pray" or "echo"? 
+            var singleVerbResult = await Context.CurrentLocation.RespondToSpecificLocationInteraction(
+                _currentInput,
+                Context,
+                _generator
+            );
+
+            if (singleVerbResult.InteractionHappened)
+                return PostProcessing(singleVerbResult.InteractionMessage);
+        }
 
         (InteractionResult? ResultObject, string? ResultMessage) intentResult = parsedResult switch
         {

@@ -502,7 +502,7 @@ public class EngineTests : EngineTestsBase
             .Setup(s => s.AskTheAIParser("walk east", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new MoveIntent { Direction = Direction.E });
 
-        var parser = new IntentParser(aiParser.Object, new ZorkOneGlobalCommandFactory(), null);
+        var parser = new IntentParser(aiParser.Object, new ZorkOneGlobalCommandFactory());
         var target = GetTarget(parser);
 
         // Act
@@ -515,7 +515,7 @@ public class EngineTests : EngineTestsBase
     public async Task Parser_DirectionMatch()
     {
         var aiParser = new Mock<IAIParser>();
-        var parser = new IntentParser(aiParser.Object, new ZorkOneGlobalCommandFactory(), null);
+        var parser = new IntentParser(aiParser.Object, new ZorkOneGlobalCommandFactory());
         var target = GetTarget(parser);
 
         // Act

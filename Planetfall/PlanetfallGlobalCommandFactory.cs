@@ -6,4 +6,9 @@ public class PlanetfallGlobalCommandFactory : IGlobalCommandFactory
     {
         return null;
     }
+
+    public ISystemCommand? GetSystemCommands(string? input)
+    {
+        return null;
+    }
 }
