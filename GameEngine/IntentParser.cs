@@ -69,11 +69,11 @@ public class IntentParser : IIntentParser
             case "turn lantern on":
             case "turn the lantern on":
             case "turn on the lantern":
-            case "the on lantern":
+            case "turn on lantern":
             case "turn lamp on":
             case "turn the lamp on":
             case "turn on the lamp":
-            case "the on lamp":
+            case "turn on lamp":
                 return new SimpleIntent { Noun = "lantern", Verb = "turn on" };
             
             case "turn lantern off":
