@@ -252,6 +252,16 @@ public class TestParser : IIntentParser
                 Verb = "light",
                 OriginalInput = "light candles with match"
             });
+        
+        if (input == "light candles with torch")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "candles",
+                NounTwo = "torch",
+                Preposition = "with",
+                Verb = "light",
+                OriginalInput = "light candles with torch"
+            });
 
         if (input == "kill the cyclops with the sword")
             return Task.FromResult<IntentBase>(new MultiNounIntent

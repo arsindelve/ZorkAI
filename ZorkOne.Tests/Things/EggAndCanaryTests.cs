@@ -7,7 +7,7 @@ using ZorkOne.Location;
 using ZorkOne.Location.ForestLocation;
 using ZorkOne.Location.MazeLocation;
 
-namespace ZorkOne.Tests;
+namespace ZorkOne.Tests.Things;
 
 public class EggAndCanaryTests : EngineTestsBase
 {

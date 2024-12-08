@@ -1,7 +1,7 @@
 ﻿namespace Model;
 
 /// <summary>
-/// This is you verb thesaurus. Enjoy responsibly. 
+/// This is your verb thesaurus. Enjoy responsibly. 
 /// </summary>
 public static class Verbs
 {

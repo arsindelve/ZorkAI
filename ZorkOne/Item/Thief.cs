@@ -122,7 +122,10 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
         throw new NotImplementedException();
     }
 
-    public string ExaminationDescription => "The thief is a slippery character with beady eyes that flit back and forth. He carries, along with an unmistakable arrogance, a large bag over his shoulder and a vicious stiletto, whose blade is aimed menacingly in your direction. I'd watch out if I were you. ";
+    public string ExaminationDescription => "The thief is a slippery character with beady eyes that flit back and " +
+                                            "forth. He carries, along with an unmistakable arrogance, a large bag " +
+                                            "over his shoulder and a vicious stiletto, whose blade is aimed menacingly " +
+                                            "in your direction. I'd watch out if I were you. ";
     
     public Task<string> Act(IContext context, IGenerationClient client)
     {
