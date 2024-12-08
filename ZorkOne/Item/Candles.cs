@@ -16,14 +16,13 @@ public class Candles
         ITurnBasedActor,
         IPluralNoun
 {
+    // ReSharper disable once MemberCanBePrivate.Global
     public int TurnsWhileOn { get; set; }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public bool BurnedOut { get; set; }
 
     public override string[] NounsForMatching => ["candle", "candles", "pair of candles"];
-
-    public override string GenericDescription(ILocation? currentLocation) =>
-        "A pair of candles" + (IsOn ? " (providing light)" : "");
 
     public bool IsOn { get; set; }
 
@@ -37,6 +36,10 @@ public class Candles
 
     public string CannotBeTurnedOnText
     {
+        // This handles the case where the adventurer has not specified what to light them with
+        // If they have a burning match, go ahead and make that assumption. Otherwise, let them know
+        // they are going to have to be more specific. When they do specify what to light them with,
+        // it will be handled by the multi-noun process, not this. 
         get
         {
             if (BurnedOut)
@@ -63,7 +66,7 @@ public class Candles
             && spirits.Stunned
         )
             return "\nThe flames flicker wildly and appear to dance. The earth beneath your feet trembles, "
-                + "and your legs nearly buckle beneath you. The spirits cower at your unearthly power. \n ";
+                   + "and your legs nearly buckle beneath you. The spirits cower at your unearthly power. \n ";
 
         return string.Empty;
     }
@@ -85,11 +88,15 @@ public class Candles
         return string.Empty;
     }
 
-    public string OnTheGroundDescription(ILocation currentLocation) =>
-        "There is a pair of candles here" + (IsOn ? " (providing light). " : ". ");
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "There is a pair of candles here" + (IsOn ? " (providing light). " : ". ");
+    }
 
-    public override string NeverPickedUpDescription(ILocation currentLocation) =>
-        "On the two ends of the altar are burning candles. ";
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return "On the two ends of the altar are burning candles. ";
+    }
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
@@ -123,7 +130,7 @@ public class Candles
                 );
                 return Task.FromResult(
                     "You'd better have more light than from the pair of candles. "
-                        + result!.InteractionMessage
+                    + result!.InteractionMessage
                 );
 
             default:
@@ -131,25 +138,44 @@ public class Candles
         }
     }
 
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A pair of candles" + (IsOn ? " (providing light)" : "");
+    }
+
     public override InteractionResult RespondToMultiNounInteraction(
         MultiNounIntent action,
         IContext context
     )
     {
-        if (
-            action.Match(
+        if (!action.Match(
                 ["light", "burn"],
                 NounsForMatching,
-                Repository.GetItem<Matchbook>().NounsForMatching,
+                Repository.GetItem<Matchbook>().NounsForMatching.Union(Repository.GetItem<Torch>().NounsForMatching).ToArray(),
                 ["with"]
-            )
-        )
+            ))
+            return base.RespondToMultiNounInteraction(action, context);
+        
+        if (action.MatchNounTwo<Torch>() && context.HasItem<Torch>())
+        {
+            context.RemoveItem(this);
+            CurrentLocation = null;
+            return new PositiveInteractionResult(
+                "The heat from the torch is so intense that the candles are vaporized. ");
+        }
+
+        if (action.MatchNounTwo<Matchbook>() && context.HasItem<Matchbook>())
+        {
+            if (!Repository.GetItem<Matchbook>().IsOn)
+                return new PositiveInteractionResult("You'll need to light a match first.");
+
             return new TurnLightOnOrOffProcessor().Process(
                 new SimpleIntent { Noun = action.NounOne, Verb = action.Verb },
                 context,
                 this,
                 null!
             )!;
+        }
 
         return base.RespondToMultiNounInteraction(action, context);
     }

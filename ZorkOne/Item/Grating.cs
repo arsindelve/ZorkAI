@@ -60,7 +60,7 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-        if (action.Match(["unlock"], NounsForMatching, Repository.GetItem<SkeletonKey>().NounsForMatching,
+        if (action.Match<SkeletonKey>(["unlock"], NounsForMatching,
                 ["with", "using"]))
             if (context.CurrentLocation is GratingRoom)
             {
@@ -73,8 +73,7 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
                 return new PositiveInteractionResult("You can't reach the lock from here.");
             }
 
-        if (action.Match(["lock"], NounsForMatching, Repository.GetItem<SkeletonKey>().NounsForMatching,
-                ["with", "using"]))
+        if (action.Match<SkeletonKey>(["lock"], NounsForMatching, ["with", "using"]))
             if (context.CurrentLocation is GratingRoom)
             {
                 var message = "The grate is locked. ";

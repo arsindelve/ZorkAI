@@ -6,7 +6,7 @@ using UnitTests;
 using ZorkOne.Item;
 using ZorkOne.Location;
 
-namespace ZorkOne.Tests;
+namespace ZorkOne.Tests.Places;
 
 [TestFixture]
 public class DomeTests : EngineTestsBase

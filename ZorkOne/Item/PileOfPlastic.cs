@@ -87,7 +87,7 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
         if (context.HasItem<PileOfPlastic>())
             return new PositiveInteractionResult("The boat must be on the ground to be inflated. ");
 
-        if (!action.MatchNounTwo(Repository.GetItem<AirPump>().NounsForMatching))
+        if (!action.MatchNounTwo<AirPump>())
             return base.RespondToMultiNounInteraction(action, context);
 
         if (!verbs.Contains(action.Verb.ToLowerInvariant().Trim()))

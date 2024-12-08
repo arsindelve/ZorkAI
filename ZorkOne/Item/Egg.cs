@@ -91,13 +91,13 @@ public class Egg
         )
             return base.RespondToMultiNounInteraction(action, context);
 
-        if (action.MatchNounTwo(Repository.GetItem<Sword>().NounsForMatching))
+        if (action.MatchNounTwo<Sword>())
             return PryOpen<Sword>(context);
 
-        if (action.MatchNounTwo(Repository.GetItem<NastyKnife>().NounsForMatching))
+        if (action.MatchNounTwo<NastyKnife>())
             return PryOpen<NastyKnife>(context);
 
-        if (action.MatchNounTwo(Repository.GetItem<Screwdriver>().NounsForMatching))
+        if (action.MatchNounTwo<Screwdriver>())
             return PryOpen<Screwdriver>(context);
 
         return base.RespondToMultiNounInteraction(action, context);

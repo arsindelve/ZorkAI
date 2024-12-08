@@ -5,7 +5,7 @@ using UnitTests;
 using ZorkOne.Item;
 using ZorkOne.Location.MazeLocation;
 
-namespace ZorkOne.Tests;
+namespace ZorkOne.Tests.People;
 
 public class CyclopsTests : EngineTestsBase
 {

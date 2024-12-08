@@ -7,7 +7,7 @@ using ZorkOne.ActorInteraction;
 using ZorkOne.Interface;
 using ZorkOne.Item;
 
-namespace ZorkOne.Tests;
+namespace ZorkOne.Tests.People;
 
 public class TrollCombatTests : EngineTestsBase
 {

@@ -7,7 +7,7 @@ using UnitTests;
 using ZorkOne.Item;
 using ZorkOne.Location.CoalMineLocation;
 
-namespace ZorkOne.Tests;
+namespace ZorkOne.Tests.Things;
 
 public class MachineTests : EngineTestsBase
 {
