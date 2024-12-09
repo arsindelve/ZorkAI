@@ -4,6 +4,7 @@ using Model.Location;
 using Model.Movement;
 using Planetfall.Command;
 using Planetfall.Item;
+using Planetfall.Item.Feinstein;
 
 namespace Planetfall.Location.Feinstein;
 

@@ -90,7 +90,12 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         item.CurrentLocation = this;
         Items.Add(item);
     }
-
+    
+    public string LogItems()
+    {
+        return string.Join(", ", Items.Select(item => item.GenericDescription(this).Trim()));
+    }
+    
     // ReSharper disable once MemberCanBePrivate.Global
     public int VisitCount { get; set; }
 

@@ -6,7 +6,10 @@ namespace UnitTests.SingleNounProcessors;
 
 internal class MadeUpItem : ICanBeEaten, ICanBeTakenAndDropped
 {
-    public string EatenDescription => "";
+    public string EatenDescription(IContext context)
+    {
+        return "";
+    }
 
     public string OnTheGroundDescription(ILocation currentLocation) => "";
 

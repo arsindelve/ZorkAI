@@ -7,7 +7,7 @@ namespace Model.Item;
 /// </summary>
 public interface ICanBeEaten : IInteractionTarget
 {
-    public string EatenDescription { get; }
+    public string EatenDescription(IContext context);
 }
 
 /// <summary>
