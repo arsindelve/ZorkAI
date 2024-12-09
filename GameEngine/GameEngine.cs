@@ -291,6 +291,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     private string PostProcessing(string finalResult)
     {
+        _logger?.LogDebug($"Items in inventory: {Context.LogItems()}");
+        _logger?.LogDebug($"Items in location: {Context.CurrentLocation.LogItems()}");
         _logger?.LogDebug($"Moves: {Context.Moves}");
 
         if (!string.IsNullOrEmpty(finalResult))

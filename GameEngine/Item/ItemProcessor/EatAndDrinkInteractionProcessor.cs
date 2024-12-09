@@ -38,8 +38,8 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
 
                 message = item switch
                 {
-                    ICanBeEaten food => EatIt(baseItem, message, food),
-                    IAmADrink drink => DrinkIt(baseItem, message, drink, context),
+                    ICanBeEaten food => EatIt(baseItem, message, food, context),
+                    IAmADrink drink => DrinkIt(baseItem, drink, context),
                     _ => throw new ArgumentException()
                 };
 
@@ -49,7 +49,7 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
         return null;
     }
 
-    private string DrinkIt(IItem item, string message, IAmADrink drink, IContext context)
+    private string DrinkIt(IItem item, IAmADrink drink, IContext context)
     {
         // Drinking is a little different, because liquid usually has to be inside a container
         // right up until the moment we drink it. We cannot "hold" water in inventory without
@@ -67,7 +67,7 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
         return drink.DrankDescription;
     }
 
-    private static string EatIt(IItem item, string message, ICanBeEaten food)
+    private static string EatIt(IItem item, string message, ICanBeEaten food, IContext context)
     {
         // We know the item is in this location, but it might be inside something else. If so
         // we need to take it first. This will have no practical effect because we are just
@@ -85,7 +85,7 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
 
         DestroyIt(item);
 
-        message += food.EatenDescription;
+        message += food.EatenDescription(context);
         return message;
     }
 

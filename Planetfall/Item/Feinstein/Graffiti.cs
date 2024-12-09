@@ -1,4 +1,4 @@
-namespace Planetfall.Item;
+namespace Planetfall.Item.Feinstein;
 
 public class Graffiti : ItemBase, ICanBeExamined, ICanBeRead
 {

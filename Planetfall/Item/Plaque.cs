@@ -10,5 +10,5 @@ public class Plaque : ItemBase, ICanBeRead, ICanBeExamined
 
     public string ExaminationDescription => ReadDescription;
 
-    public override string? CannotBeTakenDescription => "Not bloody likely. ";
+    public override string CannotBeTakenDescription => "Not bloody likely. ";
 }

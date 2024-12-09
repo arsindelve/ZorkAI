@@ -56,6 +56,11 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public LimitedStack<string> Inputs { get; set; } = new();
 
+    public string LogItems()
+    {
+        return string.Join(", ", Items.Select(item => item.GenericDescription(CurrentLocation).Trim()));
+    }
+
     [JsonIgnore] public IGameEngine? Engine { get; set; }
 
     public string LastNoun { get; set; } = "";

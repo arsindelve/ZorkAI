@@ -24,6 +24,12 @@ public interface IContext : ICanHoldItems
 
     public LimitedStack<string> Inputs { get; set; }
 
+    /// <summary>
+    ///  For debugging purposes, will list everything in inventory. 
+    /// </summary>
+    /// <returns></returns>
+    public string LogItems();
+
     [JsonIgnore] IGameEngine? Engine { get; set; }
 
     /// <summary>

@@ -1,4 +1,5 @@
 using GameEngine.Item;
+using Model.Interface;
 
 namespace ZorkOne.Item;
 
@@ -10,7 +11,10 @@ public class Lunch : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeEate
 
     public override int Size => 2;
 
-    string ICanBeEaten.EatenDescription => "Thank you very much. It really hit the spot.";
+    string ICanBeEaten.EatenDescription(IContext context)
+    {
+        return "Thank you very much. It really hit the spot.";
+    }
 
     string ICanBeExamined.ExaminationDescription => "There's nothing special about the lunch.";
 

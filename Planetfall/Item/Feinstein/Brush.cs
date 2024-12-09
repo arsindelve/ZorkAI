@@ -1,6 +1,6 @@
 using Model.Location;
 
-namespace Planetfall.Item;
+namespace Planetfall.Item.Feinstein;
 
 public class Brush : ItemBase, ICanBeTakenAndDropped
 {

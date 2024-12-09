@@ -134,4 +134,11 @@ public interface ILocation
     /// </summary>
     /// <param name="item"></param>
     void ItemPlacedHere(IItem item);
+
+    /// <summary>
+    /// For debugging purposes, list all the items in this location. 
+    /// </summary>
+    /// <returns></returns>
+    string LogItems();
+
 }

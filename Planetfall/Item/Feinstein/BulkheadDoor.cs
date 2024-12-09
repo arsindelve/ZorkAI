@@ -1,7 +1,7 @@
 using Model.Location;
 using Planetfall.Location.Feinstein;
 
-namespace Planetfall.Item;
+namespace Planetfall.Item.Feinstein;
 
 public class BulkheadDoor : ItemBase, IOpenAndClose
 {
