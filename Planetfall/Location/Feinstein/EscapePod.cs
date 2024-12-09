@@ -2,8 +2,8 @@ using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Location;
 using Model.Movement;
+using Planetfall.Command;
 using Planetfall.Item;
-using ZorkOne.Command;
 
 namespace Planetfall.Location.Feinstein;
 
@@ -105,7 +105,7 @@ internal class EscapePod : BaseLocation, ITurnBasedActor
             case 13:
                 action = "The viewport suddenly becomes transparent again, giving you a view of endless ocean below. " +
                          "The lights on the control panel flash madly as the pod's computer searches for a " +
-                         "suitable landing site. The thrusters fire long and hard, slowing the pod's descent.";
+                         "suitable landing site. The thrusters fire long and hard, slowing the pod's descent. ";
                 break;
 
             case 14:

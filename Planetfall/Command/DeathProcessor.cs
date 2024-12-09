@@ -16,6 +16,9 @@ public class DeathProcessor
     /// <exception cref="ArgumentException">Thrown if the context is not of type ZorkIContext.</exception>
     public InteractionResult Process(string death, IContext context)
     {
+        if (context is not PlanetfallContext)
+            throw new ArgumentException();
+        
         var newLocation = Repository.GetLocation<DeckNine>();
         context.CurrentLocation = newLocation;
 
