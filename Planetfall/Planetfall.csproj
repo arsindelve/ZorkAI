@@ -12,4 +12,8 @@
         <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Location\Lawanda\" />
+    </ItemGroup>
+
 </Project>

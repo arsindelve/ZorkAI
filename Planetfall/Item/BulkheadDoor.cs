@@ -1,10 +1,11 @@
 using Model.Location;
+using Planetfall.Location.Feinstein;
 
 namespace Planetfall.Item;
 
 public class BulkheadDoor : ItemBase, IOpenAndClose
 {
-    public override string[] NounsForMatching => ["bulkhead", "bulkhead door"];
+    public override string[] NounsForMatching => ["bulkhead", "bulkhead door", "door"];
     public bool IsOpen { get; set; }
 
     public string NowOpen(ILocation currentLocation)
@@ -23,6 +24,16 @@ public class BulkheadDoor : ItemBase, IOpenAndClose
 
     public string CannotBeOpenedDescription(IContext context)
     {
-        return "Why open the door to the emergency escape pod if there's no emergency?";
+        return Repository.GetLocation<EscapePod>().TurnsInEscapePod switch
+        {
+            0 => "Why open the door to the emergency escape pod if there's no emergency? ",
+            < 15 => "Opening the door now would be a phenomenally stupid idea. ",
+            _ => ""
+        };
+    }
+
+    public override string OnOpening(IContext context)
+    {
+        return "The bulkhead opens and cold ocean water rushes in! ";
     }
 }
