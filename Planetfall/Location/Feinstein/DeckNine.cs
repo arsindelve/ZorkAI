@@ -24,6 +24,16 @@ internal class DeckNine : BaseLocation, ITurnBasedActor
             }
         };
 
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client)
+    {
+        if (action.Match(["clean", "scrub", "wash"], ["floor", "deck"]))
+        {
+            return new PositiveInteractionResult("The floor is a bit shinier now. ");
+        }
+        
+        return base.RespondToSimpleInteraction(action, context, client);
+    }
+
     protected override string ContextBasedDescription =>
         "This is a featureless corridor similar to every other corridor on the ship. It curves away to starboard," +
         " and a gangway leads up. To port is the entrance to one of the ship's primary escape pods. " +
@@ -36,11 +46,10 @@ internal class DeckNine : BaseLocation, ITurnBasedActor
         if (context.Moves == 10)
         {
             Repository.GetItem<BulkheadDoor>().IsOpen = true;
-            // The ambassador squawks
-            // frantically, evacuates a massive load of gooey slime, and rushes away.
+
             return Task.FromResult(
                 $"\n\nA massive explosion rocks the ship. Echoes from the explosion resound deafeningly down the halls. " +
-                $"{(context.CurrentLocation == this ? "The door to port slides open." : "")}");
+                $"{(context.CurrentLocation == this ? "The door to port slides open. " : "")}");
         }
 
         if (context.Moves == 11)
@@ -49,17 +58,17 @@ internal class DeckNine : BaseLocation, ITurnBasedActor
             {
                 _ when context.CurrentLocation is DeckNine => Task.FromResult(
                     "\n\nMore distant explosions! A narrow emergency bulkhead at the base of the " +
-                    "gangway and a wider one along the corridor to starboard both crash shut!"),
+                    "gangway and a wider one along the corridor to starboard both crash shut! "),
                 _ when context.CurrentLocation is Gangway => Task.FromResult(
-                    "Another explosion. A narrow bulkhead at the base of the gangway slams shut!"),
+                    "Another explosion. A narrow bulkhead at the base of the gangway slams shut! "),
                 _ => Task.FromResult(
-                    "\n\nThe ship shakes again. You hear, from close by, the sounds of emergency bulkheads closing.")
+                    "\n\nThe ship shakes again. You hear, from close by, the sounds of emergency bulkheads closing. ")
             };
         }
 
         if (context.Moves == 12)
         {
-            if (context.CurrentLocation is not DeckNine)
+            if (context.CurrentLocation is not DeckNine && context.CurrentLocation is not EscapePod)
             {
                 var result =
                     "\n\nThe ship rocks from the force of multiple explosions. The lights go out, and you feel a " +
@@ -80,6 +89,7 @@ internal class DeckNine : BaseLocation, ITurnBasedActor
         {
             var result =
                 "\n\nAn enormous explosion tears the walls of the ship apart. If only you had made it to an escape pod...";
+           
             return YouExploded(context, result);
         }
 
@@ -96,4 +106,10 @@ internal class DeckNine : BaseLocation, ITurnBasedActor
     {
         StartWithItem<BulkheadDoor>();
     }
+    
+    // TODO: Chance of Ambassador
+    
+    // TODO: Chance of "Ensign First Class Blather swaggers in. He studies your work with half-closed eyes. "You call this polishing, Ensign Seventh Class?" he sneers. "We have a position for an Ensign Ninth Class in the toilet-scrubbing division, you know. Thirty demerits." He glares at you, his arms crossed. 
+    // TODO: and then: Blather, adding fifty more demerits for good measure, moves off in search of more young ensigns to terrorize.
+
 }

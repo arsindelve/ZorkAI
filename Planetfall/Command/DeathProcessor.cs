@@ -1,17 +1,14 @@
-using Planetfall.Location;
 using Planetfall.Location.Feinstein;
-using ZorkOne;
-using ZorkOne.Location.ForestLocation;
 
 namespace Planetfall.Command;
 
 /// <summary>
-/// Class responsible for processing player death.
+///     Class responsible for processing player death.
 /// </summary>
 public class DeathProcessor
 {
     /// <summary>
-    /// Process the death of the player. Oh, no! 
+    ///     Process the death of the player. Oh, no!
     /// </summary>
     /// <param name="death">The death message.</param>
     /// <param name="context">The current game context.</param>
@@ -19,9 +16,6 @@ public class DeathProcessor
     /// <exception cref="ArgumentException">Thrown if the context is not of type ZorkIContext.</exception>
     public InteractionResult Process(string death, IContext context)
     {
-        if (context is not PlanetfallContext)
-            throw new ArgumentException();
-        
         var newLocation = Repository.GetLocation<DeckNine>();
         context.CurrentLocation = newLocation;
 

@@ -1,14 +1,18 @@
+using GameEngine.StaticCommand;
+using Utilities;
+
 namespace Planetfall;
 
-public class PlanetfallGlobalCommandFactory : IGlobalCommandFactory
+public class PlanetfallGlobalCommandFactory : GlobalCommandFactory
 {
-    public IGlobalCommand? GetGlobalCommands(string? input)
+    public override IGlobalCommand? GetGlobalCommands(string? input)
     {
-        return null;
-    }
+        switch (input?.ToLowerInvariant().StripNonChars().Trim())
+        {
+            case "zork":
+                return new SimpleResponseCommand("Gesundheit! ");
+        }
 
-    public ISystemCommand? GetSystemCommands(string? input)
-    {
-        return null;
+        return base.GetGlobalCommands(input);
     }
 }
