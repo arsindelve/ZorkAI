@@ -4,7 +4,7 @@ using Model.Movement;
 namespace ZorkOne.Location;
 
 // Strangely, this is not a dark location. 
-public class Temple : BaseLocation
+public class Temple : LocationBase
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()

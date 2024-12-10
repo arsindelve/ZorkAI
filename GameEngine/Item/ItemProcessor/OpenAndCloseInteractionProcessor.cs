@@ -14,8 +14,8 @@ public class OpenAndCloseInteractionProcessor : IVerbProcessor
 
         if (Verbs.OpenVerbs.Contains(action.Verb.ToLowerInvariant().Trim()))
             return OpenMe(castItem, context);
-        
-        if (Verbs.CloseVerbs.Contains(action.Verb.ToLowerInvariant().Trim())) 
+
+        if (Verbs.CloseVerbs.Contains(action.Verb.ToLowerInvariant().Trim()))
             return CloseMe(castItem, context);
 
         return null;
@@ -26,6 +26,7 @@ public class OpenAndCloseInteractionProcessor : IVerbProcessor
         if (item.IsOpen)
             return new PositiveInteractionResult(item.AlreadyOpen);
 
+        // A non-empty, non-null string here indicates the item cannot be opened, and why. 
         var cannotBeOpenedReason = item.CannotBeOpenedDescription(context);
         if (!string.IsNullOrEmpty(cannotBeOpenedReason))
             return new PositiveInteractionResult(cannotBeOpenedReason);
@@ -43,6 +44,11 @@ public class OpenAndCloseInteractionProcessor : IVerbProcessor
     {
         if (!item.IsOpen)
             return new PositiveInteractionResult(item.AlreadyClosed);
+
+        // A non-empty, non-null string here indicates the item cannot be closed, and why. 
+        var cannotBeOpenedReason = item.CannotBeClosedDescription(context);
+        if (!string.IsNullOrEmpty(cannotBeOpenedReason))
+            return new PositiveInteractionResult(cannotBeOpenedReason);
 
         item.IsOpen = false;
         return new PositiveInteractionResult(item.NowClosed(context.CurrentLocation));

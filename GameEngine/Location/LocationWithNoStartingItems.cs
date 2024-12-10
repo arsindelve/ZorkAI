@@ -1,6 +1,6 @@
 ﻿namespace GameEngine.Location;
 
-public abstract class LocationWithNoStartingItems : BaseLocation
+public abstract class LocationWithNoStartingItems : LocationBase
 {
     public override void Init()
     {

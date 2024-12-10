@@ -5,7 +5,7 @@ using Planetfall.Item.Feinstein;
 
 namespace Planetfall.Location.Feinstein;
 
-internal class Brig : BaseLocation
+internal class Brig : LocationBase
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()

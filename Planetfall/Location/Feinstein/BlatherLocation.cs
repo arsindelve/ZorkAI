@@ -9,7 +9,7 @@ using Planetfall.Item.Feinstein;
 
 namespace Planetfall.Location.Feinstein;
 
-internal abstract class BlatherLocation : BaseLocation
+internal abstract class BlatherLocation : LocationBase
 {
     public override async Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)

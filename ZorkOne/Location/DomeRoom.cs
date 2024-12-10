@@ -7,7 +7,7 @@ using ZorkOne.Command;
 
 namespace ZorkOne.Location;
 
-public class DomeRoom : BaseLocation
+public class DomeRoom : LocationBase
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()

@@ -4,7 +4,7 @@ using ZorkOne.Location.ForestLocation;
 
 namespace ZorkOne.Location;
 
-public class ClearingBehindHouse : BaseLocation
+public class ClearingBehindHouse : LocationBase
 {
     protected override string ContextBasedDescription =>
         "You are in a small clearing in a well marked forest path that extends to the east and west.";

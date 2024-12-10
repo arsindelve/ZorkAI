@@ -10,10 +10,18 @@ namespace Model.Item;
 public interface ICanBeTakenAndDropped : IInteractionTarget
 {
     /// <summary>
+    ///     Indicates whether the item has ever been picked up.
+    /// </summary>
+    /// <seealso cref="ICanBeTakenAndDropped" />
+    bool HasEverBeenPickedUp { get; }
+
+    /// <summary>
     ///     Represents the description of an item when it is on the ground.
     /// </summary>
     /// <remarks>
     ///     This property should provide a description of the item when it is lying on the ground in the game world.
+    ///     "There is a rope here. "
+    ///     "Unfortunately, one of those stupid Blow'k-bibben-Gordo brochures is here. "
     /// </remarks>
     string OnTheGroundDescription(ILocation currentLocation);
 
@@ -30,19 +38,15 @@ public interface ICanBeTakenAndDropped : IInteractionTarget
     string? NeverPickedUpDescription(ILocation currentLocation);
 
     /// <summary>
-    ///     Indicates whether the item has ever been picked up.
-    /// </summary>
-    /// <seealso cref="ICanBeTakenAndDropped" />
-    bool HasEverBeenPickedUp { get; }
-
-    /// <summary>
     ///     This method is called when the item is being taken by the player.
     /// </summary>
     /// <param name="context">The context of the game.</param>
     string? OnBeingTaken(IContext context);
 
     /// <summary>
-    ///     This method is called when the item fails to be taken by the player.
+    ///     This method is called when the item fails to be taken by the player. Examples would
+    ///     be something that is destroyed by trying to take it, or something that kills you when you
+    ///     pick it up. This is different from something which cannot be picked up at all.
     /// </summary>
     /// <param name="context">The context of the game.</param>
     void OnFailingToBeTaken(IContext context);

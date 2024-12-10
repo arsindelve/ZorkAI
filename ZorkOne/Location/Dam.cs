@@ -6,7 +6,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-public class Dam : BaseLocation
+public class Dam : LocationBase
 {
     public bool SluiceGatesOpen { get; set; }
 

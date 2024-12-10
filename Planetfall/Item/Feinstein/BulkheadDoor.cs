@@ -10,17 +10,22 @@ public class BulkheadDoor : ItemBase, IOpenAndClose
 
     public string NowOpen(ILocation currentLocation)
     {
-        throw new NotImplementedException();
+        return string.Empty;
     }
 
     public string NowClosed(ILocation currentLocation)
     {
-        throw new NotImplementedException();
+        return string.Empty;
     }
 
     public string AlreadyClosed => "It is closed! ";
     public string AlreadyOpen => "It's already open! ";
     public bool HasEverBeenOpened { get; set; }
+
+    public override string CannotBeClosedDescription(IContext context)
+    {
+        return "You can't close it yourself. ";
+    }
 
     public string CannotBeOpenedDescription(IContext context)
     {

@@ -3,7 +3,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-public class DamLobby : BaseLocation
+public class DamLobby : LocationBase
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()

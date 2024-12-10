@@ -10,7 +10,7 @@ namespace GameEngine.Location;
 /// <summary>
 ///     The base class for all locations in the game.
 /// </summary>
-public abstract class BaseLocation : ILocation, ICanHoldItems
+public abstract class LocationBase : ILocation, ICanHoldItems
 {
     /// <summary>
     ///     The Map defines all the places the user can go from this location. It can also define
@@ -83,6 +83,12 @@ public abstract class BaseLocation : ILocation, ICanHoldItems
         return 0;
     }
 
+    public void ItemPlacedHere<T>() where T : IItem, new()
+    {
+        T item = Repository.GetItem<T>();
+        ItemPlacedHere(item);
+    }
+    
     public void ItemPlacedHere(IItem item)
     {
         var oldLocation = item.CurrentLocation;

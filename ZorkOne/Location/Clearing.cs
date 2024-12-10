@@ -5,7 +5,7 @@ using ZorkOne.Location.MazeLocation;
 
 namespace ZorkOne.Location;
 
-public class Clearing : BaseLocation
+public class Clearing : LocationBase
 {
     protected override Dictionary<Direction, MovementParameters> Map => new()
     {
