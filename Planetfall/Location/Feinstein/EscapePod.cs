@@ -3,14 +3,73 @@ using Model.AIGeneration;
 using Model.Location;
 using Model.Movement;
 using Planetfall.Command;
-using Planetfall.Item;
 using Planetfall.Item.Feinstein;
 
 namespace Planetfall.Location.Feinstein;
 
-internal class EscapePod : BaseLocation, ITurnBasedActor
+internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
+{
+    public string GetIn(IContext context)
+    {
+        if (context.CurrentLocation.SubLocation == this)
+            return "You're already in the safety web. ";
+
+        context.CurrentLocation.SubLocation = this;
+        return "You are now safely cushioned within the web. ";
+    }
+
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
+    {
+        if (context.CurrentLocation.SubLocation != null && action.MatchVerb(["get", "rest", "sit"]))
+            return new PositiveInteractionResult(GetIn(context));
+
+        if (context.CurrentLocation.SubLocation == null && action.MatchVerb(["leave", "exit", "get"]))
+            return new PositiveInteractionResult(GetOut(context));
+
+        return base.RespondToSimpleInteraction(action, context, client);
+    }
+
+    public string GetOut(IContext context)
+    {
+        if (context.CurrentLocation.SubLocation == null)
+            return "You're not in the safety web. ";
+
+        context.CurrentLocation.SubLocation = null;
+        return "You are standing again. ";
+    }
+
+    public string LocationDescription => ", in the safety web";
+
+    public string ExaminationDescription =>
+        "The safety webbing fills most of the pod. It could accomodate from one to, perhaps, twenty people. ";
+
+    public override string[] NounsForMatching => ["webbing", "safety webbing", "web"];
+}
+
+internal class EscapePod : LocationBase, ITurnBasedActor
 {
     public byte TurnsInEscapePod { get; set; }
+
+    public override Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
+        IGenerationClient client)
+    {
+        switch (input)
+        {
+            case "sit":
+            case "sit down":
+            case "get in":
+                string inMessage = Repository.GetItem<SafetyWeb>().GetIn(context);
+                return Task.FromResult<InteractionResult>(new PositiveInteractionResult(inMessage));
+
+            case "stand":
+            case "stand up":
+                string outMessage = Repository.GetItem<SafetyWeb>().GetOut(context);
+                return Task.FromResult<InteractionResult>(new PositiveInteractionResult(outMessage));
+        }
+
+        return base.RespondToSpecificLocationInteraction(input, context, client);
+    }
 
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
@@ -118,24 +177,30 @@ internal class EscapePod : BaseLocation, ITurnBasedActor
             case 15:
 
                 context.RemoveActor(this);
-                if (false)
+                if (context.CurrentLocation.SubLocation is SafetyWeb)
+                {
                     action =
                         "The pod lands with a thud. Through the viewport you can see a rocky cleft and some water " +
                         "below. The pod rocks gently back and forth as if it was precariously balanced. A previously " +
                         "unseen panel slides open, revealing some emergency provisions, including a survival " +
                         "kit and a towel.";
+
+                    ItemPlacedHere<Towel>();
+                }
+
+                // TODO: Add towel and kit 
                 else
                 {
                     action = "The pod, whose automated controls were unfortunately designed by computer scientists, " +
                              "lands with a good deal of force. Your body sails across the pod until it is stopped by " +
                              "one of the sharper corners of the control panel. ";
+
                     return Task.FromResult(new DeathProcessor().Process(action, context).InteractionMessage);
                 }
 
                 break;
         }
 
-        // TODO: Add towel and kit 
 
         return Task.FromResult("\n\n" + action);
     }
@@ -150,3 +215,25 @@ internal class EscapePod : BaseLocation, ITurnBasedActor
         StartWithItem<BulkheadDoor>();
     }
 }
+
+// NEXT: 
+//
+// Escape Pod, in the safety web
+// This is one of the Feinstein's primary escape pods, for use in extreme emergencies. A mass of safety webbing, large enough to hold several dozen people, fills half the pod. The controls are entirely automated. The bulkhead leading out is closed.
+//     There is a towel here. (outside the safety web)
+// There is a survival kit here. (outside the safety web)
+//
+//     >examine web
+//     The safety webbing fills most of the pod. It could accomodate from one to, perhaps, twenty people.
+//
+//     >examine kit
+// The survival kit is closed.
+//
+//     >examine towel
+//     A pretty ordinary towel. Something is written in its corner.
+//
+//     >read towel
+//     (Taking the towel first)
+// "S.P.S. FEINSTEIN
+// Escape Pod #42
+// Don't Panic!"

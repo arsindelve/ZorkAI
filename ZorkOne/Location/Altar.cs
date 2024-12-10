@@ -7,7 +7,7 @@ using ZorkOne.Location.ForestLocation;
 namespace ZorkOne.Location;
 
 // This is not a dark location either, oddly. 
-public class Altar : BaseLocation
+public class Altar : LocationBase
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()

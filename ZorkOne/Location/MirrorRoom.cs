@@ -5,7 +5,7 @@ using Model.Interface;
 
 namespace ZorkOne.Location;
 
-internal abstract class MirrorRoom : BaseLocation
+internal abstract class MirrorRoom : LocationBase
 {
     protected override string ContextBasedDescription =>
         "You are in a large square room with tall ceilings. On the south wall is an " +

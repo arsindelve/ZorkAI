@@ -29,6 +29,12 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         item.CurrentLocation = this;
         Items.Add(item);
     }
+    
+    public void ItemPlacedHere<T>() where T : IItem, new()
+    {
+        T item = Repository.GetItem<T>();
+        ItemPlacedHere(item);
+    }
 
     public virtual bool IsTransparent => false;
 

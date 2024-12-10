@@ -6,7 +6,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-public class Studio : BaseLocation
+public class Studio : LocationBase
 {
     public override string Name => "Studio";
 

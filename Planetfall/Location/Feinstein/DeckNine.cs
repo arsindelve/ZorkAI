@@ -2,17 +2,12 @@ using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Movement;
 using Planetfall.Command;
-using Planetfall.Item;
 using Planetfall.Item.Feinstein;
 
 namespace Planetfall.Location.Feinstein;
 
-internal class DeckNine : BaseLocation, ITurnBasedActor
+internal class DeckNine : LocationBase, ITurnBasedActor
 {
-    public bool AmbassadorHasCome { get; set; }
-
-    public bool BlatherHasCome { get; set; }
-
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
@@ -49,19 +44,24 @@ internal class DeckNine : BaseLocation, ITurnBasedActor
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
-        var action = HandleExplosion(context);
+        var ambassador = Repository.GetItem<Ambassador>();
+        var blather = Repository.GetItem<Blather>();
 
-        // Let's see if the ambassador will join us. 
-        if (context.Moves is > 1 and < 8 && !AmbassadorHasCome && !BlatherHasCome)
+        // Let's see if the ambassador or Blather will join us. 
+        if (context.Moves is > 1 and < 7 && !Items.Contains(ambassador) && !Items.Contains(blather))
         {
             if (Random.Shared.Next(3) == 0)
             {
-                AmbassadorHasCome = true; 
-                return Task.FromResult(Repository.GetItem<Ambassador>().JoinsTheScene(context, this));
+                return Task.FromResult(ambassador.JoinsTheScene(context, this));
+            }
+            
+            if (Random.Shared.Next(5) == 0)
+            {
+                return Task.FromResult(blather.JoinsTheScene(context, this));
             }
         }
 
-        return Task.FromResult(action);
+        return Task.FromResult(HandleExplosion(context));
     }
 
     private string HandleExplosion(IContext context)

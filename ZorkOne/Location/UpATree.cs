@@ -7,7 +7,7 @@ using ZorkOne.Location.ForestLocation;
 
 namespace ZorkOne.Location;
 
-public class UpATree : BaseLocation, IDropSpecialLocation, ITurnBasedActor
+public class UpATree : LocationBase, IDropSpecialLocation, ITurnBasedActor
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()

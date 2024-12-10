@@ -28,8 +28,14 @@ public interface IOpenAndClose : IInteractionTarget
     /// <returns></returns>
     string NowClosed(ILocation currentLocation);
 
+    /// <summary>
+    /// This is what we tell the user when they try to open the item, but it's already open. 
+    /// </summary>
     string AlreadyOpen { get; }
 
+    /// <summary>
+    /// This is what we tell the user when they try to close the item, but it's already closed. 
+    /// </summary>
     string AlreadyClosed { get; }
 
     /// <summary>
@@ -43,6 +49,13 @@ public interface IOpenAndClose : IInteractionTarget
     /// <param name="context">The context in which the method is executed.</param>
     /// <returns>The description of why the object cannot be opened, or null if it can be opened.</returns>
     string? CannotBeOpenedDescription(IContext context);
+
+    /// <summary>
+    ///     Returns the description of why the item cannot be closed, or null if it can be closed.
+    /// </summary>
+    /// <param name="context">The context in which the method is executed.</param>
+    /// <returns>The description of why the object cannot be closed, or null if it can be closed.</returns>
+    string? CannotBeClosedDescription(IContext context);
 
     /// <summary>
     /// Called when the item is opened. The return text is appended to the output. 

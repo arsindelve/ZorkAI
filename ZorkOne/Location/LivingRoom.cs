@@ -8,7 +8,7 @@ using ZorkOne.Location.MazeLocation;
 
 namespace ZorkOne.Location;
 
-public class LivingRoom : BaseLocation
+public class LivingRoom : LocationBase
 {
     private bool CyclopsHasCrashedThrough => !GetLocation<CyclopsRoom>().HasItem<Cyclops>();
 

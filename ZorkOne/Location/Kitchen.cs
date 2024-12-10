@@ -5,7 +5,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-public class Kitchen : BaseLocation
+public class Kitchen : LocationBase
 {
     protected override string ContextBasedDescription =>
         $"You are in the kitchen of the white house. A table seems to have been " +

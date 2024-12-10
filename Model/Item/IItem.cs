@@ -10,6 +10,15 @@ public interface IItem : IInteractionTarget
 {
     string[] NounsForMatching { get; }
 
+    /// <summary>
+    /// If the item can be picked up, this is the description in inventory..."A rope", "A towel".
+    /// If the item cannot be picked up, this is the description of the item, on the ground, where you find it.
+    /// This can be left blank, and then these items will not appear in the location description, but can still be
+    /// interacted with. Sometimes this is done because the item description is part of the room or container description
+    /// like the trap door, or the item is special and just does not show up, like the slime. 
+    /// </summary>
+    /// <param name="currentLocation"></param>
+    /// <returns></returns>
     string GenericDescription(ILocation? currentLocation);
 
     /// <summary>

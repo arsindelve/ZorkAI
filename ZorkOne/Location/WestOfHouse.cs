@@ -8,7 +8,7 @@ using ZorkOne.Location.ForestLocation;
 
 namespace ZorkOne.Location;
 
-public class WestOfHouse : BaseLocation
+public class WestOfHouse : LocationBase
 {
     protected override string ContextBasedDescription =>
         "You are standing in an open field west of a white house, with a boarded front door. ";

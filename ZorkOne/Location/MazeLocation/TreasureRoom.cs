@@ -4,7 +4,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location.MazeLocation;
 
-public class TreasureRoom : BaseLocation
+public class TreasureRoom : LocationBase
 {
     protected override Dictionary<Direction, MovementParameters> Map => new()
     {

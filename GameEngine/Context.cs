@@ -150,6 +150,12 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     {
         Take(item);
     }
+    
+    public void ItemPlacedHere<T>() where T : IItem, new()
+    {
+        T item = Repository.GetItem<T>();
+        ItemPlacedHere(item);
+    }
 
     /// <summary>
     ///     Checks if a location has an item of type T.
@@ -260,6 +266,12 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         previousOwner?.RemoveItem(item);
         item.CurrentLocation = this;
         item.HasEverBeenPickedUp = true;
+    }
+
+    public void Drop<T>() where T : IItem, new()
+    {
+        var item = Repository.GetItem<T>();
+        Drop(item);
     }
 
     /// <summary>

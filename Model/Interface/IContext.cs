@@ -24,12 +24,6 @@ public interface IContext : ICanHoldItems
 
     public LimitedStack<string> Inputs { get; set; }
 
-    /// <summary>
-    ///  For debugging purposes, will list everything in inventory. 
-    /// </summary>
-    /// <returns></returns>
-    public string LogItems();
-
     [JsonIgnore] IGameEngine? Engine { get; set; }
 
     /// <summary>
@@ -105,14 +99,29 @@ public interface IContext : ICanHoldItems
     string CurrentScore { get; }
 
     /// <summary>
-    /// If the adventurer has moved from one location to another in the last turn, in which
-    /// direction did they travel to get there?
+    ///     If the adventurer has moved from one location to another in the last turn, in which
+    ///     direction did they travel to get there?
     /// </summary>
     Direction? LastMovementDirection { get; set; }
 
+    /// <summary>
+    ///     For debugging purposes, will list everything in inventory.
+    /// </summary>
+    /// <returns></returns>
+    public string LogItems();
+
     void Take(IItem item);
 
+    /// <summary>
+    ///     Remove the item from the adventurer's inventory and put it in the current location.
+    /// </summary>
+    /// <param name="item"></param>
     void Drop(IItem item);
+
+    /// <summary>
+    ///     Remove the item from the adventurer's inventory and put it in the current location.
+    /// </summary>
+    void Drop<T>() where T : IItem, new();
 
     /// <summary>
     ///     Adds the specified number of points to the score.
@@ -126,7 +135,7 @@ public interface IContext : ICanHoldItems
     string ItemListDescription(string locationName, ILocation? location);
 
     /// <summary>
-    /// Does the context need to do any processing at the beginning of the turn? 
+    ///     Does the context need to do any processing at the beginning of the turn?
     /// </summary>
     /// <returns>Text to prepend to the response, if any. </returns>
     string? ProcessBeginningOfTurn();

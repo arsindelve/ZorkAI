@@ -4,7 +4,7 @@ using Planetfall.Item;
 
 namespace Planetfall.Location.Kalamontee;
 
-public class Balcony : BaseLocation
+public class Balcony : LocationBase
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()

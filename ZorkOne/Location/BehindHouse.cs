@@ -4,7 +4,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-public class BehindHouse : BaseLocation
+public class BehindHouse : LocationBase
 {
     protected override string ContextBasedDescription =>
         $"You are behind the white house. A path leads into the forest to the east. In one corner " +

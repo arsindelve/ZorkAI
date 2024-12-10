@@ -12,18 +12,18 @@ namespace GameEngine.Item;
 public abstract class ItemBase : IItem
 {
     /// <summary>
-    ///     Gets the description when the item has never been picked up.
+    ///     If the item can be picked up, this is the description in inventory..."A rope", "A towel".
+    ///     If the item cannot be picked up, this is the description of the item, on the ground, where you find it.
+    ///     This can be left blank, and then these items will not appear in the location description, but can still be
+    ///     interacted with. Sometimes this is done because the item description is part of the room or container description
+    ///     like the trap door, or the item is special and just does not show up, like the slime.
     /// </summary>
-    /// <value>
-    ///     <remarks>
-    ///         The sword and lantern, for example, have different descriptions when you first
-    ///         see them versus after you drop them somewhere.
-    ///     </remarks>
-    ///     The never picked up description of the item.
-    /// </value>
-    public virtual string NeverPickedUpDescription(ILocation currentLocation) => GenericDescription(currentLocation);
-
-    public virtual string GenericDescription(ILocation? currentLocation) => "";
+    /// <param name="currentLocation"></param>
+    /// <returns></returns>
+    public virtual string GenericDescription(ILocation? currentLocation)
+    {
+        return "";
+    }
 
     public virtual string? CannotBeTakenDescription { get; set; }
 
@@ -46,12 +46,14 @@ public abstract class ItemBase : IItem
     /// </value>
     public ICanHoldItems? CurrentLocation { get; set; }
 
-    public (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true)
+    public (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective,
+        bool lookInsideContainers = true)
     {
         if (string.IsNullOrEmpty(adjective))
             return HasMatchingNoun(noun, lookInsideContainers);
 
-        bool match = NounsForMatching.Any(s => s.Equals($"{adjective} {noun}", StringComparison.InvariantCultureIgnoreCase));
+        var match = NounsForMatching.Any(s =>
+            s.Equals($"{adjective} {noun}", StringComparison.InvariantCultureIgnoreCase));
 
         if (match)
             return (true, this);
@@ -79,11 +81,9 @@ public abstract class ItemBase : IItem
 
     public virtual int Size => 1;
 
-    public virtual string OnOpening(IContext context) => "";
-    
     public virtual (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
-        bool hasItem = NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
+        var hasItem = NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
         if (hasItem)
             return (true, this);
 
@@ -93,6 +93,26 @@ public abstract class ItemBase : IItem
     public virtual InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
         return new NoNounMatchInteractionResult();
+    }
+
+    /// <summary>
+    ///     Gets the description when the item has never been picked up.
+    /// </summary>
+    /// <value>
+    ///     <remarks>
+    ///         The sword and lantern, for example, have different descriptions when you first
+    ///         see them versus after you drop them somewhere.
+    ///     </remarks>
+    ///     The never picked up description of the item.
+    /// </value>
+    public virtual string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return GenericDescription(currentLocation);
+    }
+
+    public virtual string OnOpening(IContext context)
+    {
+        return "";
     }
 
     private static List<IVerbProcessor> GetProcessors(ItemBase item)
@@ -154,6 +174,10 @@ public abstract class ItemBase : IItem
 
     public virtual void OnBeingExamined(IContext context)
     {
-        
+    }
+
+    public virtual string? CannotBeClosedDescription(IContext context)
+    {
+        return null;
     }
 }

@@ -4,7 +4,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-public class Gallery : BaseLocation
+public class Gallery : LocationBase
 {
     public override string Name => "Gallery";
 

@@ -4,7 +4,7 @@ using Model.Movement;
 
 namespace ZorkTwo.Location;
 
-public class InsideTheBarrow : BaseLocation
+public class InsideTheBarrow : LocationBase
 {
     protected override Dictionary<Direction, MovementParameters> Map { get; } = new();
 

@@ -50,10 +50,10 @@ public class Ambassador : ContainerBase, ITurnBasedActor
     internal string JoinsTheScene(IContext context, ICanHoldItems location)
     {
         location.ItemPlacedHere(this);
-        location.ItemPlacedHere(Repository.GetItem<Slime>());
-
+        location.ItemPlacedHere<Slime>();
+        context.ItemPlacedHere<Brochure>();
+        
         context.RegisterActor(this);
-        context.ItemPlacedHere(Repository.GetItem<Brochure>());
 
         return
             "\n\nThe alien ambassador from the planet Blow'k-bibben-Gordo ambles toward you from down the corridor. " +
@@ -63,7 +63,7 @@ public class Ambassador : ContainerBase, ITurnBasedActor
             "major exports.";
     }
 
-    internal string LeavesTheScene(IContext context, string? partingText = null)
+    private string LeavesTheScene(IContext context, string? partingText = null)
     {
         CurrentLocation?.RemoveItem(this);
         CurrentLocation = null;

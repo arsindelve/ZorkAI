@@ -7,7 +7,7 @@ using ZorkOne.Location.RiverLocation;
 
 namespace ZorkOne.Location;
 
-public class DamBase : BaseLocation
+public class DamBase : LocationBase
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()

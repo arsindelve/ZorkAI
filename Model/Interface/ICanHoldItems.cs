@@ -37,6 +37,11 @@ public interface ICanHoldItems : IInteractionTarget
     /// </summary>
     /// <param name="item">The item to be placed.</param>
     void ItemPlacedHere(IItem item);
+    
+    /// <summary>
+    ///     Adds the item to the container.
+    /// </summary>
+    void ItemPlacedHere<T>() where T : IItem, new();
 
     /// <summary>
     ///     Checks if this location currently has an item of type T.
