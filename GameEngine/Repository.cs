@@ -48,7 +48,7 @@ public static class Repository
             .Any(i => i.Value.NounsForMatching.Any(s => s
                 .Equals(item, StringComparison.OrdinalIgnoreCase)));
     }
-    
+
     public static T GetItem<T>() where T : IItem, new()
     {
         if (!_allItems.ContainsKey(typeof(T)))
@@ -62,8 +62,10 @@ public static class Repository
         return (T)_allItems[typeof(T)];
     }
 
-    public static IItem? GetItem(string noun)
+    public static IItem? GetItem(string? noun)
     {
+        if (string.IsNullOrEmpty(noun))
+            return null;
         noun = noun.ToLowerInvariant().Trim();
         return _allItems.Values.FirstOrDefault(i => i.HasMatchingNoun(noun).HasItem);
     }
@@ -129,7 +131,7 @@ public static class Repository
             return _allNouns;
         }
     }
-    
+
     public static string[] GetContainers()
     {
         if (_allContainers.Length > 0) return _allContainers;

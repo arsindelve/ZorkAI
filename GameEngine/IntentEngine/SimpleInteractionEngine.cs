@@ -22,15 +22,12 @@ internal class SimpleInteractionEngine : IIntentEngine
         if (requireDisambiguation is not null)
             return (requireDisambiguation, requireDisambiguation.InteractionMessage);
 
-        var contextInteraction = context.RespondToSimpleInteraction(simpleInteraction, generationClient);
+        // Turning on a light source should supercede all of this. Check the noun
+        bool refersToALightSource = Repository.GetItem(simpleInteraction.Noun) is IAmALightSourceThatTurnsOnAndOff;
 
-        // We got a meaningful interaction from one of the items in inventory that changed the state of the game
-        if (contextInteraction.InteractionHappened)
-            return (contextInteraction, contextInteraction.InteractionMessage + Environment.NewLine);
-
-        // If it's dark, you can interact with items in your possession (above), but not items in the room.
-        // There will be no more processing in a dark room. 
-        if (context.ItIsDarkHere)
+        // If it's dark, you can interact with items in your possession that are light sources that can be
+        // turned on, but not any items in the room.
+        if (context.ItIsDarkHere && !refersToALightSource)
             return (null, "It's too dark to see! ");
 
         // Ask the context if it knows what to do with this interaction. Usually, this will only 
@@ -41,6 +38,12 @@ internal class SimpleInteractionEngine : IIntentEngine
         // We got a meaningful interaction in the location that changed the state of the game
         if (locationInteraction.InteractionHappened)
             return (locationInteraction, locationInteraction.InteractionMessage + Environment.NewLine);
+
+        var contextInteraction = context.RespondToSimpleInteraction(simpleInteraction, generationClient);
+
+        // We got a meaningful interaction from one of the items in inventory that changed the state of the game
+        if (contextInteraction.InteractionHappened)
+            return (contextInteraction, contextInteraction.InteractionMessage + Environment.NewLine);
 
         // The noun was present in the given LOCATION, but the verb applied to
         // it has no meaning in the story. I.E: push the sword...that will accomplish nothing. 

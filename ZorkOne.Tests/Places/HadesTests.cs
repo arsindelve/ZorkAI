@@ -18,6 +18,7 @@ public class HadesTests : EngineTestsBase
         target.Context.CurrentLocation = Repository.GetLocation<EntranceToHades>();
         var bell = Repository.GetItem<BrassBell>();
         target.Context.Take(bell);
+        target.Context.Take(Repository.GetItem<Torch>());
 
         var response = await target.GetResponse("ring bell");
         response.Should().Contain("The bell suddenly becomes red hot and falls to the ground.");
@@ -96,7 +97,6 @@ public class HadesTests : EngineTestsBase
         await target.GetResponse("wait");
         await target.GetResponse("wait");
         await target.GetResponse("wait");
-        await target.GetResponse("wait");
         var response = await target.GetResponse("wait");
 
         response.Should().Contain("The bell appears to have cooled down.");
@@ -117,7 +117,6 @@ public class HadesTests : EngineTestsBase
         target.Context.Take(bell);
 
         await target.GetResponse("ring bell");
-        await target.GetResponse("wait");
         await target.GetResponse("wait");
         await target.GetResponse("wait");
         await target.GetResponse("wait");

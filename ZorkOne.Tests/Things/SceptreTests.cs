@@ -4,6 +4,7 @@ using NUnit.Framework;
 using UnitTests;
 using ZorkOne.Item;
 using ZorkOne.Location;
+using ZorkOne.Location.ForestLocation;
 
 namespace ZorkOne.Tests.Things;
 
@@ -45,7 +46,7 @@ public class SceptreTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        target.Context.CurrentLocation = Repository.GetLocation<Cellar>();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestOne>();
         var sceptre = Repository.GetItem<Sceptre>();
         target.Context.Take(sceptre);
 
@@ -86,6 +87,6 @@ public class SceptreTests : EngineTestsBase
         response.Should().NotContain("A shimmering pot of gold appears at the end of the rainbow.");
         target.Context.HasItem<PotOfGold>().Should().BeTrue();
     }
-    
+
     // TODO: Wave it standing on the rainbow and die. 
 }

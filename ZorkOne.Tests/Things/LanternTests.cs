@@ -5,6 +5,7 @@ using UnitTests;
 using ZorkOne.Item;
 using ZorkOne.Location;
 using ZorkOne.Location.CoalMineLocation;
+using ZorkOne.Location.ForestLocation;
 
 namespace ZorkOne.Tests.Things;
 
@@ -23,13 +24,13 @@ public class LanternTests : EngineTestsBase
 
         target.Context.ItIsDarkHere.Should().BeFalse();
     }
-    
+
     [Test]
     public async Task CounterIncreases_WhenLanternIsOn()
     {
         var target = GetTarget();
 
-        target.Context.CurrentLocation = Repository.GetLocation<Cellar>();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestOne>();
         var lantern = Repository.GetItem<Lantern>();
         target.Context.Take(lantern);
 
@@ -44,7 +45,7 @@ public class LanternTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        target.Context.CurrentLocation = Repository.GetLocation<Cellar>();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestOne>();
         var lantern = Repository.GetItem<Lantern>();
         target.Context.Take(lantern);
 
@@ -62,7 +63,7 @@ public class LanternTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        target.Context.CurrentLocation = Repository.GetLocation<Cellar>();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestOne>();
         var lantern = Repository.GetItem<Lantern>();
         target.Context.Take(lantern);
 
@@ -81,7 +82,7 @@ public class LanternTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        target.Context.CurrentLocation = Repository.GetLocation<Cellar>();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestOne>();
         var lantern = Repository.GetItem<Lantern>();
         target.Context.Take(lantern);
 
@@ -100,7 +101,7 @@ public class LanternTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        target.Context.CurrentLocation = Repository.GetLocation<Cellar>();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestOne>();
         var lantern = Repository.GetItem<Lantern>();
         target.Context.Take(lantern);
 
@@ -119,7 +120,7 @@ public class LanternTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        target.Context.CurrentLocation = Repository.GetLocation<Cellar>();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestOne>();
         var lantern = Repository.GetItem<Lantern>();
         target.Context.Take(lantern);
 

@@ -156,6 +156,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     /// <returns>The output which we need to display to the adventurer</returns>
     public async Task<string?> GetResponse(string? playerInput)
     {
+        string actorResults;
         _currentInput = playerInput;
         PreviousLocationName = LocationName;
 
@@ -205,12 +206,18 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         );
 
         _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
-        
-        // Bypass this for System commands. They must supersede everything. 
+
+        // TODO: Refactor from here down. It's hot garbage, and we have truly excellent test coverage. 
+
+        // Bypass this for known system commands. They must supersede non-parsed interactions. For example, in the 
+        // loud room, we don't want "save" or "quit" to get intercepted. 
         if (parsedResult is not SystemCommandIntent)
         {
-            // This input is not even parsed yet, But some locations have a special interaction
-            // to raw input such as "jump" or "pray" or "echo"? 
+            // Check if the location has an interaction with the raw, unparsed input. 
+            // Some locations have a special interaction to raw input that does not fit 
+            // the traditional sentence parsing. Sometimes that is a single verb with no 
+            // noun like "jump" or "pray" or "echo", or some other specific phrase
+            // that does not lend itself well to parsing. 
             var singleVerbResult = await Context.CurrentLocation.RespondToSpecificLocationInteraction(
                 _currentInput,
                 Context,
@@ -218,7 +225,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             );
 
             if (singleVerbResult.InteractionHappened)
-                return PostProcessing(singleVerbResult.InteractionMessage);
+            {
+                // "Actors" are things that can occur each turn. Examples are the troll
+                // attacking, the maintenance room flooding, Floyd mumbling.
+                actorResults = await ProcessActors();
+                return PostProcessing(singleVerbResult.InteractionMessage + actorResults);
+            }
         }
 
         (InteractionResult? ResultObject, string? ResultMessage) intentResult = parsedResult switch
@@ -272,11 +284,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         }
 
         string? contextAppend = Context.ProcessEndOfTurn();
-        
+
         // "Actors" are things that can occur each turn. Examples are the troll
         // attacking, the maintenance room flooding, Floyd mumbling.
-        string actorResults = await ProcessActors();
-        
+        actorResults = await ProcessActors();
+
         // Put it all together
         return PostProcessing(
             contextPrepend + intentResult.ResultMessage?.Trim() + actorResults + contextAppend
@@ -300,7 +312,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             _inputOutputs.Push((_currentInput!, finalResult, _lastResponseWasGenerated));
             _generator.LastFiveInputOutputs = _inputOutputs.GetAll();
         }
-        
+
         _lastResponseWasGenerated = false;
         return finalResult.Trim() + Environment.NewLine;
     }

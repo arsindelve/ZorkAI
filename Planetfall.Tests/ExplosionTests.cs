@@ -30,16 +30,14 @@ public class ExplosionTests : EngineTestsBase
         response = await target.GetResponse("west");
         response.Should().Contain("The ship shakes again. You hear, from close by, the sounds of emergency bulkheads closing.");
 
-        response = await target.GetResponse("wait");
+        response = await target.GetResponse("sit");
         response.Should().Contain("The pod door clangs shut as heavy explosions continue to buffet the Feinstein");
 
         response = await target.GetResponse("wait");
-        response.Should().Contain("Explosions continue to rock the ship.");
+        response.Should().Contain("You feel the pod begin to slide down its ejection tube as explosions shake the mother ship");
 
-        // response = await target.GetResponse("wait");
-        // response.Should().Contain("An enormous explosion tears the walls of the ship apart. If only you had made it to an escape pod...");
-        // response.Should().Contain("You have died");
-
+        response = await target.GetResponse("wait");
+        response.Should().Contain("Through the viewport of the pod you see the Feinstein dwindle as you head away");
     }
 
     [Test]
