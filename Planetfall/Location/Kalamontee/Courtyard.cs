@@ -8,7 +8,10 @@ public class Courtyard : LocationWithNoStartingItems
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.Down, Go<WindingStair>() }
+            { Direction.Down, Go<WindingStair>() },
+            { Direction.S, Go<WindingStair>() },
+            { Direction.W, Go<WestWing>() },
+            { Direction.N, Go<PlainHall>() }
         };
 
     protected override string ContextBasedDescription =>
