@@ -48,7 +48,7 @@ public static class Repository
             .Any(i => i.Value.NounsForMatching.Any(s => s
                 .Equals(item, StringComparison.OrdinalIgnoreCase)));
     }
-
+    
     public static T GetItem<T>() where T : IItem, new()
     {
         if (!_allItems.ContainsKey(typeof(T)))

@@ -1,6 +1,4 @@
-﻿using Model.Location;
-
-namespace Planetfall.Item.Feinstein;
+﻿namespace Planetfall.Item.Feinstein;
 
 public class Towel : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
 {
@@ -16,6 +14,11 @@ public class Towel : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
     {
         return "There is a towel here. ";
     }
-    
-    public override string GenericDescription(ILocation? currentLocation) => "A rope";
+
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return OnTheGroundDescription(currentLocation);
+    }
+
+    public override string GenericDescription(ILocation? currentLocation) => "There is a towel here. ";
 }

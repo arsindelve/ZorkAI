@@ -1,5 +1,3 @@
-using Planetfall.Location.Feinstein;
-
 namespace Planetfall.Command;
 
 /// <summary>
@@ -23,7 +21,7 @@ public class DeathProcessor
         context.CurrentLocation = newLocation;
 
         var result = death +
-                     "\n\t*** You have died ***\n\n" +
+                     "\n\n\t*** You have died ***\n\n" +
                      "Oh, well. According to the Treaty of Gishen IV, signed in 8747 GY, all adventure game players " +
                      "must be given another chance after dying. In the interests of interstellar peace...";
 

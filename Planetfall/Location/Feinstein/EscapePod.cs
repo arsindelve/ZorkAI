@@ -36,9 +36,10 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
 
         context.CurrentLocation.SubLocation = null;
 
-        if (escapePod.LandedSafely && escapePod.TurnsAfterStanding == 0)
+        if (escapePod is { LandedSafely: true, TurnsAfterStanding: 0 })
         {
             escapePod.TurnsAfterStanding++;
+            context.RegisterActor(escapePod);
             return "As you stand, the pod shifts slightly and you feel it falling. A moment later, the fall stops with a shock, and you see water rising past the viewport. ";
         }
 
@@ -116,13 +117,13 @@ internal class EscapePod : LocationBase, ITurnBasedActor
     protected override string ContextBasedDescription =>
         $"This is one of the Feinstein's primary escape pods, for use in extreme emergencies. A mass of safety " +
         $"webbing, large enough to hold several dozen people, fills half the pod. The controls are entirely automated. " +
-        $"The bulkhead leading out is {(Repository.GetItem<BulkheadDoor>().IsOpen ? "open" : "closed")}.";
+        $"The bulkhead leading out is {(Repository.GetItem<BulkheadDoor>().IsOpen ? "open" : "closed")}. ";
 
     public override string Name => "Escape Pod";
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
-        string action = "";
+        string action;
 
         if (TurnsAfterStanding == 0)
             action = HandleBeingInSpaceAndLanding(context);
@@ -183,6 +184,13 @@ internal class EscapePod : LocationBase, ITurnBasedActor
         return new DeathProcessor().Process(v, context).InteractionMessage;
     }
 
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation, IGenerationClient generationClient)
+    {
+        context.RemoveActor(Repository.GetLocation<DeckNine>());
+        context.RegisterActor(this);
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
+    }
+
     private string HandleBeingInSpaceAndLanding(IContext context)
     {
         TurnsInEscapePod++;
@@ -192,7 +200,6 @@ internal class EscapePod : LocationBase, ITurnBasedActor
         {
             case 2:
                 {
-                    context.RemoveActor(Repository.GetLocation<DeckNine>());
                     Repository.GetItem<BulkheadDoor>().IsOpen = false;
                     action =
                         "More powerful explosions buffet the ship. The lights flicker madly, and the escape-pod bulkhead clangs shut. ";

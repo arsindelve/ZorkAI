@@ -45,9 +45,9 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     private T GameType { get; set; }
 
     public List<ITurnBasedActor> Actors { get; set; } = new();
-    
+
     public int CarryingWeight => Items.Sum(s => s.Size);
-    
+
     /// <summary>
     /// Gets/sets the verbosity, which is how detailed the player
     /// wants the room description to be when they enter the room. 
@@ -150,7 +150,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     {
         Take(item);
     }
-    
+
     public void ItemPlacedHere<T>() where T : IItem, new()
     {
         T item = Repository.GetItem<T>();
@@ -179,11 +179,12 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         return (false, null);
     }
 
-    public (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true)
+    public (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective,
+        bool lookInsideContainers = true)
     {
         if (string.IsNullOrEmpty(adjective))
             return HasMatchingNoun(noun, lookInsideContainers);
-        
+
         foreach (var i in Items)
         {
             var result = i.HasMatchingNounAndAdjective(noun, adjective, lookInsideContainers);
@@ -194,7 +195,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         return (false, null);
     }
 
-    public bool HasMatchingNounAndAdjective(string? noun,  bool lookInsideContainers = true)
+    public bool HasMatchingNounAndAdjective(string? noun, bool lookInsideContainers = true)
     {
         throw new NotImplementedException();
     }
@@ -208,7 +209,8 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     public int CalculateTotalSize()
     {
         // Also add the Size of items inside Containers
-        return Items.Sum(item => item.Size) + Items.OfType<ContainerBase>().Sum(container => container.CalculateTotalSize());
+        return Items.Sum(item => item.Size) +
+               Items.OfType<ContainerBase>().Sum(container => container.CalculateTotalSize());
     }
 
     public virtual void Init()
@@ -230,13 +232,14 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         get
         {
             var result = new List<IItem>();
-            
+
             foreach (var item in Items)
             {
                 result.Add(item);
                 if (item is ICanHoldItems holder)
                     result.AddRange(holder.GetAllItemsRecursively);
             }
+
             return result;
         }
     }
@@ -248,7 +251,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     }
 
     public abstract string CurrentScore { get; }
-    
+
     public Direction? LastMovementDirection { get; set; }
 
     /// <summary>
@@ -317,10 +320,11 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public bool ItIsDarkHere =>
         CurrentLocation is IDarkLocation { IsNoLongerDark: false } && !HasLightSource;
-
+    
     public void RegisterActor(ITurnBasedActor actor)
     {
-        Actors.Add(actor);
+        if (!Actors.Contains(actor))
+            Actors.Add(actor);
     }
 
     protected void StartWithItem<TItem>(ICanHoldItems location) where TItem : IItem, new()
@@ -329,7 +333,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         Items.Add(item);
         item.CurrentLocation = location;
     }
-    
+
     public void RemoveActor(ITurnBasedActor actor)
     {
         Actors.Remove(actor);

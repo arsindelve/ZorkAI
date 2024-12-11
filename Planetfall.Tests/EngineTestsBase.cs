@@ -30,6 +30,7 @@ public class EngineTestsBase
         var engine = new GameEngine<PlanetfallGame, PlanetfallContext>(Parser, Client.Object, Mock.Of<ISecretsManager>());
         engine.Context.Verbosity = Verbosity.Verbose;
         Repository.GetLocation<DeckNine>().Init();
+      
 
         return engine;
     }
