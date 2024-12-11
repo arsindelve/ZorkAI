@@ -198,20 +198,20 @@ internal class EscapePod : LocationBase, ITurnBasedActor
 
         switch (TurnsInEscapePod)
         {
-            case 2:
-                {
-                    Repository.GetItem<BulkheadDoor>().IsOpen = false;
-                    action =
-                        "More powerful explosions buffet the ship. The lights flicker madly, and the escape-pod bulkhead clangs shut. ";
-                    break;
-                }
-            case 3:
-                action = "Explosions continue to rock the ship. ";
+            case 1:
+                action = "The ship shakes again. You hear, from close by, the sounds of emergency bulkheads closing. ";
                 break;
-            case 4:
+
+            case 2:
+                Repository.GetItem<BulkheadDoor>().IsOpen = false;
+                action = "The pod door clangs shut as heavy explosions continue to buffet the Feinstein. ";
+                break;
+
+            case 3:
                 action = "You feel the pod begin to slide down its ejection tube as explosions shake the mother ship. ";
                 break;
-            case 5:
+
+            case 4:
                 // TODO: If not in web, You are thrown against the bulkhead, bruising a few limbs. The safety webbing might have offered a bit more protection.
                 // TODO: If not in web, chance of: You are thrown against the bulkhead, head first. It seems that getting in the safety webbing would have been a good idea.
 
@@ -223,40 +223,40 @@ internal class EscapePod : LocationBase, ITurnBasedActor
                     "panel blink furiously as the autopilot searches for a reasonable destination. ";
                 break;
 
-            case 6:
+            case 5:
                 action = "The auxiliary rockets fire briefly, and a nearby planet swings into view through the port. " +
                          "It appears to be almost entirely ocean, with just a few visible islands and an unusually " +
                          "small polar ice cap. A moment later, the system's sun swings into view, and the viewport " +
                          "polarizes into a featureless black rectangle. ";
                 break;
 
-            case 7:
+            case 6:
                 action = "The main thrusters fire a long, gentle burst. A monotonic voice issues from " +
                          "the control panel. \"Approaching planet...human-habitable.\" ";
                 break;
 
-            case 11:
+            case 10:
                 action = "The pod is buffeted as it enters the planet's atmosphere. ";
                 break;
 
-            case 12:
+            case 11:
                 action = "You feel the temperature begin to rise, and the pod's climate control system roars " +
                          "as it labors to compensate. ";
                 break;
 
-            case 13:
+            case 12:
                 action = "The viewport suddenly becomes transparent again, giving you a view of endless ocean below. " +
                          "The lights on the control panel flash madly as the pod's computer searches for a " +
                          "suitable landing site. The thrusters fire long and hard, slowing the pod's descent. ";
                 break;
 
-            case 14:
+            case 13:
                 action = "The pod is now approaching the closer of a pair of islands. It appears to be surrounded " +
                          "by sheer cliffs rising from the water, and is topped by a wide plateau. The plateau " +
                          "seems to be covered by a sprawling complex of buildings. ";
                 break;
 
-            case 15:
+            case 14:
 
                 context.RemoveActor(this);
                 if (context.CurrentLocation.SubLocation is SafetyWeb)

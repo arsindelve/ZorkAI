@@ -22,6 +22,15 @@ internal class DeckNine : LocationBase, ITurnBasedActor
                     CanGo = _ => Repository.GetItem<BulkheadDoor>().IsOpen,
                     CustomFailureMessage = "The escape pod bulkhead is closed. "
                 }
+            },
+            {
+                Direction.In,
+                new MovementParameters
+                {
+                    Location = Repository.GetLocation<EscapePod>(),
+                    CanGo = _ => Repository.GetItem<BulkheadDoor>().IsOpen,
+                    CustomFailureMessage = "The escape pod bulkhead is closed. "
+                }
             }
         };
 
@@ -90,19 +99,19 @@ internal class DeckNine : LocationBase, ITurnBasedActor
                 action +=
                     $"\n\nA massive explosion rocks the ship. Echoes from the explosion resound deafeningly down the halls. " +
                     $"{(context.CurrentLocation == this ? "The door to port slides open. " : "")}";
+
+                if (context.CurrentLocation is BlatherLocation)
+                    action += "Blather, looking slightly disoriented, barks at you to resume your assigned duties. ";
                 break;
 
             case TurnWhenFeinsteinBlowsUp + 1:
                 {
                     action = context.CurrentLocation switch
                     {
-                        _ when context.CurrentLocation is DeckNine =>
-                            "\n\nMore distant explosions! A narrow emergency bulkhead at the base of the " +
-                            "gangway and a wider one along the corridor to starboard both crash shut! ",
-                        _ when context.CurrentLocation is Gangway =>
-                            "Another explosion. A narrow bulkhead at the base of the gangway slams shut! ",
-                        _ =>
-                            "\n\nThe ship shakes again. You hear, from close by, the sounds of emergency bulkheads closing. "
+                        _ when context.CurrentLocation is BlatherLocation => "You are deafened by more explosions and by the sound of emergency bulkheads slamming closed. Blather, foaming slightly at the mouth, screams at you to swab the decks.",
+                        _ when context.CurrentLocation is DeckNine => "\n\nMore distant explosions! A narrow emergency bulkhead at the base of the gangway and a wider one along the corridor to starboard both crash shut! ",
+                        _ when context.CurrentLocation is Gangway => "Another explosion. A narrow bulkhead at the base of the gangway slams shut! ",
+                        _ => "\n\nThe ship shakes again. You hear, from close by, the sounds of emergency bulkheads closing. "
                     };
 
                     break;
