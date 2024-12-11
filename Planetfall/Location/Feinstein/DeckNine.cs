@@ -1,9 +1,7 @@
 using GameEngine.Location;
 using Model.AIGeneration;
-using Model.Location;
 using Model.Movement;
 using Planetfall.Command;
-using Planetfall.Item.Feinstein;
 
 namespace Planetfall.Location.Feinstein;
 
@@ -155,5 +153,12 @@ internal class DeckNine : LocationBase, ITurnBasedActor
     public override void Init()
     {
         StartWithItem<BulkheadDoor>();
+    }
+
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation, IGenerationClient generationClient)
+    {
+        context.RegisterActor(this);
+        context.RemoveActor(Repository.GetLocation<EscapePod>());
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 }

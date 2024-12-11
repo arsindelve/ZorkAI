@@ -108,6 +108,7 @@ public class PlanetfallGame : IInfocomGame
     
     public void Init(IContext context)
     {
+        Repository.GetLocation<EscapePod>().Init();
         context.RegisterActor(Repository.GetLocation<DeckNine>());
     }
 
