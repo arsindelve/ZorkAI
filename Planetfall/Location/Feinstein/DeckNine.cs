@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.AIGeneration;
+using Model.Location;
 using Model.Movement;
 using Planetfall.Command;
 using Planetfall.Item.Feinstein;
@@ -8,6 +9,8 @@ namespace Planetfall.Location.Feinstein;
 
 internal class DeckNine : LocationBase, ITurnBasedActor
 {
+    public const byte TurnWhenFeinsteinBlowsUp = 10;
+
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
@@ -35,6 +38,12 @@ internal class DeckNine : LocationBase, ITurnBasedActor
         return base.RespondToSimpleInteraction(action, context, client);
     }
 
+    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
+    {
+        Repository.GetItem<Blather>().LeavesTheScene(context);
+        Repository.GetItem<Ambassador>().LeavesTheScene(context);
+    }
+
     protected override string ContextBasedDescription =>
         "This is a featureless corridor similar to every other corridor on the ship. It curves away to starboard," +
         " and a gangway leads up. To port is the entrance to one of the ship's primary escape pods. " +
@@ -44,20 +53,27 @@ internal class DeckNine : LocationBase, ITurnBasedActor
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
+        // Deck nine is special. This location is the epicenter of the explosion (from a code perspective)
+        // so this "act" function will fire every move, no matter where we are, until we safely
+        // make it to the escape pod (or die). So below, it's important thay we always confirm
+        // where we are, and whether or not we want an action to happen in this location. 
+
         var ambassador = Repository.GetItem<Ambassador>();
         var blather = Repository.GetItem<Blather>();
 
         // Let's see if the ambassador or Blather will join us. 
-        if (context.Moves is > 1 and < 7 && !Items.Contains(ambassador) && !Items.Contains(blather))
+        if (context.Moves is > 1 and < 7 &&
+                context.CurrentLocation is DeckNine &&
+                !Items.Contains(ambassador) &&
+                !Items.Contains(blather))
         {
-            if (Random.Shared.Next(3) == 0)
+            int chance = Random.Shared.Next(6);
+            switch (chance)
             {
-                return Task.FromResult(ambassador.JoinsTheScene(context, this));
-            }
-            
-            if (Random.Shared.Next(5) == 0)
-            {
-                return Task.FromResult(blather.JoinsTheScene(context, this));
+                case 0:
+                    return Task.FromResult(ambassador.JoinsTheScene(context, this));
+                case 1:
+                    return Task.FromResult(blather.JoinsTheScene(context, this));
             }
         }
 
@@ -70,7 +86,7 @@ internal class DeckNine : LocationBase, ITurnBasedActor
 
         switch (context.Moves)
         {
-            case 10:
+            case TurnWhenFeinsteinBlowsUp:
 
                 Repository.GetItem<BulkheadDoor>().IsOpen = true;
                 action +=
@@ -78,53 +94,53 @@ internal class DeckNine : LocationBase, ITurnBasedActor
                     $"{(context.CurrentLocation == this ? "The door to port slides open. " : "")}";
                 break;
 
-            case 11:
-            {
-                action = context.CurrentLocation switch
+            case TurnWhenFeinsteinBlowsUp + 1:
                 {
-                    _ when context.CurrentLocation is DeckNine =>
-                        "\n\nMore distant explosions! A narrow emergency bulkhead at the base of the " +
-                        "gangway and a wider one along the corridor to starboard both crash shut! ",
-                    _ when context.CurrentLocation is Gangway =>
-                        "Another explosion. A narrow bulkhead at the base of the gangway slams shut! ",
-                    _ =>
-                        "\n\nThe ship shakes again. You hear, from close by, the sounds of emergency bulkheads closing. "
-                };
+                    action = context.CurrentLocation switch
+                    {
+                        _ when context.CurrentLocation is DeckNine =>
+                            "\n\nMore distant explosions! A narrow emergency bulkhead at the base of the " +
+                            "gangway and a wider one along the corridor to starboard both crash shut! ",
+                        _ when context.CurrentLocation is Gangway =>
+                            "Another explosion. A narrow bulkhead at the base of the gangway slams shut! ",
+                        _ =>
+                            "\n\nThe ship shakes again. You hear, from close by, the sounds of emergency bulkheads closing. "
+                    };
 
+                    break;
+                }
+
+            case TurnWhenFeinsteinBlowsUp + 2:
+                {
+                    if (context.CurrentLocation is not DeckNine && context.CurrentLocation is not EscapePod)
+                    {
+                        var result =
+                            "\n\nThe ship rocks from the force of multiple explosions. The lights go out, and you feel a " +
+                            "sudden drop in pressure accompanied by a loud hissing. Too bad you weren't in the escape pod...";
+
+                        action = YouExploded(context, result);
+                        break;
+                    }
+
+                    Repository.GetItem<BulkheadDoor>().IsOpen = false;
+                    action =
+                        $"\n\nMore powerful explosions buffet the ship. The lights flicker madly" +
+                        $"{(context.CurrentLocation == this ? ", and the escape-pod bulkhead clangs shut" : "")}. ";
+                    break;
+                }
+
+            case TurnWhenFeinsteinBlowsUp + 3:
+                action = "\n\nExplosions continue to rock the ship. ";
                 break;
-            }
 
-            case 12:
-            {
-                if (context.CurrentLocation is not DeckNine && context.CurrentLocation is not EscapePod)
+            case TurnWhenFeinsteinBlowsUp + 4:
                 {
                     var result =
-                        "\n\nThe ship rocks from the force of multiple explosions. The lights go out, and you feel a " +
-                        "sudden drop in pressure accompanied by a loud hissing. Too bad you weren't in the escape pod...";
+                        "\n\nAn enormous explosion tears the walls of the ship apart. If only you had made it to an escape pod...";
 
                     action = YouExploded(context, result);
                     break;
                 }
-
-                Repository.GetItem<BulkheadDoor>().IsOpen = false;
-                action =
-                    $"\n\nMore powerful explosions buffet the ship. The lights flicker madly" +
-                    $"{(context.CurrentLocation == this ? ", and the escape-pod bulkhead clangs shut" : "")}. ";
-                break;
-            }
-
-            case 13:
-                action = "\nExplosions continue to rock the ship. ";
-                break;
-
-            case 14:
-            {
-                var result =
-                    "\n\nAn enormous explosion tears the walls of the ship apart. If only you had made it to an escape pod...";
-
-                action = YouExploded(context, result);
-                break;
-            }
         }
 
         return action;
@@ -140,9 +156,4 @@ internal class DeckNine : LocationBase, ITurnBasedActor
     {
         StartWithItem<BulkheadDoor>();
     }
-
-    // TODO: Chance of Ambassador
-
-    // TODO: Chance of "Ensign First Class Blather swaggers in. He studies your work with half-closed eyes. "You call this polishing, Ensign Seventh Class?" he sneers. "We have a position for an Ensign Ninth Class in the toilet-scrubbing division, you know. Thirty demerits." He glares at you, his arms crossed. 
-    // TODO: and then: Blather, adding fifty more demerits for good measure, moves off in search of more young ensigns to terrorize.
 }
