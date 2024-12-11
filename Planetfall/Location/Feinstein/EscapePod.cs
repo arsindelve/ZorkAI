@@ -1,9 +1,7 @@
 using GameEngine.Location;
 using Model.AIGeneration;
-using Model.Location;
 using Model.Movement;
 using Planetfall.Command;
-using Planetfall.Item.Feinstein;
 
 namespace Planetfall.Location.Feinstein;
 
@@ -17,7 +15,6 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
         context.CurrentLocation.SubLocation = this;
         return "You are now safely cushioned within the web. ";
     }
-
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
@@ -32,10 +29,19 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
 
     public string GetOut(IContext context)
     {
+        var escapePod = Repository.GetLocation<EscapePod>();
+
         if (context.CurrentLocation.SubLocation == null)
             return "You're not in the safety web. ";
 
         context.CurrentLocation.SubLocation = null;
+
+        if (escapePod.LandedSafely && escapePod.TurnsAfterStanding == 0)
+        {
+            escapePod.TurnsAfterStanding++;
+            return "As you stand, the pod shifts slightly and you feel it falling. A moment later, the fall stops with a shock, and you see water rising past the viewport. ";
+        }
+
         return "You are standing again. ";
     }
 
@@ -49,7 +55,13 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
 
 internal class EscapePod : LocationBase, ITurnBasedActor
 {
+    public bool LandedSafely { get; set; }
+
     public byte TurnsInEscapePod { get; set; }
+
+    public byte TurnsAfterStanding { get; set; }
+
+    public ILocation WhereDoesTheDoorLead { get; set; } = Repository.GetLocation<DeckNine>();
 
     public override Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
         IGenerationClient client)
@@ -78,7 +90,7 @@ internal class EscapePod : LocationBase, ITurnBasedActor
                 Direction.Out,
                 new MovementParameters
                 {
-                    Location = Repository.GetLocation<DeckNine>(),
+                    Location = WhereDoesTheDoorLead,
                     CanGo = _ => Repository.GetItem<BulkheadDoor>().IsOpen,
                     CustomFailureMessage = "The pod door is closed. "
                 }
@@ -87,7 +99,7 @@ internal class EscapePod : LocationBase, ITurnBasedActor
                 Direction.E,
                 new MovementParameters
                 {
-                    Location = Repository.GetLocation<DeckNine>(),
+                    Location = WhereDoesTheDoorLead,
                     CanGo = _ => Repository.GetItem<BulkheadDoor>().IsOpen,
                     CustomFailureMessage = "The pod door is closed. "
                 }
@@ -110,19 +122,82 @@ internal class EscapePod : LocationBase, ITurnBasedActor
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
+        string action = "";
+
+        if (TurnsAfterStanding == 0)
+            action = HandleBeingInSpaceAndLanding(context);
+
+        else
+            action = YerSinking(context);
+
+        return Task.FromResult("\n\n" + action);
+    }
+
+    private string YerSinking(IContext context)
+    {
+        string action = "";
+
+        // Starts to sink when you stand / exit the safety webbing. You used to not be able 
+        // to open the door and leave without standing, but they seem to have changed that in the game. 
+        // You can open the door and leaving without the pod really sinking. Weird. 
+        if (TurnsAfterStanding > 0)
+        {
+            TurnsAfterStanding++;
+
+            if (GetItem<BulkheadDoor>().IsOpen)
+                action = SinkingWithTheDoorOpen(context);
+            else
+                action = SinkingWithTheDoorClosed(context);
+        }
+
+        return action;
+    }
+
+    private string SinkingWithTheDoorOpen(IContext context)
+    {
+        return TurnsAfterStanding switch
+        {
+            1 => "As you stand, the pod shifts slightly and you feel it falling. A moment later, the fall stops with a shock, and you see water rising past the viewport. ",
+            2 => "",
+            3 => "The pod is now completely submerged, and you feel it smash against underwater rocks. Bubbles streaming upward past the window indicate that the pod is continuing to sink. ",
+            4 => "",
+            _ => Die("Between the swirling waters and the increasing pressure, it's curtains for you. Perhaps you should have left the pod a bit sooner. ", context)
+        };
+    }
+
+    private string SinkingWithTheDoorClosed(IContext context)
+    {
+        return TurnsAfterStanding switch
+        {
+            1 => "As you stand, the pod shifts slightly and you feel it falling. A moment later, the fall stops with a shock, and you see water rising past the viewport. ",
+            2 => "",
+            3 => "The pod is now completely submerged, and you feel it smash against underwater rocks. Bubbles streaming upward past the window indicate that the pod is continuing to sink. ",
+            4 => "The pod creaks ominously from the increasing pressure. ",
+            _ => Die("The pod splits open, and water pours in. ", context)
+        };
+    }
+
+    private string Die(string v, IContext context)
+    {
+        context.RemoveActor(this);
+        return new DeathProcessor().Process(v, context).InteractionMessage;
+    }
+
+    private string HandleBeingInSpaceAndLanding(IContext context)
+    {
         TurnsInEscapePod++;
         string action = "";
 
         switch (TurnsInEscapePod)
         {
             case 2:
-            {
-                context.RemoveActor(Repository.GetLocation<DeckNine>());
-                Repository.GetItem<BulkheadDoor>().IsOpen = false;
-                action =
-                    "More powerful explosions buffet the ship. The lights flicker madly, and the escape-pod bulkhead clangs shut. ";
-                break;
-            }
+                {
+                    context.RemoveActor(Repository.GetLocation<DeckNine>());
+                    Repository.GetItem<BulkheadDoor>().IsOpen = false;
+                    action =
+                        "More powerful explosions buffet the ship. The lights flicker madly, and the escape-pod bulkhead clangs shut. ";
+                    break;
+                }
             case 3:
                 action = "Explosions continue to rock the ship. ";
                 break;
@@ -186,23 +261,25 @@ internal class EscapePod : LocationBase, ITurnBasedActor
                         "kit and a towel.";
 
                     ItemPlacedHere<Towel>();
+                    // TODO: Add kit.
+                    WhereDoesTheDoorLead = Repository.GetLocation<Underwater>();
+                    LandedSafely = true;
                 }
 
-                // TODO: Add towel and kit 
+
                 else
                 {
-                    action = "The pod, whose automated controls were unfortunately designed by computer scientists, " +
+                    string death = "The pod, whose automated controls were unfortunately designed by computer scientists, " +
                              "lands with a good deal of force. Your body sails across the pod until it is stopped by " +
                              "one of the sharper corners of the control panel. ";
 
-                    return Task.FromResult(new DeathProcessor().Process(action, context).InteractionMessage);
+                    action = new DeathProcessor().Process(death, context).InteractionMessage;
                 }
 
                 break;
         }
 
-
-        return Task.FromResult("\n\n" + action);
+        return action;
     }
 
     public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
@@ -228,12 +305,3 @@ internal class EscapePod : LocationBase, ITurnBasedActor
 //
 //     >examine kit
 // The survival kit is closed.
-//
-//     >examine towel
-//     A pretty ordinary towel. Something is written in its corner.
-//
-//     >read towel
-//     (Taking the towel first)
-// "S.P.S. FEINSTEIN
-// Escape Pod #42
-// Don't Panic!"

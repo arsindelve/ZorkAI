@@ -79,15 +79,15 @@ internal class SimpleInteractionEngine : IIntentEngine
                 ambiguousItems.Add(item);
 
         // We have one or fewer items that match the noun. Good to go. 
-        if (ambiguousItems.Count <= 1) 
+        if (ambiguousItems.Count <= 1)
             return null;
-        
+
         var itemNouns = ambiguousItems
             .Select(s => s.NounsForMatching.MaxBy(n => n.Length))
             .ToList()!
             .SingleLineListWithOr();
         var message = $"Do you mean {itemNouns}?";
-          
+
         // For each item, we need a map of all possible nouns, to the longest noun, and then 
         // we will replace the matching noun with the longest noun. If we don't do
         // this, we'll loop around disambiguating forver. 
@@ -100,7 +100,7 @@ internal class SimpleInteractionEngine : IIntentEngine
                 nounToLongestNounMap[noun] = longestNoun ?? string.Empty;
             }
         }
-        
+
         return new SimpleInteractionDisambiguationInteractionResult(
             message,
             intent.Verb,
@@ -112,8 +112,20 @@ internal class SimpleInteractionEngine : IIntentEngine
     private static async Task<string> GetGeneratedNoMatchingVerbResponse(string? noun, string verb,
         IGenerationClient generationClient, IContext context)
     {
-        var request =
-            new VerbHasNoEffectOperationRequest(context.CurrentLocation.DescriptionForGeneration, noun, verb);
+        if (string.IsNullOrEmpty(noun))
+            return string.Empty;
+
+        IItem? item = Repository.GetItem(noun);
+        if (item is null)
+            return string.Empty;
+
+        Request request;
+
+        if (item is not IAmANamedPerson)
+            request = new VerbHasNoEffectOperationRequest(context.CurrentLocation.DescriptionForGeneration, noun, verb);
+        else
+            request = new VerbHasNoEffectOnAPersonOperationRequest(context.CurrentLocation.DescriptionForGeneration, noun, verb, item.GenericDescription(context.CurrentLocation));
+
         var result = await generationClient.CompleteChat(request) + Environment.NewLine;
         return result;
     }

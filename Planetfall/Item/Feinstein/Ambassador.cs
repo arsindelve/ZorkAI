@@ -1,5 +1,6 @@
 ﻿using Model.AIGeneration;
 using Model.Location;
+using Planetfall.Location.Feinstein;
 
 namespace Planetfall.Item.Feinstein;
 
@@ -22,7 +23,7 @@ public class Ambassador : ContainerBase, ITurnBasedActor
     public Task<string> Act(IContext context, IGenerationClient client)
     {
         // Ship begins to explode 
-        if (context.Moves == 10)
+        if (context.Moves == DeckNine.TurnWhenFeinsteinBlowsUp)
             return Task.FromResult(LeavesTheScene(context,
                 "The ambassador squawks frantically, evacuates a massive load of gooey slime, and rushes away. "));
 
@@ -52,7 +53,7 @@ public class Ambassador : ContainerBase, ITurnBasedActor
         location.ItemPlacedHere(this);
         location.ItemPlacedHere<Slime>();
         context.ItemPlacedHere<Brochure>();
-        
+
         context.RegisterActor(this);
 
         return
@@ -63,7 +64,7 @@ public class Ambassador : ContainerBase, ITurnBasedActor
             "major exports.";
     }
 
-    private string LeavesTheScene(IContext context, string? partingText = null)
+    internal string LeavesTheScene(IContext context, string? partingText = null)
     {
         CurrentLocation?.RemoveItem(this);
         CurrentLocation = null;

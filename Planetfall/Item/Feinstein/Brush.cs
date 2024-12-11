@@ -1,12 +1,9 @@
-using Model.Location;
-
 namespace Planetfall.Item.Feinstein;
-
 public class Brush : ItemBase, ICanBeTakenAndDropped
 {
     public override string[] NounsForMatching =>
     [
-        "brush", "scrub brush", "multi-purpose scrub brush", "Patrol-issue self-contained multi-purpose scrub brush"
+        "brush", "scrub brush", "multi-purpose scrub brush", "patrol-issue self-contained multi-purpose scrub brush"
     ];
 
     public string OnTheGroundDescription(ILocation currentLocation)

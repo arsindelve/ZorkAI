@@ -28,7 +28,6 @@ public interface IItem : IInteractionTarget
 
     string Name { get; }
 
-
     ICanHoldItems? CurrentLocation { get; set; }
 
     /// <summary>
@@ -60,7 +59,7 @@ public interface IItem : IInteractionTarget
     (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true);
 
     InteractionResult? RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client);
-    
+
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="MultiNounIntent" /> corresponding
     ///     of a verb and two nouns. Does that combination do anything with items in our inventory?  This
