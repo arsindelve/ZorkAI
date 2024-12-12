@@ -16,6 +16,14 @@ public class GlobalCommandFactory : IGlobalCommandFactory
     {
         switch (input?.ToLowerInvariant().StripNonChars().Trim())
         {
+            case "time":
+            case "current time":
+            case "what time is it":
+            case "what is the current time":
+            case "what time is it right now":
+            case "what is the time":
+                return new CurrentTimeProcessor();
+
             case "inventory":
             case "i":
             case "what am i holding":

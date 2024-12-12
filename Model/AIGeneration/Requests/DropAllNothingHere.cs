@@ -1,5 +1,8 @@
 namespace Model.AIGeneration.Requests;
 
+/// <summary>
+/// Represents a request where the player attempts to drop all items, but has no items to drop.
+/// </summary>
 public class DropAllNothingHere : Request
 {
     public DropAllNothingHere()

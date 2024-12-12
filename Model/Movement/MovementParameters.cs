@@ -45,7 +45,7 @@ public record MovementParameters
 
     /// <summary>
     ///     If the adventurer cannot get there with what they're carrying
-    ///     in their inventory (see what I did there? HA!) (me, weeks later...no I really don't),
+    ///     in their inventory (see what I did there? HA!) (me, weeks later...no I really don't), (me, months later...still don't)
     ///     what message shall we give them?
     /// </summary>
     public string WeightLimitFailureMessage { get; init; } = string.Empty;
