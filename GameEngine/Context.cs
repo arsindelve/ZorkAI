@@ -151,9 +151,9 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         Take(item);
     }
 
-    public void ItemPlacedHere<T>() where T : IItem, new()
+    public void ItemPlacedHere<TItem>() where TItem : IItem, new()
     {
-        T item = Repository.GetItem<T>();
+        TItem item = Repository.GetItem<TItem>();
         ItemPlacedHere(item);
     }
 
@@ -271,9 +271,9 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         item.HasEverBeenPickedUp = true;
     }
 
-    public void Drop<T>() where T : IItem, new()
+    public void Drop<TItem>() where TItem : IItem, new()
     {
-        var item = Repository.GetItem<T>();
+        var item = Repository.GetItem<TItem>();
         Drop(item);
     }
 
