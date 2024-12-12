@@ -26,10 +26,11 @@ public class BulkheadDoor : ItemBase, IOpenAndClose
 
     public string CannotBeOpenedDescription(IContext context)
     {
-        return Repository.GetLocation<EscapePod>().TurnsInEscapePod switch
+        var turnsInEscapePod = Repository.GetLocation<EscapePod>().TurnsInEscapePod;
+        return turnsInEscapePod switch
         {
             0 => "Why open the door to the emergency escape pod if there's no emergency? ",
-            < 15 => "Opening the door now would be a phenomenally stupid idea. ",
+            < 14 => "Opening the door now would be a phenomenally stupid idea. ",
             _ => ""
         };
     }
