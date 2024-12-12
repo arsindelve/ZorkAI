@@ -58,7 +58,7 @@ internal class EscapePod : LocationBase, ITurnBasedActor
 {
     public bool LandedSafely { get; set; }
 
-    public byte TurnsInEscapePod { get; set; }
+    public byte TurnsSinceExplosion { get; set; }
 
     public byte TurnsAfterStanding { get; set; }
 
@@ -193,10 +193,14 @@ internal class EscapePod : LocationBase, ITurnBasedActor
 
     private string HandleBeingInSpaceAndLanding(IContext context)
     {
-        TurnsInEscapePod++;
+        TurnsSinceExplosion++;
+        
+        if (context.CurrentLocation is not EscapePod)
+            return string.Empty;
+        
         string action = "";
 
-        switch (TurnsInEscapePod)
+        switch (TurnsSinceExplosion)
         {
             case 1:
                 action = "The ship shakes again. You hear, from close by, the sounds of emergency bulkheads closing. ";

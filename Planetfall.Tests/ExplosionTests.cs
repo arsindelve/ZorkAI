@@ -8,7 +8,7 @@ public class ExplosionTests : EngineTestsBase
 {
 
     [Test]
-    public async Task Experience_IntoEscapePod()
+    public async Task Experience_IntoEscapePod_FirstChance()
     {
         var target = GetTarget();
         target.Context.CurrentLocation = Repository.GetLocation<DeckNine>();
@@ -34,6 +34,39 @@ public class ExplosionTests : EngineTestsBase
         response.Should().Contain("The pod door clangs shut as heavy explosions continue to buffet the Feinstein");
 
         response = await target.GetResponse("wait");
+        response.Should().Contain("You feel the pod begin to slide down its ejection tube as explosions shake the mother ship");
+
+        response = await target.GetResponse("wait");
+        response.Should().Contain("Through the viewport of the pod you see the Feinstein dwindle as you head away");
+    }
+    
+    [Test]
+    public async Task Experience_IntoEscapePod_SecondChance()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<DeckNine>();
+
+        // Act
+        await target.GetResponse("Wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("Wait");
+        await target.GetResponse("Wait");
+        await target.GetResponse("wait");
+
+        var response = await target.GetResponse("wait");
+        response.Should().Contain("A massive explosion rocks the ship. Echoes from the explosion resound deafeningly down the halls. The door to port slides open.");
+
+        response = await target.GetResponse("wait");
+        response.Should().Contain("More distant explosions! A narrow emergency bulkhead at the base of the gangway and a wider one along the corridor to starboard both crash shut!");
+
+        response = await target.GetResponse("west");
+        response.Should().Contain("The pod door clangs shut as heavy explosions continue to buffet the Feinstein");
+
+        response = await target.GetResponse("sit");
         response.Should().Contain("You feel the pod begin to slide down its ejection tube as explosions shake the mother ship");
 
         response = await target.GetResponse("wait");
