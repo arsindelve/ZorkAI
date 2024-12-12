@@ -57,4 +57,6 @@ public class ZorkI : IInfocomGame
                                Revision 76 / Serial number 840509
 
                                """;
+    
+    public Dictionary<string, ITurnBasedActor> Actors { get; } = new();
 }

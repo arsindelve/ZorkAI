@@ -1,5 +1,3 @@
-using Planetfall.Location.Feinstein;
-
 namespace Planetfall;
 
 public class PlanetfallGame : IInfocomGame
@@ -109,8 +107,12 @@ public class PlanetfallGame : IInfocomGame
     public void Init(IContext context)
     {
         Repository.GetLocation<EscapePod>().Init();
-        context.RegisterActor(Repository.GetLocation<DeckNine>());
+        var explosion = new ExplosionCoordinator();
+        context.RegisterActor(explosion);
+        Actors.Add("Explosion", explosion);
     }
+
+    public Dictionary<string, ITurnBasedActor> Actors { get; } = new();
 
     public string SystemPromptSecretKey => "PlanetfallPrompt";
 }

@@ -71,7 +71,7 @@ public class Blather : ItemBase, IAmANamedPerson, ITurnBasedActor
         TurnsOnDeckNine++;
 
         // This is when the ship blows up.  
-        if (context.Moves == DeckNine.TurnWhenFeinsteinBlowsUp)
+        if (context.Moves == ExplosionCoordinator.TurnWhenFeinsteinBlowsUp)
         {
             return Task.FromResult(LeavesTheScene(context,
             "Blather, confused by this nonroutine occurrence, orders you to continue scrubbing the floor, and then dashes off. "));

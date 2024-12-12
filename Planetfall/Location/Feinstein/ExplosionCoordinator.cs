@@ -1,22 +1,34 @@
-﻿using Planetfall.Command;
+﻿using Model.AIGeneration;
+using Planetfall.Command;
 
 namespace Planetfall.Location.Feinstein;
 
-internal static class ExplosionCoordinator
+/// <summary>
+///     Handles the coordination that's required to orchestrate the Feinstein explosion, no matter
+///     where you are on the ship.
+/// </summary>
+internal class ExplosionCoordinator : ITurnBasedActor
 {
-    private static string YouExploded(IContext context, string result)
+    public const byte TurnWhenFeinsteinBlowsUp = 10;
+    
+    public Task<string> Act(IContext context, IGenerationClient client)
     {
-        context.RemoveActor(Repository.GetLocation<DeckNine>());
+        return Task.FromResult(HandleExplosion(context));
+    }
+
+    private string YouExploded(IContext context, string result)
+    {
+        context.RemoveActor(this);
         return new DeathProcessor().Process(result, context).InteractionMessage;
     }
 
-    internal static string HandleExplosion(IContext context)
+    private string HandleExplosion(IContext context)
     {
         var action = "";
 
         switch (context.Moves)
         {
-            case DeckNine.TurnWhenFeinsteinBlowsUp:
+            case TurnWhenFeinsteinBlowsUp:
 
                 // Start the timer on the escape pod leaving. 
                 context.RegisterActor(Repository.GetLocation<EscapePod>());
@@ -31,7 +43,7 @@ internal static class ExplosionCoordinator
                     action += "Blather, looking slightly disoriented, barks at you to resume your assigned duties. ";
                 break;
 
-            case DeckNine.TurnWhenFeinsteinBlowsUp + 1:
+            case TurnWhenFeinsteinBlowsUp + 1:
             {
                 action = context.CurrentLocation switch
                 {
@@ -48,7 +60,7 @@ internal static class ExplosionCoordinator
                 break;
             }
 
-            case DeckNine.TurnWhenFeinsteinBlowsUp + 2:
+            case TurnWhenFeinsteinBlowsUp + 2:
             {
                 if (context.CurrentLocation is not DeckNine && context.CurrentLocation is not EscapePod)
                 {
@@ -67,11 +79,11 @@ internal static class ExplosionCoordinator
                 break;
             }
 
-            case DeckNine.TurnWhenFeinsteinBlowsUp + 3:
+            case TurnWhenFeinsteinBlowsUp + 3:
                 action = "\n\nExplosions continue to rock the ship. ";
                 break;
 
-            case DeckNine.TurnWhenFeinsteinBlowsUp + 4:
+            case TurnWhenFeinsteinBlowsUp + 4:
             {
                 var result =
                     "\n\nAn enormous explosion tears the walls of the ship apart. If only you had made it to an escape pod...";

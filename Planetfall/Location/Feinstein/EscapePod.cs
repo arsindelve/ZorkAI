@@ -40,7 +40,8 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
         {
             escapePod.TurnsAfterStanding++;
             context.RegisterActor(escapePod);
-            return "As you stand, the pod shifts slightly and you feel it falling. A moment later, the fall stops with a shock, and you see water rising past the viewport. ";
+            return "As you stand, the pod shifts slightly and you feel it falling. A moment later, " +
+                   "the fall stops with a shock, and you see water rising past the viewport. ";
         }
 
         return "You are standing again. ";
@@ -123,14 +124,7 @@ internal class EscapePod : LocationBase, ITurnBasedActor
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
-        string action;
-
-        if (TurnsAfterStanding == 0)
-            action = HandleBeingInSpaceAndLanding(context);
-
-        else
-            action = YerSinking(context);
-
+        var action = TurnsAfterStanding == 0 ? HandleBeingInSpaceAndLanding(context) : YerSinking(context);
         return Task.FromResult("\n\n" + action);
     }
 
@@ -144,11 +138,7 @@ internal class EscapePod : LocationBase, ITurnBasedActor
         if (TurnsAfterStanding > 0)
         {
             TurnsAfterStanding++;
-
-            if (GetItem<BulkheadDoor>().IsOpen)
-                action = SinkingWithTheDoorOpen(context);
-            else
-                action = SinkingWithTheDoorClosed(context);
+            action = GetItem<BulkheadDoor>().IsOpen ? SinkingWithTheDoorOpen(context) : SinkingWithTheDoorClosed(context);
         }
 
         return action;
@@ -178,15 +168,16 @@ internal class EscapePod : LocationBase, ITurnBasedActor
         };
     }
 
-    private string Die(string v, IContext context)
+    private string Die(string deathText, IContext context)
     {
         context.RemoveActor(this);
-        return new DeathProcessor().Process(v, context).InteractionMessage;
+        return new DeathProcessor().Process(deathText, context).InteractionMessage;
     }
 
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation, IGenerationClient generationClient)
     {
-        context.RemoveActor(Repository.GetLocation<DeckNine>());
+        // Now safely in the pod, swap the explosion actor for the escape pod actor. 
+        context.RemoveActor(context.Game.Actors["Explosion"]);
         context.RegisterActor(this);
         return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
@@ -276,8 +267,7 @@ internal class EscapePod : LocationBase, ITurnBasedActor
                     WhereDoesTheDoorLead = Repository.GetLocation<Underwater>();
                     LandedSafely = true;
                 }
-
-
+                
                 else
                 {
                     string death = "The pod, whose automated controls were unfortunately designed by computer scientists, " +
