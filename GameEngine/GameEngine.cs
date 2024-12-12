@@ -160,6 +160,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _currentInput = playerInput;
         PreviousLocationName = LocationName;
 
+        IntentBase parsedResult = await _parser.DetermineIntentType(
+                 _currentInput,
+                 Context.CurrentLocation.Description,
+                 _sessionId
+             );
+
         // See if we have something already running like a save, quit, etc.
         // and see if it has any output.
         var (returnProcessorInProgressOutput, processorInProgressOutput) =
@@ -188,7 +194,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             _currentInput,
             Context
         );
-
         if (returnResponseFromAgainProcessor)
             return PostProcessing(_currentInput);
 
@@ -198,12 +203,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // ----------------------------------------------------------------------------
         // We're done now doing pre-processing, we're ready to actually look at what the
         // user wrote and do something with it.
-
-        IntentBase parsedResult = await _parser.DetermineIntentType(
-            _currentInput,
-            Context.CurrentLocation.Description,
-            _sessionId
-        );
 
         _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
 
