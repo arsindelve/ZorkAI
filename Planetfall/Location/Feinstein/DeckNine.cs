@@ -1,14 +1,12 @@
 using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Movement;
-using Planetfall.Command;
 
 namespace Planetfall.Location.Feinstein;
 
 internal class DeckNine : LocationBase, ITurnBasedActor
 {
-    public const byte TurnWhenFeinsteinBlowsUp = 10;
-
+    
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
@@ -84,7 +82,7 @@ internal class DeckNine : LocationBase, ITurnBasedActor
             }
         }
 
-        return Task.FromResult(ExplosionCoordinator.HandleExplosion(context));
+        return Task.FromResult("");
     }
 
     public override void Init()
@@ -94,8 +92,10 @@ internal class DeckNine : LocationBase, ITurnBasedActor
 
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation, IGenerationClient generationClient)
     {
-        context.RegisterActor(this);
-        context.RemoveActor(Repository.GetLocation<EscapePod>());
+        // This covers us in case you enter the pod (which turns off the explosion action)
+        // and then step back onto the deck. You will explode soon. 
+        context.RegisterActor(context.Game.Actors["Explosion"]);
+        
         return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 }

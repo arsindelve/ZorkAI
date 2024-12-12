@@ -3,6 +3,7 @@ using ZorkTwo.Location;
 
 namespace ZorkTwo;
 
+// ReSharper disable once InconsistentNaming
 public class ZorkII : IInfocomGame
 {
     public Type StartingLocation => typeof(InsideTheBarrow);
@@ -38,4 +39,6 @@ public class ZorkII : IInfocomGame
     }
     
     public string SystemPromptSecretKey => "ZorkOnePrompt";
+    
+    public Dictionary<string, ITurnBasedActor> Actors { get; } = new();
 }

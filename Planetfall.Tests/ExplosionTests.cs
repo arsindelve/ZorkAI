@@ -8,6 +8,41 @@ public class ExplosionTests : EngineTestsBase
 {
 
     [Test]
+    public async Task Experience_IntoEscapePod_ThenOut()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<DeckNine>();
+
+        // Act
+        await target.GetResponse("Wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("Wait");
+        await target.GetResponse("Wait");
+        await target.GetResponse("wait");
+
+        var response = await target.GetResponse("wait");
+        response.Should().Contain("A massive explosion rocks the ship. Echoes from the explosion resound deafeningly down the halls. The door to port slides open.");
+
+        response = await target.GetResponse("west");
+        response.Should().Contain("The ship shakes again. You hear, from close by, the sounds of emergency bulkheads closing.");
+
+        response = await target.GetResponse("east");
+        response.Should().Contain("More powerful explosions buffet the ship. The lights flicker madly, and the escape-pod bulkhead clangs shut");
+      
+        response = await target.GetResponse("west");
+        response.Should().Contain("closed");
+        response.Should().Contain("Explosions continue to rock the ship.");
+
+        response = await target.GetResponse("wait");
+        response.Should().Contain("An enormous explosion tears the walls of the ship apart. If only you had made it to an escape pod...");
+        response.Should().Contain("You have died"); 
+    }
+    
+    [Test]
     public async Task Experience_IntoEscapePod_FirstChance()
     {
         var target = GetTarget();

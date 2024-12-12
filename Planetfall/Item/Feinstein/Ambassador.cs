@@ -23,7 +23,7 @@ public class Ambassador : ContainerBase, ITurnBasedActor
     public Task<string> Act(IContext context, IGenerationClient client)
     {
         // Ship begins to explode 
-        if (context.Moves == DeckNine.TurnWhenFeinsteinBlowsUp)
+        if (context.Moves == ExplosionCoordinator.TurnWhenFeinsteinBlowsUp)
             return Task.FromResult(LeavesTheScene(context,
                 "The ambassador squawks frantically, evacuates a massive load of gooey slime, and rushes away. "));
 
