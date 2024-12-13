@@ -68,8 +68,8 @@ public class ItProcessorTests : EngineTestsBase
         var target = GetTarget();
         target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
 
-        await target.GetResponse("take it");
-        var result = await target.GetResponse("lantern");
+        var result = await target.GetResponse("take it");
+        result = await target.GetResponse("lantern");
 
         target.Context.HasItem<Lantern>().Should().BeTrue();
         result.Should().Contain("Taken");

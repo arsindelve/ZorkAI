@@ -2,23 +2,20 @@ using GameEngine;
 using GameEngine.StaticCommand.Implementation;
 using Model.Intent;
 using Model.Interface;
-using Model.Movement;
 
 namespace UnitTests;
 
 /// <summary>
 ///     Represents a unit test appropriate implementation of the IIntentParser interface.
 /// </summary>
-public class TestParser : IIntentParser
+public class TestParser : IntentParser
 {
     private readonly string[] _allContainers;
     private readonly string[] _allNouns;
-    private readonly IGlobalCommandFactory _gameSpecificCommandFactory;
     private readonly string[] _verbs;
 
-    public TestParser(IGlobalCommandFactory gameSpecificCommandFactory)
+    public TestParser(IGlobalCommandFactory gameSpecificCommandFactory) : base(gameSpecificCommandFactory)
     {
-        _gameSpecificCommandFactory = gameSpecificCommandFactory;
         _verbs =
         [
             "take", "drop", "open", "close", "examine", "look", "eat", "press",
@@ -39,20 +36,8 @@ public class TestParser : IIntentParser
         _allNouns = _allNouns.Union(specialNouns).ToArray();
     }
 
-    public Task<IntentBase> DetermineIntentType(string? input, string locationDescription, string sessionId)
+    public override Task<IntentBase> DetermineComplexIntentType(string? input, string locationDescription, string sessionId)
     {
-        if (string.IsNullOrEmpty(input))
-            return Task.FromResult<IntentBase>(new NullIntent());
-
-        if (_gameSpecificCommandFactory.GetGlobalCommands(input) is { } gameSpecificGlobalCommand)
-            return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = gameSpecificGlobalCommand });
-
-        if (_gameSpecificCommandFactory.GetSystemCommands(input) is { } systemCommand)
-            return Task.FromResult<IntentBase>(new SystemCommandIntent { Command = systemCommand });
-
-        if (DirectionParser.IsDirection(input, out var letsGo))
-            return Task.FromResult<IntentBase>(new MoveIntent { Direction = letsGo });
-
         if (input is "look" or "l")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new LookProcessor() });
 
@@ -193,55 +178,55 @@ public class TestParser : IIntentParser
 
         if (input == "press the yellow button")
             return Task.FromResult<IntentBase>(new SimpleIntent
-            { Adverb = "the", Verb = "press", Noun = "yellow button", OriginalInput = "" });
+                { Adverb = "the", Verb = "press", Noun = "yellow button", OriginalInput = "" });
 
         if (input == "press yellow")
             return Task.FromResult<IntentBase>(new SimpleIntent
-            { Adverb = "the", Verb = "press", Noun = "yellow button", OriginalInput = "" });
+                { Adverb = "the", Verb = "press", Noun = "yellow button", OriginalInput = "" });
 
         if (input == "press yellow button")
             return Task.FromResult<IntentBase>(new SimpleIntent
-            { Adverb = "", Verb = "press", Noun = "yellow", OriginalInput = "" });
+                { Adverb = "", Verb = "press", Noun = "yellow", OriginalInput = "" });
 
         if (input == "press the brown button")
             return Task.FromResult<IntentBase>(new SimpleIntent
-            { Adverb = "the", Verb = "press", Noun = "brown button", OriginalInput = "" });
+                { Adverb = "the", Verb = "press", Noun = "brown button", OriginalInput = "" });
 
         if (input == "press the blue button")
             return Task.FromResult<IntentBase>(new SimpleIntent
-            { Adverb = "the", Verb = "press", Noun = "blue button", OriginalInput = "" });
+                { Adverb = "the", Verb = "press", Noun = "blue button", OriginalInput = "" });
 
         if (input == "press the red button")
             return Task.FromResult<IntentBase>(new SimpleIntent
-            { Adverb = "the", Verb = "press", Noun = "red button", OriginalInput = "" });
+                { Adverb = "the", Verb = "press", Noun = "red button", OriginalInput = "" });
 
         if (input == "turn the lamp off")
             return Task.FromResult<IntentBase>(new SimpleIntent
-            { Adverb = "off", Verb = "turn", Noun = "lamp", OriginalInput = "" });
+                { Adverb = "off", Verb = "turn", Noun = "lamp", OriginalInput = "" });
 
         if (input == "turn the lamp on")
             return Task.FromResult<IntentBase>(new SimpleIntent
-            { Adverb = "on", Verb = "turn", Noun = "lamp", OriginalInput = "turn the lamp on" });
+                { Adverb = "on", Verb = "turn", Noun = "lamp", OriginalInput = "turn the lamp on" });
 
         if (input == "turn on lantern")
             return Task.FromResult<IntentBase>(new SimpleIntent
-            { Adverb = "on", Verb = "turn", Noun = "lamp", OriginalInput = "turn the lamp on" });
+                { Adverb = "on", Verb = "turn", Noun = "lamp", OriginalInput = "turn the lamp on" });
 
         if (input == "turn on lamp")
             return Task.FromResult<IntentBase>(new SimpleIntent
-            { Adverb = "on", Verb = "turn", Noun = "lamp", OriginalInput = "turn the lamp on" });
+                { Adverb = "on", Verb = "turn", Noun = "lamp", OriginalInput = "turn the lamp on" });
 
         if (input == "turn off lantern")
             return Task.FromResult<IntentBase>(new SimpleIntent
-            { Adverb = "off", Verb = "turn", Noun = "lamp", OriginalInput = "turn the lamp on" });
+                { Adverb = "off", Verb = "turn", Noun = "lamp", OriginalInput = "turn the lamp on" });
 
         if (input == "light a match")
             return Task.FromResult<IntentBase>(new SimpleIntent
-            { Adverb = "a", Verb = "light", Noun = "match", OriginalInput = "" });
+                { Adverb = "a", Verb = "light", Noun = "match", OriginalInput = "" });
 
         if (input == "open trap door")
             return Task.FromResult<IntentBase>(new SimpleIntent
-            { Adverb = "", Verb = "open", Noun = "trap door", OriginalInput = "" });
+                { Adverb = "", Verb = "open", Noun = "trap door", OriginalInput = "" });
 
         if (input == "light candles with match")
             return Task.FromResult<IntentBase>(new MultiNounIntent
@@ -333,7 +318,7 @@ public class TestParser : IIntentParser
                 OriginalInput = "give the axe to the cyclops"
             });
 
-        if (input.StartsWith("put"))
+        if (input?.StartsWith("put") ?? false)
         {
             var putWords = input.Split(" ");
 
@@ -348,15 +333,15 @@ public class TestParser : IIntentParser
                 });
         }
 
-        input = input.Replace("the ", "").Trim();
+        input = input?.Replace("the ", "").Trim();
 
-        var words = input.Split(" ");
+        var words = input?.Split(" ");
 
-        if (_verbs.Contains(words[0]) && _allNouns.Contains(words[1]))
+        if (_verbs.Contains(words?[0]) && _allNouns.Contains(words?[1]))
             return Task.FromResult<IntentBase>(new SimpleIntent
             {
-                Verb = words[0],
-                Noun = words[1],
+                Verb = words?[0] ?? string.Empty,
+                Noun = words?[1],
                 OriginalInput = input
             });
 

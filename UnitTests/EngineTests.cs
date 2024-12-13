@@ -93,7 +93,7 @@ public class EngineTests : EngineTestsBase
         var target = GetTarget(Mock.Of<IIntentParser>());
 
         Mock.Get(Parser)
-            .Setup(s => s.DetermineIntentType("BOB", It.IsAny<string>(), It.IsAny<string>()))
+            .Setup(s => s.DetermineComplexIntentType("BOB", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new NullIntent());
 
         Client
@@ -119,7 +119,7 @@ public class EngineTests : EngineTestsBase
         var target = GetTarget(Mock.Of<IIntentParser>());
 
         Mock.Get(Parser)
-            .Setup(s => s.DetermineIntentType("PROMPT", It.IsAny<string>(), It.IsAny<string>()))
+            .Setup(s => s.DetermineComplexIntentType("PROMPT", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new PromptIntent { Message = "Please enter a value:" });
 
         // Act
@@ -136,7 +136,7 @@ public class EngineTests : EngineTestsBase
 
         Mock.Get(Parser)
             .Setup(s =>
-                s.DetermineIntentType("push the mailbox", It.IsAny<string>(), It.IsAny<string>())
+                s.DetermineComplexIntentType("push the mailbox", It.IsAny<string>(), It.IsAny<string>())
             )
             .ReturnsAsync(
                 new SimpleIntent
@@ -171,7 +171,7 @@ public class EngineTests : EngineTestsBase
 
         Mock.Get(Parser)
             .Setup(s =>
-                s.DetermineIntentType("push the leaflet", It.IsAny<string>(), It.IsAny<string>())
+                s.DetermineComplexIntentType("push the leaflet", It.IsAny<string>(), It.IsAny<string>())
             )
             .ReturnsAsync(
                 new SimpleIntent
@@ -184,7 +184,7 @@ public class EngineTests : EngineTestsBase
 
         Mock.Get(Parser)
             .Setup(s =>
-                s.DetermineIntentType("take leaflet", It.IsAny<string>(), It.IsAny<string>())
+                s.DetermineComplexIntentType("take leaflet", It.IsAny<string>(), It.IsAny<string>())
             )
             .ReturnsAsync(
                 new SimpleIntent
@@ -197,7 +197,7 @@ public class EngineTests : EngineTestsBase
 
         Mock.Get(Parser)
             .Setup(s =>
-                s.DetermineIntentType("open mailbox", It.IsAny<string>(), It.IsAny<string>())
+                s.DetermineComplexIntentType("open mailbox", It.IsAny<string>(), It.IsAny<string>())
             )
             .ReturnsAsync(
                 new SimpleIntent
@@ -234,7 +234,7 @@ public class EngineTests : EngineTestsBase
 
         Mock.Get(Parser)
             .Setup(s =>
-                s.DetermineIntentType("push the leaflet", It.IsAny<string>(), It.IsAny<string>())
+                s.DetermineComplexIntentType("push the leaflet", It.IsAny<string>(), It.IsAny<string>())
             )
             .ReturnsAsync(
                 new SimpleIntent
@@ -270,7 +270,7 @@ public class EngineTests : EngineTestsBase
 
         Mock.Get(Parser)
             .Setup(s =>
-                s.DetermineIntentType("push the unicorn", It.IsAny<string>(), It.IsAny<string>())
+                s.DetermineComplexIntentType("push the unicorn", It.IsAny<string>(), It.IsAny<string>())
             )
             .ReturnsAsync(
                 new SimpleIntent
@@ -304,7 +304,7 @@ public class EngineTests : EngineTestsBase
         var target = GetTarget(Mock.Of<IIntentParser>());
 
         Mock.Get(Parser)
-            .Setup(s => s.DetermineIntentType("go east", It.IsAny<string>(), It.IsAny<string>()))
+            .Setup(s => s.DetermineComplexIntentType("go east", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new MoveIntent { Direction = Direction.E });
 
         // Act
@@ -320,7 +320,7 @@ public class EngineTests : EngineTestsBase
         var target = GetTarget(Mock.Of<IIntentParser>());
 
         Mock.Get(Parser)
-            .Setup(s => s.DetermineIntentType("go east", It.IsAny<string>(), It.IsAny<string>()))
+            .Setup(s => s.DetermineComplexIntentType("go east", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new UnitTestIntent { Message = "bob" });
 
         Client
@@ -347,7 +347,7 @@ public class EngineTests : EngineTestsBase
 
         target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
         Mock.Get(Parser)
-            .Setup(s => s.DetermineIntentType("go west", It.IsAny<string>(), It.IsAny<string>()))
+            .Setup(s => s.DetermineComplexIntentType("go west", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new MoveIntent { Direction = Direction.W });
 
         // Act
@@ -365,7 +365,7 @@ public class EngineTests : EngineTestsBase
         Repository.GetItem<KitchenWindow>().IsOpen = true;
         target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
         Mock.Get(Parser)
-            .Setup(s => s.DetermineIntentType("go west", It.IsAny<string>(), It.IsAny<string>()))
+            .Setup(s => s.DetermineComplexIntentType("go west", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new MoveIntent { Direction = Direction.W });
 
         // Act
@@ -466,7 +466,7 @@ public class EngineTests : EngineTestsBase
 
         Mock.Get(Parser)
             .Setup(s =>
-                s.DetermineIntentType(
+                s.DetermineComplexIntentType(
                     "dig hole with shovel",
                     It.IsAny<string>(),
                     It.IsAny<string>()

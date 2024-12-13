@@ -9,7 +9,21 @@ namespace Model.Interface;
 public interface IIntentParser
 {
     /// <summary>
-    ///     Determines the type of intent based on the input and session ID.
+    ///     Use a simple, word-match based parser to determines the type of intent.
+    /// Global commands work anywhere and everywhere, like look, inventory, wait, and do
+    /// count as a turn.
+    /// </summary>
+    IntentBase? DetermineGlobalIntentType(string? input);
+
+    /// <summary>
+    ///     Use a simple, word-match based parser to determines the type of intent
+    ///     System commands are meta, like quit, save, restore, and do not
+    ///  count as a turn.
+    /// </summary>
+    IntentBase? DetermineSystemIntentType(string? input);
+
+    /// <summary>
+    ///     Use a complex AI parser to determines the type of intent based on the input and session ID.
     /// </summary>
     /// <param name="input">The user input.</param>
     /// <param name="sessionId">The session ID uniquely identifies this session and adventurer to the parser. </param>
@@ -19,5 +33,5 @@ public interface IIntentParser
     ///     say "follow the path", we need the location description to tell us which way the path goes.
     /// </param>
     /// <returns>The intent type as an instance of IntentBase.</returns>
-    Task<IntentBase> DetermineIntentType(string? input, string locationDescription, string sessionId);
+    Task<IntentBase> DetermineComplexIntentType(string? input, string locationDescription, string sessionId);
 }
