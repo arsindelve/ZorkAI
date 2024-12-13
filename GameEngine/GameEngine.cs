@@ -32,25 +32,24 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 {
     private readonly AgainProcessor _againProcessor = new();
 
-    private readonly IGenerationClient _generator;
     private readonly LimitedStack<(string, string, bool)> _inputOutputs = new();
     private readonly ItProcessor _itProcessor = new();
     private readonly ILogger<GameEngine<TInfocomGame, TContext>>? _logger;
-    private readonly ISecretsManager _secretsManager;
     private readonly IIntentParser _parser;
+    private readonly ISecretsManager _secretsManager;
     private readonly string _sessionId = Guid.NewGuid().ToString();
 
     private string? _currentInput;
+    private TInfocomGame _gameInstance;
     private bool _lastResponseWasGenerated;
     private IStatefulProcessor? _processorInProgress;
     internal TContext Context;
-    private TInfocomGame _gameInstance;
 
     [ActivatorUtilitiesConstructor]
     public GameEngine(
         ILogger<GameEngine<TInfocomGame, TContext>> logger,
         ISecretsManager secretsManager
-    )
+        )
     {
         _logger = logger;
         _secretsManager = secretsManager;
@@ -59,7 +58,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         {
             Engine = this,
             Game = _gameInstance,
-            Verbosity = Verbosity.Brief,
+            Verbosity = Verbosity.Brief
         };
 
         Context.CurrentLocation.Init();
@@ -68,12 +67,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         Runtime = Runtime.Web;
         IntroText = $"""
-            {_gameInstance.StartText}
-            {Context.CurrentLocation.Description}
-            """;
+                     {_gameInstance.StartText}
+                     {Context.CurrentLocation.Description}
+                     """;
 
-        _generator = new ChatGPTClient(_logger);
-        _generator.OnGenerate += () => _lastResponseWasGenerated = true;
+        GenerationClient = new ChatGPTClient(_logger);
+        GenerationClient.OnGenerate += () => _lastResponseWasGenerated = true;
 
         _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
     }
@@ -88,7 +87,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         IIntentParser parser,
         IGenerationClient generationClient,
         ISecretsManager secretsManager
-    )
+        )
     {
         Repository.Reset();
 
@@ -96,7 +95,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         IntroText = string.Empty;
         _parser = parser;
-        _generator = generationClient;
+        GenerationClient = generationClient;
         _secretsManager = secretsManager;
         _gameInstance = (TInfocomGame)Context.Game;
         _gameInstance.Init(Context);
@@ -104,7 +103,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public string IntroText { get; }
 
-    public IGenerationClient GenerationClient => _generator;
+    public IGenerationClient GenerationClient { get; }
 
     public string LocationName => Context.CurrentLocation.Name;
 
@@ -141,7 +140,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public async Task InitializeEngine()
     {
-        _generator.SystemPrompt = await _secretsManager.GetSecret(
+        GenerationClient.SystemPrompt = await _secretsManager.GetSecret(
             _gameInstance.SystemPromptSecretKey
         );
     }
@@ -156,26 +155,78 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     /// <returns>The output which we need to display to the adventurer</returns>
     public async Task<string?> GetResponse(string? playerInput)
     {
-        string actorResults;
         _currentInput = playerInput;
-        PreviousLocationName = LocationName;
-
-        IntentBase parsedResult = await _parser.DetermineIntentType(
-                 _currentInput,
-                 Context.CurrentLocation.Description,
-                 _sessionId
-             );
-
+        
+        // 1. ------- Processor in Progress -
         // See if we have something already running like a save, quit, etc.
-        // and see if it has any output.
+        // and see if it has any output.  Does not count as a turn. No actor or turn processing. 
         var (returnProcessorInProgressOutput, processorInProgressOutput) =
-            await RunProcessorInProgress();
+            await RunProcessorInProgress(playerInput);
 
         if (returnProcessorInProgressOutput)
             return PostProcessing(processorInProgressOutput!);
 
-        if (string.IsNullOrEmpty(_currentInput))
+        // 2. -------  Empty command. Does not count as a turn. No actor or turn processing. 
+        if (string.IsNullOrEmpty(playerInput))
             return PostProcessing(await GetGeneratedNoCommandResponse());
+        
+        PreviousLocationName = LocationName;
+
+        // 3. ------- System commands - like save, restore, quit, verbose etc. Does not count as a turn. No actor or turn processing. 
+        var systemCommand = _parser.DetermineSystemIntentType(playerInput);
+        if (systemCommand is GlobalCommandIntent global)
+        {
+            var globalResult = await ProcessGlobalCommandIntent(global);
+            return PostProcessing(globalResult);
+        }
+        
+        // See if the user typed "again" or some variation.
+        // if so, we'll replace the input with their previous input.
+        (_currentInput, var returnResponseFromAgainProcessor) = _againProcessor.Process(
+            _currentInput!,
+            Context
+        );
+        if (returnResponseFromAgainProcessor)
+            return PostProcessing(_currentInput);
+
+        // Everything below here counts as a turn. Pre-process the turn. 
+        // See if the context needs to notify us of anything. Are we sleepy? Hungry?
+        var contextPrepend = Context.ProcessBeginningOfTurn();
+
+        
+        // 4. ------- Location specific raw commands -
+        // Check if the location has an interaction with the raw, unparsed input. 
+        // Some locations have a special interaction to raw input that does not fit 
+        // the traditional sentence parsing. Sometimes that is a single verb with no 
+        // noun like "jump" or "pray" or "echo", or some other specific phrase
+        // that does not lend itself well to parsing. 
+        var singleVerbResult = await Context.CurrentLocation.RespondToSpecificLocationInteraction(
+            playerInput,
+            Context,
+            GenerationClient
+        );
+
+        if (singleVerbResult.InteractionHappened)
+        {
+            return PostProcessing(singleVerbResult.InteractionMessage + await ProcessActors());
+        }
+
+        // 5. ------- Global commands - these work always, everywhere, like look, inventory, wait and cardinal directions.
+        var simpleIntent = _parser.DetermineGlobalIntentType(playerInput);
+        if (simpleIntent is not null)
+        {
+            string? resultMessage = simpleIntent switch
+            {
+                GlobalCommandIntent intent => await ProcessGlobalCommandIntent(intent),
+                MoveIntent moveInteraction => (await new MoveEngine().Process(moveInteraction, Context,
+                    GenerationClient)).ResultMessage,
+                _ => null
+            };
+
+            return PostProcessing(contextPrepend + resultMessage + await ProcessActors());
+        }
+
+        // 6. ------- Complex parsed commands.
 
         // if the user referenced an object using "it", let's see
         // if we can handle that.
@@ -188,17 +239,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         _currentInput = replacedInput;
 
-        // See if the user typed "again" or some variation.
-        // if so, we'll replace the input with their previous input.
-        (_currentInput, var returnResponseFromAgainProcessor) = _againProcessor.Process(
+        var parsedResult = await _parser.DetermineComplexIntentType(
             _currentInput,
-            Context
+            Context.CurrentLocation.Description,
+            _sessionId
         );
-        if (returnResponseFromAgainProcessor)
-            return PostProcessing(_currentInput);
-
-        // See if the context needs to notify us of anything. Are we sleepy? Hungry?
-        var contextPrepend = Context.ProcessBeginningOfTurn();
 
         // ----------------------------------------------------------------------------
         // We're done now doing pre-processing, we're ready to actually look at what the
@@ -206,39 +251,13 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
 
-        // TODO: Refactor from here down. It's hot garbage, and we have truly excellent test coverage. 
-
-        // Bypass this for known system commands. They must supersede non-parsed interactions. For example, in the 
-        // loud room, we don't want "save" or "quit" to get intercepted. 
-        if (parsedResult is not SystemCommandIntent)
-        {
-            // Check if the location has an interaction with the raw, unparsed input. 
-            // Some locations have a special interaction to raw input that does not fit 
-            // the traditional sentence parsing. Sometimes that is a single verb with no 
-            // noun like "jump" or "pray" or "echo", or some other specific phrase
-            // that does not lend itself well to parsing. 
-            var singleVerbResult = await Context.CurrentLocation.RespondToSpecificLocationInteraction(
-                _currentInput,
-                Context,
-                _generator
-            );
-
-            if (singleVerbResult.InteractionHappened)
-            {
-                // "Actors" are things that can occur each turn. Examples are the troll
-                // attacking, the maintenance room flooding, Floyd mumbling.
-                actorResults = await ProcessActors();
-                return PostProcessing(singleVerbResult.InteractionMessage + actorResults);
-            }
-        }
-
-        (InteractionResult? ResultObject, string? ResultMessage) intentResult = parsedResult switch
+        var complexIntentResult = parsedResult switch
         {
             GlobalCommandIntent intent => (null, await ProcessGlobalCommandIntent(intent)),
 
             NullIntent => (
                 null,
-                await GetGeneratedNoOpResponse(_currentInput, _generator, Context)
+                await GetGeneratedNoOpResponse(_currentInput, GenerationClient, Context)
             ),
 
             PromptIntent => (null, parsedResult.Message),
@@ -246,51 +265,46 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             EnterSubLocationIntent subLocationIntent => await new EnterSubLocationEngine().Process(
                 subLocationIntent,
                 Context,
-                _generator
+                GenerationClient
             ),
+            
+            MoveIntent moveInteraction => await new MoveEngine().Process(moveInteraction, Context,
+                GenerationClient),
 
             ExitSubLocationIntent exitSubLocationIntent =>
                 await new ExitSubLocationEngine().Process(
                     exitSubLocationIntent,
                     Context,
-                    _generator
+                    GenerationClient
                 ),
-
-            MoveIntent moveInteraction => await new MoveEngine().Process(
-                moveInteraction,
-                Context,
-                _generator
-            ),
 
             SimpleIntent simpleInteraction => await new SimpleInteractionEngine().Process(
                 simpleInteraction,
                 Context,
-                _generator
+                GenerationClient
             ),
 
             MultiNounIntent multiInteraction => await new MultiNounEngine().Process(
                 multiInteraction,
                 Context,
-                _generator
+                GenerationClient
             ),
 
-            _ => (null, await GetGeneratedNoOpResponse(_currentInput, _generator, Context)),
+            _ => (null, await GetGeneratedNoOpResponse(_currentInput, GenerationClient, Context))
         };
 
-        if (intentResult.ResultObject is SimpleInteractionDisambiguationInteractionResult result)
-        {
+        if (complexIntentResult.resultObject is SimpleInteractionDisambiguationInteractionResult result)
             _processorInProgress = new SimpleActionDisambiguationProcessor(result);
-        }
-
+        
         string? contextAppend = Context.ProcessEndOfTurn();
-
-        // "Actors" are things that can occur each turn. Examples are the troll
-        // attacking, the maintenance room flooding, Floyd mumbling.
-        actorResults = await ProcessActors();
+        var actorResult = await ProcessActors();
 
         // Put it all together
         return PostProcessing(
-            contextPrepend + intentResult.ResultMessage?.Trim() + actorResults + contextAppend
+            contextPrepend + 
+            complexIntentResult.ResultMessage?.Trim() + 
+            actorResult + 
+            contextAppend
         );
     }
 
@@ -309,7 +323,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (!string.IsNullOrEmpty(finalResult))
         {
             _inputOutputs.Push((_currentInput!, finalResult, _lastResponseWasGenerated));
-            _generator.LastFiveInputOutputs = _inputOutputs.GetAll();
+            GenerationClient.LastFiveInputOutputs = _inputOutputs.GetAll();
         }
 
         _lastResponseWasGenerated = false;
@@ -321,7 +335,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var intentResponse = await intent.Command.Process(
             _currentInput,
             Context,
-            _generator,
+            GenerationClient,
             Runtime
         );
         if (intent.Command is IStatefulProcessor { Completed: false } statefulProcessor)
@@ -337,14 +351,14 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         foreach (var actor in Context.Actors.ToList())
         {
             _logger?.LogDebug($"Processing actor: {actor.GetType()}");
-            var task = await actor.Act(Context, _generator);
+            var task = await actor.Act(Context, GenerationClient);
             actorResults += $"{task} ";
         }
 
         return actorResults;
     }
 
-    private async Task<(bool, string?)> RunProcessorInProgress()
+    private async Task<(bool, string?)> RunProcessorInProgress(string? playerInput)
     {
         string? processorInProgressOutput = null;
         var immediatelyReturn = false;
@@ -355,9 +369,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return (immediatelyReturn, processorInProgressOutput);
 
         processorInProgressOutput = await _processorInProgress.Process(
-            _currentInput,
+            playerInput,
             Context,
-            _generator,
+            GenerationClient,
             Runtime
         );
 
@@ -387,7 +401,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         string input,
         IGenerationClient generationClient,
         IContext context
-    )
+        )
     {
         var request = new CommandHasNoEffectOperationRequest(
             context.CurrentLocation.DescriptionForGeneration,
@@ -400,7 +414,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     private async Task<string> GetGeneratedNoCommandResponse()
     {
         var request = new EmptyRequest();
-        var result = await _generator.CompleteChat(request);
+        var result = await GenerationClient.CompleteChat(request);
         return result;
     }
 
@@ -412,7 +426,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             TypeNameHandling = TypeNameHandling.All,
             PreserveReferencesHandling = PreserveReferencesHandling.Objects,
             ContractResolver = new DoNotSerializeReadOnlyPropertiesResolver(),
-            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
+            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
         };
     }
 }
@@ -422,14 +436,11 @@ public class DoNotSerializeReadOnlyPropertiesResolver : DefaultContractResolver
     protected override JsonProperty CreateProperty(
         MemberInfo member,
         MemberSerialization memberSerialization
-    )
+        )
     {
-        JsonProperty property = base.CreateProperty(member, memberSerialization);
+        var property = base.CreateProperty(member, memberSerialization);
 
-        if (!property.Writable)
-        {
-            property.ShouldSerialize = _ => false;
-        }
+        if (!property.Writable) property.ShouldSerialize = _ => false;
 
         return property;
     }

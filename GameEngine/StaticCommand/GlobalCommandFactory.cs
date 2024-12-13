@@ -112,7 +112,6 @@ public class GlobalCommandFactory : IGlobalCommandFactory
             case "stop the game":
                 return new QuitProcessor();
 
-
             case "restart":
             case "restart the game":
             case "start over":
