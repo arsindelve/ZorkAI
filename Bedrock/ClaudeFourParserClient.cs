@@ -23,6 +23,8 @@ internal class ClaudeFourParserClient : ClaudeClientBase, IClaudeFourParserClien
             d) Something else, put "Act"
              
         2. In <verb> tags, put the single most important verb I need to know, which best expresses the player's intention. If there is a simpler, more common synonym for the verb, use that instead.
+           To avoid confusion, if the player wants to turn something on, or turn on something like a light, use the verb "activate". if the player wants to turn something off, or turn off something light a lamp, use the verb "deactivate"
+           To avoid confusion, if the player wants wear or put on clothing, use the verb "don". If the player wants take off clothing, or remove clothing, use the verb "doff"
         
         3. For each noun in the sentence that relates to the main verb, place each noun in a set of <noun> tags. If there is an adjective immediately preceding a noun, include it in separate <adjective> tags outside the <noun> tags. 
         Use context to distinguish between adjectives and nouns. Tag words as adjectives only if they immediately precede a noun and fit common adjective patterns.

@@ -30,11 +30,14 @@ public class TurnLightOnOrOffProcessor : IVerbProcessor
             case "strike":
             case "turn on":
             case "activate":
+            case "enable":
                 return ProcessOn(context, item);
 
             case "turn off":
             case "extinguish":
             case "blow out":
+            case "deactivate":
+            case "disable":
                 return ProcessOff(context, item, client);
 
             // Sometimes, the parser can't determine the adverb "on" or "off". It that case, hopefully,

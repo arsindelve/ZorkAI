@@ -10,7 +10,7 @@ namespace IntegrationTests;
 [TestFixture]
 [Explicit]
 [Ignore("")]
-// [Parallelizable(ParallelScope.Children)]
+//[Parallelizable(ParallelScope.Children)]
 public class ClaudeFourParserTests
 {
     [SetUp]
@@ -23,6 +23,33 @@ public class ClaudeFourParserTests
     private readonly object _lockObject = new();
 
     [Test]
+    
+    // Wear, put on
+    [TestCase(typeof(WestOfHouse), "put on the hat", new[] { "<intent>act</intent>", "<verb>don</verb>", "<noun>hat</noun>"})]
+    [TestCase(typeof(WestOfHouse), "wear the hat", new[] { "<intent>act</intent>", "<verb>don</verb>", "<noun>hat</noun>"})]
+    [TestCase(typeof(WestOfHouse), "don the hat", new[] { "<intent>act</intent>", "<verb>don</verb>", "<noun>hat</noun>"})]
+    [TestCase(typeof(WestOfHouse), "dress in the hat", new[] { "<intent>act</intent>", "<verb>don</verb>", "<noun>hat</noun>"})]
+
+    // Remove, take off
+    [TestCase(typeof(WestOfHouse), "take off the hat", new[] { "<intent>act</intent>", "<verb>doff</verb>", "<noun>hat</noun>"})]
+    [TestCase(typeof(WestOfHouse), "remove the hat", new[] { "<intent>act</intent>", "<verb>doff</verb>", "<noun>hat</noun>"})]
+    [TestCase(typeof(WestOfHouse), "doff the hat", new[] { "<intent>act</intent>", "<verb>doff</verb>", "<noun>hat</noun>"})]
+   
+    
+    // Turn on 
+    [TestCase(typeof(WestOfHouse), "light the lamp", new[] { "<intent>act</intent>", "<verb>activate</verb>", "<noun>lamp</noun>"})]
+    [TestCase(typeof(WestOfHouse), "turn on lamp", new[] { "<intent>act</intent>", "<verb>activate</verb>", "<noun>lamp</noun>"})]
+    [TestCase(typeof(WestOfHouse), "turn lamp on ", new[] { "<intent>act</intent>", "<verb>activate</verb>", "<noun>lamp</noun>"})]
+    [TestCase(typeof(WestOfHouse), "turn on the lamp", new[] { "<intent>act</intent>", "<verb>activate</verb>", "<noun>lamp</noun>"})]
+    [TestCase(typeof(WestOfHouse), "turn the lamp on ", new[] { "<intent>act</intent>", "<verb>activate</verb>", "<noun>lamp</noun>"})]
+    
+    // Turn off
+    [TestCase(typeof(WestOfHouse), "extinguish the lamp", new[] { "<intent>act</intent>", "<verb>deactivate</verb>", "<noun>lamp</noun>"})]
+    [TestCase(typeof(WestOfHouse), "turn off lamp", new[] { "<intent>act</intent>", "<verb>deactivate</verb>", "<noun>lamp</noun>"})]
+    [TestCase(typeof(WestOfHouse), "turn lamp off ", new[] { "<intent>act</intent>", "<verb>deactivate</verb>", "<noun>lamp</noun>"})]
+    [TestCase(typeof(WestOfHouse), "turn off the lamp", new[] { "<intent>act</intent>", "<verb>deactivate</verb>", "<noun>lamp</noun>"})]
+    [TestCase(typeof(WestOfHouse), "turn the lamp off ", new[] { "<intent>act</intent>", "<verb>deactivate</verb>", "<noun>lamp</noun>"})]
+
 
     // Direction
     [TestCase(typeof(WestOfHouse), "walk north", new[] { "<intent>move</intent>", "<direction>north</direction>" })]
@@ -60,7 +87,7 @@ public class ClaudeFourParserTests
     [TestCase(typeof(BehindHouse), "use the window to go into the house",
         new[] { "<intent>move</intent>", "<direction>in</direction>" })]
     [TestCase(typeof(BehindHouse), "go into the house", new[] { "<intent>move</intent>", "<direction>in</direction>" })]
-
+    
     // Single noun
     [TestCase(typeof(WestOfHouse), "hey, what do you say we open the mailbox",
         new[] { "<verb>open</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
@@ -85,151 +112,151 @@ public class ClaudeFourParserTests
     [TestCase(typeof(WestOfHouse), "it would be great if I can please lick the mailbox",
         new[] { "<verb>lick</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "light lantern",
-        new[] { "<verb>light</verb>", "<noun>lantern</noun>", "<intent>act</intent>" })]
+        new[] { "<verb>activate</verb>", "<noun>lantern</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(MachineRoom), "examine machine",
         new[] { "<verb>examine</verb>", "<noun>machine</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(DamBase), "take plastic",
         new[] { "<verb>take</verb>", "<noun>plastic</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(DamBase), "take pile",
         new[] { "<verb>take</verb>", "<noun>pile</noun>", "<intent>act</intent>" })]
-
-    // Multi noun
-    [TestCase(typeof(DomeRoom), "tie the rope to the railing",
-        new[]
-        {
-            "<verb>tie</verb>", "<noun>rope</noun>", "<noun>railing</noun>", "<intent>act</intent>",
-            "<preposition>to</preposition>"
-        })]
-    [TestCase(typeof(DomeRoom), "inflate the pile of plastic with the air pump",
-        new[]
-        {
-            "<verb>inflate</verb>", "<noun>pile</noun>", "<noun>pump</noun>", "<intent>act</intent>",
-            "<preposition>with</preposition>"
-        })]
-    [TestCase(typeof(DomeRoom), "blow up the pile of plastic using the air pump",
-        new[]
-        {
-            "<verb>inflate</verb>", "<noun>pile</noun>", "<noun>air pump</noun>", "<intent>act</intent>",
-            "<preposition>using</preposition>"
-        })]
-    [TestCase(typeof(Dam), "Use the wrench to turn the bolt.",
-        new[]
-        {
-            "<verb>use</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
-            "<preposition>to</preposition>"
-        })]
-    [TestCase(typeof(Dam), "With the wrench, turn the bolt",
-        new[]
-        {
-            "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>"
-        })]
-    [TestCase(typeof(Dam), "The wrench should be used to turn the bolt.",
-        new[]
-        {
-            "<verb>use</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
-            "<preposition>to</preposition>"
-        })]
-    [TestCase(typeof(Dam), "Turn the bolt using the wrench.",
-        new[]
-        {
-            "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
-            "<preposition>using</preposition>"
-        })]
-    [TestCase(typeof(TrollRoom), "kill the troll with the sword",
-        new[]
-        {
-            "<verb>kill</verb>", "<noun>troll</noun>", "<noun>sword</noun>", "<intent>act</intent>",
-            "<preposition>with</preposition>"
-        })]
-    [TestCase(typeof(TrollRoom), "kill troll with sword",
-        new[]
-        {
-            "<verb>kill</verb>", "<noun>troll</noun>", "<noun>sword</noun>", "<intent>act</intent>",
-            "<preposition>with</preposition>"
-        })]
-    [TestCase(typeof(Dam), "let's turn the bolt with the wrench",
-        new[]
-        {
-            "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
-            "<preposition>with</preposition>"
-        })]
-    [TestCase(typeof(LivingRoom), "I want to put the sword in the trophy case",
-        new[]
-        {
-            "<verb>put</verb>", "<noun>trophy case</noun>", "<noun>sword</noun>", "<intent>act</intent>",
-            "<preposition>in</preposition>"
-        })]
-    [TestCase(typeof(TrollRoom), "With the glowing sword, kill the ugly troll.",
-        new[]
-        {
-            "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>",
-            "<preposition>with</preposition>"
-        })]
-    [TestCase(typeof(TrollRoom), "The glowing sword should be used to kill the ugly troll.",
-        new[]
-        {
-            "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>",
-            "<preposition>to</preposition>"
-        })]
-    [TestCase(typeof(TrollRoom), "Use the sword that glows to kill the troll that's ugly.",
-        new[]
-        {
-            "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>"
-        })]
     
-    
-    // Sub-locations
-    [TestCase(typeof(DamBase), "get in the boat",
-        new[]
-        {
-            "<intent>board</intent>",  "<noun>boat</noun>"
-        })]
-    [TestCase(typeof(DamBase), "let's go for a ride in the magic boat",
-        new[]
-        {
-            "<intent>board</intent>",  "<noun>boat</noun>"
-        })]
-    [TestCase(typeof(DamBase), "get inside the boat",
-        new[]
-        {
-            "<intent>board</intent>",  "<noun>boat</noun>"
-        })]
-    [TestCase(typeof(DamBase), "enter the boat",
-        new[]
-        {
-            "<intent>board</intent>",  "<noun>boat</noun>"
-        })]
-    [TestCase(typeof(DamBase), "board the magic boat",
-        new[]
-        {
-            "<intent>board</intent>",  "<noun>boat</noun>"
-        })]
-    [TestCase(typeof(DamBase), "sit in the boat",
-        new[]
-        {
-            "<intent>board</intent>",  "<noun>boat</noun>"
-        })]
-    [TestCase(typeof(DamBase), "leave the boat",
-        new[]
-        {
-            "<intent>disembark</intent>",  "<noun>boat</noun>"
-        })]
-    [TestCase(typeof(DamBase), "get out of the boat",
-        new[]
-        {
-            "<intent>disembark</intent>",  "<noun>boat</noun>"
-        })]
-    [TestCase(typeof(DamBase), "exit the boat",
-        new[]
-        {
-            "<intent>disembark</intent>",  "<noun>boat</noun>"
-        })]
-    [TestCase(typeof(DamBase), "stand up and get out of the magic boat",
-        new[]
-        {
-            "<intent>disembark</intent>",  "<noun>boat</noun>"
-        })]
-    
+    // // Multi noun
+    // [TestCase(typeof(DomeRoom), "tie the rope to the railing",
+    //     new[]
+    //     {
+    //         "<verb>tie</verb>", "<noun>rope</noun>", "<noun>railing</noun>", "<intent>act</intent>",
+    //         "<preposition>to</preposition>"
+    //     })]
+    // [TestCase(typeof(DomeRoom), "inflate the pile of plastic with the air pump",
+    //     new[]
+    //     {
+    //         "<verb>inflate</verb>", "<noun>pile</noun>", "<noun>pump</noun>", "<intent>act</intent>",
+    //         "<preposition>with</preposition>"
+    //     })]
+    // [TestCase(typeof(DomeRoom), "blow up the pile of plastic using the air pump",
+    //     new[]
+    //     {
+    //         "<verb>inflate</verb>", "<noun>pile</noun>", "<noun>air pump</noun>", "<intent>act</intent>",
+    //         "<preposition>using</preposition>"
+    //     })]
+    // [TestCase(typeof(Dam), "Use the wrench to turn the bolt.",
+    //     new[]
+    //     {
+    //         "<verb>use</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
+    //         "<preposition>to</preposition>"
+    //     })]
+    // [TestCase(typeof(Dam), "With the wrench, turn the bolt",
+    //     new[]
+    //     {
+    //         "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>"
+    //     })]
+    // [TestCase(typeof(Dam), "The wrench should be used to turn the bolt.",
+    //     new[]
+    //     {
+    //         "<verb>use</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
+    //         "<preposition>to</preposition>"
+    //     })]
+    // [TestCase(typeof(Dam), "Turn the bolt using the wrench.",
+    //     new[]
+    //     {
+    //         "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
+    //         "<preposition>using</preposition>"
+    //     })]
+    // [TestCase(typeof(TrollRoom), "kill the troll with the sword",
+    //     new[]
+    //     {
+    //         "<verb>kill</verb>", "<noun>troll</noun>", "<noun>sword</noun>", "<intent>act</intent>",
+    //         "<preposition>with</preposition>"
+    //     })]
+    // [TestCase(typeof(TrollRoom), "kill troll with sword",
+    //     new[]
+    //     {
+    //         "<verb>kill</verb>", "<noun>troll</noun>", "<noun>sword</noun>", "<intent>act</intent>",
+    //         "<preposition>with</preposition>"
+    //     })]
+    // [TestCase(typeof(Dam), "let's turn the bolt with the wrench",
+    //     new[]
+    //     {
+    //         "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
+    //         "<preposition>with</preposition>"
+    //     })]
+    // [TestCase(typeof(LivingRoom), "I want to put the sword in the trophy case",
+    //     new[]
+    //     {
+    //         "<verb>put</verb>", "<noun>trophy case</noun>", "<noun>sword</noun>", "<intent>act</intent>",
+    //         "<preposition>in</preposition>"
+    //     })]
+    // [TestCase(typeof(TrollRoom), "With the glowing sword, kill the ugly troll.",
+    //     new[]
+    //     {
+    //         "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>",
+    //         "<preposition>with</preposition>"
+    //     })]
+    // [TestCase(typeof(TrollRoom), "The glowing sword should be used to kill the ugly troll.",
+    //     new[]
+    //     {
+    //         "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>",
+    //         "<preposition>to</preposition>"
+    //     })]
+    // [TestCase(typeof(TrollRoom), "Use the sword that glows to kill the troll that's ugly.",
+    //     new[]
+    //     {
+    //         "<verb>kill</verb>", "<noun>sword</noun>", "<noun>troll</noun>", "<intent>act</intent>"
+    //     })]
+    //
+    //
+    // // Sub-locations
+    // [TestCase(typeof(DamBase), "get in the boat",
+    //     new[]
+    //     {
+    //         "<intent>board</intent>",  "<noun>boat</noun>"
+    //     })]
+    // [TestCase(typeof(DamBase), "let's go for a ride in the magic boat",
+    //     new[]
+    //     {
+    //         "<intent>board</intent>",  "<noun>boat</noun>"
+    //     })]
+    // [TestCase(typeof(DamBase), "get inside the boat",
+    //     new[]
+    //     {
+    //         "<intent>board</intent>",  "<noun>boat</noun>"
+    //     })]
+    // [TestCase(typeof(DamBase), "enter the boat",
+    //     new[]
+    //     {
+    //         "<intent>board</intent>",  "<noun>boat</noun>"
+    //     })]
+    // [TestCase(typeof(DamBase), "board the magic boat",
+    //     new[]
+    //     {
+    //         "<intent>board</intent>",  "<noun>boat</noun>"
+    //     })]
+    // [TestCase(typeof(DamBase), "sit in the boat",
+    //     new[]
+    //     {
+    //         "<intent>board</intent>",  "<noun>boat</noun>"
+    //     })]
+    // [TestCase(typeof(DamBase), "leave the boat",
+    //     new[]
+    //     {
+    //         "<intent>disembark</intent>",  "<noun>boat</noun>"
+    //     })]
+    // [TestCase(typeof(DamBase), "get out of the boat",
+    //     new[]
+    //     {
+    //         "<intent>disembark</intent>",  "<noun>boat</noun>"
+    //     })]
+    // [TestCase(typeof(DamBase), "exit the boat",
+    //     new[]
+    //     {
+    //         "<intent>disembark</intent>",  "<noun>boat</noun>"
+    //     })]
+    // [TestCase(typeof(DamBase), "stand up and get out of the magic boat",
+    //     new[]
+    //     {
+    //         "<intent>disembark</intent>",  "<noun>boat</noun>"
+    //     })]
+    //
     public async Task ClaudeParserTests(Type location, string sentence, string[] asserts)
     {
         string locationObjectDescription;

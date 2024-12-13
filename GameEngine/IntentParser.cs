@@ -74,31 +74,6 @@ public class IntentParser : IIntentParser
         // At this point, we don't know the user's intent without asking the
         // AI parsing engine, so let's do that. 
         
-        // TODO: we need to move this to a Zork specific implementation (or fix Bedrock)
-        // The parser REALLY has a hard time with turning on the lantern. Let's help
-        switch (input)
-        {
-            case "turn lantern on":
-            case "turn the lantern on":
-            case "turn on the lantern":
-            case "turn on lantern":
-            case "turn lamp on":
-            case "turn the lamp on":
-            case "turn on the lamp":
-            case "turn on lamp":
-                return new SimpleIntent { Noun = "lantern", Verb = "turn on" };
-            
-            case "turn lantern off":
-            case "turn the lantern off":
-            case "turn off the lantern":
-            case "the off lantern":
-            case "turn lamp off":
-            case "turn the lamp off":
-            case "turn off the lamp":
-            case "the off lamp":
-                return new SimpleIntent { Noun = "lantern", Verb = "turn off" };
-        }
-
         return await _parser.AskTheAIParser(input!, locationDescription, sessionId);
     }
 }
