@@ -29,22 +29,23 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
                 return TakeIt(action, context, castItem, takeItem);
 
             case "drop":
-                return DropIt(action, context, castItem);
+                return DropIt(context, castItem);
         }
 
         return null;
     }
 
-    private static InteractionResult DropIt(SimpleIntent action, IContext context, IItem castItem)
+    public static InteractionResult DropIt(IContext context, IItem castItem)
     {
-        if (!context.HasMatchingNounAndAdjective(action.Noun, action.Adjective).HasItem)
+        if (!context.Items.Contains(castItem))
             return new PositiveInteractionResult("You don't have that!");
+
+        if (castItem is IAmClothing { BeingWorn: true })
+            return new PositiveInteractionResult("You'll have to take it off, first. ");
         
         if (context.CurrentLocation is IDropSpecialLocation specialLocation)
-        {
             return specialLocation.DropSpecial(castItem, context);
-        }
-        
+
         context.Drop(castItem);
         return new PositiveInteractionResult("Dropped");
     }

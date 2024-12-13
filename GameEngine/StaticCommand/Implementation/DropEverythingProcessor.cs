@@ -1,4 +1,5 @@
-﻿using Model.AIGeneration;
+﻿using GameEngine.Item.ItemProcessor;
+using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Interface;
 using Model.Item;
@@ -18,8 +19,7 @@ public class DropEverythingProcessor : IGlobalCommand
         foreach (var nextItem in items.ToList())
             if (nextItem is ICanBeTakenAndDropped)
             {
-                sb.AppendLine($"{nextItem.Name}: Dropped.");
-                ((ICanHoldItems)context.CurrentLocation).ItemPlacedHere(nextItem);
+                sb.AppendLine($"{nextItem.Name}: {TakeOrDropInteractionProcessor.DropIt(context, nextItem).InteractionMessage}");
             }
 
         return sb.ToString();
