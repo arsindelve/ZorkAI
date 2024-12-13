@@ -26,7 +26,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             case "get":
             case "acquire":
             case "snatch":
-                return TakeIt(action, context, castItem, takeItem);
+                return TakeIt(context, castItem, takeItem);
 
             case "drop":
                 return DropIt(context, castItem);
@@ -50,7 +50,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         return new PositiveInteractionResult("Dropped");
     }
 
-    private static InteractionResult TakeIt(SimpleIntent action, IContext context, IItem castItem,
+    private static InteractionResult TakeIt(IContext context, IItem castItem,
         ICanBeTakenAndDropped takeItem)
     {
         if (!string.IsNullOrEmpty(castItem.CannotBeTakenDescription))
@@ -62,7 +62,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
             return new PositiveInteractionResult("It's too dark to see!");
 
-        if (context.HasMatchingNounAndAdjective(action.Noun, action.Adjective, false).HasItem)
+        if (context.Items.Contains(castItem))
             return new PositiveInteractionResult("You already have that!");
 
         var container = castItem.CurrentLocation;

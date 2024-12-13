@@ -89,7 +89,7 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     // TODO: Put all in sack
     [TestCase("put leaflet in sack", null, "Done")]
     [TestCase("drop leaves", null, "Dropped")]
-    [TestCase("drop leaflet", null, "Dropped")]
+    [TestCase("drop leaflet", null, "You don't have that")]
     [TestCase("inventory", null, "sword", "bottle", "water", "lunch", "garlic", "lantern")]
     [TestCase("look", null, "closed trap door", "egg", "pile of leaves")]
     [TestCase("E", null, "Kitchen")]

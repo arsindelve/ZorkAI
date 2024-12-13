@@ -28,7 +28,9 @@ public class GlobalCommandFactory : IGlobalCommandFactory
             case "i":
             case "what am i holding":
             case "what do i have on me":
+            case "what do i have":
             case "check inventory":
+            case "check my inventory":
             case "what do I have in my inventory":
             case "look in my inventory":
             case "look in inventory":
@@ -38,6 +40,7 @@ public class GlobalCommandFactory : IGlobalCommandFactory
                 return new TakeOnlyAvailableItemProcessor();
 
             case "take all":
+            case "take it all":
             case "get all":
             case "get everything":
             case "take everything":
@@ -46,6 +49,7 @@ public class GlobalCommandFactory : IGlobalCommandFactory
                 return new TakeEverythingProcessor();
 
             case "drop all":
+            case "drop it all":
             case "drop everything":
                 return new DropEverythingProcessor();
 
