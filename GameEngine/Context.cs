@@ -124,7 +124,12 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
         var sb = new StringBuilder();
         sb.AppendLine("You are carrying:");
-        Items.ForEach(s => sb.AppendLine($"   {s.GenericDescription(CurrentLocation)}"));
+        foreach (var item in Items)
+        {
+            string itemText = item.GenericDescription(CurrentLocation);
+            string beingWorn = item is IAmClothing { BeingWorn: true } ? " (being worn)" : "";
+            sb.AppendLine($"   {itemText}{beingWorn}");
+        }
 
         return sb.ToString();
     }

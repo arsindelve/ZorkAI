@@ -239,16 +239,32 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         _currentInput = replacedInput;
 
+        // ----------------------------------------------------------------------------
+        // We're done now doing pre-processing, we're ready to actually look at what the
+        // user wrote and do something with it.
+        
         var parsedResult = await _parser.DetermineComplexIntentType(
             _currentInput,
             Context.CurrentLocation.Description,
             _sessionId
         );
+        
+        var complexIntentResult = await ProcessComplexIntent(parsedResult);
 
-        // ----------------------------------------------------------------------------
-        // We're done now doing pre-processing, we're ready to actually look at what the
-        // user wrote and do something with it.
+        string? contextAppend = Context.ProcessEndOfTurn();
+        var actorResult = await ProcessActors();
 
+        // Put it all together for return. 
+        return PostProcessing(
+            contextPrepend + 
+            complexIntentResult.ResultMessage?.Trim() + 
+            actorResult + 
+            contextAppend
+        );
+    }
+
+    private async Task<(InteractionResult? resultObject, string? ResultMessage)> ProcessComplexIntent(IntentBase parsedResult)
+    {
         _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
 
         var complexIntentResult = parsedResult switch
@@ -257,7 +273,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
             NullIntent => (
                 null,
-                await GetGeneratedNoOpResponse(_currentInput, GenerationClient, Context)
+                await GetGeneratedNoOpResponse(_currentInput!, GenerationClient, Context)
             ),
 
             PromptIntent => (null, parsedResult.Message),
@@ -290,22 +306,13 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
                 GenerationClient
             ),
 
-            _ => (null, await GetGeneratedNoOpResponse(_currentInput, GenerationClient, Context))
+            _ => (null, await GetGeneratedNoOpResponse(_currentInput!, GenerationClient, Context))
         };
 
         if (complexIntentResult.resultObject is SimpleInteractionDisambiguationInteractionResult result)
             _processorInProgress = new SimpleActionDisambiguationProcessor(result);
         
-        string? contextAppend = Context.ProcessEndOfTurn();
-        var actorResult = await ProcessActors();
-
-        // Put it all together
-        return PostProcessing(
-            contextPrepend + 
-            complexIntentResult.ResultMessage?.Trim() + 
-            actorResult + 
-            contextAppend
-        );
+        return complexIntentResult;
     }
 
     public int Score => Context.Score;
