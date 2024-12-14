@@ -3,30 +3,13 @@ using Model.Movement;
 
 namespace Planetfall.Location.Kalamontee;
 
-internal class RecCorridor : LocationWithNoStartingItems
-{
-
-    protected override Dictionary<Direction, MovementParameters> Map =>
-    new()
-    {
-            { Direction.SW, Go<PlainHall>() },
-            { Direction.N, Go<DormB>() }
-    };
-
-    protected override string ContextBasedDescription =>
-       "This is a wide, east-west hallway. Portals lead north and south, and another corridor branches southwest. ";
-
-    public override string Name => "Rec Corridor";
-
-}
-
 internal class PlainHall : LocationWithNoStartingItems
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
             { Direction.S, Go<Courtyard>() },
-             { Direction.NE, Go<RecCorridor>() }
+            { Direction.NE, Go<RecCorridor>() }
         };
 
     protected override string ContextBasedDescription =>
@@ -55,7 +38,6 @@ internal class RecArea : LocationWithNoStartingItems
         "This is a recreational facility of some sort. Games and tapes are scattered about the room. " +
         "Hallways head off to the east and south, and to the north is a door which is closed and locked. " +
         "A dial on the door is currently set to 0. ";
-
 
 
     public override string Name => "Rec Area";
