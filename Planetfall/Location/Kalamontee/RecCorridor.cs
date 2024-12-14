@@ -10,6 +10,7 @@ internal class RecCorridor : LocationWithNoStartingItems
         new()
         {
             { Direction.SW, Go<PlainHall>() },
+            { Direction.W, Go<RecArea>() },
             { Direction.N, Go<DormB>() },
             { Direction.S, Go<DormA>() },
             { Direction.E, Go<MessCorridor>() }
