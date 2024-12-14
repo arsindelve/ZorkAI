@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.Movement;
+using Planetfall.Location.Kalamontee.Admin;
 using Planetfall.Location.Kalamontee.Mech;
 
 namespace Planetfall.Location.Kalamontee;
@@ -11,6 +12,7 @@ internal class CorridorJunction : LocationWithNoStartingItems
         {
             { Direction.W, Go<DormCorridor>() },
             { Direction.S, Go<MechCorridorNorth>() },
+            { Direction.N, Go<AdminCorridorSouth>() }
         };
 
     protected override string ContextBasedDescription =>
