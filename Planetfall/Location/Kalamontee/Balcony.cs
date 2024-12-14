@@ -1,6 +1,7 @@
 ﻿using GameEngine.Location;
 using Model.Movement;
 using Planetfall.Item;
+using Planetfall.Item.Kalamontee;
 
 namespace Planetfall.Location.Kalamontee;
 

@@ -1,15 +1,15 @@
 using GameEngine.Location;
 using Model.Movement;
 
-namespace Planetfall.Location.Kalamontee;
+namespace Planetfall.Location.Kalamontee.Dorm;
 
-internal class DormA : LocationWithNoStartingItems
+internal class DormC : LocationWithNoStartingItems
 {
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
-            { Direction.N, Go<RecCorridor>() },
-            { Direction.S, Go<SanfacA>() }
+            { Direction.N, Go<DormCorridor>() },
+            { Direction.S, Go<SanfacC>() }
         };
 
     protected override string ContextBasedDescription =>
@@ -17,5 +17,5 @@ internal class DormA : LocationWithNoStartingItems
         "provided a modicum of privacy. These spartan living quarters could have once housed many hundreds, but it " +
         "seems quite deserted now. There are openings at the north and south ends of the room.";
 
-    public override string Name => "Dorm A";
+    public override string Name => "Dorm C";
 }
