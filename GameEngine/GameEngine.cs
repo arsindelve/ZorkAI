@@ -31,19 +31,23 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     where TContext : IContext, new()
 {
     private readonly AgainProcessor _againProcessor = new();
-
     private readonly LimitedStack<(string, string, bool)> _inputOutputs = new();
     private readonly ItProcessor _itProcessor = new();
     private readonly ILogger<GameEngine<TInfocomGame, TContext>>? _logger;
     private readonly IIntentParser _parser;
     private readonly ISecretsManager _secretsManager;
     private readonly string _sessionId = Guid.NewGuid().ToString();
-
     private string? _currentInput;
     private TInfocomGame _gameInstance;
     private bool _lastResponseWasGenerated;
     private IStatefulProcessor? _processorInProgress;
     internal TContext Context;
+
+    public int Score => Context.Score;
+
+    public Runtime Runtime { get; set; }
+
+    public string SessionTableName => _gameInstance.SessionTableName;
 
     [ActivatorUtilitiesConstructor]
     public GameEngine(
@@ -156,7 +160,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     public async Task<string?> GetResponse(string? playerInput)
     {
         _currentInput = playerInput;
-        
+
         // 1. ------- Processor in Progress -
         // See if we have something already running like a save, quit, etc.
         // and see if it has any output.  Does not count as a turn. No actor or turn processing. 
@@ -169,7 +173,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // 2. -------  Empty command. Does not count as a turn. No actor or turn processing. 
         if (string.IsNullOrEmpty(playerInput))
             return PostProcessing(await GetGeneratedNoCommandResponse());
-        
+
         PreviousLocationName = LocationName;
 
         // 3. ------- System commands - like save, restore, quit, verbose etc. Does not count as a turn. No actor or turn processing. 
@@ -179,7 +183,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             var globalResult = await ProcessGlobalCommandIntent(global);
             return PostProcessing(globalResult);
         }
-        
+
         // See if the user typed "again" or some variation.
         // if so, we'll replace the input with their previous input.
         (_currentInput, var returnResponseFromAgainProcessor) = _againProcessor.Process(
@@ -193,7 +197,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // See if the context needs to notify us of anything. Are we sleepy? Hungry?
         var contextPrepend = Context.ProcessBeginningOfTurn();
 
-        
+
         // 4. ------- Location specific raw commands -
         // Check if the location has an interaction with the raw, unparsed input. 
         // Some locations have a special interaction to raw input that does not fit 
@@ -208,10 +212,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         if (singleVerbResult.InteractionHappened)
         {
-            return PostProcessing(singleVerbResult.InteractionMessage + await ProcessActors());
+            return PostProcessing(contextPrepend + singleVerbResult.InteractionMessage + await ProcessActors());
         }
 
-        // 5. ------- Global commands - these work always, everywhere, like look, inventory, wait and cardinal directions.
+        // 5. ------- Global commands - these work always, everywhere: like look, inventory, wait and cardinal directions. These DO count as a turn, 
+        // we must process actors. 
         var simpleIntent = _parser.DetermineGlobalIntentType(playerInput);
         if (simpleIntent is not null)
         {
@@ -226,10 +231,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return PostProcessing(contextPrepend + resultMessage + await ProcessActors());
         }
 
-        // 6. ------- Complex parsed commands.
+        // 6. ------- Complex parsed commands. These require a parser to break them down into their noun(s) and verb.
 
-        // if the user referenced an object using "it", let's see
-        // if we can handle that.
+        // if the user referenced an object using "it", let's see if we can handle that.
         var (requiresClarification, replacedInput) = _itProcessor.Check(_currentInput, Context);
         if (requiresClarification)
         {
@@ -237,18 +241,15 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return PostProcessing(replacedInput);
         }
 
+        // Replace the "it" with the correct noun, if applicable. 
         _currentInput = replacedInput;
 
-        // ----------------------------------------------------------------------------
-        // We're done now doing pre-processing, we're ready to actually look at what the
-        // user wrote and do something with it.
-        
         var parsedResult = await _parser.DetermineComplexIntentType(
             _currentInput,
             Context.CurrentLocation.Description,
             _sessionId
         );
-        
+
         var complexIntentResult = await ProcessComplexIntent(parsedResult);
 
         string? contextAppend = Context.ProcessEndOfTurn();
@@ -256,9 +257,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         // Put it all together for return. 
         return PostProcessing(
-            contextPrepend + 
-            complexIntentResult.ResultMessage?.Trim() + 
-            actorResult + 
+            contextPrepend +
+            complexIntentResult.ResultMessage?.Trim() +
+            actorResult +
             contextAppend
         );
     }
@@ -283,7 +284,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
                 Context,
                 GenerationClient
             ),
-            
+
             MoveIntent moveInteraction => await new MoveEngine().Process(moveInteraction, Context,
                 GenerationClient),
 
@@ -311,15 +312,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         if (complexIntentResult.resultObject is SimpleInteractionDisambiguationInteractionResult result)
             _processorInProgress = new SimpleActionDisambiguationProcessor(result);
-        
+
         return complexIntentResult;
     }
-
-    public int Score => Context.Score;
-
-    public Runtime Runtime { get; set; }
-
-    public string SessionTableName => _gameInstance.SessionTableName;
 
     private string PostProcessing(string finalResult)
     {

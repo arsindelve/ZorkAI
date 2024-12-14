@@ -25,6 +25,7 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
         StartWithItem<Brush>(this);
         StartWithItem<Diary>(this);
         StartWithItem<Chronometer>(this);
+        StartWithItem<Uniform>(this);
     }
 
     public override string? ProcessEndOfTurn()

@@ -151,6 +151,9 @@ public abstract class ItemBase : IItem
         if (item is IAmADrink)
             result.Add(new EatAndDrinkInteractionProcessor());
 
+        if (item is IAmClothing)
+            result.Add(new ClothingOnAndOffProcessor());
+
         return result;
     }
 
