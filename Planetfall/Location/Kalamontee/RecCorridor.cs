@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.Movement;
+using Planetfall.Location.Kalamontee.Dorm;
 
 namespace Planetfall.Location.Kalamontee;
 
@@ -10,7 +11,8 @@ internal class RecCorridor : LocationWithNoStartingItems
         {
             { Direction.SW, Go<PlainHall>() },
             { Direction.N, Go<DormB>() },
-            { Direction.S, Go<DormA>() }
+            { Direction.S, Go<DormA>() },
+            { Direction.E, Go<MessCorridor>() }
         };
 
     protected override string ContextBasedDescription =>
