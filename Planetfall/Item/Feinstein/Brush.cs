@@ -1,6 +1,5 @@
 namespace Planetfall.Item.Feinstein;
 
-
 public class Brush : ItemBase, ICanBeTakenAndDropped
 {
     public override string[] NounsForMatching =>
@@ -22,4 +21,6 @@ public class Brush : ItemBase, ICanBeTakenAndDropped
     {
         return "A Patrol-issue self-contained multi-purpose scrub brush ";
     }
+
+    public override int Size => 2;
 }
