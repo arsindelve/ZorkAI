@@ -112,7 +112,7 @@ public class PlanetfallGame : IInfocomGame
         Actors.Add("Explosion", explosion);
     }
 
-    public Dictionary<string, ITurnBasedActor> Actors { get; } = new();
+    public Dictionary<string, ITurnBasedActor> Actors { get; set; } = new();
 
     public string SystemPromptSecretKey => "PlanetfallPrompt";
 }
