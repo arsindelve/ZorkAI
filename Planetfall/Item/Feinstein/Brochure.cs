@@ -25,7 +25,7 @@ public class Brochure : ItemBase, ICanBeRead, ICanBeExamined, ICanBeTakenAndDrop
 
     public string OnTheGroundDescription(ILocation currentLocation)
     {
-        return "\n\nUnfortunately, one of those stupid Blow'k-bibben-Gordo brochures is here. ";
+        return "Unfortunately, one of those stupid Blow'k-bibben-Gordo brochures is here. ";
     }
     
     

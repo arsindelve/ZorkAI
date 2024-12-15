@@ -5,7 +5,9 @@ public class Chronometer : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICan
     // Start time of the game. 
     internal int CurrentTime { get; set; } = new Random().Next(4500, 4700);
 
-    public string ExaminationDescription => $"It is a standard wrist chronometer with a digital display. According to the chronometer, the current time is {CurrentTime}. The back is engraved with the message \"Good luck in the Patrol! Love, Mom and Dad.\"";
+    public string ExaminationDescription => $"It is a standard wrist chronometer with a digital display. According " +
+                                            $"to the chronometer, the current time is {CurrentTime}. The back is " +
+                                            $"engraved with the message \"Good luck in the Patrol! Love, Mom and Dad.\"";
 
     public override string[] NounsForMatching => ["chronometer", "watch", "wrist-watch"];
 
@@ -23,7 +25,7 @@ public class Chronometer : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICan
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return "A chronometer";
+        return "A chronometer"  + (BeingWorn ? " (being worn)" : "");
     }
     
     // It is being worn at the beginning of the game

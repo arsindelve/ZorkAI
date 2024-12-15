@@ -272,7 +272,7 @@ public abstract class LocationBase : ILocation, ICanHoldItems
                     ? item.OnTheGroundDescription(this)
                     : item.NeverPickedUpDescription(this)));
 
-        return result.ToString().Trim();
+        return Environment.NewLine + result.ToString().Trim();
     }
 
     // Syntactic sugar 
