@@ -1,4 +1,4 @@
-﻿namespace Planetfall.Item;
+﻿namespace Planetfall.Item.Kalamontee;
 
 public class Plaque : ItemBase, ICanBeRead, ICanBeExamined
 {

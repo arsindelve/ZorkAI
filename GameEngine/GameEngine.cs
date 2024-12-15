@@ -31,19 +31,23 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     where TContext : IContext, new()
 {
     private readonly AgainProcessor _againProcessor = new();
-
     private readonly LimitedStack<(string, string, bool)> _inputOutputs = new();
     private readonly ItProcessor _itProcessor = new();
     private readonly ILogger<GameEngine<TInfocomGame, TContext>>? _logger;
     private readonly IIntentParser _parser;
     private readonly ISecretsManager _secretsManager;
     private readonly string _sessionId = Guid.NewGuid().ToString();
-
     private string? _currentInput;
     private TInfocomGame _gameInstance;
     private bool _lastResponseWasGenerated;
     private IStatefulProcessor? _processorInProgress;
     internal TContext Context;
+
+    public int Score => Context.Score;
+
+    public Runtime Runtime { get; set; }
+
+    public string SessionTableName => _gameInstance.SessionTableName;
 
     [ActivatorUtilitiesConstructor]
     public GameEngine(
@@ -113,6 +117,112 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public string LocationDescription => Context.CurrentLocation.DescriptionForGeneration;
 
+    public int Moves => Context.Moves;
+
+    /// <summary>
+    ///     Parse the input, determine the user's <see cref="IntentBase" /> and allow the
+    ///     implementation of that specific intent to determine what to do next.
+    /// </summary>
+    /// <param name="playerInput">The text typed by the adventurer</param>
+    /// <returns>The output which we need to display to the adventurer</returns>
+    public async Task<string?> GetResponse(string? playerInput)
+    {
+        _currentInput = playerInput;
+
+        // 1. ------- Processor in Progress -
+        // See if we have something already running like a save, quit, etc.
+        // and see if it has any output.  Does not count as a turn. No actor or turn processing. 
+        var (returnProcessorInProgressOutput, processorInProgressOutput) =
+            await RunProcessorInProgress(playerInput);
+
+        if (returnProcessorInProgressOutput)
+            return PostProcessing(processorInProgressOutput!);
+
+        // 2. -------  Empty command. Does not count as a turn. No actor or turn processing. 
+        if (string.IsNullOrEmpty(playerInput))
+            return PostProcessing(await GetGeneratedNoCommandResponse());
+
+        PreviousLocationName = LocationName;
+
+        // 3. ------- System, or "meta" commands - like save, restore, quit, verbose etc. Does not count as a turn. No actor or turn processing. 
+        var systemCommand = _parser.DetermineSystemIntentType(playerInput);
+        if (systemCommand is GlobalCommandIntent global)
+        {
+            var globalResult = await ProcessGlobalCommandIntent(global);
+            return PostProcessing(globalResult);
+        }
+        
+        // Everything below here counts as a turn. Pre-process the turn. 
+        // See if the context needs to notify us of anything. Are we sleepy? Hungry?
+        var contextPrepend = Context.ProcessBeginningOfTurn();
+        
+        // See if the user typed "again" or some variation.
+        // if so, we'll replace the input with their previous input.
+        (_currentInput, var returnResponseFromAgainProcessor) = _againProcessor.Process(
+            _currentInput!,
+            Context
+        );
+        if (returnResponseFromAgainProcessor)
+            return PostProcessing(_currentInput);
+
+        // 4. ------- Location specific raw commands 
+        // Check if the location has an interaction with the raw, unparsed input. 
+        // Some locations have a special interaction to raw input that does not fit 
+        // the traditional sentence parsing. Sometimes that is a single verb with no 
+        // noun like "jump" or "pray" or "echo", or some other specific phrase
+        // that does not lend itself well to parsing. 
+        var singleVerbResult = await Context.CurrentLocation.RespondToSpecificLocationInteraction(
+            playerInput,
+            Context,
+            GenerationClient
+        );
+        if (singleVerbResult.InteractionHappened)
+        {
+            return await ProcessActorsAndContextEndOfTurn(contextPrepend, singleVerbResult.InteractionMessage);
+        }
+
+        // 5. ------- Global commands - these work always, everywhere: like look, inventory, wait and cardinal directions. These DO count as a turn, 
+        // We must process actors afterwards 
+        var simpleIntent = _parser.DetermineGlobalIntentType(playerInput);
+        if (simpleIntent is not null)
+        {
+            string? resultMessage = simpleIntent switch
+            {
+                GlobalCommandIntent intent => await ProcessGlobalCommandIntent(intent),
+                MoveIntent moveInteraction => (await new MoveEngine().Process(moveInteraction, Context,
+                    GenerationClient)).ResultMessage,
+                _ => null
+            };
+
+            return await ProcessActorsAndContextEndOfTurn(contextPrepend, resultMessage);
+        }
+
+        // 6. ------- Complex parsed commands. These require a parser to break them down into their noun(s) and verb.
+
+        // if the user referenced an object using "it", let's see if we can handle that.
+        var (requiresClarification, replacedInput) = _itProcessor.Check(_currentInput, Context);
+        if (requiresClarification)
+        {
+            _processorInProgress = _itProcessor;
+            return PostProcessing(replacedInput);
+        }
+
+        // Replace the "it" with the correct noun, if applicable. 
+        _currentInput = replacedInput;
+
+        var parsedResult = await _parser.DetermineComplexIntentType(
+            _currentInput,
+            Context.CurrentLocation.Description,
+            _sessionId
+        );
+
+        var complexIntentResult = await ProcessComplexIntent(parsedResult);
+
+        // Put it all together for return. 
+        return await ProcessActorsAndContextEndOfTurn(contextPrepend, complexIntentResult.ResultMessage);
+    }
+    
+    
     public IContext RestoreGame(string data)
     {
         var deserializeObject = JsonConvert.DeserializeObject<SavedGame<TContext>>(
@@ -145,122 +255,23 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         );
     }
 
-    public int Moves => Context.Moves;
-
-    /// <summary>
-    ///     Parse the input, determine the user's <see cref="IntentBase" /> and allow the
-    ///     implementation of that specific intent to determine what to do next.
-    /// </summary>
-    /// <param name="playerInput">The text typed by the adventurer</param>
-    /// <returns>The output which we need to display to the adventurer</returns>
-    public async Task<string?> GetResponse(string? playerInput)
+    private string FormatResult(string? contextPrepend, string? mainBody, string? actorResult, string? contextAppend)
     {
-        _currentInput = playerInput;
+        StringBuilder sb = new StringBuilder();
+
+        if (!string.IsNullOrEmpty(contextPrepend))
+            sb.AppendLine("\n" + contextPrepend.Trim());
         
-        // 1. ------- Processor in Progress -
-        // See if we have something already running like a save, quit, etc.
-        // and see if it has any output.  Does not count as a turn. No actor or turn processing. 
-        var (returnProcessorInProgressOutput, processorInProgressOutput) =
-            await RunProcessorInProgress(playerInput);
-
-        if (returnProcessorInProgressOutput)
-            return PostProcessing(processorInProgressOutput!);
-
-        // 2. -------  Empty command. Does not count as a turn. No actor or turn processing. 
-        if (string.IsNullOrEmpty(playerInput))
-            return PostProcessing(await GetGeneratedNoCommandResponse());
+        if (!string.IsNullOrEmpty(mainBody))
+            sb.AppendLine(mainBody.Trim());
         
-        PreviousLocationName = LocationName;
-
-        // 3. ------- System commands - like save, restore, quit, verbose etc. Does not count as a turn. No actor or turn processing. 
-        var systemCommand = _parser.DetermineSystemIntentType(playerInput);
-        if (systemCommand is GlobalCommandIntent global)
-        {
-            var globalResult = await ProcessGlobalCommandIntent(global);
-            return PostProcessing(globalResult);
-        }
+        if (!string.IsNullOrEmpty(actorResult))
+            sb.AppendLine("\n" + actorResult.Trim());
         
-        // See if the user typed "again" or some variation.
-        // if so, we'll replace the input with their previous input.
-        (_currentInput, var returnResponseFromAgainProcessor) = _againProcessor.Process(
-            _currentInput!,
-            Context
-        );
-        if (returnResponseFromAgainProcessor)
-            return PostProcessing(_currentInput);
+        if (!string.IsNullOrEmpty(contextAppend))
+            sb.AppendLine("\n" + contextAppend.Trim());
 
-        // Everything below here counts as a turn. Pre-process the turn. 
-        // See if the context needs to notify us of anything. Are we sleepy? Hungry?
-        var contextPrepend = Context.ProcessBeginningOfTurn();
-
-        
-        // 4. ------- Location specific raw commands -
-        // Check if the location has an interaction with the raw, unparsed input. 
-        // Some locations have a special interaction to raw input that does not fit 
-        // the traditional sentence parsing. Sometimes that is a single verb with no 
-        // noun like "jump" or "pray" or "echo", or some other specific phrase
-        // that does not lend itself well to parsing. 
-        var singleVerbResult = await Context.CurrentLocation.RespondToSpecificLocationInteraction(
-            playerInput,
-            Context,
-            GenerationClient
-        );
-
-        if (singleVerbResult.InteractionHappened)
-        {
-            return PostProcessing(singleVerbResult.InteractionMessage + await ProcessActors());
-        }
-
-        // 5. ------- Global commands - these work always, everywhere, like look, inventory, wait and cardinal directions.
-        var simpleIntent = _parser.DetermineGlobalIntentType(playerInput);
-        if (simpleIntent is not null)
-        {
-            string? resultMessage = simpleIntent switch
-            {
-                GlobalCommandIntent intent => await ProcessGlobalCommandIntent(intent),
-                MoveIntent moveInteraction => (await new MoveEngine().Process(moveInteraction, Context,
-                    GenerationClient)).ResultMessage,
-                _ => null
-            };
-
-            return PostProcessing(contextPrepend + resultMessage + await ProcessActors());
-        }
-
-        // 6. ------- Complex parsed commands.
-
-        // if the user referenced an object using "it", let's see
-        // if we can handle that.
-        var (requiresClarification, replacedInput) = _itProcessor.Check(_currentInput, Context);
-        if (requiresClarification)
-        {
-            _processorInProgress = _itProcessor;
-            return PostProcessing(replacedInput);
-        }
-
-        _currentInput = replacedInput;
-
-        // ----------------------------------------------------------------------------
-        // We're done now doing pre-processing, we're ready to actually look at what the
-        // user wrote and do something with it.
-        
-        var parsedResult = await _parser.DetermineComplexIntentType(
-            _currentInput,
-            Context.CurrentLocation.Description,
-            _sessionId
-        );
-        
-        var complexIntentResult = await ProcessComplexIntent(parsedResult);
-
-        string? contextAppend = Context.ProcessEndOfTurn();
-        var actorResult = await ProcessActors();
-
-        // Put it all together for return. 
-        return PostProcessing(
-            contextPrepend + 
-            complexIntentResult.ResultMessage?.Trim() + 
-            actorResult + 
-            contextAppend
-        );
+        return sb.ToString();
     }
 
     private async Task<(InteractionResult? resultObject, string? ResultMessage)> ProcessComplexIntent(IntentBase parsedResult)
@@ -283,7 +294,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
                 Context,
                 GenerationClient
             ),
-            
+
             MoveIntent moveInteraction => await new MoveEngine().Process(moveInteraction, Context,
                 GenerationClient),
 
@@ -311,16 +322,17 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         if (complexIntentResult.resultObject is SimpleInteractionDisambiguationInteractionResult result)
             _processorInProgress = new SimpleActionDisambiguationProcessor(result);
-        
+
         return complexIntentResult;
     }
 
-    public int Score => Context.Score;
-
-    public Runtime Runtime { get; set; }
-
-    public string SessionTableName => _gameInstance.SessionTableName;
-
+    private async Task<string> ProcessActorsAndContextEndOfTurn(string? contextPrepend, string? turnResult)
+    {
+        string actors = await ProcessActors();
+        string? contextAppend = Context.ProcessEndOfTurn();
+        return PostProcessing(FormatResult(contextPrepend, turnResult, actors, contextAppend));
+    }
+    
     private string PostProcessing(string finalResult)
     {
         _logger?.LogDebug($"Items in inventory: {Context.LogItems()}");

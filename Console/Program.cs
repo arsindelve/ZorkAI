@@ -10,7 +10,7 @@ using SecretsManager;
 using ZorkOne;
 
 var database = new DynamoDbSessionRepository();
-var sessionId = Environment.MachineName + "112";
+var sessionId = Environment.MachineName + "1125";
 
 Console.ForegroundColor = ConsoleColor.DarkCyan;
 
@@ -90,7 +90,7 @@ async Task<GameEngine<TGame, TContext>> CreateEngine<TGame, TContext>()
         );
 
     var logger = loggerFactory.CreateLogger<GameEngine<TGame, TContext>>();
-    var gameEngine = new GameEngine<TGame, TContext>(logger, new AmazonSecretsManager() )
+    var gameEngine = new GameEngine<TGame, TContext>(logger, new AmazonSecretsManager())
     {
         Runtime = Runtime.Console
     };
