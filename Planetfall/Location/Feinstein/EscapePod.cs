@@ -185,10 +185,10 @@ internal class EscapePod : LocationBase, ITurnBasedActor
     private string HandleBeingInSpaceAndLanding(IContext context)
     {
         TurnsSinceExplosion++;
-        
+
         if (context.CurrentLocation is not EscapePod)
             return string.Empty;
-        
+
         string action = "";
 
         switch (TurnsSinceExplosion)
@@ -263,11 +263,12 @@ internal class EscapePod : LocationBase, ITurnBasedActor
                         "kit and a towel.";
 
                     ItemPlacedHere<Towel>();
-                    // TODO: Add kit.
+                    ItemPlacedHere<SurvivalKit>();
+
                     WhereDoesTheDoorLead = Repository.GetLocation<Underwater>();
                     LandedSafely = true;
                 }
-                
+
                 else
                 {
                     string death = "The pod, whose automated controls were unfortunately designed by computer scientists, " +
