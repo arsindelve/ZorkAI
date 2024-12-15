@@ -67,6 +67,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public int Moves { get; set; }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public int Score { get; set; }
 
     /// <summary>
@@ -126,8 +127,8 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         sb.AppendLine("You are carrying:");
         foreach (var item in Items)
         {
-            string itemText = item.GenericDescription(CurrentLocation);
-            string beingWorn = item is IAmClothing { BeingWorn: true } ? " (being worn)" : "";
+            var itemText = item.GenericDescription(CurrentLocation);
+            var beingWorn = item is IAmClothing { BeingWorn: true } ? " (being worn)" : "";
             sb.AppendLine($"   {itemText}{beingWorn}");
         }
 
@@ -158,7 +159,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public void ItemPlacedHere<TItem>() where TItem : IItem, new()
     {
-        TItem item = Repository.GetItem<TItem>();
+        var item = Repository.GetItem<TItem>();
         ItemPlacedHere(item);
     }
 
@@ -198,11 +199,6 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         }
 
         return (false, null);
-    }
-
-    public bool HasMatchingNounAndAdjective(string? noun, bool lookInsideContainers = true)
-    {
-        throw new NotImplementedException();
     }
 
     public virtual bool HaveRoomForItem(IItem item)
@@ -325,18 +321,11 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public bool ItIsDarkHere =>
         CurrentLocation is IDarkLocation { IsNoLongerDark: false } && !HasLightSource;
-    
+
     public void RegisterActor(ITurnBasedActor actor)
     {
         if (!Actors.Contains(actor))
             Actors.Add(actor);
-    }
-
-    protected void StartWithItem<TItem>(ICanHoldItems location) where TItem : IItem, new()
-    {
-        var item = Repository.GetItem<TItem>();
-        Items.Add(item);
-        item.CurrentLocation = location;
     }
 
     public void RemoveActor(ITurnBasedActor actor)
@@ -344,8 +333,26 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         Actors.Remove(actor);
     }
 
+    public void RemoveActor<TActor>() where TActor : ITurnBasedActor
+    {
+        foreach (var actor in Actors.OfType<TActor>().ToList())
+            RemoveActor(actor);
+    }
+
     public virtual string? ProcessEndOfTurn()
     {
         return null;
+    }
+
+    public bool HasMatchingNounAndAdjective(string? noun, bool lookInsideContainers = true)
+    {
+        throw new NotImplementedException();
+    }
+
+    protected void StartWithItem<TItem>(ICanHoldItems location) where TItem : IItem, new()
+    {
+        var item = Repository.GetItem<TItem>();
+        Items.Add(item);
+        item.CurrentLocation = location;
     }
 }

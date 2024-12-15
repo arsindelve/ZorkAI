@@ -177,7 +177,7 @@ internal class EscapePod : LocationBase, ITurnBasedActor
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation, IGenerationClient generationClient)
     {
         // Now safely in the pod, swap the explosion actor for the escape pod actor. 
-        context.RemoveActor(context.Game.Actors["Explosion"]);
+        context.RemoveActor<ExplosionCoordinator>();
         context.RegisterActor(this);
         return base.AfterEnterLocation(context, previousLocation, generationClient);
     }

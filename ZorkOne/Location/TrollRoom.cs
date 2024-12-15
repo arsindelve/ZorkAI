@@ -76,7 +76,7 @@ public class TrollRoom : DarkLocation
 
     public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
     {
-        context.RemoveActor(GetItem<Troll>());
+        context.RemoveActor<Troll>();
         base.OnLeaveLocation(context, newLocation, previousLocation);
     }
 

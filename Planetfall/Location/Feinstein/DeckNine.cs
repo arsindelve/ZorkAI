@@ -94,7 +94,7 @@ internal class DeckNine : LocationBase, ITurnBasedActor
     {
         // This covers us in case you enter the pod (which turns off the explosion action)
         // and then step back onto the deck. You will explode soon. 
-        context.RegisterActor(context.Game.Actors["Explosion"]);
+        context.RegisterActor(new ExplosionCoordinator());
         
         return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
