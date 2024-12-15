@@ -9,6 +9,9 @@ internal class MechCorridorSouth : LocationWithNoStartingItems
         new()
         {
             { Direction.N, Go<MechCorridor>() },
+            { Direction.S, Go<MachineShop>() },
+            { Direction.SW, Go<ToolRoom>() },
+            { Direction.SE, Go<RobotShop>() }
         };
 
     protected override string ContextBasedDescription =>

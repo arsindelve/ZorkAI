@@ -1,9 +1,20 @@
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Utilities;
 
 public static class Utilities
 {
+    public static string IndentLines(this string input)
+    {
+        var sb = new StringBuilder();
+        var lines = input.Split('\n'); // Split the string into lines.
+
+        foreach (var line in lines) sb.AppendLine("   " + line); // Add a tab before each line and append it.
+
+        return sb.ToString();
+    }
+
     public static string StripNonChars(this string? s)
     {
         if (s == null) return string.Empty;
@@ -15,17 +26,17 @@ public static class Utilities
     {
         return SingleLineList(nouns, "and", "a");
     }
-    
+
     // "The brass lantern, the green lantern or the useless lantern
     public static string SingleLineListWithOr(this List<string> nouns)
     {
         return SingleLineList(nouns, "or", "the");
     }
-    
+
     private static string SingleLineList(this List<string> nouns, string connector, string articles)
     {
         var convertNouns = nouns.ConvertAll(noun => $"{articles} {noun}");
-        string lastNoun = convertNouns.Last();
+        var lastNoun = convertNouns.Last();
         convertNouns.Remove(lastNoun);
 
         return convertNouns.Count > 0

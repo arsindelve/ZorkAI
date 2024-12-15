@@ -29,7 +29,8 @@ public class Uniform : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, IAm
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return "A Patrol uniform" + (Items.Any() ? $"\n{ItemListDescription("Patrol uniform", null)}" : "");
+        return "A Patrol uniform" + (BeingWorn ? " (being worn)" : "") +
+               (Items.Any() ? $"\n{ItemListDescription("Patrol uniform", null)}" : "");
     }
 
     public override int Size => 1;

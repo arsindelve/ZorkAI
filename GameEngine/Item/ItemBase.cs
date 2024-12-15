@@ -19,10 +19,11 @@ public abstract class ItemBase : IItem
     ///     like the trap door, or the item is special and just does not show up, like the slime.
     /// </summary>
     /// <param name="currentLocation"></param>
+    /// <param name="indent"></param>
     /// <returns></returns>
     public virtual string GenericDescription(ILocation? currentLocation)
     {
-        return "";
+        return String.Empty;
     }
 
     public virtual string? CannotBeTakenDescription { get; set; }
@@ -107,7 +108,7 @@ public abstract class ItemBase : IItem
     /// </value>
     public virtual string NeverPickedUpDescription(ILocation currentLocation)
     {
-        return GenericDescription(currentLocation);
+        return string.Empty;
     }
 
     public virtual string OnOpening(IContext context)

@@ -29,6 +29,7 @@ public class TrophyCase : OpenAndCloseContainerBase, ICanBeExamined
     /// </summary>
     /// <param name="name">The name of the container - might be needed as part of the description</param>
     /// <param name="location"></param>
+    /// <param name="indent"></param>
     /// <returns>A string representing the items contained in the specified container.</returns>
     public override string ItemListDescription(string name, ILocation? location)
     {

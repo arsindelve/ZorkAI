@@ -18,6 +18,7 @@ public interface IItem : IInteractionTarget
     /// like the trap door, or the item is special and just does not show up, like the slime. 
     /// </summary>
     /// <param name="currentLocation"></param>
+    /// <param name="indent"></param>
     /// <returns></returns>
     string GenericDescription(ILocation? currentLocation);
 

@@ -29,10 +29,10 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         item.CurrentLocation = this;
         Items.Add(item);
     }
-    
+
     public void ItemPlacedHere<T>() where T : IItem, new()
     {
-        T item = Repository.GetItem<T>();
+        var item = Repository.GetItem<T>();
         ItemPlacedHere(item);
     }
 
@@ -144,6 +144,8 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
     ///     Returns a description of the items contained in the specified container.
     /// </summary>
     /// <param name="name">The name of the container - might be needed as part of the description</param>
+    /// <param name="location"></param>
+    /// <param name="indent"></param>
     /// <returns>A string representing the items contained in the specified container.</returns>
     public virtual string ItemListDescription(string name, ILocation? location)
     {
@@ -155,13 +157,13 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         if (IsTransparent || this is IOpenAndClose { IsOpen: true })
         {
             sb.AppendLine($"The {name} contains:");
-            Items.ForEach(s => sb.AppendLine($"      {s.GenericDescription(location)}"));
+            Items.ForEach(s => sb.AppendLine($"   {s.GenericDescription(location)}"));
         }
 
         if (!IsTransparent && this is IOpenAndClose { IsOpen: false })
             sb.AppendLine($"The {name} is closed.");
 
-        return sb.ToString();
+        return sb.ToString().TrimEnd();
     }
 
     protected void StartWithItemInside<T>() where T : ItemBase, new()

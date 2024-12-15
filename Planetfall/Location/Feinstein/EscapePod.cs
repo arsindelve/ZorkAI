@@ -2,6 +2,7 @@ using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Movement;
 using Planetfall.Command;
+using Utilities;
 
 namespace Planetfall.Location.Feinstein;
 
@@ -68,7 +69,7 @@ internal class EscapePod : LocationBase, ITurnBasedActor
     public override Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
         IGenerationClient client)
     {
-        switch (input)
+        switch (input?.ToLowerInvariant().StripNonChars())
         {
             case "sit":
             case "sit down":

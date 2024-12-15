@@ -20,5 +20,5 @@ public class Towel : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
         return OnTheGroundDescription(currentLocation);
     }
 
-    public override string GenericDescription(ILocation? currentLocation) => "There is a towel here. ";
+    public override string GenericDescription(ILocation? currentLocation) => "A towel";
 }

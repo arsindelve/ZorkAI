@@ -128,11 +128,10 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         foreach (var item in Items)
         {
             var itemText = item.GenericDescription(CurrentLocation);
-            var beingWorn = item is IAmClothing { BeingWorn: true } ? " (being worn)" : "";
-            sb.AppendLine($"   {itemText}{beingWorn}");
+            sb.AppendLine(itemText);
         }
 
-        return sb.ToString();
+        return sb.ToString().IndentLines();
     }
 
     public IInfocomGame Game
