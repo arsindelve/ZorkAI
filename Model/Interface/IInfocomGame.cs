@@ -61,9 +61,5 @@ public interface IInfocomGame
     /// </summary>
     /// <param name="context">The game context to be initialized.</param>
     void Init(IContext context);
-    
-    /// <summary>
-    /// A dictionary of all game-wide actors. Example would be the Thief, or the Feinstein explosion. 
-    /// </summary>
-    Dictionary<string, ITurnBasedActor> Actors { get; }
+
 }

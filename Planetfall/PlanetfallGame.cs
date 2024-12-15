@@ -108,12 +108,9 @@ public class PlanetfallGame : IInfocomGame
     {
         Repository.GetLocation<EscapePod>().Init();
         var explosion = new ExplosionCoordinator();
-        context.RegisterActor(explosion);
         context.RegisterActor(Repository.GetLocation<DeckNine>());
-        Actors.Add("Explosion", explosion);
+        context.RegisterActor(explosion);
     }
-
-    public Dictionary<string, ITurnBasedActor> Actors { get; set; } = new();
-
+    
     public string SystemPromptSecretKey => "PlanetfallPrompt";
 }

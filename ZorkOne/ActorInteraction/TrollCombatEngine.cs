@@ -95,7 +95,7 @@ internal class TrollCombatEngine
 
         if (fatal)
         {
-            context.RemoveActor(Repository.GetItem<Troll>());
+            context.RemoveActor<Troll>();
             return new DeathProcessor()
                 .Process(
                     $"{attack.text} It appears that that last blow was too much for you. I'm afraid you are dead. \n",

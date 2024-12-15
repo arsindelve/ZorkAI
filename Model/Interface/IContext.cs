@@ -155,6 +155,12 @@ public interface IContext : ICanHoldItems
     void RemoveActor(ITurnBasedActor actor);
 
     /// <summary>
+    ///     Removes an actor from the game engine. Once removed,
+    ///     the actor will no longer act every turn.
+    /// </summary>
+    void RemoveActor<TActor>() where TActor : ITurnBasedActor;
+
+    /// <summary>
     ///     See if the context needs to do any processing at the end of the turn. Append the output, if any
     /// </summary>
     /// <returns></returns>
