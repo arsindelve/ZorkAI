@@ -10,7 +10,7 @@ internal class MechCorridorNorth : LocationWithNoStartingItems
         {
             { Direction.N, Go<CorridorJunction>() },
             { Direction.W, Go<PhysicalPlant>() },
-            { Direction.S, Go<MessCorridor>() }
+            { Direction.S, Go<MechCorridor>() }
         };
 
     protected override string ContextBasedDescription =>
