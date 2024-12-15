@@ -2,8 +2,10 @@ namespace Planetfall;
 
 public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
 {
+    // ReSharper disable once MemberCanBePrivate.Global
     public int CurrentTime => Repository.GetItem<Chronometer>().CurrentTime;
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public int Day { get; set; } = 1;
 
     public override string CurrentScore =>
