@@ -14,7 +14,7 @@ public class TestParser : IntentParser
     private readonly string[] _allNouns;
     private readonly string[] _verbs;
 
-    public TestParser(IGlobalCommandFactory gameSpecificCommandFactory) : base(gameSpecificCommandFactory)
+    public TestParser(IGlobalCommandFactory gameSpecificCommandFactory, string gameName = "ZorkOne") : base(gameSpecificCommandFactory)
     {
         _verbs =
         [
@@ -24,7 +24,7 @@ public class TestParser : IntentParser
             "lower", "raise", "get", "inflate", "leave", "unlock", "lock", "climb"
         ];
 
-        _allNouns = Repository.GetNouns();
+        _allNouns = Repository.GetNouns(gameName);
         _allContainers = Repository.GetContainers();
 
         IEnumerable<string> specialNouns =
@@ -236,6 +236,26 @@ public class TestParser : IntentParser
                 Preposition = "with",
                 Verb = "light",
                 OriginalInput = "light candles with match"
+            });
+        
+        if (input == "put magnet on crevice")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "magnet",
+                NounTwo = "crevice",
+                Preposition = "on",
+                Verb = "put",
+                OriginalInput = "put magnet on crevice"
+            });
+        
+        if (input == "unlock padlock with key")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "padlock",
+                NounTwo = "key",
+                Preposition = "with",
+                Verb = "unlock",
+                OriginalInput = "unlock padlock with key"
             });
 
         if (input == "light candles with torch")

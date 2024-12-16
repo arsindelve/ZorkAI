@@ -108,14 +108,18 @@ public static class Repository
         _allItems = allItems;
     }
 
-    public static string[] GetNouns()
+    /// <summary>
+    /// For unit testing purposes only. 
+    /// </summary>
+    /// <returns></returns>
+    public static string[] GetNouns(string gameName = "ZorkOne")
     {
         if (_allNouns.Length > 0) return _allNouns;
 
         lock (_allNouns)
         {
             var allItems = new List<ItemBase>();
-            var assembly = Assembly.Load("ZorkOne");
+            var assembly = Assembly.Load(gameName);
 
             var types = assembly.GetTypes();
 
