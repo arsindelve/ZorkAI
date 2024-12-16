@@ -9,6 +9,11 @@ public class Pliers : ItemBase, ICanBeTakenAndDropped
         return "There is a pair of wide-nosed pliers here. ";
     }
 
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return OnTheGroundDescription(currentLocation);
+    }
+
     public override string GenericDescription(ILocation? currentLocation)
     {
         return "A pair of wide-nosed pliers";
