@@ -1,5 +1,3 @@
-using System;
-
 namespace Planetfall.Tests.Walkthrough;
 
 [TestFixture]
@@ -31,12 +29,32 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("wait", null, "The viewport suddenly becomes transparent")]
     [TestCase("wait", null, "The pod is now approaching")]
     [TestCase("wait", null, "The pod lands with a thud")]
+    [TestCase("take kit", null, "Taken")]
     [TestCase("open door", null, "The bulkhead opens and cold ocean")]
-    // [TestCase("out", null, "Underwater")]
-    // [TestCase("up", null, "Crag")]
-    // [TestCase("up", null, "Balcony")]
-    // [TestCase("up", null, "Winding Stair")]
-    // [TestCase("up", null, "Courtyard")]
+    [TestCase("out", null, "Underwater")]
+    [TestCase("up", null, "Crag")]
+    [TestCase("up", null, "Balcony")]
+    [TestCase("up", null, "Winding Stair")]
+    [TestCase("up", null, "Courtyard")]
+    [TestCase("N", null, "Plain Hall")]
+    [TestCase("NE", null, "Rec Corridor")]
+    [TestCase("E", null, "Mess Corridor")]
+    [TestCase("E", null, "Dorm Corridor")]
+    [TestCase("E", null, "Corridor Junction")]
+    [TestCase("S", null, "Mech Corridor North")]
+    [TestCase("S", null, "Mech Corridor")]
+    [TestCase("S", null, "Mech Corridor South")]
+    [TestCase("SW", null, "Tool Room")]
+    [TestCase("take magnet", null, "Taken")]
+    [TestCase("NE", null, "Mech Corridor South")]
+    [TestCase("N", null, "Mech Corridor")]
+    [TestCase("N", null, "Mech Corridor North")]
+    [TestCase("N", null, "Corridor Junction")]
+    [TestCase("N", null, "Admin Corridor South")]
+    [TestCase("put magnet on crevice", null, "clank", "steel key")]
+    [TestCase("S", null, "Corridor Junction")]
+    [TestCase("W", null, "Dorm Corridor")]
+    [TestCase("W", null, "Mess Corridor")]
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup))

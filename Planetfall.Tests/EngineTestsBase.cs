@@ -23,7 +23,7 @@ public class EngineTestsBase
     protected GameEngine<PlanetfallGame, PlanetfallContext> GetTarget(IIntentParser? parser = null)
     {
         Client = new Mock<IGenerationClient>();
-        Parser = parser ?? new TestParser(new PlanetfallGlobalCommandFactory());
+        Parser = parser ?? new TestParser(new PlanetfallGlobalCommandFactory(), "Planetfall");
 
         Repository.Reset();
 
