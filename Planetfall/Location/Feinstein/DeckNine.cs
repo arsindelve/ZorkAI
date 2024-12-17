@@ -43,10 +43,17 @@ internal class DeckNine : LocationBase, ITurnBasedActor
         return base.RespondToSimpleInteraction(action, context, client);
     }
 
+    public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
+    {
+        context.RegisterActor(this);
+        return base.BeforeEnterLocation(context, previousLocation);
+    }
+
     public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
     {
         Repository.GetItem<Blather>().LeavesTheScene(context);
         Repository.GetItem<Ambassador>().LeavesTheScene(context);
+        context.RemoveActor(this);
     }
 
     protected override string ContextBasedDescription =>
