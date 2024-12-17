@@ -323,8 +323,10 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public void RegisterActor(ITurnBasedActor actor)
     {
-        if (!Actors.Contains(actor))
-            Actors.Add(actor);
+        if (Actors.Any(s => s.GetType() == actor.GetType()))
+            return;
+        
+        Actors.Add(actor);
     }
 
     public void RemoveActor(ITurnBasedActor actor)
