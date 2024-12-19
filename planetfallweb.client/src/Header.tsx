@@ -6,11 +6,11 @@ interface HeaderComponentProps {
     score: string;
 }
 
-const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, moves, score}) => (
-    <div className="grid items-center bg-sky-950 p-3 text-white grid-cols-5 bebas-neue-regular text-2xl ">
-        <div className="col-span-2">{locationName}</div>
-        <div className="col-span-2">Moves: {moves}</div>
-        <div>Score: {score}</div>
+const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, time, score}) => (
+    <div className="flex justify-between items-center bg-sky-950 p-3 text-white bebas-neue-regular text-xl">
+        <div className="text-left">{locationName}</div>
+        <div className="text-center">Time: {time}</div>
+        <div className="text-right">Score: {score}</div>
     </div>
 );
 

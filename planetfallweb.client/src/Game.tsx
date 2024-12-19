@@ -40,7 +40,7 @@ function Game({
     const [playerInput, setInput] = useState<string>("");
     const [gameText, setGameText] = useState<string[]>(["Your game is loading...."]);
     const [score, setScore] = useState<string>("0");
-    const [moves, setMoves] = useState<string>("0");
+    const [time, setTime] = useState<string>("0");
     const [locationName, setLocationName] = useState<string>("");
     const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
@@ -149,7 +149,7 @@ function Game({
         setInput("");
         setLocationName(data.locationName);
         setScore(data.score.toString());
-        setMoves(data.moves.toString())
+        setTime(data.time.toString())
     }
 
     // noinspection JSUnusedGlobalSymbols
@@ -207,7 +207,7 @@ function Game({
             </div>
 
             <WelcomeDialog open={welcomeDialogOpen} handleClose={handleWelcomeDialogClose}/>
-            <Header locationName={locationName} moves={moves} score={score}/>
+            <Header locationName={locationName} time={time} score={score}/>
 
             <div ref={gameContentElement} className={"p-12 h-[65vh] overflow-auto bg-stone-900 font-mono"}>
                 {gameText.map((item: string, index: number) => (

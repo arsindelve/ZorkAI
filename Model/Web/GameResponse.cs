@@ -10,12 +10,13 @@ public record GameResponse(
     string LocationName,
     int Moves,
     int Score,
+    int Time,
     string? PreviousLocationName,
     string? LastMovementDirection)
 {
     [SetsRequiredMembers]
     public GameResponse(string response, IGameEngine gameEngine) : this(response, gameEngine.LocationName,
-        gameEngine.Moves, gameEngine.Score, gameEngine.PreviousLocationName, gameEngine.LastMovementDirection.ToString())
+        gameEngine.Moves, gameEngine.Score, gameEngine.CurrentTime, gameEngine.PreviousLocationName, gameEngine.LastMovementDirection.ToString())
     {
     }
 

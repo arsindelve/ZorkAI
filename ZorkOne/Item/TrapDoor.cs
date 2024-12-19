@@ -15,12 +15,12 @@ public class TrapDoor : ItemBase, ICanBeExamined, IOpenAndClose
 
     public string NowOpen(ILocation currentLocation)
     {
-        return "The door reluctantly opens to reveal a rickety staircase descending into darkness.";
+        return "The door reluctantly opens to reveal a rickety staircase descending into darkness. ";
     }
 
     public string NowClosed(ILocation currentLocation)
     {
-        return "The door swings shut and closes.";
+        return "The door swings shut and closes. ";
     }
 
     public string AlreadyOpen => "Too late for that.";

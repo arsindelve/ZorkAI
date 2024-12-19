@@ -8,6 +8,8 @@ public class ZorkII : IInfocomGame
 {
     public Type StartingLocation => typeof(InsideTheBarrow);
 
+    public string GameName => "Zork II";
+
     public string StartText => """
                                ZORK AI Two: The Wizard of Frobozz
                                Infocom interactive fiction - a fantasy story

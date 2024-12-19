@@ -10,6 +10,8 @@ public interface IInfocomGame
     ///     Represents the starting location of an Infocom game.
     /// </summary>
     Type StartingLocation { get; }
+    
+    string GameName { get; }
 
     /// <summary>
     /// Represents the base AI generative system prompt for an Infocom game.

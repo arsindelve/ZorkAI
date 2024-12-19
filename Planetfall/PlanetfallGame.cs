@@ -3,6 +3,8 @@ namespace Planetfall;
 public class PlanetfallGame : IInfocomGame
 {
     public Type StartingLocation => typeof(DeckNine);
+    
+    public string GameName => "Planetfall";
 
     public string StartText => """
                                Infocom interactive fiction - a science fiction story
@@ -15,9 +17,9 @@ public class PlanetfallGame : IInfocomGame
                                """;
 
     public string DefaultSaveGameName => "planetfall-ai.sav";
-    
+
     // https://github.com/the-infocom-files/planetfall/blob/834001e0704ceae3000953a79429ba8ad5216077/verbs.zil#L242
-    
+
     // [23 hints left.] -> 3 points for entering the Escape Pod.
     // [22 hints left.] -> 3 points for entering the Crag.
     // [21 hints left.] -> 2 points for turning Floyd on for the first time.
@@ -41,7 +43,7 @@ public class PlanetfallGame : IInfocomGame
     // [3 hints left.] -> 4 points for entering the Auxiliary Booth.
     // [2 hints left.] -> 8 points for fixing the computer.
     // [1 hint left.] -> 5 points for entering the Cryo-Elevator.
-    
+
     // [20 hints left.] -> Reading the graffiti in the Brig?
     // [19 hints left.] -> Attacking, talking to, or throwing something at Blather?
     // [18 hints left.] -> Attacking or talking to the ambassador?
@@ -62,38 +64,17 @@ public class PlanetfallGame : IInfocomGame
     // [3 hints left.] -> "Stealing" the lower elevator card from Floyd and then showing it to him?
     // [2 hints left.] -> Giving Floyd the Lazarus breast plate?
     // [1 hint left.] -> Typing ZORK?
-    
+
     public string GetScoreDescription(int score)
     {
-        if (score >= 80)
-        {
-            return "Galactic Overlord";
-        }
-        if (score > 72)
-        {
-            return "Cluster Admiral";
-        }
-        if (score > 64)
-        {
-            return "System Captain";
-        }
-        if (score > 48)
-        {
-            return "Planetary Commodore";
-        }
-        if (score > 36)
-        {
-            return "Lieutenant";
-        }
-        if (score > 24)
-        {
-            return "Ensign First Class";
-        }
-        if (score > 12)
-        {
-            return "Space Cadet";
-        }
-    
+        if (score >= 80) return "Galactic Overlord";
+        if (score > 72) return "Cluster Admiral";
+        if (score > 64) return "System Captain";
+        if (score > 48) return "Planetary Commodore";
+        if (score > 36) return "Lieutenant";
+        if (score > 24) return "Ensign First Class";
+        if (score > 12) return "Space Cadet";
+
         return "Beginner";
     }
 
@@ -103,7 +84,7 @@ public class PlanetfallGame : IInfocomGame
     }
 
     public string SessionTableName => "planetfall_session";
-    
+
     public void Init(IContext context)
     {
         Repository.GetLocation<EscapePod>().Init();
@@ -111,6 +92,6 @@ public class PlanetfallGame : IInfocomGame
         context.RegisterActor(Repository.GetLocation<DeckNine>());
         context.RegisterActor(explosion);
     }
-    
+
     public string SystemPromptSecretKey => "PlanetfallPrompt";
 }

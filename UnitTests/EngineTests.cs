@@ -219,9 +219,9 @@ public class EngineTests : EngineTestsBase
             .ReturnsAsync("no");
 
         // Act
-        var result = await target.GetResponse("open mailbox");
-        result = await target.GetResponse("take leaflet");
-        result = await target.GetResponse("push the leaflet");
+        await target.GetResponse("open mailbox");
+        await target.GetResponse("take leaflet");
+        var result = await target.GetResponse("push the leaflet");
 
         // Assert
         result.Should().Contain("no");

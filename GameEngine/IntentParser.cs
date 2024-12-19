@@ -1,9 +1,12 @@
 using Bedrock;
+using CloudWatch;
+using CloudWatch.Model;
 using GameEngine.StaticCommand;
 using Microsoft.Extensions.Logging;
 using Model.AIParsing;
 using Model.Interface;
 using Model.Movement;
+using Newtonsoft.Json;
 
 namespace GameEngine;
 
@@ -33,7 +36,7 @@ public class IntentParser : IIntentParser
         _gameSpecificCommandFactory = gameSpecificCommandFactory;
         _parser = new ClaudeFourParser(logger);
     }
-    
+
     public IntentBase? DetermineSystemIntentType(string? input)
     {
         if (_defaultGlobalCommandFactory.GetSystemCommands(input) is { } systemCommand)
@@ -51,14 +54,14 @@ public class IntentParser : IIntentParser
         // Common to all Infocom games
         if (_defaultGlobalCommandFactory.GetGlobalCommands(input) is { } globalCommand)
             return new GlobalCommandIntent { Command = globalCommand };
-        
+
         // Specific to this game. 
         if (_gameSpecificCommandFactory.GetGlobalCommands(input) is { } gameSpecificGlobalCommand)
             return new GlobalCommandIntent { Command = gameSpecificGlobalCommand };
 
         return null;
     }
-    
+
     /// <summary>
     ///     Determines the type of intent based on the input and session ID.
     /// </summary>
@@ -69,11 +72,26 @@ public class IntentParser : IIntentParser
     /// </param>
     /// <param name="sessionId">The unique session ID.</param>
     /// <returns>The determined intent type.</returns>
-    public virtual async Task<IntentBase> DetermineComplexIntentType(string? input, string locationDescription, string sessionId)
+    public virtual async Task<IntentBase> DetermineComplexIntentType(string? input, string locationDescription,
+        string sessionId)
     {
         // At this point, we don't know the user's intent without asking the
         // AI parsing engine, so let's do that. 
-        
-        return await _parser.AskTheAIParser(input!, locationDescription, sessionId);
+        var response = await _parser.AskTheAIParser(input!, locationDescription, sessionId);
+
+        if (!string.IsNullOrEmpty(input))
+            await Logger?.WriteLogEvents(new GenerationLog
+            {
+                LanguageModel = _parser.LanguageModel,
+                Prompt = input,
+                Response = JsonConvert.SerializeObject(response),
+                TurnCorrelationId = TurnCorrelationId.ToString()
+            })!;
+
+        return response;
     }
+
+    public Guid? TurnCorrelationId { get; set; }
+
+    public ICloudWatchLogger<GenerationLog>? Logger { get; set; }
 }

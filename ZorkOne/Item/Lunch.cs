@@ -13,13 +13,13 @@ public class Lunch : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeEate
 
     string ICanBeEaten.EatenDescription(IContext context)
     {
-        return "Thank you very much. It really hit the spot.";
+        return "Thank you very much. It really hit the spot. ";
     }
 
-    string ICanBeExamined.ExaminationDescription => "There's nothing special about the lunch.";
+    string ICanBeExamined.ExaminationDescription => "There's nothing special about the lunch. ";
 
     string ICanBeTakenAndDropped.OnTheGroundDescription(ILocation currentLocation)
     {
-        return "A hot pepper sandwich is here.";
+        return "A hot pepper sandwich is here. ";
     }
 }

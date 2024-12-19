@@ -71,7 +71,7 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
             return new NoNounMatchInteractionResult();
         }
 
-        if (action.Match(["put", "place"], Repository.GetItem<Magnet>().NounsForMatching,
+        if (action.Match(["put", "place", "hold"], Repository.GetItem<Magnet>().NounsForMatching,
             [
                 "ground", "crack", "crevice"
             ], [

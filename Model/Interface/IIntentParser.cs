@@ -1,3 +1,5 @@
+using CloudWatch;
+using CloudWatch.Model;
 using Model.Intent;
 
 namespace Model.Interface;
@@ -34,4 +36,8 @@ public interface IIntentParser
     /// </param>
     /// <returns>The intent type as an instance of IntentBase.</returns>
     Task<IntentBase> DetermineComplexIntentType(string? input, string locationDescription, string sessionId);
+
+    Guid? TurnCorrelationId { get; set; }
+    
+    ICloudWatchLogger<GenerationLog>? Logger { get; set; }
 }

@@ -6,6 +6,8 @@ namespace Bedrock;
 public interface IClaudeFourParserClient
 {
     Task<string?> GetResponse(string location, string input);
+    
+    string LanguageModel { get; }
 }
 
 internal class ClaudeFourParserClient : ClaudeClientBase, IClaudeFourParserClient
@@ -35,8 +37,6 @@ internal class ClaudeFourParserClient : ClaudeClientBase, IClaudeFourParserClien
         best describes where they want to go: "in, out, enter, exit, up, down, east, west, north, south, north-west, north-east, south-west, or south-east." If the sentence includes a term like 
         'follow' or 'go towards' combined with a specific location described in the player's current environment, use the corresponding direction. If you cannot match any of these words, put "other."
         
-        
-        
         Do not provide any analysis or explanation, just the tags.
         """;
 
@@ -45,6 +45,8 @@ internal class ClaudeFourParserClient : ClaudeClientBase, IClaudeFourParserClien
         var request = string.Format(Prompt, location, input);
         return GenerateResponse(BuildPayload(request));
     }
+
+    public string LanguageModel => ClaudeModelId;
 
     private string BuildPayload(string request)
     {

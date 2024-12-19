@@ -1,3 +1,5 @@
+using CloudWatch;
+using CloudWatch.Model;
 using GameEngine;
 using Model;
 using Model.AIGeneration;
@@ -27,7 +29,7 @@ public class EngineTestsBase
 
         Repository.Reset();
 
-        var engine = new GameEngine<PlanetfallGame, PlanetfallContext>(Parser, Client.Object, Mock.Of<ISecretsManager>());
+        var engine = new GameEngine<PlanetfallGame, PlanetfallContext>(Parser, Client.Object, Mock.Of<ISecretsManager>(), Mock.Of<ICloudWatchLogger<TurnLog>>());
         engine.Context.Verbosity = Verbosity.Verbose;
         Repository.GetLocation<DeckNine>().Init();
 
