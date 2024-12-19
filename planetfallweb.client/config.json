@@ -1,4 +1,4 @@
 {
-  "base_url": "https://6kvs9n5pj4.execute-api.us-east-1.amazonaws.com/Prod/Planetfall",
+  "base_url": "http://localhost:5000/Planetfall",
   "version": "0.2.12"
 }

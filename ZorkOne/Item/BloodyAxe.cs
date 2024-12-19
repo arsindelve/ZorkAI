@@ -15,7 +15,7 @@ public class BloodyAxe : ItemBase, ICanBeTakenAndDropped, IWeapon
         {
             var troll = Repository.GetItem<Troll>();
             if (CurrentLocation == troll && !troll.IsUnconscious)
-                return "The troll swings it out of your reach.";
+                return "The troll swings it out of your reach. ";
 
             return null;
         }

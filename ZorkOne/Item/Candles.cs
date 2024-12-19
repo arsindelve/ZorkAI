@@ -167,7 +167,7 @@ public class Candles
         if (action.MatchNounTwo<Matchbook>() && context.HasItem<Matchbook>())
         {
             if (!Repository.GetItem<Matchbook>().IsOn)
-                return new PositiveInteractionResult("You'll need to light a match first.");
+                return new PositiveInteractionResult("You'll need to light a match first. ");
 
             return new TurnLightOnOrOffProcessor().Process(
                 new SimpleIntent { Noun = action.NounOne, Verb = action.Verb },

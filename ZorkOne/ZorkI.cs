@@ -7,6 +7,8 @@ namespace ZorkOne;
 public class ZorkI : IInfocomGame
 {
     public Type StartingLocation => typeof(WestOfHouse);
+    
+    public string GameName => "Zork I";
 
     public string DefaultSaveGameName => "zork1-ai.sav";
 

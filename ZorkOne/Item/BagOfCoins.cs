@@ -19,7 +19,7 @@ public class BagOfCoins
     public string ExaminationDescription => "There are lots of coins in there. ";
 
     public string OnTheGroundDescription(ILocation currentLocation) =>
-        "An old leather bag, bulging with coins, is here.";
+        "An old leather bag, bulging with coins, is here. ";
 
     public override string NeverPickedUpDescription(ILocation currentLocation) =>
         OnTheGroundDescription(currentLocation);

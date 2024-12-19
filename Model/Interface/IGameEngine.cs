@@ -88,6 +88,8 @@ public interface IGameEngine
     /// </summary>
     Runtime Runtime { get; set; }
 
+    int CurrentTime { get; }
+
     /// <summary>
     ///     Retrieves the game engine's response based on the player's input.
     /// </summary>

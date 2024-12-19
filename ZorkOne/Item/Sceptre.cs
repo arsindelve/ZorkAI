@@ -16,7 +16,7 @@ public class Sceptre : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInT
 
     public override string NeverPickedUpDescription(ILocation currentLocation) =>
         "A sceptre, possibly that of ancient Egypt itself, is in the coffin." +
-        " The sceptre is ornamented with colored enamel, and tapers to a sharp point.";
+        " The sceptre is ornamented with colored enamel, and tapers to a sharp point. ";
 
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 4;
 
@@ -31,6 +31,6 @@ public class Sceptre : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInT
         if (!action.MatchNoun(NounsForMatching))
             return base.RespondToSimpleInteraction(action, context, client);
 
-        return new PositiveInteractionResult("A dazzling display of color briefly emanates from the sceptre.");
+        return new PositiveInteractionResult("A dazzling display of color briefly emanates from the sceptre. ");
     }
 }

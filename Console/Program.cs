@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using CloudWatch;
+using CloudWatch.Model;
 using DynamoDb;
 using GameEngine;
 using Microsoft.Extensions.Logging;
@@ -90,6 +92,7 @@ async Task<GameEngine<TGame, TContext>> CreateEngine<TGame, TContext>()
         );
 
     var logger = loggerFactory.CreateLogger<GameEngine<TGame, TContext>>();
+        
     var gameEngine = new GameEngine<TGame, TContext>(logger, new AmazonSecretsManager())
     {
         Runtime = Runtime.Console

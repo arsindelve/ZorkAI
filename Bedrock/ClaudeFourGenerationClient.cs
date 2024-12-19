@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Dynamic;
 using Amazon.BedrockRuntime;
+using CloudWatch;
+using CloudWatch.Model;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Newtonsoft.Json;
@@ -19,6 +21,10 @@ public class ClaudeFourGenerationClient : ClaudeClientBase, IGenerationClient
     public required string SystemPrompt { private get; set; }
     
     public List<(string, string, bool)> LastFiveInputOutputs { get; set; } = new();
+    
+    public Guid TurnCorrelationId { get; set; }
+    
+    public ICloudWatchLogger<GenerationLog>? Logger { get; set; }
 
     public async Task<string> CompleteChat(Request request)
     {

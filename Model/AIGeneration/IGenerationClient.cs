@@ -1,3 +1,5 @@
+using CloudWatch;
+using CloudWatch.Model;
 using Model.AIGeneration.Requests;
 
 namespace Model.AIGeneration;
@@ -16,6 +18,10 @@ public interface IGenerationClient
     string SystemPrompt { set; }
 
     List<(string, string, bool)> LastFiveInputOutputs { get; set; }
+    
+    Guid TurnCorrelationId { get; set; }
+    
+    ICloudWatchLogger<GenerationLog>? Logger { get; set; }
 
     /// <summary>
     ///     Completes a chat operation based on the given request.

@@ -9,7 +9,7 @@ public class PlatinumBar : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenFirst
     
     public string OnTheGroundDescription(ILocation currentLocation)
     {
-        return "On the ground is a large platinum bar here";
+        return "On the ground is a large platinum bar. ";
     }
 
     public override string GenericDescription(ILocation? currentLocation)

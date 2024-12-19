@@ -1,6 +1,8 @@
 using System.Text;
 using Azure;
 using Azure.AI.OpenAI;
+using CloudWatch;
+using CloudWatch.Model;
 using Microsoft.Extensions.Logging;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
@@ -14,6 +16,8 @@ public class ChatGPTClient : IGenerationClient
 {
     private readonly OpenAIClient _client;
     private readonly ILogger? _logger;
+    
+    private readonly string _deploymentName = "gpt-4o";
 
     public ChatGPTClient(ILogger? logger)
     {
@@ -31,6 +35,10 @@ public class ChatGPTClient : IGenerationClient
     public string? SystemPrompt { private get; set; }
     
     public List<(string, string, bool)> LastFiveInputOutputs { get; set; } = new();
+    
+    public Guid TurnCorrelationId { get; set; }
+    
+    public ICloudWatchLogger<GenerationLog>? Logger { get; set; }
 
     /// <summary>
     ///     Completes a chat conversation using the OpenAI API.
@@ -43,9 +51,7 @@ public class ChatGPTClient : IGenerationClient
 
         var chatCompletionsOptions = new ChatCompletionsOptions
         {
-            // gpt-3.5-turbo
-            // gpt-4-turbo-preview
-            DeploymentName = "gpt-4o",
+            DeploymentName = _deploymentName,
             Messages =
             {
                 new ChatRequestSystemMessage(SystemPrompt)
@@ -76,6 +82,15 @@ public class ChatGPTClient : IGenerationClient
 
         OnGenerate?.Invoke();
 
+        if (!string.IsNullOrEmpty(request.UserMessage))
+            Logger?.WriteLogEvents(new GenerationLog
+            {
+                LanguageModel = _deploymentName,
+                Prompt = request.UserMessage,
+                Response = responseMessage.Content,
+                TurnCorrelationId = TurnCorrelationId.ToString()
+            });
+        
         return responseMessage.Content;
     }
 }

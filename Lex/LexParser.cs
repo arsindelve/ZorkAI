@@ -48,6 +48,8 @@ public class LexParser(ILogger? logger) : IAIParser
         return new NullIntent();
     }
 
+    public string LanguageModel => "Lex";
+
     private IntentBase BuildMultiNounIntent(RecognizeTextResponse lexTextResponse, string input)
     {
         var itemOne = lexTextResponse.Interpretations?.FirstOrDefault()?.Intent?.Slots["Item1"]?.Value

@@ -69,10 +69,10 @@ internal abstract class BlatherLocation : LocationWithNoStartingItems, ITurnBase
     {
         string[] array =
         {
-            "Blather blocks your path, growling about extra galley duty.",
+            "Blather blocks your path, growling about extra galley duty. ",
             "Blather throws you to the deck and makes you do 20 push-ups.",
-            "Ensign Blather pushes you roughly back toward your post.",
-            "Ensign Blather blocks your way, snarling angrily."
+            "Ensign Blather pushes you roughly back toward your post. ",
+            "Ensign Blather blocks your way, snarling angrily. "
         };
         var random = new Random();
         var index = random.Next(array.Length);

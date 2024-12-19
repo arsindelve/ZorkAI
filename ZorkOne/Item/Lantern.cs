@@ -12,6 +12,7 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IAmALigh
 {
     public int TurnsWhileOn { get; set; }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public bool BurnedOut { get; set; }
 
     public override string[] NounsForMatching => ["lantern", "lamp", "light"];

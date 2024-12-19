@@ -17,6 +17,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Bedrock\Bedrock.csproj"/>
+        <ProjectReference Include="..\CloudWatch\CloudWatch.csproj" />
         <ProjectReference Include="..\DynamoDb\DynamoDb.csproj"/>
         <ProjectReference Include="..\Lex\Lex.csproj"/>
         <ProjectReference Include="..\Model\Model.csproj"/>

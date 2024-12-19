@@ -50,6 +50,8 @@ public class ClaudeFourParser : ClaudeClientBase, IAIParser
         return new NullIntent();
     }
 
+    public string LanguageModel => _client.LanguageModel;
+
     private ExitSubLocationIntent? DetermineDisembarkIntent(string? response)
     {
         var intentTag = ExtractElementsByTag(response, "intent").SingleOrDefault();

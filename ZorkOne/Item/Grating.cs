@@ -23,7 +23,7 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
         {
             GratingRoom => "The grating opens to reveal trees above you. ",
             // Note: Try this in the real game. It's a bug! 
-            Clearing => "The grating open to reveal darkness below. ",
+            Clearing => "The grating opens to reveal darkness below. ",
             _ => ""
         };
     }
@@ -70,7 +70,7 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
             }
             else
             {
-                return new PositiveInteractionResult("You can't reach the lock from here.");
+                return new PositiveInteractionResult("You can't reach the lock from here. ");
             }
 
         if (action.Match<SkeletonKey>(["lock"], NounsForMatching, ["with", "using"]))

@@ -1,4 +1,6 @@
 using System.Reflection;
+using CloudWatch;
+using CloudWatch.Model;
 using GameEngine.IntentEngine;
 using GameEngine.StaticCommand;
 using GameEngine.StaticCommand.Implementation;
@@ -37,23 +39,18 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     private readonly IIntentParser _parser;
     private readonly ISecretsManager _secretsManager;
     private readonly string _sessionId = Guid.NewGuid().ToString();
+    private readonly Guid _turnCorrelationId = Guid.NewGuid();
     private string? _currentInput;
     private TInfocomGame _gameInstance;
     private bool _lastResponseWasGenerated;
     private IStatefulProcessor? _processorInProgress;
+    private ICloudWatchLogger<TurnLog>? _turnLogger;
     internal TContext Context;
-
-    public int Score => Context.Score;
-
-    public Runtime Runtime { get; set; }
-
-    public string SessionTableName => _gameInstance.SessionTableName;
 
     [ActivatorUtilitiesConstructor]
     public GameEngine(
         ILogger<GameEngine<TInfocomGame, TContext>> logger,
-        ISecretsManager secretsManager
-        )
+        ISecretsManager secretsManager)
     {
         _logger = logger;
         _secretsManager = secretsManager;
@@ -87,11 +84,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     /// <param name="parser"></param>
     /// <param name="generationClient"></param>
     /// <param name="secretsManager"></param>
+    /// <param name="turnLogger"></param>
     public GameEngine(
         IIntentParser parser,
         IGenerationClient generationClient,
-        ISecretsManager secretsManager
-        )
+        ISecretsManager secretsManager,
+        ICloudWatchLogger<TurnLog> turnLogger)
     {
         Repository.Reset();
 
@@ -103,7 +101,14 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _secretsManager = secretsManager;
         _gameInstance = (TInfocomGame)Context.Game;
         _gameInstance.Init(Context);
+        _turnLogger = turnLogger;
     }
+
+    public int Score => Context.Score;
+
+    public Runtime Runtime { get; set; }
+
+    public string SessionTableName => _gameInstance.SessionTableName;
 
     public string IntroText { get; }
 
@@ -118,6 +123,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     public string LocationDescription => Context.CurrentLocation.DescriptionForGeneration;
 
     public int Moves => Context.Moves;
+
+    public int CurrentTime => Context is ITimeBasedContext tc ? tc.CurrentTime : 0; 
 
     /// <summary>
     ///     Parse the input, determine the user's <see cref="IntentBase" /> and allow the
@@ -151,11 +158,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             var globalResult = await ProcessGlobalCommandIntent(global);
             return PostProcessing(globalResult);
         }
-        
+
         // Everything below here counts as a turn. Pre-process the turn. 
         // See if the context needs to notify us of anything. Are we sleepy? Hungry?
         var contextPrepend = Context.ProcessBeginningOfTurn();
-        
+
         // See if the user typed "again" or some variation.
         // if so, we'll replace the input with their previous input.
         (_currentInput, var returnResponseFromAgainProcessor) = _againProcessor.Process(
@@ -177,16 +184,14 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             GenerationClient
         );
         if (singleVerbResult.InteractionHappened)
-        {
             return await ProcessActorsAndContextEndOfTurn(contextPrepend, singleVerbResult.InteractionMessage);
-        }
 
         // 5. ------- Global commands - these work always, everywhere: like look, inventory, wait and cardinal directions. These DO count as a turn, 
         // We must process actors afterwards 
         var simpleIntent = _parser.DetermineGlobalIntentType(playerInput);
         if (simpleIntent is not null)
         {
-            string? resultMessage = simpleIntent switch
+            var resultMessage = simpleIntent switch
             {
                 GlobalCommandIntent intent => await ProcessGlobalCommandIntent(intent),
                 MoveIntent moveInteraction => (await new MoveEngine().Process(moveInteraction, Context,
@@ -221,8 +226,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // Put it all together for return. 
         return await ProcessActorsAndContextEndOfTurn(contextPrepend, complexIntentResult.ResultMessage);
     }
-    
-    
+
+
     public IContext RestoreGame(string data)
     {
         var deserializeObject = JsonConvert.DeserializeObject<SavedGame<TContext>>(
@@ -250,6 +255,18 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public async Task InitializeEngine()
     {
+        _turnLogger = await CloudWatchLoggerFactory.Get<TurnLog>(_gameInstance.GameName, "Turns", _turnCorrelationId);
+
+        GenerationClient.TurnCorrelationId = _turnCorrelationId;
+        GenerationClient.Logger =
+            await CloudWatchLoggerFactory.Get<GenerationLog>(_gameInstance.GameName, "ResponseGeneration",
+                _turnCorrelationId);
+
+        _parser.TurnCorrelationId = _turnCorrelationId;
+        _parser.Logger =
+            await CloudWatchLoggerFactory.Get<GenerationLog>(_gameInstance.GameName, "InputParsing",
+                _turnCorrelationId);
+
         GenerationClient.SystemPrompt = await _secretsManager.GetSecret(
             _gameInstance.SystemPromptSecretKey
         );
@@ -257,24 +274,25 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     private string FormatResult(string? contextPrepend, string? mainBody, string? actorResult, string? contextAppend)
     {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         if (!string.IsNullOrEmpty(contextPrepend))
             sb.AppendLine("\n" + contextPrepend.Trim());
-        
+
         if (!string.IsNullOrEmpty(mainBody))
             sb.AppendLine(mainBody.Trim());
-        
+
         if (!string.IsNullOrEmpty(actorResult))
             sb.AppendLine("\n" + actorResult.Trim());
-        
+
         if (!string.IsNullOrEmpty(contextAppend))
             sb.AppendLine("\n" + contextAppend.Trim());
 
         return sb.ToString();
     }
 
-    private async Task<(InteractionResult? resultObject, string? ResultMessage)> ProcessComplexIntent(IntentBase parsedResult)
+    private async Task<(InteractionResult? resultObject, string? ResultMessage)> ProcessComplexIntent(
+        IntentBase parsedResult)
     {
         _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
 
@@ -328,16 +346,27 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     private async Task<string> ProcessActorsAndContextEndOfTurn(string? contextPrepend, string? turnResult)
     {
-        string actors = await ProcessActors();
-        string? contextAppend = Context.ProcessEndOfTurn();
+        var actors = await ProcessActors();
+        var contextAppend = Context.ProcessEndOfTurn();
         return PostProcessing(FormatResult(contextPrepend, turnResult, actors, contextAppend));
     }
-    
+
     private string PostProcessing(string finalResult)
     {
         _logger?.LogDebug($"Items in inventory: {Context.LogItems()}");
         _logger?.LogDebug($"Items in location: {Context.CurrentLocation.LogItems()}");
         _logger?.LogDebug($"Moves: {Context.Moves}");
+
+        if (!string.IsNullOrEmpty(_currentInput))
+            _turnLogger?.WriteLogEvents(new TurnLog
+            {
+                SessionId = _sessionId,
+                Location = Context.CurrentLocation.Name,
+                Score = Context.Score,
+                Moves = Context.Moves,
+                Input = _currentInput,
+                Response = finalResult.Trim()
+            });
 
         if (!string.IsNullOrEmpty(finalResult))
         {
