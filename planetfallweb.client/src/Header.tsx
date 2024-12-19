@@ -2,7 +2,7 @@ import React from 'react';
 
 interface HeaderComponentProps {
     locationName: string;
-    moves: string;
+    time: string;
     score: string;
 }
 
