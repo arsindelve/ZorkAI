@@ -11,7 +11,6 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, moves, s
         <div className="col-span-3">{locationName}</div>
         <div className="hidden sm:block">Moves:&nbsp;&nbsp;{moves}</div>
         <div className="hidden sm:block">Score:&nbsp;&nbsp;{score}</div>
-
     </div>
 );
 
