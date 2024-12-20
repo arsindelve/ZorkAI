@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Button, Menu, MenuItem } from "@mui/material";
+import {Mixpanel} from "./Mixpanel.ts";
 
 type VerbsButtonProps = {
     onVerbClick: (verb: string) => void; // Callback prop to send the clicked verb to the parent
 };
 
 export default function VerbsButton({ onVerbClick }: VerbsButtonProps) {
-    const verbs = ["examine", "take", "open", "close", "drop", "attack", "turn on", "turn off"];
+    const verbs = ["examine", "take", "open", "close", "drop", "attack", "turn on", "turn off", "read"];
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -16,6 +17,9 @@ export default function VerbsButton({ onVerbClick }: VerbsButtonProps) {
 
     const handleClose = (verb?: string) => {
         if (verb) {
+            Mixpanel.track('Click Verb', {
+                "verb": verb
+            });
             onVerbClick(verb); // Pass the clicked verb to the parent
         }
         setAnchorEl(null); // Close the menu

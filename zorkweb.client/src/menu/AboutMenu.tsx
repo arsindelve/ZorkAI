@@ -3,6 +3,7 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import config from "../../config.json";
+import {Mixpanel} from "../Mixpanel.ts";
 
 export default function AboutMenu() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -14,7 +15,11 @@ export default function AboutMenu() {
         setAnchorEl(null);
     };
 
-    const go = (url: string) => {
+    const go = (name: string, url: string) => {
+        Mixpanel.track('Click on Menu Item', {
+            "url": url,
+            "name": name
+        });
         window.open(url, '_blank');
         handleClose();
     }
@@ -30,7 +35,7 @@ export default function AboutMenu() {
             >
                 About
             </Button>
-            <Menu 
+            <Menu
                 id="basic-menu"
                 anchorEl={anchorEl}
                 open={open}
@@ -39,21 +44,25 @@ export default function AboutMenu() {
                     'aria-labelledby': 'basic-button',
                 }}
             >
-                <MenuItem 
-                    onClick={() => go("https://github.com/arsindelve/ZorkAI?tab=readme-ov-file#all-the-greatness-of-the-original-zork-and-planetfall-enhanced-with-ai")}>What
+                <MenuItem
+                    onClick={() => go("What is this game?", "https://github.com/arsindelve/ZorkAI?tab=readme-ov-file#all-the-greatness-of-the-original-zork-and-planetfall-enhanced-with-ai")}>What
                     is this game?</MenuItem>
-                <MenuItem onClick={() => go("https://infodoc.plover.net/manuals/zork1.pdf")}>Read the 1984 Infocom
+                <MenuItem onClick={() => go("1984 Manual", "https://infodoc.plover.net/manuals/zork1.pdf")}>Read the
+                    1984 Infocom
                     Manual</MenuItem>
-                <MenuItem onClick={() => go("https://www.mocagh.org/infocom/zorkps-manual.pdf")}>Read the 1982 Radio
+                <MenuItem onClick={() => go("1982 Manual", "https://www.mocagh.org/infocom/zorkps-manual.pdf")}>Read the
+                    1982 Radio
                     Shack TRS-80 Manual</MenuItem>
-                <MenuItem onClick={() => go("https://www.mocagh.org/infocom/zork-map-front.pdf")}>Look at a Map
+                <MenuItem onClick={() => go("Map", "https://www.mocagh.org/infocom/zork-map-front.pdf")}>Look at a Map
                     (spoilers)</MenuItem>
-                <MenuItem onClick={() => go("https://web.mit.edu/marleigh/www/portfolio/Files/zork/transcript.html")}>Look
+                <MenuItem
+                    onClick={() => go("Walkthrough", "https://web.mit.edu/marleigh/www/portfolio/Files/zork/transcript.html")}>Look
                     at a Walkthrough (major spoilers!)</MenuItem>
                 <MenuItem
-                    onClick={() => go("https://iplayif.com/?story=https%3A%2F%2Feblong.com%2Finfocom%2Fgamefiles%2Fzork1-r119-s880429.z3")}>Play
+                    onClick={() => go("Play Original", "https://iplayif.com/?story=https%3A%2F%2Feblong.com%2Finfocom%2Fgamefiles%2Fzork1-r119-s880429.z3")}>Play
                     the original Zork One</MenuItem>
-                <MenuItem onClick={() => go("https://en.wikipedia.org/wiki/Zork")}>Wikipedia Article on Zork</MenuItem>
+                <MenuItem onClick={() => go("Wikipedia", "https://en.wikipedia.org/wiki/Zork")}>Wikipedia Article on
+                    Zork</MenuItem>
                 <MenuItem>Version {config.version}</MenuItem>
             </Menu>
         </div>

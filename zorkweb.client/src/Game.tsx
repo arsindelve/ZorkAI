@@ -12,6 +12,7 @@ import VerbsButton from "./VerbsButton.tsx";
 import CommandsButton from "./CommandsButton.tsx";
 import ClickableText from "./ClickableText.tsx";
 import Compass from "./Compass.tsx";
+import {Mixpanel} from "./Mixpanel.ts";
 
 interface GameProps {
     restoreGameId?: string | undefined
@@ -168,21 +169,24 @@ function Game({
 
     function submitInput(inputValue?: string) {
         const [id] = sessionId.getSessionId();
-        const valueToSubmit = inputValue ?? playerInput; // Use parameter if provided, else fallback to state
+        const valueToSubmit = (inputValue ?? playerInput).trim(); // Use parameter if provided, else fallback to state
         mutation.mutate(new GameRequest(valueToSubmit, id));
         focusOnPlayerInput();
     }
-
+    
     function handleWordClicked(word: string) {
         setInput(playerInput + " " + word + " ");
         focusOnPlayerInput();
+        Mixpanel.track('Click on Word', {
+            "word": word
+        });
     }
 
     const handleVerbClick = (verb: string) => {
         setInput(verb + " ");
         focusOnPlayerInput();
     };
-
+   
     const handleCommandClick = (command: string) => {
         setInput(command);
         submitInput(command);
@@ -192,10 +196,14 @@ function Game({
         if (event.key === 'Enter') {
             submitInput();
         }
+        Mixpanel.track('Press Enter', {
+        });
     }
 
     const handleWelcomeDialogClose = () => {
         setWelcomeDialogOpen(false);
+        Mixpanel.track('Close Welcome Dialog', {
+        });
     };
 
     async function gameInit(): Promise<GameResponse> {
@@ -218,7 +226,7 @@ function Game({
 
     return (
 
-        <div className={"m-10 mt-20"}>
+        <div className={"m-10 mt-20 relative"}>
 
             <div>
                 <Snackbar
@@ -233,8 +241,19 @@ function Game({
             <WelcomeDialog open={welcomeDialogOpen} handleClose={handleWelcomeDialogClose}/>
             <Header locationName={locationName} moves={moves} score={score}/>
 
+            <Compass onCompassClick={handleCommandClick} className="
+            hidden
+            cursor-pointer
+            md:block
+            absolute 
+            top-16 
+            right-1 
+            w-1/5 
+            h-auto
+            "/>
+            
             <ClickableText ref={gameContentElement} onWordClick={(word) => handleWordClicked(word)}
-                           className={"p-12 bg-opacity-85 h-[65vh] overflow-auto bg-stone-900 font-mono relative"}>
+                           className={"p-12 bg-opacity-85 h-[65vh] overflow-auto bg-stone-900 font-mono "}>
                 {gameText.map((item: string, index: number) => (
                     <p
                         dangerouslySetInnerHTML={{__html: item}}
@@ -244,7 +263,7 @@ function Game({
                     </p>
                 ))}
 
-                <Compass className="absolute bottom-0 right-0 w-1/5 h-auto"/>
+               
 
             </ClickableText>
 
@@ -285,7 +304,6 @@ function Game({
                         sm:mr-6 
                         mt-4 
                         mb-2 sm:mb-4 
-
                         space-x-6
                         ">
                         <CommandsButton onCommandClick={handleCommandClick}/>

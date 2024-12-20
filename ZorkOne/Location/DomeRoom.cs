@@ -4,6 +4,7 @@ using Model.Intent;
 using Model.Interface;
 using Model.Movement;
 using ZorkOne.Command;
+using Repository = GameEngine.Repository;
 
 namespace ZorkOne.Location;
 
@@ -34,7 +35,8 @@ public class DomeRoom : LocationBase
     {
     }
 
-    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client)
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
+        IGenerationClient client)
     {
         switch (input)
         {
@@ -52,16 +54,7 @@ public class DomeRoom : LocationBase
         string[] verbs = ["tie", "attach"];
         string[] prepositions = ["to", "onto", "on"];
 
-        if (!action.NounOne.ToLowerInvariant().Trim().Contains("rope"))
-            return base.RespondToMultiNounInteraction(action, context);
-
-        if (!action.NounTwo.ToLowerInvariant().Trim().Contains("railing"))
-            return base.RespondToMultiNounInteraction(action, context);
-
-        if (!verbs.Contains(action.Verb.ToLowerInvariant().Trim()))
-            return base.RespondToMultiNounInteraction(action, context);
-
-        if (!prepositions.Contains(action.Preposition.ToLowerInvariant().Trim()))
+        if (!action.Match(verbs, Repository.GetItem<Rope>().NounsForMatching, ["rail", "railing"], prepositions))
             return base.RespondToMultiNounInteraction(action, context);
 
         if (!context.HasItem<Rope>() && HasItem<Rope>())
@@ -71,7 +64,7 @@ public class DomeRoom : LocationBase
             return base.RespondToMultiNounInteraction(action, context);
 
         GetItem<Rope>().TiedToRailing = true;
-        context.Drop(GetItem<Rope>());
+        context.Drop<Rope>();
 
         return new PositiveInteractionResult("The rope drops over the side and comes within ten feet of the floor. ");
     }

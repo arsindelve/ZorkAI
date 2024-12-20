@@ -169,7 +169,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// <returns>True if the location has an item of type T, otherwise false.</returns>
     public bool HasItem<TItem>() where TItem : IItem, new()
     {
-        return Items.Contains(Repository.GetItem<TItem>());
+        return Items.OfType<TItem>().Any();
     }
 
     public (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true)
@@ -273,7 +273,10 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public void Drop<TItem>() where TItem : IItem, new()
     {
-        var item = Repository.GetItem<TItem>();
+        var item = Items.OfType<TItem>().FirstOrDefault();
+        if (item is null)
+            return;
+
         Drop(item);
     }
 
@@ -325,7 +328,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     {
         if (Actors.Any(s => s.GetType() == actor.GetType()))
             return;
-        
+
         Actors.Add(actor);
     }
 
