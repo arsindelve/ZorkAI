@@ -2,12 +2,16 @@ import {useMutation} from "@tanstack/react-query";
 import {GameRequest} from "./model/GameRequest.ts";
 import {GameResponse} from "./model/GameResponse.ts";
 import React, {useEffect, useState} from "react";
-import {Alert, CircularProgress, Snackbar} from "@mui/material";
+import {Alert, Button, CircularProgress, Snackbar} from "@mui/material";
 import '@fontsource/roboto';
 import Header from "./Header.tsx";
 import {SessionHandler} from "./SessionHandler.ts";
 import WelcomeDialog from "./modal/WelcomeModal.tsx";
 import Server from './Server';
+import VerbsButton from "./VerbsButton.tsx";
+import CommandsButton from "./CommandsButton.tsx";
+import ClickableText from "./ClickableText.tsx";
+import Compass from "./Compass.tsx";
 
 interface GameProps {
     restoreGameId?: string | undefined
@@ -117,7 +121,6 @@ function Game({
         })
     }, []);
 
-
     function handleResponse(data: GameResponse) {
 
         if (data.response === saveResponse) {
@@ -163,10 +166,31 @@ function Game({
         })
     });
 
+    function submitInput(inputValue?: string) {
+        const [id] = sessionId.getSessionId();
+        const valueToSubmit = inputValue ?? playerInput; // Use parameter if provided, else fallback to state
+        mutation.mutate(new GameRequest(valueToSubmit, id));
+        focusOnPlayerInput();
+    }
+
+    function handleWordClicked(word: string) {
+        setInput(playerInput + " " + word + " ");
+        focusOnPlayerInput();
+    }
+
+    const handleVerbClick = (verb: string) => {
+        setInput(verb + " ");
+        focusOnPlayerInput();
+    };
+
+    const handleCommandClick = (command: string) => {
+        setInput(command);
+        submitInput(command);
+    };
+
     function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
         if (event.key === 'Enter') {
-            const [id] = sessionId.getSessionId();
-            mutation.mutate(new GameRequest(playerInput, id))
+            submitInput();
         }
     }
 
@@ -209,28 +233,68 @@ function Game({
             <WelcomeDialog open={welcomeDialogOpen} handleClose={handleWelcomeDialogClose}/>
             <Header locationName={locationName} moves={moves} score={score}/>
 
-            <div ref={gameContentElement}
-                 className={"p-12 bg-opacity-85 h-[65vh] overflow-auto bg-stone-900 font-mono"}>
+            <ClickableText ref={gameContentElement} onWordClick={(word) => handleWordClicked(word)}
+                           className={"p-12 bg-opacity-85 h-[65vh] overflow-auto bg-stone-900 font-mono relative"}>
                 {gameText.map((item: string, index: number) => (
-                    <p dangerouslySetInnerHTML={{__html: item}} className={"mb-4"} key={index}>
+                    <p
+                        dangerouslySetInnerHTML={{__html: item}}
+                        className={"mb-4"}
+                        key={index}
+                    >
                     </p>
                 ))}
-            </div>
 
-            <div className="flex items-center bg-stone-700">
-                <input ref={playerInputElement} readOnly={mutation.isPending}
-                       className={"w-full p-4  focus:border-transparent focus:outline-none focus:ring-0 bg-stone-700"}
-                       value={playerInput} placeholder={"Type what you want to do, then press return."}
-                       onChange={(e) => setInput(e.target.value)}
-                       onKeyDown={handleKeyDown}
+                <Compass className="absolute bottom-0 right-0 w-1/5 h-auto"/>
 
+            </ClickableText>
+
+            <div className="flex flex-col sm:flex-row items-center bg-stone-700 min-h-[70px]">
+                <input
+                    ref={playerInputElement}
+                    readOnly={mutation.isPending}
+                    className="
+                    w-full 
+                    sm:p-4
+                    m-1
+                    p-1 
+                    text-center 
+                    sm:text-left 
+                    focus:border-stone-500 
+                    focus:border-[1.5px] 
+                    focus:outline-none 
+                    bg-stone-700"
+                    value={playerInput}
+                    placeholder="Type your command, then press enter/return."
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
                 ></input>
 
-                {mutation.isPending && <div className="mr-4 bg-neutral-700 p-2">
-                    <CircularProgress size={25} sx={{color: 'white'}}/>
-                </div>
-                }
+                {mutation.isPending && (
+                    <div className="mr-4 bg-stone-700 p-2">
+                        <CircularProgress size={25} sx={{color: 'white'}}/>
+                    </div>
+                )}
 
+                {!mutation.isPending && (
+                    <div
+                        className="
+                        flex 
+                        flex-row 
+                        justify-center 
+                        sm:ml-4 
+                        sm:mr-6 
+                        mt-4 
+                        mb-2 sm:mb-4 
+
+                        space-x-6
+                        ">
+                        <CommandsButton onCommandClick={handleCommandClick}/>
+                        <VerbsButton onVerbClick={handleVerbClick}/>
+                        <Button variant="contained" onClick={() => submitInput()}>
+                            Go
+                        </Button>
+                    </div>
+                )}
             </div>
 
             {mutation.isError &&
