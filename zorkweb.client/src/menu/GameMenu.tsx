@@ -17,13 +17,14 @@ export default function GameMenu({gameMethods, forceClose}: GameMenuProps) {
                     alt="Logo"
                 />
 
-                <h1 className="hidden lg:block text-xl text-black m-3 ml-20 font-['Lato']">Generative AI-Enhanced Zork I</h1>
+                <h1 className="hidden lg:block text-xl text-black m-3 ml-20 font-['Lato']">Generative AI-Enhanced Zork
+                    I</h1>
 
 
             </div>
             <div className="col-span-3 flex justify-end items-center">
                 <div className="mr-15">
-                <FunctionsMenu forceClose={forceClose} gameMethods={gameMethods}/>
+                    <FunctionsMenu forceClose={forceClose} gameMethods={gameMethods}/>
                 </div>
                 <AboutMenu/>
             </div>

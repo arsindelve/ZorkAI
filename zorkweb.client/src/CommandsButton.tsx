@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Button, Menu, MenuItem } from "@mui/material";
+import {Mixpanel} from "./Mixpanel.ts";
 
 type CommandButtonProps = {
     onCommandClick: (command: string) => void; // Callback prop to send the clicked command to the parent
 };
 
 export default function CommandsButton({ onCommandClick }: CommandButtonProps) {
-    const commands = ["enter", "exit", "go north", "go south", "go east", "go west", "go up", "go down", "wait", "inventory", "take all", "look", "again"];
+    const commands = ["enter", "exit", "go up", "go down", "wait", "inventory", "take all", "look", "again"];
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -16,6 +17,9 @@ export default function CommandsButton({ onCommandClick }: CommandButtonProps) {
 
     const handleClose = (command?: string) => {
         if (command) {
+            Mixpanel.track('Click Command', {
+                "command": command
+            });
             onCommandClick(command); // Pass the clicked command to the parent
         }
         setAnchorEl(null); // Close the menu

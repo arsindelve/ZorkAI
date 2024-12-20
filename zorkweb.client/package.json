@@ -21,12 +21,14 @@
     "@tanstack/react-query": "^5.29.2",
     "@types/moment": "^2.13.0",
     "axios": "^1.6.8",
+    "mixpanel-browser": "^2.58.0",
     "moment": "^2.30.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.3"
   },
   "devDependencies": {
+    "@types/mixpanel-browser": "^2.50.2",
     "@types/node": "^20.12.1",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
