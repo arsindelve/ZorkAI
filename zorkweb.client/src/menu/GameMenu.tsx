@@ -26,7 +26,7 @@ export default function GameMenu({gameMethods, forceClose}: GameMenuProps) {
                 <div className="mr-15">
                     <FunctionsMenu forceClose={forceClose} gameMethods={gameMethods}/>
                 </div>
-                <AboutMenu/>
+                <AboutMenu />
             </div>
         </div>
 

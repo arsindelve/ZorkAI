@@ -7,7 +7,7 @@ type VerbsButtonProps = {
 };
 
 export default function VerbsButton({ onVerbClick }: VerbsButtonProps) {
-    const verbs = ["examine", "take", "open", "close", "drop", "attack", "turn on", "turn off", "read"];
+    const verbs = ["eat", "drink", "drop", "attack", "turn on", "turn off", "read",  "open", "close", "examine", "take"];
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -53,7 +53,7 @@ export default function VerbsButton({ onVerbClick }: VerbsButtonProps) {
             >
                 {/* Map through the verbs array to create MenuItems */}
                 {verbs.map((verb, index) => (
-                    <MenuItem key={index} onClick={() => handleClose(verb)}>
+                    <MenuItem className={"uppercase"} key={index} onClick={() => handleClose(verb)}>
                         {verb}
                     </MenuItem>
                 ))}

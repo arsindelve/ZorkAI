@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { Button, Menu, MenuItem } from "@mui/material";
+import React, {useState} from "react";
+import {Button, Menu, MenuItem} from "@mui/material";
 import {Mixpanel} from "./Mixpanel.ts";
 
 type CommandButtonProps = {
     onCommandClick: (command: string) => void; // Callback prop to send the clicked command to the parent
 };
 
-export default function CommandsButton({ onCommandClick }: CommandButtonProps) {
-    const commands = ["enter", "exit", "go up", "go down", "wait", "inventory", "take all", "look", "again"];
+export default function CommandsButton({onCommandClick}: CommandButtonProps) {
+    const commands = ["verbose", "diagnose", "enter", "exit", "go up", "go down", "wait", "inventory", "again", "drop all", "take all", "look"];
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -53,7 +53,7 @@ export default function CommandsButton({ onCommandClick }: CommandButtonProps) {
             >
                 {/* Map through the commands array to create MenuItems */}
                 {commands.map((command, index) => (
-                    <MenuItem key={index} onClick={() => handleClose(command)}>
+                    <MenuItem className={"uppercase"} key={index} onClick={() => handleClose(command)}>
                         {command}
                     </MenuItem>
                 ))}
