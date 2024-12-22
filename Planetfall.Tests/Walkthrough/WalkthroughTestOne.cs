@@ -59,6 +59,17 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("remove lock", null, "Taken")]
     [TestCase("open door", null, "Opened")]
     [TestCase("N", null, "Storage West")]
+    [TestCase("drop all", null, "Dropped")]
+    [TestCase("take ladder", null, "Taken")]
+    [TestCase("S", null, "Mess")]
+    [TestCase("E", null, "Dorm")]
+    [TestCase("E", null, "Junction")]
+    [TestCase("N", null, "South")]
+    [TestCase("N", null, "Admin")]
+    [TestCase("drop ladder", null, "Dropped")]
+    [TestCase("extend ladder", null, "The ladder extends to a length of around eight meters")]
+    [TestCase("place ladder across rift", null, "The ladder swings out across the rift and comes to rest on the far edge, spanning the precipice")]
+    [TestCase("N", null, "Admin", "North")]
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup))

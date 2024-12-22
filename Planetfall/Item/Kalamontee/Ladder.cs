@@ -1,4 +1,5 @@
 using Model.AIGeneration;
+using Planetfall.Location.Kalamontee.Admin;
 
 namespace Planetfall.Item.Kalamontee;
 
@@ -57,6 +58,14 @@ public class Ladder : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
         if (!IsExtended)
             return new PositiveInteractionResult("The ladder is already in its collapsed state. ");
 
+        if (Repository.GetLocation<AdminCorridor>().LadderAcrossRift)
+        {
+            Repository.GetLocation<AdminCorridor>().LadderAcrossRift = false;
+            CurrentLocation?.RemoveItem(this);
+            CurrentLocation = null;
+            return new PositiveInteractionResult("As the ladder shortens it plunges into the rift. ");
+        }
+        
         IsExtended = false;
         return new PositiveInteractionResult("The ladder collapses to a length of around two-and-a-half meters. ");
     }
