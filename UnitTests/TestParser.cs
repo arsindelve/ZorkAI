@@ -21,7 +21,7 @@ public class TestParser : IntentParser
             "take", "drop", "open", "close", "examine", "look", "eat", "press", "remove",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind",
-            "lower", "raise", "get", "inflate", "leave", "unlock", "lock", "climb"
+            "lower", "raise", "get", "inflate", "leave", "unlock", "lock", "climb", "extend"
         ];
 
         _allNouns = Repository.GetNouns(gameName);
@@ -68,6 +68,16 @@ public class TestParser : IntentParser
                 Preposition = "to",
                 Verb = "tie",
                 OriginalInput = "tie rope to railing"
+            });
+        
+        if (input == "place ladder across rift")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "ladder",
+                NounTwo = "rift",
+                Preposition = "across",
+                Verb = "place",
+                OriginalInput = "place ladder across rift"
             });
 
         if (input == "press button")
