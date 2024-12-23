@@ -10,7 +10,7 @@ interface VideoDialogProps {
     handleClose: () => void;
 }
 
-const VideoDialog: React.FC<VideoDialogProps> = ({ open, handleClose }) => (
+const VideoDialog: React.FC<VideoDialogProps> = ({open, handleClose}) => (
     <Dialog
         open={open}
         onClose={handleClose}
@@ -19,20 +19,20 @@ const VideoDialog: React.FC<VideoDialogProps> = ({ open, handleClose }) => (
         maxWidth={false} // Disable default width limitations
         fullWidth // Full width dialog
         PaperProps={{
-            style: { height: "90vh", width: "90vw" }, // Set almost full screen dimensions
+            style: {height: "90vh", width: "90vw"}, // Set almost full screen dimensions
         }}
     >
         <DialogTitle id="alert-dialog-title">
             {"Welcome to Zork AI"}
         </DialogTitle>
         <DialogContent
-            style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: 0 }} // Center content
+            style={{display: "flex", justifyContent: "center", alignItems: "center", padding: 0}} // Center content
         >
             <video
                 src={'https://zorkai-assets.s3.us-east-1.amazonaws.com/zorkintro.mp4'} // Use the provided video URL
                 controls
                 autoPlay // Enable auto play
-                style={{ width: "100%", height: "100%" }} // Make the video fully responsive
+                style={{width: "100%", height: "100%"}} // Make the video fully responsive
             />
         </DialogContent>
         <DialogActions>
