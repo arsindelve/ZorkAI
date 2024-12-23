@@ -1,5 +1,5 @@
 import {SessionHandler} from "./SessionHandler.ts";
-import mixpanel, { Dict } from 'mixpanel-browser';
+import mixpanel, {Dict} from 'mixpanel-browser';
 
 let sessionId = new SessionHandler();
 mixpanel.init('62af8d500a6f295a71ef335b6ff56942');

@@ -70,6 +70,7 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("extend ladder", null, "The ladder extends to a length of around eight meters")]
     [TestCase("place ladder across rift", null, "The ladder swings out across the rift and comes to rest on the far edge, spanning the precipice")]
     [TestCase("N", null, "Admin", "North")]
+    [TestCase("W", null, "Small Office")]
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup))
