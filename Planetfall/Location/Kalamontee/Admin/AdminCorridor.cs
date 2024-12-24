@@ -1,16 +1,10 @@
-using GameEngine.Location;
-using Model.AIGeneration;
 using Model.Movement;
-using Planetfall.Command;
 using Planetfall.Item.Kalamontee;
 
 namespace Planetfall.Location.Kalamontee.Admin;
 
-public class AdminCorridor : LocationWithNoStartingItems
+internal class AdminCorridor : RiftLocationBase
 {
-    internal static string[] RiftNouns = ["rift", "gap", "split", "crack", "fissure", "break", "chasm"];
-    public bool LadderAcrossRift { get; set; }
-
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()
         {
@@ -20,7 +14,7 @@ public class AdminCorridor : LocationWithNoStartingItems
                 Direction.N,
                 new MovementParameters
                 {
-                    CanGo = _ => LadderAcrossRift,
+                    CanGo = _ => GetItem<Ladder>().IsAcrossRift,
                     CustomFailureMessage = "The rift is too wide to jump across. ",
                     Location = Repository.GetLocation<AdminCorridorNorth>()
                 }
@@ -30,21 +24,20 @@ public class AdminCorridor : LocationWithNoStartingItems
     protected override string ContextBasedDescription =>
         "The hallway, in fact the entire building, has been rent apart here, presumably by seismic upheaval. " +
         "You can see the sky through the severed roof above, and the ground is thick with rubble. To the north " +
-        "is a gaping rift, at least eight meters across and thirty meters deep. A wide doorway, " +
-        "labelled \"Sistumz Moniturz,\" leads west. ";
+        $"is a gaping rift, at least eight meters across and thirty meters deep. {( GetItem<Ladder>().IsAcrossRift ? "A metal ladder spans the rift." : "")} " +
+        "A wide doorway, labelled \"Sistumz Moniturz,\" leads west. ";
 
-    public override string Name => "Admin Corridor South";
+    public override string Name => "Admin Corridor";
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
-        if (action.Match(["jump", "leap"], RiftNouns))
-            return new DeathProcessor().Process(
-                "You get a brief (but much closer) view of the sharp and nasty rocks at the bottom of the rift. ",
-                context);
+        if (previousLocation is AdminCorridorNorth)
+            return
+                "You slowly make your way across the swaying ladder. You can see sharp, pointy rocks at the bottom of the rift, far below...\n\n";
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.BeforeEnterLocation(context, previousLocation);
     }
+    
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
@@ -63,7 +56,9 @@ public class AdminCorridor : LocationWithNoStartingItems
                     "The ladder, far too short to reach the other edge of the rift, plunges into the rift and is lost forever. ");
             }
 
-            LadderAcrossRift = true;
+            ladder.IsAcrossRift = true;
+            // Like the Zork kitchen window, the ladder exists in both places now. 
+            GetLocation<AdminCorridorNorth>().Items.Add(ladder);
             return new PositiveInteractionResult(
                 "The ladder swings out across the rift and comes to rest on the far edge, spanning the precipice. ");
         }

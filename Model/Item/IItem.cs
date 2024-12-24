@@ -18,7 +18,6 @@ public interface IItem : IInteractionTarget
     /// like the trap door, or the item is special and just does not show up, like the slime. 
     /// </summary>
     /// <param name="currentLocation"></param>
-    /// <param name="indent"></param>
     /// <returns></returns>
     string GenericDescription(ILocation? currentLocation);
 
@@ -42,7 +41,7 @@ public interface IItem : IInteractionTarget
     int Size { get; }
 
     /// <summary>
-    /// Determines whether the given noun matches any of the nouns for matching of an item.
+    /// Determines whether the given noun matches any of the nouns for matching of a given item.
     /// </summary>
     /// <param name="noun">The noun to match.</param>
     /// <param name="lookInsideContainers">Indicates whether to also look inside containers for matches.</param>

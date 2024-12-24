@@ -25,7 +25,7 @@ public class TestParser : IntentParser
         ];
 
         _allNouns = Repository.GetNouns(gameName);
-        _allContainers = Repository.GetContainers();
+        _allContainers = Repository.GetContainers(gameName);
 
         IEnumerable<string> specialNouns =
         [

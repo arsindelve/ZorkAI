@@ -13,16 +13,16 @@ public class SmallDesk : OpenAndCloseContainerBase, ICanBeExamined
         StartWithItemInside<UpperElevatorAccessCard>();
     }
 
+    public override string NowOpen(ILocation currentLocation)
+    {
+        return Items.Any() ? $"Opening the small desk reveals {SingleLineListOfItems()}. " : "Opened. ";
+    }
+
     public override string GenericDescription(ILocation? currentLocation)
     {
         if (IsOpen)
             return Items.Any() ? $"\n{ItemListDescription("small desk", null)}" : "";
-        
-        return base.GenericDescription(currentLocation);
-    }
 
-    public string OnTheGroundDescription(ILocation currentLocation)
-    {
-        return string.Empty;
+        return base.GenericDescription(currentLocation);
     }
 }
