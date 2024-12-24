@@ -47,4 +47,23 @@ public static class IntentHelper
         TNounTwo itemTwo = Repository.GetItem<TNounTwo>();
         return intent.Match(verbs, nounsOneForMatching, itemTwo.NounsForMatching, prepositionsForMatching);
     }
+
+    /// <summary>
+    /// Saves the caller having to get items from the repository first.
+    /// The MultiNounIntent can't do that itself because of project dependencies. 
+    /// </summary>
+    /// <param name="intent"></param>
+    /// <param name="prepositionsForMatching"></param>
+    /// <param name="verbs"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TNounTwo"></typeparam>
+    /// <typeparam name="TNounOne"></typeparam>
+    /// <returns></returns>
+    public static bool Match<TNounOne, TNounTwo>(this MultiNounIntent intent, string[] verbs,
+        string[] prepositionsForMatching) where TNounTwo : IItem, new() where TNounOne : IItem, new()
+    {
+        TNounOne itemOne = Repository.GetItem<TNounOne>();
+        TNounTwo itemTwo = Repository.GetItem<TNounTwo>();
+        return intent.Match(verbs, itemOne.NounsForMatching, itemTwo.NounsForMatching, prepositionsForMatching);
+    }
 }

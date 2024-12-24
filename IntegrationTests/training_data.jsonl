@@ -1,0 +1,154 @@
+{"prompt": "put on the hat", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>hat</noun>"}
+{"prompt": "put on the coat", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>coat</noun>"}
+{"prompt": "put on the jacket", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>jacket</noun>"}
+{"prompt": "put on the suit", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>suit</noun>"}
+{"prompt": "put on the cap", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>cap</noun>"}
+{"prompt": "put the hat on", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>hat</noun>"}
+{"prompt": "put the coat on", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>coat</noun>"}
+{"prompt": "put the jacket on", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>jacket</noun>"}
+{"prompt": "put the suit on", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>suit</noun>"}
+{"prompt": "put the cap on", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>cap</noun>"}
+{"prompt": "wear the hat", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>hat</noun>"}
+{"prompt": "don the hat", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>hat</noun>"}
+{"prompt": "dress in the hat", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>hat</noun>"}
+{"prompt": "take off the hat", "completion": "<intent>act</intent>\n<verb>doff</verb>\n<noun>hat</noun>"}
+{"prompt": "remove the hat", "completion": "<intent>act</intent>\n<verb>doff</verb>\n<noun>hat</noun>"}
+{"prompt": "doff the hat", "completion": "<intent>act</intent>\n<verb>doff</verb>\n<noun>hat</noun>"}
+{"prompt": "light the lamp", "completion": "<intent>act</intent>\n<verb>activate</verb>\n<noun>lamp</noun>"}
+{"prompt": "turn on lamp", "completion": "<intent>act</intent>\n<verb>activate</verb>\n<noun>lamp</noun>"}
+{"prompt": "turn lamp on", "completion": "<intent>act</intent>\n<verb>activate</verb>\n<noun>lamp</noun>"}
+{"prompt": "turn on the lamp", "completion": "<intent>act</intent>\n<verb>activate</verb>\n<noun>lamp</noun>"}
+{"prompt": "turn the lamp on", "completion": "<intent>act</intent>\n<verb>activate</verb>\n<noun>lamp</noun>"}
+{"prompt": "extinguish the lamp", "completion": "<intent>act</intent>\n<verb>deactivate</verb>\n<noun>lamp</noun>"}
+{"prompt": "turn off lamp", "completion": "<intent>act</intent>\n<verb>deactivate</verb>\n<noun>lamp</noun>"}
+{"prompt": "turn lamp off", "completion": "<intent>act</intent>\n<verb>deactivate</verb>\n<noun>lamp</noun>"}
+{"prompt": "turn off the lamp", "completion": "<intent>act</intent>\n<verb>deactivate</verb>\n<noun>lamp</noun>"}
+{"prompt": "turn the lamp off", "completion": "<intent>act</intent>\n<verb>deactivate</verb>\n<noun>lamp</noun>"}
+{"prompt": "light the lantern", "completion": "<intent>act</intent>\n<verb>activate</verb>\n<noun>lantern</noun>"}
+{"prompt": "turn on lantern", "completion": "<intent>act</intent>\n<verb>activate</verb>\n<noun>lantern</noun>"}
+{"prompt": "turn lantern on", "completion": "<intent>act</intent>\n<verb>activate</verb>\n<noun>lantern</noun>"}
+{"prompt": "turn on the lantern", "completion": "<intent>act</intent>\n<verb>activate</verb>\n<noun>lantern</noun>"}
+{"prompt": "turn the lantern on", "completion": "<intent>act</intent>\n<verb>activate</verb>\n<noun>lantern</noun>"}
+{"prompt": "extinguish the lantern", "completion": "<intent>act</intent>\n<verb>deactivate</verb>\n<noun>lantern</noun>"}
+{"prompt": "turn off lantern", "completion": "<intent>act</intent>\n<verb>deactivate</verb>\n<noun>lantern</noun>"}
+{"prompt": "turn lantern off", "completion": "<intent>act</intent>\n<verb>deactivate</verb>\n<noun>lantern</noun>"}
+{"prompt": "turn off the lantern", "completion": "<intent>act</intent>\n<verb>deactivate</verb>\n<noun>lantern</noun>"}
+{"prompt": "turn the lantern off", "completion": "<intent>act</intent>\n<verb>deactivate</verb>\n<noun>lantern</noun>"}
+{"prompt": "north", "completion": "<intent>move</intent>\n<direction>north</direction>"}
+{"prompt": "walk north", "completion": "<intent>move</intent>\n<direction>north</direction>"}
+{"prompt": "let's head north", "completion": "<intent>move</intent>\n<direction>north</direction>"}
+{"prompt": "i am going to go north", "completion": "<intent>move</intent>\n<direction>north</direction>"}
+{"prompt": "crawl northly", "completion": "<intent>move</intent>\n<direction>north</direction>"}
+{"prompt": "follow the crawlway", "completion": "<intent>move</intent>\n<direction>south</direction>"}
+{"prompt": "follow the passageway", "completion": "<intent>move</intent>\n<direction>north</direction>"}
+{"prompt": "climb the staircase", "completion": "<intent>move</intent>\n<direction>up</direction>"}
+{"prompt": "go up the staircase", "completion": "<intent>move</intent>\n<direction>up</direction>"}
+{"prompt": "ascend the staircase", "completion": "<intent>move</intent>\n<direction>up</direction>"}
+{"prompt": "climb down", "completion": "<intent>move</intent>\n<direction>down</direction>"}
+{"prompt": "climb up", "completion": "<intent>move</intent>\n<direction>up</direction>"}
+{"prompt": "descend down", "completion": "<intent>move</intent>\n<direction>down</direction>"}
+{"prompt": "descend the stairs", "completion": "<intent>move</intent>\n<direction>down</direction>"}
+{"prompt": "enter the house", "completion": "<intent>move</intent>\n<direction>in</direction>"}
+{"prompt": "go through the window", "completion": "<intent>move</intent>\n<direction>in</direction>"}
+{"prompt": "tie the rope to the railing", "completion": "<intent>act</intent>\n<verb>tie</verb>\n<noun>rope</noun>\n<noun>railing</noun>\n<preposition>to</preposition>"}
+{"prompt": "inflate the pile of plastic with the air pump", "completion": "<intent>act</intent>\n<verb>inflate</verb>\n<noun>pile</noun>\n<noun>pump</noun>\n<preposition>with</preposition>"}
+{"prompt": "get in the boat", "completion": "<intent>board</intent>\n<noun>boat</noun>"}
+{"prompt": "get out of the boat", "completion": "<intent>disembark</intent>\n<noun>boat</noun>"}
+{"prompt": "board the magic boat", "completion": "<intent>board</intent>\n<noun>boat</noun>"}
+{"prompt": "leave the boat", "completion": "<intent>disembark</intent>\n<noun>boat</noun>"}
+{"prompt": "exit the boat", "completion": "<intent>disembark</intent>\n<noun>boat</noun>"}
+{"prompt": "hey, what do you say we open the mailbox", "completion": "<intent>act</intent>\n<verb>open</verb>\n<noun>mailbox</noun>"}
+{"prompt": "next let's try opening the mailbox", "completion": "<intent>act</intent>\n<verb>open</verb>\n<noun>mailbox</noun>"}
+{"prompt": "open the mailbox", "completion": "<intent>act</intent>\n<verb>open</verb>\n<noun>mailbox</noun>"}
+{"prompt": "grab the bottle", "completion": "<intent>act</intent>\n<verb>grab</verb>\n<noun>bottle</noun>"}
+{"prompt": "please kick the mailbox", "completion": "<intent>act</intent>\n<verb>kick</verb>\n<noun>mailbox</noun>"}
+{"prompt": "I want to hug the mailbox", "completion": "<intent>act</intent>\n<verb>hug</verb>\n<noun>mailbox</noun>"}
+{"prompt": "take mailbox", "completion": "<intent>act</intent>\n<verb>take</verb>\n<noun>mailbox</noun>"}
+{"prompt": "the mailbox, eat it", "completion": "<intent>act</intent>\n<verb>eat</verb>\n<noun>mailbox</noun>"}
+{"prompt": "the mailbox, please smoke it", "completion": "<intent>act</intent>\n<verb>smoke</verb>\n<noun>mailbox</noun>"}
+{"prompt": "let's abscond the mailbox", "completion": "<intent>act</intent>\n<verb>take</verb>\n<noun>mailbox</noun>"}
+{"prompt": "it would be great if I can please lick the mailbox", "completion": "<intent>act</intent>\n<verb>lick</verb>\n<noun>mailbox</noun>"}
+{"prompt": "examine machine", "completion": "<intent>act</intent>\n<verb>examine</verb>\n<noun>machine</noun>"}
+{"prompt": "take plastic", "completion": "<intent>act</intent>\n<verb>take</verb>\n<noun>plastic</noun>"}
+{"prompt": "take pile", "completion": "<intent>act</intent>\n<verb>take</verb>\n<noun>pile</noun>"}
+{"prompt": "tie the rope to the railing", "completion": "<intent>act</intent>\n<verb>tie</verb>\n<noun>rope</noun>\n<noun>railing</noun>\n<preposition>to</preposition>"}
+{"prompt": "inflate the pile of plastic with the air pump", "completion": "<intent>act</intent>\n<verb>inflate</verb>\n<noun>pile of plastic</noun>\n<noun>pump</noun>\n<preposition>with</preposition>"}
+{"prompt": "blow up the pile of plastic using the air pump", "completion": "<intent>act</intent>\n<verb>inflate</verb>\n<noun>pile of plastic</noun>\n<noun>air pump</noun>\n<preposition>using</preposition>"}
+{"prompt": "Use the wrench to turn the bolt.", "completion": "<intent>act</intent>\n<verb>use</verb>\n<noun>bolt</noun>\n<noun>wrench</noun>\n<preposition>to</preposition>"}
+{"prompt": "With the wrench, turn the bolt", "completion": "<intent>act</intent>\n<verb>turn</verb>\n<noun>bolt</noun>\n<noun>wrench</noun>"}
+{"prompt": "The wrench should be used to turn the bolt.", "completion": "<intent>act</intent>\n<verb>use</verb>\n<noun>bolt</noun>\n<noun>wrench</noun>\n<preposition>to</preposition>"}
+{"prompt": "Turn the bolt using the wrench.", "completion": "<intent>act</intent>\n<verb>turn</verb>\n<noun>bolt</noun>\n<noun>wrench</noun>\n<preposition>using</preposition>"}
+{"prompt": "kill the troll with the sword", "completion": "<intent>act</intent>\n<verb>kill</verb>\n<noun>troll</noun>\n<noun>sword</noun>\n<preposition>with</preposition>"}
+{"prompt": "kill troll with sword", "completion": "<intent>act</intent>\n<verb>kill</verb>\n<noun>troll</noun>\n<noun>sword</noun>\n<preposition>with</preposition>"}
+{"prompt": "let's turn the bolt with the wrench", "completion": "<intent>act</intent>\n<verb>turn</verb>\n<noun>bolt</noun>\n<noun>wrench</noun>\n<preposition>with</preposition>"}
+{"prompt": "I want to put the sword in the trophy case", "completion": "<intent>act</intent>\n<verb>put</verb>\n<noun>trophy case</noun>\n<noun>sword</noun>\n<preposition>in</preposition>"}
+{"prompt": "With the glowing sword, kill the ugly troll.", "completion": "<intent>act</intent>\n<verb>kill</verb>\n<noun>sword</noun>\n<noun>troll</noun>\n<preposition>with</preposition>"}
+{"prompt": "The glowing sword should be used to kill the ugly troll.", "completion": "<intent>act</intent>\n<verb>kill</verb>\n<noun>sword</noun>\n<noun>troll</noun>\n<preposition>to</preposition>"}
+{"prompt": "Use the sword that glows to kill the troll that's ugly.", "completion": "<intent>act</intent>\n<verb>kill</verb>\n<noun>sword</noun>\n<noun>troll</noun>"}
+{"prompt": "get in the boat", "completion": "<intent>board</intent>\n<noun>boat</noun>"}
+{"prompt": "let's go for a ride in the magic boat", "completion": "<intent>board</intent>\n<noun>boat</noun>"}
+{"prompt": "get inside the boat", "completion": "<intent>board</intent>\n<noun>boat</noun>"}
+{"prompt": "enter the boat", "completion": "<intent>board</intent>\n<noun>boat</noun>"}
+{"prompt": "board the magic boat", "completion": "<intent>board</intent>\n<noun>boat</noun>"}
+{"prompt": "sit in the boat", "completion": "<intent>board</intent>\n<noun>boat</noun>"}
+{"prompt": "leave the boat", "completion": "<intent>disembark</intent>\n<noun>boat</noun>"}
+{"prompt": "get out of the boat", "completion": "<intent>disembark</intent>\n<noun>boat</noun>"}
+{"prompt": "exit the boat", "completion": "<intent>disembark</intent>\n<noun>boat</noun>"}
+{"prompt": "stand up and get out of the magic boat", "completion": "<intent>disembark</intent>\n<noun>boat</noun>"}
+{"prompt": "tie rope to railing", "completion": "<intent>act</intent>\n<verb>tie</verb>\n<noun>rope</noun>\n<noun>railing</noun>\n<preposition>to</preposition>"}
+{"prompt": "place ladder across rift", "completion": "<intent>act</intent>\n<verb>place</verb>\n<noun>ladder</noun>\n<noun>rift</noun>\n<preposition>across</preposition>"}
+{"prompt": "press button", "completion": "<intent>act</intent>\n<verb>press</verb>\n<noun>button</noun>"}
+{"prompt": "get in the boat", "completion": "<intent>board</intent>\n<noun>boat</noun>"}
+{"prompt": "get out of the boat", "completion": "<intent>disembark</intent>\n<noun>boat</noun>"}
+{"prompt": "leave boat", "completion": "<intent>disembark</intent>\n<noun>boat</noun>"}
+{"prompt": "inflate plastic with pump", "completion": "<intent>act</intent>\n<verb>inflate</verb>\n<noun>plastic</noun>\n<noun>pump</noun>\n<preposition>with</preposition>"}
+{"prompt": "unlock grate with the key", "completion": "<intent>act</intent>\n<verb>unlock</verb>\n<noun>grate</noun>\n<noun>key</noun>\n<preposition>with</preposition>"}
+{"prompt": "lock the grate with the key", "completion": "<intent>act</intent>\n<verb>lock</verb>\n<noun>grate</noun>\n<noun>key</noun>\n<preposition>with</preposition>"}
+{"prompt": "turn bolt with wrench", "completion": "<intent>act</intent>\n<verb>turn</verb>\n<noun>bolt</noun>\n<noun>wrench</noun>\n<preposition>with</preposition>"}
+{"prompt": "turn switch with screwdriver", "completion": "<intent>act</intent>\n<verb>turn</verb>\n<noun>switch</noun>\n<noun>screwdriver</noun>\n<preposition>with</preposition>"}
+{"prompt": "open the egg with the screwdriver", "completion": "<intent>act</intent>\n<verb>open</verb>\n<noun>egg</noun>\n<noun>screwdriver</noun>\n<preposition>with</preposition>"}
+{"prompt": "open the egg with the knife", "completion": "<intent>act</intent>\n<verb>open</verb>\n<noun>egg</noun>\n<noun>knife</noun>\n<preposition>with</preposition>"}
+{"prompt": "open the egg with the sword", "completion": "<intent>act</intent>\n<verb>open</verb>\n<noun>egg</noun>\n<noun>sword</noun>\n<preposition>with</preposition>"}
+{"prompt": "press the yellow button", "completion": "<intent>act</intent>\n<verb>press</verb>\n<noun>yellow button</noun>"}
+{"prompt": "press yellow", "completion": "<intent>act</intent>\n<verb>press</verb>\n<noun>yellow</noun>"}
+{"prompt": "press yellow button", "completion": "<intent>act</intent>\n<verb>press</verb>\n<noun>yellow button</noun>"}
+{"prompt": "press the brown button", "completion": "<intent>act</intent>\n<verb>press</verb>\n<noun>brown button</noun>"}
+{"prompt": "press the blue button", "completion": "<intent>act</intent>\n<verb>press</verb>\n<noun>blue button</noun>"}
+{"prompt": "press the red button", "completion": "<intent>act</intent>\n<verb>press</verb>\n<noun>red button</noun>"}
+{"prompt": "light a match", "completion": "<intent>act</intent>\n<verb>light</verb>\n<noun>match</noun>"}
+{"prompt": "open trap door", "completion": "<intent>act</intent>\n<verb>open</verb>\n<noun>trap door</noun>"}
+{"prompt": "light candles with match", "completion": "<intent>act</intent>\n<verb>light</verb>\n<noun>candles</noun>\n<noun>match</noun>\n<preposition>with</preposition>"}
+{"prompt": "put magnet on crevice", "completion": "<intent>act</intent>\n<verb>put</verb>\n<noun>magnet</noun>\n<noun>crevice</noun>\n<preposition>on</preposition>"}
+{"prompt": "unlock padlock with key", "completion": "<intent>act</intent>\n<verb>unlock</verb>\n<noun>padlock</noun>\n<noun>key</noun>\n<preposition>with</preposition>"}
+{"prompt": "kill the cyclops with the sword", "completion": "<intent>act</intent>\n<verb>kill</verb>\n<noun>cyclops</noun>\n<noun>sword</noun>\n<preposition>with</preposition>"}
+{"prompt": "dig in sand with shovel", "completion": "<intent>act</intent>\n<verb>dig</verb>\n<noun>sand</noun>\n<noun>shovel</noun>\n<preposition>with</preposition>"}
+{"prompt": "offer the cyclops the lunch", "completion": "<intent>act</intent>\n<verb>offer</verb>\n<noun>cyclops</noun>\n<noun>lunch</noun>"}
+{"prompt": "give the lunch to the cyclops", "completion": "<intent>act</intent>\n<verb>give</verb>\n<noun>lunch</noun>\n<noun>cyclops</noun>\n<preposition>to</preposition>"}
+{"prompt": "give the bottle to the cyclops", "completion": "<intent>act</intent>\n<verb>give</verb>\n<noun>bottle</noun>\n<noun>cyclops</noun>\n<preposition>to</preposition>"}
+{"prompt": "give the garlic to the cyclops", "completion": "<intent>act</intent>\n<verb>give</verb>\n<noun>garlic</noun>\n<noun>cyclops</noun>\n<preposition>to</preposition>"}
+{"prompt": "give the axe to the cyclops", "completion": "<intent>act</intent>\n<verb>give</verb>\n<noun>axe</noun>\n<noun>cyclops</noun>\n<preposition>to</preposition>"}
+{"prompt": "slide upper elevator access card through slot", "completion": "<intent>act</intent>\n<verb>slide</verb>\n<noun>upper elevator access card</noun>\n<noun>slot</noun>\n<preposition>through</preposition>"}
+{"prompt": "swipe upper elevator access card across slot", "completion": "<intent>act</intent>\n<verb>swipe</verb>\n<noun>upper elevator access card</noun>\n<noun>slot</noun>\n<preposition>across</preposition>"}
+{"prompt": "slide kitchen access card through slot", "completion": "<intent>act</intent>\n<verb>slide</verb>\n<noun>kitchen access card</noun>\n<noun>slot</noun>\n<preposition>through</preposition>"}
+{"prompt": "swipe kitchen access access card across slot", "completion": "<intent>act</intent>\n<verb>swipe</verb>\n<noun>kitchen access card</noun>\n<noun>slot</noun>\n<preposition>across</preposition>"}
+{"prompt": "throw the rock at the window", "completion": "<intent>act</intent>\n<verb>throw</verb>\n<noun>rock</noun>\n<noun>window</noun>\n<preposition>at</preposition>"}
+{"prompt": "cut the rope with the knife", "completion": "<intent>act</intent>\n<verb>cut</verb>\n<noun>rope</noun>\n<noun>knife</noun>\n<preposition>with</preposition>"}
+{"prompt": "climb up the ladder", "completion": "<intent>move</intent>\n<verb>climb</verb>\n<noun>ladder</noun>\n<direction>up</direction>"}
+{"prompt": "push the boulder down the hill", "completion": "<intent>act</intent>\n<verb>push</verb>\n<noun>boulder</noun>\n<noun>hill</noun>\n<direction>down</direction>"}
+{"prompt": "give the ring to the princess", "completion": "<intent>act</intent>\n<verb>give</verb>\n<noun>ring</noun>\n<noun>princess</noun>\n<preposition>to</preposition>"}
+{"prompt": "place the gem inside the chest", "completion": "<intent>act</intent>\n<verb>place</verb>\n<noun>gem</noun>\n<noun>chest</noun>\n<preposition>inside</preposition>"}
+{"prompt": "pour water into the cauldron", "completion": "<intent>act</intent>\n<verb>pour</verb>\n<noun>water</noun>\n<noun>cauldron</noun>\n<preposition>into</preposition>"}
+{"prompt": "drag the table across the room", "completion": "<intent>act</intent>\n<verb>drag</verb>\n<noun>table</noun>\n<noun>room</noun>\n<preposition>across</preposition>"}
+{"prompt": "insert the key into the lock", "completion": "<intent>act</intent>\n<verb>insert</verb>\n<noun>key</noun>\n<noun>lock</noun>\n<preposition>into</preposition>"}
+{"prompt": "tie the rope around the tree", "completion": "<intent>act</intent>\n<verb>tie</verb>\n<noun>rope</noun>\n<noun>tree</noun>\n<preposition>around</preposition>"}
+{"prompt": "smash vase with hammer", "completion": "<intent>act</intent>\n<verb>smash</verb>\n<noun>vase</noun>\n<noun>hammer</noun>\n<preposition>with</preposition>"}
+{"prompt": "smash the vase with the hammer", "completion": "<intent>act</intent>\n<verb>smash</verb>\n<noun>vase</noun>\n<noun>hammer</noun>\n<preposition>with</preposition>"}
+{"prompt": "break the lock with the crowbar", "completion": "<intent>act</intent>\n<verb>break</verb>\n<noun>lock</noun>\n<noun>crowbar</noun>\n<preposition>with</preposition>"}
+{"prompt": "lift the lid off the box", "completion": "<intent>act</intent>\n<verb>lift</verb>\n<noun>lid</noun>\n<noun>box</noun>\n<preposition>off</preposition>"}
+{"prompt": "throw the torch into the pit", "completion": "<intent>act</intent>\n<verb>throw</verb>\n<noun>torch</noun>\n<noun>pit</noun>\n<preposition>into</preposition>"}
+{"prompt": "push the statue against the wall", "completion": "<intent>act</intent>\n<verb>push</verb>\n<noun>statue</noun>\n<noun>wall</noun>\n<preposition>against</preposition>"}
+{"prompt": "hang the painting on the wall", "completion": "<intent>act</intent>\n<verb>hang</verb>\n<noun>painting</noun>\n<noun>wall</noun>\n<preposition>on</preposition>"}
+{"prompt": "climb down the rope", "completion": "<intent>move</intent>\n<verb>climb</verb>\n<noun>rope</noun>\n<direction>down</direction>"}
+{"prompt": "lower the drawbridge with the crank", "completion": "<intent>act</intent>\n<verb>lower</verb>\n<noun>drawbridge</noun>\n<noun>crank</noun>\n<preposition>with</preposition>"}
+{"prompt": "fill the bucket with water", "completion": "<intent>act</intent>\n<verb>fill</verb>\n<noun>bucket</noun>\n<noun>water</noun>\n<preposition>with</preposition>"}
+{"prompt": "fill bucket with water", "completion": "<intent>act</intent>\n<verb>fill</verb>\n<noun>bucket</noun>\n<noun>water</noun>\n<preposition>with</preposition>"}

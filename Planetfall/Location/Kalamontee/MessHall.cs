@@ -1,6 +1,7 @@
 using GameEngine.Location;
 using Model.Movement;
 using Planetfall.Item.Kalamontee;
+using Planetfall.Item.Kalamontee.Admin;
 
 namespace Planetfall.Location.Kalamontee;
 
@@ -20,5 +21,7 @@ internal class MessHall : LocationBase
     public override void Init()
     {
         StartWithItem<Canteen>();
+        StartWithItem<KitchenDoor>();
+        StartWithItem<KitchenSlot>();
     }
 }

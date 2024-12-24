@@ -26,10 +26,9 @@ internal class ClaudeFourParserClient : ClaudeClientBase, IClaudeFourParserClien
              
         2. In <verb> tags, put the single most important verb I need to know, which best expresses the player's intention. If there is a simpler, more common synonym for the verb, use that instead.
            To avoid confusion, if the player wants to turn something on, or turn on something like a light, use the verb "activate". if the player wants to turn something off, or turn off something light a lamp, use the verb "deactivate"
-           To avoid confusion, if the player wants wear or put on clothing, use the verb "don". If the player wants take off clothing, or remove clothing, use the verb "doff"
+           To avoid confusion, if the player wants wear or put on clothing, replace their verb with the verb "don". If the player wants take off clothing, or remove clothing, replace their verb with the the verb "doff"
         
-        3. For each noun in the sentence that relates to the main verb, place each noun in a set of <noun> tags. If there is an adjective immediately preceding a noun, include it in separate <adjective> tags outside the <noun> tags. 
-        Use context to distinguish between adjectives and nouns. Tag words as adjectives only if they immediately precede a noun and fit common adjective patterns.
+        3. For each noun in the sentence that relates to the main verb, place each noun in a set of <noun> tags. If there are adjectives immediately preceding a noun, include it in front of the noun
         
         4. If there are two nouns, in separate <preposition> tags outside any other tags, put the preposition which connects the nouns. Otherwise, omit these tags.
         
@@ -38,6 +37,17 @@ internal class ClaudeFourParserClient : ClaudeClientBase, IClaudeFourParserClien
         'follow' or 'go towards' combined with a specific location described in the player's current environment, use the corresponding direction. If you cannot match any of these words, put "other."
         
         Do not provide any analysis or explanation, just the tags.
+        
+        Examples: 
+        
+        "prompt": "pull the lever", "completion": "<intent>act</intent>\n<verb>pull</verb>\n<noun>lever</noun>"
+        "prompt": "put on the hat", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>hat</noun>"
+        "prompt": "put on the jacket", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>jacket</noun>"
+        "prompt": "turn on lamp", "completion": "<intent>act</intent>\n<verb>activate</verb>\n<noun>lamp</noun>"
+        "prompt": "exit the boat", "completion": "<intent>disembark</intent>\n<noun>boat</noun>"
+        "prompt": "take off the jacket", "completion": "<intent>act</intent>\n<verb>doff</verb>\n<noun>jacket</noun>"
+        "prompt": "tie the rope to the railing", "completion": "<intent>act</intent>\n<verb>tie</verb>\n<noun>rope</noun>\n<noun>railing</noun>\n<preposition>to</preposition>"
+        
         """;
 
     public Task<string?> GetResponse(string location, string input)
