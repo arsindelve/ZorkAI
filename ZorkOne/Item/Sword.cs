@@ -4,7 +4,7 @@ namespace ZorkOne.Item;
 
 public class Sword : ItemBase, ICanBeTakenAndDropped, IWeapon
 {
-    public override string[] NounsForMatching => ["sword", "glamdring", "orcrist", "glowing sword"];
+    public override string[] NounsForMatching => ["sword", "glamdring", "orcrist"];
 
     public override string GenericDescription(ILocation? currentLocation) => "A sword";
 
