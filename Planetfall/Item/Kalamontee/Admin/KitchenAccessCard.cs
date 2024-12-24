@@ -3,7 +3,7 @@
 public class KitchenAccessCard : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead
 {
     public override string[] NounsForMatching =>
-        ["card", "access card", "kitchen access card", "kitchen card", "kitchen access"];
+        ["kitchen access card", "card", "access card", "kitchen", "kitchen card", "kitchen access"];
 
     public string ExaminationDescription => "The card is embossed \"kitcin akses kard.\"";
 

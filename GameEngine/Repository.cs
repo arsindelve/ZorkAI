@@ -42,11 +42,7 @@ public static class Repository
         if (string.IsNullOrEmpty(item))
             return false;
 
-        item = item.ToLowerInvariant().Trim();
-
-        return _allItems
-            .Any(i => i.Value.NounsForMatching.Any(s => s
-                .Equals(item, StringComparison.OrdinalIgnoreCase)));
+        return GetItem(item) is not null;
     }
 
     public static T GetItem<T>() where T : IItem, new()
@@ -136,14 +132,18 @@ public static class Repository
         }
     }
 
-    public static string[] GetContainers()
+    /// <summary>
+    /// For unit testing purposes only. 
+    /// </summary>
+    /// <returns></returns>
+    public static string[] GetContainers(string gameName = "ZorkOne")
     {
         if (_allContainers.Length > 0) return _allContainers;
 
         lock (_allContainers)
         {
             var allItems = new List<ItemBase>();
-            var assembly = Assembly.Load("ZorkOne");
+            var assembly = Assembly.Load(gameName);
 
             var types = assembly.GetTypes();
 

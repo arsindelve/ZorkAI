@@ -1,5 +1,6 @@
 ﻿using GameEngine.Location;
 using Model.Movement;
+using Planetfall.Item.Kalamontee.Admin;
 
 namespace Planetfall.Location.Kalamontee.Admin;
 
@@ -20,5 +21,6 @@ internal class LargeOffice : LocationBase
 
     public override void Init()
     {
+        StartWithItem<LargeDesk>();
     }
 }

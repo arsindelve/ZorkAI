@@ -63,14 +63,24 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("take ladder", null, "Taken")]
     [TestCase("S", null, "Mess")]
     [TestCase("E", null, "Dorm")]
-    [TestCase("E", null, "Junction")]
+    [TestCase("E", null, "Junction", "Finally, you see an intersection")]
     [TestCase("N", null, "South")]
     [TestCase("N", null, "Admin")]
     [TestCase("drop ladder", null, "Dropped")]
     [TestCase("extend ladder", null, "The ladder extends to a length of around eight meters")]
     [TestCase("place ladder across rift", null, "The ladder swings out across the rift and comes to rest on the far edge, spanning the precipice")]
-    [TestCase("N", null, "Admin", "North")]
+    [TestCase("N", null, "Admin", "North", "slowly make your way across the swaying")]
     [TestCase("W", null, "Small Office")]
+    [TestCase("open desk", null, "Opening the small desk reveals a kitchen access card and a upper elevator access card")]
+    [TestCase("take upper card", null, "Taken")]
+    [TestCase("take kitchen card", null, "Taken")]
+    [TestCase("W", null, "Large Office")]
+    [TestCase("open desk", null, "Opening the large desk reveals a shuttle access card")]
+    [TestCase("take shuttle card", null, "Taken")]
+    [TestCase("E", null, "Small Office")]
+    [TestCase("E", null, "Admin", "North")]
+    [TestCase("S", null, "Admin", "slowly make your way across the swaying")]
+
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup))
