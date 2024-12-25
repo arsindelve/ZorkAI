@@ -58,6 +58,13 @@ public class TestParser : IntentParser
                 Verb = "cross"
             });
 
+        if (input is "drop the access card")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "access card",
+                Verb = "drop"
+            });
+        
         if (input is "wait" or "z")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new WaitProcessor() });
 

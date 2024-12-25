@@ -36,6 +36,11 @@ public abstract class ItemBase : IItem
     /// </summary>
     public abstract string[] NounsForMatching { get; }
 
+    /// <summary>
+    /// These are almost always identical. When they are not, this can be overriden. 
+    /// </summary>
+    public virtual string[] NounsForPreciseMatching => NounsForMatching;
+
     public virtual string Name => NounsForMatching.First();
 
     /// <summary>

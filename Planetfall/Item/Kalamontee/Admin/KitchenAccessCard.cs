@@ -1,6 +1,6 @@
 ﻿namespace Planetfall.Item.Kalamontee.Admin;
 
-public class KitchenAccessCard : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead
+public class KitchenAccessCard : AccessCard, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead
 {
     public override string[] NounsForMatching =>
         ["kitchen access card", "card", "access card", "kitchen", "kitchen card", "kitchen access"];
