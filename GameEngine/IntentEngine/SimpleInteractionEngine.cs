@@ -97,8 +97,8 @@ internal class SimpleInteractionEngine : IIntentEngine
         var nounToLongestNounMap = new Dictionary<string, string>();
         foreach (var item in ambiguousItems)
         {
-            string? longestNoun = item.NounsForMatching.MaxBy(noun => noun.Length);
-            foreach (var noun in item.NounsForMatching)
+            string? longestNoun = item.NounsForPreciseMatching.MaxBy(noun => noun.Length);
+            foreach (var noun in item.NounsForPreciseMatching)
             {
                 nounToLongestNounMap[noun] = longestNoun ?? string.Empty;
             }

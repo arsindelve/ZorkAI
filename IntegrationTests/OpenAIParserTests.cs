@@ -112,6 +112,14 @@ public class OpenAIParserTests
     [TestCase(typeof(BehindHouse), "go into the house", new[] { "<intent>move</intent>", "<direction>in</direction>" })]
     
     // Single noun
+    [TestCase(typeof(WestOfHouse), "drop the card",
+        new[] { "<verb>drop</verb>", "<noun>card</noun>", "<intent>act</intent>" })]
+    [TestCase(typeof(WestOfHouse), "drop the access card",
+        new[] { "<verb>drop</verb>", "<noun>access card</noun>", "<intent>act</intent>" })]
+    [TestCase(typeof(WestOfHouse), "drop access card",
+        new[] { "<verb>drop</verb>", "<noun>access card</noun>", "<intent>act</intent>" })]
+    [TestCase(typeof(WestOfHouse), "drop upper elevator access card",
+        new[] { "<verb>drop</verb>", "<noun>upper elevator access card</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "hey, what do you say we open the mailbox",
         new[] { "<verb>open</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "next let's try opening the mailbox",

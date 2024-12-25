@@ -1,6 +1,6 @@
 namespace Planetfall.Item.Kalamontee.Admin;
 
-public class ShuttleAccessCard : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead
+public class ShuttleAccessCard : AccessCard, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead
 {
     public override string[] NounsForMatching =>
         ["shuttle access card", "card", "access card", "shuttle", "shuttle card", "shuttle access"];
