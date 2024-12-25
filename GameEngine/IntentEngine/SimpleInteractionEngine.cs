@@ -18,11 +18,11 @@ internal class SimpleInteractionEngine : IIntentEngine
         Debug.WriteLine(intent);
         context.LastNoun = simpleInteraction.Noun ?? "";
 
-        var requireDisambiguation = CheckDisambiguation(simpleInteraction, context);
+        SimpleInteractionDisambiguationInteractionResult? requireDisambiguation = CheckDisambiguation(simpleInteraction, context);
         if (requireDisambiguation is not null)
             return (requireDisambiguation, requireDisambiguation.InteractionMessage);
 
-        // Turning on a light source should supercede all of this. Check the noun
+        // Turning on a light source should supersede all of this. Check the noun
         bool refersToALightSource = Repository.GetItem(simpleInteraction.Noun) is IAmALightSourceThatTurnsOnAndOff;
 
         // If it's dark, you can interact with items in your possession that are light sources that can be
