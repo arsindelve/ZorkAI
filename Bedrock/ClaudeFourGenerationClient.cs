@@ -24,7 +24,7 @@ public class ClaudeFourGenerationClient : ClaudeClientBase, IGenerationClient
     
     public Guid TurnCorrelationId { get; set; }
     
-    public ICloudWatchLogger<GenerationLog>? Logger { get; set; }
+    public ICloudWatchLogger<GenerationLog>? CloudWatchLogger { get; set; }
 
     public async Task<string> CompleteChat(Request request)
     {

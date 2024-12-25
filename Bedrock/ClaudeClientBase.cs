@@ -12,11 +12,11 @@ public abstract class ClaudeClientBase
     //protected const string ClaudeModelId = "amazon.titan-text-premier-v1:0";
     //protected const string ClaudeModelId = "anthropic.claude-3-5-sonnet-20240620-v1:0";
     //protected const string ClaudeModelId = "anthropic.claude-3-haiku-20240307-v1:0";
-    protected const string ClaudeModelId = "anthropic.claude-3-5-sonnet-20240620-v1:0";
     //protected const string ClaudeModelId = "anthropic.claude-3-5-haiku-20241022-v1:0";
     //protected const string ClaudeModelId = "amazon.titan-text-premier-v1:0";
-    
     //protected const string ClaudeModelId = "anthropic.claude-3-sonnet-20240229-v1:0";
+    
+    protected const string ClaudeModelId = "anthropic.claude-3-5-sonnet-20240620-v1:0";
     protected const string AnthropicVersion = "bedrock-2023-05-31";
 
     protected async Task<string?> GenerateResponse(string jsonString)

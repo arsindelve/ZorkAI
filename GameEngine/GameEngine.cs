@@ -258,7 +258,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _turnLogger = await CloudWatchLoggerFactory.Get<TurnLog>(_gameInstance.GameName, "Turns", _turnCorrelationId);
 
         GenerationClient.TurnCorrelationId = _turnCorrelationId;
-        GenerationClient.Logger =
+        GenerationClient.CloudWatchLogger =
             await CloudWatchLoggerFactory.Get<GenerationLog>(_gameInstance.GameName, "ResponseGeneration",
                 _turnCorrelationId);
 

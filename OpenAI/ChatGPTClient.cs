@@ -12,23 +12,9 @@ namespace OpenAI;
 /// <summary>
 ///     Represents a client for interacting with OpenAI API to generate text.
 /// </summary>
-public class ChatGPTClient : IGenerationClient
+public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerationClient
 {
-    private readonly OpenAIClient _client;
-    private readonly ILogger? _logger;
-    
-    private readonly string _deploymentName = "gpt-4o";
-
-    public ChatGPTClient(ILogger? logger)
-    {
-        _logger = logger;
-        var key = Environment.GetEnvironmentVariable("OPEN_AI_KEY");
-
-        if (string.IsNullOrEmpty(key))
-            throw new Exception("Missing environment variable OPEN_AI_KEY");
-
-        _client = new OpenAIClient(key);
-    }
+    protected override string DeploymentName => "gpt-4o";
 
     public Action? OnGenerate { get; set; }
 
@@ -38,7 +24,7 @@ public class ChatGPTClient : IGenerationClient
     
     public Guid TurnCorrelationId { get; set; }
     
-    public ICloudWatchLogger<GenerationLog>? Logger { get; set; }
+    public ICloudWatchLogger<GenerationLog>? CloudWatchLogger { get; set; }
 
     /// <summary>
     ///     Completes a chat conversation using the OpenAI API.
@@ -47,16 +33,9 @@ public class ChatGPTClient : IGenerationClient
     /// <returns>The generated response message from the chat conversation.</returns>
     public async Task<string> CompleteChat(Request request)
     {
-        _logger?.LogDebug($"Sending request of type: {request.GetType().Name} ");
+        Logger?.LogDebug($"Sending request of type: {request.GetType().Name} ");
 
-        var chatCompletionsOptions = new ChatCompletionsOptions
-        {
-            DeploymentName = _deploymentName,
-            Messages =
-            {
-                new ChatRequestSystemMessage(SystemPrompt)
-            }
-        };
+        var chatCompletionsOptions = GetChatCompletionsOptions(SystemPrompt);
 
         var reverse = LastFiveInputOutputs.ToList();
         reverse.Reverse();
@@ -74,18 +53,18 @@ public class ChatGPTClient : IGenerationClient
 
         // Add the most recent request
         chatCompletionsOptions.Messages.Add(new ChatRequestUserMessage(request.UserMessage));
+        
+        Logger?.LogDebug(request.UserMessage);
 
-        _logger?.LogDebug(request.UserMessage);
-
-        Response<ChatCompletions> response = await _client.GetChatCompletionsAsync(chatCompletionsOptions);
+        Response<ChatCompletions> response = await Client.GetChatCompletionsAsync(chatCompletionsOptions);
         var responseMessage = response.Value.Choices[0].Message;
 
         OnGenerate?.Invoke();
 
         if (!string.IsNullOrEmpty(request.UserMessage))
-            Logger?.WriteLogEvents(new GenerationLog
+            CloudWatchLogger?.WriteLogEvents(new GenerationLog
             {
-                LanguageModel = _deploymentName,
+                LanguageModel = DeploymentName,
                 Prompt = request.UserMessage,
                 Response = responseMessage.Content,
                 TurnCorrelationId = TurnCorrelationId.ToString()
