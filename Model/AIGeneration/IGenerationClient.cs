@@ -21,7 +21,7 @@ public interface IGenerationClient
     
     Guid TurnCorrelationId { get; set; }
     
-    ICloudWatchLogger<GenerationLog>? Logger { get; set; }
+    ICloudWatchLogger<GenerationLog>? CloudWatchLogger { get; set; }
 
     /// <summary>
     ///     Completes a chat operation based on the given request.
