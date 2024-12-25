@@ -9,6 +9,52 @@ public class CardTests : EngineTestsBase
 {
     
     [Test]
+    public async Task Kitchen_HappyPath()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        engine.Context.ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
+        engine.Context.ItemPlacedHere(Repository.GetItem<ShuttleAccessCard>());
+        
+        engine.Context.CurrentLocation = room;
+        
+        string? response = await engine.GetResponse($"slide kitchen access card through slot");
+
+        response.Should().Contain("The kitchen door quietly slides open");
+    }
+    
+    [Test]
+    public async Task Kitchen_Disambiguation_HappyPath()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        engine.Context.ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
+        engine.Context.ItemPlacedHere(Repository.GetItem<ShuttleAccessCard>());
+        
+        engine.Context.CurrentLocation = room;
+        
+        Console.WriteLine(await engine.GetResponse($"slide card through slot"));
+        string? response = await engine.GetResponse($"kitchen");
+
+        response.Should().Contain("The kitchen door quietly slides open");
+    }
+    
+    [Test]
+    public async Task Kitchen_WrongCard()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        engine.Context.ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
+        engine.Context.ItemPlacedHere(Repository.GetItem<ShuttleAccessCard>());
+        
+        engine.Context.CurrentLocation = room;
+        
+        string? response = await engine.GetResponse($"slide shuttle access card through slot");
+
+        response.Should().BeNullOrWhiteSpace();
+    }
+    
+    [Test]
     [TestCase("kitchen")]
     [TestCase("card")]
     [TestCase("kitchen access")]
@@ -108,6 +154,7 @@ public class CardTests : EngineTestsBase
         engine.Context.ItemPlacedHere(Repository.GetItem<ShuttleAccessCard>());
         engine.Context.ItemPlacedHere(Repository.GetItem<UpperElevatorAccessCard>());
         engine.Context.ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
+        engine.Context.ItemPlacedHere(Repository.GetItem<LowerElevatorAccessCard>());
         
         engine.Context.CurrentLocation = room;
         
@@ -115,7 +162,7 @@ public class CardTests : EngineTestsBase
         string? response = await engine.GetResponse(reply);
 
         response.Should().Contain("Dropped");
-        engine.Context.Items.Should().HaveCount(2);
+        engine.Context.Items.Should().HaveCount(3);
         Repository.GetItem<ShuttleAccessCard>().CurrentLocation.Should().BeOfType<MessCorridor>();
     }
     
@@ -133,6 +180,7 @@ public class CardTests : EngineTestsBase
         engine.Context.ItemPlacedHere(Repository.GetItem<ShuttleAccessCard>());
         engine.Context.ItemPlacedHere(Repository.GetItem<UpperElevatorAccessCard>());
         engine.Context.ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
+        engine.Context.ItemPlacedHere(Repository.GetItem<LowerElevatorAccessCard>());
         
         engine.Context.CurrentLocation = room;
         
@@ -140,7 +188,7 @@ public class CardTests : EngineTestsBase
         string? response = await engine.GetResponse(reply);
 
         response.Should().Contain("Dropped");
-        engine.Context.Items.Should().HaveCount(2);
+        engine.Context.Items.Should().HaveCount(3);
         Repository.GetItem<UpperElevatorAccessCard>().CurrentLocation.Should().BeOfType<MessCorridor>();
     }
 }
