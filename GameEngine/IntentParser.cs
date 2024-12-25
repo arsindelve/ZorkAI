@@ -34,7 +34,7 @@ public class IntentParser : IIntentParser
     public IntentParser(IGlobalCommandFactory gameSpecificCommandFactory, ILogger? logger = null)
     {
         _gameSpecificCommandFactory = gameSpecificCommandFactory;
-        _parser = new ClaudeFourParser(logger);
+        _parser = new OpenAIParser(logger);
     }
 
     public IntentBase? DetermineSystemIntentType(string? input)

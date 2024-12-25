@@ -1,9 +1,8 @@
-using Model.Item;
 
 namespace Model.Interaction;
 
 /// <summary>
-/// Our simple interaction (one noun, one verb) requires disambiguation.
+/// Our simple interaction (one noun, one verb) requires disambiguation because there are multiple matching nouns. 
 /// The verb and possible response nouns are contained in this object's properties. 
 /// </summary>
 public sealed record SimpleInteractionDisambiguationInteractionResult : InteractionResult
