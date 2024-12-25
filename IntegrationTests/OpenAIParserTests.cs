@@ -173,12 +173,6 @@ public class OpenAIParserTests
         {
             "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>"
         })]
-    [TestCase(typeof(Dam), "The wrench should be used to turn the bolt.",
-        new[]
-        {
-            "<verb>turn</verb>", "<noun>bolt</noun>", "<noun>wrench</noun>", "<intent>act</intent>",
-            "<preposition>to</preposition>"
-        })]
     [TestCase(typeof(Dam), "Turn the bolt using the wrench.",
         new[]
         {

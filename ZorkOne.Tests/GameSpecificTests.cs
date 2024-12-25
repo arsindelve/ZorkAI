@@ -1,5 +1,7 @@
 using FluentAssertions;
 using GameEngine;
+using Model.AIParsing;
+using Moq;
 using NUnit.Framework;
 using UnitTests;
 using ZorkOne.GlobalCommand;
@@ -58,7 +60,7 @@ public class GameSpecificTests : EngineTestsBase
     [Test]
     public async Task ClimbATree()
     {
-        var target = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
+        var target = GetTarget(new IntentParser(Mock.Of<IAIParser>(), new ZorkOneGlobalCommandFactory()));
         target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
 
         // Act

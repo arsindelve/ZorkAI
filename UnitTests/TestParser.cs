@@ -1,5 +1,6 @@
 using GameEngine;
 using GameEngine.StaticCommand.Implementation;
+using Model.AIParsing;
 using Model.Intent;
 using Model.Interface;
 
@@ -14,7 +15,7 @@ public class TestParser : IntentParser
     private readonly string[] _allNouns;
     private readonly string[] _verbs;
 
-    public TestParser(IGlobalCommandFactory gameSpecificCommandFactory, string gameName = "ZorkOne") : base(gameSpecificCommandFactory)
+    public TestParser(IGlobalCommandFactory gameSpecificCommandFactory, string gameName = "ZorkOne") : base(Mock.Of<IAIParser>(), gameSpecificCommandFactory)
     {
         _verbs =
         [

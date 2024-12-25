@@ -93,7 +93,7 @@ internal class SimpleInteractionEngine : IIntentEngine
 
         // For each item, we need a map of all possible nouns, to the longest noun, and then 
         // we will replace the matching noun with the longest noun. If we don't do
-        // this, we'll loop around disambiguating forver. 
+        // this, we'll loop around disambiguating forever. 
         var nounToLongestNounMap = new Dictionary<string, string>();
         foreach (var item in ambiguousItems)
         {
@@ -109,7 +109,6 @@ internal class SimpleInteractionEngine : IIntentEngine
             intent.Verb,
             nounToLongestNounMap
         );
-
     }
 
     private static async Task<string> GetGeneratedNoMatchingVerbResponse(string? noun, string verb,
