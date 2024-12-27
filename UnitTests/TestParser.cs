@@ -124,6 +124,16 @@ public class TestParser : IntentParser
                 OriginalInput = "slide kitchen access card through slot"
             });
         
+        if (input == "slide access card through slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "access card",
+                NounTwo = "slot",
+                Preposition = "through",
+                Verb = "slide",
+                OriginalInput = "slide access card through slot"
+            });
+        
         if (input == "slide shuttle access card through slot")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {

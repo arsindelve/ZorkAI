@@ -4,6 +4,7 @@ using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Interface;
 using Model.Item;
+using Utilities;
 
 namespace GameEngine.IntentEngine;
 
@@ -26,6 +27,10 @@ public class MultiNounEngine : IIntentEngine
 
         // After a multi-noun interaction, we will lose the ability to understand "it"
         context.LastNoun = "";
+
+        var requireDisambiguation = CheckDisambiguation(interaction, context);
+        if (requireDisambiguation is not null)
+            return (requireDisambiguation, requireDisambiguation.InteractionMessage);
 
         // Does the location itself have a positive interaction? 
         var result = context.CurrentLocation.RespondToMultiNounInteraction(interaction, context);
@@ -188,5 +193,52 @@ public class MultiNounEngine : IIntentEngine
             new CommandHasNoEffectOperationRequest(context.CurrentLocation.DescriptionForGeneration, input);
         var result = await generationClient.CompleteChat(request) + Environment.NewLine;
         return result;
+    }
+
+    private ComplexInteractionDisambiguationInteractionResult? CheckDisambiguation(MultiNounIntent intent,
+        IContext context)
+    {
+        var ambiguousItems = new List<IItem>();
+
+        List<IItem>? allItemsInLocation = (context.CurrentLocation as ICanHoldItems)?.GetAllItemsRecursively;
+        if (allItemsInLocation is null)
+            return null;
+        
+        IEnumerable<IItem> allItemsInSight =
+            context.GetAllItemsRecursively
+                .Union(allItemsInLocation)
+                .ToList();
+
+        foreach (var item in allItemsInSight)
+            if (intent.MatchNounOne(item.NounsForMatching))
+                ambiguousItems.Add(item);
+
+        // We have one or fewer items that match the noun. Good to go. 
+        if (ambiguousItems.Count <= 1)
+            return null;
+
+        var itemNouns = ambiguousItems
+            .Select(s => s.NounsForMatching.MaxBy(n => n.Length))
+            .ToList()!
+            .SingleLineListWithOr();
+        var message = $"Do you mean {itemNouns}?";
+
+        // For each item, we need a map of all possible nouns, to the longest noun, and then 
+        // we will replace the matching noun with the longest noun. If we don't do
+        // this, we'll loop around disambiguating forever. 
+        var nounToLongestNounMap = new Dictionary<string, string>();
+        foreach (var item in ambiguousItems)
+        {
+            var longestNoun = item.NounsForPreciseMatching.MaxBy(noun => noun.Length);
+            foreach (var noun in item.NounsForPreciseMatching) nounToLongestNounMap[noun] = longestNoun ?? string.Empty;
+        }
+
+        var replacement = intent.OriginalInput.Replace(intent.NounOne, "{0}");
+
+        return new ComplexInteractionDisambiguationInteractionResult(
+            message,
+            nounToLongestNounMap,
+            replacement
+        );
     }
 }

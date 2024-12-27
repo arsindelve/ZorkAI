@@ -1,13 +1,14 @@
-
 namespace Model.Interaction;
 
 /// <summary>
 /// Our simple interaction (one noun, one verb) requires disambiguation because there are multiple matching nouns. 
 /// The verb and possible response nouns are contained in this object's properties. 
 /// </summary>
+[Obsolete("Use ComplexInteractionDisambiguationInteractionResult instead", false)]
 public sealed record SimpleInteractionDisambiguationInteractionResult : InteractionResult
 {
-    public SimpleInteractionDisambiguationInteractionResult(string message, string verb, Dictionary<string, string> possibleResponses)
+    public SimpleInteractionDisambiguationInteractionResult(string message, string verb,
+        Dictionary<string, string> possibleResponses)
     {
         Verb = verb;
         PossibleResponses = possibleResponses;
@@ -15,7 +16,7 @@ public sealed record SimpleInteractionDisambiguationInteractionResult : Interact
     }
 
     public string Verb { get; set; }
-    
+
     public Dictionary<string, string> PossibleResponses { get; set; }
 
     public override bool InteractionHappened => true;
