@@ -4,9 +4,7 @@ using Model.Interface;
 
 namespace GameEngine.StaticCommand.Implementation;
 
-// TODO: Convert everything over to the ComplexActionProcessor and obsolete this. The Complex processor can handle all cases. 
-[Obsolete("Use ComplexActionProcessor instead", false)]
-internal class SimpleActionDisambiguationProcessor(SimpleInteractionDisambiguationInteractionResult disambiguator)
+internal class ComplexActionDisambiguationProcessor(ComplexInteractionDisambiguationInteractionResult disambiguator)
     : IStatefulProcessor
 {
     public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
@@ -18,12 +16,12 @@ internal class SimpleActionDisambiguationProcessor(SimpleInteractionDisambiguati
         foreach (string possibleResponse in disambiguator.PossibleResponses.Keys)
             if (input.ToLowerInvariant().Trim().Contains(possibleResponse))
             {
-                var result = $"{disambiguator.Verb} {disambiguator.PossibleResponses[possibleResponse]}";
-                Debug.WriteLine($"SimpleActionDisambiguationProcessor: {result}");
+                var result = string.Format(disambiguator.ReplacementString, disambiguator.PossibleResponses[possibleResponse]);
+                Debug.WriteLine($"ComplexActionDisambiguationProcessor: {result}");
                 return Task.FromResult(result);
             }
 
-        Debug.WriteLine($"SimpleActionDisambiguationProcessor: {input}");
+        Debug.WriteLine($"ComplexActionDisambiguationProcessor: {input}");
         return Task.FromResult(input);
     }
 

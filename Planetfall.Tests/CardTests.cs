@@ -24,7 +24,7 @@ public class CardTests : EngineTestsBase
     }
     
     [Test]
-    public async Task Kitchen_Disambiguation_HappyPath()
+    public async Task Kitchen_Disambiguation_HappyPath_StepOne()
     {
         var engine = GetTarget();
         var room = Repository.GetLocation<MessHall>();
@@ -33,8 +33,47 @@ public class CardTests : EngineTestsBase
         
         engine.Context.CurrentLocation = room;
         
-        Console.WriteLine(await engine.GetResponse($"slide card through slot"));
-        string? response = await engine.GetResponse($"kitchen");
+        string? response = await engine.GetResponse($"slide card through slot");
+
+        response.Should().Contain("Do you mean the kitchen access card or the shuttle access card?");
+    }
+    
+    [TestCase("kitchen")]
+    [TestCase("kitchen card")]
+    [TestCase("kitchen access card")]
+    [TestCase("kitchen access")]
+    [Test]
+    public async Task Kitchen_Disambiguation_HappyPath_StepTwo(string input)
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        engine.Context.ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
+        engine.Context.ItemPlacedHere(Repository.GetItem<ShuttleAccessCard>());
+        
+        engine.Context.CurrentLocation = room;
+        
+        await engine.GetResponse($"slide card through slot");
+        string? response = await engine.GetResponse(input);
+
+        response.Should().Contain("The kitchen door quietly slides open");
+    }
+    
+    [TestCase("kitchen")]
+    [TestCase("kitchen card")]
+    [TestCase("kitchen access card")]
+    [TestCase("kitchen access")]
+    [Test]
+    public async Task Kitchen_Disambiguation_HappyPath_AnotherExample(string input)
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        engine.Context.ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
+        engine.Context.ItemPlacedHere(Repository.GetItem<ShuttleAccessCard>());
+        
+        engine.Context.CurrentLocation = room;
+        
+        await engine.GetResponse($"slide access card through slot");
+        string? response = await engine.GetResponse(input);
 
         response.Should().Contain("The kitchen door quietly slides open");
     }
