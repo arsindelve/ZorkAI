@@ -25,10 +25,14 @@ public class MultiNounEngine : IIntentEngine
         if (context.ItIsDarkHere)
             return (null, "It's too dark to see! ");
 
-        // After a multi-noun interaction, we will lose the ability to understand "it"
+        // After a multi-noun interaction, we will lose the ability to understand "it". 
         context.LastNoun = "";
 
-        var requireDisambiguation = CheckDisambiguation(interaction, context);
+        var requireDisambiguation = CheckDisambiguation(interaction, context, interaction.MatchNounOne);
+        if (requireDisambiguation is not null)
+            return (requireDisambiguation, requireDisambiguation.InteractionMessage);
+        
+        requireDisambiguation = CheckDisambiguation(interaction, context, interaction.MatchNounTwo);
         if (requireDisambiguation is not null)
             return (requireDisambiguation, requireDisambiguation.InteractionMessage);
 
@@ -195,8 +199,8 @@ public class MultiNounEngine : IIntentEngine
         return result;
     }
 
-    private ComplexInteractionDisambiguationInteractionResult? CheckDisambiguation(MultiNounIntent intent,
-        IContext context)
+    private DisambiguationInteractionResult? CheckDisambiguation(MultiNounIntent intent,
+        IContext context, Func<string[], bool> matchFunction)
     {
         var ambiguousItems = new List<IItem>();
 
@@ -208,9 +212,9 @@ public class MultiNounEngine : IIntentEngine
             context.GetAllItemsRecursively
                 .Union(allItemsInLocation)
                 .ToList();
-
+        
         foreach (var item in allItemsInSight)
-            if (intent.MatchNounOne(item.NounsForMatching))
+            if (matchFunction(item.NounsForMatching))
                 ambiguousItems.Add(item);
 
         // We have one or fewer items that match the noun. Good to go. 
@@ -235,7 +239,7 @@ public class MultiNounEngine : IIntentEngine
 
         var replacement = intent.OriginalInput.Replace(intent.NounOne, "{0}");
 
-        return new ComplexInteractionDisambiguationInteractionResult(
+        return new DisambiguationInteractionResult(
             message,
             nounToLongestNounMap,
             replacement

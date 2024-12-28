@@ -18,7 +18,7 @@ internal class SimpleInteractionEngine : IIntentEngine
         Debug.WriteLine(intent);
         context.LastNoun = simpleInteraction.Noun ?? "";
 
-        SimpleInteractionDisambiguationInteractionResult? requireDisambiguation = CheckDisambiguation(simpleInteraction, context);
+        DisambiguationInteractionResult? requireDisambiguation = CheckDisambiguation(simpleInteraction, context);
         if (requireDisambiguation is not null)
             return (requireDisambiguation, requireDisambiguation.InteractionMessage);
 
@@ -68,7 +68,7 @@ internal class SimpleInteractionEngine : IIntentEngine
         return (null, await GetGeneratedNoOpResponse(simpleInteraction.OriginalInput ?? "", generationClient, context));
     }
 
-    private SimpleInteractionDisambiguationInteractionResult? CheckDisambiguation(SimpleIntent intent, IContext context)
+    private DisambiguationInteractionResult? CheckDisambiguation(SimpleIntent intent, IContext context)
     {
         var ambiguousItems = new List<IItem>();
 
@@ -104,10 +104,12 @@ internal class SimpleInteractionEngine : IIntentEngine
             }
         }
 
-        return new SimpleInteractionDisambiguationInteractionResult(
+        var replacement = intent.Verb + " {0}";
+        
+        return new DisambiguationInteractionResult(
             message,
-            intent.Verb,
-            nounToLongestNounMap
+            nounToLongestNounMap,
+            replacement
         );
     }
 

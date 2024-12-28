@@ -4,7 +4,7 @@ using Model.Interface;
 
 namespace GameEngine.StaticCommand.Implementation;
 
-internal class ComplexActionDisambiguationProcessor(ComplexInteractionDisambiguationInteractionResult disambiguator)
+internal class DisambiguationProcessor(DisambiguationInteractionResult disambiguator)
     : IStatefulProcessor
 {
     public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)

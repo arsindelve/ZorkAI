@@ -338,11 +338,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             _ => (null, await GetGeneratedNoOpResponse(_currentInput!, GenerationClient, Context))
         };
 
-        if (complexIntentResult.resultObject is SimpleInteractionDisambiguationInteractionResult simpleResult)
-            _processorInProgress = new SimpleActionDisambiguationProcessor(simpleResult);
-        
-        if (complexIntentResult.resultObject is ComplexInteractionDisambiguationInteractionResult complexResult)
-            _processorInProgress = new ComplexActionDisambiguationProcessor(complexResult);
+        if (complexIntentResult.resultObject is DisambiguationInteractionResult complexResult)
+            _processorInProgress = new DisambiguationProcessor(complexResult);
 
         return complexIntentResult;
     }

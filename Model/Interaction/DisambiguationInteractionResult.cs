@@ -1,8 +1,8 @@
 namespace Model.Interaction;
 
-public record ComplexInteractionDisambiguationInteractionResult : InteractionResult
+public record DisambiguationInteractionResult : InteractionResult
 {
-    public ComplexInteractionDisambiguationInteractionResult(string message,
+    public DisambiguationInteractionResult(string message,
         Dictionary<string, string> possibleResponses, string replacementString)
     {
         InteractionMessage = message;
