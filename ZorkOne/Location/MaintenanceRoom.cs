@@ -83,16 +83,16 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
                 noun = action.Adjective.ToLowerInvariant();
             else
             {
-                return new SimpleInteractionDisambiguationInteractionResult(
+                return new DisambiguationInteractionResult(
                     $"Which button do you mean, {new List<string> { "blue button", "red button", "yellow button", "brown button" }.SingleLineListWithOr()}?",
-                    "press",
                     new Dictionary<string, string>
                     {
                         {"brown", "brown button"},
                         {"yellow", "yellow button"},
                         {"red", "red button"},
                         {"blue", "blue button"}
-                    }
+                    },
+                    "press {0}"
                 );
             }
         }
