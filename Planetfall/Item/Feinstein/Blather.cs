@@ -1,11 +1,10 @@
 ﻿using Model.AIGeneration;
-using Model.Location;
-using Planetfall.Location.Feinstein;
 
 namespace Planetfall.Item.Feinstein;
 
-public class Blather : ItemBase, IAmANamedPerson, ITurnBasedActor
+internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor
 {
+    // ReSharper disable once MemberCanBePrivate.Global
     public int TurnsOnDeckNine { get; set; }
 
     public override string GenericDescription(ILocation? currentLocation)
@@ -66,7 +65,7 @@ public class Blather : ItemBase, IAmANamedPerson, ITurnBasedActor
             "at you, his arms crossed. ";
     }
 
-    public Task<string> Act(IContext context, IGenerationClient client)
+    public override Task<string> Act(IContext context, IGenerationClient client)
     {
         TurnsOnDeckNine++;
 
@@ -74,13 +73,36 @@ public class Blather : ItemBase, IAmANamedPerson, ITurnBasedActor
         if (context.Moves == ExplosionCoordinator.TurnWhenFeinsteinBlowsUp)
         {
             return Task.FromResult(LeavesTheScene(context,
-            "Blather, confused by this nonroutine occurrence, orders you to continue scrubbing the floor, and then dashes off. "));
+            "Blather, confused by this non-routine occurrence, orders you to continue scrubbing the floor, and then dashes off. "));
         }
 
-        if (TurnsOnDeckNine == 2)
-            return Task.FromResult(LeavesTheScene(context));
+        return TurnsOnDeckNine switch
+        {
+            1 => GenerateCompanionSpeech(context, client),
+            2 => Task.FromResult(LeavesTheScene(context)),
+            _ => Task.FromResult(string.Empty)
+        };
+    }
 
-        return Task.FromResult(string.Empty);
+    protected override string SystemPrompt => """
+                                              The user is playing the game Planetfall, and is an Ensign Seventh class aboard the Feinstein in the Stellar Patrol.
+                                              You are Ensign First Class Blather, a minor character in the game. You are described this way:
+                                              
+                                              "Ensign Blather is a tall, beefy officer with a tremendous, misshapen nose. His uniform is perfect in " +
+                                              every respect, and the crease in his trousers could probably slice diamonds in half.
+                                              
+                                              Here are examples of things you randomly say or do in the game: 
+                                              
+                                                - "You call this polishing, Ensign Seventh Class?" he sneers."We have a position for an Ensign Ninth Class in the toilet-scrubbing division, you know. Thirty demerits." He glares at you, his arms crossed. 
+                                                - Ensign First Class Blather is standing before you, furiously scribbling demerits onto an oversized clipboard
+                                                - Blather throws you to the deck and makes you do 20 push-ups.
+                                                - Ensign Blather frowns as he spots a speck of dust on his pristine uniform. With an exaggerated sigh, he rummages through his impeccably organized pockets and retrieves a miniature lint roller. He meticulously rolls it over his already spotless uniform, nodding solemnly as if conducting a delicate operation. "
+                                                - Ensign First Class Blather straightens his posture and narrows his eyes at you. He clears his throat loudly and launches into a monologue about the importance of proper hand gestures while giving orders aboard the ship.
+                                                - Suddenly, Ensign Blather pulls out a small handkerchief with the Stellar Patrol emblem embroidered on it. With great ceremony, he unfolds the handkerchief and begins polishing his already blindingly shiny boots. "A true officer's life value," he grumbles, "is in the shine, Ensign Seventh Class. "
+                                              """;
+
+    public override void Init()
+    {
 
     }
 }
