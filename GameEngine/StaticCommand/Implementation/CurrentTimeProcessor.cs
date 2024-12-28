@@ -21,6 +21,6 @@ public class CurrentTimeProcessor : IGlobalCommand
             return timeContext.CurrentTimeResponse;
         }
 
-        return await client.CompleteChat(new AskedForCurrentTimeRequest());
+        return await client.GenerateNarration(new AskedForCurrentTimeRequest());
     }
 }

@@ -130,7 +130,7 @@ internal class SimpleInteractionEngine : IIntentEngine
         else
             request = new VerbHasNoEffectOnAPersonOperationRequest(context.CurrentLocation.DescriptionForGeneration, noun, verb, item.GenericDescription(context.CurrentLocation));
 
-        var result = await generationClient.CompleteChat(request) + Environment.NewLine;
+        var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
         return result;
     }
 
@@ -138,7 +138,7 @@ internal class SimpleInteractionEngine : IIntentEngine
         IGenerationClient generationClient, IContext context)
     {
         var request = new NounNotPresentOperationRequest(context.CurrentLocation.DescriptionForGeneration, noun);
-        var result = await generationClient.CompleteChat(request) + Environment.NewLine;
+        var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
         return result;
     }
 
@@ -147,7 +147,7 @@ internal class SimpleInteractionEngine : IIntentEngine
     {
         var request =
             new CommandHasNoEffectOperationRequest(context.CurrentLocation.DescriptionForGeneration, input);
-        var result = await generationClient.CompleteChat(request) + Environment.NewLine;
+        var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
         return result;
     }
 }

@@ -455,14 +455,14 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             context.CurrentLocation.DescriptionForGeneration,
             input
         );
-        var result = await generationClient.CompleteChat(request);
+        var result = await generationClient.GenerateNarration(request);
         return result + Environment.NewLine;
     }
 
     private async Task<string> GetGeneratedNoCommandResponse()
     {
         var request = new EmptyRequest();
-        var result = await GenerationClient.CompleteChat(request);
+        var result = await GenerationClient.GenerateNarration(request);
         return result;
     }
 

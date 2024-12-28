@@ -48,7 +48,7 @@ public class ZorkOneController(
 
         var sb = new StringBuilder();
         sb.AppendLine(
-            await engine.GenerationClient.CompleteChat(new AfterRestoreGameRequest(engine.LocationDescription)));
+            await engine.GenerationClient.GenerateNarration(new AfterRestoreGameRequest(engine.LocationDescription)));
         sb.AppendLine();
         sb.AppendLine(await engine.GetResponse("look"));
 
@@ -69,7 +69,7 @@ public class ZorkOneController(
         RestoreSession(savedSession);
         var encodedText = GetGameData();
         await savedGameRepository.SaveGame(request.Id, request.ClientId, request.Name, encodedText, SaveGameTableName);
-        return await engine.GenerationClient.CompleteChat(new AfterSaveGameRequest(engine.LocationDescription));
+        return await engine.GenerationClient.GenerateNarration(new AfterSaveGameRequest(engine.LocationDescription));
     }
 
     [HttpGet]

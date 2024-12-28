@@ -34,7 +34,7 @@ internal class EnterSubLocationEngine : IIntentEngine
     {
         //return Task.FromResult("You cannot go that way." + Environment.NewLine);
         var request = new CannotEnterSubLocationRequest(context.CurrentLocation.Description, noun);
-        var result = await generationClient.CompleteChat(request);
+        var result = await generationClient.GenerateNarration(request);
         return result;
     }
 }

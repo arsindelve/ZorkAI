@@ -149,7 +149,7 @@ public static class Repository
 
             foreach (var type in types)
 
-                if (type.IsClass && type.IsSubclassOf(typeof(ContainerBase)))
+                if (type is { IsClass: true, IsAbstract: false } && type.IsSubclassOf(typeof(ContainerBase)))
                 {
                     var instance = (ItemBase)Activator.CreateInstance(type)!;
                     allItems.Add(instance);

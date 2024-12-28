@@ -55,7 +55,7 @@ public class MoveEngine : IIntentEngine
     {
         //return Task.FromResult("You cannot go that way." + Environment.NewLine);
         var request = new CannotGoThatWayRequest(context.CurrentLocation.Description, direction);
-        var result = await generationClient.CompleteChat(request);
+        var result = await generationClient.GenerateNarration(request);
         return result;
     }
 }
