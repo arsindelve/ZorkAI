@@ -1,6 +1,4 @@
 ﻿using Model.AIGeneration;
-using Model.Location;
-using Planetfall.Location.Feinstein;
 
 namespace Planetfall.Item.Feinstein;
 
