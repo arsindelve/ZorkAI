@@ -50,7 +50,7 @@ public class MultiNounEngineTests
         var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
         Mock.Get(context).Setup(s => s.Items).Returns(new List<IItem>());
         var generationClient = new Mock<IGenerationClient>();
-        generationClient.Setup(s => s.CompleteChat(It.IsAny<CommandHasNoEffectOperationRequest>()))
+        generationClient.Setup(s => s.GenerateNarration(It.IsAny<CommandHasNoEffectOperationRequest>()))
             .ReturnsAsync("bob");
 
         // Act
@@ -82,7 +82,7 @@ public class MultiNounEngineTests
         var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
         Mock.Get(context).Setup(s => s.Items).Returns(new List<IItem>());
         var generationClient = new Mock<IGenerationClient>();
-        generationClient.Setup(s => s.CompleteChat(It.IsAny<MissingSecondNounMultiNounOperationRequest>()))
+        generationClient.Setup(s => s.GenerateNarration(It.IsAny<MissingSecondNounMultiNounOperationRequest>()))
             .ReturnsAsync("bob");
 
         // Act
@@ -114,7 +114,7 @@ public class MultiNounEngineTests
         var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
         Mock.Get(context).Setup(s => s.Items).Returns(new List<IItem>());
         var generationClient = new Mock<IGenerationClient>();
-        generationClient.Setup(s => s.CompleteChat(It.IsAny<MissingFirstNounMultiNounOperationRequest>()))
+        generationClient.Setup(s => s.GenerateNarration(It.IsAny<MissingFirstNounMultiNounOperationRequest>()))
             .ReturnsAsync("bob");
 
         // Act
@@ -145,7 +145,7 @@ public class MultiNounEngineTests
         var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
         Mock.Get(context).Setup(s => s.Items).Returns(new List<IItem>());
         var generationClient = new Mock<IGenerationClient>();
-        generationClient.Setup(s => s.CompleteChat(It.IsAny<VerbHasNoEffectMultiNounOperationRequest>()))
+        generationClient.Setup(s => s.GenerateNarration(It.IsAny<VerbHasNoEffectMultiNounOperationRequest>()))
             .ReturnsAsync("bob");
 
         // Act
@@ -177,7 +177,7 @@ public class MultiNounEngineTests
         var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
         Mock.Get(context).Setup(s => s.Items).Returns(new List<IItem>());
         var generationClient = new Mock<IGenerationClient>();
-        generationClient.Setup(s => s.CompleteChat(It.IsAny<MissingBothNounsMultiNounOperationRequest>()))
+        generationClient.Setup(s => s.GenerateNarration(It.IsAny<MissingBothNounsMultiNounOperationRequest>()))
             .ReturnsAsync("bob");
 
         // Act

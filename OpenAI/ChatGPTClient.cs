@@ -19,11 +19,11 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
     public Action? OnGenerate { get; set; }
 
     public string? SystemPrompt { private get; set; }
-    
+
     public List<(string, string, bool)> LastFiveInputOutputs { get; set; } = new();
-    
+
     public Guid TurnCorrelationId { get; set; }
-    
+
     public ICloudWatchLogger<GenerationLog>? CloudWatchLogger { get; set; }
 
     /// <summary>
@@ -31,7 +31,7 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
     /// </summary>
     /// <param name="request">The request object containing the system and user messages for the chat conversation.</param>
     /// <returns>The generated response message from the chat conversation.</returns>
-    public async Task<string> CompleteChat(Request request)
+    public async Task<string> GenerateNarration(Request request)
     {
         Logger?.LogDebug($"Sending request of type: {request.GetType().Name} ");
 
@@ -39,21 +39,18 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
 
         var reverse = LastFiveInputOutputs.ToList();
         reverse.Reverse();
-        
+
         StringBuilder lastInputs = new();
         lastInputs.AppendLine(
             "For reference and context, here are the player's last five interactions with the narrator:");
 
-        foreach (var tuple in reverse)
-        {
-            lastInputs.AppendLine($"Input: {tuple.Item1}. Output: {tuple.Item2}");
-        }
-        
+        foreach (var tuple in reverse) lastInputs.AppendLine($"Input: {tuple.Item1}. Output: {tuple.Item2}");
+
         chatCompletionsOptions.Messages.Add(new ChatRequestSystemMessage(lastInputs.ToString()));
 
         // Add the most recent request
         chatCompletionsOptions.Messages.Add(new ChatRequestUserMessage(request.UserMessage));
-        
+
         Logger?.LogDebug(request.UserMessage);
 
         Response<ChatCompletions> response = await Client.GetChatCompletionsAsync(chatCompletionsOptions);
@@ -69,7 +66,17 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
                 Response = responseMessage.Content,
                 TurnCorrelationId = TurnCorrelationId.ToString()
             });
-        
+
+        return responseMessage.Content;
+    }
+
+    public async Task<string> GenerateCompanionSpeech(CompanionRequest request)
+    {
+        var chatCompletionsOptions = GetChatCompletionsOptions(request.SystemMessage);
+        chatCompletionsOptions.Messages.Add(new ChatRequestUserMessage(request.UserMessage));
+
+        Response<ChatCompletions> response = await Client.GetChatCompletionsAsync(chatCompletionsOptions);
+        var responseMessage = response.Value.Choices[0].Message;
         return responseMessage.Content;
     }
 }

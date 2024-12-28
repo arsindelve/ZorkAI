@@ -43,7 +43,7 @@ public class EatProcessorTests : EngineTestsBase
     public async Task Eat_SecondTime()
     {
         var target = GetTarget();
-        Client.Setup(s => s.CompleteChat(It.IsAny<NounNotPresentOperationRequest>()))
+        Client.Setup(s => s.GenerateNarration(It.IsAny<NounNotPresentOperationRequest>()))
             .ReturnsAsync("BOB");
         target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
 
@@ -62,7 +62,7 @@ public class EatProcessorTests : EngineTestsBase
     public async Task EatProcessor_WrongVerb()
     {
         var target = GetTarget();
-        Client.Setup(s => s.CompleteChat(It.IsAny<VerbHasNoEffectOperationRequest>()))
+        Client.Setup(s => s.GenerateNarration(It.IsAny<VerbHasNoEffectOperationRequest>()))
             .ReturnsAsync("BOB");
         target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
 

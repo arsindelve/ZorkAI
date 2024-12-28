@@ -8,7 +8,6 @@ using Moq;
 using Planetfall.Location.Feinstein;
 using UnitTests;
 
-
 namespace Planetfall.Tests;
 
 public class EngineTestsBase

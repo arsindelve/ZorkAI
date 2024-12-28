@@ -53,18 +53,18 @@ internal class RestoreProcessor : IStatefulProcessor
         {
             var newContext = await RestoreGame(context.Engine!);
             var generatedResponse =
-                await client.CompleteChat(
+                await client.GenerateNarration(
                     new AfterRestoreGameRequest(newContext.CurrentLocation.DescriptionForGeneration));
             return $"{generatedResponse}\n\n{newContext.CurrentLocation.Description}";
         }
         catch (FileNotFoundException)
         {
-            return await client.CompleteChat(
+            return await client.GenerateNarration(
                 new RestoreFailedFileNotFoundGameRequest(context.CurrentLocation.DescriptionForGeneration));
         }
         catch (Exception)
         {
-            return await client.CompleteChat(
+            return await client.GenerateNarration(
                 new RestoreFailedUnknownReasonGameRequest(context.CurrentLocation.DescriptionForGeneration));
         }
     }
@@ -74,7 +74,7 @@ internal class RestoreProcessor : IStatefulProcessor
         Completed = false;
         _havePromptedForFilename = true;
         var generatedResponse =
-            await client.CompleteChat(
+            await client.GenerateNarration(
                 new BeforeRestoreGameRequest(context.CurrentLocation.DescriptionForGeneration));
 
         return
