@@ -27,7 +27,7 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Client.Setup(s => s.CompleteChat(It.IsAny<EmptyRequest>())).ReturnsAsync("BOB");
+        Client.Setup(s => s.GenerateNarration(It.IsAny<EmptyRequest>())).ReturnsAsync("BOB");
 
         // Act
         var result = await target.GetResponse("");
@@ -41,7 +41,7 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Client.Setup(s => s.CompleteChat(It.IsAny<EmptyRequest>())).ReturnsAsync("BOB");
+        Client.Setup(s => s.GenerateNarration(It.IsAny<EmptyRequest>())).ReturnsAsync("BOB");
 
         // Act
         var result = await target.GetResponse(null);
@@ -98,7 +98,7 @@ public class EngineTests : EngineTestsBase
 
         Client
             .Setup(s =>
-                s.CompleteChat(
+                s.GenerateNarration(
                     It.Is<CommandHasNoEffectOperationRequest>(m =>
                         m.UserMessage != null && m.UserMessage.Contains("BOB")
                     )
@@ -149,7 +149,7 @@ public class EngineTests : EngineTestsBase
 
         Client
             .Setup(s =>
-                s.CompleteChat(
+                s.GenerateNarration(
                     It.Is<VerbHasNoEffectOperationRequest>(m =>
                         m.UserMessage != null && m.UserMessage.Contains("mailbox")
                     )
@@ -210,7 +210,7 @@ public class EngineTests : EngineTestsBase
 
         Client
             .Setup(s =>
-                s.CompleteChat(
+                s.GenerateNarration(
                     It.Is<VerbHasNoEffectOperationRequest>(m =>
                         m.UserMessage != null && m.UserMessage.Contains("leaflet")
                     )
@@ -247,7 +247,7 @@ public class EngineTests : EngineTestsBase
 
         Client
             .Setup(s =>
-                s.CompleteChat(
+                s.GenerateNarration(
                     It.Is<NounNotPresentOperationRequest>(m =>
                         m.UserMessage != null && m.UserMessage.Contains("leaflet")
                     )
@@ -283,7 +283,7 @@ public class EngineTests : EngineTestsBase
 
         Client
             .Setup(s =>
-                s.CompleteChat(
+                s.GenerateNarration(
                     It.Is<CommandHasNoEffectOperationRequest>(m =>
                         m.UserMessage != null && m.UserMessage.Contains("unicorn")
                     )
@@ -325,7 +325,7 @@ public class EngineTests : EngineTestsBase
 
         Client
             .Setup(s =>
-                s.CompleteChat(
+                s.GenerateNarration(
                     It.Is<CommandHasNoEffectOperationRequest>(m =>
                         m.UserMessage != null && m.UserMessage.Contains("go east")
                     )
@@ -484,7 +484,7 @@ public class EngineTests : EngineTestsBase
             );
 
         Client
-            .Setup(s => s.CompleteChat(It.IsAny<CommandHasNoEffectOperationRequest>()))
+            .Setup(s => s.GenerateNarration(It.IsAny<CommandHasNoEffectOperationRequest>()))
             .ReturnsAsync("bob");
 
         var result = await target.GetResponse("dig hole with shovel");

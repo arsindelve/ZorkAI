@@ -8,19 +8,21 @@ namespace Model.Item;
 
 public interface IItem : IInteractionTarget
 {
+    /// <summary>
+    /// These are effectively synonyms that will allows us to know that the adventurer is talking about a specific
+    /// item. It can also include nouns with their advective. 
+    /// </summary>
+    /// <example>Pile of plastic, boat, magic boat, plastic, pile: All refer to the magic boat in Zork One.</example>
     string[] NounsForMatching { get; }
 
     /// <summary>
-    /// If the item can be picked up, this is the description in inventory..."A rope", "A towel".
-    /// If the item cannot be picked up, this is the description of the item, on the ground, where you find it.
-    /// This can be left blank, and then these items will not appear in the location description, but can still be
-    /// interacted with. Sometimes this is done because the item description is part of the room or container description
-    /// like the trap door, or the item is special and just does not show up, like the slime. 
+    /// The vast majority of the time, this is the same as <see cref="NounsForMatching"/>. The only time this will
+    /// differ is when there are multiple objects with the same matching noun, and we MUST differentiate between them for
+    /// puzzle solving, not just picking up and dropping, etc. The good lantern and the broken lantern in Zork do NOT need
+    /// this because there is no puzzle that requires us to "use" the correct lantern. However in Planetfall, there
+    /// are many "cards" and we must use the right card in the right place. 
     /// </summary>
-    /// <param name="currentLocation"></param>
-    /// <param name="indent"></param>
-    /// <returns></returns>
-    string GenericDescription(ILocation? currentLocation);
+    string[] NounsForPreciseMatching { get; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the item has ever been picked up.
@@ -29,10 +31,15 @@ public interface IItem : IInteractionTarget
 
     string Name { get; }
 
+    /// <summary>
+    /// Can be a location, a container or the adventurer's inventory (i.e. the context). Or it
+    /// can be null if the object is nowhere in the game, for example after being destroyed. 
+    /// </summary>
     ICanHoldItems? CurrentLocation { get; set; }
 
     /// <summary>
-    ///     The description of the item when it cannot be taken by the player.
+    ///     The description of the item when it cannot be taken by the player. Returns null or empty
+    /// if the object is able to be taken. 
     /// </summary>
     /// <value>
     ///     The description of the item when it cannot be taken by the player.
@@ -42,7 +49,18 @@ public interface IItem : IInteractionTarget
     int Size { get; }
 
     /// <summary>
-    /// Determines whether the given noun matches any of the nouns for matching of an item.
+    /// If the item can be picked up, this is the description in inventory..."A rope", "A towel".
+    /// If the item cannot be picked up, this is the description of the item, on the ground, where you find it.
+    /// This can be left blank, and then these items will not appear in the location description, but can still be
+    /// interacted with. Sometimes this is done because the item description is part of the room or container description
+    /// like the trap door, or the item is special and just does not show up, like the Planetfall slime. 
+    /// </summary>
+    /// <param name="currentLocation"></param>
+    /// <returns></returns>
+    string GenericDescription(ILocation? currentLocation);
+
+    /// <summary>
+    /// Determines whether the given noun matches any of the nouns for matching of a given item.
     /// </summary>
     /// <param name="noun">The noun to match.</param>
     /// <param name="lookInsideContainers">Indicates whether to also look inside containers for matches.</param>
@@ -57,7 +75,8 @@ public interface IItem : IInteractionTarget
     /// <param name="adjective">The adjective to match against.</param>
     /// <param name="lookInsideContainers">A flag indicating whether to look inside containers for a match. Default is true.</param>
     /// <returns>True if the item has a matching noun and adjective; otherwise, false.</returns>
-    (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective, bool lookInsideContainers = true);
+    (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective,
+        bool lookInsideContainers = true);
 
     InteractionResult? RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client);
 

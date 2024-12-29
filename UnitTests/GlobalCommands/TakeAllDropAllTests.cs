@@ -10,7 +10,7 @@ public class TakeAllDropAllTests : EngineTestsBase
     public async Task TakeAllNothingHereThatCanBeTaken()
     {
         var target = GetTarget();
-        Client.Setup(s => s.CompleteChat(It.IsAny<TakeAllNothingHere>())).ReturnsAsync("nothing here buddy");
+        Client.Setup(s => s.GenerateNarration(It.IsAny<TakeAllNothingHere>())).ReturnsAsync("nothing here buddy");
         target.Context.CurrentLocation = Repository.GetLocation<Cellar>();
         var response = await target.GetResponse("take all");
         response.Should().Contain("nothing here buddy");
@@ -20,7 +20,7 @@ public class TakeAllDropAllTests : EngineTestsBase
     public async Task TakeAllNothingHereAtAll()
     {
         var target = GetTarget();
-        Client.Setup(s => s.CompleteChat(It.IsAny<TakeAllNothingHere>())).ReturnsAsync("nothing here buddy");
+        Client.Setup(s => s.GenerateNarration(It.IsAny<TakeAllNothingHere>())).ReturnsAsync("nothing here buddy");
         target.Context.CurrentLocation = Repository.GetLocation<MazeFour>();
         var response = await target.GetResponse("take all");
         response.Should().Contain("nothing here buddy");
@@ -59,7 +59,7 @@ public class TakeAllDropAllTests : EngineTestsBase
     public async Task DropAllNothingInInventory()
     {
         var target = GetTarget();
-        Client.Setup(s => s.CompleteChat(It.IsAny<DropAllNothingHere>())).ReturnsAsync("nothing here buddy");
+        Client.Setup(s => s.GenerateNarration(It.IsAny<DropAllNothingHere>())).ReturnsAsync("nothing here buddy");
         target.Context.CurrentLocation = Repository.GetLocation<MazeFour>();
         var response = await target.GetResponse("drop all");
         response.Should().Contain("nothing here buddy");

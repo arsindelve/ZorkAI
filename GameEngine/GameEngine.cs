@@ -258,7 +258,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _turnLogger = await CloudWatchLoggerFactory.Get<TurnLog>(_gameInstance.GameName, "Turns", _turnCorrelationId);
 
         GenerationClient.TurnCorrelationId = _turnCorrelationId;
-        GenerationClient.Logger =
+        GenerationClient.CloudWatchLogger =
             await CloudWatchLoggerFactory.Get<GenerationLog>(_gameInstance.GameName, "ResponseGeneration",
                 _turnCorrelationId);
 
@@ -338,8 +338,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             _ => (null, await GetGeneratedNoOpResponse(_currentInput!, GenerationClient, Context))
         };
 
-        if (complexIntentResult.resultObject is SimpleInteractionDisambiguationInteractionResult result)
-            _processorInProgress = new SimpleActionDisambiguationProcessor(result);
+        if (complexIntentResult.resultObject is DisambiguationInteractionResult complexResult)
+            _processorInProgress = new DisambiguationProcessor(complexResult);
 
         return complexIntentResult;
     }
@@ -455,14 +455,14 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             context.CurrentLocation.DescriptionForGeneration,
             input
         );
-        var result = await generationClient.CompleteChat(request);
+        var result = await generationClient.GenerateNarration(request);
         return result + Environment.NewLine;
     }
 
     private async Task<string> GetGeneratedNoCommandResponse()
     {
         var request = new EmptyRequest();
-        var result = await GenerationClient.CompleteChat(request);
+        var result = await GenerationClient.GenerateNarration(request);
         return result;
     }
 

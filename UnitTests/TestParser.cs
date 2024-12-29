@@ -1,5 +1,6 @@
 using GameEngine;
 using GameEngine.StaticCommand.Implementation;
+using Model.AIParsing;
 using Model.Intent;
 using Model.Interface;
 
@@ -14,7 +15,7 @@ public class TestParser : IntentParser
     private readonly string[] _allNouns;
     private readonly string[] _verbs;
 
-    public TestParser(IGlobalCommandFactory gameSpecificCommandFactory, string gameName = "ZorkOne") : base(gameSpecificCommandFactory)
+    public TestParser(IGlobalCommandFactory gameSpecificCommandFactory, string gameName = "ZorkOne") : base(Mock.Of<IAIParser>(), gameSpecificCommandFactory)
     {
         _verbs =
         [
@@ -25,7 +26,7 @@ public class TestParser : IntentParser
         ];
 
         _allNouns = Repository.GetNouns(gameName);
-        _allContainers = Repository.GetContainers();
+        _allContainers = Repository.GetContainers(gameName);
 
         IEnumerable<string> specialNouns =
         [
@@ -57,6 +58,13 @@ public class TestParser : IntentParser
                 Verb = "cross"
             });
 
+        if (input is "drop the access card")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "access card",
+                Verb = "drop"
+            });
+        
         if (input is "wait" or "z")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new WaitProcessor() });
 
@@ -106,6 +114,56 @@ public class TestParser : IntentParser
                 NounOne = "boat"
             });
 
+        if (input == "slide kitchen access card through slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "kitchen access card",
+                NounTwo = "slot",
+                Preposition = "through",
+                Verb = "slide",
+                OriginalInput = "slide kitchen access card through slot"
+            });
+        
+        if (input == "slide access card through slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "access card",
+                NounTwo = "slot",
+                Preposition = "through",
+                Verb = "slide",
+                OriginalInput = "slide access card through slot"
+            });
+        
+        if (input == "slide shuttle access card through slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "shuttle access card",
+                NounTwo = "slot",
+                Preposition = "through",
+                Verb = "slide",
+                OriginalInput = "slide shuttle access card through slot"
+            });
+        
+        if (input == "slide upper elevator access card through slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "upper elevator access card",
+                NounTwo = "slot",
+                Preposition = "through",
+                Verb = "slide",
+                OriginalInput = "slide upper elevator access card through slot"
+            });
+        
+        if (input == "slide card through slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "card",
+                NounTwo = "slot",
+                Preposition = "through",
+                Verb = "slide",
+                OriginalInput = "slide card through slot"
+            });
+        
         if (input == "inflate plastic with pump")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {

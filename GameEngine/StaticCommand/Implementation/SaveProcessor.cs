@@ -55,13 +55,13 @@ internal class SaveProcessor : IStatefulProcessor
         {
             await SaveGame(context);
             var generatedResponse =
-                await client.CompleteChat(
+                await client.GenerateNarration(
                     new AfterSaveGameRequest(context.CurrentLocation.DescriptionForGeneration));
             return $"{generatedResponse}";
         }
         catch (Exception)
         {
-            return await client.CompleteChat(
+            return await client.GenerateNarration(
                 new SaveFailedUnknownReasonGameRequest(context.CurrentLocation.DescriptionForGeneration));
         }
     }
@@ -71,7 +71,7 @@ internal class SaveProcessor : IStatefulProcessor
         Completed = false;
         _havePromptedForFilename = true;
         var generatedResponse =
-            await client.CompleteChat(
+            await client.GenerateNarration(
                 new BeforeSaveGameRequest(context.CurrentLocation.DescriptionForGeneration));
 
         return

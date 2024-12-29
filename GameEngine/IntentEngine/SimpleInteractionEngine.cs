@@ -18,11 +18,11 @@ internal class SimpleInteractionEngine : IIntentEngine
         Debug.WriteLine(intent);
         context.LastNoun = simpleInteraction.Noun ?? "";
 
-        var requireDisambiguation = CheckDisambiguation(simpleInteraction, context);
+        DisambiguationInteractionResult? requireDisambiguation = CheckDisambiguation(simpleInteraction, context);
         if (requireDisambiguation is not null)
             return (requireDisambiguation, requireDisambiguation.InteractionMessage);
 
-        // Turning on a light source should supercede all of this. Check the noun
+        // Turning on a light source should supersede all of this. Check the noun
         bool refersToALightSource = Repository.GetItem(simpleInteraction.Noun) is IAmALightSourceThatTurnsOnAndOff;
 
         // If it's dark, you can interact with items in your possession that are light sources that can be
@@ -68,7 +68,7 @@ internal class SimpleInteractionEngine : IIntentEngine
         return (null, await GetGeneratedNoOpResponse(simpleInteraction.OriginalInput ?? "", generationClient, context));
     }
 
-    private SimpleInteractionDisambiguationInteractionResult? CheckDisambiguation(SimpleIntent intent, IContext context)
+    private DisambiguationInteractionResult? CheckDisambiguation(SimpleIntent intent, IContext context)
     {
         var ambiguousItems = new List<IItem>();
 
@@ -93,23 +93,24 @@ internal class SimpleInteractionEngine : IIntentEngine
 
         // For each item, we need a map of all possible nouns, to the longest noun, and then 
         // we will replace the matching noun with the longest noun. If we don't do
-        // this, we'll loop around disambiguating forver. 
+        // this, we'll loop around disambiguating forever. 
         var nounToLongestNounMap = new Dictionary<string, string>();
         foreach (var item in ambiguousItems)
         {
-            string? longestNoun = item.NounsForMatching.MaxBy(noun => noun.Length);
-            foreach (var noun in item.NounsForMatching)
+            string? longestNoun = item.NounsForPreciseMatching.MaxBy(noun => noun.Length);
+            foreach (var noun in item.NounsForPreciseMatching)
             {
                 nounToLongestNounMap[noun] = longestNoun ?? string.Empty;
             }
         }
 
-        return new SimpleInteractionDisambiguationInteractionResult(
+        var replacement = intent.Verb + " {0}";
+        
+        return new DisambiguationInteractionResult(
             message,
-            intent.Verb,
-            nounToLongestNounMap
+            nounToLongestNounMap,
+            replacement
         );
-
     }
 
     private static async Task<string> GetGeneratedNoMatchingVerbResponse(string? noun, string verb,
@@ -129,7 +130,7 @@ internal class SimpleInteractionEngine : IIntentEngine
         else
             request = new VerbHasNoEffectOnAPersonOperationRequest(context.CurrentLocation.DescriptionForGeneration, noun, verb, item.GenericDescription(context.CurrentLocation));
 
-        var result = await generationClient.CompleteChat(request) + Environment.NewLine;
+        var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
         return result;
     }
 
@@ -137,7 +138,7 @@ internal class SimpleInteractionEngine : IIntentEngine
         IGenerationClient generationClient, IContext context)
     {
         var request = new NounNotPresentOperationRequest(context.CurrentLocation.DescriptionForGeneration, noun);
-        var result = await generationClient.CompleteChat(request) + Environment.NewLine;
+        var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
         return result;
     }
 
@@ -146,7 +147,7 @@ internal class SimpleInteractionEngine : IIntentEngine
     {
         var request =
             new CommandHasNoEffectOperationRequest(context.CurrentLocation.DescriptionForGeneration, input);
-        var result = await generationClient.CompleteChat(request) + Environment.NewLine;
+        var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
         return result;
     }
 }

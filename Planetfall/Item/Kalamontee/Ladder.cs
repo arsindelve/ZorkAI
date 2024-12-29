@@ -24,7 +24,7 @@ public class Ladder : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
 
     public string OnTheGroundDescription(ILocation currentLocation)
     {
-        return "There is a large aluminum ladder here. ";
+        return IsAcrossRift ? "" : "There is a large aluminum ladder here. ";
     }
 
     public override string NeverPickedUpDescription(ILocation currentLocation)
@@ -58,10 +58,11 @@ public class Ladder : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
         if (!IsExtended)
             return new PositiveInteractionResult("The ladder is already in its collapsed state. ");
 
-        if (Repository.GetLocation<AdminCorridor>().LadderAcrossRift)
+        if (IsAcrossRift)
         {
-            Repository.GetLocation<AdminCorridor>().LadderAcrossRift = false;
-            CurrentLocation?.RemoveItem(this);
+            IsAcrossRift = false;
+            Repository.GetLocation<AdminCorridor>().RemoveItem(this);
+            Repository.GetLocation<AdminCorridorNorth>().RemoveItem(this);
             CurrentLocation = null;
             return new PositiveInteractionResult("As the ladder shortens it plunges into the rift. ");
         }

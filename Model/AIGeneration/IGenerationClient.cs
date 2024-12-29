@@ -18,15 +18,23 @@ public interface IGenerationClient
     string SystemPrompt { set; }
 
     List<(string, string, bool)> LastFiveInputOutputs { get; set; }
-    
+
     Guid TurnCorrelationId { get; set; }
-    
-    ICloudWatchLogger<GenerationLog>? Logger { get; set; }
+
+    ICloudWatchLogger<GenerationLog>? CloudWatchLogger { get; set; }
 
     /// <summary>
-    ///     Completes a chat operation based on the given request.
+    /// Provides generated text for the narrator because whatever the adventurer asked to
+    /// do is not provided for by the game, and does not change the state of the game.
     /// </summary>
     /// <param name="request">The request object containing the necessary information for the chat operation.</param>
     /// <returns>The generated chat response as a string.</returns>
-    Task<string> CompleteChat(Request request);
+    Task<string> GenerateNarration(Request request);
+    
+    /// <summary>
+    /// Provides generated text for an NPC character such as Floyd or Blather. 
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task<string> GenerateCompanionSpeech(CompanionRequest request);
 }

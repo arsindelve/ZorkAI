@@ -12,7 +12,7 @@ interface WelcomeDialogProps {
     handleWatchVideo: () => void;
 }
 
-const WelcomeDialog: React.FC<WelcomeDialogProps> = ({ open, handleClose, handleWatchVideo }) => (
+const WelcomeDialog: React.FC<WelcomeDialogProps> = ({open, handleClose, handleWatchVideo}) => (
     <Dialog
         open={open}
         onClose={handleClose}
@@ -20,7 +20,7 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({ open, handleClose, handle
         aria-describedby="alert-dialog-description"
         maxWidth={false} // Disable preset max-width limits
         PaperProps={{
-            style: { width: "70%", maxWidth: "none" }, // Set custom width (80% of the viewport)
+            style: {width: "70%", maxWidth: "none"}, // Set custom width (80% of the viewport)
         }}
     >
         <DialogTitle id="alert-dialog-title">
@@ -33,7 +33,8 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({ open, handleClose, handle
                 responses for a richer, more immersive experience. It understands complex commands far beyond what
                 the original could handle and even delivers witty, sarcastic replies when you try something unexpected.
                 <br/> <br/>
-                Zork AI is interactive fiction. You control the story by typing commands in plain English in order to explore,
+                Zork AI is interactive fiction. You control the story by typing commands in plain English in order to
+                explore,
                 solve puzzles, and shape the adventure. To get started, type a command in the grey box below and press
                 Enter/Return. The game will process your input and continue the story based on your instructions.
                 <br/> <br/>
@@ -45,7 +46,7 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({ open, handleClose, handle
                     <li className="uppercase">jump up and down</li>
                     <li className="uppercase">tell me about the great underground empire</li>
                 </ul>
-                <br/> 
+                <br/>
                 See if you can make your way into the house—and from there, descend into the Great Underground Empire,
                 where the real adventure
                 begins!

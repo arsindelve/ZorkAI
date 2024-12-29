@@ -8,13 +8,12 @@ using Moq;
 using Planetfall.Location.Feinstein;
 using UnitTests;
 
-
 namespace Planetfall.Tests;
 
 public class EngineTestsBase
 {
     protected Mock<IGenerationClient> Client = new();
-    protected IIntentParser Parser = new IntentParser(new PlanetfallGlobalCommandFactory());
+    protected IIntentParser Parser = Mock.Of<IIntentParser>();
 
     /// <summary>
     ///     Returns an instance of the GameEngine class with the specified parser and client.

@@ -5,8 +5,9 @@ import {ISaveGameRequest} from "./model/SaveGameRequest.ts";
 import {ISavedGame} from "./model/SavedGame.ts";
 import config from '../config.json';
 import {RestoreGameRequest} from "./model/RestoreGameRequest.ts";
-import { Mixpanel } from './Mixpanel';
+import {Mixpanel} from './Mixpanel';
 import {SessionHandler} from "./SessionHandler.ts";
+
 export default class Server {
 
     baseUrl = config.base_url;

@@ -24,9 +24,9 @@ public class ClaudeFourGenerationClient : ClaudeClientBase, IGenerationClient
     
     public Guid TurnCorrelationId { get; set; }
     
-    public ICloudWatchLogger<GenerationLog>? Logger { get; set; }
+    public ICloudWatchLogger<GenerationLog>? CloudWatchLogger { get; set; }
 
-    public async Task<string> CompleteChat(Request request)
+    public async Task<string> GenerateNarration(Request request)
     {
         Debug.WriteLine($"Sending request of type: {request.GetType().Name} ");
         Debug.WriteLine($"Prompt says: {request.UserMessage}");
@@ -45,6 +45,11 @@ public class ClaudeFourGenerationClient : ClaudeClientBase, IGenerationClient
 
         OnGenerate?.Invoke();
         return generatedText ?? string.Empty;
+    }
+
+    public Task<string> GenerateCompanionSpeech(CompanionRequest request)
+    {
+        throw new NotImplementedException();
     }
 
     private string BuildPayload(Request request)

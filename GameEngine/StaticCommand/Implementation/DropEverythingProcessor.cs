@@ -14,7 +14,7 @@ public class DropEverythingProcessor : IGlobalCommand
         var items = context.Items;
 
         if (!items.Any())
-            return await client.CompleteChat(new DropAllNothingHere());
+            return await client.GenerateNarration(new DropAllNothingHere());
 
         foreach (var nextItem in items.ToList())
             if (nextItem is ICanBeTakenAndDropped)
