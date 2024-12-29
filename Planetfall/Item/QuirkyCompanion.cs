@@ -3,7 +3,7 @@ using Model.AIGeneration.Requests;
 
 namespace Planetfall.Item;
 
-internal abstract class QuirkyCompanion : ContainerBase, ITurnBasedActor
+public abstract class QuirkyCompanion : ContainerBase, ITurnBasedActor
 {
     public abstract Task<string> Act(IContext context, IGenerationClient client);
     

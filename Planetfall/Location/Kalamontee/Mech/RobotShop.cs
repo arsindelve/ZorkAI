@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.Movement;
+using Planetfall.Item.Mech;
 
 namespace Planetfall.Location.Kalamontee.Mech;
 
@@ -17,8 +18,9 @@ internal class RobotShop : LocationBase
         "description, all in various states of disassembly. ";
 
     public override string Name => "Robot Shop";
+
     public override void Init()
     {
-
+        StartWithItem<Floyd>();
     }
 }
