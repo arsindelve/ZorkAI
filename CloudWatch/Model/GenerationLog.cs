@@ -9,4 +9,7 @@ public record GenerationLog : ITurnBasedLog
     public required string Prompt { get; set; }
     
     public required string Response { get; set; }
+    
+    
+    public required float Temperature { get; set; }
 }

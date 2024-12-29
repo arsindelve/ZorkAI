@@ -57,7 +57,6 @@ internal class Ambassador : QuirkyCompanion, ICanBeExamined
                                                           - "The ambassador asks if you are performing some sort of religious ceremony. "
                                                           - "The ambassador notes that he often confuses humans with elaborate sandwiches, especially when hungry. "
                                               
-
                                               """;
 
     internal string JoinsTheScene(IContext context, ICanHoldItems location)
