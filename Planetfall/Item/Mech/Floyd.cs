@@ -139,7 +139,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
         {
             <= -1 => (Func<Task<string>>)(async () => await Task.FromResult(string.Empty)),
             <= 0 => (Func<Task<string>>)(async () => await Task.FromResult("")),
-            _ => (Func<Task<string>>)(async () => await GenerateCompanionSpeech(context, client, FloydPrompts.HappySaySomething))
+            _ => (Func<Task<string>>)(async () => await GenerateCompanionSpeech(context, client, FloydPrompts.NonSequiturReflection))
         };
 
         Task<string> chosenAction = action.Invoke();

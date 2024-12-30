@@ -82,9 +82,10 @@ public class IntentParser : IIntentParser
         if (!string.IsNullOrEmpty(input))
             await Logger?.WriteLogEvents(new GenerationLog
             {
+                SystemPrompt = string.Empty,
                 Temperature = 0,
                 LanguageModel = _parser.LanguageModel,
-                Prompt = input,
+                UserPrompt = input,
                 Response = JsonConvert.SerializeObject(response),
                 TurnCorrelationId = TurnCorrelationId.ToString()
             })!;

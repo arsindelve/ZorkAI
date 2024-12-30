@@ -1,11 +1,15 @@
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
+using Utilities;
 
 namespace Planetfall.Item;
 
 public abstract class QuirkyCompanion : ContainerBase, ITurnBasedActor
 {
     protected abstract string SystemPrompt { get; }
+    
+    // ReSharper disable once MemberCanBePrivate.Global
+    public LimitedStack<string> LastTurnsOutput { get; set; } = new();
 
     protected virtual string UserPrompt => """
                                            Come up with something to say or do that is funny, but consistent 
@@ -25,7 +29,12 @@ public abstract class QuirkyCompanion : ContainerBase, ITurnBasedActor
         string? userPrompt = null)
     {
         userPrompt ??= UserPrompt;
-        var request = new CompanionRequest(SystemPrompt, userPrompt) { Temperature = 0.9f };
-        return await client.GenerateCompanionSpeech(request);
+        userPrompt = string.Format(userPrompt, context.CurrentLocation.Name, context.CurrentLocation.Description, LastTurnsOutput);
+        CompanionRequest request = new CompanionRequest( userPrompt, SystemPrompt) { Temperature = 0.9f };
+        string result = await client.GenerateCompanionSpeech(request);
+        
+        LastTurnsOutput.Push(result);
+        
+        return result;
     }
 }

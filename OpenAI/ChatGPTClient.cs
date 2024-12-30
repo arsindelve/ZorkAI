@@ -57,18 +57,23 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
         var responseMessage = response.Value.Choices[0].Message;
 
         OnGenerate?.Invoke();
+        Log(request, responseMessage, SystemPrompt ?? "None");
 
+        return responseMessage.Content;
+    }
+
+    private void Log(Request request, ChatResponseMessage responseMessage, string systemMessage)
+    {
         if (!string.IsNullOrEmpty(request.UserMessage))
             CloudWatchLogger?.WriteLogEvents(new GenerationLog
             {
+                SystemPrompt = systemMessage,
                 Temperature = request.Temperature,
                 LanguageModel = DeploymentName,
-                Prompt = request.UserMessage,
+                UserPrompt = request.UserMessage,
                 Response = responseMessage.Content,
                 TurnCorrelationId = TurnCorrelationId.ToString()
             });
-
-        return responseMessage.Content;
     }
 
     public async Task<string> GenerateCompanionSpeech(CompanionRequest request)
@@ -78,6 +83,9 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
 
         Response<ChatCompletions> response = await Client.GetChatCompletionsAsync(chatCompletionsOptions);
         var responseMessage = response.Value.Choices[0].Message;
+        
+        Log(request, responseMessage, request.SystemMessage);
+
         return responseMessage.Content;
     }
 }
