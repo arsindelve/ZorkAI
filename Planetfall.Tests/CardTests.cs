@@ -90,7 +90,7 @@ public class CardTests : EngineTestsBase
         
         string? response = await engine.GetResponse($"slide shuttle access card through slot");
 
-        response.Should().BeNullOrWhiteSpace();
+        response.Should().Contain("A sign flashes \"Inkorekt awtharazaashun kard...akses deeniid.\"");
     }
     
     [Test]

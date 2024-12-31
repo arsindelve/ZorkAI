@@ -6,7 +6,7 @@ using Planetfall.Location.Kalamontee;
 
 namespace Planetfall.Tests;
 
-public class MessHallDoorTests : EngineTestsBase
+public class MessHallPadlockedDoorTests : EngineTestsBase
 {
     [Test]
     public async Task CannotGoNorth_DoorClosed()

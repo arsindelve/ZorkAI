@@ -42,7 +42,7 @@ public record MultiNounIntent : IntentBase
         return verbs.Any(s => s.Equals(Verb, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    private bool MatchPreposition(string[] prepositions)
+    public bool MatchPreposition(string[] prepositions)
     {
         return prepositions.Any(s => s.Equals(Preposition, StringComparison.InvariantCultureIgnoreCase));
     }

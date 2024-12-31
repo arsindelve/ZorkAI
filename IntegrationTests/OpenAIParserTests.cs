@@ -320,6 +320,31 @@ public class OpenAIParserTests
     }
     
     [Test]
+    [TestCase("up")]
+    [TestCase("down")]
+    public async Task PressTheUpAndDownButton(string direction)
+    {
+        string locationObjectDescription;
+        var sentence = $"press the {direction} button";
+
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+            var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+            locationObjectDescription = locationObject.Description;
+        }
+
+        var target = new OpenAIParser(null);
+        IntentBase intent = await target.AskTheAIParser(sentence, locationObjectDescription, String.Empty);
+        var response = intent.Message;
+        Console.WriteLine(response);
+
+        response.Should().Contain("<verb>press</verb>");
+        response.Should().Contain($"<noun>{direction} button");
+    }
+    
+    [Test]
     [TestCase("yellow")]
     [TestCase("red")]
     [TestCase("green")]
@@ -327,7 +352,7 @@ public class OpenAIParserTests
     [TestCase("purple")]
     [TestCase("orange")]
     [TestCase("pink")]
-    public async Task PressTheButton(string color)
+    public async Task PressTheColoredButton(string color)
     {
         string locationObjectDescription;
         var sentence = $"press the {color} button";

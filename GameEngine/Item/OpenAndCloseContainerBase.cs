@@ -44,7 +44,13 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
         if (result != null && result is not NoNounMatchInteractionResult)
             return result;
 
-        if (!action.MatchNoun(NounsForMatching))
+        // If this container is open or transparent, make sure all the nouns of the 
+        // items inside have processors applied. 
+        var nounsForProcessing = NounsForMatching.ToList();
+        if(IsOpen || IsTransparent)
+            nounsForProcessing.AddRange(Items.SelectMany(s => s.NounsForMatching));
+        
+        if (!action.MatchNoun(nounsForProcessing.ToArray()))
             return new NoNounMatchInteractionResult();
 
         return ApplyProcessors(action, context, null, client);

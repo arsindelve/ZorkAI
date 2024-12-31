@@ -36,6 +36,11 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         ItemPlacedHere(item);
     }
 
+    public virtual string ItemPlacedHereResult(IItem item, IContext context)
+    {
+        return "Done. ";
+    }
+
     public virtual bool IsTransparent => false;
 
     /// <summary>
@@ -145,7 +150,6 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
     /// </summary>
     /// <param name="name">The name of the container - might be needed as part of the description</param>
     /// <param name="location"></param>
-    /// <param name="indent"></param>
     /// <returns>A string representing the items contained in the specified container.</returns>
     public virtual string ItemListDescription(string name, ILocation? location)
     {
@@ -165,6 +169,13 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
 
         return sb.ToString().TrimEnd();
     }
+    
+    /// <summary>
+    /// By default, any item can be placed in any container, if there's room.  
+    /// </summary>
+    public virtual Type[] CanOnlyHoldTheseTypes => [];
+    
+    public virtual string CanOnlyHoldTheseTypesErrorMessage => String.Empty;
 
     protected void StartWithItemInside<T>() where T : ItemBase, new()
     {

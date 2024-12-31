@@ -1,4 +1,5 @@
 using GameEngine;
+using Model.AIParsing;
 using ZorkOne.GlobalCommand;
 
 namespace UnitTests.GlobalCommands;
@@ -8,7 +9,7 @@ public class InventoryCommandTests : EngineTestsBase
     [Test]
     public async Task Inventory_EmptyHandedDescription()
     {
-        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
+        var engine = GetTarget(new IntentParser(Mock.Of<IAIParser>(), new ZorkOneGlobalCommandFactory()));
         engine.Context.Items.Should().BeEmpty();
 
         // Act
@@ -36,7 +37,7 @@ public class InventoryCommandTests : EngineTestsBase
     [Test]
     public async Task Static_Intent_Inventory_Alternate_Phrase()
     {
-        var target = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
+        var target = GetTarget(new IntentParser(Mock.Of<IAIParser>(), new ZorkOneGlobalCommandFactory()));
 
         // Act
         var result = await target.GetResponse("what do I have on me?");
@@ -48,7 +49,7 @@ public class InventoryCommandTests : EngineTestsBase
     [Test]
     public async Task Static_Intent_AlternatePhrase()
     {
-        var target = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
+        var target = GetTarget(new IntentParser(Mock.Of<IAIParser>(), new ZorkOneGlobalCommandFactory()));
 
         // Act
         var result = await target.GetResponse("LOOK ");

@@ -13,12 +13,7 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot, TDoor> : ItemBase, IC
         "The slot is about ten centimeters wide, but only about two centimeters deep. It is surrounded on its " +
         "long sides by parallel ridges of metal. ";
 
-    
-    // TODO: Add matching nouns for disambiguation, which defaults to nouns for matching 
-    // TODO: Remove "card" from Nouns for matching, and require one of the other nouns
-    // TODO: Train Claude to treat certain nouns as being "together" "Green button" "upper card" etc. 
-    // TODO: Fix disambiguation in general. 
-    
+   
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
         string[] verbs = ["insert", "put", "place"];
@@ -27,13 +22,23 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot, TDoor> : ItemBase, IC
                 "The slot is shallow, so you can't put anything in it. It may be possible to slide " +
                 "something through the slot, though. ");
 
-        verbs = ["slide", "swipe", "scan", "pass", "insert", "glide", "draw", "push"];
-        if (action.Match<TAccessCard, TAccessSlot>(verbs, ["across", "through", "in", "into"]))
+        verbs = ["slide", "swipe", "scan", "pass", "glide", "draw", "push"];
+        string[] prepositions = ["across", "through"];
+        if (action.Match<TAccessCard, TAccessSlot>(verbs, prepositions))
         {
             var door = Repository.GetItem<TDoor>();
             door.IsOpen = true;
             context.RegisterActor(door);
             return new PositiveInteractionResult(door.NowOpen(context.CurrentLocation));
+        }
+        
+        var nounOne = Repository.GetItem(action.NounOne);
+
+        // Right idea, wrong card. 
+        if (action.MatchVerb(verbs) && action.MatchPreposition(prepositions) && nounOne is AccessCard)
+        {
+            return new PositiveInteractionResult(
+                "A sign flashes \"Inkorekt awtharazaashun kard...akses deeniid.\"");
         }
 
         return base.RespondToMultiNounInteraction(action, context);
