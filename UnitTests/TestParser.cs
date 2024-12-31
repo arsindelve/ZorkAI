@@ -30,7 +30,7 @@ public class TestParser : IntentParser
 
         IEnumerable<string> specialNouns =
         [
-            "tree", "branches", "house", "lettering", "mirror", "match", "yellow button", "red button",
+            "tree", "branches", "house", "lettering", "mirror", "match", "yellow button", "red button", "button",
             "blue button", "brown button", "bolt", "bubble", "bodies", "gate", "lid", "switch", "slag", "engravings"
         ];
 

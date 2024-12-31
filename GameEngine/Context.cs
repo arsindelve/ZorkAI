@@ -31,6 +31,11 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         Moves = 0;
     }
 
+    public virtual string ItemPlacedHereResult(IItem item, IContext context)
+    {
+        return string.Empty;
+    }
+    
     /// <summary>
     ///     Constructor for unit testing
     /// </summary>
@@ -81,6 +86,13 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global: Deserializer needs it. 
     public List<IItem> Items { get; set; } = new();
+
+    /// <summary>
+    /// By default, the context (inventory) can hold any kind of time if there's room, and it's take-able. 
+    /// </summary>
+    public Type[] CanOnlyHoldTheseTypes => [];
+    
+    public string? CanOnlyHoldTheseTypesErrorMessage => String.Empty;
 
     /// <summary>
     ///     Gets a value indicating whether the adventurer has a light source that is on

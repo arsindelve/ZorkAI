@@ -3,7 +3,7 @@ namespace Planetfall.Item.Feinstein;
 public class Chronometer : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRead, IAmClothing
 {
     // Start time of the game. 
-    internal int CurrentTime { get; set; } = new Random().Next(4500, 4700);
+    public int CurrentTime { get; set; } = new Random().Next(4500, 4700);
 
     public string ExaminationDescription => $"It is a standard wrist chronometer with a digital display. According " +
                                             $"to the chronometer, the current time is {CurrentTime}. The back is " +

@@ -26,6 +26,8 @@ public class PutProcessor : IMultiNounVerbProcessor
 
                 switch (action.Preposition.ToLowerInvariant().Trim())
                 {
+                    case "onto":
+                    case "on":
                     case "in":
                     case "into":
                     case "inside":
@@ -52,10 +54,20 @@ public class PutProcessor : IMultiNounVerbProcessor
         if (!itemReceiver.HaveRoomForItem(item))
             return new PositiveInteractionResult("There's no room. ");
 
+        if (itemReceiver.CanOnlyHoldTheseTypes.Any() && !itemReceiver.CanOnlyHoldTheseTypes.Contains(item.GetType()))
+        {
+            if (!string.IsNullOrEmpty(itemReceiver.CanOnlyHoldTheseTypesErrorMessage))
+                return new PositiveInteractionResult(itemReceiver.CanOnlyHoldTheseTypesErrorMessage);
+
+            return new NoNounMatchInteractionResult();
+        }
+
         item.CurrentLocation?.RemoveItem(item);
         item.CurrentLocation = itemReceiver;
+
         itemReceiver.ItemPlacedHere(item);
         itemReceiver.OnItemPlacedHere(item, context);
-        return new PositiveInteractionResult("Done.");
+
+        return new PositiveInteractionResult(itemReceiver.ItemPlacedHereResult(item, context));
     }
 }

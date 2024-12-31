@@ -88,7 +88,12 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         T item = Repository.GetItem<T>();
         ItemPlacedHere(item);
     }
-    
+
+    public virtual string ItemPlacedHereResult(IItem item, IContext context)
+    {
+        return string.Empty;
+    }
+
     public void ItemPlacedHere(IItem item)
     {
         var oldLocation = item.CurrentLocation;
@@ -275,6 +280,13 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         return Environment.NewLine + result.ToString().Trim();
     }
 
+    /// <summary>
+    /// By default, any item can be placed/dropped in any room.  
+    /// </summary>
+    public Type[] CanOnlyHoldTheseTypes => [];
+    
+    public string CanOnlyHoldTheseTypesErrorMessage => String.Empty;
+    
     // Syntactic sugar 
     protected MovementParameters Go<T>() where T : class, ILocation, new()
     {

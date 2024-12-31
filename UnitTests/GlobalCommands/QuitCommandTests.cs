@@ -1,4 +1,5 @@
 using GameEngine;
+using Model.AIParsing;
 using ZorkOne.GlobalCommand;
 
 namespace UnitTests.GlobalCommands;
@@ -8,7 +9,7 @@ public class QuitCommandTests : EngineTestsBase
     [Test]
     public async Task Quit_Cancel()
     {
-        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
+        var engine = GetTarget(new IntentParser(Mock.Of<IAIParser>(), new ZorkOneGlobalCommandFactory()));
 
         // Act
         await engine.GetResponse("quit");
@@ -24,7 +25,7 @@ public class QuitCommandTests : EngineTestsBase
     [Test]
     public async Task Quit_Cancel_WithBlankInput()
     {
-        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
+        var engine = GetTarget(new IntentParser(Mock.Of<IAIParser>(), new ZorkOneGlobalCommandFactory()));
 
         // Act
         await engine.GetResponse("quit");
@@ -40,7 +41,7 @@ public class QuitCommandTests : EngineTestsBase
     [Test]
     public async Task Quit_Affirmative()
     {
-        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
+        var engine = GetTarget(new IntentParser(Mock.Of<IAIParser>(), new ZorkOneGlobalCommandFactory()));
 
         // Act
         await engine.GetResponse("quit");
@@ -53,7 +54,7 @@ public class QuitCommandTests : EngineTestsBase
     [Test]
     public async Task Quit_Affirmative_AlternativeResponse()
     {
-        var engine = GetTarget(new IntentParser(new ZorkOneGlobalCommandFactory()));
+        var engine = GetTarget(new IntentParser(Mock.Of<IAIParser>(), new ZorkOneGlobalCommandFactory()));
 
         // Act
         await engine.GetResponse("I want to quit");

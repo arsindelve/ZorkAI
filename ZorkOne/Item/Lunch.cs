@@ -11,7 +11,7 @@ public class Lunch : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeEate
 
     public override int Size => 2;
 
-    string ICanBeEaten.EatenDescription(IContext context)
+    string ICanBeEaten.OnEating(IContext context)
     {
         return "Thank you very much. It really hit the spot. ";
     }

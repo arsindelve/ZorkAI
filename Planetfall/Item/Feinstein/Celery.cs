@@ -6,7 +6,7 @@ public class Celery : ItemBase, ICanBeEaten
 {
     public override string[] NounsForMatching => ["celery"];
 
-    public string EatenDescription(IContext context)
+    public string OnEating(IContext context)
     {
         return new DeathProcessor().Process(
             "Oops. Looks like Blow'k-Bibben-Gordoan metabolism is not compatible with our own. You die of all sorts of convulsions.",

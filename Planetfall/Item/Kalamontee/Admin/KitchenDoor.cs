@@ -23,7 +23,7 @@ public class KitchenDoor : ItemBase, ICanBeExamined, IOpenAndClose, ITurnBasedAc
         return "The kitchen door slides quietly closed. ";
     }
 
-    public string AlreadyOpen => "A light flashes \"Pleez yuuz kitcin akses kard.\" ";
+    public string AlreadyOpen => "It is open. ";
 
     public string AlreadyClosed => "It's already closed. ";
 
@@ -32,6 +32,11 @@ public class KitchenDoor : ItemBase, ICanBeExamined, IOpenAndClose, ITurnBasedAc
     public string CannotBeOpenedDescription(IContext context)
     {
         return "A light flashes \"Pleez yuuz kitcin akses kard.\" ";
+    }
+
+    public override string CannotBeClosedDescription(IContext context)
+    {
+        return "The door seems designed to slide shut on its own. ";
     }
 
     public Task<string> Act(IContext context, IGenerationClient client)
