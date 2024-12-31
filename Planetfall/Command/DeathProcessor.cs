@@ -27,6 +27,7 @@ public class DeathProcessor
                      "Oh, well. According to the Treaty of Gishen IV, signed in 8747 GY, all adventure game players " +
                      "must be given another chance after dying. In the interests of interstellar peace...";
 
+        context.SystemPromptAddendum = string.Empty;
         return new PositiveInteractionResult(result);
     }
 }

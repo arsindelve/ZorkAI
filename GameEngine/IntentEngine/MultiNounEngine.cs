@@ -163,7 +163,7 @@ public class MultiNounEngine : IIntentEngine
                 interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb,
                 personTwo.ExaminationDescription);
 
-        var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
+        var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum) + Environment.NewLine;
         return result;
     }
 
@@ -186,7 +186,7 @@ public class MultiNounEngine : IIntentEngine
                     : string.Empty
             };
 
-        var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
+        var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum) + Environment.NewLine;
         return result;
     }
 
@@ -195,7 +195,7 @@ public class MultiNounEngine : IIntentEngine
     {
         var request =
             new CommandHasNoEffectOperationRequest(context.CurrentLocation.DescriptionForGeneration, input);
-        var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
+        var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum) + Environment.NewLine;
         return result;
     }
 

@@ -26,7 +26,7 @@ public class ClaudeFourGenerationClient : ClaudeClientBase, IGenerationClient
     
     public ICloudWatchLogger<GenerationLog>? CloudWatchLogger { get; set; }
 
-    public async Task<string> GenerateNarration(Request request)
+    public async Task<string> GenerateNarration(Request request, string systemPromptAddendum)
     {
         Debug.WriteLine($"Sending request of type: {request.GetType().Name} ");
         Debug.WriteLine($"Prompt says: {request.UserMessage}");

@@ -48,7 +48,7 @@ public class PlanetfallController(
 
         var sb = new StringBuilder();
         sb.AppendLine(
-            await engine.GenerationClient.GenerateNarration(new AfterRestoreGameRequest(engine.LocationDescription)));
+            await engine.GenerationClient.GenerateNarration(new AfterRestoreGameRequest(engine.LocationDescription), string.Empty));
         sb.AppendLine();
         sb.AppendLine(await engine.GetResponse("look"));
 
@@ -69,7 +69,7 @@ public class PlanetfallController(
         RestoreSession(savedSession);
         var encodedText = GetGameData();
         await savedGameRepository.SaveGame(request.Id, request.ClientId, request.Name, encodedText, SaveGameTableName);
-        return await engine.GenerationClient.GenerateNarration(new AfterSaveGameRequest(engine.LocationDescription));
+        return await engine.GenerationClient.GenerateNarration(new AfterSaveGameRequest(engine.LocationDescription), String.Empty);
     }
 
     [HttpGet]

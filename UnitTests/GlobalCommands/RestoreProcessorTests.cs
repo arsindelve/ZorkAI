@@ -20,7 +20,7 @@ public class RestoreProcessorTests
         var target = new RestoreProcessor(Mock.Of<ISaveGameReader>());
 
         var client = new Mock<IGenerationClient>();
-        client.Setup(s => s.GenerateNarration(It.IsAny<BeforeRestoreGameRequest>()))
+        client.Setup(s => s.GenerateNarration(It.IsAny<BeforeRestoreGameRequest>(), It.IsAny<string>()))
             .ReturnsAsync("shelly");
 
         var context = Mock.Of<IContext>(c => c.Game.DefaultSaveGameName == "bobby");
@@ -42,7 +42,7 @@ public class RestoreProcessorTests
         var target = new RestoreProcessor(Mock.Of<ISaveGameReader>());
 
         var client = new Mock<IGenerationClient>();
-        client.Setup(s => s.GenerateNarration(It.IsAny<BeforeRestoreGameRequest>()))
+        client.Setup(s => s.GenerateNarration(It.IsAny<BeforeRestoreGameRequest>(), It.IsAny<string>()))
             .ReturnsAsync("shelly");
 
         var context = Mock.Of<IContext>(c => c.Game.DefaultSaveGameName == "bobby");

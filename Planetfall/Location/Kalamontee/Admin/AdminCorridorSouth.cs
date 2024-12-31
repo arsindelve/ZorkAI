@@ -38,7 +38,7 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
 
         if (chance == 0)
             return Task.FromResult(
-                "You catch, out of the corner of your eye, a glint of light from the direction of the floor. ");
+                "\n\nYou catch, out of the corner of your eye, a glint of light from the direction of the floor. ");
 
         return Task.FromResult(string.Empty);
     }

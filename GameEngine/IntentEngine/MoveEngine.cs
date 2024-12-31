@@ -53,9 +53,8 @@ public class MoveEngine : IIntentEngine
     private static async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient, string direction, 
         IContext context)
     {
-        //return Task.FromResult("You cannot go that way." + Environment.NewLine);
         var request = new CannotGoThatWayRequest(context.CurrentLocation.Description, direction);
-        var result = await generationClient.GenerateNarration(request);
+        var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum);
         return result;
     }
 }

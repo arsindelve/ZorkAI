@@ -28,8 +28,9 @@ public interface IGenerationClient
     /// do is not provided for by the game, and does not change the state of the game.
     /// </summary>
     /// <param name="request">The request object containing the necessary information for the chat operation.</param>
+    /// <param name="systemPromptAddendum">If provided, this text will be appended to the system prompt.</param>
     /// <returns>The generated chat response as a string.</returns>
-    Task<string> GenerateNarration(Request request);
+    Task<string> GenerateNarration(Request request, string systemPromptAddendum);
     
     /// <summary>
     /// Provides generated text for an NPC character such as Floyd or Blather. 

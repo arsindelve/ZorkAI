@@ -30,12 +30,13 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
     ///     Completes a chat conversation using the OpenAI API.
     /// </summary>
     /// <param name="request">The request object containing the system and user messages for the chat conversation.</param>
+    /// <param name="systemPromptAddendum"></param>
     /// <returns>The generated response message from the chat conversation.</returns>
-    public async Task<string> GenerateNarration(Request request)
+    public async Task<string> GenerateNarration(Request request, string systemPromptAddendum)
     {
         Logger?.LogDebug($"Sending request of type: {request.GetType().Name} ");
 
-        var chatCompletionsOptions = GetChatCompletionsOptions(SystemPrompt, request.Temperature);
+        var chatCompletionsOptions = GetChatCompletionsOptions(SystemPrompt + systemPromptAddendum, request.Temperature);
 
         var reverse = LastFiveInputOutputs.ToList();
         reverse.Reverse();
@@ -57,7 +58,7 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
         var responseMessage = response.Value.Choices[0].Message;
 
         OnGenerate?.Invoke();
-        Log(request, responseMessage, SystemPrompt ?? "None");
+        Log(request, responseMessage, SystemPrompt + systemPromptAddendum);
 
         return responseMessage.Content;
     }

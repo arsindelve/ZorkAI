@@ -23,6 +23,10 @@ public class Crag : LocationWithNoStartingItems
 
     protected override void OnFirstTimeEnterLocation(IContext context)
     {
+        context.SystemPromptAddendum =
+            "The Feinstein exploded from an unknown accident, and the player, having survived in an escape pod, is " +
+            "now stranded in what seems to be an abandoned complex on an unknown planet. ";
+        
         context.AddPoints(3);
         base.OnFirstTimeEnterLocation(context);
     }

@@ -45,7 +45,7 @@ internal class ExitSubLocationEngine : IIntentEngine
         string noun)
     {
         var request = new CannotExitSubLocationRequest(context.CurrentLocation.Description, noun);
-        var result = await generationClient.GenerateNarration(request);
+        var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum);
         return result;
     }
 }
