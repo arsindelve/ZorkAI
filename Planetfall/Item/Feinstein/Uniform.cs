@@ -8,7 +8,7 @@ public class Uniform : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, IAm
 
     // Starts the game being worn. 
     public bool BeingWorn { get; set; } = true;
-
+    
     public override void Init()
     {
         StartWithItemInside<IdCard>();

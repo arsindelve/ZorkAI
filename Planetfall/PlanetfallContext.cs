@@ -1,3 +1,5 @@
+using Utilities;
+
 namespace Planetfall;
 
 public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
@@ -5,6 +7,7 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     // ReSharper disable once MemberCanBePrivate.Global
     public int Day { get; set; } = 1;
     
+    // ReSharper disable once MemberCanBePrivate.Global
     public SicknessNotifications SicknessNotifications { get; set; } = new();
 
     public override string CurrentScore =>
@@ -19,6 +22,8 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     public HungerLevel Hunger { get; set; } = HungerLevel.WellFed;
 
     public TiredLevel Tired { get; set; } = TiredLevel.WellRested;
+
+    public string SicknessDescription => ((SicknessLevel)Day).GetDescription();
 
     // ReSharper disable once MemberCanBePrivate.Global
     public int CurrentTime => Repository.GetItem<Chronometer>().CurrentTime;

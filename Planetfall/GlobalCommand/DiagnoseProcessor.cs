@@ -7,8 +7,13 @@ public class DiagnoseProcessor : IGlobalCommand
 {
     public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {
-        // TODO: Implement me. 
-        string response = "I'm not sure what you mean. ";
+        if (context is not PlanetfallContext pc)
+            throw new Exception("Context is not a PlanetfallContext");
+        
+        // TODO: Tired
+        // TODO: Hungry
+        
+        string response = pc.SicknessDescription;
         return Task.FromResult(response);
     }
 }
