@@ -22,7 +22,7 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
             { Direction.E, Go<SanfacE>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This section of hallway seems to have suffered some minor structural damage. The walls are cracked, and " +
         "a jagged crevice crosses the floor. An opening leads east and the corridor heads north and south. " +
         (HasSeenTheLight ? "Lying at the bottom of a narrow crevice is a shiny object. " : "");

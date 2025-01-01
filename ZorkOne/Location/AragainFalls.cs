@@ -18,7 +18,7 @@ public class AragainFalls : LocationWithNoStartingItems
         }
     };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are at the top of Aragain Falls, an enormous waterfall with a drop of about 450 feet. The only path " +
         "here is on the north end. \n" + (GetLocation<EndOfRainbow>().RainbowIsSolid
             ? "A solid rainbow spans the falls. "

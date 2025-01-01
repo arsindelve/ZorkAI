@@ -13,7 +13,7 @@ public class CaveNorth : DarkLocationWithNoStartingItems
             { Direction.W, new MovementParameters { Location = GetLocation<TwistingPassage>() } }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a tiny cave with entrances west and north, and a staircase leading down. ";
 
     public override string Name => "Cave";

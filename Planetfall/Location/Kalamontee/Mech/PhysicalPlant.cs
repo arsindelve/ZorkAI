@@ -12,7 +12,7 @@ internal class PhysicalPlant : LocationWithNoStartingItems
             { Direction.SE, Go<MechCorridor>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a huge, dim room with exits in the northeast and southeast corners. The room is criss-crossed with " +
         "catwalks and is filled with heavy equipment presumably intended to heat and ventilate this complex. Hardly " +
         "any of the equipment is still operating.";

@@ -12,7 +12,7 @@ public class AtlantisRoom : DarkLocation
             { Direction.Up, new MovementParameters { Location = GetLocation<CaveNorth>() } }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is an ancient room, long under water. There is an exit to the south and a staircase leading up. ";
 
     public override string Name => "Atlantis Room";

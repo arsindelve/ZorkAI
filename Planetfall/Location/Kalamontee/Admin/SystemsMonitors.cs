@@ -20,7 +20,7 @@ public class SystemsMonitors : LocationWithNoStartingItems
             { Direction.E, Go<AdminCorridor>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         $"This is a large room filled with tables full of strange equipment. {Monitors()}";
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client)

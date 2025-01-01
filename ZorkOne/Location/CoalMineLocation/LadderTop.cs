@@ -16,7 +16,7 @@ internal class LadderTop : DarkLocation
             }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a very small room. In the corner is a rickety wooden ladder, leading downward. It might be safe to descend. There is also a staircase leading upward. ";
 
     public override string Name => "Ladder Top";

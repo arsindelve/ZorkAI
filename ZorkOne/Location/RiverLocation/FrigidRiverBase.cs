@@ -22,7 +22,7 @@ public abstract class FrigidRiverBase : LocationWithNoStartingItems, ITurnBasedA
     public override string Description => Name +
                                           SubLocation?.LocationDescription +
                                           Environment.NewLine +
-                                          ContextBasedDescription;
+                                          GetContextBasedDescription();
 
     public override string Name => "Frigid River";
 

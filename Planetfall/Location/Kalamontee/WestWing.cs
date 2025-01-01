@@ -11,7 +11,7 @@ public class WestWing : LocationWithNoStartingItems
             { Direction.E, Go<Courtyard>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This was once the west wing of the castle, but the walls are now mostly rubble, " +
         "allowing a view of the cliff and ocean below. Rubble blocks all exits save one, eastward to the courtyard. ";
 

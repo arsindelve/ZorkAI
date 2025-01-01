@@ -11,7 +11,7 @@ internal class SanfacD : LocationWithNoStartingItems
             { Direction.S, Go<DormD>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This must be the sanitary facility for the adjacent dormitory. " +
         "The fixtures are dry and dusty, the room dead and deserted. You marvel at how " +
         "little the millenia and cultural gulfs have changed toilet bowl design. The only exit is south. ";

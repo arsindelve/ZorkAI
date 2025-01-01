@@ -14,7 +14,7 @@ public class ColdPassage : LocationWithNoStartingItems
              { Direction.W, new MovementParameters { Location = GetLocation<SlideRoom>() } }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a cold and damp corridor where a long east-west passageway turns into a southward path.";
 
     public override string Name => "Cold Passage";

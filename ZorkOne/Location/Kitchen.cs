@@ -7,7 +7,7 @@ namespace ZorkOne.Location;
 
 public class Kitchen : LocationBase
 {
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         $"You are in the kitchen of the white house. A table seems to have been " +
         $"used recently for the preparation of food. A passage leads to the west " +
         $"and a dark staircase can be seen leading upward. A dark chimney leads down " +

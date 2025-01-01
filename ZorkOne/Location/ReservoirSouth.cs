@@ -35,7 +35,7 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
             }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         (IsFull && !IsFilling && !IsDraining
             ? "You are in a long room on the south shore of a large lake, far too deep and wide for crossing. "
             : "") +

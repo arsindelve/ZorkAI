@@ -42,7 +42,7 @@ internal class CyclopsRoom : DarkLocation
             }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This room has an exit on the northwest, and a staircase leading up. " + (HasItem<Cyclops>()
             ? ""
             : "The east wall, previously solid, now has a cyclops-sized opening in it. ");

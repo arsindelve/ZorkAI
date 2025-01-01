@@ -25,13 +25,16 @@ internal class EntranceToHades : DarkLocation
             }
         };
 
-    protected override string ContextBasedDescription => """
-                                                         You are outside a large gateway, on which is inscribed
-                                                          
-                                                           Abandon every hope all ye who enter here!
-                                                          
-                                                         The gate is open; through it you can see a desolation, with a pile of mangled bodies in one corner. Thousands of voices, lamenting some hideous fate, can be heard.
-                                                         """ + (HasItem<Spirits>() ? " The way through the gate is barred by evil spirits, who jeer at your attempts to pass. \n" : "\n");
+    protected override string GetContextBasedDescription() =>
+        """
+        You are outside a large gateway, on which is inscribed
+         
+          Abandon every hope all ye who enter here!
+         
+        The gate is open; through it you can see a desolation, with a pile of mangled bodies in one corner. Thousands of voices, lamenting some hideous fate, can be heard.
+        """ + (HasItem<Spirits>()
+            ? " The way through the gate is barred by evil spirits, who jeer at your attempts to pass. \n"
+            : "\n");
 
     public override string Name => "Entrance to Hades";
 

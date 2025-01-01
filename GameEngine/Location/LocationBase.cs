@@ -19,7 +19,7 @@ public abstract class LocationBase : ILocation, ICanHoldItems
     /// </summary>
     protected abstract Dictionary<Direction, MovementParameters> Map { get; }
 
-    protected abstract string ContextBasedDescription { get; }
+    protected abstract string GetContextBasedDescription();
 
     public bool IsTransparent => false;
 
@@ -166,7 +166,7 @@ public abstract class LocationBase : ILocation, ICanHoldItems
     public virtual string Description => Name +
                                          SubLocation?.LocationDescription +
                                          Environment.NewLine +
-                                         ContextBasedDescription +
+                                         GetContextBasedDescription() +
                                          GetItemDescriptions();
 
     public abstract void Init();

@@ -14,7 +14,7 @@ public class Courtyard : LocationWithNoStartingItems
             { Direction.N, Go<PlainHall>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are in the courtyard of an ancient stone edifice, vaguely reminiscent of the castles you saw " +
         "during your leave on Ramos Two. It has decayed to the point where it can probably be termed a ruin. " +
         "Openings lead north and west, and a stairway downward is visible to the south. ";

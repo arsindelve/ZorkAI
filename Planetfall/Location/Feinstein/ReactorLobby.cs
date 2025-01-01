@@ -12,7 +12,7 @@ internal class ReactorLobby : BlatherLocation
             { Direction.S, BlatherBlocksYou() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "The corridor widens here as it nears the main drive area. To starboard is the Ion Reactor that powers " +
         "the vessel, and aft of here is the Auxiliary Control Room. The corridor continues to port. ";
 

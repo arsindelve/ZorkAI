@@ -8,7 +8,7 @@ public class Attic : DarkLocation
 {
     public override string Name => "Attic";
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is the attic. The only exit is a stairway leading down. ";
 
     protected override Dictionary<Direction, MovementParameters> Map =>

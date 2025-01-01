@@ -32,6 +32,6 @@ public class ForestOne : LocationWithNoStartingItems
 
     public override string Name => "Forest";
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a forest, with trees in all directions. To the east, there appears to be sunlight. ";
 }

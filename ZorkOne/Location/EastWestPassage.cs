@@ -19,9 +19,9 @@ internal class EastWestPassage : DarkLocationWithNoStartingItems
 
     public override string Name => "East-West Passage";
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a narrow east-west passageway. There is a narrow stairway leading down at the north end of the room. ";
-    
+
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {

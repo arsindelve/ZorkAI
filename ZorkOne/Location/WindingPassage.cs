@@ -14,8 +14,8 @@ public class WindingPassage : DarkLocation
             { Direction.N, new MovementParameters { Location = GetLocation<MirrorRoomSouth>() } },
             { Direction.E, new MovementParameters { Location = GetLocation<CaveSouth>() } }
         };
-    
-    protected override string ContextBasedDescription =>
+
+    protected override string GetContextBasedDescription() =>
         "This is a winding passage. It seems that there are only exits on the east and north. ";
 
     public override string Name => "Winding Passage";

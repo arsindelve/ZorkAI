@@ -27,27 +27,24 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
             { Direction.Up, new MovementParameters { Location = GetLocation<DeepCanyon>() } }
         };
 
-    protected override string ContextBasedDescription
+    protected override string GetContextBasedDescription()
     {
-        get
-        {
-            var description = "This is a large room with a ceiling which cannot be detected from the ground. " +
-                              "There is a narrow passage from east to west and a stone stairway leading upward. ";
+        var description = "This is a large room with a ceiling which cannot be detected from the ground. " +
+                          "There is a narrow passage from east to west and a stone stairway leading upward. ";
 
-            if (Repository.GetLocation<ReservoirSouth>().IsFilling || EchoHasBeenSpoken)
-                description += "The room is eerie in its quietness. ";
+        if (Repository.GetLocation<ReservoirSouth>().IsFilling || EchoHasBeenSpoken)
+            description += "The room is eerie in its quietness. ";
 
-            else if (Repository.GetLocation<ReservoirSouth>().IsDraining)
-                description +=
-                    "It is unbearably loud here, with an ear-splitting roar seeming to come from all around you. " +
-                    "There is a pounding in your head which won't stop. ";
+        else if (Repository.GetLocation<ReservoirSouth>().IsDraining)
+            description +=
+                "It is unbearably loud here, with an ear-splitting roar seeming to come from all around you. " +
+                "There is a pounding in your head which won't stop. ";
 
-            else
-                description += "The room is deafeningly loud with an undetermined rushing sound. The sound seems to " +
-                               "reverberate from all of the walls, making it difficult even to think. ";
+        else
+            description += "The room is deafeningly loud with an undetermined rushing sound. The sound seems to " +
+                           "reverberate from all of the walls, making it difficult even to think. ";
 
-            return description;
-        }
+        return description;
     }
 
     public override string Name => "Loud Room";

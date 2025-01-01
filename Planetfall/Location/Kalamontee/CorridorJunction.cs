@@ -15,7 +15,7 @@ internal class CorridorJunction : LocationWithNoStartingItems
             { Direction.N, Go<AdminCorridorSouth>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "A north-south corridor intersects the main corridor here. To the west, the main corridor extends as far as " +
         "you can see; a nonworking walkway from that direction ends here. To the east, the corridor widens into a well-lit area. ";
 

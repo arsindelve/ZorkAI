@@ -12,7 +12,7 @@ internal class LargeOffice : LocationBase
             { Direction.E, Go<SmallOffice>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a large, plush office. The far wall is one large picture window, scratched but unbroken, " +
         "offering a view of this installation and the ocean beyond. In front of the window is a wide wooden desk. " +
         "The only exit is east. ";

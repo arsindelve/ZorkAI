@@ -13,7 +13,7 @@ public class NorthSouthPassage : DarkLocation
             { Direction.NE, new MovementParameters { Location = GetLocation<DeepCanyon>() } }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a high north-south passage, which forks to the northeast. ";
 
     public override string Name => "North-South Passage\n";

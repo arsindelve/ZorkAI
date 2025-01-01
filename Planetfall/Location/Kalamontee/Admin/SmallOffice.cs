@@ -15,7 +15,7 @@ internal class SmallOffice : LocationBase
 
     public override string Name => "Small Office";
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You have entered a small office of some sort. A small desk faces the main doorway which lies to the " +
         "east. Another exit leads west. ";
 

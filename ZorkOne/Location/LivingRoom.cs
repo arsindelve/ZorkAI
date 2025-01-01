@@ -12,7 +12,7 @@ public class LivingRoom : LocationBase
 {
     private bool CyclopsHasCrashedThrough => !GetLocation<CyclopsRoom>().HasItem<Cyclops>();
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are in the living room.  " +
         (!CyclopsHasCrashedThrough
             ? "There is a doorway to the east, a wooden door with strange gothic lettering to the west, which appears to be nailed shut, "

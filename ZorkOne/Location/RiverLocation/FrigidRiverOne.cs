@@ -17,8 +17,7 @@ public class FrigidRiverOne : FrigidRiverBase
             { Direction.W, new MovementParameters { Location = GetLocation<DamBase>() } }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are on the Frigid River in the vicinity of the Dam. The river flows quietly here. There is a landing on the west shore. " +
         (Boat.Items.Any() ? Environment.NewLine + Boat.ItemListDescription("magic boat", null) : "");
-    
 }

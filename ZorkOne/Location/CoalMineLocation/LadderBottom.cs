@@ -19,7 +19,7 @@ internal class LadderBottom : DarkLocation
             }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a rather wide room. On one side is the bottom of a narrow wooden ladder. To the west and the south are passages leaving the room. ";
 
     public override string Name => "Ladder Bottom";

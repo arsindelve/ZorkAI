@@ -56,7 +56,7 @@ internal class DeckNine : LocationBase, ITurnBasedActor
         context.RemoveActor(this);
     }
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a featureless corridor similar to every other corridor on the ship. It curves away to starboard," +
         " and a gangway leads up. To port is the entrance to one of the ship's primary escape pods. " +
         $"The pod bulkhead is {(Repository.GetItem<BulkheadDoor>().IsOpen ? "open" : "closed")}. ";

@@ -24,7 +24,7 @@ public class Crag : LocationWithNoStartingItems, IUnsafePlaceToSleep
             { Direction.Down, Go<Underwater>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You have reached a cleft in the cliff wall where the island rises from the water. " +
         "The edge of the cleft displays recently exposed rock where it collapsed under the weight of " +
         "the escape pod. About two meters below, turbulent waters swirl against sharp rocks. A small " +

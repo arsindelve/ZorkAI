@@ -25,5 +25,5 @@ public class ForestTwo : LocationWithNoStartingItems
 
     public override string Name => "Forest";
 
-    protected override string ContextBasedDescription => "This is a dimly lit forest, with trees all around";
+    protected override string GetContextBasedDescription() => "This is a dimly lit forest, with trees all around";
 }

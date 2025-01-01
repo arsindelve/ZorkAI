@@ -13,8 +13,8 @@ internal class Kitchen : LocationBase
             { Direction.N, Go<MessHall>() }
         };
 
-    protected override string ContextBasedDescription =>
-        "This is the food production and dispensary area for the dining hall to the north. Of particular interest is a machine near the door. You should probably examine it more closely. " ;
+    protected override string GetContextBasedDescription() =>
+        "This is the food production and dispensary area for the dining hall to the north. Of particular interest is a machine near the door. You should probably examine it more closely. ";
 
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {

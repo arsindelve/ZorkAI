@@ -27,11 +27,11 @@ public class UpATree : LocationBase, IDropSpecialLocation, ITurnBasedActor
         };
 
     public override string Name => "Up A Tree";
-    
-    protected override string ContextBasedDescription =>
+
+    protected override string GetContextBasedDescription() =>
         "You are about 10 feet above the ground nestled among some large branches. The nearest branch above you is above your reach. ";
 
-    
+
     // Being up a tree, whatever we drop from here will end up on the ground below. 
     public InteractionResult DropSpecial(IItem item, IContext context)
     {

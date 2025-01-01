@@ -14,7 +14,7 @@ public class EngravingsCave : DarkLocation
 
     public override string Name => "Engravings Cave";
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You have entered a low cave with passages leading northwest and east.\n\nThere are old engravings on the walls here.";
 
     public override void Init()

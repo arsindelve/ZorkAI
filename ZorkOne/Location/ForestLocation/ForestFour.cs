@@ -24,5 +24,5 @@ public class ForestFour : LocationWithNoStartingItems
 
     public override string Name => "Forest";
 
-    protected override string ContextBasedDescription => "The forest thins out, revealing impassible mountains. ";
+    protected override string GetContextBasedDescription() => "The forest thins out, revealing impassible mountains. ";
 }

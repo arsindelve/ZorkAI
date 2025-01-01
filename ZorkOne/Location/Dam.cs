@@ -20,7 +20,7 @@ public class Dam : LocationBase
             { Direction.Down, new MovementParameters { Location = GetLocation<DamBase>() } }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are standing on the top of the Flood Control Dam #3, which was quite a tourist attraction in times far distant. " +
         "There are paths to the north, south, and west, and a scramble down. " + GatesDescription();
 

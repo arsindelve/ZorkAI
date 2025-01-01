@@ -14,7 +14,7 @@ public class FrigidRiverFive : FrigidRiverBase
     
     protected override Dictionary<Direction, MovementParameters> Map => new();
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "The sound of rushing water is nearly unbearable here. On the east shore is a large landing area. ";
 
     public override string Name => "Frigid River";

@@ -25,7 +25,7 @@ public class DamLobby : LocationBase
             }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This room appears to have been the waiting room for groups touring the dam. There are open doorways here " +
         "to the north and east marked \"Private\", and there is a path leading south over the top of the dam.\n";
 

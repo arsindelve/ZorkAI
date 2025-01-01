@@ -14,7 +14,7 @@ internal class MechCorridorSouth : LocationWithNoStartingItems
             { Direction.SE, Go<RobotShop>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "The corridor ends here with doorways to the southwest, south, and southeast. ";
 
     public override string Name => "Mech Corridor South";

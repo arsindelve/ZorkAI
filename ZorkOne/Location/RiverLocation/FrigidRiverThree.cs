@@ -13,7 +13,7 @@ public class FrigidRiverThree : FrigidRiverBase
     
     protected override Dictionary<Direction, MovementParameters> Map => new();
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "The river descends here into a valley. There is a narrow beach on the west shore below the cliffs. " +
         "In the distance a faint rumbling can be heard. ";
 }

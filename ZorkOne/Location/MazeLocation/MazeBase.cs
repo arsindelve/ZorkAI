@@ -7,7 +7,7 @@ namespace ZorkOne.Location.MazeLocation;
 
 public abstract class MazeBase : DarkLocationWithNoStartingItems
 {
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is part of a maze of twisty little passages, all alike. ";
 
     public override string Name => "Maze";

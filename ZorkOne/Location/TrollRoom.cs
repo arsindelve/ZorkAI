@@ -47,7 +47,7 @@ public class TrollRoom : DarkLocation
 
     public override string Name => "The Troll Room";
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a small room with passages to the east and south and a forbidding hole leading west. " +
         "Bloodstains and deep scratches (perhaps made by an axe) mar the walls. ";
 

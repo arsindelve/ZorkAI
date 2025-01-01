@@ -12,7 +12,7 @@ internal class PlanRoom : LocationWithNoStartingItems
             { Direction.W, Go<AdminCorridorNorth>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a small room whose far wall is covered with many small cubbyholes, all empty. The left wall is " +
         "covered with an enormous map, labelled \"Kalamontee Kompleks\", showing two installations connected by " +
         "a long hallway. Near the upper part of this map is a red arrow saying \"Yuu ar heer.\" The right wall " +

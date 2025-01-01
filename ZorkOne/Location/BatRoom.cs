@@ -19,7 +19,7 @@ internal class BatRoom : DarkLocation
             }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are in a small room which has doors only to the east and south. ";
 
     public override string Name => "Bat Room";

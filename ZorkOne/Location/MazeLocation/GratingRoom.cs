@@ -19,8 +19,9 @@ public class GratingRoom : DarkLocation
             }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are in a small room near the maze. There are twisty passages in the immediate vicinity. ";
+
     public override string Name => "Grating Room";
 
     public override void Init()

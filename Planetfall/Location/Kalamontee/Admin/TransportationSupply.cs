@@ -12,7 +12,7 @@ internal class TransportationSupply : DarkLocationWithNoStartingItems
         };
     
     // Forever dark
-    protected override string ContextBasedDescription => "";
-    
+    protected override string GetContextBasedDescription() => "";
+
     public override string Name => "Transportation Supply";
 }

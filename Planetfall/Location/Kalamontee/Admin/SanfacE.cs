@@ -11,7 +11,7 @@ public class SanfacE : LocationWithNoStartingItems
             { Direction.W, Go<AdminCorridorSouth>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "Here is another sanitary facility. Like the others, it is dusty and nonfunctional. ";
 
     public override string Name => "SanFac E";

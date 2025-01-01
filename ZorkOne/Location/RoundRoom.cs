@@ -17,7 +17,7 @@ public class RoundRoom : DarkLocation
 
     public override string Name => "Round Room";
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a circular stone room with passages in all directions. Several of them have unfortunately been blocked by cave-ins.";
 
     public override void Init()

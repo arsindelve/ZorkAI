@@ -12,7 +12,7 @@ internal class NarrowPassage : DarkLocationWithNoStartingItems
             { Direction.S, new MovementParameters { Location = GetLocation<MirrorRoomSouth>() } }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a long and narrow corridor where a long north-south passageway briefly narrows even further. ";
 
     public override string Name => "Narrow Passage";

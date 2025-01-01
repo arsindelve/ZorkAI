@@ -21,10 +21,10 @@ internal class AdminCorridor : RiftLocationBase
             }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "The hallway, in fact the entire building, has been rent apart here, presumably by seismic upheaval. " +
         "You can see the sky through the severed roof above, and the ground is thick with rubble. To the north " +
-        $"is a gaping rift, at least eight meters across and thirty meters deep. {( GetItem<Ladder>().IsAcrossRift ? "A metal ladder spans the rift." : "")} " +
+        $"is a gaping rift, at least eight meters across and thirty meters deep. {(GetItem<Ladder>().IsAcrossRift ? "A metal ladder spans the rift." : "")} " +
         "A wide doorway, labelled \"Sistumz Moniturz,\" leads west. ";
 
     public override string Name => "Admin Corridor";

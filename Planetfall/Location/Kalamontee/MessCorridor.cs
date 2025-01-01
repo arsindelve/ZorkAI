@@ -22,7 +22,7 @@ internal class MessCorridor : LocationBase
             }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a wide, east-west hallway with a large portal to the south. ";
 
     public override string Name => "Mess Corridor";

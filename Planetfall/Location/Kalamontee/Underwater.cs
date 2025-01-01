@@ -18,7 +18,7 @@ public class Underwater : LocationWithNoStartingItems, ITurnBasedActor
         { Direction.Up, Go<Crag>() }
     };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are momentarily disoriented as you enter the turbulent waters. " +
         "Currents buffet you against the sharp rocks of an underwater cliff. A dim light filters down from above. ";
 
