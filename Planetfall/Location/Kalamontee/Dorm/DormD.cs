@@ -12,7 +12,7 @@ internal class DormD : LocationWithNoStartingItems
             { Direction.N, Go<SanfacD>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a very long room lined with multi-tiered bunks. Flimsy partitions between the tiers may have " +
         "provided a modicum of privacy. These spartan living quarters could have once housed many hundreds, but it " +
         "seems quite deserted now. There are openings at the north and south ends of the room.";

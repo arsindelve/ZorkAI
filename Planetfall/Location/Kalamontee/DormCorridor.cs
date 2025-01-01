@@ -23,8 +23,8 @@ internal class DormCorridor : LocationWithNoStartingItems
         
         return base.BeforeEnterLocation(context, previousLocation);
     }
-    
-    protected override string ContextBasedDescription =>
+
+    protected override string GetContextBasedDescription() =>
         "This is a wide, east-west hallway with openings to the north and south. To the east, the corridor " +
         "stretches off into the distance. That section of the hallway is lined with a motorized walkway " +
         "(no longer running) that was probably intended to transport people or cargo down that tremendously long hall. ";

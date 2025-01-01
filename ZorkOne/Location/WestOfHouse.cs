@@ -10,7 +10,7 @@ namespace ZorkOne.Location;
 
 public class WestOfHouse : LocationBase
 {
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are standing in an open field west of a white house, with a boarded front door. ";
 
     public override string Name => "West Of House";

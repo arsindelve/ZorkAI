@@ -11,7 +11,7 @@ internal class ReactorAccessStairs : DarkLocationWithNoStartingItems
             { Direction.Up, Go<ReactorControl>() }
         };
 
-    protected override string ContextBasedDescription => "";
+    protected override string GetContextBasedDescription() => "";
 
     public override string Name => "Reactor Access Stairs";
 }

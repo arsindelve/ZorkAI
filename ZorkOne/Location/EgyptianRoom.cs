@@ -13,7 +13,7 @@ public class EgyptianRoom : DarkLocation
 
     public override string Name => "Egyptian Room";
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a room which looks like an Egyptian tomb. There is an ascending staircase to the west. ";
 
     public override void Init()

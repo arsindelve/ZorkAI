@@ -22,7 +22,7 @@ internal class DeckEight : BlatherLocation
             }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a featureless corridor leading port and starboard. A gangway leads down, and to fore " +
         "is the Hyperspatial Jump Machinery Room. ";
 

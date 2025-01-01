@@ -16,7 +16,7 @@ internal class RecCorridor : LocationWithNoStartingItems
             { Direction.E, Go<MessCorridor>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a wide, east-west hallway. Portals lead north and south, and another corridor branches southwest. ";
 
     public override string Name => "Rec Corridor";

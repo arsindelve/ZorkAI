@@ -12,7 +12,7 @@ internal class RobotShop : LocationBase
             { Direction.W, Go<MachineShop>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This room, with exits west and northwest, is filled with robot-like devices of every conceivable " +
         "description, all in various states of disassembly. ";
 

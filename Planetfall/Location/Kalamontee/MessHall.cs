@@ -20,7 +20,7 @@ internal class MessHall : LocationBase
             }}
         };
 
-    protected override string ContextBasedDescription =>    
+    protected override string GetContextBasedDescription() =>
         "This is a large hall lined with tables and benches. An opening to the north leads back to the corridor. " +
         "A door to the south is closed. Next to the door is a small slot. ";
 

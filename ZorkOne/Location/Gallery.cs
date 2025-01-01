@@ -8,7 +8,7 @@ public class Gallery : LocationBase
 {
     public override string Name => "Gallery";
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is an art gallery. Most of the paintings have been stolen by vandals with exceptional taste. " +
         "The vandals left through either the north or west exits. ";
 

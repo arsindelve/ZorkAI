@@ -10,7 +10,7 @@ public class InsideTheBarrow : LocationBase
 
     public override string Name => "Inside the Barrow";
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are inside an ancient barrow hidden deep within a dark forest. " +
         "The barrow opens into a narrow tunnel at its southern end. You can see " +
         "a faint glow at the far end. ";

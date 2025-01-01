@@ -14,7 +14,7 @@ public class DeepCanyon : DarkLocation
             { Direction.Down, new MovementParameters { Location = GetLocation<LoudRoom>() } }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are on the south edge of a deep canyon. Passages lead off to the east, " +
         "northwest and southwest. A stairway leads down. You can hear the sound of flowing water from below.";
 

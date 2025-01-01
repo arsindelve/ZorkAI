@@ -10,15 +10,17 @@ public class InsideTheBarrow : LocationWithNoStartingItems
 {
     protected override Dictionary<Direction, MovementParameters> Map => new();
 
-    protected override string ContextBasedDescription => """
-                                                         As you enter the barrow, the door closes inexorably behind you. Around you it is dark, but ahead is an enormous
-                                                         cavern, brightly lit. Through its center runs a wide stream. Spanning the stream is a small wooden footbridge,
-                                                         and beyond a path leads into a dark tunnel. Above the bridge, floating in the air, is a large sign. It reads:
-                                                         All ye who stand before this bridge have completed a great and perilous adventure which has tested your wit and
-                                                         courage. You have mastered the first part of the ZORK trilogy. Those who pass over this bridge must be prepared
-                                                         to undertake an even greater adventure that will severely test your skill and bravery!
+    protected override string GetContextBasedDescription() =>
+        """
+        As you enter the barrow, the door closes inexorably behind you. Around you it is dark, but ahead is an enormous
+        cavern, brightly lit. Through its center runs a wide stream. Spanning the stream is a small wooden footbridge,
+        and beyond a path leads into a dark tunnel. Above the bridge, floating in the air, is a large sign. It reads:
+        All ye who stand before this bridge have completed a great and perilous adventure which has tested your wit and
+        courage. You have mastered the first part of the ZORK trilogy. Those who pass over this bridge must be prepared
+        to undertake an even greater adventure that will severely test your skill and bravery!
 
-                                                         """;
+        """;
+
     public override string Name => "Inside the Barrow";
 
     public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client)

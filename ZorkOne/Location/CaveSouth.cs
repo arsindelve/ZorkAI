@@ -18,7 +18,7 @@ public class CaveSouth : DarkLocationWithNoStartingItems
             { Direction.Down, new MovementParameters { Location = GetLocation<EntranceToHades>() } }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a tiny cave with entrances west and north, and a dark, forbidding staircase leading down. ";
 
     public override string Name => "Cave";

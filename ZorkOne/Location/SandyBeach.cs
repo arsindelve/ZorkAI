@@ -11,7 +11,7 @@ public class SandyBeach : DarkLocation // Explain to me how a beach can be a dar
         { Direction.S, Go<Shore>()}
     };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are on a large sandy beach on the east shore of the river, which is flowing quickly by. " +
         "A path runs beside the river to the south here, and a passage is partially buried in sand to the northeast. ";
 

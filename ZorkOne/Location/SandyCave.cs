@@ -15,9 +15,9 @@ public class SandyCave : DarkLocationWithNoStartingItems
     {
         { Direction.SW, Go<SandyBeach>() }
     };
-    
-    protected override string ContextBasedDescription => "This is a sand-filled cave whose exit is to the southwest. ";
-    
+
+    protected override string GetContextBasedDescription() => "This is a sand-filled cave whose exit is to the southwest. ";
+
     public override string Name => "Sandy Cave";
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)

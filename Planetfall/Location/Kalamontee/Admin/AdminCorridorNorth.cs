@@ -21,7 +21,7 @@ internal class AdminCorridorNorth : RiftLocationBase
             }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "The corridor ends here. Portals lead west, north, and east. Signs above these portals read, respectively, " +
         "\"Administraativ Awfisiz,\" \"Tranzportaashun Suplii,\" and \"Plan Ruum.\" To the south is a wide rift, " +
         $"{(GetItem<Ladder>().IsAcrossRift ? "spanned by a metal ladder, " : "")}separating this area from the rest of the building. ";

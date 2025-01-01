@@ -18,7 +18,7 @@ public class SqueakyRoom : DarkLocationWithNoStartingItems
             }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are in a small room. Strange squeaky sounds may be heard coming from the passage at the north end. You may also escape to the east. ";
 
     public override string Name => "Squeaky Room ";

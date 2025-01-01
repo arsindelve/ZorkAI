@@ -12,8 +12,8 @@ internal class StorageWest : LocationBase
             { Direction.S, Go<MessCorridor>() }
         };
 
-    protected override string ContextBasedDescription => "This is a small room obviously intended as a storage area. ";
-    
+    protected override string GetContextBasedDescription() => "This is a small room obviously intended as a storage area. ";
+
     public override string Name => "Storage West";
 
     public override void Init()

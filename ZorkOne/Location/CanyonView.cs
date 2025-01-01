@@ -11,7 +11,7 @@ public class CanyonView : LocationWithNoStartingItems
 {
     public override string Name => "Canyon View";
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are at the top of the Great Canyon on its west wall. From here there is a marvelous " +
         "view of the canyon and parts of the Frigid River upstream. Across the canyon, the walls of the " +
         "White Cliffs join the mighty ramparts of the Flathead Mountains to the east. Following the Canyon " +

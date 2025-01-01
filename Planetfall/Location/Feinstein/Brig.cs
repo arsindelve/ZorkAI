@@ -16,7 +16,7 @@ internal class Brig : LocationBase
             }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are in the Feinstein's brig. Graffiti cover the walls. The cell door to the south is locked. ";
 
     public override string Name => "Brig";

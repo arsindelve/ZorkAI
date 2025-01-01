@@ -15,7 +15,7 @@ public class MachineRoom : DarkLocation
         }
     };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a large, cold room whose sole exit is to the north. In one corner there is a machine which is " +
         "reminiscent of a clothes dryer. On its face is a switch which is labelled \"START\". The switch does not " +
         "appear to be manipulable by any human hand (unless the fingers are about 1/16 by 1/4 inch). On the front " +

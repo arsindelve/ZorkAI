@@ -15,7 +15,7 @@ public class OnTheRainbow : LocationWithNoStartingItems
         }
     };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are on top of a rainbow (I bet you never thought you would walk on a rainbow), " +
         "with a magnificent view of the Falls. The rainbow travels east-west here.";
 

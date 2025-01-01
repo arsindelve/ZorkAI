@@ -13,8 +13,7 @@ internal class DeadEnd : DarkLocation
             }
         };
 
-    protected override string ContextBasedDescription =>
-        "You have come to a dead end in the mine.  ";
+    protected override string GetContextBasedDescription() => "You have come to a dead end in the mine.  ";
 
     public override string Name => "Dead End";
 

@@ -16,7 +16,7 @@ internal class TimberRoom : DarkLocation
             }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a long and narrow passage, which is cluttered with broken timbers. A wide passage comes from " +
         "the east and turns at the west end of the room into a very narrow passageway. From the west comes a strong draft.";
 

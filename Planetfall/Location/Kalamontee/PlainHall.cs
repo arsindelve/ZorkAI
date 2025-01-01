@@ -14,7 +14,7 @@ internal class PlainHall : LocationWithNoStartingItems
             { Direction.NE, Go<RecCorridor>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a featureless hall leading north and south. Although the hallway is old and dusty, " +
         "the construction is of a much more modern style than the castle to the south. A similar " +
         "hall branches off to the northeast. ";
@@ -47,7 +47,8 @@ internal class RecArea : LocationWithNoStartingItems
 
         return base.RespondToSimpleInteraction(action, context, client);
     }
-    protected override string ContextBasedDescription =>
+
+    protected override string GetContextBasedDescription() =>
         "This is a recreational facility of some sort. Games and tapes are scattered about the room. " +
         "Hallways head off to the east and south, and to the north is a door which is closed and locked. " +
         "A dial on the door is currently set to 0. ";

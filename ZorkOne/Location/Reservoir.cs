@@ -15,7 +15,7 @@ public class Reservoir : DarkLocation, ITurnBasedActor
             { Direction.N, new MovementParameters { Location = GetLocation<ReservoirNorth>() } }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are on what used to be a large lake, but which is now a large mud pile. There are \"shores\" to the north and south.";
 
     public override string Name => "Reservoir";

@@ -61,7 +61,7 @@ internal class GasRoom : DarkLocation, ITurnBasedActor
         return false;
     }
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a small room which smells strongly of coal gas. There is a short climb up some stairs " +
         "and a narrow tunnel leading east. ";
 

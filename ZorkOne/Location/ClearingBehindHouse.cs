@@ -6,7 +6,7 @@ namespace ZorkOne.Location;
 
 public class ClearingBehindHouse : LocationBase
 {
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are in a small clearing in a well marked forest path that extends to the east and west.";
 
     public override string Name => "Clearing";

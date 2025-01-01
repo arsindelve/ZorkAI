@@ -12,7 +12,7 @@ public class WindingStair : LocationWithNoStartingItems
             { Direction.Up, Go<Courtyard>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "The middle of a long, steep stairway carved into the face of a cliff. ";
 
     public override string Name => "Winding Stair";

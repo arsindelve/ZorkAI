@@ -13,7 +13,7 @@ internal class ToolRoom : LocationBase
             { Direction.E, Go<MachineShop>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is apparently a storage room for tools. Exits lead northeast and east. ";
 
     public override string Name => "Tool Room";

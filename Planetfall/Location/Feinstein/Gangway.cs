@@ -12,7 +12,7 @@ public class Gangway : LocationWithNoStartingItems
             { Direction.Up, Go<DeckEight>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This is a steep metal gangway connecting Deck Eight, above, and Deck Nine, below. ";
 
     public override string Name => "Gangway";

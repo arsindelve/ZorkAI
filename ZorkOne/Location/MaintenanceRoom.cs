@@ -15,12 +15,13 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
     // ReSharper disable once MemberCanBePrivate.Global
     public int CurrentWaterLevel { get; set; }
 
-    protected override string ContextBasedDescription => "This is what appears to have been the maintenance room " +
-                                                         "for Flood Control Dam #3. Apparently, this room has been " +
-                                                         "ransacked recently, for most of the valuable equipment is " +
-                                                         "gone. On the wall in front of you is a group of buttons " +
-                                                         "colored blue, yellow, brown, and red. There are doorways to " +
-                                                         "the west and south. \n";
+    protected override string GetContextBasedDescription() =>
+        "This is what appears to have been the maintenance room " +
+        "for Flood Control Dam #3. Apparently, this room has been " +
+        "ransacked recently, for most of the valuable equipment is " +
+        "gone. On the wall in front of you is a group of buttons " +
+        "colored blue, yellow, brown, and red. There are doorways to " +
+        "the west and south. \n";
 
     protected override Dictionary<Direction, MovementParameters> Map =>
         new()

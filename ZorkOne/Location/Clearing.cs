@@ -35,7 +35,7 @@ public class Clearing : LocationBase
 
     public override string Name => "Clearing";
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are in a clearing, with a forest surrounding you on all sides. A path leads south. ";
 
     public override void Init()

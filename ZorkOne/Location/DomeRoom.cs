@@ -27,7 +27,7 @@ public class DomeRoom : LocationBase
 
     public override string Name => "Dome Room";
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "You are at the periphery of a large dome, which forms the ceiling of another room below. " +
         "Protecting you from a precipitous drop is a wooden railing which circles the dome. ";
 

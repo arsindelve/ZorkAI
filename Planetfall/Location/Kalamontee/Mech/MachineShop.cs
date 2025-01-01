@@ -13,7 +13,7 @@ internal class MachineShop : LocationWithNoStartingItems
             { Direction.E, Go<RobotShop>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This room is probably some sort of machine shop filled with a variety of unusual machines. Doorways lead " +
         "north, east, and west.\n\nStanding against the rear wall is a large dispensing machine with a spout. " +
         "The dispenser is lined with brightly colored\nbuttons. The first four buttons, labelled \"KUULINTS 1 - 4\", " +

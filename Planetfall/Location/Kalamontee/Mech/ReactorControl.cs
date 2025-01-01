@@ -13,7 +13,7 @@ internal class ReactorControl : LocationWithNoStartingItems
             { Direction.Down, Go<ReactorAccessStairs>() }
         };
 
-    protected override string ContextBasedDescription =>
+    protected override string GetContextBasedDescription() =>
         "This room contains many dials and gauges for controlling a massive planetary power reactor which, according " +
         "to a diagram on the wall, must be buried far below this very complex. The exit is to the west. To the east " +
         "is a metal door, and next to it, a button. A dark stairway winds downward. ";
