@@ -26,7 +26,8 @@ public class WindingStair : LocationWithNoStartingItems
     {
         return context?.Day switch
         {
-            > 4 => "You hear the lapping of water from below. ",
+            4 => "You hear the lapping of water from below. ",
+            >= 5 => "You can see ocean water splashing against the steps below you. ",
             _ => ""
         };
     }

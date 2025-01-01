@@ -3,18 +3,8 @@ using Model.Movement;
 
 namespace Planetfall.Location.Kalamontee;
 
-// Summary of Unsafe Conditions
-//     •	Explicit Traps:
-//     •	Day 1 at CRAG
-//     •	Day 3 at BALCONY
-//     •	Day 5 at WINDING-STAIR
-//     •	Random Danger (30% Probability):
-//     •	Monster Attacks (e.g., grues) outside safe zones like beds or dormitories.
-//     •	General Vulnerability:
-//     •	Sleeping without resolving hunger, thirst, or critical puzzles may indirectly result in death even in otherwise safe areas.
+// TODO: Sleep here and die. 
 
-
-// TODO: This is not a good solution. Since it's just the underwater locations, it should be a baseclass rather than an interface. 
 public class Crag : LocationWithNoStartingItems
 {
     protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
