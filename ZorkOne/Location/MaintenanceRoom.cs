@@ -15,7 +15,7 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
     // ReSharper disable once MemberCanBePrivate.Global
     public int CurrentWaterLevel { get; set; }
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is what appears to have been the maintenance room " +
         "for Flood Control Dam #3. Apparently, this room has been " +
         "ransacked recently, for most of the valuable equipment is " +
@@ -23,7 +23,7 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
         "colored blue, yellow, brown, and red. There are doorways to " +
         "the west and south. \n";
 
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.S, new MovementParameters { Location = GetLocation<DamLobby>() } },

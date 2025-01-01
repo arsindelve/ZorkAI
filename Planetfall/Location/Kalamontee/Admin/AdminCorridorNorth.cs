@@ -5,7 +5,7 @@ namespace Planetfall.Location.Kalamontee.Admin;
 
 internal class AdminCorridorNorth : RiftLocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.E, Go<PlanRoom>() },
@@ -21,7 +21,7 @@ internal class AdminCorridorNorth : RiftLocationBase
             }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "The corridor ends here. Portals lead west, north, and east. Signs above these portals read, respectively, " +
         "\"Administraativ Awfisiz,\" \"Tranzportaashun Suplii,\" and \"Plan Ruum.\" To the south is a wide rift, " +
         $"{(GetItem<Ladder>().IsAcrossRift ? "spanned by a metal ladder, " : "")}separating this area from the rest of the building. ";
@@ -35,5 +35,11 @@ internal class AdminCorridorNorth : RiftLocationBase
                 "You slowly make your way across the swaying ladder. You can see sharp, pointy rocks at the bottom of the rift, far below...\n\n";
 
         return base.BeforeEnterLocation(context, previousLocation);
+    }
+
+    protected override void OnFirstTimeEnterLocation(IContext context)
+    {
+        context.AddPoints(4);
+        base.OnFirstTimeEnterLocation(context);
     }
 }

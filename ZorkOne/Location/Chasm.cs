@@ -6,7 +6,7 @@ namespace ZorkOne.Location;
 
 public class Chasm : DarkLocationWithNoStartingItems, IDropSpecialLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.SW, new MovementParameters { Location = GetLocation<EastWestPassage>() } },
@@ -15,7 +15,7 @@ public class Chasm : DarkLocationWithNoStartingItems, IDropSpecialLocation
             { Direction.NE, new MovementParameters { Location = GetLocation<ReservoirSouth>() } }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "A chasm runs southwest to northeast and the path follows it. You are on the south side of the " +
         "chasm, where a crack opens into a passage. ";
 

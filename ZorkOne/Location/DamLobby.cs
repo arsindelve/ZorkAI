@@ -1,11 +1,12 @@
 ﻿using GameEngine.Location;
+using Model.Interface;
 using Model.Movement;
 
 namespace ZorkOne.Location;
 
 public class DamLobby : LocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.S, new MovementParameters { Location = GetLocation<Dam>() } },
@@ -25,7 +26,7 @@ public class DamLobby : LocationBase
             }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This room appears to have been the waiting room for groups touring the dam. There are open doorways here " +
         "to the north and east marked \"Private\", and there is a path leading south over the top of the dam.\n";
 

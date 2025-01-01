@@ -9,7 +9,7 @@ namespace ZorkOne.Location;
 
 public class UpATree : LocationBase, IDropSpecialLocation, ITurnBasedActor
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             {
@@ -28,7 +28,7 @@ public class UpATree : LocationBase, IDropSpecialLocation, ITurnBasedActor
 
     public override string Name => "Up A Tree";
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "You are about 10 feet above the ground nestled among some large branches. The nearest branch above you is above your reach. ";
 
 
@@ -103,7 +103,7 @@ public class UpATree : LocationBase, IDropSpecialLocation, ITurnBasedActor
                 context.CurrentLocation = Repository.GetLocation<ForestPath>();
                 var message =
                     "In a feat of unaccustomed daring, you manage to land on your feet without killing yourself.\n\n";
-                message += Repository.GetLocation<ForestPath>().Description;
+                message += Repository.GetLocation<ForestPath>().GetDescription(context);
                 return new PositiveInteractionResult(message);
         }
 

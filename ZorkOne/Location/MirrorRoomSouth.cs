@@ -6,7 +6,7 @@ namespace ZorkOne.Location;
 
 internal class MirrorRoomSouth : MirrorRoom
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.N, new MovementParameters { Location = GetLocation<NarrowPassage>() } },

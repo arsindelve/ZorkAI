@@ -7,7 +7,7 @@ namespace ZorkOne.Location.CoalMineLocation;
 
 public class MineEntrance : DarkLocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             {
@@ -18,7 +18,7 @@ public class MineEntrance : DarkLocationWithNoStartingItems
             }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "You are standing at the entrance of what might have been a coal mine. The shaft enters the west wall, " +
         "and there is another exit on the south end of the room.";
 

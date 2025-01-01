@@ -18,7 +18,7 @@ internal class CyclopsRoom : DarkLocation
         _decisionEngine = new KillSomeoneDecisionEngine<Cyclops>(_combatEngine);
     }
 
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.NW, Go<MazeFifteen>() },
@@ -42,7 +42,7 @@ internal class CyclopsRoom : DarkLocation
             }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This room has an exit on the northwest, and a staircase leading up. " + (HasItem<Cyclops>()
             ? ""
             : "The east wall, previously solid, now has a cyclops-sized opening in it. ");

@@ -18,11 +18,12 @@ public abstract class FrigidRiverBase : LocationWithNoStartingItems, ITurnBasedA
     // ReSharper disable once MemberCanBePrivate.Global
     // Needed for serialization 
     public int TurnsInThisLocation { get; set; }
-    
-    public override string Description => Name +
-                                          SubLocation?.LocationDescription +
-                                          Environment.NewLine +
-                                          GetContextBasedDescription();
+
+    public override string GetDescription(IContext context) =>
+        Name +
+        SubLocation?.LocationDescription +
+        Environment.NewLine +
+        GetContextBasedDescription(context);
 
     public override string Name => "Frigid River";
 

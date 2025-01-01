@@ -46,7 +46,7 @@ public class MultiNounEngineTests
         };
 
         var location = new Mock<ILocation>();
-        location.Setup(s => s.DescriptionForGeneration).Returns("hello!");
+        location.Setup(s => s.GetDescriptionForGeneration(Mock.Of<IContext>())).Returns("hello!");
         var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
         Mock.Get(context).Setup(s => s.Items).Returns(new List<IItem>());
         var generationClient = new Mock<IGenerationClient>();
@@ -78,7 +78,7 @@ public class MultiNounEngineTests
         };
 
         var location = new Mock<ILocation>();
-        location.Setup(s => s.DescriptionForGeneration).Returns("troll!");
+        location.Setup(s => s.GetDescriptionForGeneration(It.IsAny<IContext>())).Returns("troll!");
         var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
         Mock.Get(context).Setup(s => s.Items).Returns(new List<IItem>());
         var generationClient = new Mock<IGenerationClient>();
@@ -110,7 +110,7 @@ public class MultiNounEngineTests
         };
 
         var location = new Mock<ILocation>();
-        location.Setup(s => s.DescriptionForGeneration).Returns("sword!");
+        location.Setup(s => s.GetDescriptionForGeneration(It.IsAny<IContext>())).Returns("sword!");
         var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
         Mock.Get(context).Setup(s => s.Items).Returns(new List<IItem>());
         var generationClient = new Mock<IGenerationClient>();
@@ -141,7 +141,7 @@ public class MultiNounEngineTests
         };
 
         var location = new Mock<ILocation>();
-        location.Setup(s => s.DescriptionForGeneration).Returns("mailbox leaflet!");
+        location.Setup(s => s.GetDescriptionForGeneration(It.IsAny<IContext>())).Returns("mailbox leaflet!");
         var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
         Mock.Get(context).Setup(s => s.Items).Returns(new List<IItem>());
         var generationClient = new Mock<IGenerationClient>();
@@ -173,7 +173,7 @@ public class MultiNounEngineTests
         };
 
         var location = new Mock<ILocation>();
-        location.Setup(s => s.DescriptionForGeneration).Returns("hello");
+        location.Setup(s => s.GetDescriptionForGeneration(It.IsAny<IContext>())).Returns("hello");
         var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
         Mock.Get(context).Setup(s => s.Items).Returns(new List<IItem>());
         var generationClient = new Mock<IGenerationClient>();
@@ -202,7 +202,7 @@ public class MultiNounEngineTests
         };
 
         var location = new Mock<ILocation>();
-        location.Setup(s => s.DescriptionForGeneration).Returns("hello");
+        location.Setup(s => s.GetDescriptionForGeneration(Mock.Of<IContext>())).Returns("hello");
         var context = Mock.Of<IContext>(s => s.CurrentLocation == location.Object);
         Mock.Get(context).Setup(s => s.ItIsDarkHere).Returns(true);
         var generationClient = new Mock<IGenerationClient>();

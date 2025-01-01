@@ -44,7 +44,7 @@ internal class ExitSubLocationEngine : IIntentEngine
     private async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient, IContext context,
         string noun)
     {
-        var request = new CannotExitSubLocationRequest(context.CurrentLocation.Description, noun);
+        var request = new CannotExitSubLocationRequest(context.CurrentLocation.GetDescription(context), noun);
         var result = await generationClient.GenerateNarration(request);
         return result;
     }

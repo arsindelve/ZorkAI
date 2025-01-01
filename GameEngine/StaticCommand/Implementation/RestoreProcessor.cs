@@ -54,18 +54,18 @@ internal class RestoreProcessor : IStatefulProcessor
             var newContext = await RestoreGame(context.Engine!);
             var generatedResponse =
                 await client.GenerateNarration(
-                    new AfterRestoreGameRequest(newContext.CurrentLocation.DescriptionForGeneration));
-            return $"{generatedResponse}\n\n{newContext.CurrentLocation.Description}";
+                    new AfterRestoreGameRequest(newContext.CurrentLocation.GetDescriptionForGeneration(context)));
+            return $"{generatedResponse}\n\n{newContext.CurrentLocation.GetDescription(context)}";
         }
         catch (FileNotFoundException)
         {
             return await client.GenerateNarration(
-                new RestoreFailedFileNotFoundGameRequest(context.CurrentLocation.DescriptionForGeneration));
+                new RestoreFailedFileNotFoundGameRequest(context.CurrentLocation.GetDescriptionForGeneration(context)));
         }
         catch (Exception)
         {
             return await client.GenerateNarration(
-                new RestoreFailedUnknownReasonGameRequest(context.CurrentLocation.DescriptionForGeneration));
+                new RestoreFailedUnknownReasonGameRequest(context.CurrentLocation.GetDescriptionForGeneration(context)));
         }
     }
 
@@ -75,7 +75,7 @@ internal class RestoreProcessor : IStatefulProcessor
         _havePromptedForFilename = true;
         var generatedResponse =
             await client.GenerateNarration(
-                new BeforeRestoreGameRequest(context.CurrentLocation.DescriptionForGeneration));
+                new BeforeRestoreGameRequest(context.CurrentLocation.GetDescriptionForGeneration(context)));
 
         return
             $"{generatedResponse}\n\nEnter a file name.\nDefault " +

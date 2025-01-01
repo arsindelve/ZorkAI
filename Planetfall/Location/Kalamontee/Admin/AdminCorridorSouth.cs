@@ -14,7 +14,7 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
     // ReSharper disable once MemberCanBePrivate.Global
     public bool HasTakenTheKey { get; set; }
 
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.S, Go<CorridorJunction>() },
@@ -22,7 +22,7 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
             { Direction.E, Go<SanfacE>() }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This section of hallway seems to have suffered some minor structural damage. The walls are cracked, and " +
         "a jagged crevice crosses the floor. An opening leads east and the corridor heads north and south. " +
         (HasSeenTheLight ? "Lying at the bottom of a narrow crevice is a shiny object. " : "");

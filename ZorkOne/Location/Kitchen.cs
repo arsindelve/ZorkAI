@@ -7,7 +7,7 @@ namespace ZorkOne.Location;
 
 public class Kitchen : LocationBase
 {
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         $"You are in the kitchen of the white house. A table seems to have been " +
         $"used recently for the preparation of food. A passage leads to the west " +
         $"and a dark staircase can be seen leading upward. A dark chimney leads down " +
@@ -15,40 +15,37 @@ public class Kitchen : LocationBase
 
     public override string Name => "Kitchen";
 
-    protected override Dictionary<Direction, MovementParameters> Map
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
-        get
+        var exit = new MovementParameters
         {
-            var exit = new MovementParameters
-            {
-                CanGo = _ => GetItem<KitchenWindow>().IsOpen,
-                CustomFailureMessage = "The kitchen window is closed.",
-                Location = Repository.GetLocation<BehindHouse>()
-            };
+            CanGo = _ => GetItem<KitchenWindow>().IsOpen,
+            CustomFailureMessage = "The kitchen window is closed.",
+            Location = Repository.GetLocation<BehindHouse>()
+        };
 
-            return new Dictionary<Direction, MovementParameters>
+        return new Dictionary<Direction, MovementParameters>
+        {
             {
+                Direction.Up, new MovementParameters { Location = GetLocation<Attic>() }
+            },
+            {
+                Direction.W, new MovementParameters { Location = GetLocation<LivingRoom>() }
+            },
+            {
+                Direction.E, exit
+            },
+            {
+                Direction.Out, exit
+            },
+            {
+                Direction.Down, new MovementParameters
                 {
-                    Direction.Up, new MovementParameters { Location = GetLocation<Attic>() }
-                },
-                {
-                    Direction.W, new MovementParameters { Location = GetLocation<LivingRoom>() }
-                },
-                {
-                    Direction.E, exit
-                },
-                {
-                    Direction.Out, exit
-                },
-                {
-                    Direction.Down, new MovementParameters
-                    {
-                        CanGo = _ => false,
-                        CustomFailureMessage = "Only Santa Claus climbs down chimneys."
-                    }
+                    CanGo = _ => false,
+                    CustomFailureMessage = "Only Santa Claus climbs down chimneys."
                 }
-            };
-        }
+            }
+        };
     }
 
     public override void Init()

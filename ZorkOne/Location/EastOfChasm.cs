@@ -9,11 +9,11 @@ public class EastOfChasm : LocationWithNoStartingItems
 {
     public override string Name => "East of Chasm";
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "You are on the east edge of a chasm, the bottom of which cannot be seen. A narrow passage goes north, " +
         "and the path you are on continues to the east. ";
 
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.N, new MovementParameters { Location = GetLocation<Cellar>() } },

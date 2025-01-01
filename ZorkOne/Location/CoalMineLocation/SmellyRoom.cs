@@ -7,7 +7,7 @@ namespace ZorkOne.Location.CoalMineLocation;
 
 internal class SmellyRoom : DarkLocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             {
@@ -18,7 +18,7 @@ internal class SmellyRoom : DarkLocationWithNoStartingItems
             }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a small nondescript room. However, from the direction of a small " +
         "descending staircase a foul odor can be detected. To the south is a narrow tunnel.";
 

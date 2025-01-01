@@ -10,13 +10,14 @@ public class SandyCave : DarkLocationWithNoStartingItems
 {
     // ReSharper disable once MemberCanBePrivate.Global
     public int DigCount { get; set; }
-    
-    protected override Dictionary<Direction, MovementParameters> Map => new()
-    {
-        { Direction.SW, Go<SandyBeach>() }
-    };
 
-    protected override string GetContextBasedDescription() => "This is a sand-filled cave whose exit is to the southwest. ";
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
+        new()
+        {
+            { Direction.SW, Go<SandyBeach>() }
+        };
+
+    protected override string GetContextBasedDescription(IContext context) => "This is a sand-filled cave whose exit is to the southwest. ";
 
     public override string Name => "Sandy Cave";
 

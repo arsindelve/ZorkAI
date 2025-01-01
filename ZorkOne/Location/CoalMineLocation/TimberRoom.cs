@@ -1,11 +1,12 @@
 using GameEngine.Location;
+using Model.Interface;
 using Model.Movement;
 
 namespace ZorkOne.Location.CoalMineLocation;
 
 internal class TimberRoom : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             {
@@ -16,7 +17,7 @@ internal class TimberRoom : DarkLocation
             }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a long and narrow passage, which is cluttered with broken timbers. A wide passage comes from " +
         "the east and turns at the west end of the room into a very narrow passageway. From the west comes a strong draft.";
 

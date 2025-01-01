@@ -1,6 +1,6 @@
 namespace Planetfall.Item.Kalamontee.Admin;
 
-public class LowerElevatorAccessCard : ElevatorAccessCard, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead
+public class LowerElevatorAccessCard : ElevatorAccessCard, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead, IGivePointsWhenFirstPickedUp
 {
     public override string[] NounsForMatching =>
         ["lower elevator access card", "elevator access card", "card", "lower", "elevator", "lower card", "lower elevator", "access card", "lower elevator card", "lower elevator access"];
@@ -18,4 +18,6 @@ public class LowerElevatorAccessCard : ElevatorAccessCard, ICanBeExamined, ICanB
     {
         return "A lower elevator access card";
     }
+    
+    int IGivePointsWhenFirstPickedUp.NumberOfPoints => 1;
 }

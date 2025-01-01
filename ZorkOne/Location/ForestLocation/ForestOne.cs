@@ -1,11 +1,12 @@
 ﻿using GameEngine.Location;
+using Model.Interface;
 using Model.Movement;
 
 namespace ZorkOne.Location.ForestLocation;
 
 public class ForestOne : LocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             {
@@ -32,6 +33,6 @@ public class ForestOne : LocationWithNoStartingItems
 
     public override string Name => "Forest";
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a forest, with trees in all directions. To the east, there appears to be sunlight. ";
 }

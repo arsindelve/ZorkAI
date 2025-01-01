@@ -5,13 +5,13 @@ namespace Planetfall.Location.Kalamontee;
 
 public class WestWing : LocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.E, Go<Courtyard>() }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This was once the west wing of the castle, but the walls are now mostly rubble, " +
         "allowing a view of the cliff and ocean below. Rubble blocks all exits save one, eastward to the courtyard. ";
 

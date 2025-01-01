@@ -34,7 +34,7 @@ public class DeathProcessor
                      "\n\t*** You have died ***\n\n" +
                      "Now, let's take a look here... Well, you probably deserve another chance. I can't quite fix " +
                      "you up completely, but you can't have everything.\n\n" +
-                     newLocation.Description;
+                     newLocation.GetDescription(context);
 
         return new PositiveInteractionResult(result);
     }

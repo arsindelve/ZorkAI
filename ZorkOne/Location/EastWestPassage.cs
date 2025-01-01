@@ -8,7 +8,7 @@ namespace ZorkOne.Location;
 
 internal class EastWestPassage : DarkLocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.W, new MovementParameters { Location = GetLocation<TrollRoom>() } },
@@ -19,7 +19,7 @@ internal class EastWestPassage : DarkLocationWithNoStartingItems
 
     public override string Name => "East-West Passage";
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a narrow east-west passageway. There is a narrow stairway leading down at the north end of the room. ";
 
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,

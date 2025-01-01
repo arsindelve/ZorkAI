@@ -10,7 +10,7 @@ namespace ZorkOne.Location.CoalMineLocation;
 
 internal class GasRoom : DarkLocation, ITurnBasedActor
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             {
@@ -20,7 +20,7 @@ internal class GasRoom : DarkLocation, ITurnBasedActor
                 Direction.E, new MovementParameters { Location = GetLocation<CoalMineOne>() }
             }
         };
-    
+
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
         context.RegisterActor(this);
@@ -61,7 +61,7 @@ internal class GasRoom : DarkLocation, ITurnBasedActor
         return false;
     }
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a small room which smells strongly of coal gas. There is a short climb up some stairs " +
         "and a narrow tunnel leading east. ";
 

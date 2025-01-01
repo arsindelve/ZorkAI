@@ -1,6 +1,8 @@
 using Bedrock;
 using GameEngine;
+using Model.Interface;
 using Model.Location;
+using Moq;
 using ZorkOne.Item;
 using ZorkOne.Location;
 using ZorkOne.Location.CoalMineLocation;
@@ -239,7 +241,7 @@ public class ClaudeFourParserTests
             Repository.GetItem<KitchenWindow>().IsOpen = true;
             Repository.GetItem<PileOfPlastic>().IsInflated = true;
             var locationObject = (ILocation)Activator.CreateInstance(location)!;
-            locationObjectDescription = locationObject.Description;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
         }
 
         var target = new ClaudeFourParserClient();
@@ -260,7 +262,7 @@ public class ClaudeFourParserTests
             Repository.Reset();
             Repository.GetItem<KitchenWindow>().IsOpen = true;
             var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
-            locationObjectDescription = locationObject.Description;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
         }
 
         var target = new ClaudeFourParserClient();
@@ -283,7 +285,7 @@ public class ClaudeFourParserTests
             Repository.Reset();
             Repository.GetItem<KitchenWindow>().IsOpen = true;
             var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
-            locationObjectDescription = locationObject.Description;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
         }
 
         var target = new ClaudeFourParserClient();
@@ -309,7 +311,7 @@ public class ClaudeFourParserTests
             Repository.Reset();
             Repository.GetItem<KitchenWindow>().IsOpen = true;
             var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
-            locationObjectDescription = locationObject.Description;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
         }
 
         var target = new ClaudeFourParserClient();
@@ -335,7 +337,7 @@ public class ClaudeFourParserTests
             Repository.Reset();
             Repository.GetItem<KitchenWindow>().IsOpen = true;
             var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
-            locationObjectDescription = locationObject.Description;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
         }
 
         var target = new ClaudeFourParserClient();
@@ -361,7 +363,7 @@ public class ClaudeFourParserTests
             Repository.Reset();
             Repository.GetItem<KitchenWindow>().IsOpen = true;
             var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
-            locationObjectDescription = locationObject.Description;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
         }
 
         var target = new ClaudeFourParserClient();
@@ -387,7 +389,7 @@ public class ClaudeFourParserTests
             Repository.Reset();
             Repository.GetItem<KitchenWindow>().IsOpen = true;
             var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
-            locationObjectDescription = locationObject.Description;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
         }
 
         var target = new ClaudeFourParserClient();
@@ -418,7 +420,7 @@ public class ClaudeFourParserTests
             Repository.Reset();
             Repository.GetItem<KitchenWindow>().IsOpen = true;
             var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
-            locationObjectDescription = locationObject.Description;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
         }
 
         var target = new ClaudeFourParserClient();
@@ -450,7 +452,7 @@ public class ClaudeFourParserTests
             Repository.Reset();
             Repository.GetItem<KitchenWindow>().IsOpen = true;
             var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
-            locationObjectDescription = locationObject.Description;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
         }
 
         var target = new ClaudeFourParserClient();

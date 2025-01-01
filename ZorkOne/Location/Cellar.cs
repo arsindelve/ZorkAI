@@ -8,36 +8,37 @@ namespace ZorkOne.Location;
 
 public class Cellar : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map => new()
-    {
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
+        new()
         {
-            Direction.S, new MovementParameters { Location = GetLocation<EastOfChasm>() }
-        },
-        {
-            Direction.N, new MovementParameters { Location = GetLocation<TrollRoom>() }
-        },
-        {
-            Direction.W,
-            new MovementParameters
             {
-                CanGo = _ => false,
-                CustomFailureMessage = "You try to ascend the ramp, but it is impossible, and you slide back down."
-            }
-        },
-        {
-            Direction.Up,
-            new MovementParameters
+                Direction.S, new MovementParameters { Location = GetLocation<EastOfChasm>() }
+            },
             {
-                CanGo = _ => GetItem<TrapDoor>().IsOpen,
-                CustomFailureMessage = "The trap door is closed. ",
-                Location = GetLocation<LivingRoom>()
+                Direction.N, new MovementParameters { Location = GetLocation<TrollRoom>() }
+            },
+            {
+                Direction.W,
+                new MovementParameters
+                {
+                    CanGo = _ => false,
+                    CustomFailureMessage = "You try to ascend the ramp, but it is impossible, and you slide back down."
+                }
+            },
+            {
+                Direction.Up,
+                new MovementParameters
+                {
+                    CanGo = _ => GetItem<TrapDoor>().IsOpen,
+                    CustomFailureMessage = "The trap door is closed. ",
+                    Location = GetLocation<LivingRoom>()
+                }
             }
-        }
-    };
+        };
 
     public override string Name => "Cellar";
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "You are in a dark and damp cellar with a narrow passageway " +
         "leading north, and a crawlway to the south. On the west is the " +
         "bottom of a steep metal ramp which is unclimbable. ";

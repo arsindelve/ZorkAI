@@ -5,7 +5,7 @@ namespace Planetfall.Location.Kalamontee.Admin;
 
 internal class AdminCorridor : RiftLocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.S, Go<AdminCorridorSouth>() },
@@ -21,7 +21,7 @@ internal class AdminCorridor : RiftLocationBase
             }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "The hallway, in fact the entire building, has been rent apart here, presumably by seismic upheaval. " +
         "You can see the sky through the severed roof above, and the ground is thick with rubble. To the north " +
         $"is a gaping rift, at least eight meters across and thirty meters deep. {(GetItem<Ladder>().IsAcrossRift ? "A metal ladder spans the rift." : "")} " +

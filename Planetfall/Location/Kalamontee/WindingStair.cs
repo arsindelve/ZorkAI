@@ -5,15 +5,29 @@ namespace Planetfall.Location.Kalamontee;
 
 public class WindingStair : LocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
+    public override string Name => "Winding Stair";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.Down, Go<Balcony>() },
+            { Direction.Down, ((PlanetfallContext)context).Day < 4 ? Go<Balcony>() : Go<Underwater>() },
             { Direction.Up, Go<Courtyard>() }
         };
+    }
 
-    protected override string GetContextBasedDescription() =>
-        "The middle of a long, steep stairway carved into the face of a cliff. ";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "The middle of a long, steep stairway carved into the face of a cliff. " +
+               DayChange(context as PlanetfallContext);
+    }
 
-    public override string Name => "Winding Stair";
+    private string DayChange(PlanetfallContext? context)
+    {
+        return context?.Day switch
+        {
+            > 4 => "You hear the lapping of water from below. ",
+            _ => ""
+        };
+    }
 }

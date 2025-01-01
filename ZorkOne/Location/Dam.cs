@@ -10,7 +10,7 @@ public class Dam : LocationBase
 {
     public bool SluiceGatesOpen { get; set; }
 
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.W, new MovementParameters { Location = GetLocation<ReservoirSouth>() } },
@@ -20,7 +20,7 @@ public class Dam : LocationBase
             { Direction.Down, new MovementParameters { Location = GetLocation<DamBase>() } }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "You are standing on the top of the Flood Control Dam #3, which was quite a tourist attraction in times far distant. " +
         "There are paths to the north, south, and west, and a scramble down. " + GatesDescription();
 

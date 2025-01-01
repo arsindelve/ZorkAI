@@ -25,8 +25,8 @@ public class LookProcessor : IGlobalCommand
         string currentLocationDescription = (verbosity ?? context.Verbosity) switch
         {
             Verbosity.SuperBrief => context.CurrentLocation.Name,
-            Verbosity.Brief => location.VisitCount == 1 ? context.CurrentLocation.Description : location.Name,
-            Verbosity.Verbose => context.CurrentLocation.Description,
+            Verbosity.Brief => location.VisitCount == 1 ? context.CurrentLocation.GetDescription(context) : location.Name,
+            Verbosity.Verbose => context.CurrentLocation.GetDescription(context),
             _ => throw new ArgumentOutOfRangeException()
         };
 

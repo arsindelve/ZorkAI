@@ -8,9 +8,9 @@ namespace ZorkOne.Location.ForestLocation;
 
 public class InsideTheBarrow : LocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map => new();
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) => new();
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         """
         As you enter the barrow, the door closes inexorably behind you. Around you it is dark, but ahead is an enormous
         cavern, brightly lit. Through its center runs a wide stream. Spanning the stream is a small wooden footbridge,

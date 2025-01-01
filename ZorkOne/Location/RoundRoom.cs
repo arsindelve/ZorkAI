@@ -1,11 +1,12 @@
 ﻿using GameEngine.Location;
+using Model.Interface;
 using Model.Movement;
 
 namespace ZorkOne.Location;
 
 public class RoundRoom : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.W, new MovementParameters { Location = GetLocation<EastWestPassage>() } },
@@ -17,7 +18,7 @@ public class RoundRoom : DarkLocation
 
     public override string Name => "Round Room";
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a circular stone room with passages in all directions. Several of them have unfortunately been blocked by cave-ins.";
 
     public override void Init()

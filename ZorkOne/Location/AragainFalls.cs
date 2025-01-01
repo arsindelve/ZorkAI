@@ -8,17 +8,18 @@ namespace ZorkOne.Location;
 
 public class AragainFalls : LocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map => new()
-    {
-        { Direction.N, Go<Shore>() },
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
+        new()
         {
-            Direction.W,
-            new MovementParameters
-                { CanGo = _ => GetLocation<EndOfRainbow>().RainbowIsSolid, Location = GetLocation<OnTheRainbow>() }
-        }
-    };
+            { Direction.N, Go<Shore>() },
+            {
+                Direction.W,
+                new MovementParameters
+                    { CanGo = _ => GetLocation<EndOfRainbow>().RainbowIsSolid, Location = GetLocation<OnTheRainbow>() }
+            }
+        };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "You are at the top of Aragain Falls, an enormous waterfall with a drop of about 450 feet. The only path " +
         "here is on the north end. \n" + (GetLocation<EndOfRainbow>().RainbowIsSolid
             ? "A solid rainbow spans the falls. "
@@ -35,7 +36,7 @@ public class AragainFalls : LocationWithNoStartingItems
                 return new PositiveInteractionResult("Can you walk on water vapor? ");
 
             context.CurrentLocation = GetLocation<EndOfRainbow>();
-            return new PositiveInteractionResult(context.CurrentLocation.Description);
+            return new PositiveInteractionResult(context.CurrentLocation.GetDescription(context));
         }
 
         return base.RespondToSimpleInteraction(action, context, client);

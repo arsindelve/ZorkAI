@@ -86,7 +86,7 @@ internal class EscapePod : LocationBase, ITurnBasedActor
         return base.RespondToSpecificLocationInteraction(input, context, client);
     }
 
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             {
@@ -116,7 +116,7 @@ internal class EscapePod : LocationBase, ITurnBasedActor
         base.OnFirstTimeEnterLocation(context);
     }
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         $"This is one of the Feinstein's primary escape pods, for use in extreme emergencies. A mass of safety " +
         $"webbing, large enough to hold several dozen people, fills half the pod. The controls are entirely automated. " +
         $"The bulkhead leading out is {(Repository.GetItem<BulkheadDoor>().IsOpen ? "open" : "closed")}. ";

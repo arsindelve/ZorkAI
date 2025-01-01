@@ -1,5 +1,23 @@
 namespace Planetfall;
 
+// TODO Wake up: 1800
+// TODO >= Day 4 You wake after sleeping restlessly. You feel weak and listless.
+// TODO Day 8 You wake feeling weak and worn-out. It will be an effort just to stand up.
+// TODO Day 9 Unfortunately, you don't seem to have survived the night.
+
+
+//TODO Day 2, 1850: You notice that you feel a bit weak and slightly flushed, but you're not sure why.
+//TODO Day 3, 2250: You notice that you feel unusually weak, and you suspect that you have a fever.
+//TODO Day 4, 2500: You are now feeling quite under the weather, not unlike a bad flu.
+//TODO Day 5, 2700: Your fever seems to have gotten worse, and you're developing a bad headache.
+//TODO Day 6, 3000: Your health has deteriorated further. You feel hot and weak, and your head is throbbing.
+//TODO Day 7, 3000: You feel very, very sick, and have almost no strength left.
+//TODO Day 8, 3000: You feel like you're on fire, burning up from the fever. You're almost too weak to move, and your brain is reeling from the pounding headache.
+
+// TODO: If you sleep with the canteen open, the liquid evaporates. I think
+
+// TODO > day 6, your inventory capacity is very small
+
 public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
 {
     // ReSharper disable once MemberCanBePrivate.Global
