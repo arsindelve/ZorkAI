@@ -23,7 +23,7 @@ public class TrollRoom : DarkLocation
     private bool TrollIsAwake => !GetItem<Troll>().IsDead &&
                                  !GetItem<Troll>().IsUnconscious;
 
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.S, new MovementParameters { Location = GetLocation<Cellar>() } },
@@ -47,7 +47,7 @@ public class TrollRoom : DarkLocation
 
     public override string Name => "The Troll Room";
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a small room with passages to the east and south and a forbidding hole leading west. " +
         "Bloodstains and deep scratches (perhaps made by an axe) mar the walls. ";
 

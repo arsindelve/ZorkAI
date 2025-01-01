@@ -9,7 +9,7 @@ namespace ZorkOne.Location.CoalMineLocation;
 
 internal class ShaftRoom : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             {
@@ -25,7 +25,7 @@ internal class ShaftRoom : DarkLocation
             }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a large room, in the middle of which is a small shaft descending through the floor into darkness " +
         "below. To the west and the north are exits from this room. Constructed over the top of the shaft is a metal " +
         $"framework to which a heavy iron chain is attached. {(Items.Contains(Repository.GetItem<Basket>()) ? "\nAt the end of the chain is a basket. "

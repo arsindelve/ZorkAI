@@ -10,7 +10,7 @@ namespace ZorkOne.Location;
 
 public class CaveSouth : DarkLocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.W, new MovementParameters { Location = GetLocation<WindingPassage>() } },
@@ -18,7 +18,7 @@ public class CaveSouth : DarkLocationWithNoStartingItems
             { Direction.Down, new MovementParameters { Location = GetLocation<EntranceToHades>() } }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a tiny cave with entrances west and north, and a dark, forbidding staircase leading down. ";
 
     public override string Name => "Cave";

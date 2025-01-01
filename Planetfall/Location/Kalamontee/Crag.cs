@@ -15,16 +15,16 @@ namespace Planetfall.Location.Kalamontee;
 
 
 // TODO: This is not a good solution. Since it's just the underwater locations, it should be a baseclass rather than an interface. 
-public class Crag : LocationWithNoStartingItems, IUnsafePlaceToSleep
+public class Crag : LocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.Up, Go<Balcony>() },
             { Direction.Down, Go<Underwater>() }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "You have reached a cleft in the cliff wall where the island rises from the water. " +
         "The edge of the cleft displays recently exposed rock where it collapsed under the weight of " +
         "the escape pod. About two meters below, turbulent waters swirl against sharp rocks. A small " +

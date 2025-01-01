@@ -9,7 +9,7 @@ namespace ZorkOne.Location;
 
 public class DamBase : LocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             {
@@ -32,7 +32,7 @@ public class DamBase : LocationBase
             }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "You are at the base of Flood Control Dam #3, which looms above you and to the north. The river " +
         "Frigid is flowing by here. Along the river are the White Cliffs which seem to form giant walls stretching" +
         " from north to south along the shores of the river as it winds its way downstream. ";
@@ -58,7 +58,7 @@ public class DamBase : LocationBase
             context.CurrentLocation.SubLocation = Repository.GetItem<PileOfPlastic>();
             ((ICanHoldItems)context.CurrentLocation).ItemPlacedHere(Repository.GetItem<PileOfPlastic>());
 
-            return new PositiveInteractionResult(context.CurrentLocation.Description);
+            return new PositiveInteractionResult(context.CurrentLocation.GetDescription(context));
         }
 
         return await base.RespondToSpecificLocationInteraction(input, context, client);

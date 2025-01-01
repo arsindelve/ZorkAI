@@ -69,7 +69,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         Runtime = Runtime.Web;
         IntroText = $"""
                      {_gameInstance.StartText}
-                     {Context.CurrentLocation.Description}
+                     {Context.CurrentLocation.GetDescription(Context)}
                      """;
 
         GenerationClient = new ChatGPTClient(_logger);
@@ -120,7 +120,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public Direction? LastMovementDirection => Context.LastMovementDirection;
 
-    public string LocationDescription => Context.CurrentLocation.DescriptionForGeneration;
+    public string LocationDescription => Context.CurrentLocation.GetDescriptionForGeneration(Context);
 
     public int Moves => Context.Moves;
 
@@ -217,7 +217,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         var parsedResult = await _parser.DetermineComplexIntentType(
             _currentInput,
-            Context.CurrentLocation.Description,
+            Context.CurrentLocation.GetDescription(Context),
             _sessionId
         );
 
@@ -452,7 +452,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         )
     {
         var request = new CommandHasNoEffectOperationRequest(
-            context.CurrentLocation.DescriptionForGeneration,
+            context.CurrentLocation.GetDescriptionForGeneration(context),
             input
         );
         var result = await generationClient.GenerateNarration(request);

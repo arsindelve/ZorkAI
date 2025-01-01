@@ -17,7 +17,7 @@ public class MoveEngine : IIntentEngine
         
         context.LastMovementDirection = moveTo.Direction;
         
-        MovementParameters? movement = context.CurrentLocation.Navigate(moveTo.Direction);
+        MovementParameters? movement = context.CurrentLocation.Navigate(moveTo.Direction, context);
 
         if (movement == null)
             return (null, await GetGeneratedCantGoThatWayResponse(generationClient, moveTo.Direction.ToString(), context));
@@ -53,8 +53,7 @@ public class MoveEngine : IIntentEngine
     private static async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient, string direction, 
         IContext context)
     {
-        //return Task.FromResult("You cannot go that way." + Environment.NewLine);
-        var request = new CannotGoThatWayRequest(context.CurrentLocation.Description, direction);
+        var request = new CannotGoThatWayRequest(context.CurrentLocation.GetDescription(context), direction);
         var result = await generationClient.GenerateNarration(request);
         return result;
     }

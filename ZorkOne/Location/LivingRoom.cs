@@ -12,7 +12,7 @@ public class LivingRoom : LocationBase
 {
     private bool CyclopsHasCrashedThrough => !GetLocation<CyclopsRoom>().HasItem<Cyclops>();
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "You are in the living room.  " +
         (!CyclopsHasCrashedThrough
             ? "There is a doorway to the east, a wooden door with strange gothic lettering to the west, which appears to be nailed shut, "
@@ -24,33 +24,34 @@ public class LivingRoom : LocationBase
 
     public override string Name => "Living Room";
 
-    protected override Dictionary<Direction, MovementParameters> Map => new()
-    {
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
+        new()
         {
-            Direction.E, new MovementParameters { Location = GetLocation<Kitchen>() }
-        },
-        {
-            Direction.W,
-            new MovementParameters
             {
-                CanGo = _ => CyclopsHasCrashedThrough,
-                CustomFailureMessage = "The door is nailed shut.",
-                Location = GetLocation<StrangePassage>()
-            }
-        },
-        {
-            Direction.Down,
-            new MovementParameters
+                Direction.E, new MovementParameters { Location = GetLocation<Kitchen>() }
+            },
             {
-                Location = GetLocation<Cellar>(),
-                CanGo = _ =>
-                    Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>() && Repository.GetItem<TrapDoor>().IsOpen,
-                CustomFailureMessage = Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>()
-                    ? "The trap door is closed."
-                    : "You can't go that way."
+                Direction.W,
+                new MovementParameters
+                {
+                    CanGo = _ => CyclopsHasCrashedThrough,
+                    CustomFailureMessage = "The door is nailed shut.",
+                    Location = GetLocation<StrangePassage>()
+                }
+            },
+            {
+                Direction.Down,
+                new MovementParameters
+                {
+                    Location = GetLocation<Cellar>(),
+                    CanGo = _ =>
+                        Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>() && Repository.GetItem<TrapDoor>().IsOpen,
+                    CustomFailureMessage = Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>()
+                        ? "The trap door is closed."
+                        : "You can't go that way."
+                }
             }
-        }
-    };
+        };
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)

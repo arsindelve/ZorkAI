@@ -5,7 +5,7 @@ namespace Planetfall.Location.Kalamontee.Mech;
 
 internal class MechCorridor : LocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.N, Go<MechCorridorNorth>() },
@@ -14,7 +14,7 @@ internal class MechCorridor : LocationWithNoStartingItems
             { Direction.S, Go<MechCorridorSouth>() }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "Entrances to rooms lie to the east and west from this north-south hall. ";
 
     public override string Name => "Mech Corridor";

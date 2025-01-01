@@ -126,9 +126,9 @@ internal class SimpleInteractionEngine : IIntentEngine
         Request request;
 
         if (item is not IAmANamedPerson)
-            request = new VerbHasNoEffectOperationRequest(context.CurrentLocation.DescriptionForGeneration, noun, verb);
+            request = new VerbHasNoEffectOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), noun, verb);
         else
-            request = new VerbHasNoEffectOnAPersonOperationRequest(context.CurrentLocation.DescriptionForGeneration, noun, verb, item.GenericDescription(context.CurrentLocation));
+            request = new VerbHasNoEffectOnAPersonOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), noun, verb, item.GenericDescription(context.CurrentLocation));
 
         var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
         return result;
@@ -137,7 +137,7 @@ internal class SimpleInteractionEngine : IIntentEngine
     private static async Task<string> GetGeneratedNounNotPresentResponse(string? noun,
         IGenerationClient generationClient, IContext context)
     {
-        var request = new NounNotPresentOperationRequest(context.CurrentLocation.DescriptionForGeneration, noun);
+        var request = new NounNotPresentOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), noun);
         var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
         return result;
     }
@@ -146,7 +146,7 @@ internal class SimpleInteractionEngine : IIntentEngine
         IContext context)
     {
         var request =
-            new CommandHasNoEffectOperationRequest(context.CurrentLocation.DescriptionForGeneration, input);
+            new CommandHasNoEffectOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), input);
         var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
         return result;
     }

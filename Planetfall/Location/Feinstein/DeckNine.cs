@@ -6,8 +6,7 @@ namespace Planetfall.Location.Feinstein;
 
 internal class DeckNine : LocationBase, ITurnBasedActor
 {
-    
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.Up, Go<Gangway>() },
@@ -56,7 +55,7 @@ internal class DeckNine : LocationBase, ITurnBasedActor
         context.RemoveActor(this);
     }
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a featureless corridor similar to every other corridor on the ship. It curves away to starboard," +
         " and a gangway leads up. To port is the entrance to one of the ship's primary escape pods. " +
         $"The pod bulkhead is {(Repository.GetItem<BulkheadDoor>().IsOpen ? "open" : "closed")}. ";

@@ -8,19 +8,21 @@ namespace Planetfall.Location.Kalamontee;
 
 internal class MessHall : LocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.N, Go<MessCorridor>() },
-            { Direction.S, new MovementParameters
             {
-                CanGo = _ => GetItem<KitchenDoor>().IsOpen,
-                Location = GetLocation<Kitchen>(),
-                CustomFailureMessage = "The door is closed. "
-            }}
+                Direction.S, new MovementParameters
+                {
+                    CanGo = _ => GetItem<KitchenDoor>().IsOpen,
+                    Location = GetLocation<Kitchen>(),
+                    CustomFailureMessage = "The door is closed. "
+                }
+            }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a large hall lined with tables and benches. An opening to the north leads back to the corridor. " +
         "A door to the south is closed. Next to the door is a small slot. ";
 

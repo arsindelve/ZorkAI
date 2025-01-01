@@ -7,6 +7,7 @@ using Model.Interface;
 using Model.Item;
 using Model.Location;
 using Moq;
+using Planetfall.GlobalCommand;
 using Planetfall.Location.Feinstein;
 using UnitTests;
 

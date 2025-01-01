@@ -7,13 +7,13 @@ namespace Planetfall.Location.Kalamontee;
 
 internal class Kitchen : LocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.N, Go<MessHall>() }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is the food production and dispensary area for the dining hall to the north. Of particular interest is a machine near the door. You should probably examine it more closely. ";
 
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
@@ -28,5 +28,10 @@ internal class Kitchen : LocationBase
     {
         StartWithItem<KitchenDoor>();
         StartWithItem<KitchenMachine>();
+    }
+
+    protected override void OnFirstTimeEnterLocation(IContext context)
+    {
+        context.AddPoints(4);
     }
 }

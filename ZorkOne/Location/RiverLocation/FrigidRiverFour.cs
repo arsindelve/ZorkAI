@@ -1,4 +1,5 @@
 using GameEngine;
+using Model.Interface;
 using Model.Movement;
 
 namespace ZorkOne.Location.RiverLocation;
@@ -7,7 +8,7 @@ public class FrigidRiverFour : FrigidRiverBase
 {
     protected override FrigidRiverBase CarriedToLocation => Repository.GetLocation<FrigidRiverFive>();
 
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             {
@@ -21,7 +22,7 @@ public class FrigidRiverFour : FrigidRiverBase
 
     protected override int TurnsUntilSweptDownstream => 3;
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "The river is running faster here and the sound ahead appears to be that of rushing water. On the east " +
         "shore is a sandy beach. A small area of beach can also be seen below the cliffs on the west shore. " +
         (Items.Contains(Repository.GetItem<Buoy>())

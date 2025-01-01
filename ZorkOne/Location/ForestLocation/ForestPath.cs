@@ -8,28 +8,29 @@ namespace ZorkOne.Location.ForestLocation;
 
 public class ForestPath : LocationWithNoStartingItems, ITurnBasedActor
 {
-    protected override Dictionary<Direction, MovementParameters> Map => new()
-    {
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
+        new()
         {
-            Direction.S, new MovementParameters { Location = GetLocation<NorthOfHouse>() }
-        },
-        {
-            Direction.N, new MovementParameters { Location = GetLocation<Clearing>() }
-        },
-        {
-            Direction.E, new MovementParameters { Location = GetLocation<ForestTwo>() }
-        },
-        {
-            Direction.Up, new MovementParameters { Location = GetLocation<UpATree>() }
-        },
-        {
-            Direction.W, new MovementParameters { Location = GetLocation<ForestOne>() }
-        }
-    };
+            {
+                Direction.S, new MovementParameters { Location = GetLocation<NorthOfHouse>() }
+            },
+            {
+                Direction.N, new MovementParameters { Location = GetLocation<Clearing>() }
+            },
+            {
+                Direction.E, new MovementParameters { Location = GetLocation<ForestTwo>() }
+            },
+            {
+                Direction.Up, new MovementParameters { Location = GetLocation<UpATree>() }
+            },
+            {
+                Direction.W, new MovementParameters { Location = GetLocation<ForestOne>() }
+            }
+        };
 
     public override string Name => "Forest Path";
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a path winding through a dimly lit forest. The path heads north-south here. " +
         "One particularly large tree with some low branches stands at the edge of the path. ";
 

@@ -1,11 +1,12 @@
 using GameEngine.Location;
+using Model.Interface;
 using Model.Movement;
 
 namespace ZorkOne.Location.CoalMineLocation;
 
 internal class DeadEnd : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             {
@@ -13,7 +14,7 @@ internal class DeadEnd : DarkLocation
             }
         };
 
-    protected override string GetContextBasedDescription() => "You have come to a dead end in the mine.  ";
+    protected override string GetContextBasedDescription(IContext context) => "You have come to a dead end in the mine.  ";
 
     public override string Name => "Dead End";
 

@@ -10,7 +10,7 @@ namespace ZorkOne.Location;
 
 public class DomeRoom : LocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.W, new MovementParameters { Location = GetLocation<EngravingsCave>() } },
@@ -27,7 +27,7 @@ public class DomeRoom : LocationBase
 
     public override string Name => "Dome Room";
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "You are at the periphery of a large dome, which forms the ceiling of another room below. " +
         "Protecting you from a precipitous drop is a wooden railing which circles the dome. ";
 

@@ -8,14 +8,14 @@ namespace ZorkOne.Location;
 
 public class Reservoir : DarkLocation, ITurnBasedActor
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.S, new MovementParameters { Location = GetLocation<ReservoirSouth>() } },
             { Direction.N, new MovementParameters { Location = GetLocation<ReservoirNorth>() } }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "You are on what used to be a large lake, but which is now a large mud pile. There are \"shores\" to the north and south.";
 
     public override string Name => "Reservoir";

@@ -10,7 +10,7 @@ namespace ZorkOne.Location;
 
 internal class EntranceToHades : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.Up, new MovementParameters { Location = GetLocation<CaveSouth>() } },
@@ -25,7 +25,7 @@ internal class EntranceToHades : DarkLocation
             }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         """
         You are outside a large gateway, on which is inscribed
          

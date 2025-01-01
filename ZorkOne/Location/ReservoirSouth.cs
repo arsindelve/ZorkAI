@@ -19,7 +19,7 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
 
     public int FillingCountDown { get; set; }
 
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.SW, new MovementParameters { Location = GetLocation<Chasm>() } },
@@ -35,7 +35,7 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
             }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         (IsFull && !IsFilling && !IsDraining
             ? "You are in a long room on the south shore of a large lake, far too deep and wide for crossing. "
             : "") +

@@ -1,13 +1,11 @@
 using GameEngine.Location;
 using Model.Movement;
-using Planetfall.Item;
-using Planetfall.Item.Feinstein;
 
 namespace Planetfall.Location.Feinstein;
 
 internal class Brig : LocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             {
@@ -16,7 +14,7 @@ internal class Brig : LocationBase
             }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "You are in the Feinstein's brig. Graffiti cover the walls. The cell door to the south is locked. ";
 
     public override string Name => "Brig";

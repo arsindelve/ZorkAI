@@ -7,7 +7,7 @@ namespace ZorkOne.Location.CoalMineLocation;
 
 public class SqueakyRoom : DarkLocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             {
@@ -18,7 +18,7 @@ public class SqueakyRoom : DarkLocationWithNoStartingItems
             }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "You are in a small room. Strange squeaky sounds may be heard coming from the passage at the north end. You may also escape to the east. ";
 
     public override string Name => "Squeaky Room ";

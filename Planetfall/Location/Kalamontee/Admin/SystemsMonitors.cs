@@ -14,13 +14,13 @@ public class SystemsMonitors : LocationWithNoStartingItems
             "KUNTROOL, KUMUUNIKAASHUNZ, and PRAJEKT KUNTROOL indicate a malfunctioning condition. ";
     }
 
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.E, Go<AdminCorridor>() }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         $"This is a large room filled with tables full of strange equipment. {Monitors()}";
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client)

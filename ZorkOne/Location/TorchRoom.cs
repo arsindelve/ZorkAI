@@ -1,11 +1,12 @@
 ﻿using GameEngine.Location;
+using Model.Interface;
 using Model.Movement;
 
 namespace ZorkOne.Location;
 
 public class TorchRoom : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.S, new MovementParameters { Location = GetLocation<Temple>() } },
@@ -21,7 +22,7 @@ public class TorchRoom : DarkLocation
 
     public override string Name => "Torch Room";
 
-    protected override string GetContextBasedDescription()
+    protected override string GetContextBasedDescription(IContext context)
     {
         var desc =
             "This is a large room with a prominent doorway leading to a down staircase. To the west is a narrow twisting tunnel, " +

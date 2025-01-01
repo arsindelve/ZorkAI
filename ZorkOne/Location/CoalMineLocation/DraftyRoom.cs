@@ -9,17 +9,18 @@ namespace ZorkOne.Location.CoalMineLocation;
 
 internal class DraftyRoom : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map => new()
-    {
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
+        new()
         {
-            Direction.E, new MovementParameters { Location = GetLocation<TimberRoom>(), WeightLimit = 2 }
-        },
-        {
-            Direction.S, new MovementParameters { Location = GetLocation<MachineRoom>() }
-        }
-    };
+            {
+                Direction.E, new MovementParameters { Location = GetLocation<TimberRoom>(), WeightLimit = 2 }
+            },
+            {
+                Direction.S, new MovementParameters { Location = GetLocation<MachineRoom>() }
+            }
+        };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a small drafty room in which is the bottom of a long shaft. To the south is a passageway and to " +
         $"the east a very narrow passage. In the shaft can be seen a heavy iron chain. {(Items.Contains(Repository.GetItem<Basket>()) ? "\nAt the end of the chain is a basket. "
             + (GetItem<Basket>().Items.Any() ? GetItem<Basket>().ItemListDescription("basket", this) : "") : "")} \n";

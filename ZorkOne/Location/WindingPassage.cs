@@ -8,14 +8,14 @@ namespace ZorkOne.Location;
 
 public class WindingPassage : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.N, new MovementParameters { Location = GetLocation<MirrorRoomSouth>() } },
             { Direction.E, new MovementParameters { Location = GetLocation<CaveSouth>() } }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a winding passage. It seems that there are only exits on the east and north. ";
 
     public override string Name => "Winding Passage";

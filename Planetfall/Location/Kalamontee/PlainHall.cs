@@ -6,7 +6,7 @@ namespace Planetfall.Location.Kalamontee;
 
 internal class PlainHall : LocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.S, Go<Courtyard>() },
@@ -14,7 +14,7 @@ internal class PlainHall : LocationWithNoStartingItems
             { Direction.NE, Go<RecCorridor>() }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a featureless hall leading north and south. Although the hallway is old and dusty, " +
         "the construction is of a much more modern style than the castle to the south. A similar " +
         "hall branches off to the northeast. ";
@@ -24,7 +24,7 @@ internal class PlainHall : LocationWithNoStartingItems
 
 internal class RecArea : LocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.S, Go<PlainHall>() },
@@ -48,7 +48,7 @@ internal class RecArea : LocationWithNoStartingItems
         return base.RespondToSimpleInteraction(action, context, client);
     }
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a recreational facility of some sort. Games and tapes are scattered about the room. " +
         "Hallways head off to the east and south, and to the north is a door which is closed and locked. " +
         "A dial on the door is currently set to 0. ";

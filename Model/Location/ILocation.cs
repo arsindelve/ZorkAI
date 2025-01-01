@@ -13,13 +13,14 @@ namespace Model.Location;
 /// </summary>
 public interface ILocation
 {
-    string Description { get; }
+    string GetDescription(IContext context);
 
     /// <summary>
     ///     This allows us to provide a different description of the current location when we use it as
     ///     part of a prompt for AI.
     /// </summary>
-    string DescriptionForGeneration { get; }
+    /// <param name="context"></param>
+    string GetDescriptionForGeneration(IContext context);
 
     string Name { get; }
 
@@ -75,11 +76,12 @@ public interface ILocation
     ///     a null response)
     /// </summary>
     /// <param name="direction">The direction we want to go from here. </param>
+    /// <param name="context"></param>
     /// <returns>
     ///     A <see cref="MovementParameters" /> that describes our ability to move there, or null
     ///     if movement in that direction is always impossible
     /// </returns>
-    MovementParameters? Navigate(Direction direction);
+    MovementParameters? Navigate(Direction direction, IContext context);
 
     /// <summary>
     ///     Checks if the specified item type is present in the current location.

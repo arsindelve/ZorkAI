@@ -6,7 +6,7 @@ namespace Planetfall.Location.Kalamontee;
 
 internal class RecCorridor : LocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.SW, Go<PlainHall>() },
@@ -16,7 +16,7 @@ internal class RecCorridor : LocationWithNoStartingItems
             { Direction.E, Go<MessCorridor>() }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a wide, east-west hallway. Portals lead north and south, and another corridor branches southwest. ";
 
     public override string Name => "Rec Corridor";

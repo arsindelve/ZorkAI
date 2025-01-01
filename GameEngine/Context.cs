@@ -276,11 +276,19 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         if (item == null)
             throw new Exception("Null item was added to inventory");
 
+        if (item is IGivePointsWhenFirstPickedUp up && !item.HasEverBeenPickedUp)
+        {
+            AddPoints(up.NumberOfPoints);
+        }
+        
         Items.Add(item);
         var previousOwner = item.CurrentLocation;
         previousOwner?.RemoveItem(item);
         item.CurrentLocation = this;
         item.HasEverBeenPickedUp = true;
+
+
+        
     }
 
     public void Drop<TItem>() where TItem : IItem, new()

@@ -19,7 +19,7 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
     // ReSharper disable once MemberCanBePrivate.Global
     public bool EchoHasBeenSpoken { get; set; }
 
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.W, new MovementParameters { Location = GetLocation<RoundRoom>() } },
@@ -27,7 +27,7 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
             { Direction.Up, new MovementParameters { Location = GetLocation<DeepCanyon>() } }
         };
 
-    protected override string GetContextBasedDescription()
+    protected override string GetContextBasedDescription(IContext context)
     {
         var description = "This is a large room with a ceiling which cannot be detected from the ground. " +
                           "There is a narrow passage from east to west and a stone stairway leading upward. ";
@@ -120,10 +120,10 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
     /// <returns></returns>
     private InteractionResult Flee(IContext context)
     {
-        var direction = GetRandomKey(Map);
-        var newLocation = Map[direction].Location!;
+        var direction = GetRandomKey(Map(context));
+        var newLocation = Map(context)[direction].Location!;
         context.CurrentLocation = newLocation;
-        return new PositiveInteractionResult(newLocation.Description + Environment.NewLine);
+        return new PositiveInteractionResult(newLocation.GetDescription(context) + Environment.NewLine);
     }
 
     private TKey GetRandomKey<TKey, TValue>(Dictionary<TKey, TValue> dict) where TKey : notnull

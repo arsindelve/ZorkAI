@@ -25,7 +25,7 @@ public class SaveProcessorTests
             .ReturnsAsync("shelly");
 
         var context = Mock.Of<IContext>(c => c.Game.DefaultSaveGameName == "bobby");
-        Mock.Get(context).Setup(s => s.CurrentLocation.DescriptionForGeneration).Returns("here");
+        Mock.Get(context).Setup(s => s.CurrentLocation.GetDescriptionForGeneration(Mock.Of<IContext>())).Returns("here");
 
         // Act
         var response = await target.Process("input", context, client.Object, Runtime.Unknown);
@@ -47,7 +47,7 @@ public class SaveProcessorTests
             .ReturnsAsync("shelly");
 
         var context = Mock.Of<IContext>(c => c.Game.DefaultSaveGameName == "bobby");
-        Mock.Get(context).Setup(s => s.CurrentLocation.DescriptionForGeneration).Returns("here");
+        Mock.Get(context).Setup(s => s.CurrentLocation.GetDescriptionForGeneration(Mock.Of<IContext>())).Returns("here");
         Mock.Get(context).Setup(s => s.LastSaveGameName).Returns("jake");
 
         // Act
@@ -74,7 +74,7 @@ public class SaveProcessorTests
 
         var engine = Mock.Of<IGameEngine>(s => s.SaveGame() == "fred");
         var context = Mock.Of<IContext>(c => c.Game.DefaultSaveGameName == "bobby");
-        Mock.Get(context).Setup(s => s.CurrentLocation.DescriptionForGeneration).Returns("here");
+        Mock.Get(context).Setup(s => s.CurrentLocation.GetDescriptionForGeneration(Mock.Of<IContext>())).Returns("here");
         Mock.Get(context).Setup(s => s.Engine).Returns(engine);
 
         // Act
@@ -103,7 +103,7 @@ public class SaveProcessorTests
 
         var engine = Mock.Of<IGameEngine>(s => s.SaveGame() == "fred");
         var context = Mock.Of<IContext>(c => c.Game.DefaultSaveGameName == "bobby");
-        Mock.Get(context).Setup(s => s.CurrentLocation.DescriptionForGeneration).Returns("here");
+        Mock.Get(context).Setup(s => s.CurrentLocation.GetDescriptionForGeneration(Mock.Of<IContext>())).Returns("here");
         Mock.Get(context).Setup(s => s.Engine).Returns(engine);
 
         // Act
@@ -135,7 +135,7 @@ public class SaveProcessorTests
 
         var engine = Mock.Of<IGameEngine>(s => s.SaveGame() == "fred");
         var context = Mock.Of<IContext>(c => c.Game.DefaultSaveGameName == "bobby");
-        Mock.Get(context).Setup(s => s.CurrentLocation.DescriptionForGeneration).Returns("here");
+        Mock.Get(context).Setup(s => s.CurrentLocation.GetDescriptionForGeneration(Mock.Of<IContext>())).Returns("here");
         Mock.Get(context).Setup(s => s.Engine).Returns(engine);
 
         // Act

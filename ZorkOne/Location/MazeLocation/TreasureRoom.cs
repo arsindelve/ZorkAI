@@ -6,12 +6,13 @@ namespace ZorkOne.Location.MazeLocation;
 
 public class TreasureRoom : LocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map => new()
-    {
-        { Direction.Down, Go<CyclopsRoom>() }
-    };
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
+        new()
+        {
+            { Direction.Down, Go<CyclopsRoom>() }
+        };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a large room, whose east wall is solid granite. A number of discarded bags, which " +
         "crumble at your touch, are scattered about on the floor. There is an exit down a staircase. ";
 

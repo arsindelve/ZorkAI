@@ -1,6 +1,7 @@
 using GameEngine;
-using Model.Intent;
+using Model.Interface;
 using Model.Location;
+using Moq;
 using OpenAI;
 using ZorkOne.Item;
 using ZorkOne.Location;
@@ -13,13 +14,12 @@ namespace IntegrationTests;
 [Parallelizable(ParallelScope.Children)]
 public class OpenAIParserTests
 {
-    private readonly object _lockObject = new();
-
     [SetUp]
     public void Setup()
     {
         var homePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        var resolvedPath = Path.Combine(homePath, "RiderProjects/ZorkAI/.env");  Console.WriteLine($"Resolved path: {resolvedPath}");
+        var resolvedPath = Path.Combine(homePath, "RiderProjects/ZorkAI/.env");
+        Console.WriteLine($"Resolved path: {resolvedPath}");
         if (!File.Exists(resolvedPath))
         {
             Console.WriteLine($"File does not exist at path: {resolvedPath}");
@@ -27,9 +27,11 @@ public class OpenAIParserTests
         else
         {
             Console.WriteLine($"File exists at path: {resolvedPath}");
-            Env.Load(resolvedPath, new LoadOptions { });
+            Env.Load(resolvedPath, new LoadOptions());
         }
     }
+
+    private readonly object _lockObject = new();
 
     [Test]
     public async Task SipTheWater()
@@ -42,11 +44,11 @@ public class OpenAIParserTests
             Repository.Reset();
             Repository.GetItem<KitchenWindow>().IsOpen = true;
             var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
-            locationObjectDescription = locationObject.Description;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
         }
 
         var target = new OpenAIParser(null);
-        IntentBase intent = await target.AskTheAIParser(sentence, locationObjectDescription, String.Empty);
+        var intent = await target.AskTheAIParser(sentence, locationObjectDescription, string.Empty);
         Console.WriteLine(intent.Message);
 
         var containsString1 = intent.Message.Contains("<verb>sip");
@@ -54,45 +56,64 @@ public class OpenAIParserTests
 
         (containsString1 || containsString2).Should().BeTrue();
     }
-    
-    
+
+
     [Test]
-    
+
     // Wear, put on
-    [TestCase(typeof(WestOfHouse), "put on the hat", new[] { "<intent>act</intent>", "<verb>don</verb>", "<noun>hat</noun>"})]
-    [TestCase(typeof(WestOfHouse), "wear the hat", new[] { "<intent>act</intent>", "<verb>don</verb>", "<noun>hat</noun>"})]
-    [TestCase(typeof(WestOfHouse), "don the hat", new[] { "<intent>act</intent>", "<verb>don</verb>", "<noun>hat</noun>"})]
-    [TestCase(typeof(WestOfHouse), "dress in the hat", new[] { "<intent>act</intent>", "<verb>don</verb>", "<noun>hat</noun>"})]
+    [TestCase(typeof(WestOfHouse), "put on the hat",
+        new[] { "<intent>act</intent>", "<verb>don</verb>", "<noun>hat</noun>" })]
+    [TestCase(typeof(WestOfHouse), "wear the hat",
+        new[] { "<intent>act</intent>", "<verb>don</verb>", "<noun>hat</noun>" })]
+    [TestCase(typeof(WestOfHouse), "don the hat",
+        new[] { "<intent>act</intent>", "<verb>don</verb>", "<noun>hat</noun>" })]
+    [TestCase(typeof(WestOfHouse), "dress in the hat",
+        new[] { "<intent>act</intent>", "<verb>don</verb>", "<noun>hat</noun>" })]
 
     // Remove, take off
-    [TestCase(typeof(WestOfHouse), "take off the hat", new[] { "<intent>act</intent>", "<verb>doff</verb>", "<noun>hat</noun>"})]
-    [TestCase(typeof(WestOfHouse), "remove the hat", new[] { "<intent>act</intent>", "<verb>doff</verb>", "<noun>hat</noun>"})]
-    [TestCase(typeof(WestOfHouse), "doff the hat", new[] { "<intent>act</intent>", "<verb>doff</verb>", "<noun>hat</noun>"})]
-   
-    
-    // Turn on 
-    [TestCase(typeof(WestOfHouse), "light the lamp", new[] { "<intent>act</intent>", "<verb>activate</verb>", "<noun>lamp</noun>"})]
-    [TestCase(typeof(WestOfHouse), "turn on lamp", new[] { "<intent>act</intent>", "<verb>activate</verb>", "<noun>lamp</noun>"})]
-    [TestCase(typeof(WestOfHouse), "turn lamp on ", new[] { "<intent>act</intent>", "<verb>activate</verb>", "<noun>lamp</noun>"})]
-    [TestCase(typeof(WestOfHouse), "turn on the lamp", new[] { "<intent>act</intent>", "<verb>activate</verb>", "<noun>lamp</noun>"})]
-    [TestCase(typeof(WestOfHouse), "turn the lamp on ", new[] { "<intent>act</intent>", "<verb>activate</verb>", "<noun>lamp</noun>"})]
-    
-    // Turn off
-    [TestCase(typeof(WestOfHouse), "extinguish the lamp", new[] { "<intent>act</intent>", "<verb>deactivate</verb>", "<noun>lamp</noun>"})]
-    [TestCase(typeof(WestOfHouse), "turn off lamp", new[] { "<intent>act</intent>", "<verb>deactivate</verb>", "<noun>lamp</noun>"})]
-    [TestCase(typeof(WestOfHouse), "turn lamp off ", new[] { "<intent>act</intent>", "<verb>deactivate</verb>", "<noun>lamp</noun>"})]
-    [TestCase(typeof(WestOfHouse), "turn off the lamp", new[] { "<intent>act</intent>", "<verb>deactivate</verb>", "<noun>lamp</noun>"})]
-    [TestCase(typeof(WestOfHouse), "turn the lamp off ", new[] { "<intent>act</intent>", "<verb>deactivate</verb>", "<noun>lamp</noun>"})]
+    [TestCase(typeof(WestOfHouse), "take off the hat",
+        new[] { "<intent>act</intent>", "<verb>doff</verb>", "<noun>hat</noun>" })]
+    [TestCase(typeof(WestOfHouse), "remove the hat",
+        new[] { "<intent>act</intent>", "<verb>doff</verb>", "<noun>hat</noun>" })]
+    [TestCase(typeof(WestOfHouse), "doff the hat",
+        new[] { "<intent>act</intent>", "<verb>doff</verb>", "<noun>hat</noun>" })]
 
+    // Turn on 
+    [TestCase(typeof(WestOfHouse), "light the lamp",
+        new[] { "<intent>act</intent>", "<verb>activate</verb>", "<noun>lamp</noun>" })]
+    [TestCase(typeof(WestOfHouse), "turn on lamp",
+        new[] { "<intent>act</intent>", "<verb>activate</verb>", "<noun>lamp</noun>" })]
+    [TestCase(typeof(WestOfHouse), "turn lamp on ",
+        new[] { "<intent>act</intent>", "<verb>activate</verb>", "<noun>lamp</noun>" })]
+    [TestCase(typeof(WestOfHouse), "turn on the lamp",
+        new[] { "<intent>act</intent>", "<verb>activate</verb>", "<noun>lamp</noun>" })]
+    [TestCase(typeof(WestOfHouse), "turn the lamp on ",
+        new[] { "<intent>act</intent>", "<verb>activate</verb>", "<noun>lamp</noun>" })]
+
+    // Turn off
+    [TestCase(typeof(WestOfHouse), "extinguish the lamp",
+        new[] { "<intent>act</intent>", "<verb>deactivate</verb>", "<noun>lamp</noun>" })]
+    [TestCase(typeof(WestOfHouse), "turn off lamp",
+        new[] { "<intent>act</intent>", "<verb>deactivate</verb>", "<noun>lamp</noun>" })]
+    [TestCase(typeof(WestOfHouse), "turn lamp off ",
+        new[] { "<intent>act</intent>", "<verb>deactivate</verb>", "<noun>lamp</noun>" })]
+    [TestCase(typeof(WestOfHouse), "turn off the lamp",
+        new[] { "<intent>act</intent>", "<verb>deactivate</verb>", "<noun>lamp</noun>" })]
+    [TestCase(typeof(WestOfHouse), "turn the lamp off ",
+        new[] { "<intent>act</intent>", "<verb>deactivate</verb>", "<noun>lamp</noun>" })]
 
     // Direction
     [TestCase(typeof(WestOfHouse), "walk north", new[] { "<intent>move</intent>", "<direction>north</direction>" })]
-    [TestCase(typeof(WestOfHouse), "let's head north", new[] { "<intent>move</intent>", "<direction>north</direction>" })]
-    [TestCase(typeof(WestOfHouse), "i am going to go north", new[] { "<intent>move</intent>", "<direction>north</direction>" })]
-    [TestCase(typeof(WestOfHouse), "let's saunter north", new[] { "<intent>move</intent>", "<direction>north</direction>" })]
+    [TestCase(typeof(WestOfHouse), "let's head north",
+        new[] { "<intent>move</intent>", "<direction>north</direction>" })]
+    [TestCase(typeof(WestOfHouse), "i am going to go north",
+        new[] { "<intent>move</intent>", "<direction>north</direction>" })]
+    [TestCase(typeof(WestOfHouse), "let's saunter north",
+        new[] { "<intent>move</intent>", "<direction>north</direction>" })]
     [TestCase(typeof(WestOfHouse), "crawl northly", new[] { "<intent>move</intent>", "<direction>north</direction>" })]
     [TestCase(typeof(Cellar), "follow the crawlway", new[] { "<intent>move</intent>", "<direction>south</direction>" })]
-    [TestCase(typeof(Cellar), "follow the passageway", new[] { "<intent>move</intent>", "<direction>north</direction>" })]
+    [TestCase(typeof(Cellar), "follow the passageway",
+        new[] { "<intent>move</intent>", "<direction>north</direction>" })]
     [TestCase(typeof(Kitchen), "climb the staircase", new[] { "<intent>move</intent>", "<direction>up</direction>" })]
     [TestCase(typeof(Kitchen), "go up the staircase", new[] { "<intent>move</intent>", "<direction>up</direction>" })]
     [TestCase(typeof(Kitchen), "ascend the staircase", new[] { "<intent>move</intent>", "<direction>up</direction>" })]
@@ -100,17 +121,24 @@ public class OpenAIParserTests
     [TestCase(typeof(Kitchen), "climb down", new[] { "<intent>move</intent>", "<direction>down</direction>" })]
     [TestCase(typeof(Attic), "descend down", new[] { "<intent>move</intent>", "<direction>down</direction>" })]
     [TestCase(typeof(Attic), "descend the stairs", new[] { "<intent>move</intent>", "<direction>down</direction>" })]
-    [TestCase(typeof(Attic), "let's descend the staircase", new[] { "<intent>move</intent>", "<direction>down</direction>" })]
+    [TestCase(typeof(Attic), "let's descend the staircase",
+        new[] { "<intent>move</intent>", "<direction>down</direction>" })]
     [TestCase(typeof(EastOfChasm), "follow the path", new[] { "<intent>move</intent>", "<direction>east</direction>" })]
-    [TestCase(typeof(EastOfChasm), "follow the narrow passage", new[] { "<intent>move</intent>", "<direction>north</direction>" })]
-    [TestCase(typeof(EastOfChasm), "choose the narrow passage", new[] { "<intent>move</intent>", "<direction>north</direction>" })]
-    [TestCase(typeof(EastOfChasm), "continue down the path", new[] { "<intent>move</intent>", "<direction>east</direction>" })]
+    [TestCase(typeof(EastOfChasm), "follow the narrow passage",
+        new[] { "<intent>move</intent>", "<direction>north</direction>" })]
+    [TestCase(typeof(EastOfChasm), "choose the narrow passage",
+        new[] { "<intent>move</intent>", "<direction>north</direction>" })]
+    [TestCase(typeof(EastOfChasm), "continue down the path",
+        new[] { "<intent>move</intent>", "<direction>east</direction>" })]
     [TestCase(typeof(BehindHouse), "enter the house", new[] { "<intent>move</intent>", "<verb>enter</verb>" })]
-    [TestCase(typeof(BehindHouse), "enter the house through the window", new[] { "<intent>move</intent>", "<verb>enter</verb>" })]
-    [TestCase(typeof(BehindHouse), "go through the window", new[] { "<intent>move</intent>", "<direction>in</direction>" })]
-    [TestCase(typeof(BehindHouse), "use the window to go into the house", new[] { "<intent>move</intent>", "<direction>in</direction>" })]
+    [TestCase(typeof(BehindHouse), "enter the house through the window",
+        new[] { "<intent>move</intent>", "<verb>enter</verb>" })]
+    [TestCase(typeof(BehindHouse), "go through the window",
+        new[] { "<intent>move</intent>", "<direction>in</direction>" })]
+    [TestCase(typeof(BehindHouse), "use the window to go into the house",
+        new[] { "<intent>move</intent>", "<direction>in</direction>" })]
     [TestCase(typeof(BehindHouse), "go into the house", new[] { "<intent>move</intent>", "<direction>in</direction>" })]
-    
+
     // Single noun
     [TestCase(typeof(WestOfHouse), "drop the card",
         new[] { "<verb>drop</verb>", "<noun>card</noun>", "<intent>act</intent>" })]
@@ -150,7 +178,7 @@ public class OpenAIParserTests
         new[] { "<verb>take</verb>", "<noun>plastic</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(DamBase), "take pile",
         new[] { "<verb>take</verb>", "<noun>pile</noun>", "<intent>act</intent>" })]
-    
+
     // Multi noun
     [TestCase(typeof(DomeRoom), "tie the rope to the railing",
         new[]
@@ -211,60 +239,58 @@ public class OpenAIParserTests
             "<verb>put</verb>", "<noun>trophy case</noun>", "<noun>sword</noun>", "<intent>act</intent>",
             "<preposition>in</preposition>"
         })]
-    
-    
+
     // Sub-locations
     [TestCase(typeof(DamBase), "get in the boat",
         new[]
         {
-            "<intent>board</intent>",  "<noun>boat</noun>"
+            "<intent>board</intent>", "<noun>boat</noun>"
         })]
     [TestCase(typeof(DamBase), "let's go for a ride in the magic boat",
         new[]
         {
-            "<intent>board</intent>",  "<noun>magic boat</noun>"
+            "<intent>board</intent>", "<noun>magic boat</noun>"
         })]
     [TestCase(typeof(DamBase), "get inside the boat",
         new[]
         {
-            "<intent>board</intent>",  "<noun>boat</noun>"
+            "<intent>board</intent>", "<noun>boat</noun>"
         })]
     [TestCase(typeof(DamBase), "enter the boat",
         new[]
         {
-            "<intent>board</intent>",  "<noun>boat</noun>"
+            "<intent>board</intent>", "<noun>boat</noun>"
         })]
     [TestCase(typeof(DamBase), "board the magic boat",
         new[]
         {
-            "<intent>board</intent>",  "<noun>magic boat</noun>"
+            "<intent>board</intent>", "<noun>magic boat</noun>"
         })]
     [TestCase(typeof(DamBase), "sit in the boat",
         new[]
         {
-            "<intent>board</intent>",  "<noun>boat</noun>"
+            "<intent>board</intent>", "<noun>boat</noun>"
         })]
     [TestCase(typeof(DamBase), "leave the boat",
         new[]
         {
-            "<intent>disembark</intent>",  "<noun>boat</noun>"
+            "<intent>disembark</intent>", "<noun>boat</noun>"
         })]
     [TestCase(typeof(DamBase), "get out of the boat",
         new[]
         {
-            "<intent>disembark</intent>",  "<noun>boat</noun>"
+            "<intent>disembark</intent>", "<noun>boat</noun>"
         })]
     [TestCase(typeof(DamBase), "exit the boat",
         new[]
         {
-            "<intent>disembark</intent>",  "<noun>boat</noun>"
+            "<intent>disembark</intent>", "<noun>boat</noun>"
         })]
     [TestCase(typeof(DamBase), "stand up and get out of the magic boat",
         new[]
         {
-            "<intent>disembark</intent>",  "<noun>magic boat</noun>"
+            "<intent>disembark</intent>", "<noun>magic boat</noun>"
         })]
-    
     public async Task OpenAIParserTestCases(Type location, string sentence, string[] asserts)
     {
         string locationObjectDescription;
@@ -275,17 +301,17 @@ public class OpenAIParserTests
             Repository.GetItem<KitchenWindow>().IsOpen = true;
             Repository.GetItem<PileOfPlastic>().IsInflated = true;
             var locationObject = (ILocation)Activator.CreateInstance(location)!;
-            locationObjectDescription = locationObject.Description;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
         }
 
         var target = new OpenAIParser(null);
-        IntentBase intent = await target.AskTheAIParser(sentence, locationObjectDescription, String.Empty);
+        var intent = await target.AskTheAIParser(sentence, locationObjectDescription, string.Empty);
         var response = intent.Message;
         Console.WriteLine(response);
 
         foreach (var assert in asserts) response.Should().Contain(assert);
     }
-    
+
     [Test]
     [TestCase("upper elevator access card")]
     [TestCase("lower elevator access card")]
@@ -307,18 +333,18 @@ public class OpenAIParserTests
             Repository.Reset();
             Repository.GetItem<KitchenWindow>().IsOpen = true;
             var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
-            locationObjectDescription = locationObject.Description;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
         }
 
         var target = new OpenAIParser(null);
-        IntentBase intent = await target.AskTheAIParser(sentence, locationObjectDescription, String.Empty);
+        var intent = await target.AskTheAIParser(sentence, locationObjectDescription, string.Empty);
         var response = intent.Message;
         Console.WriteLine(response);
 
         response.Should().Contain("<verb>slide</verb>");
         response.Should().Contain($"<noun>{card}");
     }
-    
+
     [Test]
     [TestCase("up")]
     [TestCase("down")]
@@ -332,18 +358,18 @@ public class OpenAIParserTests
             Repository.Reset();
             Repository.GetItem<KitchenWindow>().IsOpen = true;
             var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
-            locationObjectDescription = locationObject.Description;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
         }
 
         var target = new OpenAIParser(null);
-        IntentBase intent = await target.AskTheAIParser(sentence, locationObjectDescription, String.Empty);
+        var intent = await target.AskTheAIParser(sentence, locationObjectDescription, string.Empty);
         var response = intent.Message;
         Console.WriteLine(response);
 
         response.Should().Contain("<verb>press</verb>");
         response.Should().Contain($"<noun>{direction} button");
     }
-    
+
     [Test]
     [TestCase("yellow")]
     [TestCase("red")]
@@ -362,11 +388,11 @@ public class OpenAIParserTests
             Repository.Reset();
             Repository.GetItem<KitchenWindow>().IsOpen = true;
             var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
-            locationObjectDescription = locationObject.Description;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
         }
 
         var target = new OpenAIParser(null);
-        IntentBase intent = await target.AskTheAIParser(sentence, locationObjectDescription, String.Empty);
+        var intent = await target.AskTheAIParser(sentence, locationObjectDescription, string.Empty);
         var response = intent.Message;
         Console.WriteLine(response);
 

@@ -8,7 +8,7 @@ namespace ZorkOne.Location;
 
 internal class BatRoom : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             {
@@ -19,7 +19,7 @@ internal class BatRoom : DarkLocation
             }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "You are in a small room which has doors only to the east and south. ";
 
     public override string Name => "Bat Room";
@@ -39,7 +39,7 @@ internal class BatRoom : DarkLocation
                           The bat grabs you by the scruff of your neck and lifts you away....
                           """;
 
-            return $"{batText}\n\n{context.CurrentLocation.Description} ";
+            return $"{batText}\n\n{context.CurrentLocation.GetDescription(context)} ";
         }
 
         return base.BeforeEnterLocation(context, previousLocation);

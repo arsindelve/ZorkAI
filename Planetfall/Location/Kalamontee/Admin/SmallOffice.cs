@@ -6,7 +6,7 @@ namespace Planetfall.Location.Kalamontee.Admin;
 
 internal class SmallOffice : LocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.E, Go<AdminCorridorNorth>() },
@@ -15,7 +15,7 @@ internal class SmallOffice : LocationBase
 
     public override string Name => "Small Office";
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "You have entered a small office of some sort. A small desk faces the main doorway which lies to the " +
         "east. Another exit leads west. ";
 

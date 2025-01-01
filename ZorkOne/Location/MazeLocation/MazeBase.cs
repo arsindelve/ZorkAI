@@ -7,7 +7,7 @@ namespace ZorkOne.Location.MazeLocation;
 
 public abstract class MazeBase : DarkLocationWithNoStartingItems
 {
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is part of a maze of twisty little passages, all alike. ";
 
     public override string Name => "Maze";
@@ -15,7 +15,7 @@ public abstract class MazeBase : DarkLocationWithNoStartingItems
 
 public class MazeOne : MazeBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.E, Go<TrollRoom>() },
@@ -27,7 +27,7 @@ public class MazeOne : MazeBase
 
 public class MazeTwo : MazeBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.E, Go<MazeThree>() },
@@ -38,7 +38,7 @@ public class MazeTwo : MazeBase
 
 public class MazeThree : MazeBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.W, Go<MazeTwo>() },
@@ -49,7 +49,7 @@ public class MazeThree : MazeBase
 
 public class MazeFour : MazeBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.W, Go<MazeThree>() },
@@ -60,7 +60,7 @@ public class MazeFour : MazeBase
 
 public class MazeFive : MazeBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.N, Go<MazeThree>() },
@@ -82,7 +82,7 @@ public class MazeFive : MazeBase
 
 public class MazeSix : MazeBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.Down, Go<MazeFive>() },
@@ -94,7 +94,7 @@ public class MazeSix : MazeBase
 
 public class MazeSeven : MazeBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.W, Go<MazeSix>() },
@@ -114,7 +114,7 @@ public class MazeSeven : MazeBase
 
 public class MazeEight : MazeBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.W, Go<MazeEight>() },
@@ -125,7 +125,7 @@ public class MazeEight : MazeBase
 
 public class MazeNine : MazeBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.NW, Go<MazeNine>() },
@@ -139,7 +139,7 @@ public class MazeNine : MazeBase
 
 public class MazeTen : MazeBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.E, Go<MazeNine>() },
@@ -150,7 +150,7 @@ public class MazeTen : MazeBase
 
 public class MazeEleven : MazeBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.SW, Go<MazeTwelve>() },
@@ -171,7 +171,7 @@ public class MazeEleven : MazeBase
 
 public class MazeTwelve : MazeBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.Down, Go<MazeFive>() },
@@ -184,7 +184,7 @@ public class MazeTwelve : MazeBase
 
 public class MazeThirteen : MazeBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.Down, Go<MazeTwelve>() },
@@ -196,7 +196,7 @@ public class MazeThirteen : MazeBase
 
 public class MazeFourteen : MazeBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.NW, Go<MazeFourteen>() },
@@ -215,7 +215,7 @@ public class MazeFourteen : MazeBase
 
 public class MazeFifteen : MazeBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.W, Go<MazeFourteen>() },

@@ -17,9 +17,10 @@ public abstract class LocationBase : ILocation, ICanHoldItems
     ///     locations where we cannot go, but for which we want to provide a custom message such
     ///     as "The kitchen window is closed."
     /// </summary>
-    protected abstract Dictionary<Direction, MovementParameters> Map { get; }
+    /// <param name="context"></param>
+    protected abstract Dictionary<Direction, MovementParameters> Map(IContext context);
 
-    protected abstract string GetContextBasedDescription();
+    protected abstract string GetContextBasedDescription(IContext context);
 
     public bool IsTransparent => false;
 
@@ -163,15 +164,16 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         return string.Empty;
     }
 
-    public virtual string Description => Name +
-                                         SubLocation?.LocationDescription +
-                                         Environment.NewLine +
-                                         GetContextBasedDescription() +
-                                         GetItemDescriptions();
+    public virtual string GetDescription(IContext context) =>
+        Name +
+        SubLocation?.LocationDescription +
+        Environment.NewLine +
+        GetContextBasedDescription(context) +
+        GetItemDescriptions();
 
     public abstract void Init();
 
-    public virtual string DescriptionForGeneration => Description;
+    public virtual string GetDescriptionForGeneration(IContext context) => GetDescription(context);
 
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="SimpleIntent" /> corresponding
@@ -210,16 +212,14 @@ public abstract class LocationBase : ILocation, ICanHoldItems
     ///     a null response)
     /// </summary>
     /// <param name="direction">The direction we want to go from here. </param>
+    /// <param name="context"></param>
     /// <returns>
     ///     A <see cref="MovementParameters" /> that describes our ability to move there, or null
     ///     if movement in that direction is always impossible
     /// </returns>
-    public MovementParameters? Navigate(Direction direction)
+    public MovementParameters? Navigate(Direction direction, IContext context)
     {
-        if (Map is null)
-            throw new Exception($"Location {Name} has a null map");
-
-        return Map.ContainsKey(direction) ? Map[direction] : null;
+        return Map(context).ContainsKey(direction) ? Map(context)[direction] : null;
     }
 
     public bool HasItem<T>() where T : IItem, new()

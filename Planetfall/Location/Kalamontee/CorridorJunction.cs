@@ -7,7 +7,7 @@ namespace Planetfall.Location.Kalamontee;
 
 internal class CorridorJunction : LocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.W, Go<DormCorridor>() },
@@ -15,7 +15,7 @@ internal class CorridorJunction : LocationWithNoStartingItems
             { Direction.N, Go<AdminCorridorSouth>() }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "A north-south corridor intersects the main corridor here. To the west, the main corridor extends as far as " +
         "you can see; a nonworking walkway from that direction ends here. To the east, the corridor widens into a well-lit area. ";
 

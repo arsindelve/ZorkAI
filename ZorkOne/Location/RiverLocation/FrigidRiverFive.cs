@@ -11,10 +11,10 @@ public class FrigidRiverFive : FrigidRiverBase
     protected override FrigidRiverBase CarriedToLocation => Repository.GetLocation<FrigidRiverFive>();
     
     protected override int TurnsUntilSweptDownstream => 3;
-    
-    protected override Dictionary<Direction, MovementParameters> Map => new();
 
-    protected override string GetContextBasedDescription() =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) => new();
+
+    protected override string GetContextBasedDescription(IContext context) =>
         "The sound of rushing water is nearly unbearable here. On the east shore is a large landing area. ";
 
     public override string Name => "Frigid River";

@@ -6,13 +6,13 @@ namespace Planetfall.Location.Kalamontee.Admin;
 
 internal class LargeOffice : LocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
         new()
         {
             { Direction.E, Go<SmallOffice>() }
         };
 
-    protected override string GetContextBasedDescription() =>
+    protected override string GetContextBasedDescription(IContext context) =>
         "This is a large, plush office. The far wall is one large picture window, scratched but unbroken, " +
         "offering a view of this installation and the ocean beyond. In front of the window is a wide wooden desk. " +
         "The only exit is east. ";
