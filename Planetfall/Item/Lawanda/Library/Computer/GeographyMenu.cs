@@ -3,12 +3,10 @@ namespace Planetfall.Item.Lawanda.Library.Computer;
 internal class GeographyMenu : MenuItem
 {
     private const string MainMenu = """
-                                    The screen clears and a different menu appears:
-
-                                    0. Maan Menyuu
-                                    1. Planit Landmasiz
-                                    2. Undursee Reejunz
-                                    3. Spaas Kolooneez
+                                        0. Maan Menyuu
+                                        1. Planit Landmasiz
+                                        2. Undursee Reejunz
+                                        3. Spaas Kolooneez
                                     """;
 
     private const string MenuOne = """

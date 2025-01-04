@@ -3,12 +3,10 @@ namespace Planetfall.Item.Lawanda.Library.Computer;
 internal class ProjectMenu : MenuItem
 {
     private const string MainMenu = """
-                                    The screen clears and a different menu appears:
-                                    
-                                    0. Maan Menyuu
-                                    1. Orijinz uv xe Dizeez
-                                    2. Xe Instalaashunz
-                                    3. Prajekt Kuntrool
+                                        0. Maan Menyuu
+                                        1. Orijinz uv xe Dizeez
+                                        2. Xe Instalaashunz
+                                        3. Prajekt Kuntrool
                                     """;
 
     private const string MenuOne = """

@@ -122,7 +122,7 @@ public class Candles
 
             case 26:
                 BurnedOut = true;
-                var result = new TurnLightOnOrOffProcessor().Process(
+                var result = new TurnOnOrOffProcessor().Process(
                     new SimpleIntent { Noun = NounsForMatching.First(), Verb = "turn off" },
                     context,
                     this,
@@ -169,7 +169,7 @@ public class Candles
             if (!Repository.GetItem<Matchbook>().IsOn)
                 return new PositiveInteractionResult("You'll need to light a match first. ");
 
-            return new TurnLightOnOrOffProcessor().Process(
+            return new TurnOnOrOffProcessor().Process(
                 new SimpleIntent { Noun = action.NounOne, Verb = action.Verb },
                 context,
                 this,

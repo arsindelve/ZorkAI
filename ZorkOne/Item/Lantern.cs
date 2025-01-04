@@ -23,13 +23,13 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IAmALigh
 
     public bool IsOn { get; set; }
 
-    string IAmALightSourceThatTurnsOnAndOff.NowOnText => "The brass lantern is now on.";
+    string ITurnOffAndOn.NowOnText => "The brass lantern is now on.";
 
-    string IAmALightSourceThatTurnsOnAndOff.NowOffText => "The brass lantern is now off.";
+    string ITurnOffAndOn.NowOffText => "The brass lantern is now off.";
 
-    string IAmALightSourceThatTurnsOnAndOff.AlreadyOffText => "It is already off.";
+    string ITurnOffAndOn.AlreadyOffText => "It is already off.";
 
-    string IAmALightSourceThatTurnsOnAndOff.AlreadyOnText => "It is already on.";
+    string ITurnOffAndOn.AlreadyOnText => "It is already on.";
 
     public string CannotBeTurnedOnText => BurnedOut ? "A burned-out lamp won't light. " : string.Empty;
 
@@ -74,7 +74,7 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IAmALigh
 
             case 375:
                 BurnedOut = true;
-                var result = new TurnLightOnOrOffProcessor().Process(
+                var result = new TurnOnOrOffProcessor().Process(
                     new SimpleIntent { Noun = NounsForMatching.First(), Verb = "turn off" }, context, this,
                     client);
                 return Task.FromResult("You'd better have more light than from the lantern. " +

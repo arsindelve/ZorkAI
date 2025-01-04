@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.Movement;
+using Planetfall.Item.Lawanda.Library.Computer;
 
 namespace Planetfall.Location.Lawanda;
 
@@ -24,6 +25,6 @@ public class LibraryLobby : LocationBase
     
     public override void Init()
     {
-       
+       StartWithItem<ComputerTerminal>();
     }
 }

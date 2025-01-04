@@ -3,12 +3,10 @@ namespace Planetfall.Item.Lawanda.Library.Computer;
 internal class GamesMenu : MenuItem
 {
     private const string MainMenu = """
-                                    The screen clears and a different menu appears:
-                                    
-                                    0. Maan Menyuu
-                                    1. Zoork
-                                    2. Dedliin and Witnis
-                                    3. Starkros and Suspendid
+                                        0. Maan Menyuu
+                                        1. Zoork
+                                        2. Dedliin and Witnis
+                                        3. Starkros and Suspendid
                                     """;
 
     private const string MenuOne = """

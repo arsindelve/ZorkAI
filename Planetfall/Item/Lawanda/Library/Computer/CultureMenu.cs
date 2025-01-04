@@ -3,12 +3,10 @@ namespace Planetfall.Item.Lawanda.Library.Computer;
 internal class CultureMenu : MenuItem
 {
     private const string MainMenu = """
-                                    The screen clears and a different menu appears:
-                                    
-                                    0. Maan Menyuu
-                                    1. Lituracur
-                                    2. Art
-                                    3. Muusik
+                                        0. Maan Menyuu
+                                        1. Lituracur
+                                        2. Art
+                                        3. Muusik
                                     """;
 
     private const string MenuOne = """

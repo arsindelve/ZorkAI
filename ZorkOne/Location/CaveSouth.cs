@@ -31,7 +31,7 @@ public class CaveSouth : DarkLocationWithNoStartingItems
 
         if (litCandlesInPossession)
         {
-            var result = new TurnLightOnOrOffProcessor().Process(
+            var result = new TurnOnOrOffProcessor().Process(
                 new SimpleIntent { Noun ="candles", Verb = "turn off" }, context, Repository.GetItem<Candles>(),
                 null!);
             returnValue += "\nA gust of wind blows out your candles! " + result!.InteractionMessage;

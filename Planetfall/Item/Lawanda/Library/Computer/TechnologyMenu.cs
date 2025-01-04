@@ -3,15 +3,12 @@ namespace Planetfall.Item.Lawanda.Library.Computer;
 internal class TechnologyMenu : MenuItem
 {
     private const string MainMenu = """
-                                    The screen clears and a different menu appears:
-
-                                    0. Maan Menyuu
-                                    1. Medisin
-                                    2. Agrikultcur
-                                    3. Tranzportaashun
-                                    4. Roobotiks
-                                    5. Planateree Sistumz
-
+                                        0. Maan Menyuu
+                                        1. Medisin
+                                        2. Agrikultcur
+                                        3. Tranzportaashun
+                                        4. Roobotiks
+                                        5. Planateree Sistumz
                                     """;
 
     private const string MenuOne = """
