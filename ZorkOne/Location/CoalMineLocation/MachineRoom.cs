@@ -8,27 +8,32 @@ namespace ZorkOne.Location.CoalMineLocation;
 
 public class MachineRoom : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Machine Room";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             {
                 Direction.N, new MovementParameters { Location = GetLocation<DraftyRoom>() }
             }
         };
+    }
 
-    protected override string GetContextBasedDescription(IContext context) =>
-        "This is a large, cold room whose sole exit is to the north. In one corner there is a machine which is " +
-        "reminiscent of a clothes dryer. On its face is a switch which is labelled \"START\". The switch does not " +
-        "appear to be manipulable by any human hand (unless the fingers are about 1/16 by 1/4 inch). On the front " +
-        $"of the machine is a large lid, which is {(Repository.GetItem<Machine>().IsOpen ? "open. \n" + Repository.GetItem<Machine>().ItemListDescription("machine", null) : "closed. ")} ";
-
-    public override string Name => "Machine Room";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return
+            "This is a large, cold room whose sole exit is to the north. In one corner there is a machine which is " +
+            "reminiscent of a clothes dryer. On its face is a switch which is labelled \"START\". The switch does not " +
+            "appear to be manipulable by any human hand (unless the fingers are about 1/16 by 1/4 inch). On the front " +
+            $"of the machine is a large lid, which is {(Repository.GetItem<Machine>().IsOpen ? "open. \n" + Repository.GetItem<Machine>().ItemListDescription("machine", null) : "closed. ")} ";
+    }
 
     public override void Init()
     {
         StartWithItem<Machine>();
     }
-    
+
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
         string[] verbs = ["turn", "use", "apply"];
@@ -55,31 +60,32 @@ public class MachineRoom : DarkLocation
             return base.RespondToMultiNounInteraction(action, context);
 
         var machine = Repository.GetItem<Machine>();
-        
+
         if (machine.IsOpen)
             return new PositiveInteractionResult("The machine doesn't seem to want to do anything. ");
 
         if (machine.HasItem<Coal>())
         {
             // Replace the coal with diamond
-            Coal coal = Repository.GetItem<Coal>();
+            var coal = Repository.GetItem<Coal>();
             coal.CurrentLocation = null;
             machine.Items.Remove(coal);
-            machine.ItemPlacedHere(Repository.GetItem<Diamond>()); 
-            
+            machine.ItemPlacedHere(Repository.GetItem<Diamond>());
+
             // Note: When coal is present, other items in the machine are unaffected. 
         }
         else
         {
-            foreach (IItem next in machine.Items.ToList())
+            foreach (var next in machine.Items.ToList())
             {
                 // Goodbye forever. You've been slagged.
                 next.CurrentLocation = null;
                 machine.Items.Remove(next);
             }
-            machine.ItemPlacedHere(Repository.GetItem<Slag>()); 
+
+            machine.ItemPlacedHere(Repository.GetItem<Slag>());
         }
-        
+
         return new PositiveInteractionResult(
             "The machine comes to life (figuratively) with a dazzling display of colored lights and bizarre " +
             "noises. After a few moments, the excitement abates. ");

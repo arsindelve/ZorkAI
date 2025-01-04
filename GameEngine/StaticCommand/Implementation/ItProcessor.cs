@@ -9,11 +9,11 @@ internal class ItProcessor : IStatefulProcessor
 {
     private string? _lastInput;
 
+    public Pronoun PronounUsed { get; set; }
+
     public bool Completed { get; private set; }
 
     public bool ContinueProcessing { get; private set; }
-
-    public Pronoun PronounUsed { get; set; }
 
     // This runs if, on the last pass, we could not determine what they meant by "it" or "them",
     // and so we asked for clarification and now they have provided the noun.
@@ -22,7 +22,7 @@ internal class ItProcessor : IStatefulProcessor
         IContext context,
         IGenerationClient client,
         Runtime runtime
-    )
+        )
     {
         if (string.IsNullOrEmpty(input))
         {
@@ -39,11 +39,11 @@ internal class ItProcessor : IStatefulProcessor
         Completed = true;
         ContinueProcessing = true;
 
-        string? pattern = PronounUsed switch
+        var pattern = PronounUsed switch
         {
             Pronoun.It => @"\bit\b",
             Pronoun.Them => @"\bthem\b",
-            _ => null,
+            _ => null
         };
 
         return pattern is not null
@@ -56,9 +56,9 @@ internal class ItProcessor : IStatefulProcessor
     public (bool, string) Check(string input, IContext context)
     {
         var lastNoun = context.LastNoun;
-        IItem? item = Repository.GetItem(lastNoun);
+        var item = Repository.GetItem(lastNoun);
 
-        bool usedItOrThem = DidWeUseItOrThem(input);
+        var usedItOrThem = DidWeUseItOrThem(input);
 
         if (!usedItOrThem)
         {
@@ -68,7 +68,7 @@ internal class ItProcessor : IStatefulProcessor
 
         if (
             string.IsNullOrEmpty(lastNoun)
-            || PronounUsed == Pronoun.Them && item is not IPluralNoun
+            || (PronounUsed == Pronoun.Them && item is not IPluralNoun)
         )
         {
             _lastInput = input;
@@ -82,7 +82,7 @@ internal class ItProcessor : IStatefulProcessor
         {
             Pronoun.It => Regex.Replace(input, @"\bit\b", lastNoun, RegexOptions.IgnoreCase),
             Pronoun.Them => Regex.Replace(input, @"\bthem\b", lastNoun, RegexOptions.IgnoreCase),
-            _ => input,
+            _ => input
         };
 
         // Reset.
@@ -99,6 +99,7 @@ internal class ItProcessor : IStatefulProcessor
             PronounUsed = Pronoun.It;
             return true;
         }
+
         if (Regex.IsMatch(input, @"\bthem\b|\bthem$", RegexOptions.IgnoreCase))
         {
             PronounUsed = Pronoun.Them;
@@ -113,5 +114,5 @@ public enum Pronoun
 {
     Unknown,
     It,
-    Them,
+    Them
 }

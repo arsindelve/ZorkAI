@@ -7,7 +7,8 @@ namespace GameEngine.IntentEngine;
 
 internal class ExitSubLocationEngine : IIntentEngine
 {
-    public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
+    public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent,
+        IContext context, IGenerationClient generationClient)
     {
         if (intent is not ExitSubLocationIntent exit)
             throw new ArgumentException("Cast error");

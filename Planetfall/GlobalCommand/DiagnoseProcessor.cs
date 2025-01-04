@@ -9,11 +9,11 @@ public class DiagnoseProcessor : IGlobalCommand
     {
         if (context is not PlanetfallContext pc)
             throw new Exception("Context is not a PlanetfallContext");
-        
+
         // TODO: Tired
         // TODO: Hungry
-        
-        string response = pc.SicknessDescription;
+
+        var response = pc.SicknessDescription;
         return Task.FromResult(response);
     }
 }

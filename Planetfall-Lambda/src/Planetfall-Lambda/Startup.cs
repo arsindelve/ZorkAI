@@ -1,9 +1,6 @@
-﻿using DynamoDb;
-using GameEngine;
+﻿using GameEngine;
 using GameEngine.Web;
-using Model.AIGeneration;
 using Model.Interface;
-using OpenAI;
 using Planetfall;
 
 namespace Planetfall_Lambda;
@@ -23,7 +20,7 @@ public class Startup
         services.AddLogging();
         services.AddControllers();
         services.AddEndpointsApiExplorer();
-        
+
         services.AddScoped<IGameEngine, GameEngine<PlanetfallGame, PlanetfallContext>>();
         // Register the hosted service that will initialize GameEngine asynchronously
         services.AddHostedService<GameEngineInitializer>();

@@ -6,9 +6,8 @@ namespace Bedrock;
 
 public interface IClaudeFourParserClient
 {
-    Task<string?> GetResponse(string location, string input);
-    
     string LanguageModel { get; }
+    Task<string?> GetResponse(string location, string input);
 }
 
 internal class ClaudeFourParserClient : ClaudeClientBase, IClaudeFourParserClient
@@ -24,15 +23,15 @@ internal class ClaudeFourParserClient : ClaudeClientBase, IClaudeFourParserClien
     private string BuildPayload(string request)
     {
         dynamic payload = new ExpandoObject();
-        
+
         payload.anthropic_version = AnthropicVersion;
         payload.max_tokens = 1024;
         payload.temperature = 0;
-        
+
         dynamic message = new ExpandoObject();
 
         payload.messages = new List<dynamic>();
-        
+
         message.role = "user";
         message.content = new List<dynamic>();
 

@@ -51,14 +51,14 @@ public class Spirits : ItemBase, ICanBeExamined, ITurnBasedActor, IPluralNoun
         StunnedCounter = 5;
 
         return "The wraiths, as if paralyzed, stop their jeering and slowly turn to face you. "
-            + "On their ashen faces, the expression of a long-forgotten terror takes shape. ";
+               + "On their ashen faces, the expression of a long-forgotten terror takes shape. ";
     }
 
     public override InteractionResult RespondToSimpleInteraction(
         SimpleIntent action,
         IContext context,
         IGenerationClient client
-    )
+        )
     {
         if (action.MatchNoun(NounsForMatching))
             return new PositiveInteractionResult(ExaminationDescription);

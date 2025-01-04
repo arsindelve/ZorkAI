@@ -8,8 +8,11 @@ namespace ZorkOne.Location;
 
 public class Clearing : LocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Clearing";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             {
                 Direction.S, new MovementParameters { Location = GetLocation<ForestPath>() }
@@ -34,11 +37,12 @@ public class Clearing : LocationBase
                 }
             }
         };
+    }
 
-    public override string Name => "Clearing";
-
-    protected override string GetContextBasedDescription(IContext context) =>
-        "You are in a clearing, with a forest surrounding you on all sides. A path leads south. ";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "You are in a clearing, with a forest surrounding you on all sides. A path leads south. ";
+    }
 
     public override void Init()
     {

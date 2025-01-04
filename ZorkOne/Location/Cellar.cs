@@ -8,8 +8,11 @@ namespace ZorkOne.Location;
 
 public class Cellar : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Cellar";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             {
                 Direction.S, new MovementParameters { Location = GetLocation<EastOfChasm>() }
@@ -35,13 +38,14 @@ public class Cellar : DarkLocation
                 }
             }
         };
+    }
 
-    public override string Name => "Cellar";
-
-    protected override string GetContextBasedDescription(IContext context) =>
-        "You are in a dark and damp cellar with a narrow passageway " +
-        "leading north, and a crawlway to the south. On the west is the " +
-        "bottom of a steep metal ramp which is unclimbable. ";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "You are in a dark and damp cellar with a narrow passageway " +
+               "leading north, and a crawlway to the south. On the west is the " +
+               "bottom of a steep metal ramp which is unclimbable. ";
+    }
 
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {

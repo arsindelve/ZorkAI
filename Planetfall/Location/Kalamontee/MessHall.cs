@@ -8,8 +8,11 @@ namespace Planetfall.Location.Kalamontee;
 
 internal class MessHall : LocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Mess Hall";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.N, Go<MessCorridor>() },
             {
@@ -21,14 +24,17 @@ internal class MessHall : LocationBase
                 }
             }
         };
+    }
 
-    protected override string GetContextBasedDescription(IContext context) =>
-        "This is a large hall lined with tables and benches. An opening to the north leads back to the corridor. " +
-        "A door to the south is closed. Next to the door is a small slot. ";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return
+            "This is a large hall lined with tables and benches. An opening to the north leads back to the corridor. " +
+            "A door to the south is closed. Next to the door is a small slot. ";
+    }
 
-    public override string Name => "Mess Hall";
-
-    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation, IGenerationClient generationClient)
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient generationClient)
     {
         if (previousLocation is Kitchen)
         {
@@ -36,6 +42,7 @@ internal class MessHall : LocationBase
             door.IsOpen = false;
             return Task.FromResult(door.NowClosed(this));
         }
+
         return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 

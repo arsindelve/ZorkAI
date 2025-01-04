@@ -18,11 +18,6 @@ public class MessDoor : ItemBase, IOpenAndClose, ICanBeExamined
         return "The door is now closed. ";
     }
 
-    public override string GenericDescription(ILocation? currentLocation)
-    {
-        return $"A small door to the north is {(IsOpen ? "open" : "closed")}. ";
-    }
-
     public string AlreadyOpen => "It's already open! ";
 
     public string AlreadyClosed => "It is closed! ";
@@ -37,5 +32,10 @@ public class MessDoor : ItemBase, IOpenAndClose, ICanBeExamined
             return "The door cannot be opened until the padlock is removed. ";
 
         return string.Empty;
+    }
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return $"A small door to the north is {(IsOpen ? "open" : "closed")}. ";
     }
 }

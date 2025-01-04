@@ -7,6 +7,8 @@ public class Brush : ItemBase, ICanBeTakenAndDropped
         "brush", "scrub brush", "multi-purpose scrub brush", "patrol-issue self-contained multi-purpose scrub brush"
     ];
 
+    public override int Size => 2;
+
     public string OnTheGroundDescription(ILocation currentLocation)
     {
         return "There is a Patrol-issue self-contained multi-purpose scrub brush here.";
@@ -21,6 +23,4 @@ public class Brush : ItemBase, ICanBeTakenAndDropped
     {
         return "A Patrol-issue self-contained multi-purpose scrub brush ";
     }
-
-    public override int Size => 2;
 }

@@ -22,48 +22,48 @@ public class LoudRoomTests : EngineTestsBase
         target.Context.CurrentLocation = Repository.GetLocation<LoudRoom>();
         target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
 
-        string? response = await target.GetResponse(command);
+        var response = await target.GetResponse(command);
         Console.WriteLine(response);
 
         response.Should().Contain("Round Room");
     }
-    
+
     [Test]
     public async Task EchosLastWordsByDefault()
     {
         var target = GetTarget();
         target.Context.CurrentLocation = Repository.GetLocation<LoudRoom>();
 
-        string? response = await target.GetResponse("hi");
+        var response = await target.GetResponse("hi");
         Console.WriteLine(response);
 
         response.Should().Contain("hi hi ...");
     }
-    
+
     [Test]
     public async Task CanStillQuit()
     {
         var target = GetTarget();
         target.Context.CurrentLocation = Repository.GetLocation<LoudRoom>();
 
-        string? response = await target.GetResponse("quit");
+        var response = await target.GetResponse("quit");
         Console.WriteLine(response);
 
         response.Should().Contain("Do you wish");
     }
-    
+
     [Test]
     public async Task EchosLastWorkByDefault_MultiPhrase()
     {
         var target = GetTarget();
         target.Context.CurrentLocation = Repository.GetLocation<LoudRoom>();
 
-        string? response = await target.GetResponse("hi there buddy");
+        var response = await target.GetResponse("hi there buddy");
         Console.WriteLine(response);
 
         response.Should().Contain("buddy buddy ...");
     }
-    
+
     [Test]
     [TestCase("echo")]
     [TestCase("\"echo\"")]
@@ -77,7 +77,7 @@ public class LoudRoomTests : EngineTestsBase
         var target = GetTarget();
         target.Context.CurrentLocation = Repository.GetLocation<LoudRoom>();
 
-        string? response = await target.GetResponse(input);
+        var response = await target.GetResponse(input);
         Console.WriteLine(response);
 
         response.Should().Contain("The acoustics of the room");

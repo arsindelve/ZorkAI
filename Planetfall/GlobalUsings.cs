@@ -9,6 +9,4 @@ global using Model.Item;
 global using Model.Location;
 global using Planetfall.Location.Feinstein;
 global using Planetfall.Location.Kalamontee;
-
 global using Planetfall.Item.Feinstein;
-

@@ -5,7 +5,7 @@ namespace Planetfall;
 public class PlanetfallGame : IInfocomGame
 {
     public Type StartingLocation => typeof(DeckNine);
-    
+
     public string GameName => "Planetfall";
 
     public string StartText => """

@@ -8,16 +8,6 @@ namespace ZorkOne.Location;
 
 public class Reservoir : DarkLocation, ITurnBasedActor
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
-        {
-            { Direction.S, new MovementParameters { Location = GetLocation<ReservoirSouth>() } },
-            { Direction.N, new MovementParameters { Location = GetLocation<ReservoirNorth>() } }
-        };
-
-    protected override string GetContextBasedDescription(IContext context) =>
-        "You are on what used to be a large lake, but which is now a large mud pile. There are \"shores\" to the north and south.";
-
     public override string Name => "Reservoir";
 
     public Task<string> Act(IContext context, IGenerationClient client)
@@ -41,6 +31,21 @@ public class Reservoir : DarkLocation, ITurnBasedActor
         return
             Task.FromResult("You notice that the water level here is rising rapidly. The currents are also becoming " +
                             "stronger. Staying here seems quite perilous! ");
+    }
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
+        {
+            { Direction.S, new MovementParameters { Location = GetLocation<ReservoirSouth>() } },
+            { Direction.N, new MovementParameters { Location = GetLocation<ReservoirNorth>() } }
+        };
+    }
+
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return
+            "You are on what used to be a large lake, but which is now a large mud pile. There are \"shores\" to the north and south.";
     }
 
     public override void Init()

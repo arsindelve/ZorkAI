@@ -17,8 +17,6 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IAmALigh
 
     public override string[] NounsForMatching => ["lantern", "lamp", "light"];
 
-    public override string GenericDescription(ILocation? currentLocation) => $"A brass lantern {(IsOn ? "(providing light)" : string.Empty)}";
-
     public override int Size => 3;
 
     public bool IsOn { get; set; }
@@ -83,5 +81,10 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IAmALigh
             default:
                 return Task.FromResult(string.Empty);
         }
+    }
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return $"A brass lantern {(IsOn ? "(providing light)" : string.Empty)}";
     }
 }

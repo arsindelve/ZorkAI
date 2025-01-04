@@ -19,11 +19,11 @@ public class ClaudeFourGenerationClient : ClaudeClientBase, IGenerationClient
     public Action? OnGenerate { get; set; }
 
     public required string SystemPrompt { private get; set; }
-    
+
     public List<(string, string, bool)> LastFiveInputOutputs { get; set; } = new();
-    
+
     public Guid TurnCorrelationId { get; set; }
-    
+
     public ICloudWatchLogger<GenerationLog>? CloudWatchLogger { get; set; }
 
     public async Task<string> GenerateNarration(Request request)

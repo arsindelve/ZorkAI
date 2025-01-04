@@ -20,11 +20,8 @@ public static class DirectionParser
         }
 
         intent = intent.ToLowerInvariant().StripNonChars();
-        
-        foreach (string verb in Verbs.MoveVerbs)
-        {
-            intent = intent?.Replace($"{verb} ", "");
-        }
+
+        foreach (var verb in Verbs.MoveVerbs) intent = intent?.Replace($"{verb} ", "");
 
         var firstWord = intent?.Split(' ')[0];
         direction = ParseDirection(firstWord);

@@ -29,7 +29,7 @@ internal class QuitProcessor : IStatefulProcessor
     {
         if (runtime == Runtime.Web)
             return Task.FromResult("<Restart>");
-        
+
         if (string.IsNullOrEmpty(input)) return Task.FromResult(CancelQuitting());
 
         Completed = false;

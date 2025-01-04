@@ -7,13 +7,15 @@ namespace ZorkOne.Location;
 
 public class Kitchen : LocationBase
 {
-    protected override string GetContextBasedDescription(IContext context) =>
-        $"You are in the kitchen of the white house. A table seems to have been " +
-        $"used recently for the preparation of food. A passage leads to the west " +
-        $"and a dark staircase can be seen leading upward. A dark chimney leads down " +
-        $"and to the east is a small window which is {(GetItem<KitchenWindow>().IsOpen ? "open" : "closed")}. ";
-
     public override string Name => "Kitchen";
+
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return $"You are in the kitchen of the white house. A table seems to have been " +
+               $"used recently for the preparation of food. A passage leads to the west " +
+               $"and a dark staircase can be seen leading upward. A dark chimney leads down " +
+               $"and to the east is a small window which is {(GetItem<KitchenWindow>().IsOpen ? "open" : "closed")}. ";
+    }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {

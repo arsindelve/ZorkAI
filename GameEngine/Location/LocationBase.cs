@@ -12,16 +12,6 @@ namespace GameEngine.Location;
 /// </summary>
 public abstract class LocationBase : ILocation, ICanHoldItems
 {
-    /// <summary>
-    ///     The Map defines all the places the user can go from this location. It can also define
-    ///     locations where we cannot go, but for which we want to provide a custom message such
-    ///     as "The kitchen window is closed."
-    /// </summary>
-    /// <param name="context"></param>
-    protected abstract Dictionary<Direction, MovementParameters> Map(IContext context);
-
-    protected abstract string GetContextBasedDescription(IContext context);
-
     public bool IsTransparent => false;
 
     // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global: Needed by deserializer.
@@ -86,7 +76,7 @@ public abstract class LocationBase : ILocation, ICanHoldItems
 
     public void ItemPlacedHere<T>() where T : IItem, new()
     {
-        T item = Repository.GetItem<T>();
+        var item = Repository.GetItem<T>();
         ItemPlacedHere(item);
     }
 
@@ -95,6 +85,13 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         return string.Empty;
     }
 
+    /// <summary>
+    /// By default, any item can be placed/dropped in any room.  
+    /// </summary>
+    public Type[] CanOnlyHoldTheseTypes => [];
+
+    public string CanOnlyHoldTheseTypesErrorMessage => string.Empty;
+
     public void ItemPlacedHere(IItem item)
     {
         var oldLocation = item.CurrentLocation;
@@ -102,12 +99,12 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         item.CurrentLocation = this;
         Items.Add(item);
     }
-    
+
     public string LogItems()
     {
         return string.Join(", ", Items.Select(item => item.GenericDescription(this).Trim()));
     }
-    
+
     // ReSharper disable once MemberCanBePrivate.Global
     public int VisitCount { get; set; }
 
@@ -164,16 +161,21 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         return string.Empty;
     }
 
-    public virtual string GetDescription(IContext context) =>
-        Name +
-        SubLocation?.LocationDescription +
-        Environment.NewLine +
-        GetContextBasedDescription(context) +
-        GetItemDescriptions();
+    public virtual string GetDescription(IContext context)
+    {
+        return Name +
+               SubLocation?.LocationDescription +
+               Environment.NewLine +
+               GetContextBasedDescription(context) +
+               GetItemDescriptions();
+    }
 
     public abstract void Init();
 
-    public virtual string GetDescriptionForGeneration(IContext context) => GetDescription(context);
+    public virtual string GetDescriptionForGeneration(IContext context)
+    {
+        return GetDescription(context);
+    }
 
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="SimpleIntent" /> corresponding
@@ -226,6 +228,16 @@ public abstract class LocationBase : ILocation, ICanHoldItems
     {
         return Items.Contains(Repository.GetItem<T>());
     }
+
+    /// <summary>
+    ///     The Map defines all the places the user can go from this location. It can also define
+    ///     locations where we cannot go, but for which we want to provide a custom message such
+    ///     as "The kitchen window is closed."
+    /// </summary>
+    /// <param name="context"></param>
+    protected abstract Dictionary<Direction, MovementParameters> Map(IContext context);
+
+    protected abstract string GetContextBasedDescription(IContext context);
 
     protected virtual void OnFirstTimeEnterLocation(IContext context)
     {
@@ -280,13 +292,6 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         return Environment.NewLine + result.ToString().Trim();
     }
 
-    /// <summary>
-    /// By default, any item can be placed/dropped in any room.  
-    /// </summary>
-    public Type[] CanOnlyHoldTheseTypes => [];
-    
-    public string CanOnlyHoldTheseTypesErrorMessage => String.Empty;
-    
     // Syntactic sugar 
     protected MovementParameters Go<T>() where T : class, ILocation, new()
     {

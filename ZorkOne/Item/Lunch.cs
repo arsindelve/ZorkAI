@@ -7,8 +7,6 @@ public class Lunch : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeEate
 {
     public override string[] NounsForMatching => ["lunch", "sandwich"];
 
-    public override string GenericDescription(ILocation? currentLocation) => "A lunch";
-
     public override int Size => 2;
 
     string ICanBeEaten.OnEating(IContext context)
@@ -21,5 +19,10 @@ public class Lunch : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeEate
     string ICanBeTakenAndDropped.OnTheGroundDescription(ILocation currentLocation)
     {
         return "A hot pepper sandwich is here. ";
+    }
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A lunch";
     }
 }

@@ -9,34 +9,14 @@ namespace ZorkOne.Location;
 
 public class UpATree : LocationBase, IDropSpecialLocation, ITurnBasedActor
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
-        {
-            {
-                Direction.Down,
-                new MovementParameters { Location = GetLocation<ForestPath>() }
-            },
-            {
-                Direction.Up,
-                new MovementParameters
-                {
-                    CanGo = _ => false,
-                    CustomFailureMessage = "You cannot climb any higher. ",
-                }
-            },
-        };
-
     public override string Name => "Up A Tree";
-
-    protected override string GetContextBasedDescription(IContext context) =>
-        "You are about 10 feet above the ground nestled among some large branches. The nearest branch above you is above your reach. ";
 
 
     // Being up a tree, whatever we drop from here will end up on the ground below. 
     public InteractionResult DropSpecial(IItem item, IContext context)
     {
         var egg = Repository.GetItem<Egg>();
-        Canary canary = Repository.GetItem<Canary>();
+        var canary = Repository.GetItem<Canary>();
 
         Repository.GetLocation<ForestPath>().ItemPlacedHere(item);
 
@@ -48,8 +28,8 @@ public class UpATree : LocationBase, IDropSpecialLocation, ITurnBasedActor
 
             return new PositiveInteractionResult(
                 "The egg falls to the ground and springs open, seriously damaged. There is a golden "
-                    + "clockwork canary nestled in the egg. "
-                    + Canary.DestroyedMessage
+                + "clockwork canary nestled in the egg. "
+                + Canary.DestroyedMessage
             );
         }
 
@@ -72,6 +52,46 @@ public class UpATree : LocationBase, IDropSpecialLocation, ITurnBasedActor
         );
     }
 
+    public Task<string> Act(IContext context, IGenerationClient client)
+    {
+        if (context.CurrentLocation is not UpATree)
+        {
+            context.RemoveActor(this);
+            return Task.FromResult(string.Empty);
+        }
+
+        var random = new Random();
+        var randomNumber = random.Next(0, 4);
+        if (randomNumber == 0) return Task.FromResult("\nIn the distance you hear the chirping of a song bird. ");
+
+        return Task.FromResult(string.Empty);
+    }
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
+        {
+            {
+                Direction.Down,
+                new MovementParameters { Location = GetLocation<ForestPath>() }
+            },
+            {
+                Direction.Up,
+                new MovementParameters
+                {
+                    CanGo = _ => false,
+                    CustomFailureMessage = "You cannot climb any higher. "
+                }
+            }
+        };
+    }
+
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return
+            "You are about 10 feet above the ground nestled among some large branches. The nearest branch above you is above your reach. ";
+    }
+
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
         context.RegisterActor(this);
@@ -88,7 +108,7 @@ public class UpATree : LocationBase, IDropSpecialLocation, ITurnBasedActor
         string? input,
         IContext context,
         IGenerationClient client
-    )
+        )
     {
         switch (input?.ToLowerInvariant().Trim())
         {
@@ -113,20 +133,5 @@ public class UpATree : LocationBase, IDropSpecialLocation, ITurnBasedActor
     public override void Init()
     {
         StartWithItem<Nest>();
-    }
-
-    public Task<string> Act(IContext context, IGenerationClient client)
-    {
-        if (context.CurrentLocation is not UpATree)
-        {
-            context.RemoveActor(this);
-            return Task.FromResult(string.Empty); 
-        }
-        
-        var random = new Random();
-        var randomNumber = random.Next(0, 4);
-        if (randomNumber == 0) return Task.FromResult("\nIn the distance you hear the chirping of a song bird. ");
-
-        return Task.FromResult(string.Empty);
     }
 }

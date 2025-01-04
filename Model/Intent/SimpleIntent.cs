@@ -13,7 +13,7 @@ public record SimpleIntent : IntentBase
     public required string? Noun { get; init; }
 
     public string? Adverb { get; init; }
-    
+
     public string? Adjective { get; set; }
 
     public bool MatchNoun(string[] nouns)
@@ -25,10 +25,10 @@ public record SimpleIntent : IntentBase
     {
         if (string.IsNullOrEmpty(Adjective))
             return MatchNoun(nouns);
-        
+
         return nouns.Any(s => s.Equals($"{Adjective} {Noun}", StringComparison.InvariantCultureIgnoreCase));
     }
-    
+
     public bool MatchVerb(string[] verbs)
     {
         return verbs.Any(s => s.Equals(Verb, StringComparison.InvariantCultureIgnoreCase));

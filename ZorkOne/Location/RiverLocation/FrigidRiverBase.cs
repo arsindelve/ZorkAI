@@ -10,7 +10,7 @@ namespace ZorkOne.Location.RiverLocation;
 public abstract class FrigidRiverBase : LocationWithNoStartingItems, ITurnBasedActor, IFrigidRiver
 {
     protected abstract FrigidRiverBase CarriedToLocation { get; }
-    
+
     protected static PileOfPlastic Boat => Repository.GetItem<PileOfPlastic>();
 
     protected abstract int TurnsUntilSweptDownstream { get; }
@@ -19,25 +19,12 @@ public abstract class FrigidRiverBase : LocationWithNoStartingItems, ITurnBasedA
     // Needed for serialization 
     public int TurnsInThisLocation { get; set; }
 
-    public override string GetDescription(IContext context) =>
-        Name +
-        SubLocation?.LocationDescription +
-        Environment.NewLine +
-        GetContextBasedDescription(context);
-
     public override string Name => "Frigid River";
-
-    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient generationClient)
-    {
-        context.RegisterActor(this);
-        return base.AfterEnterLocation(context, previousLocation, generationClient);
-    }
 
     public virtual async Task<string> Act(IContext context, IGenerationClient client)
     {
         TurnsInThisLocation++;
-        
+
         if (TurnsInThisLocation >= TurnsUntilSweptDownstream)
         {
             var moveInteraction = new MovementParameters { Location = CarriedToLocation };
@@ -46,6 +33,21 @@ public abstract class FrigidRiverBase : LocationWithNoStartingItems, ITurnBasedA
         }
 
         return string.Empty;
+    }
+
+    public override string GetDescription(IContext context)
+    {
+        return Name +
+               SubLocation?.LocationDescription +
+               Environment.NewLine +
+               GetContextBasedDescription(context);
+    }
+
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient generationClient)
+    {
+        context.RegisterActor(this);
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 
     public override void OnWaiting(IContext context)

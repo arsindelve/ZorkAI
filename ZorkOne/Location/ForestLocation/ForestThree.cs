@@ -6,8 +6,11 @@ namespace ZorkOne.Location.ForestLocation;
 
 public class ForestThree : LocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Forest";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             {
                 Direction.NW, new MovementParameters { Location = GetLocation<SouthOfHouse>() }
@@ -20,7 +23,8 @@ public class ForestThree : LocationWithNoStartingItems
             },
             {
                 Direction.S,
-                new MovementParameters { CanGo = _ => false, CustomFailureMessage = "Storm-tossed trees block your way. " }
+                new MovementParameters
+                    { CanGo = _ => false, CustomFailureMessage = "Storm-tossed trees block your way. " }
             },
             {
                 Direction.E,
@@ -28,8 +32,10 @@ public class ForestThree : LocationWithNoStartingItems
                     { CanGo = _ => false, CustomFailureMessage = "The rank undergrowth prevents eastward movement. " }
             }
         };
+    }
 
-    public override string Name => "Forest";
-
-    protected override string GetContextBasedDescription(IContext context) => "This is a dimly lit forest, with trees all around. ";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "This is a dimly lit forest, with trees all around. ";
+    }
 }

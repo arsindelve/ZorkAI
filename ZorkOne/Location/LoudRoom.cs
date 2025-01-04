@@ -19,13 +19,22 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
     // ReSharper disable once MemberCanBePrivate.Global
     public bool EchoHasBeenSpoken { get; set; }
 
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Loud Room";
+
+    public Task<string> Act(IContext context, IGenerationClient client)
+    {
+        return Task.FromResult(string.Empty);
+    }
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.W, new MovementParameters { Location = GetLocation<RoundRoom>() } },
             { Direction.E, new MovementParameters { Location = GetLocation<DampCave>() } },
             { Direction.Up, new MovementParameters { Location = GetLocation<DeepCanyon>() } }
         };
+    }
 
     protected override string GetContextBasedDescription(IContext context)
     {
@@ -47,16 +56,9 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
         return description;
     }
 
-    public override string Name => "Loud Room";
-
     public override void Init()
     {
         StartWithItem<PlatinumBar>();
-    }
-
-    public Task<string> Act(IContext context, IGenerationClient client)
-    {
-        return Task.FromResult(string.Empty);
     }
 
     public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
@@ -65,7 +67,8 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
         base.OnLeaveLocation(context, newLocation, previousLocation);
     }
 
-    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client)
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
+        IGenerationClient client)
     {
         if (DidTheAdventurerSayEcho(input) && !EchoHasBeenSpoken)
         {
@@ -75,9 +78,7 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
 
         // When the dam is filling, this room behaves normally. 
         if (Repository.GetLocation<ReservoirSouth>().IsFilling || EchoHasBeenSpoken)
-        {
             return new NoNounMatchInteractionResult();
-        }
 
         // Otherwise, direction commands are the only ones available.  
         if (DirectionParser.IsDirection(input, out _))
@@ -98,7 +99,7 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
         if (input == "echo")
             return true;
 
-        bool hasVerb = Verbs.SayVerbs.Any(s => input.StartsWith(s));
+        var hasVerb = Verbs.SayVerbs.Any(s => input.StartsWith(s));
         return hasVerb && input.EndsWith("echo");
     }
 

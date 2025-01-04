@@ -5,8 +5,6 @@ namespace ZorkOne.Item;
 
 public class RustyKnife : ItemBase, ICanBeTakenAndDropped, IWeapon
 {
-    public override string GenericDescription(ILocation? currentLocation) => "a rusty knife";
-
     public override string[] NounsForMatching => ["knife", "rusty knife", "rusty"];
 
     string ICanBeTakenAndDropped.OnTheGroundDescription(ILocation currentLocation)
@@ -24,5 +22,10 @@ public class RustyKnife : ItemBase, ICanBeTakenAndDropped, IWeapon
         return context.HasItem<Sword>()
             ? "As you touch the rusty knife, your sword gives a single pulse of blinding blue light. "
             : base.OnBeingTaken(context);
+    }
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "a rusty knife";
     }
 }

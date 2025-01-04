@@ -28,7 +28,7 @@ internal class RestoreProcessor : IStatefulProcessor
     {
         if (runtime == Runtime.Web)
             return "<Restore>";
-        
+
         if (!_havePromptedForFilename) return await PromptForFilename(context, client);
         if (context.Engine is not null) return await AttemptTheRestore(input, context, client);
 
@@ -65,7 +65,8 @@ internal class RestoreProcessor : IStatefulProcessor
         catch (Exception)
         {
             return await client.GenerateNarration(
-                new RestoreFailedUnknownReasonGameRequest(context.CurrentLocation.GetDescriptionForGeneration(context)));
+                new RestoreFailedUnknownReasonGameRequest(
+                    context.CurrentLocation.GetDescriptionForGeneration(context)));
         }
     }
 

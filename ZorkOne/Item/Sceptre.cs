@@ -10,17 +10,25 @@ public class Sceptre : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInT
 {
     public override string[] NounsForMatching => ["sceptre", "ornamental sceptre"];
 
-    public override string GenericDescription(ILocation? currentLocation) => "A sceptre";
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "An ornamented sceptre, tapering to a sharp point, is here.";
+    }
 
-    public string OnTheGroundDescription(ILocation currentLocation) => "An ornamented sceptre, tapering to a sharp point, is here.";
-
-    public override string NeverPickedUpDescription(ILocation currentLocation) =>
-        "A sceptre, possibly that of ancient Egypt itself, is in the coffin." +
-        " The sceptre is ornamented with colored enamel, and tapers to a sharp point. ";
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return "A sceptre, possibly that of ancient Egypt itself, is in the coffin." +
+               " The sceptre is ornamented with colored enamel, and tapers to a sharp point. ";
+    }
 
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 4;
 
     int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 6;
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A sceptre";
+    }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)

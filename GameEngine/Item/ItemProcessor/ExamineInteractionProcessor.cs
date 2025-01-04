@@ -26,7 +26,7 @@ public class ExamineInteractionProcessor : IVerbProcessor
                 if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
                     return new PositiveInteractionResult("It's too dark to see! ");
 
-                if (item is ICanBeExamined castItemToExamine) 
+                if (item is ICanBeExamined castItemToExamine)
                 {
                     castItemToExamine.OnBeingExamined(context);
                     return new PositiveInteractionResult(castItemToExamine.ExaminationDescription);
@@ -35,7 +35,7 @@ public class ExamineInteractionProcessor : IVerbProcessor
                 if (item is ItemBase castItem)
                     return new PositiveInteractionResult(
                         $"There is nothing special about the {castItem.NounsForMatching.MaxBy(s => s.Length)}. ");
-                
+
                 return null;
         }
 

@@ -9,13 +9,21 @@ public class KitchenWindow : ItemBase, IOpenAndClose, ICanBeExamined
 
     public string ExaminationDescription => IsOpen
         ? "The kitchen window is open, but I can't tell what's beyond it."
-        : !HasEverBeenOpened ? "The window is slightly ajar, but not enough to allow entry" : "The kitchen window is closed.";
+        : !HasEverBeenOpened
+            ? "The window is slightly ajar, but not enough to allow entry"
+            : "The kitchen window is closed.";
 
     public bool IsOpen { get; set; }
 
-    public string NowOpen(ILocation currentLocation) => "With great effort, you open the window far enough to allow entry.";
+    public string NowOpen(ILocation currentLocation)
+    {
+        return "With great effort, you open the window far enough to allow entry.";
+    }
 
-    public string NowClosed(ILocation currentLocation) => "The window closes (more easily than it opened).";
+    public string NowClosed(ILocation currentLocation)
+    {
+        return "The window closes (more easily than it opened).";
+    }
 
     public string AlreadyOpen => "Too late for that";
 

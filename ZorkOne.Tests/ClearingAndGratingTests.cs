@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using FluentAssertions;
 using GameEngine;
 using NUnit.Framework;
@@ -68,7 +67,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         // Assert
         response.Should().Contain("69,105");
     }
-    
+
     [Test]
     public async Task Clearing_HaveKey_DontSpecify_UnlockTheGrating()
     {
@@ -83,7 +82,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         // Assert
         response.Should().Contain("You can't reach the lock from here");
     }
-    
+
     [Test]
     public async Task Clearing_HaveKey_Specify_UnlockTheGrating()
     {
@@ -98,7 +97,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         // Assert
         response.Should().Contain("You can't reach the lock from here");
     }
-    
+
     [Test]
     public async Task Clearing_HaveKey_DontSpecifyTheKey_LockTheGrating()
     {
@@ -113,7 +112,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         // Assert
         response.Should().Contain("You can't lock it from this side");
     }
-    
+
     [Test]
     public async Task Clearing_HaveKey_SpecifyTheKey_LockTheGrating()
     {
@@ -128,7 +127,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         // Assert
         response.Should().Contain("You can't lock it from this side");
     }
-    
+
     [Test]
     public async Task GratingRoom_HaveKey_SpecifyTheKey_LockTheGrating()
     {
@@ -144,7 +143,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         // Assert
         response.Should().Contain("The grate is locked");
     }
-    
+
     [Test]
     public async Task GratingRoom_Locked_Look()
     {
@@ -160,7 +159,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         // Assert
         response.Should().Contain("skull-and-crossbones lock");
     }
-    
+
     [Test]
     public async Task GratingRoom_Unlocked_Look()
     {
@@ -178,7 +177,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         response.Should().Contain("Above you is a grating");
         response.Should().NotContain("skull-and-crossbones lock");
     }
-    
+
     [Test]
     public async Task GratingRoom_Open_Look()
     {
@@ -198,7 +197,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         response.Should().Contain("sunlight pouring in");
         response.Should().NotContain("skull-and-crossbones lock");
     }
-    
+
     [Test]
     public async Task GratingRoom_OpenWithoutUnlocking_Look()
     {
@@ -213,14 +212,14 @@ public class ClearingAndGratingTests : EngineTestsBase
 
         // Assert
         response.Should().Contain("locked");
-        
+
         // Act
         response = await target.GetResponse("look");
 
         // Assert
         response.Should().Contain("skull-and-crossbones lock");
     }
-    
+
     [Test]
     public async Task GratingRoom_HaveKey_Open_FirstTime_DumpLeavesOnMyHead()
     {
@@ -238,7 +237,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         response.Should().Contain("reveal trees above you");
         response.Should().Contain("A pile of leaves falls onto your head and to the ground.");
     }
-    
+
     [Test]
     public async Task GratingRoom_AlreadyTookTheLeaves_DoesNotDumpLeavesOnMyHead()
     {
@@ -258,7 +257,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         response.Should().Contain("reveal trees above you");
         response.Should().NotContain("A pile of leaves falls onto your head and to the ground.");
     }
-    
+
     [Test]
     public async Task GratingRoom_HaveKey_Open_FirstTime_LeavesAreHereNow()
     {
@@ -276,7 +275,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         // Assert
         response.Should().Contain("Taken");
     }
-    
+
     [Test]
     public async Task GratingRoom_HaveKey_Open_SecondTime_DoesNotDumpLeavesOnMyHead()
     {
@@ -296,7 +295,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         response.Should().Contain("reveal trees above you");
         response.Should().NotContain("A pile of leaves falls onto your head and to the ground.");
     }
-    
+
     [Test]
     public async Task Clearing_GratingOpen_Look()
     {
@@ -304,7 +303,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         target.Context.CurrentLocation = Repository.GetLocation<Clearing>();
         Repository.GetItem<Grating>().IsLocked = false;
         Repository.GetItem<Grating>().IsOpen = true;
-        
+
         // Act
         await target.GetResponse("move the leaves");
         var response = await target.GetResponse("look");
@@ -312,7 +311,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         // Assert
         response.Should().Contain("There is an open grating, descending into darkness");
     }
-    
+
     [Test]
     public async Task Clearing_GratingClosed_Look()
     {
@@ -320,7 +319,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         target.Context.CurrentLocation = Repository.GetLocation<Clearing>();
         Repository.GetItem<Grating>().IsLocked = false;
         Repository.GetItem<Grating>().IsOpen = false;
-        
+
         // Act
         await target.GetResponse("move the leaves");
         var response = await target.GetResponse("look");

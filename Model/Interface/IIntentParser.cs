@@ -10,6 +10,10 @@ namespace Model.Interface;
 /// </summary>
 public interface IIntentParser
 {
+    Guid? TurnCorrelationId { get; set; }
+
+    ICloudWatchLogger<GenerationLog>? Logger { get; set; }
+
     /// <summary>
     ///     Use a simple, word-match based parser to determines the type of intent.
     /// Global commands work anywhere and everywhere, like look, inventory, wait, and do
@@ -36,8 +40,4 @@ public interface IIntentParser
     /// </param>
     /// <returns>The intent type as an instance of IntentBase.</returns>
     Task<IntentBase> DetermineComplexIntentType(string? input, string locationDescription, string sessionId);
-
-    Guid? TurnCorrelationId { get; set; }
-    
-    ICloudWatchLogger<GenerationLog>? Logger { get; set; }
 }

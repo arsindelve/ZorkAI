@@ -146,16 +146,17 @@ public class Candles
     public override InteractionResult RespondToMultiNounInteraction(
         MultiNounIntent action,
         IContext context
-    )
+        )
     {
         if (!action.Match(
                 ["light", "burn"],
                 NounsForMatching,
-                Repository.GetItem<Matchbook>().NounsForMatching.Union(Repository.GetItem<Torch>().NounsForMatching).ToArray(),
+                Repository.GetItem<Matchbook>().NounsForMatching.Union(Repository.GetItem<Torch>().NounsForMatching)
+                    .ToArray(),
                 ["with"]
             ))
             return base.RespondToMultiNounInteraction(action, context);
-        
+
         if (action.MatchNounTwo<Torch>() && context.HasItem<Torch>())
         {
             context.RemoveItem(this);

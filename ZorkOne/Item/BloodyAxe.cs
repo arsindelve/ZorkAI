@@ -7,8 +7,6 @@ public class BloodyAxe : ItemBase, ICanBeTakenAndDropped, IWeapon
 {
     public override string[] NounsForMatching => ["axe", "bloody axe"];
 
-    public override string GenericDescription(ILocation? currentLocation) => "A bloody axe ";
-
     public override string? CannotBeTakenDescription
     {
         get
@@ -21,7 +19,18 @@ public class BloodyAxe : ItemBase, ICanBeTakenAndDropped, IWeapon
         }
     }
 
-    string ICanBeTakenAndDropped.OnTheGroundDescription(ILocation currentLocation) => "There is a bloody axe here. ";
+    string ICanBeTakenAndDropped.OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "There is a bloody axe here. ";
+    }
 
-    public override string NeverPickedUpDescription(ILocation currentLocation) => ((ICanBeTakenAndDropped)this).OnTheGroundDescription(currentLocation);
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return ((ICanBeTakenAndDropped)this).OnTheGroundDescription(currentLocation);
+    }
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A bloody axe ";
+    }
 }

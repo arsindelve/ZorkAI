@@ -6,6 +6,7 @@ namespace ZorkTwo;
 // ReSharper disable once InconsistentNaming
 public class ZorkII : IInfocomGame
 {
+    public Dictionary<string, ITurnBasedActor> Actors { get; } = new();
     public Type StartingLocation => typeof(InsideTheBarrow);
 
     public string GameName => "ZorkTwo";
@@ -30,17 +31,15 @@ public class ZorkII : IInfocomGame
     }
 
     public string SessionTableName => "zork2_session";
-    
+
     public void Init(IContext context)
     {
     }
+
+    public string SystemPromptSecretKey => "ZorkOnePrompt";
 
     public T GetContext<T>() where T : IContext, new()
     {
         throw new NotImplementedException();
     }
-    
-    public string SystemPromptSecretKey => "ZorkOnePrompt";
-    
-    public Dictionary<string, ITurnBasedActor> Actors { get; } = new();
 }

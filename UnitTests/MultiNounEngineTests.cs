@@ -181,7 +181,8 @@ public class MultiNounEngineTests
             .ReturnsAsync("bob");
 
         // Act
-        (InteractionResult? resultObject, string ResultMessage) result = await engine.Process(intent, context, generationClient.Object);
+        (InteractionResult? resultObject, string ResultMessage) result =
+            await engine.Process(intent, context, generationClient.Object);
 
         // Assert
         result.ResultMessage.Should().Contain("bob");

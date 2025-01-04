@@ -11,14 +11,14 @@ public class Bauble : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTr
         return "There is a beautiful brass bauble here. ";
     }
 
-    int IGivePointsWhenFirstPickedUp.NumberOfPoints => 1;
-    
-    int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 1;
-
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {
         return OnTheGroundDescription(currentLocation);
     }
+
+    int IGivePointsWhenFirstPickedUp.NumberOfPoints => 1;
+
+    int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 1;
 
     public override string GenericDescription(ILocation? currentLocation)
     {

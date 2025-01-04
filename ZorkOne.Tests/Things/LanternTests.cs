@@ -3,7 +3,6 @@ using GameEngine;
 using NUnit.Framework;
 using UnitTests;
 using ZorkOne.Item;
-using ZorkOne.Location;
 using ZorkOne.Location.CoalMineLocation;
 using ZorkOne.Location.ForestLocation;
 
@@ -19,7 +18,7 @@ public class LanternTests : EngineTestsBase
         var torch = Repository.GetItem<Torch>();
         target.Context.Take(torch);
 
-        string? response = await target.GetResponse("put torch in basket");
+        var response = await target.GetResponse("put torch in basket");
         Console.WriteLine(response);
 
         target.Context.ItIsDarkHere.Should().BeFalse();

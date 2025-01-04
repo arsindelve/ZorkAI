@@ -5,8 +5,9 @@ namespace ZorkOne.Location.CoalMineLocation;
 
 internal class CoalMineFour : CoalMine
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             {
                 Direction.W, new MovementParameters { Location = GetLocation<CoalMineFour>() }
@@ -18,4 +19,5 @@ internal class CoalMineFour : CoalMine
                 Direction.Down, new MovementParameters { Location = GetLocation<LadderTop>() }
             }
         };
+    }
 }

@@ -1,7 +1,6 @@
 using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Interface;
-using Model.Location;
 
 namespace GameEngine.StaticCommand.Implementation;
 
@@ -17,15 +16,17 @@ public class LookProcessor : IGlobalCommand
 
     internal static string LookAround(IContext context, Verbosity? verbosity = null)
     {
-        ILocation location = context.CurrentLocation;
+        var location = context.CurrentLocation;
 
         if (context.ItIsDarkHere)
-            return (((DarkLocation)location).DarkDescription);
+            return ((DarkLocation)location).DarkDescription;
 
-        string currentLocationDescription = (verbosity ?? context.Verbosity) switch
+        var currentLocationDescription = (verbosity ?? context.Verbosity) switch
         {
             Verbosity.SuperBrief => context.CurrentLocation.Name,
-            Verbosity.Brief => location.VisitCount == 1 ? context.CurrentLocation.GetDescription(context) : location.Name,
+            Verbosity.Brief => location.VisitCount == 1
+                ? context.CurrentLocation.GetDescription(context)
+                : location.Name,
             Verbosity.Verbose => context.CurrentLocation.GetDescription(context),
             _ => throw new ArgumentOutOfRangeException()
         };

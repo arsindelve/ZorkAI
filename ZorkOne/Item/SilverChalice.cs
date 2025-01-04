@@ -8,13 +8,22 @@ public class SilverChalice : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenFir
     public override string[] NounsForMatching =>
         ["silver", "chalice", "silver chalice"];
 
-    public override string GenericDescription(ILocation? currentLocation) => "A chalice";
-    
-    public string OnTheGroundDescription(ILocation currentLocation) => "There is a silver chalice here";
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "There is a silver chalice here";
+    }
 
-    public override string NeverPickedUpDescription(ILocation currentLocation) => OnTheGroundDescription(currentLocation);
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return OnTheGroundDescription(currentLocation);
+    }
 
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 10;
 
     int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 5;
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A chalice";
+    }
 }

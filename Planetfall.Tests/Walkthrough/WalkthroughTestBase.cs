@@ -4,7 +4,6 @@ using DynamoDb;
 using FluentAssertions;
 using GameEngine;
 
-
 namespace Planetfall.Tests.Walkthrough;
 
 public abstract class WalkthroughTestBase : EngineTestsBase

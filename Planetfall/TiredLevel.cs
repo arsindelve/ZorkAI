@@ -23,7 +23,6 @@ public enum TiredLevel
     Exhausted = 3,
 
     // > 8850
-    [Description("You feel phenomenally tired. ")]
-    [Notification("You can barely keep your eyes open. ")]
+    [Description("You feel phenomenally tired. ")] [Notification("You can barely keep your eyes open. ")]
     AboutToDrop = 4
 }

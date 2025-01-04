@@ -42,7 +42,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
 
         if (castItem is IAmClothing { BeingWorn: true })
             return new PositiveInteractionResult("You'll have to take it off, first. ");
-        
+
         if (context.CurrentLocation is IDropSpecialLocation specialLocation)
             return specialLocation.DropSpecial(castItem, context);
 

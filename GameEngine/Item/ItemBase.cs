@@ -23,7 +23,7 @@ public abstract class ItemBase : IItem
     /// <returns></returns>
     public virtual string GenericDescription(ILocation? currentLocation)
     {
-        return String.Empty;
+        return string.Empty;
     }
 
     public virtual string? CannotBeTakenDescription { get; set; }

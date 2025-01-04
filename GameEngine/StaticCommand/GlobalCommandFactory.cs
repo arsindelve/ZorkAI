@@ -14,6 +14,9 @@ public class GlobalCommandFactory : IGlobalCommandFactory
 {
     public virtual IGlobalCommand? GetGlobalCommands(string? input)
     {
+        if (input?.ToLowerInvariant().StartsWith("god mode") ?? false)
+            return new GodModeProcessor();
+
         switch (input?.ToLowerInvariant().StripNonChars().Trim())
         {
             case "time":

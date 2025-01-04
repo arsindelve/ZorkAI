@@ -18,12 +18,12 @@ internal class SimpleInteractionEngine : IIntentEngine
         Debug.WriteLine(intent);
         context.LastNoun = simpleInteraction.Noun ?? "";
 
-        DisambiguationInteractionResult? requireDisambiguation = CheckDisambiguation(simpleInteraction, context);
+        var requireDisambiguation = CheckDisambiguation(simpleInteraction, context);
         if (requireDisambiguation is not null)
             return (requireDisambiguation, requireDisambiguation.InteractionMessage);
 
         // Turning on a light source should supersede all of this. Check the noun
-        bool refersToALightSource = Repository.GetItem(simpleInteraction.Noun) is IAmALightSourceThatTurnsOnAndOff;
+        var refersToALightSource = Repository.GetItem(simpleInteraction.Noun) is IAmALightSourceThatTurnsOnAndOff;
 
         // If it's dark, you can interact with items in your possession that are light sources that can be
         // turned on, but not any items in the room.
@@ -97,15 +97,12 @@ internal class SimpleInteractionEngine : IIntentEngine
         var nounToLongestNounMap = new Dictionary<string, string>();
         foreach (var item in ambiguousItems)
         {
-            string? longestNoun = item.NounsForPreciseMatching.MaxBy(noun => noun.Length);
-            foreach (var noun in item.NounsForPreciseMatching)
-            {
-                nounToLongestNounMap[noun] = longestNoun ?? string.Empty;
-            }
+            var longestNoun = item.NounsForPreciseMatching.MaxBy(noun => noun.Length);
+            foreach (var noun in item.NounsForPreciseMatching) nounToLongestNounMap[noun] = longestNoun ?? string.Empty;
         }
 
         var replacement = intent.Verb + " {0}";
-        
+
         return new DisambiguationInteractionResult(
             message,
             nounToLongestNounMap,
@@ -119,16 +116,19 @@ internal class SimpleInteractionEngine : IIntentEngine
         if (string.IsNullOrEmpty(noun))
             return string.Empty;
 
-        IItem? item = Repository.GetItem(noun);
+        var item = Repository.GetItem(noun);
         if (item is null)
             return string.Empty;
 
         Request request;
 
         if (item is not IAmANamedPerson)
-            request = new VerbHasNoEffectOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), noun, verb);
+            request = new VerbHasNoEffectOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context),
+                noun, verb);
         else
-            request = new VerbHasNoEffectOnAPersonOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), noun, verb, item.GenericDescription(context.CurrentLocation));
+            request = new VerbHasNoEffectOnAPersonOperationRequest(
+                context.CurrentLocation.GetDescriptionForGeneration(context), noun, verb,
+                item.GenericDescription(context.CurrentLocation));
 
         var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
         return result;
@@ -137,7 +137,8 @@ internal class SimpleInteractionEngine : IIntentEngine
     private static async Task<string> GetGeneratedNounNotPresentResponse(string? noun,
         IGenerationClient generationClient, IContext context)
     {
-        var request = new NounNotPresentOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), noun);
+        var request =
+            new NounNotPresentOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), noun);
         var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
         return result;
     }

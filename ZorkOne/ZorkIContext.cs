@@ -78,7 +78,7 @@ public class ZorkIContext : Context<ZorkI>
 
         return base.ProcessEndOfTurn();
     }
-    
+
     public override bool HaveRoomForItem(IItem item)
     {
         return CalculateTotalSize() < 21;

@@ -1,6 +1,5 @@
 using GameEngine.StaticCommand;
 using Utilities;
-using ZorkOne.GlobalCommand.Implementation;
 
 namespace Planetfall.GlobalCommand;
 
@@ -12,7 +11,7 @@ public class PlanetfallGlobalCommandFactory : GlobalCommandFactory
         {
             case "zork":
                 return new SimpleResponseCommand("Gesundheit! ");
-            
+
             case "diagnose":
                 return new DiagnoseProcessor();
         }

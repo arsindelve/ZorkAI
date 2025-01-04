@@ -6,16 +6,20 @@ namespace ZorkOne.Location;
 
 public class EgyptianRoom : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Egyptian Room";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.W, new MovementParameters { Location = GetLocation<Temple>() } }
         };
+    }
 
-    public override string Name => "Egyptian Room";
-
-    protected override string GetContextBasedDescription(IContext context) =>
-        "This is a room which looks like an Egyptian tomb. There is an ascending staircase to the west. ";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "This is a room which looks like an Egyptian tomb. There is an ascending staircase to the west. ";
+    }
 
     public override void Init()
     {

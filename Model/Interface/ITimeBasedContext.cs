@@ -6,6 +6,6 @@ public interface ITimeBasedContext
 {
     // The response given when the player asks the current time. 
     string CurrentTimeResponse { get; }
-    
+
     int CurrentTime { get; }
 }

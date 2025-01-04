@@ -5,7 +5,6 @@ public class CommandHasNoEffectOperationRequest : Request
     public CommandHasNoEffectOperationRequest(string location, string? command)
     {
         UserMessage =
-            
             @$"The player is in this location: ""{location}"". They wrote ""{command}"". If the player references any object of any kind, 
                 other than what is described in their location, your response will indicate that no such object can be found here. If the player 
                 performs an action that is benign or adds to the atmosphere (like dancing or singing), describe it creatively. However, if the player attempts 

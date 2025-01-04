@@ -12,20 +12,23 @@ public class LivingRoom : LocationBase
 {
     private bool CyclopsHasCrashedThrough => !GetLocation<CyclopsRoom>().HasItem<Cyclops>();
 
-    protected override string GetContextBasedDescription(IContext context) =>
-        "You are in the living room.  " +
-        (!CyclopsHasCrashedThrough
-            ? "There is a doorway to the east, a wooden door with strange gothic lettering to the west, which appears to be nailed shut, "
-            : "There is a doorway to the east. To the west is a cyclops-shaped opening in an old wooden door, above which is some strange gothic lettering, ") +
-        "a trophy case, " +
-        $"{(Repository.GetItem<Rug>().HasBeenMovedAside
-            ? $"and a rug lying beside {(Repository.GetItem<TrapDoor>().IsOpen ? "an open" : "a closed")} trap door. "
-            : "and a large oriental rug in the center of the room. ")}{GetItem<TrophyCase>().ItemListDescription("trophy case", null)}";
-
     public override string Name => "Living Room";
 
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "You are in the living room.  " +
+               (!CyclopsHasCrashedThrough
+                   ? "There is a doorway to the east, a wooden door with strange gothic lettering to the west, which appears to be nailed shut, "
+                   : "There is a doorway to the east. To the west is a cyclops-shaped opening in an old wooden door, above which is some strange gothic lettering, ") +
+               "a trophy case, " +
+               $"{(Repository.GetItem<Rug>().HasBeenMovedAside
+                   ? $"and a rug lying beside {(Repository.GetItem<TrapDoor>().IsOpen ? "an open" : "a closed")} trap door. "
+                   : "and a large oriental rug in the center of the room. ")}{GetItem<TrophyCase>().ItemListDescription("trophy case", null)}";
+    }
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             {
                 Direction.E, new MovementParameters { Location = GetLocation<Kitchen>() }
@@ -45,13 +48,15 @@ public class LivingRoom : LocationBase
                 {
                     Location = GetLocation<Cellar>(),
                     CanGo = _ =>
-                        Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>() && Repository.GetItem<TrapDoor>().IsOpen,
+                        Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>() &&
+                        Repository.GetItem<TrapDoor>().IsOpen,
                     CustomFailureMessage = Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>()
                         ? "The trap door is closed."
                         : "You can't go that way."
                 }
             }
         };
+    }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)

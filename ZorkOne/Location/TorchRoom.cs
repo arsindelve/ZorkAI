@@ -6,8 +6,11 @@ namespace ZorkOne.Location;
 
 public class TorchRoom : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Torch Room";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.S, new MovementParameters { Location = GetLocation<Temple>() } },
             {
@@ -19,8 +22,7 @@ public class TorchRoom : DarkLocation
                 }
             }
         };
-
-    public override string Name => "Torch Room";
+    }
 
     protected override string GetContextBasedDescription(IContext context)
     {

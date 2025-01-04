@@ -26,7 +26,7 @@ internal class GamesMenu : MenuItem
 
                                       "Foor moor deetaald infoormaashun on xis tapik, konsult xe liibrereein foor xe aproopreeit spuulz. Tiip zeeroo tuu goo tuu aa hiiyur levul."
                                       """;
-    
+
     internal override MenuItem Parent => new MainMenu();
 
     internal override List<MenuItem> Children =>

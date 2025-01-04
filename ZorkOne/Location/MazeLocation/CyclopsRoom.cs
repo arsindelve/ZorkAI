@@ -18,8 +18,11 @@ internal class CyclopsRoom : DarkLocation
         _decisionEngine = new KillSomeoneDecisionEngine<Cyclops>(_combatEngine);
     }
 
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Cyclops Room";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.NW, Go<MazeFifteen>() },
             {
@@ -41,13 +44,14 @@ internal class CyclopsRoom : DarkLocation
                 }
             }
         };
+    }
 
-    protected override string GetContextBasedDescription(IContext context) =>
-        "This room has an exit on the northwest, and a staircase leading up. " + (HasItem<Cyclops>()
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "This room has an exit on the northwest, and a staircase leading up. " + (HasItem<Cyclops>()
             ? ""
             : "The east wall, previously solid, now has a cyclops-sized opening in it. ");
-
-    public override string Name => "Cyclops Room";
+    }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
@@ -62,13 +66,14 @@ internal class CyclopsRoom : DarkLocation
         return result ?? base.RespondToMultiNounInteraction(action, context);
     }
 
-    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client)
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
+        IGenerationClient client)
     {
         if (string.IsNullOrEmpty(input))
             return await base.RespondToSpecificLocationInteraction(input, context, client);
 
-        if (!new List<string> { "ulysses", "odysseus" }.Contains(input.ToLower().Trim()) 
-            || !HasItem<Cyclops>() 
+        if (!new List<string> { "ulysses", "odysseus" }.Contains(input.ToLower().Trim())
+            || !HasItem<Cyclops>()
             || GetItem<Cyclops>().IsSleeping)
             return await base.RespondToSpecificLocationInteraction(input, context, client);
 
@@ -92,9 +97,11 @@ internal class CyclopsRoom : DarkLocation
     {
         if (HasItem<Cyclops>())
             context.RegisterActor(GetItem<Cyclops>());
-        
+
         var glow = LocationHelper.CheckSwordGlowingBrightly<Cyclops, CyclopsRoom>(context);
-        return !string.IsNullOrEmpty(glow) ? Task.FromResult(glow) : base.AfterEnterLocation(context, previousLocation, generationClient);
+        return !string.IsNullOrEmpty(glow)
+            ? Task.FromResult(glow)
+            : base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 
     public override void Init()

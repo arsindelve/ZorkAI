@@ -31,7 +31,7 @@ public class EngineTestsBase
         Context.ItemPlacedHere(item);
         return item;
     }
-    
+
     /// <summary>
     ///     Returns an instance of the GameEngine class with the specified parser and client.
     ///     If parser is not provided, a default TestParser instance is used.
@@ -45,21 +45,22 @@ public class EngineTestsBase
 
         Repository.Reset();
 
-        var engine = new GameEngine<PlanetfallGame, PlanetfallContext>(Parser, Client.Object, Mock.Of<ISecretsManager>(), Mock.Of<ICloudWatchLogger<TurnLog>>());
+        var engine = new GameEngine<PlanetfallGame, PlanetfallContext>(Parser, Client.Object,
+            Mock.Of<ISecretsManager>(), Mock.Of<ICloudWatchLogger<TurnLog>>());
         engine.Context.Verbosity = Verbosity.Verbose;
         Repository.GetLocation<DeckNine>().Init();
 
         Context = engine.Context;
-        
+
         return engine;
     }
-   
+
 
     protected T GetItem<T>() where T : IItem, new()
     {
         return Repository.GetItem<T>();
     }
-    
+
     protected T GetLocation<T>() where T : class, ILocation, new()
     {
         return Repository.GetLocation<T>();

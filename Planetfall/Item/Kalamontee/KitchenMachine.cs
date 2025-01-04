@@ -60,7 +60,7 @@ internal class KitchenMachine : ContainerBase, ICanBeExamined
     }
 
     // TODO: put canteen under spout. 
-    
+
     public override string ItemPlacedHereResult(IItem item, IContext context)
     {
         return

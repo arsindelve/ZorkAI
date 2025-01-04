@@ -5,13 +5,18 @@ namespace Planetfall.Location.Kalamontee.Mech;
 
 internal class ReactorAccessStairs : DarkLocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Reactor Access Stairs";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.Up, Go<ReactorControl>() }
         };
+    }
 
-    protected override string GetContextBasedDescription(IContext context) => "";
-
-    public override string Name => "Reactor Access Stairs";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "";
+    }
 }

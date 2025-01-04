@@ -2,7 +2,8 @@ namespace Model.AIGeneration.Requests;
 
 public class VerbHasNoEffectOnAPersonOperationRequest : Request
 {
-    public VerbHasNoEffectOnAPersonOperationRequest(string location, string? noun, string verb, string personDescription)
+    public VerbHasNoEffectOnAPersonOperationRequest(string location, string? noun, string verb,
+        string personDescription)
     {
         UserMessage =
             $"The player is in this location: \"{location}\". " +

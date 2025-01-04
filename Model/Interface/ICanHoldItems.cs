@@ -16,12 +16,12 @@ public interface ICanHoldItems : IInteractionTarget
     string Name { get; }
 
     List<IItem> Items { get; }
-    
+
     /// <summary>
     /// A list of types the container can hold. If empty or null, the container can hold anything. 
     /// </summary>
     Type[] CanOnlyHoldTheseTypes { get; }
-    
+
     /// <summary>
     /// An error message to display if an invalid item type is placed in the container.
     /// </summary>
@@ -47,12 +47,12 @@ public interface ICanHoldItems : IInteractionTarget
     /// </summary>
     /// <param name="item">The item to be placed.</param>
     void ItemPlacedHere(IItem item);
-    
+
     /// <summary>
     ///     Adds the item to the container.
     /// </summary>
     void ItemPlacedHere<T>() where T : IItem, new();
-    
+
     string ItemPlacedHereResult(IItem item, IContext context);
 
     /// <summary>

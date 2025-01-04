@@ -15,7 +15,8 @@ internal abstract class BlatherLocation : LocationWithNoStartingItems, ITurnBase
         TurnsSinceYouMadeBlatherMad++;
         return TurnsSinceYouMadeBlatherMad switch
         {
-            2 or 3 or 4 => Task.FromResult("\n\n\"I said to return to your post, Ensign Seventh Class!\" bellows Blather, turning a deepening shade of crimson. "),
+            2 or 3 or 4 => Task.FromResult(
+                "\n\n\"I said to return to your post, Ensign Seventh Class!\" bellows Blather, turning a deepening shade of crimson. "),
             5 => GoToJailDoNotPassGo(context, client),
             _ => Task.FromResult("")
         };
@@ -42,6 +43,7 @@ internal abstract class BlatherLocation : LocationWithNoStartingItems, ITurnBase
                        "Blather, turning a deepening shade of crimson. ";
         }
     }
+
     private async Task<string> GoToJailDoNotPassGo(IContext context, IGenerationClient generationClient)
     {
         context.RemoveActor(this);
@@ -51,11 +53,13 @@ internal abstract class BlatherLocation : LocationWithNoStartingItems, ITurnBase
             "Feinstein's brig. He throws you in, and the door clangs shut behind you. \n\n" +
             await new LookProcessor().Process(string.Empty, context, generationClient, Runtime.Unknown);
     }
+
     public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
     {
         context.RemoveActor(this);
         base.OnLeaveLocation(context, newLocation, previousLocation);
     }
+
     protected MovementParameters BlatherBlocksYou()
     {
         return new MovementParameters

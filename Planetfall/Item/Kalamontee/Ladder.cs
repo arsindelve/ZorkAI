@@ -7,7 +7,7 @@ public class Ladder : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
 {
     // ReSharper disable once MemberCanBePrivate.Global
     public bool IsAcrossRift { get; set; }
-    
+
     // ReSharper disable once MemberCanBePrivate.Global
     public bool IsExtended { get; set; }
 
@@ -41,14 +41,10 @@ public class Ladder : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
         IGenerationClient client)
     {
         if (action.Match(["extend", "expand", "deploy", "pull out", "stretch", "open", "lengthen"], NounsForMatching))
-        {
             return ExtendTheLadder(context);
-        }
-        
+
         if (action.Match(["retract", "collapse", "shorten", "close", "contract"], NounsForMatching))
-        {
             return CollapseTheLadder();
-        }
 
         return base.RespondToSimpleInteraction(action, context, client);
     }
@@ -66,7 +62,7 @@ public class Ladder : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
             CurrentLocation = null;
             return new PositiveInteractionResult("As the ladder shortens it plunges into the rift. ");
         }
-        
+
         IsExtended = false;
         return new PositiveInteractionResult("The ladder collapses to a length of around two-and-a-half meters. ");
     }

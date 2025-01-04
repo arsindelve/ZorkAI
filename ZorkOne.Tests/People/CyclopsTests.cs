@@ -47,7 +47,7 @@ public class CyclopsTests : EngineTestsBase
                 "The cyclops, hearing the name of his father's deadly nemesis, " +
                 "flees the room by knocking down the wall on the east of the room");
     }
-    
+
     [Test]
     public async Task Asleep_Odysseus_Response()
     {
@@ -243,7 +243,7 @@ public class CyclopsTests : EngineTestsBase
 
         // Leave
         await target.GetResponse("NW");
-        
+
         // Wait 
         for (var turnCounter = 0; turnCounter < 10; turnCounter++) await target.GetResponse("wait");
 
@@ -274,13 +274,13 @@ public class CyclopsTests : EngineTestsBase
         target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
         target.Context.ItemPlacedHere(Repository.GetItem<Lunch>());
         target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
-        
+
         var response = await target.GetResponse("offer the cyclops the lunch");
 
         response.Should().Contain("I love hot peppers!");
         Repository.GetItem<Cyclops>().IsAgitated.Should().BeTrue();
     }
-    
+
     [Test]
     public async Task GivingHimTheLunchAgitatesHim_ReverseSyntax()
     {
@@ -288,13 +288,13 @@ public class CyclopsTests : EngineTestsBase
         target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
         target.Context.ItemPlacedHere(Repository.GetItem<Lunch>());
         target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
-        
+
         var response = await target.GetResponse("give the lunch to the cyclops");
-        
+
         response.Should().Contain("I love hot peppers!");
         Repository.GetItem<Cyclops>().IsAgitated.Should().BeTrue();
     }
-    
+
     [Test]
     public async Task GivingHimTheLunch_ItIsGoneForever()
     {
@@ -302,7 +302,7 @@ public class CyclopsTests : EngineTestsBase
         target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
         target.Context.ItemPlacedHere(Repository.GetItem<Lunch>());
         target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
-        
+
         await target.GetResponse("give the lunch to the cyclops");
 
         Repository.GetItem<Lunch>().CurrentLocation.Should().BeNull();
@@ -316,9 +316,9 @@ public class CyclopsTests : EngineTestsBase
         target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
         target.Context.ItemPlacedHere(Repository.GetItem<Garlic>());
         target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
-        
+
         var response = await target.GetResponse("give the garlic to the cyclops");
-        
+
         response.Should().Contain("The cyclops may be hungry, but there is a limit");
         Repository.GetItem<Cyclops>().IsAgitated.Should().BeFalse();
     }
@@ -330,9 +330,9 @@ public class CyclopsTests : EngineTestsBase
         target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
         target.Context.ItemPlacedHere(Repository.GetItem<BloodyAxe>());
         target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
-        
+
         var response = await target.GetResponse("give the axe to the cyclops");
-        
+
         response.Should().Contain("The cyclops is not so stupid as to eat THAT!");
         Repository.GetItem<Cyclops>().IsAgitated.Should().BeFalse();
     }
@@ -345,7 +345,7 @@ public class CyclopsTests : EngineTestsBase
         target.Context.ItemPlacedHere(Repository.GetItem<Lunch>());
         target.Context.ItemPlacedHere(Repository.GetItem<Bottle>());
         target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
-        
+
         await target.GetResponse("give the lunch to the cyclops");
         await target.GetResponse("give the bottle to the cyclops");
 
@@ -390,7 +390,7 @@ public class CyclopsTests : EngineTestsBase
         target.Context.ItemPlacedHere(Repository.GetItem<Sword>());
         target.Context.ItemPlacedHere(Repository.GetItem<Lunch>());
         target.Context.ItemPlacedHere(Repository.GetItem<Bottle>());
-      
+
         await target.GetResponse("give the lunch to the cyclops");
         await target.GetResponse("give the bottle to the cyclops");
         var response = await target.GetResponse("kill the cyclops with the sword");
@@ -399,7 +399,7 @@ public class CyclopsTests : EngineTestsBase
         Repository.GetItem<Cyclops>().IsSleeping.Should().BeFalse();
         Repository.GetItem<Cyclops>().IsAgitated.Should().BeTrue();
     }
-    
+
     [Test]
     public async Task AfterSleep_DropsTheBottle()
     {
@@ -408,13 +408,13 @@ public class CyclopsTests : EngineTestsBase
         target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
         target.Context.ItemPlacedHere(Repository.GetItem<Lunch>());
         target.Context.ItemPlacedHere(Repository.GetItem<Bottle>());
-      
+
         await target.GetResponse("give the lunch to the cyclops");
         await target.GetResponse("give the bottle to the cyclops");
-        
+
         Repository.GetItem<Bottle>().CurrentLocation.Should().BeOfType<CyclopsRoom>();
     }
-    
+
     [Test]
     public async Task AfterSleep_DropsTheBottle_OnTheGround()
     {
@@ -423,14 +423,14 @@ public class CyclopsTests : EngineTestsBase
         target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
         target.Context.ItemPlacedHere(Repository.GetItem<Lunch>());
         target.Context.ItemPlacedHere(Repository.GetItem<Bottle>());
-      
+
         await target.GetResponse("give the lunch to the cyclops");
         await target.GetResponse("give the bottle to the cyclops");
         var response = await target.GetResponse("look");
 
         response.Should().Contain("a glass bottle here");
     }
-    
+
     [Test]
     public async Task AfterSleep_BottleHasNoWaterInIt()
     {
@@ -439,14 +439,14 @@ public class CyclopsTests : EngineTestsBase
         target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
         target.Context.ItemPlacedHere(Repository.GetItem<Lunch>());
         target.Context.ItemPlacedHere(Repository.GetItem<Bottle>());
-      
+
         await target.GetResponse("give the lunch to the cyclops");
         await target.GetResponse("give the bottle to the cyclops");
 
         Repository.GetItem<Water>().CurrentLocation.Should().BeNull();
         Repository.GetItem<Bottle>().Items.Should().BeEmpty();
     }
-    
+
     [Test]
     public async Task AfterSleep_ExamineTheRoom()
     {
@@ -458,7 +458,7 @@ public class CyclopsTests : EngineTestsBase
         var response = await target.GetResponse("look");
         response.Should().Contain("The cyclops is sleeping blissfully at the foot of the stairs");
     }
-    
+
     [Test]
     public async Task AfterSleep_ExamineTheCyclops()
     {

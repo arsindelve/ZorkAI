@@ -6,8 +6,14 @@ namespace ZorkOne;
 
 public class ZorkI : IInfocomGame
 {
+    public ZorkI()
+    {
+        _ = Repository.GetLocation<TrollRoom>();
+    }
+
+    public Dictionary<string, ITurnBasedActor> Actors { get; } = new();
     public Type StartingLocation => typeof(WestOfHouse);
-    
+
     public string GameName => "ZorkOne";
 
     public string DefaultSaveGameName => "zork1-ai.sav";
@@ -42,16 +48,10 @@ public class ZorkI : IInfocomGame
 
     public void Init(IContext context)
     {
-
-    }
-
-    public ZorkI()
-    {
-        _ = Repository.GetLocation<TrollRoom>();
     }
 
     public string SystemPromptSecretKey => "ZorkOnePrompt";
-    
+
     public string StartText => """
 
                                ZORK AI One: The Great Underground Empire Re-Imagined
@@ -59,6 +59,4 @@ public class ZorkI : IInfocomGame
                                Revision 76 / Serial number 840509
 
                                """;
-    
-    public Dictionary<string, ITurnBasedActor> Actors { get; } = new();
 }

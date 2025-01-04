@@ -7,13 +7,17 @@ namespace ZorkOne.Location;
 
 public class SouthOfHouse : LocationWithNoStartingItems
 {
-    protected override string GetContextBasedDescription(IContext context) =>
-        "You are facing the south side of a white house. There is no door here, and all the windows are boarded.";
-
     public override string Name => "South of House";
 
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return
+            "You are facing the south side of a white house. There is no door here, and all the windows are boarded.";
+    }
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             {
                 Direction.W, new MovementParameters { Location = GetLocation<WestOfHouse>() }
@@ -33,4 +37,5 @@ public class SouthOfHouse : LocationWithNoStartingItems
                 }
             }
         };
+    }
 }

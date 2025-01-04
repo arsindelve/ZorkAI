@@ -1,9 +1,6 @@
-﻿using DynamoDb;
-using GameEngine;
+﻿using GameEngine;
 using GameEngine.Web;
-using Model.AIGeneration;
 using Model.Interface;
-using OpenAI;
 using ZorkOne;
 
 namespace Lambda;
@@ -25,7 +22,7 @@ public class Startup
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
-      
+
         services.AddScoped<IGameEngine, GameEngine<ZorkI, ZorkIContext>>();
         ServicesHelper.ConfigureCommonServices(services);
     }

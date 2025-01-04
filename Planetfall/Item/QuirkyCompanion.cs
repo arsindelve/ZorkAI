@@ -5,8 +5,6 @@ namespace Planetfall.Item;
 
 internal abstract class QuirkyCompanion : ContainerBase, ITurnBasedActor
 {
-    public abstract Task<string> Act(IContext context, IGenerationClient client);
-    
     protected abstract string SystemPrompt { get; }
 
     protected virtual string UserPrompt => """
@@ -17,14 +15,15 @@ internal abstract class QuirkyCompanion : ContainerBase, ITurnBasedActor
                                            request that the player do anything that might change the 
                                            state of the game in any way, or require them to leave their
                                            current location. Do not leave the current location.
-                                           
+
                                            Don't provide any quotes around the text. 
                                            """;
+
+    public abstract Task<string> Act(IContext context, IGenerationClient client);
 
     protected async Task<string> GenerateCompanionSpeech(IContext context, IGenerationClient client)
     {
         var request = new CompanionRequest(SystemPrompt, UserPrompt);
         return await client.GenerateCompanionSpeech(request);
     }
-
 }

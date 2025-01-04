@@ -5,9 +5,7 @@ namespace ZorkOne.Item;
 public class Label : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
 {
     public override string[] NounsForMatching => ["label", "tan label"];
-    public string OnTheGroundDescription(ILocation currentLocation) => "There is a tan label here. ";
 
-    public override string GenericDescription(ILocation? currentLocation) => "A tan label";
     public string ExaminationDescription => ReadDescription;
 
     public string ReadDescription => """
@@ -28,4 +26,14 @@ public class Label : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
                                         This boat is made of thin plastic.
                                         Good Luck!
                                      """;
+
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "There is a tan label here. ";
+    }
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A tan label";
+    }
 }

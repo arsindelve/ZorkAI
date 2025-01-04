@@ -15,11 +15,12 @@ public class TestParser : IntentParser
     private readonly string[] _allNouns;
     private readonly string[] _verbs;
 
-    public TestParser(IGlobalCommandFactory gameSpecificCommandFactory, string gameName = "ZorkOne") : base(Mock.Of<IAIParser>(), gameSpecificCommandFactory)
+    public TestParser(IGlobalCommandFactory gameSpecificCommandFactory, string gameName = "ZorkOne") : base(
+        Mock.Of<IAIParser>(), gameSpecificCommandFactory)
     {
         _verbs =
         [
-            "take", "drop", "open", "close", "examine", "look", "eat", "press", "remove", 
+            "take", "drop", "open", "close", "examine", "look", "eat", "press", "remove",
             "deactivate", "type", "key", "punch", "push",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind",
@@ -40,7 +41,8 @@ public class TestParser : IntentParser
         _allNouns = _allNouns.Union(specialNouns).ToArray();
     }
 
-    public override Task<IntentBase> DetermineComplexIntentType(string? input, string locationDescription, string sessionId)
+    public override Task<IntentBase> DetermineComplexIntentType(string? input, string locationDescription,
+        string sessionId)
     {
         if (input is "look" or "l")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new LookProcessor() });
@@ -67,7 +69,7 @@ public class TestParser : IntentParser
                 Noun = "access card",
                 Verb = "drop"
             });
-        
+
         if (input is "wait" or "z")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new WaitProcessor() });
 
@@ -80,7 +82,7 @@ public class TestParser : IntentParser
                 Verb = "tie",
                 OriginalInput = "tie rope to railing"
             });
-        
+
         if (input == "place ladder across rift")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -126,7 +128,7 @@ public class TestParser : IntentParser
                 Verb = "slide",
                 OriginalInput = "slide kitchen access card through slot"
             });
-        
+
         if (input == "slide access card through slot")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -136,7 +138,7 @@ public class TestParser : IntentParser
                 Verb = "slide",
                 OriginalInput = "slide access card through slot"
             });
-        
+
         if (input == "slide shuttle access card through slot")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -146,7 +148,7 @@ public class TestParser : IntentParser
                 Verb = "slide",
                 OriginalInput = "slide shuttle access card through slot"
             });
-        
+
         if (input == "slide upper elevator access card through slot")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -156,7 +158,7 @@ public class TestParser : IntentParser
                 Verb = "slide",
                 OriginalInput = "slide upper elevator access card through slot"
             });
-        
+
         if (input == "slide card through slot")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -166,7 +168,7 @@ public class TestParser : IntentParser
                 Verb = "slide",
                 OriginalInput = "slide card through slot"
             });
-        
+
         if (input == "inflate plastic with pump")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -308,7 +310,7 @@ public class TestParser : IntentParser
                 Verb = "light",
                 OriginalInput = "light candles with match"
             });
-        
+
         if (input == "put magnet on crevice")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -318,7 +320,7 @@ public class TestParser : IntentParser
                 Verb = "put",
                 OriginalInput = "put magnet on crevice"
             });
-        
+
         if (input == "unlock padlock with key")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {

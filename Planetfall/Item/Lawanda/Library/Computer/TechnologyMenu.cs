@@ -12,15 +12,15 @@ internal class TechnologyMenu : MenuItem
                                      """;
 
     internal const string MenuOne = """
-                                   "Awl maajur dizeezuz hav bin kyuuribul foor oovur aa senshuree. Xe
-                                   deevelupmint uv kriioojeniks now alowz dokturz tuu put paashints in
-                                   staasis until aa kyuur iz fownd. Avurij Residan liif ekspektinsee
-                                   iz now 147 revooluushunz."
+                                    "Awl maajur dizeezuz hav bin kyuuribul foor oovur aa senshuree. Xe
+                                    deevelupmint uv kriioojeniks now alowz dokturz tuu put paashints in
+                                    staasis until aa kyuur iz fownd. Avurij Residan liif ekspektinsee
+                                    iz now 147 revooluushunz."
 
-                                   "Foor moor deetaald infoormaashun on xis tapik, konsult xe
-                                   liibrereein foor xe aproopreeit spuulz. Tiip zeeroo tuu goo tuu aa
-                                   hiiyur levul."
-                                   """;
+                                    "Foor moor deetaald infoormaashun on xis tapik, konsult xe
+                                    liibrereein foor xe aproopreeit spuulz. Tiip zeeroo tuu goo tuu aa
+                                    hiiyur levul."
+                                    """;
 
     internal const string MenuTwo = """
                                     "Durt farmeeng iz awl but obsooleet, wix moost fuud kumeeng frum xe

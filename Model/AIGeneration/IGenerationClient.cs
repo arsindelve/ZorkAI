@@ -30,7 +30,7 @@ public interface IGenerationClient
     /// <param name="request">The request object containing the necessary information for the chat operation.</param>
     /// <returns>The generated chat response as a string.</returns>
     Task<string> GenerateNarration(Request request);
-    
+
     /// <summary>
     /// Provides generated text for an NPC character such as Floyd or Blather. 
     /// </summary>
