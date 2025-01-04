@@ -29,7 +29,7 @@
         <ProjectReference Include="..\GameEngine\GameEngine.csproj"/>
         <ProjectReference Include="..\Lex\Lex.csproj"/>
         <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>
-        <ProjectReference Include="..\Planetfall\Planetfall.csproj" />
+        <ProjectReference Include="..\Planetfall\Planetfall.csproj"/>
         <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
     </ItemGroup>
 

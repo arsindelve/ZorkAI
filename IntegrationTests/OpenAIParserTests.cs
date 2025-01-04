@@ -399,4 +399,50 @@ public class OpenAIParserTests
         response.Should().Contain("<verb>press</verb>");
         response.Should().Contain($"<noun>{color} button");
     }
+
+    [Test]
+    [TestCase("1")]
+    [TestCase("2")]
+    [TestCase("three")]
+    [TestCase("four")]
+    [TestCase("7")]
+    [TestCase("8")]
+    [TestCase("9")]
+    public async Task TypeNumbers(string number)
+    {
+        string locationObjectDescription;
+        var sentence = $"type {number}";
+
+        var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+        locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
+
+        var target = new OpenAIParser(null);
+        var intent = await target.AskTheAIParser(sentence, locationObjectDescription, string.Empty);
+        var response = intent.Message;
+        Console.WriteLine(response);
+
+        response.Should().Contain("<verb>type</verb>");
+        response.Should().Contain($"<noun>{number}");
+    }
+    
+    [Test]
+    [TestCase("type", "type")]
+    [TestCase("key in", "key")]
+    [TestCase("key", "key")]
+    [TestCase("punch in", "punch")]
+    public async Task TypeSynonyms(string verb, string expected)
+    {
+        var sentence = $"{verb} 12";
+
+        var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+        var locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
+
+        var target = new OpenAIParser(null);
+        var intent = await target.AskTheAIParser(sentence, locationObjectDescription, string.Empty);
+        var response = intent.Message;
+        Console.WriteLine(response);
+
+        response.Should().Contain($"<verb>{expected}</verb>");
+        response.Should().Contain($"<noun>12");
+    }
 }

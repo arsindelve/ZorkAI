@@ -5,6 +5,7 @@
 /// </summary>
 public static class Verbs
 {
+    public static readonly string[] TypeVerbs = ["type", "punch", "key", "press"];
     public static readonly string[] MoveVerbs =
         ["move", "go", "walk", "run", "travel", "proceed", "head", "stroll", "escape"];
 

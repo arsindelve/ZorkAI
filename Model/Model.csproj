@@ -7,19 +7,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CloudWatch\CloudWatch.csproj" />
+        <ProjectReference Include="..\CloudWatch\CloudWatch.csproj"/>
         <ProjectReference Include="..\Utilities\Utilities.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="HtmlAgilityPack" Version="1.11.71" />
-      <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+        <PackageReference Include="HtmlAgilityPack" Version="1.11.71"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="HtmlAgilityPack">
-        <HintPath>..\..\..\.nuget\packages\htmlagilitypack\1.11.60\lib\netstandard2.0\HtmlAgilityPack.dll</HintPath>
-      </Reference>
+        <Reference Include="HtmlAgilityPack">
+            <HintPath>..\..\..\.nuget\packages\htmlagilitypack\1.11.60\lib\netstandard2.0\HtmlAgilityPack.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
 </Project>
