@@ -6,9 +6,9 @@ public class Slime : ItemBase, ICanBeExamined, ISmell
 {
     public override string[] NounsForMatching => ["slime", "goo", "mess"];
 
-    public string ExaminationDescription => "It feels like slime. Aren't you glad you didn't step in it? ";
-
     public override string CannotBeTakenDescription => ExaminationDescription;
+
+    public string ExaminationDescription => "It feels like slime. Aren't you glad you didn't step in it? ";
 
     public string SmellDescription => "It smells like slime. Aren't you glad you didn't step in it? ";
 

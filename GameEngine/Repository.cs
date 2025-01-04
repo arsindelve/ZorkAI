@@ -1,5 +1,6 @@
 using System.Reflection;
 using GameEngine.Item;
+using GameEngine.Location;
 using Model.Interface;
 using Model.Item;
 using Model.Location;
@@ -25,7 +26,7 @@ public static class Repository
     private static Dictionary<Type, IItem> _allItems = new();
     private static Dictionary<Type, ILocation> _allLocations = new();
 
-    private static string[] _allNouns = [];
+    private static string[] _allNouns = Array.Empty<string>();
     private static string[] _allContainers = [];
 
     internal static SavedGame<T> Save<T>() where T : IContext, new()
@@ -64,6 +65,14 @@ public static class Repository
             return null;
         noun = noun.ToLowerInvariant().Trim();
         return _allItems.Values.FirstOrDefault(i => i.HasMatchingNoun(noun).HasItem);
+    }
+
+    public static ILocation? GetLocation(string? noun)
+    {
+        if (string.IsNullOrEmpty(noun))
+            return null;
+        noun = noun.ToLowerInvariant().Trim();
+        return _allLocations.Values.FirstOrDefault(i => i.Name.ToLowerInvariant().Equals(noun));
     }
 
     public static T GetLocation<T>() where T : class, ILocation, new()
@@ -110,8 +119,6 @@ public static class Repository
     /// <returns></returns>
     public static string[] GetNouns(string gameName = "ZorkOne")
     {
-        if (_allNouns.Length > 0) return _allNouns;
-
         lock (_allNouns)
         {
             var allItems = new List<ItemBase>();
@@ -121,7 +128,8 @@ public static class Repository
 
             foreach (var type in types)
 
-                if (type is { IsClass: true, IsGenericType: false, IsAbstract: false } && type.IsSubclassOf(typeof(ItemBase)))
+                if (type is { IsClass: true, IsGenericType: false, IsAbstract: false } &&
+                    type.IsSubclassOf(typeof(ItemBase)))
                 {
                     var instance = (ItemBase)Activator.CreateInstance(type)!;
                     allItems.Add(instance);
@@ -129,6 +137,50 @@ public static class Repository
 
             _allNouns = allItems.SelectMany(s => s.NounsForMatching).ToArray();
             return _allNouns;
+        }
+    }
+
+    /// <summary>
+    /// For god mode purposes only. 
+    /// </summary>
+    /// <returns></returns>
+    public static void LoadAllLocations(string gameName = "ZorkOne")
+    {
+        lock (_allLocations)
+        {
+            _allLocations = new Dictionary<Type, ILocation>();
+            var types = Assembly.Load(gameName).GetTypes();
+
+            foreach (var type in types)
+
+                if (type is { IsClass: true, IsGenericType: false, IsAbstract: false } &&
+                    type.IsSubclassOf(typeof(LocationBase)))
+                {
+                    var instance = (LocationBase)Activator.CreateInstance(type)!;
+                    _allLocations.Add(type, instance);
+                }
+        }
+    }
+
+    /// <summary>
+    /// For god mode purposes only. 
+    /// </summary>
+    /// <returns></returns>
+    public static void LoadAllItems(string gameName = "ZorkOne")
+    {
+        lock (_allItems)
+        {
+            _allItems = new Dictionary<Type, IItem>();
+            var types = Assembly.Load(gameName).GetTypes();
+
+            foreach (var type in types)
+
+                if (type is { IsClass: true, IsGenericType: false, IsAbstract: false } &&
+                    type.IsSubclassOf(typeof(ItemBase)))
+                {
+                    var instance = (ItemBase)Activator.CreateInstance(type)!;
+                    _allItems.Add(type, instance);
+                }
         }
     }
 

@@ -47,7 +47,7 @@ public class TakeOnlyAvailableItemProcessor : IStatefulProcessor
             Verb = "take"
         };
 
-        string result = (await processor.Process(intent, context, client)).ResultMessage;
+        var result = (await processor.Process(intent, context, client)).ResultMessage;
         ContinueProcessing = false;
         Completed = true;
 

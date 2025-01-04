@@ -59,7 +59,8 @@ public static class ParsingHelper
         if (!nouns.Any())
             return null;
 
-        return new ExitSubLocationIntent { NounOne = nouns.First(), NounTwo = nouns.LastOrDefault(), Message = response};
+        return new ExitSubLocationIntent
+            { NounOne = nouns.First(), NounTwo = nouns.LastOrDefault(), Message = response };
     }
 
     private static EnterSubLocationIntent? DetermineBoardIntent(string? response)
@@ -75,7 +76,7 @@ public static class ParsingHelper
         if (!nouns.Any())
             return null;
 
-        return new EnterSubLocationIntent { Noun = nouns.First(), Message = response};
+        return new EnterSubLocationIntent { Noun = nouns.First(), Message = response };
     }
 
     private static IntentBase? DetermineActionIntent(string? response, string originalInput, ILogger? logger)
@@ -159,7 +160,7 @@ public static class ParsingHelper
             return null;
 
         var direction = DirectionParser.ParseDirection(directionTag);
-        return direction == Direction.Unknown ? null : new MoveIntent { Direction = direction, Message = response};
+        return direction == Direction.Unknown ? null : new MoveIntent { Direction = direction, Message = response };
     }
 
     private static List<string> ExtractElementsByTag(string? response, string tag)

@@ -11,18 +11,17 @@ public class SurvivalKit : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICa
         return OnTheGroundDescription(currentLocation);
     }
 
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "There is a survival kit here. ";
+    }
+
     public override void Init()
     {
-
     }
 
     public override string GenericDescription(ILocation? currentLocation)
     {
         return "A survival kit ";
-    }
-
-    public string OnTheGroundDescription(ILocation currentLocation)
-    {
-        return "There is a survival kit here. ";
     }
 }

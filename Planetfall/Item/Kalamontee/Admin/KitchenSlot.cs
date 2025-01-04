@@ -13,7 +13,7 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot, TDoor> : ItemBase, IC
         "The slot is about ten centimeters wide, but only about two centimeters deep. It is surrounded on its " +
         "long sides by parallel ridges of metal. ";
 
-   
+
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
         string[] verbs = ["insert", "put", "place"];
@@ -31,15 +31,13 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot, TDoor> : ItemBase, IC
             context.RegisterActor(door);
             return new PositiveInteractionResult(door.NowOpen(context.CurrentLocation));
         }
-        
+
         var nounOne = Repository.GetItem(action.NounOne);
 
         // Right idea, wrong card. 
         if (action.MatchVerb(verbs) && action.MatchPreposition(prepositions) && nounOne is AccessCard)
-        {
             return new PositiveInteractionResult(
                 "A sign flashes \"Inkorekt awtharazaashun kard...akses deeniid.\"");
-        }
 
         return base.RespondToMultiNounInteraction(action, context);
     }

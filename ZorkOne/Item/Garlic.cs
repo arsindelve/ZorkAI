@@ -7,8 +7,6 @@ public class Garlic : ItemBase, ICanBeTakenAndDropped, ICanBeEaten
 {
     public override string[] NounsForMatching => ["clove of garlic", "garlic", "clove"];
 
-    public override string GenericDescription(ILocation? currentLocation) => "A clove of garlic";
-
     public override int Size => 1;
 
     string ICanBeEaten.OnEating(IContext context)
@@ -19,5 +17,10 @@ public class Garlic : ItemBase, ICanBeTakenAndDropped, ICanBeEaten
     string ICanBeTakenAndDropped.OnTheGroundDescription(ILocation currentLocation)
     {
         return "There is a clove of garlic here.";
+    }
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A clove of garlic";
     }
 }

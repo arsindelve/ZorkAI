@@ -1,4 +1,3 @@
-using System;
 using GameEngine;
 
 namespace UnitTests.GlobalCommands;

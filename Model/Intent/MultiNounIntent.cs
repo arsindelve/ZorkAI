@@ -17,9 +17,9 @@ public record MultiNounIntent : IntentBase
     public required string Preposition { get; set; }
 
     public required string OriginalInput { get; set; }
-    
+
     public IItem? ItemOne { get; set; }
-    
+
     public IItem? ItemTwo { get; set; }
 
     public override string ToString()
@@ -53,4 +53,4 @@ public record MultiNounIntent : IntentBase
         return MatchNounOne(nounsOneForMatching) && MatchNounTwo(nounsTwoForMatching) && MatchVerb(verbs) &&
                MatchPreposition(prepositionsForMatching);
     }
-}   
+}

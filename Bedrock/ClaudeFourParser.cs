@@ -34,6 +34,4 @@ public class ClaudeFourParser : ClaudeClientBase, IAIParser
 
         return ParsingHelper.GetIntent(input, response, _logger);
     }
-    
-    
 }

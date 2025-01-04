@@ -6,8 +6,11 @@ namespace ZorkOne.Location;
 
 public class DamLobby : LocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Dam Lobby";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.S, new MovementParameters { Location = GetLocation<Dam>() } },
             {
@@ -25,12 +28,14 @@ public class DamLobby : LocationBase
                 }
             }
         };
+    }
 
-    protected override string GetContextBasedDescription(IContext context) =>
-        "This room appears to have been the waiting room for groups touring the dam. There are open doorways here " +
-        "to the north and east marked \"Private\", and there is a path leading south over the top of the dam.\n";
-
-    public override string Name => "Dam Lobby";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return
+            "This room appears to have been the waiting room for groups touring the dam. There are open doorways here " +
+            "to the north and east marked \"Private\", and there is a path leading south over the top of the dam.\n";
+    }
 
     public override void Init()
     {

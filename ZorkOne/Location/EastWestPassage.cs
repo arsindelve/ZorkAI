@@ -8,19 +8,24 @@ namespace ZorkOne.Location;
 
 internal class EastWestPassage : DarkLocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "East-West Passage";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.W, new MovementParameters { Location = GetLocation<TrollRoom>() } },
             { Direction.E, new MovementParameters { Location = GetLocation<RoundRoom>() } },
             { Direction.N, new MovementParameters { Location = GetLocation<Chasm>() } },
             { Direction.Down, new MovementParameters { Location = GetLocation<Chasm>() } }
         };
+    }
 
-    public override string Name => "East-West Passage";
-
-    protected override string GetContextBasedDescription(IContext context) =>
-        "This is a narrow east-west passageway. There is a narrow stairway leading down at the north end of the room. ";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return
+            "This is a narrow east-west passageway. There is a narrow stairway leading down at the north end of the room. ";
+    }
 
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
@@ -33,7 +38,7 @@ internal class EastWestPassage : DarkLocationWithNoStartingItems
 
         return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
-    
+
     protected override void OnFirstTimeEnterLocation(IContext context)
     {
         context.AddPoints(5);

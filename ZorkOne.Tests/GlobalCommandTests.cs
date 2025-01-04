@@ -26,7 +26,7 @@ public class GlobalCommandTests : EngineTestsBase
         var response = await target.GetResponse("Plugh");
         response.Should().Contain("fool");
     }
-    
+
     [Test]
     public async Task Ulysses()
     {
@@ -34,7 +34,7 @@ public class GlobalCommandTests : EngineTestsBase
         var response = await target.GetResponse("Ulysses");
         response.Should().Contain("sailor");
     }
-    
+
     [Test]
     public async Task Odysseus()
     {

@@ -3,11 +3,11 @@ namespace Planetfall.Item.Lawanda.Library.Computer;
 internal class CultureMenu : MenuItem
 {
     internal const string MainMenu = """
-                                        0. Maan Menyuu
-                                        1. Lituracur
-                                        2. Art
-                                        3. Muusik
-                                    """;
+                                         0. Maan Menyuu
+                                         1. Lituracur
+                                         2. Art
+                                         3. Muusik
+                                     """;
 
     internal const string MenuOne = """
                                     "Menee volyuumz on xe deevelupmint uv Residan lituracur ar on fiil in xe liibreree. Alsoo, kopeez uv awl graat wurks uv riiteeng, sum daateeng bak tuu xe
@@ -28,7 +28,7 @@ internal class CultureMenu : MenuItem
 
                                       "Foor moor deetaald infoormaashun on xis tapik, konsult xe liibrereein foor xe aproopreeit spuulz. Tiip zeeroo tuu goo tuu aa hiiyur levul."
                                       """;
-    
+
     internal override MenuItem Parent => new MainMenu();
 
     internal override List<MenuItem> Children =>

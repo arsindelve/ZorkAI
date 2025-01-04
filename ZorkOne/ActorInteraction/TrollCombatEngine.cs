@@ -31,7 +31,7 @@ internal class TrollCombatEngine
         //(CombatOutcome.SmallWound, "The troll swings his axe, and it nicks your arm as you dodge. "),
         //(CombatOutcome.SmallWound, "The flat of the troll's axe skins across your forearm. "),
         (CombatOutcome.Stun, "The troll's mighty blow drops you to your knees. "),
-        (CombatOutcome.Miss, "You stagger back under a hail of axe strokes. "),
+        (CombatOutcome.Miss, "You stagger back under a hail of axe strokes. ")
         //(CombatOutcome.Fatal,
         //    "The flat of the troll's axe hits you delicately on the head, knocking you out. The troll scratches his " +
         //    "head ruminatively:  Might you be magically protected, he wonders? Conquering his fears, the troll puts you to death. ")

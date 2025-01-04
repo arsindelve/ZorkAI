@@ -17,6 +17,7 @@ public class RedSpool : SpoolBase
     {
         return "There is a red spool here. ";
     }
+
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {
         return OnTheGroundDescription(currentLocation);

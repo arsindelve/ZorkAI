@@ -6,39 +6,6 @@ internal class Ambassador : QuirkyCompanion, ICanBeExamined
 {
     public override string[] NounsForMatching => ["ambassador", "alien"];
 
-    public override string GenericDescription(ILocation? currentLocation)
-    {
-        return
-            "A high-ranking ambassador from a newly contacted alien race is standing here on three of his " +
-            "legs, and watching you with seven of his eyes. ";
-    }
-
-    public string ExaminationDescription =>
-        "The ambassador has around twenty eyes, seven of which are currently open. Half of his six legs " +
-        "are retracted. Green slime oozes from multiple orifices in his scaly skin. He speaks through a " +
-        "mechanical translator slung around his neck. ";
-
-    public override Task<string> Act(IContext context, IGenerationClient client)
-    {
-        // Ship begins to explode 
-        if (context.Moves == ExplosionCoordinator.TurnWhenFeinsteinBlowsUp)
-            return Task.FromResult(LeavesTheScene(context,
-                "The ambassador squawks frantically, evacuates a massive load of gooey slime, and rushes away. "));
-
-        Func<Task<string>> action = new Random().Next(1, 10) switch
-        {
-            // 20% chance the Ambassador does nothing at all.
-            <= 2 => (Func<Task<string>>)(async () => await Task.FromResult(String.Empty)),
-            // 20% chance he leaves
-            <= 4 => (Func<Task<string>>)(async () => await Task.FromResult(LeavesTheScene(context))),
-            // 60% chance he says or does something quirky. 
-            _ => (Func<Task<string>>)(async () => await GenerateCompanionSpeech(context, client))
-        };
-        
-        Task<string> chosenAction = action.Invoke();
-        return chosenAction;
-    }
-
     protected override string SystemPrompt => """
                                               The user is playing the game Planetfall, and is an Ensign Seventh class aboard the Feinstein in the Stellar Patrol.
                                               You are the "ambassador" a very minor character in the game. You are described this way:
@@ -56,9 +23,42 @@ internal class Ambassador : QuirkyCompanion, ICanBeExamined
                                                           - "The ambassador recites a plea for coexistence between your races. ",
                                                           - "The ambassador asks if you are performing some sort of religious ceremony. "
                                                           - "The ambassador notes that he often confuses humans with elaborate sandwiches, especially when hungry. "
-                                              
+
 
                                               """;
+
+    public string ExaminationDescription =>
+        "The ambassador has around twenty eyes, seven of which are currently open. Half of his six legs " +
+        "are retracted. Green slime oozes from multiple orifices in his scaly skin. He speaks through a " +
+        "mechanical translator slung around his neck. ";
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return
+            "A high-ranking ambassador from a newly contacted alien race is standing here on three of his " +
+            "legs, and watching you with seven of his eyes. ";
+    }
+
+    public override Task<string> Act(IContext context, IGenerationClient client)
+    {
+        // Ship begins to explode 
+        if (context.Moves == ExplosionCoordinator.TurnWhenFeinsteinBlowsUp)
+            return Task.FromResult(LeavesTheScene(context,
+                "The ambassador squawks frantically, evacuates a massive load of gooey slime, and rushes away. "));
+
+        Func<Task<string>> action = new Random().Next(1, 10) switch
+        {
+            // 20% chance the Ambassador does nothing at all.
+            <= 2 => (Func<Task<string>>)(async () => await Task.FromResult(string.Empty)),
+            // 20% chance he leaves
+            <= 4 => (Func<Task<string>>)(async () => await Task.FromResult(LeavesTheScene(context))),
+            // 60% chance he says or does something quirky. 
+            _ => (Func<Task<string>>)(async () => await GenerateCompanionSpeech(context, client))
+        };
+
+        Task<string> chosenAction = action.Invoke();
+        return chosenAction;
+    }
 
     internal string JoinsTheScene(IContext context, ICanHoldItems location)
     {

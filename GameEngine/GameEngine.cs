@@ -124,7 +124,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public int Moves => Context.Moves;
 
-    public int CurrentTime => Context is ITimeBasedContext tc ? tc.CurrentTime : 0; 
+    public int CurrentTime => Context is ITimeBasedContext tc ? tc.CurrentTime : 0;
 
     /// <summary>
     ///     Parse the input, determine the user's <see cref="IntentBase" /> and allow the

@@ -42,9 +42,9 @@ public class Egg
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {
         return "In the bird's nest is a large egg encrusted with precious jewels, apparently scavenged by a childless "
-            + "songbird. The egg is covered with fine gold inlay, and ornamented in lapis lazuli and mother-of-pearl. "
-            + "Unlike most eggs, this one is hinged and closed with a delicate looking clasp. The egg appears "
-            + "extremely fragile. ";
+               + "songbird. The egg is covered with fine gold inlay, and ornamented in lapis lazuli and mother-of-pearl. "
+               + "Unlike most eggs, this one is hinged and closed with a delicate looking clasp. The egg appears "
+               + "extremely fragile. ";
     }
 
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 5;
@@ -79,7 +79,7 @@ public class Egg
     public override InteractionResult RespondToMultiNounInteraction(
         MultiNounIntent action,
         IContext context
-    )
+        )
     {
         if (!action.MatchNounOne(NounsForMatching))
             return base.RespondToMultiNounInteraction(action, context);
@@ -115,8 +115,8 @@ public class Egg
 
         return new PositiveInteractionResult(
             "The egg is now open, but the clumsiness of your attempt has seriously compromised "
-                + "its esthetic appeal. There is a golden clockwork canary nestled in the egg. "
-                + Canary.DestroyedMessage
+            + "its esthetic appeal. There is a golden clockwork canary nestled in the egg. "
+            + Canary.DestroyedMessage
         );
     }
 
@@ -129,12 +129,12 @@ public class Egg
 
         if (Items.Contains(canary) && canary.IsDestroyed)
             return "\nThere is a golden clockwork canary nestled in the broken egg. "
-                + Canary.DestroyedMessage;
+                   + Canary.DestroyedMessage;
 
         if (Items.Contains(canary))
             return "\nThere is a golden clockwork canary nestled in the egg. It has ruby eyes and a silver beak. "
-                + "Through a crystal window below its left wing you can see intricate machinery inside. "
-                + "It appears to have wound down.";
+                   + "Through a crystal window below its left wing you can see intricate machinery inside. "
+                   + "It appears to have wound down.";
 
         return base.ItemListDescription(name, location);
     }

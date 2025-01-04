@@ -6,20 +6,23 @@ public class PlatinumBar : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenFirst
     IGivePointsWhenPlacedInTrophyCase
 {
     public override string[] NounsForMatching => ["bar", "platinum", "platinum bar"];
-    
+
     public string OnTheGroundDescription(ILocation currentLocation)
     {
         return "On the ground is a large platinum bar. ";
     }
 
-    public override string GenericDescription(ILocation? currentLocation)
+    public override string NeverPickedUpDescription(ILocation currentLocation)
     {
-        return "A platinum bar";
+        return OnTheGroundDescription(currentLocation);
     }
-    
-    public override string NeverPickedUpDescription(ILocation currentLocation) => OnTheGroundDescription(currentLocation);
 
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 10;
 
     int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 5;
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A platinum bar";
+    }
 }

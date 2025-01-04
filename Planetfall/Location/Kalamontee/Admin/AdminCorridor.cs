@@ -5,8 +5,11 @@ namespace Planetfall.Location.Kalamontee.Admin;
 
 internal class AdminCorridor : RiftLocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Admin Corridor";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.S, Go<AdminCorridorSouth>() },
             { Direction.W, Go<SystemsMonitors>() },
@@ -20,14 +23,15 @@ internal class AdminCorridor : RiftLocationBase
                 }
             }
         };
+    }
 
-    protected override string GetContextBasedDescription(IContext context) =>
-        "The hallway, in fact the entire building, has been rent apart here, presumably by seismic upheaval. " +
-        "You can see the sky through the severed roof above, and the ground is thick with rubble. To the north " +
-        $"is a gaping rift, at least eight meters across and thirty meters deep. {(GetItem<Ladder>().IsAcrossRift ? "A metal ladder spans the rift." : "")} " +
-        "A wide doorway, labelled \"Sistumz Moniturz,\" leads west. ";
-
-    public override string Name => "Admin Corridor";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "The hallway, in fact the entire building, has been rent apart here, presumably by seismic upheaval. " +
+               "You can see the sky through the severed roof above, and the ground is thick with rubble. To the north " +
+               $"is a gaping rift, at least eight meters across and thirty meters deep. {(GetItem<Ladder>().IsAcrossRift ? "A metal ladder spans the rift." : "")} " +
+               "A wide doorway, labelled \"Sistumz Moniturz,\" leads west. ";
+    }
 
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
@@ -37,7 +41,7 @@ internal class AdminCorridor : RiftLocationBase
 
         return base.BeforeEnterLocation(context, previousLocation);
     }
-    
+
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {

@@ -43,7 +43,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     {
         Repository.GetLocation<TreasureRoom>().ItemPlacedHere(Repository.GetItem<Torch>());
     }
-    
+
     public void HaveOpenEgg()
     {
         _target.Context.ItemPlacedHere(Repository.GetItem<Egg>());

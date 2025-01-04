@@ -8,10 +8,6 @@ public class Coffin : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndD
 {
     public override string[] NounsForMatching => ["coffin", "solid-gold coffin", "solid gold coffin", "gold coffin"];
 
-    public override string NowOpen(ILocation currentLocation) => "The gold coffin opens. " + (Items.Contains(Repository.GetItem<Sceptre>())
-        ? "A sceptre, possibly that of ancient Egypt itself, is in the coffin. The sceptre is ornamented with colored enamel, and tapers to a sharp point."
-        : "");
-
     public override int Size => 15;
 
     public string ExaminationDescription =>
@@ -37,6 +33,13 @@ public class Coffin : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndD
     int IGivePointsWhenFirstPickedUp.NumberOfPoints => 10;
 
     int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 15;
+
+    public override string NowOpen(ILocation currentLocation)
+    {
+        return "The gold coffin opens. " + (Items.Contains(Repository.GetItem<Sceptre>())
+            ? "A sceptre, possibly that of ancient Egypt itself, is in the coffin. The sceptre is ornamented with colored enamel, and tapers to a sharp point."
+            : "");
+    }
 
     public override string GenericDescription(ILocation? currentLocation)
     {

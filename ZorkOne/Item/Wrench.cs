@@ -6,9 +6,18 @@ public class Wrench : ItemBase, ICanBeTakenAndDropped
 {
     public override string[] NounsForMatching => ["wrench"];
 
-    public override string GenericDescription(ILocation? currentLocation) => "A wrench";
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "There is a wrench here. ";
+    }
 
-    public string OnTheGroundDescription(ILocation currentLocation) => "There is a wrench here. ";
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return OnTheGroundDescription(currentLocation);
+    }
 
-    public override string NeverPickedUpDescription(ILocation currentLocation) => OnTheGroundDescription(currentLocation);
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A wrench";
+    }
 }

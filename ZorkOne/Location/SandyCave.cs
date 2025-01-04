@@ -11,15 +11,20 @@ public class SandyCave : DarkLocationWithNoStartingItems
     // ReSharper disable once MemberCanBePrivate.Global
     public int DigCount { get; set; }
 
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Sandy Cave";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.SW, Go<SandyBeach>() }
         };
+    }
 
-    protected override string GetContextBasedDescription(IContext context) => "This is a sand-filled cave whose exit is to the southwest. ";
-
-    public override string Name => "Sandy Cave";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "This is a sand-filled cave whose exit is to the southwest. ";
+    }
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
@@ -28,7 +33,6 @@ public class SandyCave : DarkLocationWithNoStartingItems
                 ["ground", "sand", "dirt"],
                 ["shovel"],
                 ["with"]))
-        {
             switch (++DigCount)
             {
                 case 1:
@@ -45,8 +49,7 @@ public class SandyCave : DarkLocationWithNoStartingItems
                 default:
                     return new DeathProcessor().Process("The hole collapses, smothering you. ", context);
             }
-        }
-        
+
         return base.RespondToMultiNounInteraction(action, context);
     }
 }

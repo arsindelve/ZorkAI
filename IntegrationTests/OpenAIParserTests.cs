@@ -424,7 +424,7 @@ public class OpenAIParserTests
         response.Should().Contain("<verb>type</verb>");
         response.Should().Contain($"<noun>{number}");
     }
-    
+
     [Test]
     [TestCase("type", "type")]
     [TestCase("key in", "key")]
@@ -443,6 +443,6 @@ public class OpenAIParserTests
         Console.WriteLine(response);
 
         response.Should().Contain($"<verb>{expected}</verb>");
-        response.Should().Contain($"<noun>12");
+        response.Should().Contain("<noun>12");
     }
 }

@@ -139,14 +139,14 @@ public interface IContext : ICanHoldItems
     /// </summary>
     /// <returns>Text to prepend to the response, if any. </returns>
     string? ProcessBeginningOfTurn();
-    
+
     /// <summary>
     ///     Registers an actor with the game engine. Until the actor
     ///     is removed, it will act every turn.
     /// </summary>
     /// <param name="actor">The actor to be registered.</param>
     void RegisterActor(ITurnBasedActor actor);
-    
+
     /// <summary>
     ///     Removes an actor from the game engine. Once removed,
     ///     the actor will no longer act every turn.
@@ -165,5 +165,4 @@ public interface IContext : ICanHoldItems
     /// </summary>
     /// <returns></returns>
     string? ProcessEndOfTurn();
-
 }

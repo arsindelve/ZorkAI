@@ -15,6 +15,5 @@ public interface ICanBeEaten : IInteractionTarget
 /// </summary>
 public interface IAmADrink : IInteractionTarget
 {
-    
     public string OnDrinking(IContext context);
 }

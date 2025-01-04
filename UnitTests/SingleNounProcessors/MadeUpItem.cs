@@ -11,9 +11,15 @@ internal class MadeUpItem : ICanBeEaten, ICanBeTakenAndDropped
         return "";
     }
 
-    public string OnTheGroundDescription(ILocation currentLocation) => "";
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "";
+    }
 
-    public string? NeverPickedUpDescription(ILocation currentLocation) => "";
+    public string? NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return "";
+    }
 
     public bool HasEverBeenPickedUp => false;
 

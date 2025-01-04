@@ -1,6 +1,4 @@
 using GameEngine;
-using Planetfall.Item.Kalamontee.Admin;
-using Planetfall.Location.Kalamontee;
 
 namespace UnitTests.SingleNounProcessors;
 
@@ -12,21 +10,23 @@ public class DisambiguationTests : EngineTestsBase
         var engine = GetTarget();
         var room = Repository.GetLocation<MaintenanceRoom>();
         room.IsNoLongerDark = true;
-        
+
         engine.Context.CurrentLocation = room;
 
         var response = await engine.GetResponse("press button");
 
-        response.Should().Contain("Which button do you mean, the blue button, the red button, the yellow button or the brown button?");
+        response.Should()
+            .Contain(
+                "Which button do you mean, the blue button, the red button, the yellow button or the brown button?");
     }
-    
+
     [Test]
     public async Task SoManyButtons_StepTwo_Correct()
     {
         var engine = GetTarget();
         var room = Repository.GetLocation<MaintenanceRoom>();
         room.IsNoLongerDark = true;
-        
+
         engine.Context.CurrentLocation = room;
 
         await engine.GetResponse("press button");
@@ -34,14 +34,14 @@ public class DisambiguationTests : EngineTestsBase
 
         response.Should().Contain("Click");
     }
-    
+
     [Test]
     public async Task SoManyButtons_StepTwo_SomethingElse()
     {
         var engine = GetTarget();
         var room = Repository.GetLocation<MaintenanceRoom>();
         room.IsNoLongerDark = true;
-        
+
         engine.Context.CurrentLocation = room;
 
         await engine.GetResponse("press button");
@@ -49,7 +49,7 @@ public class DisambiguationTests : EngineTestsBase
 
         response.Should().Contain("Time passes");
     }
-    
+
     [Test]
     public async Task SoManyKnives()
     {
@@ -58,14 +58,14 @@ public class DisambiguationTests : EngineTestsBase
         room.IsNoLongerDark = true;
         engine.Context.ItemPlacedHere(Repository.GetItem<NastyKnife>());
         engine.Context.ItemPlacedHere(Repository.GetItem<RustyKnife>());
-        
+
         engine.Context.CurrentLocation = room;
-        
+
         var response = await engine.GetResponse("drop knife");
 
         response.Should().Contain("Do you mean the nasty knife or the rusty knife");
     }
-    
+
     [Test]
     public async Task SoManyKnives_Dropped()
     {
@@ -74,9 +74,9 @@ public class DisambiguationTests : EngineTestsBase
         room.IsNoLongerDark = true;
         engine.Context.ItemPlacedHere(Repository.GetItem<NastyKnife>());
         engine.Context.ItemPlacedHere(Repository.GetItem<RustyKnife>());
-        
+
         engine.Context.CurrentLocation = room;
-        
+
         await engine.GetResponse("drop knife");
         var response = await engine.GetResponse("rusty");
 

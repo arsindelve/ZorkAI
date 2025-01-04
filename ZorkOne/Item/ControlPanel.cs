@@ -15,11 +15,16 @@ public class ControlPanel : ItemBase, ICanBeTakenAndDropped
 
     public override string Name => "control panel";
 
-    public string OnTheGroundDescription(ILocation currentLocation) => NeverPickedUpDescription(currentLocation);
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return NeverPickedUpDescription(currentLocation);
+    }
 
-    public override string NeverPickedUpDescription(ILocation currentLocation) =>
-        "There is a control panel here, on which a large metal bolt is mounted. " +
-        $"Directly above the bolt is a small green plastic bubble{(GreenBubbleGlowing ? " which is glowing serenely" : "")}.";
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return "There is a control panel here, on which a large metal bolt is mounted. " +
+               $"Directly above the bolt is a small green plastic bubble{(GreenBubbleGlowing ? " which is glowing serenely" : "")}.";
+    }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)

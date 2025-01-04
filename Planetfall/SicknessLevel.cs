@@ -15,7 +15,7 @@ public enum SicknessLevel
 
     [Description("You feel a bit sick and feverish. ")]
     NotGreat = 4,
-    
+
     [Description("You are somewhat sick and feverish. ")]
     Sick = 5,
 

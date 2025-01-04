@@ -26,17 +26,18 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
         return "There is a padlock here. ";
     }
 
-    public override string GenericDescription(ILocation? currentLocation)
-    {
-        return "A padlock";
-    }
-
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {
         return string.Empty;
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client)
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A padlock";
+    }
+
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
     {
         if (action.Match(["remove"], NounsForMatching))
         {
@@ -47,7 +48,7 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
             context.ItemPlacedHere(this);
             return new PositiveInteractionResult("Taken. ");
         }
-        
+
         if (action.Match(["unlock", "open"], NounsForMatching))
         {
             if (!Locked)
@@ -55,7 +56,7 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
 
             return new PositiveInteractionResult("You'll need to specify what you want to unlock it with. ");
         }
-        
+
         return base.RespondToSimpleInteraction(action, context, client);
     }
 

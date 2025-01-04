@@ -7,15 +7,15 @@ namespace Planetfall.Item.Lawanda.Library.Computer;
 /// </summary>
 internal class MainMenu : MenuItem
 {
-    internal const string MainMenuText =  """
-                                               1. Histooree
-                                               2. Kulcur
-                                               3. Teknolojee
-                                               4. Jeeografee
-                                               5. Xe Prajekt
-                                               6. Inturlajik Gaamz
-                                           """;
-    
+    internal const string MainMenuText = """
+                                             1. Histooree
+                                             2. Kulcur
+                                             3. Teknolojee
+                                             4. Jeeografee
+                                             5. Xe Prajekt
+                                             6. Inturlajik Gaamz
+                                         """;
+
     internal override MenuItem? Parent => null;
 
     internal override List<MenuItem> Children =>

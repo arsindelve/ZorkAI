@@ -6,8 +6,11 @@ namespace ZorkOne.Location.ForestLocation;
 
 public class ForestOne : LocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Forest";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             {
                 Direction.E,
@@ -26,13 +29,14 @@ public class ForestOne : LocationWithNoStartingItems
                 new MovementParameters
                 {
                     CanGo = _ => false,
-                    CustomFailureMessage = "You would need a machete to go further west. ",
+                    CustomFailureMessage = "You would need a machete to go further west. "
                 }
-            },
+            }
         };
+    }
 
-    public override string Name => "Forest";
-
-    protected override string GetContextBasedDescription(IContext context) =>
-        "This is a forest, with trees in all directions. To the east, there appears to be sunlight. ";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "This is a forest, with trees in all directions. To the east, there appears to be sunlight. ";
+    }
 }

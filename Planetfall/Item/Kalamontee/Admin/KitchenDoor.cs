@@ -44,7 +44,7 @@ public class KitchenDoor : ItemBase, ICanBeExamined, IOpenAndClose, ITurnBasedAc
         TurnsOpen++;
 
         if (TurnsOpen != 3) return Task.FromResult(string.Empty);
-        
+
         TurnsOpen = 0;
         context.RemoveActor(this);
         IsOpen = false;

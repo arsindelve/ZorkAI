@@ -6,13 +6,16 @@ namespace Planetfall.Location.Lawanda;
 
 public class LibraryLobby : LocationBase
 {
+    public override string Name => "Library Lobby";
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
-        =>
-            new()
-            {
-                { Direction.Up, Go<Library>() },
-                { Direction.W, Go<Library>() }
-            };
+    {
+        return new Dictionary<Direction, MovementParameters>
+        {
+            { Direction.Up, Go<Library>() },
+            { Direction.W, Go<Library>() }
+        };
+    }
 
     protected override string GetContextBasedDescription(IContext context)
     {
@@ -21,10 +24,8 @@ public class LibraryLobby : LocationBase
             "up a few steps, is a wide doorway. A small booth lies to the east. ";
     }
 
-    public override string Name => "Library Lobby";
-    
     public override void Init()
     {
-       StartWithItem<ComputerTerminal>();
+        StartWithItem<ComputerTerminal>();
     }
 }

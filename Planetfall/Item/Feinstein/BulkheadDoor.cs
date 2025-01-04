@@ -2,7 +2,9 @@ namespace Planetfall.Item.Feinstein;
 
 public class BulkheadDoor : ItemBase, IOpenAndClose
 {
-    public override string[] NounsForMatching => ["bulkhead", "bulkhead door", "door", "pod", "pod door", "escape pod door"];
+    public override string[] NounsForMatching =>
+        ["bulkhead", "bulkhead door", "door", "pod", "pod door", "escape pod door"];
+
     public bool IsOpen { get; set; }
 
     public string NowOpen(ILocation currentLocation)

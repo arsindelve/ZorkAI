@@ -117,6 +117,13 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         return totalSize;
     }
 
+    /// <summary>
+    /// By default, any item can be placed in any container, if there's room.  
+    /// </summary>
+    public virtual Type[] CanOnlyHoldTheseTypes => [];
+
+    public virtual string CanOnlyHoldTheseTypesErrorMessage => string.Empty;
+
     public string SingleLineListOfItems()
     {
         var nouns = Items.Select(s => s.NounsForMatching.OrderByDescending(q => q.Length).First()).ToList();
@@ -169,13 +176,6 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
 
         return sb.ToString().TrimEnd();
     }
-    
-    /// <summary>
-    /// By default, any item can be placed in any container, if there's room.  
-    /// </summary>
-    public virtual Type[] CanOnlyHoldTheseTypes => [];
-    
-    public virtual string CanOnlyHoldTheseTypesErrorMessage => String.Empty;
 
     protected void StartWithItemInside<T>() where T : ItemBase, new()
     {

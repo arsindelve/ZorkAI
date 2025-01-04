@@ -8,8 +8,11 @@ namespace ZorkOne.Location;
 
 internal class BatRoom : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Bat Room";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             {
                 Direction.S, new MovementParameters { Location = GetLocation<SqueakyRoom>() }
@@ -18,11 +21,12 @@ internal class BatRoom : DarkLocation
                 Direction.E, new MovementParameters { Location = GetLocation<ShaftRoom>() }
             }
         };
+    }
 
-    protected override string GetContextBasedDescription(IContext context) =>
-        "You are in a small room which has doors only to the east and south. ";
-
-    public override string Name => "Bat Room";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "You are in a small room which has doors only to the east and south. ";
+    }
 
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
@@ -48,14 +52,14 @@ internal class BatRoom : DarkLocation
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        string response = "";
-       
+        var response = "";
+
         if (context.HasItem<Garlic>())
             response +=
                 "\nIn the corner of the room on the ceiling is a large vampire bat who is obviously deranged and holding his nose. ";
 
         response += LocationHelper.CheckSwordGlowingBrightly<Bat, BatRoom>(context);
-        
+
         if (!string.IsNullOrEmpty(response))
             return Task.FromResult(response);
 

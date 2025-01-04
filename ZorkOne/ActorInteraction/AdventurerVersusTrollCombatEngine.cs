@@ -53,7 +53,7 @@ internal class AdventurerVersusTrollCombatEngine : ICombatEngine
         // You can't bare-knuckle with the troll. No weapon, no fight. 
         if (weapon is null)
             return null;
-        
+
         // Don't assign these in the constructor or as initializers. You'll
         // get stack overflow errors. 
         _troll = Repository.GetItem<Troll>();
@@ -74,8 +74,9 @@ internal class AdventurerVersusTrollCombatEngine : ICombatEngine
             return DeathBlow(context, "The unarmed troll cannot defend himself: He dies.");
 
         var attack = _chooser.Choose(_notStunnedOutcomes);
-        attack.text = attack.text.Replace("{weapon}", ((ItemBase?)weapon)?.NounsForMatching.FirstOrDefault() ?? " weapon ");
-        
+        attack.text = attack.text.Replace("{weapon}",
+            ((ItemBase?)weapon)?.NounsForMatching.FirstOrDefault() ?? " weapon ");
+
         switch (attack.outcome)
         {
             case CombatOutcome.Miss:

@@ -5,19 +5,25 @@ namespace Planetfall.Location.Feinstein;
 
 internal class Brig : LocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Brig";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             {
                 Direction.S,
                 new MovementParameters { CanGo = _ => false, CustomFailureMessage = "The cell door is locked. " }
             }
         };
+    }
 
-    protected override string GetContextBasedDescription(IContext context) =>
-        "You are in the Feinstein's brig. Graffiti cover the walls. The cell door to the south is locked. ";
+    // TODO: Cell door. 
 
-    public override string Name => "Brig";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "You are in the Feinstein's brig. Graffiti cover the walls. The cell door to the south is locked. ";
+    }
 
     public override void Init()
     {

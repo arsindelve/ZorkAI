@@ -10,6 +10,7 @@ public class Towel : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
                                      Escape Pod #42
                                       Don't Panic!"
                                      """;
+
     public string OnTheGroundDescription(ILocation currentLocation)
     {
         return "There is a towel here. ";
@@ -20,5 +21,8 @@ public class Towel : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
         return OnTheGroundDescription(currentLocation);
     }
 
-    public override string GenericDescription(ILocation? currentLocation) => "A towel";
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A towel";
+    }
 }

@@ -14,22 +14,26 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
 
     public override string[] NounsForMatching => ["pile", "pile of plastic", "plastic", "boat", "raft", "magic boat"];
 
-    public override string GenericDescription(ILocation? currentLocation) => "A pile of plastic";
-
     public override int Size => 14;
 
     public string ExaminationDescription => IsInflated
         ? "There's nothing special about the magic boat. "
         : "There's nothing special about the pile of plastic. ";
 
-    public string OnTheGroundDescription(ILocation currentLocation) => IsInflated
-        ? "There is a magic boat here. " + (Items.Any() ? ItemListDescription("magic boat", currentLocation) : "") 
-        : "There is a folded pile of plastic here which has a small valve attached. ";
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return IsInflated
+            ? "There is a magic boat here. " + (Items.Any() ? ItemListDescription("magic boat", currentLocation) : "")
+            : "There is a folded pile of plastic here which has a small valve attached. ";
+    }
 
-    public override string NeverPickedUpDescription(ILocation currentLocation) => OnTheGroundDescription(currentLocation);
-    
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return OnTheGroundDescription(currentLocation);
+    }
+
     // TODO: Items on the ground outside the boat: There is a shovel here. (outside the magic boat)
-    
+
     string ISubLocation.GetIn(IContext context)
     {
         // TODO: Sharp items
@@ -48,6 +52,11 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
     }
 
     public string LocationDescription => ", in the magic boat";
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A pile of plastic";
+    }
 
     public override void Init()
     {

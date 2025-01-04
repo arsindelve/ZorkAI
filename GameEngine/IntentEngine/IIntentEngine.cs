@@ -5,5 +5,6 @@ namespace GameEngine.IntentEngine;
 
 internal interface IIntentEngine
 {
-    Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent, IContext context, IGenerationClient generationClient);
+    Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent, IContext context,
+        IGenerationClient generationClient);
 }

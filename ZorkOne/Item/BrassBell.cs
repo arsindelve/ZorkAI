@@ -14,17 +14,21 @@ public class BrassBell : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ITurnB
 
     public override string[] NounsForMatching => ["bell", "brass bell"];
 
-    public override string GenericDescription(ILocation? currentLocation) => "A brass bell";
-
     public override string? CannotBeTakenDescription =>
         BellIsRedHot ? "The bell is very hot and cannot be taken. " : null;
 
-    public string ExaminationDescription => "There is nothing special about the " + (BellIsRedHot ? "red hot " : "") + "brass bell.";
+    public string ExaminationDescription =>
+        "There is nothing special about the " + (BellIsRedHot ? "red hot " : "") + "brass bell.";
 
-    public string OnTheGroundDescription(ILocation currentLocation) =>
-        BellIsRedHot ? "On the ground is a red hot brass bell." : "There is a brass bell here.";
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return BellIsRedHot ? "On the ground is a red hot brass bell." : "There is a brass bell here.";
+    }
 
-    public override string NeverPickedUpDescription(ILocation currentLocation) => OnTheGroundDescription(currentLocation);
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return OnTheGroundDescription(currentLocation);
+    }
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
@@ -44,6 +48,11 @@ public class BrassBell : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ITurnB
         }
 
         return Task.FromResult("");
+    }
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A brass bell";
     }
 
     public string BecomesRedHot(IContext context)

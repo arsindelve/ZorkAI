@@ -21,11 +21,17 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
 
     public virtual string AlreadyOpen => "It is already open.";
 
-    public virtual string NowClosed(ILocation currentLocation) => "Closed.";
+    public virtual string NowClosed(ILocation currentLocation)
+    {
+        return "Closed.";
+    }
 
     public bool IsOpen { get; set; }
 
-    public virtual string NowOpen(ILocation currentLocation) => "Opened";
+    public virtual string NowOpen(ILocation currentLocation)
+    {
+        return "Opened";
+    }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
@@ -47,9 +53,9 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
         // If this container is open or transparent, make sure all the nouns of the 
         // items inside have processors applied. 
         var nounsForProcessing = NounsForMatching.ToList();
-        if(IsOpen || IsTransparent)
+        if (IsOpen || IsTransparent)
             nounsForProcessing.AddRange(Items.SelectMany(s => s.NounsForMatching));
-        
+
         if (!action.MatchNoun(nounsForProcessing.ToArray()))
             return new NoNounMatchInteractionResult();
 

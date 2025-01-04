@@ -143,7 +143,7 @@ public class EngineTests : EngineTestsBase
                 {
                     Verb = "push",
                     Noun = "mailbox",
-                    OriginalInput = "push the mailbox",
+                    OriginalInput = "push the mailbox"
                 }
             );
 
@@ -178,7 +178,7 @@ public class EngineTests : EngineTestsBase
                 {
                     Verb = "push",
                     Noun = "leaflet",
-                    OriginalInput = "",
+                    OriginalInput = ""
                 }
             );
 
@@ -191,7 +191,7 @@ public class EngineTests : EngineTestsBase
                 {
                     Verb = "take",
                     Noun = "leaflet",
-                    OriginalInput = "",
+                    OriginalInput = ""
                 }
             );
 
@@ -204,7 +204,7 @@ public class EngineTests : EngineTestsBase
                 {
                     Verb = "open",
                     Noun = "mailbox",
-                    OriginalInput = "",
+                    OriginalInput = ""
                 }
             );
 
@@ -241,7 +241,7 @@ public class EngineTests : EngineTestsBase
                 {
                     Verb = "push",
                     Noun = "leaflet",
-                    OriginalInput = "push the leaflet",
+                    OriginalInput = "push the leaflet"
                 }
             );
 
@@ -277,7 +277,7 @@ public class EngineTests : EngineTestsBase
                 {
                     Verb = "push",
                     Noun = "unicorn",
-                    OriginalInput = "push the unicorn",
+                    OriginalInput = "push the unicorn"
                 }
             );
 
@@ -479,7 +479,7 @@ public class EngineTests : EngineTestsBase
                     NounTwo = "shovel",
                     Preposition = "with",
                     Verb = "dig",
-                    OriginalInput = "dig hole with shovel",
+                    OriginalInput = "dig hole with shovel"
                 }
             );
 

@@ -41,7 +41,7 @@ public class Rug : ItemBase
         if (HasBeenMovedAside)
             return new PositiveInteractionResult(
                 "There is nothing but dust there. ");
-        
+
         return new PositiveInteractionResult(
             "Underneath the rug is a closed trap door. As you drop the corner of the rug, the trap door is once again concealed from view. ");
     }

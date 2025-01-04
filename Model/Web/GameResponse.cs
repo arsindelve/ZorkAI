@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Model.Interface;
-using Model.Movement;
 
 namespace Model.Web;
 
@@ -16,7 +15,8 @@ public record GameResponse(
 {
     [SetsRequiredMembers]
     public GameResponse(string response, IGameEngine gameEngine) : this(response, gameEngine.LocationName,
-        gameEngine.Moves, gameEngine.Score, gameEngine.CurrentTime, gameEngine.PreviousLocationName, gameEngine.LastMovementDirection.ToString())
+        gameEngine.Moves, gameEngine.Score, gameEngine.CurrentTime, gameEngine.PreviousLocationName,
+        gameEngine.LastMovementDirection.ToString())
     {
     }
 

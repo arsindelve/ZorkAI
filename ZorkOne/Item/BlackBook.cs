@@ -48,7 +48,7 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
     {
         if (action.Match(["burn"], NounsForMatching))
             return new PositiveInteractionResult("You'll need to specify what you want to burn it with. ");
-            
+
         if (action.Match(["read"], NounsForMatching))
         {
             var location = Repository.GetLocation<EntranceToHades>();
@@ -78,7 +78,7 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
     public override InteractionResult RespondToMultiNounInteraction(
         MultiNounIntent action,
         IContext context
-    )
+        )
     {
         var candles = Repository.GetItem<Candles>();
         var matches = Repository.GetItem<Matchbook>();

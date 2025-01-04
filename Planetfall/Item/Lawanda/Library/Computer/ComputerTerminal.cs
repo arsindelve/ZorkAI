@@ -1,16 +1,15 @@
+using JetBrains.Annotations;
 using Model;
 using Model.AIGeneration;
 using Utilities;
-using JetBrains.Annotations;
 
 namespace Planetfall.Item.Lawanda.Library.Computer;
 
 public class ComputerTerminal : ItemBase, ICanBeExamined, ICanBeRead, ITurnOffAndOn
 {
-    [UsedImplicitly]
-    public MenuState MenuState { get; set; } = new();
+    [UsedImplicitly] public MenuState MenuState { get; set; } = new();
 
-    public override string[] NounsForMatching => ["terminal", "computer terminal", "computer"];
+    public override string[] NounsForMatching => ["terminal", "computer terminal", "computer", "screen"];
 
     public string ExaminationDescription =>
         "The computer terminal consists of a video display screen, a keyboard with ten keys numbered from zero through nine, and an on-off switch. " +

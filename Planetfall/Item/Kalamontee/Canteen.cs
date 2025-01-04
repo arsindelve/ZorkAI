@@ -8,6 +8,8 @@ public class Canteen : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAnd
 
     public override int Size => 1;
 
+    public override bool IsTransparent => false;
+
     public string ExaminationDescription => Items.Any()
         ? ItemListDescription("canteen", null)
         : $"The canteen is {(IsOpen ? "open" : "closed")}. ";
@@ -16,8 +18,6 @@ public class Canteen : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAnd
     {
         return "Although the room is quite barren, an octagonally shaped canteen is sitting on one of the benches. ";
     }
-
-    public override bool IsTransparent => false;
 
     public string OnTheGroundDescription(ILocation currentLocation)
     {
@@ -37,13 +37,13 @@ public class Canteen : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAnd
     {
         if (Items.Any())
             return "Opening the canteen reveals a quantity of protein-rich liquid. ";
-        
+
         return base.OnOpening(context);
     }
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return "A canteen"+
+        return "A canteen" +
                (Items.Any() && IsOpen ? $"\n{ItemListDescription("canteen", null)}" : "");
     }
 }

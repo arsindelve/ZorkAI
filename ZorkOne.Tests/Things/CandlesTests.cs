@@ -3,7 +3,6 @@ using GameEngine;
 using NUnit.Framework;
 using UnitTests;
 using ZorkOne.Item;
-using ZorkOne.Location;
 
 namespace ZorkOne.Tests.Things;
 
@@ -20,7 +19,7 @@ public class CandlesTests : EngineTestsBase
         var response = await target.GetResponse("light candles");
         response.Should().Contain("You should say");
     }
-    
+
     [Test]
     public async Task LightThem_DoNotSpecify_MatchLit()
     {
@@ -34,12 +33,12 @@ public class CandlesTests : EngineTestsBase
         response.Should().Contain("The candles are lit.");
         Repository.GetItem<Candles>().IsOn.Should().BeTrue();
     }
-    
+
     [Test]
     public async Task LightThem_DoNotSpecify_MatchLit_ButNoCandles()
     {
         var target = GetTarget();
-        
+
         target.Context.Take(Repository.GetItem<Matchbook>());
         Repository.GetItem<Matchbook>().IsOn = true;
 
@@ -59,7 +58,7 @@ public class CandlesTests : EngineTestsBase
         response.Should().Contain("You'll need to light a match first");
         Repository.GetItem<Candles>().IsOn.Should().BeFalse();
     }
-    
+
     [Test]
     public async Task LightThem_WithMatchbook_DoNotHaveIt()
     {
@@ -70,7 +69,7 @@ public class CandlesTests : EngineTestsBase
         var response = await target.GetResponse("light candles with match");
         Repository.GetItem<Candles>().IsOn.Should().BeFalse();
     }
-    
+
     [Test]
     public async Task LightThem_WithTorch()
     {

@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+
 namespace Planetfall.Item.Lawanda.Library.Computer;
 
 /// <summary>
@@ -5,11 +7,13 @@ namespace Planetfall.Item.Lawanda.Library.Computer;
 /// </summary>
 public class MenuState
 {
-    internal const string NoEffect = "The terminal feeps, and a message briefly appears on the screen explaining that typing that character has no meaning at the moment.";
-    internal const string ReachedLowestLevel = "\"Yuu hav reect xe loowist levul uv xe liibreree indeks. Pleez tiip zeeroo tuu goo tuu aa hiiyur levul. If yuu reekwiir asistins, kawl xe liibrereein.\"";
+    internal const string NoEffect =
+        "The terminal feeps, and a message briefly appears on the screen explaining that typing that character has no meaning at the moment.";
 
-    // ReSharper disable once MemberCanBePrivate.Global
-    public MenuItem CurrentItem { get; set; } = new MainMenu();
+    internal const string ReachedLowestLevel =
+        "\"Yuu hav reect xe loowist levul uv xe liibreree indeks. Pleez tiip zeeroo tuu goo tuu aa hiiyur levul. If yuu reekwiir asistins, kawl xe liibrereein.\"";
+
+    [UsedImplicitly] public MenuItem CurrentItem { get; set; } = new MainMenu();
 
     /// <summary>
     /// Navigates to the parent menu item if it exists, otherwise indicates that the action is invalid.

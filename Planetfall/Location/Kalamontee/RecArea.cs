@@ -6,22 +6,28 @@ namespace Planetfall.Location.Kalamontee;
 
 internal class RecArea : LocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Rec Area";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.S, Go<PlainHall>() },
             { Direction.E, Go<RecCorridor>() }
         };
+    }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client)
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
     {
         string[] verbs = ["examine", "look at"];
 
-        if(!action.MatchVerb(verbs))
+        if (!action.MatchVerb(verbs))
             return base.RespondToSimpleInteraction(action, context, client);
 
         if (action.MatchNoun(["games"]))
-            return new PositiveInteractionResult("All the usual games -- Chess, Cribbage, Galactic Overlord, Double Fannucci...");
+            return new PositiveInteractionResult(
+                "All the usual games -- Chess, Cribbage, Galactic Overlord, Double Fannucci...");
 
         if (action.MatchNoun(["tapes"]))
             return new PositiveInteractionResult(
@@ -30,11 +36,10 @@ internal class RecArea : LocationWithNoStartingItems
         return base.RespondToSimpleInteraction(action, context, client);
     }
 
-    protected override string GetContextBasedDescription(IContext context) =>
-        "This is a recreational facility of some sort. Games and tapes are scattered about the room. " +
-        "Hallways head off to the east and south, and to the north is a door which is closed and locked. " +
-        "A dial on the door is currently set to 0. ";
-
-
-    public override string Name => "Rec Area";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "This is a recreational facility of some sort. Games and tapes are scattered about the room. " +
+               "Hallways head off to the east and south, and to the north is a door which is closed and locked. " +
+               "A dial on the door is currently set to 0. ";
+    }
 }

@@ -24,7 +24,7 @@ public class Diary : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
     ];
 
     public int MessageNumber { get; set; }
-    
+
     public bool CanAdvance { get; set; }
 
     public override string[] NounsForMatching => ["diary"];
@@ -57,7 +57,7 @@ public class Diary : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
 
             if (!CanAdvance)
                 return new PositiveInteractionResult("Nothing happens. ");
-         
+
             MessageNumber++;
             var message = Read();
             return new PositiveInteractionResult(message);
@@ -73,7 +73,7 @@ public class Diary : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
 
     private string Read()
     {
-        string message = _messages[MessageNumber];
+        var message = _messages[MessageNumber];
 
         // Oddly, reading the first message allows us to advance. We can keep advancing
         // until we hit the end, and then we need to read again to advance. 

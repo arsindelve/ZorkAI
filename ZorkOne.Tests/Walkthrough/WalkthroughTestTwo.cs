@@ -94,7 +94,7 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("look", null, "closed trap door", "egg", "pile of leaves")]
     [TestCase("E", null, "Kitchen")]
     [TestCase("turn on lantern", null, "now on")]
-    [TestCase("Up", null, "Attic","rope", "knife")]
+    [TestCase("Up", null, "Attic", "rope", "knife")]
     [TestCase("get all", null, "rope: Taken", "knife: Taken")]
     // TODO: > Examine table. "The table is empty."
     [TestCase("Down", null, "Kitchen")]
@@ -195,10 +195,9 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("W", null, "impossible")]
     [TestCase("S", null, "East of Chasm")]
     [TestCase("E", null, "Gallery")]
-    
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
-        if (!string.IsNullOrWhiteSpace(setup)) 
+        if (!string.IsNullOrWhiteSpace(setup))
             InvokeGodMode(setup);
 
         await Do(input, expectedResponses);

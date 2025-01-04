@@ -10,7 +10,7 @@ public interface IInfocomGame
     ///     Represents the starting location of an Infocom game.
     /// </summary>
     Type StartingLocation { get; }
-    
+
     string GameName { get; }
 
     /// <summary>
@@ -40,15 +40,6 @@ public interface IInfocomGame
     string DefaultSaveGameName { get; }
 
     /// <summary>
-    ///     Retrieves the description of a score for the current game.
-    /// </summary>
-    /// <param name="score">The score to get the description for.</param>
-    /// <returns>The description of the score.</returns>
-    string GetScoreDescription(int score);
-
-    IGlobalCommandFactory GetGlobalCommandFactory();
-
-    /// <summary>
     /// Represents the DynamoDb session table name of an Infocom game. The session table
     /// name is used to store and retrieve game session data in the database.
     /// </summary>
@@ -59,9 +50,17 @@ public interface IInfocomGame
     string SessionTableName { get; }
 
     /// <summary>
+    ///     Retrieves the description of a score for the current game.
+    /// </summary>
+    /// <param name="score">The score to get the description for.</param>
+    /// <returns>The description of the score.</returns>
+    string GetScoreDescription(int score);
+
+    IGlobalCommandFactory GetGlobalCommandFactory();
+
+    /// <summary>
     /// Initializes the game context with the provided <see cref="IContext"/>.
     /// </summary>
     /// <param name="context">The game context to be initialized.</param>
     void Init(IContext context);
-
 }

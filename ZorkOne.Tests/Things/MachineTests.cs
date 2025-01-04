@@ -34,7 +34,7 @@ public class MachineTests : EngineTestsBase
 
         response.Should().Contain("The lid opens revealing a clove of garlic");
     }
-    
+
     [Test]
     public async Task ListThingsInTheMachine_TwoItems()
     {
@@ -46,7 +46,7 @@ public class MachineTests : EngineTestsBase
 
         response.Should().Contain("The lid opens revealing a clove of garlic and a glamdring");
     }
-    
+
     [Test]
     public async Task ListThingsInTheMachine_ThreeItems()
     {
@@ -59,10 +59,10 @@ public class MachineTests : EngineTestsBase
 
         response.Should().Contain("The lid opens revealing a clove of garlic, a glamdring and a nasty knife");
     }
-    
+
     // Try to turn it on with fingers
-    
-    
+
+
     [Test]
     public async Task TurnSwitch_BareHands()
     {
@@ -72,7 +72,7 @@ public class MachineTests : EngineTestsBase
 
         response.Should().Contain("Your bare hands don't appear to be enough");
     }
-    
+
     [Test]
     public async Task TurnSwitch_NotHoldingScrewdriver()
     {
@@ -83,7 +83,7 @@ public class MachineTests : EngineTestsBase
 
         response.Should().Contain("You don't have the screwdriver");
     }
-    
+
     [Test]
     public async Task TurnSwitch_LidOpen()
     {
@@ -95,7 +95,7 @@ public class MachineTests : EngineTestsBase
 
         response.Should().Contain("The machine doesn't seem to want to do anything");
     }
-  
+
     [Test]
     public async Task TurnSwitch_Empty()
     {
@@ -105,60 +105,60 @@ public class MachineTests : EngineTestsBase
 
         var response = await target.GetResponse("turn switch with screwdriver");
         response.Should().Contain("dazzling display of colored lights");
-        
+
         response = await target.GetResponse("open lid");
         response.Should().Contain("The lid opens revealing a small piece of vitreous slag.");
     }
-    
+
     [Test]
     public async Task TurnSwitch_NotEmpty()
     {
         var target = Setup();
         target.Context.ItemPlacedHere(Repository.GetItem<Screwdriver>());
-        _machine.ItemPlacedHere(Repository.GetItem<Garlic>());   
+        _machine.ItemPlacedHere(Repository.GetItem<Garlic>());
         _machine.IsOpen = false;
 
         var response = await target.GetResponse("turn switch with screwdriver");
         response.Should().Contain("dazzling display of colored lights");
-        
+
         response = await target.GetResponse("open lid");
         response.Should().Contain("The lid opens revealing a small piece of vitreous slag.");
     }
-    
+
     [Test]
     public async Task TurnSwitch_ManyItems()
     {
         var target = Setup();
         target.Context.ItemPlacedHere(Repository.GetItem<Screwdriver>());
         _machine.ItemPlacedHere(Repository.GetItem<Garlic>());
-        _machine.ItemPlacedHere(Repository.GetItem<CrystalSkull>());   
+        _machine.ItemPlacedHere(Repository.GetItem<CrystalSkull>());
         _machine.ItemPlacedHere(Repository.GetItem<NastyKnife>());
         _machine.IsOpen = false;
 
         var response = await target.GetResponse("turn switch with screwdriver");
         response.Should().Contain("dazzling display of colored lights");
-        
+
         response = await target.GetResponse("open lid");
         response.Should().Contain("The lid opens revealing a small piece of vitreous slag.");
     }
-    
+
     [Test]
     public async Task TurnSwitch_WithCoal_ManyItems()
     {
         var target = Setup();
         target.Context.ItemPlacedHere(Repository.GetItem<Screwdriver>());
         _machine.ItemPlacedHere(Repository.GetItem<Coal>());
-        _machine.ItemPlacedHere(Repository.GetItem<CrystalSkull>());   
+        _machine.ItemPlacedHere(Repository.GetItem<CrystalSkull>());
         _machine.ItemPlacedHere(Repository.GetItem<NastyKnife>());
         _machine.IsOpen = false;
 
         var response = await target.GetResponse("turn switch with screwdriver");
         response.Should().Contain("dazzling display of colored lights");
-        
+
         response = await target.GetResponse("open lid");
         response.Should().Contain("The lid opens revealing a crystal skull, a nasty knife and a huge diamond.");
     }
-    
+
     [Test]
     public async Task TurnSwitch_WithCoal()
     {
@@ -169,11 +169,11 @@ public class MachineTests : EngineTestsBase
 
         var response = await target.GetResponse("turn switch with screwdriver");
         response.Should().Contain("dazzling display of colored lights");
-        
+
         response = await target.GetResponse("open lid");
         response.Should().Contain("The lid opens revealing a huge diamond.");
     }
-    
+
     [Test]
     public async Task TakeSlag()
     {
@@ -184,17 +184,17 @@ public class MachineTests : EngineTestsBase
 
         var response = await target.GetResponse("turn switch with screwdriver");
         response.Should().Contain("dazzling display of colored lights");
-        
+
         response = await target.GetResponse("open lid");
         response.Should().Contain("slag");
-        
+
         response = await target.GetResponse("take slag");
         response.Should().Contain("The slag was rather insubstantial, and crumbles to dust at your touch");
-        
+
         response = await target.GetResponse("examine machine");
         response.Should().Contain("The machine is empty");
     }
-    
+
     [Test]
     public async Task ExamineSlag()
     {
@@ -205,20 +205,19 @@ public class MachineTests : EngineTestsBase
 
         var response = await target.GetResponse("turn switch with screwdriver");
         response.Should().Contain("dazzling display of colored lights");
-        
+
         response = await target.GetResponse("open lid");
         response.Should().Contain("slag");
-        
+
         response = await target.GetResponse("examine slag");
         response.Should().Contain("The slag was rather insubstantial, and crumbles to dust at your touch");
-        
+
         response = await target.GetResponse("examine machine");
         response.Should().Contain("The machine is empty");
     }
-    
+
     private GameEngine<ZorkI, ZorkIContext> Setup()
     {
-      
         var target = GetTarget();
         target.Context.CurrentLocation = Repository.GetLocation<MachineRoom>();
         target.Context.Take(Repository.GetItem<Lantern>());

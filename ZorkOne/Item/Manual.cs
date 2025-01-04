@@ -4,8 +4,6 @@ namespace ZorkOne.Item;
 
 public class Manual : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRead
 {
-    public override string GenericDescription(ILocation? currentLocation) => "A ZORK owner's manual";
-
     public override string[] NounsForMatching => ["paper", "piece", "manual"];
 
     string ICanBeExamined.ExaminationDescription => ((ICanBeRead)this).ReadDescription;
@@ -27,5 +25,10 @@ public class Manual : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRea
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {
         return "Loosely attached to a wall is a small piece of paper. ";
+    }
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A ZORK owner's manual";
     }
 }

@@ -6,8 +6,11 @@ namespace ZorkOne.Location.ForestLocation;
 
 public class ForestFour : LocationWithNoStartingItems
 {
-    protected override Dictionary<Direction, MovementParameters> Map(IContext context) =>
-        new()
+    public override string Name => "Forest";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             {
                 Direction.W, new MovementParameters { Location = GetLocation<ForestTwo>() }
@@ -23,8 +26,10 @@ public class ForestFour : LocationWithNoStartingItems
                 new MovementParameters { CanGo = _ => false, CustomFailureMessage = "The mountains are impassable. " }
             }
         };
+    }
 
-    public override string Name => "Forest";
-
-    protected override string GetContextBasedDescription(IContext context) => "The forest thins out, revealing impassible mountains. ";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "The forest thins out, revealing impassible mountains. ";
+    }
 }

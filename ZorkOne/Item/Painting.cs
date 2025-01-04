@@ -10,8 +10,6 @@ public class Painting : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedIn
 {
     public override string[] NounsForMatching => ["painting"];
 
-    public override string GenericDescription(ILocation? currentLocation) => "A painting";
-
     public override int Size => 4;
 
     public string OnTheGroundDescription(ILocation currentLocation)
@@ -25,30 +23,35 @@ public class Painting : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedIn
             "Fortunately, there is still one chance for you to be a vandal, for on the far wall is a painting of unparalleled beauty. ";
     }
 
+    int IGivePointsWhenFirstPickedUp.NumberOfPoints => 4;
+
+    int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 6;
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A painting";
+    }
+
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-        if (action.Match(["cut", "chop", "slash", "destroy"], NounsForMatching, Repository.GetItem<Sword>().NounsForMatching, ["with", "using"]))
-         {
+        if (action.Match(["cut", "chop", "slash", "destroy"], NounsForMatching,
+                Repository.GetItem<Sword>().NounsForMatching, ["with", "using"]))
+        {
             if (!context.HasItem<Sword>())
-            {   
+            {
                 // It's here, but not in your inventory, so you can't use it.
                 if (context.CurrentLocation.HasItem<Sword>())
-                {
                     return new PositiveInteractionResult("You need to pick up the sword first. ");
-                }
- 
+
                 return new NoNounMatchInteractionResult();
             }
 
             context.RemoveItem(this);
             CurrentLocation = null;
-            return new PositiveInteractionResult("Your skillful swordsmanship slices the painting into innumerable slivers which blow away. ");
-         }   
+            return new PositiveInteractionResult(
+                "Your skillful swordsmanship slices the painting into innumerable slivers which blow away. ");
+        }
 
         return new NoNounMatchInteractionResult();
     }
-
-    int IGivePointsWhenFirstPickedUp.NumberOfPoints => 4;
-    
-    int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 6;
 }
