@@ -8,7 +8,7 @@ namespace GameEngine.Item.ItemProcessor;
 /// <summary>
 ///     A class that handles the processing of turning a light source on or off.
 /// </summary>
-public class TurnLightOnOrOffProcessor : IVerbProcessor
+public class TurnOnOrOffProcessor : IVerbProcessor
 {
     /// <summary>
     ///     Processes the action of turning on or off an object.
@@ -91,7 +91,7 @@ public class TurnLightOnOrOffProcessor : IVerbProcessor
     {
         switch (item)
         {
-            case IAmALightSourceThatTurnsOnAndOff onAndOff:
+            case ITurnOffAndOn onAndOff:
                 return TurnItOn(onAndOff, context).Result;
 
             default:
@@ -103,7 +103,7 @@ public class TurnLightOnOrOffProcessor : IVerbProcessor
     {
         switch (item)
         {
-            case IAmALightSourceThatTurnsOnAndOff onAndOff:
+            case ITurnOffAndOn onAndOff:
                 return TurnItOff(onAndOff, context, client).Result;
 
             case ICannotBeTurnedOff cannotBeTurnedOff:
@@ -114,7 +114,7 @@ public class TurnLightOnOrOffProcessor : IVerbProcessor
         }
     }
 
-    private static async Task<InteractionResult> TurnItOff(IAmALightSourceThatTurnsOnAndOff item, IContext context,
+    private static async Task<InteractionResult> TurnItOff(ITurnOffAndOn item, IContext context,
         IGenerationClient client)
     {
         if (!item.IsOn)
@@ -123,14 +123,14 @@ public class TurnLightOnOrOffProcessor : IVerbProcessor
         item.IsOn = false;
         item.OnBeingTurnedOff(context);
 
-        if (context.ItIsDarkHere)
+        if (context.ItIsDarkHere && item is IAmALightSourceThatTurnsOnAndOff)
             return new PositiveInteractionResult(
                 await new LookProcessor().Process(null, context, client, Runtime.Unknown));
 
         return new PositiveInteractionResult(item.NowOffText);
     }
 
-    private static Task<InteractionResult> TurnItOn(IAmALightSourceThatTurnsOnAndOff item, IContext context)
+    private static Task<InteractionResult> TurnItOn(ITurnOffAndOn item, IContext context)
     {
         var result = "";
 
@@ -145,7 +145,7 @@ public class TurnLightOnOrOffProcessor : IVerbProcessor
         item.IsOn = true;
         result += item.OnBeingTurnedOn(context);
 
-        if (itWasDark)
+        if (itWasDark && item is IAmALightSourceThatTurnsOnAndOff)
             result += "\n\n" + LookProcessor.LookAround(context, Verbosity.Verbose);
 
         return Task.FromResult<InteractionResult>(new PositiveInteractionResult(item.NowOnText + result));

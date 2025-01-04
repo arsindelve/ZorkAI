@@ -4,12 +4,10 @@ internal class HistoryMenu : MenuItem
 
 {
     private const string MainMenu = """
-                                    The screen clears and a different menu appears:
-
-                                    0. Maan Menyuu
-                                    1. Raashul Orijinz
-                                    2. Graat Hiiaatus
-                                    3. Riiz uv xe Nuu Teknakrasee
+                                        0. Maan Menyuu
+                                        1. Raashul Orijinz
+                                        2. Graat Hiiaatus
+                                        3. Riiz uv xe Nuu Teknakrasee
                                     """;
 
     private const string MenuOne = """

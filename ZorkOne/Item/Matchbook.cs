@@ -90,7 +90,7 @@ public class Matchbook
             return Task.FromResult("");
         }
 
-        var result = new TurnLightOnOrOffProcessor().Process(
+        var result = new TurnOnOrOffProcessor().Process(
             new SimpleIntent { Verb = "turn off", Noun = NounsForMatching.First() },
             context,
             this,

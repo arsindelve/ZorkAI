@@ -15,13 +15,11 @@ internal class MainMenu : MenuItem
     ];
 
     internal override string Text => """
-                                      The screen clears and a different menu appears:
-
-                                      1. Histooree
-                                      2. Kulcur
-                                      3. Teknolojee
-                                      4. Jeeografee
-                                      5. Xe Prajekt
-                                      6. Inturlajik Gaamz
+                                          1. Histooree
+                                          2. Kulcur
+                                          3. Teknolojee
+                                          4. Jeeografee
+                                          5. Xe Prajekt
+                                          6. Inturlajik Gaamz
                                       """;
 }

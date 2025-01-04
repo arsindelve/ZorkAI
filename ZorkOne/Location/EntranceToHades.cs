@@ -92,7 +92,7 @@ internal class EntranceToHades : DarkLocation
                            (candles.IsOn ? " and they are out. " : ".");
 
             if (candles.IsOn)
-                returnValue += new TurnLightOnOrOffProcessor().Process(new SimpleIntent
+                returnValue += new TurnOnOrOffProcessor().Process(new SimpleIntent
                 {
                     Noun = candles.NounsForMatching.First(),
                     Verb = "turn off"

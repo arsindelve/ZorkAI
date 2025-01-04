@@ -277,16 +277,16 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var sb = new StringBuilder();
 
         if (!string.IsNullOrEmpty(contextPrepend))
-            sb.AppendLine("\n" + contextPrepend.Trim());
+            sb.AppendLine("\n" + contextPrepend.TrimEnd());
 
         if (!string.IsNullOrEmpty(mainBody))
-            sb.AppendLine(mainBody.Trim());
+            sb.AppendLine(mainBody.TrimEnd());
 
         if (!string.IsNullOrEmpty(actorResult))
-            sb.AppendLine("\n" + actorResult.Trim());
+            sb.AppendLine("\n" + actorResult.TrimEnd());
 
         if (!string.IsNullOrEmpty(contextAppend))
-            sb.AppendLine("\n" + contextAppend.Trim());
+            sb.AppendLine("\n" + contextAppend.TrimEnd());
 
         return sb.ToString();
     }
@@ -375,7 +375,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         }
 
         _lastResponseWasGenerated = false;
-        return finalResult.Trim() + Environment.NewLine;
+        return finalResult.TrimEnd() + Environment.NewLine;
     }
 
     private async Task<string> ProcessGlobalCommandIntent(GlobalCommandIntent intent)
