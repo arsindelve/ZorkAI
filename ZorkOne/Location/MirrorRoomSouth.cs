@@ -6,13 +6,15 @@ namespace ZorkOne.Location;
 
 internal class MirrorRoomSouth : MirrorRoom
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.N, new MovementParameters { Location = GetLocation<NarrowPassage>() } },
             { Direction.E, new MovementParameters { Location = GetLocation<CaveSouth>() } },
             { Direction.W, new MovementParameters { Location = GetLocation<WindingPassage>() } }
         };
+    }
 
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)

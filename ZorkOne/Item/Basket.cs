@@ -12,11 +12,14 @@ public class Basket : ContainerBase, ICanBeExamined
 
     public override string Name => "basket";
 
-    public override string NeverPickedUpDescription(ILocation currentLocation) => ExaminationDescription;
-
     public override bool IsTransparent => true;
 
     public string ExaminationDescription => Items.Any() ? ItemListDescription("basket", null) : "The basket is empty. ";
+
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return ExaminationDescription;
+    }
 
     public override void Init()
     {

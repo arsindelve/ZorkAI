@@ -6,8 +6,6 @@ public class Screwdriver : ItemBase, ICanBeTakenAndDropped
 {
     public override string[] NounsForMatching => ["screwdriver"];
 
-    public override string GenericDescription(ILocation? currentLocation) => "A screwdriver";
-
     public override int Size => 2;
 
     public string OnTheGroundDescription(ILocation currentLocation)
@@ -18,5 +16,10 @@ public class Screwdriver : ItemBase, ICanBeTakenAndDropped
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {
         return OnTheGroundDescription(currentLocation);
+    }
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A screwdriver";
     }
 }

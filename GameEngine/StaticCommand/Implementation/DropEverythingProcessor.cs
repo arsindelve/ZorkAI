@@ -18,9 +18,8 @@ public class DropEverythingProcessor : IGlobalCommand
 
         foreach (var nextItem in items.ToList())
             if (nextItem is ICanBeTakenAndDropped)
-            {
-                sb.AppendLine($"{nextItem.Name}: {TakeOrDropInteractionProcessor.DropIt(context, nextItem).InteractionMessage}");
-            }
+                sb.AppendLine(
+                    $"{nextItem.Name}: {TakeOrDropInteractionProcessor.DropIt(context, nextItem).InteractionMessage}");
 
         return sb.ToString();
     }

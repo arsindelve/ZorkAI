@@ -13,10 +13,10 @@ public static class IntentHelper
     /// <returns></returns>
     public static bool MatchNounOne<T>(this MultiNounIntent intent) where T : IItem, new()
     {
-        T item = Repository.GetItem<T>();
+        var item = Repository.GetItem<T>();
         return intent.MatchNounOne(item.NounsForMatching);
     }
-    
+
     /// <summary>
     /// Saves the caller having to get the item from the repository first.
     /// The MultiNounIntent can't do that itself because of project dependencies. 
@@ -26,7 +26,7 @@ public static class IntentHelper
     /// <returns></returns>
     public static bool MatchNounTwo<T>(this MultiNounIntent intent) where T : IItem, new()
     {
-        T item = Repository.GetItem<T>();
+        var item = Repository.GetItem<T>();
         return intent.MatchNounTwo(item.NounsForMatching);
     }
 
@@ -44,7 +44,7 @@ public static class IntentHelper
     public static bool Match<TNounTwo>(this MultiNounIntent intent, string[] verbs, string[] nounsOneForMatching,
         string[] prepositionsForMatching) where TNounTwo : IItem, new()
     {
-        TNounTwo itemTwo = Repository.GetItem<TNounTwo>();
+        var itemTwo = Repository.GetItem<TNounTwo>();
         return intent.Match(verbs, nounsOneForMatching, itemTwo.NounsForMatching, prepositionsForMatching);
     }
 
@@ -62,8 +62,8 @@ public static class IntentHelper
     public static bool Match<TNounOne, TNounTwo>(this MultiNounIntent intent, string[] verbs,
         string[] prepositionsForMatching) where TNounTwo : IItem, new() where TNounOne : IItem, new()
     {
-        TNounOne itemOne = Repository.GetItem<TNounOne>();
-        TNounTwo itemTwo = Repository.GetItem<TNounTwo>();
+        var itemOne = Repository.GetItem<TNounOne>();
+        var itemTwo = Repository.GetItem<TNounTwo>();
         return intent.Match(verbs, itemOne.NounsForMatching, itemTwo.NounsForMatching, prepositionsForMatching);
     }
 }

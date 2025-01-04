@@ -7,10 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AWSSDK.Core" Version="3.7.400.66" />
-        <PackageReference Include="AWSSDK.LexModelsV2" Version="3.7.402.47" />
-        <PackageReference Include="AWSSDK.LexRuntimeV2" Version="3.7.400.66" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+        <PackageReference Include="AWSSDK.Core" Version="3.7.400.66"/>
+        <PackageReference Include="AWSSDK.LexModelsV2" Version="3.7.402.47"/>
+        <PackageReference Include="AWSSDK.LexRuntimeV2" Version="3.7.400.66"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0"/>
     </ItemGroup>
 
     <ItemGroup>

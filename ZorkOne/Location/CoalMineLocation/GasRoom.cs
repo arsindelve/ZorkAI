@@ -10,8 +10,19 @@ namespace ZorkOne.Location.CoalMineLocation;
 
 internal class GasRoom : DarkLocation, ITurnBasedActor
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
+    public override string Name => "Gas Room";
+
+    public Task<string> Act(IContext context, IGenerationClient client)
+    {
+        if (CarryingFlame(context))
+            return Task.FromResult(YouBlewUp(context));
+
+        return Task.FromResult(string.Empty);
+    }
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             {
                 Direction.Up, new MovementParameters { Location = GetLocation<SmellyRoom>() }
@@ -20,7 +31,8 @@ internal class GasRoom : DarkLocation, ITurnBasedActor
                 Direction.E, new MovementParameters { Location = GetLocation<CoalMineOne>() }
             }
         };
-    
+    }
+
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
         context.RegisterActor(this);
@@ -61,22 +73,14 @@ internal class GasRoom : DarkLocation, ITurnBasedActor
         return false;
     }
 
-    protected override string ContextBasedDescription =>
-        "This is a small room which smells strongly of coal gas. There is a short climb up some stairs " +
-        "and a narrow tunnel leading east. ";
-
-    public override string Name => "Gas Room";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "This is a small room which smells strongly of coal gas. There is a short climb up some stairs " +
+               "and a narrow tunnel leading east. ";
+    }
 
     public override void Init()
     {
         StartWithItem<SapphireBracelet>();
-    }
-
-    public Task<string> Act(IContext context, IGenerationClient client)
-    {
-        if (CarryingFlame(context))
-            return Task.FromResult(YouBlewUp(context));
-
-        return Task.FromResult(string.Empty);
     }
 }

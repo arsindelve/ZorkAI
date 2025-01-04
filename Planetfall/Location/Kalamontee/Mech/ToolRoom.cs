@@ -6,17 +6,21 @@ namespace Planetfall.Location.Kalamontee.Mech;
 
 internal class ToolRoom : LocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
+    public override string Name => "Tool Room";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.NE, Go<MechCorridorSouth>() },
             { Direction.E, Go<MachineShop>() }
         };
+    }
 
-    protected override string ContextBasedDescription =>
-        "This is apparently a storage room for tools. Exits lead northeast and east. ";
-
-    public override string Name => "Tool Room";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "This is apparently a storage room for tools. Exits lead northeast and east. ";
+    }
 
     public override void Init()
     {

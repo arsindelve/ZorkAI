@@ -8,6 +8,11 @@ namespace Planetfall.Location.Feinstein;
 
 internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
 {
+    public override string[] NounsForMatching => ["webbing", "safety webbing", "web"];
+
+    public string ExaminationDescription =>
+        "The safety webbing fills most of the pod. It could accomodate from one to, perhaps, twenty people. ";
+
     public string GetIn(IContext context)
     {
         if (context.CurrentLocation.SubLocation == this)
@@ -15,17 +20,6 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
 
         context.CurrentLocation.SubLocation = this;
         return "You are now safely cushioned within the web. ";
-    }
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
-    {
-        if (context.CurrentLocation.SubLocation != null && action.MatchVerb(["get", "rest", "sit"]))
-            return new PositiveInteractionResult(GetIn(context));
-
-        if (context.CurrentLocation.SubLocation == null && action.MatchVerb(["leave", "exit", "get"]))
-            return new PositiveInteractionResult(GetOut(context));
-
-        return base.RespondToSimpleInteraction(action, context, client);
     }
 
     public string GetOut(IContext context)
@@ -50,10 +44,17 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
 
     public string LocationDescription => ", in the safety web";
 
-    public string ExaminationDescription =>
-        "The safety webbing fills most of the pod. It could accomodate from one to, perhaps, twenty people. ";
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
+    {
+        if (context.CurrentLocation.SubLocation != null && action.MatchVerb(["get", "rest", "sit"]))
+            return new PositiveInteractionResult(GetIn(context));
 
-    public override string[] NounsForMatching => ["webbing", "safety webbing", "web"];
+        if (context.CurrentLocation.SubLocation == null && action.MatchVerb(["leave", "exit", "get"]))
+            return new PositiveInteractionResult(GetOut(context));
+
+        return base.RespondToSimpleInteraction(action, context, client);
+    }
 }
 
 internal class EscapePod : LocationBase, ITurnBasedActor
@@ -67,6 +68,14 @@ internal class EscapePod : LocationBase, ITurnBasedActor
     // ReSharper disable once MemberCanBePrivate.Global
     public ILocation WhereDoesTheDoorLead { get; set; } = Repository.GetLocation<DeckNine>();
 
+    public override string Name => "Escape Pod";
+
+    public Task<string> Act(IContext context, IGenerationClient client)
+    {
+        var action = TurnsAfterStanding == 0 ? HandleBeingInSpaceAndLanding(context) : YerSinking(context);
+        return Task.FromResult("\n\n" + action);
+    }
+
     public override Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
         IGenerationClient client)
     {
@@ -75,20 +84,21 @@ internal class EscapePod : LocationBase, ITurnBasedActor
             case "sit":
             case "sit down":
             case "get in":
-                string inMessage = Repository.GetItem<SafetyWeb>().GetIn(context);
+                var inMessage = Repository.GetItem<SafetyWeb>().GetIn(context);
                 return Task.FromResult<InteractionResult>(new PositiveInteractionResult(inMessage));
 
             case "stand":
             case "stand up":
-                string outMessage = Repository.GetItem<SafetyWeb>().GetOut(context);
+                var outMessage = Repository.GetItem<SafetyWeb>().GetOut(context);
                 return Task.FromResult<InteractionResult>(new PositiveInteractionResult(outMessage));
         }
 
         return base.RespondToSpecificLocationInteraction(input, context, client);
     }
 
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             {
                 Direction.Out,
@@ -109,6 +119,7 @@ internal class EscapePod : LocationBase, ITurnBasedActor
                 }
             }
         };
+    }
 
     protected override void OnFirstTimeEnterLocation(IContext context)
     {
@@ -117,22 +128,17 @@ internal class EscapePod : LocationBase, ITurnBasedActor
         base.OnFirstTimeEnterLocation(context);
     }
 
-    protected override string ContextBasedDescription =>
-        $"This is one of the Feinstein's primary escape pods, for use in extreme emergencies. A mass of safety " +
-        $"webbing, large enough to hold several dozen people, fills half the pod. The controls are entirely automated. " +
-        $"The bulkhead leading out is {(Repository.GetItem<BulkheadDoor>().IsOpen ? "open" : "closed")}. ";
-
-    public override string Name => "Escape Pod";
-
-    public Task<string> Act(IContext context, IGenerationClient client)
+    protected override string GetContextBasedDescription(IContext context)
     {
-        var action = TurnsAfterStanding == 0 ? HandleBeingInSpaceAndLanding(context) : YerSinking(context);
-        return Task.FromResult("\n\n" + action);
+        return
+            $"This is one of the Feinstein's primary escape pods, for use in extreme emergencies. A mass of safety " +
+            $"webbing, large enough to hold several dozen people, fills half the pod. The controls are entirely automated. " +
+            $"The bulkhead leading out is {(Repository.GetItem<BulkheadDoor>().IsOpen ? "open" : "closed")}. ";
     }
 
     private string YerSinking(IContext context)
     {
-        string action = "";
+        var action = "";
 
         // Starts to sink when you stand / exit the safety webbing. You used to not be able 
         // to open the door and leave without standing, but they seem to have changed that in the game. 
@@ -140,7 +146,9 @@ internal class EscapePod : LocationBase, ITurnBasedActor
         if (TurnsAfterStanding > 0)
         {
             TurnsAfterStanding++;
-            action = GetItem<BulkheadDoor>().IsOpen ? SinkingWithTheDoorOpen(context) : SinkingWithTheDoorClosed(context);
+            action = GetItem<BulkheadDoor>().IsOpen
+                ? SinkingWithTheDoorOpen(context)
+                : SinkingWithTheDoorClosed(context);
         }
 
         return action;
@@ -150,11 +158,15 @@ internal class EscapePod : LocationBase, ITurnBasedActor
     {
         return TurnsAfterStanding switch
         {
-            1 => "As you stand, the pod shifts slightly and you feel it falling. A moment later, the fall stops with a shock, and you see water rising past the viewport. ",
+            1 =>
+                "As you stand, the pod shifts slightly and you feel it falling. A moment later, the fall stops with a shock, and you see water rising past the viewport. ",
             2 => "",
-            3 => "The pod is now completely submerged, and you feel it smash against underwater rocks. Bubbles streaming upward past the window indicate that the pod is continuing to sink. ",
+            3 =>
+                "The pod is now completely submerged, and you feel it smash against underwater rocks. Bubbles streaming upward past the window indicate that the pod is continuing to sink. ",
             4 => "",
-            _ => Die("Between the swirling waters and the increasing pressure, it's curtains for you. Perhaps you should have left the pod a bit sooner. ", context)
+            _ => Die(
+                "Between the swirling waters and the increasing pressure, it's curtains for you. Perhaps you should have left the pod a bit sooner. ",
+                context)
         };
     }
 
@@ -162,9 +174,11 @@ internal class EscapePod : LocationBase, ITurnBasedActor
     {
         return TurnsAfterStanding switch
         {
-            1 => "As you stand, the pod shifts slightly and you feel it falling. A moment later, the fall stops with a shock, and you see water rising past the viewport. ",
+            1 =>
+                "As you stand, the pod shifts slightly and you feel it falling. A moment later, the fall stops with a shock, and you see water rising past the viewport. ",
             2 => "",
-            3 => "The pod is now completely submerged, and you feel it smash against underwater rocks. Bubbles streaming upward past the window indicate that the pod is continuing to sink. ",
+            3 =>
+                "The pod is now completely submerged, and you feel it smash against underwater rocks. Bubbles streaming upward past the window indicate that the pod is continuing to sink. ",
             4 => "The pod creaks ominously from the increasing pressure. ",
             _ => Die("The pod splits open, and water pours in. ", context)
         };
@@ -176,7 +190,8 @@ internal class EscapePod : LocationBase, ITurnBasedActor
         return new DeathProcessor().Process(deathText, context).InteractionMessage;
     }
 
-    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation, IGenerationClient generationClient)
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient generationClient)
     {
         // Now safely in the pod, swap the explosion actor for the escape pod actor. 
         context.RemoveActor<ExplosionCoordinator>();
@@ -191,7 +206,7 @@ internal class EscapePod : LocationBase, ITurnBasedActor
         if (context.CurrentLocation is not EscapePod)
             return string.Empty;
 
-        string action = "";
+        var action = "";
 
         switch (TurnsSinceExplosion)
         {
@@ -277,9 +292,10 @@ internal class EscapePod : LocationBase, ITurnBasedActor
 
                 else
                 {
-                    string death = "The pod, whose automated controls were unfortunately designed by computer scientists, " +
-                             "lands with a good deal of force. Your body sails across the pod until it is stopped by " +
-                             "one of the sharper corners of the control panel. ";
+                    var death =
+                        "The pod, whose automated controls were unfortunately designed by computer scientists, " +
+                        "lands with a good deal of force. Your body sails across the pod until it is stopped by " +
+                        "one of the sharper corners of the control panel. ";
 
                     action = new DeathProcessor().Process(death, context).InteractionMessage;
                 }

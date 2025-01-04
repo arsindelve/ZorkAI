@@ -1,10 +1,32 @@
 using System.Text;
 using System.Text.RegularExpressions;
+using WordsToNumbers;
 
 namespace Utilities;
 
 public static class Utilities
 {
+    /// <summary>
+    /// Converts a given string representation of a number (in numeric or words format) into an integer, if possible.
+    /// </summary>
+    /// <param name="number">The string to be converted into an integer. This can be numeric ("5") or words ("five").</param>
+    /// <returns>An integer value if the conversion is successful; otherwise, null.</returns>
+    public static int? ToInteger(this string? number)
+    {
+        var converter = new SimpleReplacementStrategy();
+        var result = converter.ConvertWordsToNumbers(number);
+
+        if (int.TryParse(result, out var i))
+            return i;
+
+        return null;
+    }
+
+    /// <summary>
+    /// Adds an indentation to each line of the given string.
+    /// </summary>
+    /// <param name="input">The input string where each line will be indented.</param>
+    /// <returns>A new string with each line preceded by an indentation.</returns>
     public static string IndentLines(this string input)
     {
         var sb = new StringBuilder();
@@ -33,19 +55,34 @@ public static class Utilities
         return list[index]; // Return the element at the random index.
     }
 
+    /// <summary>
+    /// Removes all non-alphabetic characters and retains only letters and whitespace from the input string.
+    /// </summary>
+    /// <param name="s">The input string from which non-alphabetic characters are to be removed. Can be null.</param>
+    /// <returns>A new string containing only alphabetic characters and whitespace. Returns an empty string if the input is null.</returns>
     public static string StripNonChars(this string? s)
     {
         if (s == null) return string.Empty;
         return Regex.Replace(s, "[^a-zA-Z\\s]", string.Empty);
     }
 
-    // "A sword, a diamond and a pile of leaves. 
+    /// <summary>
+    /// Constructs a concise, single-line string representation of a list of nouns, with the items separated by commas and the last item joined using "and."
+    /// </summary>
+    /// <example>"A sword, a diamond and a pile of leaves. </example>
+    /// <param name="nouns">The list of nouns to be formatted into a single string.</param>
+    /// <returns>A string where the nouns are combined with commas and the final noun is preceded by "and."</returns>
     public static string SingleLineListWithAnd(this List<string> nouns)
     {
         return SingleLineList(nouns, "and", "a");
     }
 
-    // "The brass lantern, the green lantern or the useless lantern
+    /// <summary>
+    /// Creates a single-line, human-readable string representation of a list of nouns, combining them with the word "or".
+    /// </summary>
+    /// <example>The brass lantern, the green lantern or the useless lantern</example>
+    /// <param name="nouns">The list of noun strings to format into a single line.</param>
+    /// <returns>A string representing the list of nouns combined with "or". For example, "item1, item2, or item3".</returns>
     public static string SingleLineListWithOr(this List<string> nouns)
     {
         return SingleLineList(nouns, "or", "the");

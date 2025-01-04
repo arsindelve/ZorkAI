@@ -1,12 +1,16 @@
 using GameEngine.Location;
+using Model.Interface;
 using Model.Movement;
 
 namespace ZorkOne.Location.MazeLocation;
 
 public class GratingRoom : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
+    public override string Name => "Grating Room";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.SW, new MovementParameters { Location = GetLocation<MazeEleven>() } },
             {
@@ -18,10 +22,12 @@ public class GratingRoom : DarkLocation
                 }
             }
         };
+    }
 
-    protected override string ContextBasedDescription =>
-        "You are in a small room near the maze. There are twisty passages in the immediate vicinity. ";
-    public override string Name => "Grating Room";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "You are in a small room near the maze. There are twisty passages in the immediate vicinity. ";
+    }
 
     public override void Init()
     {

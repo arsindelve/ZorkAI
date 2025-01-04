@@ -17,9 +17,9 @@ public record MultiNounIntent : IntentBase
     public required string Preposition { get; set; }
 
     public required string OriginalInput { get; set; }
-    
+
     public IItem? ItemOne { get; set; }
-    
+
     public IItem? ItemTwo { get; set; }
 
     public override string ToString()
@@ -42,7 +42,7 @@ public record MultiNounIntent : IntentBase
         return verbs.Any(s => s.Equals(Verb, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    private bool MatchPreposition(string[] prepositions)
+    public bool MatchPreposition(string[] prepositions)
     {
         return prepositions.Any(s => s.Equals(Preposition, StringComparison.InvariantCultureIgnoreCase));
     }
@@ -53,4 +53,4 @@ public record MultiNounIntent : IntentBase
         return MatchNounOne(nounsOneForMatching) && MatchNounTwo(nounsTwoForMatching) && MatchVerb(verbs) &&
                MatchPreposition(prepositionsForMatching);
     }
-}   
+}

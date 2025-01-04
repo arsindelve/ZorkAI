@@ -79,24 +79,6 @@ public class ZorkIContext : Context<ZorkI>
         return base.ProcessEndOfTurn();
     }
 
-    /// <summary>
-    ///     Some items in Zork1 give points for picking them up.
-    /// </summary>
-    /// <param name="item"></param>
-    public override void Take(IItem? item)
-    {
-        switch (item)
-        {
-            case null:
-                return;
-            case IGivePointsWhenFirstPickedUp points when !item.HasEverBeenPickedUp:
-                AddPoints(points.NumberOfPoints);
-                break;
-        }
-
-        base.Take(item);
-    }
-
     public override bool HaveRoomForItem(IItem item)
     {
         return CalculateTotalSize() < 21;

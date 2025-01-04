@@ -15,7 +15,7 @@ public class TakeAllDropAllTests : EngineTestsBase
         var response = await target.GetResponse("take all");
         response.Should().Contain("nothing here buddy");
     }
-    
+
     [Test]
     public async Task TakeAllNothingHereAtAll()
     {
@@ -54,7 +54,7 @@ public class TakeAllDropAllTests : EngineTestsBase
         var response = await target.GetResponse("drop all");
         response.Should().Contain("leaflet: Dropped");
     }
-    
+
     [Test]
     public async Task DropAllNothingInInventory()
     {

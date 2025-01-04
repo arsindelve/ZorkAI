@@ -32,11 +32,11 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, ...props}) => {
         const compassAngle = (90 - angleDeg + 360) % 360;
 
         let direction = getClosestDirection(compassAngle);
-        
-        Mixpanel.track('Click Compass', {    
+
+        Mixpanel.track('Click Compass', {
             "direction": direction,
         });
-        
+
         // Emit the angle to the callback
         onCompassClick(direction);
     };

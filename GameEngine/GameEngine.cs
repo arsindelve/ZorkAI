@@ -69,7 +69,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         Runtime = Runtime.Web;
         IntroText = $"""
                      {_gameInstance.StartText}
-                     {Context.CurrentLocation.Description}
+                     {Context.CurrentLocation.GetDescription(Context)}
                      """;
 
         GenerationClient = new ChatGPTClient(_logger);
@@ -120,11 +120,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public Direction? LastMovementDirection => Context.LastMovementDirection;
 
-    public string LocationDescription => Context.CurrentLocation.DescriptionForGeneration;
+    public string LocationDescription => Context.CurrentLocation.GetDescriptionForGeneration(Context);
 
     public int Moves => Context.Moves;
 
-    public int CurrentTime => Context is ITimeBasedContext tc ? tc.CurrentTime : 0; 
+    public int CurrentTime => Context is ITimeBasedContext tc ? tc.CurrentTime : 0;
 
     /// <summary>
     ///     Parse the input, determine the user's <see cref="IntentBase" /> and allow the
@@ -217,7 +217,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         var parsedResult = await _parser.DetermineComplexIntentType(
             _currentInput,
-            Context.CurrentLocation.Description,
+            Context.CurrentLocation.GetDescription(Context),
             _sessionId
         );
 
@@ -277,16 +277,16 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var sb = new StringBuilder();
 
         if (!string.IsNullOrEmpty(contextPrepend))
-            sb.AppendLine("\n" + contextPrepend.Trim());
+            sb.AppendLine("\n" + contextPrepend.TrimEnd());
 
         if (!string.IsNullOrEmpty(mainBody))
-            sb.AppendLine(mainBody.Trim());
+            sb.AppendLine(mainBody.TrimEnd());
 
         if (!string.IsNullOrEmpty(actorResult))
-            sb.AppendLine("\n" + actorResult.Trim());
+            sb.AppendLine("\n" + actorResult.TrimEnd());
 
         if (!string.IsNullOrEmpty(contextAppend))
-            sb.AppendLine("\n" + contextAppend.Trim());
+            sb.AppendLine("\n" + contextAppend.TrimEnd());
 
         return sb.ToString();
     }
@@ -375,7 +375,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         }
 
         _lastResponseWasGenerated = false;
-        return finalResult.Trim() + Environment.NewLine;
+        return finalResult.TrimEnd() + Environment.NewLine;
     }
 
     private async Task<string> ProcessGlobalCommandIntent(GlobalCommandIntent intent)
@@ -452,7 +452,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         )
     {
         var request = new CommandHasNoEffectOperationRequest(
-            context.CurrentLocation.DescriptionForGeneration,
+            context.CurrentLocation.GetDescriptionForGeneration(context),
             input
         );
         var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum);

@@ -6,10 +6,32 @@ using Newtonsoft.Json;
 
 namespace CloudWatch;
 
-public class CloudWatchLogger<T>(string groupName, string streamName, Guid turnCorrelationId) : ICloudWatchLogger<T> 
+public class CloudWatchLogger<T>(string groupName, string streamName, Guid turnCorrelationId) : ICloudWatchLogger<T>
     where T : ITurnBasedLog
 {
     private readonly AmazonCloudWatchLogsClient _client = new(RegionEndpoint.USEast1);
+
+    public async Task WriteLogEvents(T log)
+    {
+        log.TurnCorrelationId = turnCorrelationId.ToString();
+        var logString = JsonConvert.SerializeObject(log);
+
+        var logEvents = new List<InputLogEvent>
+        {
+            new()
+            {
+                Message = logString,
+                Timestamp = DateTime.UtcNow
+            }
+        };
+
+        await _client.PutLogEventsAsync(new PutLogEventsRequest
+        {
+            LogGroupName = groupName,
+            LogStreamName = streamName,
+            LogEvents = logEvents
+        });
+    }
 
     internal async Task CreateLogGroupIfNotExists()
     {
@@ -41,27 +63,5 @@ public class CloudWatchLogger<T>(string groupName, string streamName, Guid turnC
         {
             Console.WriteLine($"Log stream '{streamName}' already exists.");
         }
-    }
-
-    public async Task WriteLogEvents(T log) 
-    {
-        log.TurnCorrelationId = turnCorrelationId.ToString();
-        string logString = JsonConvert.SerializeObject(log);
-        
-        var logEvents = new List<InputLogEvent>
-        {
-            new()
-            {
-                Message = logString,
-                Timestamp = DateTime.UtcNow
-            }
-        };
-
-        await _client.PutLogEventsAsync(new PutLogEventsRequest
-        {
-            LogGroupName = groupName,
-            LogStreamName = streamName,
-            LogEvents = logEvents
-        });
     }
 }

@@ -12,15 +12,6 @@ namespace GameEngine.Location;
 /// </summary>
 public abstract class LocationBase : ILocation, ICanHoldItems
 {
-    /// <summary>
-    ///     The Map defines all the places the user can go from this location. It can also define
-    ///     locations where we cannot go, but for which we want to provide a custom message such
-    ///     as "The kitchen window is closed."
-    /// </summary>
-    protected abstract Dictionary<Direction, MovementParameters> Map { get; }
-
-    protected abstract string ContextBasedDescription { get; }
-
     public bool IsTransparent => false;
 
     // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global: Needed by deserializer.
@@ -85,10 +76,22 @@ public abstract class LocationBase : ILocation, ICanHoldItems
 
     public void ItemPlacedHere<T>() where T : IItem, new()
     {
-        T item = Repository.GetItem<T>();
+        var item = Repository.GetItem<T>();
         ItemPlacedHere(item);
     }
-    
+
+    public virtual string ItemPlacedHereResult(IItem item, IContext context)
+    {
+        return string.Empty;
+    }
+
+    /// <summary>
+    /// By default, any item can be placed/dropped in any room.  
+    /// </summary>
+    public Type[] CanOnlyHoldTheseTypes => [];
+
+    public string CanOnlyHoldTheseTypesErrorMessage => string.Empty;
+
     public void ItemPlacedHere(IItem item)
     {
         var oldLocation = item.CurrentLocation;
@@ -96,12 +99,12 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         item.CurrentLocation = this;
         Items.Add(item);
     }
-    
+
     public string LogItems()
     {
         return string.Join(", ", Items.Select(item => item.GenericDescription(this).Trim()));
     }
-    
+
     // ReSharper disable once MemberCanBePrivate.Global
     public int VisitCount { get; set; }
 
@@ -158,15 +161,21 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         return string.Empty;
     }
 
-    public virtual string Description => Name +
-                                         SubLocation?.LocationDescription +
-                                         Environment.NewLine +
-                                         ContextBasedDescription +
-                                         GetItemDescriptions();
+    public virtual string GetDescription(IContext context)
+    {
+        return Name +
+               SubLocation?.LocationDescription +
+               Environment.NewLine +
+               GetContextBasedDescription(context) +
+               GetItemDescriptions();
+    }
 
     public abstract void Init();
 
-    public virtual string DescriptionForGeneration => Description;
+    public virtual string GetDescriptionForGeneration(IContext context)
+    {
+        return GetDescription(context);
+    }
 
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="SimpleIntent" /> corresponding
@@ -205,22 +214,30 @@ public abstract class LocationBase : ILocation, ICanHoldItems
     ///     a null response)
     /// </summary>
     /// <param name="direction">The direction we want to go from here. </param>
+    /// <param name="context"></param>
     /// <returns>
     ///     A <see cref="MovementParameters" /> that describes our ability to move there, or null
     ///     if movement in that direction is always impossible
     /// </returns>
-    public MovementParameters? Navigate(Direction direction)
+    public MovementParameters? Navigate(Direction direction, IContext context)
     {
-        if (Map is null)
-            throw new Exception($"Location {Name} has a null map");
-
-        return Map.ContainsKey(direction) ? Map[direction] : null;
+        return Map(context).ContainsKey(direction) ? Map(context)[direction] : null;
     }
 
     public bool HasItem<T>() where T : IItem, new()
     {
         return Items.Contains(Repository.GetItem<T>());
     }
+
+    /// <summary>
+    ///     The Map defines all the places the user can go from this location. It can also define
+    ///     locations where we cannot go, but for which we want to provide a custom message such
+    ///     as "The kitchen window is closed."
+    /// </summary>
+    /// <param name="context"></param>
+    protected abstract Dictionary<Direction, MovementParameters> Map(IContext context);
+
+    protected abstract string GetContextBasedDescription(IContext context);
 
     protected virtual void OnFirstTimeEnterLocation(IContext context)
     {

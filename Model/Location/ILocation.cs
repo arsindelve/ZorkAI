@@ -13,15 +13,27 @@ namespace Model.Location;
 /// </summary>
 public interface ILocation
 {
-    string Description { get; }
+    string Name { get; }
+
+    /// <summary>
+    /// This property represents a sub-location inside another location. It can be used to define a location
+    /// that exists within another location, such as a vehicle or a specific area within a larger space.
+    /// </summary>
+    ISubLocation? SubLocation { get; set; }
+
+    /// <summary>
+    /// How many times have we been here before? 
+    /// </summary>
+    int VisitCount { get; set; }
+
+    string GetDescription(IContext context);
 
     /// <summary>
     ///     This allows us to provide a different description of the current location when we use it as
     ///     part of a prompt for AI.
     /// </summary>
-    string DescriptionForGeneration { get; }
-
-    string Name { get; }
+    /// <param name="context"></param>
+    string GetDescriptionForGeneration(IContext context);
 
     /// <summary>
     ///     Gets called the first time a location is referenced.
@@ -33,17 +45,6 @@ public interface ILocation
     ///     we need to process when we walk in the room, BEFORE the description of the room
     /// </summary>
     string BeforeEnterLocation(IContext context, ILocation previousLocation);
-    
-    /// <summary>
-    /// This property represents a sub-location inside another location. It can be used to define a location
-    /// that exists within another location, such as a vehicle or a specific area within a larger space.
-    /// </summary>
-    ISubLocation? SubLocation { get; set; }
-
-    /// <summary>
-    /// How many times have we been here before? 
-    /// </summary>
-    int VisitCount { get; set; }
 
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="SimpleIntent" /> corresponding
@@ -75,11 +76,12 @@ public interface ILocation
     ///     a null response)
     /// </summary>
     /// <param name="direction">The direction we want to go from here. </param>
+    /// <param name="context"></param>
     /// <returns>
     ///     A <see cref="MovementParameters" /> that describes our ability to move there, or null
     ///     if movement in that direction is always impossible
     /// </returns>
-    MovementParameters? Navigate(Direction direction);
+    MovementParameters? Navigate(Direction direction, IContext context);
 
     /// <summary>
     ///     Checks if the specified item type is present in the current location.
@@ -120,7 +122,8 @@ public interface ILocation
     /// <param name="context"></param>
     /// <param name="client">AI generation client</param>
     /// <returns>An object of type InteractionResult that describes the result of the interaction.</returns>
-    Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client);
+    Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
+        IGenerationClient client);
 
     /// <summary>
     ///     Event handler for a location when the player has waited. Rarely used, but some locations
@@ -140,5 +143,4 @@ public interface ILocation
     /// </summary>
     /// <returns></returns>
     string LogItems();
-
 }

@@ -4,8 +4,11 @@ namespace Planetfall.Location.Feinstein;
 
 internal class DeckEight : BlatherLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
+    public override string Name => "Deck Eight";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.Down, Go<Gangway>() },
             {
@@ -21,10 +24,11 @@ internal class DeckEight : BlatherLocation
                 BlatherBlocksYou()
             }
         };
+    }
 
-    protected override string ContextBasedDescription =>
-        "This is a featureless corridor leading port and starboard. A gangway leads down, and to fore " +
-        "is the Hyperspatial Jump Machinery Room. ";
-
-    public override string Name => "Deck Eight";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "This is a featureless corridor leading port and starboard. A gangway leads down, and to fore " +
+               "is the Hyperspatial Jump Machinery Room. ";
+    }
 }

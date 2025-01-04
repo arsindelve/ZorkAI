@@ -13,10 +13,11 @@ internal class DisambiguationProcessor(DisambiguationInteractionResult disambigu
             return Task.FromResult("");
 
         // The order by here makes sure we get the most precise (longest) matching description 
-        foreach (string possibleResponse in disambiguator.PossibleResponses.Keys)
+        foreach (var possibleResponse in disambiguator.PossibleResponses.Keys)
             if (input.ToLowerInvariant().Trim().Contains(possibleResponse))
             {
-                var result = string.Format(disambiguator.ReplacementString, disambiguator.PossibleResponses[possibleResponse]);
+                var result = string.Format(disambiguator.ReplacementString,
+                    disambiguator.PossibleResponses[possibleResponse]);
                 Debug.WriteLine($"ComplexActionDisambiguationProcessor: {result}");
                 return Task.FromResult(result);
             }

@@ -11,20 +11,22 @@ namespace ZorkOne.Location;
 
 public class TrollRoom : DarkLocation
 {
-    private readonly ICombatEngine _trollAttackEngine = new AdventurerVersusTrollCombatEngine();
-
     private readonly KillSomeoneDecisionEngine<Troll> _killDecisionEngine;
+    private readonly ICombatEngine _trollAttackEngine = new AdventurerVersusTrollCombatEngine();
 
     public TrollRoom()
     {
         _killDecisionEngine = new KillSomeoneDecisionEngine<Troll>(_trollAttackEngine);
     }
-    
+
     private bool TrollIsAwake => !GetItem<Troll>().IsDead &&
                                  !GetItem<Troll>().IsUnconscious;
 
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
+    public override string Name => "The Troll Room";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.S, new MovementParameters { Location = GetLocation<Cellar>() } },
             {
@@ -44,12 +46,13 @@ public class TrollRoom : DarkLocation
                 }
             }
         };
+    }
 
-    public override string Name => "The Troll Room";
-
-    protected override string ContextBasedDescription =>
-        "This is a small room with passages to the east and south and a forbidding hole leading west. " +
-        "Bloodstains and deep scratches (perhaps made by an axe) mar the walls. ";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "This is a small room with passages to the east and south and a forbidding hole leading west. " +
+               "Bloodstains and deep scratches (perhaps made by an axe) mar the walls. ";
+    }
 
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
@@ -83,16 +86,16 @@ public class TrollRoom : DarkLocation
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        InteractionResult? killInteraction = _killDecisionEngine.DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(action, context);
+        var killInteraction = _killDecisionEngine.DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(action, context);
         return killInteraction ?? base.RespondToSimpleInteraction(action, context, client);
     }
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-        InteractionResult? result = _killDecisionEngine.DoYouWantToKillSomeone(action, context);
+        var result = _killDecisionEngine.DoYouWantToKillSomeone(action, context);
         return result ?? base.RespondToMultiNounInteraction(action, context);
     }
-    
+
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {

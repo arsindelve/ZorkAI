@@ -15,7 +15,7 @@ public class TakeEverythingProcessor : IGlobalCommand
         IContext context,
         IGenerationClient client,
         Runtime runtime
-    )
+        )
     {
         var sb = new StringBuilder();
         var items = ((ICanHoldItems)context.CurrentLocation).GetAllItemsRecursively;
@@ -31,9 +31,9 @@ public class TakeEverythingProcessor : IGlobalCommand
                 continue;
             }
 
-            if (nextItem is not ICanBeTakenAndDropped) 
+            if (nextItem is not ICanBeTakenAndDropped)
                 continue;
-            
+
             sb.AppendLine($"{nextItem.Name}: Taken. ");
             context.ItemPlacedHere(nextItem);
         }

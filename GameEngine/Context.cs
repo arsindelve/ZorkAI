@@ -44,6 +44,11 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     private T GameType { get; set; }
 
+    public virtual string ItemPlacedHereResult(IItem item, IContext context)
+    {
+        return string.Empty;
+    }
+
     public List<ITurnBasedActor> Actors { get; set; } = new();
 
     public int CarryingWeight => Items.Sum(s => s.Size);
@@ -83,6 +88,13 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global: Deserializer needs it. 
     public List<IItem> Items { get; set; } = new();
+
+    /// <summary>
+    /// By default, the context (inventory) can hold any kind of time if there's room, and it's take-able. 
+    /// </summary>
+    public Type[] CanOnlyHoldTheseTypes => [];
+
+    public string? CanOnlyHoldTheseTypesErrorMessage => string.Empty;
 
     /// <summary>
     ///     Gets a value indicating whether the adventurer has a light source that is on
@@ -265,6 +277,8 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     {
         if (item == null)
             throw new Exception("Null item was added to inventory");
+
+        if (item is IGivePointsWhenFirstPickedUp up && !item.HasEverBeenPickedUp) AddPoints(up.NumberOfPoints);
 
         Items.Add(item);
         var previousOwner = item.CurrentLocation;

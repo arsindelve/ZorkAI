@@ -9,8 +9,11 @@ namespace ZorkOne.Location.CoalMineLocation;
 
 internal class ShaftRoom : DarkLocation
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
+    public override string Name => "Shaft Room";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             {
                 Direction.W, new MovementParameters { Location = GetLocation<BatRoom>() }
@@ -24,14 +27,16 @@ internal class ShaftRoom : DarkLocation
                 Direction.N, new MovementParameters { Location = GetLocation<SmellyRoom>() }
             }
         };
+    }
 
-    protected override string ContextBasedDescription =>
-        "This is a large room, in the middle of which is a small shaft descending through the floor into darkness " +
-        "below. To the west and the north are exits from this room. Constructed over the top of the shaft is a metal " +
-        $"framework to which a heavy iron chain is attached. {(Items.Contains(Repository.GetItem<Basket>()) ? "\nAt the end of the chain is a basket. " 
-            + (GetItem<Basket>().Items.Any() ? GetItem<Basket>().ItemListDescription("basket", null) : "") : "")} \n";
-
-    public override string Name => "Shaft Room";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return
+            "This is a large room, in the middle of which is a small shaft descending through the floor into darkness " +
+            "below. To the west and the north are exits from this room. Constructed over the top of the shaft is a metal " +
+            $"framework to which a heavy iron chain is attached. {(Items.Contains(Repository.GetItem<Basket>()) ? "\nAt the end of the chain is a basket. "
+                + (GetItem<Basket>().Items.Any() ? GetItem<Basket>().ItemListDescription("basket", null) : "") : "")} \n";
+    }
 
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient? generationClient)

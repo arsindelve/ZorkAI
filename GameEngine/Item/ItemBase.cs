@@ -23,7 +23,7 @@ public abstract class ItemBase : IItem
     /// <returns></returns>
     public virtual string GenericDescription(ILocation? currentLocation)
     {
-        return String.Empty;
+        return string.Empty;
     }
 
     public virtual string? CannotBeTakenDescription { get; set; }
@@ -142,11 +142,11 @@ public abstract class ItemBase : IItem
         if (item is ICanBeRead)
             result.Add(new ReadInteractionProcessor());
 
-        if (item is IAmALightSourceThatTurnsOnAndOff)
-            result.Add(new TurnLightOnOrOffProcessor());
+        if (item is ITurnOffAndOn)
+            result.Add(new TurnOnOrOffProcessor());
 
         if (item is ICannotBeTurnedOff)
-            result.Add(new TurnLightOnOrOffProcessor());
+            result.Add(new TurnOnOrOffProcessor());
 
         if (item is IOpenAndClose)
             result.Add(new OpenAndCloseInteractionProcessor());

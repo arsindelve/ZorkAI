@@ -11,6 +11,21 @@ public interface IOpenAndClose : IInteractionTarget
     bool IsOpen { get; set; }
 
     /// <summary>
+    /// This is what we tell the user when they try to open the item, but it's already open. 
+    /// </summary>
+    string AlreadyOpen { get; }
+
+    /// <summary>
+    /// This is what we tell the user when they try to close the item, but it's already closed. 
+    /// </summary>
+    string AlreadyClosed { get; }
+
+    /// <summary>
+    ///     Has this item ever been opened?
+    /// </summary>
+    bool HasEverBeenOpened { get; set; }
+
+    /// <summary>
     /// Tell the user that it's open now
     /// </summary>
     /// <param name="currentLocation">Why? Because of the grate in Zork One - Different behavior
@@ -27,21 +42,6 @@ public interface IOpenAndClose : IInteractionTarget
     /// also behave this way (but doesn't)</param>
     /// <returns></returns>
     string NowClosed(ILocation currentLocation);
-
-    /// <summary>
-    /// This is what we tell the user when they try to open the item, but it's already open. 
-    /// </summary>
-    string AlreadyOpen { get; }
-
-    /// <summary>
-    /// This is what we tell the user when they try to close the item, but it's already closed. 
-    /// </summary>
-    string AlreadyClosed { get; }
-
-    /// <summary>
-    ///     Has this item ever been opened?
-    /// </summary>
-    bool HasEverBeenOpened { get; set; }
 
     /// <summary>
     ///     Returns the description of why the item cannot be opened, or null if it can be opened.

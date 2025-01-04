@@ -9,8 +9,11 @@ namespace ZorkOne.Location;
 
 public class DamBase : LocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
+    public override string Name => "Dam Base";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             {
                 Direction.N,
@@ -31,24 +34,26 @@ public class DamBase : LocationBase
                 }
             }
         };
+    }
 
-    protected override string ContextBasedDescription =>
-        "You are at the base of Flood Control Dam #3, which looms above you and to the north. The river " +
-        "Frigid is flowing by here. Along the river are the White Cliffs which seem to form giant walls stretching" +
-        " from north to south along the shores of the river as it winds its way downstream. ";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "You are at the base of Flood Control Dam #3, which looms above you and to the north. The river " +
+               "Frigid is flowing by here. Along the river are the White Cliffs which seem to form giant walls stretching" +
+               " from north to south along the shores of the river as it winds its way downstream. ";
+    }
 
-    public override string Name => "Dam Base";
-
-    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client)
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
+        IGenerationClient client)
     {
         if (string.IsNullOrEmpty(input))
             return await base.RespondToSpecificLocationInteraction(input, context, client);
-        
+
         var preppedInput = input.ToLowerInvariant().Trim();
 
         if (SubLocation is null)
             return await base.RespondToSpecificLocationInteraction(input, context, client);
-        
+
         if (preppedInput.StartsWith("launch"))
         {
             // TODO: move some of this logic to the move engine, but only after tests are passing. 
@@ -58,7 +63,7 @@ public class DamBase : LocationBase
             context.CurrentLocation.SubLocation = Repository.GetItem<PileOfPlastic>();
             ((ICanHoldItems)context.CurrentLocation).ItemPlacedHere(Repository.GetItem<PileOfPlastic>());
 
-            return new PositiveInteractionResult(context.CurrentLocation.Description);
+            return new PositiveInteractionResult(context.CurrentLocation.GetDescription(context));
         }
 
         return await base.RespondToSpecificLocationInteraction(input, context, client);

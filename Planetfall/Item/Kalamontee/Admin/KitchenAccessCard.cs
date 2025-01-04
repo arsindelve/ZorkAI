@@ -1,6 +1,7 @@
 ﻿namespace Planetfall.Item.Kalamontee.Admin;
 
-public class KitchenAccessCard : AccessCard, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead
+public class KitchenAccessCard : AccessCard, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead,
+    IGivePointsWhenFirstPickedUp
 {
     public override string[] NounsForMatching =>
         ["kitchen access card", "card", "access card", "kitchen", "kitchen card", "kitchen access"];
@@ -13,6 +14,8 @@ public class KitchenAccessCard : AccessCard, ICanBeExamined, ICanBeTakenAndDropp
     {
         return "There is a kitchen access card here. ";
     }
+
+    int IGivePointsWhenFirstPickedUp.NumberOfPoints => 1;
 
     public override string GenericDescription(ILocation? currentLocation)
     {

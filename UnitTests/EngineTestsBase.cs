@@ -27,7 +27,8 @@ public class EngineTestsBase
 
         Repository.Reset();
 
-        var engine = new GameEngine<ZorkI, ZorkIContext>(Parser, Client.Object, Mock.Of<ISecretsManager>(), Mock.Of<ICloudWatchLogger<TurnLog>>());
+        var engine = new GameEngine<ZorkI, ZorkIContext>(Parser, Client.Object, Mock.Of<ISecretsManager>(),
+            Mock.Of<ICloudWatchLogger<TurnLog>>());
         engine.Context.Verbosity = Verbosity.Verbose;
         Repository.GetLocation<WestOfHouse>().Init();
 

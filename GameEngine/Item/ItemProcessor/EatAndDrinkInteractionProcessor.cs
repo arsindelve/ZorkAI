@@ -58,13 +58,13 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
         var container = item.CurrentLocation as IItem;
 
         if (container != null && container.CurrentLocation != context)
-            return $"You have to be holding the {container.Name}. ";
+            return $"You would have to be holding the {container.Name}. ";
 
         if (container is IOpenAndClose { IsOpen: false })
             return $"The {container.Name} is not open. ";
 
         DestroyIt(item);
-        return drink.DrankDescription;
+        return drink.OnDrinking(context);
     }
 
     private static string EatIt(IItem item, string message, ICanBeEaten food, IContext context)
@@ -85,7 +85,7 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
 
         DestroyIt(item);
 
-        message += food.EatenDescription(context);
+        message += food.OnEating(context);
         return message;
     }
 

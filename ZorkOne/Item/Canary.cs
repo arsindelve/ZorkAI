@@ -14,6 +14,7 @@ public class Canary : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTr
                                              "Through a cracked crystal window below its left wing you can see the " +
                                              "remains of intricate machinery. It is not clear what result winding " +
                                              "it would have, as the mainspring seems sprung. ";
+
     public bool IsDestroyed { get; set; }
 
     public bool HasDroppedBauble { get; set; }

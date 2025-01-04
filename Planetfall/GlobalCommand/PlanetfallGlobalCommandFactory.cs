@@ -1,7 +1,7 @@
 using GameEngine.StaticCommand;
 using Utilities;
 
-namespace Planetfall;
+namespace Planetfall.GlobalCommand;
 
 public class PlanetfallGlobalCommandFactory : GlobalCommandFactory
 {
@@ -11,6 +11,9 @@ public class PlanetfallGlobalCommandFactory : GlobalCommandFactory
         {
             case "zork":
                 return new SimpleResponseCommand("Gesundheit! ");
+
+            case "diagnose":
+                return new DiagnoseProcessor();
         }
 
         return base.GetGlobalCommands(input);

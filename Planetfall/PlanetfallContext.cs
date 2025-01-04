@@ -1,12 +1,14 @@
+using Utilities;
+
 namespace Planetfall;
 
 public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
 {
     // ReSharper disable once MemberCanBePrivate.Global
-    public int CurrentTime => Repository.GetItem<Chronometer>().CurrentTime;
+    public int Day { get; set; } = 1;
 
     // ReSharper disable once MemberCanBePrivate.Global
-    public int Day { get; set; } = 1;
+    public SicknessNotifications SicknessNotifications { get; set; } = new();
 
     public override string CurrentScore =>
         $"Your score would be {Score} (out of 80 points). It is Day {Day} of your adventure. " +
@@ -16,6 +18,15 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
 
     private bool WearingWatch =>
         Items.Contains(Repository.GetItem<Chronometer>()) && Repository.GetItem<Chronometer>().BeingWorn;
+
+    public HungerLevel Hunger { get; set; } = HungerLevel.WellFed;
+
+    public TiredLevel Tired { get; set; } = TiredLevel.WellRested;
+
+    public string SicknessDescription => ((SicknessLevel)Day).GetDescription();
+
+    // ReSharper disable once MemberCanBePrivate.Global
+    public int CurrentTime => Repository.GetItem<Chronometer>().CurrentTime;
 
     public string CurrentTimeResponse =>
         WearingWatch
@@ -28,6 +39,11 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
         StartWithItem<Diary>(this);
         StartWithItem<Chronometer>(this);
         StartWithItem<Uniform>(this);
+    }
+
+    public override string? ProcessBeginningOfTurn()
+    {
+        return SicknessNotifications.GetNotification(Day, CurrentTime) + base.ProcessBeginningOfTurn();
     }
 
     public override string? ProcessEndOfTurn()

@@ -6,8 +6,11 @@ namespace Planetfall.Location.Kalamontee;
 
 internal class MessCorridor : LocationBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
+    public override string Name => "Mess Corridor";
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.E, Go<DormCorridor>() },
             { Direction.S, Go<MessHall>() },
@@ -21,11 +24,12 @@ internal class MessCorridor : LocationBase
                 }
             }
         };
+    }
 
-    protected override string ContextBasedDescription =>
-        "This is a wide, east-west hallway with a large portal to the south. ";
-
-    public override string Name => "Mess Corridor";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "This is a wide, east-west hallway with a large portal to the south. ";
+    }
 
     public override void Init()
     {

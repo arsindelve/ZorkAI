@@ -6,11 +6,20 @@ public class AirPump : ItemBase, ICanBeTakenAndDropped
 {
     public override string[] NounsForMatching => ["pump", "air pump", "hand-held air pump"];
 
-    public override string GenericDescription(ILocation? currentLocation) => "A hand-held air pump";
-    
-    public string OnTheGroundDescription(ILocation currentLocation) => "There is a hand-held air pump here. ";
-
-    public override string NeverPickedUpDescription(ILocation currentLocation) => OnTheGroundDescription(currentLocation);
-
     public override int Size => 5;
+
+    public string OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "There is a hand-held air pump here. ";
+    }
+
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return OnTheGroundDescription(currentLocation);
+    }
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A hand-held air pump";
+    }
 }

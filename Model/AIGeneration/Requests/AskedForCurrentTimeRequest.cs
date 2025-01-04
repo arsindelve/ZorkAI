@@ -10,11 +10,9 @@ namespace Model.AIGeneration.Requests;
 /// </remarks>
 public class AskedForCurrentTimeRequest : Request
 {
-
     public AskedForCurrentTimeRequest()
     {
         UserMessage =
             "The player asked what time it is, but that has no meaning in this game, and they should not be worried about that. Provide the narrator's succinct but sarcastic response";
     }
-
 }

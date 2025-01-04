@@ -1,9 +1,11 @@
+using Planetfall.GlobalCommand;
+
 namespace Planetfall;
 
 public class PlanetfallGame : IInfocomGame
 {
     public Type StartingLocation => typeof(DeckNine);
-    
+
     public string GameName => "Planetfall";
 
     public string StartText => """
@@ -20,20 +22,20 @@ public class PlanetfallGame : IInfocomGame
 
     // https://github.com/the-infocom-files/planetfall/blob/834001e0704ceae3000953a79429ba8ad5216077/verbs.zil#L242
 
-    // [23 hints left.] -> 3 points for entering the Escape Pod.
-    // [22 hints left.] -> 3 points for entering the Crag.
+    // [23 hints left.] -> ** 3 points for entering the Escape Pod.
+    // [22 hints left.] -> ** 3 points for entering the Crag.
     // [21 hints left.] -> 2 points for turning Floyd on for the first time.
     // [20 hints left.] -> 2 points for firing the laser for the first time.
-    // [19 hints left.] -> 4 points for entering Storage West.
-    // [18 hints left.] -> 4 points for entering Admin Corridor North.
-    // [17 hints left.] -> 4 points for entering the Kitchen.
+    // [19 hints left.] -> ** 4 points for entering Storage West.
+    // [18 hints left.] -> ** 4 points for entering Admin Corridor North.
+    // [17 hints left.] -> ** 4 points for entering the Kitchen.
     // [16 hints left.] -> 4 points for entering the Tower Core.
     // [15 hints left.] -> 4 points for entering the Kalamontee Platform.
     // [14 hints left.] -> 4 points for entering the Lawanda Platform.
-    // [13 hints left.] -> 1 point for taking the kitchen access card.
-    // [12 hints left.] -> 1 point for taking the shuttle access card.
-    // [11 hints left.] -> 1 point for taking the upper elevator access card.
-    // [10 hints left.] -> 1 point for taking the lower elevator access card.
+    // [13 hints left.] -> ** 1 point for taking the kitchen access card.
+    // [12 hints left.] -> ** 1 point for taking the shuttle access card.
+    // [11 hints left.] -> ** 1 point for taking the upper elevator access card.
+    // [10 hints left.] -> ** 1 point for taking the lower elevator access card.
     // [9 hints left.] -> 1 point for taking the miniaturization access card.
     // [8 hints left.] -> 2 points for Floyd's death.
     // [7 hints left.] -> 6 points for fixing the communications system.
@@ -44,21 +46,21 @@ public class PlanetfallGame : IInfocomGame
     // [2 hints left.] -> 8 points for fixing the computer.
     // [1 hint left.] -> 5 points for entering the Cryo-Elevator.
 
-    // [20 hints left.] -> Reading the graffiti in the Brig?
+    // [20 hints left.] -> ** Reading the graffiti in the Brig?
     // [19 hints left.] -> Attacking, talking to, or throwing something at Blather?
     // [18 hints left.] -> Attacking or talking to the ambassador?
-    // [17 hints left.] -> Touching, eating, smelling, or looking at the slime? It (feels/smells/tastes) like slime. Aren't you glad you didn't step in it? (Same "feels like" if you take it)
-    // [16 hints left.] -> Scrubbing the slime? (Clean or scrub) Whew. You've cleaned up maybe one ten-thousandth of the slime. If you hurry, it might be all cleaned up before Ensign Blather gets here.
-    // [15 hints left.] -> Eating the celery? // >eat celery Oops. Looks like Blow'k-Bibben-Gordoan metabolism is not compatible with our own. You die of all sorts of convulsions.
-    // [14 hints left.] -> Examining the games and tapes in the Rec Area?
+    // [17 hints left.] -> ** Touching, eating, smelling, or looking at the slime? It (feels/smells/tastes) like slime. Aren't you glad you didn't step in it? (Same "feels like" if you take it)
+    // [16 hints left.] -> ** Scrubbing the slime? (Clean or scrub) Whew. You've cleaned up maybe one ten-thousandth of the slime. If you hurry, it might be all cleaned up before Ensign Blather gets here.
+    // [15 hints left.] -> ** Eating the celery? // >eat celery Oops. Looks like Blow'k-Bibben-Gordoan metabolism is not compatible with our own. You die of all sorts of convulsions.
+    // [14 hints left.] -> ** Examining the games and tapes in the Rec Area?
     // [13 hints left.] -> Looking under the table in the Mess Hall?
     // [12 hints left.] -> Kicking, attacking, rubbing, or kissing Floyd?
     // [11 hints left.] -> Throwing acid at the mutants?
-    // [10 hints left.] -> Reading your chronometer?
+    // [10 hints left.] -> ** Reading your chronometer?
     // [9 hints left.] -> Taking off your chronometer or pouring acid on it?
     // [8 hints left.] -> Getting into bed in the Infirmary?
     // [7 hints left.] -> Scrubbing yourself?
-    // [6 hints left.] -> Reading the towel?
+    // [6 hints left.] -> ** Reading the towel?
     // [5 hints left.] -> Removing your uniform while Blather or Floyd are present?
     // [4 hints left.] -> Destroying the mural?
     // [3 hints left.] -> "Stealing" the lower elevator card from Floyd and then showing it to him?

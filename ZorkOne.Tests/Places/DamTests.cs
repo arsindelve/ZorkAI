@@ -1,5 +1,7 @@
 ﻿using FluentAssertions;
 using GameEngine;
+using Model.Interface;
+using Moq;
 using NUnit.Framework;
 using UnitTests;
 using ZorkOne.Item;
@@ -114,7 +116,7 @@ public class DamTests : EngineTestsBase
         sr.IsFilling.Should().BeFalse();
         sr.IsFilling.Should().BeFalse();
 
-        sr.Description.Should()
+        sr.GetDescription(Mock.Of<IContext>()).Should()
             .Contain("ou notice, however, that the water level appears to be dropping at a rapid rate");
 
         await target.GetResponse("W");

@@ -35,7 +35,6 @@ public class ClothingOnAndOffProcessor : IVerbProcessor
             case "discard":
             case "slip off":
                 return TakeOff(item);
-
         }
 
         return null;

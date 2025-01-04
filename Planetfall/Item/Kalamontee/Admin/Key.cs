@@ -4,10 +4,9 @@ public class Key : ItemBase, ICanBeTakenAndDropped
 {
     public override string[] NounsForMatching => ["key", "shiny object", "steel key", "shiny thing"];
 
-    public override string GenericDescription(ILocation? currentLocation)
-    {
-        return "A key";
-    }
+    public override string CannotBeTakenDescription => HasEverBeenPickedUp
+        ? ""
+        : "Either the crevice is too narrow, or your fingers are too large. ";
 
     public string OnTheGroundDescription(ILocation currentLocation)
     {
@@ -20,7 +19,8 @@ public class Key : ItemBase, ICanBeTakenAndDropped
         return string.Empty;
     }
 
-    public override string CannotBeTakenDescription => HasEverBeenPickedUp
-        ? ""
-        : "Either the crevice is too narrow, or your fingers are too large. ";
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A key";
+    }
 }

@@ -10,7 +10,7 @@ namespace Planetfall.Location.Feinstein;
 internal class ExplosionCoordinator : ITurnBasedActor
 {
     public const byte TurnWhenFeinsteinBlowsUp = 10;
-    
+
     public Task<string> Act(IContext context, IGenerationClient client)
     {
         return Task.FromResult(HandleExplosion(context));

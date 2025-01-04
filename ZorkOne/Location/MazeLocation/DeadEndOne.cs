@@ -1,12 +1,15 @@
+using Model.Interface;
 using Model.Movement;
 
 namespace ZorkOne.Location.MazeLocation;
 
 public class DeadEndOne : DeadEndBase
 {
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.S, new MovementParameters { Location = GetLocation<MazeFour>() } },
+            { Direction.S, new MovementParameters { Location = GetLocation<MazeFour>() } }
         };
+    }
 }

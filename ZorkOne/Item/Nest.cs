@@ -9,9 +9,6 @@ public class Nest : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined
 
     public override bool IsTransparent => true;
 
-    public override string GenericDescription(ILocation? currentLocation) =>
-        "A bird's nest " + (Items.Any() ? $"\n{ItemListDescription("bird's nest", currentLocation)}" : "");
-
     public override int Size => 1;
 
     public string ExaminationDescription => HasItem<Egg>()
@@ -40,6 +37,11 @@ public class Nest : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined
                        : "");
     }
 
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A bird's nest " + (Items.Any() ? $"\n{ItemListDescription("bird's nest", currentLocation)}" : "");
+    }
+
     public override void Init()
     {
         StartWithItemInside<Egg>();
@@ -49,7 +51,7 @@ public class Nest : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined
     {
         if (HasEverBeenPickedUp && Items.Count == 1 && HasItem<Egg>())
             return "The bird's nest contains:\n" + Repository.GetItem<Egg>().GenericDescription(location);
-        
+
         if (Items.Count == 1 && HasItem<Egg>() && !Repository.GetItem<Egg>().HasEverBeenPickedUp)
             return ExaminationDescription;
 

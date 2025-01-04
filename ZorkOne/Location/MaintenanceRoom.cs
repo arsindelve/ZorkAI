@@ -15,20 +15,6 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
     // ReSharper disable once MemberCanBePrivate.Global
     public int CurrentWaterLevel { get; set; }
 
-    protected override string ContextBasedDescription => "This is what appears to have been the maintenance room " +
-                                                         "for Flood Control Dam #3. Apparently, this room has been " +
-                                                         "ransacked recently, for most of the valuable equipment is " +
-                                                         "gone. On the wall in front of you is a group of buttons " +
-                                                         "colored blue, yellow, brown, and red. There are doorways to " +
-                                                         "the west and south. \n";
-
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
-        {
-            { Direction.S, new MovementParameters { Location = GetLocation<DamLobby>() } },
-            { Direction.W, new MovementParameters { Location = GetLocation<DamLobby>() } }
-        };
-
     public bool RoomFlooded { get; set; }
 
     public bool LeakIsFixed { get; set; }
@@ -60,6 +46,25 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
         return Task.FromResult($"The water level here is now up to your {WaterLevel.Map[CurrentWaterLevel]}.");
     }
 
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "This is what appears to have been the maintenance room " +
+               "for Flood Control Dam #3. Apparently, this room has been " +
+               "ransacked recently, for most of the valuable equipment is " +
+               "gone. On the wall in front of you is a group of buttons " +
+               "colored blue, yellow, brown, and red. There are doorways to " +
+               "the west and south. \n";
+    }
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
+        {
+            { Direction.S, new MovementParameters { Location = GetLocation<DamLobby>() } },
+            { Direction.W, new MovementParameters { Location = GetLocation<DamLobby>() } }
+        };
+    }
+
     public override void Init()
     {
         StartWithItem<Wrench>();
@@ -72,29 +77,27 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
         string[] verbs = ["push", "press", "activate", "toggle"];
         var verb = action.Verb.ToLowerInvariant().Trim();
         var noun = action.Noun?.ToLowerInvariant().ToLowerInvariant().Trim();
-        
+
         if (!verbs.Contains(verb))
             return base.RespondToSimpleInteraction(action, context, client);
 
         // If they said "blue button", simplify and replace "button" with "blue"
         if (action.MatchNoun(["button"]))
         {
-            if (!string.IsNullOrEmpty(action.Adjective)) 
+            if (!string.IsNullOrEmpty(action.Adjective))
                 noun = action.Adjective.ToLowerInvariant();
             else
-            {
                 return new DisambiguationInteractionResult(
                     $"Which button do you mean, {new List<string> { "blue button", "red button", "yellow button", "brown button" }.SingleLineListWithOr()}?",
                     new Dictionary<string, string>
                     {
-                        {"brown", "brown button"},
-                        {"yellow", "yellow button"},
-                        {"red", "red button"},
-                        {"blue", "blue button"}
+                        { "brown", "brown button" },
+                        { "yellow", "yellow button" },
+                        { "red", "red button" },
+                        { "blue", "blue button" }
                     },
                     "press {0}"
                 );
-            }
         }
 
         return noun switch

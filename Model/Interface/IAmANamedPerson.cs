@@ -7,4 +7,3 @@ namespace Model.Interface;
 /// the AI generation gets confused and starts to refer to the item as "the blather" or "the floyd". 
 /// </summary>
 public interface IAmANamedPerson : ICanBeExamined;
-    

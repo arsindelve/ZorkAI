@@ -1,4 +1,3 @@
-using GameEngine;
 using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Intent;
@@ -10,13 +9,16 @@ namespace ZorkOne.Location;
 
 public class WestOfHouse : LocationBase
 {
-    protected override string ContextBasedDescription =>
-        "You are standing in an open field west of a white house, with a boarded front door. ";
-
     public override string Name => "West Of House";
 
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "You are standing in an open field west of a white house, with a boarded front door. ";
+    }
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context1)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             {
                 Direction.S,
@@ -35,7 +37,7 @@ public class WestOfHouse : LocationBase
                 new MovementParameters
                 {
                     CanGo = _ => false,
-                    CustomFailureMessage = "The door is boarded and you can't remove the boards.",
+                    CustomFailureMessage = "The door is boarded and you can't remove the boards."
                 }
             },
             {
@@ -43,16 +45,17 @@ public class WestOfHouse : LocationBase
                 new MovementParameters
                 {
                     CanGo = context => ((ZorkIContext)context).GameOver,
-                    Location = GetLocation<StoneBarrow>(),
+                    Location = GetLocation<StoneBarrow>()
                 }
-            },
+            }
         };
+    }
 
     public override InteractionResult RespondToSimpleInteraction(
         SimpleIntent action,
         IContext context,
         IGenerationClient client
-    )
+        )
     {
         string[] nouns = ["door", "front door"];
 

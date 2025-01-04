@@ -89,9 +89,9 @@ public class Cyclops : ItemBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked
     {
         var result = _giveHimSomethingEngine.AreWeGivingSomethingToSomeone(action, this, context);
 
-        if (result is not null) 
+        if (result is not null)
             return result;
-        
+
         return base.RespondToMultiNounInteraction(action, context);
     }
 

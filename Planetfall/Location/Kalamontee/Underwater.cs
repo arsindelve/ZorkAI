@@ -13,15 +13,6 @@ public class Underwater : LocationWithNoStartingItems, ITurnBasedActor
     // ReSharper disable once MemberCanBePrivate.Global
     public byte TurnsUnderWater { get; set; }
 
-    protected override Dictionary<Direction, MovementParameters> Map => new()
-    {
-        { Direction.Up, Go<Crag>() }
-    };
-
-    protected override string ContextBasedDescription =>
-        "You are momentarily disoriented as you enter the turbulent waters. " +
-        "Currents buffet you against the sharp rocks of an underwater cliff. A dim light filters down from above. ";
-
     public override string Name => "Underwater";
 
     public Task<string> Act(IContext context, IGenerationClient client)
@@ -36,6 +27,20 @@ public class Underwater : LocationWithNoStartingItems, ITurnBasedActor
 
         TurnsUnderWater++;
         return Task.FromResult(string.Empty);
+    }
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
+        {
+            { Direction.Up, Go<Crag>() }
+        };
+    }
+
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return "You are momentarily disoriented as you enter the turbulent waters. " +
+               "Currents buffet you against the sharp rocks of an underwater cliff. A dim light filters down from above. ";
     }
 
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,

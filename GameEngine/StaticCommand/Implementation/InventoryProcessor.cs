@@ -10,6 +10,6 @@ internal class InventoryProcessor : IGlobalCommand
 {
     public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {
-        return Task.FromResult(context.ItemListDescription(string.Empty + Environment.NewLine, null)) ;
+        return Task.FromResult(context.ItemListDescription(string.Empty + Environment.NewLine, null));
     }
 }

@@ -28,7 +28,7 @@ public class SavedGameTests
         var allGames = await target.GetSavedGames("bob", "zork_savegame");
         allGames.Select(s => s.Name).Should().Contain(name);
     }
-    
+
     [Test]
     public async Task WriteSaveGame_Overwrite()
     {
@@ -51,9 +51,9 @@ public class SavedGameTests
         var name = Guid.NewGuid().ToString();
         var target = new DynamoDbSavedGameRepository();
 
-        string id = await target.SaveGame(null, "bob", name, "GameEngine Data","zork_savegame");
+        var id = await target.SaveGame(null, "bob", name, "GameEngine Data", "zork_savegame");
 
-        var result = await target.GetSavedGame(id, "bob","zork_savegame");
+        var result = await target.GetSavedGame(id, "bob", "zork_savegame");
         result.Should().Be("GameEngine Data");
     }
 }

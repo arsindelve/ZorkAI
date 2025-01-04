@@ -7,7 +7,7 @@ namespace Model.Item;
 /// </summary>
 public interface ICanBeEaten : IInteractionTarget
 {
-    public string EatenDescription(IContext context);
+    public string OnEating(IContext context);
 }
 
 /// <summary>
@@ -15,5 +15,5 @@ public interface ICanBeEaten : IInteractionTarget
 /// </summary>
 public interface IAmADrink : IInteractionTarget
 {
-    public string DrankDescription { get; }
+    public string OnDrinking(IContext context);
 }

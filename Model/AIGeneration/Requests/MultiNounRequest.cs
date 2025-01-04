@@ -9,10 +9,10 @@ public abstract class MultiNounRequest : Request
     public string? Verb { get; init; }
 
     public bool NounOneIsAPerson { get; init; } = false;
-    
+
     public bool NounTwoIsAPerson { get; init; } = false;
-    
+
     public string? PersonOneDescription { get; init; }
-    
+
     public string? PersonTwoDescription { get; init; }
 }

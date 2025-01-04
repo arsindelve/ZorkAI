@@ -24,7 +24,7 @@ public class GasRoomTests : EngineTestsBase
         target.Context.DeathCounter.Should().Be(1);
         response.Should().Contain("BOOOOOOOOOOOM");
     }
-    
+
     [Test]
     public async Task WalkInWithACandle_Unlit_YerGood()
     {
@@ -42,7 +42,7 @@ public class GasRoomTests : EngineTestsBase
         target.Context.DeathCounter.Should().Be(0);
         response.Should().NotContain("BOOOOOOOOOOOM");
     }
-    
+
     [Test]
     public async Task WalkInWithACandle_Lit_YerDed()
     {
@@ -61,7 +61,7 @@ public class GasRoomTests : EngineTestsBase
         target.Context.DeathCounter.Should().Be(1);
         response.Should().Contain("BOOOOOOOOOOOM");
     }
-    
+
     [Test]
     public async Task WalkInWithAMatchbook_Lit_YerDed()
     {
@@ -80,7 +80,7 @@ public class GasRoomTests : EngineTestsBase
         target.Context.DeathCounter.Should().Be(1);
         response.Should().Contain("BOOOOOOOOOOOM");
     }
-    
+
     [Test]
     public async Task LightAMatch_YerDed()
     {

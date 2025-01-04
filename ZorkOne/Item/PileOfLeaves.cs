@@ -10,8 +10,6 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IPl
 {
     public override string[] NounsForMatching => ["leaves", "pile", "pile of leaves"];
 
-    public override string GenericDescription(ILocation? currentLocation) => "A pile of leaves";
-
     public string ExaminationDescription => "There's nothing special about the pile of leaves. ";
 
     public string OnTheGroundDescription(ILocation currentLocation)
@@ -30,11 +28,16 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IPl
         return "In disturbing the pile of leaves, a grating is revealed. ";
     }
 
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A pile of leaves";
+    }
+
     public override InteractionResult RespondToSimpleInteraction(
         SimpleIntent action,
         IContext context,
         IGenerationClient client
-    )
+        )
     {
         if (action.Verb.ToLowerInvariant().Trim() == "count")
             if (action.Noun?.ToLowerInvariant().Trim() == "leaves")

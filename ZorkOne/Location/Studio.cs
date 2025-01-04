@@ -10,27 +10,33 @@ public class Studio : LocationBase
 {
     public override string Name => "Studio";
 
-    protected override string ContextBasedDescription =>
-        "This appears to have been an artist's studio. The walls and floors are splattered with paints of 69 different colors. " +
-        "Strangely enough, nothing of value is hanging here. At the south end of the room is an open door (also covered with paint). " +
-        "A dark and narrow chimney leads up from a fireplace; although you might be able to get up it, it seems unlikely you could get back down. ";
+    protected override string GetContextBasedDescription(IContext context)
+    {
+        return
+            "This appears to have been an artist's studio. The walls and floors are splattered with paints of 69 different colors. " +
+            "Strangely enough, nothing of value is hanging here. At the south end of the room is an open door (also covered with paint). " +
+            "A dark and narrow chimney leads up from a fireplace; although you might be able to get up it, it seems unlikely you could get back down. ";
+    }
 
-    protected override Dictionary<Direction, MovementParameters> Map =>
-        new()
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
         {
             { Direction.S, new MovementParameters { Location = GetLocation<Gallery>() } },
             {
                 Direction.Up,
                 new MovementParameters
                 {
-                    Location = GetLocation<Kitchen>(), 
+                    Location = GetLocation<Kitchen>(),
                     WeightLimit = 7,
                     WeightLimitFailureMessage = "You can't get up there with what you're carrying. "
                 }
             }
         };
+    }
 
-    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client)
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
+        IGenerationClient client)
     {
         switch (input?.ToLowerInvariant().Trim())
         {
@@ -40,7 +46,7 @@ public class Studio : LocationBase
             case "climb chimney":
 
                 context.CurrentLocation = Repository.GetLocation<Kitchen>();
-                var message = Repository.GetLocation<Kitchen>().Description;
+                var message = Repository.GetLocation<Kitchen>().GetDescription(context);
                 return new PositiveInteractionResult(message);
         }
 

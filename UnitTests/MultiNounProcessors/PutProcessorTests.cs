@@ -54,7 +54,7 @@ public class PutProcessorTests : EngineTestsBase
             Verb = "put",
             NounOne = "lantern",
             NounTwo = "mailbox",
-            Preposition = "on",
+            Preposition = "over",
             OriginalInput = ""
         }, null!, new Lantern(), new Mailbox());
 

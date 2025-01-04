@@ -11,10 +11,10 @@ public record SavedGame
         Name = name;
         Date = date;
     }
-    
+
     public required string Id { get; init; }
-    
+
     public required string Name { get; init; }
-    
+
     public required DateTime Date { get; init; }
 }
