@@ -7,10 +7,10 @@ namespace Planetfall.Location.Kalamontee;
 
 public class Underwater : LocationWithNoStartingItems, ITurnBasedActor
 {
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public bool HaveBeenUnderwater { get; set; }
 
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public byte TurnsUnderWater { get; set; }
 
     public override string Name => "Underwater";

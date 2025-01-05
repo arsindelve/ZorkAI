@@ -4,42 +4,21 @@ import {GameResponse} from "./model/GameResponse.ts";
 import React, {useEffect, useState} from "react";
 import {Alert, Button, CircularProgress, Snackbar} from "@mui/material";
 import '@fontsource/roboto';
-import Header from "./Header.tsx";
+import Header from "./components/Header.tsx";
 import {SessionHandler} from "./SessionHandler.ts";
-import WelcomeDialog from "./modal/WelcomeModal.tsx";
+
 import Server from './Server';
-import VerbsButton from "./VerbsButton.tsx";
-import CommandsButton from "./CommandsButton.tsx";
+import VerbsButton from "./components/VerbsButton.tsx";
+import CommandsButton from "./components/CommandsButton.tsx";
 import ClickableText from "./ClickableText.tsx";
-import Compass from "./Compass.tsx";
+import Compass from "./components/Compass.tsx";
 import {Mixpanel} from "./Mixpanel.ts";
-import VideoDialog from "./modal/VideoModal.tsx";
+
 import {useGameContext} from "./GameContext";
+import InventoryButton from "./components/InventoryButton.tsx";
+import DialogType from "./model/DialogType.ts";
 
-interface GameProps {
-    restoreGameId?: string | undefined
-    restartGame: boolean
-    serverText: string
-    onRestoreDone: () => void
-    onRestartDone: () => void
-    openRestoreModal: () => void
-    openSaveModal: () => void
-    openRestartModal: () => void
-    gaveSaved: boolean;
-}
-
-function Game({
-                  restartGame,
-                  restoreGameId,
-                  serverText,
-                  gaveSaved,
-                  onRestoreDone,
-                  onRestartDone,
-                  openRestoreModal,
-                  openSaveModal,
-                  openRestartModal
-
-              }: GameProps) {
+function Game() {
 
     const restoreResponse = "<Restore>\n";
     const saveResponse = "<Save>\n"
@@ -49,9 +28,9 @@ function Game({
     const [gameText, setGameText] = useState<string[]>(["Your game is loading...."]);
     const [score, setScore] = useState<string>("0");
     const [moves, setMoves] = useState<string>("0");
+    const [inventory, setInventory] = useState<string[]>([])
     const [locationName, setLocationName] = useState<string>("");
-    const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
-    const [videoDialogOpen, setVideoDialogOpen] = useState<boolean>(false);
+
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
     const [snackBarMessage, setSnackBarMessage] = useState<string>("");
 
@@ -61,7 +40,15 @@ function Game({
     const gameContentElement = React.useRef<HTMLDivElement>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);
 
-    const {dialogToOpen, setDialogToOpen} = useGameContext();
+    const {
+        setDialogToOpen,
+        restartGame,
+        setRestartGame,
+        saveGameRequest,
+        setSaveGameRequest,
+        setRestoreGameRequest,
+        restoreGameRequest
+    } = useGameContext();
 
     function focusOnPlayerInput() {
         if (playerInputElement.current)
@@ -69,43 +56,34 @@ function Game({
                 playerInputElement!.current!.focus(), 100);
     }
 
-    useEffect(() => {
-
-        if (!dialogToOpen)
-            return;
-
-        if (dialogToOpen === "Welcome") {
-            setWelcomeDialogOpen(true);
-            setDialogToOpen("");
-        } else if (dialogToOpen === "Video") {
-            setVideoDialogOpen(true);
-            setDialogToOpen("");
-        }
-    }, [dialogToOpen]);
-
-
     // Save the game. 
     useEffect(() => {
-        if (gaveSaved) {
-            gaveSaved = false;
-            setSnackBarMessage("Game Saved Successfully.");
-            setSnackBarOpen(true);
+        if (saveGameRequest) {
+            (async () => {
+                saveGameRequest.sessionId = sessionId.getSessionId()[0];
+                saveGameRequest.clientId = sessionId.getClientId()
+                console.log(saveGameRequest);
+                let response = await server.saveGame(saveGameRequest);
+                setGameText((prevGameText) => [...prevGameText, response]);
+                setSaveGameRequest(undefined);
+                setSnackBarMessage("Game Saved Successfully.");
+                setSnackBarOpen(true);
+            })();
         }
         focusOnPlayerInput();
-    }, [gaveSaved]);
-
-
+    }, [saveGameRequest]);
+    
     // Restore a saved game
     useEffect(() => {
-        if (!restoreGameId)
+        if (!restoreGameRequest)
             return;
         setGameText([]);
-        gameRestore(restoreGameId!).then((data) => {
+        gameRestore(restoreGameRequest.id!).then((data) => {
             handleResponse(data);
-            onRestoreDone();
+            setRestoreGameRequest(undefined);
             focusOnPlayerInput();
         })
-    }, [restoreGameId]);
+    }, [restoreGameRequest]);
 
     // Scroll to the bottom of the container after we add text. 
     useEffect(() => {
@@ -122,14 +100,12 @@ function Game({
         setGameText([""]);
         gameInit().then((data) => {
             handleResponse(data);
-            onRestartDone();
+            setRestartGame(false);
+            setSnackBarMessage("Game Restarted Successfully.");
+            setSnackBarOpen(true);
             focusOnPlayerInput();
         })
     }, [restartGame]);
-
-    useEffect(() => {
-        setGameText((prevGameText) => [...prevGameText, serverText]);
-    }, [serverText]);
 
     // Set focus to the input box on load. 
     useEffect(() => {
@@ -146,19 +122,19 @@ function Game({
     function handleResponse(data: GameResponse) {
 
         if (data.response === saveResponse) {
-            openSaveModal();
+            setDialogToOpen(DialogType.Save)
             setInput("");
             return;
         }
 
         if (data.response === restoreResponse) {
-            openRestoreModal();
+            setDialogToOpen(DialogType.Restore)
             setInput("");
             return;
         }
 
         if (data.response === restartResponse) {
-            openRestartModal();
+            setDialogToOpen(DialogType.Restart)
             setInput("");
             return;
         }
@@ -175,6 +151,7 @@ function Game({
         setLocationName(data.locationName);
         setScore(data.score.toString());
         setMoves(data.moves.toString())
+        setInventory(data.inventory);
     }
 
     // noinspection JSUnusedGlobalSymbols
@@ -208,6 +185,11 @@ function Game({
         focusOnPlayerInput();
     };
 
+    const handleInventoryClick = (item: string) => {
+        setInput(playerInput + " " + item + " ");
+        focusOnPlayerInput();
+    };
+
     const handleCommandClick = (command: string) => {
         setInput(command);
         submitInput(command);
@@ -215,24 +197,15 @@ function Game({
 
     function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
         if (event.key === 'Enter') {
+            Mixpanel.track('Press Enter', {});
             submitInput();
         }
-        Mixpanel.track('Press Enter', {});
-    }
-
-    const handleWelcomeDialogClose = () => {
-        setWelcomeDialogOpen(false);
-        Mixpanel.track('Close Welcome Dialog', {});
-    };
-
-    const handleWatchVideo = () => {
-        setWelcomeDialogOpen(false);
-        setVideoDialogOpen(true);
     }
 
     async function gameInit(): Promise<GameResponse> {
         const [id, firstTime] = sessionId.getSessionId();
-        setWelcomeDialogOpen(firstTime);
+        if (firstTime)
+            setDialogToOpen(DialogType.Welcome);
         return await server.gameInit(id)
     }
 
@@ -262,9 +235,6 @@ function Game({
                 />
             </div>
 
-            <VideoDialog open={videoDialogOpen} handleClose={() => setVideoDialogOpen(false)}/>
-            <WelcomeDialog handleWatchVideo={handleWatchVideo} open={welcomeDialogOpen}
-                           handleClose={handleWelcomeDialogClose}/>
             <Header locationName={locationName} moves={moves} score={score}/>
 
             <Compass onCompassClick={handleCommandClick} className="
@@ -330,11 +300,18 @@ function Game({
                         mb-2 sm:mb-4 
                         space-x-6
                         ">
-                        <CommandsButton onCommandClick={handleCommandClick}/>
                         <VerbsButton onVerbClick={handleVerbClick}/>
+                        {inventory.length > 0 && (
+                            <InventoryButton onInventoryClick={handleInventoryClick} inventory={inventory}/>
+                        )}
+                        <CommandsButton onCommandClick={handleCommandClick}/>
+                     
                         <Button
                             variant="contained"
-                            onClick={() => submitInput()}
+                            onClick={() => {
+                                Mixpanel.track('Click Go', {});
+                                submitInput();
+                            }}
                             disabled={!playerInput}>
                             Go
                         </Button>

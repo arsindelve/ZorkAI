@@ -76,6 +76,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         GenerationClient.OnGenerate += () => _lastResponseWasGenerated = true;
 
         _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
+        Inventory = [];
     }
 
     /// <summary>
@@ -94,7 +95,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         Repository.Reset();
 
         Context = new TContext { Engine = this };
-
+        Inventory = [];
         IntroText = string.Empty;
         _parser = parser;
         GenerationClient = generationClient;
@@ -227,6 +228,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         return await ProcessActorsAndContextEndOfTurn(contextPrepend, complexIntentResult.ResultMessage);
     }
 
+    public List<string> Inventory { get; set; }
+
 
     public IContext RestoreGame(string data)
     {
@@ -348,6 +351,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     {
         var actors = await ProcessActors();
         var contextAppend = Context.ProcessEndOfTurn();
+        Inventory = Context.Items.Select(s => s.Name).ToList();
         return PostProcessing(FormatResult(contextPrepend, turnResult, actors, contextAppend));
     }
 

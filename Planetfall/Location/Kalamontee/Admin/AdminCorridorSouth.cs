@@ -8,10 +8,10 @@ namespace Planetfall.Location.Kalamontee.Admin;
 
 public class AdminCorridorSouth : LocationBase, ITurnBasedActor
 {
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public bool HasSeenTheLight { get; set; }
 
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public bool HasTakenTheKey { get; set; }
 
     public override string Name => "Admin Corridor South";

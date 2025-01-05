@@ -1,23 +1,14 @@
 import * as React from 'react';
-import {useEffect} from 'react';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import {useGameContext} from "../GameContext";
+import DialogType from "../model/DialogType.ts";
 
-interface FunctionsMenuProps {
-    gameMethods: (() => void)[]
-    forceClose: boolean
-}
 
-export default function FunctionsMenu({gameMethods, forceClose}: FunctionsMenuProps) {
+export default function FunctionsMenu() {
 
-    useEffect(() => {
-        if (forceClose)
-            handleClose();
-    }, [forceClose]);
-
-    const [restart, restore, save] = gameMethods;
-
+    const {setDialogToOpen} = useGameContext();
     const [anchorElement, setAnchorElement] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorElement);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -47,9 +38,18 @@ export default function FunctionsMenu({gameMethods, forceClose}: FunctionsMenuPr
                     'aria-labelledby': 'basic-button',
                 }}
             >
-                <MenuItem onClick={() => restart()}>Restart Your Game</MenuItem>
-                <MenuItem onClick={() => restore()}>Restore a Previous Saved Game</MenuItem>
-                <MenuItem onClick={() => save()}>Save your Game</MenuItem>
+                <MenuItem onClick={() => {
+                    setDialogToOpen(DialogType.Restart);
+                    handleClose();
+                }}>Restart Your Game</MenuItem>
+                <MenuItem onClick={() => {
+                    setDialogToOpen(DialogType.Restore);
+                    handleClose();
+                }}>Restore a Previous Saved Game</MenuItem>
+                <MenuItem onClick={() => {
+                    setDialogToOpen(DialogType.Save);
+                    handleClose();
+                }}>Save your Game</MenuItem>
             </Menu>
         </div>
     );

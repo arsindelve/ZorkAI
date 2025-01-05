@@ -8,7 +8,7 @@ namespace ZorkOne.Location;
 
 public class SandyCave : DarkLocationWithNoStartingItems
 {
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public int DigCount { get; set; }
 
     public override string Name => "Sandy Cave";

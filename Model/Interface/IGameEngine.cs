@@ -45,6 +45,16 @@ public interface IGameEngine
     string LocationName { get; }
 
     /// <summary>
+    /// Represents the collection of items currently held by the player.
+    /// </summary>
+    /// <remarks>
+    /// The "Inventory" property maintains a list of items the player has acquired during gameplay.
+    /// These items may be used to progress in the game, interact with the environment, or solve puzzles.
+    /// The inventory is updated dynamically as the player picks up or drops items.
+    /// </remarks>
+    List<string> Inventory { get; }
+    
+    /// <summary>
     ///     Represents the name of the location the player was in BEFORE this location.
     ///     Will be null at the beginning of the game.
     /// </summary>

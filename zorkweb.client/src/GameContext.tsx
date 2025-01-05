@@ -1,9 +1,21 @@
 import React, {createContext, useContext, useState} from "react";
+import {ISaveGameRequest} from "./model/SaveGameRequest.ts";
+import DialogType from "./model/DialogType.ts";
+import {ISavedGame} from "./model/SavedGame.ts";
 
 // Define the context type
 interface GameContextType {
-    dialogToOpen: string;
-    setDialogToOpen: (dialog: string) => void;
+    dialogToOpen: DialogType | undefined;
+    setDialogToOpen: (dialog: DialogType | undefined) => void;
+
+    restartGame: Boolean;
+    setRestartGame: (restartGame: boolean) => void;
+
+    saveGameRequest: ISaveGameRequest | undefined;
+    setSaveGameRequest: (saveGameRequest: ISaveGameRequest | undefined) => void;
+
+    restoreGameRequest: ISavedGame | undefined;
+    setRestoreGameRequest: (restoreGameRequest: ISavedGame | undefined) => void;
 }
 
 // Create the context
@@ -20,10 +32,23 @@ export const useGameContext = () => {
 
 // Context provider
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
-    const [dialogToOpen, setDialogToOpen] = useState("");
+    const [dialogToOpen, setDialogToOpen] = useState<DialogType | undefined>(undefined);
+    const [restartGame, setRestartGame] = useState(false);
+    const [saveGameRequest, setSaveGameRequest] = useState(undefined as ISaveGameRequest | undefined);
+    const [restoreGameRequest, setRestoreGameRequest] = useState(undefined as ISavedGame | undefined);
 
     return (
-        <GameContext.Provider value={{dialogToOpen, setDialogToOpen}}>
+        <GameContext.Provider
+            value={{
+                dialogToOpen,
+                setDialogToOpen,
+                restartGame,
+                setRestartGame,
+                saveGameRequest,
+                setSaveGameRequest,
+                restoreGameRequest,
+                setRestoreGameRequest
+            }}>
             {children}
         </GameContext.Provider>
     );

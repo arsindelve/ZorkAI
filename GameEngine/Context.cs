@@ -72,6 +72,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public int Moves { get; set; }
 
+    [UsedImplicitly]
     public string SystemPromptAddendum { get; set; } = "";
     
     // ReSharper disable once MemberCanBePrivate.Global

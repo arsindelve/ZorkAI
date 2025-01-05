@@ -5,10 +5,10 @@ namespace Planetfall.Item.Kalamontee;
 
 public class Ladder : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
 {
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public bool IsAcrossRift { get; set; }
 
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public bool IsExtended { get; set; }
 
     public override string[] NounsForMatching => ["ladder"];

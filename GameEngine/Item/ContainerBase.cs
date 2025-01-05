@@ -14,7 +14,7 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
 {
     protected virtual int SpaceForItems => 2;
 
-    // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global: The deserializer needs this. 
+    [UsedImplicitly]
     public List<IItem> Items { get; set; } = new();
 
     public void RemoveItem(IItem item)

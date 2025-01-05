@@ -16,10 +16,10 @@ public class Candles
         ITurnBasedActor,
         IPluralNoun
 {
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public int TurnsWhileOn { get; set; }
 
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public bool BurnedOut { get; set; }
 
     public override string[] NounsForMatching => ["candle", "candles", "pair of candles"];
