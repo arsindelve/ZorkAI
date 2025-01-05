@@ -8,10 +8,11 @@ import moment from 'moment';
 import {ISaveGameRequest, SaveGameRequest} from "../model/SaveGameRequest.ts";
 import {Input} from "@mui/material";
 import React, {useState} from "react";
+import {useGameContext} from "../GameContext.tsx";
 
 interface SaveModalProps {
     open: boolean;
-    handleClose: (savedGame: ISaveGameRequest | undefined) => void;
+    setOpen: (open: boolean) => void;
     games: ISavedGame[]
 }
 
@@ -20,8 +21,15 @@ function SaveModal(props: SaveModalProps) {
 
     const [newName, setNewName] = useState<string>("");
 
-    function handleClose(savedGame: ISaveGameRequest | undefined) {
-        props.handleClose(savedGame);
+    const {setSaveGameRequest} = useGameContext();
+
+    function handleClose(savedGame: ISaveGameRequest) {
+        setSaveGameRequest(savedGame);
+        props.setOpen(false);
+    }
+
+    function justClose() {
+        props.setOpen(false);
     }
 
     function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>, savedGame: ISaveGameRequest) {
@@ -99,7 +107,7 @@ function SaveModal(props: SaveModalProps) {
 
 
             <DialogActions>
-                <Button onClick={() => handleClose(undefined)} variant="contained">
+                <Button onClick={() => justClose()} variant="contained">
                     Cancel
                 </Button>
             </DialogActions>
