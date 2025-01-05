@@ -19,25 +19,17 @@ import InventoryButton from "./components/InventoryButton.tsx";
 
 interface GameProps {
     restoreGameId?: string | undefined
-    restartGame: boolean
     serverText: string
     onRestoreDone: () => void
     onRestartDone: () => void
-    openRestoreModal: () => void
-    openRestartModal: () => void
     gaveSaved: boolean;
 }
 
 function Game({
-                  restartGame,
                   restoreGameId,
                   serverText,
                   gaveSaved,
                   onRestoreDone,
-                  onRestartDone,
-                  openRestoreModal,
-                  openRestartModal
-
               }: GameProps) {
 
     const restoreResponse = "<Restore>\n";
@@ -61,7 +53,7 @@ function Game({
     const gameContentElement = React.useRef<HTMLDivElement>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);
 
-    const {dialogToOpen, setDialogToOpen} = useGameContext();
+    const {dialogToOpen, setDialogToOpen, restartGame, setRestartGame} = useGameContext();
 
     function focusOnPlayerInput() {
         if (playerInputElement.current)
@@ -122,7 +114,7 @@ function Game({
         setGameText([""]);
         gameInit().then((data) => {
             handleResponse(data);
-            onRestartDone();
+            setRestartGame(false);
             focusOnPlayerInput();
         })
     }, [restartGame]);
@@ -152,13 +144,13 @@ function Game({
         }
 
         if (data.response === restoreResponse) {
-            openRestoreModal();
+            setDialogToOpen("Restore")
             setInput("");
             return;
         }
 
         if (data.response === restartResponse) {
-            openRestartModal();
+            setDialogToOpen("Restart")
             setInput("");
             return;
         }

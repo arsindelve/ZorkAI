@@ -6,7 +6,7 @@ import Button from '@mui/material/Button';
 
 
 const ConfirmDialog = (props: any) => {
-    const {title, children, open, setOpen, onConfirm} = props;
+    const {title, children, open, setOpen, onConfirm, onCancel} = props;
     return (
         <Dialog
             open={open} fullWidth={false}
@@ -18,7 +18,10 @@ const ConfirmDialog = (props: any) => {
             <DialogActions>
                 <Button
                     variant="contained"
-                    onClick={() => setOpen(false)}
+                    onClick={() => {
+                        setOpen(false);
+                        onCancel();
+                    }}
                     color="primary"
                 >
                     No
