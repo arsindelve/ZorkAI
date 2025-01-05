@@ -13,8 +13,8 @@ namespace GameEngine.Location;
 public abstract class LocationBase : ILocation, ICanHoldItems
 {
     public bool IsTransparent => false;
-
-    // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global: Needed by deserializer.
+    
+    [UsedImplicitly]   
     public List<IItem> Items { get; set; } = new();
 
     public void RemoveItem(IItem item)
@@ -105,7 +105,7 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         return string.Join(", ", Items.Select(item => item.GenericDescription(this).Trim()));
     }
 
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public int VisitCount { get; set; }
 
     /// <summary>

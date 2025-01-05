@@ -4,7 +4,7 @@ namespace Planetfall.Item.Feinstein;
 
 internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor
 {
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public int TurnsOnDeckNine { get; set; }
 
     public override string[] NounsForMatching => ["blather", "ensign blather"];

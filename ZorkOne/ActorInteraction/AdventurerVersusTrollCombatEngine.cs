@@ -22,8 +22,7 @@ internal class AdventurerVersusTrollCombatEngine : ICombatEngine
         _chooser = chooser;
     }
 
-    // ReSharper disable once ConvertConstructorToMemberInitializers
-    // ReSharper disable once ConvertToPrimaryConstructor
+    [UsedImplicitly]
     public AdventurerVersusTrollCombatEngine()
     {
         _chooser = new RandomChooser();

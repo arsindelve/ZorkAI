@@ -5,10 +5,10 @@ namespace Planetfall.Item.Kalamontee;
 
 public class Padlock : ItemBase, ICanBeTakenAndDropped
 {
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public bool Locked { get; set; } = true;
 
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public bool AttachedToDoor { get; set; } = true;
 
     public override string CannotBeTakenDescription => Locked ? "The padlock is locked to the door. " : "";
