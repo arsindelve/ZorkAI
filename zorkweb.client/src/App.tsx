@@ -11,7 +11,9 @@ import SaveModal from "./modal/SaveModal.tsx";
 import {ISaveGameRequest} from "./model/SaveGameRequest.ts";
 import ConfirmDialog from "./modal/ConfirmationDialog.tsx";
 import {useGameContext} from "./GameContext.tsx";
-
+import VideoDialog from "./modal/VideoModal.tsx";
+import WelcomeDialog from "./modal/WelcomeModal.tsx";
+import {Mixpanel} from "./Mixpanel.ts";
 
 function App() {
 
@@ -23,6 +25,8 @@ function App() {
     const [saveDialogOpen, setSaveDialogOpen] = useState<boolean>(false);
     const [availableSavedGames, setAvailableSavedGames] = useState<ISavedGame[]>([]);
     const [serverText, setServerText] = useState<string>("");
+    const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
+    const [videoDialogOpen, setVideoDialogOpen] = useState<boolean>(false);
 
     const server = new Server();
     const sessionId = new SessionHandler();
@@ -38,6 +42,13 @@ function App() {
         if (dialogToOpen === "Save") {
             setSaveDialogOpen(true);
             setDialogToOpen("");
+        } else if (dialogToOpen === "Video") {
+                setVideoDialogOpen(true);
+                setDialogToOpen("");
+        } else if (dialogToOpen === "Welcome") {
+            setWelcomeDialogOpen(true);
+            setDialogToOpen("");
+
         } else if (dialogToOpen === "Restore") {
             setRestoreDialogOpen(true);
             setDialogToOpen("");
@@ -48,6 +59,18 @@ function App() {
 
     }, [dialogToOpen]);
 
+
+    const handleWelcomeDialogClose = () => {
+        setWelcomeDialogOpen(false);
+        Mixpanel.track('Close Welcome Dialog', {});
+    };
+
+    const handleWatchVideo = () => {
+        Mixpanel.track('Open Video Dialog', {});
+        setWelcomeDialogOpen(false);
+        setVideoDialogOpen(true);
+    }
+    
     async function restore(): Promise<void> {
         setMenuForceClose(false);
         await getSavedGames();
@@ -123,6 +146,10 @@ function App() {
                     <SaveModal games={availableSavedGames} 
                                open={saveDialogOpen}
                                handleClose={handleSaveModalClose}/>
+
+                    <VideoDialog open={videoDialogOpen} handleClose={() => setVideoDialogOpen(false)}/>
+                    <WelcomeDialog handleWatchVideo={handleWatchVideo} open={welcomeDialogOpen}
+                                   handleClose={handleWelcomeDialogClose}/>
                     
                 </QueryClientProvider>
             </div>
