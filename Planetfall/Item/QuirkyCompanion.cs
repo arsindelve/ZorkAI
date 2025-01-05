@@ -45,7 +45,7 @@ public abstract class QuirkyCompanion : ContainerBase, ITurnBasedActor
         string? userPrompt = null)
     {
         userPrompt ??= UserPrompt;
-        userPrompt = string.Format(userPrompt, context.CurrentLocation.Name, context.CurrentLocation.Description, LastTurnsOutput);
+        userPrompt = string.Format(userPrompt, context.CurrentLocation.Name, context.CurrentLocation.GetDescriptionForGeneration(context), LastTurnsOutput);
         userPrompt = PreparePrompt(userPrompt);
         
         CompanionRequest request = new CompanionRequest( userPrompt, SystemPrompt) { Temperature = 0.6f };

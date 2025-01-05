@@ -56,13 +56,13 @@ internal class SaveProcessor : IStatefulProcessor
             await SaveGame(context);
             var generatedResponse =
                 await client.GenerateNarration(
-                    new AfterSaveGameRequest(context.CurrentLocation.DescriptionForGeneration), context.SystemPromptAddendum);
+                    new AfterSaveGameRequest(context.CurrentLocation.GetDescriptionForGeneration(context)), context.SystemPromptAddendum);
             return $"{generatedResponse}";
         }
         catch (Exception)
         {
             return await client.GenerateNarration(
-                new SaveFailedUnknownReasonGameRequest(context.CurrentLocation.DescriptionForGeneration), context.SystemPromptAddendum);
+                new SaveFailedUnknownReasonGameRequest(context.CurrentLocation.GetDescriptionForGeneration(context)), context.SystemPromptAddendum);
         }
     }
 
@@ -72,7 +72,7 @@ internal class SaveProcessor : IStatefulProcessor
         _havePromptedForFilename = true;
         var generatedResponse =
             await client.GenerateNarration(
-                new BeforeSaveGameRequest(context.CurrentLocation.DescriptionForGeneration), context.SystemPromptAddendum);
+                new BeforeSaveGameRequest(context.CurrentLocation.GetDescriptionForGeneration(context)), context.SystemPromptAddendum);
 
         return
             $"{generatedResponse}\n\nEnter a file name.\nDefault " +

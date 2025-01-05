@@ -142,24 +142,24 @@ public class MultiNounEngine : IIntentEngine
             return result;
 
         return
-            (context.CurrentLocation.DescriptionForGeneration.ToLower().Contains(item.ToLowerInvariant()), null);
+            (context.CurrentLocation.GetDescriptionForGeneration(context).ToLower().Contains(item.ToLowerInvariant()), null);
     }
 
     private async Task<string> GetGeneratedVerbNotUsefulResponse(MultiNounIntent interaction,
         IGenerationClient generationClient, IContext context)
     {
-        Request request = new VerbHasNoEffectMultiNounOperationRequest(context.CurrentLocation.DescriptionForGeneration,
+        Request request = new VerbHasNoEffectMultiNounOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context),
             interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb);
 
         if (interaction.ItemOne is IAmANamedPerson personOne)
             request = new VerbHasNoEffectMultiNounOperationItemOneIsAPersonRequest(
-                context.CurrentLocation.DescriptionForGeneration,
+                context.CurrentLocation.GetDescriptionForGeneration(context),
                 interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb,
                 personOne.ExaminationDescription);
 
         if (interaction.ItemTwo is IAmANamedPerson personTwo)
             request = new VerbHasNoEffectMultiNounOperationItemTwoIsAPersonRequest(
-                context.CurrentLocation.DescriptionForGeneration,
+                context.CurrentLocation.GetDescriptionForGeneration(context),
                 interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb,
                 personTwo.ExaminationDescription);
 
@@ -173,7 +173,7 @@ public class MultiNounEngine : IIntentEngine
         var request =
             new T
             {
-                Location = context.CurrentLocation.DescriptionForGeneration,
+                Location = context.CurrentLocation.GetDescriptionForGeneration(context),
                 NounOne = interaction.NounOne,
                 NounTwo = interaction.NounTwo,
                 Preposition = interaction.Preposition,
@@ -194,7 +194,7 @@ public class MultiNounEngine : IIntentEngine
         IContext context)
     {
         var request =
-            new CommandHasNoEffectOperationRequest(context.CurrentLocation.DescriptionForGeneration, input);
+            new CommandHasNoEffectOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), input);
         var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum) + Environment.NewLine;
         return result;
     }
