@@ -53,14 +53,20 @@ export default function AboutMenu({}: AboutMenuProps) {
                 }}
             >
                 <MenuItem
-                    onClick={() => setDialogToOpen("Welcome")}>What is this game?</MenuItem>
+                    onClick={() => {
+                        setDialogToOpen("Welcome");
+                        handleClose();
+                    }}>What is this game?</MenuItem>
 
                 <MenuItem
-                    onClick={() => setDialogToOpen("Video")}>Watch intro video</MenuItem>
+                    onClick={() => {
+                        setDialogToOpen("Video");
+                        handleClose();
+                    }}>Watch intro video</MenuItem>
 
                 <MenuItem onClick={() => go("Repo", "https://github.com/arsindelve/ZorkAI")}>See the source code, visit
                     the repository</MenuItem>
-                
+
                 <MenuItem onClick={() => go("1984 Manual", "https://infodoc.plover.net/manuals/zork1.pdf")}>Read the
                     1984 Infocom
                     Manual</MenuItem>

@@ -6,14 +6,14 @@ import {Alert, Button, CircularProgress, Snackbar} from "@mui/material";
 import '@fontsource/roboto';
 import Header from "./components/Header.tsx";
 import {SessionHandler} from "./SessionHandler.ts";
-import WelcomeDialog from "./modal/WelcomeModal.tsx";
+
 import Server from './Server';
 import VerbsButton from "./components/VerbsButton.tsx";
 import CommandsButton from "./components/CommandsButton.tsx";
 import ClickableText from "./ClickableText.tsx";
 import Compass from "./components/Compass.tsx";
 import {Mixpanel} from "./Mixpanel.ts";
-import VideoDialog from "./modal/VideoModal.tsx";
+
 import {useGameContext} from "./GameContext";
 import InventoryButton from "./components/InventoryButton.tsx";
 
@@ -42,8 +42,7 @@ function Game({
     const [moves, setMoves] = useState<string>("0");
     const [inventory, setInventory] = useState<string[]>([])
     const [locationName, setLocationName] = useState<string>("");
-    const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
-    const [videoDialogOpen, setVideoDialogOpen] = useState<boolean>(false);
+
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
     const [snackBarMessage, setSnackBarMessage] = useState<string>("");
 
@@ -53,28 +52,13 @@ function Game({
     const gameContentElement = React.useRef<HTMLDivElement>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);
 
-    const {dialogToOpen, setDialogToOpen, restartGame, setRestartGame} = useGameContext();
+    const {setDialogToOpen, restartGame, setRestartGame} = useGameContext();
 
     function focusOnPlayerInput() {
         if (playerInputElement.current)
             window.setTimeout(() =>
                 playerInputElement!.current!.focus(), 100);
     }
-
-    useEffect(() => {
-
-        if (!dialogToOpen)
-            return;
-
-        if (dialogToOpen === "Welcome") {
-            setWelcomeDialogOpen(true);
-            setDialogToOpen("");
-        } else if (dialogToOpen === "Video") {
-            setVideoDialogOpen(true);
-            setDialogToOpen("");
-        } 
-    }, [dialogToOpen]);
-
 
     // Save the game. 
     useEffect(() => {
@@ -206,7 +190,7 @@ function Game({
         setInput(playerInput + " " + item + " ");
         focusOnPlayerInput();
     };
-    
+
     const handleCommandClick = (command: string) => {
         setInput(command);
         submitInput(command);
@@ -218,21 +202,11 @@ function Game({
             submitInput();
         }
     }
-
-    const handleWelcomeDialogClose = () => {
-        setWelcomeDialogOpen(false);
-        Mixpanel.track('Close Welcome Dialog', {});
-    };
-
-    const handleWatchVideo = () => {
-        Mixpanel.track('Open Video Dialog', {});
-        setWelcomeDialogOpen(false);
-        setVideoDialogOpen(true);
-    }
-
+    
     async function gameInit(): Promise<GameResponse> {
         const [id, firstTime] = sessionId.getSessionId();
-        setWelcomeDialogOpen(firstTime);
+        if (firstTime)
+            setDialogToOpen("Welcome");
         return await server.gameInit(id)
     }
 
@@ -262,10 +236,6 @@ function Game({
                 />
             </div>
 
-            <VideoDialog open={videoDialogOpen} handleClose={() => setVideoDialogOpen(false)}/>
-            <WelcomeDialog handleWatchVideo={handleWatchVideo} open={welcomeDialogOpen}
-                           handleClose={handleWelcomeDialogClose}/>
-            
             <Header locationName={locationName} moves={moves} score={score}/>
 
             <Compass onCompassClick={handleCommandClick} className="
@@ -332,7 +302,7 @@ function Game({
                         space-x-6
                         ">
                         {inventory.length > 0 && (
-                            <InventoryButton onInventoryClick={handleInventoryClick} inventory={inventory} />
+                            <InventoryButton onInventoryClick={handleInventoryClick} inventory={inventory}/>
                         )}
                         <CommandsButton onCommandClick={handleCommandClick}/>
                         <VerbsButton onVerbClick={handleVerbClick}/>
