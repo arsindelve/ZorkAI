@@ -60,8 +60,7 @@ export default function AboutMenu({}: AboutMenuProps) {
 
                 <MenuItem onClick={() => go("Repo", "https://github.com/arsindelve/ZorkAI")}>See the source code, visit
                     the repository</MenuItem>
-
-
+                
                 <MenuItem onClick={() => go("1984 Manual", "https://infodoc.plover.net/manuals/zork1.pdf")}>Read the
                     1984 Infocom
                     Manual</MenuItem>
