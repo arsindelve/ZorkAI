@@ -76,6 +76,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         GenerationClient.OnGenerate += () => _lastResponseWasGenerated = true;
 
         _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
+        Inventory = [];
     }
 
     /// <summary>
@@ -94,7 +95,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         Repository.Reset();
 
         Context = new TContext { Engine = this };
-
+        Inventory = [];
         IntroText = string.Empty;
         _parser = parser;
         GenerationClient = generationClient;
@@ -150,6 +151,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return PostProcessing(await GetGeneratedNoCommandResponse());
 
         PreviousLocationName = LocationName;
+        Inventory = Context.Items.Select(s => s.Name).ToList();
 
         // 3. ------- System, or "meta" commands - like save, restore, quit, verbose etc. Does not count as a turn. No actor or turn processing. 
         var systemCommand = _parser.DetermineSystemIntentType(playerInput);
@@ -226,6 +228,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // Put it all together for return. 
         return await ProcessActorsAndContextEndOfTurn(contextPrepend, complexIntentResult.ResultMessage);
     }
+
+    public List<string> Inventory { get; set; }
 
 
     public IContext RestoreGame(string data)
