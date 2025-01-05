@@ -37,6 +37,8 @@ The game is fully mobile responsive, so feel free to try it on your phone or tab
 
 [![.NET](https://github.com/arsindelve/ZorkAI/actions/workflows/dotnet.yml/badge.svg)](https://github.com/arsindelve/ZorkAI/actions/workflows/dotnet.yml)
 
+Contact me: hello@newzork.ai
+
 ---
 
 ### Try these in the game:
