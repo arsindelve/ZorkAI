@@ -51,6 +51,9 @@ public static class FloydConstants
         "Floyd whistles tunelessly. ",
         "Floyd yawns and looks bored. ",
         "Floyd relates some fond memories about his robotic friend Lazarus. ",
-        "Floyd reminisces about his friend Lazarus, a medical robot. "
+        "Floyd reminisces about his friend Lazarus, a medical robot. ",
+        "Floyd paces impatiently. ",
+        "Floyd chants the death scene from \"Carmen\". "
+        
     ];
 }
