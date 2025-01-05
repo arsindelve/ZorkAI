@@ -16,21 +16,9 @@ import {Mixpanel} from "./Mixpanel.ts";
 
 import {useGameContext} from "./GameContext";
 import InventoryButton from "./components/InventoryButton.tsx";
+import DialogType from "./model/DialogType.ts";
 
-interface GameProps {
-    restoreGameId?: string | undefined
-    serverText: string
-    onRestoreDone: () => void
-    onRestartDone: () => void
-    gaveSaved: boolean;
-}
-
-function Game({
-                  restoreGameId,
-                  serverText,
-                  gaveSaved,
-                  onRestoreDone,
-              }: GameProps) {
+function Game() {
 
     const restoreResponse = "<Restore>\n";
     const saveResponse = "<Save>\n"
@@ -52,7 +40,15 @@ function Game({
     const gameContentElement = React.useRef<HTMLDivElement>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);
 
-    const {setDialogToOpen, restartGame, setRestartGame} = useGameContext();
+    const {
+        setDialogToOpen,
+        restartGame,
+        setRestartGame,
+        saveGameRequest,
+        setSaveGameRequest,
+        setRestoreGameRequest,
+        restoreGameRequest
+    } = useGameContext();
 
     function focusOnPlayerInput() {
         if (playerInputElement.current)
@@ -62,26 +58,32 @@ function Game({
 
     // Save the game. 
     useEffect(() => {
-        if (gaveSaved) {
-            gaveSaved = false;
-            setSnackBarMessage("Game Saved Successfully.");
-            setSnackBarOpen(true);
+        if (saveGameRequest) {
+            (async () => {
+                saveGameRequest.sessionId = sessionId.getSessionId()[0];
+                saveGameRequest.clientId = sessionId.getClientId()
+                console.log(saveGameRequest);
+                let response = await server.saveGame(saveGameRequest);
+                setGameText((prevGameText) => [...prevGameText, response]);
+                setSaveGameRequest(undefined);
+                setSnackBarMessage("Game Saved Successfully.");
+                setSnackBarOpen(true);
+            })();
         }
         focusOnPlayerInput();
-    }, [gaveSaved]);
-
-
+    }, [saveGameRequest]);
+    
     // Restore a saved game
     useEffect(() => {
-        if (!restoreGameId)
+        if (!restoreGameRequest)
             return;
         setGameText([]);
-        gameRestore(restoreGameId!).then((data) => {
+        gameRestore(restoreGameRequest.id!).then((data) => {
             handleResponse(data);
-            onRestoreDone();
+            setRestoreGameRequest(undefined);
             focusOnPlayerInput();
         })
-    }, [restoreGameId]);
+    }, [restoreGameRequest]);
 
     // Scroll to the bottom of the container after we add text. 
     useEffect(() => {
@@ -99,13 +101,11 @@ function Game({
         gameInit().then((data) => {
             handleResponse(data);
             setRestartGame(false);
+            setSnackBarMessage("Game Restarted Successfully.");
+            setSnackBarOpen(true);
             focusOnPlayerInput();
         })
     }, [restartGame]);
-
-    useEffect(() => {
-        setGameText((prevGameText) => [...prevGameText, serverText]);
-    }, [serverText]);
 
     // Set focus to the input box on load. 
     useEffect(() => {
@@ -122,19 +122,19 @@ function Game({
     function handleResponse(data: GameResponse) {
 
         if (data.response === saveResponse) {
-            setDialogToOpen("Save")
+            setDialogToOpen(DialogType.Save)
             setInput("");
             return;
         }
 
         if (data.response === restoreResponse) {
-            setDialogToOpen("Restore")
+            setDialogToOpen(DialogType.Restore)
             setInput("");
             return;
         }
 
         if (data.response === restartResponse) {
-            setDialogToOpen("Restart")
+            setDialogToOpen(DialogType.Restart)
             setInput("");
             return;
         }
@@ -152,7 +152,6 @@ function Game({
         setScore(data.score.toString());
         setMoves(data.moves.toString())
         setInventory(data.inventory);
-        console.log(inventory);
     }
 
     // noinspection JSUnusedGlobalSymbols
@@ -202,11 +201,11 @@ function Game({
             submitInput();
         }
     }
-    
+
     async function gameInit(): Promise<GameResponse> {
         const [id, firstTime] = sessionId.getSessionId();
         if (firstTime)
-            setDialogToOpen("Welcome");
+            setDialogToOpen(DialogType.Welcome);
         return await server.gameInit(id)
     }
 
@@ -301,11 +300,12 @@ function Game({
                         mb-2 sm:mb-4 
                         space-x-6
                         ">
+                        <VerbsButton onVerbClick={handleVerbClick}/>
                         {inventory.length > 0 && (
                             <InventoryButton onInventoryClick={handleInventoryClick} inventory={inventory}/>
                         )}
                         <CommandsButton onCommandClick={handleCommandClick}/>
-                        <VerbsButton onVerbClick={handleVerbClick}/>
+                     
                         <Button
                             variant="contained"
                             onClick={() => {

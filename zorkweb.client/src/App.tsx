@@ -8,23 +8,19 @@ import {SessionHandler} from "./SessionHandler.ts";
 import RestoreModal from "./modal/RestoreModal.tsx";
 import {ISavedGame} from "./model/SavedGame.ts";
 import SaveModal from "./modal/SaveModal.tsx";
-import {ISaveGameRequest} from "./model/SaveGameRequest.ts";
 import ConfirmDialog from "./modal/ConfirmationDialog.tsx";
 import {useGameContext} from "./GameContext.tsx";
 import VideoDialog from "./modal/VideoModal.tsx";
 import WelcomeDialog from "./modal/WelcomeModal.tsx";
 import {Mixpanel} from "./Mixpanel.ts";
+import DialogType from "./model/DialogType.ts";
 
 function App() {
 
     const [confirmOpen, setConfirmRestartOpen] = useState<boolean>(false);
-    const [forceMenuClose, setMenuForceClose] = useState<boolean>(false);
-    const [gameSaved, setGameSaved] = useState<boolean>(false);
-    const [restoreGameId, setRestoreGameId] = useState<string | undefined>(undefined);
     const [restoreDialogOpen, setRestoreDialogOpen] = useState<boolean>(false);
     const [saveDialogOpen, setSaveDialogOpen] = useState<boolean>(false);
     const [availableSavedGames, setAvailableSavedGames] = useState<ISavedGame[]>([]);
-    const [serverText, setServerText] = useState<string>("");
     const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
     const [videoDialogOpen, setVideoDialogOpen] = useState<boolean>(false);
 
@@ -39,42 +35,46 @@ function App() {
         if (!dialogToOpen)
             return;
 
-        if (dialogToOpen === "Save") {
-            setSaveDialogOpen(true);
-            setDialogToOpen("");
-        } else if (dialogToOpen === "Video") {
-                setVideoDialogOpen(true);
-                setDialogToOpen("");
-        } else if (dialogToOpen === "Welcome") {
-            setWelcomeDialogOpen(true);
-            setDialogToOpen("");
+        const handleDialog = async () => {
+            switch (dialogToOpen) {
+                case DialogType.Save:
+                    await getSavedGames();
+                    setSaveDialogOpen(true);
+                    setDialogToOpen(undefined);
+                    break;
+                case DialogType.Video:
+                    Mixpanel.track('Open Video Dialog', {});
+                    setVideoDialogOpen(true);
+                    setDialogToOpen(undefined);
+                    break;
+                case DialogType.Welcome:
+                    Mixpanel.track('Open Welcome Dialog', {});
+                    setWelcomeDialogOpen(true);
+                    setDialogToOpen(undefined);
+                    break;
+                case DialogType.Restore:
+                    await getSavedGames();
+                    setRestoreDialogOpen(true);
+                    setDialogToOpen(undefined);
+                    break;
+                case DialogType.Restart:
+                    setConfirmRestartOpen(true);
+                    setDialogToOpen(undefined);
+                    break;
+                default:
+                    break;
+            }
+        };
 
-        } else if (dialogToOpen === "Restore") {
-            setRestoreDialogOpen(true);
-            setDialogToOpen("");
-        } else if (dialogToOpen === "Restart") {
-            setConfirmRestartOpen(true);
-            setDialogToOpen("");
-        }
+        handleDialog().catch((error) => {
+            console.error("Error handling dialog:", error);
+        });
 
     }, [dialogToOpen]);
 
-
-    const handleWelcomeDialogClose = () => {
-        setWelcomeDialogOpen(false);
-        Mixpanel.track('Close Welcome Dialog', {});
-    };
-
     const handleWatchVideo = () => {
-        Mixpanel.track('Open Video Dialog', {});
         setWelcomeDialogOpen(false);
         setVideoDialogOpen(true);
-    }
-    
-    async function restore(): Promise<void> {
-        setMenuForceClose(false);
-        await getSavedGames();
-        setRestoreDialogOpen(true);
     }
 
     async function getSavedGames() {
@@ -83,47 +83,16 @@ function App() {
         setAvailableSavedGames(savedGames);
     }
 
-    async function save(): Promise<void> {
-        setMenuForceClose(false);
-        await getSavedGames();
-    }
-
-    function handleRestoreModalClose(id: string | undefined): void {
-        if (id)
-            setRestoreGameId(id);
-        setRestoreDialogOpen(false);
-        setMenuForceClose(true);
-    }
-
-    async function handleSaveModalClose(request: ISaveGameRequest | undefined): Promise<void> {
-        setGameSaved(false);
-        if (request) {
-            request.sessionId = sessionId.getSessionId()[0];
-            request.clientId = sessionId.getClientId()
-            setServerText(await server.saveGame(request));
-        }
-        setSaveDialogOpen(false);
-        setMenuForceClose(true);
-        setGameSaved(true);
-    }
-
     return (
 
         <div
             className="bg-[url('https://zorkai-assets.s3.amazonaws.com/brick-wall-background-texture.jpg')] bg-repeat bg-[size:500px_500px] min-h-screen flex flex-col justify-between">
             <div className="flex-grow flex flex-col min-h-0 mt">
-                <GameMenu forceClose={forceMenuClose} gameMethods={[restore, save]}/>
+                <GameMenu/>
 
                 <QueryClientProvider client={queryClient}>
                     <Game
-                        serverText={serverText}
-                        onRestoreDone={() => setRestoreGameId(undefined)}
-                        restoreGameId={restoreGameId}
-                        gaveSaved={gameSaved}
-                        onRestartDone={() => {
-                            setConfirmRestartOpen(false);
-                            setMenuForceClose(true);
-                        }}
+                       
                     />
 
                     <ConfirmDialog
@@ -139,18 +108,29 @@ function App() {
                         confirmColor="red"
                     />
 
-                    <RestoreModal games={availableSavedGames} 
+                    <RestoreModal games={availableSavedGames}
                                   open={restoreDialogOpen}
-                                  handleClose={handleRestoreModalClose}/>
+                                  setOpen={setRestoreDialogOpen}
+                    />
 
-                    <SaveModal games={availableSavedGames} 
+                    <SaveModal games={availableSavedGames}
+                               setOpen={setSaveDialogOpen}
                                open={saveDialogOpen}
-                               handleClose={handleSaveModalClose}/>
+                    />
 
-                    <VideoDialog open={videoDialogOpen} handleClose={() => setVideoDialogOpen(false)}/>
+                    <VideoDialog open={videoDialogOpen}
+                                 handleClose={() => {
+                                     setVideoDialogOpen(false);
+                                     Mixpanel.track('Close Video Dialog', {});
+                                 }}/>
+
                     <WelcomeDialog handleWatchVideo={handleWatchVideo} open={welcomeDialogOpen}
-                                   handleClose={handleWelcomeDialogClose}/>
-                    
+                                   handleClose={() => {
+                                       setWelcomeDialogOpen(false);
+                                       Mixpanel.track('Close Welcome Dialog', {});
+                                   }}/>
+
+
                 </QueryClientProvider>
             </div>
 
@@ -158,7 +138,7 @@ function App() {
                 <p className="text-center text-sm text-black font-['Lato']">
                     <a target="_blank" href="https://github.com/arsindelve/ZorkAI">Created By Mike in Dallas. Check
                         out
-                        the repository.</a>
+                        the repository. hello@newzork.ai</a>
                 </p>
             </footer>
         </div>

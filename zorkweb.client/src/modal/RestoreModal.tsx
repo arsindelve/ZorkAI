@@ -5,21 +5,24 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import moment from 'moment';
+import {useGameContext} from "../GameContext.tsx";
 
 interface RestoreModalProps {
     open: boolean;
-    handleClose: (id: string | undefined) => void;
+    setOpen: (open: boolean) => void;
     games: ISavedGame[]
 }
 
-
 function RestoreModal(props: RestoreModalProps) {
 
+    const {setRestoreGameRequest} = useGameContext();
+    
     function handleClose(item: ISavedGame | undefined) {
-
-        props.handleClose(item?.id);
+        console.log(item);
+        setRestoreGameRequest(item);
+        props.setOpen(false);
     }
-
+    
     return (<Dialog
 
             maxWidth={"md"}

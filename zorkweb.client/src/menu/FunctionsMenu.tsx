@@ -3,6 +3,7 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import {useGameContext} from "../GameContext";
+import DialogType from "../model/DialogType.ts";
 
 
 export default function FunctionsMenu() {
@@ -38,15 +39,15 @@ export default function FunctionsMenu() {
                 }}
             >
                 <MenuItem onClick={() => {
-                    setDialogToOpen("Restart");
+                    setDialogToOpen(DialogType.Restart);
                     handleClose();
                 }}>Restart Your Game</MenuItem>
                 <MenuItem onClick={() => {
-                    setDialogToOpen("Restore");
+                    setDialogToOpen(DialogType.Restore);
                     handleClose();
                 }}>Restore a Previous Saved Game</MenuItem>
                 <MenuItem onClick={() => {
-                    setDialogToOpen("Save");
+                    setDialogToOpen(DialogType.Save);
                     handleClose();
                 }}>Save your Game</MenuItem>
             </Menu>

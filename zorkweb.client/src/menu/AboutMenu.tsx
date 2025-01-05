@@ -5,6 +5,7 @@ import MenuItem from '@mui/material/MenuItem';
 import config from "../../config.json";
 import {Mixpanel} from "../Mixpanel.ts";
 import {useGameContext} from "../GameContext";
+import DialogType from "../model/DialogType.ts";
 
 interface AboutMenuProps {
 
@@ -54,13 +55,13 @@ export default function AboutMenu({}: AboutMenuProps) {
             >
                 <MenuItem
                     onClick={() => {
-                        setDialogToOpen("Welcome");
+                        setDialogToOpen(DialogType.Welcome);
                         handleClose();
                     }}>What is this game?</MenuItem>
 
                 <MenuItem
                     onClick={() => {
-                        setDialogToOpen("Video");
+                        setDialogToOpen(DialogType.Video);
                         handleClose();
                     }}>Watch intro video</MenuItem>
 
