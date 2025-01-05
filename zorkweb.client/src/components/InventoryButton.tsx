@@ -1,13 +1,15 @@
 import React, {useState} from "react";
 import {Button, Menu, MenuItem} from "@mui/material";
-import {Mixpanel} from "./Mixpanel.ts";
+import {Mixpanel} from "../Mixpanel.ts";
 
-type CommandButtonProps = {
-    onCommandClick: (command: string) => void; // Callback prop to send the clicked command to the parent
+
+type InventoryButtonProps = {
+    onInventoryClick: (verb: string) => void; // Callback prop to send the clicked inventory item to the parent
+    inventory: string[]
 };
 
-export default function CommandsButton({onCommandClick}: CommandButtonProps) {
-    const commands = ["verbose", "diagnose", "enter", "exit", "go up", "go down", "wait", "inventory", "again", "drop all", "take all", "look"];
+export default function InventoryButton({inventory, onInventoryClick}: InventoryButtonProps) {
+
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -15,12 +17,12 @@ export default function CommandsButton({onCommandClick}: CommandButtonProps) {
         setAnchorEl(event.currentTarget); // Set the anchor element
     };
 
-    const handleClose = (command?: string) => {
-        if (command) {
-            Mixpanel.track('Click Command', {
-                "command": command
+    const handleClose = (item?: string) => {
+        if (item) {
+            Mixpanel.track('Click Item', {
+                "item": item
             });
-            onCommandClick(command); // Pass the clicked command to the parent
+            onInventoryClick(item); // Pass the clicked item to the parent
         }
         setAnchorEl(null); // Close the menu
     };
@@ -35,7 +37,7 @@ export default function CommandsButton({onCommandClick}: CommandButtonProps) {
                     textTransform: "none",   // Prevent text from being all-caps
                 }}
             >
-                Commands
+                Inventory
             </Button>
 
             <Menu
@@ -51,13 +53,14 @@ export default function CommandsButton({onCommandClick}: CommandButtonProps) {
                     horizontal: "left",
                 }}
             >
-                {/* Map through the commands array to create MenuItems */}
-                {commands.map((command, index) => (
-                    <MenuItem className={"uppercase"} key={index} onClick={() => handleClose(command)}>
-                        {command}
+                {/* Map through the verbs array to create MenuItems */}
+                {inventory.map((item, index) => (
+                    <MenuItem key={index} onClick={() => handleClose(item)}>
+                        {item}
                     </MenuItem>
                 ))}
             </Menu>
         </>
     );
+
 }
