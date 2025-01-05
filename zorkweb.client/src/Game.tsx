@@ -24,7 +24,6 @@ interface GameProps {
     onRestoreDone: () => void
     onRestartDone: () => void
     openRestoreModal: () => void
-    openSaveModal: () => void
     openRestartModal: () => void
     gaveSaved: boolean;
 }
@@ -37,7 +36,6 @@ function Game({
                   onRestoreDone,
                   onRestartDone,
                   openRestoreModal,
-                  openSaveModal,
                   openRestartModal
 
               }: GameProps) {
@@ -82,7 +80,7 @@ function Game({
         } else if (dialogToOpen === "Video") {
             setVideoDialogOpen(true);
             setDialogToOpen("");
-        }
+        } 
     }, [dialogToOpen]);
 
 
@@ -148,7 +146,7 @@ function Game({
     function handleResponse(data: GameResponse) {
 
         if (data.response === saveResponse) {
-            openSaveModal();
+            setDialogToOpen("Save")
             setInput("");
             return;
         }

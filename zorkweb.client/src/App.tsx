@@ -2,7 +2,7 @@ import './App.css';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import Game from "./Game.tsx";
 import GameMenu from "./menu/GameMenu.tsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import Server from "./Server.ts";
 import {SessionHandler} from "./SessionHandler.ts";
 import RestoreModal from "./modal/RestoreModal.tsx";
@@ -10,7 +10,7 @@ import {ISavedGame} from "./model/SavedGame.ts";
 import SaveModal from "./modal/SaveModal.tsx";
 import {ISaveGameRequest} from "./model/SaveGameRequest.ts";
 import ConfirmDialog from "./modal/ConfirmationDialog.tsx";
-import {GameProvider} from "./GameContext.tsx";
+import {useGameContext} from "./GameContext.tsx";
 
 
 function App() {
@@ -28,6 +28,20 @@ function App() {
     const server = new Server();
     const sessionId = new SessionHandler();
     const queryClient = new QueryClient();
+
+    const {dialogToOpen, setDialogToOpen} = useGameContext();
+
+    useEffect(() => {
+
+        if (!dialogToOpen)
+            return;
+
+        if (dialogToOpen === "Save") {
+            setSaveDialogOpen(true);
+            setDialogToOpen("");
+        }
+
+    }, [dialogToOpen]);
 
     function restart() {
         setIsRestarting(false);
@@ -49,7 +63,6 @@ function App() {
     async function save(): Promise<void> {
         setMenuForceClose(false);
         await getSavedGames();
-        setSaveDialogOpen(true);
     }
 
     function handleRestartGameConfirmClose() {
@@ -76,52 +89,51 @@ function App() {
     }
 
     return (
-        <GameProvider>
-            <div
-                className="bg-[url('https://zorkai-assets.s3.amazonaws.com/brick-wall-background-texture.jpg')] bg-repeat bg-[size:500px_500px] min-h-screen flex flex-col justify-between">
-                <div className="flex-grow flex flex-col min-h-0 mt">
-                    <GameMenu forceClose={forceMenuClose} gameMethods={[restart, restore, save]}/>
 
-                    <QueryClientProvider client={queryClient}>
-                        <Game
-                            restartGame={isRestarting}
-                            serverText={serverText}
-                            onRestoreDone={() => setRestoreGameId(undefined)}
-                            restoreGameId={restoreGameId}
-                            gaveSaved={gameSaved}
-                            openRestoreModal={restore}
-                            openSaveModal={save}
-                            openRestartModal={restore}
-                            onRestartDone={() => {
-                                setConfirmRestartOpen(false);
-                                setMenuForceClose(true);
-                            }}
-                        />
+        <div
+            className="bg-[url('https://zorkai-assets.s3.amazonaws.com/brick-wall-background-texture.jpg')] bg-repeat bg-[size:500px_500px] min-h-screen flex flex-col justify-between">
+            <div className="flex-grow flex flex-col min-h-0 mt">
+                <GameMenu forceClose={forceMenuClose} gameMethods={[restart, restore, save]}/>
 
-                        <ConfirmDialog
-                            title="Restart Your Game? Are you sure?"
-                            open={confirmOpen}
-                            setOpen={setConfirmRestartOpen}
-                            onConfirm={handleRestartGameConfirmClose}
-                        />
+                <QueryClientProvider client={queryClient}>
+                    <Game
+                        restartGame={isRestarting}
+                        serverText={serverText}
+                        onRestoreDone={() => setRestoreGameId(undefined)}
+                        restoreGameId={restoreGameId}
+                        gaveSaved={gameSaved}
+                        openRestoreModal={restore}
+                        openRestartModal={restore}
+                        onRestartDone={() => {
+                            setConfirmRestartOpen(false);
+                            setMenuForceClose(true);
+                        }}
+                    />
 
-                        <RestoreModal games={availableSavedGames} open={restoreDialogOpen}
-                                      handleClose={handleRestoreModalClose}/>
+                    <ConfirmDialog
+                        title="Restart Your Game? Are you sure?"
+                        open={confirmOpen}
+                        setOpen={setConfirmRestartOpen}
+                        onConfirm={handleRestartGameConfirmClose}
+                    />
 
-                        <SaveModal games={availableSavedGames} open={saveDialogOpen}
-                                   handleClose={handleSaveModalClose}/>
-                    </QueryClientProvider>
-                </div>
+                    <RestoreModal games={availableSavedGames} open={restoreDialogOpen}
+                                  handleClose={handleRestoreModalClose}/>
 
-                <footer className="bg-gray-200 py-2">
-                    <p className="text-center text-sm text-black font-['Lato']">
-                        <a target="_blank" href="https://github.com/arsindelve/ZorkAI">Created By Mike in Dallas. Check
-                            out
-                            the repository.</a>
-                    </p>
-                </footer>
+                    <SaveModal games={availableSavedGames} open={saveDialogOpen}
+                               handleClose={handleSaveModalClose}/>
+                </QueryClientProvider>
             </div>
-        </GameProvider>
+
+            <footer className="bg-gray-200 py-2">
+                <p className="text-center text-sm text-black font-['Lato']">
+                    <a target="_blank" href="https://github.com/arsindelve/ZorkAI">Created By Mike in Dallas. Check
+                        out
+                        the repository.</a>
+                </p>
+            </footer>
+        </div>
+
 
     );
 }

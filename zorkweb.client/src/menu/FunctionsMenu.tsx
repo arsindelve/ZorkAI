@@ -3,6 +3,7 @@ import {useEffect} from 'react';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import {useGameContext} from "../GameContext";
 
 interface FunctionsMenuProps {
     gameMethods: (() => void)[]
@@ -11,12 +12,14 @@ interface FunctionsMenuProps {
 
 export default function FunctionsMenu({gameMethods, forceClose}: FunctionsMenuProps) {
 
+    const {setDialogToOpen} = useGameContext();
+    
     useEffect(() => {
         if (forceClose)
             handleClose();
     }, [forceClose]);
 
-    const [restart, restore, save] = gameMethods;
+    const [restart, restore] = gameMethods;
 
     const [anchorElement, setAnchorElement] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorElement);
@@ -49,7 +52,7 @@ export default function FunctionsMenu({gameMethods, forceClose}: FunctionsMenuPr
             >
                 <MenuItem onClick={() => restart()}>Restart Your Game</MenuItem>
                 <MenuItem onClick={() => restore()}>Restore a Previous Saved Game</MenuItem>
-                <MenuItem onClick={() => save()}>Save your Game</MenuItem>
+                <MenuItem onClick={() => setDialogToOpen("Save")}>Save your Game</MenuItem>
             </Menu>
         </div>
     );
