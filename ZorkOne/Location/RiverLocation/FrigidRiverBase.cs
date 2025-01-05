@@ -15,8 +15,7 @@ public abstract class FrigidRiverBase : LocationWithNoStartingItems, ITurnBasedA
 
     protected abstract int TurnsUntilSweptDownstream { get; }
 
-    // ReSharper disable once MemberCanBePrivate.Global
-    // Needed for serialization 
+    [UsedImplicitly]
     public int TurnsInThisLocation { get; set; }
 
     public override string Name => "Frigid River";

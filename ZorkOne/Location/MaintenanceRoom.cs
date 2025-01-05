@@ -12,7 +12,7 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
 {
     public override string Name => "Maintenance Room";
 
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public int CurrentWaterLevel { get; set; }
 
     public bool RoomFlooded { get; set; }

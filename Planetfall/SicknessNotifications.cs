@@ -16,7 +16,7 @@ public class SicknessNotifications
         }
     };
 
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public List<int> DaysNotified { get; set; } = new();
 
     internal string? GetNotification(int day, int time)

@@ -4,7 +4,7 @@ namespace Planetfall.Item.Kalamontee.Admin;
 
 public class KitchenDoor : ItemBase, ICanBeExamined, IOpenAndClose, ITurnBasedActor
 {
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public int TurnsOpen { get; set; }
 
     public override string[] NounsForMatching => ["kitchen door", "door", "kitchen card door"];

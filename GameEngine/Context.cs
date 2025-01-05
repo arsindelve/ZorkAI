@@ -72,7 +72,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public int Moves { get; set; }
 
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public int Score { get; set; }
 
     /// <summary>
@@ -84,7 +84,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// <summary>
     ///     Represents the inventory of the game's adventurer. It holds various items that the player can carry.
     /// </summary>
-    // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global: Deserializer needs it. 
+    [UsedImplicitly]
     public List<IItem> Items { get; set; } = new();
 
     /// <summary>

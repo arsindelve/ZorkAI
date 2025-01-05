@@ -16,7 +16,7 @@ public class LoudRoom : DarkLocation, ITurnBasedActor
 {
     private readonly Random _random = new();
 
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public bool EchoHasBeenSpoken { get; set; }
 
     public override string Name => "Loud Room";

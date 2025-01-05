@@ -20,10 +20,10 @@ public class Cyclops : ItemBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked
     /// </summary>
     public bool IsAgitated { get; set; }
 
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public bool IsSleeping { get; set; }
 
-    // ReSharper disable once MemberCanBePrivate.Global
+    [UsedImplicitly]
     public int TurnsSinceAgitated { get; set; }
 
     public override string[] NounsForMatching => ["cyclops", "giant", "monster", "beast"];
