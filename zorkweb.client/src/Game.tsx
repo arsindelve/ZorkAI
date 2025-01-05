@@ -4,17 +4,18 @@ import {GameResponse} from "./model/GameResponse.ts";
 import React, {useEffect, useState} from "react";
 import {Alert, Button, CircularProgress, Snackbar} from "@mui/material";
 import '@fontsource/roboto';
-import Header from "./Header.tsx";
+import Header from "./components/Header.tsx";
 import {SessionHandler} from "./SessionHandler.ts";
 import WelcomeDialog from "./modal/WelcomeModal.tsx";
 import Server from './Server';
-import VerbsButton from "./VerbsButton.tsx";
-import CommandsButton from "./CommandsButton.tsx";
+import VerbsButton from "./components/VerbsButton.tsx";
+import CommandsButton from "./components/CommandsButton.tsx";
 import ClickableText from "./ClickableText.tsx";
-import Compass from "./Compass.tsx";
+import Compass from "./components/Compass.tsx";
 import {Mixpanel} from "./Mixpanel.ts";
 import VideoDialog from "./modal/VideoModal.tsx";
 import {useGameContext} from "./GameContext";
+import InventoryButton from "./components/InventoryButton.tsx";
 
 interface GameProps {
     restoreGameId?: string | undefined
@@ -49,6 +50,7 @@ function Game({
     const [gameText, setGameText] = useState<string[]>(["Your game is loading...."]);
     const [score, setScore] = useState<string>("0");
     const [moves, setMoves] = useState<string>("0");
+    const [inventory, setInventory] = useState<string[]>([])
     const [locationName, setLocationName] = useState<string>("");
     const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
     const [videoDialogOpen, setVideoDialogOpen] = useState<boolean>(false);
@@ -175,6 +177,8 @@ function Game({
         setLocationName(data.locationName);
         setScore(data.score.toString());
         setMoves(data.moves.toString())
+        setInventory(data.inventory);
+        console.log(inventory);
     }
 
     // noinspection JSUnusedGlobalSymbols
@@ -208,6 +212,11 @@ function Game({
         focusOnPlayerInput();
     };
 
+    const handleInventoryClick = (item: string) => {
+        setInput(playerInput + " " + item + " ");
+        focusOnPlayerInput();
+    };
+    
     const handleCommandClick = (command: string) => {
         setInput(command);
         submitInput(command);
@@ -215,9 +224,9 @@ function Game({
 
     function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
         if (event.key === 'Enter') {
+            Mixpanel.track('Press Enter', {});
             submitInput();
         }
-        Mixpanel.track('Press Enter', {});
     }
 
     const handleWelcomeDialogClose = () => {
@@ -226,6 +235,7 @@ function Game({
     };
 
     const handleWatchVideo = () => {
+        Mixpanel.track('Open Video Dialog', {});
         setWelcomeDialogOpen(false);
         setVideoDialogOpen(true);
     }
@@ -265,6 +275,7 @@ function Game({
             <VideoDialog open={videoDialogOpen} handleClose={() => setVideoDialogOpen(false)}/>
             <WelcomeDialog handleWatchVideo={handleWatchVideo} open={welcomeDialogOpen}
                            handleClose={handleWelcomeDialogClose}/>
+            
             <Header locationName={locationName} moves={moves} score={score}/>
 
             <Compass onCompassClick={handleCommandClick} className="
@@ -330,11 +341,17 @@ function Game({
                         mb-2 sm:mb-4 
                         space-x-6
                         ">
+                        {inventory.length > 0 && (
+                            <InventoryButton onInventoryClick={handleInventoryClick} inventory={inventory} />
+                        )}
                         <CommandsButton onCommandClick={handleCommandClick}/>
                         <VerbsButton onVerbClick={handleVerbClick}/>
                         <Button
                             variant="contained"
-                            onClick={() => submitInput()}
+                            onClick={() => {
+                                Mixpanel.track('Click Go', {});
+                                submitInput();
+                            }}
                             disabled={!playerInput}>
                             Go
                         </Button>

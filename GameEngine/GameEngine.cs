@@ -151,7 +151,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return PostProcessing(await GetGeneratedNoCommandResponse());
 
         PreviousLocationName = LocationName;
-        Inventory = Context.Items.Select(s => s.Name).ToList();
 
         // 3. ------- System, or "meta" commands - like save, restore, quit, verbose etc. Does not count as a turn. No actor or turn processing. 
         var systemCommand = _parser.DetermineSystemIntentType(playerInput);
@@ -352,6 +351,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     {
         var actors = await ProcessActors();
         var contextAppend = Context.ProcessEndOfTurn();
+        Inventory = Context.Items.Select(s => s.Name).ToList();
         return PostProcessing(FormatResult(contextPrepend, turnResult, actors, contextAppend));
     }
 

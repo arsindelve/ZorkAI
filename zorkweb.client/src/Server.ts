@@ -24,7 +24,6 @@ export default class Server {
                 'Accept': 'application/json',
             } as RawAxiosRequestHeaders,
         });
-        console.log(response.data);
         Mixpanel.track('Played a Turn', {
             "score": response.data.score,
             "moves": response.data.moves,
