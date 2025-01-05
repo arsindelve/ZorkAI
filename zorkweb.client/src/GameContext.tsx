@@ -3,7 +3,9 @@ import React, {createContext, useContext, useState} from "react";
 // Define the context type
 interface GameContextType {
     dialogToOpen: string;
+    restartGame: Boolean;
     setDialogToOpen: (dialog: string) => void;
+    setRestartGame: (restartGame: boolean) => void;
 }
 
 // Create the context
@@ -21,9 +23,10 @@ export const useGameContext = () => {
 // Context provider
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     const [dialogToOpen, setDialogToOpen] = useState("");
+    const [restartGame, setRestartGame] = useState(false);
 
     return (
-        <GameContext.Provider value={{dialogToOpen, setDialogToOpen}}>
+        <GameContext.Provider value={{dialogToOpen, setDialogToOpen, restartGame, setRestartGame}}>
             {children}
         </GameContext.Provider>
     );

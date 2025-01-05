@@ -22,14 +22,13 @@ function App() {
     const [restoreDialogOpen, setRestoreDialogOpen] = useState<boolean>(false);
     const [saveDialogOpen, setSaveDialogOpen] = useState<boolean>(false);
     const [availableSavedGames, setAvailableSavedGames] = useState<ISavedGame[]>([]);
-    const [isRestarting, setIsRestarting] = useState<boolean>(false);
     const [serverText, setServerText] = useState<string>("");
 
     const server = new Server();
     const sessionId = new SessionHandler();
     const queryClient = new QueryClient();
 
-    const {dialogToOpen, setDialogToOpen} = useGameContext();
+    const {dialogToOpen, setDialogToOpen, setRestartGame} = useGameContext();
 
     useEffect(() => {
 
@@ -39,14 +38,15 @@ function App() {
         if (dialogToOpen === "Save") {
             setSaveDialogOpen(true);
             setDialogToOpen("");
+        } else if (dialogToOpen === "Restore") {
+            setRestoreDialogOpen(true);
+            setDialogToOpen("");
+        } else if (dialogToOpen === "Restart") {
+            setConfirmRestartOpen(true);
+            setDialogToOpen("");
         }
 
     }, [dialogToOpen]);
-
-    function restart() {
-        setIsRestarting(false);
-        setConfirmRestartOpen(true);
-    }
 
     async function restore(): Promise<void> {
         setMenuForceClose(false);
@@ -63,10 +63,6 @@ function App() {
     async function save(): Promise<void> {
         setMenuForceClose(false);
         await getSavedGames();
-    }
-
-    function handleRestartGameConfirmClose() {
-        setIsRestarting(true);
     }
 
     function handleRestoreModalClose(id: string | undefined): void {
@@ -93,17 +89,14 @@ function App() {
         <div
             className="bg-[url('https://zorkai-assets.s3.amazonaws.com/brick-wall-background-texture.jpg')] bg-repeat bg-[size:500px_500px] min-h-screen flex flex-col justify-between">
             <div className="flex-grow flex flex-col min-h-0 mt">
-                <GameMenu forceClose={forceMenuClose} gameMethods={[restart, restore, save]}/>
+                <GameMenu forceClose={forceMenuClose} gameMethods={[restore, save]}/>
 
                 <QueryClientProvider client={queryClient}>
                     <Game
-                        restartGame={isRestarting}
                         serverText={serverText}
                         onRestoreDone={() => setRestoreGameId(undefined)}
                         restoreGameId={restoreGameId}
                         gaveSaved={gameSaved}
-                        openRestoreModal={restore}
-                        openRestartModal={restore}
                         onRestartDone={() => {
                             setConfirmRestartOpen(false);
                             setMenuForceClose(true);
@@ -114,14 +107,23 @@ function App() {
                         title="Restart Your Game? Are you sure?"
                         open={confirmOpen}
                         setOpen={setConfirmRestartOpen}
-                        onConfirm={handleRestartGameConfirmClose}
+                        onConfirm={() => {
+                            setRestartGame(true);
+                        }}
+                        message="Your game will be reset to the beginning. Are you sure you want to restart?"
+                        confirmText="Restart"
+                        cancelText="Cancel"
+                        confirmColor="red"
                     />
 
-                    <RestoreModal games={availableSavedGames} open={restoreDialogOpen}
+                    <RestoreModal games={availableSavedGames} 
+                                  open={restoreDialogOpen}
                                   handleClose={handleRestoreModalClose}/>
 
-                    <SaveModal games={availableSavedGames} open={saveDialogOpen}
+                    <SaveModal games={availableSavedGames} 
+                               open={saveDialogOpen}
                                handleClose={handleSaveModalClose}/>
+                    
                 </QueryClientProvider>
             </div>
 
