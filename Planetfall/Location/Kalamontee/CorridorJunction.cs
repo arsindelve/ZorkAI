@@ -23,7 +23,8 @@ internal abstract class ElevatorBase<TDoor> : LocationBase where TDoor : Elevato
     protected override string GetContextBasedDescription(IContext context)
     {
         return
-            $"This is a medium-sized room with a door to the {ExitDirection} which is open. A control panel contains an Up button, a Down button, and a narrow slot. ";
+            $"This is a medium-sized room with a door to the {ExitDirection} which is open. " +
+            $"A control panel contains an Up button, a Down button, and a narrow slot. ";
     }
 
     public override void Init()
