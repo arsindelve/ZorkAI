@@ -1,11 +1,18 @@
 using GameEngine.Location;
+using Model.AIGeneration;
 using Model.Movement;
 using Planetfall.Item.Kalamontee.Admin;
 
 namespace Planetfall.Location.Kalamontee;
 
-internal abstract class ElevatorBase<TDoor> : LocationBase where TDoor : ElevatorDoorBase, IItem, new()
+internal abstract class ElevatorBase<TDoor> : LocationBase, ITurnBasedActor where TDoor : ElevatorDoorBase, IItem, new()
 {
+    [UsedImplicitly] public bool HasBeenSummoned { get; set; }
+
+    [UsedImplicitly] public bool InLobby { get; set; }
+
+    [UsedImplicitly] public int TurnsSinceSummoning { get; set; }
+
     // A recorded voice chimes "Elevator enabled."
     // A recorded voice chimes "Elevator enabled."
     // Some innocuous Hawaiian music oozes from the elevator's intercom.
@@ -15,7 +22,24 @@ internal abstract class ElevatorBase<TDoor> : LocationBase where TDoor : Elevato
 
     [UsedImplicitly] public bool IsEnabled { get; set; }
 
+    protected abstract string Color { get; }
+
     protected abstract string ExitDirection { get; }
+
+    protected abstract string EntranceDirection { get; }
+
+    public Task<string> Act(IContext context, IGenerationClient client)
+    {
+        TurnsSinceSummoning++;
+
+        if (TurnsSinceSummoning != 4)
+            return Task.FromResult(string.Empty);
+
+        GetItem<TDoor>().IsOpen = true;
+        context.RemoveActor(this);
+        InLobby = true;
+        return Task.FromResult($"The door at the {EntranceDirection} end of the room slides open. ");
+    }
 
     protected override string GetContextBasedDescription(IContext context)
     {
@@ -52,4 +76,18 @@ internal abstract class ElevatorBase<TDoor> : LocationBase where TDoor : Elevato
             }
         };
     }
+
+    internal InteractionResult SummonElevator(string response, IContext context)
+    {
+        if (GetItem<TDoor>().IsOpen)
+            return new PositiveInteractionResult($"Pushing the {Color} button has no effect. ");
+
+        if (HasBeenSummoned)
+            return new PositiveInteractionResult("Patience, patience... ");
+
+        context.RegisterActor(this);
+        HasBeenSummoned = true;
+        return new PositiveInteractionResult(response);
+    }
+    
 }

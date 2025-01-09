@@ -56,6 +56,48 @@ public class TestParser : IntentParser
         if (input is "drop all")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new DropEverythingProcessor() });
 
+        if (input is "press the button")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "button",
+                Verb = "press"
+            });
+
+        if (input is "press elevator button")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "elevator button",
+                Verb = "press"
+            });
+       
+        if (input is "press up button")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "up button",
+                Verb = "press"
+            });
+        
+        if (input is "press down button")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "down button",
+                Verb = "press"
+            });
+        
+        if (input is "press blue button")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "blue button",
+                Verb = "press"
+            });
+        
+        if (input is "press red button")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "red button",
+                Verb = "press"
+            });
+        
         if (input is "cross the rainbow")
             return Task.FromResult<IntentBase>(new SimpleIntent
             {
@@ -119,6 +161,26 @@ public class TestParser : IntentParser
                 NounOne = "boat"
             });
 
+        if (input == "slide upper access card through slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "upper access card",
+                NounTwo = "slot",
+                Preposition = "through",
+                Verb = "slide",
+                OriginalInput = "slide upper access card through slot"
+            });
+        
+        if (input == "slide lower access card through slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "lower access card",
+                NounTwo = "slot",
+                Preposition = "through",
+                Verb = "slide",
+                OriginalInput = "slide lower access card through slot"
+            });
+        
         if (input == "slide kitchen access card through slot")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {

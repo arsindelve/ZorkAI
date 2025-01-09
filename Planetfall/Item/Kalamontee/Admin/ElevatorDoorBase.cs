@@ -1,3 +1,5 @@
+using Model.AIGeneration;
+
 namespace Planetfall.Item.Kalamontee.Admin;
 
 public abstract class ElevatorDoorBase : ItemBase, ICanBeExamined, IOpenAndClose
@@ -30,4 +32,5 @@ public abstract class ElevatorDoorBase : ItemBase, ICanBeExamined, IOpenAndClose
     public string AlreadyClosed => "It's already closed. ";
 
     public bool HasEverBeenOpened { get; set; }
+
 }
