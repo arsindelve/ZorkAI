@@ -98,6 +98,55 @@ public class TestParser : IntentParser
                 Verb = "press"
             });
         
+        if (input is "open red door")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "red door",
+                Verb = "open"
+            });
+        
+        if (input is "close red door")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "red door",
+                Verb = "close"
+            });
+        
+        if (input is "examine red door")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "red door",
+                Verb = "examine"
+            });
+        
+        if (input is "examine blue door")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "blue door",
+                Verb = "examine"
+            });
+        
+        if (input is "open elevator door")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "elevator door",
+                Verb = "open"
+            });
+        
+        if (input is "open blue door")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "blue door",
+                Verb = "open"
+            });
+        
+        if (input is "close blue door")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "blue door",
+                Verb = "close"
+            });
+        
         if (input is "cross the rainbow")
             return Task.FromResult<IntentBase>(new SimpleIntent
             {

@@ -23,6 +23,8 @@ internal abstract class ElevatorBase<TDoor> : LocationBase, ITurnBasedActor wher
     [UsedImplicitly] public bool IsEnabled { get; set; }
 
     protected abstract string Color { get; }
+    
+    protected abstract string Size { get; }
 
     protected abstract string ExitDirection { get; }
 
@@ -44,7 +46,7 @@ internal abstract class ElevatorBase<TDoor> : LocationBase, ITurnBasedActor wher
     protected override string GetContextBasedDescription(IContext context)
     {
         return
-            $"This is a medium-sized room with a door to the {ExitDirection} which is open. " +
+            $"This is a {Size} room with a sliding door to the {ExitDirection} which is open. " +
             $"A control panel contains an Up button, a Down button, and a narrow slot. ";
     }
 

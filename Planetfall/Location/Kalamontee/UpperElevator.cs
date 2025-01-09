@@ -9,6 +9,8 @@ internal class UpperElevator : ElevatorBase<UpperElevatorDoor>
 
     protected override string Color => "blue";
 
+    protected override string Size => "tiny";
+
     protected override string ExitDirection => "south";
     
     protected override string EntranceDirection => "north";

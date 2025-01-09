@@ -63,19 +63,6 @@ public class EngineTests : EngineTestsBase
     }
 
     [Test]
-    [Ignore("Dynamic now")]
-    public async Task Move_Simple_CantGoThatWay()
-    {
-        var target = GetTarget();
-
-        // Act
-        var result = await target.GetResponse("NW");
-
-        // Assert
-        result.Should().Contain("You cannot go that way.");
-    }
-
-    [Test]
     public async Task Move_Simple_CantGoThatWay_CustomMessage()
     {
         var target = GetTarget();

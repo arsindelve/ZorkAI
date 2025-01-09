@@ -1,10 +1,10 @@
-using Model.AIGeneration;
 
 namespace Planetfall.Item.Kalamontee.Admin;
 
 public abstract class ElevatorDoorBase : ItemBase, ICanBeExamined, IOpenAndClose
 {
     public string ExaminationDescription => $"The door is {(IsOpen ? "open" : "closed")}. ";
+    
     public bool IsOpen { get; set; }
 
     public string NowOpen(ILocation currentLocation)
@@ -17,9 +17,9 @@ public abstract class ElevatorDoorBase : ItemBase, ICanBeExamined, IOpenAndClose
         return "The elevator door slides shut. After a moment, you feel a sensation of vertical movement. ";
     }
 
-    public string? CannotBeOpenedDescription(IContext context)
+    public string CannotBeOpenedDescription(IContext context)
     {
-        throw new NotImplementedException();
+        return "It won't budge. ";
     }
 
     public override string CannotBeClosedDescription(IContext context)
@@ -29,7 +29,7 @@ public abstract class ElevatorDoorBase : ItemBase, ICanBeExamined, IOpenAndClose
 
     public string AlreadyOpen => "It is open. ";
 
-    public string AlreadyClosed => "It's already closed. ";
+    public string AlreadyClosed => "It is closed. ";
 
     public bool HasEverBeenOpened { get; set; }
 
