@@ -3,9 +3,11 @@ using Model.Interface;
 using Model.Location;
 using Moq;
 using OpenAI;
+using Planetfall.Location.Kalamontee;
 using ZorkOne.Item;
 using ZorkOne.Location;
 using ZorkOne.Location.CoalMineLocation;
+using Kitchen = ZorkOne.Location.Kitchen;
 
 namespace IntegrationTests;
 
@@ -368,6 +370,31 @@ public class OpenAIParserTests
 
         response.Should().Contain("<verb>press</verb>");
         response.Should().Contain($"<noun>{direction} button");
+    }
+    
+    [Test]
+    [TestCase("up")]
+    [TestCase("down")]
+    public async Task PressTheUpAndDownButton_V2(string direction)
+    {
+        string locationObjectDescription;
+        var sentence = $"press {direction}";
+
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+            var locationObject = (ILocation)Activator.CreateInstance(typeof(UpperElevator))!;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
+        }
+
+        var target = new OpenAIParser(null);
+        var intent = await target.AskTheAIParser(sentence, locationObjectDescription, string.Empty);
+        var response = intent.Message;
+        Console.WriteLine(response);
+
+        response.Should().Contain("<verb>press</verb>");
+        response.Should().Contain($"<noun>{direction}");
     }
 
     [Test]

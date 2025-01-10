@@ -15,14 +15,15 @@ namespace Planetfall.Tests;
 
 public class EngineTestsBase
 {
-    protected Mock<IGenerationClient> Client = new();
-    protected IIntentParser Parser = Mock.Of<IIntentParser>();
+    private Mock<IGenerationClient> _client = new();
+    private IIntentParser _parser = Mock.Of<IIntentParser>();
     private PlanetfallContext Context { get; set; }
 
-
-    protected void StartHere<T>() where T : class, ILocation, new()
+    protected T StartHere<T>() where T : class, ILocation, new()
     {
-        Context.CurrentLocation = GetLocation<T>();
+        T location = GetLocation<T>();
+        Context.CurrentLocation = location;
+        return location;
     }
 
     protected T Take<T>() where T : IItem, new()
@@ -40,12 +41,12 @@ public class EngineTestsBase
     /// <returns>An instance of the GameEngine class.</returns>
     protected GameEngine<PlanetfallGame, PlanetfallContext> GetTarget(IIntentParser? parser = null)
     {
-        Client = new Mock<IGenerationClient>();
-        Parser = parser ?? new TestParser(new PlanetfallGlobalCommandFactory(), "Planetfall");
+        _client = new Mock<IGenerationClient>();
+        _parser = parser ?? new TestParser(new PlanetfallGlobalCommandFactory(), "Planetfall");
 
         Repository.Reset();
 
-        var engine = new GameEngine<PlanetfallGame, PlanetfallContext>(Parser, Client.Object,
+        var engine = new GameEngine<PlanetfallGame, PlanetfallContext>(_parser, _client.Object,
             Mock.Of<ISecretsManager>(), Mock.Of<ICloudWatchLogger<TurnLog>>());
         engine.Context.Verbosity = Verbosity.Verbose;
         Repository.GetLocation<DeckNine>().Init();

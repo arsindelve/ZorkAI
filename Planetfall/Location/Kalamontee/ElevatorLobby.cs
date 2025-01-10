@@ -1,4 +1,3 @@
-using Amazon.DynamoDBv2.Model;
 using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Movement;
@@ -71,8 +70,8 @@ internal class ElevatorLobby : LocationBase
     protected override string GetContextBasedDescription(IContext context)
     {
         return
-            "This is a wide, brightly lit lobby. A blue metal door to the north is closed and a larger red metal " +
-            "door to the south is also closed. Beside the blue door is a blue button, and beside the red door " +
-            "is a red button. A corridor leads west. To the east is a small room about the size of a telephone booth. ";
+            $"This is a wide, brightly lit lobby. A blue metal door to the north is {(GetItem<UpperElevatorDoor>().IsOpen ? "open" : "closed")} and a larger red metal " +
+            $"door to the south is {(GetItem<LowerElevatorDoor>().IsOpen == GetItem<UpperElevatorDoor>().IsOpen ? "also ": "")}{(GetItem<LowerElevatorDoor>().IsOpen ? "open" : "closed")}. " +
+            $"Beside the blue door is a blue button, and beside the red door is a red button. A corridor leads west. To the east is a small room about the size of a telephone booth. ";
     }
 }

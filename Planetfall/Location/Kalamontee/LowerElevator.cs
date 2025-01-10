@@ -1,9 +1,8 @@
-using Model.AIGeneration;
 using Planetfall.Item.Kalamontee.Admin;
 
 namespace Planetfall.Location.Kalamontee;
 
-internal class LowerElevator : ElevatorBase<LowerElevatorDoor>
+internal class LowerElevator : ElevatorBase<LowerElevatorDoor, LowerElevatorAccessSlot, LowerElevatorAccessCard>
 {
     public override string Name => "Lower Elevator";
 
@@ -14,5 +13,25 @@ internal class LowerElevator : ElevatorBase<LowerElevatorDoor>
     protected override string ExitDirection => "north";
     
     protected override string EntranceDirection => "south";
-    
+
+    protected override InteractionResult GoDown(IContext context)
+    {
+        if (!InLobby)
+            return new PositiveInteractionResult("Nothing happens. ");
+
+        return Move(context);
+    }
+
+    protected override InteractionResult GoUp(IContext context)
+    {
+        if (InLobby)
+            return new PositiveInteractionResult("Nothing happens. ");
+
+        return Move(context);
+    }
+
+    protected override ILocation? Exit()
+    {
+        return InLobby ? GetLocation<ElevatorLobby>() : null;
+    }
 }

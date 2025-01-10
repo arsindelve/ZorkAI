@@ -33,7 +33,7 @@ public class TestParser : IntentParser
         IEnumerable<string> specialNouns =
         [
             "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "zero",
-            "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "dude", "hello", "17", "seventeen",
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "dude", "hello", "17", "seventeen", "slot",
             "tree", "branches", "house", "lettering", "mirror", "match", "yellow button", "red button", "button",
             "blue button", "brown button", "bolt", "bubble", "bodies", "gate", "lid", "switch", "slag", "engravings"
         ];
@@ -268,6 +268,26 @@ public class TestParser : IntentParser
                 Preposition = "through",
                 Verb = "slide",
                 OriginalInput = "slide upper elevator access card through slot"
+            });
+        
+        if (input == "put upper elevator access card in slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "upper elevator access card",
+                NounTwo = "slot",
+                Preposition = "in",
+                Verb = "put",
+                OriginalInput = "put upper elevator access card in slot"
+            });
+        
+        if (input == "put lower elevator access card in slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "lower elevator access card",
+                NounTwo = "slot",
+                Preposition = "in",
+                Verb = "put",
+                OriginalInput = "put lower elevator access card in slot"
             });
 
         if (input == "slide card through slot")
