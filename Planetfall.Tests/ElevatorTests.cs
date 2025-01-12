@@ -529,6 +529,9 @@ public class ElevatorTests : EngineTestsBase
         var response = await target.GetResponse("wait");
         response.Should().Contain("A recording says \"Elevator no longer enabled.\"");
         GetLocation<UpperElevator>().IsEnabled.Should().BeFalse();
+        
+        response = await target.GetResponse("press up button");
+        response.Should().Contain("Nothing happens");
     }
 
     [Test]
@@ -547,6 +550,9 @@ public class ElevatorTests : EngineTestsBase
         var response = await target.GetResponse("wait");
         response.Should().Contain("A recording says \"Elevator no longer enabled.\"");
         GetLocation<LowerElevator>().IsEnabled.Should().BeFalse();
+        
+        response = await target.GetResponse("press down button");
+        response.Should().Contain("Nothing happens");
     }
 
     [Test]
@@ -601,5 +607,48 @@ public class ElevatorTests : EngineTestsBase
         response.Should().Contain("The elevator door slides shut. After a moment, you feel a sensation of vertical movement");
         GetLocation<LowerElevator>().TurnsSinceMoving.Should().Be(2);
         GetItem<LowerElevatorDoor>().IsOpen.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task UpperElevatorFullTest()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        Take<UpperElevatorAccessCard>();
+        
+        await target.GetResponse("press blue button");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        var response = await target.GetResponse("north");
+        response.Should().Contain("Upper Elevator");
+        await target.GetResponse("slide upper access card through slot");
+        response = await target.GetResponse("press up button");
+        response.Should().Contain("The elevator door slides shut. After a moment, you feel a sensation of vertical movement");
+        await target.GetResponse("wait");
+        response = await target.GetResponse("wait");
+        response.Should().Contain("The elevator door slides open");
+        response = await target.GetResponse("south");
+        response.Should().Contain("Tower Core");
+        response = await target.GetResponse("north");
+        response.Should().Contain("Upper Elevator");
+        response = await target.GetResponse("wait");
+        response.Should().Contain("no longer enabled");
+        response = await target.GetResponse("press down button");
+        response.Should().Contain("Nothing happens");
+        await target.GetResponse("slide upper access card through slot");
+        response = await target.GetResponse("press down button");
+        response.Should().Contain("The elevator door slides shut. After a moment, you feel a sensation of vertical movement");
+        await target.GetResponse("wait");
+        response = await target.GetResponse("wait");
+        response.Should().Contain("The elevator door slides open");
+        response = await target.GetResponse("south");
+        response.Should().Contain("Lobby");
+        await target.GetResponse("wait");
+        response.Should().NotContain("enabled");
+        response = await target.GetResponse("north");
+        response.Should().Contain("Upper Elevator");
+        response = await target.GetResponse("press up button");
+        response.Should().Contain("Nothing happens");
     }
 }

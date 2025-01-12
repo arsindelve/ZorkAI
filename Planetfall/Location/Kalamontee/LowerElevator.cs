@@ -1,4 +1,5 @@
 using Planetfall.Item.Kalamontee.Admin;
+using Planetfall.Location.Shuttle;
 
 namespace Planetfall.Location.Kalamontee;
 
@@ -32,6 +33,6 @@ internal class LowerElevator : ElevatorBase<LowerElevatorDoor, LowerElevatorAcce
 
     protected override ILocation? Exit()
     {
-        return InLobby ? GetLocation<ElevatorLobby>() : null;
+        return InLobby ? GetLocation<ElevatorLobby>() : GetLocation<WaitingArea>();
     }
 }

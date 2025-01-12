@@ -21,6 +21,9 @@ public class EngineTestsBase
 
     protected T StartHere<T>() where T : class, ILocation, new()
     {
+        // Since the test wants to drop us into a specific location, remove any
+        // prior actors. 
+        Context.Actors.Clear();
         T location = GetLocation<T>();
         Context.CurrentLocation = location;
         return location;

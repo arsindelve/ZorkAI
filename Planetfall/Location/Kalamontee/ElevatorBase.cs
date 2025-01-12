@@ -34,35 +34,38 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : LocationBase, ITurnB
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
-        if (TurnsSinceMoving > 0 && context.CurrentLocation == this)
-            return ElevatorIsMoving(context);
+        if (TurnsSinceMoving > 0)
+            return ElevatorIsMoving();
 
-        if (IsEnabled && context.CurrentLocation == this)
+        if (IsEnabled)
             return ElevatorIsEnabled(context);
 
-        if (HasBeenSummoned && context.CurrentLocation != this)
+        if (HasBeenSummoned)
             return ElevatorIsSummoned(context);
-
+        
         return Task.FromResult(string.Empty);
     }
 
-    private Task<string> ElevatorIsMoving(IContext context)
-    {  
+    private Task<string> ElevatorIsMoving()
+    {
         TurnsSinceMoving++;
-        
+
         if (TurnsSinceMoving == 2)
             return Task.FromResult("Some innocuous Hawaiian music oozes from the elevator's intercom. ");
 
         if (TurnsSinceMoving == 4)
         {
-            context.RemoveActor(this);
+            // Arrived. 
             InLobby = !InLobby;
             var door = GetItem<TDoor>();
             door.IsOpen = true;
             TurnsSinceMoving = 0;
+            
+            // keep the countdown for becoming disabled. Then we will remove the actor.
+            TurnsSinceEnabled = 3;
             return Task.FromResult(door.NowOpen(this));
         }
-      
+
         return Task.FromResult(string.Empty);
     }
 
@@ -127,8 +130,10 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : LocationBase, ITurnB
             return Task.FromResult(string.Empty);
 
         IsEnabled = false;
+        TurnsSinceEnabled = 0;
         context.RemoveActor(this);
-        return Task.FromResult("A recording says \"Elevator no longer enabled.\"");
+        return Task.FromResult(
+            context.CurrentLocation == this ? "A recording says \"Elevator no longer enabled.\"" : "");
     }
 
     protected override string GetContextBasedDescription(IContext context)

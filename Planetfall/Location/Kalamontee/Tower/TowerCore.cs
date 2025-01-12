@@ -3,7 +3,7 @@ using Model.Movement;
 
 namespace Planetfall.Location.Kalamontee.Tower;
 
-public class TowerCore : LocationWithNoStartingItems
+internal class TowerCore : LocationWithNoStartingItems
 {
     public override string Name => "Tower Core";
 
@@ -13,7 +13,8 @@ public class TowerCore : LocationWithNoStartingItems
         {
             { Direction.SW, Go<ObservationDeck>() },
             { Direction.N, Go<UpperElevator>() },
-            { Direction.Up, Go<Helipad>() }
+            { Direction.Up, Go<Helipad>() },
+            { Direction.NE, Go<CommRoom>() }
         };
     }
 
