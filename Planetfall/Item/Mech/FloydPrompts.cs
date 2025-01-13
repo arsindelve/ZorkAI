@@ -25,7 +25,7 @@ internal static class FloydPrompts
                                              
                                              Give Floyd one very short action to perform. It should feel curious, wistful, or observant, reflecting his childlike innocence and the mystery of the abandoned complex.
                                              Only reference items in the current location, or items which could be considered in the background of the current location. 
-                                             Floyd may pick up an item and do something innocuous with it, but he must not offer or give it to the player, and must return it to where he found it. 
+                                             Floyd may pick up an item and do something innocuous with it, but he must not offer or give it to the player, and must return it to where he found it. He must not press buttons or alter the game. 
                                              
                                              Floyd’s Behavioral Rules:
                                              1.	Environment and Interaction:
@@ -229,4 +229,10 @@ internal static class FloydPrompts
                                                   •	No metaphors, emotions, or anthropomorphism for inanimate objects.
                                                   •	Match the tone and insight of the examples without copying phrasing.
                                                   """;
+
+    public static string Elevator =>
+        "Give FLoyd something short and interesting to say as a comment on how excited he is to be in an elevator and that he hopes it will go somewhere excellent. Preface it with 'Floyd says' or 'Floyd observes' or something similar, and put his comment in quotes. Do not anthropomorphize the equipment or pretend it has feelings.  " ;
+
+    public static string PhysicalPlant =>
+        "Give Floyd something short and interesting to say as a comment on how impressed with the the current location, described as: 'filled with heavy equipment presumably intended to heat and ventilate this complex'. Preface it with 'Floyd says' or 'Floyd observes' or something similar, and put his comment in quotes. Do not anthropomorphize the equipment or pretend it has feelings.  " ;
 }

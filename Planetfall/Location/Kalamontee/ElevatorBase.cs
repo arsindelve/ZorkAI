@@ -2,10 +2,11 @@ using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Movement;
 using Planetfall.Item.Kalamontee.Admin;
+using Planetfall.Item.Mech;
 
 namespace Planetfall.Location.Kalamontee;
 
-internal abstract class ElevatorBase<TDoor, TSlot, TCard> : LocationBase, ITurnBasedActor
+internal abstract class ElevatorBase<TDoor, TSlot, TCard> : LocationBase, ITurnBasedActor, IFloydSpecialInteractionLocation
     where TDoor : ElevatorDoorBase, IItem, new()
     where TSlot : SlotBase<TCard, TSlot>, IItem, new()
     where TCard : AccessCard, new()
@@ -196,4 +197,8 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : LocationBase, ITurnB
         HasBeenSummoned = true;
         return new PositiveInteractionResult(response);
     }
+
+    public bool InteractionHasHappened { get; set; }
+    
+    public string FloydPrompt => FloydPrompts.Elevator;
 }

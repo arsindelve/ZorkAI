@@ -1,24 +1,25 @@
 using Model;
 using Model.AIGeneration;
 using Planetfall.Item.Kalamontee.Admin;
+using Planetfall.Location;
 using Utilities;
 
 namespace Planetfall.Item.Mech;
 
 public class Floyd : QuirkyCompanion, IAmANamedPerson
 {
-    // ReSharper disable once MemberCanBePrivate.Global
-    public bool IsOn { get; set; }
-    public bool IsOffWandering { get; set; }
+    [UsedImplicitly] public bool IsOn { get; set; }
+
+    [UsedImplicitly] public bool IsOffWandering { get; set; }
 
     // When you initially turn on Floyd, nothing happens for 3 turns. This delay never happens
     // again if you turn him on/off another time. 
     // ReSharper disable once MemberCanBePrivate.Global
     public int TurnOnCountdown { get; set; } = 3;
 
-    
+
     // TODO: If you wander away before he wakes: The robot you were fiddling with in the Robot Shop bounds into the room. "Hi!" he says, with a wide and friendly smile. "You turn Floyd on? Be Floyd's friend, yes?"
-    
+
     public override string[] NounsForMatching => ["floyd", "robot", "B-19-7", "multi-purpose robot"];
 
     public override string? CannotBeTakenDescription => IsOn
@@ -49,7 +50,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
     public override string PreparePrompt(string userPrompt)
     {
         // If we don't do this, Floyd will believe, from the location description, that there is another robot in the room
-        // when in fact it is him. 
+        // when in fact it is him! 
         return userPrompt.Replace("There is a multiple purpose robot here.", string.Empty);
     }
 
@@ -120,7 +121,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
         return new PositiveInteractionResult(FloydConstants.TurnOffBetrayal);
     }
 
-    public override Task<string> Act(IContext context, IGenerationClient client)
+    public override async Task<string> Act(IContext context, IGenerationClient client)
     {
         if (TurnOnCountdown > 0)
         {
@@ -128,37 +129,51 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
             {
                 IsOn = true;
                 TurnOnCountdown = 0;
-                return Task.FromResult(FloydConstants.ComesAlive);
+                return FloydConstants.ComesAlive;
             }
 
             TurnOnCountdown--;
-            return Task.FromResult(string.Empty);
+            return string.Empty;
         }
 
         if (!IsOn)
-            return Task.FromResult(string.Empty);
+            return string.Empty;
 
         // Should he follow us?
         if (!IsOffWandering && CurrentLocation != context.CurrentLocation)
         {
             context.CurrentLocation.ItemPlacedHere(this);
-            return Task.FromResult("Floyd follows you. ");
+            return "Floyd follows you. ";
         }
 
+        // Some locations will cause Floyd to respond in a unique way the first time we enter together. 
+        if (context.CurrentLocation is IFloydSpecialInteractionLocation { InteractionHasHappened: false } floydLocation)
+        {
+            floydLocation.InteractionHasHappened = true;
+            return await GenerateCompanionSpeech(context, client, floydLocation.FloydPrompt);
+        }
+
+        // Randomly, Floyd will say or do something (or possibly nothing) based on one of the
+        // prompts below - or he might do one of the things from the original game. 
         Func<Task<string>> action = new Random().Next(1, 10) switch
         {
-            <= 3 => (Func<Task<string>>)(async () => await GenerateCompanionSpeech(context, client, FloydPrompts.NonSequiturReflection)),
-            <= 4 => (Func<Task<string>>)(async () => await GenerateCompanionSpeech(context, client, FloydPrompts.HappyDoSomething)),
-            <= 5 => (Func<Task<string>>)(async () => await GenerateCompanionSpeech(context, client, FloydPrompts.MelancholyNonSequitur)),
-            <= 6 => (Func<Task<string>>)(async () => await GenerateCompanionSpeech(context, client, FloydPrompts.NonSequiturDialog)),
-            <= 7 => (Func<Task<string>>)(async () => await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
-            <= 8 => (Func<Task<string>>)( () => Task.FromResult(FloydConstants.RandomActions.GetRandomElement())),
+            <= 3 => (Func<Task<string>>)(async () =>
+                await GenerateCompanionSpeech(context, client, FloydPrompts.NonSequiturReflection)),
+            <= 4 => (Func<Task<string>>)(async () =>
+                await GenerateCompanionSpeech(context, client, FloydPrompts.HappyDoSomething)),
+            <= 5 => (Func<Task<string>>)(async () =>
+                await GenerateCompanionSpeech(context, client, FloydPrompts.MelancholyNonSequitur)),
+            <= 6 => (Func<Task<string>>)(async () =>
+                await GenerateCompanionSpeech(context, client, FloydPrompts.NonSequiturDialog)),
+            <= 7 => (Func<Task<string>>)(async () =>
+                await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
+            <= 8 => (Func<Task<string>>)(() => Task.FromResult(FloydConstants.RandomActions.GetRandomElement())),
 
-            _ => (Func<Task<string>>)(async () => await Task.FromResult(string.Empty)),
+            _ => (Func<Task<string>>)(async () => await Task.FromResult(string.Empty))
         };
 
         Task<string> chosenAction = action.Invoke();
-        return chosenAction;
+        return await chosenAction;
     }
 }
 
