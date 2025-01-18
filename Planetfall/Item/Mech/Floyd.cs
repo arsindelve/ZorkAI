@@ -158,13 +158,13 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
         Func<Task<string>> action = new Random().Next(1, 10) switch
         {
             <= 3 => (Func<Task<string>>)(async () =>
-                await GenerateCompanionSpeech(context, client, FloydPrompts.NonSequiturReflection)),
+                await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
             <= 4 => (Func<Task<string>>)(async () =>
-                await GenerateCompanionSpeech(context, client, FloydPrompts.HappyDoSomething)),
+                await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
             <= 5 => (Func<Task<string>>)(async () =>
-                await GenerateCompanionSpeech(context, client, FloydPrompts.MelancholyNonSequitur)),
+                await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
             <= 6 => (Func<Task<string>>)(async () =>
-                await GenerateCompanionSpeech(context, client, FloydPrompts.NonSequiturDialog)),
+                await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
             <= 7 => (Func<Task<string>>)(async () =>
                 await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
             <= 8 => (Func<Task<string>>)(() => Task.FromResult(FloydConstants.RandomActions.GetRandomElement())),

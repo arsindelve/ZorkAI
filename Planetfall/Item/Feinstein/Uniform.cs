@@ -1,3 +1,6 @@
+using Model;
+using Model.AIGeneration;
+
 namespace Planetfall.Item.Feinstein;
 
 public class Uniform : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, IAmClothing
@@ -29,6 +32,15 @@ public class Uniform : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, IAm
     public override void Init()
     {
         StartWithItemInside<IdCard>();
+    }
+
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
+    {
+        if (action.Match(["pocket", "uniform pocket"], Verbs.OpenVerbs.Union(Verbs.CloseVerbs).ToArray()))
+            return new PositiveInteractionResult("There's no way to open or close the pocket of the Patrol uniform. ");
+
+        return base.RespondToSimpleInteraction(action, context, client);
     }
 
     public override string GenericDescription(ILocation? currentLocation)

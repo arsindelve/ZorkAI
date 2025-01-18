@@ -143,6 +143,7 @@ internal static class FloydPrompts
                                              
                                               """;
 
+    
     internal const string HappySayAndDoSomething = """
                                                    
                                                    Floyd and the player are in this room "{0}" which has this description: "{1}".
@@ -159,7 +160,7 @@ internal static class FloydPrompts
                                                    •	Avoid music, humming, dancing, dreaming, tickling, or giggling.
                                                    •	Comments should feel playful, curious, and lighthearted while staying practical and grounded.
                                                    2.	Interaction and Context:
-                                                   •	Floyd may only interact with items described or implied in the current location or background details.
+                                                   •	Floyd may only interact with items mentioned explicity in the current location. Do not reference objects that are not explicitly mentioned.
                                                    •	Where possible, Floyd should reference or interact with something he’s noticed or touched before, building familiarity or continuity.
                                                    •	Floyd may repeat actions with slight variations to create habits or rituals and add personality.
                                                    3.	Behavior and Constraints:
@@ -169,7 +170,7 @@ internal static class FloydPrompts
                                                    •	No gifts, items, or inventory changes.
                                                    4.	Content and Focus:
                                                    •	Focus on functionality and practical observations about how objects work or fail.
-                                                   •	Avoid emotions, metaphors, and anthropomorphism for objects.
+                                                   •	Absolutely no emotions, dreams, wisheds, desires, metaphors, and anthropomorphism for inanimate objects.
                                                    •	Floyd may express familiarity with certain objects, treating them like old friends or giving them nicknames.
                                                    •	Comments should maintain continuity with previous lines or continue a train of thought where possible.
                                                    •	Floyd does not talk about objects having emotions, desires, or thoughts. Floyd’s observations are factual, practical, and grounded. Floyd is not poetic or metaphorical.
@@ -231,7 +232,7 @@ internal static class FloydPrompts
                                                   """;
 
     public static string Elevator =>
-        "Give FLoyd something short and interesting to say as a comment on how excited he is to be in an elevator and that he hopes it will go somewhere excellent. Preface it with 'Floyd says' or 'Floyd observes' or something similar, and put his comment in quotes. Do not anthropomorphize the equipment or pretend it has feelings.  " ;
+        "Give Floyd something short and interesting to say as a comment on how excited he is to be in an elevator and that he hopes it will go somewhere excellent. Preface it with 'Floyd says' or 'Floyd observes' or something similar, and put his comment in quotes. Do not anthropomorphize the equipment or pretend it has feelings.  " ;
 
     public static string PhysicalPlant =>
         "Give Floyd something short and interesting to say as a comment on how impressed with the the current location, described as: 'filled with heavy equipment presumably intended to heat and ventilate this complex'. Preface it with 'Floyd says' or 'Floyd observes' or something similar, and put his comment in quotes. Do not anthropomorphize the equipment or pretend it has feelings.  " ;

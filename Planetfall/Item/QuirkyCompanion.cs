@@ -48,7 +48,7 @@ public abstract class QuirkyCompanion : ContainerBase, ITurnBasedActor
         userPrompt = string.Format(userPrompt, context.CurrentLocation.Name, context.CurrentLocation.GetDescriptionForGeneration(context), LastTurnsOutput);
         userPrompt = PreparePrompt(userPrompt);
         
-        CompanionRequest request = new CompanionRequest( userPrompt, SystemPrompt) { Temperature = 0.6f };
+        CompanionRequest request = new CompanionRequest( userPrompt, SystemPrompt) { Temperature = 0.8f };
         string result = await client.GenerateCompanionSpeech(request);
         
         LastTurnsOutput.Push(result);
