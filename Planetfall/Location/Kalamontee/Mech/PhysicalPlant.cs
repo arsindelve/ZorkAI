@@ -4,9 +4,13 @@ using Planetfall.Item.Mech;
 
 namespace Planetfall.Location.Kalamontee.Mech;
 
-internal class PhysicalPlant : LocationWithNoStartingItems, IFloydSpecialInteractionLocation
+internal class PhysicalPlant : FloydSpecialInteractionLocation
 {
     public override string Name => "Physical Plant";
+
+    public override void Init()
+    {
+    }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
@@ -25,7 +29,5 @@ internal class PhysicalPlant : LocationWithNoStartingItems, IFloydSpecialInterac
             "any of the equipment is still operating.";
     }
 
-    public bool InteractionHasHappened { get; set; }
-
-    public string FloydPrompt => FloydPrompts.PhysicalPlant;
+    public override string FloydPrompt => FloydPrompts.PhysicalPlant;
 }

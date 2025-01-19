@@ -22,7 +22,13 @@ public class LabUniform : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICan
         return "Hanging on a rack is a pale blue lab uniform. Sewn onto its pocket is a nondescript logo. ";
     }
 
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "A lab uniform";
+    }
+
     public override void Init()
     {
+        
     }
 }

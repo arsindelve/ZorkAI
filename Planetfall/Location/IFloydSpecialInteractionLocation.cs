@@ -6,7 +6,5 @@ namespace Planetfall.Location;
 /// </summary>
 public interface IFloydSpecialInteractionLocation
 {
-    bool InteractionHasHappened { get; set; }
-    
-    string FloydPrompt { get; }
+   string FloydPrompt { get; }
 }

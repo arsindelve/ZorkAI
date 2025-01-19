@@ -12,7 +12,9 @@ internal class ProjectCorridorEast : LocationWithNoStartingItems
         return new Dictionary<Direction, MovementParameters>
         {
             { Direction.N, Go<LibraryLobby>() },
-            { Direction.W, Go<ProjectCorridor>() }
+            { Direction.W, Go<ProjectCorridor>() },
+            { Direction.E, Go<MainLab>() },
+            { Direction.S, Go<ComputerRoom>() }
         };
     }
 

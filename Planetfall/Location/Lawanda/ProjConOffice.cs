@@ -29,7 +29,7 @@ internal class ProjConOffice : LocationWithNoStartingItems
         if (action.MatchNoun(["mural"]))
             return new PositiveInteractionResult(
                 "It's a gaudy work of orange and purple abstract shapes, reminiscent of the early works " +
-                "of Burstini Bonz. It doesn't appear\nto fit the decor of the room at all. The mural seems to ripple " +
+                "of Burstini Bonz. It doesn't appear to fit the decor of the room at all. The mural seems to ripple " +
                 "now and then, as though a breeze were blowing behind it.");
 
         return base.RespondToSimpleInteraction(action, context, client);

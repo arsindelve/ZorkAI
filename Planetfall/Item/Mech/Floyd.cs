@@ -12,6 +12,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
 
     [UsedImplicitly] public bool IsOffWandering { get; set; }
 
+    [UsedImplicitly] public bool HasEverBeenOn { get; set; }
+
     // When you initially turn on Floyd, nothing happens for 3 turns. This delay never happens
     // again if you turn him on/off another time. 
     // ReSharper disable once MemberCanBePrivate.Global
@@ -37,7 +39,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return IsOn
+        return HasEverBeenOn 
             ? "There is a multiple purpose robot here. "
             : "Only one robot, about four feet high, looks even remotely close to being in working order. ";
     }
@@ -107,6 +109,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
             return new PositiveInteractionResult("Nothing happens. ");
 
         IsOn = true;
+        HasEverBeenOn = true;
+        
         return new PositiveInteractionResult(FloydConstants.MadAfterTurnOffAndBackOn);
     }
 
@@ -146,13 +150,6 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
             return "Floyd follows you. ";
         }
 
-        // Some locations will cause Floyd to respond in a unique way the first time we enter together. 
-        if (context.CurrentLocation is IFloydSpecialInteractionLocation { InteractionHasHappened: false } floydLocation)
-        {
-            floydLocation.InteractionHasHappened = true;
-            return await GenerateCompanionSpeech(context, client, floydLocation.FloydPrompt);
-        }
-
         // Randomly, Floyd will say or do something (or possibly nothing) based on one of the
         // prompts below - or he might do one of the things from the original game. 
         Func<Task<string>> action = new Random().Next(1, 10) switch
@@ -160,11 +157,11 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
             <= 3 => (Func<Task<string>>)(async () =>
                 await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
             <= 4 => (Func<Task<string>>)(async () =>
-                await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
+                await GenerateCompanionSpeech(context, client, FloydPrompts.HappyDoSomething)),
             <= 5 => (Func<Task<string>>)(async () =>
                 await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
             <= 6 => (Func<Task<string>>)(async () =>
-                await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
+                await GenerateCompanionSpeech(context, client, FloydPrompts.HappyDoSomething)),
             <= 7 => (Func<Task<string>>)(async () =>
                 await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
             <= 8 => (Func<Task<string>>)(() => Task.FromResult(FloydConstants.RandomActions.GetRandomElement())),

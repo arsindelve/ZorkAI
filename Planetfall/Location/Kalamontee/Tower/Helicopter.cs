@@ -1,13 +1,15 @@
-using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Movement;
+using Planetfall.Item.Mech;
 
 namespace Planetfall.Location.Kalamontee.Tower;
 
-public class Helicopter : LocationWithNoStartingItems
+public class Helicopter : FloydSpecialInteractionLocation
 {
     public override string Name => "Helicopter";
-    
+
+    public override string FloydPrompt => FloydPrompts.Helicopter;
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>
@@ -16,11 +18,16 @@ public class Helicopter : LocationWithNoStartingItems
         };
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client)
+    public override void Init()
+    {
+    }
+
+    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client)
     {
         if (action.Match(["examine"], ["controls", "control panel"]))
             return new PositiveInteractionResult("The controls are covered and locked.");
-        
+
         return base.RespondToSimpleInteraction(action, context, client);
     }
 

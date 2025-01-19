@@ -41,14 +41,14 @@ public abstract class QuirkyCompanion : ContainerBase, ITurnBasedActor
         return userPrompt;
     }
     
-    protected async Task<string> GenerateCompanionSpeech(IContext context, IGenerationClient client,
+    internal async Task<string> GenerateCompanionSpeech(IContext context, IGenerationClient client,
         string? userPrompt = null)
     {
         userPrompt ??= UserPrompt;
         userPrompt = string.Format(userPrompt, context.CurrentLocation.Name, context.CurrentLocation.GetDescriptionForGeneration(context), LastTurnsOutput);
         userPrompt = PreparePrompt(userPrompt);
         
-        CompanionRequest request = new CompanionRequest( userPrompt, SystemPrompt) { Temperature = 0.8f };
+        CompanionRequest request = new CompanionRequest( userPrompt, SystemPrompt) { Temperature = 1.0f };
         string result = await client.GenerateCompanionSpeech(request);
         
         LastTurnsOutput.Push(result);
