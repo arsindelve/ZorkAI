@@ -1,6 +1,7 @@
 ﻿using GameEngine;
 using Model.Interface;
 using ZorkOne.GlobalCommand;
+using ZorkOne.Location.MazeLocation;
 
 namespace ZorkOne;
 
@@ -9,6 +10,7 @@ public class ZorkI : IInfocomGame
     public ZorkI()
     {
         _ = Repository.GetLocation<TrollRoom>();
+        _ = Repository.GetLocation<TreasureRoom>();
     }
 
     public Dictionary<string, ITurnBasedActor> Actors { get; } = new();

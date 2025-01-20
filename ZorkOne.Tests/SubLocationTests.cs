@@ -1,7 +1,5 @@
 using FluentAssertions;
 using GameEngine;
-using NUnit.Framework;
-using UnitTests;
 using ZorkOne.Item;
 using ZorkOne.Location;
 using ZorkOne.Location.RiverLocation;

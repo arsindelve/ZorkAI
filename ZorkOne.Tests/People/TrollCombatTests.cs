@@ -1,8 +1,6 @@
 ﻿using FluentAssertions;
 using GameEngine;
 using Moq;
-using NUnit.Framework;
-using UnitTests;
 using ZorkOne.ActorInteraction;
 using ZorkOne.Interface;
 using ZorkOne.Item;

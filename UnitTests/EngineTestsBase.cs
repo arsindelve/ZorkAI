@@ -2,18 +2,14 @@ using CloudWatch;
 using CloudWatch.Model;
 using GameEngine;
 using Model.AIGeneration;
-using Model.AIParsing;
 using Model.Interface;
 using ZorkOne;
 using ZorkOne.GlobalCommand;
 
 namespace UnitTests;
 
-public class EngineTestsBase
+public class EngineTestsBase : EngineTestsBaseCommon<ZorkIContext>
 {
-    protected Mock<IGenerationClient> Client = new();
-    protected IIntentParser Parser = new IntentParser(Mock.Of<IAIParser>(), new ZorkOneGlobalCommandFactory());
-
     /// <summary>
     ///     Returns an instance of the GameEngine class with the specified parser and client.
     ///     If parser is not provided, a default TestParser instance is used.
@@ -32,6 +28,8 @@ public class EngineTestsBase
         engine.Context.Verbosity = Verbosity.Verbose;
         Repository.GetLocation<WestOfHouse>().Init();
 
+        Context = engine.Context;
+        
         return engine;
     }
 }

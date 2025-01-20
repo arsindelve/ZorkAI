@@ -24,8 +24,23 @@ public class TreasureRoom : LocationBase
 
     public override void Init()
     {
-        // TODO not until you kill the thief! 
         StartWithItem<SilverChalice>();
+        StartWithItem<Thief>();
+        
+    }
+
+    public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
+    {
+        if (GetItem<Thief>().IsDead)
+            return base.BeforeEnterLocation(context, previousLocation);
+
+        ItemPlacedHere<Thief>();
+
+        base.BeforeEnterLocation(context, previousLocation);
+        
+        return "You hear a scream of anguish as you violate the robber's hideaway. Using passages unknown to you, he " +
+               "rushes to its defense.\nThe thief gestures mysteriously, and the treasures in the room suddenly vanish.\n\n";
+               
     }
 
     protected override void OnFirstTimeEnterLocation(IContext context)

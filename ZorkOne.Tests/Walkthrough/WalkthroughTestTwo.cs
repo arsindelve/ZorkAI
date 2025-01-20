@@ -1,6 +1,4 @@
-﻿using NUnit.Framework;
-
-namespace ZorkOne.Tests.Walkthrough;
+﻿namespace ZorkOne.Tests.Walkthrough;
 
 [TestFixture]
 public sealed class WalkthroughTestTwo : WalkthroughTestBase
