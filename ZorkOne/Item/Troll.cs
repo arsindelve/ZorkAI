@@ -18,7 +18,7 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 
     public bool IsDead { get; set; }
 
-    public override string[] NounsForMatching => ["troll", "monster"];
+    public override string[] NounsForMatching => ["troll", "monster", "creature"];
 
     public override string CannotBeTakenDescription => IsUnconscious
         ? ""

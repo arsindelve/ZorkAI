@@ -95,7 +95,7 @@ internal class AdventurerVersusTrollCombatEngine : ICombatEngine
         return new NoNounMatchInteractionResult();
     }
 
-    public PositiveInteractionResult DeathBlow(IContext context, string attackText)
+    private PositiveInteractionResult DeathBlow(IContext context, string attackText)
     {
         _troll!.IsDead = true;
 
@@ -113,7 +113,7 @@ internal class AdventurerVersusTrollCombatEngine : ICombatEngine
                                                  : ""));
     }
 
-    public PositiveInteractionResult Knockout(string text)
+    private PositiveInteractionResult Knockout(string text)
     {
         _troll!.IsUnconscious = true;
 

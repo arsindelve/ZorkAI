@@ -3,8 +3,6 @@ using System.Text;
 using DynamoDb;
 using FluentAssertions;
 using GameEngine;
-using NUnit.Framework;
-using UnitTests;
 using ZorkOne.Item;
 using ZorkOne.Location;
 using ZorkOne.Location.MazeLocation;
@@ -37,6 +35,12 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     {
         // We can't have the randomness of trying to kill the troll. Let's God-Mode this dude.
         Repository.GetItem<Troll>().IsDead = true;
+    }
+    
+    public void KillThief()
+    {
+        // We can't have the randomness of trying to kill the thief. Let's God-Mode this dude.
+        Repository.GetItem<Thief>().IsDead = true;
     }
 
     public void PutTheTorchHere()
