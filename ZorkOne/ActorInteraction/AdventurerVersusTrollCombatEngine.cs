@@ -22,7 +22,7 @@ internal class AdventurerVersusTrollCombatEngine : ICombatEngine
         _chooser = chooser;
     }
 
-    [UsedImplicitly]
+
     public AdventurerVersusTrollCombatEngine()
     {
         _chooser = new RandomChooser();

@@ -9,9 +9,9 @@ internal class AdventurerVersusThiefCombatEngine : ICombatEngine
 {
     private readonly IRandomChooser _chooser;
     private readonly List<(CombatOutcome outcome, string text)> _notStunnedOutcomes;
-    private Thief _thief;
+    private Thief? _thief;
 
-    public AdventurerVersusThiefCombatEngine(RandomChooser chooser) : this()
+    public AdventurerVersusThiefCombatEngine(IRandomChooser chooser) : this()
     {
         _chooser = chooser;
     }
@@ -46,7 +46,9 @@ internal class AdventurerVersusThiefCombatEngine : ICombatEngine
             (CombatOutcome.Knockout, "Your {weapon} crashes down, knocking the thief into dreamland. "),
             (CombatOutcome.Knockout, "A furious exchange, and the thief is knocked out! "),
             (CombatOutcome.Knockout, "The thief is battered into unconsciousness. "),
-            (CombatOutcome.Knockout, "The haft of your {weapon} knocks out the thief. ")
+            (CombatOutcome.Knockout, "The haft of your {weapon} knocks out the thief. "),
+
+            (CombatOutcome.DropWeapon, " You parry a low thrust, and your sword slips out of your hand. ")
         ];
     }
 
@@ -73,16 +75,40 @@ internal class AdventurerVersusThiefCombatEngine : ICombatEngine
         var attack = _chooser.Choose(_notStunnedOutcomes);
         attack.text = attack.text.Replace("{weapon}",
             ((ItemBase?)weapon)?.NounsForMatching.FirstOrDefault() ?? " weapon ");
-        
-        
-        // RESUME HERE
-        
+
+
+        switch (attack.outcome)
+        {
+            case CombatOutcome.Miss:
+                return new PositiveInteractionResult(attack.text);
+
+            case CombatOutcome.Stun:
+                _thief.IsStunned = true;
+                return new PositiveInteractionResult(attack.text);
+
+            case CombatOutcome.Fatal:
+                return DeathBlow(context, attack.text);
+
+            case CombatOutcome.Knockout:
+                return Knockout(attack.text);
+
+            case CombatOutcome.DropWeapon:
+                context.Drop((IItem)weapon);
+                return new PositiveInteractionResult(attack.text);
+        }
+
         return new NoNounMatchInteractionResult();
     }
 
-    private InteractionResult? DeathBlow(IContext context, string attackText)
+    private PositiveInteractionResult Knockout(string text)
     {
-        _thief.IsDead = true;
+        _thief!.IsUnconscious = true;
+        return new PositiveInteractionResult(text);
+    }
+
+    private InteractionResult DeathBlow(IContext context, string attackText)
+    {
+        _thief!.IsDead = true;
 
         // And he vanishes. Poof. 
         _thief.CurrentLocation = null;
@@ -90,23 +116,27 @@ internal class AdventurerVersusThiefCombatEngine : ICombatEngine
         var result = $"{attackText}\nAlmost as soon as the thief breathes his last breath, a " +
                      $"cloud of sinister black fog envelops him, and when the fog lifts, " +
                      $"the carcass has disappeared. " + (context.HasItem<Sword>()
-                         ? "Your sword is no longer glowing."
+                         ? "Your sword is no longer glowing. "
                          : "");
 
         var sb = new StringBuilder(result);
-        
+
         if (_thief.TreasureStash.Any())
         {
-            sb.AppendLine("As the thief dies, the power of his magic decreases, and his treasures reappear:");
+            sb.AppendLine("\nAs the thief dies, the power of his magic decreases, and his treasures reappear:");
             foreach (var item in _thief.TreasureStash)
             {
-                sb.AppendLine($"\t{item.Name}.");
+                if(item is Egg)
+                    sb.AppendLine("\tA jewel-encrusted egg, with a golden clockwork canary");    
+                else
+                    sb.AppendLine($"\t{item.GenericDescription(context.CurrentLocation)}");
+                
                 context.Drop(item);
             }
         }
-       
+
         sb.AppendLine("The chalice is now safe to take.");
-        
+
         return new PositiveInteractionResult(sb.ToString());
     }
 }

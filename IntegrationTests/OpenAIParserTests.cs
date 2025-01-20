@@ -51,6 +51,9 @@ public class OpenAIParserTests
         var intent = await target.AskTheAIParser(sentence, locationObjectDescription, string.Empty);
         Console.WriteLine(intent.Message);
 
+        if (intent.Message is null)
+            throw new Exception("Intent message is null");
+
         var containsString1 = intent.Message.Contains("<verb>sip");
         var containsString2 = intent.Message.Contains("<verb>drink");
 

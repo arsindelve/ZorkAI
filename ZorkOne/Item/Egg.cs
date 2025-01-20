@@ -35,8 +35,8 @@ public class Egg
     public string OnTheGroundDescription(ILocation currentLocation)
     {
         return IsDestroyed
-            ? "There is a somewhat ruined egg here. " + ItemListDescription("egg", null)
-            : "There is a jewel-encrusted egg here. " + ItemListDescription("egg", null);
+            ? "There is a somewhat ruined egg here. " + ItemListDescription("egg", currentLocation)
+            : "There is a jewel-encrusted egg here. " + ItemListDescription("egg", currentLocation);
     }
 
     public override string NeverPickedUpDescription(ILocation currentLocation)
@@ -141,7 +141,7 @@ public class Egg
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return IsDestroyed ? "A broken jewel-encrusted egg" : "A jewel-encrusted egg";
+        return IsDestroyed ? "A broken jewel-encrusted egg" : "A jewel-encrusted egg" + ItemListDescription("egg", currentLocation);
     }
 
     public override void Init()
