@@ -11,8 +11,7 @@ namespace ZorkOne.Item;
 public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked, ICanBeGivenThings
 {
     private readonly GiveSomethingToSomeoneDecisionEngine<Thief> _giveHimSomethingEngine = new();
-    private readonly ICombatEngine _thiefAttackEngine = new AdventurerVersusThiefCombatEngine();
-
+    internal ICombatEngine ThiefAttackEngine { private get; set; } = new AdventurerVersusThiefCombatEngine();
 
     public bool IsUnconscious { get; set; }
 
@@ -67,15 +66,6 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 
 
  ___________________________________________________________________________________________________________-
-
-
-    Drop My Sword:
-      You parry a low thrust, and your sword slips out of your hand.
-
-
-    I'm Stunned:
-      You are still recovering from that last blow, so your attack is ineffective.
-
 
     
       The robber revives, briefly feigning continued unconsciousness, and, when he sees his moment, scrambles away from you.
@@ -152,14 +142,14 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
         if (result is not null)
             return result;
         
-        result = new KillSomeoneDecisionEngine<Thief>(_thiefAttackEngine).DoYouWantToKillSomeone(action, context);
+        result = new KillSomeoneDecisionEngine<Thief>(ThiefAttackEngine).DoYouWantToKillSomeone(action, context);
         return result ?? base.RespondToMultiNounInteraction(action, context);
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        var killInteraction = new KillSomeoneDecisionEngine<Thief>(_thiefAttackEngine).DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(action, context);
+        var killInteraction = new KillSomeoneDecisionEngine<Thief>(ThiefAttackEngine).DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(action, context);
         return killInteraction ?? base.RespondToSimpleInteraction(action, context, client);
     }
 
