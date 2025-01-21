@@ -5,10 +5,8 @@ using Model.Interface;
 
 namespace ZorkOne.ActorInteraction;
 
-internal class AdventurerVersusThiefCombatEngine() : ICombatEngine
+internal class AdventurerVersusThiefCombatEngine(IRandomChooser chooser) : ICombatEngine
 {
-    private readonly IRandomChooser _chooser = new RandomChooser();
-
     private readonly List<(CombatOutcome outcome, string text)> _notStunnedOutcomes =
     [
         (CombatOutcome.DropOwnWeapon, " You parry a low thrust, and your {weapon} slips out of your hand. "),
@@ -43,11 +41,6 @@ internal class AdventurerVersusThiefCombatEngine() : ICombatEngine
 
     private Thief? _thief;
 
-    public AdventurerVersusThiefCombatEngine(IRandomChooser chooser) : this()
-    {
-        _chooser = chooser;
-    }
-
     public InteractionResult? Attack(IContext context, IWeapon? weapon)
     {
         // You can't bare-knuckle with the thief. No weapon, no fight. 
@@ -68,7 +61,7 @@ internal class AdventurerVersusThiefCombatEngine() : ICombatEngine
         if (_thief.IsUnconscious)
             return DeathBlow(context, "The unconscious thief cannot defend himself: He dies. ");
 
-        var attack = _chooser.Choose(_notStunnedOutcomes);
+        var attack = chooser.Choose(_notStunnedOutcomes);
         attack.text = attack.text.Replace("{weapon}",
             ((ItemBase?)weapon)?.NounsForMatching.FirstOrDefault() ?? " weapon ");
 

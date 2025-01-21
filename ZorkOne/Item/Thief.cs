@@ -11,7 +11,9 @@ namespace ZorkOne.Item;
 public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked, ICanBeGivenThings
 {
     private readonly GiveSomethingToSomeoneDecisionEngine<Thief> _giveHimSomethingEngine = new();
-    internal ICombatEngine ThiefAttackedEngine { private get; set; } = new AdventurerVersusThiefCombatEngine();
+    
+    internal ICombatEngine ThiefAttackedEngine { get; set; } = new AdventurerVersusThiefCombatEngine(new RandomChooser());
+    
     internal ThiefCombatEngine ThiefAttackingEngine { private get; set; } = new();
 
     public bool IsUnconscious { get; set; }
@@ -106,10 +108,7 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
             return Task.FromResult("The thief slowly regains his feet. ");
         }
 
-        //return Task.FromResult(ThiefAttackingEngine.Attack(context));
-        
-        return Task.FromResult(string.Empty);
-        
+        return Task.FromResult(ThiefAttackingEngine.Attack(context));
     }
 
     public override string GenericDescription(ILocation? currentLocation)

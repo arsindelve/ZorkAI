@@ -10,7 +10,8 @@ namespace ZorkOne.Item;
 public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked, ICanBeGivenThings
 {
     private readonly GiveSomethingToSomeoneDecisionEngine<Troll> _giveHimSomethingEngine = new();
-    private readonly TrollCombatEngine _trollAttackEngine = new();
+    
+    internal TrollCombatEngine TrollAttackEngine { get; set; } = new();
 
     public bool IsUnconscious { get; set; }
 
@@ -55,7 +56,7 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
             return Task.FromResult("The troll slowly regains his feet. ");
         }
 
-        return Task.FromResult(_trollAttackEngine.Attack(context));
+        return Task.FromResult(TrollAttackEngine.Attack(context));
     }
 
     private InteractionResult OfferOtherItem(IItem item, IContext context)

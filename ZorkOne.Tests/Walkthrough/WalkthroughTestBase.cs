@@ -3,6 +3,11 @@ using System.Text;
 using DynamoDb;
 using FluentAssertions;
 using GameEngine;
+using GameEngine.IntentEngine;
+using JetBrains.Annotations;
+using Moq;
+using ZorkOne.ActorInteraction;
+using ZorkOne.Interface;
 using ZorkOne.Item;
 using ZorkOne.Location;
 using ZorkOne.Location.MazeLocation;
@@ -12,12 +17,31 @@ namespace ZorkOne.Tests.Walkthrough;
 public abstract class WalkthroughTestBase : EngineTestsBase
 {
     private readonly DynamoDbSessionRepository _database = new();
+    private Mock<IRandomChooser> _adventurerChooser;
+    private Mock<IRandomChooser> _attackerChooser;
     private GameEngine<ZorkI, ZorkIContext> _target;
 
     [OneTimeSetUp]
     public void Init()
     {
         _target = GetTarget();
+
+        _adventurerChooser = new Mock<IRandomChooser>();
+        _attackerChooser = new Mock<IRandomChooser>();
+
+        // We always kill
+        _adventurerChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>()))
+            .Returns((CombatOutcome.Fatal, ""));
+
+        // He always misses
+        _attackerChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>()))
+            .Returns((CombatOutcome.Miss, ""));
+
+        GetItem<Thief>().ThiefAttackedEngine = new AdventurerVersusThiefCombatEngine(_adventurerChooser.Object);
+        GetItem<Thief>().ThiefAttackingEngine = new ThiefCombatEngine(_attackerChooser.Object);
+        GetItem<Troll>().TrollAttackEngine = new TrollCombatEngine(_attackerChooser.Object);
+        GetLocation<TrollRoom>().KillDecisionEngine =
+            new KillSomeoneDecisionEngine<Troll>(new AdventurerVersusTrollCombatEngine(_adventurerChooser.Object));
     }
 
     protected void InvokeGodMode(string setup)
@@ -31,29 +55,13 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         method.Invoke(this, null);
     }
 
-    public void KillTroll()
-    {
-        // We can't have the randomness of trying to kill the troll. Let's God-Mode this dude.
-        Repository.GetItem<Troll>().IsDead = true;
-    }
-    
-    public void KillThief()
-    {
-        // We can't have the randomness of trying to kill the thief. Let's God-Mode this dude.
-        Repository.GetItem<Thief>().IsDead = true;
-    }
-
+    [UsedImplicitly]
     public void PutTheTorchHere()
     {
         Repository.GetLocation<TreasureRoom>().ItemPlacedHere(Repository.GetItem<Torch>());
     }
 
-    public void HaveOpenEgg()
-    {
-        _target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
-        Repository.GetItem<Egg>().IsOpen = true;
-    }
-
+    [UsedImplicitly]
     public void GoToRoundRoom()
     {
         // Entering the loud room when it's draining will cause us to flee the room in a random
