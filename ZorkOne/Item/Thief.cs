@@ -11,7 +11,8 @@ namespace ZorkOne.Item;
 public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked, ICanBeGivenThings
 {
     private readonly GiveSomethingToSomeoneDecisionEngine<Thief> _giveHimSomethingEngine = new();
-    internal ICombatEngine ThiefAttackEngine { private get; set; } = new AdventurerVersusThiefCombatEngine();
+    internal ICombatEngine ThiefAttackedEngine { private get; set; } = new AdventurerVersusThiefCombatEngine();
+    internal ThiefCombatEngine ThiefAttackingEngine { private get; set; } = new();
 
     public bool IsUnconscious { get; set; }
 
@@ -29,68 +30,20 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
         ? ""
         : "Once you got him, what would you do with him? ";
 
-    /*
-
-    No effect:
-      The thief stabs nonchalantly with his stiletto and misses.
-      You dodge as the thief comes in low.
-      You parry a lightning thrust, and the thief salutes you with a grim nod.
-      The thief tries to sneak past your guard, but you twist away.
-      The thief stabs nonchalantly with his stiletto and misses.
-
-    Small Wound
-      The thief slowly approaches, strikes like a snake, and leaves you wounded.
-      The stiletto flashes faster than you can follow, and blood wells from your leg.
-      The stiletto touches your forehead, and the blood obscures your vision.
-      A quick thrust pinks your left arm, and blood starts to trickle down.
-      The thief draws blood, raking his stiletto across your arm.
-      The thief strikes at your wrist, and suddenly your grip is slippery with blood.
-
-    Drop
-        The thief neatly flips the {weapon} out of your hands, and it drops to the floor.
-
-    Knockout
-      The thief knocks you out.
-      Shifting in the midst of a thrust, the thief knocks you unconscious with the haft of his stiletto.
-
-    Stun You:
-      The thief attacks, and you fall back desperately.
-      The thief rams the haft of his blade into your stomach, leaving you out of breath.
-      The butt of his stiletto cracks you on the skull, and you stagger back.
-
-
-    Kill You:
-      Finishing you off, the thief inserts his blade into your heart.
-      The thief neatly flips your nasty knife out of your hands, and it drops to the floor.
-      The stiletto severs your jugular.  It looks like the end.
-      The thief bows formally, raises his stiletto, and with a wry grin, ends the battle and your life.
-      The thief comes in from the side, feints, and inserts the blade into your ribs.
-
-      After Knockout:
-        The thief, forgetting his essentially genteel upbringing, cuts your throat.
-        The thief, a pragmatist, dispatches you as a threat to his livelihood.
-        The thief amuses himself by searching your pockets.
-
-
- ___________________________________________________________________________________________________________-
-
-
-
-
-     */
-
     public override string[] NounsForMatching =>
     [
-        "suspicious-looking individual", "thief", "man", "robber", "gentleman", "guy", "dude", "footpad", "crook",
-        "criminal", "gent", "bandit"
+        "suspicious-looking individual", "individual", "thief", "man", "robber", "gentleman", "guy", "dude", "footpad",
+        "crook", "criminal", "gent", "bandit"
     ];
 
     public override bool IsTransparent => true;
 
-    public string ExaminationDescription => "The thief is a slippery character with beady eyes that flit back and " +
-                                            "forth. He carries, along with an unmistakable arrogance, a large bag " +
-                                            "over his shoulder and a vicious stiletto, whose blade is aimed menacingly " +
-                                            "in your direction. I'd watch out if I were you. ";
+    public string ExaminationDescription => IsUnconscious
+        ? "The thief is a suspicious-looking individual, lying unconscious on the ground. "
+        : "The thief is a slippery character with beady eyes that flit back and " +
+          "forth. He carries, along with an unmistakable arrogance, a large bag " +
+          "over his shoulder and a vicious stiletto, whose blade is aimed menacingly " +
+          "in your direction. I'd watch out if I were you. ";
 
     public InteractionResult OfferThisThing(IItem item, IContext context)
     {
@@ -104,7 +57,9 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 
         if (item is Egg egg)
         {
+            // He opens it for you! 
             egg.IsOpen = true;
+            // Giving him the egg prevents him from trying to kill you for a turn. 
             IsStunned = true;
             sb.AppendLine(
                 "The thief is taken aback by your unexpected generosity, but accepts the jewel-encrusted egg and stops to admire its beauty. ");
@@ -151,7 +106,10 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
             return Task.FromResult("The thief slowly regains his feet. ");
         }
 
+        //return Task.FromResult(ThiefAttackingEngine.Attack(context));
+        
         return Task.FromResult(string.Empty);
+        
     }
 
     public override string GenericDescription(ILocation? currentLocation)
@@ -168,7 +126,7 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
         if (result is not null)
             return result;
 
-        result = new KillSomeoneDecisionEngine<Thief>(ThiefAttackEngine).DoYouWantToKillSomeone(action, context);
+        result = new KillSomeoneDecisionEngine<Thief>(ThiefAttackedEngine).DoYouWantToKillSomeone(action, context);
         return result ?? base.RespondToMultiNounInteraction(action, context);
     }
 
@@ -176,8 +134,9 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
         IGenerationClient client)
     {
         var killInteraction =
-            new KillSomeoneDecisionEngine<Thief>(ThiefAttackEngine).DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(
+            new KillSomeoneDecisionEngine<Thief>(ThiefAttackedEngine).DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(
                 action, context);
+
         return killInteraction ?? base.RespondToSimpleInteraction(action, context, client);
     }
 

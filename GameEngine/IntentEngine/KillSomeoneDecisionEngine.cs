@@ -5,7 +5,7 @@ using Model.Item;
 namespace GameEngine.IntentEngine;
 
 /// <summary>
-///     Given an intent and a type of foe, is it my intention with this text input
+///     Given an intent and a type of foe, is it my intention with this input
 ///     to attack and kill the foe?
 /// </summary>
 /// <param name="combatEngine">

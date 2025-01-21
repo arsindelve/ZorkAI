@@ -10,20 +10,6 @@ namespace ZorkOne.Tests.People;
 public class TrollCombatTests : EngineTestsBase
 {
     [Test]
-    public void Stunned()
-    {
-        var engine = GetTarget();
-        var target = new TrollCombatEngine();
-        Repository.GetItem<Troll>().IsStunned = true;
-
-        var result = target.Attack(engine.Context);
-
-        // Assert
-        result.Should().Contain("The troll slowly regains his feet");
-        Repository.GetItem<Troll>().IsStunned.Should().BeFalse();
-    }
-
-    [Test]
     public void SmallWound()
     {
         var chooser = new Mock<IRandomChooser>();

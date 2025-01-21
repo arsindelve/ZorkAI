@@ -43,11 +43,17 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
     {
         if (IsDead || IsUnconscious)
             return Task.FromResult(string.Empty);
-
+        
         if (!HasItem<BloodyAxe>())
             return
                 Task.FromResult(
                     "\nThe troll, disarmed, cowers in terror, pleading for his life in the guttural tongue of the trolls. ");
+
+        if (IsStunned)
+        {
+            IsStunned = false;
+            return Task.FromResult("The troll slowly regains his feet. ");
+        }
 
         return Task.FromResult(_trollAttackEngine.Attack(context));
     }
