@@ -26,7 +26,13 @@ public class TreasureRoom : LocationBase
     {
         StartWithItem<SilverChalice>();
         StartWithItem<Thief>();
-        
+    }
+
+    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
+    {
+        context.RemoveActor<Thief>();
+        GetItem<Thief>().IsUnconscious = false;
+        base.OnLeaveLocation(context, newLocation, previousLocation);
     }
 
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
@@ -35,6 +41,7 @@ public class TreasureRoom : LocationBase
             return base.BeforeEnterLocation(context, previousLocation);
 
         ItemPlacedHere<Thief>();
+        context.RegisterActor(GetItem<Thief>());
 
         base.BeforeEnterLocation(context, previousLocation);
         

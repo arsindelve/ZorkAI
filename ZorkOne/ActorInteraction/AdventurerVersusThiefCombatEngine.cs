@@ -5,10 +5,42 @@ using Model.Interface;
 
 namespace ZorkOne.ActorInteraction;
 
-internal class AdventurerVersusThiefCombatEngine : ICombatEngine
+internal class AdventurerVersusThiefCombatEngine() : ICombatEngine
 {
-    private readonly IRandomChooser _chooser;
-    private readonly List<(CombatOutcome outcome, string text)> _notStunnedOutcomes;
+    private readonly IRandomChooser _chooser = new RandomChooser();
+
+    private readonly List<(CombatOutcome outcome, string text)> _notStunnedOutcomes =
+    [
+        (CombatOutcome.DropOwnWeapon, " You parry a low thrust, and your {weapon} slips out of your hand. "),
+
+        (CombatOutcome.Miss, "Clang! Crash! The thief parries. "),
+        (CombatOutcome.Miss, "The thief is struck on the arm; blood begins to trickle down. "),
+        (CombatOutcome.Miss, "A good stroke, but it's too slow; the thief dodges. "),
+        (CombatOutcome.Miss, "You charge, but the thief jumps nimbly aside. "),
+        (CombatOutcome.Miss, "A good slash, but it misses the thief by a mile. "),
+        (CombatOutcome.Miss, "A quick stroke, but the thief is on guard. "),
+        (CombatOutcome.Miss, "Slash! Your stroke connects! This could be serious! "),
+        (CombatOutcome.Miss, "You parry a lightning thrust, and the thief salutes you with a grim nod. "),
+        (CombatOutcome.Miss, "Your {weapon} misses the thief by an inch. "),
+
+        (CombatOutcome.Stun, "The thief is momentarily disoriented and can't fight back. "),
+        (CombatOutcome.Stun, "The force of your blow knocks the thief back, stunned. "),
+        (CombatOutcome.Stun, "The thief is confused and can't fight back."),
+        (CombatOutcome.Stun, "The thief is staggered, and drops to his knees. "),
+
+        (CombatOutcome.Fatal, "It's curtains for the thief as your {weapon} removes his head. "),
+
+        (CombatOutcome.Knockout, "The thief drops to the floor, unconscious. "),
+        (CombatOutcome.Knockout, "The thief is knocked out! "),
+        (CombatOutcome.Knockout, "Your {weapon} crashes down, knocking the thief into dreamland. "),
+        (CombatOutcome.Knockout, "A furious exchange, and the thief is knocked out! "),
+        (CombatOutcome.Knockout, "The thief is battered into unconsciousness. "),
+        (CombatOutcome.Knockout, "The haft of your {weapon} knocks out the thief. "),
+
+        (CombatOutcome.Disarm, "The thief is disarmed by a subtle feint past his guard. "),
+        (CombatOutcome.Disarm, "The thief's weapon is knocked to the floor, leaving him unarmed. ")
+    ];
+
     private Thief? _thief;
 
     public AdventurerVersusThiefCombatEngine(IRandomChooser chooser) : this()
@@ -16,45 +48,9 @@ internal class AdventurerVersusThiefCombatEngine : ICombatEngine
         _chooser = chooser;
     }
 
-    public AdventurerVersusThiefCombatEngine()
-    {
-        _chooser = new RandomChooser();
-
-        _notStunnedOutcomes =
-        [
-            (CombatOutcome.Miss, "Clang! Crash! The thief parries. "),
-            (CombatOutcome.Miss, "The thief is struck on the arm; blood begins to trickle down. "),
-            (CombatOutcome.Miss, "A good stroke, but it's too slow; the thief dodges. "),
-            (CombatOutcome.Miss, "You charge, but the thief jumps nimbly aside. "),
-            (CombatOutcome.Miss, "A good slash, but it misses the thief by a mile. "),
-            (CombatOutcome.Miss, "A quick stroke, but the thief is on guard. "),
-            (CombatOutcome.Miss, "Slash! Your stroke connects! This could be serious! "),
-            (CombatOutcome.Miss, "You parry a lightning thrust, and the thief salutes you with a grim nod. "),
-            (CombatOutcome.Miss, "Your {weapon} misses the thief by an inch. "),
-            (CombatOutcome.Miss,
-                "The thief's weapon is knocked to the floor, leaving him unarmed. The robber, somewhat surprised at this turn of events, nimbly retrieves his stiletto. "),
-
-            (CombatOutcome.Stun, "The thief is momentarily disoriented and can't fight back."),
-            (CombatOutcome.Stun, "The force of your blow knocks the thief back, stunned. "),
-            (CombatOutcome.Stun, "The thief is confused and can't fight back. The thief slowly regains his feet. "),
-            (CombatOutcome.Stun, "The thief is staggered, and drops to his knees. The thief slowly regains his feet. "),
-
-            (CombatOutcome.Fatal, "It's curtains for the thief as your {weapon} removes his head. "),
-
-            (CombatOutcome.Knockout, "The thief drops to the floor, unconscious. "),
-            (CombatOutcome.Knockout, "The thief is knocked out! "),
-            (CombatOutcome.Knockout, "Your {weapon} crashes down, knocking the thief into dreamland. "),
-            (CombatOutcome.Knockout, "A furious exchange, and the thief is knocked out! "),
-            (CombatOutcome.Knockout, "The thief is battered into unconsciousness. "),
-            (CombatOutcome.Knockout, "The haft of your {weapon} knocks out the thief. "),
-
-            (CombatOutcome.DropWeapon, " You parry a low thrust, and your sword slips out of your hand. ")
-        ];
-    }
-
     public InteractionResult? Attack(IContext context, IWeapon? weapon)
     {
-        // You can't bare-knuckle with the troll. No weapon, no fight. 
+        // You can't bare-knuckle with the thief. No weapon, no fight. 
         if (weapon is null)
             return null;
 
@@ -76,7 +72,6 @@ internal class AdventurerVersusThiefCombatEngine : ICombatEngine
         attack.text = attack.text.Replace("{weapon}",
             ((ItemBase?)weapon)?.NounsForMatching.FirstOrDefault() ?? " weapon ");
 
-
         switch (attack.outcome)
         {
             case CombatOutcome.Miss:
@@ -86,13 +81,17 @@ internal class AdventurerVersusThiefCombatEngine : ICombatEngine
                 _thief.IsStunned = true;
                 return new PositiveInteractionResult(attack.text);
 
+            case CombatOutcome.Disarm:
+                _thief.IsDisarmed = true;
+                return new PositiveInteractionResult(attack.text);
+            
             case CombatOutcome.Fatal:
                 return DeathBlow(context, attack.text);
 
             case CombatOutcome.Knockout:
                 return Knockout(attack.text);
 
-            case CombatOutcome.DropWeapon:
+            case CombatOutcome.DropOwnWeapon:
                 context.Drop((IItem)weapon);
                 return new PositiveInteractionResult(attack.text);
         }
@@ -102,15 +101,26 @@ internal class AdventurerVersusThiefCombatEngine : ICombatEngine
 
     private PositiveInteractionResult Knockout(string text)
     {
-        _thief!.IsUnconscious = true;
+        if (_thief is null)
+            throw new ArgumentNullException();
+
+        _thief.IsUnconscious = true;
         return new PositiveInteractionResult(text);
     }
 
     private InteractionResult DeathBlow(IContext context, string attackText)
     {
-        _thief!.IsDead = true;
+        if (_thief is null)
+            throw new ArgumentNullException();
+
+        _thief.IsDead = true;
+        _thief.IsUnconscious = false;
+        _thief.TreasureStash.Add(Repository.GetItem<Stiletto>());
+
+        context.RemoveActor(_thief);
 
         // And he vanishes. Poof. 
+        _thief.CurrentLocation?.Items.Remove(_thief);
         _thief.CurrentLocation = null;
 
         var result = $"{attackText}\nAlmost as soon as the thief breathes his last breath, a " +
@@ -126,11 +136,11 @@ internal class AdventurerVersusThiefCombatEngine : ICombatEngine
             sb.AppendLine("\nAs the thief dies, the power of his magic decreases, and his treasures reappear:");
             foreach (var item in _thief.TreasureStash)
             {
-                if(item is Egg)
-                    sb.AppendLine("\tA jewel-encrusted egg, with a golden clockwork canary");    
+                if (item is Egg)
+                    sb.AppendLine("\tA jewel-encrusted egg, with a golden clockwork canary");
                 else
                     sb.AppendLine($"\t{item.GenericDescription(context.CurrentLocation)}");
-                
+
                 context.Drop(item);
             }
         }

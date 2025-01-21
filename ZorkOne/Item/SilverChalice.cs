@@ -7,7 +7,7 @@ public class SilverChalice : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenFir
     IGivePointsWhenPlacedInTrophyCase
 {
     public override string[] NounsForMatching =>
-        ["silver", "chalice", "silver chalice"];
+        ["silver chalice", "silver", "chalice"] ;
 
     public override string? CannotBeTakenDescription =>
         Repository.GetItem<Thief>().IsDead || Repository.GetItem<Thief>().IsUnconscious

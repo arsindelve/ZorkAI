@@ -141,7 +141,7 @@ public class TrollCombatTests : EngineTestsBase
         chooser.Setup(s =>
                 s.Choose(
                     It.IsAny<List<(CombatOutcome outcome, string text)>>()))
-            .Returns((CombatOutcome.DropWeapon, "{weapon}"));
+            .Returns((CombatOutcome.Disarm, "{weapon}"));
 
         var engine = GetTarget();
         engine.Context.Take(Repository.GetItem<Sword>());
@@ -165,7 +165,7 @@ public class TrollCombatTests : EngineTestsBase
         chooser.Setup(s =>
                 s.Choose(
                     It.IsAny<List<(CombatOutcome outcome, string text)>>()))
-            .Returns((CombatOutcome.DropWeapon, "{weapon}"));
+            .Returns((CombatOutcome.Disarm, "{weapon}"));
 
         var engine = GetTarget();
         engine.Context.Take(Repository.GetItem<NastyKnife>());

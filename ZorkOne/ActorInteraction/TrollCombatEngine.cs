@@ -11,8 +11,8 @@ internal class TrollCombatEngine
     private readonly List<(CombatOutcome outcome, string text)> _haveWeaponOutcomes =
     [
         (CombatOutcome.Miss, "The troll's swing almost knocks you over as you barely parry in time."),
-        (CombatOutcome.DropWeapon, "The axe hits your {weapon} and knocks it spinning."),
-        (CombatOutcome.DropWeapon, "The troll swings, you parry, but the force of his blow knocks your {weapon} away.")
+        (CombatOutcome.Disarm, "The axe hits your {weapon} and knocks it spinning."),
+        (CombatOutcome.Disarm, "The troll swings, you parry, but the force of his blow knocks your {weapon} away.")
     ];
 
     private readonly List<(CombatOutcome outcome, string text)> _outcomes =
@@ -75,7 +75,7 @@ internal class TrollCombatEngine
             case CombatOutcome.Miss:
                 break;
 
-            case CombatOutcome.DropWeapon:
+            case CombatOutcome.Disarm:
             {
                 attack = DropWeapon(context, zorkContext, attack);
                 break;

@@ -23,10 +23,10 @@ public class Egg
     public string ExaminationDescription =>
         IsOpen
             ? Items.Count == 0
-                ? $"The {(IsDestroyed ? "broken" : "")} jewel-encrusted egg is empty. "
+                ? $"The {(IsDestroyed ? "broken " : "")}jewel-encrusted egg is empty. "
                 : Repository.GetItem<Canary>().HasEverBeenPickedUp || IsDestroyed
                     ? ItemListDescription(
-                        $"{(IsDestroyed ? "broken" : "")} jewel-encrusted egg",
+                        $"{(IsDestroyed ? "broken " : "")}jewel-encrusted egg",
                         null
                     )
                     : "There is a golden clockwork canary nestled in the egg. It has ruby eyes and a silver beak. Through a crystal window below its left wing you can see intricate machinery inside. It appears to have wound down. "
@@ -62,7 +62,7 @@ public class Egg
 
     public string NowClosed(ILocation currentLocation)
     {
-        return string.Empty;
+        return "You close the egg. ";
     }
 
     public string AlreadyOpen => "It is already open. ";
@@ -125,6 +125,9 @@ public class Egg
         if (!IsOpen)
             return string.Empty;
 
+        if (Items.Count == 0)
+            return string.Empty;
+
         var canary = Repository.GetItem<Canary>();
 
         if (Items.Contains(canary) && canary.IsDestroyed)
@@ -141,7 +144,9 @@ public class Egg
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return IsDestroyed ? "A broken jewel-encrusted egg" : "A jewel-encrusted egg" + ItemListDescription("egg", currentLocation);
+        return IsDestroyed
+            ? "A broken jewel-encrusted egg"
+            : "A jewel-encrusted egg" + ItemListDescription("egg", currentLocation);
     }
 
     public override void Init()
