@@ -17,7 +17,11 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 
     public bool IsStunned { get; set; }
 
+    public bool IsDisarmed { get; set; }
+
     public bool IsDead { get; set; }
+
+    [UsedImplicitly] public int TurnsUnconscious { get; set; }
 
     [UsedImplicitly] public List<IItem> TreasureStash { get; set; } = new();
 
@@ -37,9 +41,13 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
     Small Wound
       The thief slowly approaches, strikes like a snake, and leaves you wounded.
       The stiletto flashes faster than you can follow, and blood wells from your leg.
+      The stiletto touches your forehead, and the blood obscures your vision.
       A quick thrust pinks your left arm, and blood starts to trickle down.
       The thief draws blood, raking his stiletto across your arm.
       The thief strikes at your wrist, and suddenly your grip is slippery with blood.
+
+    Drop
+        The thief neatly flips the {weapon} out of your hands, and it drops to the floor.
 
     Knockout
       The thief knocks you out.
@@ -52,7 +60,6 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 
 
     Kill You:
-
       Finishing you off, the thief inserts his blade into your heart.
       The thief neatly flips your nasty knife out of your hands, and it drops to the floor.
       The stiletto severs your jugular.  It looks like the end.
@@ -67,17 +74,7 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 
  ___________________________________________________________________________________________________________-
 
-    
-      The robber revives, briefly feigning continued unconsciousness, and, when he sees his moment, scrambles away from you.
 
-
-        Almost as soon as the thief breathes his last breath, a cloud of sinister black fog envelops him, and when the fog lifts, the carcass has disappeared.
-        As the thief dies, the power of his magic decreases, and his treasures reappear:
-          A stiletto
-          A crystal skull
-          A trunk of jewels
-          A torch
-          A sapphire-encrusted bracelet
 
 
      */
@@ -100,7 +97,10 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
         var sb = new StringBuilder();
 
         if (IsUnconscious)
+        {
+            IsUnconscious = false;
             sb.AppendLine("Your proposed victim suddenly recovers consciousness. ");
+        }
 
         if (item is Egg egg)
         {
@@ -124,9 +124,35 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
-        throw new NotImplementedException();
-    }
+        if (IsUnconscious)
+        {
+            TurnsUnconscious++;
 
+            if (TurnsUnconscious != 2)
+                return Task.FromResult("");
+
+            IsUnconscious = false;
+            TurnsUnconscious = 0;
+
+            return Task.FromResult(
+                "The robber revives, briefly feigning continued unconsciousness, and, when he sees his moment, scrambles away from you. ");
+        }
+
+        if (IsDisarmed)
+        {
+            IsDisarmed = false;
+            return Task.FromResult(
+                "The robber, somewhat surprised at this turn of events, nimbly retrieves his stiletto. ");
+        }
+
+        if (IsStunned)
+        {
+            IsStunned = false;
+            return Task.FromResult("The thief slowly regains his feet. ");
+        }
+
+        return Task.FromResult(string.Empty);
+    }
 
     public override string GenericDescription(ILocation? currentLocation)
     {
@@ -141,7 +167,7 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 
         if (result is not null)
             return result;
-        
+
         result = new KillSomeoneDecisionEngine<Thief>(ThiefAttackEngine).DoYouWantToKillSomeone(action, context);
         return result ?? base.RespondToMultiNounInteraction(action, context);
     }
@@ -149,7 +175,9 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        var killInteraction = new KillSomeoneDecisionEngine<Thief>(ThiefAttackEngine).DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(action, context);
+        var killInteraction =
+            new KillSomeoneDecisionEngine<Thief>(ThiefAttackEngine).DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(
+                action, context);
         return killInteraction ?? base.RespondToSimpleInteraction(action, context, client);
     }
 

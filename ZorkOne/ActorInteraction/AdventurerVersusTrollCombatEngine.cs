@@ -4,10 +4,28 @@ using Model.Interface;
 
 namespace ZorkOne.ActorInteraction;
 
-internal class AdventurerVersusTrollCombatEngine : ICombatEngine
+internal class AdventurerVersusTrollCombatEngine() : ICombatEngine
 {
-    private readonly IRandomChooser _chooser;
-    private readonly List<(CombatOutcome outcome, string text)> _notStunnedOutcomes;
+    private readonly IRandomChooser _chooser = new RandomChooser();
+    private readonly List<(CombatOutcome outcome, string text)> _notStunnedOutcomes =
+    [
+        (CombatOutcome.Miss, "A quick stroke, but the troll is on guard. "),
+        (CombatOutcome.Fatal, "The troll takes a fatal blow and slumps to the floor dead."),
+        (CombatOutcome.Knockout, "The haft of your {weapon} knocks out the troll. "),
+        (CombatOutcome.Miss, "You charge, but the troll jumps nimbly aside."),
+        (CombatOutcome.Miss, "A good stroke, but it's too slow; the troll dodges."),
+        (CombatOutcome.Miss, "Your {weapon} misses the troll by an inch."),
+        (CombatOutcome.Knockout, "The troll is knocked out! "),
+        (CombatOutcome.Miss, "The troll is confused and can't fight back. The troll slowly regains his feet."),
+        (CombatOutcome.Miss, "Clang! Crash! The troll parries."),
+        (CombatOutcome.Miss, "A good slash, but it misses the troll by a mile."),
+        (CombatOutcome.Knockout, "The troll is battered into unconsciousness. "),
+        (CombatOutcome.Fatal, "The fatal blow strikes the troll square in the heart: He dies. "),
+        (CombatOutcome.Knockout, "Your {weapon} crashes down, knocking the troll into dreamland. "),
+        (CombatOutcome.Fatal, "It's curtains for the troll as your {weapon} removes his head. "),
+        (CombatOutcome.Stun, "The force of your blow knocks the troll back, stunned."),
+        (CombatOutcome.Stun, "The troll is momentarily disoriented and can't fight back. ")
+    ];
 
     private IItem? _axe;
     private Troll? _troll;
@@ -21,32 +39,7 @@ internal class AdventurerVersusTrollCombatEngine : ICombatEngine
     {
         _chooser = chooser;
     }
-
-
-    public AdventurerVersusTrollCombatEngine()
-    {
-        _chooser = new RandomChooser();
-        _notStunnedOutcomes =
-        [
-            (CombatOutcome.Miss, "A quick stroke, but the troll is on guard. "),
-            (CombatOutcome.Fatal, "The troll takes a fatal blow and slumps to the floor dead."),
-            (CombatOutcome.Knockout, "The haft of your {weapon} knocks out the troll. "),
-            (CombatOutcome.Miss, "You charge, but the troll jumps nimbly aside."),
-            (CombatOutcome.Miss, "A good stroke, but it's too slow; the troll dodges."),
-            (CombatOutcome.Miss, "Your {weapon} misses the troll by an inch."),
-            (CombatOutcome.Knockout, "The troll is knocked out! "),
-            (CombatOutcome.Miss, "The troll is confused and can't fight back. The troll slowly regains his feet."),
-            (CombatOutcome.Miss, "Clang! Crash! The troll parries."),
-            (CombatOutcome.Miss, "A good slash, but it misses the troll by a mile."),
-            (CombatOutcome.Knockout, "The troll is battered into unconsciousness. "),
-            (CombatOutcome.Fatal, "The fatal blow strikes the troll square in the heart: He dies. "),
-            (CombatOutcome.Knockout, "Your {weapon} crashes down, knocking the troll into dreamland. "),
-            (CombatOutcome.Fatal, "It's curtains for the troll as your {weapon} removes his head. "),
-            (CombatOutcome.Stun, "The force of your blow knocks the troll back, stunned."),
-            (CombatOutcome.Stun, "The troll is momentarily disoriented and can't fight back. ")
-        ];
-    }
-
+    
     public InteractionResult? Attack(IContext context, IWeapon? weapon)
     {
         // You can't bare-knuckle with the troll. No weapon, no fight. 

@@ -476,7 +476,7 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("E", null, "Maze", "twisty little passages, all alike")]
     [TestCase("S", null, "Maze", "twisty little passages, all alike")]
     [TestCase("SE", null, "Cyclops Room", "A cyclops, who looks prepared to eat horses")]
-  /*  [TestCase("Ulysses", null, "name of his father's deadly nemesis, flees the room by knocking ")]
+    [TestCase("Ulysses", null, "name of his father's deadly nemesis, flees the room by knocking ")]
     [TestCase("Up", null, "Treasure Room")]
     [TestCase("score", null, "277")]
     // TODO: give egg to thief
@@ -564,7 +564,7 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("S", null, "South of House")]
     [TestCase("W", null, "West Of House")]
     [TestCase("SW", null, "Stone Barrow")]
-    [TestCase("W", null, "Inside the Barrow", "test your skill and bravery", "350", "ZORK III")] */
+    [TestCase("W", null, "Inside the Barrow", "test your skill and bravery", "350", "ZORK III")] 
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup))
