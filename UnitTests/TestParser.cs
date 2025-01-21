@@ -350,6 +350,16 @@ public class TestParser : IntentParser
                 Verb = "kill",
                 OriginalInput = "kill the cyclops with the sword"
             });
+        
+        if (input == "kill the troll with the sword")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "troll",
+                NounTwo = "sword",
+                Preposition = "with",
+                Verb = "kill",
+                OriginalInput = "kill the troll with the sword"
+            });
 
         if (input == "dig in sand with shovel")
             return Task.FromResult<IntentBase>(new MultiNounIntent
@@ -449,6 +459,16 @@ public class TestParser : IntentParser
                 Preposition = "with",
                 Verb = "kill",
                 OriginalInput = "kill thief with sword"
+            });
+        
+        if (input == "kill thief with knife")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "thief",
+                NounTwo = "knife",
+                Preposition = "with",
+                Verb = "kill",
+                OriginalInput = "kill thief with knife"
             });
 
         if (input?.StartsWith("put") ?? false)

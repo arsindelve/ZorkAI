@@ -245,10 +245,12 @@ public class ThiefTests : EngineTestsBase
         GetItem<Cyclops>().IsSleeping = true;
         Take<Torch>();
         Take<Sword>();
-        List<(CombatOutcome outcome, string text)> options = [(CombatOutcome.Knockout, "")];
-        var choose = new Mock<IRandomChooser>();
-        choose.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns(options.Single());
-        GetItem<Thief>().ThiefAttackedEngine = new AdventurerVersusThiefCombatEngine(choose.Object);
+        var adventurerChooser = new Mock<IRandomChooser>();
+        var thiefChooser = new Mock<IRandomChooser>();
+        adventurerChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns((CombatOutcome.Knockout, ""));
+        thiefChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns((CombatOutcome.Miss, ""));
+        GetItem<Thief>().ThiefAttackedEngine = new AdventurerVersusThiefCombatEngine(adventurerChooser.Object);
+        GetItem<Thief>().ThiefAttackingEngine = new (thiefChooser.Object);
 
         await target.GetResponse("up");
         await target.GetResponse("kill thief with sword");
@@ -265,10 +267,12 @@ public class ThiefTests : EngineTestsBase
         GetItem<Cyclops>().IsSleeping = true;
         Take<Torch>();
         Take<Sword>();
-        List<(CombatOutcome outcome, string text)> options = [(CombatOutcome.Knockout, "")];
-        var choose = new Mock<IRandomChooser>();
-        choose.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns(options.Single());
-        GetItem<Thief>().ThiefAttackedEngine = new AdventurerVersusThiefCombatEngine(choose.Object);
+        var adventurerChooser = new Mock<IRandomChooser>();
+        var thiefChooser = new Mock<IRandomChooser>();
+        adventurerChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns((CombatOutcome.Knockout, ""));
+        thiefChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns((CombatOutcome.Miss, ""));
+        GetItem<Thief>().ThiefAttackedEngine = new AdventurerVersusThiefCombatEngine(adventurerChooser.Object);
+        GetItem<Thief>().ThiefAttackingEngine = new (thiefChooser.Object);
 
         await target.GetResponse("up");
         await target.GetResponse("kill thief with sword");
@@ -285,10 +289,12 @@ public class ThiefTests : EngineTestsBase
         GetItem<Cyclops>().IsSleeping = true;
         Take<Torch>();
         Take<Sword>();
-        List<(CombatOutcome outcome, string text)> options = [(CombatOutcome.Knockout, "")];
-        var choose = new Mock<IRandomChooser>();
-        choose.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns(options.Single());
-        GetItem<Thief>().ThiefAttackedEngine = new AdventurerVersusThiefCombatEngine(choose.Object);
+        var adventurerChooser = new Mock<IRandomChooser>();
+        var thiefChooser = new Mock<IRandomChooser>();
+        adventurerChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns((CombatOutcome.Knockout, ""));
+        thiefChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns((CombatOutcome.Miss, ""));
+        GetItem<Thief>().ThiefAttackedEngine = new AdventurerVersusThiefCombatEngine(adventurerChooser.Object);
+        GetItem<Thief>().ThiefAttackingEngine = new (thiefChooser.Object);
 
         await target.GetResponse("up");
         await target.GetResponse("kill thief with sword");
@@ -307,10 +313,12 @@ public class ThiefTests : EngineTestsBase
         GetItem<Cyclops>().IsSleeping = true;
         Take<Torch>();
         Take<Sword>();
-        List<(CombatOutcome outcome, string text)> options = [(CombatOutcome.Knockout, "")];
-        var choose = new Mock<IRandomChooser>();
-        choose.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns(options.Single());
-        GetItem<Thief>().ThiefAttackedEngine = new AdventurerVersusThiefCombatEngine(choose.Object);
+        var adventurerChooser = new Mock<IRandomChooser>();
+        var thiefChooser = new Mock<IRandomChooser>();
+        adventurerChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns((CombatOutcome.Knockout, ""));
+        thiefChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns((CombatOutcome.Miss, ""));
+        GetItem<Thief>().ThiefAttackedEngine = new AdventurerVersusThiefCombatEngine(adventurerChooser.Object);
+        GetItem<Thief>().ThiefAttackingEngine = new (thiefChooser.Object);
 
         await target.GetResponse("up");
         await target.GetResponse("kill thief with sword");
@@ -328,10 +336,12 @@ public class ThiefTests : EngineTestsBase
         Take<Torch>();
         Take<Sword>();
         target.Context.IsStunned = true;
-        List<(CombatOutcome outcome, string text)> options = [(CombatOutcome.Knockout, "")];
-        var choose = new Mock<IRandomChooser>();
-        choose.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns(options.Single());
-        GetItem<Thief>().ThiefAttackedEngine = new AdventurerVersusThiefCombatEngine(choose.Object);
+        var adventurerChooser = new Mock<IRandomChooser>();
+        var thiefChooser = new Mock<IRandomChooser>();
+        adventurerChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns((CombatOutcome.Knockout, ""));
+        thiefChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns((CombatOutcome.Miss, ""));
+        GetItem<Thief>().ThiefAttackedEngine = new AdventurerVersusThiefCombatEngine(adventurerChooser.Object);
+        GetItem<Thief>().ThiefAttackingEngine = new (thiefChooser.Object);
 
         await target.GetResponse("up");
         var response = await target.GetResponse("kill thief with sword");

@@ -1,5 +1,8 @@
 ﻿using FluentAssertions;
 using GameEngine;
+using Moq;
+using ZorkOne.ActorInteraction;
+using ZorkOne.Interface;
 using ZorkOne.Item;
 using ZorkOne.Location.MazeLocation;
 
@@ -92,6 +95,9 @@ public class CyclopsTests : EngineTestsBase
         var target = GetTarget();
         target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
         target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
+        var thiefChooser = new Mock<IRandomChooser>();
+        thiefChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns((CombatOutcome.Miss, ""));
+        GetItem<Thief>().ThiefAttackingEngine = new (thiefChooser.Object);
 
         await target.GetResponse("ulysses");
         var response = await target.GetResponse("Up");
@@ -358,6 +364,9 @@ public class CyclopsTests : EngineTestsBase
         target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
         target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
         Repository.GetItem<Cyclops>().IsSleeping = true;
+        var thiefChooser = new Mock<IRandomChooser>();
+        thiefChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>())).Returns((CombatOutcome.Miss, ""));
+        GetItem<Thief>().ThiefAttackingEngine = new (thiefChooser.Object);
 
         var response = await target.GetResponse("Up");
 
