@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using GameEngine;
+using Model.Interface;
 using Moq;
 using ZorkOne.ActorInteraction;
 using ZorkOne.Interface;

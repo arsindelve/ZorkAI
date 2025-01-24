@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Model.Interface;
 using Moq;
 using ZorkOne.ActorInteraction;
 using ZorkOne.Interface;

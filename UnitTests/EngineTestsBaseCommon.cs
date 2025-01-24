@@ -33,6 +33,7 @@ public class EngineTestsBaseCommon<TContext> where TContext : class, IContext, n
     {
         var item = GetItem<T>();
         Context.ItemPlacedHere(item);
+        item.CurrentLocation = Context;
         return item;
     }
 

@@ -5,6 +5,7 @@ using FluentAssertions;
 using GameEngine;
 using GameEngine.IntentEngine;
 using JetBrains.Annotations;
+using Model.Interface;
 using Moq;
 using ZorkOne.ActorInteraction;
 using ZorkOne.Interface;
