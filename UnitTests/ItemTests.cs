@@ -175,11 +175,10 @@ public class ItemTests : EngineTestsBase
     {
         var engine = GetTarget();
         var location = Repository.GetLocation<LivingRoom>();
-        Repository.GetLocation<LivingRoom>().Init();
         engine.Context.CurrentLocation = location;
 
         // Act
-        await engine.GetResponse("take sword");
+        Console.WriteLine(await engine.GetResponse("take sword"));
 
         // Assert
         location.HasItem<Sword>().Should().BeFalse();

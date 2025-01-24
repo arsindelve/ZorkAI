@@ -27,7 +27,6 @@ public class EngineTestsBase : EngineTestsBaseCommon<ZorkIContext>
             Mock.Of<ICloudWatchLogger<TurnLog>>());
         engine.Context.Verbosity = Verbosity.Verbose;
         Repository.GetLocation<WestOfHouse>().Init();
-        Repository.GetLocation<LivingRoom>().Init();
 
         Context = engine.Context;
         
