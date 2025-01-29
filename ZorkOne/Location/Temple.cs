@@ -5,7 +5,7 @@ using Model.Movement;
 namespace ZorkOne.Location;
 
 // Strangely, this is not a dark location. 
-public class Temple : LocationBase
+public class Temple : LocationBase, IThiefMayVisit
 {
     public override string Name => "Temple";
 

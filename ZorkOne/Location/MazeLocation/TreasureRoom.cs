@@ -4,7 +4,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location.MazeLocation;
 
-public class TreasureRoom : LocationBase
+public class TreasureRoom : LocationBase, IThiefMayVisit
 {
     public override string Name => "Treasure Room";
 

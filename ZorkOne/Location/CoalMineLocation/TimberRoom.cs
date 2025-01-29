@@ -4,7 +4,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location.CoalMineLocation;
 
-internal class TimberRoom : DarkLocation
+internal class TimberRoom : DarkLocation, IThiefMayVisit
 {
     public override string Name => "Timber Room";
 

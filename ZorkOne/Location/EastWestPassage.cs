@@ -6,7 +6,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-internal class EastWestPassage : DarkLocationWithNoStartingItems
+internal class EastWestPassage : DarkLocationWithNoStartingItems, IThiefMayVisit
 {
     public override string Name => "East-West Passage";
 

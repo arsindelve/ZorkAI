@@ -4,7 +4,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location.CoalMineLocation;
 
-public class SlideRoom : LocationWithNoStartingItems
+public class SlideRoom : LocationWithNoStartingItems, IThiefMayVisit
 {
     public override string Name => "Slide Room";
 

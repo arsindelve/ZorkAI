@@ -5,7 +5,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location.CoalMineLocation;
 
-public class MineEntrance : DarkLocationWithNoStartingItems
+public class MineEntrance : DarkLocationWithNoStartingItems, IThiefMayVisit
 {
     public override string Name => "Mine Entrance";
 

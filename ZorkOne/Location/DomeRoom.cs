@@ -8,7 +8,7 @@ using Repository = GameEngine.Repository;
 
 namespace ZorkOne.Location;
 
-public class DomeRoom : LocationBase
+public class DomeRoom : LocationBase, IThiefMayVisit
 {
     public override string Name => "Dome Room";
 

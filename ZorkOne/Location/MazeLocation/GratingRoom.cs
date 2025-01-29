@@ -4,7 +4,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location.MazeLocation;
 
-public class GratingRoom : DarkLocation
+public class GratingRoom : DarkLocation, IThiefMayVisit
 {
     public override string Name => "Grating Room";
 

@@ -4,7 +4,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-public class TwistingPassage : DarkLocationWithNoStartingItems
+public class TwistingPassage : DarkLocationWithNoStartingItems, IThiefMayVisit
 {
     public override string Name => "Twisting Passage";
 
