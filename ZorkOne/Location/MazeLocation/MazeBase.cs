@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 using Model.Interface;
 using Model.Movement;
 
@@ -17,6 +18,13 @@ public abstract class MazeBase : DarkLocationWithNoStartingItems, IThiefMayVisit
 
 public class MazeOne : MazeBase
 {
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation, IGenerationClient generationClient)
+    {
+        // If you're able to get here, after killing the troll, we will "start" your next foe
+        context.RegisterActor(GetItem<Thief>());
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
+    }
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

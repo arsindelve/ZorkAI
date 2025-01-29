@@ -25,7 +25,7 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
         ? ""
         : "The troll spits in your face, grunting \"Better luck next time\" in a rather barbarous accent. ";
 
-    public string ExaminationDescription => IsUnconscious
+    public string ExaminationDescription => IsUnconscious && !IsDead
         ? "An unconscious troll is sprawled on the floor. All passages out of the room are open. "
         : !HasItem<BloodyAxe>()
             ? ""

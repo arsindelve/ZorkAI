@@ -53,7 +53,7 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
     /// Gets or sets a value indicating whether the thief is dead.
     /// </summary>
     /// <remarks>
-    /// When the thief is dead, they no longer engage in combat, can no longer defend their location,
+    /// When the thief is dead, he no longer engage in combat, can no longer defend his location,
     /// and their belongings may become accessible to the player. This property is typically set as a
     /// result of combat or other fatal interactions with the thief.
     /// </remarks>

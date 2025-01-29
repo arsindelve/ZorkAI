@@ -407,7 +407,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             actorResults += $"{task} ";
         }
 
-        return actorResults;
+        return actorResults.Trim();
     }
 
     private async Task<(bool, string?)> RunProcessorInProgress(string? playerInput)

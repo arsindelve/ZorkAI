@@ -30,6 +30,9 @@ internal class EastWestPassage : DarkLocationWithNoStartingItems, IThiefMayVisit
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
+        // If you're able to get here, after killing the troll, we will "start" your next foe
+        context.RegisterActor(GetItem<Thief>());
+        
         var swordInPossession = context.HasItem<Sword>();
         var trollIsAlive = Repository.GetItem<Troll>().CurrentLocation == Repository.GetLocation<TrollRoom>();
 
