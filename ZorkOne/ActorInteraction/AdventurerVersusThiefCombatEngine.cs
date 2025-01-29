@@ -5,6 +5,12 @@ using Model.Interface;
 
 namespace ZorkOne.ActorInteraction;
 
+/// <summary>
+/// The AdventurerVersusThiefCombatEngine class handles combat interactions specifically
+/// between an adventurer and the thief in the game. This includes determining the combat
+/// outcomes such as misses, stuns, disarms, knockouts, and fatalities based on weapon usage
+/// and random choices.
+/// </summary>
 internal class AdventurerVersusThiefCombatEngine(IRandomChooser chooser) : ICombatEngine
 {
     private readonly List<(CombatOutcome outcome, string text)> _notStunnedOutcomes =
@@ -41,6 +47,17 @@ internal class AdventurerVersusThiefCombatEngine(IRandomChooser chooser) : IComb
 
     private Thief? _thief;
 
+    /// <summary>
+    /// Executes an attack on the thief using the specified weapon and context. Determines the outcome of the attack
+    /// based on various factors, such as whether the thief is stunned or unconscious, or the type of attack chosen.
+    /// Returns the interaction result of the attack.
+    /// </summary>
+    /// <param name="context">The context in which the interaction occurs, providing environment and state information.</param>
+    /// <param name="weapon">The weapon used to execute the attack. If null, there is no attack.</param>
+    /// <returns>
+    /// An <see cref="InteractionResult"/> representing the outcome of the attack. Returns null if no weapon is used.
+    /// Possible outcomes include misses, disarming, stunning, knockouts, fatal attacks, or dropping the user's weapon.
+    /// </returns>
     public InteractionResult? Attack(IContext context, IWeapon? weapon)
     {
         // You can't bare-knuckle with the thief. No weapon, no fight. 

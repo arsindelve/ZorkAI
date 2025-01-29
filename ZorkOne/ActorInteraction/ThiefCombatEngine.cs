@@ -3,6 +3,11 @@ using Model.Interface;
 
 namespace ZorkOne.ActorInteraction;
 
+/// <summary>
+/// ThiefCombatEngine is responsible for managing combat interactions involving the Thief actor in the game.
+/// It inherits from the abstract CombatEngineBase class, providing specific behavior for thief-related combat scenarios.
+/// This class leverages IRandomChooser to determine the outcomes of combat situations.
+/// </summary>
 internal class ThiefCombatEngine(IRandomChooser chooser) : CombatEngineBase<Thief>(chooser)
 {
     private readonly List<(CombatOutcome outcome, string text)> _haveWeaponOutcomes =
@@ -44,6 +49,13 @@ internal class ThiefCombatEngine(IRandomChooser chooser) : CombatEngineBase<Thie
     {
     }
 
+    /// <summary>
+    /// Executes an attack action during a combat scenario involving a thief.
+    /// Determines the appropriate outcome based on the context of the attack, including whether the player has a weapon.
+    /// </summary>
+    /// <param name="context">The combat context providing environmental and status details relevant to the attack.</param>
+    /// <returns>A string describing the result of the attack action.</returns>
+    /// <exception cref="ArgumentException">Thrown when the provided context is not of type ZorkIContext.</exception>
     internal string Attack(IContext context)
     {
         if (context is not ZorkIContext zorkContext)
