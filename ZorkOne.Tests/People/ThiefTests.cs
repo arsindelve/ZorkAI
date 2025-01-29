@@ -1,9 +1,11 @@
 using FluentAssertions;
 using Model.Interface;
+using Model.Item;
 using Moq;
 using ZorkOne.ActorInteraction;
 using ZorkOne.Interface;
 using ZorkOne.Item;
+using ZorkOne.Location.ForestLocation;
 using ZorkOne.Location.MazeLocation;
 
 namespace ZorkOne.Tests.People;
@@ -349,5 +351,80 @@ public class ThiefTests : EngineTestsBase
 
         response.Should().Contain("still recovering");
         target.Context.IsStunned.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task ShowUp_WillNeverInNonMarkedLocations()
+    {
+        var target = GetTarget();
+        target.Context.RegisterActor(GetItem<Thief>());
+        StartHere<ForestPath>();
+        var thiefChooser = new Mock<IRandomChooser>();
+        thiefChooser.Setup(s => s.RollDice(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(true);
+        GetItem<Thief>().ThiefRobbingEngine = new ThiefRobsYouEngine(thiefChooser.Object);
+        
+        await target.GetResponse("look");
+    }
+    
+    [Test]
+    public async Task ShowUp_WillAppearInMarkedLocations_NothingOfValue_FirstResult()
+    {
+        var target = GetTarget();
+        StartHere<DeadEndFour>();
+        target.Context.RegisterActor(GetItem<Thief>());
+        var thiefChooser = new Mock<IRandomChooser>();
+        thiefChooser.Setup(s => s.RollDice(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(true);
+        thiefChooser.Setup(s => s.Choose(ThiefRobsYouEngine.NothingOfValue)).Returns(ThiefRobsYouEngine.NothingOfValue[0]);
+        GetItem<Thief>().ThiefRobbingEngine = new ThiefRobsYouEngine(thiefChooser.Object);
+        
+        string? response = await target.GetResponse("look");
+        response.Should().Contain("carrying a large bag");
+    }
+    
+    [Test]
+    public async Task ShowUp_WillAppearInMarkedLocations_NothingOfValue_SecondResult()
+    {
+        var target = GetTarget();
+        StartHere<DeadEndFour>();
+        target.Context.RegisterActor(GetItem<Thief>());
+        var thiefChooser = new Mock<IRandomChooser>();
+        thiefChooser.Setup(s => s.RollDice(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(true);
+        thiefChooser.Setup(s => s.Choose(ThiefRobsYouEngine.NothingOfValue)).Returns(ThiefRobsYouEngine.NothingOfValue[1]);
+        GetItem<Thief>().ThiefRobbingEngine = new ThiefRobsYouEngine(thiefChooser.Object);
+        
+        string? response = await target.GetResponse("look");
+        response.Should().Contain("looking disgusted");
+    }
+    
+    [Test]
+    public async Task ShowUp_WillNotAppearInMarkedLocationsIfFailedDiceRoll_NothingOfValue()
+    {
+        var target = GetTarget();
+        StartHere<DeadEndFour>();
+        target.Context.RegisterActor(GetItem<Thief>());
+        var thiefChooser = new Mock<IRandomChooser>();
+        thiefChooser.Setup(s => s.RollDice(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(false);
+        thiefChooser.Setup(s => s.Choose(ThiefRobsYouEngine.NothingOfValue)).Returns(ThiefRobsYouEngine.NothingOfValue[0]);
+        GetItem<Thief>().ThiefRobbingEngine = new ThiefRobsYouEngine(thiefChooser.Object);
+        
+        string? response = await target.GetResponse("look");
+        response.Should().NotContain("carrying a large bag");
+    }
+    
+    [Test]
+    public async Task ShowUp_WillAppearInMarkedLocations_SingleItemOfValue_FirstResult()
+    {
+        var target = GetTarget();
+        StartHere<DeadEndFour>();
+        GetLocation<DeadEndFour>().ItemPlacedHere(GetItem<Coffin>());
+        target.Context.RegisterActor(GetItem<Thief>());
+        var thiefChooser = new Mock<IRandomChooser>();
+        thiefChooser.Setup(s => s.Choose(It.IsAny<List<IGivePointsWhenPlacedInTrophyCase>>())).Returns(GetItem<Coffin>());
+        thiefChooser.Setup(s => s.RollDice(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(true);
+        thiefChooser.Setup(s => s.Choose(ThiefRobsYouEngine.StealFromRoomResults)).Returns(ThiefRobsYouEngine.StealFromRoomResults[0]);
+        GetItem<Thief>().ThiefRobbingEngine = new ThiefRobsYouEngine(thiefChooser.Object);
+        
+        string? response = await target.GetResponse("look");
+        response.Should().Contain("abstracted some valuables from the room");
     }
 }

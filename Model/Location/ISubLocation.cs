@@ -3,8 +3,7 @@ using Model.Interface;
 namespace Model.Location;
 
 /// <summary>
-/// This is a sub-location inside another location. It represents a location that exists within another location,
-/// such as a vehicle or a specific area within a larger space.
+/// This is a sub-location inside another location, such as a vehicle or a specific area within a larger space.
 /// </summary>
 public interface ISubLocation
 {

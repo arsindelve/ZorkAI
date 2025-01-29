@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Model.Interface;
 using Moq;
 using ZorkOne.ActorInteraction;
-using ZorkOne.Interface;
 using ZorkOne.Item;
 using ZorkOne.Location;
 using ZorkOne.Location.MazeLocation;
@@ -20,6 +19,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     private readonly DynamoDbSessionRepository _database = new();
     private Mock<IRandomChooser> _adventurerChooser;
     private Mock<IRandomChooser> _attackerChooser;
+    private Mock<IRandomChooser> _thiefAppears;
     private GameEngine<ZorkI, ZorkIContext> _target;
 
     [OneTimeSetUp]
@@ -29,6 +29,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
 
         _adventurerChooser = new Mock<IRandomChooser>();
         _attackerChooser = new Mock<IRandomChooser>();
+        _thiefAppears = new Mock<IRandomChooser>();
 
         // We always kill
         _adventurerChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>()))
@@ -37,7 +38,11 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         // He always misses
         _attackerChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>()))
             .Returns((CombatOutcome.Miss, ""));
+        
+        // He never appears
+        _thiefAppears.Setup(s => s.RollDice(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(false);
 
+        GetItem<Thief>().ThiefRobbingEngine = new ThiefRobsYouEngine(_thiefAppears.Object);
         GetItem<Thief>().ThiefAttackedEngine = new AdventurerVersusThiefCombatEngine(_adventurerChooser.Object);
         GetItem<Thief>().ThiefAttackingEngine = new ThiefCombatEngine(_attackerChooser.Object);
         GetItem<Troll>().TrollAttackEngine = new TrollCombatEngine(_attackerChooser.Object);

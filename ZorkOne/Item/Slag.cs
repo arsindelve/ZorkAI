@@ -22,7 +22,7 @@ public class Slag : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
     {
         return "";
     }
-
+    
     public override void OnFailingToBeTaken(IContext context)
     {
         Repository.GetItem<Slag>().CurrentLocation = null;
