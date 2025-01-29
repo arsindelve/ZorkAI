@@ -57,14 +57,14 @@ internal class ThiefRobsYouEngine(IRandomChooser randomChooser)
             return randomChooser.Choose(choices.ToList()).Invoke();
         }
 
-        return Task.FromResult(randomChooser.Choose(NothingOfValue));
+        return Task.FromResult(randomChooser.Choose(NothingOfValue).Trim());
     }
 
     private Task<string> StealFromAdventurer(List<IGivePointsWhenPlacedInTrophyCase> itemsOfValueInInventory)
     {
         var item = randomChooser.Choose(itemsOfValueInInventory);
         TakeItem((IItem)item);
-        return Task.FromResult(randomChooser.Choose(StealFromAdventurerResults));
+        return Task.FromResult(randomChooser.Choose(StealFromAdventurerResults).Trim());
     }
 
     private Task<string> StealFromTheRoom(List<IGivePointsWhenPlacedInTrophyCase> itemsOfValueInRoom)
