@@ -7,7 +7,7 @@ using ZorkOne.Location.ForestLocation;
 namespace ZorkOne.Location;
 
 // This is not a dark location either, oddly. 
-public class Altar : LocationBase
+public class Altar : LocationBase, IThiefMayVisit
 {
     public override string Name => "Altar";
 

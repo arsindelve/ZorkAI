@@ -5,7 +5,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location.MazeLocation;
 
-public abstract class MazeBase : DarkLocationWithNoStartingItems
+public abstract class MazeBase : DarkLocationWithNoStartingItems, IThiefMayVisit
 {
     public override string Name => "Maze";
 

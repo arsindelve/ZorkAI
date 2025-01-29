@@ -5,7 +5,7 @@ using Model.Interface;
 
 namespace ZorkOne.Location;
 
-internal abstract class MirrorRoom : LocationBase
+internal abstract class MirrorRoom : LocationBase, IThiefMayVisit
 {
     public override string Name => "Mirror Room";
 

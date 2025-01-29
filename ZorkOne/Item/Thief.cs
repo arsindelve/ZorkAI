@@ -1,22 +1,25 @@
 ﻿using System.Text;
+using GameEngine;
 using GameEngine.IntentEngine;
 using GameEngine.Item;
 using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
 using ZorkOne.ActorInteraction;
+using ZorkOne.Location.MazeLocation;
 
 namespace ZorkOne.Item;
 
 public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked, ICanBeGivenThings
 {
     private readonly GiveSomethingToSomeoneDecisionEngine<Thief> _giveHimSomethingEngine = new();
-    
-    internal ICombatEngine ThiefAttackedEngine { private get; set; } = new AdventurerVersusThiefCombatEngine(new RandomChooser());
-    
+
+    internal ICombatEngine ThiefAttackedEngine { private get; set; } =
+        new AdventurerVersusThiefCombatEngine(new RandomChooser());
+
     internal ThiefCombatEngine ThiefAttackingEngine { private get; set; } = new();
 
-    internal ThiefRobsYouEngine ThiefRobbingEngine { private get; set; } = new ThiefRobsYouEngine(new RandomChooser());
+    internal ThiefRobsYouEngine ThiefRobbingEngine { private get; set; } = new(new RandomChooser());
 
     public bool IsUnconscious { get; set; }
 
@@ -66,7 +69,8 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
             // Giving him the egg prevents him from trying to kill you for a turn. 
             IsStunned = true;
             sb.AppendLine(
-                "The thief is taken aback by your unexpected generosity, but accepts the jewel-encrusted egg and stops to admire its beauty. ");
+                "The thief is taken aback by your unexpected generosity, but accepts the jewel-encrusted egg " +
+                "and stops to admire its beauty. ");
         }
         else
         {
@@ -82,6 +86,29 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
     }
 
     public Task<string> Act(IContext context, IGenerationClient client)
+    {
+        if (IsDead)
+        {
+            context.RemoveActor(this);
+            return Task.FromResult("");
+        }
+
+        if (context.CurrentLocation is TreasureRoom)
+            return DefendingHisTreasure(context);
+
+        return ProwlingTheDungeon(context);
+    }
+
+    private Task<string> ProwlingTheDungeon(IContext context)
+    {
+        // Not a location where he wanders. 
+        if (context.CurrentLocation is not IThiefMayVisit)
+            return Task.FromResult("");
+
+        return ThiefRobbingEngine.RobYou(context);
+    }
+
+    private Task<string> DefendingHisTreasure(IContext context)
     {
         if (IsUnconscious)
         {
@@ -146,9 +173,3 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
         StartWithItemInside<Stiletto>();
     }
 }
-
-//A seedy-looking individual with a large bag just wandered through the room. On the way through, he quietly abstracted some valuables {from the room and from your possession}, mumbling something about "Doing unto others before..."
-//A "lean and hungry" gentleman just wandered through, carrying a large bag. Finding nothing of value, he left disgruntled.
-//Your opponent, determining discretion to be the better part of valor, decides to terminate this little contretemps. With a rueful nod of his head, he steps backward into the gloom and disappears."
-//The holder of the large bag just left, looking disgusted. Fortunately, he took nothing
-// The thief just left, still carrying his large bag. You may not have noticed that he {robbed you blind first} {appropriated the valuables in the room}

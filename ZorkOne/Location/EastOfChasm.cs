@@ -5,7 +5,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-public class EastOfChasm : LocationWithNoStartingItems
+public class EastOfChasm : LocationWithNoStartingItems, IThiefMayVisit
 {
     public override string Name => "East of Chasm";
 
