@@ -12,6 +12,7 @@ import ConfirmDialog from "./modal/ConfirmationDialog.tsx";
 import {useGameContext} from "./GameContext.tsx";
 import VideoDialog from "./modal/VideoModal.tsx";
 import WelcomeDialog from "./modal/WelcomeModal.tsx";
+import ReleaseNotesModal from "./modal/ReleaseNotesModal.tsx";
 import {Mixpanel} from "./Mixpanel.ts";
 import DialogType from "./model/DialogType.ts";
 
@@ -23,6 +24,7 @@ function App() {
     const [availableSavedGames, setAvailableSavedGames] = useState<ISavedGame[]>([]);
     const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
     const [videoDialogOpen, setVideoDialogOpen] = useState<boolean>(false);
+    const [releaseNotesDialogOpen, setReleaseNotesDialogOpen] = useState<boolean>(false);
 
     const server = new Server();
     const sessionId = new SessionHandler();
@@ -61,6 +63,11 @@ function App() {
                     setConfirmRestartOpen(true);
                     setDialogToOpen(undefined);
                     break;
+                case DialogType.ReleaseNotes:
+                    Mixpanel.track('Open Release Notes Dialog', {});
+                    setReleaseNotesDialogOpen(true);
+                    setDialogToOpen(undefined);
+                    break;
                 default:
                     break;
             }
@@ -92,7 +99,7 @@ function App() {
 
                 <QueryClientProvider client={queryClient}>
                     <Game
-                       
+
                     />
 
                     <ConfirmDialog
@@ -123,6 +130,11 @@ function App() {
                                      setVideoDialogOpen(false);
                                      Mixpanel.track('Close Video Dialog', {});
                                  }}/>
+
+                    <ReleaseNotesModal handleClose={() => {
+                        setReleaseNotesDialogOpen(false);
+                        Mixpanel.track('Close Release Notes Dialog', {});
+                    }} open={releaseNotesDialogOpen}/>
 
                     <WelcomeDialog handleWatchVideo={handleWatchVideo} open={welcomeDialogOpen}
                                    handleClose={() => {

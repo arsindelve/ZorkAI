@@ -3,7 +3,8 @@ enum DialogType {
     Video = "Video",
     Welcome = "Welcome",
     Restore = "Restore",
-    Restart = "Restart"
+    Restart = "Restart",
+    ReleaseNotes = "ReleaseNotes"
 }
 
 export default DialogType;
