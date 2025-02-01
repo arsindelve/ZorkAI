@@ -8,6 +8,8 @@ namespace GameEngine.IntentEngine;
 
 public class MoveEngine : IIntentEngine
 {
+    private readonly IRandomChooser _chooser = new RandomChooser();
+    
     public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent,
         IContext context, IGenerationClient generationClient)
     {
@@ -53,11 +55,16 @@ public class MoveEngine : IIntentEngine
         return result;
     }
 
-    private static async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient,
-        string direction,
+    private async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient, string direction,
         IContext context)
     {
-        var request = new CannotGoThatWayRequest(context.CurrentLocation.GetDescription(context), direction);
+        // 20% of the time, let's generate a response. Otherwise, give the standard response
+
+        if (!_chooser.RollDice(5))
+            return "You cannot go that way. ";
+
+        var request =
+            new CannotGoThatWayRequest(context.CurrentLocation.GetDescriptionForGeneration(context), direction);
         var result = await generationClient.GenerateNarration(request);
         return result;
     }
