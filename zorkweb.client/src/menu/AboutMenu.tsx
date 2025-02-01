@@ -7,9 +7,7 @@ import {Mixpanel} from "../Mixpanel.ts";
 import {useGameContext} from "../GameContext";
 import DialogType from "../model/DialogType.ts";
 
-interface AboutMenuProps {
-
-}
+interface AboutMenuProps {}
 
 export default function AboutMenu({}: AboutMenuProps) {
 
@@ -90,7 +88,10 @@ export default function AboutMenu({}: AboutMenuProps) {
                 <MenuItem onClick={() => go("Wikipedia", "https://en.wikipedia.org/wiki/Zork")}>Wikipedia Article on
                     Zork</MenuItem>
 
-                <MenuItem>Version {config.version}</MenuItem>
+                <MenuItem  onClick={() => {
+                    setDialogToOpen(DialogType.ReleaseNotes);
+                    handleClose();
+                }} >Version {config.version}</MenuItem>
 
             </Menu>
         </div>
