@@ -1,6 +1,4 @@
-﻿using NUnit.Framework;
-
-namespace ZorkOne.Tests.Walkthrough;
+﻿namespace ZorkOne.Tests.Walkthrough;
 
 [TestFixture]
 public sealed class WalkthroughTestTwo : WalkthroughTestBase
@@ -103,7 +101,8 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("Down", null, "closed")]
     [TestCase("open trap door", null, "The door reluctantly opens to reveal a rickety staircase")]
     [TestCase("Down", null, "faint blue glow")]
-    [TestCase("N", "KillTroll", "Bloodstains")]
+    [TestCase("N", null, "Bloodstains")]
+    [TestCase("kill the troll with the sword", null, "black fog envelops him")]
     [TestCase("E", null, "East-West")]
     [TestCase("E", null, "Round Room")]
     [TestCase("N", null, "North-South")]

@@ -5,7 +5,7 @@ using ZorkOne.Location.CoalMineLocation;
 
 namespace ZorkOne.Location;
 
-public class ColdPassage : LocationWithNoStartingItems
+public class ColdPassage : LocationWithNoStartingItems, IThiefMayVisit
 {
     public override string Name => "Cold Passage";
 

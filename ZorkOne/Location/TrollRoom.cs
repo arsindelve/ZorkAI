@@ -1,3 +1,4 @@
+using GameEngine;
 using GameEngine.IntentEngine;
 using GameEngine.Location;
 using Model.AIGeneration;
@@ -11,14 +12,9 @@ namespace ZorkOne.Location;
 
 public class TrollRoom : DarkLocation
 {
-    private readonly KillSomeoneDecisionEngine<Troll> _killDecisionEngine;
-    private readonly ICombatEngine _trollAttackEngine = new AdventurerVersusTrollCombatEngine();
-
-    public TrollRoom()
-    {
-        _killDecisionEngine = new KillSomeoneDecisionEngine<Troll>(_trollAttackEngine);
-    }
-
+    internal KillSomeoneDecisionEngine<Troll> KillDecisionEngine { get; set; } =
+        new(new AdventurerVersusTrollCombatEngine(new RandomChooser()));
+    
     private bool TrollIsAwake => !GetItem<Troll>().IsDead &&
                                  !GetItem<Troll>().IsUnconscious;
 
@@ -86,13 +82,13 @@ public class TrollRoom : DarkLocation
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        var killInteraction = _killDecisionEngine.DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(action, context);
+        var killInteraction = KillDecisionEngine.DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(action, context);
         return killInteraction ?? base.RespondToSimpleInteraction(action, context, client);
     }
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-        var result = _killDecisionEngine.DoYouWantToKillSomeone(action, context);
+        var result = KillDecisionEngine.DoYouWantToKillSomeone(action, context);
         return result ?? base.RespondToMultiNounInteraction(action, context);
     }
 

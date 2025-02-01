@@ -3,8 +3,11 @@ using System.Text;
 using DynamoDb;
 using FluentAssertions;
 using GameEngine;
-using NUnit.Framework;
-using UnitTests;
+using GameEngine.IntentEngine;
+using JetBrains.Annotations;
+using Model.Interface;
+using Moq;
+using ZorkOne.ActorInteraction;
 using ZorkOne.Item;
 using ZorkOne.Location;
 using ZorkOne.Location.MazeLocation;
@@ -14,12 +17,37 @@ namespace ZorkOne.Tests.Walkthrough;
 public abstract class WalkthroughTestBase : EngineTestsBase
 {
     private readonly DynamoDbSessionRepository _database = new();
+    private Mock<IRandomChooser> _adventurerChooser;
+    private Mock<IRandomChooser> _attackerChooser;
+    private Mock<IRandomChooser> _thiefAppears;
     private GameEngine<ZorkI, ZorkIContext> _target;
 
     [OneTimeSetUp]
     public void Init()
     {
         _target = GetTarget();
+
+        _adventurerChooser = new Mock<IRandomChooser>();
+        _attackerChooser = new Mock<IRandomChooser>();
+        _thiefAppears = new Mock<IRandomChooser>();
+
+        // We always kill
+        _adventurerChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>()))
+            .Returns((CombatOutcome.Fatal, ""));
+
+        // He always misses
+        _attackerChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>()))
+            .Returns((CombatOutcome.Miss, ""));
+        
+        // He never appears
+        _thiefAppears.Setup(s => s.RollDice(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(false);
+
+        GetItem<Thief>().ThiefRobbingEngine = new ThiefRobsYouEngine(_thiefAppears.Object);
+        GetItem<Thief>().ThiefAttackedEngine = new AdventurerVersusThiefCombatEngine(_adventurerChooser.Object);
+        GetItem<Thief>().ThiefAttackingEngine = new ThiefCombatEngine(_attackerChooser.Object);
+        GetItem<Troll>().TrollAttackEngine = new TrollCombatEngine(_attackerChooser.Object);
+        GetLocation<TrollRoom>().KillDecisionEngine =
+            new KillSomeoneDecisionEngine<Troll>(new AdventurerVersusTrollCombatEngine(_adventurerChooser.Object));
     }
 
     protected void InvokeGodMode(string setup)
@@ -33,23 +61,13 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         method.Invoke(this, null);
     }
 
-    public void KillTroll()
-    {
-        // We can't have the randomness of trying to kill the troll. Let's God-Mode this dude.
-        Repository.GetItem<Troll>().IsDead = true;
-    }
-
+    [UsedImplicitly]
     public void PutTheTorchHere()
     {
         Repository.GetLocation<TreasureRoom>().ItemPlacedHere(Repository.GetItem<Torch>());
     }
 
-    public void HaveOpenEgg()
-    {
-        _target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
-        Repository.GetItem<Egg>().IsOpen = true;
-    }
-
+    [UsedImplicitly]
     public void GoToRoundRoom()
     {
         // Entering the loud room when it's draining will cause us to flee the room in a random

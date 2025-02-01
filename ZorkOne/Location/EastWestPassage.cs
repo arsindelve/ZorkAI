@@ -6,7 +6,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-internal class EastWestPassage : DarkLocationWithNoStartingItems
+internal class EastWestPassage : DarkLocationWithNoStartingItems, IThiefMayVisit
 {
     public override string Name => "East-West Passage";
 
@@ -30,6 +30,9 @@ internal class EastWestPassage : DarkLocationWithNoStartingItems
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
+        // If you're able to get here, after killing the troll, we will "start" your next foe
+        context.RegisterActor(GetItem<Thief>());
+        
         var swordInPossession = context.HasItem<Sword>();
         var trollIsAlive = Repository.GetItem<Troll>().CurrentLocation == Repository.GetLocation<TrollRoom>();
 

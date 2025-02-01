@@ -5,7 +5,7 @@ using Model.Item;
 namespace GameEngine.IntentEngine;
 
 /// <summary>
-///     Given an intent and a type of foe, is it my intention with this text input
+///     Given an intent and a type of foe, is it my intention with this input
 ///     to attack and kill the foe?
 /// </summary>
 /// <param name="combatEngine">
@@ -17,6 +17,25 @@ public class KillSomeoneDecisionEngine<TFoe>(ICombatEngine combatEngine) where T
 {
     private readonly TFoe _foe = Repository.GetItem<TFoe>();
 
+    /// <summary>
+    /// Determines whether the intent provided by the player is to kill someone,
+    /// validates the provided context and action, and performs the necessary actions
+    /// to carry out the intent if it is valid.
+    /// </summary>
+    /// <param name="action">
+    /// The player's intent, including the verb, nouns, and context of the action.
+    /// This should contain the information related to what the player wants to do,
+    /// such as killing a foe with a specific weapon.
+    /// </param>
+    /// <param name="context">
+    /// The current context in which the action is being evaluated. This includes the
+    /// items available, current location details, and any relevant information about
+    /// the environment surrounding the intent.
+    /// </param>
+    /// <returns>
+    /// An <see cref="InteractionResult"/> object if the action is valid and performed successfully,
+    /// or null if the action is invalid or cannot be completed in the current context.
+    /// </returns>
     public InteractionResult? DoYouWantToKillSomeone(MultiNounIntent action, IContext context)
     {
         string[] prepositions = ["with", "using", "by", "to"];
@@ -42,6 +61,23 @@ public class KillSomeoneDecisionEngine<TFoe>(ICombatEngine combatEngine) where T
             : combatEngine.Attack(context, nounTwo as IWeapon);
     }
 
+    /// <summary>
+    /// Evaluates the player's intent to kill someone without specifying a weapon, identifies if the action can be valid
+    /// based on the provided context, and executes the action if possible. The method will determine if the player
+    /// has no weapons, exactly one weapon, or multiple weapons and responds accordingly.
+    /// </summary>
+    /// <param name="action">
+    /// The intent of the player, including the relevant verb and noun, representing the action of killing and the target
+    /// of the kill attempt.
+    /// </param>
+    /// <param name="context">
+    /// The current gameplay context, including the inventory, location details, and environmental factors that may affect
+    /// the player's ability to perform the action.
+    /// </param>
+    /// <returns>
+    /// An <see cref="InteractionResult"/> object indicating the outcome of the interaction, such as successfully attacking
+    /// the target or prompting the player for additional input, or null if the action is invalid.
+    /// </returns>
     public InteractionResult? DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(SimpleIntent action, IContext context)
     {
         InteractionResult? result = null;

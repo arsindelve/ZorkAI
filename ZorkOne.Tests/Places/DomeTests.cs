@@ -1,8 +1,6 @@
 using FluentAssertions;
 using GameEngine;
 using Model.Interface;
-using NUnit.Framework;
-using UnitTests;
 using ZorkOne.Item;
 using ZorkOne.Location;
 

@@ -4,8 +4,9 @@ internal enum CombatOutcome
 {
     Miss,
     SmallWound,
-    DropWeapon,
+    Disarm,
     Stun,
     Fatal,
-    Knockout
+    Knockout,
+    DropOwnWeapon
 }

@@ -1,3 +1,4 @@
+using GameEngine;
 using GameEngine.Item;
 
 namespace ZorkOne.Item;
@@ -6,7 +7,12 @@ public class SilverChalice : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenFir
     IGivePointsWhenPlacedInTrophyCase
 {
     public override string[] NounsForMatching =>
-        ["silver", "chalice", "silver chalice"];
+        ["silver chalice", "silver", "chalice"] ;
+
+    public override string? CannotBeTakenDescription =>
+        Repository.GetItem<Thief>().IsDead || Repository.GetItem<Thief>().IsUnconscious
+            ? ""
+            : "Realizing just in time that you'd be stabbed in the back if you attempted to take the chalice, you return to the fray. ";
 
     public string OnTheGroundDescription(ILocation currentLocation)
     {

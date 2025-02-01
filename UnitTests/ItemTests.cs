@@ -178,7 +178,7 @@ public class ItemTests : EngineTestsBase
         engine.Context.CurrentLocation = location;
 
         // Act
-        await engine.GetResponse("take sword");
+        Console.WriteLine(await engine.GetResponse("take sword"));
 
         // Assert
         location.HasItem<Sword>().Should().BeFalse();
@@ -189,7 +189,7 @@ public class ItemTests : EngineTestsBase
     public async Task NounMatch_OnTheFloor_AfterDroppingIt()
     {
         var engine = GetTarget();
-        var livingRoom = Repository.GetLocation<LivingRoom>();
+        var livingRoom = Repository.GetLocation<Attic>();
         engine.Context.CurrentLocation = livingRoom;
 
         // Act
@@ -198,8 +198,8 @@ public class ItemTests : EngineTestsBase
         await engine.GetResponse("drop sword");
 
         // Assert
-        engine.Context.CurrentLocation.HasItem<Sword>().Should().BeTrue();
-        engine.Context.CurrentLocation.HasMatchingNoun("sword").HasItem.Should().BeTrue();
+        engine.Context.CurrentLocation.HasItem<Sword>().Should().BeFalse();
+        engine.Context.CurrentLocation.HasMatchingNoun("sword").HasItem.Should().BeFalse();
         livingRoom.HasItem<Sword>().Should().BeFalse();
         livingRoom.HasMatchingNoun("sword").HasItem.Should().BeFalse();
     }

@@ -8,7 +8,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-public class CaveSouth : DarkLocationWithNoStartingItems
+public class CaveSouth : DarkLocationWithNoStartingItems, IThiefMayVisit
 {
     public override string Name => "Cave";
 

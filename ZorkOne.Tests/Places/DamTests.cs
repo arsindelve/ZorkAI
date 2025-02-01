@@ -2,8 +2,6 @@
 using GameEngine;
 using Model.Interface;
 using Moq;
-using NUnit.Framework;
-using UnitTests;
 using ZorkOne.Item;
 using ZorkOne.Location;
 

@@ -4,7 +4,7 @@ namespace ZorkOne.Item;
 
 public class Bauble : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase, IGivePointsWhenFirstPickedUp
 {
-    public override string[] NounsForMatching => ["brass", "bauble", "brass bauble"];
+    public override string[] NounsForMatching => ["brass bauble","brass", "bauble"];
 
     public string OnTheGroundDescription(ILocation currentLocation)
     {

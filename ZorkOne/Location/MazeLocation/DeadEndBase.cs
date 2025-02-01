@@ -3,7 +3,7 @@ using Model.Interface;
 
 namespace ZorkOne.Location.MazeLocation;
 
-public abstract class DeadEndBase : DarkLocationWithNoStartingItems
+public abstract class DeadEndBase : DarkLocationWithNoStartingItems, IThiefMayVisit
 {
     public override string Name => "Dead End";
 

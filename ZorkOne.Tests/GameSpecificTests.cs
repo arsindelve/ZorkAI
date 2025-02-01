@@ -2,8 +2,6 @@ using FluentAssertions;
 using GameEngine;
 using Model.AIParsing;
 using Moq;
-using NUnit.Framework;
-using UnitTests;
 using ZorkOne.GlobalCommand;
 using ZorkOne.Item;
 using ZorkOne.Location;

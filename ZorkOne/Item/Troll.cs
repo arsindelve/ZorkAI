@@ -10,7 +10,8 @@ namespace ZorkOne.Item;
 public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked, ICanBeGivenThings
 {
     private readonly GiveSomethingToSomeoneDecisionEngine<Troll> _giveHimSomethingEngine = new();
-    private readonly TrollCombatEngine _trollAttackEngine = new();
+    
+    internal TrollCombatEngine TrollAttackEngine { get; set; } = new();
 
     public bool IsUnconscious { get; set; }
 
@@ -18,13 +19,13 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 
     public bool IsDead { get; set; }
 
-    public override string[] NounsForMatching => ["troll", "monster"];
+    public override string[] NounsForMatching => ["troll", "monster", "creature"];
 
     public override string CannotBeTakenDescription => IsUnconscious
         ? ""
         : "The troll spits in your face, grunting \"Better luck next time\" in a rather barbarous accent. ";
 
-    public string ExaminationDescription => IsUnconscious
+    public string ExaminationDescription => IsUnconscious && !IsDead
         ? "An unconscious troll is sprawled on the floor. All passages out of the room are open. "
         : !HasItem<BloodyAxe>()
             ? ""
@@ -43,13 +44,19 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
     {
         if (IsDead || IsUnconscious)
             return Task.FromResult(string.Empty);
-
+        
         if (!HasItem<BloodyAxe>())
             return
                 Task.FromResult(
                     "\nThe troll, disarmed, cowers in terror, pleading for his life in the guttural tongue of the trolls. ");
 
-        return Task.FromResult(_trollAttackEngine.Attack(context));
+        if (IsStunned)
+        {
+            IsStunned = false;
+            return Task.FromResult("The troll slowly regains his feet. ");
+        }
+
+        return Task.FromResult(TrollAttackEngine.Attack(context));
     }
 
     private InteractionResult OfferOtherItem(IItem item, IContext context)

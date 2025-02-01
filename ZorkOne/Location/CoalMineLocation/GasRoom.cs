@@ -8,7 +8,7 @@ using ZorkOne.Command;
 
 namespace ZorkOne.Location.CoalMineLocation;
 
-internal class GasRoom : DarkLocation, ITurnBasedActor
+internal class GasRoom : DarkLocation, ITurnBasedActor, IThiefMayVisit
 {
     public override string Name => "Gas Room";
 

@@ -4,7 +4,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-internal class NarrowPassage : DarkLocationWithNoStartingItems
+internal class NarrowPassage : DarkLocationWithNoStartingItems, IThiefMayVisit
 {
     public override string Name => "Narrow Passage";
 

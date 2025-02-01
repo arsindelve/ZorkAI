@@ -4,7 +4,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location.CoalMineLocation;
 
-internal class DeadEnd : DarkLocation
+internal class DeadEnd : DarkLocation, IThiefMayVisit
 {
     public override string Name => "Dead End";
 

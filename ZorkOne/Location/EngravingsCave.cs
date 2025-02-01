@@ -4,7 +4,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-public class EngravingsCave : DarkLocation
+public class EngravingsCave : DarkLocation, IThiefMayVisit
 {
     public override string Name => "Engravings Cave";
 

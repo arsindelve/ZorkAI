@@ -53,6 +53,16 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         return Items.Contains(Repository.GetItem<T>());
     }
 
+    /// <summary>
+    /// Determines if any item within the container, or the container itself, matches the specified noun.
+    /// </summary>
+    /// <param name="noun">The noun to match against items or the container.</param>
+    /// <param name="lookInsideContainers">
+    /// A flag indicating whether to look inside nested containers for a matching item.
+    /// </param>
+    /// <returns>
+    /// A tuple containing a boolean that indicates if a matching item was found, and the matching item, if any.
+    /// </returns>
     public override (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
         var hasMatch = NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
@@ -71,6 +81,11 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         return (false, null);
     }
 
+    /// <summary>
+    /// Determines whether the container has enough room for the specified item.
+    /// </summary>
+    /// <param name="item">The item to check for available space.</param>
+    /// <returns>True if the container has enough space for the item, otherwise false.</returns>
     public virtual bool HaveRoomForItem(IItem item)
     {
         return Items.Sum(s => s.Size) + item.Size <= SpaceForItems;
@@ -177,6 +192,10 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         return sb.ToString().TrimEnd();
     }
 
+    /// <summary>
+    /// Adds an item of type T to this container and sets its current location to the container.
+    /// </summary>
+    /// <typeparam name="T">The type of the item to add, which must inherit from ItemBase and have a parameterless constructor.</typeparam>
     protected void StartWithItemInside<T>() where T : ItemBase, new()
     {
         var item = Repository.GetItem<T>();

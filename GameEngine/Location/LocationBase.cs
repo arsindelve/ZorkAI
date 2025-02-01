@@ -22,6 +22,18 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         Items.Remove(item);
     }
 
+    /// <summary>
+    /// Determines if there is an item within the location that matches the specified noun and adjective.
+    /// </summary>
+    /// <param name="noun">The noun to search for that identifies the item.</param>
+    /// <param name="adjective">The adjective to match alongside the noun for further specificity.</param>
+    /// <param name="lookInsideContainers">
+    /// A flag indicating whether to include items within containers when performing the search.
+    /// </param>
+    /// <returns>
+    /// A tuple containing a boolean indicating whether a matching item was found, and the matching item itself
+    /// if one exists.
+    /// </returns>
     public (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective,
         bool lookInsideContainers = true)
     {
@@ -51,6 +63,9 @@ public abstract class LocationBase : ILocation, ICanHoldItems
     {
     }
 
+    /// <summary>
+    /// Retrieves a collection of all items contained within this location and, recursively, all items within any sub-containers.
+    /// </summary>
     [JsonIgnore]
     public List<IItem> GetAllItemsRecursively
     {
@@ -105,6 +120,9 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         return string.Join(", ", Items.Select(item => item.GenericDescription(this).Trim()));
     }
 
+    /// <summary>
+    /// Tracks the number of times the location has been entered.
+    /// </summary>
     [UsedImplicitly]
     public int VisitCount { get; set; }
 
@@ -116,6 +134,17 @@ public abstract class LocationBase : ILocation, ICanHoldItems
 
     public abstract string Name { get; }
 
+    /// <summary>
+    /// Determines if there is an item within the location that matches the specified noun.
+    /// </summary>
+    /// <param name="noun">The noun to search for that identifies the item.</param>
+    /// <param name="lookInsideContainers">
+    /// A flag indicating whether to include items within containers when performing the search.
+    /// </param>
+    /// <returns>
+    /// A tuple containing a boolean indicating whether a matching item was found, and the matching item itself
+    /// if one exists.
+    /// </returns>
     public (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
         if (lookInsideContainers)
@@ -129,12 +158,28 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         return (false, null);
     }
 
+    /// <summary>
+    /// Executes actions or triggers events that occur after entering a specific location.
+    /// </summary>
+    /// <param name="context">The contextual information related to the game environment or player state.</param>
+    /// <param name="previousLocation">The location from which the player is arriving.</param>
+    /// <param name="generationClient">The client used for dynamically generating content or behavior.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result is a string
+    /// which may describe information or outcomes from entering the location.
+    /// </returns>
     public virtual Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
         return Task.FromResult(string.Empty);
     }
 
+    /// <summary>
+    /// Handles behavior when leaving the current location to transition to a new location.
+    /// </summary>
+    /// <param name="context">The context in which the location change is occurring. This typically includes details about the actors and items involved.</param>
+    /// <param name="newLocation">The location to which the transition is being made.</param>
+    /// <param name="previousLocation">The location from which the transition is occurring.</param>
     public virtual void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
     {
     }
@@ -146,11 +191,22 @@ public abstract class LocationBase : ILocation, ICanHoldItems
             { Noun = string.Empty, Verb = input! });
     }
 
+    /// <summary>
+    /// Performs actions or triggers responses specific to waiting in the current location context.
+    /// </summary>
+    /// <param name="context">The contextual information related to the current state and environment of the location.</param>
     public virtual void OnWaiting(IContext context)
     {
         // Default, no unique action. 
     }
 
+    /// <summary>
+    /// Executes functionality that should occur immediately before entering a location. Can be overridden by subclasses
+    /// to implement location-specific behaviors.
+    /// </summary>
+    /// <param name="context">The context in which the location interaction is occurring, providing access to shared state and items.</param>
+    /// <param name="previousLocation">The location being exited or transitioned from before entering this location.</param>
+    /// <returns>A string message describing any events or outcomes triggered during the location transition.</returns>
     public virtual string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
         if (VisitCount == 0)
@@ -239,10 +295,21 @@ public abstract class LocationBase : ILocation, ICanHoldItems
 
     protected abstract string GetContextBasedDescription(IContext context);
 
+    /// <summary>
+    /// Executes custom logic when the location is entered for the first time.
+    /// </summary>
+    /// <param name="context">The context representing the state of the game or environment at the time of entry.</param>
     protected virtual void OnFirstTimeEnterLocation(IContext context)
     {
     }
 
+    /// <summary>
+    /// Adds an item of a specified type to the current location's inventory and sets its current location
+    /// to this location.
+    /// </summary>
+    /// <typeparam name="T">
+    /// The type of item to add, which must implement the <c>IItem</c> interface and have a parameterless constructor.
+    /// </typeparam>
     protected void StartWithItem<T>() where T : IItem, new()
     {
         var item = Repository.GetItem<T>();
@@ -271,6 +338,13 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         return Repository.GetItem<T>();
     }
 
+    /// <summary>
+    /// Generates descriptions for all items within the location.
+    /// </summary>
+    /// <returns>
+    /// A string representing the descriptions of all items, including specific details
+    /// for items that can be taken and those that cannot. If there are no items, an empty string is returned.
+    /// </returns>
     protected string GetItemDescriptions()
     {
         if (Items.Count == 0)

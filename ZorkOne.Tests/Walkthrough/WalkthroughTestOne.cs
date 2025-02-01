@@ -1,6 +1,4 @@
-﻿using NUnit.Framework;
-
-namespace ZorkOne.Tests.Walkthrough;
+﻿namespace ZorkOne.Tests.Walkthrough;
 
 [TestFixture]
 public sealed class WalkthroughTestOne : WalkthroughTestBase
@@ -70,7 +68,8 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("take sword", null, "Taken")]
     [TestCase("open trap door", null, "The door reluctantly opens")]
     [TestCase("Down", null, "faint blue glow")]
-    [TestCase("N", "KillTroll", "Bloodstains")]
+    [TestCase("N", null, "Bloodstains")]
+    [TestCase("kill the troll with the sword", null, "black fog envelops him")]
     [TestCase("drop sword", null, "Dropped")]
     [TestCase("E", null, "This is a narrow east-west passageway")]
     [TestCase(
@@ -481,7 +480,7 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("Ulysses", null, "name of his father's deadly nemesis, flees the room by knocking ")]
     [TestCase("Up", null, "Treasure Room")]
     [TestCase("score", null, "277")]
-    // TODO: give egg to thief
+    [TestCase("give the egg to the thief", null, "taken aback by your unexpected generosity")]
     [TestCase("Down", null, "Cyclops Room")]
     [TestCase("E", null, "Strange Passage", "On the east there is an old wooden door, with a")]
     [TestCase("E", null, "Living Room", "coffin", "emerald", "diamond")]
@@ -490,11 +489,13 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("take knife", null, "Taken")]
     [TestCase("W", null, "Strange Passage", "On the east there is an old wooden door, with a")]
     [TestCase("W", null, "Cyclops Room")]
-    // TODO: kill the thief and take his stuff
-    [TestCase("Up", "PutTheTorchHere", "Treasure Room")] // We left it behind earlier. He must have taken it.
-    [TestCase("take chalice", null, "Taken")]
+    [TestCase("Up", "PutTheTorchHere", "Treasure Room")] // We left it behind earlier. In the walkthrough this is based on, he must have taken it.
+    [TestCase("kill thief with knife", null, "black fog envelops him")]
     [TestCase("take torch", null, "Taken")]
-    [TestCase("score", null, "292")]
+    [TestCase("take chalice", null, "Taken")]
+    [TestCase("take egg", null, "Taken")]
+    [TestCase("take canary", null, "Taken")]
+    [TestCase("score", null, "298")]
     [TestCase("Down", null, "Cyclops Room")]
     [TestCase("NW", null, "Maze", "twisty little passages, all alike")]
     [TestCase("S", null, "Maze", "twisty little passages, all alike")]
@@ -519,22 +520,20 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("Up", null, "Up A Tree")]
     [TestCase(
         "wind canary",
-        "HaveOpenEgg",
+        null,
         "The canary chirps, slightly off-key, an aria from a forgotten opera"
     )]
     [TestCase("Down", null, "There is a beautiful brass bauble here")]
     [TestCase("take bauble", null, "Taken")]
-    [TestCase("score", null, "293")]
+    [TestCase("score", null, "299")]
     [TestCase("drop knife", null, "Dropped")]
     [TestCase("S", null, "North of House")]
     [TestCase("E", null, "Behind House")]
     [TestCase("W", null, "Kitchen")]
     [TestCase("W", null, "Living Room")]
     [TestCase("put bauble in case", null, "Done")]
-    [TestCase("score", null, "294")]
+    [TestCase("score", null, "300")]
     [TestCase("put chalice in case", null, "Done")]
-    [TestCase("score", null, "299")]
-    [TestCase("take canary", null, "Taken")]
     [TestCase("score", null, "305")]
     [TestCase("put canary in case", null, "Done")]
     [TestCase("score", null, "309")]
@@ -567,7 +566,7 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("S", null, "South of House")]
     [TestCase("W", null, "West Of House")]
     [TestCase("SW", null, "Stone Barrow")]
-    [TestCase("W", null, "Inside the Barrow", "test your skill and bravery", "350", "ZORK III")]
+    [TestCase("W", null, "Inside the Barrow", "test your skill and bravery", "350", "ZORK III")] 
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup))

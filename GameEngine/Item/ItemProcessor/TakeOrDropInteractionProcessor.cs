@@ -6,8 +6,25 @@ using Model.Location;
 
 namespace GameEngine.Item.ItemProcessor;
 
+/// <summary>
+/// The TakeOrDropInteractionProcessor class is responsible for managing interactions
+/// related to taking or dropping items within the game. It implements the IVerbProcessor
+/// interface to process specific user actions.
+/// This class provides functionality to handle the logic for dropping an item from the context,
+/// considering various conditions such as whether the item is worn or if it requires special
+/// handling based on the current location.
+/// </summary>
 public class TakeOrDropInteractionProcessor : IVerbProcessor
 {
+    /// <summary>
+    /// Processes interaction verbs, such as taking or dropping an item, based on the provided context and parameters.
+    /// </summary>
+    /// <param name="action">The action that contains the interaction verb to be processed.</param>
+    /// <param name="context">The context in which the interaction takes place, including information about the current state of the game or system.</param>
+    /// <param name="item">The target item that the action is being performed on.</param>
+    /// <param name="client">The generation client used for any additional logic or AI-driven interactions required during processing.</param>
+    /// <returns>An <see cref="InteractionResult"/> indicating the outcome of the interaction, or null if no valid action was processed.</returns>
+    /// <exception cref="Exception">Thrown when the item does not implement required interfaces for the action.</exception>
     InteractionResult? IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item,
         IGenerationClient client)
     {

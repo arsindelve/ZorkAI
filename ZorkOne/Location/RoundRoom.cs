@@ -4,7 +4,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-public class RoundRoom : DarkLocation
+public class RoundRoom : DarkLocation, IThiefMayVisit
 {
     public override string Name => "Round Room";
 

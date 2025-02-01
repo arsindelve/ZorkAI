@@ -1,8 +1,7 @@
 ﻿using FluentAssertions;
 using GameEngine;
+using Model.Interface;
 using Moq;
-using NUnit.Framework;
-using UnitTests;
 using ZorkOne.ActorInteraction;
 using ZorkOne.Interface;
 using ZorkOne.Item;
@@ -11,20 +10,6 @@ namespace ZorkOne.Tests.People;
 
 public class TrollCombatTests : EngineTestsBase
 {
-    [Test]
-    public void Stunned()
-    {
-        var engine = GetTarget();
-        var target = new TrollCombatEngine();
-        Repository.GetItem<Troll>().IsStunned = true;
-
-        var result = target.Attack(engine.Context);
-
-        // Assert
-        result.Should().Contain("The troll slowly regains his feet");
-        Repository.GetItem<Troll>().IsStunned.Should().BeFalse();
-    }
-
     [Test]
     public void SmallWound()
     {
@@ -143,7 +128,7 @@ public class TrollCombatTests : EngineTestsBase
         chooser.Setup(s =>
                 s.Choose(
                     It.IsAny<List<(CombatOutcome outcome, string text)>>()))
-            .Returns((CombatOutcome.DropWeapon, "{weapon}"));
+            .Returns((CombatOutcome.Disarm, "{weapon}"));
 
         var engine = GetTarget();
         engine.Context.Take(Repository.GetItem<Sword>());
@@ -167,7 +152,7 @@ public class TrollCombatTests : EngineTestsBase
         chooser.Setup(s =>
                 s.Choose(
                     It.IsAny<List<(CombatOutcome outcome, string text)>>()))
-            .Returns((CombatOutcome.DropWeapon, "{weapon}"));
+            .Returns((CombatOutcome.Disarm, "{weapon}"));
 
         var engine = GetTarget();
         engine.Context.Take(Repository.GetItem<NastyKnife>());

@@ -3,7 +3,7 @@ using Model.Interface;
 
 namespace ZorkOne.Location.CoalMineLocation;
 
-internal abstract class CoalMine : DarkLocationWithNoStartingItems
+internal abstract class CoalMine : DarkLocationWithNoStartingItems, IThiefMayVisit
 {
     public override string Name => "Coal Mine";
 

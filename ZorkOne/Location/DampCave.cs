@@ -4,7 +4,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location;
 
-public class DampCave : DarkLocation
+public class DampCave : DarkLocation, IThiefMayVisit
 {
     public override string Name => "Damp Cave";
 
