@@ -1,10 +1,9 @@
 using Model;
 using Model.AIGeneration;
 using Planetfall.Item.Kalamontee.Admin;
-using Planetfall.Location;
 using Utilities;
 
-namespace Planetfall.Item.Mech;
+namespace Planetfall.Item.Kalamontee.Mech;
 
 public class Floyd : QuirkyCompanion, IAmANamedPerson
 {
@@ -49,7 +48,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
         StartWithItemInside<LowerElevatorAccessCard>();
     }
 
-    public override string PreparePrompt(string userPrompt)
+    protected override string PreparePrompt(string userPrompt)
     {
         // If we don't do this, Floyd will believe, from the location description, that there is another robot in the room
         // when in fact it is him! 

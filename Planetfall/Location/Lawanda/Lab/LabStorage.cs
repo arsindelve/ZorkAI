@@ -1,8 +1,8 @@
 using GameEngine.Location;
 using Model.Movement;
-using Planetfall.Item.Lawanda;
+using Planetfall.Item.Lawanda.Lab;
 
-namespace Planetfall.Location.Lawanda;
+namespace Planetfall.Location.Lawanda.Lab;
 
 internal class LabStorage : LocationBase
 {

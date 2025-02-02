@@ -1,6 +1,6 @@
 using GameEngine.Location;
 using Model.AIGeneration;
-using Planetfall.Item.Mech;
+using Planetfall.Item.Kalamontee.Mech;
 
 namespace Planetfall.Location;
 

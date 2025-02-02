@@ -1,7 +1,7 @@
 using Model.AIGeneration;
 using Model.Movement;
 using Planetfall.Item.Kalamontee.Admin;
-using Planetfall.Item.Mech;
+using Planetfall.Item.Kalamontee.Mech;
 
 namespace Planetfall.Location.Kalamontee;
 

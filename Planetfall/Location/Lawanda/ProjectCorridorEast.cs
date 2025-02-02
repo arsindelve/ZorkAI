@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.Movement;
+using Planetfall.Location.Lawanda.Lab;
 
 namespace Planetfall.Location.Lawanda;
 

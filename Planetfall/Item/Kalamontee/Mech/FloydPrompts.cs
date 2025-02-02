@@ -1,4 +1,4 @@
-namespace Planetfall.Item.Mech;
+namespace Planetfall.Item.Kalamontee.Mech;
 
 internal static class FloydPrompts
 {

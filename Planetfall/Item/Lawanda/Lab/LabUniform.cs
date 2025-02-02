@@ -1,4 +1,4 @@
-namespace Planetfall.Item.Lawanda;
+namespace Planetfall.Item.Lawanda.Lab;
 
 public class LabUniform : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeExamined, IAmClothing
 {

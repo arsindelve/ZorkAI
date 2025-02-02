@@ -36,7 +36,7 @@ public abstract class QuirkyCompanion : ContainerBase, ITurnBasedActor
 
     public abstract Task<string> Act(IContext context, IGenerationClient client);
 
-    public virtual string PreparePrompt(string userPrompt)
+    protected virtual string PreparePrompt(string userPrompt)
     {
         return userPrompt;
     }
