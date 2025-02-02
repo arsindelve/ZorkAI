@@ -8,6 +8,8 @@ namespace GameEngine.IntentEngine;
 
 public class MoveEngine : IIntentEngine
 {
+    internal IRandomChooser _chooser = new RandomChooser();
+    
     public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {
         // TODO: Move from a dark location to another dark location and you die. 
@@ -60,7 +62,7 @@ public class MoveEngine : IIntentEngine
 
         var request =
             new CannotGoThatWayRequest(context.CurrentLocation.GetDescriptionForGeneration(context), direction);
-        var result = await generationClient.GenerateNarration(request);
+        var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum);
         return result;
     }
 }
