@@ -22,6 +22,6 @@ public class CurrentTimeProcessor : IGlobalCommand
     {
         if (context is ITimeBasedContext timeContext) return timeContext.CurrentTimeResponse;
 
-        return await client.GenerateNarration(new AskedForCurrentTimeRequest());
+        return await client.GenerateNarration(new AskedForCurrentTimeRequest(), context.SystemPromptAddendum);
     }
 }

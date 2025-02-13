@@ -459,14 +459,14 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             context.CurrentLocation.GetDescriptionForGeneration(context),
             input
         );
-        var result = await generationClient.GenerateNarration(request);
+        var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum);
         return result + Environment.NewLine;
     }
 
     private async Task<string> GetGeneratedNoCommandResponse()
     {
         var request = new EmptyRequest();
-        var result = await GenerationClient.GenerateNarration(request);
+        var result = await GenerationClient.GenerateNarration(request, String.Empty);
         return result;
     }
 

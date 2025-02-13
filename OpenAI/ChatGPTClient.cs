@@ -30,12 +30,13 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
     ///     Completes a chat conversation using the OpenAI API.
     /// </summary>
     /// <param name="request">The request object containing the system and user messages for the chat conversation.</param>
+    /// <param name="systemPromptAddendum"></param>
     /// <returns>The generated response message from the chat conversation.</returns>
-    public async Task<string> GenerateNarration(Request request)
+    public async Task<string> GenerateNarration(Request request, string systemPromptAddendum)
     {
         Logger?.LogDebug($"Sending request of type: {request.GetType().Name} ");
 
-        var chatCompletionsOptions = GetChatCompletionsOptions(SystemPrompt);
+        var chatCompletionsOptions = GetChatCompletionsOptions(SystemPrompt + systemPromptAddendum, request.Temperature);
 
         var reverse = LastFiveInputOutputs.ToList();
         reverse.Reverse();
@@ -57,26 +58,35 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
         var responseMessage = response.Value.Choices[0].Message;
 
         OnGenerate?.Invoke();
-
-        if (!string.IsNullOrEmpty(request.UserMessage))
-            CloudWatchLogger?.WriteLogEvents(new GenerationLog
-            {
-                LanguageModel = DeploymentName,
-                Prompt = request.UserMessage,
-                Response = responseMessage.Content,
-                TurnCorrelationId = TurnCorrelationId.ToString()
-            });
+        Log(request, responseMessage, SystemPrompt + systemPromptAddendum);
 
         return responseMessage.Content;
     }
 
+    private void Log(Request request, ChatResponseMessage responseMessage, string systemMessage)
+    {
+        if (!string.IsNullOrEmpty(request.UserMessage))
+            CloudWatchLogger?.WriteLogEvents(new GenerationLog
+            {
+                SystemPrompt = systemMessage,
+                Temperature = request.Temperature,
+                LanguageModel = DeploymentName,
+                UserPrompt = request.UserMessage,
+                Response = responseMessage.Content,
+                TurnCorrelationId = TurnCorrelationId.ToString()
+            });
+    }
+
     public async Task<string> GenerateCompanionSpeech(CompanionRequest request)
     {
-        var chatCompletionsOptions = GetChatCompletionsOptions(request.SystemMessage);
+        var chatCompletionsOptions = GetChatCompletionsOptions(request.SystemMessage, request.Temperature);
         chatCompletionsOptions.Messages.Add(new ChatRequestUserMessage(request.UserMessage));
 
         Response<ChatCompletions> response = await Client.GetChatCompletionsAsync(chatCompletionsOptions);
         var responseMessage = response.Value.Choices[0].Message;
+        
+        Log(request, responseMessage, request.SystemMessage);
+
         return responseMessage.Content;
     }
 }

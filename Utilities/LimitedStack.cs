@@ -24,6 +24,12 @@ public class LimitedStack<T>
         return _list.ToList();
     }
 
+    public override string ToString()
+    {
+        // Reverse the LinkedList, enumerate with indexes, and format each line with numbers.
+        return string.Join("\n", _list.Reverse().Select((item, index) => $"{index + 1}: {item}"));
+    }
+
     public T? Peek()
     {
         if (_list.Count == 0)

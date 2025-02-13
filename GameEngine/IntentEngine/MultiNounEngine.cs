@@ -31,7 +31,7 @@ public class MultiNounEngine : IIntentEngine
         var requireDisambiguation = CheckDisambiguation(interaction, context, interaction.MatchNounOne);
         if (requireDisambiguation is not null)
             return (requireDisambiguation, requireDisambiguation.InteractionMessage);
-
+        
         requireDisambiguation = CheckDisambiguation(interaction, context, interaction.MatchNounTwo);
         if (requireDisambiguation is not null)
             return (requireDisambiguation, requireDisambiguation.InteractionMessage);
@@ -142,15 +142,13 @@ public class MultiNounEngine : IIntentEngine
             return result;
 
         return
-            (context.CurrentLocation.GetDescriptionForGeneration(context).ToLower().Contains(item.ToLowerInvariant()),
-                null);
+            (context.CurrentLocation.GetDescriptionForGeneration(context).ToLower().Contains(item.ToLowerInvariant()), null);
     }
 
     private async Task<string> GetGeneratedVerbNotUsefulResponse(MultiNounIntent interaction,
         IGenerationClient generationClient, IContext context)
     {
-        Request request = new VerbHasNoEffectMultiNounOperationRequest(
-            context.CurrentLocation.GetDescriptionForGeneration(context),
+        Request request = new VerbHasNoEffectMultiNounOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context),
             interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb);
 
         if (interaction.ItemOne is IAmANamedPerson personOne)
@@ -165,7 +163,7 @@ public class MultiNounEngine : IIntentEngine
                 interaction.NounOne, interaction.NounTwo, interaction.Preposition, interaction.Verb,
                 personTwo.ExaminationDescription);
 
-        var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
+        var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum) + Environment.NewLine;
         return result;
     }
 
@@ -188,7 +186,7 @@ public class MultiNounEngine : IIntentEngine
                     : string.Empty
             };
 
-        var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
+        var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum) + Environment.NewLine;
         return result;
     }
 
@@ -197,7 +195,7 @@ public class MultiNounEngine : IIntentEngine
     {
         var request =
             new CommandHasNoEffectOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), input);
-        var result = await generationClient.GenerateNarration(request) + Environment.NewLine;
+        var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum) + Environment.NewLine;
         return result;
     }
 
@@ -206,15 +204,15 @@ public class MultiNounEngine : IIntentEngine
     {
         var ambiguousItems = new List<IItem>();
 
-        var allItemsInLocation = (context.CurrentLocation as ICanHoldItems)?.GetAllItemsRecursively;
+        List<IItem>? allItemsInLocation = (context.CurrentLocation as ICanHoldItems)?.GetAllItemsRecursively;
         if (allItemsInLocation is null)
             return null;
-
+        
         IEnumerable<IItem> allItemsInSight =
             context.GetAllItemsRecursively
                 .Union(allItemsInLocation)
                 .ToList();
-
+        
         foreach (var item in allItemsInSight)
             if (matchFunction(item.NounsForMatching))
                 ambiguousItems.Add(item);

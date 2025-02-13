@@ -21,7 +21,7 @@ public class SaveProcessorTests
         var target = new SaveProcessor(Mock.Of<ISaveGameWriter>());
 
         var client = new Mock<IGenerationClient>();
-        client.Setup(s => s.GenerateNarration(It.IsAny<BeforeSaveGameRequest>()))
+        client.Setup(s => s.GenerateNarration(It.IsAny<BeforeSaveGameRequest>(), It.IsAny<string>()))
             .ReturnsAsync("shelly");
 
         var context = Mock.Of<IContext>(c => c.Game.DefaultSaveGameName == "bobby");
@@ -44,7 +44,7 @@ public class SaveProcessorTests
         var target = new SaveProcessor(Mock.Of<ISaveGameWriter>());
 
         var client = new Mock<IGenerationClient>();
-        client.Setup(s => s.GenerateNarration(It.IsAny<BeforeSaveGameRequest>()))
+        client.Setup(s => s.GenerateNarration(It.IsAny<BeforeSaveGameRequest>(), It.IsAny<string>()))
             .ReturnsAsync("shelly");
 
         var context = Mock.Of<IContext>(c => c.Game.DefaultSaveGameName == "bobby");
@@ -69,9 +69,9 @@ public class SaveProcessorTests
         var target = new SaveProcessor(writer);
 
         var client = new Mock<IGenerationClient>();
-        client.Setup(s => s.GenerateNarration(It.IsAny<BeforeSaveGameRequest>()))
+        client.Setup(s => s.GenerateNarration(It.IsAny<BeforeSaveGameRequest>(), It.IsAny<string>()))
             .ReturnsAsync("shelly");
-        client.Setup(s => s.GenerateNarration(It.IsAny<AfterSaveGameRequest>()))
+        client.Setup(s => s.GenerateNarration(It.IsAny<AfterSaveGameRequest>(), It.IsAny<string>()))
             .ReturnsAsync("karen");
 
         var engine = Mock.Of<IGameEngine>(s => s.SaveGame() == "fred");
@@ -99,9 +99,9 @@ public class SaveProcessorTests
         var target = new SaveProcessor(writer);
 
         var client = new Mock<IGenerationClient>();
-        client.Setup(s => s.GenerateNarration(It.IsAny<BeforeSaveGameRequest>()))
+        client.Setup(s => s.GenerateNarration(It.IsAny<BeforeSaveGameRequest>(), It.IsAny<string>()))
             .ReturnsAsync("shelly");
-        client.Setup(s => s.GenerateNarration(It.IsAny<AfterSaveGameRequest>()))
+        client.Setup(s => s.GenerateNarration(It.IsAny<AfterSaveGameRequest>(), It.IsAny<string>()))
             .ReturnsAsync("karen");
 
         var engine = Mock.Of<IGameEngine>(s => s.SaveGame() == "fred");
@@ -130,11 +130,11 @@ public class SaveProcessorTests
         var target = new SaveProcessor(writer);
 
         var client = new Mock<IGenerationClient>();
-        client.Setup(s => s.GenerateNarration(It.IsAny<BeforeSaveGameRequest>()))
+        client.Setup(s => s.GenerateNarration(It.IsAny<BeforeSaveGameRequest>(), It.IsAny<string>()))
             .ReturnsAsync("shelly");
-        client.Setup(s => s.GenerateNarration(It.IsAny<AfterSaveGameRequest>()))
+        client.Setup(s => s.GenerateNarration(It.IsAny<AfterSaveGameRequest>(), It.IsAny<string>()))
             .ReturnsAsync("karen");
-        client.Setup(s => s.GenerateNarration(It.IsAny<SaveFailedUnknownReasonGameRequest>()))
+        client.Setup(s => s.GenerateNarration(It.IsAny<SaveFailedUnknownReasonGameRequest>(), It.IsAny<string>()))
             .ReturnsAsync("frank");
 
         var engine = Mock.Of<IGameEngine>(s => s.SaveGame() == "fred");

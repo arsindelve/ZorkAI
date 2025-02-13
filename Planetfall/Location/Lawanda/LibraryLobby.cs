@@ -4,7 +4,7 @@ using Planetfall.Item.Lawanda.Library.Computer;
 
 namespace Planetfall.Location.Lawanda;
 
-public class LibraryLobby : LocationBase
+internal class LibraryLobby : LocationBase
 {
     public override string Name => "Library Lobby";
 
@@ -13,7 +13,9 @@ public class LibraryLobby : LocationBase
         return new Dictionary<Direction, MovementParameters>
         {
             { Direction.Up, Go<Library>() },
-            { Direction.W, Go<Library>() }
+            { Direction.W, Go<Library>() },
+            { Direction.N, Go<SystemsCorridorEast>() },
+            { Direction.S, Go<ProjectCorridorEast>() }
         };
     }
 

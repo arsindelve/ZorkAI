@@ -7,8 +7,7 @@ namespace GameEngine.IntentEngine;
 
 internal class ExitSubLocationEngine : IIntentEngine
 {
-    public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent,
-        IContext context, IGenerationClient generationClient)
+    public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {
         if (intent is not ExitSubLocationIntent exit)
             throw new ArgumentException("Cast error");
@@ -45,8 +44,8 @@ internal class ExitSubLocationEngine : IIntentEngine
     private async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient, IContext context,
         string noun)
     {
-        var request = new CannotExitSubLocationRequest(context.CurrentLocation.GetDescription(context), noun);
-        var result = await generationClient.GenerateNarration(request);
+        var request = new CannotExitSubLocationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), noun);
+        var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum);
         return result;
     }
 }
