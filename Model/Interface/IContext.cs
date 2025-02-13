@@ -18,6 +18,13 @@ namespace Model.Interface;
 public interface IContext : ICanHoldItems
 {
     /// <summary>
+    /// Sometimes, a major event in the game will change the circumstances so drastically that we need to update the
+    /// system prompt with this new information. For example, after the explosion of the Feinstein in Planetfall, we no
+    /// longer want the AI to think the player is in space. 
+    /// </summary>
+    string SystemPromptAddendum { get; set; } 
+    
+    /// <summary>
     ///     Represents adventurer's current score.
     /// </summary>
     int Score { get; }

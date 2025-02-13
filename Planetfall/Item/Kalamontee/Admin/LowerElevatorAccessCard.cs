@@ -6,7 +6,7 @@ public class LowerElevatorAccessCard : ElevatorAccessCard, ICanBeExamined, ICanB
     public override string[] NounsForMatching =>
     [
         "lower elevator access card", "elevator access card", "card", "lower", "elevator", "lower card",
-        "lower elevator", "access card", "lower elevator card", "lower elevator access"
+        "lower elevator", "access card", "lower elevator card", "lower elevator access", "lower access card"
     ];
 
     public string ExaminationDescription => "The card is embossed \"loowur elivaatur akses kard.\"";

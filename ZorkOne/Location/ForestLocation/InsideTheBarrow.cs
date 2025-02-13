@@ -31,7 +31,7 @@ public class InsideTheBarrow : LocationWithNoStartingItems
     public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
         IGenerationClient client)
     {
-        var response = await client.GenerateNarration(new WonTheGameRequest());
+        var response = await client.GenerateNarration(new WonTheGameRequest(), context.SystemPromptAddendum);
         return new PositiveInteractionResult(response);
     }
 

@@ -13,7 +13,6 @@ public class CardTests : EngineTestsBase
         var engine = GetTarget();
         var room = Repository.GetLocation<MessHall>();
         engine.Context.ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
-        engine.Context.ItemPlacedHere(Repository.GetItem<ShuttleAccessCard>());
 
         engine.Context.CurrentLocation = room;
 

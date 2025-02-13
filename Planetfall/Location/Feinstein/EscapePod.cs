@@ -65,6 +65,7 @@ internal class EscapePod : LocationBase, ITurnBasedActor
 
     public byte TurnsAfterStanding { get; set; }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public ILocation WhereDoesTheDoorLead { get; set; } = Repository.GetLocation<DeckNine>();
 
     public override string Name => "Escape Pod";
@@ -219,6 +220,10 @@ internal class EscapePod : LocationBase, ITurnBasedActor
                 break;
 
             case 3:
+                context.SystemPromptAddendum =
+                    "The Feinstein has exploded from an unknown accident, and the player is now hurtling through space " +
+                    "in a fully automated escape pod, looking for a place to land. ";
+                
                 action = "You feel the pod begin to slide down its ejection tube as explosions shake the mother ship. ";
                 break;
 
@@ -318,9 +323,6 @@ internal class EscapePod : LocationBase, ITurnBasedActor
 // This is one of the Feinstein's primary escape pods, for use in extreme emergencies. A mass of safety webbing, large enough to hold several dozen people, fills half the pod. The controls are entirely automated. The bulkhead leading out is closed.
 //     There is a towel here. (outside the safety web)
 // There is a survival kit here. (outside the safety web)
-//
-//     >examine web
-//     The safety webbing fills most of the pod. It could accomodate from one to, perhaps, twenty people.
 //
 //     >examine kit
 // The survival kit is closed.

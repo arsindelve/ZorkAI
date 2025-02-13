@@ -15,7 +15,8 @@ internal class CorridorJunction : LocationWithNoStartingItems
         {
             { Direction.W, Go<DormCorridor>() },
             { Direction.S, Go<MechCorridorNorth>() },
-            { Direction.N, Go<AdminCorridorSouth>() }
+            { Direction.N, Go<AdminCorridorSouth>() },
+            { Direction.E, Go<ElevatorLobby>() }
         };
     }
 

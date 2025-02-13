@@ -27,7 +27,7 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Client.Setup(s => s.GenerateNarration(It.IsAny<EmptyRequest>())).ReturnsAsync("BOB");
+        Client.Setup(s => s.GenerateNarration(It.IsAny<EmptyRequest>(), string.Empty)).ReturnsAsync("BOB");
 
         // Act
         var result = await target.GetResponse("");
@@ -41,7 +41,7 @@ public class EngineTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Client.Setup(s => s.GenerateNarration(It.IsAny<EmptyRequest>())).ReturnsAsync("BOB");
+        Client.Setup(s => s.GenerateNarration(It.IsAny<EmptyRequest>(), String.Empty)).ReturnsAsync("BOB");
 
         // Act
         var result = await target.GetResponse(null);
@@ -60,19 +60,6 @@ public class EngineTests : EngineTestsBase
 
         // Assert
         result.Should().Contain("South of House");
-    }
-
-    [Test]
-    [Ignore("Dynamic now")]
-    public async Task Move_Simple_CantGoThatWay()
-    {
-        var target = GetTarget();
-
-        // Act
-        var result = await target.GetResponse("NW");
-
-        // Assert
-        result.Should().Contain("You cannot go that way.");
     }
 
     [Test]
@@ -101,7 +88,7 @@ public class EngineTests : EngineTestsBase
                 s.GenerateNarration(
                     It.Is<CommandHasNoEffectOperationRequest>(m =>
                         m.UserMessage != null && m.UserMessage.Contains("BOB")
-                    )
+                    ), string.Empty
                 )
             )
             .ReturnsAsync("FRED");
@@ -152,7 +139,7 @@ public class EngineTests : EngineTestsBase
                 s.GenerateNarration(
                     It.Is<VerbHasNoEffectOperationRequest>(m =>
                         m.UserMessage != null && m.UserMessage.Contains("mailbox")
-                    )
+                    ), string.Empty
                 )
             )
             .ReturnsAsync("no");
@@ -213,7 +200,7 @@ public class EngineTests : EngineTestsBase
                 s.GenerateNarration(
                     It.Is<VerbHasNoEffectOperationRequest>(m =>
                         m.UserMessage != null && m.UserMessage.Contains("leaflet")
-                    )
+                    ), It.IsAny<string>()
                 )
             )
             .ReturnsAsync("no");
@@ -250,7 +237,7 @@ public class EngineTests : EngineTestsBase
                 s.GenerateNarration(
                     It.Is<NounNotPresentOperationRequest>(m =>
                         m.UserMessage != null && m.UserMessage.Contains("leaflet")
-                    )
+                    ), It.IsAny<string>()
                 )
             )
             .ReturnsAsync("no");
@@ -286,7 +273,7 @@ public class EngineTests : EngineTestsBase
                 s.GenerateNarration(
                     It.Is<CommandHasNoEffectOperationRequest>(m =>
                         m.UserMessage != null && m.UserMessage.Contains("unicorn")
-                    )
+                    ), It.IsAny<string>()
                 )
             )
             .ReturnsAsync("no");
@@ -328,7 +315,7 @@ public class EngineTests : EngineTestsBase
                 s.GenerateNarration(
                     It.Is<CommandHasNoEffectOperationRequest>(m =>
                         m.UserMessage != null && m.UserMessage.Contains("go east")
-                    )
+                    ), It.IsAny<string>()
                 )
             )
             .ReturnsAsync("no");
@@ -484,7 +471,7 @@ public class EngineTests : EngineTestsBase
             );
 
         Client
-            .Setup(s => s.GenerateNarration(It.IsAny<CommandHasNoEffectOperationRequest>()))
+            .Setup(s => s.GenerateNarration(It.IsAny<CommandHasNoEffectOperationRequest>(), It.IsAny<string>()))
             .ReturnsAsync("bob");
 
         var result = await target.GetResponse("dig hole with shovel");

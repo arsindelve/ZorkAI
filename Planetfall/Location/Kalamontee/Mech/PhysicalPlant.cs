@@ -1,11 +1,16 @@
 using GameEngine.Location;
 using Model.Movement;
+using Planetfall.Item.Kalamontee.Mech;
 
 namespace Planetfall.Location.Kalamontee.Mech;
 
-internal class PhysicalPlant : LocationWithNoStartingItems
+internal class PhysicalPlant : FloydSpecialInteractionLocation
 {
     public override string Name => "Physical Plant";
+
+    public override void Init()
+    {
+    }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
@@ -23,4 +28,6 @@ internal class PhysicalPlant : LocationWithNoStartingItems
             "catwalks and is filled with heavy equipment presumably intended to heat and ventilate this complex. Hardly " +
             "any of the equipment is still operating.";
     }
+
+    public override string FloydPrompt => FloydPrompts.PhysicalPlant;
 }

@@ -12,13 +12,13 @@ internal class VerbosityProcessor : ISystemCommand
         {
             case "verbose":
                 context.Verbosity = Verbosity.Verbose;
-                return await client.GenerateNarration(new MaximumVerbosityRequest());
+                return await client.GenerateNarration(new MaximumVerbosityRequest(), context.SystemPromptAddendum);
             case "brief":
                 context.Verbosity = Verbosity.Brief;
-                return await client.GenerateNarration(new MediumVerbosityRequest());
+                return await client.GenerateNarration(new MediumVerbosityRequest(), context.SystemPromptAddendum);
             case "superbrief":
                 context.Verbosity = Verbosity.SuperBrief;
-                return await client.GenerateNarration(new MinimumVerbosityRequest());
+                return await client.GenerateNarration(new MinimumVerbosityRequest(), context.SystemPromptAddendum);
         }
 
         throw new ArgumentOutOfRangeException();

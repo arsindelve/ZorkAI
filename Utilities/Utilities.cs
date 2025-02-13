@@ -36,6 +36,24 @@ public static class Utilities
 
         return sb.ToString();
     }
+    
+    /// <summary>
+    /// Returns a random element from the list.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the list.</typeparam>
+    /// <param name="list">The list from which to select a random element.</param>
+    /// <returns>A random element from the list.</returns>
+    /// <exception cref="ArgumentException">Thrown if the list is null or empty.</exception>
+    public static T GetRandomElement<T>(this IList<T> list)
+    {
+        if (list == null || list.Count == 0)
+        {
+            throw new ArgumentException("List cannot be null or empty");
+        }
+
+        int index = new Random().Next(list.Count); // Generate a random index.
+        return list[index]; // Return the element at the random index.
+    }
 
     /// <summary>
     /// Removes all non-alphabetic characters and retains only letters and whitespace from the input string.

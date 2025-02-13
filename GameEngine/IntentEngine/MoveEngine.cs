@@ -8,24 +8,22 @@ namespace GameEngine.IntentEngine;
 
 public class MoveEngine : IIntentEngine
 {
-    private readonly IRandomChooser _chooser = new RandomChooser();
+    internal IRandomChooser Chooser => new RandomChooser();
     
-    public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent,
-        IContext context, IGenerationClient generationClient)
+    public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {
         // TODO: Move from a dark location to another dark location and you die. 
 
         if (intent is not MoveIntent moveTo)
             throw new ArgumentException("Cast error");
-
+        
         context.LastMovementDirection = moveTo.Direction;
-
-        var movement = context.CurrentLocation.Navigate(moveTo.Direction, context);
+        
+        MovementParameters? movement = context.CurrentLocation.Navigate(moveTo.Direction, context);
 
         if (movement == null)
-            return (null,
-                await GetGeneratedCantGoThatWayResponse(generationClient, moveTo.Direction.ToString(), context));
-
+            return (null, await GetGeneratedCantGoThatWayResponse(generationClient, moveTo.Direction.ToString(), context));
+        
         if (movement.WeightLimit < context.CarryingWeight)
             return (null, movement.WeightLimitFailureMessage);
 
@@ -36,12 +34,11 @@ public class MoveEngine : IIntentEngine
 
         // Let's reset the noun context, so we don't get confused with "it" between locations
         context.LastNoun = "";
-
+        
         return (null, await Go(context, generationClient, movement));
     }
 
-    public static async Task<string> Go(IContext context, IGenerationClient generationClient,
-        MovementParameters movement)
+    public static async Task<string> Go(IContext context, IGenerationClient generationClient, MovementParameters movement)
     {
         var previousLocation = context.CurrentLocation;
         context.CurrentLocation.OnLeaveLocation(context, movement.Location!, previousLocation);
@@ -60,12 +57,12 @@ public class MoveEngine : IIntentEngine
     {
         // 20% of the time, let's generate a response. Otherwise, give the standard response
 
-        if (!_chooser.RollDice(5))
+        if (!Chooser.RollDice(5))
             return "You cannot go that way. ";
 
         var request =
             new CannotGoThatWayRequest(context.CurrentLocation.GetDescriptionForGeneration(context), direction);
-        var result = await generationClient.GenerateNarration(request);
+        var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum);
         return result;
     }
 }

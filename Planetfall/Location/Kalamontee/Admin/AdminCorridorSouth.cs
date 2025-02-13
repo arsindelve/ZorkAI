@@ -2,7 +2,7 @@ using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Movement;
 using Planetfall.Item.Kalamontee.Admin;
-using Planetfall.Item.Mech;
+using Planetfall.Item.Kalamontee.Mech;
 
 namespace Planetfall.Location.Kalamontee.Admin;
 
@@ -25,7 +25,7 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
 
         if (chance == 0)
             return Task.FromResult(
-                "You catch, out of the corner of your eye, a glint of light from the direction of the floor. ");
+                "\n\nYou catch, out of the corner of your eye, a glint of light from the direction of the floor. ");
 
         return Task.FromResult(string.Empty);
     }

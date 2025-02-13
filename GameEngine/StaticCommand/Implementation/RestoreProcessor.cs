@@ -28,7 +28,7 @@ internal class RestoreProcessor : IStatefulProcessor
     {
         if (runtime == Runtime.Web)
             return "<Restore>";
-
+        
         if (!_havePromptedForFilename) return await PromptForFilename(context, client);
         if (context.Engine is not null) return await AttemptTheRestore(input, context, client);
 
@@ -54,19 +54,18 @@ internal class RestoreProcessor : IStatefulProcessor
             var newContext = await RestoreGame(context.Engine!);
             var generatedResponse =
                 await client.GenerateNarration(
-                    new AfterRestoreGameRequest(newContext.CurrentLocation.GetDescriptionForGeneration(context)));
-            return $"{generatedResponse}\n\n{newContext.CurrentLocation.GetDescription(context)}";
+                    new AfterRestoreGameRequest(newContext.CurrentLocation.GetDescriptionForGeneration(context)), context.SystemPromptAddendum);
+            return $"{generatedResponse}\n\n{newContext.CurrentLocation.GetDescriptionForGeneration(context)}";
         }
         catch (FileNotFoundException)
         {
             return await client.GenerateNarration(
-                new RestoreFailedFileNotFoundGameRequest(context.CurrentLocation.GetDescriptionForGeneration(context)));
+                new RestoreFailedFileNotFoundGameRequest(context.CurrentLocation.GetDescriptionForGeneration(context)), context.SystemPromptAddendum);
         }
         catch (Exception)
         {
             return await client.GenerateNarration(
-                new RestoreFailedUnknownReasonGameRequest(
-                    context.CurrentLocation.GetDescriptionForGeneration(context)));
+                new RestoreFailedUnknownReasonGameRequest(context.CurrentLocation.GetDescriptionForGeneration(context)), context.SystemPromptAddendum);
         }
     }
 
@@ -76,7 +75,7 @@ internal class RestoreProcessor : IStatefulProcessor
         _havePromptedForFilename = true;
         var generatedResponse =
             await client.GenerateNarration(
-                new BeforeRestoreGameRequest(context.CurrentLocation.GetDescriptionForGeneration(context)));
+                new BeforeRestoreGameRequest(context.CurrentLocation.GetDescriptionForGeneration(context)), context.SystemPromptAddendum);
 
         return
             $"{generatedResponse}\n\nEnter a file name.\nDefault " +

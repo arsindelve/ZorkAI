@@ -21,14 +21,15 @@ public abstract class OpenAIClientBase
 
     protected abstract string DeploymentName { get; }
 
-    protected ChatCompletionsOptions GetChatCompletionsOptions(string? systemPrompt)
+    protected ChatCompletionsOptions GetChatCompletionsOptions(string? message, float temperature)
     {
         return new ChatCompletionsOptions
         {
+            Temperature = temperature,
             DeploymentName = DeploymentName,
             Messages =
             {
-                new ChatRequestSystemMessage(systemPrompt)
+                new ChatRequestSystemMessage(message)
             }
         };
     }
