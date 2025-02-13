@@ -17,7 +17,7 @@ internal class BioLockWest : LocationBase
 
     public override void Init()
     {
-        StartWithItem<BioLockDoor>();
+        StartWithItem<BioLockOuterDoor>();
     }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
@@ -29,7 +29,7 @@ internal class BioLockWest : LocationBase
                 Direction.W,
                 new MovementParameters
                 {
-                    CanGo = _ => GetItem<BioLockDoor>().IsOpen, CustomFailureMessage = "The bio-lock door is closed. ",
+                    CanGo = _ => GetItem<BioLockOuterDoor>().IsOpen, CustomFailureMessage = "The bio-lock door is closed. ",
                     Location = GetLocation<MainLab>()
                 }
             }

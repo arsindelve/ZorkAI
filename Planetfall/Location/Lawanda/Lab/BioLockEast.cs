@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.Movement;
+using Planetfall.Item.Lawanda.Lab;
 
 namespace Planetfall.Location.Lawanda.Lab;
 
@@ -9,11 +10,8 @@ internal class BioLockEast : LocationBase
 
     public override void Init()
     {
-        throw new NotImplementedException();
+        StartWithItem<BioLockInnerDoor>();
     }
-
-    // Opening the door reveals a Bio-Lab full of horrible mutations. You stare at them, frozen with horror. Growling with hunger
-    // and delight, the mutations march into the bio-lock and devour you.
     
     //>look through window
     // You can see a large laboratory, dimly illuminated. A blue glow comes from a crack in the northern wall of the lab. Shadowy,

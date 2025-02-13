@@ -1,6 +1,6 @@
 namespace Planetfall.Item.Lawanda.Lab;
 
-internal abstract class LabLockDoor : ItemBase, IOpenAndClose, ICanBeExamined
+internal abstract class SimpleDoor : ItemBase, IOpenAndClose, ICanBeExamined
 {
     public override string[] NounsForPreciseMatching => NounsForMatching.Except(["door"]).ToArray();
 
@@ -18,13 +18,13 @@ internal abstract class LabLockDoor : ItemBase, IOpenAndClose, ICanBeExamined
     {
         return "The door opens. ";
     }
-
+    
     public string NowClosed(ILocation currentLocation)
     {
         return "The door closes. ";
     }
 
-    public string CannotBeOpenedDescription(IContext context)
+    public virtual string CannotBeOpenedDescription(IContext context)
     {
         return string.Empty;
     }

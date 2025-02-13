@@ -10,7 +10,7 @@ internal class RadiationLockWest : LocationBase
 
     public override void Init()
     {
-        StartWithItem<RadiationLockDoor>();
+        StartWithItem<RadiationLockOuterDoor>();
     }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
@@ -22,7 +22,7 @@ internal class RadiationLockWest : LocationBase
                 Direction.W,
                 new MovementParameters
                 {
-                    CanGo = _ => GetItem<RadiationLockDoor>().IsOpen, CustomFailureMessage = "The radiation-lock door is closed. ",
+                    CanGo = _ => GetItem<RadiationLockOuterDoor>().IsOpen, CustomFailureMessage = "The radiation-lock door is closed. ",
                     Location = GetLocation<MainLab>()
                 }
             }

@@ -10,17 +10,24 @@ internal class RadiationLockEast : LocationBase
 
     public override void Init()
     {
-        StartWithItem<RadiationLockDoor>();
+        StartWithItem<RadiationLockOuterDoor>();
     }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.W, Go<RadiationLockEast>() }
+            { Direction.W, Go<RadiationLockWest>() },
+            {
+                Direction.E, new MovementParameters
+                {
+                    Location = GetLocation<RadiationLab>(),
+                    CustomFailureMessage = "The lab door is closed. ",
+                    CanGo = _ => GetItem<RadiationLockOuterDoor>().IsOpen
+                }
+            }
         };
     }
-
 
     protected override string GetContextBasedDescription(IContext context)
     {

@@ -10,8 +10,8 @@ internal class MainLab : LocationBase
 
     public override void Init()
     {
-        StartWithItem<BioLockDoor>();
-        StartWithItem<RadiationLockDoor>();
+        StartWithItem<BioLockOuterDoor>();
+        StartWithItem<RadiationLockOuterDoor>();
     }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
@@ -25,7 +25,7 @@ internal class MainLab : LocationBase
                 Direction.SE,
                 new MovementParameters
                 {
-                    CanGo = _ => GetItem<BioLockDoor>().IsOpen, 
+                    CanGo = _ => GetItem<BioLockOuterDoor>().IsOpen, 
                     CustomFailureMessage = "The bio-lock door is closed. ",
                     Location = GetLocation<BioLockWest>()
                 }
@@ -34,7 +34,7 @@ internal class MainLab : LocationBase
                 Direction.NE,
                 new MovementParameters
                 {
-                    CanGo = _ => GetItem<RadiationLockDoor>().IsOpen,
+                    CanGo = _ => GetItem<RadiationLockOuterDoor>().IsOpen,
                     CustomFailureMessage = "The radiation-lock door is closed. ",
                     Location = GetLocation<RadiationLockWest>()
                 }

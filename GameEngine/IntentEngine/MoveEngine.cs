@@ -8,7 +8,7 @@ namespace GameEngine.IntentEngine;
 
 public class MoveEngine : IIntentEngine
 {
-    internal IRandomChooser _chooser = new RandomChooser();
+    internal IRandomChooser Chooser => new RandomChooser();
     
     public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {
@@ -57,7 +57,7 @@ public class MoveEngine : IIntentEngine
     {
         // 20% of the time, let's generate a response. Otherwise, give the standard response
 
-        if (!_chooser.RollDice(5))
+        if (!Chooser.RollDice(5))
             return "You cannot go that way. ";
 
         var request =
