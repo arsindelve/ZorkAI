@@ -1,4 +1,5 @@
 using GameEngine.Location;
+using Model;
 using Model.AIGeneration;
 using Model.Movement;
 using Planetfall.Item.Kalamontee.Admin;
@@ -42,7 +43,7 @@ internal class ElevatorLobby : LocationBase
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        if (action.Match(["press", "push", "activate"], ["button", "elevator button"]))
+        if (action.Match(Verbs.PushVerbs, ["button", "elevator button"]))
             return new DisambiguationInteractionResult("Which button do you mean, the red button or the blue button",
                 new Dictionary<string, string>
                 {
@@ -58,10 +59,10 @@ internal class ElevatorLobby : LocationBase
                 }, "press the {0} button");
         
         
-        if (action.Match(["push", "press", "activate"], ["red button", "red elevator", "red elevator button", "red"]))
+        if (action.Match(Verbs.PushVerbs, ["red button", "red elevator", "red elevator button", "red"]))
             return GetLocation<LowerElevator>().SummonElevator(" The red door begins vibrating a bit. ", context);
         
-        if (action.Match(["push", "press", "activate"], ["blue button", "blue elevator", "blue elevator button"]))
+        if (action.Match(Verbs.PushVerbs, ["blue button", "blue elevator", "blue elevator button"]))
             return GetLocation<UpperElevator>().SummonElevator("You hear a faint whirring noise from behind the blue door. ", context);
 
         return base.RespondToSimpleInteraction(action, context, client);

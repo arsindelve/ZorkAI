@@ -95,6 +95,14 @@ public interface ICanHoldItems : IInteractionTarget
     bool HaveRoomForItem(IItem item);
 
     /// <summary>
+    /// Generates a message indicating that there is no room available for an item.
+    /// (Alternatively, that putting something into this item is impossible, like toothpaste
+    /// back into a tube. 
+    /// </summary>
+    /// <returns>A string containing the no-room message.</returns>
+    string NoRoomMessage { get;  }
+
+    /// <summary>
     ///     Initializes the container with whichever items it's holding (if any)
     ///     at the start of the game
     /// </summary>

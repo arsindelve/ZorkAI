@@ -55,6 +55,8 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         return true;
     }
 
+    public string NoRoomMessage => string.Empty;
+
     public void OnItemPlacedHere(IItem item, IContext context)
     {
     }

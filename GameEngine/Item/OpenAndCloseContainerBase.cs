@@ -30,7 +30,7 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
 
     public virtual string NowOpen(ILocation currentLocation)
     {
-        return "Opened";
+        return "Opened.";
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,

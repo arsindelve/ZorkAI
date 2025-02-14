@@ -185,4 +185,245 @@ public class DamTests : EngineTestsBase
         await target.GetResponse("press the brown button");
         Repository.GetItem<ControlPanel>().GreenBubbleGlowing.Should().BeFalse();
     }
+
+
+    [Test]
+    public async Task OpenTube()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        StartHere<MaintenanceRoom>();
+
+        var response = await target.GetResponse("open tube");
+
+        response.Should().Contain("reveals a viscous material");
+    }
+
+    [Test]
+    public async Task ReadTube()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        StartHere<MaintenanceRoom>();
+
+        var response = await target.GetResponse("read tube");
+
+        response.Should().Contain("Gunk");
+    }
+
+    [Test]
+    public async Task ExamineTube()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        StartHere<MaintenanceRoom>();
+
+        var response = await target.GetResponse("examine tube");
+
+        response.Should().Contain("Gunk");
+    }
+
+    [Test]
+    public async Task OpenTubeInInventory()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        StartHere<MaintenanceRoom>();
+
+        await target.GetResponse("take tube");
+        await target.GetResponse("open tube");
+        var response = await target.GetResponse("i");
+
+        response.Should().Contain("A tube");
+        response.Should().Contain("tube contains");
+        response.Should().Contain("A viscous material");
+    }
+
+    [Test]
+    public async Task ClosedTubeInInventory()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        StartHere<MaintenanceRoom>();
+
+        await target.GetResponse("take tube");
+        var response = await target.GetResponse("i");
+
+        response.Should().Contain("A tube");
+        response.Should().NotContain("tube contains");
+        response.Should().NotContain("A viscous material");
+    }
+
+    [Test]
+    public async Task TakeGunk()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        StartHere<MaintenanceRoom>();
+
+        await target.GetResponse("open tube");
+        var response = await target.GetResponse("take material");
+
+        // Unbelievably, we can take and hold the gunk. 
+        response.Should().Contain("Taken");
+    }
+
+    [Test]
+    public async Task HaveGunk()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        StartHere<MaintenanceRoom>();
+
+        await target.GetResponse("open tube");
+        await target.GetResponse("take material");
+        var response = await target.GetResponse("i");
+
+        // Unbelievably, we can take and hold the gunk. 
+        response.Should().Contain("viscous material");
+    }
+
+    [Test]
+    public async Task Leak_StayAndDie()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        StartHere<MaintenanceRoom>();
+
+        var response = await target.GetResponse("press blue button");
+        response.Should().Contain("rumbling sound");
+        response.Should().Contain("ankle");
+
+        response = await target.GetResponse("wait");
+        response.Should().Contain("shin");
+
+        response = await target.GetResponse("wait");
+        response.Should().Contain("shin");
+
+        response = await target.GetResponse("wait");
+        response.Should().Contain("knees");
+
+        response = await target.GetResponse("wait");
+        response.Should().Contain("knees");
+
+        response = await target.GetResponse("wait");
+        response.Should().Contain("hips");
+
+        response = await target.GetResponse("wait");
+        response.Should().Contain("hips");
+
+        response = await target.GetResponse("wait");
+        response.Should().Contain("waist");
+
+        response = await target.GetResponse("wait");
+        response.Should().Contain("waist");
+
+        response = await target.GetResponse("wait");
+        response.Should().Contain("chest");
+
+        response = await target.GetResponse("wait");
+        response.Should().Contain("chest");
+
+        response = await target.GetResponse("wait");
+        response.Should().Contain("neck");
+
+        response = await target.GetResponse("wait");
+        response.Should().Contain("drowned yourself");
+
+        GetLocation<MaintenanceRoom>().RoomFlooded.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task Leak_LeaveAndCannotReenter()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        StartHere<MaintenanceRoom>();
+
+        await target.GetResponse("press blue button");
+        await target.GetResponse("w");
+
+        for (var i = 0; i < 14; i++)
+            await target.GetResponse("wait");
+
+        var response = await target.GetResponse("e");
+        response.Should().Contain("full of water and cannot be");
+
+        GetLocation<MaintenanceRoom>().RoomFlooded.Should().BeTrue();
+    }
+    
+    
+    [Test]
+    public async Task Leak_LeaveAndComeBack_StillGoing()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        StartHere<MaintenanceRoom>();
+
+        await target.GetResponse("press blue button");
+        await target.GetResponse("w");
+
+        for (var i = 0; i < 10; i++)
+        {
+            var text = await target.GetResponse("wait");
+            text.Should().NotContainAny("head", "shin", "ankle", "knees", "hips", "waist", "chest", "neck");
+        }
+
+        var response = await target.GetResponse("e");
+        response.Should().Contain("chest");
+    }
+    
+    [Test]
+    public async Task Leak_FixIt()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        StartHere<MaintenanceRoom>();
+
+        await target.GetResponse("press blue button");
+        await target.GetResponse("open tube");
+        var response = await target.GetResponse("apply the gunk to the water");
+        response.Should().Contain("Zorkian");
+
+        for (var i = 0; i < 15; i++)
+        {
+            var text = await target.GetResponse("wait");
+            text.Should().NotContainAny("head", "ankle", "shin", "knees", "hips");
+            
+            GetLocation<MaintenanceRoom>().RoomFlooded.Should().BeFalse();
+        }
+    }
+    
+    [Test]
+    public async Task Leak_FixIt_SecondPhasing()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        StartHere<MaintenanceRoom>();
+
+        await target.GetResponse("press blue button");
+        await target.GetResponse("open tube");
+        var response = await target.GetResponse("plug the leak with the gunk");
+        response.Should().Contain("Zorkian");
+
+        for (var i = 0; i < 15; i++)
+        {
+            var text = await target.GetResponse("wait");
+            text.Should().NotContainAny("head", "ankle", "shin", "knees", "hips");
+            
+            GetLocation<MaintenanceRoom>().RoomFlooded.Should().BeFalse();
+        }
+    }
+    
+    [Test]
+    public async Task PressBlueButton_SecondTime()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        StartHere<MaintenanceRoom>();
+
+        await target.GetResponse("press blue button");
+        var response = await target.GetResponse("press blue button");
+        response.Should().Contain("jammed");
+    }
 }

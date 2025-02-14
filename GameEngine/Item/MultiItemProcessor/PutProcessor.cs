@@ -52,7 +52,7 @@ public class PutProcessor : IMultiNounVerbProcessor
             return new PositiveInteractionResult("It's closed. ");
 
         if (!itemReceiver.HaveRoomForItem(item))
-            return new PositiveInteractionResult("There's no room. ");
+            return new PositiveInteractionResult(itemReceiver.NoRoomMessage);
 
         if (itemReceiver.CanOnlyHoldTheseTypes.Any() && !itemReceiver.CanOnlyHoldTheseTypes.Contains(item.GetType()))
         {
