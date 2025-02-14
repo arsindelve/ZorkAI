@@ -39,7 +39,7 @@ public class EndOfRainbow : LocationWithNoStartingItems
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        if (action.Match(["cross"], ["rainbow"]))
+        if (action.Match(["cross", "traverse"], ["rainbow"]))
         {
             if (!GetLocation<EndOfRainbow>().RainbowIsSolid)
                 return new PositiveInteractionResult("Can you walk on water vapor? ");
@@ -48,26 +48,18 @@ public class EndOfRainbow : LocationWithNoStartingItems
             return new PositiveInteractionResult(context.CurrentLocation.GetDescription(context));
         }
 
-        return base.RespondToSimpleInteraction(action, context, client);
-    }
-
-    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
-        IGenerationClient client)
-    {
-        if (!context.HasItem<Sceptre>() && GetItem<Sceptre>().CurrentLocation == GetLocation<EndOfRainbow>())
-            return new PositiveInteractionResult("You don't have the sceptre. ");
-
-        if (!context.HasItem<Sceptre>())
-            return new NoNounMatchInteractionResult();
-
-        switch (input?.ToLowerInvariant().Trim())
+        if (action.Match(["wave", "swing", "twirl"], GetItem<Sceptre>().NounsForMatching))
         {
-            case "wave sceptre":
-            case "wave the sceptre":
-                return WaveTheSceptre();
-        }
+            if (!context.HasItem<Sceptre>() && GetItem<Sceptre>().CurrentLocation == GetLocation<EndOfRainbow>())
+                return new PositiveInteractionResult("You don't have the sceptre. ");
 
-        return await base.RespondToSpecificLocationInteraction(input, context, client);
+            if (!context.HasItem<Sceptre>())
+                return new NoNounMatchInteractionResult();
+
+            return WaveTheSceptre();
+        }
+        
+        return base.RespondToSimpleInteraction(action, context, client);
     }
 
     private InteractionResult WaveTheSceptre()
