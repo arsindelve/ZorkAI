@@ -12,8 +12,7 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
 {
     public override string Name => "Maintenance Room";
 
-    [UsedImplicitly]
-    public int CurrentWaterLevel { get; set; }
+    [UsedImplicitly] public int CurrentWaterLevel { get; set; }
 
     public bool RoomFlooded { get; set; }
 
@@ -69,16 +68,17 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
     {
         StartWithItem<Wrench>();
         StartWithItem<Screwdriver>();
+        StartWithItem<ToolChests>();
+        StartWithItem<Tube>();
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        string[] verbs = ["push", "press", "activate", "toggle"];
         var verb = action.Verb.ToLowerInvariant().Trim();
         var noun = action.Noun?.ToLowerInvariant().ToLowerInvariant().Trim();
 
-        if (!verbs.Contains(verb))
+        if (!Verbs.PushVerbs.Contains(verb))
             return base.RespondToSimpleInteraction(action, context, client);
 
         // If they said "blue button", simplify and replace "button" with "blue"
@@ -88,7 +88,13 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
                 noun = action.Adjective.ToLowerInvariant();
             else
                 return new DisambiguationInteractionResult(
-                    $"Which button do you mean, {new List<string> { "blue button", "red button", "yellow button", "brown button" }.SingleLineListWithOr()}?",
+                    $"Which button do you mean, {new List<string>
+                    {
+                        "blue button",
+                        "red button",
+                        "yellow button",
+                        "brown button"
+                    }.SingleLineListWithOr()}?",
                     new Dictionary<string, string>
                     {
                         { "brown", "brown button" },
@@ -142,7 +148,8 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
 
         context.RegisterActor(this);
         return new PositiveInteractionResult(
-            "There is a rumbling sound and a stream of water appears to burst from the east wall of the room (apparently, a leak has occurred in a pipe).");
+            "There is a rumbling sound and a stream of water appears to burst from the east wall " +
+            "of the room (apparently, a leak has occurred in a pipe).");
     }
 }
 

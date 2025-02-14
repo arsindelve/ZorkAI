@@ -1,3 +1,4 @@
+using Model;
 using Model.AIGeneration;
 using Model.Movement;
 using Planetfall.Item.Kalamontee.Admin;
@@ -72,7 +73,7 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        if (action.Match(["press", "push", "activate"], ["button"]))
+        if (action.Match(Verbs.PushVerbs, ["button"]))
             return new DisambiguationInteractionResult("Which button do you mean, the Up button or the Down button",
                 new Dictionary<string, string>
                 {
@@ -82,7 +83,7 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
                     { "down button", "down button" }
                 }, "press the {0} button");
 
-        if (action.Match(["press", "push", "activate"], ["up button", "up", "down button", "down"]))
+        if (action.Match(Verbs.PushVerbs, ["up button", "up", "down button", "down"]))
         {
             if (!IsEnabled)
                 return new PositiveInteractionResult("Nothing happens. ");
