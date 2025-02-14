@@ -91,6 +91,8 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         return Items.Sum(s => s.Size) + item.Size <= SpaceForItems;
     }
 
+    public virtual string NoRoomMessage => "There's no room. ";
+
     public abstract void Init();
 
     public virtual void OnItemPlacedHere(IItem item, IContext context)

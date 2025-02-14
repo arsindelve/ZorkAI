@@ -221,6 +221,11 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         return true;
     }
 
+    /// <summary>
+    /// Not really applicable. 
+    /// </summary>
+    public string NoRoomMessage => "";
+
     public int CalculateTotalSize()
     {
         // Also add the Size of items inside Containers
