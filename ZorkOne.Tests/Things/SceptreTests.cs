@@ -86,5 +86,18 @@ public class SceptreTests : EngineTestsBase
         target.Context.HasItem<PotOfGold>().Should().BeTrue();
     }
 
-    // TODO: Wave it standing on the rainbow and die. 
+    [Test]
+    public async Task OnRainbow_WaveIt_Die()
+    {
+        var target = GetTarget();
+
+        target.Context.CurrentLocation = Repository.GetLocation<OnTheRainbow>();
+        var sceptre = Repository.GetItem<Sceptre>();
+        target.Context.Take(sceptre);
+
+        var response = await target.GetResponse("wave sceptre");
+
+        response.Should().Contain("Bye");
+        target.Context.DeathCounter.Should().Be(1);
+    }
 }
