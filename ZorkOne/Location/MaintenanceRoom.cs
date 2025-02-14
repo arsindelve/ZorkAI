@@ -1,3 +1,4 @@
+using GameEngine;
 using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Intent;
@@ -10,13 +11,15 @@ namespace ZorkOne.Location;
 
 public class MaintenanceRoom : DarkLocation, ITurnBasedActor
 {
+    private readonly string[] _leakNouns = ["leak", "pipe", "water", "water leak", "stream", "crack", "break", "burst", "hole", "rupture", "fracture"];
+
     public override string Name => "Maintenance Room";
 
     [UsedImplicitly] public int CurrentWaterLevel { get; set; }
 
-    public bool RoomFlooded { get; set; }
+    public bool RoomFlooded { get; private set; }
 
-    public bool LeakIsFixed { get; set; }
+    [UsedImplicitly] public bool LeakIsFixed { get; set; }
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
@@ -29,7 +32,7 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
         }
 
         // If we leave the room, the water level continues to rise, but
-        // we cannot die, and we're not notified of it. 
+        // we don't die, and we're not notified of it. 
         if (context.CurrentLocation != this)
             return Task.FromResult(string.Empty);
 
@@ -43,6 +46,19 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
         }
 
         return Task.FromResult($"The water level here is now up to your {WaterLevel.Map[CurrentWaterLevel]}.");
+    }
+
+    private InteractionResult FixTheLeak(IContext context)
+    {
+        // Interestingly, in the original game, we still have the gunk
+        // and there is no mention of the fixed leak in the room description, 
+        // nor of the water level (even if it was at our heads).
+        // Other than the jammed blue button, it's like it never happened. 
+        
+        LeakIsFixed = true;
+        context.RemoveActor(this);
+        return new PositiveInteractionResult(
+            "By some miracle of Zorkian technology, you have managed to stop the leak in the dam. ");
     }
 
     protected override string GetContextBasedDescription(IContext context)
@@ -70,6 +86,20 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
         StartWithItem<Screwdriver>();
         StartWithItem<ToolChests>();
         StartWithItem<Tube>();
+    }
+
+    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    {
+        var intentMatch = action.Match<ViscousMaterial>(Verbs.FixVerbs, _leakNouns,
+            ["with", "using"]);
+
+        intentMatch |= action.Match(Verbs.ApplyVerbs, GetItem<ViscousMaterial>().NounsForMatching, _leakNouns,
+            ["on", "to", "against", "in"]);
+
+        if (intentMatch)
+            return FixTheLeak(context);
+
+        return base.RespondToMultiNounInteraction(action, context);
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
@@ -143,7 +173,7 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
 
     private InteractionResult BlueClick(IContext context)
     {
-        if (LeakIsFixed)
+        if (CurrentWaterLevel > 0 || LeakIsFixed)
             return new PositiveInteractionResult("The blue button appears to be jammed. ");
 
         context.RegisterActor(this);

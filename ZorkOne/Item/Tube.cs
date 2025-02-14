@@ -6,9 +6,17 @@ public class Tube : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndDro
 {
     public override string[] NounsForMatching => ["tube", "tube of toothpaste", "toothpaste tube"];
 
+    /// <summary>
+    /// Nothing can be put back into the tube. 
+    /// </summary>
     protected override int SpaceForItems => 0;
 
+    /// <summary>
+    /// Cannot tell what is in the tube unless it's open. 
+    /// </summary>
     public override bool IsTransparent => false;
+
+    public override string NoRoomMessage => "That's not really going to work out for you. ";
 
     public string ExaminationDescription => ReadDescription;
 
@@ -30,9 +38,16 @@ public class Tube : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndDro
         return OnTheGroundDescription(currentLocation);
     }
 
+    public override string NowOpen(ILocation currentLocation)
+    {
+        return Items.Any() ? "Opening the tube reveals a viscous material. " : base.NowOpen(currentLocation);
+    }
+
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return "A tube ";
+        return "A tube " + (Items.Any() && IsOpen
+            ? Environment.NewLine + ItemListDescription("tube", currentLocation)
+            : "");
     }
 
     public override void Init()

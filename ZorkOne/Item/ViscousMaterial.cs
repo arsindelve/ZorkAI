@@ -4,7 +4,7 @@ namespace ZorkOne.Item;
 
 public class ViscousMaterial : ItemBase, ICanBeTakenAndDropped
 {
-    public override string[] NounsForMatching => ["viscous material", "viscous", "material"];
+    public override string[] NounsForMatching => ["viscous material", "viscous", "material", "gunk"];
 
     public string OnTheGroundDescription(ILocation currentLocation)
     {
