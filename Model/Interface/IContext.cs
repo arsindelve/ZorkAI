@@ -18,6 +18,13 @@ namespace Model.Interface;
 public interface IContext : ICanHoldItems
 {
     /// <summary>
+    /// Retrieves items of the specified type from the adventurer's inventory.
+    /// </summary>
+    /// <typeparam name="T">The type of items to retrieve, where T implements IItem and has a parameterless constructor.</typeparam>
+    /// <returns>A collection of items of the specified type.</returns>
+    List<T> GetItems<T>();
+
+    /// <summary>
     /// Sometimes, a major event in the game will change the circumstances so drastically that we need to update the
     /// system prompt with this new information. For example, after the explosion of the Feinstein in Planetfall, we no
     /// longer want the AI to think the player is in space. 

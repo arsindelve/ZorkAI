@@ -3,7 +3,7 @@ using Model.Interface;
 
 namespace ZorkOne.Item;
 
-public class RustyKnife : ItemBase, ICanBeTakenAndDropped, IWeapon
+public class RustyKnife : ItemBase, ICanBeTakenAndDropped, IWeapon, IAmPointyAndPunctureThings
 {
     public override string[] NounsForMatching => ["knife", "rusty knife", "rusty"];
 

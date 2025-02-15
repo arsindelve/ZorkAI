@@ -86,7 +86,7 @@ public class KillSomeoneDecisionEngine<TFoe>(ICombatEngine combatEngine) where T
             return result;
 
         // Got some weapons on you? 
-        switch (context.Items.OfType<IWeapon>().Count())
+        switch (context.GetItems<IWeapon>().Count)
         {
             case 0:
                 if (!action.MatchNoun(_foe.NounsForMatching) &&
@@ -99,7 +99,7 @@ public class KillSomeoneDecisionEngine<TFoe>(ICombatEngine combatEngine) where T
             case 1:
             {
                 // Assume they want to kill the foe with the only weapon they have
-                var weaponName = context.Items.OfType<IWeapon>().Cast<IItem>().Single().NounsForMatching.First();
+                var weaponName = context.GetItems<IWeapon>().Cast<IItem>().Single().NounsForMatching.First();
                 var multiNounIntent = new MultiNounIntent
                 {
                     Verb = action.Verb,
