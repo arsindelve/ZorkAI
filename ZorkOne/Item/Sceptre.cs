@@ -6,7 +6,7 @@ using Model.Interface;
 namespace ZorkOne.Item;
 
 public class Sceptre : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase,
-    IGivePointsWhenFirstPickedUp
+    IGivePointsWhenFirstPickedUp, IAmPointyAndPunctureThings
 {
     public override string[] NounsForMatching => ["sceptre", "ornamental sceptre"];
 

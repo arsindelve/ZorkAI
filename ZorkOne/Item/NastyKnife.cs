@@ -2,7 +2,7 @@ using GameEngine.Item;
 
 namespace ZorkOne.Item;
 
-public class NastyKnife : ItemBase, ICanBeTakenAndDropped, IWeapon
+public class NastyKnife : ItemBase, ICanBeTakenAndDropped, IWeapon, IAmPointyAndPunctureThings
 {
     public override string[] NounsForMatching => ["knife", "nasty knife", "nasty"];
 

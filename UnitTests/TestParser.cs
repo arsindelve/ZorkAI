@@ -612,6 +612,16 @@ public class TestParser : IntentParser
                 OriginalInput = "plug the leak with the gunk"
             });
         
+        if (input == "fix the plastic with the gunk")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "plastic",
+                NounTwo = "gunk",
+                Preposition = "with",
+                Verb = "fix",
+                OriginalInput = "fix the plastic with the gunk"
+            });
+        
         if (input == "apply the gunk to the water")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
