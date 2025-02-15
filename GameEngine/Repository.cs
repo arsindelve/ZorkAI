@@ -185,6 +185,28 @@ public static class Repository
     }
 
     /// <summary>
+    /// Removes an item of the specified type from its current location,
+    /// detaching it by setting its current location to null.
+    /// </summary>
+    /// <typeparam name="T">
+    /// The type of the item to be destroyed, which must implement the IItem interface and have a parameterless constructor.
+    /// </typeparam>
+    public static void DestroyItem<T>() where T : IItem, new()
+    {
+        var item = GetItem<T>();
+        var currentLocation = item.CurrentLocation;
+        currentLocation?.RemoveItem(item);
+        item.CurrentLocation = null;
+    }
+    
+    public static void DestroyItem(IItem item)
+    {
+        var currentLocation = item.CurrentLocation;
+        currentLocation?.RemoveItem(item);
+        item.CurrentLocation = null;
+    }
+
+    /// <summary>
     /// For unit testing purposes only. 
     /// </summary>
     /// <returns></returns>

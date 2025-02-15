@@ -60,10 +60,8 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
                 spirits.Stunned)
             {
                 // * POOF *
-                spirits.CurrentLocation = null;
-                location.RemoveItem(spirits);
-
-
+                Repository.DestroyItem<Spirits>();
+                
                 return new PositiveInteractionResult(
                     "Each word of the prayer reverberates through the hall in a deafening confusion. " +
                     "As the last word fades, a voice, loud and commanding, speaks: \"Begone, fiends!\" A heart-stopping " +
