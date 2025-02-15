@@ -62,24 +62,6 @@ internal class EntranceToHades : DarkLocation
         return base.RespondToSimpleInteraction(action, context, client);
     }
 
-    // This is implemented this way, rather than RespondToSimpleInteraction, because the bell has an interaction that always
-    // fires, and we cannot tell the engine to prefer this interaction in this location. 
-    // public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context, IGenerationClient client)
-    // {
-    //     if (string.IsNullOrWhiteSpace(input))
-    //         return await base.RespondToSpecificLocationInteraction(input, context, client);
-
-    //     if (input.ToLowerInvariant().Contains("ring") && input.ToLowerInvariant().Contains("bell"))
-    //     {
-    //         if (!Items.Contains(Repository.GetItem<Spirits>()))
-    //             return await base.RespondToSpecificLocationInteraction(input, context, client);
-
-    //         return RingTheBell(context);
-    //     }
-
-    //     return await base.RespondToSpecificLocationInteraction(input, context, client);
-    // }
-
     private InteractionResult RingTheBell(IContext context)
     {
         if (!context.HasItem<BrassBell>() && GetItem<BrassBell>().CurrentLocation == GetLocation<EntranceToHades>())

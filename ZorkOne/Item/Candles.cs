@@ -159,8 +159,7 @@ public class Candles
 
         if (action.MatchNounTwo<Torch>() && context.HasItem<Torch>())
         {
-            context.RemoveItem(this);
-            CurrentLocation = null;
+            Repository.DestroyItem(this);
             return new PositiveInteractionResult(
                 "The heat from the torch is so intense that the candles are vaporized. ");
         }

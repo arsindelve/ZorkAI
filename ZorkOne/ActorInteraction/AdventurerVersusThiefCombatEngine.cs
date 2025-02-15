@@ -130,8 +130,7 @@ internal class AdventurerVersusThiefCombatEngine(IRandomChooser chooser) : IComb
         context.RemoveActor(_thief);
 
         // And he vanishes. Poof. 
-        _thief.CurrentLocation?.Items.Remove(_thief);
-        _thief.CurrentLocation = null;
+        Repository.DestroyItem<Thief>();
 
         var result = $"{attackText}\nAlmost as soon as the thief breathes his last breath, a " +
                      $"cloud of sinister black fog envelops him, and when the fog lifts, " +
