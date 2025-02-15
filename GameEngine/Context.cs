@@ -72,6 +72,11 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public int Moves { get; set; }
 
+    public List<TItem> GetItems<TItem>() 
+    {
+        return Items.OfType<TItem>().ToList();
+    }
+
     [UsedImplicitly]
     public string SystemPromptAddendum { get; set; } = "";
     

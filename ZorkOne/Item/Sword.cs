@@ -2,7 +2,7 @@ using GameEngine.Item;
 
 namespace ZorkOne.Item;
 
-public class Sword : ItemBase, ICanBeTakenAndDropped, IWeapon
+public class Sword : ItemBase, ICanBeTakenAndDropped, IWeapon, IAmPointyAndPunctureThings
 {
     public override string[] NounsForMatching => ["sword", "glamdring", "orcrist"];
 
