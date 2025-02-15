@@ -46,8 +46,7 @@ public class Painting : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedIn
                 return new NoNounMatchInteractionResult();
             }
 
-            context.RemoveItem(this);
-            CurrentLocation = null;
+            Repository.DestroyItem(this);
             return new PositiveInteractionResult(
                 "Your skillful swordsmanship slices the painting into innumerable slivers which blow away. ");
         }

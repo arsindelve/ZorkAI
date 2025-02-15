@@ -325,4 +325,110 @@ public class ClearingAndGratingTests : EngineTestsBase
         // Assert
         response.Should().Contain("securely fastened into the ground");
     }
+    
+    [Test]
+    public async Task BurnTheLeaves_NoFire()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Clearing>();
+
+        // Act
+        var response = await target.GetResponse("burn leaves");
+
+        // Assert
+        response.Should().Contain("any fire");
+        response.Should().NotContain("grating revealed");
+    }
+    
+    [Test]
+    public async Task BurnTheLeaves_Candles_NotLit()
+    {
+        var target = GetTarget();
+        Take<Candles>();
+        target.Context.CurrentLocation = Repository.GetLocation<Clearing>();
+
+        // Act
+        var response = await target.GetResponse("burn leaves");
+
+        // Assert
+        response.Should().Contain("any fire");
+        response.Should().NotContain("grating revealed");
+    }
+    
+    [Test]
+    public async Task BurnTheLeaves_Matchbook_NotLit()
+    {
+        var target = GetTarget();
+        Take<Matchbook>();
+        target.Context.CurrentLocation = Repository.GetLocation<Clearing>();
+
+        // Act
+        var response = await target.GetResponse("burn leaves");
+
+        // Assert
+        response.Should().Contain("any fire");
+        response.Should().NotContain("grating revealed");
+    }
+    
+    [Test]
+    public async Task BurnTheLeaves_Torch()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        target.Context.CurrentLocation = Repository.GetLocation<Clearing>();
+
+        // Act
+        var response = await target.GetResponse("burn leaves");
+
+        // Assert
+        response.Should().Contain("so do you");
+        response.Should().Contain("grating is revealed");
+    }
+    
+    [Test]
+    public async Task BurnTheLeaves_Candles()
+    {
+        var target = GetTarget();
+        Take<Candles>().IsOn = true;
+        target.Context.CurrentLocation = Repository.GetLocation<Clearing>();
+
+        // Act
+        var response = await target.GetResponse("burn leaves");
+
+        // Assert
+        response.Should().Contain("so do you");
+        response.Should().Contain("grating is revealed");
+    }
+    
+      
+    [Test]
+    public async Task BurnTheLeaves_Matchbook()
+    {
+        var target = GetTarget();
+        Take<Matchbook>().IsOn = true;
+        target.Context.CurrentLocation = Repository.GetLocation<Clearing>();
+
+        // Act
+        var response = await target.GetResponse("burn leaves");
+
+        // Assert
+        response.Should().Contain("so do you");
+        response.Should().Contain("grating is revealed");
+    }
+    
+    [Test]
+    public async Task BurnTheLeaves_AfterTaking_Matchbook()
+    {
+        var target = GetTarget();
+        Take<Matchbook>().IsOn = true;
+        target.Context.CurrentLocation = Repository.GetLocation<Clearing>();
+
+        // Act
+        await target.GetResponse("take leaves");
+        var response = await target.GetResponse("burn leaves");
+
+        // Assert
+        response.Should().Contain("so do you");
+        response.Should().NotContain("grating is revealed");
+    }
 }

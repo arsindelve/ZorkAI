@@ -25,8 +25,6 @@ public class ToolChests : ItemBase, IPluralNoun, ICanBeExamined, ICanBeTakenAndD
 
     public override void OnFailingToBeTaken(IContext context)
     {
-        var chests = Repository.GetItem<ToolChests>();
-        chests.CurrentLocation = null;
-        Repository.GetLocation<MaintenanceRoom>().RemoveItem(chests);
+        Repository.DestroyItem<ToolChests>();
     }
 }

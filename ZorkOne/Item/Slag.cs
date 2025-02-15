@@ -25,7 +25,6 @@ public class Slag : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
     
     public override void OnFailingToBeTaken(IContext context)
     {
-        Repository.GetItem<Slag>().CurrentLocation = null;
-        Repository.GetItem<Machine>().Items.Clear();
+        Repository.DestroyItem<Slag>();
     }
 }

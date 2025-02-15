@@ -91,7 +91,6 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
 
     private static void DestroyIt(IItem item)
     {
-        item.CurrentLocation?.RemoveItem(item);
-        item.CurrentLocation = null;
+        Repository.DestroyItem(item);
     }
 }
