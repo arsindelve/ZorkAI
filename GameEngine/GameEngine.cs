@@ -77,6 +77,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         GenerationClient = new ChatGPTClient(_logger);
         GenerationClient.OnGenerate += () => _lastResponseWasGenerated = true;
 
+        _itemProcessorFactory = new ItemProcessorFactory(new OpenAITakeAndDropListParser(logger));
         _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
         Inventory = [];
     }
@@ -84,6 +85,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     /// <summary>
     ///     Constructor for unit test dependency injection.
     /// </summary>
+    /// <param name="itemProcessorFactory"></param>
     /// <param name="parser"></param>
     /// <param name="generationClient"></param>
     /// <param name="secretsManager"></param>
