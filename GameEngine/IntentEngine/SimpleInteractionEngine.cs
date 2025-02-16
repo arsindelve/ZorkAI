@@ -7,7 +7,12 @@ using Utilities;
 
 namespace GameEngine.IntentEngine;
 
-internal class SimpleInteractionEngine : IIntentEngine
+/// <summary>
+/// Represents an engine responsible for processing simple interaction intents
+/// in the game's context. This engine utilizes an ItemProcessorFactory for handling
+/// interactions with various game items. Implements IIntentEngine for processing intents.
+/// </summary>
+internal class SimpleInteractionEngine(IItemProcessorFactory itemProcessorFactory) : IIntentEngine
 {
     public async Task<(InteractionResult? resultObject, string ResultMessage)>
         Process(IntentBase intent, IContext context, IGenerationClient generationClient)
@@ -33,13 +38,13 @@ internal class SimpleInteractionEngine : IIntentEngine
         // Ask the context if it knows what to do with this interaction. Usually, this will only 
         // be true if there is an available interaction with one of the items in inventory. 
         var locationInteraction =
-            context.CurrentLocation.RespondToSimpleInteraction(simpleInteraction, context, generationClient, null!);
+            context.CurrentLocation.RespondToSimpleInteraction(simpleInteraction, context, generationClient, itemProcessorFactory);
 
         // We got a meaningful interaction in the location that changed the state of the game
         if (locationInteraction.InteractionHappened)
             return (locationInteraction, locationInteraction.InteractionMessage + Environment.NewLine);
 
-        var contextInteraction = context.RespondToSimpleInteraction(simpleInteraction, generationClient, null!);
+        var contextInteraction = context.RespondToSimpleInteraction(simpleInteraction, generationClient, itemProcessorFactory);
 
         // We got a meaningful interaction from one of the items in inventory that changed the state of the game
         if (contextInteraction.InteractionHappened)

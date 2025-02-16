@@ -1,4 +1,3 @@
-using GameEngine.Item.ItemProcessor;
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Item;
@@ -159,52 +158,10 @@ public abstract class ItemBase : IItem
         return "";
     }
 
-    private static List<IVerbProcessor> GetProcessors(ItemBase item, IItemProcessorFactory factory)
-    {
-        List<IVerbProcessor> result =
-        [
-            // anything can be examined
-            new ExamineInteractionProcessor(),
-            // and smelled 
-            new SmellInteractionProcessor()
-        ];
-
-        if (item is ICanBeTakenAndDropped)
-            result.Add(new TakeOrDropInteractionProcessor(null!));
-        else
-            result.Add(new CannotBeTakenProcessor());
-
-        if (item is ICanBeTakenAndDropped)
-            result.Add(new TakeOrDropInteractionProcessor(null!));
-
-        if (item is ICanBeRead)
-            result.Add(new ReadInteractionProcessor());
-
-        if (item is ITurnOffAndOn)
-            result.Add(new TurnOnOrOffProcessor());
-
-        if (item is ICannotBeTurnedOff)
-            result.Add(new TurnOnOrOffProcessor());
-
-        if (item is IOpenAndClose)
-            result.Add(new OpenAndCloseInteractionProcessor());
-
-        if (item is ICanBeEaten)
-            result.Add(new EatAndDrinkInteractionProcessor());
-
-        if (item is IAmADrink)
-            result.Add(new EatAndDrinkInteractionProcessor());
-
-        if (item is IAmClothing)
-            result.Add(new ClothingOnAndOffProcessor());
-
-        return result;
-    }
-
     protected InteractionResult ApplyProcessors(SimpleIntent action, IContext context, InteractionResult? result,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        result ??= GetProcessors(this, itemProcessorFactory).Aggregate<IVerbProcessor, InteractionResult?>(null, (current, processor)
+        result ??= itemProcessorFactory.GetProcessors(this).Aggregate<IVerbProcessor, InteractionResult?>(null, (current, processor)
             => current ?? processor.Process(action, context, this, client));
 
         return result ?? new NoVerbMatchInteractionResult { Verb = action.Verb, Noun = action.Noun };

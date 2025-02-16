@@ -1,3 +1,6 @@
 namespace Model.Interface;
 
-public interface IItemProcessorFactory;
+public interface IItemProcessorFactory
+{
+    List<IVerbProcessor> GetProcessors(object item);
+}

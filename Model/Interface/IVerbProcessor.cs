@@ -1,7 +1,8 @@
 using Model.AIGeneration;
-using Model.Interface;
+using Model.Intent;
+using Model.Interaction;
 
-namespace GameEngine.Item.ItemProcessor;
+namespace Model.Interface;
 
 public interface IVerbProcessor
 {

@@ -2,6 +2,7 @@ using System.Reflection;
 using CloudWatch;
 using CloudWatch.Model;
 using GameEngine.IntentEngine;
+using GameEngine.Item;
 using GameEngine.StaticCommand;
 using GameEngine.StaticCommand.Implementation;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +33,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     where TInfocomGame : IInfocomGame, new()
     where TContext : IContext, new()
 {
+    private readonly IItemProcessorFactory _itemProcessorFactory;
     private readonly AgainProcessor _againProcessor = new();
     private readonly LimitedStack<(string, string, bool)> _inputOutputs = new();
     private readonly ItProcessor _itProcessor = new();
@@ -87,6 +89,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     /// <param name="secretsManager"></param>
     /// <param name="turnLogger"></param>
     public GameEngine(
+        IItemProcessorFactory itemProcessorFactory,
         IIntentParser parser,
         IGenerationClient generationClient,
         ISecretsManager secretsManager,
@@ -102,6 +105,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _secretsManager = secretsManager;
         _gameInstance = (TInfocomGame)Context.Game;
         _gameInstance.Init(Context);
+        _itemProcessorFactory = itemProcessorFactory;
         _turnLogger = turnLogger;
     }
 
@@ -326,7 +330,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
                     GenerationClient
                 ),
 
-            SimpleIntent simpleInteraction => await new SimpleInteractionEngine().Process(
+            SimpleIntent simpleInteraction => await new SimpleInteractionEngine(_itemProcessorFactory).Process(
                 simpleInteraction,
                 Context,
                 GenerationClient

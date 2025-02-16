@@ -1,4 +1,4 @@
-using GameEngine.IntentEngine;
+using GameEngine.Item.ItemProcessor;
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Item;
@@ -11,15 +11,16 @@ public class TakeOnlyAvailableItemProcessor : IStatefulProcessor
 
     public async Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {
-        IIntentEngine processor = new SimpleInteractionEngine();
         string nounToTake;
-
+        IItem? itemToTake;
+        
         if (_secondTimeProcessing)
         {
             if (string.IsNullOrEmpty(input))
                 return "What do you want to take? ";
 
             nounToTake = input;
+            itemToTake = Repository.GetItem(nounToTake);
         }
 
         else
@@ -36,18 +37,11 @@ public class TakeOnlyAvailableItemProcessor : IStatefulProcessor
                 return "What do you want to take? ";
             }
 
-            var itemToTake = itemsHere.Single();
+            itemToTake = itemsHere.Single();
             nounToTake = itemToTake.NounsForMatching.First();
         }
 
-        var intent = new SimpleIntent
-        {
-            OriginalInput = "take",
-            Noun = nounToTake,
-            Verb = "take"
-        };
-
-        var result = (await processor.Process(intent, context, client)).ResultMessage;
+        var result = TakeOrDropInteractionProcessor.TakeIt(context, itemToTake).InteractionMessage;
         ContinueProcessing = false;
         Completed = true;
 

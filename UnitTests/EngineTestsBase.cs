@@ -1,7 +1,9 @@
 using CloudWatch;
 using CloudWatch.Model;
 using GameEngine;
+using GameEngine.Item;
 using Model.AIGeneration;
+using Model.AIParsing;
 using Model.Interface;
 using ZorkOne;
 using ZorkOne.GlobalCommand;
@@ -23,8 +25,10 @@ public class EngineTestsBase : EngineTestsBaseCommon<ZorkIContext>
 
         Repository.Reset();
 
-        var engine = new GameEngine<ZorkI, ZorkIContext>(Parser, Client.Object, Mock.Of<ISecretsManager>(),
+        var engine = new GameEngine<ZorkI, ZorkIContext>(new ItemProcessorFactory(Mock.Of<IAITakeAndAndDropParser>()),
+            Parser, Client.Object, Mock.Of<ISecretsManager>(),
             Mock.Of<ICloudWatchLogger<TurnLog>>());
+        
         engine.Context.Verbosity = Verbosity.Verbose;
         Repository.GetLocation<WestOfHouse>().Init();
 

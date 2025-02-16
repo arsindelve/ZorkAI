@@ -1,4 +1,3 @@
-using GameEngine.Location;
 using Model.AIGeneration;
 using Model.AIParsing;
 using Model.Interface;
@@ -26,7 +25,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
     {
         _itemParser = itemParser;
     }
-    
+
     /// <summary>
     /// Processes interaction verbs, such as taking or dropping an item, based on the provided context and parameters.
     /// </summary>
@@ -42,7 +41,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (item is not IItem castItem)
             throw new Exception();
 
-        if (item is not ICanBeTakenAndDropped takeItem)
+        if (item is not ICanBeTakenAndDropped)
             throw new Exception();
 
         switch (action.Verb.ToLowerInvariant().Trim())
@@ -54,7 +53,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             case "get":
             case "acquire":
             case "snatch":
-                return TakeIt(context, castItem, takeItem);
+                return TakeIt(context, castItem);
 
             case "drop":
                 return DropIt(context, castItem);
@@ -78,9 +77,11 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         return new PositiveInteractionResult("Dropped");
     }
 
-    private static InteractionResult TakeIt(IContext context, IItem castItem,
-        ICanBeTakenAndDropped takeItem)
+    public static InteractionResult TakeIt(IContext context, IItem? castItem)
     {
+        if (castItem is null)
+            return new NoNounMatchInteractionResult();
+        
         if (!string.IsNullOrEmpty(castItem.CannotBeTakenDescription))
         {
             ((ItemBase)castItem).OnFailingToBeTaken(context);
@@ -99,6 +100,8 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             return new PositiveInteractionResult("Your load is too heavy. ");
 
         context.Take(castItem);
+
+        var takeItem = (ICanBeTakenAndDropped)castItem;
         var onTakenText = takeItem.OnBeingTaken(context);
         container?.OnItemRemovedFromHere(castItem, context);
 
