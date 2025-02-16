@@ -5,11 +5,9 @@ namespace Planetfall.Item.Kalamontee;
 
 public class Ladder : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
 {
-    [UsedImplicitly]
-    public bool IsAcrossRift { get; set; }
+    [UsedImplicitly] public bool IsAcrossRift { get; set; }
 
-    [UsedImplicitly]
-    public bool IsExtended { get; set; }
+    [UsedImplicitly] public bool IsExtended { get; set; }
 
     public override string[] NounsForMatching => ["ladder"];
 
@@ -37,7 +35,7 @@ public class Ladder : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
         return "A ladder";
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["extend", "expand", "deploy", "pull out", "stretch", "open", "lengthen"], NounsForMatching))
@@ -46,7 +44,7 @@ public class Ladder : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
         if (action.Match(["retract", "collapse", "shorten", "close", "contract"], NounsForMatching))
             return CollapseTheLadder();
 
-        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     private InteractionResult CollapseTheLadder()

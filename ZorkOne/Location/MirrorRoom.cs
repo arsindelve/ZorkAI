@@ -15,11 +15,11 @@ internal abstract class MirrorRoom : LocationBase, IThiefMayVisit
                "enormous mirror which fills the entire wall. There are exits on the other three sides of the room.";
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (!action.MatchNoun(["mirror"]))
-            return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+            return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (action.MatchVerb(["look", "examine", "peer"]))
             return new PositiveInteractionResult("There is an ugly person staring back at you. ");
@@ -34,6 +34,6 @@ internal abstract class MirrorRoom : LocationBase, IThiefMayVisit
             return new PositiveInteractionResult("There is a rumble from deep within the earth and the room shakes. ");
         }
 
-        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }

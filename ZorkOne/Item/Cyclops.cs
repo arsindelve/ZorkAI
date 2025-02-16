@@ -20,11 +20,9 @@ public class Cyclops : ItemBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked
     /// </summary>
     public bool IsAgitated { get; set; }
 
-    [UsedImplicitly]
-    public bool IsSleeping { get; set; }
+    [UsedImplicitly] public bool IsSleeping { get; set; }
 
-    [UsedImplicitly]
-    public int TurnsSinceAgitated { get; set; }
+    [UsedImplicitly] public int TurnsSinceAgitated { get; set; }
 
     public override string[] NounsForMatching => ["cyclops", "giant", "monster", "beast"];
 
@@ -85,14 +83,15 @@ public class Cyclops : ItemBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked
             context).InteractionMessage);
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         var result = _giveHimSomethingEngine.AreWeGivingSomethingToSomeone(action, this, context);
 
         if (result is not null)
             return result;
 
-        return base.RespondToMultiNounInteraction(action, context);
+        return await base.RespondToMultiNounInteraction(action, context);
     }
 
     private InteractionResult OfferTheLunch(IContext context)

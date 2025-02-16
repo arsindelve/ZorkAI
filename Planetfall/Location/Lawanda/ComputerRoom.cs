@@ -24,7 +24,7 @@ internal class ComputerRoom : LocationBase
         };
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["look at", "examine"], ["light", "red light"]))
@@ -32,7 +32,7 @@ internal class ComputerRoom : LocationBase
             return new PositiveInteractionResult(
                 "The red light would seem to indicate a malfunction in the computer. ");
 
-        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     protected override string GetContextBasedDescription(IContext context)

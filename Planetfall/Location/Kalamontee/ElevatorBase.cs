@@ -6,7 +6,8 @@ using Planetfall.Item.Kalamontee.Mech;
 
 namespace Planetfall.Location.Kalamontee;
 
-internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteractionLocation, ITurnBasedActor, IFloydSpecialInteractionLocation
+internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteractionLocation, ITurnBasedActor,
+    IFloydSpecialInteractionLocation
     where TDoor : ElevatorDoorBase, IItem, new()
     where TSlot : SlotBase<TCard, TSlot>, IItem, new()
     where TCard : AccessCard, new()
@@ -33,6 +34,8 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
 
     protected abstract string EntranceDirection { get; }
 
+    public override string FloydPrompt => FloydPrompts.Elevator;
+
     public Task<string> Act(IContext context, IGenerationClient client)
     {
         if (TurnsSinceMoving > 0)
@@ -43,7 +46,7 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
 
         if (HasBeenSummoned)
             return ElevatorIsSummoned(context);
-        
+
         return Task.FromResult(string.Empty);
     }
 
@@ -61,7 +64,7 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
             var door = GetItem<TDoor>();
             door.IsOpen = true;
             TurnsSinceMoving = 0;
-            
+
             // keep the countdown for becoming disabled. Then we will remove the actor.
             TurnsSinceEnabled = 3;
             return Task.FromResult(door.NowOpen(this));
@@ -70,7 +73,7 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
         return Task.FromResult(string.Empty);
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(Verbs.PushVerbs, ["button"]))
@@ -95,7 +98,7 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
                 return GoDown(context);
         }
 
-        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     protected InteractionResult Move(IContext context)
@@ -197,6 +200,4 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
         HasBeenSummoned = true;
         return new PositiveInteractionResult(response);
     }
-
-    public override string FloydPrompt => FloydPrompts.Elevator;
 }

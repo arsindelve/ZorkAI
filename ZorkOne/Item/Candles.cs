@@ -97,12 +97,12 @@ public class Candles
         return "On the two ends of the altar are burning candles. ";
     }
 
-    public Task<string> Act(IContext context, IGenerationClient client)
+    public async Task<string> Act(IContext context, IGenerationClient client)
     {
         if (!IsOn)
         {
             context.RemoveActor(this);
-            return Task.FromResult(string.Empty);
+            return string.Empty;
         }
 
         Debug.WriteLine($"Candles counter: {TurnsWhileOn}");
@@ -111,29 +111,26 @@ public class Candles
         switch (TurnsWhileOn)
         {
             case 13:
-                return Task.FromResult("The candles grow shorter.");
+                return "The candles grow shorter.";
 
             case 20:
-                return Task.FromResult("The candles are becoming quite short.");
+                return "The candles are becoming quite short.";
 
             case 24:
-                return Task.FromResult("The candles won't last long now.");
+                return "The candles won't last long now.";
 
             case 26:
                 BurnedOut = true;
-                var result = new TurnOnOrOffProcessor().Process(
+                var result = await new TurnOnOrOffProcessor().Process(
                     new SimpleIntent { Noun = NounsForMatching.First(), Verb = "turn off" },
                     context,
                     this,
                     client
                 );
-                return Task.FromResult(
-                    "You'd better have more light than from the pair of candles. "
-                    + result!.InteractionMessage
-                );
+                return "You'd better have more light than from the pair of candles. " + result?.InteractionMessage;
 
             default:
-                return Task.FromResult(string.Empty);
+                return string.Empty;
         }
     }
 
@@ -142,7 +139,7 @@ public class Candles
         return "A pair of candles" + (IsOn ? " (providing light)" : "");
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(
+    public override  async Task<InteractionResult?> RespondToMultiNounInteraction(
         MultiNounIntent action,
         IContext context
         )
@@ -154,7 +151,7 @@ public class Candles
                     .ToArray(),
                 ["with"]
             ))
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (action.MatchNounTwo<Torch>() && context.HasItem<Torch>())
         {
@@ -168,14 +165,14 @@ public class Candles
             if (!Repository.GetItem<Matchbook>().IsOn)
                 return new PositiveInteractionResult("You'll need to light a match first. ");
 
-            return new TurnOnOrOffProcessor().Process(
+            return await new TurnOnOrOffProcessor().Process(
                 new SimpleIntent { Noun = action.NounOne, Verb = action.Verb },
                 context,
                 this,
                 null!
-            )!;
+            );
         }
 
-        return base.RespondToMultiNounInteraction(action, context);
+        return await base.RespondToMultiNounInteraction(action, context);
     }
 }

@@ -76,20 +76,20 @@ public class Egg
         return "You have neither the tools nor the expertise. ";
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(
         MultiNounIntent action,
         IContext context
         )
     {
         if (!action.MatchNounOne(NounsForMatching))
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (
             !action.MatchVerb(
                 ["open", "pry", "break", "jimmie", "crack", "force", "bust", "pop", "split"]
             )
         )
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (action.MatchNounTwo<Sword>())
             return PryOpen<Sword>(context);
@@ -100,7 +100,7 @@ public class Egg
         if (action.MatchNounTwo<Screwdriver>())
             return PryOpen<Screwdriver>(context);
 
-        return base.RespondToMultiNounInteraction(action, context);
+        return await base.RespondToMultiNounInteraction(action, context);
     }
 
     private InteractionResult PryOpen<T>(IContext context)

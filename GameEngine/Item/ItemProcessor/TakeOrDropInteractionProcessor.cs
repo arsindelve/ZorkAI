@@ -35,7 +35,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
     /// <param name="client">The generation client used for any additional logic or AI-driven interactions required during processing.</param>
     /// <returns>An <see cref="InteractionResult"/> indicating the outcome of the interaction, or null if no valid action was processed.</returns>
     /// <exception cref="Exception">Thrown when the item does not implement required interfaces for the action.</exception>
-    InteractionResult? IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item,
+    Task<InteractionResult?> IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item,
         IGenerationClient client)
     {
         if (item is not IItem castItem)
@@ -53,13 +53,13 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             case "get":
             case "acquire":
             case "snatch":
-                return TakeIt(context, castItem);
+                return Task.FromResult<InteractionResult?>(TakeIt(context, castItem));
 
             case "drop":
-                return DropIt(context, castItem);
+                return Task.FromResult<InteractionResult?>(DropIt(context, castItem));
         }
 
-        return null;
+        return Task.FromResult<InteractionResult?>(null);
     }
 
     public static InteractionResult DropIt(IContext context, IItem castItem)

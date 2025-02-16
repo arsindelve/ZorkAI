@@ -332,12 +332,12 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     /// <param name="action">The simple interaction that the context needs to respond to.</param>
     /// <param name="client"></param>
-    public InteractionResult RespondToSimpleInteraction(SimpleIntent action, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
+    public async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         InteractionResult? result = null;
 
         foreach (var item in Items.ToList().TakeWhile(_ => result is null or NoNounMatchInteractionResult))
-            result = item.RespondToSimpleInteraction(action, this, client, itemProcessorFactory);
+            result = await item.RespondToSimpleInteraction(action, this, client, itemProcessorFactory);
 
         return result ?? new NoNounMatchInteractionResult();
     }

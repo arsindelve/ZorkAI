@@ -10,7 +10,7 @@ namespace ZorkOne.Item;
 public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked, ICanBeGivenThings
 {
     private readonly GiveSomethingToSomeoneDecisionEngine<Troll> _giveHimSomethingEngine = new();
-    
+
     internal TrollCombatEngine TrollAttackEngine { get; set; } = new();
 
     public bool IsUnconscious { get; set; }
@@ -44,7 +44,7 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
     {
         if (IsDead || IsUnconscious)
             return Task.FromResult(string.Empty);
-        
+
         if (!HasItem<BloodyAxe>())
             return
                 Task.FromResult(
@@ -93,14 +93,15 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
         StartWithItemInside<BloodyAxe>();
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         var result = _giveHimSomethingEngine.AreWeGivingSomethingToSomeone(action, this, context);
 
         if (result is not null)
             return result;
 
-        return base.RespondToMultiNounInteraction(action, context);
+        return await base.RespondToMultiNounInteraction(action, context);
     }
 }
 

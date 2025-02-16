@@ -8,11 +8,9 @@ namespace Planetfall.Location.Kalamontee.Admin;
 
 public class AdminCorridorSouth : LocationBase, ITurnBasedActor
 {
-    [UsedImplicitly]
-    public bool HasSeenTheLight { get; set; }
+    [UsedImplicitly] public bool HasSeenTheLight { get; set; }
 
-    [UsedImplicitly]
-    public bool HasTakenTheKey { get; set; }
+    [UsedImplicitly] public bool HasTakenTheKey { get; set; }
 
     public override string Name => "Admin Corridor South";
 
@@ -66,7 +64,8 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
         base.OnLeaveLocation(context, newLocation, previousLocation);
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         if (!context.HasItem<Magnet>())
         {
@@ -93,14 +92,14 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
                 "affixes itself to the magnet. It is a steel key! With a tug, you remove the key from the magnet. ");
         }
 
-        return base.RespondToMultiNounInteraction(action, context);
+        return await base.RespondToMultiNounInteraction(action, context);
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (!action.MatchVerb(["look at", "examine", "look"]))
-            return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+            return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (action.MatchNoun(["floor", "ground"]))
             return new PositiveInteractionResult("A narrow, jagged crevice runs across the floor. ");

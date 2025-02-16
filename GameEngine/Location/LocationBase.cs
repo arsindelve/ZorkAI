@@ -244,15 +244,16 @@ public abstract class LocationBase : ILocation, ICanHoldItems
     /// <param name="action">The action to examine. Can we do anything with it?</param>
     /// <param name="context">The current context, in case we need it during action processing.</param>
     /// <param name="client"></param>
+    /// <param name="itemProcessorFactory"></param>
     /// <returns>InteractionResult that describes if and how the interaction took place.</returns>
-    public virtual InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public virtual async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         InteractionResult? result = null;
 
         foreach (var item in Items.ToList())
         {
-            result = item.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+            result = await item.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
             if (result is PositiveInteractionResult or NoVerbMatchInteractionResult)
                 return result;
         }
@@ -260,9 +261,9 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         return result ?? new NoNounMatchInteractionResult();
     }
 
-    public virtual InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public virtual Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-        return new NoNounMatchInteractionResult();
+        return Task.FromResult<InteractionResult?>(new NoNounMatchInteractionResult());
     }
 
     /// <summary>

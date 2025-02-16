@@ -78,7 +78,7 @@ public interface IItem : IInteractionTarget
     (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective,
         bool lookInsideContainers = true);
 
-    InteractionResult? RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory);
+    Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory);
 
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="MultiNounIntent" /> corresponding
@@ -88,5 +88,5 @@ public interface IItem : IInteractionTarget
     /// <param name="action">The multi-noun intent representing the interaction.</param>
     /// <param name="context">The context in which the interaction occurs.</param>
     /// <returns>An InteractionResult indicating the result of the interaction.</returns>
-    InteractionResult? RespondToMultiNounInteraction(MultiNounIntent action, IContext context);
+    Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context);
 }

@@ -43,18 +43,19 @@ public class ComputerTerminal : ItemBase, ICanBeExamined, ICanBeRead, ITurnOffAn
         return "On the table is a computer terminal. ";
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         // TODO: type 1 on the keyboard
         // TODO: key in 4 on the terminal. 
-        return base.RespondToMultiNounInteraction(action, context);
+        return await base.RespondToMultiNounInteraction(action, context);
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (!action.MatchVerb(Verbs.TypeVerbs.Union(["press", "push"]).ToArray()))
-            return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+            return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         var keyPress = action.Noun.ToInteger();
 

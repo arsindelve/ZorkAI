@@ -8,8 +8,7 @@ namespace ZorkOne.Location;
 
 public class SandyCave : DarkLocationWithNoStartingItems
 {
-    [UsedImplicitly]
-    public int DigCount { get; set; }
+    [UsedImplicitly] public int DigCount { get; set; }
 
     public override string Name => "Sandy Cave";
 
@@ -26,7 +25,8 @@ public class SandyCave : DarkLocationWithNoStartingItems
         return "This is a sand-filled cave whose exit is to the southwest. ";
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         if (action.Match(
                 ["dig"],
@@ -50,6 +50,6 @@ public class SandyCave : DarkLocationWithNoStartingItems
                     return new DeathProcessor().Process("The hole collapses, smothering you. ", context);
             }
 
-        return base.RespondToMultiNounInteraction(action, context);
+        return await base.RespondToMultiNounInteraction(action, context);
     }
 }

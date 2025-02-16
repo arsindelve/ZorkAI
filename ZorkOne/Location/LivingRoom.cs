@@ -58,7 +58,7 @@ public class LivingRoom : LocationBase
         };
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         string[] nouns = ["lettering", "engraving", "engravings", "door"];
@@ -68,7 +68,7 @@ public class LivingRoom : LocationBase
             return new PositiveInteractionResult(
                 "The engravings translate to \"This space intentionally left blank.\"");
 
-        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override void Init()

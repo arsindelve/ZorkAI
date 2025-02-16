@@ -63,7 +63,7 @@ public class ForestPath : LocationWithNoStartingItems, ITurnBasedActor
         return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         string[] nouns = ["tree", "branches"];
@@ -72,7 +72,7 @@ public class ForestPath : LocationWithNoStartingItems, ITurnBasedActor
         if (action.Match(verbs, nouns))
             return new PositiveInteractionResult("There's nothing special about the tree.");
 
-        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)

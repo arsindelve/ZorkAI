@@ -1,4 +1,3 @@
-using GameEngine.Item.ItemProcessor;
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Item;
@@ -148,7 +147,7 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         return !nouns.Any() ? "" : nouns.SingleLineListWithAnd();
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         InteractionResult? result = null;
@@ -156,7 +155,7 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         // See if one of the items inside me has a matching interaction.
         foreach (var item in Items.ToList())
         {
-            result = item.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+            result = await item.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
             if (result is { InteractionHappened: true })
                 return result;
         }
@@ -167,7 +166,7 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
         if (!action.MatchNoun(NounsForMatching))
             return new NoNounMatchInteractionResult();
 
-        return ApplyProcessors(action, context, null, client, itemProcessorFactory);
+        return await ApplyProcessors(action, context, null, client, itemProcessorFactory);
     }
 
     /// <summary>

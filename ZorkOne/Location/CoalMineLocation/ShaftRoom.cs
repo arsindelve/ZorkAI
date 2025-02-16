@@ -49,7 +49,7 @@ internal class ShaftRoom : DarkLocation, IThiefMayVisit
         return Task.FromResult(string.Empty);
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         var basket = Repository.GetItem<Basket>();
@@ -71,7 +71,7 @@ internal class ShaftRoom : DarkLocation, IThiefMayVisit
             return new PositiveInteractionResult("The basket is lowered to the bottom of the shaft. ");
         }
 
-        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override void Init()

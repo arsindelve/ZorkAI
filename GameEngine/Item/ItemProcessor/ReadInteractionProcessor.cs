@@ -6,7 +6,7 @@ namespace GameEngine.Item.ItemProcessor;
 
 public class ReadInteractionProcessor : IVerbProcessor
 {
-    public InteractionResult? Process(SimpleIntent action, IContext context, IInteractionTarget item,
+    public Task<InteractionResult?> Process(SimpleIntent action, IContext context, IInteractionTarget item,
         IGenerationClient client)
     {
         switch (action.Verb.ToLowerInvariant())
@@ -17,7 +17,7 @@ public class ReadInteractionProcessor : IVerbProcessor
             case "read":
 
                 if (context.ItIsDarkHere)
-                    return new PositiveInteractionResult("It's too dark to see!");
+                    return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("It's too dark to see!"));
 
                 var result = string.Empty;
                 // The act of reading it picks it up.
@@ -27,9 +27,9 @@ public class ReadInteractionProcessor : IVerbProcessor
                     context.Take((IItem)item);
                 }
 
-                return new PositiveInteractionResult(result + ((ICanBeRead)item).ReadDescription);
+                return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(result + ((ICanBeRead)item).ReadDescription));
         }
 
-        return null;
+        return Task.FromResult<InteractionResult?>(null);
     }
 }

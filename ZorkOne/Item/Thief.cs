@@ -14,7 +14,8 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 {
     private readonly GiveSomethingToSomeoneDecisionEngine<Thief> _giveHimSomethingEngine = new();
 
-    internal ICombatEngine ThiefAttackedEngine { private get; set; } = new AdventurerVersusThiefCombatEngine(new RandomChooser());
+    internal ICombatEngine ThiefAttackedEngine { private get; set; } =
+        new AdventurerVersusThiefCombatEngine(new RandomChooser());
 
     internal ThiefCombatEngine ThiefAttackingEngine { private get; set; } = new();
 
@@ -221,7 +222,8 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
             : "There is a suspicious-looking individual, holding a large bag, leaning against one wall. He is armed with a deadly stiletto. ";
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         var result = _giveHimSomethingEngine.AreWeGivingSomethingToSomeone(action, this, context);
 
@@ -229,17 +231,17 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
             return result;
 
         result = new KillSomeoneDecisionEngine<Thief>(ThiefAttackedEngine).DoYouWantToKillSomeone(action, context);
-        return result ?? base.RespondToMultiNounInteraction(action, context);
+        return result ?? await base.RespondToMultiNounInteraction(action, context);
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         var killInteraction =
             new KillSomeoneDecisionEngine<Thief>(ThiefAttackedEngine).DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(
                 action, context);
 
-        return killInteraction ?? base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+        return killInteraction ?? await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override void Init()

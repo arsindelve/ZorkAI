@@ -37,7 +37,7 @@ public class MultiNounEngine : IIntentEngine
             return (requireDisambiguation, requireDisambiguation.InteractionMessage);
 
         // Does the location itself have a positive interaction? 
-        var result = context.CurrentLocation.RespondToMultiNounInteraction(interaction, context);
+        var result = await context.CurrentLocation.RespondToMultiNounInteraction(interaction, context);
         if (result?.InteractionHappened ?? false)
             return (result, result.InteractionMessage);
 
@@ -45,7 +45,7 @@ public class MultiNounEngine : IIntentEngine
         if (context.CurrentLocation is ICanHoldItems items)
             foreach (var nextItem in items.Items)
             {
-                result = nextItem.RespondToMultiNounInteraction(interaction, context);
+                result = await nextItem.RespondToMultiNounInteraction(interaction, context);
                 if (result?.InteractionHappened ?? false)
                     return (result, result.InteractionMessage);
             }
@@ -53,7 +53,7 @@ public class MultiNounEngine : IIntentEngine
         // Do any of the items in inventory have a positive interaction? 
         foreach (var nextItem in context.Items)
         {
-            result = nextItem.RespondToMultiNounInteraction(interaction, context);
+            result = await nextItem.RespondToMultiNounInteraction(interaction, context);
             if (result?.InteractionHappened ?? false)
                 return (result, result.InteractionMessage);
         }

@@ -53,17 +53,18 @@ internal class CyclopsRoom : DarkLocation
             : "The east wall, previously solid, now has a cyclops-sized opening in it. ");
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client, IItemProcessorFactory itemProcessorFactory )
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         var killInteraction = _decisionEngine.DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(action, context);
-        return killInteraction ?? base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+        return killInteraction ?? await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         var result = _decisionEngine.DoYouWantToKillSomeone(action, context);
-        return result ?? base.RespondToMultiNounInteraction(action, context);
+        return result ?? await base.RespondToMultiNounInteraction(action, context);
     }
 
     public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,

@@ -25,7 +25,7 @@ internal class KitchenMachine : ContainerBase, ICanBeExamined
     {
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["push", "press"], ["button"]))
@@ -56,7 +56,7 @@ internal class KitchenMachine : ContainerBase, ICanBeExamined
         }
 
 
-        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     // TODO: put canteen under spout. 

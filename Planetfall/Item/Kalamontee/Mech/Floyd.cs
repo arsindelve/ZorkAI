@@ -38,7 +38,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return HasEverBeenOn 
+        return HasEverBeenOn
             ? "There is a multiple purpose robot here. "
             : "Only one robot, about four feet high, looks even remotely close to being in working order. ";
     }
@@ -55,7 +55,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
         return userPrompt.Replace("There is a multiple purpose robot here.", string.Empty);
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (IsOn && action.Match(["play"], NounsForMatching))
@@ -76,7 +76,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
         if (action.Match(["turn off", "deactivate", "stop"], NounsForMatching)) return TurnHimOff(context);
         if (action.Match(["turn on", "activate", "start"], NounsForMatching)) return ActivateHim(context);
 
-        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     private InteractionResult SearchHim(IContext context)
@@ -109,7 +109,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
 
         IsOn = true;
         HasEverBeenOn = true;
-        
+
         return new PositiveInteractionResult(FloydConstants.MadAfterTurnOffAndBackOn);
     }
 
@@ -151,7 +151,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
 
         // Randomly, Floyd will say or do something (or possibly nothing) based on one of the
         // prompts below - or he might do one of the things from the original game. 
-        Func<Task<string>> action = new Random().Next(1, 10) switch
+        var action = new Random().Next(1, 10) switch
         {
             <= 3 => (Func<Task<string>>)(async () =>
                 await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
@@ -168,7 +168,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
             _ => (Func<Task<string>>)(async () => await Task.FromResult(string.Empty))
         };
 
-        Task<string> chosenAction = action.Invoke();
+        var chosenAction = action.Invoke();
         return await chosenAction;
     }
 }

@@ -93,13 +93,13 @@ public abstract class ItemBase : IItem
     /// <param name="client"></param>
     /// <param name="itemProcessorFactory"></param>
     /// <returns>The interaction result.</returns>
-    public virtual InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public virtual async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (!action.MatchNounAndAdjective(NounsForMatching))
             return new NoNounMatchInteractionResult();
 
-        return ApplyProcessors(action, context, null, client, itemProcessorFactory);
+        return await ApplyProcessors(action, context, null, client, itemProcessorFactory);
     }
 
     public virtual int Size => 1;
@@ -126,9 +126,9 @@ public abstract class ItemBase : IItem
     /// <param name="action">The multi-noun intent representing the action being taken, including the associated nouns.</param>
     /// <param name="context">The current context in which the interaction takes place, providing relevant state and environment data.</param>
     /// <returns>An <see cref="InteractionResult"/> that represents the outcome of the multi-noun interaction.</returns>
-    public virtual InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public virtual Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-        return new NoNounMatchInteractionResult();
+        return Task.FromResult<InteractionResult?>(new NoNounMatchInteractionResult());
     }
 
     /// <summary>
@@ -158,11 +158,15 @@ public abstract class ItemBase : IItem
         return "";
     }
 
-    protected InteractionResult ApplyProcessors(SimpleIntent action, IContext context, InteractionResult? result,
+    protected async Task<InteractionResult> ApplyProcessors(SimpleIntent action, IContext context, InteractionResult? result,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        result ??= itemProcessorFactory.GetProcessors(this).Aggregate<IVerbProcessor, InteractionResult?>(null, (current, processor)
-            => current ?? processor.Process(action, context, this, client));
+        foreach (var processor in itemProcessorFactory.GetProcessors(this))
+        {
+            result ??= await processor.Process(action, context, this, client);
+            if (result != null)
+                break;
+        }
 
         return result ?? new NoVerbMatchInteractionResult { Verb = action.Verb, Noun = action.Noun };
     }
