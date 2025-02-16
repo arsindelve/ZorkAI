@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.AIGeneration;
+using Model.AIParsing;
 using Model.Interface;
 using Model.Item;
 using Model.Location;
@@ -16,6 +17,16 @@ namespace GameEngine.Item.ItemProcessor;
 /// </summary>
 public class TakeOrDropInteractionProcessor : IVerbProcessor
 {
+    private readonly IAITakeAndAndDropParser _itemParser;
+
+    /// <summary>
+    /// Processes interactions related to taking or dropping items in a gaming context.
+    /// </summary>
+    public TakeOrDropInteractionProcessor(IAITakeAndAndDropParser itemParser)
+    {
+        _itemParser = itemParser;
+    }
+    
     /// <summary>
     /// Processes interaction verbs, such as taking or dropping an item, based on the provided context and parameters.
     /// </summary>

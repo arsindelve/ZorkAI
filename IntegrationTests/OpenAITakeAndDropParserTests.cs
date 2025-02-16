@@ -63,6 +63,7 @@ public class OpenAITakeAndDropParserTests
     
     [Test]
     [TestCase("drop the leaflet", "leaflet")]
+    [TestCase("drop the weapons", "sword", "nasty knife")]
     [TestCase("drop the leaflet and the rope", "leaflet", "rope")]
     [TestCase("drop the sack, the knife and the rope", "sack", "knife", "rope")]
     [TestCase("drop everything", "brown sack", "nasty knife", "rope", "brass lantern", "sword", "glass bottle", "leaflet")]
