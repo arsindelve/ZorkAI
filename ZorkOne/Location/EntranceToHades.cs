@@ -1,5 +1,4 @@
 using GameEngine;
-using GameEngine.Item.ItemProcessor;
 using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Intent;
@@ -52,14 +51,14 @@ internal class EntranceToHades : DarkLocation
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         string[] verbs = ["ring", "activate", "shake"];
         if (Items.Contains(Repository.GetItem<Spirits>()) &&
             action.Match(verbs, Repository.GetItem<BrassBell>().NounsForMatching))
             return RingTheBell(context);
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     private InteractionResult RingTheBell(IContext context)

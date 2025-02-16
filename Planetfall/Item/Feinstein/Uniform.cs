@@ -35,12 +35,12 @@ public class Uniform : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, IAm
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["pocket", "uniform pocket"], Verbs.OpenVerbs.Union(Verbs.CloseVerbs).ToArray()))
             return new PositiveInteractionResult("There's no way to open or close the pocket of the Patrol uniform. ");
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override string GenericDescription(ILocation? currentLocation)

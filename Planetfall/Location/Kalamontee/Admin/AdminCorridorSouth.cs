@@ -97,10 +97,10 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (!action.MatchVerb(["look at", "examine", "look"]))
-            return base.RespondToSimpleInteraction(action, context, client);
+            return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (action.MatchNoun(["floor", "ground"]))
             return new PositiveInteractionResult("A narrow, jagged crevice runs across the floor. ");

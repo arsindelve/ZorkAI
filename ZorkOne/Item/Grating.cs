@@ -89,7 +89,7 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["lock"], NounsForMatching))
             if (context.CurrentLocation is Clearing)
@@ -121,7 +121,7 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
                 return new PositiveInteractionResult(message);
             }
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override string NeverPickedUpDescription(ILocation? currentLocation)

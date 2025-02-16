@@ -54,7 +54,8 @@ public class WestOfHouse : LocationBase
     public override InteractionResult RespondToSimpleInteraction(
         SimpleIntent action,
         IContext context,
-        IGenerationClient client
+        IGenerationClient client, 
+        IItemProcessorFactory itemProcessorFactory
         )
     {
         string[] nouns = ["door", "front door"];
@@ -70,7 +71,7 @@ public class WestOfHouse : LocationBase
                 "The house is a beautiful colonial house which is painted white. It is clear that the owners must have been extremely wealthy. "
             );
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override void Init()

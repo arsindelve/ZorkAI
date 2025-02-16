@@ -17,10 +17,10 @@ internal class ProjConOffice : LocationWithNoStartingItems
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (!action.MatchVerb(["examine", "look at", "look"]))
-            return base.RespondToSimpleInteraction(action, context, client);
+            return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (action.MatchNoun(["logo"]))
             return new PositiveInteractionResult(
@@ -32,7 +32,7 @@ internal class ProjConOffice : LocationWithNoStartingItems
                 "of Burstini Bonz. It doesn't appear to fit the decor of the room at all. The mural seems to ripple " +
                 "now and then, as though a breeze were blowing behind it.");
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
     
     protected override string GetContextBasedDescription(IContext context)

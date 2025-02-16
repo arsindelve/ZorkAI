@@ -55,8 +55,9 @@ public interface ILocation
     /// <param name="action">The action to examine. Can we do anything with it?</param>
     /// <param name="context">The current context, in case we need it during action processing.</param>
     /// <param name="client"></param>
+    /// <param name="itemProcessorFactory"></param>
     /// <returns>InteractionResult that describes if and and how the interaction took place.</returns>
-    InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client);
+    InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory);
 
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="MultiNounIntent" /> corresponding

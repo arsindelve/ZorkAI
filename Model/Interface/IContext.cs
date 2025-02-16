@@ -144,7 +144,15 @@ public interface IContext : ICanHoldItems
     /// <returns>The updated score after adding the points.</returns>
     int AddPoints(int points);
 
-    InteractionResult RespondToSimpleInteraction(SimpleIntent simpleInteraction, IGenerationClient client);
+    /// <summary>
+    /// Processes a simple interaction intent within the context and generates an appropriate response.
+    /// </summary>
+    /// <param name="simpleInteraction">The simple interaction intent to be processed.</param>
+    /// <param name="client">The client used for generation-related operations.</param>
+    /// <param name="itemProcessorFactory">The factory used to process items associated with the interaction.</param>
+    /// <returns>An <see cref="InteractionResult"/> containing the outcome of the interaction processing.</returns>
+    InteractionResult RespondToSimpleInteraction(SimpleIntent simpleInteraction, IGenerationClient client,
+        IItemProcessorFactory itemProcessorFactory);
 
     string ItemListDescription(string locationName, ILocation? location);
 

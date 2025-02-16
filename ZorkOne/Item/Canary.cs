@@ -31,10 +31,10 @@ public class Canary : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTr
     int IGivePointsWhenPlacedInTrophyCase.NumberOfPoints => 4;
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (!action.Match(["wind", "wind up", "crank", "twist", "turn"], NounsForMatching))
-            return base.RespondToSimpleInteraction(action, context, client);
+            return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (IsDestroyed)
             return new PositiveInteractionResult("There is an unpleasant grinding noise from inside the canary. ");

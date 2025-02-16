@@ -27,12 +27,12 @@ internal class PlanRoom : LocationWithNoStartingItems
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["examine", "look in"], ["cubbyholes", "holes", "cubbies", "cubby"]))
             return new PositiveInteractionResult(
                 "The cubbyholes look like the kind that are used to hold maps or blueprints. They are all empty now. ");
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }

@@ -30,12 +30,12 @@ public class SystemsMonitors : LocationWithNoStartingItems
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         string[] verbs = ["examine", "look at"];
 
         if (!action.MatchVerb(verbs))
-            return base.RespondToSimpleInteraction(action, context, client);
+            return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (action.MatchNoun(["screens", "monitors"]))
             return new PositiveInteractionResult(Monitors());
@@ -44,6 +44,6 @@ public class SystemsMonitors : LocationWithNoStartingItems
             return new PositiveInteractionResult(
                 "The equipment here is so complicated that you couldn't even begin to figure out how to operate it. ");
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }

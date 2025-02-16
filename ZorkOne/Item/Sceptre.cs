@@ -31,13 +31,13 @@ public class Sceptre : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInT
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Verb.ToLowerInvariant() != "wave")
-            return base.RespondToSimpleInteraction(action, context, client);
+            return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (!action.MatchNoun(NounsForMatching))
-            return base.RespondToSimpleInteraction(action, context, client);
+            return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         return new PositiveInteractionResult("A dazzling display of color briefly emanates from the sceptre. ");
     }

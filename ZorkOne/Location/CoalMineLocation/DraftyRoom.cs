@@ -33,7 +33,7 @@ internal class DraftyRoom : DarkLocation, IThiefMayVisit
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         var basket = Repository.GetItem<Basket>();
         if (action.Match(["raise"], basket.NounsForMatching))
@@ -56,7 +56,7 @@ internal class DraftyRoom : DarkLocation, IThiefMayVisit
             return new PositiveInteractionResult("The basket is lowered to the bottom of the shaft. ");
         }
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override void Init()

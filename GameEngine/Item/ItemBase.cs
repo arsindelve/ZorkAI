@@ -92,14 +92,15 @@ public abstract class ItemBase : IItem
     /// <param name="action">The simple intent representing the action.</param>
     /// <param name="context">The context in which the interaction takes place.</param>
     /// <param name="client"></param>
+    /// <param name="itemProcessorFactory"></param>
     /// <returns>The interaction result.</returns>
     public virtual InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (!action.MatchNounAndAdjective(NounsForMatching))
             return new NoNounMatchInteractionResult();
 
-        return ApplyProcessors(action, context, null, client);
+        return ApplyProcessors(action, context, null, client, itemProcessorFactory);
     }
 
     public virtual int Size => 1;
@@ -158,7 +159,7 @@ public abstract class ItemBase : IItem
         return "";
     }
 
-    private static List<IVerbProcessor> GetProcessors(ItemBase item)
+    private static List<IVerbProcessor> GetProcessors(ItemBase item, IItemProcessorFactory factory)
     {
         List<IVerbProcessor> result =
         [
@@ -169,12 +170,12 @@ public abstract class ItemBase : IItem
         ];
 
         if (item is ICanBeTakenAndDropped)
-            result.Add(new TakeOrDropInteractionProcessor());
+            result.Add(new TakeOrDropInteractionProcessor(null!));
         else
             result.Add(new CannotBeTakenProcessor());
 
         if (item is ICanBeTakenAndDropped)
-            result.Add(new TakeOrDropInteractionProcessor());
+            result.Add(new TakeOrDropInteractionProcessor(null!));
 
         if (item is ICanBeRead)
             result.Add(new ReadInteractionProcessor());
@@ -201,9 +202,9 @@ public abstract class ItemBase : IItem
     }
 
     protected InteractionResult ApplyProcessors(SimpleIntent action, IContext context, InteractionResult? result,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        result ??= GetProcessors(this).Aggregate<IVerbProcessor, InteractionResult?>(null, (current, processor)
+        result ??= GetProcessors(this, itemProcessorFactory).Aggregate<IVerbProcessor, InteractionResult?>(null, (current, processor)
             => current ?? processor.Process(action, context, this, client));
 
         return result ?? new NoVerbMatchInteractionResult { Verb = action.Verb, Noun = action.Noun };

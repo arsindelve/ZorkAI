@@ -18,12 +18,12 @@ internal class RecArea : LocationWithNoStartingItems
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         string[] verbs = ["examine", "look at"];
 
         if (!action.MatchVerb(verbs))
-            return base.RespondToSimpleInteraction(action, context, client);
+            return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (action.MatchNoun(["games"]))
             return new PositiveInteractionResult(
@@ -33,7 +33,7 @@ internal class RecArea : LocationWithNoStartingItems
             return new PositiveInteractionResult(
                 "Let's see...here are some musical selections, here are some bestselling romantic novels, here is a biography of a famous Double Fannucci champion...");
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     protected override string GetContextBasedDescription(IContext context)

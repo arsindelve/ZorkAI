@@ -246,13 +246,13 @@ public abstract class LocationBase : ILocation, ICanHoldItems
     /// <param name="client"></param>
     /// <returns>InteractionResult that describes if and how the interaction took place.</returns>
     public virtual InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         InteractionResult? result = null;
 
         foreach (var item in Items.ToList())
         {
-            result = item.RespondToSimpleInteraction(action, context, client);
+            result = item.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
             if (result is PositiveInteractionResult or NoVerbMatchInteractionResult)
                 return result;
         }

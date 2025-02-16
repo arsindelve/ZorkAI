@@ -78,7 +78,7 @@ public interface IItem : IInteractionTarget
     (bool HasItem, IItem? TheItem) HasMatchingNounAndAdjective(string? noun, string? adjective,
         bool lookInsideContainers = true);
 
-    InteractionResult? RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client);
+    InteractionResult? RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory);
 
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="MultiNounIntent" /> corresponding

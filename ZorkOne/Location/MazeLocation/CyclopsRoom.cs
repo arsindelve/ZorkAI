@@ -54,10 +54,10 @@ internal class CyclopsRoom : DarkLocation
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory )
     {
         var killInteraction = _decisionEngine.DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(action, context);
-        return killInteraction ?? base.RespondToSimpleInteraction(action, context, client);
+        return killInteraction ?? base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)

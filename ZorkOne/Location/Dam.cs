@@ -53,12 +53,12 @@ public class Dam : LocationBase
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Verb.ToLowerInvariant() == "turn" && action.Noun?.ToLowerInvariant() == "bolt")
             return new PositiveInteractionResult("Your bare hands don't appear to be enough.");
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)

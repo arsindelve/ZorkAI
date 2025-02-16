@@ -233,13 +233,13 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         var killInteraction =
             new KillSomeoneDecisionEngine<Thief>(ThiefAttackedEngine).DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(
                 action, context);
 
-        return killInteraction ?? base.RespondToSimpleInteraction(action, context, client);
+        return killInteraction ?? base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override void Init()

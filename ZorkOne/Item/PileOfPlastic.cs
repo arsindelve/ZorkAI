@@ -91,7 +91,7 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["inflate", "blow up", "blow"], NounsForMatching))
         {
@@ -110,7 +110,7 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
         //     return new PositiveInteractionResult("You don't have enough lung power to inflate it. ");
         // }
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)

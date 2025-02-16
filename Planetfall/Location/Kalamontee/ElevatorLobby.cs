@@ -41,7 +41,7 @@ internal class ElevatorLobby : LocationBase
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(Verbs.PushVerbs, ["button", "elevator button"]))
             return new DisambiguationInteractionResult("Which button do you mean, the red button or the blue button",
@@ -65,7 +65,7 @@ internal class ElevatorLobby : LocationBase
         if (action.Match(Verbs.PushVerbs, ["blue button", "blue elevator", "blue elevator button"]))
             return GetLocation<UpperElevator>().SummonElevator("You hear a faint whirring noise from behind the blue door. ", context);
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
     
     protected override string GetContextBasedDescription(IContext context)

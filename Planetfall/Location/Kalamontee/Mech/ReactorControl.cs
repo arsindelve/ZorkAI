@@ -26,11 +26,11 @@ internal class ReactorControl : LocationWithNoStartingItems
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["push", "press", "activate"], ["button"]))
             return new PositiveInteractionResult("Nothing happens. ");
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }

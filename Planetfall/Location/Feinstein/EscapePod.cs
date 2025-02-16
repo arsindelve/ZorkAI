@@ -45,7 +45,7 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
     public string LocationDescription => ", in the safety web";
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (context.CurrentLocation.SubLocation != null && action.MatchVerb(["get", "rest", "sit"]))
             return new PositiveInteractionResult(GetIn(context));
@@ -53,7 +53,7 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
         if (context.CurrentLocation.SubLocation == null && action.MatchVerb(["leave", "exit", "get"]))
             return new PositiveInteractionResult(GetOut(context));
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }
 

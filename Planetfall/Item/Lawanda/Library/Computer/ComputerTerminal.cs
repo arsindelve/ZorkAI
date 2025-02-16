@@ -51,10 +51,10 @@ public class ComputerTerminal : ItemBase, ICanBeExamined, ICanBeRead, ITurnOffAn
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (!action.MatchVerb(Verbs.TypeVerbs.Union(["press", "push"]).ToArray()))
-            return base.RespondToSimpleInteraction(action, context, client);
+            return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         var keyPress = action.Noun.ToInteger();
 

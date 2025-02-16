@@ -31,7 +31,7 @@ public class OnTheRainbow : LocationWithNoStartingItems
     }
     
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["wave", "swing", "twirl"], GetItem<Sceptre>().NounsForMatching))
         {
@@ -48,6 +48,6 @@ public class OnTheRainbow : LocationWithNoStartingItems
             return new DeathProcessor().Process(deathString, context);
         }
         
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }

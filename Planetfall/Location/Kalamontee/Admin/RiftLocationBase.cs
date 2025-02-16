@@ -26,7 +26,7 @@ internal abstract class RiftLocationBase : LocationWithNoStartingItems
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["jump", "leap"], RiftNouns))
             return new DeathProcessor().Process(
@@ -37,6 +37,6 @@ internal abstract class RiftLocationBase : LocationWithNoStartingItems
             return new PositiveInteractionResult(
                 "The rift is at least eight meters wide and more than thirty meters deep. The bottom is covered with sharp and nasty rocks. ");
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }

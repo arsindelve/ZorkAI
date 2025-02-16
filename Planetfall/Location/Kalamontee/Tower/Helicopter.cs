@@ -23,12 +23,12 @@ public class Helicopter : FloydSpecialInteractionLocation
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["examine"], ["controls", "control panel"]))
             return new PositiveInteractionResult("The controls are covered and locked.");
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     protected override string GetContextBasedDescription(IContext context)

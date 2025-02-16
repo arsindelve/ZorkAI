@@ -38,7 +38,7 @@ public class Ladder : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["extend", "expand", "deploy", "pull out", "stretch", "open", "lengthen"], NounsForMatching))
             return ExtendTheLadder(context);
@@ -46,7 +46,7 @@ public class Ladder : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
         if (action.Match(["retract", "collapse", "shorten", "close", "contract"], NounsForMatching))
             return CollapseTheLadder();
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     private InteractionResult CollapseTheLadder()

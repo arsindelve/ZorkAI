@@ -103,13 +103,13 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         var verb = action.Verb.ToLowerInvariant().Trim();
         var noun = action.Noun?.ToLowerInvariant().ToLowerInvariant().Trim();
 
         if (!Verbs.PushVerbs.Contains(verb))
-            return base.RespondToSimpleInteraction(action, context, client);
+            return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         // If they said "blue button", simplify and replace "button" with "blue"
         if (action.MatchNoun(["button"]))
@@ -143,7 +143,7 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
             "yellow button" or "yellow" => YellowClick(),
             "brown button" or "brown" => BrownClick(),
 
-            _ => base.RespondToSimpleInteraction(action, context, client)
+            _ => base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory)
         };
     }
 

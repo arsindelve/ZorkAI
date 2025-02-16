@@ -65,12 +65,12 @@ internal class DeckNine : LocationBase, ITurnBasedActor
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["clean", "scrub", "wash"], ["floor", "deck"]))
             return new PositiveInteractionResult("The floor is a bit shinier now. ");
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)

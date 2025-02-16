@@ -13,7 +13,7 @@ public class Slime : ItemBase, ICanBeExamined, ISmell
     public string SmellDescription => "It smells like slime. Aren't you glad you didn't step in it? ";
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.MatchVerb(["taste", "eat"]))
             return new PositiveInteractionResult("It tastes like slime. Aren't you glad you didn't step in it? ");
@@ -24,7 +24,7 @@ public class Slime : ItemBase, ICanBeExamined, ISmell
         if (action.MatchVerb(["touch", "feel"]))
             return new PositiveInteractionResult(CannotBeTakenDescription);
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)

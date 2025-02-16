@@ -37,7 +37,7 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["remove"], NounsForMatching))
         {
@@ -57,7 +57,7 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
             return new PositiveInteractionResult("You'll need to specify what you want to unlock it with. ");
         }
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)

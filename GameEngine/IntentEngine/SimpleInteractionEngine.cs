@@ -33,13 +33,13 @@ internal class SimpleInteractionEngine : IIntentEngine
         // Ask the context if it knows what to do with this interaction. Usually, this will only 
         // be true if there is an available interaction with one of the items in inventory. 
         var locationInteraction =
-            context.CurrentLocation.RespondToSimpleInteraction(simpleInteraction, context, generationClient);
+            context.CurrentLocation.RespondToSimpleInteraction(simpleInteraction, context, generationClient, null!);
 
         // We got a meaningful interaction in the location that changed the state of the game
         if (locationInteraction.InteractionHappened)
             return (locationInteraction, locationInteraction.InteractionMessage + Environment.NewLine);
 
-        var contextInteraction = context.RespondToSimpleInteraction(simpleInteraction, generationClient);
+        var contextInteraction = context.RespondToSimpleInteraction(simpleInteraction, generationClient, null!);
 
         // We got a meaningful interaction from one of the items in inventory that changed the state of the game
         if (contextInteraction.InteractionHappened)

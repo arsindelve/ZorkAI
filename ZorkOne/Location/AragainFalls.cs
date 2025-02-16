@@ -33,7 +33,7 @@ public class AragainFalls : LocationWithNoStartingItems
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["cross"], ["rainbow"]))
         {
@@ -44,6 +44,6 @@ public class AragainFalls : LocationWithNoStartingItems
             return new PositiveInteractionResult(context.CurrentLocation.GetDescription(context));
         }
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }

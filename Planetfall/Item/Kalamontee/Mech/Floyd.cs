@@ -56,7 +56,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
     }
 
     public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (IsOn && action.Match(["play"], NounsForMatching))
             return new PositiveInteractionResult(FloydConstants.Play);
@@ -76,7 +76,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
         if (action.Match(["turn off", "deactivate", "stop"], NounsForMatching)) return TurnHimOff(context);
         if (action.Match(["turn on", "activate", "start"], NounsForMatching)) return ActivateHim(context);
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     private InteractionResult SearchHim(IContext context)
