@@ -7,7 +7,17 @@ namespace Model;
 
 public static class ParsingHelper
 {
-    public static readonly string Prompt =
+    public static readonly string TakeUserPrompt = """
+                                                         The player is in this location: 
+                                                         -------------------------
+                                                         {0}
+                                                         -------------------------
+                                                         They wrote: "{1}"
+                                                         
+                                                         Reply with a json array, containing a list of single nouns they wish to take. Respond only in JSON array format. Example: [\"item1\", \"item2\", \"item3\"]"
+                                                         """;
+    
+    public static readonly string SystemPrompt =
         """
         You are a parser for an interactive fiction game. The player is in this location: "{0}"
 

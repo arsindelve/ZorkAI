@@ -374,7 +374,7 @@ public class OpenAIParserTests
         response.Should().Contain("<verb>press</verb>");
         response.Should().Contain($"<noun>{direction} button");
     }
-    
+
     [Test]
     [TestCase("up")]
     [TestCase("down")]
