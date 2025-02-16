@@ -13,14 +13,19 @@ public class OpenAITakeAndDropListParser(ILogger? logger) : OpenAIClientBase(log
 
     public async Task<string[]> GetListOfItemsToTake(string input, string locationDescription, string sessionId)
     {
-        var prompt = string.Format(ParsingHelper.TakeUserPrompt, locationDescription, input);
+        return await Go(locationDescription, input, ParsingHelper.TakeUserPrompt);
+    }
+
+    public async Task<string[]> GetListOfItemsToDrop(string input, string inventoryDescription, string sessionId)
+    {
+        return await Go(inventoryDescription, input, ParsingHelper.DropUserPrompt);
+    }
+
+    private async Task<string[]> Go(string formatStringOne, string formatStringTwo, string promptName)
+    {
+        var prompt = string.Format(promptName, formatStringOne, formatStringTwo);
         var options = GetChatCompletionsOptions(prompt, 0f);
         Response<ChatCompletions>? response = await Client.GetChatCompletionsAsync(options);
         return JsonConvert.DeserializeObject<string[]>(response.Value.Choices[0].Message.Content) ?? [];
-    }
-
-    public Task<string[]> GetListOfItemsToDrop(string input, string inventoryDescription, string sessionId)
-    {
-        throw new NotImplementedException();
     }
 }

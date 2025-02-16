@@ -17,6 +17,16 @@ public static class ParsingHelper
                                                          Reply with a json array, containing a list of single nouns they wish to take. Respond only in JSON array format. Example: [\"item1\", \"item2\", \"item3\"]"
                                                          """;
     
+    public static readonly string DropUserPrompt = """
+                                                   The player has the following items in their inventory 
+                                                   -------------------------
+                                                   {0}
+                                                   -------------------------
+                                                   They wrote: "{1}"
+
+                                                   Reply with a json array, containing a list of single nouns they wish to drop. Respond only in JSON array format. Example: [\"item1\", \"item2\", \"item3\"]"
+                                                   """;
+    
     public static readonly string SystemPrompt =
         """
         You are a parser for an interactive fiction game. The player is in this location: "{0}"

@@ -8,6 +8,9 @@ using ZorkOne.Location;
 
 namespace IntegrationTests;
 
+[TestFixture]
+[Explicit]
+[Parallelizable(ParallelScope.Children)]
 public class OpenAITakeAndDropParserTests
 {
     private readonly object _lockObject = new();
@@ -56,5 +59,38 @@ public class OpenAITakeAndDropParserTests
             response.Should().Contain(noun);
         }
         
+    }
+    
+    [Test]
+    [TestCase("drop the leaflet", "leaflet")]
+    [TestCase("drop the leaflet and the rope", "leaflet", "rope")]
+    [TestCase("drop the sack, the knife and the rope", "sack", "knife", "rope")]
+    [TestCase("drop everything", "brown sack", "nasty knife", "rope", "brass lantern", "sword", "glass bottle", "leaflet")]
+    [TestCase("drop all except the leaflet", "brown sack", "nasty knife", "rope", "brass lantern", "sword", "glass bottle")]
+    [TestCase("drop everything except don't drop the leaflet", "brown sack", "nasty knife", "rope", "brass lantern", "sword", "glass bottle")]
+    [TestCase("drop all but the leaflet and the bottle", "brown sack", "nasty knife", "rope", "brass lantern", "sword")]
+    [TestCase("drop all except leaflet, bottle", "brown sack", "nasty knife", "rope", "brass lantern", "sword")]
+    public async Task DropListOfItems(string command, params string[] nouns)
+    {
+        string inventory = """
+                           You are carrying:
+                               A rope
+                               A nasty knife
+                               A brass lantern (providing light)
+                               A sword
+                               A glass bottle
+                               The glass bottle contains:
+                                 A quantity of water
+                               A brown sack
+                               A leaflet
+                           """;
+
+        var target = new OpenAITakeAndDropListParser(null);
+        var response = await target.GetListOfItemsToDrop(command, inventory, string.Empty);
+        response.Length.Should().Be(nouns.Length);
+        foreach (var noun in nouns)
+        {
+            response.Should().Contain(noun);
+        }
     }
 }

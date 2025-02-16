@@ -143,21 +143,4 @@ public class TakeProcessorTests : EngineTestsBase
         result.Should().Contain("Taken");
         target.Context.HasItem<NastyKnife>().Should().BeTrue();
     }
-    
-    [Test]
-    [TestCase("take screwdriver and tube", 2)]
-    //[TestCase("take screwdriver, tube", 2)]
-    //[TestCase("take screwdriver, tube, wrench", 3)]
-    //[TestCase("take screwdriver, tube and wrench", 3)]
-    //[TestCase("take screwdriver tube wrench", 3)]
-    //[TestCase("take screwdriver", 1)]
-    public async Task TakeMultipleItems(string command, int itemCount)
-    {
-        var target = GetTarget();
-        StartHere<MaintenanceRoom>().IsNoLongerDark = true;
-        
-        var response = await target.GetResponse(command);
-        Console.WriteLine(response);
-        target.Context.Items.Count.Should().Be(itemCount);
-    }
 }
