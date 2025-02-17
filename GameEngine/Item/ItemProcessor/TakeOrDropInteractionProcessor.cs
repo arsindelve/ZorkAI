@@ -84,6 +84,22 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
 
         return (result, result.InteractionMessage);
     }
+    
+    public async Task<(InteractionResult? resultObject, string? ResultMessage)> Process(DropIntent action,
+        IContext context, IGenerationClient client)
+    {
+        var result = await GetItemsToDrop(context,
+            new SimpleIntent { OriginalInput = action.Message, Verb = "drop", Noun = string.Empty });
+
+        // if (result is null or NoNounMatchInteractionResult)
+        // {
+        //     var message = await client.GenerateNarration(
+        //         new TakeSomethingThatIsNotPortable(action.Message ?? string.Empty), context.SystemPromptAddendum);
+        //     return (new PositiveInteractionResult(message), message);
+        // }
+
+        return (result, result.InteractionMessage);
+    }
 
     private async Task<InteractionResult?> GetItemsToDrop(IContext context, SimpleIntent action)
     {
@@ -99,8 +115,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (items.Length == 1)
             return DropIt(context, Repository.GetItem(items[0]));
 
-        return new PositiveInteractionResult(TakeEverythingProcessor.TakeAll(context,
-            items.Select(Repository.GetItem).ToList()));
+        return new PositiveInteractionResult(DropEverythingProcessor.DropAll(context,  items.Select(Repository.GetItem).ToList()));
     }
 
     private async Task<InteractionResult?> GetItemsToTake(IContext context, SimpleIntent action)

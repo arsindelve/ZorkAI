@@ -339,6 +339,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             TakeIntent takeIntent => await new TakeOrDropInteractionProcessor(_openAITakeAndDropListParser).Process(
                 takeIntent, Context, GenerationClient),
             
+            DropIntent dropIntent => await new TakeOrDropInteractionProcessor(_openAITakeAndDropListParser).Process(
+                dropIntent, Context, GenerationClient),
+            
             SimpleIntent simpleInteraction => await new SimpleInteractionEngine(_itemProcessorFactory).Process(
                 simpleInteraction,
                 Context,

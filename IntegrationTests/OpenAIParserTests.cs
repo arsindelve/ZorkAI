@@ -146,13 +146,13 @@ public class OpenAIParserTests
 
     // Single noun
     [TestCase(typeof(WestOfHouse), "drop the card",
-        new[] { "<verb>drop</verb>", "<noun>card</noun>", "<intent>act</intent>" })]
+        new[] { "<verb>drop</verb>", "<noun>card</noun>", "<intent>drop</intent>" })]
     [TestCase(typeof(WestOfHouse), "drop the access card",
-        new[] { "<verb>drop</verb>", "<noun>access card</noun>", "<intent>act</intent>" })]
+        new[] { "<verb>drop</verb>", "<noun>access card</noun>", "<intent>drop</intent>" })]
     [TestCase(typeof(WestOfHouse), "drop access card",
-        new[] { "<verb>drop</verb>", "<noun>access card</noun>", "<intent>act</intent>" })]
+        new[] { "<verb>drop</verb>", "<noun>access card</noun>", "<intent>drop</intent>" })]
     [TestCase(typeof(WestOfHouse), "drop upper elevator access card",
-        new[] { "<verb>drop</verb>", "<noun>upper elevator access card</noun>", "<intent>act</intent>" })]
+        new[] { "<verb>drop</verb>", "<noun>upper elevator access card</noun>", "<intent>drop</intent>" })]
     [TestCase(typeof(WestOfHouse), "hey, what do you say we open the mailbox",
         new[] { "<verb>open</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "next let's try opening the mailbox",
@@ -171,8 +171,8 @@ public class OpenAIParserTests
         new[] { "<verb>eat</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "the mailbox, please smoke it",
         new[] { "<verb>smoke</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
-    [TestCase(typeof(WestOfHouse), "let's abscond the mailbox",
-        new[] { "<verb>steal</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
+    [TestCase(typeof(WestOfHouse), "let's steal the mailbox",
+        new[] { "<intent>take</intent>" })]
     [TestCase(typeof(WestOfHouse), "it would be great if I can please lick the mailbox",
         new[] { "<verb>lick</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "light lantern",

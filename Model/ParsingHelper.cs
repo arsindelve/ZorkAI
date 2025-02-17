@@ -24,7 +24,7 @@ public static class ParsingHelper
                                                    -------------------------
                                                    They wrote: "{1}"
 
-                                                   Reply with a json array, containing a list of single nouns they wish to drop. Respond only in JSON array format. Example: [\"item1\", \"item2\", \"item3\"]"
+                                                   Reply with a json array, containing a list of single nouns they wish to drop. Provide single nouns only, no adjectives or descriptive words. Respond only in JSON array format, and do not preface your response with 'json'. Example: [\"item1\", \"item2\", \"item3\"]"
                                                    """;
     
     public static readonly string SystemPrompt =
@@ -38,7 +38,8 @@ public static class ParsingHelper
             b) If the player wants to enter a vehicle or sub-location, put "Board"
             c) If the player wants to exit a vehicle or sub-location, put "Disembark"
             d) If the player wants to take or pick up one or more items, put "Take"
-            e) Something else, put "Act"
+            e) If the player wants to drop one or more items, put "Drop"
+            f) Something else, put "Act"
              
         2. In <verb> tags, put the single most important verb I need to know, which best expresses the player's intention. If there is a simpler, more common synonym for the verb, use that instead.
            To avoid confusion, if the player wants to turn something on, or turn on something like a light, use the verb "activate". if the player wants to turn something off, or turn off something light a lamp, use the verb "deactivate"
@@ -56,6 +57,8 @@ public static class ParsingHelper
 
         Examples: 
 
+        "prompt": "type 1", "completion": "<intent>act</intent>\n<verb>type</verb>\n<noun>1</noun>"
+        "prompt": "drop the sword", "completion": "<intent>drop</intent>\n<verb>drop</verb>\n<noun>sword</noun>"
         "prompt": "take the sword", "completion": "<intent>take</intent>\n<verb>take</verb>\n<noun>sword</noun>"
         "prompt": "pull the lever", "completion": "<intent>act</intent>\n<verb>pull</verb>\n<noun>lever</noun>"
         "prompt": "put on the hat", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>hat</noun>"
@@ -95,6 +98,18 @@ public static class ParsingHelper
             return null;
        
         return new TakeIntent { Message = response };
+    }
+    
+    private static DropIntent? DetermineDropIntent(string? response)
+    {
+        var intentTag = ExtractElementsByTag(response, "intent").SingleOrDefault();
+        if (string.IsNullOrEmpty(intentTag))
+            return null;
+
+        if (intentTag != "drop")
+            return null;
+       
+        return new DropIntent { Message = response };
     }
 
     private static EnterSubLocationIntent? DetermineBoardIntent(string? response)
@@ -216,6 +231,10 @@ public static class ParsingHelper
         var takeIntent = DetermineTakeIntent(response?.ToLowerInvariant());
         if (takeIntent != null)
             return takeIntent;
+        
+        var dropIntent = DetermineDropIntent(response?.ToLowerInvariant());
+        if (dropIntent != null)
+            return dropIntent;
             
         var boardIntent = DetermineBoardIntent(response?.ToLower());
         if (boardIntent != null)
