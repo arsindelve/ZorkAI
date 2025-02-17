@@ -11,12 +11,12 @@ public class OpenAITakeAndDropListParser(ILogger? logger) : OpenAIClientBase(log
 {
     protected override string DeploymentName => "gpt-4o-mini";
 
-    public async Task<string[]> GetListOfItemsToTake(string input, string locationDescription, string sessionId)
+    public async Task<string[]> GetListOfItemsToTake(string input, string locationDescription)
     {
         return await Go(locationDescription, input, ParsingHelper.TakeUserPrompt);
     }
 
-    public async Task<string[]> GetListOfItemsToDrop(string input, string inventoryDescription, string sessionId)
+    public async Task<string[]> GetListOfItemsToDrop(string input, string inventoryDescription)
     {
         return await Go(inventoryDescription, input, ParsingHelper.DropUserPrompt);
     }

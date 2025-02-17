@@ -25,7 +25,22 @@ public class EngineTestsBase : EngineTestsBaseCommon<ZorkIContext>
 
         Repository.Reset();
 
-        var engine = new GameEngine<ZorkI, ZorkIContext>(new ItemProcessorFactory(Mock.Of<IAITakeAndAndDropParser>()),
+        var takeAndDropParser = new Mock<IAITakeAndAndDropParser>();
+        takeAndDropParser.Setup(s => s.GetListOfItemsToDrop(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync((string input, string context) =>
+            {
+                var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                return words.Length > 1 ? [words[1]] : [];
+            });
+        
+        takeAndDropParser.Setup(s => s.GetListOfItemsToTake(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync((string input, string context) =>
+            {
+                var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                return words.Length > 1 ? [words[1]] : [];
+            });
+        
+        var engine = new GameEngine<ZorkI, ZorkIContext>(new ItemProcessorFactory(takeAndDropParser.Object),
             Parser, Client.Object, Mock.Of<ISecretsManager>(),
             Mock.Of<ICloudWatchLogger<TurnLog>>());
         

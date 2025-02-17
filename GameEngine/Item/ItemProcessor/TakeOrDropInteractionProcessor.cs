@@ -1,3 +1,4 @@
+using GameEngine.StaticCommand.Implementation;
 using Model.AIGeneration;
 using Model.AIParsing;
 using Model.Interface;
@@ -35,12 +36,10 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
     /// <param name="client">The generation client used for any additional logic or AI-driven interactions required during processing.</param>
     /// <returns>An <see cref="InteractionResult"/> indicating the outcome of the interaction, or null if no valid action was processed.</returns>
     /// <exception cref="Exception">Thrown when the item does not implement required interfaces for the action.</exception>
-    Task<InteractionResult?> IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item,
+    async Task<InteractionResult?> IVerbProcessor.Process(SimpleIntent action, IContext context,
+        IInteractionTarget item,
         IGenerationClient client)
     {
-        if (item is not IItem castItem)
-            throw new Exception();
-
         if (item is not ICanBeTakenAndDropped)
             throw new Exception();
 
@@ -53,17 +52,55 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             case "get":
             case "acquire":
             case "snatch":
-                return Task.FromResult<InteractionResult?>(TakeIt(context, castItem));
+                return await GetItemsToTake(context, action);
 
             case "drop":
-                return Task.FromResult<InteractionResult?>(DropIt(context, castItem));
+                return await GetItemsToDrop(context, action);
         }
 
-        return Task.FromResult<InteractionResult?>(null);
+        return null;
     }
 
-    public static InteractionResult DropIt(IContext context, IItem castItem)
+    private async Task<InteractionResult?> GetItemsToDrop(IContext context, SimpleIntent action)
     {
+        if (string.IsNullOrEmpty(action.OriginalInput))
+            return null;
+
+        var items = await _itemParser.GetListOfItemsToDrop(action.OriginalInput,
+            context.ItemListDescription(string.Empty + Environment.NewLine, null));
+
+        if (!items.Any())
+            return new NoNounMatchInteractionResult();
+
+        if (items.Length == 1)
+            return DropIt(context, Repository.GetItem(items[0]));
+
+        return new PositiveInteractionResult(TakeEverythingProcessor.TakeAll(context,
+            items.Select(Repository.GetItem).ToList()));
+    }
+
+    private async Task<InteractionResult?> GetItemsToTake(IContext context, SimpleIntent action)
+    {
+        if (string.IsNullOrEmpty(action.OriginalInput))
+            return null;
+
+        var items = await _itemParser.GetListOfItemsToTake(action.OriginalInput,
+            context.CurrentLocation.GetDescriptionForGeneration(context));
+
+        if (!items.Any())
+            return new NoNounMatchInteractionResult();
+
+        if (items.Length == 1)
+            return TakeIt(context, Repository.GetItem(items[0]));
+
+        return new PositiveInteractionResult(TakeEverythingProcessor.TakeAll(context,
+            items.Select(Repository.GetItem).ToList()));
+    }
+
+    public static InteractionResult DropIt(IContext context, IItem? castItem)
+    {
+        if(castItem is null) return new NoNounMatchInteractionResult();
+        
         if (!context.Items.Contains(castItem))
             return new PositiveInteractionResult("You don't have that!");
 
@@ -81,7 +118,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
     {
         if (castItem is null)
             return new NoNounMatchInteractionResult();
-        
+
         if (!string.IsNullOrEmpty(castItem.CannotBeTakenDescription))
         {
             ((ItemBase)castItem).OnFailingToBeTaken(context);

@@ -52,7 +52,7 @@ public class OpenAITakeAndDropParserTests
         }
 
         var target = new OpenAITakeAndDropListParser(null);
-        var response = await target.GetListOfItemsToTake(command, locationObjectDescription, string.Empty);
+        var response = await target.GetListOfItemsToTake(command, locationObjectDescription);
         response.Length.Should().Be(nouns.Length);
         foreach (var noun in nouns)
         {
@@ -87,7 +87,7 @@ public class OpenAITakeAndDropParserTests
                            """;
 
         var target = new OpenAITakeAndDropListParser(null);
-        var response = await target.GetListOfItemsToDrop(command, inventory, string.Empty);
+        var response = await target.GetListOfItemsToDrop(command, inventory);
         response.Length.Should().Be(nouns.Length);
         foreach (var noun in nouns)
         {

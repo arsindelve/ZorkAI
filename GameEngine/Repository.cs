@@ -64,7 +64,7 @@ public static class Repository
         if (string.IsNullOrEmpty(noun))
             return null;
         noun = noun.ToLowerInvariant().Trim();
-        return _allItems.Values.FirstOrDefault(i => i.HasMatchingNoun(noun).HasItem);
+        return _allItems.Values.FirstOrDefault(i => i.HasMatchingNoun(noun, false).HasItem);
     }
 
     public static ILocation? GetLocation(string? noun)

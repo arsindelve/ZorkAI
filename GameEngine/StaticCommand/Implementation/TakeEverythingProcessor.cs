@@ -17,14 +17,21 @@ public class TakeEverythingProcessor : IGlobalCommand
         Runtime runtime
         )
     {
-        var sb = new StringBuilder();
         var items = ((ICanHoldItems)context.CurrentLocation).GetAllItemsRecursively;
 
         if (!items.Any(s => s is ICanBeTakenAndDropped || !string.IsNullOrEmpty(s.CannotBeTakenDescription)))
             return await client.GenerateNarration(new TakeAllNothingHere(), context.SystemPromptAddendum);
+        
+        return TakeAll(context, items);
+    }
 
+    public static string TakeAll(IContext context, List<IItem?> items)
+    {
+        var sb = new StringBuilder();
         foreach (var nextItem in items)
         {
+            if(nextItem is null) continue;
+            
             if (!string.IsNullOrEmpty(nextItem.CannotBeTakenDescription))
             {
                 sb.AppendLine($"{nextItem.Name}: {nextItem.CannotBeTakenDescription}");
