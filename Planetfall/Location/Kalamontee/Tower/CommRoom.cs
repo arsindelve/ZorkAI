@@ -18,8 +18,8 @@ internal class CommRoom : LocationWithNoStartingItems
         };
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["press", "push", "activate"], ["button"]))
             return new PositiveInteractionResult(
@@ -34,7 +34,7 @@ internal class CommRoom : LocationWithNoStartingItems
                 "\"Tuu enee ship uv xe Sekund Galaktik Yuunyun: Planitwiid plaag haz struk entiir popyuulaashun. " +
                 "Tiim iz kritikul. Eemurjensee asistins reekwestid. <reepeet\nmesij>\"");
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     protected override string GetContextBasedDescription(IContext context)

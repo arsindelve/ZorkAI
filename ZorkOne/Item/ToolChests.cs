@@ -6,7 +6,7 @@ namespace ZorkOne.Item;
 
 public class ToolChests : ItemBase, IPluralNoun, ICanBeExamined, ICanBeTakenAndDropped
 {
-    public override string[] NounsForMatching => ["tool chest", "tool chests", "chests", "chest"];
+    public override string[] NounsForMatching => ["tool chest", "tool chests", "chests", "chest", "group of chests", "group of tool chests"];
 
     public override string CannotBeTakenDescription =>
         "The chests are so rusty and corroded that they crumble when you touch them. ";

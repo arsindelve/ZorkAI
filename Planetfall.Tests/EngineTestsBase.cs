@@ -1,8 +1,10 @@
 using CloudWatch;
 using CloudWatch.Model;
 using GameEngine;
+using GameEngine.Item;
 using Model;
 using Model.AIGeneration;
+using Model.AIParsing;
 using Model.Interface;
 using Model.Item;
 using Model.Location;
@@ -17,7 +19,7 @@ public class EngineTestsBase
 {
     private Mock<IGenerationClient> _client = new();
     private IIntentParser _parser = Mock.Of<IIntentParser>();
-    private PlanetfallContext Context { get; set; }
+    private PlanetfallContext Context { get; set; } = null!;
 
     protected T StartHere<T>() where T : class, ILocation, new()
     {
@@ -48,8 +50,23 @@ public class EngineTestsBase
         _parser = parser ?? new TestParser(new PlanetfallGlobalCommandFactory(), "Planetfall");
 
         Repository.Reset();
+        
+        var takeAndDropParser = new Mock<IAITakeAndAndDropParser>();
+        takeAndDropParser.Setup(s => s.GetListOfItemsToDrop(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync((string input, string context) =>
+            {
+                var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                return words.Length > 1 ? [words[1]] : [];
+            });
+        
+        takeAndDropParser.Setup(s => s.GetListOfItemsToTake(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync((string input, string context) =>
+            {
+                var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                return words.Length > 1 ? [words[1]] : [];
+            });
 
-        var engine = new GameEngine<PlanetfallGame, PlanetfallContext>(_parser, _client.Object,
+        var engine = new GameEngine<PlanetfallGame, PlanetfallContext>(new ItemProcessorFactory(takeAndDropParser.Object), _parser, _client.Object,
             Mock.Of<ISecretsManager>(), Mock.Of<ICloudWatchLogger<TurnLog>>());
         engine.Context.Verbosity = Verbosity.Verbose;
         Repository.GetLocation<DeckNine>().Init();

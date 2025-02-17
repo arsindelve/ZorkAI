@@ -12,7 +12,7 @@ public class OpenAIParser(ILogger? logger) : OpenAIClientBase(logger), IAIParser
     
     public async Task<IntentBase> AskTheAIParser(string input, string locationDescription, string sessionId)
     {
-        var systemPrompt = string.Format(ParsingHelper.Prompt, locationDescription, input);
+        var systemPrompt = string.Format(ParsingHelper.SystemPrompt, locationDescription, input);
         var options = GetChatCompletionsOptions(systemPrompt, 0f); 
         options.Temperature = 0;
 
@@ -20,6 +20,5 @@ public class OpenAIParser(ILogger? logger) : OpenAIClientBase(logger), IAIParser
         ChatResponseMessage? responseMessage = response.Value.Choices[0].Message;
         return ParsingHelper.GetIntent(input, responseMessage.Content, Logger);
     }
-
     public string LanguageModel => DeploymentName;
 }

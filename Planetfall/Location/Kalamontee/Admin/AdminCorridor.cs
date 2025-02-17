@@ -43,7 +43,8 @@ internal class AdminCorridor : RiftLocationBase
     }
 
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         var ladder = GetItem<Ladder>();
         string[] verbs = ["move", "place", "put"];
@@ -67,6 +68,6 @@ internal class AdminCorridor : RiftLocationBase
                 "The ladder swings out across the rift and comes to rest on the far edge, spanning the precipice. ");
         }
 
-        return base.RespondToMultiNounInteraction(action, context);
+        return await base.RespondToMultiNounInteraction(action, context);
     }
 }

@@ -25,13 +25,13 @@ public class TinCan : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
         return "A tin can";
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["open"], NounsForMatching))
             return new PositiveInteractionResult(
                 "You certainly can't open it with your hands, and you don't seem to have found a can opener yet. ");
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }

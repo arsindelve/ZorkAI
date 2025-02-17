@@ -14,7 +14,7 @@ internal class ClaudeFourParserClient : ClaudeClientBase, IClaudeFourParserClien
 {
     public Task<string?> GetResponse(string location, string input)
     {
-        var request = string.Format(ParsingHelper.Prompt, location, input);
+        var request = string.Format(ParsingHelper.SystemPrompt, location, input);
         return GenerateResponse(BuildPayload(request));
     }
 

@@ -1,4 +1,4 @@
-using GameEngine.IntentEngine;
+using GameEngine.Item.ItemProcessor;
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Item;
@@ -9,17 +9,18 @@ public class TakeOnlyAvailableItemProcessor : IStatefulProcessor
 {
     private bool _secondTimeProcessing;
 
-    public async Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
+    public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {
-        IIntentEngine processor = new SimpleInteractionEngine();
         string nounToTake;
-
+        IItem? itemToTake;
+        
         if (_secondTimeProcessing)
         {
             if (string.IsNullOrEmpty(input))
-                return "What do you want to take? ";
+                return Task.FromResult("What do you want to take? ");
 
             nounToTake = input;
+            itemToTake = Repository.GetItem(nounToTake);
         }
 
         else
@@ -33,28 +34,21 @@ public class TakeOnlyAvailableItemProcessor : IStatefulProcessor
             if (itemsHere.Count != 1)
             {
                 _secondTimeProcessing = true;
-                return "What do you want to take? ";
+                return Task.FromResult("What do you want to take? ");
             }
 
-            var itemToTake = itemsHere.Single();
+            itemToTake = itemsHere.Single();
             nounToTake = itemToTake.NounsForMatching.First();
         }
 
-        var intent = new SimpleIntent
-        {
-            OriginalInput = "take",
-            Noun = nounToTake,
-            Verb = "take"
-        };
-
-        var result = (await processor.Process(intent, context, client)).ResultMessage;
+        var result = TakeOrDropInteractionProcessor.TakeIt(context, itemToTake).InteractionMessage;
         ContinueProcessing = false;
         Completed = true;
 
         if (input?.ToLowerInvariant().Trim() == "take")
             result = $"({nounToTake})\n {result}";
 
-        return result;
+        return Task.FromResult(result);
     }
 
     public bool Completed { get; private set; }

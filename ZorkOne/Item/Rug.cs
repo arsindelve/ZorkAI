@@ -16,11 +16,11 @@ public class Rug : ItemBase
 
     public override string[] NounsForMatching => ["rug", "carpet"];
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (!action.MatchNoun(NounsForMatching))
-            return base.RespondToSimpleInteraction(action, context, client);
+            return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (action.MatchVerb(["move", "slide", "pull", "rearrange"]))
             return MoveRug();
@@ -33,7 +33,7 @@ public class Rug : ItemBase
             action.OriginalInput.ToLowerInvariant().Contains("under"))
             return LookUnderRug();
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     private InteractionResult LookUnderRug()
@@ -43,7 +43,8 @@ public class Rug : ItemBase
                 "There is nothing but dust there. ");
 
         return new PositiveInteractionResult(
-            "Underneath the rug is a closed trap door. As you drop the corner of the rug, the trap door is once again concealed from view. ");
+            "Underneath the rug is a closed trap door. As you drop the corner of the rug, " +
+            "the trap door is once again concealed from view. ");
     }
 
     private InteractionResult SitOnRug()

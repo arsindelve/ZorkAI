@@ -26,8 +26,8 @@ public class ControlPanel : ItemBase, ICanBeTakenAndDropped
                $"Directly above the bolt is a small green plastic bubble{(GreenBubbleGlowing ? " which is glowing serenely" : "")}.";
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         string[] matchingNouns = ["bolt", "bubble", "green bubble", "small bubble", "small green bubble"];
 
@@ -35,13 +35,13 @@ public class ControlPanel : ItemBase, ICanBeTakenAndDropped
         var noun = action.Noun?.ToLowerInvariant().ToLowerInvariant().Trim();
 
         if (!matchingNouns.Contains(noun))
-            return base.RespondToSimpleInteraction(action, context, client);
+            return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         return verb switch
         {
             "take" => new PositiveInteractionResult("It is an integral part of the control panel. "),
             "examine" => new PositiveInteractionResult($"There's nothing special about the {noun}. "),
-            _ => base.RespondToSimpleInteraction(action, context, client)
+            _ => await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory)
         };
     }
 }

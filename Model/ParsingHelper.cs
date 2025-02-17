@@ -7,7 +7,27 @@ namespace Model;
 
 public static class ParsingHelper
 {
-    public static readonly string Prompt =
+    public static readonly string TakeUserPrompt = """
+                                                         The player is in this location: 
+                                                         -------------------------
+                                                         {0}
+                                                         -------------------------
+                                                         They wrote: "{1}"
+                                                         
+                                                         Reply with a json array, containing a list of nouns they wish to take. Provide single nouns only, no adjectives or descriptive words. Respond only in JSON array format, and do not preface your response with 'json'. Example: [\"item1\", \"item2\", \"item3\"]"
+                                                         """;
+    
+    public static readonly string DropUserPrompt = """
+                                                   The player has the following items in their inventory 
+                                                   -------------------------
+                                                   {0}
+                                                   -------------------------
+                                                   They wrote: "{1}"
+
+                                                   Reply with a json array, containing a list of single nouns they wish to drop. Provide single nouns only, no adjectives or descriptive words. Respond only in JSON array format, and do not preface your response with 'json'. Example: [\"item1\", \"item2\", \"item3\"]"
+                                                   """;
+    
+    public static readonly string SystemPrompt =
         """
         You are a parser for an interactive fiction game. The player is in this location: "{0}"
 
@@ -17,7 +37,9 @@ public static class ParsingHelper
             a) If the player is expressing a desire to move, enter, go in, or travel somewhere, put "Move"
             b) If the player wants to enter a vehicle or sub-location, put "Board"
             c) If the player wants to exit a vehicle or sub-location, put "Disembark"
-            d) Something else, put "Act"
+            d) If the player wants to take or pick up one or more items, put "Take"
+            e) If the player wants to drop one or more items, put "Drop"
+            f) Something else, put "Act"
              
         2. In <verb> tags, put the single most important verb I need to know, which best expresses the player's intention. If there is a simpler, more common synonym for the verb, use that instead.
            To avoid confusion, if the player wants to turn something on, or turn on something like a light, use the verb "activate". if the player wants to turn something off, or turn off something light a lamp, use the verb "deactivate"
@@ -35,6 +57,9 @@ public static class ParsingHelper
 
         Examples: 
 
+        "prompt": "type 1", "completion": "<intent>act</intent>\n<verb>type</verb>\n<noun>1</noun>"
+        "prompt": "drop the sword", "completion": "<intent>drop</intent>\n<verb>drop</verb>\n<noun>sword</noun>"
+        "prompt": "take the sword", "completion": "<intent>take</intent>\n<verb>take</verb>\n<noun>sword</noun>"
         "prompt": "pull the lever", "completion": "<intent>act</intent>\n<verb>pull</verb>\n<noun>lever</noun>"
         "prompt": "put on the hat", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>hat</noun>"
         "prompt": "inflate the pile of plastic with the air pump", "completion":"<intent>act</intent>\n<verb>inflate</verb>\n<noun>pile of plastic</noun>\n<noun>air pump</noun>\n<preposition>with</preposition>"
@@ -61,6 +86,30 @@ public static class ParsingHelper
 
         return new ExitSubLocationIntent
             { NounOne = nouns.First(), NounTwo = nouns.LastOrDefault(), Message = response };
+    }
+    
+    private static TakeIntent? DetermineTakeIntent(string? response, string input)
+    {
+        var intentTag = ExtractElementsByTag(response, "intent").SingleOrDefault();
+        if (string.IsNullOrEmpty(intentTag))
+            return null;
+
+        if (intentTag != "take")
+            return null;
+       
+        return new TakeIntent { Message = response, OriginalInput = input};
+    }
+    
+    private static DropIntent? DetermineDropIntent(string? response, string input)
+    {
+        var intentTag = ExtractElementsByTag(response, "intent").SingleOrDefault();
+        if (string.IsNullOrEmpty(intentTag))
+            return null;
+
+        if (intentTag != "drop")
+            return null;
+       
+        return new DropIntent { Message = response, OriginalInput = input};
     }
 
     private static EnterSubLocationIntent? DetermineBoardIntent(string? response)
@@ -179,6 +228,14 @@ public static class ParsingHelper
 
     public static IntentBase GetIntent(string input, string? response, ILogger? logger)
     {
+        var takeIntent = DetermineTakeIntent(response?.ToLowerInvariant(), input);
+        if (takeIntent != null)
+            return takeIntent;
+        
+        var dropIntent = DetermineDropIntent(response?.ToLowerInvariant(), input);
+        if (dropIntent != null)
+            return dropIntent;
+            
         var boardIntent = DetermineBoardIntent(response?.ToLower());
         if (boardIntent != null)
             return boardIntent;

@@ -7,7 +7,7 @@ namespace Planetfall.Location.Lawanda;
 internal class ProjConOffice : LocationWithNoStartingItems
 {
     public override string Name => "ProjCon Office";
-    
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>
@@ -16,11 +16,11 @@ internal class ProjConOffice : LocationWithNoStartingItems
         };
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (!action.MatchVerb(["examine", "look at", "look"]))
-            return base.RespondToSimpleInteraction(action, context, client);
+            return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (action.MatchNoun(["logo"]))
             return new PositiveInteractionResult(
@@ -32,9 +32,9 @@ internal class ProjConOffice : LocationWithNoStartingItems
                 "of Burstini Bonz. It doesn't appear to fit the decor of the room at all. The mural seems to ripple " +
                 "now and then, as though a breeze were blowing behind it.");
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
-    
+
     protected override string GetContextBasedDescription(IContext context)
     {
         return

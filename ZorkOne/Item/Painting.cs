@@ -32,7 +32,8 @@ public class Painting : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedIn
         return "A painting";
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         if (action.Match(["cut", "chop", "slash", "destroy"], NounsForMatching,
                 Repository.GetItem<Sword>().NounsForMatching, ["with", "using"]))
@@ -51,6 +52,6 @@ public class Painting : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedIn
                 "Your skillful swordsmanship slices the painting into innumerable slivers which blow away. ");
         }
 
-        return new NoNounMatchInteractionResult();
+        return await base.RespondToMultiNounInteraction(action, context);
     }
 }

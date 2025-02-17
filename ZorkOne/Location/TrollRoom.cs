@@ -14,7 +14,7 @@ public class TrollRoom : DarkLocation
 {
     internal KillSomeoneDecisionEngine<Troll> KillDecisionEngine { get; set; } =
         new(new AdventurerVersusTrollCombatEngine(new RandomChooser()));
-    
+
     private bool TrollIsAwake => !GetItem<Troll>().IsDead &&
                                  !GetItem<Troll>().IsUnconscious;
 
@@ -79,17 +79,18 @@ public class TrollRoom : DarkLocation
         base.OnLeaveLocation(context, newLocation, previousLocation);
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         var killInteraction = KillDecisionEngine.DoYouWantToKillSomeoneButYouDidNotSpecifyAWeapon(action, context);
-        return killInteraction ?? base.RespondToSimpleInteraction(action, context, client);
+        return killInteraction ?? await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         var result = KillDecisionEngine.DoYouWantToKillSomeone(action, context);
-        return result ?? base.RespondToMultiNounInteraction(action, context);
+        return result ?? await base.RespondToMultiNounInteraction(action, context);
     }
 
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,

@@ -14,11 +14,11 @@ public class ClothingOnAndOffProcessor : IVerbProcessor
     /// <param name="item">The item to be put on / taken off</param>
     /// <param name="client"></param>
     /// <returns>An InteractionResult indicating the result of the action.</returns>
-    public InteractionResult? Process(SimpleIntent action, IContext context, IInteractionTarget item,
+    public Task<InteractionResult?> Process(SimpleIntent action, IContext context, IInteractionTarget item,
         IGenerationClient client)
     {
         if (string.IsNullOrEmpty(action.Verb))
-            return null;
+            return Task.FromResult<InteractionResult?>(null);
 
         switch (action.Verb.ToLowerInvariant().Trim())
         {
@@ -27,17 +27,17 @@ public class ClothingOnAndOffProcessor : IVerbProcessor
             case "put on":
             case "dress in":
             case "slip on":
-                return PutOn(item);
+                return Task.FromResult(PutOn(item));
 
             case "take off":
             case "doff":
             case "remove":
             case "discard":
             case "slip off":
-                return TakeOff(item);
+                return Task.FromResult(TakeOff(item));
         }
 
-        return null;
+        return Task.FromResult<InteractionResult?>(null);
     }
 
     private static InteractionResult? TakeOff(IInteractionTarget item)

@@ -144,8 +144,22 @@ public interface IContext : ICanHoldItems
     /// <returns>The updated score after adding the points.</returns>
     int AddPoints(int points);
 
-    InteractionResult RespondToSimpleInteraction(SimpleIntent simpleInteraction, IGenerationClient client);
+    /// <summary>
+    /// Processes a simple interaction intent within the context and generates an appropriate response.
+    /// </summary>
+    /// <param name="simpleInteraction">The simple interaction intent to be processed.</param>
+    /// <param name="client">The client used for generation-related operations.</param>
+    /// <param name="itemProcessorFactory">The factory used to process items associated with the interaction.</param>
+    /// <returns>An <see cref="InteractionResult"/> containing the outcome of the interaction processing.</returns>
+    Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent simpleInteraction, IGenerationClient client,
+        IItemProcessorFactory itemProcessorFactory);
 
+    /// <summary>
+    /// Generates a description of the items located in a specific area within the game's environment.
+    /// </summary>
+    /// <param name="locationName">The name of the location where the items are being described.</param>
+    /// <param name="location">The location object representing the area where the items are to be described. Can be null if no specific location is provided.</param>
+    /// <returns>A string containing a detailed description of the items in the specified location.</returns>
     string ItemListDescription(string locationName, ILocation? location);
 
     /// <summary>

@@ -1,5 +1,4 @@
 using GameEngine;
-using GameEngine.Item.ItemProcessor;
 using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Intent;
@@ -27,7 +26,7 @@ public class CaveSouth : DarkLocationWithNoStartingItems, IThiefMayVisit
         return "This is a tiny cave with entrances west and north, and a dark, forbidding staircase leading down. ";
     }
 
-    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+    public override async Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
         var returnValue = "";
@@ -35,15 +34,15 @@ public class CaveSouth : DarkLocationWithNoStartingItems, IThiefMayVisit
 
         if (litCandlesInPossession)
         {
-            var result = new TurnOnOrOffProcessor().Process(
+            var result = await new TurnOnOrOffProcessor().Process(
                 new SimpleIntent { Noun = "candles", Verb = "turn off" }, context, Repository.GetItem<Candles>(),
                 null!);
-            returnValue += "\nA gust of wind blows out your candles! " + result!.InteractionMessage;
+            returnValue += "\nA gust of wind blows out your candles! " + result?.InteractionMessage;
         }
 
         returnValue += LocationHelper.CheckSwordGlowingFaintly<Spirits, EntranceToHades>(context);
         return !string.IsNullOrWhiteSpace(returnValue)
-            ? Task.FromResult(returnValue)
-            : base.AfterEnterLocation(context, previousLocation, generationClient);
+            ? returnValue
+            : await base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 }

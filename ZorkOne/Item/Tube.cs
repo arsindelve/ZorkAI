@@ -4,7 +4,7 @@ namespace ZorkOne.Item;
 
 public class Tube : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead
 {
-    public override string[] NounsForMatching => ["tube", "tube of toothpaste", "toothpaste tube"];
+    public override string[] NounsForMatching => ["tube", "tube of toothpaste", "toothpaste tube", "toothpaste"];
 
     /// <summary>
     /// Nothing can be put back into the tube. 
