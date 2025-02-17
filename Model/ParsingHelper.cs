@@ -88,7 +88,7 @@ public static class ParsingHelper
             { NounOne = nouns.First(), NounTwo = nouns.LastOrDefault(), Message = response };
     }
     
-    private static TakeIntent? DetermineTakeIntent(string? response)
+    private static TakeIntent? DetermineTakeIntent(string? response, string input)
     {
         var intentTag = ExtractElementsByTag(response, "intent").SingleOrDefault();
         if (string.IsNullOrEmpty(intentTag))
@@ -97,10 +97,10 @@ public static class ParsingHelper
         if (intentTag != "take")
             return null;
        
-        return new TakeIntent { Message = response };
+        return new TakeIntent { Message = response, OriginalInput = input};
     }
     
-    private static DropIntent? DetermineDropIntent(string? response)
+    private static DropIntent? DetermineDropIntent(string? response, string input)
     {
         var intentTag = ExtractElementsByTag(response, "intent").SingleOrDefault();
         if (string.IsNullOrEmpty(intentTag))
@@ -109,7 +109,7 @@ public static class ParsingHelper
         if (intentTag != "drop")
             return null;
        
-        return new DropIntent { Message = response };
+        return new DropIntent { Message = response, OriginalInput = input};
     }
 
     private static EnterSubLocationIntent? DetermineBoardIntent(string? response)
@@ -228,11 +228,11 @@ public static class ParsingHelper
 
     public static IntentBase GetIntent(string input, string? response, ILogger? logger)
     {
-        var takeIntent = DetermineTakeIntent(response?.ToLowerInvariant());
+        var takeIntent = DetermineTakeIntent(response?.ToLowerInvariant(), input);
         if (takeIntent != null)
             return takeIntent;
         
-        var dropIntent = DetermineDropIntent(response?.ToLowerInvariant());
+        var dropIntent = DetermineDropIntent(response?.ToLowerInvariant(), input);
         if (dropIntent != null)
             return dropIntent;
             

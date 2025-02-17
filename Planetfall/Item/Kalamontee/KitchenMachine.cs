@@ -25,7 +25,7 @@ internal class KitchenMachine : ContainerBase, ICanBeExamined
     {
     }
 
-    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["push", "press"], ["button"]))

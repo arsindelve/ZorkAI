@@ -34,7 +34,7 @@ public class Uniform : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, IAm
         StartWithItemInside<IdCard>();
     }
 
-    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["pocket", "uniform pocket"], Verbs.OpenVerbs.Union(Verbs.CloseVerbs).ToArray()))

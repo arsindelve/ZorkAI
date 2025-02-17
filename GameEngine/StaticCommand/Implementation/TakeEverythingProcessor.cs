@@ -22,7 +22,7 @@ public class TakeEverythingProcessor : IGlobalCommand
         if (!items.Any(s => s is ICanBeTakenAndDropped || !string.IsNullOrEmpty(s.CannotBeTakenDescription)))
             return await client.GenerateNarration(new TakeAllNothingHere(), context.SystemPromptAddendum);
         
-        return TakeAll(context, items);
+        return TakeAll(context, items!);
     }
 
     public static string TakeAll(IContext context, List<IItem?> items)

@@ -9,7 +9,7 @@ public class TakeOnlyAvailableItemProcessor : IStatefulProcessor
 {
     private bool _secondTimeProcessing;
 
-    public async Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
+    public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {
         string nounToTake;
         IItem? itemToTake;
@@ -17,7 +17,7 @@ public class TakeOnlyAvailableItemProcessor : IStatefulProcessor
         if (_secondTimeProcessing)
         {
             if (string.IsNullOrEmpty(input))
-                return "What do you want to take? ";
+                return Task.FromResult("What do you want to take? ");
 
             nounToTake = input;
             itemToTake = Repository.GetItem(nounToTake);
@@ -34,7 +34,7 @@ public class TakeOnlyAvailableItemProcessor : IStatefulProcessor
             if (itemsHere.Count != 1)
             {
                 _secondTimeProcessing = true;
-                return "What do you want to take? ";
+                return Task.FromResult("What do you want to take? ");
             }
 
             itemToTake = itemsHere.Single();
@@ -48,7 +48,7 @@ public class TakeOnlyAvailableItemProcessor : IStatefulProcessor
         if (input?.ToLowerInvariant().Trim() == "take")
             result = $"({nounToTake})\n {result}";
 
-        return result;
+        return Task.FromResult(result);
     }
 
     public bool Completed { get; private set; }

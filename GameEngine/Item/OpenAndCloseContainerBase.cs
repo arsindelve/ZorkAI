@@ -33,7 +33,7 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
         return "Opened.";
     }
 
-    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         InteractionResult? result = null;

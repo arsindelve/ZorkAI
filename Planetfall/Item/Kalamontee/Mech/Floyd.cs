@@ -55,7 +55,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
         return userPrompt.Replace("There is a multiple purpose robot here.", string.Empty);
     }
 
-    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (IsOn && action.Match(["play"], NounsForMatching))

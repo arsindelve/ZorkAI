@@ -90,7 +90,7 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
     {
     }
 
-    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["inflate", "blow up", "blow"], NounsForMatching))

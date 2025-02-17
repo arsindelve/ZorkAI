@@ -9,4 +9,7 @@ namespace Model.Intent;
 /// This record is part of the intent-based pattern for handling actions
 /// and is processed by components such as TakeOrDropInteractionProcessor.
 /// </remarks>
-public record DropIntent : IntentBase;
+public record DropIntent : IntentBase
+{
+    public required string OriginalInput { get; init; }
+}

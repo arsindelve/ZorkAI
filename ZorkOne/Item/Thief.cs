@@ -234,7 +234,7 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
         return result ?? await base.RespondToMultiNounInteraction(action, context);
     }
 
-    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         var killInteraction =

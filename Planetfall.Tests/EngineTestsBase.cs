@@ -19,7 +19,7 @@ public class EngineTestsBase
 {
     private Mock<IGenerationClient> _client = new();
     private IIntentParser _parser = Mock.Of<IIntentParser>();
-    private PlanetfallContext Context { get; set; }
+    private PlanetfallContext Context { get; set; } = null!;
 
     protected T StartHere<T>() where T : class, ILocation, new()
     {

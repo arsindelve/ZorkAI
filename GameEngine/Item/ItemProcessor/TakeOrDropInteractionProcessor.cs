@@ -78,7 +78,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (result is null or NoNounMatchInteractionResult)
         {
             var message = await client.GenerateNarration(
-                new TakeSomethingThatIsNotPortable(action.Message ?? string.Empty), context.SystemPromptAddendum);
+                new TakeSomethingThatIsNotPortable(action.OriginalInput), context.SystemPromptAddendum);
             return (new PositiveInteractionResult(message), message);
         }
 
@@ -91,12 +91,12 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         var result = await GetItemsToDrop(context,
             new SimpleIntent { OriginalInput = action.Message, Verb = "drop", Noun = string.Empty });
 
-        // if (result is null or NoNounMatchInteractionResult)
-        // {
-        //     var message = await client.GenerateNarration(
-        //         new TakeSomethingThatIsNotPortable(action.Message ?? string.Empty), context.SystemPromptAddendum);
-        //     return (new PositiveInteractionResult(message), message);
-        // }
+        if (result is null or NoNounMatchInteractionResult)
+        {
+            var message = await client.GenerateNarration(
+                new DropSomethingTheyDoNotHave(action.OriginalInput), context.SystemPromptAddendum);
+            return (new PositiveInteractionResult(message), message);
+        }
 
         return (result, result.InteractionMessage);
     }
