@@ -90,8 +90,8 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
     {
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["inflate", "blow up", "blow"], NounsForMatching))
         {
@@ -110,10 +110,11 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
         //     return new PositiveInteractionResult("You don't have enough lung power to inflate it. ");
         // }
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         var leakNouns = NounsForMatching.Concat(["leak", "puncture", "hole"]).ToArray();
 
@@ -131,25 +132,25 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
         string[] prepositions = ["with", "to", "on", "using"];
 
         if (!action.MatchNounOne(NounsForMatching))
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
-        return InflateTheBoat(action, context, verbs, prepositions);
+        return await InflateTheBoat(action, context, verbs, prepositions);
     }
 
-    private InteractionResult InflateTheBoat(MultiNounIntent action, IContext context, string[] verbs,
+    private async Task<InteractionResult?> InflateTheBoat(MultiNounIntent action, IContext context, string[] verbs,
         string[] prepositions)
     {
         if (context.HasItem<PileOfPlastic>())
             return new PositiveInteractionResult("The boat must be on the ground to be inflated. ");
 
         if (!action.MatchNounTwo<AirPump>())
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (!verbs.Contains(action.Verb.ToLowerInvariant().Trim()))
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (!prepositions.Contains(action.Preposition.ToLowerInvariant().Trim()))
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (!context.HasItem<AirPump>())
             return new PositiveInteractionResult("You don't have the air pump. ");

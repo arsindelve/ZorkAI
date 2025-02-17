@@ -30,14 +30,14 @@ public class Sceptre : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInT
         return "A sceptre";
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Verb.ToLowerInvariant() != "wave")
-            return base.RespondToSimpleInteraction(action, context, client);
+            return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (!action.MatchNoun(NounsForMatching))
-            return base.RespondToSimpleInteraction(action, context, client);
+            return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         return new PositiveInteractionResult("A dazzling display of color briefly emanates from the sceptre. ");
     }

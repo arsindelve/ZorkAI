@@ -5,11 +5,9 @@ namespace Planetfall.Item.Kalamontee;
 
 public class Padlock : ItemBase, ICanBeTakenAndDropped
 {
-    [UsedImplicitly]
-    public bool Locked { get; set; } = true;
+    [UsedImplicitly] public bool Locked { get; set; } = true;
 
-    [UsedImplicitly]
-    public bool AttachedToDoor { get; set; } = true;
+    [UsedImplicitly] public bool AttachedToDoor { get; set; } = true;
 
     public override string CannotBeTakenDescription => Locked ? "The padlock is locked to the door. " : "";
 
@@ -36,8 +34,8 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
         return "A padlock";
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["remove"], NounsForMatching))
         {
@@ -57,10 +55,11 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
             return new PositiveInteractionResult("You'll need to specify what you want to unlock it with. ");
         }
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         if (!context.HasItem<Key>())
             return new NoNounMatchInteractionResult();
@@ -74,6 +73,6 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
             return new PositiveInteractionResult("The padlock springs open. ");
         }
 
-        return base.RespondToMultiNounInteraction(action, context);
+        return await base.RespondToMultiNounInteraction(action, context);
     }
 }

@@ -36,8 +36,8 @@ public class EndOfRainbow : LocationWithNoStartingItems
     }
 
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["cross", "traverse"], ["rainbow"]))
         {
@@ -58,8 +58,8 @@ public class EndOfRainbow : LocationWithNoStartingItems
 
             return WaveTheSceptre();
         }
-        
-        return base.RespondToSimpleInteraction(action, context, client);
+
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     private InteractionResult WaveTheSceptre()

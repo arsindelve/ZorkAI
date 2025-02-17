@@ -52,39 +52,40 @@ public class Dam : LocationBase
         StartWithItem<ControlPanel>();
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Verb.ToLowerInvariant() == "turn" && action.Noun?.ToLowerInvariant() == "bolt")
             return new PositiveInteractionResult("Your bare hands don't appear to be enough.");
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         string[] verbs = ["turn", "use", "apply"];
         string[] prepositions = ["with", "to", "on", "using"];
 
         if (!action.NounOne.ToLowerInvariant().Trim().Contains("bolt") &&
             !action.NounTwo.ToLowerInvariant().Trim().Contains("bolt"))
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (!action.NounOne.ToLowerInvariant().Trim().Contains("wrench") &&
             !action.NounTwo.ToLowerInvariant().Trim().Contains("wrench"))
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (!verbs.Contains(action.Verb.ToLowerInvariant().Trim()))
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (!prepositions.Contains(action.Preposition.ToLowerInvariant().Trim()))
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (!context.HasItem<Wrench>() && HasItem<Wrench>())
             return new PositiveInteractionResult("You don't have the wrench.");
 
         if (!context.HasItem<Wrench>())
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (!GetItem<ControlPanel>().GreenBubbleGlowing)
             return new PositiveInteractionResult("The bolt won't turn with your best effort.");

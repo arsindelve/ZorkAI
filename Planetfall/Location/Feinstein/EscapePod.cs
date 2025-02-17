@@ -44,8 +44,8 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
 
     public string LocationDescription => ", in the safety web";
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (context.CurrentLocation.SubLocation != null && action.MatchVerb(["get", "rest", "sit"]))
             return new PositiveInteractionResult(GetIn(context));
@@ -53,7 +53,7 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
         if (context.CurrentLocation.SubLocation == null && action.MatchVerb(["leave", "exit", "get"]))
             return new PositiveInteractionResult(GetOut(context));
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }
 
@@ -223,7 +223,7 @@ internal class EscapePod : LocationBase, ITurnBasedActor
                 context.SystemPromptAddendum =
                     "The Feinstein has exploded from an unknown accident, and the player is now hurtling through space " +
                     "in a fully automated escape pod, looking for a place to land. ";
-                
+
                 action = "You feel the pod begin to slide down its ejection tube as explosions shake the mother ship. ";
                 break;
 

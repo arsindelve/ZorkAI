@@ -1,5 +1,4 @@
 using GameEngine;
-using GameEngine.Item.ItemProcessor;
 using GameEngine.Location;
 using Model.AIGeneration;
 using Model.Intent;
@@ -51,18 +50,18 @@ internal class EntranceToHades : DarkLocation
             : base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         string[] verbs = ["ring", "activate", "shake"];
         if (Items.Contains(Repository.GetItem<Spirits>()) &&
             action.Match(verbs, Repository.GetItem<BrassBell>().NounsForMatching))
-            return RingTheBell(context);
+            return await RingTheBell(context);
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
-    private InteractionResult RingTheBell(IContext context)
+    private async Task<InteractionResult> RingTheBell(IContext context)
     {
         if (!context.HasItem<BrassBell>() && GetItem<BrassBell>().CurrentLocation == GetLocation<EntranceToHades>())
             return new PositiveInteractionResult("The bell is too hot to reach. ");
@@ -82,12 +81,12 @@ internal class EntranceToHades : DarkLocation
                            (candles.IsOn ? " and they are out. " : ".");
 
             if (candles.IsOn)
-                returnValue += new TurnOnOrOffProcessor().Process(new SimpleIntent
-                    {
-                        Noun = candles.NounsForMatching.First(),
-                        Verb = "turn off"
-                    }, context, candles, null!)
-                    ?.InteractionMessage;
+                returnValue += (await new TurnOnOrOffProcessor().Process(new SimpleIntent
+                        {
+                            Noun = candles.NounsForMatching.First(),
+                            Verb = "turn off"
+                        }, context, candles, null!)
+                    )?.InteractionMessage;
         }
 
         return new PositiveInteractionResult(returnValue);

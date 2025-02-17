@@ -6,19 +6,19 @@ namespace GameEngine.Item.ItemProcessor;
 
 public class OpenAndCloseInteractionProcessor : IVerbProcessor
 {
-    InteractionResult? IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item,
+    Task<InteractionResult?> IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item,
         IGenerationClient client)
     {
         if (item is not IOpenAndClose castItem)
             throw new Exception("Cast Error");
 
         if (Verbs.OpenVerbs.Contains(action.Verb.ToLowerInvariant().Trim()))
-            return OpenMe(castItem, context);
+            return Task.FromResult<InteractionResult?>(OpenMe(castItem, context));
 
         if (Verbs.CloseVerbs.Contains(action.Verb.ToLowerInvariant().Trim()))
-            return CloseMe(castItem, context);
+            return Task.FromResult<InteractionResult?>(CloseMe(castItem, context));
 
-        return null;
+        return Task.FromResult<InteractionResult?>(null);
     }
 
     private InteractionResult OpenMe(IOpenAndClose item, IContext context)

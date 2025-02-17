@@ -24,9 +24,10 @@ public class EngineTestsBaseCommon<TContext> where TContext : class, IContext, n
         return Repository.GetLocation<T>();
     }
 
-    protected void StartHere<T>() where T : class, ILocation, new()
+    protected T StartHere<T>() where T : class, ILocation, new()
     {
         Context.CurrentLocation = GetLocation<T>();
+        return GetLocation<T>();
     }
     
     protected T Take<T>() where T : IItem, new()

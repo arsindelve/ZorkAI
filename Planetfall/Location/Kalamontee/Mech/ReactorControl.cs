@@ -25,12 +25,12 @@ internal class ReactorControl : LocationWithNoStartingItems
             "is a metal door, and next to it, a button. A dark stairway winds downward. ";
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["push", "press", "activate"], ["button"]))
             return new PositiveInteractionResult("Nothing happens. ");
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }

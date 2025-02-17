@@ -10,7 +10,8 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot> : ItemBase, ICanBeExa
 
     protected abstract InteractionResult OnSuccessfulSlide(IContext context);
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         string[] verbs = ["insert", "put", "place"];
         if (action.Match<TAccessCard, TAccessSlot>(verbs, ["in", "into"]))
@@ -21,7 +22,7 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot> : ItemBase, ICanBeExa
         verbs = ["slide", "swipe", "scan", "pass", "glide", "draw", "push"];
         string[] prepositions = ["across", "through"];
 
-        if (action.Match<TAccessCard, TAccessSlot>(verbs, prepositions)) 
+        if (action.Match<TAccessCard, TAccessSlot>(verbs, prepositions))
             return OnSuccessfulSlide(context);
 
         var nounOne = Repository.GetItem(action.NounOne);
@@ -31,6 +32,6 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot> : ItemBase, ICanBeExa
             return new PositiveInteractionResult(
                 "A sign flashes \"Inkorekt awtharazaashun kard...akses deeniid.\"");
 
-        return base.RespondToMultiNounInteraction(action, context);
+        return await base.RespondToMultiNounInteraction(action, context);
     }
 }

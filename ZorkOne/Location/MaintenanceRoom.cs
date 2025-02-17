@@ -11,7 +11,8 @@ namespace ZorkOne.Location;
 
 public class MaintenanceRoom : DarkLocation, ITurnBasedActor
 {
-    private readonly string[] _leakNouns = ["leak", "pipe", "water", "water leak", "stream", "crack", "break", "burst", "hole", "rupture", "fracture"];
+    private readonly string[] _leakNouns =
+        ["leak", "pipe", "water", "water leak", "stream", "crack", "break", "burst", "hole", "rupture", "fracture"];
 
     public override string Name => "Maintenance Room";
 
@@ -54,7 +55,7 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
         // and there is no mention of the fixed leak in the room description, 
         // nor of the water level (even if it was at our heads).
         // Other than the jammed blue button, it's like it never happened. 
-        
+
         LeakIsFixed = true;
         context.RemoveActor(this);
         return new PositiveInteractionResult(
@@ -88,7 +89,8 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
         StartWithItem<Tube>();
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         var intentMatch = action.Match<ViscousMaterial>(Verbs.FixVerbs, _leakNouns,
             ["with", "using"]);
@@ -99,17 +101,17 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
         if (intentMatch)
             return FixTheLeak(context);
 
-        return base.RespondToMultiNounInteraction(action, context);
+        return await base.RespondToMultiNounInteraction(action, context);
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         var verb = action.Verb.ToLowerInvariant().Trim();
         var noun = action.Noun?.ToLowerInvariant().ToLowerInvariant().Trim();
 
         if (!Verbs.PushVerbs.Contains(verb))
-            return base.RespondToSimpleInteraction(action, context, client);
+            return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         // If they said "blue button", simplify and replace "button" with "blue"
         if (action.MatchNoun(["button"]))
@@ -143,7 +145,7 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
             "yellow button" or "yellow" => YellowClick(),
             "brown button" or "brown" => BrownClick(),
 
-            _ => base.RespondToSimpleInteraction(action, context, client)
+            _ => await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory)
         };
     }
 

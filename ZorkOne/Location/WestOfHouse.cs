@@ -51,10 +51,11 @@ public class WestOfHouse : LocationBase
         };
     }
 
-    public override InteractionResult RespondToSimpleInteraction(
+    public override async Task<InteractionResult> RespondToSimpleInteraction(
         SimpleIntent action,
         IContext context,
-        IGenerationClient client
+        IGenerationClient client,
+        IItemProcessorFactory itemProcessorFactory
         )
     {
         string[] nouns = ["door", "front door"];
@@ -67,10 +68,11 @@ public class WestOfHouse : LocationBase
 
         if (action.Match(["examine", "look"], ["house", "white house"]))
             return new PositiveInteractionResult(
-                "The house is a beautiful colonial house which is painted white. It is clear that the owners must have been extremely wealthy. "
+                "The house is a beautiful colonial house which is painted white. It is clear " +
+                "that the owners must have been extremely wealthy. "
             );
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override void Init()

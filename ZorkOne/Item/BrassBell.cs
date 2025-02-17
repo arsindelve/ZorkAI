@@ -8,8 +8,10 @@ namespace ZorkOne.Item;
 
 public class BrassBell : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ITurnBasedActor
 {
+    [UsedImplicitly]
     public bool BellIsRedHot { get; set; }
 
+    [UsedImplicitly]
     public int BellHotCounter { get; set; }
 
     public override string[] NounsForMatching => ["bell", "brass bell"];
@@ -64,14 +66,14 @@ public class BrassBell : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ITurnB
         return "The bell suddenly becomes red hot and falls to the ground. ";
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Verb.ToLowerInvariant() != "ring")
-            return base.RespondToSimpleInteraction(action, context, client);
+            return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (!action.MatchNoun(NounsForMatching))
-            return base.RespondToSimpleInteraction(action, context, client);
+            return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         return new PositiveInteractionResult("Ding, dong");
     }

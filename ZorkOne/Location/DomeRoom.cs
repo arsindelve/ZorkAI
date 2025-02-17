@@ -53,19 +53,20 @@ public class DomeRoom : LocationBase, IThiefMayVisit
         return await base.RespondToSpecificLocationInteraction(input, context, client);
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         string[] verbs = ["tie", "attach"];
         string[] prepositions = ["to", "onto", "on"];
 
         if (!action.Match(verbs, Repository.GetItem<Rope>().NounsForMatching, ["rail", "railing"], prepositions))
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (!context.HasItem<Rope>() && HasItem<Rope>())
             return new PositiveInteractionResult("You don't have the rope.");
 
         if (!context.HasItem<Rope>())
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         GetItem<Rope>().TiedToRailing = true;
         context.Drop<Rope>();

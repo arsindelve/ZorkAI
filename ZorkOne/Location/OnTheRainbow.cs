@@ -29,9 +29,9 @@ public class OnTheRainbow : LocationWithNoStartingItems
         return "You are on top of a rainbow (I bet you never thought you would walk on a rainbow), " +
                "with a magnificent view of the Falls. The rainbow travels east-west here.";
     }
-    
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["wave", "swing", "twirl"], GetItem<Sceptre>().NounsForMatching))
         {
@@ -41,13 +41,13 @@ public class OnTheRainbow : LocationWithNoStartingItems
             if (!context.HasItem<Sceptre>())
                 return new NoNounMatchInteractionResult();
 
-            string deathString =
+            var deathString =
                 "The structural integrity of the rainbow is severely compromised, leaving you hanging in mid-air, " +
                 "supported only by water vapor. Bye. ";
-            
+
             return new DeathProcessor().Process(deathString, context);
         }
-        
-        return base.RespondToSimpleInteraction(action, context, client);
+
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }

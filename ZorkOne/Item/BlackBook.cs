@@ -43,8 +43,8 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
         return "A black book";
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["burn"], NounsForMatching))
             return new PositiveInteractionResult("You'll need to specify what you want to burn it with. ");
@@ -61,7 +61,7 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
             {
                 // * POOF *
                 Repository.DestroyItem<Spirits>();
-                
+
                 return new PositiveInteractionResult(
                     "Each word of the prayer reverberates through the hall in a deafening confusion. " +
                     "As the last word fades, a voice, loud and commanding, speaks: \"Begone, fiends!\" A heart-stopping " +
@@ -70,10 +70,10 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
             }
         }
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(
         MultiNounIntent action,
         IContext context
         )
@@ -91,17 +91,17 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
                 burnyThings,
                 ["with"]
             ))
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         // The torch is always lit. 
         if (action.MatchNounTwo<Torch>() && !context.HasItem<Torch>())
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (action.MatchNounTwo<Matchbook>() && !context.HasItem<Matchbook>())
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (action.MatchNounTwo<Candles>() && !context.HasItem<Candles>())
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (action.MatchNounTwo<Candles>() && !candles.IsOn)
             return new PositiveInteractionResult("It's hard to do that when the candles are not lit. ");

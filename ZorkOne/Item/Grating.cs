@@ -58,7 +58,8 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
         return "\nA pile of leaves falls onto your head and to the ground. ";
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         if (action.Match<SkeletonKey>(["unlock"], NounsForMatching,
                 ["with", "using"]))
@@ -85,11 +86,11 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
                 return new PositiveInteractionResult("You can't lock it from this side. ");
             }
 
-        return base.RespondToMultiNounInteraction(action, context);
+        return await base.RespondToMultiNounInteraction(action, context);
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["lock"], NounsForMatching))
             if (context.CurrentLocation is Clearing)
@@ -121,7 +122,7 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
                 return new PositiveInteractionResult(message);
             }
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override string NeverPickedUpDescription(ILocation? currentLocation)

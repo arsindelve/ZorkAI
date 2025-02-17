@@ -51,8 +51,8 @@ public class EatProcessorTests : EngineTestsBase
         await target.GetResponse("take sack");
         await target.GetResponse("open sack");
         await target.GetResponse("take lunch");
+        await target.GetResponse("eat lunch");
         var result = await target.GetResponse("eat lunch");
-        result = await target.GetResponse("eat lunch");
 
         // Assert
         result.Should().Contain("BOB");
@@ -80,7 +80,7 @@ public class EatProcessorTests : EngineTestsBase
     {
         IVerbProcessor target = new EatAndDrinkInteractionProcessor();
         target.Process(Mock.Of<SimpleIntent>(), Mock.Of<IContext>(), new Lantern(), Mock.Of<IGenerationClient>())
-            .Should().BeNull();
+            .Result.Should().BeNull();
     }
 
     [Test]

@@ -1,5 +1,4 @@
 ﻿using GameEngine.Item;
-using GameEngine.Item.ItemProcessor;
 using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
@@ -31,7 +30,7 @@ public class Matchbook
 
     public string AlreadyOnText => string.Empty;
 
-    public string? CannotBeTurnedOnText =>
+    public string CannotBeTurnedOnText =>
         MatchesUsed == 5 ? "I'm afraid that you have run out of matches. " : "";
 
     public string OnBeingTurnedOn(IContext context)
@@ -73,28 +72,28 @@ public class Matchbook
         return "There is a matchbook whose cover says \"Visit Beautiful FCD#3\" here. ";
     }
 
-    public Task<string> Act(IContext context, IGenerationClient client)
+    public async Task<string> Act(IContext context, IGenerationClient client)
     {
         if (!IsOn)
         {
             context.RemoveActor(this);
-            return Task.FromResult("");
+            return string.Empty;
         }
 
         if (TurnsRemainingLit == 1)
         {
             TurnsRemainingLit = 0;
-            return Task.FromResult("");
+            return string.Empty;
         }
 
-        var result = new TurnOnOrOffProcessor().Process(
+        var result = await new TurnOnOrOffProcessor().Process(
             new SimpleIntent { Verb = "turn off", Noun = NounsForMatching.First() },
             context,
             this,
             client
         );
 
-        return Task.FromResult(result!.InteractionMessage);
+        return result?.InteractionMessage ?? string.Empty;
     }
 
     public override string GenericDescription(ILocation? currentLocation)

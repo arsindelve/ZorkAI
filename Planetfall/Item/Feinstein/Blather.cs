@@ -18,17 +18,17 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor
         "Ensign Blather is a tall, beefy officer with a tremendous, misshapen nose. His uniform is perfect in " +
         "every respect, and the crease in his trousers could probably slice diamonds in half. ";
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
         if (!action.MatchNounTwo(NounsForMatching))
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (action.MatchNounOne(Repository.GetItem<Brush>().NounsForMatching) &&
             action.MatchVerb(["throw", "toss", "launch"]))
         {
             if (!context.HasItem<Brush>())
             {
-                return base.RespondToMultiNounInteraction(action, context);
+                return await base.RespondToMultiNounInteraction(action, context);
             }
 
             context.Drop<Brush>();
@@ -42,7 +42,7 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor
             return new PositiveInteractionResult(result);
         }
 
-        return base.RespondToMultiNounInteraction(action, context);
+        return await base.RespondToMultiNounInteraction(action, context);
     }
 
     internal string LeavesTheScene(IContext context, string? alternateText = null)

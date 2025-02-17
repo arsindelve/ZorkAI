@@ -1,4 +1,3 @@
-using GameEngine.Item.ItemProcessor;
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Item;
@@ -92,14 +91,15 @@ public abstract class ItemBase : IItem
     /// <param name="action">The simple intent representing the action.</param>
     /// <param name="context">The context in which the interaction takes place.</param>
     /// <param name="client"></param>
+    /// <param name="itemProcessorFactory"></param>
     /// <returns>The interaction result.</returns>
-    public virtual InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public virtual async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (!action.MatchNounAndAdjective(NounsForMatching))
             return new NoNounMatchInteractionResult();
 
-        return ApplyProcessors(action, context, null, client);
+        return await ApplyProcessors(action, context, null, client, itemProcessorFactory);
     }
 
     public virtual int Size => 1;
@@ -126,9 +126,9 @@ public abstract class ItemBase : IItem
     /// <param name="action">The multi-noun intent representing the action being taken, including the associated nouns.</param>
     /// <param name="context">The current context in which the interaction takes place, providing relevant state and environment data.</param>
     /// <returns>An <see cref="InteractionResult"/> that represents the outcome of the multi-noun interaction.</returns>
-    public virtual InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public virtual Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-        return new NoNounMatchInteractionResult();
+        return Task.FromResult<InteractionResult?>(new NoNounMatchInteractionResult());
     }
 
     /// <summary>
@@ -158,53 +158,15 @@ public abstract class ItemBase : IItem
         return "";
     }
 
-    private static List<IVerbProcessor> GetProcessors(ItemBase item)
+    protected async Task<InteractionResult> ApplyProcessors(SimpleIntent action, IContext context, InteractionResult? result,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        List<IVerbProcessor> result =
-        [
-            // anything can be examined
-            new ExamineInteractionProcessor(),
-            // and smelled 
-            new SmellInteractionProcessor()
-        ];
-
-        if (item is ICanBeTakenAndDropped)
-            result.Add(new TakeOrDropInteractionProcessor());
-        else
-            result.Add(new CannotBeTakenProcessor());
-
-        if (item is ICanBeTakenAndDropped)
-            result.Add(new TakeOrDropInteractionProcessor());
-
-        if (item is ICanBeRead)
-            result.Add(new ReadInteractionProcessor());
-
-        if (item is ITurnOffAndOn)
-            result.Add(new TurnOnOrOffProcessor());
-
-        if (item is ICannotBeTurnedOff)
-            result.Add(new TurnOnOrOffProcessor());
-
-        if (item is IOpenAndClose)
-            result.Add(new OpenAndCloseInteractionProcessor());
-
-        if (item is ICanBeEaten)
-            result.Add(new EatAndDrinkInteractionProcessor());
-
-        if (item is IAmADrink)
-            result.Add(new EatAndDrinkInteractionProcessor());
-
-        if (item is IAmClothing)
-            result.Add(new ClothingOnAndOffProcessor());
-
-        return result;
-    }
-
-    protected InteractionResult ApplyProcessors(SimpleIntent action, IContext context, InteractionResult? result,
-        IGenerationClient client)
-    {
-        result ??= GetProcessors(this).Aggregate<IVerbProcessor, InteractionResult?>(null, (current, processor)
-            => current ?? processor.Process(action, context, this, client));
+        foreach (var processor in itemProcessorFactory.GetProcessors(this))
+        {
+            result ??= await processor.Process(action, context, this, client);
+            if (result != null)
+                break;
+        }
 
         return result ?? new NoVerbMatchInteractionResult { Verb = action.Verb, Noun = action.Noun };
     }

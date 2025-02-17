@@ -8,8 +8,10 @@ namespace ZorkOne.Item;
 
 public class Spirits : ItemBase, ICanBeExamined, ITurnBasedActor, IPluralNoun
 {
+    [UsedImplicitly]
     public bool Stunned { get; set; }
 
+    [UsedImplicitly]
     public int StunnedCounter { get; set; }
 
     public override string[] NounsForMatching => ["spirits", "ghosts", "wraiths"];
@@ -54,15 +56,16 @@ public class Spirits : ItemBase, ICanBeExamined, ITurnBasedActor, IPluralNoun
                + "On their ashen faces, the expression of a long-forgotten terror takes shape. ";
     }
 
-    public override InteractionResult RespondToSimpleInteraction(
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(
         SimpleIntent action,
         IContext context,
-        IGenerationClient client
+        IGenerationClient client,
+        IItemProcessorFactory itemProcessorFactory
         )
     {
         if (action.MatchNoun(NounsForMatching))
             return new PositiveInteractionResult(ExaminationDescription);
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }

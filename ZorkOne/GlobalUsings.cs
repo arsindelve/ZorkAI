@@ -1,5 +1,6 @@
 // Global using directives
 
+global using GameEngine.Item.ItemProcessor;
 global using JetBrains.Annotations;
 global using Model;
 global using Model.Interaction;

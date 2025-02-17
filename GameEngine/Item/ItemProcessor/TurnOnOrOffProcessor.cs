@@ -18,11 +18,11 @@ public class TurnOnOrOffProcessor : IVerbProcessor
     /// <param name="item">The item to be turned on or off.</param>
     /// <param name="client"></param>
     /// <returns>An InteractionResult indicating the result of the action.</returns>
-    public InteractionResult? Process(SimpleIntent action, IContext context, IInteractionTarget item,
+    public Task<InteractionResult?> Process(SimpleIntent action, IContext context, IInteractionTarget item,
         IGenerationClient client)
     {
         if (string.IsNullOrEmpty(action.Verb))
-            return null;
+            return Task.FromResult<InteractionResult?>(null);
 
         switch (action.Verb.ToLowerInvariant().Trim())
         {
@@ -31,22 +31,22 @@ public class TurnOnOrOffProcessor : IVerbProcessor
             case "turn on":
             case "activate":
             case "enable":
-                return ProcessOn(context, item);
+                return Task.FromResult(ProcessOn(context, item));
 
             case "turn off":
             case "extinguish":
             case "blow out":
             case "deactivate":
             case "disable":
-                return ProcessOff(context, item, client);
+                return Task.FromResult(ProcessOff(context, item, client));
 
             // Sometimes, the parser can't determine the adverb "on" or "off". It that case, hopefully,
             // the parser gave us the preposition (it's really an adverb, but save it for the semantics dome, E.B. White)  
             case "turn":
-                return ProcessTurn(action, context, item, client);
+                return Task.FromResult(ProcessTurn(action, context, item, client));
         }
 
-        return null;
+        return Task.FromResult<InteractionResult?>(null);
     }
 
     private static InteractionResult? ProcessTurn(SimpleIntent action, IContext context, IInteractionTarget item,

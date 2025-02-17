@@ -44,8 +44,8 @@ public class Diary : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
         return OnTheGroundDescription(currentLocation);
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["press", "push", "use"], ["button"]))
         {
@@ -63,7 +63,7 @@ public class Diary : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
             return new PositiveInteractionResult(message);
         }
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override string GenericDescription(ILocation? currentLocation)

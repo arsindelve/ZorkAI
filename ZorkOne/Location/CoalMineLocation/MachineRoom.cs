@@ -34,30 +34,31 @@ public class MachineRoom : DarkLocation
         StartWithItem<Machine>();
     }
 
-    public override InteractionResult RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
     {
         string[] verbs = ["turn", "use", "apply"];
         string[] prepositions = ["with", "to", "on", "using"];
 
         if (!action.NounOne.ToLowerInvariant().Trim().Contains("switch") &&
             !action.NounTwo.ToLowerInvariant().Trim().Contains("switch"))
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (!action.NounOne.ToLowerInvariant().Trim().Contains("screwdriver") &&
             !action.NounTwo.ToLowerInvariant().Trim().Contains("screwdriver"))
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (!verbs.Contains(action.Verb.ToLowerInvariant().Trim()))
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (!prepositions.Contains(action.Preposition.ToLowerInvariant().Trim()))
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         if (!context.HasItem<Screwdriver>() && HasItem<Screwdriver>())
             return new PositiveInteractionResult("You don't have the screwdriver.");
 
         if (!context.HasItem<Screwdriver>())
-            return base.RespondToMultiNounInteraction(action, context);
+            return await base.RespondToMultiNounInteraction(action, context);
 
         var machine = Repository.GetItem<Machine>();
 

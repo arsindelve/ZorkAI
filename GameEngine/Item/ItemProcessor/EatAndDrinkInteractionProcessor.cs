@@ -10,7 +10,7 @@ namespace GameEngine.Item.ItemProcessor;
 /// </summary>
 public class EatAndDrinkInteractionProcessor : IVerbProcessor
 {
-    InteractionResult? IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item,
+    Task<InteractionResult?> IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item,
         IGenerationClient client)
     {
         if (item is not IItem baseItem)
@@ -19,7 +19,7 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
         var message = "";
 
         if (string.IsNullOrEmpty(action.Verb))
-            return null;
+            return Task.FromResult<InteractionResult?>(null);
 
         switch (action.Verb.ToLowerInvariant().Trim())
         {
@@ -34,7 +34,7 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
             case "chew":
 
                 if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
-                    return new PositiveInteractionResult("It's too dark to see!");
+                    return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("It's too dark to see!"));
 
                 message = item switch
                 {
@@ -43,10 +43,10 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
                     _ => throw new ArgumentException()
                 };
 
-                return new PositiveInteractionResult(message);
+                return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(message));
         }
 
-        return null;
+        return Task.FromResult<InteractionResult?>(null);
     }
 
     private string DrinkIt(IItem item, IAmADrink drink, IContext context)

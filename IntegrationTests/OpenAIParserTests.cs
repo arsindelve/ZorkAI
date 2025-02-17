@@ -146,13 +146,13 @@ public class OpenAIParserTests
 
     // Single noun
     [TestCase(typeof(WestOfHouse), "drop the card",
-        new[] { "<verb>drop</verb>", "<noun>card</noun>", "<intent>act</intent>" })]
+        new[] { "<verb>drop</verb>", "<noun>card</noun>", "<intent>drop</intent>" })]
     [TestCase(typeof(WestOfHouse), "drop the access card",
-        new[] { "<verb>drop</verb>", "<noun>access card</noun>", "<intent>act</intent>" })]
+        new[] { "<verb>drop</verb>", "<noun>access card</noun>", "<intent>drop</intent>" })]
     [TestCase(typeof(WestOfHouse), "drop access card",
-        new[] { "<verb>drop</verb>", "<noun>access card</noun>", "<intent>act</intent>" })]
+        new[] { "<verb>drop</verb>", "<noun>access card</noun>", "<intent>drop</intent>" })]
     [TestCase(typeof(WestOfHouse), "drop upper elevator access card",
-        new[] { "<verb>drop</verb>", "<noun>upper elevator access card</noun>", "<intent>act</intent>" })]
+        new[] { "<verb>drop</verb>", "<noun>upper elevator access card</noun>", "<intent>drop</intent>" })]
     [TestCase(typeof(WestOfHouse), "hey, what do you say we open the mailbox",
         new[] { "<verb>open</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "next let's try opening the mailbox",
@@ -160,19 +160,19 @@ public class OpenAIParserTests
     [TestCase(typeof(WestOfHouse), "open the mailbox",
         new[] { "<verb>open</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "grab the bottle",
-        new[] { "<verb>grab</verb>", "<noun>bottle</noun>", "<intent>act</intent>" })]
+        new[] { "<intent>take</intent>" })]
     [TestCase(typeof(WestOfHouse), "please kick the mailbox",
         new[] { "<verb>kick</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "I want to hug the mailbox",
         new[] { "<verb>hug</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "take mailbox",
-        new[] { "<verb>take</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
+        new[] { "<verb>take</verb>", "<noun>mailbox</noun>", "<intent>take</intent>" })]
     [TestCase(typeof(WestOfHouse), "the mailbox, eat it",
         new[] { "<verb>eat</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "the mailbox, please smoke it",
         new[] { "<verb>smoke</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
-    [TestCase(typeof(WestOfHouse), "let's abscond the mailbox",
-        new[] { "<verb>steal</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
+    [TestCase(typeof(WestOfHouse), "let's steal the mailbox",
+        new[] { "<intent>take</intent>" })]
     [TestCase(typeof(WestOfHouse), "it would be great if I can please lick the mailbox",
         new[] { "<verb>lick</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "light lantern",
@@ -180,9 +180,9 @@ public class OpenAIParserTests
     [TestCase(typeof(MachineRoom), "examine machine",
         new[] { "<verb>examine</verb>", "<noun>machine</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(DamBase), "take plastic",
-        new[] { "<verb>take</verb>", "<noun>plastic</noun>", "<intent>act</intent>" })]
+        new[] { "<verb>take</verb>", "<noun>plastic</noun>", "<intent>take</intent>" })]
     [TestCase(typeof(DamBase), "take pile",
-        new[] { "<verb>take</verb>", "<noun>pile</noun>", "<intent>act</intent>" })]
+        new[] { "<verb>take</verb>", "<noun>pile</noun>", "<intent>take</intent>" })]
 
     // Multi noun
     [TestCase(typeof(DomeRoom), "tie the rope to the railing",
@@ -374,7 +374,7 @@ public class OpenAIParserTests
         response.Should().Contain("<verb>press</verb>");
         response.Should().Contain($"<noun>{direction} button");
     }
-    
+
     [Test]
     [TestCase("up")]
     [TestCase("down")]

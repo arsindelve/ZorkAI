@@ -33,8 +33,8 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
         return "Opened.";
     }
 
-    public override InteractionResult RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client)
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         InteractionResult? result = null;
 
@@ -42,7 +42,7 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
         if (IsOpen || IsTransparent)
             foreach (var item in Items.ToList())
             {
-                result = item.RespondToSimpleInteraction(action, context, client);
+                result = await item.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
                 if (result is { InteractionHappened: true })
                     return result;
             }
@@ -59,7 +59,7 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
         if (!action.MatchNoun(nounsForProcessing.ToArray()))
             return new NoNounMatchInteractionResult();
 
-        return ApplyProcessors(action, context, null, client);
+        return await ApplyProcessors(action, context, null, client, itemProcessorFactory);
     }
 
     public override (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true)

@@ -32,10 +32,11 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
         return "A pile of leaves";
     }
 
-    public override InteractionResult RespondToSimpleInteraction(
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(
         SimpleIntent action,
         IContext context,
-        IGenerationClient client
+        IGenerationClient client,
+        IItemProcessorFactory itemProcessorFactory
         )
     {
         if (action.Match(["count"], NounsForMatching))
@@ -72,6 +73,6 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
             return new DeathProcessor().Process(result, context);
         }
 
-        return base.RespondToSimpleInteraction(action, context, client);
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }
