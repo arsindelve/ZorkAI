@@ -1,5 +1,6 @@
 using GameEngine.StaticCommand.Implementation;
 using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 using Model.AIParsing;
 using Model.Interface;
 using Model.Item;
@@ -61,6 +62,29 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         return null;
     }
 
+    /// <summary>
+    /// Processes a take interaction within the defined context.
+    /// </summary>
+    /// <param name="action">The take intent containing details of the interaction.</param>
+    /// <param name="context">The context in which the take operation occurs.</param>
+    /// <param name="client"></param>
+    /// <returns>A tuple containing the interaction result and an associated message.</returns>
+    public async Task<(InteractionResult? resultObject, string? ResultMessage)> Process(TakeIntent action,
+        IContext context, IGenerationClient client)
+    {
+        var result = await GetItemsToTake(context,
+            new SimpleIntent { OriginalInput = action.Message, Verb = "take", Noun = string.Empty });
+
+        if (result is null or NoNounMatchInteractionResult)
+        {
+            var message = await client.GenerateNarration(
+                new TakeSomethingThatIsNotPortable(action.Message ?? string.Empty), context.SystemPromptAddendum);
+            return (new PositiveInteractionResult(message), message);
+        }
+
+        return (result, result.InteractionMessage);
+    }
+
     private async Task<InteractionResult?> GetItemsToDrop(IContext context, SimpleIntent action)
     {
         if (string.IsNullOrEmpty(action.OriginalInput))
@@ -99,8 +123,8 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
 
     public static InteractionResult DropIt(IContext context, IItem? castItem)
     {
-        if(castItem is null) return new NoNounMatchInteractionResult();
-        
+        if (castItem is null) return new NoNounMatchInteractionResult();
+
         if (!context.Items.Contains(castItem))
             return new PositiveInteractionResult("You don't have that!");
 
@@ -138,7 +162,11 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
 
         context.Take(castItem);
 
-        var takeItem = (ICanBeTakenAndDropped)castItem;
+        // This happens if you try to take something that is a legit object in the room,
+        // but it has not been marked with this interface because it cannot be taken. Think doors and engravings. 
+        if (castItem is not ICanBeTakenAndDropped takeItem)
+            return new NoNounMatchInteractionResult();
+
         var onTakenText = takeItem.OnBeingTaken(context);
         container?.OnItemRemovedFromHere(castItem, context);
 

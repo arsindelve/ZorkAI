@@ -3,6 +3,7 @@ using CloudWatch;
 using CloudWatch.Model;
 using GameEngine.IntentEngine;
 using GameEngine.Item;
+using GameEngine.Item.ItemProcessor;
 using GameEngine.StaticCommand;
 using GameEngine.StaticCommand.Implementation;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,13 +43,14 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     private readonly ISecretsManager _secretsManager;
     private readonly string _sessionId = Guid.NewGuid().ToString();
     private readonly Guid _turnCorrelationId = Guid.NewGuid();
+    private readonly OpenAITakeAndDropListParser _openAITakeAndDropListParser;
     private string? _currentInput;
     private TInfocomGame _gameInstance;
     private bool _lastResponseWasGenerated;
     private IStatefulProcessor? _processorInProgress;
     private ICloudWatchLogger<TurnLog>? _turnLogger;
     internal TContext Context;
-
+    
     [ActivatorUtilitiesConstructor]
     public GameEngine(
         ILogger<GameEngine<TInfocomGame, TContext>> logger,
@@ -77,7 +79,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         GenerationClient = new ChatGPTClient(_logger);
         GenerationClient.OnGenerate += () => _lastResponseWasGenerated = true;
 
-        _itemProcessorFactory = new ItemProcessorFactory(new OpenAITakeAndDropListParser(logger));
+        _openAITakeAndDropListParser = new OpenAITakeAndDropListParser(logger);
+        _itemProcessorFactory = new ItemProcessorFactory(_openAITakeAndDropListParser);
         _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
         Inventory = [];
     }
@@ -109,6 +112,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _gameInstance.Init(Context);
         _itemProcessorFactory = itemProcessorFactory;
         _turnLogger = turnLogger;
+        _openAITakeAndDropListParser = null!;
     }
 
     public int Score => Context.Score;
@@ -236,7 +240,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public List<string> Inventory { get; set; }
 
-
     public IContext RestoreGame(string data)
     {
         var deserializeObject = JsonConvert.DeserializeObject<SavedGame<TContext>>(
@@ -305,6 +308,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     {
         _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
 
+        // TODO: why does this return an interaction result and a result message? This feels vestigial. 
         var complexIntentResult = parsedResult switch
         {
             GlobalCommandIntent intent => (null, await ProcessGlobalCommandIntent(intent)),
@@ -332,6 +336,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
                     GenerationClient
                 ),
 
+            TakeIntent takeIntent => await new TakeOrDropInteractionProcessor(_openAITakeAndDropListParser).Process(
+                takeIntent, Context, GenerationClient),
+            
             SimpleIntent simpleInteraction => await new SimpleInteractionEngine(_itemProcessorFactory).Process(
                 simpleInteraction,
                 Context,
