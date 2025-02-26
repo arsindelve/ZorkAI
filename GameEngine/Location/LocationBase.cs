@@ -13,9 +13,8 @@ namespace GameEngine.Location;
 public abstract class LocationBase : ILocation, ICanHoldItems
 {
     public bool IsTransparent => false;
-    
-    [UsedImplicitly]   
-    public List<IItem> Items { get; set; } = new();
+
+    [UsedImplicitly] public List<IItem> Items { get; set; } = new();
 
     public void RemoveItem(IItem item)
     {
@@ -219,13 +218,17 @@ public abstract class LocationBase : ILocation, ICanHoldItems
         return string.Empty;
     }
 
-    public virtual string GetDescription(IContext context)
+    public virtual string GetDescription(IContext context, bool fullDescription = true)
     {
-        return Name +
-               SubLocation?.LocationDescription +
-               Environment.NewLine +
-               GetContextBasedDescription(context) +
-               GetItemDescriptions();
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append(Name);
+        stringBuilder.AppendLine(SubLocation?.LocationDescription);
+
+        if (fullDescription)
+            stringBuilder.Append(GetContextBasedDescription(context));
+
+        stringBuilder.Append(GetItemDescriptions());
+        return stringBuilder.ToString();
     }
 
     public abstract void Init();
