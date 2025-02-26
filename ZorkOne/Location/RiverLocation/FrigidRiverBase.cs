@@ -34,7 +34,7 @@ public abstract class FrigidRiverBase : LocationWithNoStartingItems, ITurnBasedA
         return string.Empty;
     }
 
-    public override string GetDescription(IContext context)
+    public override string GetDescription(IContext context, bool fullDescription = true)
     {
         return Name +
                SubLocation?.LocationDescription +

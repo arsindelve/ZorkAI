@@ -23,10 +23,15 @@ public class LookProcessor : IGlobalCommand
 
         var currentLocationDescription = (verbosity ?? context.Verbosity) switch
         {
-            Verbosity.SuperBrief => context.CurrentLocation.Name,
+            // Never give room description
+            Verbosity.SuperBrief => context.CurrentLocation.GetDescription(context, false),
+            
+            // Give room description on first visit. 
             Verbosity.Brief => location.VisitCount == 1
                 ? context.CurrentLocation.GetDescription(context)
-                : location.Name,
+                : context.CurrentLocation.GetDescription(context, false),
+            
+            // Always give room description 
             Verbosity.Verbose => context.CurrentLocation.GetDescription(context),
             _ => throw new ArgumentOutOfRangeException()
         };

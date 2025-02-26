@@ -26,7 +26,13 @@ public interface ILocation
     /// </summary>
     int VisitCount { get; set; }
 
-    string GetDescription(IContext context);
+    /// <summary>
+    /// Retrieves the description of the current location based on the provided context and level of detail.
+    /// </summary>
+    /// <param name="context">The context in which the description is requested, including relevant state information.</param>
+    /// <param name="fullDescription">Indicates whether to return the full description or a brief version.</param>
+    /// <returns>A string representing the description of the current location.</returns>
+    string GetDescription(IContext context, bool fullDescription = true);
 
     /// <summary>
     ///     This allows us to provide a different description of the current location when we use it as
