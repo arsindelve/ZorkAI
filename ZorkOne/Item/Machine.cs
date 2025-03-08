@@ -39,7 +39,7 @@ public class Machine : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAnd
         // Initially empty. 
     }
 
-    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (!IsOpen && action.Match(["open"], ["lid"]))

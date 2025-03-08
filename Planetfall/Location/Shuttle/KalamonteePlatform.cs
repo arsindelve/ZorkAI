@@ -11,7 +11,8 @@ internal class KalamonteePlatform : LocationWithNoStartingItems
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.W, Go<WaitingArea>() }
+            { Direction.W, Go<WaitingArea>() },
+            { Direction.S, Go<ShuttleCarAlfie>()}
         };
     }
 
