@@ -38,14 +38,24 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot> : ItemBase, ICanBeExa
         string[] prepositions = ["across", "through"];
 
         if (action.Match<TAccessCard, TAccessSlot>(verbs, prepositions))
+        {
+            if (!context.HasItem<TAccessCard>())
+                return new NoNounMatchInteractionResult();
+
             return OnSuccessfulSlide(context);
+        }
 
         var nounOne = Repository.GetItem(action.NounOne);
 
         // Right idea, wrong card. 
         if (action.MatchVerb(verbs) && action.MatchPreposition(prepositions) && nounOne is AccessCard)
+        {
+            if (!context.HasMatchingNoun(action.NounOne).HasItem)
+                return new NoNounMatchInteractionResult();
+
             return new PositiveInteractionResult(
                 "A sign flashes \"Inkorekt awtharazaashun kard...akses deeniid.\"");
+        }
 
         return await base.RespondToMultiNounInteraction(action, context);
     }

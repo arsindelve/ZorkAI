@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.Movement;
+using Planetfall.Location.Shuttle;
 
 namespace Planetfall.Location.Lawanda;
 
@@ -11,7 +12,8 @@ internal class Escalator : LocationWithNoStartingItems
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.E, Go<Fork>() }
+            { Direction.E, Go<Fork>() },
+            { Direction.W, Go<LawandaPlatform>() }
         };
     }
 
