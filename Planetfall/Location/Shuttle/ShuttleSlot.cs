@@ -20,6 +20,6 @@ internal class ShuttleSlot<TShuttle> : SlotBase<ShuttleAccessCard, ShuttleSlot<T
 
     protected override InteractionResult OnSuccessfulSlide(IContext context)
     {
-        return Repository.GetLocation<TShuttle>().Activate();
+        return Repository.GetLocation<TShuttle>().Activate(context);
     }
 }

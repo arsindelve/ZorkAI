@@ -2,22 +2,22 @@ using Model.Movement;
 
 namespace Planetfall.Location.Shuttle;
 
-public class AlfieControlWest : ShuttleControl
+public class BettyControlEast : ShuttleControl
 {
-    public override string Name => "Alfie Control West";
-
-    public override int TunnelPosition { get; set; } = EndOfTunnel;
+    public override string Name => "Betty Control East";
     
+    public override int TunnelPosition { get; set; } = EndOfTunnel;
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.E, Go<ShuttleCarAlfie>() }
+            { Direction.W, Go<ShuttleCarBetty>() }
         };
     }
-
+    
     public override void Init()
     {
-        StartWithItem<ShuttleSlot<AlfieControlWest>>();
+        StartWithItem<ShuttleSlot<BettyControlEast>>();
     }
 }
