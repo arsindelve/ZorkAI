@@ -1,6 +1,8 @@
 using System.Text;
 using GameEngine.Location;
 using Model.AIGeneration;
+using Model.Movement;
+// ReSharper disable StaticMemberInGenericType
 
 namespace Planetfall.Location.Shuttle;
 
@@ -8,9 +10,16 @@ namespace Planetfall.Location.Shuttle;
 /// Represents the base class for a shuttle control system within a location.
 /// Implements turn-based actor behavior and responds to player interactions.
 /// </summary>
-public abstract class ShuttleControl : LocationWithNoStartingItems, ITurnBasedActor
+public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingItems, ITurnBasedActor, IShuttleControl where TCabin : class, ILocation, new()
+    where TControl : ShuttleControl<TCabin, TControl>, new()
 {
     protected const int EndOfTunnel = 200;
+    private const int StartOfTunnel = 0;
+
+    public override void Init()
+    {
+        StartWithItem<ShuttleSlot<TControl>>();
+    }
 
     private static readonly Dictionary<int, string> Signs = new()
     {
@@ -22,12 +31,17 @@ public abstract class ShuttleControl : LocationWithNoStartingItems, ITurnBasedAc
         { 180, "You pass a sign, surrounded by blinking red lights, which says \"15.\"" },
         { 185, "You pass a sign, surrounded by blinking red lights, which says \"10.\"" },
         { 190, "You pass a sign, surrounded by blinking red lights, which says \"5.\"" },
-        { 195, "The shuttle car is approaching a brightly lit area. As you near it, you make out the concrete platforms of a shuttle station. "}
+        {
+            195,
+            "The shuttle car is approaching a brightly lit area. As you near it, you make out the concrete platforms of a shuttle station. "
+        }
     };
 
     private static readonly string[] AccelerateVerbs = ["push"];
     private static readonly string[] DecelerateVerbs = ["pull"];
     private static readonly string[] LeverNouns = ["lever", "controls", "control lever"];
+
+    private bool DoorIsClosed => TunnelPosition is > StartOfTunnel and < EndOfTunnel;
 
     [UsedImplicitly] public int Speed { get; set; }
 
@@ -53,13 +67,21 @@ public abstract class ShuttleControl : LocationWithNoStartingItems, ITurnBasedAc
     private string OutTheWindow =>
         TunnelPosition switch
         {
-            200 => "a featureless concrete wall. ",
+            EndOfTunnel => "a featureless concrete wall. ",
             190 or 195 => "parallel rails ending at a brightly lit station ahead. ",
             _ => "parallel rails running along the floor of a long tunnel, vanishing in the distance. "
         };
 
     public async Task<string> Act(IContext context, IGenerationClient client)
     {
+        if (TurnsSinceActivated > 10)
+        {
+            Activated = false;
+            TurnsSinceActivated = 0;
+            context.RemoveActor(this);
+            return "";
+        }
+
         StringBuilder sb = new();
         SpeedChanged = false;
 
@@ -69,7 +91,35 @@ public abstract class ShuttleControl : LocationWithNoStartingItems, ITurnBasedAc
         if (Speed != 0)
             sb.AppendLine(await Move());
 
+        TurnsSinceActivated++;
         return sb.ToString();
+    }
+
+    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
+    {
+        context.RemoveActor(this);
+        Activated = false;
+        TurnsSinceActivated = 0;
+    }
+
+    protected override Dictionary<Direction, MovementParameters> Map(IContext context)
+    {
+        return new Dictionary<Direction, MovementParameters>
+        {
+            { LeaveDirection, CanLeave() }
+        };
+    }
+
+    protected abstract Direction LeaveDirection { get; }
+
+    private MovementParameters CanLeave()
+    {
+        return new MovementParameters
+        {
+            CanGo = _ => !DoorIsClosed,
+            Location = Repository.GetLocation<TCabin>(),
+            CustomFailureMessage = "The door is closed. "
+        };
     }
 
     public override Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
@@ -86,7 +136,6 @@ public abstract class ShuttleControl : LocationWithNoStartingItems, ITurnBasedAc
 
         return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
-
 
     // The shuttle car glides into the station and comes to rest at the concrete platform. You hear the cabin doors slide open.    
 
@@ -106,7 +155,7 @@ public abstract class ShuttleControl : LocationWithNoStartingItems, ITurnBasedAc
 
 
     // TODO: A recorded voice explains that using the shuttle car during the evening hours requires special authorization.
-    
+
     private string AdjustLever(ShuttleLeverDirection direction)
     {
         // The lever is now in the lower position.     
@@ -177,11 +226,22 @@ public abstract class ShuttleControl : LocationWithNoStartingItems, ITurnBasedAc
                 break;
         }
 
+        // Moving at all resets the clock. 
+        TurnsSinceActivated = 0;
+
+        if (Speed == 0)
+        {
+            LeverPosition = ShuttleLeverPosition.Neutral;
+            return Task.FromResult("The shuttle car comes to a stop and the lever pops back to the central position. ");
+        }
+
         return Task.FromResult(string.Empty);
     }
 
     private Task<string> Move()
     {
+        TunnelPosition += Speed;
+
         if (SpeedChanged)
             switch (Speed)
             {
@@ -202,14 +262,14 @@ public abstract class ShuttleControl : LocationWithNoStartingItems, ITurnBasedAc
         return Task.FromResult($"The shuttle car continues to move. The display still reads {Speed}. ");
     }
 
-    internal InteractionResult Activate(IContext context)
+    InteractionResult IShuttleControl.Activate(IContext context)
     {
         if (TunnelPosition == EndOfTunnel)
             return new PositiveInteractionResult(
                 "A recorded voice says \"Use other control cabin. Control activation overridden.\"");
 
         var result = Activated
-            ? "\"A recorded voice says \"Shuttle controls are already activated.\""
+            ? "A recorded voice says \"Shuttle controls are already activated.\""
             : "A recording of a deep male voice says \"Shuttle controls activated.\"";
 
         Activated = true;

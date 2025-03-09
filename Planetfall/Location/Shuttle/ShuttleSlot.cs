@@ -14,7 +14,7 @@ namespace Planetfall.Location.Shuttle;
 /// <see cref="ShuttleControl"/> and provide a parameterless constructor.
 /// </typeparam>
 internal class ShuttleSlot<TShuttle> : SlotBase<ShuttleAccessCard, ShuttleSlot<TShuttle>>
-    where TShuttle : ShuttleControl, new()
+    where TShuttle : class, IShuttleControl, new()
 {
     public override string[] NounsForMatching => ["shuttle slot", "slot", "shuttle control slot"];
 
