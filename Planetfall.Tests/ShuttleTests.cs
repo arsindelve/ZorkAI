@@ -29,6 +29,22 @@ public class ShuttleTests : EngineTestsBase
     }
 
     [Test]
+    public async Task Activate_ThenWait_Deactivates()
+    {
+        var target = GetTarget();
+        Take<ShuttleAccessCard>();
+        StartHere<AlfieControlEast>();
+
+        await target.GetResponse("slide shuttle access card through slot");
+        GetLocation<AlfieControlEast>().Activated.Should().BeTrue();
+
+        for (var i = 0; i < 15; i++)
+            await target.GetResponse("wait");
+        
+        GetLocation<AlfieControlEast>().Activated.Should().BeFalse();
+    }
+
+    [Test]
     public async Task Look_WhileInStation_Outbound()
     {
         var target = GetTarget();
@@ -137,7 +153,7 @@ public class ShuttleTests : EngineTestsBase
         GetLocation<AlfieControlEast>().Speed.Should().Be(10);
         GetLocation<AlfieControlEast>().LeverPosition.Should().Be(ShuttleLeverPosition.Acceleration);
     }
-    
+
     [Test]
     public async Task Accelerate_Then_Neutral()
     {
@@ -154,5 +170,69 @@ public class ShuttleTests : EngineTestsBase
         GetLocation<AlfieControlEast>().Activated.Should().BeTrue();
         GetLocation<AlfieControlEast>().Speed.Should().Be(5);
         GetLocation<AlfieControlEast>().LeverPosition.Should().Be(ShuttleLeverPosition.Neutral);
+    }
+    
+    [Test]
+    public async Task Accelerate_Then_Decelerate()
+    {
+        var target = GetTarget();
+        Take<ShuttleAccessCard>();
+        StartHere<AlfieControlEast>();
+
+        await target.GetResponse("slide shuttle access card through slot");
+        await target.GetResponse("push lever");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("pull lever");
+        var response = await target.GetResponse("pull lever");
+
+        response.Should().Contain("The lever is now in the lower position");
+        response.Should().Contain("The shuttle car continues to move. The display blinks, and now reads 10.");
+        GetLocation<AlfieControlEast>().Activated.Should().BeTrue();
+        GetLocation<AlfieControlEast>().Speed.Should().Be(10);
+        GetLocation<AlfieControlEast>().LeverPosition.Should().Be(ShuttleLeverPosition.Deceleration);
+    }
+    
+    [Test]
+    public async Task Accelerate_Then_Stop()
+    {
+        var target = GetTarget();
+        Take<ShuttleAccessCard>();
+        StartHere<AlfieControlEast>();
+
+        await target.GetResponse("slide shuttle access card through slot");
+        await target.GetResponse("push lever");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("pull lever");
+        await target.GetResponse("pull lever");
+        await target.GetResponse("wait");
+        var response = await target.GetResponse("wait");
+        
+        response.Should().Contain("The shuttle car comes to a stop and the lever pops back to the central position");
+        GetLocation<AlfieControlEast>().Activated.Should().BeTrue();
+        GetLocation<AlfieControlEast>().Speed.Should().Be(0);
+        GetLocation<AlfieControlEast>().LeverPosition.Should().Be(ShuttleLeverPosition.Neutral);
+    }
+    
+    [Test]
+    public async Task MiddleOfTrack_CannotLeave()
+    {
+        var target = GetTarget();
+        Take<ShuttleAccessCard>();
+        StartHere<AlfieControlEast>();
+
+        await target.GetResponse("slide shuttle access card through slot");
+        await target.GetResponse("push lever");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("pull lever");
+        await target.GetResponse("pull lever");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        var response = await target.GetResponse("west");
+        
+        response.Should().Contain("The door is closed");
+        target.Context.CurrentLocation.Should().BeOfType<AlfieControlEast>();
     }
 }
