@@ -102,7 +102,7 @@ internal class AdventurerVersusThiefCombatEngine(IRandomChooser chooser) : IComb
                 return Knockout(attack.text);
 
             case CombatOutcome.DropOwnWeapon:
-                context.Drop((IItem)weapon);
+                if (weapon is IItem droppableWeapon) context.Drop(droppableWeapon);
                 return new PositiveInteractionResult(attack.text);
         }
 

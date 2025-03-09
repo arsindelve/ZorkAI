@@ -6,6 +6,8 @@ public class AlfieControlWest : ShuttleControl
 {
     public override string Name => "Alfie Control West";
 
+    public override int TunnelPosition { get; set; } = 200;
+    
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>
@@ -14,5 +16,8 @@ public class AlfieControlWest : ShuttleControl
         };
     }
 
-    public override ILocation Cabin => Repository.GetLocation<ShuttleCarAlfie>();
+    public override void Init()
+    {
+        StartWithItem<ShuttleSlot<AlfieControlWest>>();
+    }
 }

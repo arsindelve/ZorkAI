@@ -1,5 +1,13 @@
 namespace Planetfall.Item.Kalamontee.Admin;
 
+/// <summary>
+/// Represents an abstract base class for access cards in the game.
+/// Access cards often have specific interactions and unique nouns to match for gameplay purposes.
+/// </summary>
+/// <remarks>
+/// This class inherits from ItemBase and modifies the behavior of NounsForPreciseMatching to exclude
+/// general terms like "card" and "access card," ensuring more precise identification during interactions.
+/// </remarks>
 public abstract class AccessCard : ItemBase
 {
     /// <summary>
