@@ -13,6 +13,9 @@ public class AlfieControlEast : ShuttleControl
             { Direction.W, Go<ShuttleCarAlfie>() }
         };
     }
-
-    public override ILocation Cabin => Repository.GetLocation<ShuttleCarAlfie>();
+    
+    public override void Init()
+    {
+        StartWithItem<ShuttleSlot<AlfieControlEast>>();
+    }
 }

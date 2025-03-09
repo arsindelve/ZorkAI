@@ -18,6 +18,7 @@ public class WaitingArea : LocationWithNoStartingItems
     protected override string GetContextBasedDescription(IContext context)
     {
         return
-            "This is a concrete platform sparsely furnished with benches. The platform continues to the east, and to the south is a metal door. ";
+            "This is a concrete platform sparsely furnished with benches. The platform continues to the east, " +
+            "and to the south is a metal door. ";
     }
 }
