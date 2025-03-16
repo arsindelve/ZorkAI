@@ -8,5 +8,5 @@ public class AlfieControlWest : ShuttleControl<ShuttleCarAlfie, AlfieControlWest
 
     public override int TunnelPosition { get; set; } = EndOfTunnel;
     
-    protected override Direction LeaveDirection => Direction.E;
+    protected override Direction LeaveControlsDirection => Direction.E;
 }

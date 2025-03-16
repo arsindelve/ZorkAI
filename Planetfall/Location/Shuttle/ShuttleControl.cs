@@ -3,6 +3,7 @@ using GameEngine.Location;
 using Model;
 using Model.AIGeneration;
 using Model.Movement;
+using Planetfall.Command;
 
 // ReSharper disable StaticMemberInGenericType
 
@@ -22,23 +23,29 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
     where TControl : ShuttleControl<TCabin, TControl>, new()
 {
     protected const int EndOfTunnel = 24;
-    private const int StartOfTunnel = 0;
-    
+    protected const int StartOfTunnel = 0;
+
     private static readonly Dictionary<int, string> Landmarks = new()
     {
         { 2, "You pass a sign which says \"Limit 45.\"" },
-        { 12, "The tunnel levels out and begins to slope upward. A sign flashes by which reads \"Hafwaa Mark -- Beegin Deeseluraashun.\"" },
+        {
+            12,
+            "The tunnel levels out and begins to slope upward. A sign flashes by which reads \"Hafwaa Mark -- Beegin Deeseluraashun.\""
+        },
         { 20, "You pass a sign, surrounded by blinking red lights, which says \"15.\"" },
         { 21, "You pass a sign, surrounded by blinking red lights, which says \"10.\"" },
         { 22, "You pass a sign, surrounded by blinking red lights, which says \"5.\"" },
-        { 23,"The shuttle car is approaching a brightly lit area. As you near it, you make out the concrete platforms of a shuttle station. " }
+        {
+            23,
+            "The shuttle car is approaching a brightly lit area. As you near it, you make out the concrete platforms of a shuttle station. "
+        }
     };
 
     private static readonly string[] AccelerateVerbs = ["push"];
     private static readonly string[] DecelerateVerbs = ["pull"];
     private static readonly string[] LeverNouns = ["lever", "controls", "control lever"];
 
-    private bool DoorIsClosed => TunnelPosition is > StartOfTunnel and < EndOfTunnel;
+    public bool DoorIsClosed => TunnelPosition is > StartOfTunnel and < EndOfTunnel;
 
     /// <summary>
     /// <remarks>See the note about speed above - it has NO EFFECT on how long it takes you to move from
@@ -74,8 +81,8 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
             _ => "parallel rails running along the floor of a long tunnel, vanishing in the distance. "
         };
 
-    protected abstract Direction LeaveDirection { get; }
-
+    protected abstract Direction LeaveControlsDirection { get; }
+    
     public override void Init()
     {
         StartWithItem<ShuttleSlot<TControl>>();
@@ -155,8 +162,8 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
         if (LeverPosition != ShuttleLeverPosition.Neutral)
             sb.AppendLine(await ChangeSpeed());
 
-        if (Speed != 0)
-            sb.AppendLine(await Move());
+        if (Speed != 0 || SpeedChanged)
+            sb.AppendLine(await Move(context));
 
         TurnsSinceActivated++;
         return sb.ToString();
@@ -166,7 +173,7 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            { LeaveDirection, CanLeave() }
+            { LeaveControlsDirection, CanLeave() }
         };
     }
 
@@ -180,14 +187,6 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
         };
     }
 
-    // The shuttle car glides into the station and comes to rest at the concrete platform. You hear the cabin doors slide open.    
-
-    // At 5 or 10, 15 MPH
-    // The shuttle car rumbles through the station and smashes into the wall at the far end. You are thrown forward into the control panel. Both you
-    // and the shuttle car produce unhealthy crunching sounds as the cabin doors creak slowly open.
-
-    // >= 20 
-    // The shuttle car hurtles past the platforms and rams into the wall at the far end of the station. The shuttle car is destroyed, but you're in no condition to care.                                 
 
     // TODO: A recorded voice explains that using the shuttle car during the evening hours requires special authorization.
 
@@ -272,15 +271,19 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
         return Task.FromResult(string.Empty);
     }
 
-    private Task<string> Move()
+    private Task<string> Move(IContext context)
     {
         var sb = new StringBuilder();
-  
+
+        if (TunnelPosition == EndOfTunnel)
+            return Task.FromResult(Arrived(context));
+
         if (SpeedChanged)
             switch (Speed)
             {
-                case 5 when LeverPosition == ShuttleLeverPosition.Acceleration && TunnelPosition == 0: 
-                    sb.AppendLine("The control cabin door slides shut and the shuttle car begins to move forward! The display changes to 5. ");
+                case 5 when LeverPosition == ShuttleLeverPosition.Acceleration && TunnelPosition == 0:
+                    sb.AppendLine(
+                        "The control cabin door slides shut and the shuttle car begins to move forward! The display changes to 5. ");
                     break;
 
                 default:
@@ -288,16 +291,37 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
                     break;
             }
         else
-        {
             sb.AppendLine($"The shuttle car continues to move. The display still reads {Speed}. ");
-        }
-        
+
         if (Landmarks.TryGetValue(TunnelPosition, out var landmark))
             sb.AppendLine(landmark);
 
         // See the note at the top of the class about speed. 
         TunnelPosition++;
-        
+
+        // Remains activated as long as we are moving. 
+        TurnsSinceActivated = 0;
+
         return Task.FromResult(sb.ToString());
+    }
+
+    private string Arrived(IContext context)
+    {
+        int speedIntoPlatform = Speed;
+        context.RemoveActor(this);
+        Activated = false;
+        LeverPosition = ShuttleLeverPosition.Neutral;
+        Speed = 0;
+
+        return speedIntoPlatform switch
+        {
+            < 1 =>
+                "The shuttle car glides into the station and comes to rest at the concrete platform. You hear the cabin doors slide open.",
+
+            > 1 and < 21 =>
+                "The shuttle car rumbles through the station and smashes into the wall at the far end. You are thrown forward into the control panel. Both you and the shuttle car produce unhealthy crunching sounds as the cabin doors creak slowly open.",
+
+            _ => new DeathProcessor().Process("The shuttle car hurtles past the platforms and rams into the wall at the far end of the station. The shuttle car is destroyed, but you're in no condition to care. ", context).InteractionMessage
+        };
     }
 }

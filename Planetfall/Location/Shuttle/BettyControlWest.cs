@@ -5,5 +5,5 @@ namespace Planetfall.Location.Shuttle;
 public class BettyControlWest : ShuttleControl<ShuttleCarBetty, BettyControlWest>
 {
     public override string Name => "Betty Control West";
-    protected override Direction LeaveDirection => Direction.E;
+    protected override Direction LeaveControlsDirection => Direction.E;
 }

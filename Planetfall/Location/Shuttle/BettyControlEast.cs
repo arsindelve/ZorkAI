@@ -8,5 +8,5 @@ public class BettyControlEast : ShuttleControl<ShuttleCarBetty, BettyControlEast
     
     public override int TunnelPosition { get; set; } = EndOfTunnel;
     
-    protected override Direction LeaveDirection => Direction.W;
+    protected override Direction LeaveControlsDirection => Direction.W;
 }
