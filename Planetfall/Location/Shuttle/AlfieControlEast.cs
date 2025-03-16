@@ -7,5 +7,5 @@ public class AlfieControlEast : ShuttleControl<ShuttleCarAlfie, AlfieControlEast
 {
     public override string Name => "Alfie Control East";
     
-    protected override Direction LeaveDirection => Direction.W;
+    protected override Direction LeaveControlsDirection => Direction.W;
 }
