@@ -67,6 +67,17 @@ public class ShuttleTests : EngineTestsBase
 
         response.Should().Contain("Through the cabin window you can see a featureless concrete wall");
     }
+    
+    [Test]
+    public async Task Look_WhileCloseToStation_Outbound()
+    {
+        var target = GetTarget();
+        StartHere<AlfieControlEast>().TunnelPosition = 190;
+        
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("Through the cabin window you can see parallel rails ending at a brightly lit station ahead");
+    }
 
     [Test]
     public async Task Activate_WhileInStation_Inbound()
@@ -137,6 +148,22 @@ public class ShuttleTests : EngineTestsBase
         GetLocation<AlfieControlEast>().LeverPosition.Should().Be(ShuttleLeverPosition.Acceleration);
     }
 
+    [Test]
+    public async Task TryToDecelerate_WhileStopped()
+    {
+        var target = GetTarget();
+        Take<ShuttleAccessCard>();
+        StartHere<AlfieControlEast>();
+
+        await target.GetResponse("slide shuttle access card through slot");
+        var response = await target.GetResponse("pull lever");
+
+        response.Should().Contain("The lever immediately pops back to the central position");
+        GetLocation<AlfieControlEast>().Activated.Should().BeTrue();
+        GetLocation<AlfieControlEast>().Speed.Should().Be(0);
+        GetLocation<AlfieControlEast>().LeverPosition.Should().Be(ShuttleLeverPosition.Neutral);
+    }
+    
     [Test]
     public async Task Accelerate()
     {

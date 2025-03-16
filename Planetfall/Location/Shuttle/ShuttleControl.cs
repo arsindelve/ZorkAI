@@ -1,7 +1,9 @@
 using System.Text;
 using GameEngine.Location;
+using Model;
 using Model.AIGeneration;
 using Model.Movement;
+
 // ReSharper disable StaticMemberInGenericType
 
 namespace Planetfall.Location.Shuttle;
@@ -9,32 +11,27 @@ namespace Planetfall.Location.Shuttle;
 /// <summary>
 /// Represents the base class for a shuttle control system within a location.
 /// Implements turn-based actor behavior and responds to player interactions.
+/// <remarks>So check it out: The speed DOES NOT affect how long it takes you to get from
+/// one station to the other, or the rate at which we pass landmarks along the way.
+/// It is the exact same number of turns if you keep the speed at 5, or if you accelerate the whole time.
+/// This is how the original game works! (I ran several experiments to confirm). 
+/// The only purpose of the speed is to make sure you decelerate to a reasonable speed before you enter the station.</remarks>
 /// </summary>
-public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingItems, ITurnBasedActor, IShuttleControl where TCabin : class, ILocation, new()
+public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingItems, ITurnBasedActor, IShuttleControl
+    where TCabin : class, ILocation, new()
     where TControl : ShuttleControl<TCabin, TControl>, new()
 {
-    protected const int EndOfTunnel = 200;
+    protected const int EndOfTunnel = 24;
     private const int StartOfTunnel = 0;
-
-    public override void Init()
+    
+    private static readonly Dictionary<int, string> Landmarks = new()
     {
-        StartWithItem<ShuttleSlot<TControl>>();
-    }
-
-    private static readonly Dictionary<int, string> Signs = new()
-    {
-        { 15, "You pass a sign which says \"Limit 45.\"" },
-        {
-            100,
-            "The tunnel levels out and begins to slope upward. A sign flashes by which reads \"Hafwaa Mark -- Beegin Deeseluraashun.\""
-        },
-        { 180, "You pass a sign, surrounded by blinking red lights, which says \"15.\"" },
-        { 185, "You pass a sign, surrounded by blinking red lights, which says \"10.\"" },
-        { 190, "You pass a sign, surrounded by blinking red lights, which says \"5.\"" },
-        {
-            195,
-            "The shuttle car is approaching a brightly lit area. As you near it, you make out the concrete platforms of a shuttle station. "
-        }
+        { 2, "You pass a sign which says \"Limit 45.\"" },
+        { 12, "The tunnel levels out and begins to slope upward. A sign flashes by which reads \"Hafwaa Mark -- Beegin Deeseluraashun.\"" },
+        { 20, "You pass a sign, surrounded by blinking red lights, which says \"15.\"" },
+        { 21, "You pass a sign, surrounded by blinking red lights, which says \"10.\"" },
+        { 22, "You pass a sign, surrounded by blinking red lights, which says \"5.\"" },
+        { 23,"The shuttle car is approaching a brightly lit area. As you near it, you make out the concrete platforms of a shuttle station. " }
     };
 
     private static readonly string[] AccelerateVerbs = ["push"];
@@ -43,7 +40,12 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
 
     private bool DoorIsClosed => TunnelPosition is > StartOfTunnel and < EndOfTunnel;
 
-    [UsedImplicitly] public int Speed { get; set; }
+    /// <summary>
+    /// <remarks>See the note about speed above - it has NO EFFECT on how long it takes you to move from
+    /// one platform to the other. This is how the original game works, so I preserved it. </remarks>
+    /// </summary>
+    [UsedImplicitly]
+    public int Speed { get; set; }
 
     [UsedImplicitly] public int TurnsSinceActivated { get; set; }
 
@@ -72,6 +74,71 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
             _ => "parallel rails running along the floor of a long tunnel, vanishing in the distance. "
         };
 
+    protected abstract Direction LeaveDirection { get; }
+
+    public override void Init()
+    {
+        StartWithItem<ShuttleSlot<TControl>>();
+    }
+
+    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
+    {
+        context.RemoveActor(this);
+        Activated = false;
+        TurnsSinceActivated = 0;
+        LeverPosition = ShuttleLeverPosition.Neutral;
+    }
+
+    public override Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client,
+        IItemProcessorFactory itemProcessorFactory)
+    {
+        if (action.Match(Verbs.OpenVerbs, ["door", "cabin", "cabin door"]))
+        {
+            if (DoorIsClosed)
+                return Task.FromResult<InteractionResult>(new PositiveInteractionResult(
+                    "A recorded voice says \"Operator should remain in control cabin while shuttle car is between stations.\""));
+
+            return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+        }
+
+        if (action.Match(Verbs.CloseVerbs, ["door", "cabin", "cabin door"]))
+        {
+            if (DoorIsClosed)
+                return Task.FromResult<InteractionResult>(new PositiveInteractionResult(
+                    "It is closed. "));
+
+            return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+        }
+
+        if (action.Match(DecelerateVerbs, LeverNouns))
+            return Task.FromResult<InteractionResult>(
+                new PositiveInteractionResult(AdjustLever(ShuttleLeverDirection.Pull)));
+
+        if (action.Match(AccelerateVerbs, LeverNouns))
+            return Task.FromResult<InteractionResult>(
+                new PositiveInteractionResult(AdjustLever(ShuttleLeverDirection.Push)));
+
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+    }
+
+    InteractionResult IShuttleControl.Activate(IContext context)
+    {
+        if (TunnelPosition == EndOfTunnel)
+            return new PositiveInteractionResult(
+                "A recorded voice says \"Use other control cabin. Control activation overridden.\"");
+
+        var result = Activated
+            ? "A recorded voice says \"Shuttle controls are already activated.\""
+            : "A recording of a deep male voice says \"Shuttle controls activated.\"";
+
+        Activated = true;
+        TurnsSinceActivated = 0;
+        context.RegisterActor(this);
+
+        return new PositiveInteractionResult(result);
+    }
+
     public async Task<string> Act(IContext context, IGenerationClient client)
     {
         if (TurnsSinceActivated > 10)
@@ -95,13 +162,6 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
         return sb.ToString();
     }
 
-    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
-    {
-        context.RemoveActor(this);
-        Activated = false;
-        TurnsSinceActivated = 0;
-    }
-
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>
@@ -109,8 +169,6 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
             { LeaveDirection, CanLeave() }
         };
     }
-
-    protected abstract Direction LeaveDirection { get; }
 
     private MovementParameters CanLeave()
     {
@@ -122,23 +180,7 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
         };
     }
 
-    public override Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client,
-        IItemProcessorFactory itemProcessorFactory)
-    {
-        if (action.Match(DecelerateVerbs, LeverNouns))
-            return Task.FromResult<InteractionResult>(
-                new PositiveInteractionResult(AdjustLever(ShuttleLeverDirection.Pull)));
-
-        if (action.Match(AccelerateVerbs, LeverNouns))
-            return Task.FromResult<InteractionResult>(
-                new PositiveInteractionResult(AdjustLever(ShuttleLeverDirection.Push)));
-
-        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
-    }
-
     // The shuttle car glides into the station and comes to rest at the concrete platform. You hear the cabin doors slide open.    
-
 
     // At 5 or 10, 15 MPH
     // The shuttle car rumbles through the station and smashes into the wall at the far end. You are thrown forward into the control panel. Both you
@@ -147,20 +189,10 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
     // >= 20 
     // The shuttle car hurtles past the platforms and rams into the wall at the far end of the station. The shuttle car is destroyed, but you're in no condition to care.                                 
 
-
-    // It's already closed.      
-
-
-    // A recorded voice says "Operator should remain in control cabin while shuttle car is between stations."    
-
-
     // TODO: A recorded voice explains that using the shuttle car during the evening hours requires special authorization.
 
     private string AdjustLever(ShuttleLeverDirection direction)
     {
-        // The lever is now in the lower position.     
-        // The lever immediately pops back to the central position.
-
         if (!Activated)
             return "A recorded voice says \"Shuttle controls are not currently activated.\" ";
 
@@ -176,6 +208,8 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
                         LeverPosition = ShuttleLeverPosition.Neutral;
                         return "The lever is now in the central position. ";
                     case ShuttleLeverPosition.Neutral:
+                        if (Speed == 0)
+                            return "The lever immediately pops back to the central position.";
                         LeverPosition = ShuttleLeverPosition.Deceleration;
                         return "The lever is now in the lower position. ";
                     case ShuttleLeverPosition.Deceleration:
@@ -240,42 +274,30 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
 
     private Task<string> Move()
     {
-        TunnelPosition += Speed;
-
+        var sb = new StringBuilder();
+  
         if (SpeedChanged)
             switch (Speed)
             {
-                case 5 when LeverPosition == ShuttleLeverPosition.Acceleration:
-                    return Task.FromResult<string>(
-                        "The control cabin door slides shut and the shuttle car begins to move forward! The display changes to 5. ");
-
-                case 0 when LeverPosition == ShuttleLeverPosition.Deceleration:
-                    LeverPosition = ShuttleLeverPosition.Neutral;
-                    return Task.FromResult(
-                        "The shuttle car comes to a stop and the lever pops back to the central position. ");
+                case 5 when LeverPosition == ShuttleLeverPosition.Acceleration && TunnelPosition == 0: 
+                    sb.AppendLine("The control cabin door slides shut and the shuttle car begins to move forward! The display changes to 5. ");
+                    break;
 
                 default:
-                    return Task.FromResult(
-                        $"The shuttle car continues to move. The display blinks, and now reads {Speed}. ");
+                    sb.AppendLine($"The shuttle car continues to move. The display blinks, and now reads {Speed}. ");
+                    break;
             }
+        else
+        {
+            sb.AppendLine($"The shuttle car continues to move. The display still reads {Speed}. ");
+        }
+        
+        if (Landmarks.TryGetValue(TunnelPosition, out var landmark))
+            sb.AppendLine(landmark);
 
-        return Task.FromResult($"The shuttle car continues to move. The display still reads {Speed}. ");
-    }
-
-    InteractionResult IShuttleControl.Activate(IContext context)
-    {
-        if (TunnelPosition == EndOfTunnel)
-            return new PositiveInteractionResult(
-                "A recorded voice says \"Use other control cabin. Control activation overridden.\"");
-
-        var result = Activated
-            ? "A recorded voice says \"Shuttle controls are already activated.\""
-            : "A recording of a deep male voice says \"Shuttle controls activated.\"";
-
-        Activated = true;
-        TurnsSinceActivated = 0;
-        context.RegisterActor(this);
-
-        return new PositiveInteractionResult(result);
+        // See the note at the top of the class about speed. 
+        TunnelPosition++;
+        
+        return Task.FromResult(sb.ToString());
     }
 }
