@@ -243,7 +243,7 @@ public class ShuttleTests : EngineTestsBase
         GetLocation<AlfieControlEast>().Speed.Should().Be(0);
         GetLocation<AlfieControlEast>().LeverPosition.Should().Be(ShuttleLeverPosition.Neutral);
     }
-    
+
     [Test]
     public async Task Accelerate_ThenPushLeverAgain()
     {
@@ -260,7 +260,7 @@ public class ShuttleTests : EngineTestsBase
         GetLocation<AlfieControlEast>().Speed.Should().Be(10);
         GetLocation<AlfieControlEast>().LeverPosition.Should().Be(ShuttleLeverPosition.Acceleration);
     }
-    
+
     [Test]
     public async Task Decelerate_ThenPullLeverAgain()
     {
@@ -281,7 +281,7 @@ public class ShuttleTests : EngineTestsBase
         GetLocation<AlfieControlEast>().Speed.Should().Be(5);
         GetLocation<AlfieControlEast>().LeverPosition.Should().Be(ShuttleLeverPosition.Deceleration);
     }
-    
+
     [Test]
     public async Task Decelerate_ThenPushLever()
     {
@@ -302,7 +302,7 @@ public class ShuttleTests : EngineTestsBase
         GetLocation<AlfieControlEast>().Speed.Should().Be(10);
         GetLocation<AlfieControlEast>().LeverPosition.Should().Be(ShuttleLeverPosition.Neutral);
     }
-    
+
     [Test]
     public async Task Move_ThenTryToOpenDoor()
     {
@@ -315,9 +315,11 @@ public class ShuttleTests : EngineTestsBase
 
         var response = await target.GetResponse("open door");
 
-        response.Should().Contain("A recorded voice says \"Operator should remain in control cabin while shuttle car is between stations.\"");
+        response.Should()
+            .Contain(
+                "A recorded voice says \"Operator should remain in control cabin while shuttle car is between stations.\"");
     }
-    
+
     [Test]
     public async Task Move_ThenTryToCloseDoor()
     {
@@ -332,7 +334,7 @@ public class ShuttleTests : EngineTestsBase
 
         response.Should().Contain("It is closed");
     }
-    
+
     [Test]
     public async Task Accelerate_Once_Then_Stop()
     {
@@ -376,11 +378,13 @@ public class ShuttleTests : EngineTestsBase
 
     [Test]
     [TestCase(3, "You pass a sign which says \"Limit 45.\"")]
-    [TestCase(13, "The tunnel levels out and begins to slope upward. A sign flashes by which reads \"Hafwaa Mark -- Beegin Deeseluraashun.\"")]
+    [TestCase(13,
+        "The tunnel levels out and begins to slope upward. A sign flashes by which reads \"Hafwaa Mark -- Beegin Deeseluraashun.\"")]
     [TestCase(21, "You pass a sign, surrounded by blinking red lights, which says \"15.\"")]
     [TestCase(22, "You pass a sign, surrounded by blinking red lights, which says \"10.\"")]
     [TestCase(23, "You pass a sign, surrounded by blinking red lights, which says \"5.\"")]
-    [TestCase(24, "The shuttle car is approaching a brightly lit area. As you near it, you make out the concrete platforms of a shuttle station")]
+    [TestCase(24,
+        "The shuttle car is approaching a brightly lit area. As you near it, you make out the concrete platforms of a shuttle station")]
     public async Task Landmarks(int turns, string result)
     {
         var target = GetTarget();
@@ -401,7 +405,7 @@ public class ShuttleTests : EngineTestsBase
                 response.Should().Contain(result);
         }
     }
-    
+
     [Test]
     public async Task FullTrip_ConstantSpeed_NoDeceleration()
     {
@@ -409,23 +413,23 @@ public class ShuttleTests : EngineTestsBase
         Take<ShuttleAccessCard>();
         StartHere<AlfieControlEast>();
         var controls = Repository.GetLocation<AlfieControlEast>();
-        
+
         await target.GetResponse("slide shuttle access card through slot");
-        
+
         controls.Speed.Should().Be(0);
         controls.LeverPosition.Should().Be(ShuttleLeverPosition.Neutral);
         controls.TunnelPosition.Should().Be(0);
         controls.Activated.Should().BeTrue();
         controls.DoorIsClosed.Should().BeFalse();
-        
+
         await target.GetResponse("push lever");
-        
+
         controls.Speed.Should().Be(5);
         controls.LeverPosition.Should().Be(ShuttleLeverPosition.Acceleration);
         controls.TunnelPosition.Should().Be(1);
         controls.Activated.Should().BeTrue();
         controls.DoorIsClosed.Should().BeTrue();
-        
+
         await target.GetResponse("pull lever");
 
         controls.Speed.Should().Be(5);
@@ -434,7 +438,7 @@ public class ShuttleTests : EngineTestsBase
         controls.Activated.Should().BeTrue();
         controls.DoorIsClosed.Should().BeTrue();
 
-        string response = "";
+        var response = "";
         for (var i = 3; i < 26; i++)
         {
             controls.Speed.Should().Be(5);
@@ -442,35 +446,38 @@ public class ShuttleTests : EngineTestsBase
             Console.Write(response);
             Console.WriteLine(Repository.GetLocation<AlfieControlEast>().TunnelPosition);
         }
-        
-        response.Should().Contain("The shuttle car rumbles through the station and smashes into the wall at the far end. You are thrown forward into the control panel. Both you and the shuttle car produce unhealthy crunching sounds as the cabin doors creak slowly open");
+
+        response.Should().Contain(
+            "The shuttle car rumbles through the station and smashes into the wall at the far end. You are thrown forward into the control panel. Both you and the shuttle car produce unhealthy crunching sounds as the cabin doors creak slowly open");
 
         controls.Speed.Should().Be(0);
         controls.LeverPosition.Should().Be(ShuttleLeverPosition.Neutral);
         controls.TunnelPosition.Should().Be(24);
         controls.Activated.Should().BeFalse();
         controls.DoorIsClosed.Should().BeFalse();
-        
+
         var output = await target.GetResponse("look");
-        output.Should().Contain("This is a small control cabin. A control panel contains a slot, a lever, and a display. The lever can be set at a central position, or it could be pushed up to a position labelled \"+\", or pulled down to a position labelled \"-\". It is currently at the center setting. The display, a digital readout, currently reads 0. Through the cabin window you can see a featureless concrete wall");
+        output.Should().Contain(
+            "This is a small control cabin. A control panel contains a slot, a lever, and a display. The lever can be set at a central position, or it could be pushed up to a position labelled \"+\", or pulled down to a position labelled \"-\". It is currently at the center setting. The display, a digital readout, currently reads 0. Through the cabin window you can see a featureless concrete wall");
         Console.Write(output);
-        
+
         output = await target.GetResponse("pull lever");
         output.Should().Contain("not currently activated");
         Console.Write(output);
-        
+
         output = await target.GetResponse("W");
         Console.Write(output);
-        
+
         output = await target.GetResponse("N");
         Console.Write(output);
         output.Should().Contain("Lawanda Platform");
-        
+
         output = await target.GetResponse("look");
-        output.Should().Contain("This is a wide, flat strip of concrete. Open shuttle cars lie to the north and south. A wide escalator, not currently operating, beckons upward at the east end of the platform. A faded sign reads \"Shutul Platform -- Lawanda Staashun.\"");
+        output.Should().Contain(
+            "This is a wide, flat strip of concrete. Open shuttle cars lie to the north and south. A wide escalator, not currently operating, beckons upward at the east end of the platform. A faded sign reads \"Shutul Platform -- Lawanda Staashun.\"");
         Console.Write(output);
     }
-    
+
     [Test]
     public async Task FullTrip_ConstantSpeed_PerfectLanding()
     {
@@ -478,23 +485,23 @@ public class ShuttleTests : EngineTestsBase
         Take<ShuttleAccessCard>();
         StartHere<AlfieControlEast>();
         var controls = Repository.GetLocation<AlfieControlEast>();
-        
+
         await target.GetResponse("slide shuttle access card through slot");
-        
+
         controls.Speed.Should().Be(0);
         controls.LeverPosition.Should().Be(ShuttleLeverPosition.Neutral);
         controls.TunnelPosition.Should().Be(0);
         controls.Activated.Should().BeTrue();
         controls.DoorIsClosed.Should().BeFalse();
-        
+
         await target.GetResponse("push lever");
-        
+
         controls.Speed.Should().Be(5);
         controls.LeverPosition.Should().Be(ShuttleLeverPosition.Acceleration);
         controls.TunnelPosition.Should().Be(1);
         controls.Activated.Should().BeTrue();
         controls.DoorIsClosed.Should().BeTrue();
-        
+
         await target.GetResponse("pull lever");
 
         controls.Speed.Should().Be(5);
@@ -502,7 +509,7 @@ public class ShuttleTests : EngineTestsBase
         controls.TunnelPosition.Should().Be(2);
         controls.Activated.Should().BeTrue();
         controls.DoorIsClosed.Should().BeTrue();
-        
+
         string response;
         for (var i = 3; i < 25; i++)
         {
@@ -516,30 +523,92 @@ public class ShuttleTests : EngineTestsBase
         response.Should()
             .Contain(
                 "The shuttle car glides into the station and comes to rest at the concrete platform. You hear the cabin doors slide open");
-        
+
         controls.Speed.Should().Be(0);
         controls.LeverPosition.Should().Be(ShuttleLeverPosition.Neutral);
         controls.TunnelPosition.Should().Be(24);
         controls.Activated.Should().BeFalse();
         controls.DoorIsClosed.Should().BeFalse();
-        
+
         var output = await target.GetResponse("look");
-        output.Should().Contain("This is a small control cabin. A control panel contains a slot, a lever, and a display. The lever can be set at a central position, or it could be pushed up to a position labelled \"+\", or pulled down to a position labelled \"-\". It is currently at the center setting. The display, a digital readout, currently reads 0. Through the cabin window you can see a featureless concrete wall");
+        output.Should().Contain(
+            "This is a small control cabin. A control panel contains a slot, a lever, and a display. The lever can be set at a central position, or it could be pushed up to a position labelled \"+\", or pulled down to a position labelled \"-\". It is currently at the center setting. The display, a digital readout, currently reads 0. Through the cabin window you can see a featureless concrete wall");
         Console.Write(output);
-        
+
         output = await target.GetResponse("pull lever");
         output.Should().Contain("not currently activated");
         Console.Write(output);
-        
+
         output = await target.GetResponse("W");
         Console.Write(output);
-        
+
         output = await target.GetResponse("N");
         Console.Write(output);
         output.Should().Contain("Lawanda Platform");
+
+        output = await target.GetResponse("look");
+        output.Should().Contain(
+            "This is a wide, flat strip of concrete. Open shuttle cars lie to the north and south. A wide escalator, not currently operating, beckons upward at the east end of the platform. A faded sign reads \"Shutul Platform -- Lawanda Staashun.\"");
+        Console.Write(output);
+    }
+
+    [Test]
+    public async Task RoundTrip()
+    {
+        var target = GetTarget();
+        Take<ShuttleAccessCard>();
+        StartHere<AlfieControlEast>();
+
+        await target.GetResponse("slide shuttle access card through slot");
+        await target.GetResponse("push lever");
+        await target.GetResponse("pull lever");
+
+        for (var i = 3; i < 25; i++) await target.GetResponse("wait");
+
+        await target.GetResponse("pull lever");
+        await target.GetResponse("look");
+        await target.GetResponse("W");
+
+        var output = await target.GetResponse("N");
+        output.Should().Contain("Lawanda Platform");
+
+        output = await target.GetResponse("look");
+        output.Should().Contain(
+            "This is a wide, flat strip of concrete. Open shuttle cars lie to the north and south. A wide escalator, not currently operating, beckons upward at the east end of the platform. A faded sign reads \"Shutul Platform -- Lawanda Staashun.\"");
+
+        output = await target.GetResponse("N");
+        output.Should().Contain("Shuttle Car Betty");
+        Console.Write(output);
+
+        output = await target.GetResponse("W");
+        output.Should().Contain("Betty Control West");
+        output.Should().Contain("vanishing in the distance");
+        Console.Write(output);
+
+        await target.GetResponse("slide shuttle access card through slot");
+        await target.GetResponse("push lever");
+        await target.GetResponse("pull lever");
+
+        for (var i = 3; i < 25; i++) Console.WriteLine(await target.GetResponse("wait"));
+
+        output = await target.GetResponse("pull lever");
+        Console.Write(output);
+        output.Should()
+            .Contain(
+                "The shuttle car glides into the station and comes to rest at the concrete platform. You hear the cabin doors slide open");
         
         output = await target.GetResponse("look");
-        output.Should().Contain("This is a wide, flat strip of concrete. Open shuttle cars lie to the north and south. A wide escalator, not currently operating, beckons upward at the east end of the platform. A faded sign reads \"Shutul Platform -- Lawanda Staashun.\"");
+        output.Should().Contain(
+            "This is a small control cabin. A control panel contains a slot, a lever, and a display. The lever can be set at a central position, or it could be pushed up to a position labelled \"+\", or pulled down to a position labelled \"-\". It is currently at the center setting. The display, a digital readout, currently reads 0. Through the cabin window you can see a featureless concrete wall");
         Console.Write(output);
+
+        output = await target.GetResponse("E");
+        Console.Write(output);
+        output.Should().Contain("Shuttle Car Betty");
+        
+        output = await target.GetResponse("N");
+        Console.Write(output);
+        output.Should().Contain("An open shuttle car lies to the north.");
+        output.Should().Contain("Kalamontee");
     }
 }

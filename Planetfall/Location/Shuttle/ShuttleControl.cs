@@ -305,9 +305,13 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
         return Task.FromResult(sb.ToString());
     }
 
+    protected abstract void ResetOtherControls();
+    
     private string Arrived(IContext context)
     {
         int speedIntoPlatform = Speed;
+        
+        ResetOtherControls();
         context.RemoveActor(this);
         Activated = false;
         LeverPosition = ShuttleLeverPosition.Neutral;
