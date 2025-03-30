@@ -1,5 +1,4 @@
-﻿using Model;
-using Model.AIGeneration;
+﻿using Model.AIGeneration;
 
 namespace Planetfall.GlobalCommand;
 

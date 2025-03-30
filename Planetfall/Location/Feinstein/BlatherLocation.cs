@@ -1,8 +1,6 @@
 ﻿using GameEngine.Location;
 using GameEngine.StaticCommand.Implementation;
-using Model;
 using Model.AIGeneration;
-using Model.Movement;
 
 namespace Planetfall.Location.Feinstein;
 

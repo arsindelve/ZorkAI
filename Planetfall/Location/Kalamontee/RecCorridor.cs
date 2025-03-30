@@ -1,5 +1,4 @@
 using GameEngine.Location;
-using Model.Movement;
 using Planetfall.Location.Kalamontee.Dorm;
 
 namespace Planetfall.Location.Kalamontee;

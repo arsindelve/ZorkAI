@@ -1,5 +1,4 @@
 using Model.AIGeneration;
-using Model.Movement;
 using Planetfall.Item.Kalamontee.Mech;
 
 namespace Planetfall.Location.Kalamontee.Tower;

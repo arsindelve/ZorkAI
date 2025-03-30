@@ -1,6 +1,5 @@
 ﻿using GameEngine.Location;
 using Model.AIGeneration;
-using Model.Movement;
 using Planetfall.Command;
 
 namespace Planetfall.Location.Kalamontee;

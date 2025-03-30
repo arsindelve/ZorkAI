@@ -149,6 +149,6 @@ public class KitchenAndCanteenTests : EngineTestsBase
     }
 
 
-    // drink dont have it
-    // put something in canteen
+    // TODO: drink dont have it
+    // TODO: put something in canteen
 }

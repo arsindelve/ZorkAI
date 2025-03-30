@@ -1,5 +1,4 @@
 using GameEngine.Location;
-using Model.Movement;
 using Planetfall.Item.Lawanda.Library.Computer;
 
 namespace Planetfall.Location.Lawanda;
@@ -14,6 +13,7 @@ internal class LibraryLobby : LocationBase
         {
             { Direction.Up, Go<Library>() },
             { Direction.W, Go<Library>() },
+            { Direction.E, Go<BoothThree>() },
             { Direction.N, Go<SystemsCorridorEast>() },
             { Direction.S, Go<ProjectCorridorEast>() }
         };

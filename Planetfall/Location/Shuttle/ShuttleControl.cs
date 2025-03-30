@@ -1,8 +1,6 @@
 using System.Text;
 using GameEngine.Location;
-using Model;
 using Model.AIGeneration;
-using Model.Movement;
 using Planetfall.Command;
 
 // ReSharper disable StaticMemberInGenericType
