@@ -265,6 +265,46 @@ public class TestParser : IntentParser
                 NounOne = "boat"
             });
 
+        if (input == "set dial to 5651")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "dial",
+                NounTwo = "5651",
+                Preposition = "to",
+                Verb = "set",
+                OriginalInput = "set dial to 5651"
+            });
+        
+        if (input == "set dial to 12")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "dial",
+                NounTwo = "12",
+                Preposition = "to",
+                Verb = "set",
+                OriginalInput = "set dial to 12"
+            });
+        
+        if (input == "set dial to -12")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "dial",
+                NounTwo = "-12",
+                Preposition = "to",
+                Verb = "set",
+                OriginalInput = "set dial to -12"
+            });
+        
+        if (input == "set dial to goo")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "dial",
+                NounTwo = "goo",
+                Preposition = "to",
+                Verb = "set",
+                OriginalInput = "set dial to goo"
+            });
+        
         if (input == "slide upper access card through slot")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
