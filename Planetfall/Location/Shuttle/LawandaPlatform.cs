@@ -1,5 +1,4 @@
 using GameEngine.Location;
-using Model.Movement;
 using Planetfall.Location.Lawanda;
 
 namespace Planetfall.Location.Shuttle;

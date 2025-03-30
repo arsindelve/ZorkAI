@@ -1,7 +1,5 @@
 using GameEngine.Location;
-using Model;
 using Model.AIGeneration;
-using Model.Movement;
 using Planetfall.Item.Kalamontee.Admin;
 
 namespace Planetfall.Location.Kalamontee;
@@ -20,6 +18,7 @@ internal class ElevatorLobby : LocationBase
     {
         return new Dictionary<Direction, MovementParameters>
         {
+            { Direction.E, Go<BoothTwo>() },
             { Direction.W, Go<CorridorJunction>() },
             {
                 Direction.S,

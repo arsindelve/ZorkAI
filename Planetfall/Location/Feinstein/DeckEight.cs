@@ -1,6 +1,4 @@
-﻿using Model.Movement;
-
-namespace Planetfall.Location.Feinstein;
+﻿namespace Planetfall.Location.Feinstein;
 
 internal class DeckEight : BlatherLocation
 {

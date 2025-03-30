@@ -1,6 +1,4 @@
 
-using Model.Movement;
-
 namespace Planetfall.Location.Shuttle;
 
 public class AlfieControlEast : ShuttleControl<ShuttleCarAlfie, AlfieControlEast>

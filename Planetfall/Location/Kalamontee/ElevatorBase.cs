@@ -1,6 +1,4 @@
-using Model;
 using Model.AIGeneration;
-using Model.Movement;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech;
 
@@ -84,7 +82,7 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
                     { "down", "down button" },
                     { "up button", "up button" },
                     { "down button", "down button" }
-                }, "press the {0} button");
+                }, "press the {0}");
 
         if (action.Match(Verbs.PushVerbs, ["up button", "up", "down button", "down"]))
         {

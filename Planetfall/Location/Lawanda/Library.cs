@@ -1,5 +1,4 @@
 using GameEngine.Location;
-using Model.Movement;
 using Planetfall.Item.Lawanda.Library;
 
 namespace Planetfall.Location.Lawanda;
@@ -16,7 +15,6 @@ public class Library : LocationBase
             { Direction.E, Go<LibraryLobby>() }
         };
     }
-
 
     protected override string GetContextBasedDescription(IContext context)
     {

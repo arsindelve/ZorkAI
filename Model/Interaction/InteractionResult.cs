@@ -2,8 +2,7 @@ namespace Model.Interaction;
 
 /// <summary>
 ///     This is the base class for intents that have interacted with items and locations. Was it successful? Was it a
-///     match?
-///     What happened as a result?
+///     match? What happened as a result?
 /// </summary>
 public record InteractionResult
 {

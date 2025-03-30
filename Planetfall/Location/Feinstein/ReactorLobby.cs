@@ -1,5 +1,3 @@
-using Model.Movement;
-
 namespace Planetfall.Location.Feinstein;
 
 internal class ReactorLobby : BlatherLocation
