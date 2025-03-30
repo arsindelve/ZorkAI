@@ -296,6 +296,16 @@ public class OpenAIParserTests
         {
             "<intent>disembark</intent>", "<noun>magic boat</noun>"
         })]
+    [TestCase(typeof(DamBase), "set dial to 4775",
+        new[]
+        {
+            "<intent>act</intent>", "<noun>dial</noun>", "<noun>4775</noun>", "<verb>set</verb>"
+        })]
+    [TestCase(typeof(DamBase), "turn dial to -1",
+        new[]
+        {
+            "<intent>act</intent>", "<noun>dial</noun>", "<noun>-1</noun>", "<verb>turn</verb>"
+        })]
     public async Task OpenAIParserTestCases(Type location, string sentence, string[] asserts)
     {
         string locationObjectDescription;
