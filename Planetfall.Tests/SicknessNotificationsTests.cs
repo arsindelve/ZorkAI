@@ -31,7 +31,7 @@ public class SicknessNotificationsTests
     [TestCase(5, 4000, "Your fever seems to have gotten worse, and you're developing a bad headache. ")]
     [TestCase(6, 3000, "Your health has deteriorated further. You feel hot and weak, and your head is throbbing. ")]
     [TestCase(7, 3200, "You feel very, very sick, and have almost no strength left. ")]
-    public void SickenessNotificationByDayAndTime(int day, int time, string? expected)
+    public void SicknessNotificationByDayAndTime(int day, int time, string? expected)
     {
         _sut.GetNotification(1, 1).Should().Be(null);
     }
