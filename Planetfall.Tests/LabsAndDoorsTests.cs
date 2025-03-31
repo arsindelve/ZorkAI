@@ -156,32 +156,86 @@ public class LabsAndDoorsTests : EngineTestsBase
 
         response.Should().Contain("devour");
     }
+
+    [Test]
+    public async Task BioWest_OpenDoor_CloseDoor_CannotGo()
+    {
+        var target = GetTarget();
+        StartHere<BioLockWest>();
+
+        await target.GetResponse("open door");
+        var response = await target.GetResponse("close door");
+        response.Should().Contain("door closes");
+
+        response = await target.GetResponse("W");
+        response.Should().Contain("is closed");
+    }
+
+    [Test]
+    public async Task RadWest_OpenDoorCloseDoor_CannotGo()
+    {
+        var target = GetTarget();
+        StartHere<RadiationLockWest>();
+
+        await target.GetResponse("open door");
+        var response = await target.GetResponse("close door");
+        response.Should().Contain("door closes");
+
+        response = await target.GetResponse("W");
+        response.Should().Contain("is closed");
+    }
     
-        [Test]
-        public async Task BioWest_OpenDoor_CloseDoor_CannotGo()
-        {
-            var target = GetTarget();
-            StartHere<BioLockWest>();
+    [Test]
+    public async Task RadLab_HaveSpool()
+    {
+        var target = GetTarget();
+        StartHere<RadiationLab>();
+        
+        var response = await target.GetResponse("look");
+        response.Should().Contain("Sitting on a long table is a small brown spool");
+    }
     
-            await target.GetResponse("open door");
-            var response = await target.GetResponse("close door");
-            response.Should().Contain("door closes");
-            
-            response = await target.GetResponse("W");
-            response.Should().Contain("is closed");
-        }
+    [Test]
+    public async Task RadLab_HaveLamp()
+    {
+        var target = GetTarget();
+        StartHere<RadiationLab>();
+        
+        var response = await target.GetResponse("look");
+        response.Should().Contain("There is a powerful portable lamp here, currently off");
+    }
     
-        [Test]
-        public async Task RadWest_OpenDoorCloseDoor_CannotGo()
-        {
-            var target = GetTarget();
-            StartHere<RadiationLockWest>();
+    [Test]
+    public async Task RadLab_ExamineSpool()
+    {
+        var target = GetTarget();
+        StartHere<RadiationLab>();
+        
+        var response = await target.GetResponse("examine spool");
+        response.Should().Contain("The spool is labelled \"Instrukshunz foor Reepaareeng Reepaar Roobots");
+    }
     
-            await target.GetResponse("open door");
-            var response = await target.GetResponse("close door");
-            response.Should().Contain("door closes");
-            
-            response = await target.GetResponse("W");
-            response.Should().Contain("is closed");
-        }
+    [Test]
+    public async Task RadLab_GetSickAndDie()
+    {
+        var target = GetTarget();
+        StartHere<RadiationLockEast>();
+        
+        await target.GetResponse("open door");
+        await target.GetResponse("e");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        
+        var response = await target.GetResponse("wait");
+        response.Should().Contain("You suddenly feel sick and dizzy");
+        
+        response = await target.GetResponse("wait");
+        response.Should().Contain("You feel incredibly nauseous and begin vomiting. Also, all your hair has fallen out");
+        
+        response = await target.GetResponse("wait");
+        response.Should().Contain("It seems you have picked up a bad case of radiation poisoning");
+        response.Should().Contain("died");
+        
+    }
 }
