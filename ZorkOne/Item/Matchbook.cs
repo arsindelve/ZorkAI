@@ -96,6 +96,20 @@ public class Matchbook
         return result?.InteractionMessage ?? string.Empty;
     }
     
+    private Task<InteractionResult?> LightMatches(IContext context)
+    {
+        if (IsOn)
+            return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(AlreadyOnText));
+        
+        if (!string.IsNullOrEmpty(CannotBeTurnedOnText))
+            return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(CannotBeTurnedOnText));
+        
+        IsOn = true;
+        OnBeingTurnedOn(context);
+        
+        return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(NowOnText));
+    }
+    
     public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
         if (action.MatchNounOne(NounsForMatching) && 
@@ -106,33 +120,24 @@ public class Matchbook
             {
                 if (action.NounTwo.ToLowerInvariant() == "torch")
                 {
-                    var torchInInventory = false;
+                    var hasTorch = false;
                     
-                    foreach (var item in context.GetItems<IItem>())
+                    foreach (var item in context.Items)
                     {
                         if (item is Torch)
                         {
-                            torchInInventory = true;
+                            hasTorch = true;
                             break;
                         }
                     }
                     
-                    if (!torchInInventory)
+                    if (!hasTorch)
                     {
                         return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("You don't have the torch."));
                     }
                 }
                 
-                if (IsOn)
-                    return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(AlreadyOnText));
-                
-                if (!string.IsNullOrEmpty(CannotBeTurnedOnText))
-                    return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(CannotBeTurnedOnText));
-                
-                IsOn = true;
-                OnBeingTurnedOn(context);
-                
-                return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(NowOnText));
+                return LightMatches(context);
             }
         }
         
