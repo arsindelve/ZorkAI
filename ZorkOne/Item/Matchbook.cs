@@ -38,7 +38,7 @@ public class Matchbook
         TurnsRemainingLit = 1;
         MatchesUsed++;
         context.RegisterActor(this);
-        return string.Empty;
+        return "One of the matches starts to burn.";
     }
 
     public void OnBeingTurnedOff(IContext context)
@@ -94,6 +94,40 @@ public class Matchbook
         );
 
         return result?.InteractionMessage ?? string.Empty;
+    }
+    
+    private Task<InteractionResult?> LightMatches(IContext context)
+    {
+        if (IsOn)
+            return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(AlreadyOnText));
+        
+        if (!string.IsNullOrEmpty(CannotBeTurnedOnText))
+            return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(CannotBeTurnedOnText));
+        
+        IsOn = true;
+        OnBeingTurnedOn(context);
+        
+        return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(NowOnText));
+    }
+    
+    public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    {
+        if (action.MatchNounOne(NounsForMatching) && 
+            action.Verb.ToLowerInvariant() == "light" && 
+            action.Preposition.ToLowerInvariant() == "with")
+        {
+            if (action.NounTwo.ToLowerInvariant() == "torch")
+            {
+                if (!context.HasItem<Torch>())
+                {
+                    return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("You don't have the torch."));
+                }
+            }
+            
+            return LightMatches(context);
+        }
+        
+        return base.RespondToMultiNounInteraction(action, context);
     }
 
     public override string GenericDescription(ILocation? currentLocation)
