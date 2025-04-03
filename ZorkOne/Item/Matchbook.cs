@@ -116,29 +116,15 @@ public class Matchbook
             action.Verb.ToLowerInvariant() == "light" && 
             action.Preposition.ToLowerInvariant() == "with")
         {
-            if (action.ItemTwo is IAmALightSource || action.NounTwo.ToLowerInvariant() == "torch")
+            if (action.NounTwo.ToLowerInvariant() == "torch")
             {
-                if (action.NounTwo.ToLowerInvariant() == "torch")
+                if (!context.HasItem<Torch>())
                 {
-                    var hasTorch = false;
-                    
-                    foreach (var item in context.Items)
-                    {
-                        if (item is Torch)
-                        {
-                            hasTorch = true;
-                            break;
-                        }
-                    }
-                    
-                    if (!hasTorch)
-                    {
-                        return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("You don't have the torch."));
-                    }
+                    return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("You don't have the torch."));
                 }
-                
-                return LightMatches(context);
             }
+            
+            return LightMatches(context);
         }
         
         return base.RespondToMultiNounInteraction(action, context);
