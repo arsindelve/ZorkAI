@@ -66,8 +66,6 @@ public class LightMatchesWithTorchTests : EngineTestsBase
         
         var torch = Repository.GetItem<Torch>();
         
-        engine.Context.Drop(torch);
-        
         var livingRoom = Repository.GetLocation<LivingRoom>();
         engine.Context.CurrentLocation = livingRoom;
         
