@@ -49,6 +49,8 @@ guiding you through your adventure in the Great Underground Empire or the depths
 
 Please feel free to report issues and make PRs to help make the game better. I would love that!
 
+If you're interested in contributing, check out the open issues for good starting points.
+
 ### Read more about the World Of Zork
 
 - [Play Zork One on a Virtual PC](https://www.pcjs.org/software/pcx86/game/infocom/zork1/)
