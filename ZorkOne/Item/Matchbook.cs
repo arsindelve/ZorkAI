@@ -104,6 +104,25 @@ public class Matchbook
         {
             if (action.ItemTwo is IAmALightSource || action.NounTwo.ToLowerInvariant() == "torch")
             {
+                if (action.NounTwo.ToLowerInvariant() == "torch")
+                {
+                    var torchInInventory = false;
+                    
+                    foreach (var item in context.GetItems<IItem>())
+                    {
+                        if (item is Torch)
+                        {
+                            torchInInventory = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!torchInInventory)
+                    {
+                        return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("You don't have the torch."));
+                    }
+                }
+                
                 if (IsOn)
                     return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(AlreadyOnText));
                 
