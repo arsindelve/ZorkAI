@@ -49,7 +49,7 @@ guiding you through your adventure in the Great Underground Empire or the depths
 
 Please feel free to report issues and make PRs to help make the game better. I would love that!
 
-If you're interested in contributing, check out the open issues for good starting points.
+If you're interested in contributing, check out the open issues for some good starting points.
 
 ### Read more about the World Of Zork
 
