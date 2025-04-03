@@ -9,16 +9,12 @@ namespace ZorkOne.Location;
 
 public class CaveSouth : DarkLocationWithNoStartingItems, IThiefMayVisit, ITurnBasedActor
 {
-    private readonly IRandomChooser _randomChooser;
+    private IRandomChooser _randomChooser = new RandomChooser();
 
-    public CaveSouth() : this(new RandomChooser())
+    public IRandomChooser RandomChooser
     {
-    }
-
-    // Constructor with injected randomChooser for unit testing only
-    public CaveSouth(IRandomChooser randomChooser)
-    {
-        _randomChooser = randomChooser;
+        get => _randomChooser;
+        set => _randomChooser = value;
     }
 
     public override string Name => "Cave";
