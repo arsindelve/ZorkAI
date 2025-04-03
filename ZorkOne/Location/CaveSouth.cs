@@ -15,6 +15,7 @@ public class CaveSouth : DarkLocationWithNoStartingItems, IThiefMayVisit, ITurnB
     {
     }
 
+    // Constructor with injected randomChooser for unit testing only
     public CaveSouth(IRandomChooser randomChooser)
     {
         _randomChooser = randomChooser;
@@ -52,9 +53,7 @@ public class CaveSouth : DarkLocationWithNoStartingItems, IThiefMayVisit, ITurnB
 
     public async Task<string> Act(IContext context, IGenerationClient client)
     {
-        var litCandlesInPossession = context.HasItem<Candles>() && Repository.GetItem<Candles>().IsOn;
-
-        if (litCandlesInPossession && _randomChooser.RollDice(2))
+        if (context.HasItem<Candles>() && Repository.GetItem<Candles>().IsOn && _randomChooser.RollDice(2))
         {
             var result = await new TurnOnOrOffProcessor().Process(
                 new SimpleIntent { Noun = "candles", Verb = "turn off" }, context, Repository.GetItem<Candles>(),
@@ -68,7 +67,6 @@ public class CaveSouth : DarkLocationWithNoStartingItems, IThiefMayVisit, ITurnB
     public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
     {
         context.RemoveActor(this);
-        
         base.OnLeaveLocation(context, newLocation, previousLocation);
     }
 }
