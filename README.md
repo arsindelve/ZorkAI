@@ -17,7 +17,7 @@ these timeless adventures.
 So, I built it.
 
 I hope you enjoy it, and I’d love to hear what you think. One of the biggest challenges I'm looking forward to is
-bringing Floyd to life. I want to see how far I can go in  allowing you to have conversations with him while still preserving
+bringing Floyd to life. I want to see how far I can go in allowing you to have conversations with him while still preserving
 all the childlike charm that made him the star of the game [(and frankly, caused a lot of press in 1983)](https://web.archive.org/web/19990222125344/http://www.csd.uwo.ca/Infocom/Articles/globe84.html)
 
 ### [Play Zork AI Now](https://newzork.ai)
@@ -61,8 +61,8 @@ If you're interested in contributing, check out the open issues for some good st
 
 - The world of Zork has a rich lore and vocabulary, with words like “Zorkmid”, “Frobozz”, “Dimwit Flathead”. I want to
   fine-tune the LLM to make the responses more Zork-like.
-- Finally, I started with Zork because it’s the most well-known, and one of the simplest Infocom games. What I really
-  want, though, is to implement one of my two favourites, “Planetfall” and “A Mind Forever Voyaging”. These two games by
+- Finally, I started with Zork because it's the most well-known, and one of the simplest Infocom games. What I really
+  want, though, is to implement one of my two favorites, "Planetfall" and "A Mind Forever Voyaging". These two games by
   Steve Meretzky are brilliant works of fiction, and I would love to see them come alive with AI immersion.
 
 ## Teaser
@@ -108,7 +108,7 @@ the original Zork is being used in any way for the ZORK AI responses
 
 ----
 
-#### When you do something the original Zork does NOT understand, Zork AI gives gives you a deep, funny and immersive answer that keeps you in the story and the Great Underground Empire
+#### When you do something the original Zork does NOT understand, Zork AI gives you a deep, funny and immersive answer that keeps you in the story and the Great Underground Empire
 
 ### Original Zork 1:
 
