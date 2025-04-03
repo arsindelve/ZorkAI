@@ -14,7 +14,7 @@ namespace GameEngine.IntentEngine;
 /// </summary>
 public class MultiNounEngine : IIntentEngine
 {
-    private readonly List<IMultiNounVerbProcessor> _processors = [new PutProcessor()];
+    private readonly List<IMultiNounVerbProcessor> _processors = [new PutProcessor(), new LightProcessor()];
 
     public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent,
         IContext context, IGenerationClient generationClient)

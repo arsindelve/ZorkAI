@@ -12,7 +12,8 @@ public class Matchbook
         ICanBeTakenAndDropped,
         IAmALightSourceThatTurnsOnAndOff,
         ITurnBasedActor,
-        IPluralNoun
+        IPluralNoun,
+        ICanBeLitWithLightSource
 {
     public int TurnsRemainingLit { get; set; }
 
@@ -38,7 +39,7 @@ public class Matchbook
         TurnsRemainingLit = 1;
         MatchesUsed++;
         context.RegisterActor(this);
-        return string.Empty;
+        return "One of the matches starts to burn.";
     }
 
     public void OnBeingTurnedOff(IContext context)
@@ -94,6 +95,32 @@ public class Matchbook
         );
 
         return result?.InteractionMessage ?? string.Empty;
+    }
+    
+    public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
+    {
+        if (action.MatchNounOne(NounsForMatching) && 
+            action.Verb.ToLowerInvariant() == "light" && 
+            action.Preposition.ToLowerInvariant() == "with")
+        {
+            if (action.ItemTwo is IAmALightSource || action.NounTwo.ToLowerInvariant() == "torch")
+            {
+                if (IsOn)
+                    return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(AlreadyOnText));
+                
+                if (!string.IsNullOrEmpty(CannotBeTurnedOnText))
+                    return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(CannotBeTurnedOnText));
+                
+                IsOn = true;
+                TurnsRemainingLit = 1;
+                MatchesUsed++;
+                context.RegisterActor(this);
+                
+                return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("One of the matches starts to burn."));
+            }
+        }
+        
+        return base.RespondToMultiNounInteraction(action, context);
     }
 
     public override string GenericDescription(ILocation? currentLocation)
