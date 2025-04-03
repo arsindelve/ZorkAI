@@ -12,8 +12,7 @@ public class Matchbook
         ICanBeTakenAndDropped,
         IAmALightSourceThatTurnsOnAndOff,
         ITurnBasedActor,
-        IPluralNoun,
-        ICanBeLitWithLightSource
+        IPluralNoun
 {
     public int TurnsRemainingLit { get; set; }
 
@@ -112,11 +111,9 @@ public class Matchbook
                     return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(CannotBeTurnedOnText));
                 
                 IsOn = true;
-                TurnsRemainingLit = 1;
-                MatchesUsed++;
-                context.RegisterActor(this);
+                OnBeingTurnedOn(context);
                 
-                return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("One of the matches starts to burn."));
+                return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(NowOnText));
             }
         }
         
