@@ -1,10 +1,13 @@
 using GameEngine.Location;
+using Model.Intent;
+using Model.AIGeneration;
+using Model.Interface;
+using Model.Location;
 using Planetfall.Item.Lawanda;
-using Planetfall.SimpleInteraction;
 
 namespace Planetfall.Location.Lawanda;
 
-internal class RepairRoom : LocationBase, ISimpleInteractionHandler
+internal class RepairRoom : LocationBase
 {
     public override string Name => "Repair Room";
 
@@ -30,14 +33,15 @@ internal class RepairRoom : LocationBase, ISimpleInteractionHandler
         StartWithItem<BrokenRobot>();
     }
     
-    public bool HandleSimpleInteraction(IContext context, string verb, string noun)
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (verb == "examine" && (noun == "cabinets" || noun == "cabinet" || noun == "storage cabinets" || noun == "storage cabinet"))
+        if (action.Verb == "examine" && (action.Noun == "cabinets" || action.Noun == "cabinet" || action.Noun == "storage cabinets" || action.Noun == "storage cabinet"))
         {
             context.WriteLine("The cabinets are locked. ");
-            return true;
+            return new PositiveInteractionResult();
         }
         
-        return false;
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }
