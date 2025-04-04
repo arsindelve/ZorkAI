@@ -29,15 +29,15 @@ internal class RadiationLab : LocationBase, ITurnBasedActor
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["examine", "look"], ["crack"], preposition: "at"))
+        if (action.Match(["examine"], ["crack"]) || (action.Verb == "look" && action.Noun == "crack"))
             return new PositiveInteractionResult(
                 "The crack is too small to go through, but large enough to look through.");
 
-        if (action.Match(["look"], ["crack"], preposition: "through"))
+        if (action.Verb == "look through" && action.Noun == "crack")
             return new PositiveInteractionResult(
                 "You see a dimly lit Bio Lab. Sinister shapes lurk about within.");
 
-        if (action.Match(["examine", "look"], ["equipment"], preposition: "at"))
+        if (action.Match(["examine"], ["equipment"]) || (action.Verb == "look" && action.Noun == "equipment"))
             return new PositiveInteractionResult(
                 "The equipment here is so complicated that you couldn't even begin to figure out how to operate it.");
 
