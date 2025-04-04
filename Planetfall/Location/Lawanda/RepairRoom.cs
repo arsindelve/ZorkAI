@@ -36,7 +36,7 @@ internal class RepairRoom : LocationBase
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Verb == "examine" && (action.Noun == "cabinets" || action.Noun == "cabinet" || action.Noun == "storage cabinets" || action.Noun == "storage cabinet"))
+        if (action.Match(["examine"], ["cabinets", "cabinet", "storage cabinets", "storage cabinet"]))
         {
             return new PositiveInteractionResult("The cabinets are locked. ");
         }
