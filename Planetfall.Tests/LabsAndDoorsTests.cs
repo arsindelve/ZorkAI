@@ -245,7 +245,7 @@ public class LabsAndDoorsTests : EngineTestsBase
         StartHere<RadiationLab>();
         
         var response = await target.GetResponse("examine crack");
-        response.Should().Contain("The crack is too small to go through, but large enough to look through");
+        response.Should().Contain("The crack is too small to go through, but large enough to look through.");
     }
     
     [Test]
@@ -255,7 +255,7 @@ public class LabsAndDoorsTests : EngineTestsBase
         StartHere<RadiationLab>();
         
         var response = await target.GetResponse("look through crack");
-        response.Should().Contain("You see a dimly lit Bio Lab. Sinister shapes lurk about within");
+        response.Should().Contain("You see a dimly lit Bio Lab. Sinister shapes lurk about within.");
     }
     
     [Test]
@@ -265,6 +265,6 @@ public class LabsAndDoorsTests : EngineTestsBase
         StartHere<RadiationLab>();
         
         var response = await target.GetResponse("examine equipment");
-        response.Should().Contain("The equipment here is so complicated that you couldn't even begin to figure out how to operate it");
+        response.Should().Contain("The equipment here is so complicated that you couldn't even begin to figure out how to operate it.");
     }
 }
