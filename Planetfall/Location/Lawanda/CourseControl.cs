@@ -1,8 +1,9 @@
 using GameEngine.Location;
+using Planetfall.Item.Lawanda;
 
 namespace Planetfall.Location.Lawanda;
 
-internal class CourseControl : LocationWithNoStartingItems
+internal class CourseControl : LocationBase
 {
     public override string Name => "Course Control";
 
@@ -19,5 +20,10 @@ internal class CourseControl : LocationWithNoStartingItems
         return
             "This is a long room whose walls are covered with complicated controls and colored lights. " +
             "One blinking light says \"Kors diivurjins minimiizeeng.\" ";
+    }
+    
+    public override void Init()
+    {
+        StartWithItem<Pliers>();
     }
 }
