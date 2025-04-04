@@ -129,6 +129,12 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
 
     InteractionResult IShuttleControl.Activate(IContext context)
     {
+        if (context is PlanetfallContext planetfallContext && 
+            Repository.GetItem<Chronometer>() != null && 
+            planetfallContext.CurrentTime > 6000)
+            return new PositiveInteractionResult(
+                "A recorded voice explains that using the shuttle car during the evening hours requires special authorization.");
+
         if (TunnelPosition == EndOfTunnel)
             return new PositiveInteractionResult(
                 "A recorded voice says \"Use other control cabin. Control activation overridden.\"");

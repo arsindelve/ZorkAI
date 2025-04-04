@@ -1,5 +1,6 @@
 using FluentAssertions;
 using GameEngine;
+using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Location.Shuttle;
 
@@ -558,6 +559,8 @@ public class ShuttleTests : EngineTestsBase
         var target = GetTarget();
         Take<ShuttleAccessCard>();
         StartHere<AlfieControlEast>();
+        
+        Repository.GetItem<Chronometer>().CurrentTime = 5000;
 
         await target.GetResponse("slide shuttle access card through slot");
         await target.GetResponse("push lever");
@@ -584,6 +587,8 @@ public class ShuttleTests : EngineTestsBase
         output.Should().Contain("Betty Control West");
         output.Should().Contain("vanishing in the distance");
         Console.Write(output);
+        
+        Repository.GetItem<Chronometer>().CurrentTime = 5000;
 
         await target.GetResponse("slide shuttle access card through slot");
         await target.GetResponse("push lever");
@@ -610,5 +615,21 @@ public class ShuttleTests : EngineTestsBase
         Console.Write(output);
         output.Should().Contain("An open shuttle car lies to the north.");
         output.Should().Contain("Kalamontee");
+    }
+    
+    [Test]
+    public async Task Activate_DuringEveningHours_RequiresAuthorization()
+    {
+        var target = GetTarget();
+        Take<ShuttleAccessCard>();
+        StartHere<AlfieControlEast>();
+        
+        Repository.GetItem<Chronometer>().CurrentTime = 6500;
+        
+        var response = await target.GetResponse("slide shuttle access card through slot");
+        
+        response.Should().Contain("A recorded voice explains that using the shuttle car during the evening hours requires special authorization.");
+        
+        GetLocation<AlfieControlEast>().Activated.Should().BeFalse();
     }
 }
