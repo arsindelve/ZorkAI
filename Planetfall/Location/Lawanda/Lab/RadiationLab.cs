@@ -33,7 +33,7 @@ internal class RadiationLab : LocationBase, ITurnBasedActor
             return new PositiveInteractionResult(
                 "The crack is too small to go through, but large enough to look through.");
 
-        if (action.Noun == "crack" && action.OriginalInput != null && action.OriginalInput.Contains("through"))
+        if (action.Match(["look"], ["crack"]) && action.OriginalInput != null && action.OriginalInput.Contains("through"))
             return new PositiveInteractionResult(
                 "You see a dimly lit Bio Lab. Sinister shapes lurk about within.");
 
