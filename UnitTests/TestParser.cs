@@ -21,7 +21,7 @@ public class TestParser : IntentParser
         _verbs =
         [
             "take", "drop", "open", "close", "examine", "look", "eat", "press", "remove",
-            "deactivate", "type", "key", "punch", "push", "pull", "burn",
+            "deactivate", "type", "key", "punch", "push", "pull", "burn", "set",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind",
             "lower", "raise", "get", "inflate", "leave", "unlock", "lock", "climb", "extend"
@@ -32,7 +32,7 @@ public class TestParser : IntentParser
 
         IEnumerable<string> specialNouns =
         [
-            "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "zero",
+            "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "zero", "dial",
             "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "dude", "hello", "17", "seventeen", "slot", "lever",
             "tree", "branches", "house", "lettering", "mirror", "match", "yellow button", "red button", "button",
             "blue button", "brown button", "bolt", "bubble", "bodies", "gate", "lid", "switch", "slag", "engravings"

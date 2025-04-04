@@ -150,4 +150,15 @@ public class ConferenceRoomTests : EngineTestsBase
         GetItem<ConferenceRoomDoor>().IsOpen.Should().BeTrue();
         GetItem<ConferenceRoomDoor>().Code.Should().Be("0");
     }
+    
+    [Test]
+    public async Task SetDial()
+    {
+        var target = GetTarget();
+        StartHere<RecArea>();
+        GetItem<ConferenceRoomDoor>().UnlockCode = "12";
+
+        string? response = await target.GetResponse("set dial");
+        response.Should().Contain("You must");
+    }
 }
