@@ -236,6 +236,35 @@ public class LabsAndDoorsTests : EngineTestsBase
         response = await target.GetResponse("wait");
         response.Should().Contain("It seems you have picked up a bad case of radiation poisoning");
         response.Should().Contain("died");
+    }
+    
+    [Test]
+    public async Task RadLab_ExamineCrack()
+    {
+        var target = GetTarget();
+        StartHere<RadiationLab>();
         
+        var response = await target.GetResponse("examine crack");
+        response.Should().Contain("The crack is too small to go through, but large enough to look through");
+    }
+    
+    [Test]
+    public async Task RadLab_LookThroughCrack()
+    {
+        var target = GetTarget();
+        StartHere<RadiationLab>();
+        
+        var response = await target.GetResponse("look through crack");
+        response.Should().Contain("You see a dimly lit Bio Lab. Sinister shapes lurk about within");
+    }
+    
+    [Test]
+    public async Task RadLab_ExamineEquipment()
+    {
+        var target = GetTarget();
+        StartHere<RadiationLab>();
+        
+        var response = await target.GetResponse("examine equipment");
+        response.Should().Contain("The equipment here is so complicated that you couldn't even begin to figure out how to operate it");
     }
 }
