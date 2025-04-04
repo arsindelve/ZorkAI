@@ -539,7 +539,7 @@ public class TestParser : IntentParser
 
         if (input == "look through crack")
             return Task.FromResult<IntentBase>(new SimpleIntent
-                { Verb = "look through", Noun = "crack", OriginalInput = "look through crack" });
+                { Verb = "look", Noun = "crack", OriginalInput = "look through crack" });
 
         if (input == "examine equipment")
             return Task.FromResult<IntentBase>(new SimpleIntent
