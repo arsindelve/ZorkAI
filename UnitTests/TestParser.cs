@@ -533,6 +533,18 @@ public class TestParser : IntentParser
             return Task.FromResult<IntentBase>(new SimpleIntent
                 { Adverb = "off", Verb = "turn", Noun = "lamp", OriginalInput = "" });
 
+        if (input == "examine crack")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+                { Verb = "examine", Noun = "crack", OriginalInput = "examine crack" });
+
+        if (input == "look through crack")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+                { Verb = "look through", Noun = "crack", OriginalInput = "look through crack" });
+
+        if (input == "examine equipment")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+                { Verb = "examine", Noun = "equipment", OriginalInput = "examine equipment" });
+
         if (input == "turn the lamp on")
             return Task.FromResult<IntentBase>(new SimpleIntent
                 { Adverb = "on", Verb = "turn", Noun = "lamp", OriginalInput = "turn the lamp on" });
