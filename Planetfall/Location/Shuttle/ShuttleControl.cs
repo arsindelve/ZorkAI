@@ -129,9 +129,7 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
 
     InteractionResult IShuttleControl.Activate(IContext context)
     {
-        if (context is PlanetfallContext planetfallContext && 
-            Repository.GetItem<Chronometer>() != null && 
-            planetfallContext.CurrentTime > 6000)
+        if (context is PlanetfallContext { CurrentTime: > 6000 })
             return new PositiveInteractionResult(
                 "A recorded voice explains that using the shuttle car during the evening hours requires special authorization.");
 
@@ -190,9 +188,6 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
             CustomFailureMessage = "The door is closed. "
         };
     }
-
-
-    // TODO: A recorded voice explains that using the shuttle car during the evening hours requires special authorization.
 
     private string AdjustLever(ShuttleLeverDirection direction)
     {

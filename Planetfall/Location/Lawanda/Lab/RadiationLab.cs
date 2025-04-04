@@ -31,15 +31,15 @@ internal class RadiationLab : LocationBase, ITurnBasedActor
     {
         if (action.Match(["examine", "look"], ["crack"]) && action.OriginalInput != null && !action.OriginalInput.Contains("through"))
             return new PositiveInteractionResult(
-                "The crack is too small to go through, but large enough to look through.");
+                "The crack is too small to go through, but large enough to look through. ");
 
         if (action.Match(["look"], ["crack"]) && action.OriginalInput != null && action.OriginalInput.Contains("through"))
             return new PositiveInteractionResult(
-                "You see a dimly lit Bio Lab. Sinister shapes lurk about within.");
+                "You see a dimly lit Bio Lab. Sinister shapes lurk about within. ");
 
         if (action.Match(["examine", "look"], ["equipment"]))
             return new PositiveInteractionResult(
-                "The equipment here is so complicated that you couldn't even begin to figure out how to operate it.");
+                "The equipment here is so complicated that you couldn't even begin to figure out how to operate it. ");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
