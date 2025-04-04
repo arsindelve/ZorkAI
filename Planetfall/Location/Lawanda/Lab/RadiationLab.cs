@@ -26,9 +26,23 @@ internal class RadiationLab : LocationBase, ITurnBasedActor
         };
     }
 
-    // TODO: >examine crack // The crack is too small to go through, but large enough to look through.
-    // TODO: >look through crack // You see a dimly lit Bio Lab. Sinister shapes lurk about within.
-    // TODO: >examine equipment // The equipment here is so complicated that you couldn't even begin to figure out how to operate it.
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
+    {
+        if (action.Match(["examine", "look"], ["crack"]) && action.OriginalInput != null && !action.OriginalInput.Contains("through"))
+            return new PositiveInteractionResult(
+                "The crack is too small to go through, but large enough to look through.");
+
+        if (action.Match(["look"], ["crack"]) && action.OriginalInput != null && action.OriginalInput.Contains("through"))
+            return new PositiveInteractionResult(
+                "You see a dimly lit Bio Lab. Sinister shapes lurk about within.");
+
+        if (action.Match(["examine", "look"], ["equipment"]))
+            return new PositiveInteractionResult(
+                "The equipment here is so complicated that you couldn't even begin to figure out how to operate it.");
+
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+    }
 
     protected override string GetContextBasedDescription(IContext context)
     {
