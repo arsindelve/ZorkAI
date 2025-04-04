@@ -20,6 +20,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     private Mock<IRandomChooser> _adventurerChooser;
     private Mock<IRandomChooser> _attackerChooser;
     private Mock<IRandomChooser> _thiefAppears;
+    private Mock<IRandomChooser> _caveSouthChooser;
     private GameEngine<ZorkI, ZorkIContext> _target;
 
     [OneTimeSetUp]
@@ -30,6 +31,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         _adventurerChooser = new Mock<IRandomChooser>();
         _attackerChooser = new Mock<IRandomChooser>();
         _thiefAppears = new Mock<IRandomChooser>();
+        _caveSouthChooser = new Mock<IRandomChooser>();
 
         // We always kill
         _adventurerChooser.Setup(s => s.Choose(It.IsAny<List<(CombatOutcome outcome, string text)>>()))
@@ -41,6 +43,8 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         
         // He never appears
         _thiefAppears.Setup(s => s.RollDice(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(false);
+        
+        _caveSouthChooser.Setup(s => s.RollDice(2)).Returns(true);
 
         GetItem<Thief>().ThiefRobbingEngine = new ThiefRobsYouEngine(_thiefAppears.Object);
         GetItem<Thief>().ThiefAttackedEngine = new AdventurerVersusThiefCombatEngine(_adventurerChooser.Object);
@@ -48,6 +52,9 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         GetItem<Troll>().TrollAttackEngine = new TrollCombatEngine(_attackerChooser.Object);
         GetLocation<TrollRoom>().KillDecisionEngine =
             new KillSomeoneDecisionEngine<Troll>(new AdventurerVersusTrollCombatEngine(_adventurerChooser.Object));
+            
+        var caveSouth = GetLocation<CaveSouth>();
+        caveSouth.RandomChooser = _caveSouthChooser.Object;
     }
 
     protected void InvokeGodMode(string setup)
