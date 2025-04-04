@@ -19,6 +19,6 @@ public class NinetyOhmBedistor : ItemBase, ICanBeTakenAndDropped
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return "A ninety-ohm bedistor";
+        return "A fused ninety-ohm bedistor";
     }
 }
