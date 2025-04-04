@@ -5,11 +5,11 @@ namespace Planetfall.Item.Lawanda;
 
 public class NinetyOhmBedistor : ItemBase, ICanBeTakenAndDropped
 {
-    public override string[] NounsForMatching => ["ninety-ohm bedistor", "bedistor"];
+    public override string[] NounsForMatching => ["ninety-ohm bedistor", "bedistor", "fused", "fused bedistor"];
 
     public string OnTheGroundDescription(ILocation? currentLocation)
     {
-        return "There is a ninety-ohm bedistor here. ";
+        return "There is a fused ninety-ohm bedistor here. ";
     }
 
     public override string NeverPickedUpDescription(ILocation currentLocation)
