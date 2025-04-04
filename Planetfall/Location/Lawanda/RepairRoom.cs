@@ -11,7 +11,8 @@ internal class RepairRoom : LocationBase
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.S, Go<SystemsCorridorWest>() }
+            { Direction.S, Go<SystemsCorridorWest>() },
+            { Direction.N, new MovementParameters { FailureMessage = "It is a robot-sized doorway -- a bit too small for you. " } }
         };
     }
 
