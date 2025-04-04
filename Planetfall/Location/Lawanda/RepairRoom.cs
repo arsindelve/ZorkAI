@@ -38,8 +38,7 @@ internal class RepairRoom : LocationBase
     {
         if (action.Verb == "examine" && (action.Noun == "cabinets" || action.Noun == "cabinet" || action.Noun == "storage cabinets" || action.Noun == "storage cabinet"))
         {
-            context.WriteLine("The cabinets are locked. ");
-            return new PositiveInteractionResult();
+            return new PositiveInteractionResult("The cabinets are locked. ");
         }
         
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
