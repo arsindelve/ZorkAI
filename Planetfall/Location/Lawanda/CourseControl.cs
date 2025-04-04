@@ -26,5 +26,6 @@ internal class CourseControl : LocationBase
     {
         StartWithItem<Pliers>();
         StartWithItem<NinetyOhmBedistor>();
+        StartWithItem<LargeMetalCube>();
     }
 }
