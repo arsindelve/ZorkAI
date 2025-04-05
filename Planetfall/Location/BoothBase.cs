@@ -29,7 +29,7 @@ internal abstract class BoothBase : LocationBase
         return Go<BoothThree>(context);
     }
 
-    private PositiveInteractionResult Go<T>(IContext context) where T : class, ILocation, ICanHoldItems, new()
+    private PositiveInteractionResult Go<T>(IContext context) where T : class, ILocation, ICanContainItems, new()
     {
         if (!IsEnabled)
             return new PositiveInteractionResult("A sign flashes \"Teleportaashun buux not aktivaatid.\"");

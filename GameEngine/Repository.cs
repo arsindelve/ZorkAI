@@ -51,7 +51,7 @@ public static class Repository
         if (!_allItems.ContainsKey(typeof(T)))
         {
             var item = new T();
-            if (item is ICanHoldItems container)
+            if (item is ICanContainItems container)
                 container.Init();
             _allItems.Add(typeof(T), item);
         }

@@ -2,7 +2,7 @@ namespace Planetfall.Item.Kalamontee.Mech;
 
 public class Magnet : ItemBase, ICanBeTakenAndDropped
 {
-    public override string[] NounsForMatching => ["curved metal bar", "metal bar", "bar", "magnet"];
+    public override string[] NounsForMatching => ["curved metal bar", "metal bar", "bar", "magnet", "metal bar, curved into a U-shape"];
 
     public string OnTheGroundDescription(ILocation currentLocation)
     {

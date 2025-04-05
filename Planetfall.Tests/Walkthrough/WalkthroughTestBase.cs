@@ -3,6 +3,9 @@ using System.Text;
 using DynamoDb;
 using FluentAssertions;
 using GameEngine;
+using Model.Interface;
+using Moq;
+using Planetfall.Item.Kalamontee.Mech;
 
 namespace Planetfall.Tests.Walkthrough;
 
@@ -10,11 +13,15 @@ public abstract class WalkthroughTestBase : EngineTestsBase
 {
     private readonly DynamoDbSessionRepository _database = new();
     private GameEngine<PlanetfallGame, PlanetfallContext> _target;
+    private Mock<IRandomChooser> _floydChooser;
 
     [OneTimeSetUp]
     public void Init()
     {
         _target = GetTarget();
+        
+        _floydChooser = new Mock<IRandomChooser>();
+        _floydChooser.Setup(s => s.RollDiceSuccess(3)).Returns(true);
     }
 
     protected void InvokeGodMode(string setup)
@@ -30,6 +37,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
 
     protected async Task Do(string input, params string[] outputs)
     {
+        Repository.GetItem<Floyd>().Chooser = _floydChooser.Object;
         var result = await _target.GetResponse(input);
         if (Debugger.IsAttached)
         {

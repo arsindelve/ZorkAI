@@ -79,7 +79,7 @@ internal class SimpleInteractionEngine(IItemProcessorFactory itemProcessorFactor
 
         IEnumerable<IItem> allItemsInSight =
             context.GetAllItemsRecursively
-                .Union((context.CurrentLocation as ICanHoldItems)!.GetAllItemsRecursively)
+                .Union((context.CurrentLocation as ICanContainItems)!.GetAllItemsRecursively)
                 .ToList();
 
         foreach (var item in allItemsInSight)

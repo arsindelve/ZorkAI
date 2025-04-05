@@ -10,7 +10,7 @@ public static class Verbs
     public static readonly string[] PushVerbs =  ["push", "press", "activate", "toggle"];
     public static readonly string[] TypeVerbs = ["type", "punch", "key", "press"];
     public static readonly string[] MoveVerbs = ["move", "go", "walk", "run", "travel", "proceed", "head", "stroll", "escape"];
-    public static readonly string[] KillVerbs = ["kill", "attack", "defeat", "destroy", "murder", "stab"];
+    public static readonly string[] KillVerbs = ["kill", "attack", "defeat", "destroy", "murder", "stab", "punch"];
     public static readonly string[] CloseVerbs = ["close", "shut", "bar", "lower"];
     public static readonly string[] OpenVerbs = ["open", "lift", "pry", "unbar", "raise"];
     public static readonly string[] GiveVerbs = ["give", "offer", "transfer", "present", "provide"];

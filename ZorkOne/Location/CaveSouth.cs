@@ -49,7 +49,7 @@ public class CaveSouth : DarkLocationWithNoStartingItems, IThiefMayVisit, ITurnB
 
     public async Task<string> Act(IContext context, IGenerationClient client)
     {
-        if (context.CurrentLocation == this && context.HasItem<Candles>() && Repository.GetItem<Candles>().IsOn && _randomChooser.RollDice(2))
+        if (context.CurrentLocation == this && context.HasItem<Candles>() && Repository.GetItem<Candles>().IsOn && _randomChooser.RollDiceSuccess(2))
         {
             var result = await new TurnOnOrOffProcessor().Process(
                 new SimpleIntent { Noun = "candles", Verb = "turn off" }, context, Repository.GetItem<Candles>(),

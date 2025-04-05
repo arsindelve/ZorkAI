@@ -34,6 +34,13 @@ public static class FloydConstants
         "Floyd giggles and pushes you away. \"You're tickling Floyd!\" He clutches at his " +
         "side panels, laughing hysterically. Oil drops stream from his eyes. ";
 
+    internal const string ThanksYouForGivingItem =
+        "\"Neat!\" exclaims Floyd. He thanks you profusely. ";
+
+    internal const string FindAndTakeLowerCard =
+        "In one of the robot's compartments you find and take a magnetic-striped card " +
+        "embossed \"Loowur Elavaatur Akses Kard.\" ";
+    
     internal static string[] RandomActions =
     [
         "Floyd produces a crayon from one of his compartments and scrawls his name on the wall. ",

@@ -6,7 +6,7 @@ namespace Planetfall.Location.Kalamontee.Admin;
 
 internal abstract class RiftLocationBase : LocationWithNoStartingItems
 {
-    internal static readonly string[] RiftNouns = ["rift", "gap", "split", "crack", "fissure", "break", "chasm"];
+    internal static readonly string[] RiftNouns = ["rift", "gap", "split", "crack", "fissure", "break", "chasm", "gaping rift"];
 
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)

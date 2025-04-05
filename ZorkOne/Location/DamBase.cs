@@ -61,7 +61,7 @@ public class DamBase : LocationBase
             context.CurrentLocation = Repository.GetLocation<FrigidRiverOne>();
             await context.CurrentLocation.AfterEnterLocation(context, this, null!);
             context.CurrentLocation.SubLocation = Repository.GetItem<PileOfPlastic>();
-            ((ICanHoldItems)context.CurrentLocation).ItemPlacedHere(Repository.GetItem<PileOfPlastic>());
+            ((ICanContainItems)context.CurrentLocation).ItemPlacedHere(Repository.GetItem<PileOfPlastic>());
 
             return new PositiveInteractionResult(context.CurrentLocation.GetDescription(context));
         }

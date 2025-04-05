@@ -57,7 +57,7 @@ public class MoveEngine : IIntentEngine
     {
         // 20% of the time, let's generate a response. Otherwise, give the standard response
 
-        if (!Chooser.RollDice(5))
+        if (!Chooser.RollDiceSuccess(5))
             return "You cannot go that way. ";
 
         var request =

@@ -42,7 +42,7 @@ public class MultiNounEngine : IIntentEngine
             return (result, result.InteractionMessage);
 
         // Do any of the items on the ground have a positive interaction? 
-        if (context.CurrentLocation is ICanHoldItems items)
+        if (context.CurrentLocation is ICanContainItems items)
             foreach (var nextItem in items.Items)
             {
                 result = await nextItem.RespondToMultiNounInteraction(interaction, context);
@@ -204,7 +204,7 @@ public class MultiNounEngine : IIntentEngine
     {
         var ambiguousItems = new List<IItem>();
 
-        List<IItem>? allItemsInLocation = (context.CurrentLocation as ICanHoldItems)?.GetAllItemsRecursively;
+        List<IItem>? allItemsInLocation = (context.CurrentLocation as ICanContainItems)?.GetAllItemsRecursively;
         if (allItemsInLocation is null)
             return null;
         
