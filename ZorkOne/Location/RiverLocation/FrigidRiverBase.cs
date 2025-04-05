@@ -60,7 +60,7 @@ public abstract class FrigidRiverBase : LocationWithNoStartingItems, ITurnBasedA
     {
         newLocation.SubLocation = SubLocation;
         SubLocation = null;
-        ((ICanHoldItems)newLocation).ItemPlacedHere(Boat);
+        ((ICanContainItems)newLocation).ItemPlacedHere(Boat);
         context.RemoveActor(this);
         base.OnLeaveLocation(context, newLocation, previousLocation);
     }

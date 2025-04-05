@@ -35,7 +35,7 @@ public interface IItem : IInteractionTarget
     /// Can be a location, a container or the adventurer's inventory (i.e. the context). Or it
     /// can be null if the object is nowhere in the game, for example after being destroyed. 
     /// </summary>
-    ICanHoldItems? CurrentLocation { get; set; }
+    ICanContainItems? CurrentLocation { get; set; }
 
     /// <summary>
     ///     The description of the item when it cannot be taken by the player. Returns null or empty

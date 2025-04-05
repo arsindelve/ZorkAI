@@ -59,7 +59,7 @@ internal class Ambassador : QuirkyCompanion, ICanBeExamined
                                               
                                               """;
 
-    internal string JoinsTheScene(IContext context, ICanHoldItems location)
+    internal string JoinsTheScene(IContext context, ICanContainItems location)
     {
         location.ItemPlacedHere(this);
         location.ItemPlacedHere<Slime>();

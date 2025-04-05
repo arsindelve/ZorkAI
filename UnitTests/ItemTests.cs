@@ -10,7 +10,7 @@ public class ItemTests : EngineTestsBase
     public void GetEverythingInALocationDoesNotGetThingsInsideClosedContainer()
     {
         var engine = GetTarget();
-        var here = engine.Context.CurrentLocation as ICanHoldItems;
+        var here = engine.Context.CurrentLocation as ICanContainItems;
         here!.GetAllItemsRecursively.Should().Contain(Repository.GetItem<Mailbox>());
         here.GetAllItemsRecursively.Count.Should().Be(1);
         here.GetAllItemsRecursively.Should().NotContain(Repository.GetItem<Leaflet>());
@@ -20,7 +20,7 @@ public class ItemTests : EngineTestsBase
     public async Task GetEverythingInALocationGetItemsInAnOpenContainer()
     {
         var engine = GetTarget();
-        var here = engine.Context.CurrentLocation as ICanHoldItems;
+        var here = engine.Context.CurrentLocation as ICanContainItems;
         // Act
         await engine.GetResponse("open mailbox");
         here!.GetAllItemsRecursively.Count.Should().Be(2);
@@ -33,7 +33,7 @@ public class ItemTests : EngineTestsBase
     {
         var engine = GetTarget();
         Repository.GetLocation<WestOfHouse>().ItemPlacedHere(Repository.GetItem<Sword>());
-        var here = engine.Context.CurrentLocation as ICanHoldItems;
+        var here = engine.Context.CurrentLocation as ICanContainItems;
         // Act
         await engine.GetResponse("open mailbox");
         here!.GetAllItemsRecursively.Count.Should().Be(3);
@@ -48,7 +48,7 @@ public class ItemTests : EngineTestsBase
         var engine = GetTarget();
         Repository.GetLocation<WestOfHouse>().ItemPlacedHere(Repository.GetItem<Sword>());
         Repository.GetItem<Mailbox>().ItemPlacedHere(Repository.GetItem<BrownSack>());
-        var here = engine.Context.CurrentLocation as ICanHoldItems;
+        var here = engine.Context.CurrentLocation as ICanContainItems;
         // Act
         await engine.GetResponse("open mailbox");
         here!.GetAllItemsRecursively.Count.Should().Be(4);
@@ -64,7 +64,7 @@ public class ItemTests : EngineTestsBase
         var engine = GetTarget();
         Repository.GetLocation<WestOfHouse>().ItemPlacedHere(Repository.GetItem<Sword>());
         Repository.GetItem<Mailbox>().ItemPlacedHere(Repository.GetItem<BrownSack>());
-        var here = engine.Context.CurrentLocation as ICanHoldItems;
+        var here = engine.Context.CurrentLocation as ICanContainItems;
         // Act
         await engine.GetResponse("open mailbox");
         await engine.GetResponse("open sack");

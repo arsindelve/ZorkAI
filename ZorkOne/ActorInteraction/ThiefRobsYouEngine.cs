@@ -32,12 +32,12 @@ internal class ThiefRobsYouEngine(IRandomChooser randomChooser)
 
     internal Task<string> StealSomething(IContext context)
     {
-        if (!randomChooser.RollDice(ThiefRobsYouChance))
+        if (!randomChooser.RollDiceSuccess(ThiefRobsYouChance))
             return Task.FromResult(string.Empty);
 
         var itemsOfValueInInventory = context.Items.OfType<IGivePointsWhenPlacedInTrophyCase>().ToList();
         var itemsOfValueInRoom =
-            ((ICanHoldItems)context.CurrentLocation).Items.OfType<IGivePointsWhenPlacedInTrophyCase>().ToList();
+            ((ICanContainItems)context.CurrentLocation).Items.OfType<IGivePointsWhenPlacedInTrophyCase>().ToList();
 
         if (itemsOfValueInInventory.Any() || itemsOfValueInRoom.Any())
         {

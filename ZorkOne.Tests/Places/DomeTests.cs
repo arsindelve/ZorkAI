@@ -14,7 +14,7 @@ public class DomeTests : EngineTestsBase
     {
         var target = GetTarget();
         target.Context.CurrentLocation = Repository.GetLocation<DomeRoom>();
-        ((ICanHoldItems)target.Context.CurrentLocation).ItemPlacedHere(Repository.GetItem<Rope>());
+        ((ICanContainItems)target.Context.CurrentLocation).ItemPlacedHere(Repository.GetItem<Rope>());
         target.Context.Take(Repository.GetItem<Lantern>());
         Repository.GetItem<Lantern>().IsOn = true;
 

@@ -28,7 +28,7 @@ public class RandomChooser : IRandomChooser
     /// <param name="sides">The number of sides on the dice. Must be greater than 1.</param>
     /// <returns>True if the dice roll matches the expected value, otherwise false.</returns>
     /// <exception cref="ArgumentException">Thrown when the number of sides is less than or equal to 1.</exception>
-    public bool RollDice(int sides)
+    public bool RollDiceSuccess(int sides)
     {
         if (sides <= 1)
         {
@@ -36,5 +36,10 @@ public class RandomChooser : IRandomChooser
         }
 
         return _rand.Next(1, sides + 1) == ExpectedDieValue; 
+    }
+
+    public int RollDice(int sides)
+    {
+        return _rand.Next(1, sides + 1);
     }
 }

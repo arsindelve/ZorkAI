@@ -15,7 +15,7 @@ namespace Model.Interface;
 ///     stuff like that. This, along with the state of all objects and locations, (stored in the <see cref="Repository") />
 ///     encompasses everything we need to know to save and restore the game...i.e preserve the entire game state
 /// </summary>
-public interface IContext : ICanHoldItems
+public interface IContext : ICanContainItems
 {
     /// <summary>
     /// Retrieves items of the specified type from the adventurer's inventory.

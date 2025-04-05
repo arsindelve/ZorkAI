@@ -14,7 +14,7 @@ public class PutProcessor : IMultiNounVerbProcessor
 
         // If the receiver (item two) is not an item that can hold
         // other items, this interaction is never going to work
-        if (itemTwo is not ICanHoldItems itemReceiver)
+        if (itemTwo is not ICanContainItems itemReceiver)
             return null;
 
         switch (action.Verb.ToLowerInvariant().Trim())
@@ -42,7 +42,7 @@ public class PutProcessor : IMultiNounVerbProcessor
         return null;
     }
 
-    private static InteractionResult PutTheThingIntoTheThing(IItem item, ICanHoldItems itemReceiver, IContext context)
+    private static InteractionResult PutTheThingIntoTheThing(IItem item, ICanContainItems itemReceiver, IContext context)
     {
         if (item.CurrentLocation is not IContext)
             return new PositiveInteractionResult($"You don't have the {item.NounsForMatching.First()}. ");

@@ -75,7 +75,7 @@ public class MachineTests : EngineTestsBase
     public async Task TurnSwitch_NotHoldingScrewdriver()
     {
         var target = Setup();
-        ((ICanHoldItems)target.Context.CurrentLocation).ItemPlacedHere(Repository.GetItem<Screwdriver>());
+        ((ICanContainItems)target.Context.CurrentLocation).ItemPlacedHere(Repository.GetItem<Screwdriver>());
 
         var response = await target.GetResponse("turn switch with screwdriver");
 

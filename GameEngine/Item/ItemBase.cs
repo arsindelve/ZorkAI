@@ -57,7 +57,7 @@ public abstract class ItemBase : IItem
     /// <value>
     ///     The current location of the item.
     /// </value>
-    public ICanHoldItems? CurrentLocation { get; set; }
+    public ICanContainItems? CurrentLocation { get; set; }
 
     /// <summary>
     /// Checks if the current item matches the provided noun and adjective combination.

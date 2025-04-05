@@ -360,7 +360,7 @@ public class ThiefTests : EngineTestsBase
         target.Context.RegisterActor(GetItem<Thief>());
         StartHere<ForestPath>();
         var thiefChooser = new Mock<IRandomChooser>();
-        thiefChooser.Setup(s => s.RollDice(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(true);
+        thiefChooser.Setup(s => s.RollDiceSuccess(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(true);
         GetItem<Thief>().ThiefRobbingEngine = new ThiefRobsYouEngine(thiefChooser.Object);
         
         await target.GetResponse("look");
@@ -373,7 +373,7 @@ public class ThiefTests : EngineTestsBase
         StartHere<DeadEndFour>();
         target.Context.RegisterActor(GetItem<Thief>());
         var thiefChooser = new Mock<IRandomChooser>();
-        thiefChooser.Setup(s => s.RollDice(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(true);
+        thiefChooser.Setup(s => s.RollDiceSuccess(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(true);
         thiefChooser.Setup(s => s.Choose(ThiefRobsYouEngine.NothingOfValue)).Returns(ThiefRobsYouEngine.NothingOfValue[0]);
         GetItem<Thief>().ThiefRobbingEngine = new ThiefRobsYouEngine(thiefChooser.Object);
         
@@ -388,7 +388,7 @@ public class ThiefTests : EngineTestsBase
         StartHere<DeadEndFour>();
         target.Context.RegisterActor(GetItem<Thief>());
         var thiefChooser = new Mock<IRandomChooser>();
-        thiefChooser.Setup(s => s.RollDice(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(true);
+        thiefChooser.Setup(s => s.RollDiceSuccess(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(true);
         thiefChooser.Setup(s => s.Choose(ThiefRobsYouEngine.NothingOfValue)).Returns(ThiefRobsYouEngine.NothingOfValue[1]);
         GetItem<Thief>().ThiefRobbingEngine = new ThiefRobsYouEngine(thiefChooser.Object);
         
@@ -403,7 +403,7 @@ public class ThiefTests : EngineTestsBase
         StartHere<DeadEndFour>();
         target.Context.RegisterActor(GetItem<Thief>());
         var thiefChooser = new Mock<IRandomChooser>();
-        thiefChooser.Setup(s => s.RollDice(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(false);
+        thiefChooser.Setup(s => s.RollDiceSuccess(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(false);
         thiefChooser.Setup(s => s.Choose(ThiefRobsYouEngine.NothingOfValue)).Returns(ThiefRobsYouEngine.NothingOfValue[0]);
         GetItem<Thief>().ThiefRobbingEngine = new ThiefRobsYouEngine(thiefChooser.Object);
         
@@ -420,7 +420,7 @@ public class ThiefTests : EngineTestsBase
         target.Context.RegisterActor(GetItem<Thief>());
         var thiefChooser = new Mock<IRandomChooser>();
         thiefChooser.Setup(s => s.Choose(It.IsAny<List<IGivePointsWhenPlacedInTrophyCase>>())).Returns(GetItem<Coffin>());
-        thiefChooser.Setup(s => s.RollDice(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(true);
+        thiefChooser.Setup(s => s.RollDiceSuccess(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(true);
         thiefChooser.Setup(s => s.Choose(ThiefRobsYouEngine.StealFromRoomResults)).Returns(ThiefRobsYouEngine.StealFromRoomResults[0]);
         GetItem<Thief>().ThiefRobbingEngine = new ThiefRobsYouEngine(thiefChooser.Object);
         
