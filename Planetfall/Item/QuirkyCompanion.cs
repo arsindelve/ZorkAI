@@ -36,7 +36,7 @@ public abstract class QuirkyCompanion : ContainerBase, ITurnBasedActor
 
     public abstract Task<string> Act(IContext context, IGenerationClient client);
 
-    protected virtual string PreparePrompt(string userPrompt)
+    protected virtual string PreparePrompt(string userPrompt, ILocation? currentLocation)
     {
         return userPrompt;
     }
@@ -46,7 +46,7 @@ public abstract class QuirkyCompanion : ContainerBase, ITurnBasedActor
     {
         userPrompt ??= UserPrompt;
         userPrompt = string.Format(userPrompt, context.CurrentLocation.Name, context.CurrentLocation.GetDescriptionForGeneration(context), LastTurnsOutput);
-        userPrompt = PreparePrompt(userPrompt);
+        userPrompt = PreparePrompt(userPrompt, context.CurrentLocation);
         
         CompanionRequest request = new CompanionRequest( userPrompt, SystemPrompt) { Temperature = 1.0f };
         string result = await client.GenerateCompanionSpeech(request);

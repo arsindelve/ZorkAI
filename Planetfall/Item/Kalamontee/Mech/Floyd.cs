@@ -63,11 +63,11 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         StartWithItemInside<LowerElevatorAccessCard>();
     }
 
-    protected override string PreparePrompt(string userPrompt)
+    protected override string PreparePrompt(string userPrompt, ILocation? currentLocation)
     {
         // If we don't do this, Floyd will believe, from the location description, that there is another robot in the room
         // when in fact it is him! 
-        return userPrompt.Replace("There is a multiple purpose robot here.", string.Empty);
+        return userPrompt.Replace(GenericDescription(currentLocation), string.Empty);
     }
 
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
@@ -144,6 +144,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
             if (TurnOnCountdown == 1)
             {
                 IsOn = true;
+                HasEverBeenOn = true;
                 TurnOnCountdown = 0;
                 return FloydConstants.ComesAlive;
             }

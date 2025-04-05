@@ -37,7 +37,7 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["remove"], NounsForMatching))
+        if (action.Match(["remove", "take"], NounsForMatching))
         {
             if (Locked && AttachedToDoor)
                 return new PositiveInteractionResult("The padlock is locked to the door. ");
