@@ -1,5 +1,6 @@
 using GameEngine.IntentEngine;
 using Model.AIGeneration;
+using Newtonsoft.Json;
 using Planetfall.Item.Kalamontee.Admin;
 using Utilities;
 
@@ -10,15 +11,20 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     private readonly GiveSomethingToSomeoneDecisionEngine<Floyd> _giveHimSomethingEngine = new();
 
     // This is the thing that he is holding, literally in his hand. 
-    [UsedImplicitly] public IItem? ItemBeingHeld { get; set; } 
-    
-    [UsedImplicitly] public IRandomChooser Chooser { get; set; } = new RandomChooser();
-    
+    [UsedImplicitly] public IItem? ItemBeingHeld { get; set; }
+
+    [UsedImplicitly][JsonIgnore] public IRandomChooser Chooser { get; set; } = new RandomChooser();
+
     [UsedImplicitly] public bool IsOn { get; set; }
 
     [UsedImplicitly] public bool IsOffWandering { get; set; }
 
     [UsedImplicitly] public bool HasEverBeenOn { get; set; }
+
+    private bool IsInTheRoom(IContext context)
+    {
+        return CurrentLocation == context.CurrentLocation;
+    }
 
     // When you initially turn on Floyd, nothing happens for 3 turns. This delay never happens
     // again if you turn him on/off another time. 
@@ -42,6 +48,23 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
               "mechanical mouth forms a lopsided grin. "
             : "The deactivated robot is leaning against the wall, its head lolling to the side. It is short, and seems " +
               "to be equipped for general-purpose work. It has apparently been turned off. ";
+
+    public InteractionResult OfferThisThing(IItem item, IContext context)
+    {
+        if (ItemBeingHeld != null)
+        {
+            // It ends up on the floor. 
+            context.Drop(item);
+            return new PositiveInteractionResult($"Floyd examines the {item.Name}, shrugs, and drops it.");
+        }
+
+        item.CurrentLocation = this;
+        context.RemoveItem(item);
+        ItemBeingHeld = item;
+        item.OnBeingTakenCallback = _ => ItemBeingHeld = null;
+
+        return new PositiveInteractionResult(FloydConstants.ThanksYouForGivingItem);
+    }
 
     public override string GenericDescription(ILocation? currentLocation)
     {
@@ -73,6 +96,13 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
+        if (ItemBeingHeld is not null)
+        {
+            var result = await ItemBeingHeld.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+            if (result is not null)
+                return result;
+        }            
+            
         if (IsOn && action.Match(["play"], NounsForMatching))
             return new PositiveInteractionResult(FloydConstants.Play);
 
@@ -157,7 +187,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
             return string.Empty;
 
         // Should he follow us?
-        if (!IsOffWandering && CurrentLocation != context.CurrentLocation)
+        if (!IsOffWandering && !IsInTheRoom(context))
         {
             context.CurrentLocation.ItemPlacedHere(this);
             return "Floyd follows you. ";
@@ -186,39 +216,43 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         return await chosenAction;
     }
 
-    public InteractionResult OfferThisThing(IItem item, IContext context)
-    {
-        if (ItemBeingHeld != null)
-        {
-            // It ends up on the floor. 
-            context.Drop(item);
-            return new PositiveInteractionResult($"Floyd examines the {item.Name}, shrugs, and drops it.");
-        }
-        
-        item.CurrentLocation = this;
-        context.RemoveItem(item);
-        ItemBeingHeld = item;
-        item.OnBeingTakenCallback = _ => ItemBeingHeld = null;
-        
-        return new PositiveInteractionResult(FloydConstants.ThanksYouForGivingItem);
-    }
-    
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
     {
-        if(!IsOn)
+        if (!IsOn)
             return await base.RespondToMultiNounInteraction(action, context);
-        
+
         var result = _giveHimSomethingEngine.AreWeGivingSomethingToSomeone(action, this, context);
 
         if (result is not null)
             return result;
-       
+
         return await base.RespondToMultiNounInteraction(action, context);
+    }
+
+    /// <summary>
+    /// Everytime Floyd sees you successfully swipe a card, there is a chance he will show you his own. 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    internal string? OffersLowerElevatorCard(IContext context)
+    {
+        if (!IsInTheRoom(context) || 
+            !IsOn || 
+            !Items.Any() || 
+            !Chooser.RollDiceSuccess(3))
+            return null;
+
+        // Remove it from inside, put it in his hand. 
+        Items.Clear();
+        ItemBeingHeld = Repository.GetItem<LowerElevatorAccessCard>();
+
+        return "\n\nFloyd claps his hands with excitement. \"Those cards are really neat, huh? Floyd has one for " +
+               "himself--see?\" He reaches behind one of his panels and retrieves a magnetic-striped card. He waves it exuberantly in the air. ";
     }
 }
 
-// Floyd gives you a nudge with his foot and giggles. "You sure look silly sleeping on the floor," he says.
-// Floyd bounces impatiently at the foot of the bed. "About time you woke up, you lazy bones! Let's explore around some more!"
-// Floyd says "Floyd going exploring. See you later." He glides out of the room.
-// Floyd rushes into the room and barrels into you. "Oops, sorry," he says. "Floyd not looking at where he was going to."
+// TODO: Floyd gives you a nudge with his foot and giggles. "You sure look silly sleeping on the floor," he says.
+// TODO: Floyd bounces impatiently at the foot of the bed. "About time you woke up, you lazy bones! Let's explore around some more!"
+// TODO: Floyd says "Floyd going exploring. See you later." He glides out of the room.
+// TODO: Floyd rushes into the room and barrels into you. "Oops, sorry," he says. "Floyd not looking at where he was going to."

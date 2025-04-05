@@ -1,9 +1,13 @@
 using Azure;
 using FluentAssertions;
+using Model.Interface;
+using Moq;
 using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech;
+using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Mech;
+using Planetfall.Location.Lawanda;
 
 namespace Planetfall.Tests;
 
@@ -155,5 +159,122 @@ public class FloydTests : EngineTestsBase
 
         response.Should().Contain("multiple purpose robot is holding:");
         response.Should().Contain("A diary");
+    }
+    
+    [Test]
+    public async Task GiveSomethingToFloyd_TakeItBack()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().HasEverBeenOn = true;
+        
+        await target.GetResponse("give the diary to floyd");
+        var response = await target.GetResponse("take diary");
+
+        response.Should().Contain("Taken");
+        GetItem<Floyd>().ItemBeingHeld.Should().BeNull();
+        target.Context.HasItem<Diary>().Should().BeTrue();
+    }
+    
+    [Test]
+    public async Task ExamineFloyd_On()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().HasEverBeenOn = true;
+        
+        var response = await target.GetResponse("examine floyd");
+
+        response.Should().Contain("From its design, the robot seems to be of the multi-purpose sort");
+    }
+    
+    [Test]
+    public async Task ExamineFloyd_Off()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        
+        var response = await target.GetResponse("examine floyd");
+
+        response.Should().Contain("The deactivated robot is leaning against the wall");
+    }
+    
+    [Test]
+    public async Task DoesFloydOfferCard_AllSystemsGo()
+    {
+        var target = GetTarget();
+        StartHere<MessHall>();
+        Take<KitchenAccessCard>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
+        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
+        
+        var response = await target.GetResponse("slide kitchen access card through slot");
+
+        response.Should().Contain("Floyd claps his hands with excitement");
+        GetItem<Floyd>().ItemBeingHeld.Should().BeOfType<LowerElevatorAccessCard>();
+    }
+    
+    [Test]
+    public async Task DoesFloydOfferCard_NotHere()
+    {
+        var target = GetTarget();
+        StartHere<MessHall>();
+        Take<KitchenAccessCard>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().CurrentLocation = GetLocation<Library>();
+        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
+        
+        var response = await target.GetResponse("slide kitchen access card through slot");
+
+        response.Should().NotContain("Floyd claps his hands with excitement");
+    }
+    
+    [Test]
+    public async Task DoesFloydOfferCard_DiceRollFail()
+    {
+        var target = GetTarget();
+        StartHere<MessHall>();
+        Take<KitchenAccessCard>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
+        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == false);
+        
+        var response = await target.GetResponse("slide kitchen access card through slot");
+
+        response.Should().NotContain("Floyd claps his hands with excitement");
+    }
+    
+    [Test]
+    public async Task DoesFloydOfferCard_HeIsOff()
+    {
+        var target = GetTarget();
+        StartHere<MessHall>();
+        Take<KitchenAccessCard>();
+        GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
+        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
+        
+        var response = await target.GetResponse("slide kitchen access card through slot");
+
+        response.Should().NotContain("Floyd claps his hands with excitement");
+    }
+    
+    [Test]
+    public async Task DoesFloydOfferCard_NoLongerHasIt()
+    {
+        var target = GetTarget();
+        StartHere<MessHall>();
+        Take<KitchenAccessCard>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().Items.Clear();
+        GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
+        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
+        
+        var response = await target.GetResponse("slide kitchen access card through slot");
+
+        response.Should().NotContain("Floyd claps his hands with excitement");
     }
 }

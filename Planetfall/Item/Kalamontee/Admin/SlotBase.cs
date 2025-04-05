@@ -1,3 +1,5 @@
+using Planetfall.Item.Kalamontee.Mech;
+
 namespace Planetfall.Item.Kalamontee.Admin;
 
 /// <summary>
@@ -23,7 +25,7 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot> : ItemBase, ICanBeExa
     /// </summary>
     /// <param name="context">The context in which the slide action is performed, providing the necessary environment or state information.</param>
     /// <returns>An <see cref="InteractionResult"/> object representing the outcome of the successful slide action.</returns>
-    protected abstract InteractionResult OnSuccessfulSlide(IContext context);
+    protected abstract InteractionResult OnSuccessfulSlide(IContext context, string? afterMessage);
 
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
@@ -42,7 +44,9 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot> : ItemBase, ICanBeExa
             if (!context.HasItem<TAccessCard>())
                 return new NoNounMatchInteractionResult();
 
-            return OnSuccessfulSlide(context);
+            string? afterMessage = Repository.GetItem<Floyd>().OffersLowerElevatorCard(context);
+            
+            return OnSuccessfulSlide(context, afterMessage);
         }
 
         var nounOne = Repository.GetItem(action.NounOne);

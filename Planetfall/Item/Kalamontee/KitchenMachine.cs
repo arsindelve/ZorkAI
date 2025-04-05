@@ -55,7 +55,6 @@ internal class KitchenMachine : ContainerBase, ICanBeExamined
                                                  "down the side of the machine, and forms a puddle on the floor which quickly dries up. ");
         }
 
-
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 

@@ -20,9 +20,9 @@ internal class TeleportationSlot<TBooth> : SlotBase<TeleportationAccessCard, Tel
     public override string[] NounsForMatching { get; }
     = ["teleportation slot", "slot", "teleportation card slot"];
     
-    protected override InteractionResult OnSuccessfulSlide(IContext context)
+    protected override InteractionResult OnSuccessfulSlide(IContext context, string? afterMessage)
     {
         Repository.GetLocation<TBooth>().IsEnabled = true;
-        return new PositiveInteractionResult("Nothing happens for a moment. Then a light flashes \"Redee.\"");
+        return new PositiveInteractionResult("Nothing happens for a moment. Then a light flashes \"Redee.\"" + afterMessage);
     }
 }
