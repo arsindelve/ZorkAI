@@ -10,7 +10,7 @@ namespace GameEngine.Item;
 /// <summary>
 ///     Represents a base class for containers - items that can hold other items.
 /// </summary>
-public abstract class ContainerBase : ItemBase, ICanHoldItems
+public abstract class ContainerBase : ItemBase, ICanContainItems
 {
     protected virtual int SpaceForItems => 2;
 
@@ -116,7 +116,7 @@ public abstract class ContainerBase : ItemBase, ICanHoldItems
             foreach (var item in Items)
             {
                 result.Add(item);
-                if (item is ICanHoldItems holder)
+                if (item is ICanContainItems holder)
                     result.AddRange(holder.GetAllItemsRecursively);
             }
 

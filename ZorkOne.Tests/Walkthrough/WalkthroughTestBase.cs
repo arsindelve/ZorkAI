@@ -42,9 +42,9 @@ public abstract class WalkthroughTestBase : EngineTestsBase
             .Returns((CombatOutcome.Miss, ""));
         
         // He never appears
-        _thiefAppears.Setup(s => s.RollDice(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(false);
+        _thiefAppears.Setup(s => s.RollDiceSuccess(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(false);
         
-        _caveSouthChooser.Setup(s => s.RollDice(2)).Returns(true);
+        _caveSouthChooser.Setup(s => s.RollDiceSuccess(2)).Returns(true);
 
         GetItem<Thief>().ThiefRobbingEngine = new ThiefRobsYouEngine(_thiefAppears.Object);
         GetItem<Thief>().ThiefAttackedEngine = new AdventurerVersusThiefCombatEngine(_adventurerChooser.Object);

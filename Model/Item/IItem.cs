@@ -35,7 +35,7 @@ public interface IItem : IInteractionTarget
     /// Can be a location, a container or the adventurer's inventory (i.e. the context). Or it
     /// can be null if the object is nowhere in the game, for example after being destroyed. 
     /// </summary>
-    ICanHoldItems? CurrentLocation { get; set; }
+    ICanContainItems? CurrentLocation { get; set; }
 
     /// <summary>
     ///     The description of the item when it cannot be taken by the player. Returns null or empty
@@ -89,4 +89,11 @@ public interface IItem : IInteractionTarget
     /// <param name="context">The context in which the interaction occurs.</param>
     /// <returns>An InteractionResult indicating the result of the interaction.</returns>
     Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context);
+
+    /// <summary>
+    /// Represents an action that will be triggered when the item is taken.
+    /// Typically, this allows for custom behaviors or effects to be executed in the context
+    /// of the game whenever the item is picked up by the adventurer.
+    /// </summary>
+    Action<IContext>? OnBeingTakenCallback { get; set; }
 }

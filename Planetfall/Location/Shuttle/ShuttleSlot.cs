@@ -18,7 +18,7 @@ internal class ShuttleSlot<TShuttle> : SlotBase<ShuttleAccessCard, ShuttleSlot<T
 {
     public override string[] NounsForMatching => ["shuttle slot", "slot", "shuttle control slot"];
 
-    protected override InteractionResult OnSuccessfulSlide(IContext context)
+    protected override InteractionResult OnSuccessfulSlide(IContext context, string? afterSlideMessage)
     {
         return Repository.GetLocation<TShuttle>().Activate(context);
     }

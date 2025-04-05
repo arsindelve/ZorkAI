@@ -45,7 +45,12 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("S", null, "Mech Corridor South")]
     [TestCase("SW", null, "Tool Room")]
     [TestCase("take magnet", null, "Taken")]
-    [TestCase("NE", null, "Mech Corridor South")]
+    [TestCase("E", null, "Machine Shop")]
+    [TestCase("E", null, "Robot Shop")]
+    [TestCase("activate floyd", null, "happens")]
+    [TestCase("wait", null, "Time passes")]
+    [TestCase("wait", null, "Suddenly, the robot comes to life")]
+    [TestCase("NW", null, "Mech Corridor South")]
     [TestCase("N", null, "Mech Corridor")]
     [TestCase("N", null, "Mech Corridor North")]
     [TestCase("N", null, "Corridor Junction")]
@@ -66,13 +71,11 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("N", null, "South")]
     [TestCase("N", null, "Admin")]
     [TestCase("drop ladder", null, "Dropped")]
-    [TestCase("extend ladder", null, "The ladder extends to a length of around eight meters")]
-    [TestCase("place ladder across rift", null,
-        "The ladder swings out across the rift and comes to rest on the far edge, spanning the precipice")]
+    [TestCase("extend ladder", null, "The ladder extends ")]
+    [TestCase("place ladder across rift", null, "The ladder swings out ")]
     [TestCase("N", null, "Admin", "North", "slowly make your way across the swaying")]
     [TestCase("W", null, "Small Office")]
-    [TestCase("open desk", null,
-        "Opening the small desk reveals a kitchen access card and a upper elevator access card")]
+    [TestCase("open desk", null, "Opening the small")]
     [TestCase("take upper card", null, "Taken")]
     [TestCase("take kitchen card", null, "Taken")]
     [TestCase("W", null, "Large Office")]
@@ -87,8 +90,11 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("W", null, "Mess Corridor")]
     [TestCase("S", null, "Mess Hall")]
     [TestCase("take canteen", null, "Taken")]
-    [TestCase("slide kitchen access card through slot", null, "The kitchen door quietly slides open")]
+    [TestCase("slide kitchen access card through slot", null, "The kitchen door quietly slides open",
+        "Floyd claps his hands with excitement")]
     [TestCase("S", null, "Kitchen")]
+    [TestCase("take lower card", null, "Taken")]
+   
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup))

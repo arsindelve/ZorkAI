@@ -17,7 +17,7 @@ public class TakeEverythingProcessor : IGlobalCommand
         Runtime runtime
         )
     {
-        var items = ((ICanHoldItems)context.CurrentLocation).GetAllItemsRecursively;
+        var items = ((ICanContainItems)context.CurrentLocation).GetAllItemsRecursively;
 
         if (!items.Any(s => s is ICanBeTakenAndDropped || !string.IsNullOrEmpty(s.CannotBeTakenDescription)))
             return await client.GenerateNarration(new TakeAllNothingHere(), context.SystemPromptAddendum);

@@ -1,16 +1,30 @@
+using GameEngine.IntentEngine;
 using Model.AIGeneration;
+using Newtonsoft.Json;
 using Planetfall.Item.Kalamontee.Admin;
 using Utilities;
 
 namespace Planetfall.Item.Kalamontee.Mech;
 
-public class Floyd : QuirkyCompanion, IAmANamedPerson
+public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGivenThings
 {
+    private readonly GiveSomethingToSomeoneDecisionEngine<Floyd> _giveHimSomethingEngine = new();
+
+    // This is the thing that he is holding, literally in his hand. 
+    [UsedImplicitly] public IItem? ItemBeingHeld { get; set; }
+
+    [UsedImplicitly][JsonIgnore] public IRandomChooser Chooser { get; set; } = new RandomChooser();
+
     [UsedImplicitly] public bool IsOn { get; set; }
 
     [UsedImplicitly] public bool IsOffWandering { get; set; }
 
     [UsedImplicitly] public bool HasEverBeenOn { get; set; }
+
+    private bool IsInTheRoom(IContext context)
+    {
+        return CurrentLocation == context.CurrentLocation;
+    }
 
     // When you initially turn on Floyd, nothing happens for 3 turns. This delay never happens
     // again if you turn him on/off another time. 
@@ -35,11 +49,36 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
             : "The deactivated robot is leaning against the wall, its head lolling to the side. It is short, and seems " +
               "to be equipped for general-purpose work. It has apparently been turned off. ";
 
+    public InteractionResult OfferThisThing(IItem item, IContext context)
+    {
+        if (ItemBeingHeld != null)
+        {
+            // It ends up on the floor. 
+            context.Drop(item);
+            return new PositiveInteractionResult($"Floyd examines the {item.Name}, shrugs, and drops it.");
+        }
+
+        item.CurrentLocation = this;
+        context.RemoveItem(item);
+        ItemBeingHeld = item;
+        item.OnBeingTakenCallback = _ => ItemBeingHeld = null;
+
+        return new PositiveInteractionResult(FloydConstants.ThanksYouForGivingItem);
+    }
+
     public override string GenericDescription(ILocation? currentLocation)
     {
         return HasEverBeenOn
-            ? "There is a multiple purpose robot here. "
+            ? "There is a multiple purpose robot here. " + DescribeItemHeIsHolding(currentLocation)
             : "Only one robot, about four feet high, looks even remotely close to being in working order. ";
+    }
+
+    private string DescribeItemHeIsHolding(ILocation? currentLocation)
+    {
+        if (ItemBeingHeld is null)
+            return "";
+
+        return "\nThe multiple purpose robot is holding: \n\t " + ItemBeingHeld.GenericDescription(currentLocation);
     }
 
     public override void Init()
@@ -47,16 +86,23 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
         StartWithItemInside<LowerElevatorAccessCard>();
     }
 
-    protected override string PreparePrompt(string userPrompt)
+    protected override string PreparePrompt(string userPrompt, ILocation? currentLocation)
     {
         // If we don't do this, Floyd will believe, from the location description, that there is another robot in the room
         // when in fact it is him! 
-        return userPrompt.Replace("There is a multiple purpose robot here.", string.Empty);
+        return userPrompt.Replace(GenericDescription(currentLocation), string.Empty);
     }
 
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
+        if (ItemBeingHeld is not null)
+        {
+            var result = await ItemBeingHeld.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+            if (result is not null)
+                return result;
+        }            
+            
         if (IsOn && action.Match(["play"], NounsForMatching))
             return new PositiveInteractionResult(FloydConstants.Play);
 
@@ -86,9 +132,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
         if (HasItem<LowerElevatorAccessCard>())
         {
             context.ItemPlacedHere<LowerElevatorAccessCard>();
-            return new PositiveInteractionResult(
-                "In one of the robot's compartments you find and take a magnetic-striped card " +
-                "embossed \"Loowur Elavaatur Akses Kard.\" ");
+            return new PositiveInteractionResult(FloydConstants.FindAndTakeLowerCard);
         }
 
         return new PositiveInteractionResult(
@@ -130,6 +174,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
             if (TurnOnCountdown == 1)
             {
                 IsOn = true;
+                HasEverBeenOn = true;
                 TurnOnCountdown = 0;
                 return FloydConstants.ComesAlive;
             }
@@ -142,7 +187,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
             return string.Empty;
 
         // Should he follow us?
-        if (!IsOffWandering && CurrentLocation != context.CurrentLocation)
+        if (!IsOffWandering && !IsInTheRoom(context))
         {
             context.CurrentLocation.ItemPlacedHere(this);
             return "Floyd follows you. ";
@@ -150,7 +195,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
 
         // Randomly, Floyd will say or do something (or possibly nothing) based on one of the
         // prompts below - or he might do one of the things from the original game. 
-        var action = new Random().Next(1, 10) switch
+        var action = Chooser.RollDice(10) switch
         {
             <= 3 => (Func<Task<string>>)(async () =>
                 await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
@@ -170,9 +215,44 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson
         var chosenAction = action.Invoke();
         return await chosenAction;
     }
+
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
+    {
+        if (!IsOn)
+            return await base.RespondToMultiNounInteraction(action, context);
+
+        var result = _giveHimSomethingEngine.AreWeGivingSomethingToSomeone(action, this, context);
+
+        if (result is not null)
+            return result;
+
+        return await base.RespondToMultiNounInteraction(action, context);
+    }
+
+    /// <summary>
+    /// Everytime Floyd sees you successfully swipe a card, there is a chance he will show you his own. 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    internal string? OffersLowerElevatorCard(IContext context)
+    {
+        if (!IsInTheRoom(context) || 
+            !IsOn || 
+            !Items.Any() || 
+            !Chooser.RollDiceSuccess(3))
+            return null;
+
+        // Remove it from inside, put it in his hand. 
+        Items.Clear();
+        ItemBeingHeld = Repository.GetItem<LowerElevatorAccessCard>();
+
+        return "\n\nFloyd claps his hands with excitement. \"Those cards are really neat, huh? Floyd has one for " +
+               "himself--see?\" He reaches behind one of his panels and retrieves a magnetic-striped card. He waves it exuberantly in the air. ";
+    }
 }
 
-// Floyd gives you a nudge with his foot and giggles. "You sure look silly sleeping on the floor," he says.
-// Floyd bounces impatiently at the foot of the bed. "About time you woke up, you lazy bones! Let's explore around some more!"
-// Floyd says "Floyd going exploring. See you later." He glides out of the room.
-// Floyd rushes into the room and barrels into you. "Oops, sorry," he says. "Floyd not looking at where he was going to."
+// TODO: Floyd gives you a nudge with his foot and giggles. "You sure look silly sleeping on the floor," he says.
+// TODO: Floyd bounces impatiently at the foot of the bed. "About time you woke up, you lazy bones! Let's explore around some more!"
+// TODO: Floyd says "Floyd going exploring. See you later." He glides out of the room.
+// TODO: Floyd rushes into the room and barrels into you. "Oops, sorry," he says. "Floyd not looking at where he was going to."

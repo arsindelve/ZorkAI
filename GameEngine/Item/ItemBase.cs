@@ -57,7 +57,7 @@ public abstract class ItemBase : IItem
     /// <value>
     ///     The current location of the item.
     /// </value>
-    public ICanHoldItems? CurrentLocation { get; set; }
+    public ICanContainItems? CurrentLocation { get; set; }
 
     /// <summary>
     /// Checks if the current item matches the provided noun and adjective combination.
@@ -130,6 +130,13 @@ public abstract class ItemBase : IItem
     {
         return Task.FromResult<InteractionResult?>(new NoNounMatchInteractionResult());
     }
+
+    /// <summary>
+    /// Represents a callback action that is triggered when the item is taken.
+    /// The action receives the current context in which the item is taken
+    /// and can perform any necessary logic or side effects related to the event.
+    /// </summary>
+    public Action<IContext>? OnBeingTakenCallback { get; set; }
 
     /// <summary>
     ///     Gets the description when the item has never been picked up.

@@ -53,7 +53,7 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor
         return alternateText ?? "\n\nBlather, adding fifty more demerits for good measure, moves off in search of more young ensigns to terrorize. ";
     }
 
-    internal string JoinsTheScene(IContext context, ICanHoldItems location)
+    internal string JoinsTheScene(IContext context, ICanContainItems location)
     {
         location.ItemPlacedHere(this);
         context.RegisterActor(this);

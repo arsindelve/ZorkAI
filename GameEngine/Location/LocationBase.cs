@@ -10,7 +10,7 @@ namespace GameEngine.Location;
 /// <summary>
 ///     The base class for all locations in the game.
 /// </summary>
-public abstract class LocationBase : ILocation, ICanHoldItems
+public abstract class LocationBase : ILocation, ICanContainItems
 {
     public bool IsTransparent => false;
 
@@ -76,7 +76,7 @@ public abstract class LocationBase : ILocation, ICanHoldItems
             foreach (var item in Items)
             {
                 result.Add(item);
-                if (item is ICanHoldItems holder)
+                if (item is ICanContainItems holder)
                     result.AddRange(holder.GetAllItemsRecursively);
             }
 

@@ -9,13 +9,13 @@ public class Ladder : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
 
     [UsedImplicitly] public bool IsExtended { get; set; }
 
-    public override string[] NounsForMatching => ["ladder"];
+    public override string[] NounsForMatching => ["ladder", "large aluminum ladder", "aluminum ladder", "extendable ladder", "extendable aluminum ladder", "aluminum ladder"];
 
     public override string? CannotBeTakenDescription =>
         IsExtended ? "You can't possibly carry the ladder while it's extended. " : null;
 
     public string ExaminationDescription =>
-        "It is a heavy-duty ladder built of sturdy aluminum tubing. " + (IsExtended
+        "It is a heavy-duty ladder built of sturdy aluminum tubing. " + (!IsExtended
             ? "It is currently collapsed and is around " +
               "two-and-a-half meters long, but if extended would obviously be much longer. "
             : "It is currently extended to its full length of about 8 meters, but could be collapsed to a shorter length for easier carrying. ");

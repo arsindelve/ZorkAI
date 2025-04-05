@@ -20,10 +20,10 @@ public class TestParser : IntentParser
     {
         _verbs =
         [
-            "take", "drop", "open", "close", "examine", "look", "eat", "press", "remove",
-            "deactivate", "type", "key", "punch", "push", "pull", "burn", "set",
+            "take", "drop", "open", "close", "examine", "look", "eat", "press", "remove", "play",
+            "deactivate", "type", "key", "punch", "push", "pull", "burn", "set", "search",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate",
-            "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind",
+            "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind", "kick",
             "lower", "raise", "get", "inflate", "leave", "unlock", "lock", "climb", "extend"
         ];
 
@@ -179,6 +179,13 @@ public class TestParser : IntentParser
             {
                 Noun = "blue door",
                 Verb = "examine"
+            });
+        
+        if (input is "play with floyd")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "floyd",
+                Verb = "play"
             });
         
         if (input is "open elevator door")
@@ -727,6 +734,26 @@ public class TestParser : IntentParser
                 Preposition = "to",
                 Verb = "give",
                 OriginalInput = "give the sceptre to the thief"
+            });
+        
+        if (input == "give the diary to floyd")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "diary",
+                NounTwo = "floyd",
+                Preposition = "to",
+                Verb = "give",
+                OriginalInput = "give the diary to floyd"
+            });
+        
+        if (input == "give the key to floyd")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "key",
+                NounTwo = "floyd",
+                Preposition = "to",
+                Verb = "give",
+                OriginalInput = "give the key to floyd"
             });
         
         if (input == "kill thief with sword")

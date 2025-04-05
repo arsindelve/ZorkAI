@@ -118,14 +118,14 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
                 .Where(s => s is IAmALightSource)
                 .Any(s => s is IAmALightSourceThatTurnsOnAndOff { IsOn: true });
 
-            var lightSourcesInTheRoom = ((ICanHoldItems)CurrentLocation).Items
+            var lightSourcesInTheRoom = ((ICanContainItems)CurrentLocation).Items
                 .Any(s => s is IAmALightSourceThatTurnsOnAndOff { IsOn: true });
 
             // Really? Yes, really. This is an important part of the "shaft"
             // puzzle in Zork One. You put the torch in the basket, and it's 
             // your only light source. 
-            var lightSourcesInAContainerInTheRoom = ((ICanHoldItems)CurrentLocation).Items
-                .OfType<ICanHoldItems>()
+            var lightSourcesInAContainerInTheRoom = ((ICanContainItems)CurrentLocation).Items
+                .OfType<ICanContainItems>()
                 .Any(container =>
                     container is IOpenAndClose { IsOpen: true } or ContainerBase { IsTransparent: true } &&
                     container.Items.Any(s =>
@@ -261,7 +261,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
             foreach (var item in Items)
             {
                 result.Add(item);
-                if (item is ICanHoldItems holder)
+                if (item is ICanContainItems holder)
                     result.AddRange(holder.GetAllItemsRecursively);
             }
 
@@ -292,6 +292,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         if (item is IGivePointsWhenFirstPickedUp up && !item.HasEverBeenPickedUp) AddPoints(up.NumberOfPoints);
 
         Items.Add(item);
+        item.OnBeingTakenCallback?.Invoke(this);
         var previousOwner = item.CurrentLocation;
         previousOwner?.RemoveItem(item);
         item.CurrentLocation = this;
@@ -317,7 +318,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         if (item == null)
             throw new Exception("Null item was dropped from inventory");
 
-        if (CurrentLocation is not ICanHoldItems newLocation)
+        if (CurrentLocation is not ICanContainItems newLocation)
             throw new Exception("Current location can't hold item");
 
         Items.Remove(item);
@@ -380,7 +381,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         throw new NotImplementedException();
     }
 
-    protected void StartWithItem<TItem>(ICanHoldItems location) where TItem : IItem, new()
+    protected void StartWithItem<TItem>(ICanContainItems location) where TItem : IItem, new()
     {
         var item = Repository.GetItem<TItem>();
         Items.Add(item);
