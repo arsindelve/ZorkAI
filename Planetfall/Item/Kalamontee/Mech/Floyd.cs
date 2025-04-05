@@ -10,9 +10,9 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     private readonly GiveSomethingToSomeoneDecisionEngine<Floyd> _giveHimSomethingEngine = new();
 
     // This is the thing that he is holding, literally in his hand. 
-    public IItem? ItemBeingHeld { get; set; } 
+    [UsedImplicitly] public IItem? ItemBeingHeld { get; set; } 
     
-    public IRandomChooser Chooser { get; set; } = new RandomChooser();
+    [UsedImplicitly] public IRandomChooser Chooser { get; set; } = new RandomChooser();
     
     [UsedImplicitly] public bool IsOn { get; set; }
 
@@ -198,6 +198,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         item.CurrentLocation = this;
         context.RemoveItem(item);
         ItemBeingHeld = item;
+        item.OnBeingTakenCallback = _ => ItemBeingHeld = null;
+        
         return new PositiveInteractionResult(FloydConstants.ThanksYouForGivingItem);
     }
     

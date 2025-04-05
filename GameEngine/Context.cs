@@ -292,6 +292,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         if (item is IGivePointsWhenFirstPickedUp up && !item.HasEverBeenPickedUp) AddPoints(up.NumberOfPoints);
 
         Items.Add(item);
+        item.OnBeingTakenCallback?.Invoke(this);
         var previousOwner = item.CurrentLocation;
         previousOwner?.RemoveItem(item);
         item.CurrentLocation = this;

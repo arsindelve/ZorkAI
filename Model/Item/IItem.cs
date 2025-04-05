@@ -89,4 +89,11 @@ public interface IItem : IInteractionTarget
     /// <param name="context">The context in which the interaction occurs.</param>
     /// <returns>An InteractionResult indicating the result of the interaction.</returns>
     Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context);
+
+    /// <summary>
+    /// Represents an action that will be triggered when the item is taken.
+    /// Typically, this allows for custom behaviors or effects to be executed in the context
+    /// of the game whenever the item is picked up by the adventurer.
+    /// </summary>
+    Action<IContext>? OnBeingTakenCallback { get; set; }
 }
