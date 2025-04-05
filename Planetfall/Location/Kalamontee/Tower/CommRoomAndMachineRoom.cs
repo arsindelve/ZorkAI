@@ -3,7 +3,7 @@ using Model.AIGeneration;
 
 namespace Planetfall.Location.Kalamontee.Tower;
 
-internal class CommRoom : LocationWithNoStartingItems
+internal class CommRoomAndMachineRoom : LocationWithNoStartingItems
 {
     private const string FixedDescription =
         " A screen on the console displays a message. Next to the screen is a flashing sign which " +

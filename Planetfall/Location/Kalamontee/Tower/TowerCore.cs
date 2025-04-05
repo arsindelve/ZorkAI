@@ -13,7 +13,7 @@ internal class TowerCore : LocationWithNoStartingItems
             { Direction.SW, Go<ObservationDeck>() },
             { Direction.N, Go<UpperElevator>() },
             { Direction.Up, Go<Helipad>() },
-            { Direction.NE, Go<CommRoom>() }
+            { Direction.NE, Go<CommRoomAndMachineRoom>() }
         };
     }
 

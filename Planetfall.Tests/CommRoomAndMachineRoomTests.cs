@@ -4,7 +4,7 @@ using Planetfall.Location.Kalamontee.Mech;
 
 namespace Planetfall.Tests;
 
-public class CommRoomTests : EngineTestsBase
+public class CommRoomAndMachineRoomTests : EngineTestsBase
 {
     [Test]
     public async Task PutFlaskUnderSpout_Success()
@@ -19,6 +19,33 @@ public class CommRoomTests : EngineTestsBase
         GetLocation<MachineShop>().FlaskUnderSpout.Should().BeTrue();
         target.Context.HasItem<Flask>().Should().BeFalse();
         GetLocation<MachineShop>().HasItem<Flask>().Should().BeTrue();
+    }
+    
+    [Test]
+    public async Task PutFlaskUnderSpout_Look()
+    {
+        var target = GetTarget();
+        Take<Flask>();
+        StartHere<MachineShop>();
+        
+        await target.GetResponse("put flask under spout");
+        var response = await target.GetResponse("look");
+
+        GetLocation<MachineShop>().FlaskUnderSpout.Should().BeTrue();
+        response.Should().Contain("spout. Sitting under the spout is a glass flask. The");
+    }
+    
+    [Test]
+    public async Task Look()
+    {
+        var target = GetTarget();
+        Take<Flask>();
+        StartHere<MachineShop>();
+        
+        var response = await target.GetResponse("look");
+
+        GetLocation<MachineShop>().FlaskUnderSpout.Should().BeFalse();
+        response.Should().NotContain("spout. Sitting under the spout is a glass flask. The");
     }
 
     [Test]
