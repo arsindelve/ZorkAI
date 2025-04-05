@@ -73,7 +73,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         IContext context, IGenerationClient client)
     {
         var result = await GetItemsToTake(context,
-            new SimpleIntent { OriginalInput = action.Message, Verb = "take", Noun = string.Empty });
+            new SimpleIntent { OriginalInput = action.Message, Verb = "take", Noun = action.Noun});
 
         if (result is null or NoNounMatchInteractionResult)
         {
@@ -84,12 +84,12 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
 
         return (result, result.InteractionMessage);
     }
-    
+
     public async Task<(InteractionResult? resultObject, string? ResultMessage)> Process(DropIntent action,
         IContext context, IGenerationClient client)
     {
         var result = await GetItemsToDrop(context,
-            new SimpleIntent { OriginalInput = action.Message, Verb = "drop", Noun = string.Empty });
+            new SimpleIntent { OriginalInput = action.Message, Verb = "drop", Noun = action.Noun });
 
         if (result is null or NoNounMatchInteractionResult)
         {
@@ -109,13 +109,22 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         var items = await _itemParser.GetListOfItemsToDrop(action.OriginalInput,
             context.ItemListDescription(string.Empty + Environment.NewLine, null));
 
+        // The parser did not see anything in the inventory that seemed like what we asked for
         if (!items.Any())
-            return new NoNounMatchInteractionResult();
+        {
+            // There is still a chance there is something for us to drop. This can happen when the parser is not 
+            // smart enough to match the noun to the item description. An example of this is the "magnet" which is 
+            // (deliberately, as a puzzle) described as "a metal bar, curved into a U-shape" which the parser does not
+            // understand is a magnet. So as a final attempt, let's see if there is a direct noun match.  
+            var specificItem = Repository.GetItem(action.Noun);
+            return specificItem is not null ? DropIt(context, specificItem) : new NoNounMatchInteractionResult();
+        }
 
         if (items.Length == 1)
             return DropIt(context, Repository.GetItem(items[0]));
 
-        return new PositiveInteractionResult(DropEverythingProcessor.DropAll(context,  items.Select(Repository.GetItem).ToList()));
+        return new PositiveInteractionResult(DropEverythingProcessor.DropAll(context,
+            items.Select(Repository.GetItem).ToList()));
     }
 
     private async Task<InteractionResult?> GetItemsToTake(IContext context, SimpleIntent action)
@@ -126,8 +135,16 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         var items = await _itemParser.GetListOfItemsToTake(action.OriginalInput,
             context.CurrentLocation.GetDescriptionForGeneration(context));
 
+        // The parser did not see anything in the room description that seemed like what we asked for
         if (!items.Any())
-            return new NoNounMatchInteractionResult();
+        {
+            // There is still a chance there is something for us to pick up. This can happen when the parser is not 
+            // smart enough to match the noun to the item description. An example of this is the "magnet" which is 
+            // (deliberately, as a puzzle) described as "a metal bar, curved into a U-shape" which the parser does not
+            // understand is a magnet. So as a final attempt, let's see if there is a direct noun match.  
+            var specificItem = Repository.GetItem(action.Noun);
+            return specificItem is not null ? TakeIt(context, specificItem) : new NoNounMatchInteractionResult();
+        }
 
         if (items.Length == 1)
             return TakeIt(context, Repository.GetItem(items[0]));

@@ -49,7 +49,7 @@ public static class ParsingHelper
 
         4. If there are two nouns, in separate <preposition> tags outside any other tags, put the preposition which connects the nouns. Otherwise, omit these tags.
 
-        5. If the sentence expresses a desire to move in a certain direction or fo a certain way based on their current location, put in <direction> tags the exact word from this list which 
+        5. If the sentence expresses a desire to move in a certain direction or go a certain way based on their current location, put in <direction> tags the exact word from this list which 
         best describes where they want to go: "in, out, enter, exit, up, down, east, west, north, south, north-west, north-east, south-west, or south-east." If the sentence includes a term like 
         'follow' or 'go towards' combined with a specific location described in the player's current environment, use the corresponding direction. If you cannot match any of these words, put "other."
 
@@ -97,7 +97,12 @@ public static class ParsingHelper
         if (intentTag != "take")
             return null;
        
-        return new TakeIntent { Message = response, OriginalInput = input};
+        return new TakeIntent
+        {
+            Message = response, 
+            OriginalInput = input, 
+            Noun = ExtractElementsByTag(response, "noun").FirstOrDefault()
+        };
     }
     
     private static DropIntent? DetermineDropIntent(string? response, string input)
@@ -109,7 +114,12 @@ public static class ParsingHelper
         if (intentTag != "drop")
             return null;
        
-        return new DropIntent { Message = response, OriginalInput = input};
+        return new DropIntent
+        {
+            Message = response, 
+            OriginalInput = input,
+            Noun = ExtractElementsByTag(response, "noun").FirstOrDefault()
+        };
     }
 
     private static EnterSubLocationIntent? DetermineBoardIntent(string? response)

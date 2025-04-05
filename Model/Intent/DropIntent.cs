@@ -12,4 +12,6 @@ namespace Model.Intent;
 public record DropIntent : IntentBase
 {
     public required string OriginalInput { get; init; }
+    
+    public string? Noun { get; init; }
 }

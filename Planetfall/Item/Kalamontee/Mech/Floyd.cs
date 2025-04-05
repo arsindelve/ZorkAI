@@ -191,11 +191,12 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         if (ItemBeingHeld != null)
         {
             // It ends up on the floor. 
-            item.CurrentLocation = CurrentLocation;
+            context.Drop(item);
             return new PositiveInteractionResult($"Floyd examines the {item.Name}, shrugs, and drops it.");
         }
         
         item.CurrentLocation = this;
+        context.RemoveItem(item);
         ItemBeingHeld = item;
         return new PositiveInteractionResult(FloydConstants.ThanksYouForGivingItem);
     }
