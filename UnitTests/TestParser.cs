@@ -90,6 +90,20 @@ public class TestParser : IntentParser
                 Verb = "press"
             });
         
+        if (input is "press black button")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "black button",
+                Verb = "press"
+            });
+        
+        if (input is "press gray button")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "gray button",
+                Verb = "press"
+            });
+        
         if (input is "press the one button")
             return Task.FromResult<IntentBase>(new SimpleIntent
             {
@@ -136,6 +150,20 @@ public class TestParser : IntentParser
             return Task.FromResult<IntentBase>(new SimpleIntent
             {
                 Noun = "brown button",
+                Verb = "press"
+            });
+        
+        if (input is "press round button")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "round button",
+                Verb = "press"
+            });
+        
+        if (input is "press square button")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "square button",
                 Verb = "press"
             });
         
@@ -244,6 +272,16 @@ public class TestParser : IntentParser
                 Preposition = "across",
                 Verb = "place",
                 OriginalInput = "place ladder across rift"
+            });
+        
+        if (input == "put flask under spout")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "flask",
+                NounTwo = "spout",
+                Preposition = "under",
+                Verb = "put",
+                OriginalInput = "put flask under spout"
             });
 
         if (input == "press button")

@@ -6,7 +6,9 @@ public class Flask : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
 
     public string ExaminationDescription =>
         "The flask has a wide mouth and looks large enough to hold one or two liters. It is made of glass, " +
-        "or perhaps some tough plastic.";
+        "or perhaps some tough plastic " + (string.IsNullOrEmpty(LiquidColor) ? "." : "and is filled with a milky white fluid. ");
+
+    public string? LiquidColor { get; set; }
 
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {

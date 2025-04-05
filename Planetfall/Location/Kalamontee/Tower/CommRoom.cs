@@ -5,9 +5,22 @@ namespace Planetfall.Location.Kalamontee.Tower;
 
 internal class CommRoom : LocationWithNoStartingItems
 {
+    private const string FixedDescription =
+        " A screen on the console displays a message. Next to the screen is a flashing sign which " +
+        "says \"Tranzmishun in pragres.\" Next to this console is an enunciator whose lights are all dark. " +
+        "On the console next to the enunciator panel is a funnel-shaped hole labelled \"Kuulint Sistum Manyuuwul Oovuriid.\"";
+
     public override string Name => "Comm Room";
 
-    [UsedImplicitly] public string CurrentColor { get; set; } = "Black";
+    [UsedImplicitly] public bool IsFixed { get; set; }
+
+    [UsedImplicitly] public string? CurrentColor { get; set; } = "Black";
+
+    private string BrokenDescription => "A screen on the console displays a message. Next to the screen " +
+                                        "is a flashing sign which says \"Malfunkshun in Sendeeng Kuulint Sistum.\" Next to this console " +
+                                        "is an enunciator. On the console next to the enunciator panel is a funnel-shaped hole " +
+                                        "labelled \"Kuulint Sistum Manyuuwul Oovuriid.\"" +
+                                        $"\n\nA {CurrentColor} colored light is flashing on the enunciator panel.";
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
@@ -43,10 +56,6 @@ internal class CommRoom : LocationWithNoStartingItems
             "thick cables lead up into the ceiling.\n\nThe console on the left side of the room is labelled " +
             "\"Reeseev Staashun.\" A bright red light, labelled \"Tranzmishun Reeseevd\", is blinking rapidly. " +
             "Next to the light is a glowing button marked \"Mesij Plaabak.\"\n\nThe console on the right side of " +
-            "the room is labelled \"Send Staashun.\" A screen on the console displays a message. Next to the screen " +
-            "is a flashing sign which says \"Malfunkshun in Sendeeng Kuulint Sistum.\" Next to this console " +
-            "is an enunciator. On the console next to the enunciator panel is a funnel-shaped hole " +
-            "labelled \"Kuulint Sistum Manyuuwul Oovuriid.\"" +
-            $"\n\nA {CurrentColor} colored light is flashing on the enunciator panel.";
+            "the room is labelled \"Send Staashun.\" " + (IsFixed ? FixedDescription : BrokenDescription);
     }
 }
