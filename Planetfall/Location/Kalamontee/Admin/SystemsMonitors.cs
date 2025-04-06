@@ -20,15 +20,14 @@ public class SystemsMonitors : LocationWithNoStartingItems
     public List<string> Busted { get; set; } =
     [
         "PLANATEREE DEFENS",
-        "REEAKTURZ",
         "PLANATEREE KORS KUNTROOL",
         "KUMUUNIKAASHUNZ",
         "PRAJEKT KUNTROOL"
     ];
 
-    private string Green => Fixed.SingleLineListWithAnd();
+    private string Green => Fixed.SingleLineListWithAndNoArticle();
     
-    private string Red => Busted.SingleLineListWithAnd();
+    private string Red => Busted.SingleLineListWithAndNoArticle();
 
     private string Monitors()
     {

@@ -18,7 +18,7 @@ internal class CommRoom : LocationWithNoStartingItems
 
     [UsedImplicitly] public bool IsFixed { get; set; }
 
-    [UsedImplicitly] public string? CurrentColor { get; set; } = "Black";
+    [UsedImplicitly] public string? CurrentColor { get; set; } = "black";
 
     private string BrokenDescription => "A screen on the console displays a message. Next to the screen " +
                                         "is a flashing sign which says \"Malfunkshun in Sendeeng Kuulint Sistum.\" Next to this console " +
@@ -57,7 +57,7 @@ internal class CommRoom : LocationWithNoStartingItems
         if (flaskColor != CurrentColor)
             return PermanentlyBroken();
 
-        if (CurrentColor == "Black")
+        if (CurrentColor == "black")
             return NextColor();
 
         return Fixed(context);
@@ -65,7 +65,7 @@ internal class CommRoom : LocationWithNoStartingItems
 
     private Task<InteractionResult?> NextColor()
     {
-        CurrentColor = "Gray";
+        CurrentColor = "gray";
         return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(
             "The liquid disappears into the hole. The lights on the enunciator panel blink rapidly " +
             "and all go off except one, a gray light."));

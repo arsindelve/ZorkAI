@@ -703,6 +703,16 @@ public class TestParser : IntentParser
                 Verb = "offer",
                 OriginalInput = "offer the cyclops the lunch"
             });
+        
+        if (input == "pour fluid into hole")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "fluid",
+                NounTwo = "hole",
+                Preposition = "into",
+                Verb = "pour",
+                OriginalInput = "pour fluid into hole"
+            });
 
         if (input == "give the lunch to the cyclops")
             return Task.FromResult<IntentBase>(new MultiNounIntent

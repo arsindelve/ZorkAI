@@ -1,6 +1,8 @@
 using FluentAssertions;
 using Planetfall.Item.Kalamontee.Mech;
+using Planetfall.Location.Kalamontee.Admin;
 using Planetfall.Location.Kalamontee.Mech;
+using Planetfall.Location.Kalamontee.Tower;
 
 namespace Planetfall.Tests;
 
@@ -211,5 +213,66 @@ public class CommRoomAndMachineRoomTests : EngineTestsBase
         var response = await target.GetResponse("empty flask");
         
         response.Should().Contain("There's nothing in the glass flask.");
+    }
+    
+    [Test]
+    public async Task PourLiquid_Black()
+    {
+        var target = GetTarget();
+        Take<Flask>();
+        StartHere<CommRoom>();
+        GetItem<Flask>().LiquidColor = "black";
+        
+        var response = await target.GetResponse("pour fluid into hole");
+        
+        response.Should().Contain("The liquid disappears into the hole.");
+        response.Should().Contain("and all go off except one, a gray light");
+        GetLocation<CommRoom>().CurrentColor.Should().Be("gray");
+        GetLocation<SystemsMonitors>().Fixed.Should().NotContain("KUMUUNIKAASHUNZ");
+        GetLocation<SystemsMonitors>().Busted.Should().Contain("KUMUUNIKAASHUNZ");
+        GetLocation<CommRoom>().IsFixed.Should().BeFalse();
+        GetLocation<CommRoom>().SystemIsCritical.Should().BeFalse();
+    }
+    
+    [Test]
+    public async Task PourLiquid_Red()
+    {
+        var target = GetTarget();
+        Take<Flask>();
+        StartHere<CommRoom>();
+        GetItem<Flask>().LiquidColor = "red";
+        
+        var response = await target.GetResponse("pour fluid into hole");
+        
+        response.Should().Contain("An alarm sounds briefly");
+        response.Should().Contain("the lights in the room dim and the send console shuts down");
+        GetLocation<CommRoom>().CurrentColor.Should().Be("black");
+        GetLocation<SystemsMonitors>().Fixed.Should().NotContain("KUMUUNIKAASHUNZ");
+        GetLocation<SystemsMonitors>().Busted.Should().Contain("KUMUUNIKAASHUNZ");
+        GetLocation<CommRoom>().IsFixed.Should().BeFalse();
+        GetLocation<CommRoom>().SystemIsCritical.Should().BeTrue();
+    }
+
+    
+    [Test]
+    public async Task PourLiquid_Gray()
+    {
+        var target = GetTarget();
+        Take<Flask>();
+        StartHere<CommRoom>();
+        GetItem<Flask>().LiquidColor = "gray";
+        GetLocation<CommRoom>().CurrentColor = "gray";
+        
+        var response = await target.GetResponse("pour fluid into hole");
+        
+        response.Should().Contain("The liquid disappears into the hole.");
+        response.Should().Contain("message is now being sent.");
+        GetLocation<CommRoom>().CurrentColor.Should().BeNull();
+        GetLocation<CommRoom>().IsFixed.Should().BeTrue();
+        GetLocation<CommRoom>().SystemIsCritical.Should().BeFalse();
+        GetLocation<SystemsMonitors>().Busted.Should().NotContain("KUMUUNIKAASHUNZ");
+        GetLocation<SystemsMonitors>().Fixed.Should().Contain("KUMUUNIKAASHUNZ");
+        target.Context.Score.Should().Be(6);
+        Console.WriteLine(GetLocation<SystemsMonitors>().GetDescriptionForGeneration(target.Context));
     }
 }
