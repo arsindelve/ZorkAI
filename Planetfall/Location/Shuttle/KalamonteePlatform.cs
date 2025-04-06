@@ -39,6 +39,11 @@ internal class KalamonteePlatform : LocationWithNoStartingItems
             }
         };
     }
+    
+    protected override void OnFirstTimeEnterLocation(IContext context)
+    {
+        context.AddPoints(4);
+    }
 
     protected override string GetContextBasedDescription(IContext context)
     {

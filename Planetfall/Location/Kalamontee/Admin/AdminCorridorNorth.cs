@@ -34,11 +34,12 @@ internal class AdminCorridorNorth : RiftLocationBase
 
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
+        string prepend = "";
         if (previousLocation is AdminCorridor)
-            return
+            prepend =
                 "You slowly make your way across the swaying ladder. You can see sharp, pointy rocks at the bottom of the rift, far below...\n\n";
 
-        return base.BeforeEnterLocation(context, previousLocation);
+        return prepend + base.BeforeEnterLocation(context, previousLocation);
     }
 
     protected override void OnFirstTimeEnterLocation(IContext context)

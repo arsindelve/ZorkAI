@@ -78,6 +78,17 @@ public static class Utilities
     }
 
     /// <summary>
+    /// Combines a list of nouns into a single string, separated by commas, and uses "and" before the last item.
+    /// Any articles are omitted from the resulting string.
+    /// </summary>
+    /// <param name="nouns">The list of nouns to combine into a single line.</param>
+    /// <returns>A single string representing the combined nouns, separated by commas, with "and" before the last item and no articles.</returns>
+    public static string SingleLineListWithAndNoArticle(this List<string> nouns)
+    {
+        return SingleLineList(nouns, "and", "");
+    }
+
+    /// <summary>
     /// Creates a single-line, human-readable string representation of a list of nouns, combining them with the word "or".
     /// </summary>
     /// <example>The brass lantern, the green lantern or the useless lantern</example>
@@ -90,7 +101,10 @@ public static class Utilities
 
     private static string SingleLineList(this List<string> nouns, string connector, string articles)
     {
-        var convertNouns = nouns.ConvertAll(noun => $"{articles} {noun}");
+        var convertNouns = !string.IsNullOrEmpty(articles) ? 
+            nouns.ConvertAll(noun => $"{articles} {noun}")  : 
+            nouns.ConvertAll(noun => $"{noun}");
+        
         var lastNoun = convertNouns.Last();
         convertNouns.Remove(lastNoun);
 
