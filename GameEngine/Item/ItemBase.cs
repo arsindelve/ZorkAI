@@ -226,4 +226,14 @@ public abstract class ItemBase : IItem
     {
         return null;
     }
+
+    /// <summary>
+    /// Checks if the item exists in the current location and is not currently in the player's inventory.
+    /// </summary>
+    /// <param name="context">The context of the current game location and state.</param>
+    /// <returns>True if the item is in the current location but not in the player's inventory; otherwise, false.</returns>
+    public bool IsHereButNotInInventory(IContext context)
+    {
+        return CurrentLocation == context.CurrentLocation && !context.Items.Contains(this);
+    }
 }
