@@ -13,18 +13,13 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     // This is the thing that he is holding, literally in his hand. 
     [UsedImplicitly] public IItem? ItemBeingHeld { get; set; }
 
-    [UsedImplicitly][JsonIgnore] public IRandomChooser Chooser { get; set; } = new RandomChooser();
+    [UsedImplicitly] [JsonIgnore] public IRandomChooser Chooser { get; set; } = new RandomChooser();
 
     [UsedImplicitly] public bool IsOn { get; set; }
 
     [UsedImplicitly] public bool IsOffWandering { get; set; }
 
     [UsedImplicitly] public bool HasEverBeenOn { get; set; }
-
-    private bool IsInTheRoom(IContext context)
-    {
-        return CurrentLocation == context.CurrentLocation;
-    }
 
     // When you initially turn on Floyd, nothing happens for 3 turns. This delay never happens
     // again if you turn him on/off another time. 
@@ -66,6 +61,11 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         return new PositiveInteractionResult(FloydConstants.ThanksYouForGivingItem);
     }
 
+    private bool IsInTheRoom(IContext context)
+    {
+        return CurrentLocation == context.CurrentLocation;
+    }
+
     public override string GenericDescription(ILocation? currentLocation)
     {
         return HasEverBeenOn
@@ -101,8 +101,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
             var result = await ItemBeingHeld.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
             if (result is not null)
                 return result;
-        }            
-            
+        }
+
         if (IsOn && action.Match(["play"], NounsForMatching))
             return new PositiveInteractionResult(FloydConstants.Play);
 
@@ -146,7 +146,10 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
             return new PositiveInteractionResult("He's already been activated. ");
 
         context.RegisterActor(this);
-
+        
+        if (!HasEverBeenOn)
+            context.AddPoints(2);
+        
         if (TurnOnCountdown > 0)
             return new PositiveInteractionResult("Nothing happens. ");
 
@@ -237,9 +240,9 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     /// <returns></returns>
     internal string? OffersLowerElevatorCard(IContext context)
     {
-        if (!IsInTheRoom(context) || 
-            !IsOn || 
-            !Items.Any() || 
+        if (!IsInTheRoom(context) ||
+            !IsOn ||
+            !Items.Any() ||
             !Chooser.RollDiceSuccess(3))
             return null;
 
