@@ -252,7 +252,6 @@ public class CommRoomAndMachineRoomTests : EngineTestsBase
         GetLocation<CommRoom>().IsFixed.Should().BeFalse();
         GetLocation<CommRoom>().SystemIsCritical.Should().BeTrue();
     }
-
     
     [Test]
     public async Task PourLiquid_Gray()
