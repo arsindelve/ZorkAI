@@ -21,7 +21,7 @@ public class TestParser : IntentParser
         _verbs =
         [
             "take", "drop", "open", "close", "examine", "look", "eat", "press", "remove", "play",
-            "deactivate", "type", "key", "punch", "push", "pull", "burn", "set", "search",
+            "deactivate", "type", "key", "punch", "push", "pull", "burn", "set", "search", "empty",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind", "kick",
             "lower", "raise", "get", "inflate", "leave", "unlock", "lock", "climb", "extend"

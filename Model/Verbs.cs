@@ -7,7 +7,7 @@ public static class Verbs
 {
     public static readonly string[] FixVerbs = ["fix", "repair", "seal", "patch", "stop", "block", "mend", "plug"];
     public static readonly string[] ApplyVerbs = ["use", "apply", "stick", "put", "place", "spread", "smear", "press"];
-    public static readonly string[] PushVerbs =  ["push", "press", "activate", "toggle"];
+    public static readonly string[] PushVerbs =  ["push", "press", "activate", "toggle", "click"];
     public static readonly string[] TypeVerbs = ["type", "punch", "key", "press"];
     public static readonly string[] MoveVerbs = ["move", "go", "walk", "run", "travel", "proceed", "head", "stroll", "escape"];
     public static readonly string[] KillVerbs = ["kill", "attack", "defeat", "destroy", "murder", "stab", "punch"];

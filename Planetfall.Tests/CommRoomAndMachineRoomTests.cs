@@ -184,4 +184,32 @@ public class CommRoomAndMachineRoomTests : EngineTestsBase
         
         response.Should().Contain("and is filled with a milky");
     }
+    
+    [Test]
+    public async Task EmptyFlask()
+    {
+        var target = GetTarget();
+        GetItem<Flask>().CurrentLocation = GetLocation<MachineShop>();
+        Take<Flask>();
+        StartHere<MachineShop>();
+        
+        await target.GetResponse("put flask under spout");
+        await target.GetResponse("press yellow button");
+        var response = await target.GetResponse("empty flask");
+        
+        response.Should().Contain("The glass flask is now empty");
+    }
+    
+    [Test]
+    public async Task EmptyFlask_NothingThere()
+    {
+        var target = GetTarget();
+        GetItem<Flask>().CurrentLocation = GetLocation<MachineShop>();
+        Take<Flask>();
+        StartHere<MachineShop>();
+        
+        var response = await target.GetResponse("empty flask");
+        
+        response.Should().Contain("There's nothing in the glass flask.");
+    }
 }
