@@ -18,6 +18,6 @@ public class Water : ItemBase, IAmADrink
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return "A quantity of water";
+        return "At the bottom of the bottle is a small quantity of medicine. ";
     }
 }
