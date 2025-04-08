@@ -9,7 +9,7 @@ internal class RadiationLockEast : LocationBase
 
     public override void Init()
     {
-        StartWithItem<RadiationLockOuterDoor>();
+        StartWithItem<RadiationLockInnerDoor>();
     }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
