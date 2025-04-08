@@ -136,7 +136,8 @@ public abstract class ItemBase : IItem
     /// The action receives the current context in which the item is taken
     /// and can perform any necessary logic or side effects related to the event.
     /// </summary>
-    public Action<IContext>? OnBeingTakenCallback { get; set; }
+    /// <remarks>This callback is a string, and we will need to use reflection to invoke it because delegates are not serializable. </remarks>
+    public string? OnBeingTakenCallback { get; set; }
 
     /// <summary>
     ///     Gets the description when the item has never been picked up.
