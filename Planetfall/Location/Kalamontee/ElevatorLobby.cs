@@ -58,7 +58,7 @@ internal class ElevatorLobby : LocationBase
 
 
         if (action.Match(Verbs.PushVerbs, ["red button", "red elevator", "red elevator button", "red"]))
-            return GetLocation<LowerElevator>().SummonElevator(" The red door begins vibrating a bit. ", context);
+            return GetLocation<LowerElevator>().SummonElevator("The red door begins vibrating a bit. ", context);
 
         if (action.Match(Verbs.PushVerbs, ["blue button", "blue elevator", "blue elevator button"]))
             return GetLocation<UpperElevator>()

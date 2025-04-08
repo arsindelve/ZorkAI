@@ -23,7 +23,7 @@ internal class Infirmary : LocationBase
             return Task.FromResult<InteractionResult>(new PositiveInteractionResult(
                 "The equipment here is so complicated that you couldn't even begin to figure out how to operate it. "));
 
-        if (action.Match(["examine"], ["shelves"]))
+        if (action.Match(["examine"], ["shelves", "shelf"]))
             return Task.FromResult<InteractionResult>(new PositiveInteractionResult(
                 "The shelves are pretty dusty. "));
 

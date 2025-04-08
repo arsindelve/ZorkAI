@@ -14,6 +14,11 @@ internal class Medicine : ItemBase, IAmADrink
 
     public override string GenericDescription(ILocation? currentLocation)
     {
+        return "A quantity of medicine";
+    }
+
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
         return "At the bottom of the bottle is a small quantity of medicine. ";
     }
 }

@@ -3,8 +3,10 @@ using System.Text;
 using DynamoDb;
 using FluentAssertions;
 using GameEngine;
+using JetBrains.Annotations;
 using Model.Interface;
 using Moq;
+using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Mech;
 
 namespace Planetfall.Tests.Walkthrough;
@@ -33,6 +35,12 @@ public abstract class WalkthroughTestBase : EngineTestsBase
 
         // Invoke the method on the current instance
         method.Invoke(this, null);
+    }
+    
+    [UsedImplicitly]
+    public void ResetTime()
+    {
+        Repository.GetItem<Chronometer>().CurrentTime = 2000;
     }
 
     protected async Task Do(string input, params string[] outputs)

@@ -66,17 +66,17 @@ internal class RadiationLab : LocationBase, ITurnBasedActor
         switch (SickTurnCounter)
         {
             case 5:
-                return Task.FromResult("You suddenly feel sick and dizzy. ");
+                return Task.FromResult("\n\nYou suddenly feel sick and dizzy. ");
 
             case 6:
                 return Task.FromResult(
-                    "You feel incredibly nauseous and begin vomiting. Also, all your hair has fallen out. ");
+                    "\n\nYou feel incredibly nauseous and begin vomiting. Also, all your hair has fallen out. ");
 
             case 7:
                 context.RemoveActor(this);
 
                 return Task.FromResult(new DeathProcessor()
-                    .Process("It seems you have picked up a bad case of radiation poisoning. ", context)
+                    .Process("\n\nIt seems you have picked up a bad case of radiation poisoning. ", context)
                     .InteractionMessage);
         }
 

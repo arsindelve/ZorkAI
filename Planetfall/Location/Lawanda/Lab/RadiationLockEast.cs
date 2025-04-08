@@ -22,7 +22,7 @@ internal class RadiationLockEast : LocationBase
                 {
                     Location = GetLocation<RadiationLab>(),
                     CustomFailureMessage = "The lab door is closed. ",
-                    CanGo = _ => GetItem<RadiationLockOuterDoor>().IsOpen
+                    CanGo = _ => GetItem<RadiationLockInnerDoor>().IsOpen
                 }
             }
         };
