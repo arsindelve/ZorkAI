@@ -20,7 +20,7 @@ public class RedSpool : SpoolBase
 
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {
-        return OnTheGroundDescription(currentLocation);
+        return "Lying on one of the beds is a small red spool. ";
     }
 
     public override string GenericDescription(ILocation? currentLocation)

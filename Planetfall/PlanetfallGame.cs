@@ -35,10 +35,9 @@ public class PlanetfallGame : IInfocomGame
     // [16 hints left.] -> 4 points for entering the Tower Core.
     // [7 hints left.] -> 6 points for fixing the communications system.
     // [15 hints left.] -> 4 points for entering the Kalamontee Platform.
+    // [14 hints left.] -> 4 points for entering the Lawanda Platform.    
     
     // [20 hints left.] -> 2 points for firing the laser for the first time.
-    // [15 hints left.] -> 4 points for entering the Kalamontee Platform.
-    // [14 hints left.] -> 4 points for entering the Lawanda Platform.
     // [9 hints left.] -> 1 point for taking the miniaturization access card.
     // [8 hints left.] -> 2 points for Floyd's death.
     // [6 hints left.] -> 6 points for fixing the planetary defense system.

@@ -9,7 +9,8 @@ namespace Model.Interface;
 public interface ICanContainItems : IInteractionTarget
 {
     /// <summary>
-    ///     When true, we can see the contents of the container even when it's closed. A 
+    ///     When true, we can see the contents of the container even when it's closed. Examples are a glass bottle,
+    /// or a basket with no lid. 
     /// </summary>
     bool IsTransparent { get; }
 

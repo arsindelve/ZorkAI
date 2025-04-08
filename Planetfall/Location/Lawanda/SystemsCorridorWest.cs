@@ -12,7 +12,8 @@ internal class SystemsCorridorWest : LocationWithNoStartingItems
         {
             { Direction.E, Go<SystemsCorridor>() },
             { Direction.SW, Go<Fork>() },
-            { Direction.N, Go<RepairRoom>() }
+            { Direction.N, Go<RepairRoom>() },
+            { Direction.NW, Go<Infirmary>() }
         };
     }
 
