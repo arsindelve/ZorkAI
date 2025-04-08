@@ -95,5 +95,6 @@ public interface IItem : IInteractionTarget
     /// Typically, this allows for custom behaviors or effects to be executed in the context
     /// of the game whenever the item is picked up by the adventurer.
     /// </summary>
-    Action<IContext>? OnBeingTakenCallback { get; set; }
+    /// <remarks>This callback is a string, and we will need to use reflection to invoke it because delegates are not serializable. </remarks>
+    string? OnBeingTakenCallback { get; set; }
 }

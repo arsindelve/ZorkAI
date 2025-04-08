@@ -56,7 +56,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         item.CurrentLocation = this;
         context.RemoveItem(item);
         ItemBeingHeld = item;
-        item.OnBeingTakenCallback = _ => ItemBeingHeld = null;
+        ItemBeingHeld.OnBeingTakenCallback = "Floyd,BeingTakenCallback";
 
         return new PositiveInteractionResult(FloydConstants.ThanksYouForGivingItem);
     }
@@ -245,13 +245,20 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
             !Items.Any() ||
             !Chooser.RollDiceSuccess(3))
             return null;
-
+ 
         // Remove it from inside, put it in his hand. 
         Items.Clear();
         ItemBeingHeld = Repository.GetItem<LowerElevatorAccessCard>();
-
+        ItemBeingHeld.OnBeingTakenCallback = "Floyd,BeingTakenCallback";
+        
         return "\n\nFloyd claps his hands with excitement. \"Those cards are really neat, huh? Floyd has one for " +
                "himself--see?\" He reaches behind one of his panels and retrieves a magnetic-striped card. He waves it exuberantly in the air. ";
+    }
+    
+    [UsedImplicitly]
+    public void BeingTakenCallback()
+    {
+        ItemBeingHeld = null;
     }
 }
 

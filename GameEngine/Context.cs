@@ -1,3 +1,4 @@
+using System.Reflection;
 using GameEngine.Item;
 using Model.AIGeneration;
 using Model.Interface;
@@ -72,14 +73,13 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public int Moves { get; set; }
 
-    public List<TItem> GetItems<TItem>() 
+    public List<TItem> GetItems<TItem>()
     {
         return Items.OfType<TItem>().ToList();
     }
 
-    [UsedImplicitly]
-    public string SystemPromptAddendum { get; set; } = "";
-    
+    [UsedImplicitly] public string SystemPromptAddendum { get; set; } = "";
+
     // ReSharper disable once MemberCanBePrivate.Global
     public int Score { get; set; }
 
@@ -292,7 +292,11 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         if (item is IGivePointsWhenFirstPickedUp up && !item.HasEverBeenPickedUp) AddPoints(up.NumberOfPoints);
 
         Items.Add(item);
-        item.OnBeingTakenCallback?.Invoke(this);
+
+        if (!string.IsNullOrEmpty(item.OnBeingTakenCallback))
+            // Get the type of the item
+            InvokeCallbackOnItemTaken(item);
+
         var previousOwner = item.CurrentLocation;
         previousOwner?.RemoveItem(item);
         item.CurrentLocation = this;
@@ -333,7 +337,8 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     /// <param name="action">The simple interaction that the context needs to respond to.</param>
     /// <param name="client"></param>
-    public async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
+    public async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IGenerationClient client,
+        IItemProcessorFactory itemProcessorFactory)
     {
         InteractionResult? result = null;
 
@@ -374,6 +379,41 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     public virtual string? ProcessEndOfTurn()
     {
         return null;
+    }
+
+    private static void InvokeCallbackOnItemTaken(IItem item)
+    {
+        if (!string.IsNullOrEmpty(item.OnBeingTakenCallback))
+        {
+            // Split the callback string into class name and method name (example: "ClassName,MethodName")
+            var callbackParts = item.OnBeingTakenCallback.Split(',');
+
+            if (callbackParts.Length != 2)
+                throw new InvalidOperationException(
+                    $"Invalid format for OnBeingTakenCallback: '{item.OnBeingTakenCallback}'. Expected format: 'ClassName,MethodName'.");
+
+            string className = callbackParts[0].Trim(); // Extract the class name
+            string methodName = callbackParts[1].Trim(); // Extract the method name
+
+            // Get an instance of the target class using the Repository
+            var targetInstance = Repository.GetItem(className);
+            if (targetInstance == null)
+                throw new InvalidOperationException(
+                    $"Failed to retrieve an instance of '{className}' from the repository.");
+
+            // Get the type of the target instance
+            var targetType = targetInstance.GetType();
+
+            // Find the method on the target type
+            var method = targetType.GetMethod(methodName,
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            if (method == null)
+                throw new InvalidOperationException(
+                    $"Method '{methodName}' not found on type '{targetType.FullName}'.");
+
+            // Invoke the method (assuming no parameters for simplicity)
+            method.Invoke(targetInstance, null);
+        }
     }
 
     public bool HasMatchingNounAndAdjective(string? noun, bool lookInsideContainers = true)
