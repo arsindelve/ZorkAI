@@ -19,9 +19,11 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     private bool WearingWatch =>
         Items.Contains(Repository.GetItem<Chronometer>()) && Repository.GetItem<Chronometer>().BeingWorn;
 
-    public HungerLevel Hunger { get; set; } = HungerLevel.WellFed;
+    [UsedImplicitly] public HungerLevel Hunger { get; set; } = HungerLevel.WellFed;
 
-    public TiredLevel Tired { get; set; } = TiredLevel.WellRested;
+    [UsedImplicitly] public TiredLevel Tired { get; set; } = TiredLevel.WellRested;
+    
+    [UsedImplicitly] public bool HasTakenExperimentalMedicine { get; set; }
 
     public string SicknessDescription => ((SicknessLevel)Day).GetDescription();
     

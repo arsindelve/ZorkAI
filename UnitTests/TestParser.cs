@@ -32,9 +32,9 @@ public class TestParser : IntentParser
 
         IEnumerable<string> specialNouns =
         [
-            "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "zero", "dial",
-            "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "dude", "hello", "17", "seventeen", "slot", "lever",
-            "tree", "branches", "house", "lettering", "mirror", "match", "yellow button", "red button", "button",
+            "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "zero", "dial", "shelves",
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "dude", "hello", "17", "seventeen", "slot", "lever", "label",
+            "tree", "branches", "house", "lettering", "mirror", "match", "yellow button", "red button", "button", "medicine",
             "blue button", "brown button", "bolt", "bubble", "bodies", "gate", "lid", "switch", "slag", "engravings"
         ];
 

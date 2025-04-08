@@ -122,7 +122,7 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
         GetItem<TDoor>().IsOpen = true;
         context.RemoveActor(this);
         InLobby = true;
-        return Task.FromResult($"The door at the {EntranceDirection} end of the room slides open. ");
+        return Task.FromResult($"\n\nThe door at the {EntranceDirection} end of the room slides open. ");
     }
 
     private Task<string> ElevatorIsEnabled(IContext context)

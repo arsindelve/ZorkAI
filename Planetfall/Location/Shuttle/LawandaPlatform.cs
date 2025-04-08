@@ -41,6 +41,11 @@ internal class LawandaPlatform : LocationWithNoStartingItems
         };
     }
 
+    protected override void OnFirstTimeEnterLocation(IContext context)
+    {
+        context.AddPoints(4);
+    }
+    
     protected override string GetContextBasedDescription(IContext context)
     {
         // I do not think it is possible, in the game, for both shuttles to be gone from here 
