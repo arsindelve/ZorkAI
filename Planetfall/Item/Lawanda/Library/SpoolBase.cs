@@ -13,4 +13,6 @@ public abstract class SpoolBase : ItemBase, ICanBeTakenAndDropped, ICanBeExamine
     public abstract string ExaminationDescription { get; }
 
     public abstract string OnTheGroundDescription(ILocation currentLocation);
+
+    public override int Size => 1;
 }

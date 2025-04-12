@@ -853,6 +853,27 @@ public class TestParser : IntentParser
                 Verb = "apply",
                 OriginalInput = "apply the gunk to the water"
             });
+        
+                
+        if (input == "put red spool in reader")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "red spool",
+                NounTwo = "reader",
+                Preposition = "in",
+                Verb = "put",
+                OriginalInput = "put red spool in reader"
+            });
+        
+        if (input == "put green spool in reader")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "green spool",
+                NounTwo = "reader",
+                Preposition = "in",
+                Verb = "put",
+                OriginalInput = "put green spool in reader"
+            });
 
         if (input?.StartsWith("put") ?? false)
         {
