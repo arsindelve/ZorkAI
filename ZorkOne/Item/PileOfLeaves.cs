@@ -21,7 +21,7 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
         return OnTheGroundDescription(currentLocation);
     }
 
-    public override string OnBeingTaken(IContext context)
+    public override string OnBeingTaken(IContext context, ICanContainItems? previousLocation)
     {
         Repository.GetLocation<Clearing>().ItemPlacedHere(Repository.GetItem<Grating>());
         return "In disturbing the pile of leaves, a grating is revealed. ";
@@ -66,7 +66,7 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
             var result = "";
 
             if (!HasEverBeenPickedUp)
-                result += OnBeingTaken(context) + Environment.NewLine;
+                result += OnBeingTaken(context, null) + Environment.NewLine;
 
             Repository.DestroyItem<PileOfLeaves>();
             result += "The leaves burn, and so do you. ";

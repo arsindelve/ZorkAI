@@ -1,11 +1,13 @@
 namespace Planetfall.Item.Lawanda.Library;
 
-public class SpoolReader : ContainerBase, ICanBeExamined, ICanBeTakenAndDropped, ICanContainItems
+public class SpoolReader : ContainerBase, ICanBeExamined, ICanBeTakenAndDropped, ICanContainItems, ICanBeRead
 {
-    public override string[] NounsForMatching => ["spool reader", "reader"];
+    public override string[] NounsForMatching => ["spool reader", "reader", "screen"];
 
-    public string ExaminationDescription =>
-        "The machine has a small screen, and below that, a small circular opening. The screen is currently blank. ";
+    public string ExaminationDescription => "The machine has a small screen, and below that, a small circular opening. " + (Items.Any()
+        ?  "The screen is currently displaying some information: " +
+          ReadDescription
+        : "The screen is currently blank. ");
     
     public string OnTheGroundDescription(ILocation currentLocation)
     {
@@ -38,4 +40,8 @@ public class SpoolReader : ContainerBase, ICanBeExamined, ICanBeTakenAndDropped,
     public override void Init()
     {
     }
+
+    public string ReadDescription => Items.OfType<SpoolBase>().Any()
+        ? Items.OfType<SpoolBase>().Single().Contents
+        : "The screen is blank.";
 }

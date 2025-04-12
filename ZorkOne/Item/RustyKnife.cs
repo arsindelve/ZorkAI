@@ -17,11 +17,11 @@ public class RustyKnife : ItemBase, ICanBeTakenAndDropped, IWeapon, IAmPointyAnd
         return "Beside the skeleton is a rusty knife. ";
     }
 
-    public override string? OnBeingTaken(IContext context)
+    public override string? OnBeingTaken(IContext context, ICanContainItems? previousLocation)
     {
         return context.HasItem<Sword>()
             ? "As you touch the rusty knife, your sword gives a single pulse of blinding blue light. "
-            : base.OnBeingTaken(context);
+            : base.OnBeingTaken(context, previousLocation);
     }
 
     public override string GenericDescription(ILocation? currentLocation)

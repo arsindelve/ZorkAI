@@ -69,6 +69,35 @@ public class SpoolReaderTests : EngineTestsBase
     }
     
     [Test]
+    public async Task PutIn_Examine()
+    {
+        var target = GetTarget();
+        StartHere<Library>();
+        Take<GreenSpool>();
+        
+        await target.GetResponse("put spool in reader");
+        var response = await target.GetResponse("examine reader");
+        
+        response.Should().Contain("The screen is currently displaying some information:");
+        response.Should().Contain("The rest is all very technical");
+    }
+    
+    [Test]
+    public async Task PutIn_Reader()
+    {
+        var target = GetTarget();
+        StartHere<Library>();
+        Take<GreenSpool>();
+        
+        await target.GetResponse("put spool in reader");
+        var response = await target.GetResponse("read reader");
+        
+        response.Should().Contain("Oonlee peepul wix propur traaneeng shud piilot");
+        response.Should().Contain("The rest is all very technical");
+    }
+
+    
+    [Test]
     public async Task PutIn_Disambiguation()
     {
         var target = GetTarget();
@@ -95,5 +124,18 @@ public class SpoolReaderTests : EngineTestsBase
         var response = await target.GetResponse("put green spool in reader");
 
         response.Should().Contain("There's already a spool in the reader");
+    }
+    
+    [Test]
+    public async Task PutIn_TakeOut()
+    {
+        var target = GetTarget();
+        StartHere<Library>();
+        Take<GreenSpool>();
+        
+        await target.GetResponse("put green spool in reader");
+        var response = await target.GetResponse("take green spool");
+
+        response.Should().Contain("The screen goes blank as you take the spool");
     }
 }
