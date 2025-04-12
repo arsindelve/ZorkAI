@@ -23,10 +23,10 @@ public class Rope : ItemBase, ICanBeTakenAndDropped
         return "A large coil of rope is lying in the corner.";
     }
 
-    public override string? OnBeingTaken(IContext context)
+    public override string? OnBeingTaken(IContext context, ICanContainItems? previousLocation)
     {
         TiedToRailing = false;
-        return base.OnBeingTaken(context);
+        return base.OnBeingTaken(context, previousLocation);
     }
 
     public override string GenericDescription(ILocation? currentLocation)

@@ -25,5 +25,6 @@ public class Library : LocationBase
     public override void Init()
     {
         StartWithItem<GreenSpool>();
+        StartWithItem<SpoolReader>();
     }
 }

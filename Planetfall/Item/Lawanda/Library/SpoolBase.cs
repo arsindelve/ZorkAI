@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 namespace Planetfall.Item.Lawanda.Library;
 
 public abstract class SpoolBase : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
@@ -13,4 +15,14 @@ public abstract class SpoolBase : ItemBase, ICanBeTakenAndDropped, ICanBeExamine
     public abstract string ExaminationDescription { get; }
 
     public abstract string OnTheGroundDescription(ILocation currentLocation);
+
+    public override int Size => 1;
+
+    public override string? OnBeingTaken(IContext context, ICanContainItems? container)
+    {
+        if(container is SpoolReader)
+            return "The screen goes blank as you take the spool.";
+        
+        return base.OnBeingTaken(context, container);
+    }
 }

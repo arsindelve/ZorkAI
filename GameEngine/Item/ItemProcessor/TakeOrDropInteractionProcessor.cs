@@ -199,7 +199,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (castItem is not ICanBeTakenAndDropped takeItem)
             return new NoNounMatchInteractionResult();
 
-        var onTakenText = takeItem.OnBeingTaken(context);
+        var onTakenText = takeItem.OnBeingTaken(context, container);
         container?.OnItemRemovedFromHere(castItem, context);
 
         return new PositiveInteractionResult(
