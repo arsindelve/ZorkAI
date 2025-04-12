@@ -13,10 +13,10 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
 
     public override string[] NounsForMatching => ["lock", "padlock"];
 
-    public override string? OnBeingTaken(IContext context)
+    public override string? OnBeingTaken(IContext context, ICanContainItems? previousLocation)
     {
         AttachedToDoor = false;
-        return base.OnBeingTaken(context);
+        return base.OnBeingTaken(context, previousLocation);
     }
 
     public string OnTheGroundDescription(ILocation currentLocation)
