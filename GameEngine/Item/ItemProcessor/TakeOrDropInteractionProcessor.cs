@@ -73,7 +73,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         IContext context, IGenerationClient client)
     {
         var result = await GetItemsToTake(context,
-            new SimpleIntent { OriginalInput = action.Message, Verb = "take", Noun = action.Noun});
+            new SimpleIntent { OriginalInput = action.Message, Verb = "take", Noun = action.Noun });
 
         if (result is null or NoNounMatchInteractionResult)
         {
