@@ -83,11 +83,21 @@ internal class EscapePod : LocationBase, ITurnBasedActor
             case "sit":
             case "sit down":
             case "get in":
+            case "enter webbing":
+            case "get in webbing":
+            case "get in the webbing":
+            case "sit in the webbing":          
+            case "sit down in the webbing":
+            case "sit down in webbing":
                 var inMessage = Repository.GetItem<SafetyWeb>().GetIn(context);
                 return Task.FromResult<InteractionResult>(new PositiveInteractionResult(inMessage));
 
             case "stand":
             case "stand up":
+            case "exit webbing":
+            case "exit the webbing":
+            case "leave the webbing":
+            case "leave webbing":
                 var outMessage = Repository.GetItem<SafetyWeb>().GetOut(context);
                 return Task.FromResult<InteractionResult>(new PositiveInteractionResult(outMessage));
         }
@@ -315,13 +325,3 @@ internal class EscapePod : LocationBase, ITurnBasedActor
         StartWithItem<BulkheadDoor>();
     }
 }
-
-// NEXT: 
-//
-// Escape Pod, in the safety web
-// This is one of the Feinstein's primary escape pods, for use in extreme emergencies. A mass of safety webbing, large enough to hold several dozen people, fills half the pod. The controls are entirely automated. The bulkhead leading out is closed.
-//     There is a towel here. (outside the safety web)
-// There is a survival kit here. (outside the safety web)
-//
-//     >examine kit
-// The survival kit is closed.
