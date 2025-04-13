@@ -1,3 +1,5 @@
+using Planetfall.Item.Kalamontee.Admin;
+
 namespace Planetfall.Item.Lawanda.Lab;
 
 public class LabUniform : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeExamined, IAmClothing
@@ -29,6 +31,7 @@ public class LabUniform : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICan
 
     public override void Init()
     {
-        
+        StartWithItemInside<TeleportationAccessCard>();
+        StartWithItemInside<PieceOfPaper>();
     }
 }

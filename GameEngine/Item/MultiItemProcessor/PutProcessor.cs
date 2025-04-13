@@ -42,10 +42,18 @@ public class PutProcessor : IMultiNounVerbProcessor
         return null;
     }
 
-    private static InteractionResult PutTheThingIntoTheThing(IItem item, ICanContainItems itemReceiver, IContext context)
+    private static InteractionResult PutTheThingIntoTheThing(IItem item, ICanContainItems itemReceiver,
+        IContext context)
     {
         if (item.CurrentLocation is not IContext)
             return new PositiveInteractionResult($"You don't have the {item.NounsForMatching.First()}. ");
+
+        // See if the container has a sub-component that will actually take the item. Example would
+        // be a pocket in a uniform. The pocket should get the item, not the uniform. 
+        itemReceiver = itemReceiver.ForwardingContainer ?? itemReceiver;
+
+        if (itemReceiver == item)
+            return new PositiveInteractionResult("You can't put something in itself. ");
 
         // Is the recipient open?
         if (itemReceiver is IOpenAndClose { IsOpen: false })

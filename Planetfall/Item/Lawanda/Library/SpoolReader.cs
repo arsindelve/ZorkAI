@@ -33,8 +33,6 @@ public class SpoolReader : ContainerBase, ICanBeExamined, ICanBeTakenAndDropped,
     
     public override Type[] CanOnlyHoldTheseTypes => [typeof(GreenSpool), typeof(RedSpool), typeof(BrownSpool)];
 
-    public override int Size => 1;
-
     public override string NoRoomMessage => "There's already a spool in the reader. ";
 
     public override void Init()
