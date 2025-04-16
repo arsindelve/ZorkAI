@@ -7,7 +7,7 @@ public class PatrolUniform : ContainerBase, ICanBeTakenAndDropped, ICanBeExamine
     // This just means that we can always see what is in the container. It does not open and close. 
     public override bool IsTransparent => true;
 
-    public override int Size => 1;
+    public override int Size => 3;
 
     // If the player tries to put something in this uniform, put it in the pocket instead.
     public override ICanContainItems ForwardingContainer => Repository.GetItem<PatrolUniformPocket>();
