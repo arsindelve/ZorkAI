@@ -8,7 +8,7 @@ import DialogType from "../model/DialogType.ts";
 
 export default function FunctionsMenu() {
 
-    const {setDialogToOpen} = useGameContext();
+    const {setDialogToOpen, copyGameTranscript} = useGameContext();
     const [anchorElement, setAnchorElement] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorElement);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -50,6 +50,10 @@ export default function FunctionsMenu() {
                     setDialogToOpen(DialogType.Save);
                     handleClose();
                 }}>Save your Game</MenuItem>
+                <MenuItem onClick={() => {
+                    copyGameTranscript();
+                    handleClose();
+                }}>Copy Game Transcript</MenuItem>
             </Menu>
         </div>
     );
