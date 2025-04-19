@@ -20,6 +20,8 @@ public abstract class LocationBase : ILocation, ICanContainItems
     {
         Items.Remove(item);
     }
+    
+    public virtual ICanContainItems? ForwardingContainer => null;
 
     /// <summary>
     /// Determines if there is an item within the location that matches the specified noun and adjective.

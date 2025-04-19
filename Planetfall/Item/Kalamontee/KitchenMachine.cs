@@ -41,7 +41,7 @@ internal class KitchenMachine : ContainerBase, ICanBeExamined
             {
                 if (canteen.Items.Any())
                 {
-                    var uniform = Repository.GetItem<Uniform>();
+                    var uniform = Repository.GetItem<PatrolUniform>();
                     var isOn = uniform is { CurrentLocation: IContext, BeingWorn: true };
                     return new PositiveInteractionResult(
                         $"The brown liquid splashes over the mouth of the already-filled canteen, creating a mess{(isOn ? " and staining your uniform" : "")}. ");

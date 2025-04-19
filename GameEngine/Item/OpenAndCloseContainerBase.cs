@@ -26,7 +26,7 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
         return "Closed.";
     }
 
-    public bool IsOpen { get; set; }
+    public virtual bool IsOpen { get; set; }
 
     public virtual string NowOpen(ILocation currentLocation)
     {

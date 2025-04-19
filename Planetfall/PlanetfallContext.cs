@@ -40,7 +40,7 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
         StartWithItem<Brush>(this);
         StartWithItem<Diary>(this);
         StartWithItem<Chronometer>(this);
-        StartWithItem<Uniform>(this);
+        StartWithItem<PatrolUniform>(this);
     }
 
     public override string? ProcessBeginningOfTurn()
