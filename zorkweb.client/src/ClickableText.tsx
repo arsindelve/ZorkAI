@@ -34,11 +34,29 @@ const ClickableText = forwardRef<HTMLDivElement & ClickableTextHandle, Clickable
                     // Get plain text content (for fallback)
                     const textContent = divRef.current.textContent || '';
 
-                    // Use the Clipboard API to write plain text if available
+                    // Try to use modern Clipboard API with HTML support
+                    if (navigator.clipboard && navigator.clipboard.write) {
+                        try {
+                            const clipboardItems = [
+                                new ClipboardItem({
+                                    'text/plain': new Blob([textContent], { type: 'text/plain' }),
+                                    'text/html': new Blob([htmlContent], { type: 'text/html' })
+                                })
+                            ];
+                            await navigator.clipboard.write(clipboardItems);
+                            return true;
+                        } catch (clipboardError) {
+                            console.warn('Clipboard API write failed, falling back to alternative method:', clipboardError);
+                            // Fall through to alternative methods
+                        }
+                    }
+
+                    // Fallback to writeText API for plain text if available
                     if (navigator.clipboard && navigator.clipboard.writeText) {
                         await navigator.clipboard.writeText(textContent);
                     }
 
+                    // Fallback for HTML content using legacy approach
                     // Create a temporary element to copy HTML content
                     const tempElem = document.createElement('div');
                     tempElem.innerHTML = htmlContent;
@@ -53,14 +71,17 @@ const ClickableText = forwardRef<HTMLDivElement & ClickableTextHandle, Clickable
                         selection.removeAllRanges();
                         selection.addRange(range);
 
-                        // Execute copy command to get HTML formatting
-                        document.execCommand('copy');
+                        // We've already tried the modern Clipboard API methods above
+                        // Instead of using the deprecated document.execCommand('copy'),
+                        // we'll inform the user that copying with formatting isn't supported in their browser
+                        console.warn('Clipboard API not fully supported in this browser. Formatted copy not available.');
 
                         // Clean up
                         selection.removeAllRanges();
                         document.body.removeChild(tempElem);
 
-                        return true;
+                        // Return true if we at least managed to copy plain text earlier
+                        return navigator.clipboard && navigator.clipboard.writeText !== undefined;
                     }
 
                     // Clean up if selection failed
@@ -73,7 +94,7 @@ const ClickableText = forwardRef<HTMLDivElement & ClickableTextHandle, Clickable
             }
         }));
 
-        const handleClick = (_: React.MouseEvent<HTMLDivElement>) => {
+        const handleClick = () => {
             const selection = window.getSelection();
 
             if (!selection || selection.rangeCount === 0) return;
