@@ -30,11 +30,19 @@ const ClickableText = forwardRef<HTMLDivElement, ClickableTextProps>(
             clonedRange.setStart(node, clonedRange.startOffset + 1);
 
             // Find ending point
+            // Keep extending until we find a space or reach the end of the text
             while (
                 clonedRange.toString().indexOf(" ") === -1 &&
-                clonedRange.toString().trim() !== ""
+                clonedRange.toString().trim() !== "" &&
+                clonedRange.endOffset < node.textContent!.length
                 ) {
                 clonedRange.setEnd(node, clonedRange.endOffset + 1);
+            }
+
+            // If we've reached the end of the text without finding a space,
+            // make sure we include the entire word
+            if (clonedRange.endOffset >= node.textContent!.length) {
+                clonedRange.setEnd(node, node.textContent!.length);
             }
 
             // Get the selected word
