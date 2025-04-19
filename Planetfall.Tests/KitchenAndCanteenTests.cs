@@ -122,8 +122,8 @@ public class KitchenAndCanteenTests : EngineTestsBase
     public async Task PressButton_Full_Uniform()
     {
         var target = GetTarget();
-        target.Context.ItemPlacedHere<Uniform>();
-        GetItem<Uniform>().BeingWorn = true;
+        target.Context.ItemPlacedHere<PatrolUniform>();
+        GetItem<PatrolUniform>().BeingWorn = true;
         StartHere<Kitchen>();
         GetItem<KitchenMachine>().ItemPlacedHere<Canteen>();
         GetItem<Canteen>().Items.Add(Repository.GetItem<ProteinLiquid>());

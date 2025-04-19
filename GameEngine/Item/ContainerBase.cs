@@ -14,13 +14,14 @@ public abstract class ContainerBase : ItemBase, ICanContainItems
 {
     protected virtual int SpaceForItems => 2;
 
-    [UsedImplicitly]
-    public List<IItem> Items { get; set; } = new();
+    [UsedImplicitly] public List<IItem> Items { get; set; } = new();
 
     public void RemoveItem(IItem item)
     {
         Items.Remove(item);
     }
+    
+    public virtual ICanContainItems? ForwardingContainer => null;
 
     public void ItemPlacedHere(IItem item)
     {
@@ -177,14 +178,15 @@ public abstract class ContainerBase : ItemBase, ICanContainItems
     /// <returns>A string representing the items contained in the specified container.</returns>
     public virtual string ItemListDescription(string name, ILocation? location)
     {
-        if (!Items.Any())
+        if (!Items.Any() && !string.IsNullOrEmpty(name))
             return $"The {name} is empty.";
 
         var sb = new StringBuilder();
 
         if (IsTransparent || this is IOpenAndClose { IsOpen: true })
         {
-            sb.AppendLine($"The {name} contains:");
+            if (!string.IsNullOrEmpty(name))
+                sb.AppendLine($"The {name} contains:");
             Items.ForEach(s => sb.AppendLine($"   {s.GenericDescription(location)}"));
         }
 

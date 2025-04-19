@@ -122,4 +122,13 @@ public interface ICanContainItems : IInteractionTarget
     /// <param name="item"></param>
     /// <param name="context"></param>
     void OnItemRemovedFromHere(IItem item, IContext context);
+    
+    /// <summary>
+    /// When not-null, when something is placed in this container, it will pass it along to another recipient, usually a sub-component.
+    /// Example: The uniform has a pocket. If you try to put something in the uniform, you're really putting it in the pocket. This
+    /// distinction can be important because the pocket might open and close (while the uniform does not) so the pocket needs
+    /// to be it's own thing. But we don't want the parser to do be so dumb that you cannot put something in the uniform, when
+    /// clearly we know the player meant "the pocket of the uniform".
+    /// </summary>
+    ICanContainItems? ForwardingContainer { get; }
 }
