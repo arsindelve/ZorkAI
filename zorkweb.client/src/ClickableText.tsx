@@ -1,12 +1,78 @@
-import React, {forwardRef, ReactNode} from "react";
+import React, {forwardRef, ReactNode, useImperativeHandle} from "react";
 
 interface ClickableTextProps extends React.HTMLAttributes<HTMLDivElement> {
     children: ReactNode;
     onWordClick?: (word: string) => void; // Callback to pass clicked word to parent
 }
 
-const ClickableText = forwardRef<HTMLDivElement, ClickableTextProps>(
+// Define the ref handle type
+export interface ClickableTextHandle {
+    copyToClipboardAsRTF: () => Promise<boolean>;
+    scrollToBottom: () => void;
+}
+
+const ClickableText = forwardRef<HTMLDivElement & ClickableTextHandle, ClickableTextProps>(
     ({children, onWordClick, ...props}, ref) => {
+        // Create a local ref to store the div element
+        const divRef = React.useRef<HTMLDivElement>(null);
+
+        // Expose methods to parent components
+        useImperativeHandle(ref, () => ({
+            ...divRef.current!,
+            scrollToBottom: () => {
+                if (divRef.current) {
+                    divRef.current.scrollTop = divRef.current.scrollHeight;
+                }
+            },
+            copyToClipboardAsRTF: async () => {
+                if (!divRef.current) return false;
+
+                try {
+                    // Get the HTML content of the div
+                    const htmlContent = divRef.current.innerHTML;
+
+                    // Get plain text content (for fallback)
+                    const textContent = divRef.current.textContent || '';
+
+                    // Use the Clipboard API to write plain text if available
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(textContent);
+                    }
+
+                    // Create a temporary element to copy HTML content
+                    const tempElem = document.createElement('div');
+                    tempElem.innerHTML = htmlContent;
+                    document.body.appendChild(tempElem);
+
+                    // Select the content
+                    const range = document.createRange();
+                    range.selectNodeContents(tempElem);
+
+                    const selection = window.getSelection();
+                    if (selection) {
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+
+                        // Execute copy command to get HTML formatting
+                        document.execCommand('copy');
+
+                        // Clean up
+                        selection.removeAllRanges();
+                        document.body.removeChild(tempElem);
+
+                        return true;
+                    }
+
+                    // Clean up if selection failed
+                    document.body.removeChild(tempElem);
+                    return false;
+                } catch (error) {
+                    console.error('Failed to copy text to clipboard:', error);
+                    return false;
+                }
+            }
+        }));
+
         const handleClick = (_: React.MouseEvent<HTMLDivElement>) => {
             const selection = window.getSelection();
 
@@ -54,7 +120,7 @@ const ClickableText = forwardRef<HTMLDivElement, ClickableTextProps>(
 
         return (
             <div
-                ref={ref}
+                ref={divRef}
                 className="clickable"
                 onClick={handleClick}
                 style={{cursor: "pointer"}}

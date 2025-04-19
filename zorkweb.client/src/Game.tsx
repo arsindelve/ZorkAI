@@ -10,7 +10,7 @@ import {SessionHandler} from "./SessionHandler.ts";
 import Server from './Server';
 import VerbsButton from "./components/VerbsButton.tsx";
 import CommandsButton from "./components/CommandsButton.tsx";
-import ClickableText from "./ClickableText.tsx";
+import ClickableText, { ClickableTextHandle } from "./ClickableText.tsx";
 import Compass from "./components/Compass.tsx";
 import {Mixpanel} from "./Mixpanel.ts";
 
@@ -37,7 +37,7 @@ function Game() {
     const sessionId = new SessionHandler();
     const server = new Server();
 
-    const gameContentElement = React.useRef<HTMLDivElement>(null);
+    const gameContentElement = React.useRef<HTMLDivElement & ClickableTextHandle>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);
 
     const {
@@ -47,7 +47,8 @@ function Game() {
         saveGameRequest,
         setSaveGameRequest,
         setRestoreGameRequest,
-        restoreGameRequest
+        restoreGameRequest,
+        setCopyGameTranscript
     } = useGameContext();
 
     function focusOnPlayerInput() {
@@ -72,7 +73,7 @@ function Game() {
         }
         focusOnPlayerInput();
     }, [saveGameRequest]);
-    
+
     // Restore a saved game
     useEffect(() => {
         if (!restoreGameRequest)
@@ -88,7 +89,7 @@ function Game() {
     // Scroll to the bottom of the container after we add text. 
     useEffect(() => {
         if (gameContentElement.current) {
-            gameContentElement.current.scrollTop = gameContentElement.current.scrollHeight;
+            gameContentElement.current.scrollToBottom();
         }
     }, [gameText]);
 
@@ -221,6 +222,25 @@ function Game() {
         setSnackBarOpen(false);
     }
 
+    async function handleCopyToClipboard() {
+        if (gameContentElement.current) {
+            const success = await gameContentElement.current.copyToClipboardAsRTF();
+            if (success) {
+                setSnackBarMessage("Game text copied to clipboard with formatting.");
+                setSnackBarOpen(true);
+                Mixpanel.track('Copy to Clipboard', {});
+            } else {
+                setSnackBarMessage("Failed to copy text to clipboard.");
+                setSnackBarOpen(true);
+            }
+        }
+    }
+
+    // Set the copyGameTranscript function in the context
+    useEffect(() => {
+        setCopyGameTranscript(() => handleCopyToClipboard);
+    }, [setCopyGameTranscript]);
+
     return (
 
         <div className={"m-10 mt-20 relative"}>
@@ -305,7 +325,7 @@ function Game() {
                             <InventoryButton onInventoryClick={handleInventoryClick} inventory={inventory}/>
                         )}
                         <CommandsButton onCommandClick={handleCommandClick}/>
-                     
+
                         <Button
                             variant="contained"
                             onClick={() => {
