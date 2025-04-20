@@ -47,7 +47,7 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({open, handleClose, handleW
                 Welcome to Zork AI - A Modern Reimagining of the 1980s Classic!
             </Typography>
         </DialogTitle>
-        <DialogContent sx={{ pt: 3, pb: 1 }}>
+        <DialogContent id="alert-dialog-description" sx={{ pt: 3, pb: 1 }}>
             <Paper
                 elevation={2}
                 sx={{
