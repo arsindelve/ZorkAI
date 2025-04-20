@@ -145,13 +145,6 @@ function App() {
                 </QueryClientProvider>
             </div>
 
-            <footer className="bg-gray-200 py-2">
-                <p className="text-center text-sm text-black font-['Lato']">
-                    <a target="_blank" href="https://github.com/arsindelve/ZorkAI">Created By Mike in Dallas. Check
-                        out
-                        the repository. hello@newzork.ai</a>
-                </p>
-            </footer>
         </div>
     );
 }

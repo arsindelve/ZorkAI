@@ -300,8 +300,8 @@ function Game() {
                 {mutation.isPending && (
                     <div className="mr-4 p-2 flex items-center justify-center">
                         <CircularProgress size={28} sx={{
-                            color: '#10b981',
-                            boxShadow: '0 0 15px 5px rgba(16, 185, 129, 0.2)',
+                            color: '#84cc16',
+                            boxShadow: '0 0 15px 5px rgba(132, 204, 22, 0.2)',
                             borderRadius: '50%'
                         }}/>
                     </div>
@@ -337,19 +337,11 @@ function Game() {
                             sx={{ 
                                 fontWeight: 'bold',
                                 minWidth: '80px',
-                                padding: '8px 20px',
-                                backgroundColor: playerInput ? '#10b981' : '#4b5563',
-                                boxShadow: playerInput ? '0 0 10px rgba(16, 185, 129, 0.5)' : 'none',
-                                borderRadius: '8px',
+                                padding: '4px 10px',
+                                backgroundColor: '#84cc16',
+                                            borderRadius: '8px',
                                 transition: 'all 0.3s ease',
-                                '&:hover': {
-                                    backgroundColor: playerInput ? '#059669' : '#4b5563',
-                                    transform: playerInput ? 'translateY(-2px)' : 'none',
-                                    boxShadow: playerInput ? '0 4px 12px rgba(16, 185, 129, 0.6)' : 'none'
-                                },
-                                '&:active': {
-                                    transform: 'translateY(0)'
-                                }
+
                             }}
                             data-testid="go-button">
                             Go

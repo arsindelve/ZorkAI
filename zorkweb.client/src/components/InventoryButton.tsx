@@ -71,6 +71,7 @@ export default function InventoryButton({inventory, onInventoryClick}: Inventory
                     color="primary"
                     startIcon={<InventoryIcon />}
                     endIcon={<KeyboardArrowDownIcon />}
+                    disabled={!isLoaded}
                     sx={{ 
                         borderRadius: '20px',
                         backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -81,7 +82,8 @@ export default function InventoryButton({inventory, onInventoryClick}: Inventory
                         transition: 'all 0.3s ease',
                         textTransform: 'none',
                         fontWeight: 'bold',
-                        opacity: isLoaded ? 1 : 0,
+                        display: { xs: isLoaded ? 'inline-flex' : 'none', sm: 'inline-flex' },
+                        opacity: { xs: 1, sm: isLoaded ? 1 : 0.6 },
                         transform: isLoaded ? 'translateY(0)' : 'translateY(10px)',
                     }}
                 >
