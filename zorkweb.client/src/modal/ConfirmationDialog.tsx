@@ -6,15 +6,16 @@ import Button from '@mui/material/Button';
 
 
 const ConfirmDialog = (props: any) => {
-    const {title, children, open, setOpen, onConfirm, onCancel} = props;
+    const {title, children, message, open, setOpen, onConfirm, onCancel, dataTestId} = props;
     return (
         <Dialog
+            data-testid={dataTestId}
             open={open} fullWidth={false}
             onClose={() => setOpen(false)}
             aria-labelledby="confirm-dialog"
         >
             <DialogTitle id="confirm-dialog">{title}</DialogTitle>
-            <DialogContent className="p-10">{children}</DialogContent>
+            <DialogContent className="p-10">{children || message}</DialogContent>
             <DialogActions>
                 <Button
                     variant="contained"

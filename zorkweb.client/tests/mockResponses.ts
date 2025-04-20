@@ -11,6 +11,30 @@ export const mockResponses = {
         response: "ZORK I: The Great Underground Empire\nCopyright (c) 1981, 1982, 1983 Infocom, Inc. All rights reserved.\nZORK is a registered trademark of Infocom, Inc.\nRevision 88 / Serial number 840726\n\nWest of House\nYou are standing in an open field west of a white house, with a boarded front door.\nThere is a small mailbox here.",
         inventory: []
     },
+    // Response for restore command
+    restore: {
+        score: 0,
+        moves: 0,
+        locationName: "West of House",
+        response: "<Restore>\n",
+        inventory: []
+    },
+    // Response for save command
+    save: {
+        score: 0,
+        moves: 0,
+        locationName: "West of House",
+        response: "<Save>\n",
+        inventory: []
+    },
+    // Response for restart command
+    restart: {
+        score: 0,
+        moves: 0,
+        locationName: "West of House",
+        response: "<Restart>\n",
+        inventory: []
+    },
     // Response to "look around" command
     lookAround: {
         score: 0,

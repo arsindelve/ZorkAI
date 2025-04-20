@@ -37,8 +37,6 @@ export default class Server {
     };
 
     async getSavedGames(clientId: string): Promise<ISavedGame[]> {
-        console.log('Server.ts: getSavedGames called with clientId:', clientId);
-
         const client = axios.create({
             baseURL: this.baseUrl
         });
@@ -96,7 +94,6 @@ export default class Server {
             "sessionId": request.sessionId,
         });
         return response.data;
-
     }
 
     async gameRestore(restoreGameId: string, clientId: string, sessionId: string) {

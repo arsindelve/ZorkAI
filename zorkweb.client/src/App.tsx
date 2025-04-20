@@ -33,57 +33,42 @@ function App() {
     const {dialogToOpen, setDialogToOpen, setRestartGame} = useGameContext();
 
     useEffect(() => {
-        console.log('App.tsx: dialogToOpen useEffect triggered with value:', dialogToOpen);
-
         if (!dialogToOpen) {
-            console.log('App.tsx: No dialog to open, returning');
             return;
         }
 
         const handleDialog = async () => {
-            console.log('App.tsx: Handling dialog:', dialogToOpen);
-
             switch (dialogToOpen) {
                 case DialogType.Save:
-                    console.log('App.tsx: Handling Save dialog');
-                    console.log('App.tsx: Calling getSavedGames()');
                     await getSavedGames();
-                    console.log('App.tsx: Setting saveDialogOpen to true');
                     setSaveDialogOpen(true);
-                    console.log('App.tsx: Setting dialogToOpen to undefined');
                     setDialogToOpen(undefined);
                     break;
                 case DialogType.Video:
-                    console.log('App.tsx: Handling Video dialog');
                     Mixpanel.track('Open Video Dialog', {});
                     setVideoDialogOpen(true);
                     setDialogToOpen(undefined);
                     break;
                 case DialogType.Welcome:
-                    console.log('App.tsx: Handling Welcome dialog');
                     Mixpanel.track('Open Welcome Dialog', {});
                     setWelcomeDialogOpen(true);
                     setDialogToOpen(undefined);
                     break;
                 case DialogType.Restore:
-                    console.log('App.tsx: Handling Restore dialog');
                     await getSavedGames();
                     setRestoreDialogOpen(true);
                     setDialogToOpen(undefined);
                     break;
                 case DialogType.Restart:
-                    console.log('App.tsx: Handling Restart dialog');
                     setConfirmRestartOpen(true);
                     setDialogToOpen(undefined);
                     break;
                 case DialogType.ReleaseNotes:
-                    console.log('App.tsx: Handling ReleaseNotes dialog');
                     Mixpanel.track('Open Release Notes Dialog', {});
                     setReleaseNotesDialogOpen(true);
                     setDialogToOpen(undefined);
                     break;
                 default:
-                    console.log('App.tsx: Unknown dialog type:', dialogToOpen);
                     break;
             }
         };
@@ -100,16 +85,11 @@ function App() {
     }
 
     async function getSavedGames() {
-        console.log('App.tsx: getSavedGames called');
         const id = sessionId.getClientId();
-        console.log('App.tsx: clientId:', id);
 
         try {
             const savedGames = await server.getSavedGames(id);
-            console.log('App.tsx: savedGames received:', JSON.stringify(savedGames));
-            console.log('App.tsx: savedGames length:', savedGames.length);
             setAvailableSavedGames(savedGames);
-            console.log('App.tsx: availableSavedGames state updated');
         } catch (error) {
             console.error('App.tsx: Error fetching saved games:', error);
         }
@@ -138,6 +118,7 @@ function App() {
                         confirmText="Restart"
                         cancelText="Cancel"
                         confirmColor="red"
+                        dataTestId="restart-game-modal"
                     />
 
                     <RestoreModal games={availableSavedGames}

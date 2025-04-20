@@ -16,15 +16,15 @@ interface RestoreModalProps {
 function RestoreModal(props: RestoreModalProps) {
 
     const {setRestoreGameRequest} = useGameContext();
-    
+
     function handleClose(item: ISavedGame | undefined) {
         console.log(item);
         setRestoreGameRequest(item);
         props.setOpen(false);
     }
-    
-    return (<Dialog
 
+    return (<Dialog
+            data-testid="restore-game-modal"
             maxWidth={"md"}
             open={props.open}
             fullWidth={true}

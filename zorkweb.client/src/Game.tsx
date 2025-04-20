@@ -120,12 +120,9 @@ function Game() {
     }, []);
 
     function handleResponse(data: GameResponse) {
-        console.log('Game.tsx: handleResponse called with data:', JSON.stringify(data));
-
         if (data.response === saveResponse) {
             setDialogToOpen(DialogType.Save);
             setInput("");
-            console.log('Game.tsx: DialogType.Save set, returning');
             return;
         }
 
@@ -163,7 +160,7 @@ function Game() {
             handleResponse(response);
         },
         onError: (r => {
-            console.log(r);
+            // Error handling is done via the Alert component below
         })
     });
 
