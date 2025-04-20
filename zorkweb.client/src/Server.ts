@@ -37,20 +37,29 @@ export default class Server {
     };
 
     async getSavedGames(clientId: string): Promise<ISavedGame[]> {
+        console.log('Server.ts: getSavedGames called with clientId:', clientId);
+
         const client = axios.create({
             baseURL: this.baseUrl
         });
 
-        const response = await client.get<ISavedGame[], AxiosResponse>("saveGame", {
-            params: {
-                sessionId: clientId
-            }
-        });
-        Mixpanel.track('Listed Saved Games', {
-            "clientId": clientId,
-            "gameCount": response.data.length
-        });
-        return response.data;
+        try {
+            const response = await client.get<ISavedGame[], AxiosResponse>("saveGame", {
+                params: {
+                    sessionId: clientId
+                }
+            });
+
+            Mixpanel.track('Listed Saved Games', {
+                "clientId": clientId,
+                "gameCount": response.data.length
+            });
+
+            return response.data;
+        } catch (error) {
+            console.error('Server.ts: Error in getSavedGames:', error);
+            throw error;
+        }
     }
 
     async gameInit(sessionId: string): Promise<GameResponse> {
