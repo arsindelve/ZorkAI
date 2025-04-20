@@ -68,6 +68,10 @@ export async function handleZorkOneRoute(route: Route) {
             response = mockResponses.save;
         } else if (body.input === 'restart') {
             response = mockResponses.restart;
+        } else if (body.input === 'inventory') {
+            response = mockResponses.withInventory;
+        } else if (body.input === 'drop all') {
+            response = mockResponses.emptyInventory;
         } else {
             // Default response for any other command
             response = {

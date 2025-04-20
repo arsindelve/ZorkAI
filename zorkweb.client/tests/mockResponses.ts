@@ -59,6 +59,22 @@ export const mockResponses = {
         response: "North of House\nYou are facing the north side of a white house. There is no door here, and all the windows are boarded up. To the north a narrow path winds through the trees.",
         inventory: []
     },
+    // Response with items in inventory
+    withInventory: {
+        score: 10,
+        moves: 5,
+        locationName: "West of House",
+        response: "You are carrying:\nA leaflet\nA brass lantern\nA sword",
+        inventory: ["leaflet", "brass lantern", "sword"]
+    },
+    // Response with empty inventory
+    emptyInventory: {
+        score: 0,
+        moves: 1,
+        locationName: "West of House",
+        response: "You are empty-handed.",
+        inventory: []
+    },
     // Mock saved games for testing the restore modal
     savedGames: [
         {
