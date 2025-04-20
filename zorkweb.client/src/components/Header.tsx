@@ -1,4 +1,7 @@
 import React from 'react';
+import ExploreIcon from '@mui/icons-material/Explore';
+import ScoreboardIcon from '@mui/icons-material/Scoreboard';
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 
 interface HeaderComponentProps {
     locationName: string;
@@ -7,27 +10,32 @@ interface HeaderComponentProps {
 }
 
 const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, moves, score}) => (
-    <div className="flex items-center justify-between bg-gradient-to-r from-stone-800 to-stone-700 p-4 text-white shadow-md platypi">
+    <div className="flex items-center justify-between bg-gradient-to-r from-stone-800 to-stone-700 p-4 text-white shadow-lg rounded-t-lg border-b border-stone-600/30 platypi">
         <div 
-            className="text-xl font-semibold flex-grow max-w-[60%] truncate" 
+            className="flex items-center gap-2 text-xl font-semibold flex-grow max-w-[60%] truncate group" 
             data-testid="header-location"
         >
-            {locationName}
+            <ExploreIcon className="text-emerald-400 group-hover:rotate-12 transition-transform duration-300" />
+            <span className="text-white">
+                {locationName}
+            </span>
         </div>
-        <div className="flex gap-6">
+        <div className="flex gap-4">
             <div 
-                className="hidden sm:flex items-center px-3 py-1.5 bg-stone-900/30 rounded-lg" 
+                className="hidden sm:flex items-center px-3 py-2 bg-stone-900/50 rounded-lg border border-stone-700 hover:border-emerald-800 transition-colors duration-200" 
                 data-testid="header-moves"
             >
-                <span className="text-stone-300 mr-2">Moves:</span>
-                <span className="font-medium">{moves}</span>
+                <DirectionsRunIcon className="text-stone-400 mr-2 text-sm" fontSize="small" />
+                <span className="text-stone-300 mr-2 text-sm">Moves:</span>
+                <span className="font-medium text-emerald-300">{moves}</span>
             </div>
             <div 
-                className="hidden sm:flex items-center px-3 py-1.5 bg-stone-900/30 rounded-lg" 
+                className="hidden sm:flex items-center px-3 py-2 bg-stone-900/50 rounded-lg border border-stone-700 hover:border-emerald-800 transition-colors duration-200" 
                 data-testid="header-score"
             >
-                <span className="text-stone-300 mr-2">Score:</span>
-                <span className="font-medium">{score}</span>
+                <ScoreboardIcon className="text-stone-400 mr-2 text-sm" fontSize="small" />
+                <span className="text-stone-300 mr-2 text-sm">Score:</span>
+                <span className="font-medium text-emerald-300">{score}</span>
             </div>
         </div>
     </div>
