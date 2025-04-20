@@ -251,6 +251,8 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     {
     }
 
+    public virtual ICanContainItems? ForwardingContainer => null;
+
     [JsonIgnore]
     public List<IItem> GetAllItemsRecursively
     {

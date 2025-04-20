@@ -78,7 +78,7 @@ public class Candles
     public string ExaminationDescription =>
         IsOn ? "The candles are burning. " : "The candles are out. ";
 
-    public override string OnBeingTaken(IContext context)
+    public override string OnBeingTaken(IContext context, ICanContainItems? previousLocation)
     {
         // Once we take the candles for the first time, they
         // start to get shorter. I guess they were magic before

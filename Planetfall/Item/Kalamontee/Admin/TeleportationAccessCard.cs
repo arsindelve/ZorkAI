@@ -4,7 +4,7 @@ public class TeleportationAccessCard : AccessCard, ICanBeExamined, ICanBeTakenAn
 {
     public override string[] NounsForMatching =>
     [
-        "access card", "teleportation access card", "card", "teleportation", "teleportation card",
+        "teleportation access card",  "access card", "card", "teleportation", "teleportation card",
         "teleport access card", "teleport", "teleport card"
     ];
 

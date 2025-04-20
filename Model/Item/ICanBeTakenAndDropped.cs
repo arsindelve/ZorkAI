@@ -41,7 +41,8 @@ public interface ICanBeTakenAndDropped : IInteractionTarget
     ///     This method is called when the item is being taken by the player.
     /// </summary>
     /// <param name="context">The context of the game.</param>
-    string? OnBeingTaken(IContext context);
+    /// <param name="previousLocation">The previous holder, if any</param>
+    string? OnBeingTaken(IContext context, ICanContainItems? previousLocation);
 
     /// <summary>
     ///     This method is called when the item fails to be taken by the player. Examples would
