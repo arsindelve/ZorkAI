@@ -35,6 +35,7 @@ export default function AboutMenu({}: AboutMenuProps) {
         <div className={"text-xs  font-['Press_Start_2P']"}>
             <Button
                 id="basic-button"
+                data-testid="about-button"
                 aria-controls={open ? 'basic-menu' : undefined}
                 aria-haspopup="true"
                 aria-expanded={open ? 'true' : undefined}

@@ -9,6 +9,44 @@ Currently, two official plugins are available:
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast
   Refresh
 
+## Testing
+
+This project uses Playwright for end-to-end testing. The tests are located in the `tests` directory.
+
+### Setup
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Install Playwright browsers:
+   ```bash
+   npx playwright install
+   ```
+
+3. Install system dependencies (Linux only):
+   ```bash
+   sudo npx playwright install-deps
+   ```
+
+### Running Tests
+
+- Run all tests in headless mode:
+  ```bash
+  npm test
+  ```
+
+- Run tests with UI mode for debugging:
+  ```bash
+  npm run test:ui
+  ```
+
+- Run tests with visible browser windows:
+  ```bash
+  npm run test:headed
+  ```
+
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
