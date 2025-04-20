@@ -1,21 +1,33 @@
+import React from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
-import { Typography, Box } from '@mui/material';
+import { Typography } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
 
-const ConfirmDialog = (props: any) => {
-    const {title, children, message, open, setOpen, onConfirm, onCancel, dataTestId, confirmText = "Yes", cancelText = "No", confirmColor = "primary"} = props;
+interface RestartConfirmDialogProps {
+    open: boolean;
+    setOpen: (open: boolean) => void;
+    onConfirm: () => void;
+    onCancel?: () => void;
+}
+
+const RestartConfirmDialog: React.FC<RestartConfirmDialogProps> = ({
+    open,
+    setOpen,
+    onConfirm,
+    onCancel
+}) => {
     return (
         <Dialog
-            data-testid={dataTestId}
+            data-testid="restart-confirm-dialog"
             open={open}
             fullWidth={true}
             maxWidth="sm"
             onClose={() => setOpen(false)}
-            aria-labelledby="confirm-dialog"
+            aria-labelledby="restart-confirm-dialog"
             PaperProps={{
                 style: {
                     borderRadius: '12px',
@@ -24,7 +36,7 @@ const ConfirmDialog = (props: any) => {
             }}
         >
             <DialogTitle 
-                id="confirm-dialog"
+                id="restart-confirm-dialog"
                 sx={{
                     bgcolor: 'grey.900',
                     color: 'white',
@@ -36,12 +48,12 @@ const ConfirmDialog = (props: any) => {
             >
                 <WarningIcon fontSize="large" />
                 <Typography variant="h5" component="span" fontWeight="bold">
-                    {title}
+                    Restart Your Game? Are you sure?
                 </Typography>
             </DialogTitle>
-            <DialogContent sx={{ p: 3, mt: 2 }}>
+            <DialogContent sx={{ p: 5, mt: 5, mb: 2 }}>
                 <Typography variant="body1">
-                    {children || message}
+                    Your game will be reset to the beginning. Are you sure you want to restart?
                 </Typography>
             </DialogContent>
             <DialogActions sx={{ p: 2, bgcolor: 'grey.100' }}>
@@ -61,8 +73,9 @@ const ConfirmDialog = (props: any) => {
                             bgcolor: 'grey.100'
                         }
                     }}
+                    data-testid="restart-confirm-cancel"
                 >
-                    {cancelText}
+                    Cancel
                 </Button>
                 <Button
                     variant="contained"
@@ -70,17 +83,18 @@ const ConfirmDialog = (props: any) => {
                         setOpen(false);
                         onConfirm();
                     }}
-                    color={confirmColor}
+                    color="error"
                     sx={{ 
                         borderRadius: '20px',
                         px: 3
                     }}
+                    data-testid="restart-confirm-yes"
                 >
-                    {confirmText}
+                    Restart
                 </Button>
             </DialogActions>
         </Dialog>
     );
 };
 
-export default ConfirmDialog;
+export default RestartConfirmDialog;

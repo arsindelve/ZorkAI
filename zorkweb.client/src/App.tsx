@@ -8,7 +8,7 @@ import {SessionHandler} from "./SessionHandler.ts";
 import RestoreModal from "./modal/RestoreModal.tsx";
 import {ISavedGame} from "./model/SavedGame.ts";
 import SaveModal from "./modal/SaveModal.tsx";
-import ConfirmDialog from "./modal/ConfirmationDialog.tsx";
+import RestartConfirmDialog from "./modal/RestartConfirmDialog.tsx";
 import {useGameContext} from "./GameContext.tsx";
 import VideoDialog from "./modal/VideoModal.tsx";
 import WelcomeDialog from "./modal/WelcomeModal.tsx";
@@ -18,7 +18,7 @@ import DialogType from "./model/DialogType.ts";
 
 function App() {
 
-    const [confirmOpen, setConfirmRestartOpen] = useState<boolean>(false);
+    const [restartConfirmOpen, setRestartConfirmOpen] = useState<boolean>(false);
     const [restoreDialogOpen, setRestoreDialogOpen] = useState<boolean>(false);
     const [saveDialogOpen, setSaveDialogOpen] = useState<boolean>(false);
     const [availableSavedGames, setAvailableSavedGames] = useState<ISavedGame[]>([]);
@@ -60,7 +60,7 @@ function App() {
                     setDialogToOpen(undefined);
                     break;
                 case DialogType.Restart:
-                    setConfirmRestartOpen(true);
+                    setRestartConfirmOpen(true);
                     setDialogToOpen(undefined);
                     break;
                 case DialogType.ReleaseNotes:
@@ -107,18 +107,12 @@ function App() {
 
                     />
 
-                    <ConfirmDialog
-                        title="Restart Your Game? Are you sure?"
-                        open={confirmOpen}
-                        setOpen={setConfirmRestartOpen}
+                    <RestartConfirmDialog
+                        open={restartConfirmOpen}
+                        setOpen={setRestartConfirmOpen}
                         onConfirm={() => {
                             setRestartGame(true);
                         }}
-                        message="Your game will be reset to the beginning. Are you sure you want to restart?"
-                        confirmText="Restart"
-                        cancelText="Cancel"
-                        confirmColor="red"
-                        dataTestId="restart-game-modal"
                     />
 
                     <RestoreModal games={availableSavedGames}

@@ -345,25 +345,25 @@ test.describe('Game Save and Restore', () => {
 
         // Wait for the restart modal to appear
         try {
-            await page.waitForSelector('[data-testid="restart-game-modal"]', {state: 'visible', timeout: 10000});
+            await page.waitForSelector('[data-testid="restart-confirm-dialog"]', {state: 'visible', timeout: 10000});
         } catch (error) {
             console.error('Error waiting for restart modal:', error);
             throw error;
         }
 
         // Verify that the restart modal contains the expected title
-        const modalTitle = page.locator('[data-testid="restart-game-modal"] h2#confirm-dialog');
+        const modalTitle = page.locator('[data-testid="restart-confirm-dialog"] h2#restart-confirm-dialog');
         await expect(modalTitle).toContainText('Restart Your Game? Are you sure?');
 
         // Verify that the restart modal contains the expected message
-        const modalMessage = page.locator('[data-testid="restart-game-modal"] div.p-10');
+        const modalMessage = page.locator('[data-testid="restart-confirm-dialog"] .MuiDialogContent-root');
         await expect(modalMessage).toContainText('Your game will be reset to the beginning. Are you sure you want to restart?');
 
         // Close the modal by clicking Cancel
-        await page.locator('[data-testid="restart-game-modal"] button:has-text("No")').click();
+        await page.locator('[data-testid="restart-confirm-cancel"]').click();
 
         // Verify that the restart modal is closed
-        await expect(page.locator('[data-testid="restart-game-modal"]')).not.toBeVisible();
+        await expect(page.locator('[data-testid="restart-confirm-dialog"]')).not.toBeVisible();
     });
 
     test('Save Modal - Overwrite Existing Save section is hidden when no saved games exist', async ({page}) => {
