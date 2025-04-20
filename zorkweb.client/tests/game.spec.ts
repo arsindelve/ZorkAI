@@ -688,4 +688,249 @@ test.describe('Zork Game', () => {
         const inventoryButton = page.locator('button:has-text("Inventory")');
         await expect(inventoryButton).not.toBeVisible();
     });
+
+    test('Inventory menu - player can select an item from the inventory menu', async ({page}) => {
+        // Close the welcome modal using the helper function
+        await closeWelcomeModal(page);
+
+        // Wait for the input field to be visible
+        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+
+        // Type the "inventory" command in the input field to trigger the API response with inventory items
+        await page.fill('[data-testid="game-input"]', 'inventory');
+
+        // Make sure the input field has the correct value before proceeding
+        await expect(page.locator('[data-testid="game-input"]')).toHaveValue('inventory');
+
+        // Click the Go button to submit the command
+        await page.click('[data-testid="go-button"]');
+
+        // Wait for the game response to appear
+        await waitForGameResponse(page);
+
+        // Verify that the Inventory button is visible
+        const inventoryButton = page.locator('button:has-text("Inventory")');
+        await expect(inventoryButton).toBeVisible();
+
+        // Click the Inventory button to open the menu
+        await inventoryButton.click();
+
+        // Wait for the menu to appear
+        await page.waitForSelector('ul[role="menu"]', {state: 'visible'});
+
+        // Click an item from the menu (e.g., "leaflet")
+        await page.click('li:has-text("leaflet")');
+
+        // Verify that the item is added to the input field
+        const inputValue = await page.inputValue('[data-testid="game-input"]');
+        expect(inputValue).toContain('leaflet');
+
+        // Verify that the menu is closed
+        const menu = page.locator('ul[role="menu"]');
+        await expect(menu).not.toBeVisible();
+    });
+
+    test('Location - when API returns a location, that location name is displayed in the header', async ({page}) => {
+        // Close the welcome modal using the helper function
+        await closeWelcomeModal(page);
+
+        // Wait for the input field to be visible
+        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+
+        // Verify initial location in header
+        const headerLocation = page.locator('[data-testid="header-location"]');
+
+        // Type the "North" command in the input field
+        await page.fill('[data-testid="game-input"]', 'North');
+
+        // Make sure the input field has the correct value before proceeding
+        await expect(page.locator('[data-testid="game-input"]')).toHaveValue('North');
+
+        // Click the Go button to submit the command
+        await page.click('[data-testid="go-button"]');
+
+        // Wait for the game response to appear
+        await waitForGameResponse(page);
+
+        // Verify that the location name in the header has changed to "North of House"
+        await expect(headerLocation).toHaveText('North of House');
+    });
+
+    test('Score - when API returns a score, that score is displayed in the header', async ({page}) => {
+        // Close the welcome modal using the helper function
+        await closeWelcomeModal(page);
+
+        // Wait for the input field to be visible
+        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+
+        // Verify initial score in header
+        const headerScore = page.locator('[data-testid="header-score"]');
+
+        // Type the "inventory" command in the input field (which returns a score of 10 in the mock response)
+        await page.fill('[data-testid="game-input"]', 'inventory');
+
+        // Make sure the input field has the correct value before proceeding
+        await expect(page.locator('[data-testid="game-input"]')).toHaveValue('inventory');
+
+        // Click the Go button to submit the command
+        await page.click('[data-testid="go-button"]');
+
+        // Wait for the game response to appear
+        await waitForGameResponse(page);
+
+        // Verify that the score in the header has changed to "10"
+        await expect(headerScore).toHaveText('Score:  10');
+    });
+
+    test('Moves - when API returns moves, those moves are displayed in the header', async ({page}) => {
+        // Close the welcome modal using the helper function
+        await closeWelcomeModal(page);
+
+        // Wait for the input field to be visible
+        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+
+        // Verify initial moves in header
+        const headerMoves = page.locator('[data-testid="header-moves"]');
+
+        // Type the "look" command in the input field (which returns a moves value of 1 in the mock response)
+        await page.fill('[data-testid="game-input"]', 'look');
+
+        // Make sure the input field has the correct value before proceeding
+        await expect(page.locator('[data-testid="game-input"]')).toHaveValue('look');
+
+        // Click the Go button to submit the command
+        await page.click('[data-testid="go-button"]');
+
+        // Wait for the game response to appear
+        await waitForGameResponse(page);
+
+        // Verify that the moves in the header has changed to "1"
+        await expect(headerMoves).toHaveText('Moves:  1');
+    });
+
+    test('Welcome dialog - welcome dialog appears on first visit and can be closed', async ({page}) => {
+        // Navigate to the application
+        await page.goto('/');
+
+        // Wait for the welcome modal to be visible
+        await page.waitForSelector('[data-testid="welcome-modal"]', {state: 'visible'});
+
+        // Verify that the welcome modal contains the expected title
+        const modalTitle = page.locator('[data-testid="welcome-modal"] #alert-dialog-title');
+        await expect(modalTitle).toContainText('Welcome to Zork AI - A Modern Reimagining of the 1980s Classic!');
+
+        // Verify that the welcome modal contains some expected content
+        const modalContent = page.locator('[data-testid="welcome-modal"] #alert-dialog-description');
+        await expect(modalContent).toContainText('This is a modern re-imagining of the iconic text adventure game Zork I.');
+        await expect(modalContent).toContainText('Need inspiration? Try:');
+
+        // Close the welcome modal
+        await page.locator('[data-testid="welcome-modal-close-button"]').click();
+
+        // Verify that the welcome modal is closed
+        await expect(page.locator('[data-testid="welcome-modal"]')).not.toBeVisible();
+    });
+
+    test('Video dialog - video dialog can be opened from About menu and closed', async ({page}) => {
+        // Close the welcome modal using the helper function
+        await closeWelcomeModal(page);
+
+        // Wait for the About button to be visible
+        await page.waitForSelector('[data-testid="about-button"]', {state: 'visible'});
+
+        // Click the About button
+        await page.locator('[data-testid="about-button"]').click();
+
+        // Wait for the About menu to appear
+        await page.waitForSelector('#basic-menu', {state: 'visible'});
+
+        // Click the "Watch intro video" menu item
+        await page.locator('#basic-menu li:has-text("Watch intro video")').click();
+
+        // Wait for the video dialog to appear
+        await page.waitForSelector('div[role="dialog"]', {state: 'visible'});
+
+        // Verify that the video dialog contains the expected title
+        const modalTitle = page.locator('div[role="dialog"] #alert-dialog-title');
+        await expect(modalTitle).toContainText('Welcome to Zork AI');
+
+        // Verify that the video dialog contains a video element
+        const videoElement = page.locator('div[role="dialog"] video');
+        await expect(videoElement).toBeVisible();
+
+        // Close the video dialog
+        await page.locator('div[role="dialog"] button:has-text("Close")').click();
+
+        // Verify that the video dialog is closed
+        await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
+    });
+
+    test('Release notes dialog - release notes dialog can be opened from About menu and closed', async ({page}) => {
+        // Close the welcome modal using the helper function
+        await closeWelcomeModal(page);
+
+        // Wait for the About button to be visible
+        await page.waitForSelector('[data-testid="about-button"]', {state: 'visible'});
+
+        // Click the About button
+        await page.locator('[data-testid="about-button"]').click();
+
+        // Wait for the About menu to appear
+        await page.waitForSelector('#basic-menu', {state: 'visible'});
+
+        // Click the "Version" menu item (last item in the menu)
+        await page.locator('#basic-menu li').last().click();
+
+        // Wait for the release notes dialog to appear
+        await page.waitForSelector('div[role="dialog"]', {state: 'visible'});
+
+        // Verify that the release notes dialog contains the expected title
+        const modalTitle = page.locator('div[role="dialog"] #release-notes-title');
+        await expect(modalTitle).toContainText('Zork AI Release Notes');
+
+        // Verify that the release notes dialog contains either loading text or release notes
+        const modalContent = page.locator('div[role="dialog"] .MuiDialogContent-root');
+        await expect(modalContent).toBeVisible();
+
+        // Close the release notes dialog
+        await page.locator('div[role="dialog"] button:has-text("Close")').click();
+
+        // Verify that the release notes dialog is closed
+        await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
+    });
+
+    test('Copy game transcript - copy game transcript functionality works and displays success message', async ({page}) => {
+        // Close the welcome modal using the helper function
+        await closeWelcomeModal(page);
+
+        // Wait for the Game button to be visible
+        await page.waitForSelector('[data-testid="game-button"]', {state: 'visible'});
+
+        // Click the Game button
+        await page.locator('[data-testid="game-button"]').click();
+
+        // Wait for the Game menu to appear
+        await page.waitForSelector('#game-menu', {state: 'visible'});
+
+        // Mock the clipboard API
+        await page.evaluate(() => {
+            // Create a mock clipboard API
+            Object.defineProperty(navigator, 'clipboard', {
+                value: {
+                    writeText: () => Promise.resolve(),
+                    write: () => Promise.resolve()
+                },
+                writable: true
+            });
+        });
+
+        // Click the "Copy Game Transcript" menu item
+        await page.locator('#game-menu li:has-text("Copy Game Transcript")').click();
+
+        // Verify that a success message is displayed
+        const snackbar = page.locator('div.MuiSnackbar-root');
+        await expect(snackbar).toBeVisible();
+        await expect(snackbar).toContainText('Game text copied to clipboard with formatting');
+    });
+
 });
