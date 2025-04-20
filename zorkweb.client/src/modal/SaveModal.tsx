@@ -2,12 +2,11 @@ import {ISavedGame} from "../model/SavedGame.ts";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import moment from 'moment';
 import {ISaveGameRequest, SaveGameRequest} from "../model/SaveGameRequest.ts";
-import {Input, Typography, Paper, Box, Divider, TextField} from "@mui/material";
+import {Typography, Paper, Box, Divider, TextField} from "@mui/material";
 import React, {useState} from "react";
 import {useGameContext} from "../GameContext.tsx";
 import SaveIcon from '@mui/icons-material/Save';
@@ -35,7 +34,7 @@ function SaveModal(props: SaveModalProps) {
         props.setOpen(false);
     }
 
-    function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>, savedGame: ISaveGameRequest) {
+    function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>, savedGame: ISaveGameRequest) {
         if (event.key === 'Enter') {
             handleClose(savedGame);
         }
@@ -51,16 +50,16 @@ function SaveModal(props: SaveModalProps) {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
             PaperProps={{
-                style: { 
+                style: {
                     borderRadius: '12px',
                     overflow: 'hidden'
                 }
             }}
         >
-            <DialogTitle 
+            <DialogTitle
                 id="alert-dialog-title"
                 sx={{
-                    bgcolor: 'primary.main',
+                    bgcolor: 'grey.900',
                     color: 'white',
                     display: 'flex',
                     alignItems: 'center',
@@ -68,53 +67,55 @@ function SaveModal(props: SaveModalProps) {
                     py: 2
                 }}
             >
-                <SaveIcon fontSize="large" />
+                <SaveIcon fontSize="large"/>
                 <Typography variant="h5" component="span" fontWeight="bold">
                     Save Your Game
                 </Typography>
             </DialogTitle>
 
-            <DialogContent sx={{ pt: 3, pb: 1 }}>
-                <DialogContentText sx={{ mb: 2, color: 'text.primary' }}>
-                    Create a new save or overwrite an existing one to continue your adventure later.
-                </DialogContentText>
+            <DialogContent sx={{pt: 3, pb: 1}}>
 
-                <Paper 
+                <Paper
+                    data-testid="save-game-new-section"
                     elevation={2}
-                    sx={{ 
-                        p: 3, 
-                        mb: 3, 
+                    sx={{
+                        p: 3,
+                        mb: 3,
+                        mt: 3,
                         borderRadius: '8px',
                         bgcolor: 'background.paper'
                     }}
                 >
-                    <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: 'primary.main' }}>
+                    <Typography variant="h6" fontWeight="bold" sx={{mb: 2, color: 'grey.800'}}>
                         Create New Save
                     </Typography>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
                         <TextField
                             autoFocus
                             label="Name your saved game"
                             variant="outlined"
                             fullWidth
-                            inputProps={{ maxLength: 25 }}
+                            inputProps={{maxLength: 25}}
                             value={newName}
                             onChange={(event) => setNewName(event.target.value)}
-                            onKeyDown={(e) => handleKeyDown(e, new SaveGameRequest(newName, undefined))}
-                            sx={{ flexGrow: 1 }}
+                            onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => handleKeyDown(e, new SaveGameRequest(newName, undefined))}
+                            sx={{flexGrow: 1}}
                         />
-                        <Button 
-                            variant="contained" 
-                            color="primary"
-                            startIcon={<SaveIcon />}
-                            onClick={() => handleClose(new SaveGameRequest(newName, undefined))}
-                            disabled={!newName.trim()}
-                            sx={{ 
+                        <Button
+                            variant="contained"
+                            sx={{
                                 borderRadius: '20px',
                                 px: 3,
-                                py: 1
+                                py: 1,
+                                bgcolor: 'grey.800',
+                                '&:hover': {
+                                    bgcolor: 'grey.700'
+                                }
                             }}
+                            startIcon={<SaveIcon/>}
+                            onClick={() => handleClose(new SaveGameRequest(newName, undefined))}
+                            disabled={!newName.trim()}
                         >
                             Save
                         </Button>
@@ -122,28 +123,33 @@ function SaveModal(props: SaveModalProps) {
                 </Paper>
             </DialogContent>
 
-            <DialogContent sx={{ pt: 0, maxHeight: '40vh', overflow: 'auto' }}>
-                <Divider sx={{ mb: 3 }} />
+            <DialogContent sx={{pt: 0, maxHeight: '40vh', overflow: 'auto'}}>
+                <Divider sx={{mb: 3}}/>
 
-                <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: 'primary.main' }}>
-                    Overwrite Existing Save
-                </Typography>
+                {props.games.length > 0 && (
+                    <>
+                        <Typography data-testid="overwrite-section-title" variant="h6" fontWeight="bold" sx={{mb: 2, color: 'grey.800'}}>
+                            Overwrite Existing Save
+                        </Typography>
+                    </>
+                )}
 
                 {props.games.length === 0 ? (
-                    <Box sx={{ p: 4, textAlign: 'center' }}>
-                        <SportsEsportsIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
+                    <Box sx={{p: 4, textAlign: 'center'}}>
+                        <SportsEsportsIcon sx={{fontSize: 60, color: 'text.secondary', mb: 2}}/>
                         <Typography variant="body1" color="text.secondary">
                             No saved games found
                         </Typography>
                     </Box>
                 ) : (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box data-testid="save-game-list" sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
                         {props.games.map((game) => (
-                            <Paper 
-                                key={game.id} 
-                                elevation={2} 
-                                sx={{ 
-                                    p: 2, 
+                            <Paper
+                                data-testid="save-game-item"
+                                key={game.id}
+                                elevation={2}
+                                sx={{
+                                    p: 2,
                                     borderRadius: '8px',
                                     transition: 'all 0.2s',
                                     '&:hover': {
@@ -152,36 +158,41 @@ function SaveModal(props: SaveModalProps) {
                                     }
                                 }}
                             >
-                                <Box sx={{ 
-                                    display: 'flex', 
+                                <Box sx={{
+                                    display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center'
                                 }}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1 }}>
-                                        <Typography variant="h6" fontWeight="bold" sx={{ color: 'primary.main' }}>
+                                    <Box sx={{display: 'flex', flexDirection: 'column', gap: 1, flex: 1}}>
+                                        <Typography variant="h6" fontWeight="bold" sx={{color: 'grey.800'}}>
                                             {game.name}
                                         </Typography>
 
-                                        <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
-                                            <AccessTimeIcon fontSize="small" sx={{ mr: 1 }} />
+                                        <Box sx={{display: 'flex', alignItems: 'center', color: 'text.secondary'}}>
+                                            <AccessTimeIcon fontSize="small" sx={{mr: 1}}/>
                                             <Typography variant="body2">
                                                 {moment.utc(game.date).local().format('MMMM Do, h:mm a')}
                                             </Typography>
                                         </Box>
                                     </Box>
 
-                                    <Button 
-                                        variant="outlined" 
-                                        color="primary"
+                                    <Button
+                                        variant="outlined"
                                         onClick={() => handleClose({
                                             name: game.name,
                                             id: game.id,
                                             sessionId: undefined,
                                             clientId: undefined
                                         })}
-                                        sx={{ 
+                                        sx={{
                                             borderRadius: '20px',
-                                            px: 2
+                                            px: 2,
+                                            borderColor: 'grey.600',
+                                            color: 'grey.800',
+                                            '&:hover': {
+                                                borderColor: 'grey.800',
+                                                bgcolor: 'grey.100'
+                                            }
                                         }}
                                     >
                                         Overwrite
@@ -193,11 +204,20 @@ function SaveModal(props: SaveModalProps) {
                 )}
             </DialogContent>
 
-            <DialogActions sx={{ p: 2, bgcolor: 'grey.100' }}>
-                <Button 
-                    onClick={() => justClose()} 
+            <DialogActions sx={{p: 2, bgcolor: 'grey.100'}}>
+                <Button
+                    onClick={() => justClose()}
                     variant="outlined"
-                    sx={{ borderRadius: '20px', px: 3 }}
+                    sx={{
+                        borderRadius: '20px',
+                        px: 3,
+                        borderColor: 'grey.600',
+                        color: 'grey.800',
+                        '&:hover': {
+                            borderColor: 'grey.800',
+                            bgcolor: 'grey.100'
+                        }
+                    }}
                 >
                     Cancel
                 </Button>

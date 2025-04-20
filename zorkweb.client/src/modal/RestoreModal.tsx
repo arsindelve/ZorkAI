@@ -2,7 +2,6 @@ import {ISavedGame} from "../model/SavedGame.ts";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import moment from 'moment';
@@ -46,7 +45,7 @@ function RestoreModal(props: RestoreModalProps) {
             <DialogTitle 
                 id="alert-dialog-title"
                 sx={{
-                    bgcolor: 'primary.main',
+                    bgcolor: 'grey.900',
                     color: 'white',
                     display: 'flex',
                     alignItems: 'center',
@@ -71,14 +70,13 @@ function RestoreModal(props: RestoreModalProps) {
 
             {props.games.length > 0 && (
                 <DialogContent sx={{ maxHeight: '60vh', p: 3 }}>
-                    <DialogContentText sx={{ mb: 2, color: 'text.primary' }}>
-                        Select a saved game to continue your adventure from where you left off.
-                    </DialogContentText>
+
                     <Divider sx={{ mb: 3 }} />
 
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box data-testid="restore-game-list" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         {props.games.map((game) => (
                             <Paper 
+                                data-testid="restore-game-item"
                                 key={game.id} 
                                 elevation={2} 
                                 sx={{ 
@@ -97,7 +95,7 @@ function RestoreModal(props: RestoreModalProps) {
                                     alignItems: 'center'
                                 }}>
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1 }}>
-                                        <Typography variant="h6" fontWeight="bold" sx={{ color: 'primary.main' }}>
+                                        <Typography variant="h6" fontWeight="bold" sx={{ color: 'grey.800' }}>
                                             {game.name}
                                         </Typography>
 
@@ -111,12 +109,15 @@ function RestoreModal(props: RestoreModalProps) {
 
                                     <Button 
                                         variant="contained" 
-                                        color="primary"
                                         startIcon={<RestoreIcon />}
                                         onClick={() => handleClose(game)}
                                         sx={{ 
                                             borderRadius: '20px',
-                                            px: 2
+                                            px: 2,
+                                            bgcolor: 'grey.800',
+                                            '&:hover': {
+                                                bgcolor: 'grey.700'
+                                            }
                                         }}
                                     >
                                         Restore
@@ -132,7 +133,16 @@ function RestoreModal(props: RestoreModalProps) {
                 <Button 
                     onClick={() => handleClose(undefined)} 
                     variant="outlined"
-                    sx={{ borderRadius: '20px', px: 3 }}
+                    sx={{ 
+                        borderRadius: '20px', 
+                        px: 3,
+                        borderColor: 'grey.600',
+                        color: 'grey.800',
+                        '&:hover': {
+                            borderColor: 'grey.800',
+                            bgcolor: 'grey.100'
+                        }
+                    }}
                 >
                     Cancel
                 </Button>
