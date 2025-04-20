@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using Model.Interface;
+using Model.Movement;
 
 namespace Model.Web;
 
@@ -13,13 +14,14 @@ public record GameResponse(
     int Time,
     string? PreviousLocationName,
     string? LastMovementDirection,
-    List<string> Inventory)
+    List<string> Inventory,
+    List<Direction> Exits)
 {
     [SetsRequiredMembers]
     public GameResponse(string response, IGameEngine gameEngine) : this(response, gameEngine.LocationName,
         gameEngine.Moves, gameEngine.Score, gameEngine.CurrentTime, gameEngine.PreviousLocationName,
         gameEngine.LastMovementDirection.ToString(),
-        gameEngine.Inventory)
+        gameEngine.Inventory, gameEngine.Exits)
     {
     }
     
@@ -46,4 +48,7 @@ public record GameResponse(
     
     [UsedImplicitly]
     public required string? LastMovementDirection { get; init; } = LastMovementDirection;
+
+    [UsedImplicitly] 
+    public required List<Direction> Exits { get; init; } = Exits;
 }

@@ -101,6 +101,15 @@ public interface IGameEngine
     int CurrentTime { get; }
 
     /// <summary>
+    /// Represents the possible exits or directions available to move from the current location.
+    /// </summary>
+    /// <remarks>
+    /// The "Exits" property provides a list of directions that the player can travel from their current position.
+    /// Each direction corresponds to an available path or exit point in the game environment.
+    /// </remarks>
+    List<Direction> Exits { get; }
+
+    /// <summary>
     ///     Retrieves the game engine's response based on the player's input.
     /// </summary>
     /// <param name="playerInput">The player's input.</param>

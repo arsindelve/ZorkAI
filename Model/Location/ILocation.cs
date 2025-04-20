@@ -27,6 +27,12 @@ public interface ILocation
     int VisitCount { get; set; }
 
     /// <summary>
+    /// This property defines the possible directions an adventurer can move to from the current location.
+    /// It represents the available exits that lead to other locations, based on the predefined map.
+    /// </summary>
+    List<Direction> Exits(IContext context);
+
+    /// <summary>
     /// Retrieves the description of the current location based on the provided context and level of detail.
     /// </summary>
     /// <param name="context">The context in which the description is requested, including relevant state information.</param>

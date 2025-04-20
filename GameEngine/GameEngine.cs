@@ -4,6 +4,7 @@ using CloudWatch.Model;
 using GameEngine.IntentEngine;
 using GameEngine.Item;
 using GameEngine.Item.ItemProcessor;
+using GameEngine.Location;
 using GameEngine.StaticCommand;
 using GameEngine.StaticCommand.Implementation;
 using Microsoft.Extensions.DependencyInjection;
@@ -136,6 +137,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     public int Moves => Context.Moves;
 
     public int CurrentTime => Context is ITimeBasedContext tc ? tc.CurrentTime : 0;
+
+    public List<Direction> Exits => Context.CurrentLocation.Exits(Context);
 
     /// <summary>
     ///     Parse the input, determine the user's <see cref="IntentBase" /> and allow the
