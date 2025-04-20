@@ -329,11 +329,21 @@ function Game() {
 
                         <Button
                             variant="contained"
+                            color="primary"
+                            size="large"
                             onClick={() => {
                                 Mixpanel.track('Click Go', {});
                                 submitInput();
                             }}
                             disabled={!playerInput}
+                            sx={{ 
+                                fontWeight: 'bold',
+                                minWidth: '80px',
+                                backgroundColor: '#4caf50',
+                                '&:hover': {
+                                    backgroundColor: '#388e3c'
+                                }
+                            }}
                             data-testid="go-button">
                             Go
                         </Button>
