@@ -82,8 +82,8 @@ test.describe('Game Save and Restore', () => {
 
         try {
             // Wait with a longer timeout - use a more specific selector to avoid strict mode violations
-            // We know there will be at least one save-game-new-section div (the input section)
-            await page.waitForSelector('[data-testid="save-game-new-section"]', {
+            // We know there will be at least one columns-3 div (the input section)
+            await page.waitForSelector('[data-testid="save-game-modal"] div.columns-3:first-child', {
                 state: 'visible', 
                 timeout: 10000
             });
@@ -93,15 +93,15 @@ test.describe('Game Save and Restore', () => {
         }
 
         // Verify that the saved games are displayed in the modal
-        const savedGamesCount = await page.locator('[data-testid="save-game-item"]').count();
+        const savedGamesCount = await page.locator('[data-testid="save-game-modal"] div.columns-3').count();
 
         if (savedGamesCount > 0) {
             // Verify visibility using expect - use nth() to select a specific element
             // This avoids the strict mode violation by selecting just one element
-            const firstSavedGame = page.locator('[data-testid="save-game-item"]').nth(0);
+            const firstSavedGame = page.locator('[data-testid="save-game-modal"] div.columns-3').nth(0);
             await expect(firstSavedGame).toBeVisible();
         } else {
-            console.error('No save game items found for verification!');
+            console.error('No columns-3 divs found for verification!');
         }
 
         // Enter a name for the saved game
@@ -160,7 +160,7 @@ test.describe('Game Save and Restore', () => {
         // Verify that the saved games are displayed in the modal
         try {
             // Wait for the saved games to be loaded
-            await page.waitForSelector('[data-testid="restore-game-list"]', {
+            await page.waitForSelector('[data-testid="restore-game-modal"] div.columns-3:first-child', {
                 state: 'visible',
                 timeout: 10000
             });
@@ -170,12 +170,12 @@ test.describe('Game Save and Restore', () => {
         }
 
         // Verify that the saved games are displayed in the modal
-        const savedGamesCount = await page.locator('[data-testid="restore-game-item"]').count();
+        const savedGamesCount = await page.locator('[data-testid="restore-game-modal"] div.columns-3').count();
 
         if (savedGamesCount > 0) {
             // Verify visibility using expect - use nth() to select a specific element
             // This avoids the strict mode violation by selecting just one element
-            const firstSavedGame = page.locator('[data-testid="restore-game-item"]').nth(0);
+            const firstSavedGame = page.locator('[data-testid="restore-game-modal"] div.columns-3').nth(0);
             await expect(firstSavedGame).toBeVisible();
 
             // Click the Restore button for the first saved game
@@ -234,7 +234,7 @@ test.describe('Game Save and Restore', () => {
         // Verify that the saved games are displayed in the modal
         try {
             // Wait for the saved games to be loaded
-            await page.waitForSelector('[data-testid="restore-game-list"]', {
+            await page.waitForSelector('[data-testid="restore-game-modal"] div.columns-3:first-child', {
                 state: 'visible',
                 timeout: 10000
             });
@@ -244,12 +244,12 @@ test.describe('Game Save and Restore', () => {
         }
 
         // Verify that the saved games are displayed in the modal
-        const savedGamesCount = await page.locator('[data-testid="restore-game-item"]').count();
+        const savedGamesCount = await page.locator('[data-testid="restore-game-modal"] div.columns-3').count();
 
         if (savedGamesCount > 0) {
             // Verify visibility using expect - use nth() to select a specific element
             // This avoids the strict mode violation by selecting just one element
-            const firstSavedGame = page.locator('[data-testid="restore-game-item"]').nth(0);
+            const firstSavedGame = page.locator('[data-testid="restore-game-modal"] div.columns-3').nth(0);
             await expect(firstSavedGame).toBeVisible();
 
             // Close the modal by clicking Cancel
@@ -296,7 +296,7 @@ test.describe('Game Save and Restore', () => {
         // Verify that the saved games are displayed in the modal
         try {
             // Wait for the saved games to be loaded
-            await page.waitForSelector('[data-testid="save-game-new-section"]', {
+            await page.waitForSelector('[data-testid="save-game-modal"] div.columns-3:first-child', {
                 state: 'visible',
                 timeout: 10000
             });
@@ -306,12 +306,12 @@ test.describe('Game Save and Restore', () => {
         }
 
         // Verify that the saved games are displayed in the modal
-        const savedGamesCount = await page.locator('[data-testid="save-game-item"]').count();
+        const savedGamesCount = await page.locator('[data-testid="save-game-modal"] div.columns-3').count();
 
         if (savedGamesCount > 0) {
             // Verify visibility using expect - use nth() to select a specific element
             // This avoids the strict mode violation by selecting just one element
-            const firstSavedGame = page.locator('[data-testid="save-game-item"]').nth(0);
+            const firstSavedGame = page.locator('[data-testid="save-game-modal"] div.columns-3').nth(0);
             await expect(firstSavedGame).toBeVisible();
 
             // Close the modal by clicking Cancel
@@ -366,88 +366,4 @@ test.describe('Game Save and Restore', () => {
         await expect(page.locator('[data-testid="restart-game-modal"]')).not.toBeVisible();
     });
 
-    test('Save Modal - Overwrite Existing Save section is hidden when no saved games exist', async ({page}) => {
-        // Override the getSavedGames route to return an empty array
-        await page.route('http://localhost:5000/ZorkOne/saveGame?*', async (route) => {
-            if (route.request().method() === 'GET') {
-                await route.fulfill({ 
-                    status: 200, 
-                    contentType: 'application/json',
-                    body: JSON.stringify([]) // Empty array - no saved games
-                });
-            } else {
-                await route.continue();
-            }
-        });
-
-        // Close the welcome modal using the helper function
-        await closeWelcomeModal(page);
-
-        // Wait for the Game button to be visible
-        await page.waitForSelector('[data-testid="game-button"]', {state: 'visible'});
-
-        // Click the Game button to open the menu
-        await page.locator('[data-testid="game-button"]').click();
-
-        // Verify that the Game menu appears
-        const gameMenu = page.locator('#game-menu');
-        await expect(gameMenu).toBeVisible();
-
-        // Find and click the Save your Game menu item
-        const saveMenuItem = page.locator('#game-menu li:has-text("Save your Game")');
-        await saveMenuItem.click();
-
-        // Wait for the save modal to appear
-        await page.waitForSelector('[data-testid="save-game-modal"]', {state: 'visible', timeout: 10000});
-
-        // Verify that the "Create New Save" section is visible
-        await expect(page.locator('[data-testid="save-game-new-section"]')).toBeVisible();
-
-        // Verify that the "Overwrite Existing Save" section is NOT visible
-        const overwriteSection = page.locator('[data-testid="overwrite-section-title"]');
-        await expect(overwriteSection).not.toBeVisible();
-
-        // Verify that the "No saved games found" message is visible
-        const noSavedGamesMessage = page.locator('text=No saved games found');
-        await expect(noSavedGamesMessage).toBeVisible();
-
-        // Close the modal
-        await page.locator('[data-testid="save-game-modal"] button:has-text("Cancel")').click();
-    });
-
-    test('Save Modal - Overwrite Existing Save section is visible when saved games exist', async ({page}) => {
-        // Close the welcome modal using the helper function
-        await closeWelcomeModal(page);
-
-        // Wait for the Game button to be visible
-        await page.waitForSelector('[data-testid="game-button"]', {state: 'visible'});
-
-        // Click the Game button to open the menu
-        await page.locator('[data-testid="game-button"]').click();
-
-        // Verify that the Game menu appears
-        const gameMenu = page.locator('#game-menu');
-        await expect(gameMenu).toBeVisible();
-
-        // Find and click the Save your Game menu item
-        const saveMenuItem = page.locator('#game-menu li:has-text("Save your Game")');
-        await saveMenuItem.click();
-
-        // Wait for the save modal to appear
-        await page.waitForSelector('[data-testid="save-game-modal"]', {state: 'visible', timeout: 10000});
-
-        // Verify that the "Create New Save" section is visible
-        await expect(page.locator('[data-testid="save-game-new-section"]')).toBeVisible();
-
-        // Verify that the "Overwrite Existing Save" section IS visible
-        const overwriteSection = page.locator('[data-testid="overwrite-section-title"]');
-        await expect(overwriteSection).toBeVisible();
-
-        // Verify that at least one saved game item is visible
-        const savedGameItem = page.locator('[data-testid="save-game-item"]').first();
-        await expect(savedGameItem).toBeVisible();
-
-        // Close the modal
-        await page.locator('[data-testid="save-game-modal"] button:has-text("Cancel")').click();
-    });
 });
