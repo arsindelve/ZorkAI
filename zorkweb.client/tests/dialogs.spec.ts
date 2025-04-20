@@ -86,7 +86,7 @@ test.describe('Game Dialogs', () => {
         await page.waitForSelector('div[role="dialog"]', {state: 'visible'});
 
         // Verify that the video dialog contains the expected title
-        const modalTitle = page.locator('div[role="dialog"] #alert-dialog-title');
+        const modalTitle = page.locator('div[role="dialog"] #video-dialog-title');
         await expect(modalTitle).toContainText('Welcome to Zork AI');
 
         // Verify that the video dialog contains a video element
