@@ -173,8 +173,11 @@ test.describe('Game Menus', () => {
         // Wait for the game response to appear
         await waitForGameResponse(page);
 
+        // Wait for the Inventory button to be visible with a longer timeout
+        await page.waitForSelector('[data-testid="inventory-button"]', {state: 'visible', timeout: 10000});
+
         // Verify that the Inventory button is visible
-        const inventoryButton = page.locator('button:has-text("Inventory")');
+        const inventoryButton = page.locator('[data-testid="inventory-button"]');
         await expect(inventoryButton).toBeVisible();
 
         // Click the Inventory button to open the menu
@@ -214,8 +217,11 @@ test.describe('Game Menus', () => {
         // Wait for the game response to appear
         await waitForGameResponse(page);
 
+        // Wait for the Inventory button to be visible with a longer timeout
+        await page.waitForSelector('[data-testid="inventory-button"]', {state: 'visible', timeout: 10000});
+
         // Verify that the Inventory button is visible
-        const inventoryButton = page.locator('button:has-text("Inventory")');
+        const inventoryButton = page.locator('[data-testid="inventory-button"]');
         await expect(inventoryButton).toBeVisible();
 
         // Click the Inventory button
@@ -262,7 +268,7 @@ test.describe('Game Menus', () => {
         await waitForGameResponse(page);
 
         // Verify that the Inventory button is not visible
-        const inventoryButton = page.locator('button:has-text("Inventory")');
+        const inventoryButton = page.locator('[data-testid="inventory-button"]');
         await expect(inventoryButton).not.toBeVisible();
     });
 
