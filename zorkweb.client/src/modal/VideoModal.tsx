@@ -30,8 +30,8 @@ const VideoDialog: React.FC<VideoDialogProps> = ({open, handleClose}) => (
     >
         <DialogTitle 
             id="video-dialog-title"
+            className="bg-gradient-to-r from-gray-800 to-gray-900"
             sx={{
-                bgcolor: 'grey.900',
                 color: 'white',
                 display: 'flex',
                 alignItems: 'center',

@@ -103,9 +103,7 @@ function App() {
                 <GameMenu/>
 
                 <QueryClientProvider client={queryClient}>
-                    <Game
-
-                    />
+                    <Game           />
 
                     <RestartConfirmDialog
                         open={restartConfirmOpen}
