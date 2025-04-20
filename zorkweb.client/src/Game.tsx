@@ -159,9 +159,9 @@ function Game() {
         onSuccess: (response) => {
             handleResponse(response);
         },
-        onError: (r => {
+        onError: () => {
             // Error handling is done via the Alert component below
-        })
+        }
     });
 
     function submitInput(inputValue?: string) {

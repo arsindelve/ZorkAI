@@ -82,7 +82,7 @@ function App() {
     const handleWatchVideo = () => {
         setWelcomeDialogOpen(false);
         setVideoDialogOpen(true);
-    }
+    };
 
     async function getSavedGames() {
         const id = sessionId.getClientId();
@@ -160,8 +160,6 @@ function App() {
                 </p>
             </footer>
         </div>
-
-
     );
 }
 
