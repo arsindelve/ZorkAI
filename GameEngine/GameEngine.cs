@@ -267,21 +267,28 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public async Task InitializeEngine()
     {
-        _turnLogger = await CloudWatchLoggerFactory.Get<TurnLog>(_gameInstance.GameName, "Turns", _turnCorrelationId);
+        try
+        {
+            _turnLogger = await CloudWatchLoggerFactory.Get<TurnLog>(_gameInstance.GameName, "Turns", _turnCorrelationId);
 
-        GenerationClient.TurnCorrelationId = _turnCorrelationId;
-        GenerationClient.CloudWatchLogger =
-            await CloudWatchLoggerFactory.Get<GenerationLog>(_gameInstance.GameName, "ResponseGeneration",
-                _turnCorrelationId);
+            GenerationClient.TurnCorrelationId = _turnCorrelationId;
+            GenerationClient.CloudWatchLogger =
+                await CloudWatchLoggerFactory.Get<GenerationLog>(_gameInstance.GameName, "ResponseGeneration",
+                    _turnCorrelationId);
 
-        _parser.TurnCorrelationId = _turnCorrelationId;
-        _parser.Logger =
-            await CloudWatchLoggerFactory.Get<GenerationLog>(_gameInstance.GameName, "InputParsing",
-                _turnCorrelationId);
+            _parser.TurnCorrelationId = _turnCorrelationId;
+            _parser.Logger =
+                await CloudWatchLoggerFactory.Get<GenerationLog>(_gameInstance.GameName, "InputParsing",
+                    _turnCorrelationId);
 
-        GenerationClient.SystemPrompt = await _secretsManager.GetSecret(
-            _gameInstance.SystemPromptSecretKey
-        );
+            GenerationClient.SystemPrompt = await _secretsManager.GetSecret(
+                _gameInstance.SystemPromptSecretKey
+            );
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
     }
 
     private string FormatResult(string? contextPrepend, string? mainBody, string? actorResult, string? contextAppend)

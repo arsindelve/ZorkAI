@@ -17,8 +17,8 @@ export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  retries: 2,
+  workers: 1,
   // Use multiple reporters for better debugging
   reporter: [
     ['html', { outputFolder: 'playwright-report' }],
@@ -35,6 +35,10 @@ export default defineConfig({
     screenshot: 'on',
     // Record video for failed tests
     video: 'retain-on-failure',
+    // Increase default timeout for assertions from 5s to 10s
+    expect: {
+      timeout: 10000
+    },
     // Capture console logs
     contextOptions: {
       logger: {

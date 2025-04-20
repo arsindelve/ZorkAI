@@ -4,7 +4,9 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
+import { Typography, Paper, Box, Divider, Skeleton } from "@mui/material";
 import { ReleaseNotesServer } from "../ReleaseNotesServer";
+import UpdateIcon from '@mui/icons-material/Update';
 
 /**
  * Decodes HTML entities in the release notes.
@@ -24,43 +26,154 @@ const ReleaseNotesModal: React.FC<{ open: boolean; handleClose: () => void }> = 
         }
     }, [open]);
 
+    // Function to render loading skeletons
+    const renderSkeletons = () => {
+        return Array(3).fill(0).map((_, index) => (
+            <Paper
+                key={`skeleton-${index}`}
+                elevation={2}
+                sx={{
+                    p: 3,
+                    mb: 3,
+                    borderRadius: '8px',
+                    bgcolor: 'background.paper',
+                }}
+            >
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Skeleton variant="circular" width={24} height={24} sx={{ mr: 1 }} />
+                    <Skeleton variant="text" width={200} height={32} />
+                    <Skeleton variant="text" width={120} height={24} sx={{ ml: 2 }} />
+                </Box>
+
+                <Skeleton variant="text" width="100%" height={20} />
+                <Skeleton variant="text" width="95%" height={20} />
+                <Skeleton variant="text" width="90%" height={20} />
+                <Skeleton variant="text" width="97%" height={20} />
+                <Skeleton variant="text" width="85%" height={20} />
+
+                <Box sx={{ mt: 2 }}>
+                    <Skeleton variant="text" width="92%" height={20} />
+                    <Skeleton variant="text" width="88%" height={20} />
+                    <Skeleton variant="text" width="94%" height={20} />
+                </Box>
+            </Paper>
+        ));
+    };
+
     return (
         <Dialog
             open={open}
             onClose={handleClose}
             aria-labelledby="release-notes-title"
-            maxWidth={false}
+            maxWidth="md"
             fullWidth
             PaperProps={{
-                style: { height: "90vh", width: "90vw" },
+                style: { 
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    maxHeight: '90vh'
+                },
             }}
         >
-            <DialogTitle id="release-notes-title">{"Zork AI Release Notes"}</DialogTitle>
-            <DialogContent dividers>
+            <DialogTitle 
+                id="release-notes-title"
+                sx={{
+                    bgcolor: 'grey.900',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    py: 2
+                }}
+            >
+                <UpdateIcon fontSize="large" />
+                <Typography variant="h5" component="span" fontWeight="bold">
+                    Zork AI Release Notes
+                </Typography>
+            </DialogTitle>
+
+            <DialogContent sx={{ p: 3, pb: 1 }}>
                 {releases.length === 0 ? (
-                    <p>Loading release notes...</p>
+                    <Box sx={{ pt: 2, pb: 2 }}>
+                        {renderSkeletons()}
+                    </Box>
                 ) : (
-                    <div style={{ fontSize: "1rem", lineHeight: "1.5" }}>
+                    <Box sx={{ pt: 1 }}>
                         {releases.map((release) => (
-                            <div key={release.date} style={{marginBottom: "20px"}}>
-                                <h3 style={{fontSize: "1.2rem", fontWeight: "bold", margin: "10px 0"}}>
-                                    {release.name} - {new Date(release.date).toLocaleDateString()}
-                                </h3>
-                                <div
+                            <Paper
+                                key={release.date}
+                                elevation={2}
+                                sx={{
+                                    p: 3,
+                                    mb: 3,
+                                    borderRadius: '8px',
+                                    bgcolor: 'background.paper',
+                                    transition: 'all 0.2s',
+                                    '&:hover': {
+                                        transform: 'translateY(-2px)',
+                                        boxShadow: 4
+                                    }
+                                }}
+                            >
+                                <Typography 
+                                    variant="h6" 
+                                    fontWeight="bold" 
+                                    sx={{ 
+                                        mb: 1, 
+                                        color: 'grey.800',
+                                        display: 'flex',
+                                        alignItems: 'center'
+                                    }}
+                                >
+                                    {release.name}
+                                    <Typography 
+                                        variant="subtitle1" 
+                                        component="span" 
+                                        sx={{ 
+                                            ml: 2,
+                                            color: 'text.secondary',
+                                            fontWeight: 'normal'
+                                        }}
+                                    >
+                                        {new Date(release.date).toLocaleDateString()}
+                                    </Typography>
+                                </Typography>
+
+                                <Divider sx={{ mb: 2 }} />
+
+                                <Box
                                     dangerouslySetInnerHTML={{__html: decodeHTML(release.notes)}}
-                                    style={{
+                                    sx={{
                                         whiteSpace: "normal",
-                                        wordWrap: "break-word"
+                                        wordWrap: "break-word",
+                                        '& ul': { pl: 4 },
+                                        '& li': { mb: 1 },
+                                        color: 'grey.800',
+                                        fontSize: '1rem',
+                                        lineHeight: 1.6
                                     }}
                                 />
-                                <hr style={{border: "1px solid #ccc", margin: "20px 0"}}/>
-                            </div>
+                            </Paper>
                         ))}
-                    </div>
+                    </Box>
                 )}
             </DialogContent>
-            <DialogActions>
-                <Button onClick={handleClose} autoFocus>
+
+            <DialogActions sx={{ p: 2, bgcolor: 'grey.100' }}>
+                <Button 
+                    onClick={handleClose} 
+                    variant="outlined"
+                    sx={{ 
+                        borderRadius: '20px',
+                        px: 3,
+                        borderColor: 'grey.600',
+                        color: 'grey.800',
+                        '&:hover': {
+                            borderColor: 'grey.800',
+                            bgcolor: 'grey.100'
+                        }
+                    }}
+                >
                     Close
                 </Button>
             </DialogActions>
