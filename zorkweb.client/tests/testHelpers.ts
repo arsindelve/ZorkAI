@@ -101,3 +101,25 @@ export async function handleRestoreGameRoute(route: Route) {
         body: JSON.stringify(mockResponses.init)
     });
 }
+
+/**
+ * Helper function to handle the getSavedGames endpoint route
+ * This function intercepts requests to the getSavedGames endpoint and returns mock saved games
+ */
+export async function handleGetSavedGamesRoute(route: Route) {
+    console.log('handleGetSavedGamesRoute called');
+    console.log('Request URL:', route.request().url());
+    console.log('Request method:', route.request().method());
+    console.log('Request headers:', await route.request().allHeaders());
+
+    // Log the mock data being returned
+    console.log('Returning mock saved games:', JSON.stringify(mockResponses.savedGames));
+
+    await route.fulfill({ 
+        status: 200, 
+        contentType: 'application/json',
+        body: JSON.stringify(mockResponses.savedGames)
+    });
+
+    console.log('handleGetSavedGamesRoute fulfilled');
+}

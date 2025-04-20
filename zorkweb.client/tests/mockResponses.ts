@@ -34,5 +34,23 @@ export const mockResponses = {
         locationName: "North of House",
         response: "North of House\nYou are facing the north side of a white house. There is no door here, and all the windows are boarded up. To the north a narrow path winds through the trees.",
         inventory: []
-    }
+    },
+    // Mock saved games for testing the restore modal
+    savedGames: [
+        {
+            name: "Test Game 1",
+            id: "test-game-1",
+            date: "2023-01-01T12:00:00Z"
+        },
+        {
+            name: "Test Game 2",
+            id: "test-game-2",
+            date: "2023-01-02T14:30:00Z"
+        },
+        {
+            name: "Test Game with a Very Long Name That Should Still Display Properly",
+            id: "test-game-3",
+            date: "2023-01-03T18:45:00Z"
+        }
+    ]
 };

@@ -8,7 +8,7 @@ interface GameContextType {
     dialogToOpen: DialogType | undefined;
     setDialogToOpen: (dialog: DialogType | undefined) => void;
 
-    restartGame: Boolean;
+    restartGame: boolean;
     setRestartGame: (restartGame: boolean) => void;
 
     saveGameRequest: ISaveGameRequest | undefined;

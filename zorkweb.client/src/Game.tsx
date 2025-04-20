@@ -21,14 +21,14 @@ import DialogType from "./model/DialogType.ts";
 function Game() {
 
     const restoreResponse = "<Restore>\n";
-    const saveResponse = "<Save>\n"
-    const restartResponse = "<Restart>\n"
+    const saveResponse = "<Save>\n";
+    const restartResponse = "<Restart>\n";
 
     const [playerInput, setInput] = useState<string>("");
     const [gameText, setGameText] = useState<string[]>(["Your game is loading...."]);
     const [score, setScore] = useState<string>("0");
     const [moves, setMoves] = useState<string>("0");
-    const [inventory, setInventory] = useState<string[]>([])
+    const [inventory, setInventory] = useState<string[]>([]);
     const [locationName, setLocationName] = useState<string>("");
 
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
@@ -62,9 +62,8 @@ function Game() {
         if (saveGameRequest) {
             (async () => {
                 saveGameRequest.sessionId = sessionId.getSessionId()[0];
-                saveGameRequest.clientId = sessionId.getClientId()
-                console.log(saveGameRequest);
-                let response = await server.saveGame(saveGameRequest);
+                saveGameRequest.clientId = sessionId.getClientId();
+                const response = await server.saveGame(saveGameRequest);
                 setGameText((prevGameText) => [...prevGameText, response]);
                 setSaveGameRequest(undefined);
                 setSnackBarMessage("Game Saved Successfully.");
@@ -96,7 +95,7 @@ function Game() {
     // Restart the game. 
     useEffect(() => {
         if (!restartGame)
-            return
+            return;
         sessionId.regenerate();
         setGameText([""]);
         gameInit().then((data) => {
@@ -121,21 +120,23 @@ function Game() {
     }, []);
 
     function handleResponse(data: GameResponse) {
+        console.log('Game.tsx: handleResponse called with data:', JSON.stringify(data));
 
         if (data.response === saveResponse) {
-            setDialogToOpen(DialogType.Save)
+            setDialogToOpen(DialogType.Save);
             setInput("");
+            console.log('Game.tsx: DialogType.Save set, returning');
             return;
         }
 
         if (data.response === restoreResponse) {
-            setDialogToOpen(DialogType.Restore)
+            setDialogToOpen(DialogType.Restore);
             setInput("");
             return;
         }
 
         if (data.response === restartResponse) {
-            setDialogToOpen(DialogType.Restart)
+            setDialogToOpen(DialogType.Restart);
             setInput("");
             return;
         }
@@ -151,7 +152,7 @@ function Game() {
         setInput("");
         setLocationName(data.locationName);
         setScore(data.score.toString());
-        setMoves(data.moves.toString())
+        setMoves(data.moves.toString());
         setInventory(data.inventory);
     }
 

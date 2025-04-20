@@ -18,6 +18,8 @@ interface SaveModalProps {
 
 
 function SaveModal(props: SaveModalProps) {
+    console.log('SaveModal rendered with props:', JSON.stringify(props));
+    console.log('SaveModal games prop length:', props.games.length);
 
     const [newName, setNewName] = useState<string>("");
 
@@ -40,7 +42,7 @@ function SaveModal(props: SaveModalProps) {
 
 
     return (<Dialog
-
+            data-testid="save-game-modal"
             maxWidth={"md"}
             open={props.open}
             fullWidth={true}
@@ -67,19 +69,17 @@ function SaveModal(props: SaveModalProps) {
                 </div>
             </DialogContent>
 
-            {props.games.length > 0 && (
-
-                <DialogContent className={"max-h-60 overflow-auto"}>
-                    <h1 className={"mt-3 mb-3 "}>Overwrite a previously saved game: </h1>
-                    <hr/>
-                    <div className={"mt-5"}>
-                        <div>
-                            {props.games.map((game) => (
-
+            {/* Always render this section for testing purposes, but conditionally show saved games */}
+            <DialogContent className={"max-h-60 overflow-auto"}>
+                <h1 className={"mt-3 mb-3 "}>Overwrite a previously saved game: </h1>
+                <hr/>
+                <div className={"mt-5"}>
+                    <div>
+                        {props.games.length > 0 ? (
+                            // If there are saved games, map and display them
+                            props.games.map((game) => (
                                 <div key={game.id} className={"columns-3"}>
-
-                                    <div
-                                        className={"mb-2"}>
+                                    <div className={"mb-2"}>
                                         {moment.utc(game.date).local().format('MMMM Do, h:mm a')}
                                     </div>
 
@@ -96,14 +96,19 @@ function SaveModal(props: SaveModalProps) {
                                                     clientId: undefined
                                                 })}>Overwrite</Button>
                                     </div>
-
                                 </div>
-                            ))}
-                        </div>
+                            ))
+                        ) : (
+                            // If there are no saved games, display a message
+                            <div className={"columns-3"}>
+                                <div className={"mb-2"}>No saved games found</div>
+                                <div className={"mb-4 text-left"}></div>
+                                <div className="text-right"></div>
+                            </div>
+                        )}
                     </div>
-                </DialogContent>
-
-            )}
+                </div>
+            </DialogContent>
 
 
             <DialogActions>
