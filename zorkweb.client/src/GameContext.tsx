@@ -18,7 +18,7 @@ interface GameContextType {
     setRestoreGameRequest: (restoreGameRequest: ISavedGame | undefined) => void;
 
     copyGameTranscript: () => Promise<void>;
-    setCopyGameTranscript: (copyFn: () => Promise<void>) => void;
+    setCopyGameTranscript: (copyFn: () => () => Promise<void>) => void;
 }
 
 // Create the context
