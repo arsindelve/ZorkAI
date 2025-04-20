@@ -18,7 +18,11 @@ import {useGameContext} from "./GameContext";
 import InventoryButton from "./components/InventoryButton.tsx";
 import DialogType from "./model/DialogType.ts";
 
-function Game() {
+interface GameProps {
+    onUserTyped?: () => void;
+}
+
+function Game({ onUserTyped }: GameProps) {
 
     const restoreResponse = "<Restore>\n";
     const saveResponse = "<Save>\n";
@@ -298,7 +302,13 @@ function Game() {
                     bg-stone-700"
                     value={playerInput}
                     placeholder="Type your command, then press enter/return."
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={(e) => {
+                        setInput(e.target.value);
+                        // Call onUserTyped if provided and input is not empty
+                        if (onUserTyped && e.target.value.trim() !== '') {
+                            onUserTyped();
+                        }
+                    }}
                     onKeyDown={handleKeyDown}
                     data-testid="game-input"
                 ></input>

@@ -11,6 +11,7 @@ import { mockResponses } from './mockResponses';
  * Helper function to close the welcome modal
  * This function navigates to the application, waits for the welcome modal to be visible,
  * and then closes it by clicking the close button.
+ * It also waits for the popper to appear and then dismisses it by clicking away.
  */
 export async function closeWelcomeModal(page: Page) {
     // Navigate to the application
@@ -21,6 +22,27 @@ export async function closeWelcomeModal(page: Page) {
 
     // Close the welcome modal
     await page.locator('[data-testid="welcome-modal-close-button"]').click();
+
+    // Verify that the welcome modal is closed
+    await page.waitForSelector('[data-testid="welcome-modal"]', {state: 'hidden'});
+
+    // Wait a moment for the popper to appear (there's a 500ms delay in the code)
+    await page.waitForTimeout(1000);
+
+    // If the popper appears, click away to dismiss it
+    try {
+        // Check if the popper is visible
+        const popperVisible = await page.isVisible('.MuiPopper-root');
+        if (popperVisible) {
+            // Click away from the popper (on the game content area)
+            await page.locator('[data-testid="game-responses-container"]').click();
+            // Wait for the popper to disappear
+            await page.waitForSelector('.MuiPopper-root', {state: 'hidden', timeout: 2000});
+        }
+    } catch (error) {
+        // If there's an error (e.g., popper not found), just continue
+        console.log('Popper not found or already dismissed');
+    }
 }
 
 /**
