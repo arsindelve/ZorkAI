@@ -30,6 +30,7 @@ export default function InventoryButton({inventory, onInventoryClick}: Inventory
     return (
         <>
             <Button
+                data-testid="inventory-button"
                 onClick={handleClick}
                 sx={{
                     color: "white",          // Set text color to white
