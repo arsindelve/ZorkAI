@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+import daisyui from 'daisyui'
+
 export default {
     daisyui: {
         themes: ["black"]
@@ -18,13 +20,10 @@ export default {
     },
     variants: {
         extend: {
-
             backgroundRepeat: {
                 'repeat': 'repeat',
             },
         },
     },
-
-    plugins: [require("daisyui")],
+    plugins: [daisyui],
 }
-
