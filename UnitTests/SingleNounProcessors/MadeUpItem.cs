@@ -23,7 +23,7 @@ internal class MadeUpItem : ICanBeEaten, ICanBeTakenAndDropped
 
     public bool HasEverBeenPickedUp => false;
 
-    public string OnBeingTaken(IContext context)
+    public string OnBeingTaken(IContext context, ICanContainItems? previousLocation)
     {
         return "";
     }

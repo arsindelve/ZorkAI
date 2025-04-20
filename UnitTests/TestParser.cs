@@ -32,7 +32,7 @@ public class TestParser : IntentParser
 
         IEnumerable<string> specialNouns =
         [
-            "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "zero", "dial", "shelves",
+            "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "zero", "dial", "shelves", "pocket",
             "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "dude", "hello", "17", "seventeen", "slot", "lever", "label",
             "tree", "branches", "house", "lettering", "mirror", "match", "yellow button", "red button", "button", "medicine",
             "blue button", "brown button", "bolt", "bubble", "bodies", "gate", "lid", "switch", "slag", "engravings"
@@ -55,7 +55,7 @@ public class TestParser : IntentParser
 
         if (input is "drop all")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new DropEverythingProcessor() });
-
+        
         if (input is "press the button")
             return Task.FromResult<IntentBase>(new SimpleIntent
             {
@@ -852,6 +852,27 @@ public class TestParser : IntentParser
                 Preposition = "to",
                 Verb = "apply",
                 OriginalInput = "apply the gunk to the water"
+            });
+        
+                
+        if (input == "put red spool in reader")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "red spool",
+                NounTwo = "reader",
+                Preposition = "in",
+                Verb = "put",
+                OriginalInput = "put red spool in reader"
+            });
+        
+        if (input == "put green spool in reader")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "green spool",
+                NounTwo = "reader",
+                Preposition = "in",
+                Verb = "put",
+                OriginalInput = "put green spool in reader"
             });
 
         if (input?.StartsWith("put") ?? false)

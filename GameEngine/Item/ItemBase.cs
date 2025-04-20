@@ -187,7 +187,7 @@ public abstract class ItemBase : IItem
     /// <param name="context">The context within which the item is being taken. Provides information
     /// about the current game state, including the player's inventory and environment.</param>
     /// <returns>A string describing the effect or response of taking the item, or null if no specific response is provided.</returns>
-    public virtual string? OnBeingTaken(IContext context)
+    public virtual string? OnBeingTaken(IContext context, ICanContainItems? previousLocation)
     {
         return null;
     }

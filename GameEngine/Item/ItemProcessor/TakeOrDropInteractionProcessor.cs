@@ -73,7 +73,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         IContext context, IGenerationClient client)
     {
         var result = await GetItemsToTake(context,
-            new SimpleIntent { OriginalInput = action.Message, Verb = "take", Noun = action.Noun});
+            new SimpleIntent { OriginalInput = action.Message, Verb = "take", Noun = action.Noun });
 
         if (result is null or NoNounMatchInteractionResult)
         {
@@ -199,7 +199,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (castItem is not ICanBeTakenAndDropped takeItem)
             return new NoNounMatchInteractionResult();
 
-        var onTakenText = takeItem.OnBeingTaken(context);
+        var onTakenText = takeItem.OnBeingTaken(context, container);
         container?.OnItemRemovedFromHere(castItem, context);
 
         return new PositiveInteractionResult(
