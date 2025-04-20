@@ -617,4 +617,75 @@ test.describe('Zork Game', () => {
         // Verify that the restart modal is closed
         await expect(page.locator('[data-testid="restart-game-modal"]')).not.toBeVisible();
     });
+
+    test('Inventory - when API returns items in inventory array, they are listed in the Inventory menu', async ({page}) => {
+        // Close the welcome modal using the helper function
+        await closeWelcomeModal(page);
+
+        // Wait for the input field to be visible
+        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+
+        // Type the "inventory" command in the input field
+        await page.fill('[data-testid="game-input"]', 'inventory');
+
+        // Make sure the input field has the correct value before proceeding
+        await expect(page.locator('[data-testid="game-input"]')).toHaveValue('inventory');
+
+        // Click the Go button to submit the command
+        await page.click('[data-testid="go-button"]');
+
+        // Wait for the game response to appear
+        await waitForGameResponse(page);
+
+        // Verify that the Inventory button is visible
+        const inventoryButton = page.locator('button:has-text("Inventory")');
+        await expect(inventoryButton).toBeVisible();
+
+        // Click the Inventory button
+        await inventoryButton.click();
+
+        // Wait for the menu to appear
+        await page.waitForSelector('ul[role="menu"]', {state: 'visible'});
+
+        // Verify that the menu contains the expected items
+        const menuItems = page.locator('ul[role="menu"] li');
+
+        // Check the count of menu items
+        await expect(menuItems).toHaveCount(3); // There should be 3 items in the inventory
+
+        // Verify specific menu items are present
+        await expect(page.locator('li:has-text("leaflet")')).toBeVisible();
+        await expect(page.locator('li:has-text("brass lantern")')).toBeVisible();
+        await expect(page.locator('li:has-text("sword")')).toBeVisible();
+
+        // Click outside to close the menu
+        await page.click('body', { position: { x: 0, y: 0 } });
+
+        // Verify that the menu is closed
+        await expect(page.locator('ul[role="menu"]')).not.toBeVisible();
+    });
+
+    test('Inventory - when API returns empty inventory array, the Inventory button is not visible', async ({page}) => {
+        // Close the welcome modal using the helper function
+        await closeWelcomeModal(page);
+
+        // Wait for the input field to be visible
+        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+
+        // Type the "drop all" command in the input field
+        await page.fill('[data-testid="game-input"]', 'drop all');
+
+        // Make sure the input field has the correct value before proceeding
+        await expect(page.locator('[data-testid="game-input"]')).toHaveValue('drop all');
+
+        // Click the Go button to submit the command
+        await page.click('[data-testid="go-button"]');
+
+        // Wait for the game response to appear
+        await waitForGameResponse(page);
+
+        // Verify that the Inventory button is not visible
+        const inventoryButton = page.locator('button:has-text("Inventory")');
+        await expect(inventoryButton).not.toBeVisible();
+    });
 });
