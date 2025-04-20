@@ -22,6 +22,7 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({open, handleClose, handleW
         PaperProps={{
             style: {width: "70%", maxWidth: "none"}, // Set custom width (80% of the viewport)
         }}
+        data-testid="welcome-modal"  // Added test id for modal root
     >
         <DialogTitle id="alert-dialog-title">
             {"Welcome to Zork AI - A Modern Reimagining of the 1980s Classic!"}
@@ -61,7 +62,7 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({open, handleClose, handleW
                 Watch an intro video
             </Button>
 
-            <Button onClick={handleClose} autoFocus>
+            <Button onClick={handleClose} autoFocus data-testid="welcome-modal-close-button">
                 Close
             </Button>
 

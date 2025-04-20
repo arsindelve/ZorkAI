@@ -21,8 +21,9 @@ export default function FunctionsMenu() {
     return (
         <div>
             <Button
-                id="basic-button"
-                aria-controls={open ? 'basic-menu' : undefined}
+                id="game-button"
+                data-testid="game-button"
+                aria-controls={open ? 'game-menu' : undefined}
                 aria-haspopup="true"
                 aria-expanded={open ? 'true' : undefined}
                 onClick={handleClick}
@@ -30,12 +31,13 @@ export default function FunctionsMenu() {
                 Game
             </Button>
             <Menu
-                id="basic-menu"
+                id="game-menu"
+                data-testid="game-menu"
                 anchorEl={anchorElement}
                 open={open}
                 onClose={handleClose}
                 MenuListProps={{
-                    'aria-labelledby': 'basic-button',
+                    'aria-labelledby': 'game-button',
                 }}
             >
                 <MenuItem onClick={() => {

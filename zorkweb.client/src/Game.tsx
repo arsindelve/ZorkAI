@@ -269,12 +269,14 @@ function Game() {
             "/>
 
             <ClickableText ref={gameContentElement} onWordClick={(word) => handleWordClicked(word)}
-                           className={"p-12 bg-opacity-85 h-[65vh] overflow-auto bg-stone-900 font-mono "}>
+                           className={"p-12 bg-opacity-85 h-[65vh] overflow-auto bg-stone-900 font-mono "}
+                           data-testid="game-responses-container">
                 {gameText.map((item: string, index: number) => (
                     <p
                         dangerouslySetInnerHTML={{__html: item}}
                         className={"mb-4"}
                         key={index}
+                        data-testid="game-response"
                     >
                     </p>
                 ))}
@@ -300,6 +302,7 @@ function Game() {
                     placeholder="Type your command, then press enter/return."
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    data-testid="game-input"
                 ></input>
 
                 {mutation.isPending && (
@@ -332,7 +335,8 @@ function Game() {
                                 Mixpanel.track('Click Go', {});
                                 submitInput();
                             }}
-                            disabled={!playerInput}>
+                            disabled={!playerInput}
+                            data-testid="go-button">
                             Go
                         </Button>
                     </div>
