@@ -18,9 +18,6 @@ interface SaveModalProps {
 
 
 function SaveModal(props: SaveModalProps) {
-    console.log('SaveModal rendered with props:', JSON.stringify(props));
-    console.log('SaveModal games prop length:', props.games.length);
-
     const [newName, setNewName] = useState<string>("");
 
     const {setSaveGameRequest} = useGameContext();
