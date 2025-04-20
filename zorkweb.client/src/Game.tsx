@@ -17,6 +17,7 @@ import {Mixpanel} from "./Mixpanel.ts";
 import {useGameContext} from "./GameContext";
 import InventoryButton from "./components/InventoryButton.tsx";
 import DialogType from "./model/DialogType.ts";
+import GameInput from "./components/GameInput.tsx";
 
 function Game() {
 
@@ -267,73 +268,81 @@ function Game() {
             "/>
 
             <ClickableText ref={gameContentElement} onWordClick={(word) => handleWordClicked(word)}
-                           className={"p-12 bg-opacity-85 h-[65vh] overflow-auto bg-stone-900 font-mono "}
+                           className={"p-6 sm:p-12 bg-opacity-95 h-[65vh] overflow-auto bg-stone-900 font-mono rounded-lg border-2 border-stone-700/50 shadow-lg"}
                            data-testid="game-responses-container">
+                <div className="relative z-0">
+                    {/* Background styling elements */}
+                    <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMjEyMTIxIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=')] opacity-5 pointer-events-none"></div>
+                    <div className="absolute top-2 left-2 w-20 h-20 rounded-full bg-lime-500/10 blur-3xl pointer-events-none"></div>
+                    <div className="absolute bottom-10 right-5 w-32 h-32 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none"></div>
+                </div>
+            
                 {gameText.map((item: string, index: number) => (
                     <p
                         dangerouslySetInnerHTML={{__html: item}}
-                        className={"mb-4"}
+                        className={`mb-4 relative z-10 ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
                         key={index}
                         data-testid="game-response"
                     >
                     </p>
                 ))}
-
             </ClickableText>
-
-            <div className="flex flex-col sm:flex-row items-center bg-stone-700 min-h-[70px]">
-                <input
-                    ref={playerInputElement}
-                    readOnly={mutation.isPending}
-                    className="
-                    w-full 
-                    sm:p-4
-                    m-1
-                    p-1 
-                    text-center 
-                    sm:text-left 
-                    focus:border-stone-500 
-                    focus:border-[1.5px] 
-                    focus:outline-none 
-                    bg-stone-700"
-                    value={playerInput}
-                    placeholder="Type your command, then press enter/return."
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    data-testid="game-input"
-                ></input>
-
+            
+            <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 bg-gradient-to-r from-stone-800 to-stone-700 py-2 min-h-[90px] rounded-b-lg border-t border-stone-600/30 shadow-inner">
+                <GameInput
+                    playerInputElement={playerInputElement}
+                    isPending={mutation.isPending}
+                    playerInput={playerInput}
+                    setInput={setInput}
+                    handleKeyDown={handleKeyDown}
+                />
+            
                 {mutation.isPending && (
-                    <div className="mr-4 bg-stone-700 p-2">
-                        <CircularProgress size={25} sx={{color: 'white'}}/>
+                    <div className="mr-4 p-2 flex items-center justify-center">
+                        <CircularProgress size={28} sx={{
+                            color: '#84cc16',
+                            boxShadow: '0 0 15px 5px rgba(132, 204, 22, 0.2)',
+                            borderRadius: '50%'
+                        }}/>
                     </div>
                 )}
-
+            
                 {!mutation.isPending && (
                     <div
                         className="
                         flex 
                         flex-row 
                         justify-center 
-                        sm:ml-4 
-                        sm:mr-6 
-                        mt-4 
-                        mb-2 sm:mb-4 
-                        space-x-6
+                        flex-wrap
+                        sm:ml-2 
+                        sm:mr-4 
+                        gap-3 sm:gap-4
+                        p-3
                         ">
                         <VerbsButton onVerbClick={handleVerbClick}/>
                         {inventory.length > 0 && (
                             <InventoryButton onInventoryClick={handleInventoryClick} inventory={inventory}/>
                         )}
                         <CommandsButton onCommandClick={handleCommandClick}/>
-
+            
                         <Button
                             variant="contained"
+                            color="primary"
+                            size="large"
                             onClick={() => {
                                 Mixpanel.track('Click Go', {});
                                 submitInput();
                             }}
                             disabled={!playerInput}
+                            sx={{ 
+                                fontWeight: 'bold',
+                                minWidth: '80px',
+                                padding: '4px 10px',
+                                backgroundColor: '#84cc16',
+                                            borderRadius: '8px',
+                                transition: 'all 0.3s ease',
+
+                            }}
                             data-testid="go-button">
                             Go
                         </Button>
