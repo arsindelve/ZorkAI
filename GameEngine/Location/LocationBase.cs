@@ -220,6 +220,18 @@ public abstract class LocationBase : ILocation, ICanContainItems
         return string.Empty;
     }
 
+    /// <summary>
+    /// Retrieves a list of possible exit directions from the current location based on the provided context.
+    /// </summary>
+    /// <param name="context">The context representing the current environment and state of the game.</param>
+    /// <returns>
+    /// A list of directions indicating the possible exits available from the current location.
+    /// </returns>
+    public List<Direction> Exits(IContext context)
+    {
+        return Map(context).Keys.ToList();
+    }
+
     public virtual string GetDescription(IContext context, bool fullDescription = true)
     {
         var stringBuilder = new StringBuilder();
