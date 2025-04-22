@@ -229,7 +229,10 @@ public abstract class LocationBase : ILocation, ICanContainItems
     /// </returns>
     public List<Direction> Exits(IContext context)
     {
-        return Map(context).Keys.ToList();
+        return Map(context)
+            .Where(s => s.Value.CanGo(context))
+            .Select(s => s.Key)
+            .ToList();
     }
 
     public virtual string GetDescription(IContext context, bool fullDescription = true)
