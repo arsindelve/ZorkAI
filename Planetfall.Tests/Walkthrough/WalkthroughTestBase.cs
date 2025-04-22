@@ -53,7 +53,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
             var sessionId = Environment.MachineName;
             var bytesToEncode = Encoding.UTF8.GetBytes(_target.Context.Engine!.SaveGame());
             var encodedText = Convert.ToBase64String(bytesToEncode);
-            await _database.WriteSession(sessionId, encodedText, _target.SessionTableName);
+            await _database.WriteSessionState(sessionId, encodedText, _target.SessionTableName);
         }
 
         foreach (var output in outputs)

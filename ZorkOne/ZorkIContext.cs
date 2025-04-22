@@ -59,8 +59,6 @@ public class ZorkIContext : Context<ZorkI>
 
     public override string? ProcessBeginningOfTurn()
     {
-        Moves++;
-
         if (LightWoundCounter > 0)
             LightWoundCounter--;
 

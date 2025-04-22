@@ -18,6 +18,7 @@ public class ZorkOneController(
 {
     private const string SaveGameTableName = "zork1_savegame";
     private const string SessionTableName = "zork1_session";
+    private const string SessionStepsTableName = "zork1_session_steps";
 
     [HttpPost]
     public async Task<GameResponse> Index([FromBody] GameRequest request)
@@ -30,7 +31,7 @@ public class ZorkOneController(
         var response = await engine.GetResponse(request.Input);
         logger.LogInformation($"Response: {response}");
 
-        await WriteSession(request.SessionId);
+        await WriteSession(request.SessionId, request.Input, response!);
         return new GameResponse(response!, engine);
     }
 
@@ -52,7 +53,7 @@ public class ZorkOneController(
         sb.AppendLine();
         sb.AppendLine(await engine.GetResponse("look"));
 
-        await WriteSession(request.SessionId);
+        await WriteSession(request.SessionId, "restore", sb.ToString());
         return new GameResponse(sb.ToString(), engine);
     }
 
@@ -61,7 +62,7 @@ public class ZorkOneController(
     public async Task<string> SaveGame([FromBody] SaveGameRequest request)
     {
         await engine.InitializeEngine();
-        var savedSession = await GetSavedSession(request.SessionId);
+        var (savedSession, _) = await GetSavedSessionWithHistory(request.SessionId);
 
         if (string.IsNullOrEmpty(savedSession))
             throw new ArgumentException("Session had empty game data before attempting save game.");
@@ -88,21 +89,22 @@ public class ZorkOneController(
     public async Task<GameResponse> Index([FromQuery] string sessionId)
     {
         await engine.InitializeEngine();
-        var savedSession = await GetSavedSession(sessionId);
+        var (savedSession, history) = await GetSavedSessionWithHistory(sessionId);
+        
         if (!string.IsNullOrEmpty(savedSession))
         {
             RestoreSession(savedSession);
-            var response = await engine.GetResponse("look");
+            var response = history ?? await engine.GetResponse("look");
             return new GameResponse(response!, engine);
         }
 
         return new GameResponse(engine.IntroText, engine);
     }
 
-    private async Task WriteSession(string sessionId)
+    private async Task WriteSession(string sessionId, string input, string response)
     {
-        var encodedText = GetGameData();
-        await sessionRepository.WriteSession(sessionId, encodedText, SessionTableName);
+        await sessionRepository.WriteSessionState(sessionId, GetGameData(), SessionTableName);
+        await sessionRepository.WriteSessionStep(sessionId, engine.Moves, input, response, SessionStepsTableName);
     }
 
     private string GetGameData()
@@ -119,9 +121,16 @@ public class ZorkOneController(
         engine.RestoreGame(decodedText);
     }
 
+    private async Task<(string?, string?)> GetSavedSessionWithHistory(string sessionId)
+    {
+        var savedGame = await sessionRepository.GetSessionState(sessionId, SessionTableName);
+        string history = await sessionRepository.GetSessionStepsAsText(sessionId, SessionStepsTableName);
+        return (savedGame, history);
+    }
+    
     private async Task<string?> GetSavedSession(string sessionId)
     {
-        var savedGame = await sessionRepository.GetSession(sessionId, SessionTableName);
+        var savedGame = await sessionRepository.GetSessionState(sessionId, SessionTableName);
         return savedGame;
     }
 }

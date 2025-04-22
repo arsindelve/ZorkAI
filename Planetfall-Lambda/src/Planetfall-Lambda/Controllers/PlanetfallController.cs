@@ -101,7 +101,7 @@ public class PlanetfallController(
     private async Task WriteSession(string sessionId)
     {
         var encodedText = GetGameData();
-        await sessionRepository.WriteSession(sessionId, encodedText, SessionTableName);
+        await sessionRepository.WriteSessionState(sessionId, encodedText, SessionTableName);
     }
 
     private string GetGameData()
@@ -120,7 +120,7 @@ public class PlanetfallController(
 
     private async Task<string?> GetSavedSession(string sessionId)
     {
-        var savedGame = await sessionRepository.GetSession(sessionId, SessionTableName);
+        var savedGame = await sessionRepository.GetSessionState(sessionId, SessionTableName);
         return savedGame;
     }
 }
