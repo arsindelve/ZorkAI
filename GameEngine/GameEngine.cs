@@ -509,6 +509,18 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     }
 }
 
+/// <summary>
+/// A custom resolver used to modify the serialization behavior of JSON objects
+/// to exclude read-only properties. Extends <see cref="DefaultContractResolver" />
+/// and provides a mechanism to exclude non-writable properties from being serialized.
+/// </summary>
+/// <remarks>
+/// This class is useful for scenarios where serialization of read-only properties
+/// is not desired, such as when saving the state of objects or generating JSON
+/// responses to ensure only editable or writable properties are included.
+/// This is achieved by overriding the <see cref="CreateProperty" /> method and adjusting
+/// the serialization behavior based on property writability.
+/// </remarks>
 public class DoNotSerializeReadOnlyPropertiesResolver : DefaultContractResolver
 {
     protected override JsonProperty CreateProperty(
