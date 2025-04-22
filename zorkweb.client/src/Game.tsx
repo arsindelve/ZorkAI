@@ -258,7 +258,10 @@ function Game() {
 
             <Header locationName={locationName} moves={moves} score={score}/>
 
-            <Compass onCompassClick={handleCommandClick} className="
+            <Compass 
+            onCompassClick={handleCommandClick} 
+            exits={exits}
+            className="
             hidden
             cursor-pointer
             md:block
