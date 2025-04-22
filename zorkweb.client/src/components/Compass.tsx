@@ -5,7 +5,7 @@ interface CompassProps extends React.SVGProps<SVGSVGElement> {
     onCompassClick?: (angle: string) => void; // Callback for compass click angle
 }
 
-const Compass: React.FC<CompassProps> = ({onCompassClick, ...props}) => {
+const Compass: React.FC<CompassProps> = ({onCompassClick }) => {
     const handleClick = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
         if (!onCompassClick) return;
 
@@ -31,7 +31,7 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, ...props}) => {
         // Adjust to compass degrees (0° = North, 90° = East, etc.)
         const compassAngle = (90 - angleDeg + 360) % 360;
 
-        let direction = getClosestDirection(compassAngle);
+        const direction = getClosestDirection(compassAngle);
 
         Mixpanel.track('Click Compass', {
             "direction": direction,
@@ -69,51 +69,66 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, ...props}) => {
             xmlns="http://www.w3.org/2000/svg"
             version="1.1"
             id="svg2"
-            viewBox="695 695 1345 1345"
+            viewBox="0 0 64 64"
             width="200"
             height="200"
-            onClick={handleClick} // Attach click handler
-            {...props} // Pass down props for flexibility
+            onClick={handleClick}
         >
-            <g
-                id="g8"
-                transform="matrix(1.3333333,0,0,-1.3333333,0,2666.6667)"
-            >
-                <g id="g10" transform="scale(0.1)">
-                    <path
-                        d="M 20000,0 H 0 V 20000 H 20000 V 0"
-                        style={{
-                            fill: "blue",
-                            fillOpacity: 0,
-                            fillRule: "nonzero",
-                            stroke: "none",
-                        }}
-                        id="path12"
-                    />
-                    <path
-                        d="m 11183.6,10388.8 2368.8,-388.8 h -2282.1 c 0,139.1 -31,270.8 -86.7,388.8 z m -826.8,-3584.4 v 2281.8 c 139,0 270.7,31 388.8,86.7 z M 7161.13,10000 h 2282.12 c 0,-139.1 30.99,-270.8 86.74,-388.8 z m 3195.67,3195.7 v -2281.9 c -139.1,0 -270.8,-31 -388.82,-86.7 z m 0,-3882 c -378.29,0 -686.02,308 -686.02,686.3 0,378.3 307.73,686.3 686.02,686.3 378.2,0 686,-308 686,-686.3 0,-378.3 -307.8,-686.3 -686,-686.3 z m 4600.3,686.3 -3652.4,599.5 886.5,1234.9 -1234.9,-886.5 -599.5,3652.5 -599.56,-3652.5 -1234.92,886.5 886.51,-1234.9 -3652.41,-599.5 3652.41,-599.5 -886.51,-1235 1234.92,886.6 599.56,-3652.5 599.5,3652.5 1234.9,-886.6 -886.5,1235 3652.4,599.5"
-                        style={{
-                            fill: "#FFFFFF",
-                            fillOpacity: 0.2,
-                            fillRule: "nonzero",
-                            stroke: "none",
-                        }}
-                        id="path14"
-                    />
-                    <path
-                        d="m 10356.8,10477.8 c -72.8,0 -141.7,-16.2 -203.4,-45.5 -162.09,-76.2 -274.15,-241.2 -274.15,-432.3 0,-72.8 16.21,-141.6 45.22,-203.3 76.23,-162.2 241.23,-274.5 432.33,-274.5 72.8,0 141.6,16.2 203.3,45.5 162.1,76.2 274.2,241.2 274.2,432.3 0,72.8 -16.2,141.6 -45.2,203.4 -76.2,162.1 -241.2,274.4 -432.3,274.4"
-                        style={{
-                            fill: "#FFFFFF",
-                            fillOpacity: 0.6,
-                            fillRule: "nonzero",
-                            stroke: "none",
-                        }}
-                        id="path16"
-                    />
-                    {/* Continue adding other paths and groups here */}
-                </g>
-            </g>
+            <defs>
+                <style>{`
+      .compass-bg { fill: #fff; }
+      .compass-wedge { fill: none; stroke: #231f20; stroke-miterlimit: 10; stroke-width: 0.25px; transition: fill 0.2s; }
+      .compass-wedge.highlight { fill: rgba(255, 99, 71, 0.5); }
+    `}</style>
+            </defs>
+
+            {/* background */}
+            <rect className="compass-bg" width="64" height="64" />
+
+            {/* compass wedges */}
+            <polygon
+                id="North"
+                className="compass-wedge"
+                points="32 7.71 28.56 19.35 32 32.91 35.44 19.35 32 7.71"
+            />
+            <polygon
+                id="NorthEast"
+                className="compass-wedge"
+                points="40.9 29.28 45.4 20.47 35.93 24.66 32.42 32.56 40.9 29.28"
+            />
+            <polygon
+                id="East"
+                className="compass-wedge"
+                points="57.07 32.91 45.43 29.47 31.87 32.91 45.43 36.36 57.07 32.91"
+            />
+            <polygon
+                id="SouthEast"
+                className="compass-wedge"
+                points="36.83 42.09 32.33 33.27 41.8 37.47 45.32 45.36 36.83 42.09"
+            />
+            <polygon
+                id="South"
+                className="compass-wedge"
+                points="32 32.91 28.56 44.55 32 58.11 35.44 44.55 32 32.91"
+            />
+            <polygon
+                id="SouthWest"
+                className="compass-wedge"
+                points="27.14 42.17 31.64 33.35 22.17 37.54 18.66 45.44 27.14 42.17"
+            />
+            <polygon
+                id="West"
+                className="compass-wedge"
+                points="32.17 32.91 20.53 29.47 6.97 32.91 20.53 36.36 32.17 32.91"
+            />
+            <polygon
+                id="NorthWest"
+                className="compass-wedge"
+                points="23.16 29.28 18.66 20.46 28.13 24.65 31.64 32.55 23.16 29.28"
+            />
         </svg>
+
+
     );
 };
 
