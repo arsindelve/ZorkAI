@@ -266,9 +266,9 @@ function Game() {
             cursor-pointer
             md:block
             absolute 
-            top-[74px] 
-            right-[14px] 
-            w-[12%] 
+            top-16 
+            right-1 
+            w-[10%] 
             h-auto
             opacity-50
             "/>
