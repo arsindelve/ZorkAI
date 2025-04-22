@@ -65,69 +65,66 @@ const Compass: React.FC<CompassProps> = ({onCompassClick }) => {
     }
 
     return (
+
         <svg
             xmlns="http://www.w3.org/2000/svg"
             version="1.1"
-            id="svg2"
-            viewBox="0 0 64 64"
+            id="Layer_1"
+            data-name="Layer 1"
+            viewBox="0 0 50.4 50.4"
             width="200"
             height="200"
             onClick={handleClick}
         >
             <defs>
                 <style>{`
-      .compass-bg { fill: #fff; }
-      .compass-wedge { fill: none; stroke: #231f20; stroke-miterlimit: 10; stroke-width: 0.25px; transition: fill 0.2s; }
-      .compass-wedge.highlight { fill: rgba(255, 99, 71, 0.5); }
+      .cls-1 { fill: #4d4d4d; transition: fill 0.2s; }
+      .cls-1.highlight { fill: rgba(255, 99, 71, 0.5); }
     `}</style>
             </defs>
 
-            {/* background */}
-            <rect className="compass-bg" width="64" height="64" />
-
             {/* compass wedges */}
             <polygon
-                id="North"
-                className="compass-wedge"
-                points="32 7.71 28.56 19.35 32 32.91 35.44 19.35 32 7.71"
-            />
-            <polygon
-                id="NorthEast"
-                className="compass-wedge"
-                points="40.9 29.28 45.4 20.47 35.93 24.66 32.42 32.56 40.9 29.28"
+                id="West"
+                className="cls-1"
+                points="25.2 25.2 13.56 21.76 0 25.2 13.56 28.65 25.2 25.2"
             />
             <polygon
                 id="East"
-                className="compass-wedge"
-                points="57.07 32.91 45.43 29.47 31.87 32.91 45.43 36.36 57.07 32.91"
+                className="cls-1"
+                points="50.4 25.2 38.76 21.76 25.2 25.2 38.76 28.65 50.4 25.2"
             />
             <polygon
-                id="SouthEast"
-                className="compass-wedge"
-                points="36.83 42.09 32.33 33.27 41.8 37.47 45.32 45.36 36.83 42.09"
+                id="North"
+                className="cls-1"
+                points="25.2 0 21.76 11.64 25.2 25.2 28.65 11.64 25.2 0"
             />
             <polygon
                 id="South"
-                className="compass-wedge"
-                points="32 32.91 28.56 44.55 32 58.11 35.44 44.55 32 32.91"
+                className="cls-1"
+                points="25.2 25.2 21.76 36.84 25.2 50.4 28.65 36.84 25.2 25.2"
             />
             <polygon
-                id="SouthWest"
-                className="compass-wedge"
-                points="27.14 42.17 31.64 33.35 22.17 37.54 18.66 45.44 27.14 42.17"
-            />
-            <polygon
-                id="West"
-                className="compass-wedge"
-                points="32.17 32.91 20.53 29.47 6.97 32.91 20.53 36.36 32.17 32.91"
+                id="NorthEast"
+                className="cls-1"
+                points="36.06 14.35 29.45 17.76 25.2 25.2 32.64 20.96 36.06 14.35"
             />
             <polygon
                 id="NorthWest"
-                className="compass-wedge"
-                points="23.16 29.28 18.66 20.46 28.13 24.65 31.64 32.55 23.16 29.28"
+                className="cls-1"
+                points="25.2 25.2 21.78 18.59 14.35 14.35 18.59 21.78 25.2 25.2"
+            />
+            <polygon
+                id="SouthEast"
+                className="cls-1"
+                points="25.2 25.2 28.62 31.81 36.06 36.06 31.81 28.62 25.2 25.2"
+            />
+            <polygon
+                id="SouthWest"
+                className="cls-1"
+                points="14.35 36.06 20.96 32.64 25.2 25.2 17.76 29.44 14.35 36.06"
             />
         </svg>
-
 
     );
 };
