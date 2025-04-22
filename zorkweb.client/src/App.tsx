@@ -98,7 +98,7 @@ function App() {
     return (
 
         <div
-            className="bg-[url('https://zorkai-assets.s3.amazonaws.com/brick-wall-background-texture.jpg')] bg-repeat bg-[size:500px_500px] min-h-screen flex flex-col justify-between">
+            className="bg-[url('./back2.png')] bg-repeat bg-[size:500px_500px] min-h-screen flex flex-col justify-between">
             <div className="flex-grow flex flex-col min-h-0 mt">
                 <GameMenu/>
 

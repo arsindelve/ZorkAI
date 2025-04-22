@@ -10,7 +10,7 @@ import {SessionHandler} from "./SessionHandler.ts";
 import Server from './Server';
 import VerbsButton from "./components/VerbsButton.tsx";
 import CommandsButton from "./components/CommandsButton.tsx";
-import ClickableText, { ClickableTextHandle } from "./ClickableText.tsx";
+import ClickableText, {ClickableTextHandle} from "./ClickableText.tsx";
 import Compass from "./components/Compass.tsx";
 import {Mixpanel} from "./Mixpanel.ts";
 
@@ -30,6 +30,7 @@ function Game() {
     const [score, setScore] = useState<string>("0");
     const [moves, setMoves] = useState<string>("0");
     const [inventory, setInventory] = useState<string[]>([]);
+    const [exits, setExits] = useState<string[]>([]);
     const [locationName, setLocationName] = useState<string>("");
 
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
@@ -152,6 +153,7 @@ function Game() {
         setScore(data.score.toString());
         setMoves(data.moves.toString());
         setInventory(data.inventory);
+        setExits(data.exits);
     }
 
     // noinspection JSUnusedGlobalSymbols
@@ -256,27 +258,38 @@ function Game() {
 
             <Header locationName={locationName} moves={moves} score={score}/>
 
-            <Compass onCompassClick={handleCommandClick} className="
+            <Compass 
+            onCompassClick={handleCommandClick} 
+            exits={exits}
+            className="
             hidden
-            cursor-pointer
+            cursor: pointer
             md:block
             absolute 
-            top-16 
-            right-1 
-            w-1/5 
+            top-24
+            right-5
+            w-[10%] 
             h-auto
+            opacity-75
+            z-20
+            pointer-events-auto
             "/>
 
-            <ClickableText ref={gameContentElement} onWordClick={(word) => handleWordClicked(word)}
-                           className={"p-6 sm:p-12 bg-opacity-95 h-[65vh] overflow-auto bg-stone-900 font-mono rounded-lg border-2 border-stone-700/50 shadow-lg"}
+            <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word) => handleWordClicked(word)}
+                           className={"p-6 sm:p-12 bg-opacity-80 h-[65vh] overflow-auto " +
+                               "bg-stone-900 font-mono rounded-lg border-2 " +
+                               "border-stone-700/50 shadow-lg z-10"}
                            data-testid="game-responses-container">
                 <div className="relative z-0">
                     {/* Background styling elements */}
-                    <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMjEyMTIxIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=')] opacity-5 pointer-events-none"></div>
-                    <div className="absolute top-2 left-2 w-20 h-20 rounded-full bg-lime-500/10 blur-3xl pointer-events-none"></div>
-                    <div className="absolute bottom-10 right-5 w-32 h-32 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none"></div>
+                    <div
+                        className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMjEyMTIxIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=')] opacity-5 pointer-events-none"></div>
+                    <div
+                        className="absolute top-2 left-2 w-20 h-20 rounded-full bg-lime-500/10 blur-3xl pointer-events-none"></div>
+                    <div
+                        className="absolute bottom-10 right-5 w-32 h-32 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none"></div>
                 </div>
-            
+
                 {gameText.map((item: string, index: number) => (
                     <p
                         dangerouslySetInnerHTML={{__html: item}}
@@ -287,8 +300,9 @@ function Game() {
                     </p>
                 ))}
             </ClickableText>
-            
-            <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 bg-gradient-to-r from-stone-800 to-stone-700 py-2 min-h-[90px] rounded-b-lg border-t border-stone-600/30 shadow-inner">
+
+            <div
+                className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 bg-gradient-to-r from-stone-800 to-stone-700 py-2 min-h-[90px] rounded-b-lg border-t border-stone-600/30 shadow-inner">
                 <GameInput
                     playerInputElement={playerInputElement}
                     isPending={mutation.isPending}
@@ -296,7 +310,7 @@ function Game() {
                     setInput={setInput}
                     handleKeyDown={handleKeyDown}
                 />
-            
+
                 {mutation.isPending && (
                     <div className="mr-4 p-2 flex items-center justify-center">
                         <CircularProgress size={28} sx={{
@@ -306,7 +320,7 @@ function Game() {
                         }}/>
                     </div>
                 )}
-            
+
                 {!mutation.isPending && (
                     <div
                         className="
@@ -324,7 +338,7 @@ function Game() {
                             <InventoryButton onInventoryClick={handleInventoryClick} inventory={inventory}/>
                         )}
                         <CommandsButton onCommandClick={handleCommandClick}/>
-            
+
                         <Button
                             variant="contained"
                             color="primary"
@@ -334,12 +348,12 @@ function Game() {
                                 submitInput();
                             }}
                             disabled={!playerInput}
-                            sx={{ 
+                            sx={{
                                 fontWeight: 'bold',
                                 minWidth: '80px',
                                 padding: '4px 10px',
                                 backgroundColor: '#84cc16',
-                                            borderRadius: '8px',
+                                borderRadius: '8px',
                                 transition: 'all 0.3s ease',
 
                             }}

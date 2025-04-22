@@ -2,6 +2,7 @@ import React, {forwardRef, ReactNode, useImperativeHandle} from "react";
 
 interface ClickableTextProps extends React.HTMLAttributes<HTMLDivElement> {
     children: ReactNode;
+    exits: string[]
     onWordClick?: (word: string) => void; // Callback to pass clicked word to parent
 }
 
@@ -12,9 +13,10 @@ export interface ClickableTextHandle {
 }
 
 const ClickableText = forwardRef<HTMLDivElement & ClickableTextHandle, ClickableTextProps>(
-    ({children, onWordClick, ...props}, ref) => {
+    ({children, onWordClick, exits, ...props}, ref) => {
         // Create a local ref to store the div element
         const divRef = React.useRef<HTMLDivElement>(null);
+        console.log(exits);
 
         // Expose methods to parent components
         useImperativeHandle(ref, () => ({
@@ -94,7 +96,10 @@ const ClickableText = forwardRef<HTMLDivElement & ClickableTextHandle, Clickable
             }
         }));
 
-        const handleClick = () => {
+        const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+            // Check if the event has already been handled by a parent component
+            if (event.defaultPrevented) return;
+
             const selection = window.getSelection();
 
             if (!selection || selection.rangeCount === 0) return;
