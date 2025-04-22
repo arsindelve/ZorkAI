@@ -34,8 +34,8 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
             3: Direction.West,
             4: Direction.Northeast,
             5: Direction.Northwest,
-            6: Direction.Southeast,
-            7: Direction.Southwest,
+            6: Direction.Southwest,
+            7: Direction.Southeast,
             8: Direction.In,
             9: Direction.Out,
             10: Direction.Up,
@@ -53,6 +53,10 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
     };
     const handleClick = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
         if (!onCompassClick) return;
+
+        // Stop event propagation to prevent ClickableText from handling this click
+        event.stopPropagation();
+        event.preventDefault();
 
         // Get the bounding box for the SVG
         const rect = event.currentTarget.getBoundingClientRect();
@@ -128,6 +132,9 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
       .cls-1.available { fill: #d3d3d3; }
     `}</style>
             </defs>
+
+            {/* Background rectangle to catch all clicks */}
+            <rect x="0" y="0" width="50.4" height="50.4" fill="transparent" style={{ pointerEvents: 'all' }} />
 
             {/* compass wedges */}
             <polygon

@@ -263,20 +263,22 @@ function Game() {
             exits={exits}
             className="
             hidden
-            cursor-pointer
+            cursor: pointer
             md:block
             absolute 
             top-16 
-            right-1 
+            right-5
             w-[10%] 
             h-auto
-            opacity-50
+            opacity-75
+            z-20
+            pointer-events-auto
             "/>
 
             <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word) => handleWordClicked(word)}
                            className={"p-6 sm:p-12 bg-opacity-95 h-[65vh] overflow-auto " +
                                "bg-stone-900 font-mono rounded-lg border-2 " +
-                               "border-stone-700/50 shadow-lg"}
+                               "border-stone-700/50 shadow-lg z-10"}
                            data-testid="game-responses-container">
                 <div className="relative z-0">
                     {/* Background styling elements */}

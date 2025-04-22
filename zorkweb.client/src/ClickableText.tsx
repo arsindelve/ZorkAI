@@ -96,7 +96,10 @@ const ClickableText = forwardRef<HTMLDivElement & ClickableTextHandle, Clickable
             }
         }));
 
-        const handleClick = () => {
+        const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+            // Check if the event has already been handled by a parent component
+            if (event.defaultPrevented) return;
+
             const selection = window.getSelection();
 
             if (!selection || selection.rangeCount === 0) return;
