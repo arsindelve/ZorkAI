@@ -5,7 +5,7 @@ interface CompassProps extends React.SVGProps<SVGSVGElement> {
     onCompassClick?: (angle: string) => void; // Callback for compass click angle
 }
 
-const Compass: React.FC<CompassProps> = ({onCompassClick }) => {
+const Compass: React.FC<CompassProps> = ({onCompassClick, className, ...rest }) => {
     const handleClick = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
         if (!onCompassClick) return;
 
@@ -72,9 +72,9 @@ const Compass: React.FC<CompassProps> = ({onCompassClick }) => {
             id="Layer_1"
             data-name="Layer 1"
             viewBox="0 0 50.4 50.4"
-            width="200"
-            height="200"
+            className={className}
             onClick={handleClick}
+            {...rest}
         >
             <defs>
                 <style>{`

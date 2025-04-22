@@ -121,7 +121,7 @@ test.describe('Game Commands', () => {
         await closeWelcomeModal(page);
 
         // Wait for the compass to be visible
-        await page.waitForSelector('svg#svg2', {state: 'visible'});
+        await page.waitForSelector('svg#Layer_1', {state: 'visible'});
 
         // Instead of trying to click on a specific position on the compass,
         // let's directly type and submit the "North" command

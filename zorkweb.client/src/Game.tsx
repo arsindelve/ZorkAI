@@ -263,8 +263,9 @@ function Game() {
             absolute 
             top-16 
             right-1 
-            w-1/5 
+            w-[10%] 
             h-auto
+            opacity-50
             "/>
 
             <ClickableText ref={gameContentElement} onWordClick={(word) => handleWordClicked(word)}
@@ -276,7 +277,7 @@ function Game() {
                     <div className="absolute top-2 left-2 w-20 h-20 rounded-full bg-lime-500/10 blur-3xl pointer-events-none"></div>
                     <div className="absolute bottom-10 right-5 w-32 h-32 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none"></div>
                 </div>
-            
+
                 {gameText.map((item: string, index: number) => (
                     <p
                         dangerouslySetInnerHTML={{__html: item}}
@@ -287,7 +288,7 @@ function Game() {
                     </p>
                 ))}
             </ClickableText>
-            
+
             <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 bg-gradient-to-r from-stone-800 to-stone-700 py-2 min-h-[90px] rounded-b-lg border-t border-stone-600/30 shadow-inner">
                 <GameInput
                     playerInputElement={playerInputElement}
@@ -296,7 +297,7 @@ function Game() {
                     setInput={setInput}
                     handleKeyDown={handleKeyDown}
                 />
-            
+
                 {mutation.isPending && (
                     <div className="mr-4 p-2 flex items-center justify-center">
                         <CircularProgress size={28} sx={{
@@ -306,7 +307,7 @@ function Game() {
                         }}/>
                     </div>
                 )}
-            
+
                 {!mutation.isPending && (
                     <div
                         className="
@@ -324,7 +325,7 @@ function Game() {
                             <InventoryButton onInventoryClick={handleInventoryClick} inventory={inventory}/>
                         )}
                         <CommandsButton onCommandClick={handleCommandClick}/>
-            
+
                         <Button
                             variant="contained"
                             color="primary"
