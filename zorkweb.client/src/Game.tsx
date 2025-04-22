@@ -278,15 +278,17 @@ function Game() {
                     <div className="absolute bottom-10 right-5 w-32 h-32 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none"></div>
                 </div>
 
-                {gameText.map((item: string, index: number) => (
-                    <p
-                        dangerouslySetInnerHTML={{__html: item}}
-                        className={`mb-4 relative z-10 ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
-                        key={index}
-                        data-testid="game-response"
-                    >
-                    </p>
-                ))}
+                <div className="relative">
+                    {gameText.map((item: string, index: number) => (
+                        <p
+                            dangerouslySetInnerHTML={{__html: item}}
+                            className={`mb-4 relative z-10 md:pr-[14%] md:float-right md:clear-right md:w-full ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
+                            key={index}
+                            data-testid="game-response"
+                        >
+                        </p>
+                    ))}
+                </div>
             </ClickableText>
 
             <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 bg-gradient-to-r from-stone-800 to-stone-700 py-2 min-h-[90px] rounded-b-lg border-t border-stone-600/30 shadow-inner">
