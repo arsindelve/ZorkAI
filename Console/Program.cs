@@ -16,7 +16,7 @@ Console.ForegroundColor = ConsoleColor.DarkCyan;
 
 var engine = await GetEngine();
 
-var savedGame = await database.GetSession(sessionId, engine.SessionTableName);
+var savedGame = await database.GetSessionState(sessionId, engine.SessionTableName);
 Console.WriteLine(engine.IntroText + Environment.NewLine);
 
 if (!string.IsNullOrEmpty(savedGame))
@@ -39,7 +39,7 @@ while (result != "-1")
     var json = engine.SaveGame();
     var bytesToEncode = Encoding.UTF8.GetBytes(json);
     var encodedText = Convert.ToBase64String(bytesToEncode);
-    await database.WriteSession(sessionId, encodedText, engine.SessionTableName);
+    await database.WriteSessionState(sessionId, encodedText, engine.SessionTableName);
 
     if (result?.Trim().StartsWith("-2") ?? false)
     {
