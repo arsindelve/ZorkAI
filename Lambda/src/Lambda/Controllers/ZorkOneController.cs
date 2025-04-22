@@ -94,7 +94,7 @@ public class ZorkOneController(
         if (!string.IsNullOrEmpty(savedSession))
         {
             RestoreSession(savedSession);
-            var response = history ?? await engine.GetResponse("look");
+            var response = string.IsNullOrEmpty(history) ? await engine.GetResponse("look") : history;
             return new GameResponse(response!, engine);
         }
 
