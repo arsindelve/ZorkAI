@@ -288,17 +288,15 @@ function Game() {
                         className="absolute bottom-10 right-5 w-32 h-32 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none"></div>
                 </div>
 
-                <div className="relative">
-                    {gameText.map((item: string, index: number) => (
-                        <p
-                            dangerouslySetInnerHTML={{__html: item}}
-                            className={`mb-4 relative z-10 md:pr-[14%] md:float-right md:clear-right md:w-full ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
-                            key={index}
-                            data-testid="game-response"
-                        >
-                        </p>
-                    ))}
-                </div>
+                {gameText.map((item: string, index: number) => (
+                    <p
+                        dangerouslySetInnerHTML={{__html: item}}
+                        className={`mb-4 relative z-10 ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
+                        key={index}
+                        data-testid="game-response"
+                    >
+                    </p>
+                ))}
             </ClickableText>
 
             <div
