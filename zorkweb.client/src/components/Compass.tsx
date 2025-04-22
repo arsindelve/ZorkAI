@@ -1,13 +1,62 @@
 import React from "react";
 import {Mixpanel} from "../Mixpanel.ts";
+import {Direction} from "../model/Directions.ts";
 
 interface CompassProps extends React.SVGProps<SVGSVGElement> {
     onCompassClick?: (angle: string) => void; // Callback for compass click angle
+    exits?: string[]; // Available exits
 }
 
-const Compass: React.FC<CompassProps> = ({onCompassClick, ...props}) => {
+const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className, ...rest }) => {
+
+    // Function to check if a direction is available
+    const isDirectionAvailable = (directionId: string): boolean => {
+        // Map SVG IDs to Direction enum values
+        const directionMap: Record<string, Direction> = {
+            "North": Direction.North,
+            "South": Direction.South,
+            "East": Direction.East,
+            "West": Direction.West,
+            "NorthEast": Direction.Northeast,
+            "NorthWest": Direction.Northwest,
+            "SouthEast": Direction.Southeast,
+            "SouthWest": Direction.Southwest
+        };
+
+        // Get the Direction enum value for this ID
+        const directionValue = directionMap[directionId];
+
+        // Map integer indices to Direction enum values
+        const directionIndexMap: Record<number, Direction> = {
+            0: Direction.North,
+            1: Direction.South,
+            2: Direction.East,
+            3: Direction.West,
+            4: Direction.Northeast,
+            5: Direction.Northwest,
+            6: Direction.Southwest,
+            7: Direction.Southeast,
+            8: Direction.In,
+            9: Direction.Out,
+            10: Direction.Up,
+            11: Direction.Down
+        };
+
+        // Convert exits from strings to integers and map to Direction enum values
+        const availableDirections = exits.map(exit => {
+            const exitIndex = parseInt(exit, 10);
+            return directionIndexMap[exitIndex];
+        });
+
+        // Check if this direction is in the available directions
+        return availableDirections.includes(directionValue);
+    };
     const handleClick = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
         if (!onCompassClick) return;
+
+        // Stop event propagation to prevent ClickableText from handling this click
+        event.stopPropagation();
+        event.preventDefault();
 
         // Get the bounding box for the SVG
         const rect = event.currentTarget.getBoundingClientRect();
@@ -31,7 +80,7 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, ...props}) => {
         // Adjust to compass degrees (0° = North, 90° = East, etc.)
         const compassAngle = (90 - angleDeg + 360) % 360;
 
-        let direction = getClosestDirection(compassAngle);
+        const direction = getClosestDirection(compassAngle);
 
         Mixpanel.track('Click Compass', {
             "direction": direction,
@@ -65,55 +114,71 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, ...props}) => {
     }
 
     return (
+
         <svg
             xmlns="http://www.w3.org/2000/svg"
             version="1.1"
-            id="svg2"
-            viewBox="695 695 1345 1345"
-            width="200"
-            height="200"
-            onClick={handleClick} // Attach click handler
-            {...props} // Pass down props for flexibility
+            id="Layer_1"
+            data-name="Layer 1"
+            viewBox="0 0 50.4 50.4"
+            className={className}
+            onClick={handleClick}
+            {...rest}
         >
-            <g
-                id="g8"
-                transform="matrix(1.3333333,0,0,-1.3333333,0,2666.6667)"
-            >
-                <g id="g10" transform="scale(0.1)">
-                    <path
-                        d="M 20000,0 H 0 V 20000 H 20000 V 0"
-                        style={{
-                            fill: "blue",
-                            fillOpacity: 0,
-                            fillRule: "nonzero",
-                            stroke: "none",
-                        }}
-                        id="path12"
-                    />
-                    <path
-                        d="m 11183.6,10388.8 2368.8,-388.8 h -2282.1 c 0,139.1 -31,270.8 -86.7,388.8 z m -826.8,-3584.4 v 2281.8 c 139,0 270.7,31 388.8,86.7 z M 7161.13,10000 h 2282.12 c 0,-139.1 30.99,-270.8 86.74,-388.8 z m 3195.67,3195.7 v -2281.9 c -139.1,0 -270.8,-31 -388.82,-86.7 z m 0,-3882 c -378.29,0 -686.02,308 -686.02,686.3 0,378.3 307.73,686.3 686.02,686.3 378.2,0 686,-308 686,-686.3 0,-378.3 -307.8,-686.3 -686,-686.3 z m 4600.3,686.3 -3652.4,599.5 886.5,1234.9 -1234.9,-886.5 -599.5,3652.5 -599.56,-3652.5 -1234.92,886.5 886.51,-1234.9 -3652.41,-599.5 3652.41,-599.5 -886.51,-1235 1234.92,886.6 599.56,-3652.5 599.5,3652.5 1234.9,-886.6 -886.5,1235 3652.4,599.5"
-                        style={{
-                            fill: "#FFFFFF",
-                            fillOpacity: 0.2,
-                            fillRule: "nonzero",
-                            stroke: "none",
-                        }}
-                        id="path14"
-                    />
-                    <path
-                        d="m 10356.8,10477.8 c -72.8,0 -141.7,-16.2 -203.4,-45.5 -162.09,-76.2 -274.15,-241.2 -274.15,-432.3 0,-72.8 16.21,-141.6 45.22,-203.3 76.23,-162.2 241.23,-274.5 432.33,-274.5 72.8,0 141.6,16.2 203.3,45.5 162.1,76.2 274.2,241.2 274.2,432.3 0,72.8 -16.2,141.6 -45.2,203.4 -76.2,162.1 -241.2,274.4 -432.3,274.4"
-                        style={{
-                            fill: "#FFFFFF",
-                            fillOpacity: 0.6,
-                            fillRule: "nonzero",
-                            stroke: "none",
-                        }}
-                        id="path16"
-                    />
-                    {/* Continue adding other paths and groups here */}
-                </g>
-            </g>
+            <defs>
+                <style>{`
+      .cls-1 { fill: #4d4d4d; transition: fill 0.2s; }
+      .cls-1.highlight { fill: rgba(255, 99, 71, 0.5); }
+      .cls-1.available { fill: #d3d3d3; }
+    `}</style>
+            </defs>
+
+            {/* Background rectangle to catch all clicks */}
+            <rect x="0" y="0" width="50.4" height="50.4" fill="transparent" style={{ pointerEvents: 'all' }} />
+
+            {/* compass wedges */}
+            <polygon
+                id="West"
+                className={`cls-1 ${isDirectionAvailable("West") ? "available" : ""}`}
+                points="25.2 25.2 13.56 21.76 0 25.2 13.56 28.65 25.2 25.2"
+            />
+            <polygon
+                id="East"
+                className={`cls-1 ${isDirectionAvailable("East") ? "available" : ""}`}
+                points="50.4 25.2 38.76 21.76 25.2 25.2 38.76 28.65 50.4 25.2"
+            />
+            <polygon
+                id="North"
+                className={`cls-1 ${isDirectionAvailable("North") ? "available" : ""}`}
+                points="25.2 0 21.76 11.64 25.2 25.2 28.65 11.64 25.2 0"
+            />
+            <polygon
+                id="South"
+                className={`cls-1 ${isDirectionAvailable("South") ? "available" : ""}`}
+                points="25.2 25.2 21.76 36.84 25.2 50.4 28.65 36.84 25.2 25.2"
+            />
+            <polygon
+                id="NorthEast"
+                className={`cls-1 ${isDirectionAvailable("NorthEast") ? "available" : ""}`}
+                points="36.06 14.35 29.45 17.76 25.2 25.2 32.64 20.96 36.06 14.35"
+            />
+            <polygon
+                id="NorthWest"
+                className={`cls-1 ${isDirectionAvailable("NorthWest") ? "available" : ""}`}
+                points="25.2 25.2 21.78 18.59 14.35 14.35 18.59 21.78 25.2 25.2"
+            />
+            <polygon
+                id="SouthEast"
+                className={`cls-1 ${isDirectionAvailable("SouthEast") ? "available" : ""}`}
+                points="25.2 25.2 28.62 31.81 36.06 36.06 31.81 28.62 25.2 25.2"
+            />
+            <polygon
+                id="SouthWest"
+                className={`cls-1 ${isDirectionAvailable("SouthWest") ? "available" : ""}`}
+                points="14.35 36.06 20.96 32.64 25.2 25.2 17.76 29.44 14.35 36.06"
+            />
         </svg>
+
     );
 };
 

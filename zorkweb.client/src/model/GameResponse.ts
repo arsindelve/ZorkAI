@@ -3,6 +3,7 @@ export interface GameResponse {
     moves: number,
     locationName: string,
     response: string,
-    inventory: string[]
+    inventory: string[],
+    exits: string[]
 }
 

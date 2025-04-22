@@ -11,6 +11,7 @@ interface HeaderComponentProps {
 
 const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, moves, score}) => (
     <div className="hidden sm:flex items-center
+    mt-5
     justify-between
     bg-gradient-to-r from-stone-800 to-stone-700 p-2
     text-white shadow-lg
