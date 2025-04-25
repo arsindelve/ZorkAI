@@ -19,7 +19,7 @@ export default function FunctionsMenu({gameMethods, forceClose}: FunctionsMenuPr
     const [restart, restore, save] = gameMethods;
 
     const [anchorElement, setAnchorElement] = React.useState<null | HTMLElement>(null);
-    const open = Boolean(anchorElement);
+    const open = Boolean(anchorElement) && !forceClose;
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorElement(event.currentTarget);
     };
