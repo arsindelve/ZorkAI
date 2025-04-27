@@ -26,7 +26,11 @@ jobs:
     - name: Install dependencies for zorkweb.client
       working-directory: ./zorkweb.client
       run: npm ci
-      
+
+    - name: Install Jest
+      working-directory: ./zorkweb.client
+      run: npm install jest
+             
     - name: Install Playwright browsers
       working-directory: ./zorkweb.client
       run: npx playwright install --with-deps
