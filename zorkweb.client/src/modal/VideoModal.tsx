@@ -57,6 +57,7 @@ const VideoDialog: React.FC<VideoDialogProps> = ({open, handleClose}) => (
                 src={'https://zorkai-assets.s3.us-east-1.amazonaws.com/zorkintro.mp4'}
                 controls
                 autoPlay
+                role="video"
                 style={{width: "100%", height: "100%"}}
             />
         </DialogContent>
