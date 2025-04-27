@@ -12,6 +12,7 @@ export default function GameMenu() {
 
     return (
         <div 
+            data-testid="game-menu-container"
             className={`p-2 grid grid-cols-10 bg-gradient-to-r from-gray-800 to-gray-900 gap-2 w-full fixed top-0 z-10 shadow-lg transition-transform duration-500 ${isLoaded ? 'translate-y-0' : '-translate-y-full'}`}
         >
             <div className="col-span-7 flex items-center">
