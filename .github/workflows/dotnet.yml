@@ -51,3 +51,7 @@ jobs:
         name: playwright-report
         path: zorkweb.client/playwright-report/
         retention-days: 30
+
+    - name: UI Unit tests
+      working-directory: ./zorkweb.client
+      run: jest
