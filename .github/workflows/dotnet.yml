@@ -7,9 +7,8 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  dotnet-tests:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     
@@ -17,19 +16,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        
-    - name: Install dependencies for zorkweb.client
-      working-directory: ./zorkweb.client
-      run: npm ci
-      
-    - name: Install Playwright browsers
-      working-directory: ./zorkweb.client
-      run: npx playwright install --with-deps
         
     - name: Restore .NET dependencies
       run: dotnet restore
@@ -39,6 +25,28 @@ jobs:
       
     - name: .NET tests
       run: dotnet test --no-build --verbosity normal
+  
+  react-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Install dependencies for zorkweb.client
+      working-directory: ./zorkweb.client
+      run: npm ci
+      
+    - name: Install Jest
+      working-directory: ./zorkweb.client
+      run: npm install jest
+
+    - name: Install Playwright browsers
+      working-directory: ./zorkweb.client
+      run: npx playwright install --with-deps
       
     - name: Playwright tests
       working-directory: ./zorkweb.client
@@ -51,3 +59,7 @@ jobs:
         name: playwright-report
         path: zorkweb.client/playwright-report/
         retention-days: 30
+
+    - name: UI Unit tests
+      working-directory: ./zorkweb.client
+      run: npx jest
