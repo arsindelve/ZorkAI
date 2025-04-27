@@ -13,10 +13,9 @@ export interface ClickableTextHandle {
 }
 
 const ClickableText = forwardRef<HTMLDivElement & ClickableTextHandle, ClickableTextProps>(
-    ({children, onWordClick, exits, ...props}, ref) => {
+    ({children, onWordClick, ...props}, ref) => {
         // Create a local ref to store the div element
         const divRef = React.useRef<HTMLDivElement>(null);
-        console.log(exits);
 
         // Expose methods to parent components
         useImperativeHandle(ref, () => ({
