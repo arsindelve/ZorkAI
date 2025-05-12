@@ -72,4 +72,10 @@ public class SystemsMonitors : LocationWithNoStartingItems
         Busted.Remove("KUMUUNIKAASHUNZ");
         Fixed.Add("KUMUUNIKAASHUNZ");
     }
+    
+    internal void MarkPlanetaryDefenseFixed()
+    {
+        Busted.Remove("PLANATEREE DEFENS");
+        Fixed.Add("PLANATEREE DEFENS");
+    }
 }
