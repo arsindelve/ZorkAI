@@ -17,8 +17,10 @@ these timeless adventures.
 So, I built it.
 
 I hope you enjoy it, and I’d love to hear what you think. One of the biggest challenges I'm looking forward to is
-bringing Floyd to life. I want to see how far I can go in allowing you to have conversations with him while still preserving
-all the childlike charm that made him the star of the game [(and frankly, caused a lot of press in 1983)](https://web.archive.org/web/19990222125344/http://www.csd.uwo.ca/Infocom/Articles/globe84.html)
+bringing Floyd to life. I want to see how far I can go in allowing you to have conversations with him while still
+preserving
+all the childlike charm that made him the star of the
+game [(and frankly, caused a lot of press in 1983)](https://web.archive.org/web/19990222125344/http://www.csd.uwo.ca/Infocom/Articles/globe84.html)
 
 ### [Play Zork AI Now](https://newzork.ai)
 
