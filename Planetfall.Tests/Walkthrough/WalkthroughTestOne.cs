@@ -211,8 +211,13 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("score", null, "would be 42")]
     [TestCase("E", null, "Escalator")]
     [TestCase("E", null, "Fork")]
-    [TestCase("NE", null, "Corridor West")]
-    [TestCase("NW", null, "Infirmary")]
+    [TestCase("NE", null, "Systems Corridor West")]
+    [TestCase("E", null, "Systems Corridor")]
+    [TestCase("E", null, "Systems Corridor East")]
+    [TestCase("S", null, "Library Lobby")]
+    [TestCase("S", null, "Project Corridor East")]  
+    [TestCase("E", null, "Main Lab")]
+    [TestCase("S", null, "Lab Storage")]  
     
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {

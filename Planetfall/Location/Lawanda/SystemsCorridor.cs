@@ -12,6 +12,7 @@ internal class SystemsCorridor : LocationWithNoStartingItems
         {
             { Direction.E, Go<SystemsCorridorEast>() },
             { Direction.W, Go<SystemsCorridorWest>() },
+            { Direction.N, Go<PlanetaryDefense>() }
         };
     }
 
