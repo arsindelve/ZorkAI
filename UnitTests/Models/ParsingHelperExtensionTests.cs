@@ -1,9 +1,5 @@
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Model;
 using Model.Intent;
-using Moq;
-using NUnit.Framework;
 
 namespace UnitTests.Models;
 
