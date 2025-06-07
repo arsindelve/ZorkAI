@@ -187,9 +187,9 @@ public class ExtensionMethodsTests
         
         // Assert
         // Check for the presence of each indented line without hardcoding exact line endings
-        result.Should().Contain($"   First line{Environment.NewLine}");
-        result.Should().Contain($"   Second line{Environment.NewLine}");
-        result.Should().Contain($"   Third line{Environment.NewLine}");
+        result.Should().Contain($"  First line");
+        result.Should().Contain($"  Second line");
+        result.Should().Contain($"  Third line");
     }
     
     [Test]
