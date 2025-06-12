@@ -250,6 +250,22 @@ public class TestParser : IntentParser
                 Noun = "access card",
                 Verb = "drop"
             });
+        
+        if (input is "sit on rug")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "rug",
+                Verb = "sit",
+                OriginalInput = "sit on rug"
+            });
+        
+        if (input is "look under rug")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "rug",
+                Verb = "look",
+                OriginalInput = "look under rug"
+            });
 
         if (input is "wait" or "z")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new WaitProcessor() });

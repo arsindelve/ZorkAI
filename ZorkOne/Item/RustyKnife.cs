@@ -26,6 +26,6 @@ public class RustyKnife : ItemBase, ICanBeTakenAndDropped, IWeapon, IAmPointyAnd
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return "a rusty knife";
+        return "A rusty knife";
     }
 }
