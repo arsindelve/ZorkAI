@@ -19,6 +19,7 @@ public class MiscItemTests : EngineTestsBase
     [TestCase("examine label", "Sailor!", "label")]
     [TestCase("i", "A bloody axe", "axe")]
     [TestCase("i", "A broken timber", "timber")]
+    [TestCase("examine buoy", "The buoy is closed", "buoy")]
     public async Task InInventoryTests(string input, string expectedResponse, string itemType)
     {
         var target = GetTarget();
@@ -32,6 +33,7 @@ public class MiscItemTests : EngineTestsBase
     }
 
     [Test]
+    [TestCase("look", "There is a red buoy here (probably a warning).", "buoy")]
     [TestCase("look", "There is an ancient map here", "map")]
     [TestCase("look", "In the corner of the room on the ceiling is a large vampire bat who is obviously deranged and holding his nose", "bat")]
     [TestCase("look", "There is a large emerald here", "emerald")]
@@ -62,6 +64,10 @@ public class MiscItemTests : EngineTestsBase
     }
 
     [Test]
+    [TestCase("look", "There is a red buoy here.", "buoy")]
+    [TestCase("look", "There is a crystal trident here", "trident")]
+    [TestCase("look", "There is a huge diamond here", "diamond")]
+    [TestCase("look", "There is a stiletto here", "stiletto")]
     [TestCase("look", "There is an ancient map here", "map")]
     [TestCase("look", "sharp point", "sceptre")]
     [TestCase("look", "There is a large emerald here", "emerald")]
