@@ -299,6 +299,46 @@ public class TestParser : IntentParser
                 Verb = "put",
                 OriginalInput = "put flask under spout"
             });
+        
+        if (input == "put trident in boat")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "trident",
+                NounTwo = "boat",
+                Preposition = "in",
+                Verb = "put",
+                OriginalInput = "put trident in boat"
+            });
+        
+        if (input == "put bar in boat")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "bar",
+                NounTwo = "boat",
+                Preposition = "in",
+                Verb = "put",
+                OriginalInput = "put bar in boat"
+            });
+        
+        if (input == "put emerald in boat")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "emerald",
+                NounTwo = "boat",
+                Preposition = "in",
+                Verb = "put",
+                OriginalInput = "put emerald in boat"
+            });
+        
+        if (input == "put scarab in boat")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "scarab",
+                NounTwo = "boat",
+                Preposition = "in",
+                Verb = "put",
+                OriginalInput = "put scarab in boat"
+            });
 
         if (input == "press button")
             return Task.FromResult<IntentBase>(new SimpleIntent

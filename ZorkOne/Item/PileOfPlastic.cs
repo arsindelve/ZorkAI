@@ -14,6 +14,8 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
 
     public override bool IsTransparent => true;
 
+    protected override int SpaceForItems => 10;
+
     public override string[] NounsForMatching =>
         ["pile", "pile of plastic", "plastic", "boat", "punctured boat", "raft", "magic boat"];
 
