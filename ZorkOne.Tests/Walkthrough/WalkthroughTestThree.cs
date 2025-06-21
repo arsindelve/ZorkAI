@@ -20,19 +20,15 @@ public sealed class WalkthroughTestThree : WalkthroughTestBase
     [TestCase("open trap door", null, "staircase")]
     [TestCase("open case", null, "Opened")]
     [TestCase("turn on lantern", null, "on")]
-    
     [TestCase("Down", null, "crashes shut")]
     [TestCase("S", null, "Chasm")]
     [TestCase("E", null, "Gallery")]
     [TestCase("take painting", null, "Taken")]
-    
     [TestCase("W", null, "Chasm")]
     [TestCase("N", null, "Cellar")]
     [TestCase("N", null, "Troll")]
     [TestCase("kill the troll with the sword", null, "black fog envelops him")]
     [TestCase("drop sword", null, "Dropped")]
-    
-
     [TestCase("W", null, "Maze")]
     [TestCase("S", null, "Maze")]
     [TestCase("E", null, "Maze")]
