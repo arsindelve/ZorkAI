@@ -41,7 +41,7 @@ public class SandyBeach : DarkLocation // Explain to me how a beach can be a dar
         {
             // TODO: move some of this logic to the move engine, but only after tests are passing. 
             context.CurrentLocation.SubLocation = null;
-            context.CurrentLocation = Repository.GetLocation<FrigidRiverFour>();
+            context.CurrentLocation = Repository.GetLocation<FrigidRiverThree>();
             await context.CurrentLocation.AfterEnterLocation(context, this, null!);
             context.CurrentLocation.SubLocation = Repository.GetItem<PileOfPlastic>();
             ((ICanContainItems)context.CurrentLocation).ItemPlacedHere(Repository.GetItem<PileOfPlastic>());

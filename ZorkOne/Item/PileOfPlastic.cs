@@ -103,14 +103,17 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
             return new PositiveInteractionResult("You don't have enough lung power to inflate it. ");
         }
 
-        // TODO: Deflate
-        // if (action.Match(["deflate"], NounsForMatching))
-        // {
-        //     if (context.HasItem<PileOfPlastic>())
-        //         return new PositiveInteractionResult("The boat must be on the ground to be inflated. ");
-        //
-        //     return new PositiveInteractionResult("You don't have enough lung power to inflate it. ");
-        // }
+        if (action.Match(["deflate"], NounsForMatching))
+        {
+            if (context.HasItem<PileOfPlastic>())
+                return new PositiveInteractionResult("The boat must be on the ground to be deflated. ");
+        
+            if (!IsInflated)
+                return new PositiveInteractionResult("Come on now!");
+
+            IsInflated = false;
+            return new PositiveInteractionResult("The boat deflates.");
+        }
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }

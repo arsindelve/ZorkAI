@@ -23,7 +23,7 @@ public class TestParser : IntentParser
             "take", "drop", "open", "close", "examine", "look", "eat", "press", "remove", "play",
             "deactivate", "type", "key", "punch", "push", "pull", "burn", "set", "search", "empty",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate",
-            "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind", "kick",
+            "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind", "kick", "deflate",
             "lower", "raise", "get", "inflate", "leave", "unlock", "lock", "climb", "extend"
         ];
 
@@ -345,6 +345,20 @@ public class TestParser : IntentParser
             {
                 Noun = "button",
                 Verb = "press"
+            });
+        
+        if (input == "say temple")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "temple",
+                Verb = "say"
+            });
+        
+        if (input == "say treasure")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "treasure",
+                Verb = "say"
             });
 
         if (input == "get in the boat")
