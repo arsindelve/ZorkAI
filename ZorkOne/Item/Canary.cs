@@ -17,7 +17,7 @@ public class Canary : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTr
 
     public bool IsDestroyed { get; set; }
 
-    public bool HasDroppedBauble { get; set; }
+    [UsedImplicitly] public bool HasDroppedBauble { get; set; }
 
     public override string[] NounsForMatching => ["canary", "bird", "wind-up canary"];
 
@@ -39,10 +39,16 @@ public class Canary : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTr
         if (IsDestroyed)
             return new PositiveInteractionResult("There is an unpleasant grinding noise from inside the canary. ");
 
-        if (!HasDroppedBauble && context.CurrentLocation is ForestPath or UpATree)
+        if (!HasDroppedBauble &&
+            context.CurrentLocation is ForestPath or UpATree or ForestOne or ForestTwo or ForestThree or ForestFour)
         {
             HasDroppedBauble = true;
-            Repository.GetLocation<ForestPath>().ItemPlacedHere(Repository.GetItem<Bauble>());
+
+            if (context.CurrentLocation is UpATree)
+                Repository.GetLocation<ForestPath>().ItemPlacedHere(Repository.GetItem<Bauble>());
+            else
+                context.CurrentLocation.ItemPlacedHere(Repository.GetItem<Bauble>());
+
             return new PositiveInteractionResult(
                 "The canary chirps, slightly off-key, an aria from a forgotten opera. From out of the " +
                 "greenery flies a lovely songbird. It perches on a limb just over your head and opens its " +

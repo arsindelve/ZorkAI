@@ -63,7 +63,6 @@ public class TreasureRoom : LocationBase, IThiefMayVisit
         
         return "You hear a scream of anguish as you violate the robber's hideaway. Using passages unknown to you, he " +
                "rushes to its defense.\nThe thief gestures mysteriously, and the treasures in the room suddenly vanish.\n\n";
-               
     }
 
     protected override void OnFirstTimeEnterLocation(IContext context)
