@@ -15,10 +15,17 @@ public class GodModeProcessor : IGlobalCommand
         if (string.IsNullOrEmpty(input))
             throw new ArgumentNullException(nameof(input));
 
-        if (input.Contains("take")) return Task.FromResult(Take(input, context));
-        if (input.Contains("go")) return Task.FromResult(Go(input, context));
+        if (input.Contains(" take ")) return Task.FromResult(Take(input, context));
+        if (input.Contains(" go ")) return Task.FromResult(Go(input, context));
+        if (input.Contains(" where ")) return Task.FromResult(Where(input));
 
         return Task.FromResult("Invalid use of God mode. Bad adventurer! ");
+    }
+
+    private string Where(string input)
+    {
+        var lastWord = GetWordsAfterTarget(input, "where");
+        return Repository.GetItem(lastWord)?.CurrentLocation?.Name ?? "Unknown";
     }
 
     private string Go(string input, IContext context)

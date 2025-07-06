@@ -10,7 +10,7 @@ internal class Map : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
         "The map shows a forest with three clearings. The largest clearing contains a house. Three paths leave " +
         "the large clearing. One of these paths, leading southwest, is marked \"To Stone Barrow\".";
 
-    public string OnTheGroundDescription(ILocation currentLocation)
+    string ICanBeTakenAndDropped.OnTheGroundDescription(ILocation currentLocation)
     {
         return "There is an ancient map here. ";
     }
@@ -18,5 +18,10 @@ internal class Map : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
     public override string GenericDescription(ILocation? currentLocation)
     {
         return "An ancient map ";
+    }
+
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return ((ICanBeTakenAndDropped)this).OnTheGroundDescription(currentLocation);
     }
 }

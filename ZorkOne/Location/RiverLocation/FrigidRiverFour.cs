@@ -22,6 +22,13 @@ public class FrigidRiverFour : FrigidRiverBase
                 {
                     Location = GetLocation<SandyBeach>()
                 }
+            },
+            {
+                Direction.W,
+                new MovementParameters
+                {
+                    Location = GetLocation<WhiteCliffsBeachSouth>()
+                }
             }
         };
     }

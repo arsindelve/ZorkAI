@@ -16,11 +16,6 @@ public class Basket : ContainerBase, ICanBeExamined
 
     public string ExaminationDescription => Items.Any() ? ItemListDescription("basket", null) : "The basket is empty. ";
 
-    public override string NeverPickedUpDescription(ILocation currentLocation)
-    {
-        return ExaminationDescription;
-    }
-
     public override void Init()
     {
         // Empty in the beginning. 

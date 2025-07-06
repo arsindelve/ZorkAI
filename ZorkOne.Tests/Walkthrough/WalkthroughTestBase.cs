@@ -88,7 +88,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         if (Debugger.IsAttached)
         {
             Console.WriteLine(result);
-            var sessionId = Environment.MachineName;
+            var sessionId = Environment.MachineName + "8";
             var bytesToEncode = Encoding.UTF8.GetBytes(_target.Context.Engine!.SaveGame());
             var encodedText = Convert.ToBase64String(bytesToEncode);
             await _database.WriteSessionState(sessionId, encodedText, _target.SessionTableName);

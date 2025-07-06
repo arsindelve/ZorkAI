@@ -2,19 +2,12 @@
 
 namespace Model.Web;
 
-public record SavedGame
+[method: SetsRequiredMembers]
+public record SavedGame(string Id, string Name, DateTime Date)
 {
-    [SetsRequiredMembers]
-    public SavedGame(string id, string name, DateTime date)
-    {
-        Id = id;
-        Name = name;
-        Date = date;
-    }
+    public required string Id { get; init; } = Id;
 
-    public required string Id { get; init; }
+    public required string Name { get; init; } = Name;
 
-    public required string Name { get; init; }
-
-    public required DateTime Date { get; init; }
+    public required DateTime Date { get; init; } = Date;
 }

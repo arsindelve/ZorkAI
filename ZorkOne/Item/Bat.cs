@@ -11,10 +11,15 @@ public class Bat : ItemBase
 
     public override string CannotBeTakenDescription => "You can't reach him; he's on the ceiling. ";
 
+
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {
-        return
-            "In the corner of the room on the ceiling is a large vampire bat who is obviously deranged and holding his nose.";
+        return GenericDescription(currentLocation);
+    }
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return "In the corner of the room on the ceiling is a large vampire bat who is obviously deranged and holding his nose.";
     }
 
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
