@@ -25,6 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\ChatLambda\ChatLambda.csproj" />
         <ProjectReference Include="..\DynamoDb\DynamoDb.csproj"/>
         <ProjectReference Include="..\GameEngine\GameEngine.csproj"/>
         <ProjectReference Include="..\Lex\Lex.csproj"/>

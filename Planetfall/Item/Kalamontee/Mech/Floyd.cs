@@ -26,7 +26,6 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     // ReSharper disable once MemberCanBePrivate.Global
     public int TurnOnCountdown { get; set; } = 3;
 
-
     // TODO: If you wander away before he wakes: The robot you were fiddling with in the Robot Shop bounds into the room. "Hi!" he says, with a wide and friendly smile. "You turn Floyd on? Be Floyd's friend, yes?"
 
     public override string[] NounsForMatching => ["floyd", "robot", "B-19-7", "multi-purpose robot"];

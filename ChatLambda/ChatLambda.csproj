@@ -7,11 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Model\Model.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="StackExchange.Redis" Version="2.7.33" />
+      <PackageReference Include="AWSSDK.Core" Version="4.0.0.14" />
+      <PackageReference Include="AWSSDK.Lambda" Version="4.0.1.2" />
     </ItemGroup>
 
 </Project>
