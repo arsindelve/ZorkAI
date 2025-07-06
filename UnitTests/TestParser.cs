@@ -23,7 +23,7 @@ public class TestParser : IntentParser
             "take", "drop", "open", "close", "examine", "look", "eat", "press", "remove", "play",
             "deactivate", "type", "key", "punch", "push", "pull", "burn", "set", "search", "empty",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate",
-            "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind", "kick",
+            "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind", "kick", "deflate",
             "lower", "raise", "get", "inflate", "leave", "unlock", "lock", "climb", "extend"
         ];
 
@@ -250,6 +250,22 @@ public class TestParser : IntentParser
                 Noun = "access card",
                 Verb = "drop"
             });
+        
+        if (input is "sit on rug")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "rug",
+                Verb = "sit",
+                OriginalInput = "sit on rug"
+            });
+        
+        if (input is "look under rug")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "rug",
+                Verb = "look",
+                OriginalInput = "look under rug"
+            });
 
         if (input is "wait" or "z")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new WaitProcessor() });
@@ -283,12 +299,66 @@ public class TestParser : IntentParser
                 Verb = "put",
                 OriginalInput = "put flask under spout"
             });
+        
+        if (input == "put trident in boat")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "trident",
+                NounTwo = "boat",
+                Preposition = "in",
+                Verb = "put",
+                OriginalInput = "put trident in boat"
+            });
+        
+        if (input == "put bar in boat")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "bar",
+                NounTwo = "boat",
+                Preposition = "in",
+                Verb = "put",
+                OriginalInput = "put bar in boat"
+            });
+        
+        if (input == "put emerald in boat")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "emerald",
+                NounTwo = "boat",
+                Preposition = "in",
+                Verb = "put",
+                OriginalInput = "put emerald in boat"
+            });
+        
+        if (input == "put scarab in boat")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "scarab",
+                NounTwo = "boat",
+                Preposition = "in",
+                Verb = "put",
+                OriginalInput = "put scarab in boat"
+            });
 
         if (input == "press button")
             return Task.FromResult<IntentBase>(new SimpleIntent
             {
                 Noun = "button",
                 Verb = "press"
+            });
+        
+        if (input == "say temple")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "temple",
+                Verb = "say"
+            });
+        
+        if (input == "say treasure")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "treasure",
+                Verb = "say"
             });
 
         if (input == "get in the boat")

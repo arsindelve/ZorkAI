@@ -10,7 +10,7 @@ using SecretsManager;
 using ZorkOne;
 
 var database = new DynamoDbSessionRepository();
-var sessionId = Environment.MachineName;
+var sessionId = Environment.MachineName + "8";
 
 Console.ForegroundColor = ConsoleColor.DarkCyan;
 

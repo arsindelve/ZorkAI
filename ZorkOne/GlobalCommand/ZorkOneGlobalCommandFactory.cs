@@ -46,7 +46,7 @@ public class ZorkOneGlobalCommandFactory : GlobalCommandFactory
             case "sigh":
             case "mumble":
                 return new SimpleResponseCommand(
-                    "You'll have to speak up if you expect me to hear you! !"
+                    "You'll have to speak up if you expect me to hear you!"
                 );
 
             case "diagnose":

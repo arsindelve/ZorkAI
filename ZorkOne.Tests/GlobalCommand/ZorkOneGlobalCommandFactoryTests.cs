@@ -5,6 +5,7 @@ using Model.AIGeneration;
 using Model.Interface;
 using Moq;
 using ZorkOne.GlobalCommand;
+using ZorkOne.GlobalCommand.Implementation;
 
 namespace ZorkOne.Tests.GlobalCommand;
 
@@ -25,115 +26,53 @@ public class ZorkOneGlobalCommandFactoryTests
     private Mock<IGenerationClient> _mockGenerationClient;
     private Runtime _runtime;
 
-    [Test]
-    public async Task GetGlobalCommands_WithRepent_ReturnsSimpleResponseCommand()
+    [TestCase("repent", "It could very well be too late! ")]
+    [TestCase("REPENT", "It could very well be too late! ")]
+    [TestCase("  repent  ", "It could very well be too late! ")]
+    [TestCase("re-pent!", "It could very well be too late! ")]
+    [TestCase("xyzzy", "A hollow voice says 'fool' ")]
+    [TestCase("plugh", "A hollow voice says 'fool' ")]
+    [TestCase("echo", "echo echo...")]
+    [TestCase("ulysses", "Wasn't he a sailor? ")]
+    [TestCase("odysseus", "Wasn't he a sailor? ")]
+    [TestCase("win", "Naturally!")]
+    [TestCase("zork", "At your service!")]
+    [TestCase("frobozz", "The FROBOZZ Corporation created, owns, and operates this dungeon. ")]
+    [TestCase("lose", "Preposterous!")]
+    [TestCase("chomp", "Preposterous!")]
+    [TestCase("vomit", "Preposterous!")]
+    [TestCase("sigh", "You'll have to speak up if you expect me to hear you!")]
+    [TestCase("mumble", "You'll have to speak up if you expect me to hear you!")]
+    public async Task GetGlobalCommands_WithValidInput_ReturnsSimpleResponseCommand(string input, string expectedResponse)
     {
         // Act
-        var command = _factory.GetGlobalCommands("repent");
-        var result = await command?.Process("repent", _mockContext.Object, _mockGenerationClient.Object, _runtime);
+        var command = _factory.GetGlobalCommands(input);
+        var result = await command?.Process(input, _mockContext.Object, _mockGenerationClient.Object, _runtime);
 
         // Assert
         command.Should().NotBeNull();
         command.Should().BeOfType<SimpleResponseCommand>();
-        result.Should().Be("It could very well be too late! ");
+        result.Should().Be(expectedResponse);
     }
 
-    [Test]
-    public async Task GetGlobalCommands_WithCaseInsensitiveInput_ReturnsCorrectCommand()
+    [TestCase("diagnose")]
+    public void GetGlobalCommands_WithDiagnose_ReturnsDiagnoseProcessor(string input)
     {
         // Act
-        var command = _factory.GetGlobalCommands("REPENT");
-        var result = await command?.Process("REPENT", _mockContext.Object, _mockGenerationClient.Object, _runtime);
+        var command = _factory.GetGlobalCommands(input);
 
         // Assert
         command.Should().NotBeNull();
-        command.Should().BeOfType<SimpleResponseCommand>();
-        result.Should().Be("It could very well be too late! ");
+        command.Should().BeOfType<DiagnoseProcessor>();
     }
 
-    [Test]
-    public async Task GetGlobalCommands_WithLeadingAndTrailingSpaces_ReturnsCorrectCommand()
+    [TestCase("")]
+    [TestCase("   ")]
+    [TestCase("unknowncommand")]
+    public void GetGlobalCommands_WithInvalidInput_ReturnsNull(string input)
     {
         // Act
-        var command = _factory.GetGlobalCommands("  repent  ");
-        var result = await command?.Process("  repent  ", _mockContext.Object, _mockGenerationClient.Object, _runtime);
-
-        // Assert
-        command.Should().NotBeNull();
-        command.Should().BeOfType<SimpleResponseCommand>();
-        result.Should().Be("It could very well be too late! ");
-    }
-
-    [Test]
-    public async Task GetGlobalCommands_WithNonAlphaCharacters_ReturnsCorrectCommand()
-    {
-        // Act
-        var command = _factory.GetGlobalCommands("re-pent!");
-        var result = await command?.Process("re-pent!", _mockContext.Object, _mockGenerationClient.Object, _runtime);
-
-        // Assert
-        command.Should().NotBeNull();
-        command.Should().BeOfType<SimpleResponseCommand>();
-        result.Should().Be("It could very well be too late! ");
-    }
-
-    [Test]
-    public void GetGlobalCommands_WithXyzzy_ReturnsMagicWordCommand()
-    {
-        // Act
-        var command = _factory.GetGlobalCommands("xyzzy");
-
-        // Assert
-        command.Should().NotBeNull();
-        command.Should().BeOfType<SimpleResponseCommand>();
-    }
-
-    [Test]
-    public void GetGlobalCommands_WithPlugh_ReturnsMagicWordCommand()
-    {
-        // Act
-        var command = _factory.GetGlobalCommands("plugh");
-
-        // Assert
-        command.Should().NotBeNull();
-        command.Should().BeOfType<SimpleResponseCommand>();
-    }
-
-    [Test]
-    public void GetGlobalCommands_WithNoInput_ReturnsNull()
-    {
-        // Act
-        var command = _factory.GetGlobalCommands(null);
-
-        // Assert
-        command.Should().BeNull();
-    }
-
-    [Test]
-    public void GetGlobalCommands_WithEmptyString_ReturnsNull()
-    {
-        // Act
-        var command = _factory.GetGlobalCommands("");
-
-        // Assert
-        command.Should().BeNull();
-    }
-
-    [Test]
-    public void GetGlobalCommands_WithWhitespaceOnly_ReturnsNull()
-    {
-        // Act
-        var command = _factory.GetGlobalCommands("   ");
-
-        // Assert
-        command.Should().BeNull();
-    }
-
-    [Test]
-    public void GetGlobalCommands_WithUnrecognizedCommand_ReturnsNull()
-    {
-        // Act
-        var command = _factory.GetGlobalCommands("unknowncommand");
+        var command = _factory.GetGlobalCommands(input);
 
         // Assert
         command.Should().BeNull();

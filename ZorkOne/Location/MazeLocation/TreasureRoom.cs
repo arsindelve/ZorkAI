@@ -1,4 +1,7 @@
 ﻿using GameEngine.Location;
+using GameEngine.StaticCommand.Implementation;
+using Model.AIGeneration;
+using Model.Intent;
 using Model.Interface;
 using Model.Movement;
 
@@ -27,6 +30,19 @@ public class TreasureRoom : LocationBase, IThiefMayVisit
         StartWithItem<SilverChalice>();
         StartWithItem<Thief>();
     }
+    
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client,
+        IItemProcessorFactory itemProcessorFactory)
+    {
+
+        if (action.Match(Verbs.SayVerbs, ["temple"]))
+        {
+            context.CurrentLocation = GetLocation<Temple>();
+            return new PositiveInteractionResult(await new LookProcessor().Process("look", context, client, Runtime.Unknown));
+        }
+        
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+    }
 
     public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
     {
@@ -47,7 +63,6 @@ public class TreasureRoom : LocationBase, IThiefMayVisit
         
         return "You hear a scream of anguish as you violate the robber's hideaway. Using passages unknown to you, he " +
                "rushes to its defense.\nThe thief gestures mysteriously, and the treasures in the room suddenly vanish.\n\n";
-               
     }
 
     protected override void OnFirstTimeEnterLocation(IContext context)
