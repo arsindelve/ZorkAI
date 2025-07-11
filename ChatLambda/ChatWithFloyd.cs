@@ -31,30 +31,31 @@ public class ChatWithFloyd
     /// <summary>
     /// Sends a question to the Floyd Lambda function and returns the response.
     /// </summary>
-    /// <param name="question">The question to ask Floyd</param>
+    /// <param name="prompt">The question to ask Floyd</param>
     /// <returns>Floyd's response as a string</returns>
-    public async Task<string> AskFloydAsync(string question)
+    public async Task<string> AskFloydAsync(string prompt)
     {
-        return await AskFloydAsync(question, CancellationToken.None);
+        return await AskFloydAsync(prompt, CancellationToken.None);
     }
 
     /// <summary>
     /// Sends a question to the Floyd Lambda function and returns the response.
     /// </summary>
-    /// <param name="question">The question to ask Floyd</param>
+    /// <param name="prompt">The question to ask Floyd</param>
     /// <param name="cancellationToken">Cancellation token to cancel the operation</param>
     /// <returns>Floyd's response as a string</returns>
-    private async Task<string> AskFloydAsync(string question, CancellationToken cancellationToken)
+    private async Task<string> AskFloydAsync(string prompt, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(question))
-            throw new ArgumentException("Question cannot be empty", nameof(question));
+        if (string.IsNullOrWhiteSpace(prompt))
+            throw new ArgumentException("Question cannot be empty", nameof(prompt));
 
         try
         {
             // Create the request payload
             var request = new
             {
-                question
+                prompt = prompt,
+                assistant = "router",
             };
 
             // Serialize the request to JSON
