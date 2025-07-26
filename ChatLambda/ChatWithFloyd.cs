@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Amazon;
 using Amazon.Lambda;
 using Amazon.Lambda.Model;
+using JetBrains.Annotations;
 
 namespace ChatLambda;
 
@@ -54,8 +55,8 @@ public class ChatWithFloyd
             // Create the request payload
             var request = new
             {
-                prompt = prompt,
-                assistant = "router",
+                prompt,
+                assistant = "router"
             };
 
             // Serialize the request to JSON
@@ -110,6 +111,7 @@ public class ChatWithFloyd
         Results Results
     );
 
+    [UsedImplicitly]
     private record Results(
         [property: JsonPropertyName("single_message")]
         string Response

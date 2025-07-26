@@ -47,7 +47,7 @@ public class ZorkOneGlobalCommandFactoryTests
     {
         // Act
         var command = _factory.GetGlobalCommands(input);
-        var result = await command?.Process(input, _mockContext.Object, _mockGenerationClient.Object, _runtime);
+        var result = await command?.Process(input, _mockContext.Object, _mockGenerationClient.Object, _runtime)!;
 
         // Assert
         command.Should().NotBeNull();
