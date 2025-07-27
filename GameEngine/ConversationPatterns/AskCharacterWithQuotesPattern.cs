@@ -19,12 +19,9 @@ public class AskCharacterWithQuotesPattern : PatternBase
         if (!inputLower.StartsWith("ask "))
             return null;
 
-        // Make sure we're not handling the "ask X for Y" or "ask X about Y" patterns
-        if (inputLower.Contains(" for ") || inputLower.Contains(" about "))
-            return null;
-
         // Use regex to match the pattern "ask [character] "[text]"" or "ask [character] '[text]'"
-        var match = Regex.Match(input, @"^ask\s+(\w+)\s+[""'](.+)[""']$", RegexOptions.IgnoreCase);
+        // The (.+?) makes the character match non-greedy, allowing for multi-word character names
+        var match = Regex.Match(input, @"^ask\s+(.+?)\s+[""'](.+)[""']$", RegexOptions.IgnoreCase);
         if (!match.Success || match.Groups.Count < 3)
         {
             Debug.WriteLine("Regex match failed");
