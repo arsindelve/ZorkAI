@@ -18,7 +18,7 @@ public class EngineTests : EngineTestsBase
     public void DefaultConstructor()
     {
         Environment.SetEnvironmentVariable("OPEN_AI_KEY", "XYZ");
-        var target = new GameEngine<ZorkI, ZorkIContext>(null!, Mock.Of<ISecretsManager>(), Mock.Of<IParseConversation>());
+        var target = new GameEngine<ZorkI, ZorkIContext>(null!, Mock.Of<ISecretsManager>());
 
         target.Should().NotBeNull();
     }

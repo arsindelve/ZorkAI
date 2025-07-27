@@ -1,4 +1,3 @@
-using ChatLambda;
 using CloudWatch;
 using CloudWatch.Model;
 using GameEngine;
@@ -67,13 +66,8 @@ public class EngineTestsBase
                 return words.Length > 1 ? [words[1]] : [];
             });
 
-        // Create a simple mock ParseConversation that returns "no conversation" for all inputs
-        var mockParseConversation = new Mock<IParseConversation>();
-        mockParseConversation.Setup(x => x.ParseAsync(It.IsAny<string>()))
-            .ReturnsAsync((true, "")); // Always return "no conversation" so tests behave like before
-        
         var engine = new GameEngine<PlanetfallGame, PlanetfallContext>(new ItemProcessorFactory(takeAndDropParser.Object), _parser, _client.Object,
-            Mock.Of<ISecretsManager>(), Mock.Of<ICloudWatchLogger<TurnLog>>(), mockParseConversation.Object);
+            Mock.Of<ISecretsManager>(), Mock.Of<ICloudWatchLogger<TurnLog>>());
         engine.Context.Verbosity = Verbosity.Verbose;
         Repository.GetLocation<DeckNine>().Init();
 

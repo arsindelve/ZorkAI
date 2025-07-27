@@ -4,8 +4,6 @@ using CloudWatch.Model;
 using GameEngine.IntentEngine;
 using GameEngine.Item;
 using GameEngine.Item.ItemProcessor;
-using GameEngine.Location;
-using GameEngine.ConversationPatterns;
 using GameEngine.StaticCommand;
 using GameEngine.StaticCommand.Implementation;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Interface;
-using Model.Item;
 using Model.Movement;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -218,11 +215,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return await ProcessActorsAndContextEndOfTurn(contextPrepend, resultMessage);
         }
 
-        // Is the player talking to someone?
-        var conversation = await CheckForConversation(_currentInput);
-        if (conversation is not null)
-            return await ProcessActorsAndContextEndOfTurn(contextPrepend, conversation);
-
         // 6. ------- Complex parsed commands. These require a parser to break them down into their noun(s) and verb.
 
         // if the user referenced an object using "it", let's see if we can handle that.
@@ -273,19 +265,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var savedGame = Repository.Save<TContext>();
         savedGame.Context = Context;
         return JsonConvert.SerializeObject(savedGame, JsonSettings());
-    }
-
-    private readonly ConversationPatternEngine _conversationEngine = new();
-
-    private async Task<string?> CheckForConversation(string input)
-    {
-        // Use the pattern engine first
-        // First try using the pattern engine
-        var patternResult = await _conversationEngine.ProcessInput(input, Context, GenerationClient);
-        if (patternResult != null)
-            return patternResult;
-        
-        return null;
     }
 
     public async Task InitializeEngine()
