@@ -232,7 +232,7 @@ public class TalkToCharacterTests : EngineTestsBase
         wasCalled.Should().Be(shouldBeCalled);
     }
 
-    [TestCase("talk to bo", true, TestName = "PartialCharacterName_StillMatches")]
+    [TestCase("talk to bo", false, TestName = "PartialCharacterName_NoLongerMatches")]
     [TestCase("talk to xyz", false, TestName = "CompletelyDifferentName_NoMatch")]
     [TestCase("talk to BoB", true, TestName = "CharacterNameWithMixedCase_StillMatches")]
     [TestCase("say bob hello", true, TestName = "MalformedCommand_WithoutPreposition_StillMatches")]
