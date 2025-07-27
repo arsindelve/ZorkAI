@@ -260,6 +260,11 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     {
         ItemBeingHeld = null;
     }
+
+    public Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
+    {
+        return Task.FromResult(string.Empty);
+    }
 }
 
 // TODO: Floyd gives you a nudge with his foot and giggles. "You sure look silly sleeping on the floor," he says.

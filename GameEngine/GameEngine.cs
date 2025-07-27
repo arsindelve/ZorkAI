@@ -216,6 +216,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return await ProcessActorsAndContextEndOfTurn(contextPrepend, resultMessage);
         }
 
+        // Is the player talking to someone?
+        var conversation = await ConversationChecker.CheckForConversation(_currentInput!, Context, GenerationClient);
+        if (conversation is not null)
+            return await ProcessActorsAndContextEndOfTurn(contextPrepend, conversation);
+
         // 6. ------- Complex parsed commands. These require a parser to break them down into their noun(s) and verb.
 
         // if the user referenced an object using "it", let's see if we can handle that.
@@ -488,6 +493,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum);
         return result + Environment.NewLine;
     }
+
 
     private async Task<string> GetGeneratedNoCommandResponse()
     {
