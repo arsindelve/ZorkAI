@@ -107,3 +107,48 @@ This is a production-quality game engine that successfully combines classic text
 This project exemplifies **thoughtful AI integration** - using AI to enhance rather than replace carefully designed game mechanics. The hierarchical parsing approach (simple → complex → AI) shows understanding of both performance and user experience considerations.
 
 The codebase demonstrates production-level C# development with proper dependency injection, logging, monitoring, and testing practices while maintaining the essential character of classic text adventures.
+
+## AWS Lambda Integration & Deployment
+
+### Lambda Project Structure (`Lambda/src/Lambda/`)
+- **ZorkOneController.cs**: RESTful API endpoints for game interaction
+  - `POST /` - Main game interaction endpoint
+  - `GET /` - Session restoration and game history
+  - `POST /restoreGame` - Load saved games
+  - `POST /saveGame` - Persist game state
+  - `GET /saveGame` - List all saved games
+- **LambdaEntryPoint.cs**: AWS Lambda function entry point extending `APIGatewayProxyFunction`
+- **Startup.cs**: ASP.NET Core configuration for Lambda deployment
+
+### Web API Design Patterns
+- **Base64 encoding** for game state serialization/deserialization
+- **Session management** with DynamoDB integration for state persistence
+- **Error handling** with meaningful HTTP status codes and messages
+- **AI integration** for enhanced narrative responses during save/restore operations
+
+### Lambda Testing Strategy (26 comprehensive tests)
+- **Controller testing** with full dependency injection mocking
+- **Request/Response model validation** ensuring correct parameter ordering
+- **Session repository integration** testing state persistence workflows
+- **AWS service mocking** for offline development and testing
+- **Parameter validation** - critical for API contract correctness
+
+### Key Lambda Implementation Insights
+- **Constructor parameter ordering** is critical for record types - easy source of bugs
+- **Mock setup completeness** - all repository methods must be properly configured
+- **State management complexity** - games maintain rich state requiring careful serialization
+- **AI integration consistency** - same generation patterns used in console and web versions
+
+### API Architecture Benefits
+- **Stateless design** - each request contains full context needed
+- **Scalable deployment** - Lambda auto-scaling handles traffic spikes
+- **Cost-effective** - pay-per-request model ideal for text adventures
+- **Multi-channel support** - same engine serves console, web, and API consumers
+
+### Production Deployment Considerations
+- **Session state size** - Base64 encoding adds ~33% overhead to serialized game state
+- **AI service timeouts** - generation requests need proper timeout handling
+- **DynamoDB performance** - session retrieval patterns optimized for single-table design
+- **Error resilience** - graceful degradation when AI services unavailable
+
+This Lambda integration demonstrates how the core game engine's excellent architecture enables seamless deployment across multiple platforms while maintaining consistent gameplay experience and leveraging cloud services for scalability and persistence.

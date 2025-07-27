@@ -13,6 +13,7 @@
 
     <ItemGroup>
         <PackageReference Include="FluentAssertions" Version="6.12.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
         <PackageReference Include="Moq" Version="4.20.72" />
         <PackageReference Include="NUnit" Version="4.3.2" />
@@ -28,6 +29,7 @@
         <ProjectReference Include="..\ChatLambda\ChatLambda.csproj" />
         <ProjectReference Include="..\DynamoDb\DynamoDb.csproj"/>
         <ProjectReference Include="..\GameEngine\GameEngine.csproj"/>
+        <ProjectReference Include="..\Lambda\src\Lambda\Lambda.csproj"/>
         <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>
         <ProjectReference Include="..\Planetfall\Planetfall.csproj"/>
         <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
