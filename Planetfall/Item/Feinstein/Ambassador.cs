@@ -1,8 +1,9 @@
 ﻿using Model.AIGeneration;
+using Model.Item;
 
 namespace Planetfall.Item.Feinstein;
 
-internal class Ambassador : QuirkyCompanion, ICanBeExamined
+internal class Ambassador : QuirkyCompanion, ICanBeExamined, ICanBeTalkedTo
 {
     public override string[] NounsForMatching => ["ambassador", "alien"];
 
