@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace ChatLambda;
 
-public class ParseConversation
+public class ParseConversation : IParseConversation
 {
     private const string FunctionName = "Floyd-LangGraphFunction-GefcykaLqwp-MySimpleLambda-lBRzg1jLKvXP";
     private readonly IAmazonLambda _lambdaClient;

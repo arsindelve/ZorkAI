@@ -9,7 +9,9 @@
       "Bash(git commit:*)",
       "Bash(git checkout:*)",
       "Bash(git stash:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(rm:*)",
+      "Bash(timeout 30 dotnet test Planetfall.Tests --filter \"BlatherTests.ThePlayer_TriesToBlather_BlatherIsAlive\" --logger console)"
     ],
     "deny": []
   }

@@ -5,7 +5,7 @@ using GameEngine.IntentEngine;
 using GameEngine.Item;
 using GameEngine.Item.ItemProcessor;
 using GameEngine.Location;
-using GameEngine.ConversationPatterns;
+using ChatLambda;
 using GameEngine.StaticCommand;
 using GameEngine.StaticCommand.Implementation;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,6 +47,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     private readonly string _sessionId = Guid.NewGuid().ToString();
     private readonly Guid _turnCorrelationId = Guid.NewGuid();
     private readonly OpenAITakeAndDropListParser _openAITakeAndDropListParser;
+    private readonly IParseConversation _parseConversation;
     private string? _currentInput;
     private TInfocomGame _gameInstance;
     private bool _lastResponseWasGenerated;
@@ -57,10 +58,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     [ActivatorUtilitiesConstructor]
     public GameEngine(
         ILogger<GameEngine<TInfocomGame, TContext>> logger,
-        ISecretsManager secretsManager)
+        ISecretsManager secretsManager,
+        IParseConversation parseConversation)
     {
         _logger = logger;
         _secretsManager = secretsManager;
+        _parseConversation = parseConversation;
         _gameInstance = new TInfocomGame();
         Context = new TContext
         {
@@ -101,7 +104,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         IIntentParser parser,
         IGenerationClient generationClient,
         ISecretsManager secretsManager,
-        ICloudWatchLogger<TurnLog> turnLogger)
+        ICloudWatchLogger<TurnLog> turnLogger,
+        IParseConversation parseConversation)
     {
         Repository.Reset();
 
@@ -111,6 +115,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _parser = parser;
         GenerationClient = generationClient;
         _secretsManager = secretsManager;
+        _parseConversation = parseConversation;
         _gameInstance = (TInfocomGame)Context.Game;
         _gameInstance.Init(Context);
         _itemProcessorFactory = itemProcessorFactory;
@@ -275,17 +280,86 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         return JsonConvert.SerializeObject(savedGame, JsonSettings());
     }
 
-    private readonly ConversationPatternEngine _conversationEngine = new();
 
     private async Task<string?> CheckForConversation(string input)
     {
-        // Use the pattern engine first
-        // First try using the pattern engine
-        var patternResult = await _conversationEngine.ProcessInput(input, Context, GenerationClient);
-        if (patternResult != null)
-            return patternResult;
+        // Collect all talkable entities
+        var talkables = new List<ICanBeTalkedTo>();
+        talkables.AddRange(Context.Items.OfType<ICanBeTalkedTo>());
+
+        if (Context.CurrentLocation is ICanContainItems container)
+        {
+            talkables.AddRange(container.Items.OfType<ICanBeTalkedTo>());
+        }
+
+        if (talkables.Count == 0)
+            return null;
+
+        // Check if input contains any character nouns (exact match first, then partial)
+        var inputLower = input.ToLowerInvariant();
+        ICanBeTalkedTo? targetCharacter = null;
+
+        // First try exact match
+        foreach (var talkable in talkables)
+        {
+            if (talkable is not IItem item)
+                continue;
+
+            foreach (var noun in item.NounsForMatching)
+            {
+                if (inputLower.Contains(noun.ToLowerInvariant()))
+                {
+                    targetCharacter = talkable;
+                    break;
+                }
+            }
+
+            if (targetCharacter != null)
+                break;
+        }
+
+        // If no exact match, try partial matches (for "bo" matching "bob")
+        if (targetCharacter == null)
+        {
+            foreach (var talkable in talkables)
+            {
+                if (talkable is not IItem item)
+                    continue;
+
+                foreach (var noun in item.NounsForMatching)
+                {
+                    var lowerNoun = noun.ToLowerInvariant();
+                    // Check if any word in the input starts with this noun or vice versa
+                    var inputWords = inputLower.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var word in inputWords)
+                    {
+                        if (lowerNoun.StartsWith(word) || word.StartsWith(lowerNoun))
+                        {
+                            targetCharacter = talkable;
+                            break;
+                        }
+                    }
+                    if (targetCharacter != null)
+                        break;
+                }
+
+                if (targetCharacter != null)
+                    break;
+            }
+        }
+
+        if (targetCharacter == null)
+            return null;
+
+        // Use ParseConversation to determine if this is actually communication
+        var parseResult = await _parseConversation.ParseAsync(input);
         
-        return null;
+        // If ParseConversation says "No", continue with normal processing
+        if (parseResult.isNo)
+            return null;
+
+        // Send the rewritten message to the character
+        return await targetCharacter.OnBeingTalkedTo(parseResult.response, Context, GenerationClient);
     }
 
     public async Task InitializeEngine()
