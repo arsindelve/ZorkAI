@@ -168,4 +168,121 @@ public class TalkToCharacterTests : EngineTestsBase
         talker.WasCalled.Should().BeTrue();
         talker.ReceivedText.Should().Be("can you tell me about the mission?");
     }
+
+    [Test]
+    public async Task AskCharacterForItem_TalksToCharacter()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        await engine.GetResponse("ask bob for the key");
+
+        talker.WasCalled.Should().BeTrue();
+        talker.ReceivedText.Should().Be("can I have the key?");
+    }
+
+    [Test]
+    public async Task TalkToCharacter_TalksToCharacter()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        await engine.GetResponse("talk to bob");
+
+        talker.WasCalled.Should().BeTrue();
+        talker.ReceivedText.Should().Be("hello");
+    }
+
+    [Test]
+    public async Task SpeakWithCharacter_TalksToCharacter()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        await engine.GetResponse("speak with bob");
+
+        talker.WasCalled.Should().BeTrue();
+        talker.ReceivedText.Should().Be("hello");
+    }
+
+    [Test]
+    public async Task GreetCharacter_TalksToCharacter()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        await engine.GetResponse("greet bob");
+
+        talker.WasCalled.Should().BeTrue();
+        talker.ReceivedText.Should().Be("hello");
+    }
+
+    [Test]
+    public async Task HelloCharacter_TalksToCharacter()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        await engine.GetResponse("hello bob");
+
+        talker.WasCalled.Should().BeTrue();
+        talker.ReceivedText.Should().Be("hello");
+    }
+
+    [Test]
+    public async Task ShowItemToCharacter_TalksToCharacter()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        await engine.GetResponse("show golden key to bob");
+
+        talker.WasCalled.Should().BeTrue();
+        talker.ReceivedText.Should().Be("look at this golden key");
+    }
+
+    [Test]
+    public async Task WhisperToCharacter_TalksToCharacter()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        await engine.GetResponse("whisper to bob I found the treasure");
+
+        talker.WasCalled.Should().BeTrue();
+        talker.ReceivedText.Should().Be("(whispered) I found the treasure");
+    }
+
+    [Test]
+    public async Task WhisperTextToCharacter_TalksToCharacter()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        await engine.GetResponse("whisper 'the door is trapped' to bob");
+
+        talker.WasCalled.Should().BeTrue();
+        talker.ReceivedText.Should().Be("(whispered) 'the door is trapped'");
+    }
+
+    [Test]
+    public async Task InterrogateCharacter_TalksToCharacter()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        await engine.GetResponse("interrogate bob");
+
+        talker.WasCalled.Should().BeTrue();
+        talker.ReceivedText.Should().Be("Tell me everything you know.");
+    }
 }

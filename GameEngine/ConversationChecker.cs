@@ -127,6 +127,13 @@ internal static class ConversationChecker
                         {
                             var text = input.Substring(prefixWithPrep.Length).TrimStart(' ', '.', ',', ':').Trim();
                             text = StripOuterQuotes(text);
+
+                            // Special handling for whisper commands
+                            if (Verbs.WhisperVerbs.Contains(verbLower))
+                            {
+                                return await talkable.OnBeingTalkedTo("(whispered) " + text, context, client);
+                            }
+
                             return await talkable.OnBeingTalkedTo(text, context, client);
                         }
                     }
@@ -147,7 +154,27 @@ internal static class ConversationChecker
                             middleWords.RemoveAt(middleWords.Count - 1);
 
                         var text = string.Join(" ", middleWords).TrimStart(' ', '.', ',', ':').Trim();
+
+                        // Special case for whisper with quotes
+                        if (firstWord == "whisper" && input.Contains("'"))
+                        {
+                            var start = input.IndexOf('\'');
+                            var end = input.LastIndexOf('\'');
+                            if (start >= 0 && end > start)
+                            {
+                                // Keep original quotes for whisper command
+                                return await talkable.OnBeingTalkedTo("(whispered) '" + input.Substring(start + 1, end - start - 1) + "'", context, client);
+                            }
+                        }
+
                         text = StripOuterQuotes(text);
+
+                        // Special prefix for whisper
+                        if (firstWord == "whisper")
+                        {
+                            return await talkable.OnBeingTalkedTo("(whispered) " + text, context, client);
+                        }
+
                         return await talkable.OnBeingTalkedTo(text, context, client);
                     }
                 }
