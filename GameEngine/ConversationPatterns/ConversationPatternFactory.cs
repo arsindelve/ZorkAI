@@ -11,9 +11,8 @@ public static class ConversationPatternFactory
     /// <returns>A list of conversation patterns</returns>
     public static List<IConversationPattern> CreateAllPatterns()
     {
-        return new List<IConversationPattern>
-        {
-            // Direct question patterns
+        return
+        [
             new AskAboutPattern(),
             new AskCharacterForPattern(),
             new QueryForPattern(),
@@ -30,8 +29,6 @@ public static class ConversationPatternFactory
             new ShowCharacterItemPattern(),
             new WhisperToCharacterPattern(),
             new InterrogateCharacterPattern()
-
-            // Add new patterns here
-        };
+        ];
     }
 }
