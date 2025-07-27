@@ -2,11 +2,12 @@ using GameEngine.IntentEngine;
 using Model.AIGeneration;
 using Newtonsoft.Json;
 using Planetfall.Item.Kalamontee.Admin;
+using Model.Item;
 using Utilities;
 
 namespace Planetfall.Item.Kalamontee.Mech;
 
-public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGivenThings
+public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGivenThings, ICanBeTalkedTo
 {
     private readonly GiveSomethingToSomeoneDecisionEngine<Floyd> _giveHimSomethingEngine = new();
 

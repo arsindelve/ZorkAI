@@ -1,8 +1,9 @@
 ﻿using Model.AIGeneration;
+using Model.Item;
 
 namespace Planetfall.Item.Feinstein;
 
-internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor
+internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICanBeTalkedTo
 {
     [UsedImplicitly]
     public int TurnsOnDeckNine { get; set; }
