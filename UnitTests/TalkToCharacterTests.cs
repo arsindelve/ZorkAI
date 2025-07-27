@@ -1,3 +1,4 @@
+using GameEngine;
 using GameEngine.Item;
 using Model.AIGeneration;
 using Model.Interface;
@@ -8,7 +9,7 @@ namespace UnitTests;
 
 public class TalkToCharacterTests : EngineTestsBase
 {
-    internal class TestTalker : ItemBase, ICanBeTalkedTo
+    private class TestTalker : ItemBase, ICanBeTalkedTo
     {
         public bool WasCalled { get; private set; }
         public string? ReceivedText { get; private set; }
@@ -127,5 +128,44 @@ public class TalkToCharacterTests : EngineTestsBase
 
         talker.WasCalled.Should().BeTrue();
         talker.ReceivedText.Should().Be("hi");
+    }
+
+    [Test]
+    public async Task TellCharacterToDoSomething_TalksToCharacter()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        await engine.GetResponse("tell bob to go north");
+
+        talker.WasCalled.Should().BeTrue();
+        talker.ReceivedText.Should().Be("go north");
+    }
+
+    [Test]
+    public async Task AskCharacterAboutTopic_TalksToCharacter()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        await engine.GetResponse("ask bob about the spaceship");
+
+        talker.WasCalled.Should().BeTrue();
+        talker.ReceivedText.Should().Be("what about the spaceship?");
+    }
+
+    [Test]
+    public async Task QueryCharacterForInformation_TalksToCharacter()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        await engine.GetResponse("query bob for information about the mission");
+
+        talker.WasCalled.Should().BeTrue();
+        talker.ReceivedText.Should().Be("can you tell me about the mission?");
     }
 }
