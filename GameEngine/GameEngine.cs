@@ -1,9 +1,11 @@
 using System.Reflection;
+using ChatLambda;
 using CloudWatch;
 using CloudWatch.Model;
 using GameEngine.IntentEngine;
 using GameEngine.Item;
 using GameEngine.Item.ItemProcessor;
+using GameEngine.Location;
 using GameEngine.StaticCommand;
 using GameEngine.StaticCommand.Implementation;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Interface;
+using Model.Item;
 using Model.Movement;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -44,6 +47,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     private readonly string _sessionId = Guid.NewGuid().ToString();
     private readonly Guid _turnCorrelationId = Guid.NewGuid();
     private readonly OpenAITakeAndDropListParser _openAITakeAndDropListParser;
+    private readonly IParseConversation _parseConversation;
     private string? _currentInput;
     private TInfocomGame _gameInstance;
     private bool _lastResponseWasGenerated;
@@ -54,10 +58,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     [ActivatorUtilitiesConstructor]
     public GameEngine(
         ILogger<GameEngine<TInfocomGame, TContext>> logger,
-        ISecretsManager secretsManager)
+        ISecretsManager secretsManager,
+        IParseConversation parseConversation)
     {
         _logger = logger;
         _secretsManager = secretsManager;
+        _parseConversation = parseConversation;
         _gameInstance = new TInfocomGame();
         Context = new TContext
         {
@@ -98,7 +104,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         IIntentParser parser,
         IGenerationClient generationClient,
         ISecretsManager secretsManager,
-        ICloudWatchLogger<TurnLog> turnLogger)
+        ICloudWatchLogger<TurnLog> turnLogger,
+        IParseConversation parseConversation)
     {
         Repository.Reset();
 
@@ -108,6 +115,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _parser = parser;
         GenerationClient = generationClient;
         _secretsManager = secretsManager;
+        _parseConversation = parseConversation;
         _gameInstance = (TInfocomGame)Context.Game;
         _gameInstance.Init(Context);
         _itemProcessorFactory = itemProcessorFactory;
@@ -215,6 +223,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return await ProcessActorsAndContextEndOfTurn(contextPrepend, resultMessage);
         }
 
+        // Is the player talking to someone?
+        var conversation = await CheckForConversation(_currentInput);
+        if (conversation is not null)
+            return await ProcessActorsAndContextEndOfTurn(contextPrepend, conversation);
+
         // 6. ------- Complex parsed commands. These require a parser to break them down into their noun(s) and verb.
 
         // if the user referenced an object using "it", let's see if we can handle that.
@@ -265,6 +278,42 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var savedGame = Repository.Save<TContext>();
         savedGame.Context = Context;
         return JsonConvert.SerializeObject(savedGame, JsonSettings());
+    }
+
+    private async Task<string?> CheckForConversation(string input)
+    {
+        // Collect all talkable entities
+        var talkables = new List<ICanBeTalkedTo>();
+        talkables.AddRange(Context.Items.OfType<ICanBeTalkedTo>());
+
+        if (Context.CurrentLocation is ICanContainItems container)
+        {
+            talkables.AddRange(container.Items.OfType<ICanBeTalkedTo>());
+        }
+
+        if (talkables.Count == 0)
+            return null;
+
+        // Check if input contains any character nouns (exact match only)
+        var inputLower = input.ToLowerInvariant();
+        
+        var targetCharacter = talkables
+            .OfType<IItem>()
+            .FirstOrDefault(item => item.NounsForMatching
+                .Any(noun => inputLower.Contains(noun.ToLowerInvariant()))) as ICanBeTalkedTo;
+
+        if (targetCharacter == null)
+            return null;
+
+        // Use ParseConversation to determine if this is actually communication
+        var parseResult = await _parseConversation.ParseAsync(input);
+        
+        // If ParseConversation says "No", continue with normal processing
+        if (parseResult.isNo)
+            return null;
+
+        // Send the rewritten message to the character
+        return await targetCharacter.OnBeingTalkedTo(parseResult.response, Context, GenerationClient);
     }
 
     public async Task InitializeEngine()
