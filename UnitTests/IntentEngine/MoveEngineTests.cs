@@ -223,6 +223,6 @@ public class MoveEngineTests
     private class TestableMoveEngine(IRandomChooser chooser) : MoveEngine
     {
         [UsedImplicitly]
-        internal new IRandomChooser Chooser => chooser;
+        internal override IRandomChooser Chooser => chooser;
     }
 }
