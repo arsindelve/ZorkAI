@@ -295,11 +295,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (talkables.Count == 0)
             return null;
 
-        // Check if input contains any character nouns (exact match first, then partial)
+        // Check if input contains any character nouns (exact match only)
         var inputLower = input.ToLowerInvariant();
         ICanBeTalkedTo? targetCharacter = null;
 
-        // First try exact match
         foreach (var talkable in talkables)
         {
             if (talkable is not IItem item)
@@ -316,36 +315,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
             if (targetCharacter != null)
                 break;
-        }
-
-        // If no exact match, try partial matches (for "bo" matching "bob")
-        if (targetCharacter == null)
-        {
-            foreach (var talkable in talkables)
-            {
-                if (talkable is not IItem item)
-                    continue;
-
-                foreach (var noun in item.NounsForMatching)
-                {
-                    var lowerNoun = noun.ToLowerInvariant();
-                    // Check if any word in the input starts with this noun or vice versa
-                    var inputWords = inputLower.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                    foreach (var word in inputWords)
-                    {
-                        if (lowerNoun.StartsWith(word) || word.StartsWith(lowerNoun))
-                        {
-                            targetCharacter = talkable;
-                            break;
-                        }
-                    }
-                    if (targetCharacter != null)
-                        break;
-                }
-
-                if (targetCharacter != null)
-                    break;
-            }
         }
 
         if (targetCharacter == null)

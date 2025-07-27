@@ -81,7 +81,7 @@ public class EngineTestsBase : EngineTestsBaseCommon<ZorkIContext>
                 }
                 
                 // Simple pattern matching for test cases  
-                if (lower.Contains("bob") || lower.Contains("bo"))
+                if (lower.Contains("bob"))
                 {
                     if (lower == "bob, hello there") return (false, "hello there");
                     if (lower == "say to bob. 'hi'") return (false, "hi");
@@ -104,7 +104,6 @@ public class EngineTestsBase : EngineTestsBaseCommon<ZorkIContext>
                     if (lower == "show golden key to bob") return (false, "look at this golden key");
                     if (lower == "interrogate bob") return (false, "Tell me everything you know.");
                     if (lower == "talk to bob") return (false, "hello");
-                    if (lower == "talk to bo") return (false, "hello"); // Partial name match
                     if (lower == "speak with bob") return (false, "hello");
                     if (lower == "greet bob") return (false, "hello");
                     if (lower == "hello bob") return (false, "hello");
