@@ -47,14 +47,14 @@ public abstract class PatternBase : IConversationPattern
         }
 
         // Try substring match if exact match fails
+        // For example, if the player types "bo" when they mean "bob"
         foreach (var talkable in talkables)
         {
             if (talkable is not IItem item)
                 continue;
 
             if (item.NounsForMatching.Any(noun => 
-                noun.Contains(characterName, StringComparison.OrdinalIgnoreCase) || 
-                characterName.Contains(noun, StringComparison.OrdinalIgnoreCase)))
+                noun.StartsWith(characterName, StringComparison.OrdinalIgnoreCase)))
             {
                 return (talkable, item);
             }
