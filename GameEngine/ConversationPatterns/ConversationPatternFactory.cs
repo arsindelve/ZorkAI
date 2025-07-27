@@ -17,6 +17,7 @@ public static class ConversationPatternFactory
             new AskAboutPattern(),
             new AskCharacterForPattern(),
             new QueryForPattern(),
+            new AskCharacterWithQuotesPattern(),
 
             // General conversation patterns
             new CharacterCommaPattern(),

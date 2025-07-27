@@ -43,221 +43,79 @@ public class TalkToCharacterTests : EngineTestsBase
     }
 
     // A custom talker with configurable name for special tests
-    private class CustomTalker : ItemBase, ICanBeTalkedTo
+    private class CustomTalker(string noun) : ItemBase, ICanBeTalkedTo
     {
-        private readonly string _noun;
-
-        public CustomTalker(string noun)
-        {
-            _noun = noun;
-        }
-
         public bool WasCalled { get; private set; }
 
-        public override string[] NounsForMatching => [_noun];
+        public override string[] NounsForMatching => [noun];
 
         public override string GenericDescription(ILocation? currentLocation) => string.Empty;
 
         public Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
         {
             WasCalled = true;
-            return Task.FromResult($"I am {_noun}!");
+            return Task.FromResult($"I am {noun}!");
         }
     }
 
-    [Test]
-    public async Task CommaSeparatedFormat_TalksToCharacter()
+    [TestCase("bob, hello there", "hello there", TestName = "CommaSeparatedFormat_TalksToCharacter")]
+    [TestCase("say to bob. 'hi'", "hi", TestName = "SayVerbFormat_TalksToCharacter")]
+    [TestCase("yell at bob get out", "get out", TestName = "YellAtFormat_TalksToCharacter")]
+    [TestCase("yell at bob to go north", "to go north", TestName = "YellAtToFormat_TalksToCharacter")]
+    [TestCase("yell at bob \"go north\"", "go north", TestName = "YellAtQuotedFormat_TalksToCharacter")]
+    [TestCase("yell to bob you stink", "you stink", TestName = "YellToFormat_TalksToCharacter")]
+    [TestCase("yell to bob \"go north\"", "go north", TestName = "YellToWithQuotesFormat_TalksToCharacter")]
+    [TestCase("yell to bob to go north", "to go north", TestName = "YellToWithToFormat_TalksToCharacter")]
+    [TestCase("tell bob hello", "hello", TestName = "TellFormat_TalksToCharacter")]
+    [TestCase("tell bob \"go north\"", "go north", TestName = "TellCharacterQuotedFormat_TalksToCharacter")]
+    [TestCase("tell bob to go north", "go north", TestName = "TellCharacterToWithoutQuotes_TalksToCharacter")]
+    [TestCase("say 'hi' to bob", "hi", TestName = "SayTextToFormat_TalksToCharacter")]
+    [TestCase("say \"hi\" to bob", "hi", TestName = "SayTextToFormat_DoubleQuotes_TalksToCharacter")]
+    [TestCase("say hi to bob", "hi", TestName = "SayTextToFormat_NoQuotes_TalksToCharacter")]
+    [TestCase("tell bob go north", "go north", TestName = "TellCharacterWithoutTo_TalksToCharacter")]
+    public async Task BasicConversationFormats_TalksToCharacter(string command, string expectedText)
     {
         var engine = GetTarget();
         var talker = Repository.GetItem<TestTalker>();
         (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
 
-        await engine.GetResponse("bob, hello there");
+        await engine.GetResponse(command);
 
         talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("hello there");
+        talker.ReceivedText.Should().Be(expectedText);
     }
 
-    [Test]
-    public async Task SayVerbFormat_TalksToCharacter()
+    [TestCase("ask bob about the spaceship", "what about the spaceship?", TestName = "AskCharacterAboutTopic")]
+    [TestCase("query bob for information about the mission", "can you tell me about the mission?", TestName = "QueryCharacterForInformation")]
+    [TestCase("ask bob for the key", "can I have the key?", TestName = "AskCharacterForItem")]
+    [TestCase("show golden key to bob", "look at this golden key", TestName = "ShowItemToCharacter")]
+    [TestCase("interrogate bob", "Tell me everything you know.", TestName = "InterrogateCharacter")]
+    public async Task SpecialConversationFormats_TalksToCharacter(string command, string expectedText)
     {
         var engine = GetTarget();
         var talker = Repository.GetItem<TestTalker>();
         (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
 
-        await engine.GetResponse("say to bob. 'hi'");
+        await engine.GetResponse(command);
 
         talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("hi");
+        talker.ReceivedText.Should().Be(expectedText);
     }
 
-    [Test]
-    public async Task YellAtFormat_TalksToCharacter()
+    [TestCase("talk to bob", "hello", TestName = "TalkToCharacter")]
+    [TestCase("speak with bob", "hello", TestName = "SpeakWithCharacter")]
+    [TestCase("greet bob", "hello", TestName = "GreetCharacter")]
+    [TestCase("hello bob", "hello", TestName = "HelloCharacter")]
+    public async Task DefaultHelloFormats_TalksToCharacter(string command, string expectedText)
     {
         var engine = GetTarget();
         var talker = Repository.GetItem<TestTalker>();
         (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
 
-        await engine.GetResponse("yell at bob get out");
+        await engine.GetResponse(command);
 
         talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("get out");
-    }
-
-    [Test]
-    public async Task YellAtToFormat_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("yell at bob to go north");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("to go north", "because the system doesn't strip the 'to' from 'yell at X to Y'");
-    }
-
-    [Test]
-    public async Task YellAtQuotedFormat_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("yell at bob \"go north\"");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("go north");
-    }
-
-    [Test]
-    public async Task YellToFormat_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("yell to bob you stink");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("you stink");
-    }
-
-    [Test]
-    public async Task YellToWithQuotesFormat_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("yell to bob \"go north\"");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("go north");
-    }
-
-    [Test]
-    public async Task YellToWithToFormat_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("yell to bob to go north");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("to go north", "because the system doesn't strip the 'to' from 'yell to X to Y'");
-    }
-
-    [Test]
-    public async Task TellFormat_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("tell bob hello");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("hello");
-    }
-
-    [Test]
-    public async Task TellCharacterQuotedFormat_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("tell bob \"go north\"");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("go north", "because the system should strip the quotes");
-    }
-
-    [Test]
-    public async Task TellCharacterToWithoutQuotes_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("tell bob to go north");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("go north");
-    }
-
-    [Test]
-    public async Task SayTextToFormat_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("say 'hi' to bob");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("hi");
-    }
-
-    [Test]
-    public async Task SayTextToFormat_DoubleQuotes_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("say \"hi\" to bob");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("hi");
-    }
-
-    [Test]
-    public async Task SayTextToFormat_NoQuotes_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("say hi to bob");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("hi");
-    }
-
-    [Test]
-    public async Task TellCharacterToDoSomething_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("tell bob to go north");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("go north", "because the system correctly strips 'to' from 'tell X to Y'");
+        talker.ReceivedText.Should().Be(expectedText);
     }
 
     [Test]
@@ -285,127 +143,16 @@ public class TalkToCharacterTests : EngineTestsBase
         withToResult.Should().Be(withoutToResult, "because both command formats should be handled consistently");
     }
 
-    [Test]
-    public async Task AskCharacterAboutTopic_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("ask bob about the spaceship");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("what about the spaceship?");
-    }
-
-    [Test]
-    public async Task QueryCharacterForInformation_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("query bob for information about the mission");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("can you tell me about the mission?");
-    }
-
-    [Test]
-    public async Task AskCharacterForItem_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("ask bob for the key");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("can I have the key?");
-    }
-
-    [Test]
-    public async Task TalkToCharacter_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("talk to bob");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("hello");
-    }
-
-    [Test]
-    public async Task SpeakWithCharacter_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("speak with bob");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("hello");
-    }
-
-    [Test]
-    public async Task GreetCharacter_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("greet bob");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("hello");
-    }
-
-    [Test]
-    public async Task HelloCharacter_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("hello bob");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("hello");
-    }
-
-    [Test]
-    public async Task ShowItemToCharacter_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("show golden key to bob");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("look at this golden key");
-    }
-
-    [Test]
-    public async Task InterrogateCharacter_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("interrogate bob");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("Tell me everything you know.");
-    }
-
     #region Negative Tests
 
-    [Test]
-    public async Task TalkToCharacter_UnknownCharacter_ReturnsNull()
+    [TestCase("talk to stranger", TestName = "TalkToCharacter_UnknownCharacter")]
+    [TestCase("ask alien for the key", TestName = "AskCharacterForItem_UnknownCharacter")]
+    [TestCase("say to guard 'let me pass'", TestName = "SayToCharacter_UnknownCharacter")]
+    [TestCase("stranger, hello there", TestName = "CommaSeparatedFormat_UnknownCharacter")]
+    [TestCase("tell wizard to open the door", TestName = "TellCharacterToDoSomething_UnknownCharacter")]
+    [TestCase("show map to guide", TestName = "ShowItemToCharacter_UnknownCharacter")]
+    [TestCase("whisper to ghost that we should leave", TestName = "WhisperToCharacter_UnknownCharacter")]
+    public async Task UnknownCharacterCommands_DoesNotCallTalker(string command)
     {
         var engine = GetTarget();
         var talker = Repository.GetItem<TestTalker>();
@@ -414,15 +161,19 @@ public class TalkToCharacterTests : EngineTestsBase
         // Reset WasCalled flag to ensure it stays false
         talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
 
-        await engine.GetResponse("talk to stranger");
+        await engine.GetResponse(command);
 
         // Verify that no talker was called
         var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
-        wasCalled.Should().BeFalse("because 'stranger' is not a valid character name");
+        wasCalled.Should().BeFalse($"because the character in '{command}' is not valid");
     }
 
-    [Test]
-    public async Task AskCharacterForItem_UnknownCharacter_ReturnsNull()
+    [TestCase("throw rock at bob", TestName = "NonConversationalCommand_WithValidCharacterName")]
+    [TestCase("attack stranger", TestName = "NonConversationalCommand_WithUnknownCharacterName")]
+    [TestCase("examine bob carefully", TestName = "CharacterExistsButNoConversationCommand")]
+    [TestCase("put the ring near bob carefully", TestName = "CharacterNameInMiddleOfCommand_NonTalkCommand")]
+    [TestCase("blabbedy bob blah", TestName = "CompletelyMalformedCommand_NoCallsToOnBeingTalkedTo")]
+    public async Task NonConversationalCommands_DoesNotCallTalker(string command)
     {
         var engine = GetTarget();
         var talker = Repository.GetItem<TestTalker>();
@@ -431,62 +182,69 @@ public class TalkToCharacterTests : EngineTestsBase
         // Reset WasCalled flag to ensure it stays false
         talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
 
-        await engine.GetResponse("ask alien for the key");
+        await engine.GetResponse(command);
 
         // Verify that no talker was called
         var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
-        wasCalled.Should().BeFalse("because 'alien' is not a valid character name");
+        wasCalled.Should().BeFalse($"because '{command}' is not a conversation pattern");
     }
 
-    [Test]
-    public async Task SayToCharacter_UnknownCharacter_ReturnsNull()
+    [TestCase("talk to bob ", true, "hello", TestName = "TalkToCharacter_EmptyCommand_StillCalls")]
+    [TestCase("say    to    bob   ", true, "", TestName = "TalkToCharacter_JustSpaces_StillCalls")]
+    [TestCase("bob, ", true, "", TestName = "CommaSeparatedFormat_NoMessageAfterComma_StillMatches")]
+    public async Task EdgeCaseCommands_VerifyBehavior(string command, bool shouldBeCalled, string expectedText)
     {
         var engine = GetTarget();
         var talker = Repository.GetItem<TestTalker>();
         (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
 
-        // Reset WasCalled flag to ensure it stays false
+        // Reset WasCalled flag
         talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
 
-        await engine.GetResponse("say to guard 'let me pass'");
+        await engine.GetResponse(command);
 
-        // Verify that no talker was called
         var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
-        wasCalled.Should().BeFalse("because 'guard' is not a valid character name");
+        wasCalled.Should().Be(shouldBeCalled);
+        
+        if (shouldBeCalled)
+        {
+            talker.ReceivedText.Should().Be(expectedText);
+        }
     }
 
-    [Test]
-    public async Task NonConversationalCommand_WithValidCharacterName_ReturnsNull()
+    [TestCase("ask bob for ", false, TestName = "AskCharacterForItem_NoItemSpecified")]
+    [TestCase("talk to ", false, TestName = "TalkToNoOneSpecified")]
+    public async Task IncompleteCommands_DoesNotCallTalker(string command, bool shouldBeCalled)
     {
         var engine = GetTarget();
         var talker = Repository.GetItem<TestTalker>();
         (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
 
-        // Reset WasCalled flag to ensure it stays false
+        // Reset WasCalled flag
         talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
 
-        await engine.GetResponse("throw rock at bob");
+        await engine.GetResponse(command);
 
-        // Verify that no talker was called (because this is not a conversation command)
         var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
-        wasCalled.Should().BeFalse("because 'throw rock at' is not a conversation pattern");
+        wasCalled.Should().Be(shouldBeCalled);
     }
 
-    [Test]
-    public async Task NonConversationalCommand_WithUnknownCharacterName_ReturnsNull()
+    [TestCase("talk to bo", true, TestName = "PartialCharacterName_StillMatches")]
+    [TestCase("talk to xyz", false, TestName = "CompletelyDifferentName_NoMatch")]
+    [TestCase("talk to BoB", true, TestName = "CharacterNameWithMixedCase_StillMatches")]
+    [TestCase("say bob hello", true, TestName = "MalformedCommand_WithoutPreposition_StillMatches")]
+    public async Task CharacterMatchingTests_VerifyBehavior(string command, bool shouldMatch)
     {
         var engine = GetTarget();
         var talker = Repository.GetItem<TestTalker>();
         (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
 
-        // Reset WasCalled flag to ensure it stays false
-        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
+        // Reset WasCalled flag
+        talker.WasCalled = false;
 
-        await engine.GetResponse("attack stranger");
+        await engine.GetResponse(command);
 
-        // Verify that no talker was called
-        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
-        wasCalled.Should().BeFalse("because 'attack' is not a conversation pattern");
+        talker.WasCalled.Should().Be(shouldMatch);
     }
 
     [Test]
@@ -499,191 +257,6 @@ public class TalkToCharacterTests : EngineTestsBase
 
         // Result should not contain the talker's response
         result.Should().NotContain("ok");
-    }
-
-    [Test]
-    public async Task CommaSeparatedFormat_UnknownCharacter_ReturnsNull()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag to ensure it stays false
-        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
-
-        await engine.GetResponse("stranger, hello there");
-
-        // Verify that no talker was called
-        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
-        wasCalled.Should().BeFalse("because 'stranger' is not a valid character name");
-    }
-
-    [Test]
-    public async Task TellCharacterToDoSomething_UnknownCharacter_ReturnsNull()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag to ensure it stays false
-        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
-
-        await engine.GetResponse("tell wizard to open the door");
-
-        // Verify that no talker was called
-        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
-        wasCalled.Should().BeFalse("because 'wizard' is not a valid character name");
-    }
-
-    [Test]
-    public async Task ShowItemToCharacter_UnknownCharacter_ReturnsNull()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag to ensure it stays false
-        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
-
-        await engine.GetResponse("show map to guide");
-
-        // Verify that no talker was called
-        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
-        wasCalled.Should().BeFalse("because 'guide' is not a valid character name");
-    }
-
-    [Test]
-    public async Task CharacterExistsButNoConversationCommand_ReturnsNull()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag to ensure it stays false
-        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
-
-        await engine.GetResponse("examine bob carefully");
-
-        // Verify that no talker was called
-        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
-        wasCalled.Should().BeFalse("because 'examine' is not a conversation pattern");
-    }
-
-    [Test]
-    public async Task WhisperToCharacter_UnknownCharacter_ReturnsNull()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag to ensure it stays false
-        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
-
-        await engine.GetResponse("whisper to ghost that we should leave");
-
-        // Verify that no talker was called
-        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
-        wasCalled.Should().BeFalse("because 'ghost' is not a valid character name");
-    }
-
-    [Test]
-    public async Task CharacterNameInMiddleOfCommand_NonTalkCommand_ReturnsNull()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag to ensure it stays false
-        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
-
-        await engine.GetResponse("put the ring near bob carefully");
-
-        // Verify that no talker was called
-        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
-        wasCalled.Should().BeFalse("because this is not a conversation pattern");
-    }
-
-    [Test]
-    public async Task TalkToCharacter_EmptyCommand_ReturnsNull()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag to ensure it stays false
-        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
-
-        await engine.GetResponse("talk to bob ");
-
-        // Verify that no talker was called when there's no message
-        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
-        wasCalled.Should().BeTrue("because this is a valid talk pattern even with no explicit message");
-    }
-
-    [Test]
-    public async Task TalkToCharacter_JustSpaces_ReturnsNull()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag to ensure it stays false
-        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
-
-        await engine.GetResponse("say    to    bob   ");
-
-        // Verify that talker was called even with extra spaces
-        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
-        wasCalled.Should().BeTrue("because extra spaces should be handled properly");
-    }
-
-    [Test]
-    public async Task PartialCharacterName_StillMatches()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag
-        talker.WasCalled = false;
-
-        await engine.GetResponse("talk to bo");
-
-        // The system does partial name matching
-        talker.WasCalled.Should().BeTrue("because the system allows partial matching for character names");
-    }
-
-    [Test]
-    public async Task CompletelyDifferentName_NoMatch()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag
-        talker.WasCalled = false;
-
-        await engine.GetResponse("talk to xyz");
-
-        // Verify no match for completely different name
-        talker.WasCalled.Should().BeFalse("because 'xyz' is completely different from 'bob'");
-    }
-
-    [Test]
-    public async Task AskCharacterForItem_NoItemSpecified_ReturnsNull()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag to ensure it stays false
-        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
-
-        await engine.GetResponse("ask bob for ");
-
-        // Verify that no talker was called when no item is specified
-        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
-        wasCalled.Should().BeFalse("because no item was specified after 'for'");
     }
 
     [Test]
@@ -709,39 +282,6 @@ public class TalkToCharacterTests : EngineTestsBase
     }
 
     [Test]
-    public async Task MalformedCommand_WithoutPreposition_StillMatches()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag
-        talker.WasCalled = false;
-
-        await engine.GetResponse("say bob hello");
-
-        // This is actually a valid pattern - the conversation handler is smart enough
-        // to interpret this as a command even without the 'to' preposition
-        talker.WasCalled.Should().BeTrue("because the system handles 'say bob hello' as 'say to bob hello'");
-    }
-
-    [Test]
-    public async Task CharacterNameWithMixedCase_StillMatches()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag
-        talker.WasCalled = false;
-
-        await engine.GetResponse("talk to BoB");
-
-        // Verify that case-insensitive matching works
-        talker.WasCalled.Should().BeTrue("because character matching should be case-insensitive");
-    }
-
-    [Test]
     public async Task TwoCharactersWithSimilarNames_ExactMatchRequired()
     {
         // Create a custom talker class that responds to "bobby"
@@ -764,23 +304,6 @@ public class TalkToCharacterTests : EngineTestsBase
     }
 
     [Test]
-    public async Task TellCharacterWithoutTo_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag
-        talker.WasCalled = false;
-
-        await engine.GetResponse("tell bob go north");
-
-        // Verify the talker was called with the correct message
-        talker.WasCalled.Should().BeTrue("because 'tell bob go north' is a valid command");
-        talker.ReceivedText.Should().Be("go north");
-    }
-
-    [Test]
     public async Task AskCharacterWithQuotes_TalksToCharacter()
     {
         var engine = GetTarget();
@@ -796,24 +319,6 @@ public class TalkToCharacterTests : EngineTestsBase
         talker.WasCalled.Should().BeTrue("because 'ask bob to go north' is a valid command");
         talker.ReceivedText.Should().NotBe("can I have go north?", "because this isn't the 'ask for' pattern");
         talker.ReceivedText.Should().Be("go north", "because the system should strip the quotes");
-    }
-
-    [Test]
-    public async Task CompletelyMalformedCommand_NoCallsToOnBeingTalkedTo()
-    {
-        // Setup a talker that tracks if it was called
-        var talker = Repository.GetItem<TestTalker>();
-        var engine = GetTarget();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag
-        talker.WasCalled = false;
-
-        // Use a completely malformed command that mentions the character
-        await engine.GetResponse("blabbedy bob blah");
-
-        // Verify the talker was never called
-        talker.WasCalled.Should().BeFalse("because 'blabbedy' is not a known conversation verb");
     }
 
     [Test]
@@ -840,41 +345,6 @@ public class TalkToCharacterTests : EngineTestsBase
     }
 
     [Test]
-    public async Task TalkToNoOneSpecified_NoCallsToOnBeingTalkedTo()
-    {
-        // Setup a talker that tracks if it was called
-        var talker = Repository.GetItem<TestTalker>();
-        var engine = GetTarget();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag
-        talker.WasCalled = false;
-
-        // No character specified
-        await engine.GetResponse("talk to ");
-
-        // Verify the talker was never called
-        talker.WasCalled.Should().BeFalse("because no character was specified");
-    }
-
-    [Test]
-    public async Task CommaSeparatedFormat_NoMessageAfterComma_StillMatches()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        // Reset WasCalled flag
-        talker.WasCalled = false;
-
-        await engine.GetResponse("bob, ");
-
-        // Some patterns might still match with no message
-        talker.WasCalled.Should().BeTrue("because the character is addressed even with no message");
-        talker.ReceivedText.Should().Be(string.Empty);
-    }
-
-    [Test]
     public async Task CompareAllCommandFormats()
     {
         var engine = GetTarget();
@@ -898,7 +368,7 @@ public class TalkToCharacterTests : EngineTestsBase
             talker.WasCalled = false;
             await engine.GetResponse(command);
             talker.WasCalled.Should().BeTrue($"because '{command}' should be a valid command");
-            commandResults[command] = talker.ReceivedText;
+            commandResults[command] = talker.ReceivedText!;
         }
 
         // Log the results
@@ -921,4 +391,40 @@ public class TalkToCharacterTests : EngineTestsBase
     }
 
     #endregion
+    [TestCase("tell bob to go north", "go north", TestName = "TellCommandWithTo_ProducesExpectedResult")]
+    [TestCase("tell bob go north", "go north", TestName = "TellCommandWithoutTo_ProducesExpectedResult")]
+    [TestCase("ask bob \"go north\"", "go north", TestName = "AskCommandWithQuotes_ProducesExpectedResult")]
+    [TestCase("yell at bob \"go north\"", "go north", TestName = "YellAtCommandWithQuotes_ProducesExpectedResult")]
+    public async Task CommandFormats_ProduceExpectedResults(string command, string expectedResult)
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        talker.WasCalled = false;
+        await engine.GetResponse(command);
+        
+        talker.WasCalled.Should().BeTrue($"because '{command}' should be a valid command");
+        talker.ReceivedText.Should().Be(expectedResult);
+        
+        // Log the result for debugging
+        Console.WriteLine($"Command: '{command}' → Result: '{talker.ReceivedText}'");
+    }
+
+    [TestCase("yell at bob to go north", TestName = "YellAtCommandWithTo_ProducesNonEmptyResult")]
+    public async Task CommandFormats_ProduceNonEmptyResults(string command)
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        talker.WasCalled = false;
+        await engine.GetResponse(command);
+        
+        talker.WasCalled.Should().BeTrue($"because '{command}' should be a valid command");
+        talker.ReceivedText.Should().NotBeEmpty("because the command should produce some result");
+        
+        // Log the result for debugging
+        Console.WriteLine($"Command: '{command}' → Result: '{talker.ReceivedText}'");
+    }
 }
