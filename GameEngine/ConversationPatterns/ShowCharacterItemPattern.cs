@@ -18,9 +18,9 @@ public class ShowCharacterItemPattern : PatternBase
             if (inputLower.StartsWith(verb + " "))
             {
                 // Look for " to " or " at " in the input
-                int toIndex = inputLower.IndexOf(" to ", verb.Length);
+                int toIndex = inputLower.IndexOf(" to ", verb.Length, StringComparison.Ordinal);
                 if (toIndex < 0)
-                    toIndex = inputLower.IndexOf(" at ", verb.Length);
+                    toIndex = inputLower.IndexOf(" at ", verb.Length, StringComparison.Ordinal);
 
                 if (toIndex > verb.Length) // Found after the verb
                 {

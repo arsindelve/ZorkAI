@@ -10,12 +10,7 @@ namespace GameEngine.ConversationPatterns;
 /// </summary>
 public class ConversationPatternEngine
 {
-    private readonly List<IConversationPattern> _patterns;
-
-    public ConversationPatternEngine()
-    {
-        _patterns = ConversationPatternFactory.CreateAllPatterns();
-    }
+    private readonly List<IConversationPattern> _patterns = ConversationPatternFactory.CreateAllPatterns();
 
     /// <summary>
     /// Processes user input against all conversation patterns

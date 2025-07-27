@@ -62,11 +62,11 @@ public class AskCharacterForPattern : PatternBase
                 continue;
 
             // Try exact match
-            if (item.NounsForMatching.Any(n => string.Equals(n, characterPart, StringComparison.OrdinalIgnoreCase)))
-            {
-                Debug.WriteLine($"Found exact match for '{characterPart}'");
-                return await talkable.OnBeingTalkedTo(formattedQuery, context, client);
-            }
+            if (!item.NounsForMatching.Any(n => string.Equals(n, characterPart, StringComparison.OrdinalIgnoreCase)))
+                continue;
+            
+            Debug.WriteLine($"Found exact match for '{characterPart}'");
+            return await talkable.OnBeingTalkedTo(formattedQuery, context, client);
         }
 
         // For tests, we need to be much more strict about character name matching
