@@ -5,7 +5,8 @@
       "Bash(dotnet build:*)",
       "Bash(grep:*)",
       "Bash(dotnet test:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }
