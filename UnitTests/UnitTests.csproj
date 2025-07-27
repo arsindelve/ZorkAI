@@ -32,6 +32,7 @@
         <ProjectReference Include="..\Lambda\src\Lambda\Lambda.csproj"/>
         <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>
         <ProjectReference Include="..\Planetfall\Planetfall.csproj"/>
+        <ProjectReference Include="..\Planetfall-Lambda\src\Planetfall-Lambda\Planetfall-Lambda.csproj"/>
         <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
     </ItemGroup>
 

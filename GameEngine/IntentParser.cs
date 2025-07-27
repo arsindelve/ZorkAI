@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CloudWatch;
 using CloudWatch.Model;
 using GameEngine.StaticCommand;
@@ -85,10 +86,11 @@ public class IntentParser : IIntentParser
                 Temperature = 0,
                 LanguageModel = _parser.LanguageModel,
                 UserPrompt = input,
-                Response = JsonConvert.SerializeObject(response ?? new object()),
+                Response = JsonConvert.SerializeObject(response),
                 TurnCorrelationId = TurnCorrelationId?.ToString() ?? string.Empty
             });
 
+        Debug.Assert(response != null, nameof(response) + " != null");
         return response;
     }
 
