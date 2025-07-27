@@ -106,4 +106,9 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICan
     {
 
     }
+
+    public Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
+    {
+        return Task.FromResult(string.Empty);
+    }
 }

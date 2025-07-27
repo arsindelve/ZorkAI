@@ -90,4 +90,9 @@ internal class Ambassador : QuirkyCompanion, ICanBeExamined, ICanBeTalkedTo
     {
         StartWithItemInside<Celery>();
     }
+
+    public Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
+    {
+        return Task.FromResult(string.Empty);
+    }
 }
