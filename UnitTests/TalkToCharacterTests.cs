@@ -11,7 +11,7 @@ public class TalkToCharacterTests : EngineTestsBase
 {
     private class TestTalker : ItemBase, ICanBeTalkedTo
     {
-        public bool WasCalled { get; private set; }
+        public bool WasCalled { get; set; }
         public string? ReceivedText { get; private set; }
 
         public override string[] NounsForMatching => ["bob"];
@@ -23,6 +23,24 @@ public class TalkToCharacterTests : EngineTestsBase
             WasCalled = true;
             ReceivedText = text;
             return Task.FromResult("ok");
+        }
+    }
+
+    // A special talker that only responds to the name "dude" for negative tests
+    private class TrackingTalker : ItemBase, ICanBeTalkedTo
+    {
+        public bool WasCalled { get; private set; }
+        public string? ReceivedText { get; private set; }
+
+        public override string[] NounsForMatching => ["dude"];
+
+        public override string GenericDescription(ILocation? currentLocation) => string.Empty;
+
+        public Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
+        {
+            WasCalled = true;
+            ReceivedText = text;
+            return Task.FromResult("I was called!");
         }
     }
 
@@ -259,4 +277,207 @@ public class TalkToCharacterTests : EngineTestsBase
         talker.WasCalled.Should().BeTrue();
         talker.ReceivedText.Should().Be("Tell me everything you know.");
     }
+
+    #region Negative Tests
+
+    [Test]
+    public async Task TalkToCharacter_UnknownCharacter_ReturnsNull()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        // Reset WasCalled flag to ensure it stays false
+        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
+
+        await engine.GetResponse("talk to stranger");
+
+        // Verify that no talker was called
+        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
+        wasCalled.Should().BeFalse("because 'stranger' is not a valid character name");
+    }
+
+    [Test]
+    public async Task AskCharacterForItem_UnknownCharacter_ReturnsNull()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        // Reset WasCalled flag to ensure it stays false
+        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
+
+        await engine.GetResponse("ask alien for the key");
+
+        // Verify that no talker was called
+        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
+        wasCalled.Should().BeFalse("because 'alien' is not a valid character name");
+    }
+
+    [Test]
+    public async Task SayToCharacter_UnknownCharacter_ReturnsNull()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        // Reset WasCalled flag to ensure it stays false
+        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
+
+        await engine.GetResponse("say to guard 'let me pass'");
+
+        // Verify that no talker was called
+        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
+        wasCalled.Should().BeFalse("because 'guard' is not a valid character name");
+    }
+
+    [Test]
+    public async Task NonConversationalCommand_WithValidCharacterName_ReturnsNull()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        // Reset WasCalled flag to ensure it stays false
+        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
+
+        await engine.GetResponse("throw rock at bob");
+
+        // Verify that no talker was called (because this is not a conversation command)
+        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
+        wasCalled.Should().BeFalse("because 'throw rock at' is not a conversation pattern");
+    }
+
+    [Test]
+    public async Task NonConversationalCommand_WithUnknownCharacterName_ReturnsNull()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        // Reset WasCalled flag to ensure it stays false
+        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
+
+        await engine.GetResponse("attack stranger");
+
+        // Verify that no talker was called
+        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
+        wasCalled.Should().BeFalse("because 'attack' is not a conversation pattern");
+    }
+
+    [Test]
+    public async Task EmptyRoom_TalkToValidCharacterName_ReturnsNull()
+    {
+        var engine = GetTarget();
+        // Do not add talker to the room
+
+        var result = await engine.GetResponse("talk to bob");
+
+        // Result should not contain the talker's response
+        result.Should().NotContain("ok");
+    }
+
+    [Test]
+    public async Task CommaSeparatedFormat_UnknownCharacter_ReturnsNull()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        // Reset WasCalled flag to ensure it stays false
+        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
+
+        await engine.GetResponse("stranger, hello there");
+
+        // Verify that no talker was called
+        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
+        wasCalled.Should().BeFalse("because 'stranger' is not a valid character name");
+    }
+
+    [Test]
+    public async Task TellCharacterToDoSomething_UnknownCharacter_ReturnsNull()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        // Reset WasCalled flag to ensure it stays false
+        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
+
+        await engine.GetResponse("tell wizard to open the door");
+
+        // Verify that no talker was called
+        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
+        wasCalled.Should().BeFalse("because 'wizard' is not a valid character name");
+    }
+
+    [Test]
+    public async Task ShowItemToCharacter_UnknownCharacter_ReturnsNull()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        // Reset WasCalled flag to ensure it stays false
+        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
+
+        await engine.GetResponse("show map to guide");
+
+        // Verify that no talker was called
+        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
+        wasCalled.Should().BeFalse("because 'guide' is not a valid character name");
+    }
+
+    [Test]
+    public async Task CharacterExistsButNoConversationCommand_ReturnsNull()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        // Reset WasCalled flag to ensure it stays false
+        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
+
+        await engine.GetResponse("examine bob carefully");
+
+        // Verify that no talker was called
+        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
+        wasCalled.Should().BeFalse("because 'examine' is not a conversation pattern");
+    }
+
+    [Test]
+    public async Task WhisperToCharacter_UnknownCharacter_ReturnsNull()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        // Reset WasCalled flag to ensure it stays false
+        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
+
+        await engine.GetResponse("whisper to ghost that we should leave");
+
+        // Verify that no talker was called
+        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
+        wasCalled.Should().BeFalse("because 'ghost' is not a valid character name");
+    }
+
+    [Test]
+    public async Task CharacterNameInMiddleOfCommand_NonTalkCommand_ReturnsNull()
+    {
+        var engine = GetTarget();
+        var talker = Repository.GetItem<TestTalker>();
+        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
+
+        // Reset WasCalled flag to ensure it stays false
+        talker.GetType().GetProperty("WasCalled")!.SetValue(talker, false);
+
+        await engine.GetResponse("put the ring near bob carefully");
+
+        // Verify that no talker was called
+        var wasCalled = (bool)talker.GetType().GetProperty("WasCalled")!.GetValue(talker)!;
+        wasCalled.Should().BeFalse("because this is not a conversation pattern");
+    }
+
+    #endregion
 }

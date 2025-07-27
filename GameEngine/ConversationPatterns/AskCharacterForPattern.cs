@@ -69,19 +69,9 @@ public class AskCharacterForPattern : PatternBase
             }
         }
 
-        // Modify the test talker if we're in a test environment
-        // This is a workaround for test environments where we know the expected behavior
-        if (context.GetType().Name.Contains("Mock") || talkables.Any(t => t.GetType().Name.Contains("TestTalker")))
-        {
-            foreach (var talkable in talkables)
-            {
-                if (talkable.GetType().Name.Contains("TestTalker"))
-                {
-                    Debug.WriteLine("Found TestTalker, using it for response");
-                    return await talkable.OnBeingTalkedTo(formattedQuery, context, client);
-                }
-            }
-        }
+        // For tests, we need to be much more strict about character name matching
+        // The character name must match one of the talker's nouns exactly
+        // No automatic fallback to any TestTalker that happens to be in the room
 
         Debug.WriteLine("No match found");
 
