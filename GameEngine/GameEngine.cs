@@ -299,23 +299,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var inputLower = input.ToLowerInvariant();
         ICanBeTalkedTo? targetCharacter = null;
 
-        foreach (var talkable in talkables)
-        {
-            if (talkable is not IItem item)
-                continue;
-
-            foreach (var noun in item.NounsForMatching)
-            {
-                if (inputLower.Contains(noun.ToLowerInvariant()))
-                {
-                    targetCharacter = talkable;
-                    break;
-                }
-            }
-
-            if (targetCharacter != null)
-                break;
-        }
+        targetCharacter = talkables
+            .OfType<IItem>()
+            .FirstOrDefault(item => item.NounsForMatching
+                .Any(noun => inputLower.Contains(noun.ToLowerInvariant()))) as ICanBeTalkedTo;
 
         if (targetCharacter == null)
             return null;
