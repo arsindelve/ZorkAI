@@ -129,7 +129,7 @@ internal static class ConversationChecker
                             text = StripOuterQuotes(text);
 
                             // Special handling for whisper commands
-                            if (Verbs.WhisperVerbs.Contains(verbLower))
+                            if (verbLower == "whisper")
                             {
                                 return await talkable.OnBeingTalkedTo("(whispered) " + text, context, client);
                             }

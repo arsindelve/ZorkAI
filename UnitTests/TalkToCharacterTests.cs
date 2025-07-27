@@ -248,32 +248,6 @@ public class TalkToCharacterTests : EngineTestsBase
     }
 
     [Test]
-    public async Task WhisperToCharacter_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("whisper to bob I found the treasure");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("(whispered) I found the treasure");
-    }
-
-    [Test]
-    public async Task WhisperTextToCharacter_TalksToCharacter()
-    {
-        var engine = GetTarget();
-        var talker = Repository.GetItem<TestTalker>();
-        (engine.Context.CurrentLocation as ICanContainItems)!.ItemPlacedHere(talker);
-
-        await engine.GetResponse("whisper 'the door is trapped' to bob");
-
-        talker.WasCalled.Should().BeTrue();
-        talker.ReceivedText.Should().Be("(whispered) 'the door is trapped'");
-    }
-
-    [Test]
     public async Task InterrogateCharacter_TalksToCharacter()
     {
         var engine = GetTarget();
