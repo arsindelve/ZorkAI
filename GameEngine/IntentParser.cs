@@ -78,16 +78,16 @@ public class IntentParser : IIntentParser
         // AI parsing engine, so let's do that. 
         var response = await _parser.AskTheAIParser(input!, locationDescription, sessionId);
 
-        if (!string.IsNullOrEmpty(input))
-            await Logger?.WriteLogEvents(new GenerationLog
+        if (!string.IsNullOrEmpty(input) && Logger != null)
+            await Logger.WriteLogEvents(new GenerationLog
             {
                 SystemPrompt = string.Empty,
                 Temperature = 0,
                 LanguageModel = _parser.LanguageModel,
                 UserPrompt = input,
-                Response = JsonConvert.SerializeObject(response),
-                TurnCorrelationId = TurnCorrelationId.ToString()
-            })!;
+                Response = JsonConvert.SerializeObject(response ?? new object()),
+                TurnCorrelationId = TurnCorrelationId?.ToString() ?? string.Empty
+            });
 
         return response;
     }

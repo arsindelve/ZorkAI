@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(dotnet build:*)",
+      "Bash(grep:*)",
+      "Bash(dotnet test:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}
