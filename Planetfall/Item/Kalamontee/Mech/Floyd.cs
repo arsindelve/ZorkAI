@@ -1,8 +1,8 @@
+using ChatLambda;
 using GameEngine.IntentEngine;
 using Model.AIGeneration;
 using Newtonsoft.Json;
 using Planetfall.Item.Kalamontee.Admin;
-using Model.Item;
 using Utilities;
 
 namespace Planetfall.Item.Kalamontee.Mech;
@@ -10,6 +10,7 @@ namespace Planetfall.Item.Kalamontee.Mech;
 public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGivenThings, ICanBeTalkedTo
 {
     private readonly GiveSomethingToSomeoneDecisionEngine<Floyd> _giveHimSomethingEngine = new();
+    private readonly ChatWithFloyd _chatWithFloyd = new(null);
 
     // This is the thing that he is holding, literally in his hand. 
     [UsedImplicitly] public IItem? ItemBeingHeld { get; set; }
@@ -261,9 +262,25 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         ItemBeingHeld = null;
     }
 
-    public Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
+    public async Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
     {
-        return Task.FromResult(string.Empty);
+        if (!IsOn)
+            return "The robot doesn't respond - it appears to be turned off.";
+
+        try
+        {
+            var response = await _chatWithFloyd.AskFloydAsync(text);
+            
+            // Add the response to Floyd's conversation history for continuity
+            LastTurnsOutput.Push(response);
+            
+            return response;
+        }
+        catch (Exception)
+        {
+            // Fallback to a generic Floyd response if the service fails
+            return "Floyd tilts his head and makes some mechanical whirring sounds, but doesn't seem to understand.";
+        }
     }
 }
 
