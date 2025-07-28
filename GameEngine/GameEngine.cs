@@ -5,7 +5,6 @@ using CloudWatch.Model;
 using GameEngine.IntentEngine;
 using GameEngine.Item;
 using GameEngine.Item.ItemProcessor;
-using GameEngine.Location;
 using GameEngine.StaticCommand;
 using GameEngine.StaticCommand.Implementation;
 using Microsoft.Extensions.DependencyInjection;
@@ -99,6 +98,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     /// <param name="generationClient"></param>
     /// <param name="secretsManager"></param>
     /// <param name="turnLogger"></param>
+    /// <param name="parseConversation"></param>
     public GameEngine(
         IItemProcessorFactory itemProcessorFactory,
         IIntentParser parser,
@@ -224,14 +224,14 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         }
 
         // Is the player talking to someone?
-        Console.WriteLine($"[GAME ENGINE DEBUG] About to check for conversation with input: '{_currentInput}'");
+        _logger?.LogDebug($"[GAME ENGINE DEBUG] About to check for conversation with input: '{_currentInput}'");
         var conversation = await CheckForConversation(_currentInput);
         if (conversation is not null)
         {
-            Console.WriteLine($"[GAME ENGINE DEBUG] Conversation detected, returning response: '{conversation}'");
+            _logger?.LogDebug($"[GAME ENGINE DEBUG] Conversation detected, returning response: '{conversation}'");
             return await ProcessActorsAndContextEndOfTurn(contextPrepend, conversation);
         }
-        Console.WriteLine("[GAME ENGINE DEBUG] No conversation detected, continuing with normal processing");
+        _logger?.LogDebug("[GAME ENGINE DEBUG] No conversation detected, continuing with normal processing");
 
         // 6. ------- Complex parsed commands. These require a parser to break them down into their noun(s) and verb.
 
@@ -287,74 +287,72 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     private async Task<string?> CheckForConversation(string input)
     {
-        Console.WriteLine($"[CONVERSATION DEBUG] Checking input: '{input}'");
+        _logger?.LogDebug($"[CONVERSATION DEBUG] Checking input: '{input}'");
         
         // Collect all talkable entities
-        var talkables = new List<ICanBeTalkedTo>();
-        talkables.AddRange(Context.Items.OfType<ICanBeTalkedTo>());
+        var talkers = new List<ICanBeTalkedTo>();
+        talkers.AddRange(Context.Items.OfType<ICanBeTalkedTo>());
 
         if (Context.CurrentLocation is ICanContainItems container)
         {
-            talkables.AddRange(container.Items.OfType<ICanBeTalkedTo>());
+            talkers.AddRange(container.Items.OfType<ICanBeTalkedTo>());
         }
 
-        Console.WriteLine($"[CONVERSATION DEBUG] Found {talkables.Count} talkable entities in total");
-        foreach (var talkable in talkables)
+        _logger?.LogDebug($"[CONVERSATION DEBUG] Found {talkers.Count} talkable entities in total");
+        foreach (var talkable in talkers)
         {
             if (talkable is IItem item)
             {
-                Console.WriteLine($"[CONVERSATION DEBUG] - {item.Name} (nouns: {string.Join(", ", item.NounsForMatching)})");
+                _logger?.LogDebug($"[CONVERSATION DEBUG] - {item.Name} (nouns: {string.Join(", ", item.NounsForMatching)})");
             }
             else
             {
-                Console.WriteLine($"[CONVERSATION DEBUG] - {talkable.GetType().Name} (not an IItem)");
+                _logger?.LogDebug($"[CONVERSATION DEBUG] - {talkable.GetType().Name} (not an IItem)");
             }
         }
 
-        if (talkables.Count == 0)
+        if (talkers.Count == 0)
         {
-            Console.WriteLine("[CONVERSATION DEBUG] No talkable entities found, returning null");
+            _logger?.LogDebug("[CONVERSATION DEBUG] No talkable entities found, returning null");
             return null;
         }
 
         // Check if input contains any character nouns (exact match only)
         var inputLower = input.ToLowerInvariant();
-        Console.WriteLine($"[CONVERSATION DEBUG] Input lowercased: '{inputLower}'");
-        
-        var targetCharacter = talkables
-            .OfType<IItem>()
-            .FirstOrDefault(item => item.NounsForMatching
-                .Any(noun => {
-                    var nounLower = noun.ToLowerInvariant();
-                    var contains = inputLower.Contains(nounLower);
-                    Console.WriteLine($"[CONVERSATION DEBUG] Checking noun '{nounLower}' in '{inputLower}': {contains}");
-                    return contains;
-                })) as ICanBeTalkedTo;
+        _logger?.LogDebug($"[CONVERSATION DEBUG] Input lowercased: '{inputLower}'");
 
-        if (targetCharacter == null)
+        if (talkers
+                .OfType<IItem>()
+                .FirstOrDefault(item => item.NounsForMatching
+                    .Any(noun => {
+                        var nounLower = noun.ToLowerInvariant();
+                        var contains = inputLower.Contains(nounLower);
+                        _logger?.LogDebug($"[CONVERSATION DEBUG] Checking noun '{nounLower}' in '{inputLower}': {contains}");
+                        return contains;
+                    })) is not ICanBeTalkedTo targetCharacter)
         {
-            Console.WriteLine("[CONVERSATION DEBUG] No matching character found in input, returning null");
+            _logger?.LogDebug("[CONVERSATION DEBUG] No matching character found in input, returning null");
             return null;
         }
 
-        Console.WriteLine($"[CONVERSATION DEBUG] Found target character: {(targetCharacter as IItem)?.Name ?? targetCharacter.GetType().Name}");
+        _logger?.LogDebug($"[CONVERSATION DEBUG] Found target character: {(targetCharacter as IItem)?.Name ?? targetCharacter.GetType().Name}");
 
         // Use ParseConversation to determine if this is actually communication
-        Console.WriteLine($"[CONVERSATION DEBUG] Calling ParseConversation.ParseAsync with input: '{input}'");
+        _logger?.LogDebug($"[CONVERSATION DEBUG] Calling ParseConversation.ParseAsync with input: '{input}'");
         var parseResult = await _parseConversation.ParseAsync(input);
-        Console.WriteLine($"[CONVERSATION DEBUG] ParseConversation result - isNo: {parseResult.isNo}, response: '{parseResult.response}'");
+        _logger?.LogDebug($"[CONVERSATION DEBUG] ParseConversation result - isNo: {parseResult.isNo}, response: '{parseResult.response}'");
         
         // If ParseConversation says "No", continue with normal processing
         if (parseResult.isNo)
         {
-            Console.WriteLine("[CONVERSATION DEBUG] ParseConversation returned 'No', continuing with normal processing");
+            _logger?.LogDebug("[CONVERSATION DEBUG] ParseConversation returned 'No', continuing with normal processing");
             return null;
         }
 
         // Send the rewritten message to the character
-        Console.WriteLine($"[CONVERSATION DEBUG] Sending rewritten message '{parseResult.response}' to character");
+        _logger?.LogDebug($"[CONVERSATION DEBUG] Sending rewritten message '{parseResult.response}' to character");
         var result = await targetCharacter.OnBeingTalkedTo(parseResult.response, Context, GenerationClient);
-        Console.WriteLine($"[CONVERSATION DEBUG] Character response: '{result}'");
+        _logger?.LogDebug($"[CONVERSATION DEBUG] Character response: '{result}'");
         return result;
     }
 

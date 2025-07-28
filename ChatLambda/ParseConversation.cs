@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Diagnostics;
 using System.Text.Json.Serialization;
 using Amazon;
 using Amazon.Lambda;
@@ -40,11 +41,11 @@ public class ParseConversation : IParseConversation
     /// <returns>A tuple where Item1 is true if response is "No", Item2 is the response (empty if "No")</returns>
     private async Task<(bool isNo, string response)> ParseAsync(string input, CancellationToken cancellationToken)
     {
-        Console.WriteLine($"[PARSE CONVERSATION DEBUG] Starting ParseAsync with input: '{input}'");
+        Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Starting ParseAsync with input: '{input}'");
         
         if (string.IsNullOrWhiteSpace(input))
         {
-            Console.WriteLine("[PARSE CONVERSATION DEBUG] Input is null or whitespace, throwing exception");
+            Debug.WriteLine("[PARSE CONVERSATION DEBUG] Input is null or whitespace, throwing exception");
             throw new ArgumentException("Input cannot be empty", nameof(input));
         }
 
@@ -59,7 +60,7 @@ public class ParseConversation : IParseConversation
 
             // Serialize the request to JSON
             var requestJson = JsonSerializer.Serialize(request);
-            Console.WriteLine($"[PARSE CONVERSATION DEBUG] Request JSON: {requestJson}");
+            Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Request JSON: {requestJson}");
 
             // Set up the Lambda invoke request
             var invokeRequest = new InvokeRequest
@@ -67,69 +68,70 @@ public class ParseConversation : IParseConversation
                 FunctionName = FunctionName,
                 Payload = requestJson
             };
-            Console.WriteLine($"[PARSE CONVERSATION DEBUG] Invoking Lambda function: {FunctionName}");
+            
+            Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Invoking Lambda function: {FunctionName}");
 
             // Invoke the Lambda function
             var response = await _lambdaClient.InvokeAsync(invokeRequest, cancellationToken);
-            Console.WriteLine($"[PARSE CONVERSATION DEBUG] Lambda response status code: {response.StatusCode}");
+            Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Lambda response status code: {response.StatusCode}");
 
             // Process the response
             if (response.StatusCode != 200)
             {
-                Console.WriteLine($"[PARSE CONVERSATION DEBUG] Lambda invocation failed with status code: {response.StatusCode}");
+                Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Lambda invocation failed with status code: {response.StatusCode}");
                 throw new Exception($"Lambda invocation failed with status code: {response.StatusCode}");
             }
 
             // Read the response payload
             using var reader = new StreamReader(response.Payload);
             var responseJson = await reader.ReadToEndAsync(cancellationToken);
-            Console.WriteLine($"[PARSE CONVERSATION DEBUG] Raw Lambda response JSON: {responseJson}");
+            Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Raw Lambda response JSON: {responseJson}");
 
             // Parse the Lambda response
             var lambdaResponse = JsonSerializer.Deserialize<LambdaResponse>(responseJson);
-            Console.WriteLine($"[PARSE CONVERSATION DEBUG] Deserialized Lambda response - StatusCode: {lambdaResponse?.StatusCode}, Body length: {lambdaResponse?.Body?.Length ?? 0}");
+            Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Deserialized Lambda response - StatusCode: {lambdaResponse?.StatusCode}, Body length: {lambdaResponse?.Body?.Length ?? 0}");
 
             if (lambdaResponse == null)
             {
-                Console.WriteLine("[PARSE CONVERSATION DEBUG] Failed to deserialize Lambda response");
+                Debug.WriteLine("[PARSE CONVERSATION DEBUG] Failed to deserialize Lambda response");
                 throw new Exception("Failed to deserialize Lambda response");
             }
 
             // Parse the body content
-            Console.WriteLine($"[PARSE CONVERSATION DEBUG] Lambda response body: {lambdaResponse.Body}");
+            Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Lambda response body: {lambdaResponse.Body}");
             var bodyContent = JsonSerializer.Deserialize<BodyContent>(lambdaResponse.Body);
-            Console.WriteLine($"[PARSE CONVERSATION DEBUG] Deserialized body content - Results null: {bodyContent?.Results == null}");
+            Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Deserialized body content - Results null: {bodyContent?.Results == null}");
 
             if (bodyContent?.Results == null)
             {
-                Console.WriteLine($"[PARSE CONVERSATION DEBUG] Failed to extract results from Lambda response. Body: {lambdaResponse.Body}");
+                Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Failed to extract results from Lambda response. Body: {lambdaResponse.Body}");
                 throw new Exception($"Failed to extract results from Lambda response. Body: {lambdaResponse.Body}");
             }
             
-            Console.WriteLine($"[PARSE CONVERSATION DEBUG] Results.Response: '{bodyContent.Results.Response}'");
+            Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Results.Response: '{bodyContent.Results.Response}'");
             if (bodyContent.Results.Response == null)
             {
-                Console.WriteLine($"[PARSE CONVERSATION DEBUG] Failed to extract message from Lambda response. Results: {JsonSerializer.Serialize(bodyContent.Results)}");
+                Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Failed to extract message from Lambda response. Results: {JsonSerializer.Serialize(bodyContent.Results)}");
                 throw new Exception($"Failed to extract message from Lambda response. Results: {JsonSerializer.Serialize(bodyContent.Results)}");
             }
 
             var lambdaResponseText = bodyContent.Results.Response;
-            Console.WriteLine($"[PARSE CONVERSATION DEBUG] Lambda response text: '{lambdaResponseText}'");
+            Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Lambda response text: '{lambdaResponseText}'");
             
             // Check if the response is "No" (case-insensitive)
             var trimmedResponse = lambdaResponseText.Trim();
             bool isNo = string.Equals(trimmedResponse, "No", StringComparison.OrdinalIgnoreCase);
-            Console.WriteLine($"[PARSE CONVERSATION DEBUG] Trimmed response: '{trimmedResponse}', isNo: {isNo}");
+            Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Trimmed response: '{trimmedResponse}', isNo: {isNo}");
             
             var finalResult = (isNo, isNo ? string.Empty : lambdaResponseText);
-            Console.WriteLine($"[PARSE CONVERSATION DEBUG] Final result: isNo={finalResult.Item1}, response='{finalResult.Item2}'");
+            Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Final result: isNo={finalResult.Item1}, response='{finalResult.Item2}'");
             
             return finalResult;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[PARSE CONVERSATION DEBUG] Exception occurred: {ex.Message}");
-            Console.WriteLine($"[PARSE CONVERSATION DEBUG] Stack trace: {ex.StackTrace}");
+            Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Exception occurred: {ex.Message}");
+            Debug.WriteLine($"[PARSE CONVERSATION DEBUG] Stack trace: {ex.StackTrace}");
             throw new Exception($"Error communicating with Parse Lambda: {ex.Message}", ex);
         }
     }
