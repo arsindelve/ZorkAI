@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace ChatLambda;
 
 /// <summary>
@@ -11,4 +13,11 @@ public interface IParseConversation
     /// <param name="input">The conversation input to parse</param>
     /// <returns>A tuple where Item1 is true if response is "No", Item2 is the response (empty if "No")</returns>
     Task<(bool isNo, string response)> ParseAsync(string input);
+
+    /// <summary>
+    /// Gets or sets the logger used for logging messages or events.
+    /// This property allows integration with a logging framework to
+    /// capture and record relevant information during the application runtime.
+    /// </summary>
+    ILogger Logger { get; set; }
 }

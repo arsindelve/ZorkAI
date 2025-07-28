@@ -63,6 +63,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _logger = logger;
         _secretsManager = secretsManager;
         _parseConversation = parseConversation;
+        _parseConversation.Logger = logger;
         _gameInstance = new TInfocomGame();
         Context = new TContext
         {
