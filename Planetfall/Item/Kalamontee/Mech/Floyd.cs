@@ -90,9 +90,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     protected override string PreparePrompt(string userPrompt, ILocation? currentLocation)
     {
-        // If we don't do this, Floyd will believe, from the location description, that there is another robot in the room
-        // when in fact it is him! 
-        return userPrompt.Replace(GenericDescription(currentLocation), string.Empty);
+        // The base class now handles removing the companion's description from the room description
+        return userPrompt;
     }
 
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,

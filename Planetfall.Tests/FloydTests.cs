@@ -1,7 +1,9 @@
 using Azure;
 using FluentAssertions;
+using Model.AIGeneration.Requests;
 using Model.Interface;
 using Moq;
+using Planetfall.Item;
 using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech;
@@ -276,5 +278,43 @@ public class FloydTests : EngineTestsBase
         var response = await target.GetResponse("slide kitchen access card through slot");
 
         response.Should().NotContain("Floyd claps his hands with excitement");
+    }
+    
+    [Test]
+    public async Task GenerateCompanionSpeech_ExcludesFloydFromRoomDescription()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        
+        // Mock the generation client to capture the request that was sent
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd says something")
+            .Callback<CompanionRequest>(request =>
+            {
+                // Verify that Floyd's description is not included in the room description
+                var floydDescription = floyd.GenericDescription(GetLocation<RobotShop>()).Trim();
+                request.UserMessage!.Should().NotContain(floydDescription);
+                
+                // Specifically check that it doesn't contain "multiple purpose robot"
+                request.UserMessage!.Should().NotContain("multiple purpose robot");
+                
+                // But verify that the room name is still included
+                request.UserMessage!.Should().Contain("Robot Shop");
+            });
+        
+        // Call GenerateCompanionSpeech directly through reflection to test the specific method
+        var methodInfo = typeof(QuirkyCompanion).GetMethod("GenerateCompanionSpeech", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        methodInfo!.Should().NotBeNull();
+        
+        await (Task<string>)methodInfo!.Invoke(floyd, new object[] { target.Context, target.GenerationClient, null! })!;
+        
+        // Verify the mock was called
+        mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Once);
     }
 }
