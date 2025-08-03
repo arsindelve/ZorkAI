@@ -32,7 +32,7 @@ public class ExtractElementsByTagTests
         Action loadNullHtml = () => 
         {
             var doc = new HtmlDocument();
-            doc.LoadHtml(null);
+            doc.LoadHtml(null!);
         };
         
         // Proper FluentAssertions syntax for testing exceptions

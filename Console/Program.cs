@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using Amazon.Lambda;
+using ChatLambda;
 using DynamoDb;
 using GameEngine;
 using Microsoft.Extensions.Logging;
@@ -91,9 +93,9 @@ async Task<GameEngine<TGame, TContext>> CreateEngine<TGame, TContext>()
 
     var logger = loggerFactory.CreateLogger<GameEngine<TGame, TContext>>();
 
-    var gameEngine = new GameEngine<TGame, TContext>(logger, new AmazonSecretsManager())
+    var gameEngine = new GameEngine<TGame, TContext>(logger, new AmazonSecretsManager(), new ParseConversation(null))
     {
-        Runtime = Runtime.Console
+        Runtime = Model.Runtime.Console
     };
     await gameEngine.InitializeEngine();
     return gameEngine;

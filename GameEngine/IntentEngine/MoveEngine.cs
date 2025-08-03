@@ -8,7 +8,7 @@ namespace GameEngine.IntentEngine;
 
 public class MoveEngine : IIntentEngine
 {
-    internal IRandomChooser Chooser => new RandomChooser();
+    internal virtual IRandomChooser Chooser => new RandomChooser();
     
     public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {

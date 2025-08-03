@@ -8,7 +8,19 @@ public class DynamoDbSessionRepository : DynamoDbRepositoryBase, ISessionReposit
 {
     public async Task<string?> GetSessionState(string sessionId, string tableName)
     {
-        var table = Table.LoadTable(Client, tableName);
+        // Define the TableConfig for your session table
+        var tableConfig = new TableConfig(tableName)
+        {
+            // The TableConfig is primarily used for the table name,
+            // the KeySchema is typically handled through the TableBuilder.
+        };
+
+        // Create the Table object using TableBuilder
+        // This is the correct way to initialize the Table object.
+        var table = new TableBuilder(Client, tableConfig)
+            .AddHashKey("session_id", DynamoDBEntryType.String) // Specify the hash key and its type
+            .Build();
+
         var result = await table.GetItemAsync(sessionId);
 
         if (result is null)

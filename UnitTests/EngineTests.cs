@@ -1,3 +1,4 @@
+using ChatLambda;
 using GameEngine;
 using Model.AIGeneration.Requests;
 using Model.AIParsing;
@@ -17,7 +18,7 @@ public class EngineTests : EngineTestsBase
     public void DefaultConstructor()
     {
         Environment.SetEnvironmentVariable("OPEN_AI_KEY", "XYZ");
-        var target = new GameEngine<ZorkI, ZorkIContext>(null!, Mock.Of<ISecretsManager>());
+        var target = new GameEngine<ZorkI, ZorkIContext>(null!, Mock.Of<ISecretsManager>(), Mock.Of<IParseConversation>());
 
         target.Should().NotBeNull();
     }

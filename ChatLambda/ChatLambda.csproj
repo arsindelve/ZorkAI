@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AWSSDK.Core" Version="4.0.0.17" />
+      <PackageReference Include="AWSSDK.Lambda" Version="4.0.2.1" />
+      <PackageReference Include="JetBrains.Annotations" Version="2025.2.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.7" />
+    </ItemGroup>
+
+</Project>

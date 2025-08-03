@@ -1,9 +1,12 @@
-﻿using Model.AIGeneration;
+﻿using ChatLambda;
+using Model.AIGeneration;
 
 namespace Planetfall.Item.Feinstein;
 
-internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor
+internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICanBeTalkedTo
 {
+    private readonly ChatWithBlather _chatWithBlather = new(null);
+    
     [UsedImplicitly]
     public int TurnsOnDeckNine { get; set; }
 
@@ -103,6 +106,23 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor
 
     public override void Init()
     {
+    }
 
+    public async Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
+    {
+        try
+        {
+            var response = await _chatWithBlather.AskBlatherAsync(text);
+            
+            // Add the response to Blather's conversation history for continuity
+            LastTurnsOutput.Push(response);
+            
+            return response;
+        }
+        catch (Exception)
+        {
+            // Fallback to a generic Blather response if the service fails
+            return "Blather scowls and scribbles more demerits on his clipboard. \"Thirty more demerits for wasting my time!\"";
+        }
     }
 }
