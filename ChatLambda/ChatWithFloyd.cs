@@ -56,7 +56,7 @@ public class ChatWithFloyd
             var request = new
             {
                 prompt,
-                assistant = "router"
+                assistant = "floyd"
             };
 
             // Serialize the request to JSON
