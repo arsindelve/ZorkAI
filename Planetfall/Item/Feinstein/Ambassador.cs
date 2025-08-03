@@ -1,10 +1,13 @@
-﻿using Model.AIGeneration;
+﻿using ChatLambda;
+using Model.AIGeneration;
 using Model.Item;
 
 namespace Planetfall.Item.Feinstein;
 
 internal class Ambassador : QuirkyCompanion, ICanBeExamined, ICanBeTalkedTo
 {
+    private readonly ChatWithAmbassador _chatWithAmbassador = new(null);
+    
     public override string[] NounsForMatching => ["ambassador", "alien"];
 
     public override string GenericDescription(ILocation? currentLocation)
@@ -91,8 +94,21 @@ internal class Ambassador : QuirkyCompanion, ICanBeExamined, ICanBeTalkedTo
         StartWithItemInside<Celery>();
     }
 
-    public Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
+    public async Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
     {
-        return Task.FromResult(string.Empty);
+        try
+        {
+            var response = await _chatWithAmbassador.AskAmbassadorAsync(text);
+            
+            // Add the response to Ambassador's conversation history for continuity
+            LastTurnsOutput.Push(response);
+            
+            return response;
+        }
+        catch (Exception)
+        {
+            // Fallback to a generic Ambassador response if the service fails
+            return "The ambassador makes a series of unintelligible sounds through his mechanical translator, then oozes some green slime.";
+        }
     }
 }
