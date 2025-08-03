@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Interface;
-using Model.Item;
 using Model.Movement;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -46,7 +45,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     private readonly string _sessionId = Guid.NewGuid().ToString();
     private readonly Guid _turnCorrelationId = Guid.NewGuid();
     private readonly OpenAITakeAndDropListParser _openAITakeAndDropListParser;
-    private readonly IParseConversation _parseConversation;
+    private readonly ConversationHandler _conversationHandler;
     private string? _currentInput;
     private TInfocomGame _gameInstance;
     private bool _lastResponseWasGenerated;
@@ -62,8 +61,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     {
         _logger = logger;
         _secretsManager = secretsManager;
-        _parseConversation = parseConversation;
-        _parseConversation.Logger = logger;
+        parseConversation.Logger = logger;
         _gameInstance = new TInfocomGame();
         Context = new TContext
         {
@@ -88,6 +86,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _openAITakeAndDropListParser = new OpenAITakeAndDropListParser(logger);
         _itemProcessorFactory = new ItemProcessorFactory(_openAITakeAndDropListParser);
         _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
+        _conversationHandler = new ConversationHandler(_logger, parseConversation, GenerationClient);
         Inventory = [];
     }
 
@@ -116,12 +115,13 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _parser = parser;
         GenerationClient = generationClient;
         _secretsManager = secretsManager;
-        _parseConversation = parseConversation;
+        var parseConversation1 = parseConversation;
         _gameInstance = (TInfocomGame)Context.Game;
         _gameInstance.Init(Context);
         _itemProcessorFactory = itemProcessorFactory;
         _turnLogger = turnLogger;
         _openAITakeAndDropListParser = null!;
+        _conversationHandler = new ConversationHandler(null, parseConversation1, GenerationClient);
     }
 
     public int Score => Context.Score;
@@ -226,7 +226,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         // Is the player talking to someone?
         _logger?.LogDebug($"[GAME ENGINE DEBUG] About to check for conversation with input: '{_currentInput}'");
-        var conversation = await CheckForConversation(_currentInput);
+        var conversation = await _conversationHandler.CheckForConversation(_currentInput, Context);
         if (conversation is not null)
         {
             _logger?.LogDebug($"[GAME ENGINE DEBUG] Conversation detected, returning response: '{conversation}'");
@@ -284,77 +284,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var savedGame = Repository.Save<TContext>();
         savedGame.Context = Context;
         return JsonConvert.SerializeObject(savedGame, JsonSettings());
-    }
-
-    private async Task<string?> CheckForConversation(string input)
-    {
-        _logger?.LogDebug($"[CONVERSATION DEBUG] Checking input: '{input}'");
-        
-        // Collect all talkable entities
-        var talkers = new List<ICanBeTalkedTo>();
-        talkers.AddRange(Context.Items.OfType<ICanBeTalkedTo>());
-
-        if (Context.CurrentLocation is ICanContainItems container)
-        {
-            talkers.AddRange(container.Items.OfType<ICanBeTalkedTo>());
-        }
-
-        _logger?.LogDebug($"[CONVERSATION DEBUG] Found {talkers.Count} talkable entities in total");
-        foreach (var talkable in talkers)
-        {
-            if (talkable is IItem item)
-            {
-                _logger?.LogDebug($"[CONVERSATION DEBUG] - {item.Name} (nouns: {string.Join(", ", item.NounsForMatching)})");
-            }
-            else
-            {
-                _logger?.LogDebug($"[CONVERSATION DEBUG] - {talkable.GetType().Name} (not an IItem)");
-            }
-        }
-
-        if (talkers.Count == 0)
-        {
-            _logger?.LogDebug("[CONVERSATION DEBUG] No talkable entities found, returning null");
-            return null;
-        }
-
-        // Check if input contains any character nouns (exact match only)
-        var inputLower = input.ToLowerInvariant();
-        _logger?.LogDebug($"[CONVERSATION DEBUG] Input lowercased: '{inputLower}'");
-
-        if (talkers
-                .OfType<IItem>()
-                .FirstOrDefault(item => item.NounsForMatching
-                    .Any(noun => {
-                        var nounLower = noun.ToLowerInvariant();
-                        var contains = inputLower.Contains(nounLower);
-                        _logger?.LogDebug($"[CONVERSATION DEBUG] Checking noun '{nounLower}' in '{inputLower}': {contains}");
-                        return contains;
-                    })) is not ICanBeTalkedTo targetCharacter)
-        {
-            _logger?.LogDebug("[CONVERSATION DEBUG] No matching character found in input, returning null");
-            return null;
-        }
-
-        _logger?.LogDebug($"[CONVERSATION DEBUG] Found target character: {(targetCharacter as IItem)?.Name ?? targetCharacter.GetType().Name}");
-
-        // Use ParseConversation to determine if this is actually communication
-        _logger?.LogDebug($"[CONVERSATION DEBUG] Calling ParseConversation.ParseAsync with input: '{input}'");
-        var parseResult = await _parseConversation.ParseAsync(input);
-        _logger?.LogDebug($"[CONVERSATION DEBUG] ParseConversation result - isNo: {parseResult.isNo}, response: '{parseResult.response}'");
-        
-        // If ParseConversation says "No", continue with normal processing
-        if (parseResult.isNo)
-        {
-            _logger?.LogDebug("[CONVERSATION DEBUG] ParseConversation returned 'No', continuing with normal processing");
-            return null;
-        }
-
-        // Send the rewritten message to the character
-        _logger?.LogDebug($"[CONVERSATION DEBUG] Sending rewritten message '{parseResult.response}' to character");
-        var result = await targetCharacter.OnBeingTalkedTo(parseResult.response, Context, GenerationClient);
-        _logger?.LogDebug($"[CONVERSATION DEBUG] Character response: '{result}'");
-        return result;
     }
 
     public async Task InitializeEngine()
