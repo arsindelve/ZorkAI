@@ -1,8 +1,6 @@
-using FluentAssertions;
+using ChatLambda;
 using GameEngine;
 using GameEngine.Item;
-using Moq;
-using NUnit.Framework;
 using ZorkOne;
 using ZorkOne.GlobalCommand;
 using Model.AIGeneration;
@@ -21,14 +19,14 @@ public class InitializeEngineResiliencyTests
             .ReturnsAsync((string input, string _) =>
             {
                 var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                return words.Length > 1 ? new[] { words[1] } : Array.Empty<string>();
+                return words.Length > 1 ? [words[1]] : [];
             });
         takeAndDropParser
             .Setup(s => s.GetListOfItemsToTake(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync((string input, string _) =>
             {
                 var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                return words.Length > 1 ? new[] { words[1] } : Array.Empty<string>();
+                return words.Length > 1 ? [words[1]] : [];
             });
 
         var itemProcessorFactory = new ItemProcessorFactory(takeAndDropParser.Object);
@@ -45,7 +43,8 @@ public class InitializeEngineResiliencyTests
             parser,
             client.Object,
             secrets.Object,
-            Mock.Of<CloudWatch.ICloudWatchLogger<CloudWatch.Model.TurnLog>>());
+            Mock.Of<CloudWatch.ICloudWatchLogger<CloudWatch.Model.TurnLog>>(),
+            Mock.Of<IParseConversation>());
 
         Repository.Reset();
         Repository.GetLocation<WestOfHouse>().Init();

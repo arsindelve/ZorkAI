@@ -1,3 +1,4 @@
+using ChatLambda;
 using CloudWatch;
 using CloudWatch.Model;
 using GameEngine;
@@ -24,14 +25,14 @@ public class LoggingAndHistoryTests
             .ReturnsAsync((string input, string _) =>
             {
                 var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                return words.Length > 1 ? new[] { words[1] } : Array.Empty<string>();
+                return words.Length > 1 ? [words[1]] : [];
             });
         takeAndDropParser
             .Setup(s => s.GetListOfItemsToTake(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync((string input, string _) =>
             {
                 var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                return words.Length > 1 ? new[] { words[1] } : Array.Empty<string>();
+                return words.Length > 1 ? [words[1]] : [];
             });
 
         var itemProcessorFactory = new ItemProcessorFactory(takeAndDropParser.Object);
@@ -43,7 +44,8 @@ public class LoggingAndHistoryTests
             parser,
             client.Object,
             secrets,
-            turnLogger.Object);
+            turnLogger.Object,
+            Mock.Of<IParseConversation>());
 
         // Ensure starting location is initialized consistently
         Repository.Reset();
