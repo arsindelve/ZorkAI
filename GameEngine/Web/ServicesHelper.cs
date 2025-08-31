@@ -1,3 +1,4 @@
+using ChatLambda;
 using DynamoDb;
 using Microsoft.Extensions.DependencyInjection;
 using Model.AIGeneration;
@@ -14,5 +15,6 @@ public static class ServicesHelper
         services.AddScoped<ISavedGameRepository, DynamoDbSavedGameRepository>();
         services.AddScoped<IGenerationClient, ChatGPTClient>();
         services.AddScoped<ISecretsManager, AmazonSecretsManager>();
+        services.AddScoped<IParseConversation, ParseConversation>();
     }
 }
