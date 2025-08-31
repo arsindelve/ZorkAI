@@ -41,6 +41,7 @@
 
     <ItemGroup>
       <Folder Include="AWS\" />
+        <Folder Include="Parser\"/>
     </ItemGroup>
 
 </Project>
