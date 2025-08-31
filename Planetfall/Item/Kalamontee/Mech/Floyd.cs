@@ -1,3 +1,4 @@
+using ChatLambda;
 using GameEngine.IntentEngine;
 using Model.AIGeneration;
 using Newtonsoft.Json;
@@ -6,9 +7,10 @@ using Utilities;
 
 namespace Planetfall.Item.Kalamontee.Mech;
 
-public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGivenThings
+public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGivenThings, ICanBeTalkedTo
 {
     private readonly GiveSomethingToSomeoneDecisionEngine<Floyd> _giveHimSomethingEngine = new();
+    private readonly ChatWithFloyd _chatWithFloyd = new(null);
 
     // This is the thing that he is holding, literally in his hand. 
     [UsedImplicitly] public IItem? ItemBeingHeld { get; set; }
@@ -26,8 +28,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     // ReSharper disable once MemberCanBePrivate.Global
     public int TurnOnCountdown { get; set; } = 3;
 
-
-    // TODO: If you wander away before he wakes: The robot you were fiddling with in the Robot Shop bounds into the room. "Hi!" he says, with a wide and friendly smile. "You turn Floyd on? Be Floyd's friend, yes?"
+    // TODO: If you wander away before he wakes: The robot you were fiddling with in the Robot Shop bounds into the room.
+    // "Hi!" he says, with a wide and friendly smile. "You turn Floyd on? Be Floyd's friend, yes?"
 
     public override string[] NounsForMatching => ["floyd", "robot", "B-19-7", "multi-purpose robot"];
 
@@ -88,9 +90,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     protected override string PreparePrompt(string userPrompt, ILocation? currentLocation)
     {
-        // If we don't do this, Floyd will believe, from the location description, that there is another robot in the room
-        // when in fact it is him! 
-        return userPrompt.Replace(GenericDescription(currentLocation), string.Empty);
+        // The base class now handles removing the companion's description from the room description
+        return userPrompt;
     }
 
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
@@ -259,6 +260,27 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     public void BeingTakenCallback()
     {
         ItemBeingHeld = null;
+    }
+
+    public async Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
+    {
+        if (!IsOn)
+            return "The robot doesn't respond - it appears to be turned off.";
+
+        try
+        {
+            var response = await _chatWithFloyd.AskFloydAsync(text);
+            
+            // Add the response to Floyd's conversation history for continuity
+            LastTurnsOutput.Push(response);
+            
+            return response;
+        }
+        catch (Exception)
+        {
+            // Fallback to a generic Floyd response if the service fails
+            return "Floyd tilts his head and makes some mechanical whirring sounds, but doesn't seem to understand.";
+        }
     }
 }
 

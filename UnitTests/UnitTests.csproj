@@ -13,11 +13,12 @@
 
     <ItemGroup>
         <PackageReference Include="FluentAssertions" Version="6.12.0"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0"/>
-        <PackageReference Include="Moq" Version="4.20.70"/>
-        <PackageReference Include="NUnit" Version="4.1.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+        <PackageReference Include="Moq" Version="4.20.72" />
+        <PackageReference Include="NUnit" Version="4.3.2" />
         <PackageReference Include="NUnit3TestAdapter" Version="4.6.0"/>
-        <PackageReference Include="NUnit.Analyzers" Version="4.3.0">
+        <PackageReference Include="NUnit.Analyzers" Version="4.9.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -25,11 +26,13 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\ChatLambda\ChatLambda.csproj" />
         <ProjectReference Include="..\DynamoDb\DynamoDb.csproj"/>
         <ProjectReference Include="..\GameEngine\GameEngine.csproj"/>
-        <ProjectReference Include="..\Lex\Lex.csproj"/>
+        <ProjectReference Include="..\Lambda\src\Lambda\Lambda.csproj"/>
         <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>
         <ProjectReference Include="..\Planetfall\Planetfall.csproj"/>
+        <ProjectReference Include="..\Planetfall-Lambda\src\Planetfall-Lambda\Planetfall-Lambda.csproj"/>
         <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
     </ItemGroup>
 

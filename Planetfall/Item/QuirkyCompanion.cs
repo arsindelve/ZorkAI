@@ -45,7 +45,21 @@ public abstract class QuirkyCompanion : ContainerBase, ITurnBasedActor
         string? userPrompt = null)
     {
         userPrompt ??= UserPrompt;
-        userPrompt = string.Format(userPrompt, context.CurrentLocation.Name, context.CurrentLocation.GetDescriptionForGeneration(context), LastTurnsOutput);
+        
+        // Get the room description and remove this companion's description to avoid confusion
+        var roomDescription = context.CurrentLocation.GetDescriptionForGeneration(context);
+        var companionDescription = GenericDescription(context.CurrentLocation);
+        
+        // Handle whitespace differences by trying both the exact string and trimmed version
+        roomDescription = roomDescription.Replace(companionDescription, string.Empty);
+        if (roomDescription == context.CurrentLocation.GetDescriptionForGeneration(context))
+        {
+            // Original replacement didn't work, try with trimmed companion description
+            roomDescription = roomDescription.Replace(companionDescription.Trim(), string.Empty);
+        }
+        roomDescription = roomDescription.Trim();
+        
+        userPrompt = string.Format(userPrompt, context.CurrentLocation.Name, roomDescription, LastTurnsOutput);
         userPrompt = PreparePrompt(userPrompt, context.CurrentLocation);
         
         CompanionRequest request = new CompanionRequest( userPrompt, SystemPrompt) { Temperature = 1.0f };
