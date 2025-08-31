@@ -4,9 +4,9 @@ using CloudWatch.Model;
 using GameEngine;
 using GameEngine.Item;
 using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 using Model.AIParsing;
 using Model.Interface;
-using Model.AIGeneration.Requests;
 using ZorkOne;
 using ZorkOne.GlobalCommand;
 
@@ -90,7 +90,7 @@ public class LoggingAndHistoryTests
 
         // Assert LastFiveInputOutputs capped and contains latest entry
         client.Object.LastFiveInputOutputs.Should().NotBeNull();
-        client.Object.LastFiveInputOutputs.Count.Should().BeLessOrEqualTo(5);
+        client.Object.LastFiveInputOutputs.Count.Should().BeLessThanOrEqualTo(5);
         var last = client.Object.LastFiveInputOutputs.Last();
         last.Item1.Should().Be("look"); // last input
         last.Item2.Should().NotBeNullOrEmpty(); // response

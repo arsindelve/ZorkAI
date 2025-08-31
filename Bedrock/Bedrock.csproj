@@ -11,9 +11,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AWSSDK.Bedrock" Version="4.0.8.1" />
-        <PackageReference Include="AWSSDK.BedrockRuntime" Version="4.0.2.1" />
-        <PackageReference Include="AWSSDK.Core" Version="4.0.0.18" />
+        <PackageReference Include="AWSSDK.Bedrock" Version="4.0.10.4" />
+        <PackageReference Include="AWSSDK.BedrockRuntime" Version="4.0.6" />
+        <PackageReference Include="AWSSDK.Core" Version="4.0.0.26" />
         <PackageReference Include="HtmlAgilityPack" Version="1.12.2" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.7" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
