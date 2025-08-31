@@ -1,10 +1,10 @@
 using System.Reflection;
+using ChatLambda;
 using CloudWatch;
 using CloudWatch.Model;
 using GameEngine.IntentEngine;
 using GameEngine.Item;
 using GameEngine.Item.ItemProcessor;
-using GameEngine.Location;
 using GameEngine.StaticCommand;
 using GameEngine.StaticCommand.Implementation;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,6 +45,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     private readonly string _sessionId = Guid.NewGuid().ToString();
     private readonly Guid _turnCorrelationId = Guid.NewGuid();
     private readonly OpenAITakeAndDropListParser _openAITakeAndDropListParser;
+    private readonly ConversationHandler _conversationHandler;
     private string? _currentInput;
     private TInfocomGame _gameInstance;
     private bool _lastResponseWasGenerated;
@@ -55,10 +56,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     [ActivatorUtilitiesConstructor]
     public GameEngine(
         ILogger<GameEngine<TInfocomGame, TContext>> logger,
-        ISecretsManager secretsManager)
+        ISecretsManager secretsManager,
+        IParseConversation parseConversation)
     {
         _logger = logger;
         _secretsManager = secretsManager;
+        parseConversation.Logger = logger;
         _gameInstance = new TInfocomGame();
         Context = new TContext
         {
@@ -83,6 +86,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _openAITakeAndDropListParser = new OpenAITakeAndDropListParser(logger);
         _itemProcessorFactory = new ItemProcessorFactory(_openAITakeAndDropListParser);
         _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
+        _conversationHandler = new ConversationHandler(_logger, parseConversation, GenerationClient);
         Inventory = [];
     }
 
@@ -94,12 +98,14 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     /// <param name="generationClient"></param>
     /// <param name="secretsManager"></param>
     /// <param name="turnLogger"></param>
+    /// <param name="parseConversation"></param>
     public GameEngine(
         IItemProcessorFactory itemProcessorFactory,
         IIntentParser parser,
         IGenerationClient generationClient,
         ISecretsManager secretsManager,
-        ICloudWatchLogger<TurnLog> turnLogger)
+        ICloudWatchLogger<TurnLog> turnLogger,
+        IParseConversation parseConversation)
     {
         Repository.Reset();
 
@@ -109,11 +115,13 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _parser = parser;
         GenerationClient = generationClient;
         _secretsManager = secretsManager;
+        var parseConversation1 = parseConversation;
         _gameInstance = (TInfocomGame)Context.Game;
         _gameInstance.Init(Context);
         _itemProcessorFactory = itemProcessorFactory;
         _turnLogger = turnLogger;
         _openAITakeAndDropListParser = null!;
+        _conversationHandler = new ConversationHandler(null, parseConversation1, GenerationClient);
     }
 
     public int Score => Context.Score;
@@ -215,6 +223,16 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
             return await ProcessActorsAndContextEndOfTurn(contextPrepend, resultMessage);
         }
+
+        // Is the player talking to someone?
+        _logger?.LogDebug($"[GAME ENGINE DEBUG] About to check for conversation with input: '{_currentInput}'");
+        var conversation = await _conversationHandler.CheckForConversation(_currentInput, Context);
+        if (conversation is not null)
+        {
+            _logger?.LogDebug($"[GAME ENGINE DEBUG] Conversation detected, returning response: '{conversation}'");
+            return await ProcessActorsAndContextEndOfTurn(contextPrepend, conversation);
+        }
+        _logger?.LogDebug("[GAME ENGINE DEBUG] No conversation detected, continuing with normal processing");
 
         // 6. ------- Complex parsed commands. These require a parser to break them down into their noun(s) and verb.
 
@@ -488,6 +506,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum);
         return result + Environment.NewLine;
     }
+
 
     private async Task<string> GetGeneratedNoCommandResponse()
     {
