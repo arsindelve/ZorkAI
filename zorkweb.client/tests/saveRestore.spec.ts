@@ -11,11 +11,20 @@
 
 import {test, expect} from '@playwright/test';
 import { closeWelcomeModal, handleZorkOneRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
+import { mockResponses } from './mockResponses';
 
 test.describe('Game Save and Restore', () => {
 
     // Set up API mocking before each test
     test.beforeEach(async ({ page }) => {
+        // Intercept DELETE requests to /saveGame/{id} for deleteSavedGame
+        await page.route('http://localhost:5000/ZorkOne/saveGame/*', async (route) => {
+            if (route.request().method() === 'DELETE') {
+                await route.fulfill({ status: 200, contentType: 'application/json', body: '' });
+            } else {
+                await route.continue();
+            }
+        });
         // Intercept requests to the API endpoints
         await page.route('http://localhost:5000/ZorkOne', handleZorkOneRoute);
 
@@ -41,6 +50,73 @@ test.describe('Game Save and Restore', () => {
         });
 
         await page.route('http://localhost:5000/ZorkOne/restoreGame', handleRestoreGameRoute);
+    });
+
+    test('Restore Modal - clicking delete opens confirmation dialog with correct game name', async ({ page }) => {
+        await closeWelcomeModal(page);
+        await page.waitForSelector('[data-testid="game-button"]', { state: 'visible' });
+        await page.locator('[data-testid="game-button"]').click();
+        const gameMenu = page.locator('#game-menu');
+        await expect(gameMenu).toBeVisible();
+        const restoreMenuItem = page.locator('#game-menu li:has-text("Restore a Previous Saved Game")');
+        await restoreMenuItem.click();
+        await page.waitForSelector('[data-testid="restore-game-modal"]', { state: 'visible', timeout: 10000 });
+        // Ensure list is visible
+        await page.waitForSelector('[data-testid="restore-game-list"]', { state: 'visible', timeout: 10000 });
+        const firstItem = page.locator('[data-testid="restore-game-item"]').first();
+        await expect(firstItem).toBeVisible();
+        // Click the delete icon button
+        await firstItem.locator('button[title="Delete saved game"]').click();
+        // Expect confirmation dialog to appear with the correct title and message including the game name
+        const confirmDialog = page.locator('[aria-labelledby="confirmation-dialog-title"]');
+        await expect(confirmDialog).toBeVisible();
+        await expect(confirmDialog.locator('#confirmation-dialog-title')).toHaveText('Delete Saved Game');
+        await expect(confirmDialog).toContainText(`Are you sure you want to delete "${mockResponses.savedGames[0].name}"?`);
+        // Close dialog via Cancel to clean up
+        await confirmDialog.locator('button:has-text("Cancel")').click();
+        await expect(confirmDialog).not.toBeVisible();
+    });
+
+    test('Restore Modal - canceling deletion keeps the item and closes the confirmation dialog', async ({ page }) => {
+        await closeWelcomeModal(page);
+        await page.waitForSelector('[data-testid="game-button"]', { state: 'visible' });
+        await page.locator('[data-testid="game-button"]').click();
+        await expect(page.locator('#game-menu')).toBeVisible();
+        await page.locator('#game-menu li:has-text("Restore a Previous Saved Game")').click();
+        await page.waitForSelector('[data-testid="restore-game-modal"]', { state: 'visible', timeout: 10000 });
+        await page.waitForSelector('[data-testid="restore-game-list"]', { state: 'visible', timeout: 10000 });
+        const items = page.locator('[data-testid="restore-game-item"]');
+        const initialCount = await items.count();
+        const firstItem = items.first();
+        await firstItem.locator('button[title="Delete saved game"]').click();
+        const confirmDialog = page.locator('[aria-labelledby="confirmation-dialog-title"]');
+        await expect(confirmDialog).toBeVisible();
+        await confirmDialog.locator('button:has-text("Cancel")').click();
+        await expect(confirmDialog).not.toBeVisible();
+        await expect(items).toHaveCount(initialCount);
+    });
+
+    test('Restore Modal - confirming deletion calls API and shows success snackbar', async ({ page }) => {
+        await closeWelcomeModal(page);
+        await page.waitForSelector('[data-testid="game-button"]', { state: 'visible' });
+        await page.locator('[data-testid="game-button"]').click();
+        await page.locator('#game-menu li:has-text("Restore a Previous Saved Game")').click();
+        await page.waitForSelector('[data-testid="restore-game-modal"]', { state: 'visible', timeout: 10000 });
+        await page.waitForSelector('[data-testid="restore-game-list"]', { state: 'visible', timeout: 10000 });
+        const firstItem = page.locator('[data-testid="restore-game-item"]').first();
+        // Prepare to wait for DELETE request
+        const deleteRequestPromise = page.waitForRequest((req) => req.method() === 'DELETE' && /\/ZorkOne\/saveGame\/.+\?sessionId=/.test(req.url()));
+        // Open confirmation dialog and confirm
+        await firstItem.locator('button[title="Delete saved game"]').click();
+        const confirmDialog = page.locator('[aria-labelledby="confirmation-dialog-title"]');
+        await expect(confirmDialog).toBeVisible();
+        await confirmDialog.locator('button:has-text("Delete")').click();
+        // Verify DELETE called
+        await deleteRequestPromise;
+        // Verify snackbar shows success message
+        const snackbar = page.locator('div.MuiSnackbar-root');
+        await expect(snackbar).toBeVisible();
+        await expect(snackbar).toContainText('Game Deleted Successfully');
     });
 
     test('Save Game - saved games are displayed in the save modal and API is called', async ({page}) => {
