@@ -81,7 +81,6 @@ function App() {
             await getSavedGames();
         } catch (error) {
             console.error('Error deleting saved game:', error);
-            // Could add error handling here
         }
     }
 

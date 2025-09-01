@@ -49,7 +49,7 @@ const ConfirmationDialog = ({
             </DialogTitle>
             
             <DialogContent sx={{ pt: 3, pb: 2, px: 3 }}>
-                <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                <Typography variant="body1" sx={{ lineHeight: 1.6, p: 5 }}>
                     {message}
                 </Typography>
             </DialogContent>
