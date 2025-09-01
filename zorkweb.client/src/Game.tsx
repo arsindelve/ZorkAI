@@ -99,6 +99,8 @@ function Game() {
                 setDeleteGameRequest(undefined);
                 setSnackBarMessage("Game Deleted Successfully.");
                 setSnackBarOpen(true);
+                // Refresh the restore dialog to show updated list
+                setDialogToOpen(DialogType.Restore);
             } catch (error) {
                 console.error('Error deleting saved game:', error);
                 setSnackBarMessage("Failed to delete game.");
