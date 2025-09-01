@@ -16,7 +16,7 @@ export const mockResponses = {
         score: 0,
         moves: 0,
         locationName: "West of House",
-        response: "<Restore>\n",
+        response: "<Restore>",
         inventory: []
     },
     // Response for save command
@@ -24,7 +24,7 @@ export const mockResponses = {
         score: 0,
         moves: 0,
         locationName: "West of House",
-        response: "<Save>\n",
+        response: "<Save>",
         inventory: []
     },
     // Response for restart command
@@ -32,7 +32,7 @@ export const mockResponses = {
         score: 0,
         moves: 0,
         locationName: "West of House",
-        response: "<Restart>\n",
+        response: "<Restart>",
         inventory: []
     },
     // Response to "look around" command

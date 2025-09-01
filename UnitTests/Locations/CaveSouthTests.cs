@@ -1,12 +1,6 @@
-using FluentAssertions;
 using GameEngine;
-using Model.Intent;
 using Model.Interface;
-using Moq;
-using NUnit.Framework;
 using ZorkOne;
-using ZorkOne.Item;
-using ZorkOne.Location;
 
 namespace UnitTests.Locations;
 
@@ -95,9 +89,11 @@ public class CaveSouthTests
     {
         var mockChooser = new Mock<IRandomChooser>();
         var context = new ZorkIContext();
-        var caveSouth = new CaveSouth();
-        caveSouth.RandomChooser = mockChooser.Object;
-        
+        var caveSouth = new CaveSouth
+        {
+            RandomChooser = mockChooser.Object
+        };
+
         var result = await caveSouth.AfterEnterLocation(context, null!, null!);
         
         context.Actors.Should().Contain(caveSouth);

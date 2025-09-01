@@ -118,4 +118,22 @@ export default class Server {
 
         return response.data;
     }
+
+    async deleteSavedGame(id: string, sessionId: string): Promise<void> {
+        const client = axios.create({
+            baseURL: this.baseUrl
+        });
+
+        await client.delete(`saveGame/${id}`, {
+            params: {
+                sessionId: sessionId
+            }
+        });
+
+        Mixpanel.track('Delete Saved Game', {
+            "clientId": this.sessionId.getClientId(),
+            "gameId": id,
+            "sessionId": sessionId,
+        });
+    }
 }
