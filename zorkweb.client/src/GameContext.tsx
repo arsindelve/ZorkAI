@@ -17,6 +17,9 @@ interface GameContextType {
     restoreGameRequest: ISavedGame | undefined;
     setRestoreGameRequest: (restoreGameRequest: ISavedGame | undefined) => void;
 
+    deleteGameRequest: ISavedGame | undefined;
+    setDeleteGameRequest: (deleteGameRequest: ISavedGame | undefined) => void;
+
     copyGameTranscript: () => Promise<void>;
     setCopyGameTranscript: (copyFn: () => () => Promise<void>) => void;
 }
@@ -39,6 +42,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({children}
     const [restartGame, setRestartGame] = useState(false);
     const [saveGameRequest, setSaveGameRequest] = useState(undefined as ISaveGameRequest | undefined);
     const [restoreGameRequest, setRestoreGameRequest] = useState(undefined as ISavedGame | undefined);
+    const [deleteGameRequest, setDeleteGameRequest] = useState(undefined as ISavedGame | undefined);
     const [copyGameTranscript, setCopyGameTranscript] = useState<() => Promise<void>>(() => async () => {});
 
     return (
@@ -52,6 +56,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 setSaveGameRequest,
                 restoreGameRequest,
                 setRestoreGameRequest,
+                deleteGameRequest,
+                setDeleteGameRequest,
                 copyGameTranscript,
                 setCopyGameTranscript
             }}>

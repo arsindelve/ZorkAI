@@ -1,7 +1,29 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # ZorkAI - Text Adventure Game Engine with AI Integration
 
 ## Project Overview
 This is a sophisticated C# .NET 8.0 recreation of classic Infocom-style text adventure games (like Zork) with modern AI integration. The engine can run multiple games including Zork I and Planetfall.
+
+## Essential Development Commands
+
+### Building and Testing
+- **Build entire solution**: `dotnet build`
+- **Run all tests**: `dotnet test`
+- **Run tests for specific project**: `dotnet test UnitTests` or `dotnet test ZorkOne.Tests`
+- **Run specific test class**: `dotnet test --filter "TestClass=ContextTests"`
+- **Run specific test**: `dotnet test --filter "BlatherTests.ThePlayer_TriesToBlather_BlatherIsAlive"`
+- **Check .NET version**: `dotnet --version` (requires .NET 8.0+)
+
+### Test Projects Structure
+- **UnitTests**: Core engine tests (466+ comprehensive tests)
+- **ZorkOne.Tests**: Game-specific tests for Zork I
+- **Planetfall.Tests**: Game-specific tests for Planetfall
+- **Lambda.Tests**: AWS Lambda API tests
+- **Planetfall-Lambda.Tests**: Planetfall Lambda API tests
+- **IntegrationTests**: Cross-service integration tests
 
 ## Key Architecture Components
 
@@ -26,6 +48,14 @@ This is a sophisticated C# .NET 8.0 recreation of classic Infocom-style text adv
 - **ZorkOne/**: Complete Zork I implementation with all locations/items
 - **Planetfall/**: Space-themed adventure game
 - **Extensible** - new games inherit from base engine
+
+## Solution Structure
+The solution is organized into logical groups:
+- **Games folder**: ZorkOne/, Planetfall/, ZorkTwo/ - each game with its own implementation, tests, web client, and Lambda
+- **AWS folder**: Cloud services (DynamoDb/, SecretsManager/, CloudWatch/, Bedrock/)
+- **Core libraries**: GameEngine/, Model/, OpenAI/, Utilities/
+- **Lambda APIs**: Individual Lambda functions for each game deployment
+- **Web clients**: React/TypeScript SPAs for browser gameplay
 
 ## Technical Highlights
 
@@ -152,3 +182,30 @@ The codebase demonstrates production-level C# development with proper dependency
 - **Error resilience** - graceful degradation when AI services unavailable
 
 This Lambda integration demonstrates how the core game engine's excellent architecture enables seamless deployment across multiple platforms while maintaining consistent gameplay experience and leveraging cloud services for scalability and persistence.
+
+## Development Best Practices for This Codebase
+
+### Testing Philosophy
+- **Use real Repository objects** in tests rather than mocking - the Repository pattern works better with integration-style testing
+- **Test core business logic** rather than focusing on edge cases with complex dependencies  
+- **AI integration tests** require environment setup but validate critical user experience paths
+- **Avoid mocking random generation** - focus on deterministic core functionality
+
+### Working with the Repository Pattern
+- Items and locations are singletons - calling `Repository.GetItem<Lamp>()` always returns the same instance
+- **Lazy loading**: Items are only created when first requested, improving memory efficiency
+- **State consistency**: Since items are singletons, state changes persist across the entire game session
+- Use `Repository.GetItem<T>()` and `Repository.GetLocation<T>()` to access game objects
+
+### AI Integration Guidelines  
+- **Hierarchical parsing**: Try simple pattern matching first, then fall back to expensive AI calls
+- **Context matters**: AI parsers receive location descriptions to better understand commands
+- **Performance**: Cache AI responses when possible, avoid unnecessary API calls
+- **Graceful degradation**: System should work even when AI services are unavailable
+
+### Adding New Games
+1. Create game-specific folder under solution (following ZorkOne/Planetfall pattern)
+2. Implement game-specific items/locations inheriting from base classes
+3. Create corresponding test project 
+4. Add Lambda deployment if needed
+5. Web client can reuse core engine through API calls

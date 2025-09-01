@@ -74,6 +74,16 @@ function App() {
         setGameSaved(true);
     }
 
+    async function handleDeleteGame(game: ISavedGame): Promise<void> {
+        try {
+            await server.deleteSavedGame(game.id!, sessionId.getClientId());
+            // Refresh the saved games list
+            await getSavedGames();
+        } catch (error) {
+            console.error('Error deleting saved game:', error);
+        }
+    }
+
     return (
         <div
             className="bg-[url('https://planetfallai-assets.s3.amazonaws.com/Blue+Nebula+2+-+1024x1024.png')] bg-repeat">
@@ -107,7 +117,7 @@ function App() {
                         />
 
                         <RestoreModal games={availableSavedGames} open={restoreDialogOpen}
-                                      handleClose={handleRestoreModalClose}/>
+                                      handleClose={handleRestoreModalClose} onDelete={handleDeleteGame}/>
 
                         <SaveModal games={availableSavedGames} open={saveDialogOpen}
                                    handleClose={handleSaveModalClose}/>
