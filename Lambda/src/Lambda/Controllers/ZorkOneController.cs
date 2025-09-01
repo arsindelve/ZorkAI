@@ -90,7 +90,7 @@ public class ZorkOneController(
     public async Task<IActionResult> DeleteSavedGame(string id, [FromQuery] string sessionId)
     {
         await engine.InitializeEngine();
-        await savedGameRepository.DeleteSavedGame(id, sessionId, SaveGameTableName);
+        await savedGameRepository.DeleteSavedGameAsync(id, sessionId, SaveGameTableName);
         return Ok();
     }
 
