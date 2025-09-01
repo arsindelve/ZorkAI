@@ -40,11 +40,6 @@ function RestoreModal(props: RestoreModalProps) {
         }
     }
 
-    function handleDeleteCancel() {
-        setDeleteConfirmOpen(false);
-        setGameToDelete(null);
-    }
-
     return (<Dialog
 
             maxWidth={"md"}
