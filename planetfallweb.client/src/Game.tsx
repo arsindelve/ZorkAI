@@ -33,9 +33,9 @@ function Game({
                   openRestartModal,
               }: GameProps) {
 
-    const restoreResponse = "<Restore>\n";
-    const saveResponse = "<Save>\n";
-    const restartResponse = "<Restart>\n";
+    const restoreResponse = "<Restore>";
+    const saveResponse = "<Save>";
+    const restartResponse = "<Restart>";
 
     const [playerInput, setInput] = useState<string>("");
     const [gameText, setGameText] = useState<string[]>(["Your game is loading...."]);
@@ -119,20 +119,20 @@ function Game({
 
 
     function handleResponse(data: GameResponse) {
-
-        if (data.response === saveResponse) {
+        const trimmed = (data.response ?? '').trim();
+        if (trimmed === saveResponse) {
             openSaveModal();
             setInput("");
             return;
         }
 
-        if (data.response === restoreResponse) {
+        if (trimmed === restoreResponse) {
             openRestoreModal();
             setInput("");
             return;
         }
 
-        if (data.response === restartResponse) {
+        if (trimmed === restartResponse) {
             openRestartModal();
             setInput("");
             return;

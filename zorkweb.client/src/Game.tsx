@@ -21,9 +21,9 @@ import GameInput from "./components/GameInput.tsx";
 
 function Game() {
 
-    const restoreResponse = "<Restore>\n";
-    const saveResponse = "<Save>\n";
-    const restartResponse = "<Restart>\n";
+    const restoreResponse = "<Restore>";
+    const saveResponse = "<Save>";
+    const restartResponse = "<Restart>";
 
     const [playerInput, setInput] = useState<string>("");
     const [gameText, setGameText] = useState<string[]>(["Your game is loading...."]);
@@ -144,19 +144,20 @@ function Game() {
     }, []);
 
     function handleResponse(data: GameResponse) {
-        if (data.response === saveResponse) {
+        const trimmed = (data.response ?? '').trim();
+        if (trimmed === saveResponse) {
             setDialogToOpen(DialogType.Save);
             setInput("");
             return;
         }
 
-        if (data.response === restoreResponse) {
+        if (trimmed === restoreResponse) {
             setDialogToOpen(DialogType.Restore);
             setInput("");
             return;
         }
 
-        if (data.response === restartResponse) {
+        if (trimmed === restartResponse) {
             setDialogToOpen(DialogType.Restart);
             setInput("");
             return;
