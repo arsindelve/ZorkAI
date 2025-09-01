@@ -85,6 +85,15 @@ public class ZorkOneController(
             .ToList();
     }
 
+    [HttpDelete]
+    [Route("saveGame/{id}")]
+    public async Task<IActionResult> DeleteSavedGame(string id, [FromQuery] string sessionId)
+    {
+        await engine.InitializeEngine();
+        await savedGameRepository.DeleteSavedGame(id, sessionId, SaveGameTableName);
+        return Ok();
+    }
+
     [HttpGet]
     public async Task<GameResponse> Index([FromQuery] string sessionId)
     {

@@ -65,4 +65,19 @@ public class DynamoDbSavedGameRepository : DynamoDbRepositoryBase, ISavedGameRep
 
         return returnValue;
     }
+
+    public async Task DeleteSavedGame(string id, string sessionId, string tableName)
+    {
+        var request = new DeleteItemRequest
+        {
+            TableName = tableName,
+            Key = new Dictionary<string, AttributeValue>
+            {
+                { "id", new AttributeValue { S = id } },
+                { "session_id", new AttributeValue { S = sessionId } }
+            }
+        };
+
+        await Client.DeleteItemAsync(request);
+    }
 }

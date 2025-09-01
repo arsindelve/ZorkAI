@@ -50,6 +50,8 @@ function Game() {
         setSaveGameRequest,
         setRestoreGameRequest,
         restoreGameRequest,
+        deleteGameRequest,
+        setDeleteGameRequest,
         setCopyGameTranscript
     } = useGameContext();
 
@@ -86,6 +88,24 @@ function Game() {
             focusOnPlayerInput();
         })
     }, [restoreGameRequest]);
+
+    // Delete a saved game
+    useEffect(() => {
+        if (!deleteGameRequest)
+            return;
+        (async () => {
+            try {
+                await server.deleteSavedGame(deleteGameRequest.id!, sessionId.getClientId());
+                setDeleteGameRequest(undefined);
+                setSnackBarMessage("Game Deleted Successfully.");
+                setSnackBarOpen(true);
+            } catch (error) {
+                console.error('Error deleting saved game:', error);
+                setSnackBarMessage("Failed to delete game.");
+                setSnackBarOpen(true);
+            }
+        })();
+    }, [deleteGameRequest]);
 
     // Scroll to the bottom of the container after we add text. 
     useEffect(() => {
