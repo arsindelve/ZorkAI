@@ -45,6 +45,8 @@ describe('FunctionsMenu Component', () => {
     expect(screen.getByText('Restart Your Game')).toBeInTheDocument();
     expect(screen.getByText('Restore a Previous Saved Game')).toBeInTheDocument();
     expect(screen.getByText('Save your Game')).toBeInTheDocument();
+    expect(screen.getByText('Share This Game')).toBeInTheDocument();
+    expect(screen.getByText('Load Shared Game')).toBeInTheDocument();
     expect(screen.getByText('Copy Game Transcript')).toBeInTheDocument();
   });
 
@@ -111,6 +113,32 @@ describe('FunctionsMenu Component', () => {
 
     // Check if setDialogToOpen was called with Save
     expect(mockSetDialogToOpen).toHaveBeenCalledWith(DialogType.Save);
+  });
+
+  test('opens Share dialog when "Share This Game" is clicked', () => {
+    render(<FunctionsMenu />);
+
+    // Open the menu
+    fireEvent.click(screen.getByTestId('game-button'));
+
+    // Click the "Share This Game" menu item
+    fireEvent.click(screen.getByText('Share This Game'));
+
+    // Check if setDialogToOpen was called with Share
+    expect(mockSetDialogToOpen).toHaveBeenCalledWith(DialogType.Share);
+  });
+
+  test('opens LoadShared dialog when "Load Shared Game" is clicked', () => {
+    render(<FunctionsMenu />);
+
+    // Open the menu
+    fireEvent.click(screen.getByTestId('game-button'));
+
+    // Click the "Load Shared Game" menu item
+    fireEvent.click(screen.getByText('Load Shared Game'));
+
+    // Check if setDialogToOpen was called with LoadShared
+    expect(mockSetDialogToOpen).toHaveBeenCalledWith(DialogType.LoadShared);
   });
 
   test('calls copyGameTranscript when "Copy Game Transcript" is clicked', () => {

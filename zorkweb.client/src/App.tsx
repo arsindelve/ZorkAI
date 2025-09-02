@@ -8,6 +8,8 @@ import {SessionHandler} from "./SessionHandler.ts";
 import RestoreModal from "./modal/RestoreModal.tsx";
 import {ISavedGame} from "./model/SavedGame.ts";
 import SaveModal from "./modal/SaveModal.tsx";
+import ShareModal from "./modal/ShareModal.tsx";
+import LoadSharedModal from "./modal/LoadSharedModal.tsx";
 import RestartConfirmDialog from "./modal/RestartConfirmDialog.tsx";
 import {useGameContext} from "./GameContext.tsx";
 import VideoDialog from "./modal/VideoModal.tsx";
@@ -21,6 +23,8 @@ function App() {
     const [restartConfirmOpen, setRestartConfirmOpen] = useState<boolean>(false);
     const [restoreDialogOpen, setRestoreDialogOpen] = useState<boolean>(false);
     const [saveDialogOpen, setSaveDialogOpen] = useState<boolean>(false);
+    const [shareDialogOpen, setShareDialogOpen] = useState<boolean>(false);
+    const [loadSharedDialogOpen, setLoadSharedDialogOpen] = useState<boolean>(false);
     const [availableSavedGames, setAvailableSavedGames] = useState<ISavedGame[]>([]);
     const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
     const [videoDialogOpen, setVideoDialogOpen] = useState<boolean>(false);
@@ -30,7 +34,7 @@ function App() {
     const sessionId = new SessionHandler();
     const queryClient = new QueryClient();
 
-    const {dialogToOpen, setDialogToOpen, setRestartGame} = useGameContext();
+    const {dialogToOpen, setDialogToOpen, setRestartGame, setOnSharedGameCopied} = useGameContext();
 
     useEffect(() => {
         if (!dialogToOpen) {
@@ -68,6 +72,16 @@ function App() {
                     setReleaseNotesDialogOpen(true);
                     setDialogToOpen(undefined);
                     break;
+                case DialogType.Share:
+                    Mixpanel.track('Open Share Dialog', {});
+                    setShareDialogOpen(true);
+                    setDialogToOpen(undefined);
+                    break;
+                case DialogType.LoadShared:
+                    Mixpanel.track('Open Load Shared Dialog', {});
+                    setLoadSharedDialogOpen(true);
+                    setDialogToOpen(undefined);
+                    break;
                 default:
                     break;
             }
@@ -78,6 +92,12 @@ function App() {
         });
 
     }, [dialogToOpen]);
+
+    useEffect(() => {
+        setOnSharedGameCopied(() => async () => {
+            await getSavedGames();
+        });
+    }, [setOnSharedGameCopied]);
 
     const handleWatchVideo = () => {
         setWelcomeDialogOpen(false);
@@ -141,6 +161,18 @@ function App() {
                                        Mixpanel.track('Close Welcome Dialog', {});
                                    }}/>
 
+                    <ShareModal 
+                        open={shareDialogOpen}
+                        setOpen={setShareDialogOpen}
+                    />
+
+                    <LoadSharedModal
+                        open={loadSharedDialogOpen}
+                        setOpen={setLoadSharedDialogOpen}
+                        onGameCopied={() => {
+                            getSavedGames();
+                        }}
+                    />
 
                 </QueryClientProvider>
             </div>

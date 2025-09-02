@@ -5,6 +5,8 @@ import {ISaveGameRequest} from "./model/SaveGameRequest.ts";
 import {ISavedGame} from "./model/SavedGame.ts";
 import config from '../config.json';
 import {RestoreGameRequest} from "./model/RestoreGameRequest.ts";
+import {ISharedGame} from "./model/SharedGame.ts";
+import {IShareGameRequest} from "./model/ShareGameRequest.ts";
 import {Mixpanel} from './Mixpanel';
 import {SessionHandler} from "./SessionHandler.ts";
 
@@ -135,5 +137,51 @@ export default class Server {
             "gameId": id,
             "sessionId": sessionId,
         });
+    }
+
+    async getSharedGames(sourceSessionId: string): Promise<ISharedGame[]> {
+        const client = axios.create({
+            baseURL: this.baseUrl
+        });
+
+        try {
+            const response = await client.get<ISharedGame[], AxiosResponse>(`shared-games/${sourceSessionId}`, {
+                headers: {
+                    'Accept': 'application/json',
+                } as RawAxiosRequestHeaders,
+            });
+
+            Mixpanel.track('Listed Shared Games', {
+                "clientId": this.sessionId.getClientId(),
+                "sourceSessionId": sourceSessionId,
+                "gameCount": response.data.length
+            });
+
+            return response.data;
+        } catch (error) {
+            console.error('Server.ts: Error in getSharedGames:', error);
+            throw error;
+        }
+    }
+
+    async copySharedGame(request: IShareGameRequest): Promise<string> {
+        const client = axios.create({
+            baseURL: this.baseUrl
+        });
+
+        const response = await client.post<string, AxiosResponse>("shared-games/copy", request, {
+            headers: {
+                'Accept': 'application/json',
+            } as RawAxiosRequestHeaders,
+        });
+
+        Mixpanel.track('Copy Shared Game', {
+            "clientId": this.sessionId.getClientId(),
+            "sourceSessionId": request.sourceSessionId,
+            "targetSessionId": request.targetSessionId,
+            "sourceGameId": request.sourceGameId,
+        });
+
+        return response.data;
     }
 }
