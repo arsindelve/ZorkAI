@@ -8,6 +8,8 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import RestoreIcon from '@mui/icons-material/Restore';
 import SaveIcon from '@mui/icons-material/Save';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ShareIcon from '@mui/icons-material/Share';
+import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { ListItemIcon, ListItemText } from '@mui/material';
@@ -109,6 +111,26 @@ export default function FunctionsMenu() {
                         <SaveIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>Save your Game</ListItemText>
+                </MenuItem>
+
+                <MenuItem onClick={() => {
+                    setDialogToOpen(DialogType.Share);
+                    handleClose();
+                }}>
+                    <ListItemIcon>
+                        <ShareIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Share This Game</ListItemText>
+                </MenuItem>
+
+                <MenuItem onClick={() => {
+                    setDialogToOpen(DialogType.LoadShared);
+                    handleClose();
+                }}>
+                    <ListItemIcon>
+                        <ContentPasteIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Load Shared Game</ListItemText>
                 </MenuItem>
 
                 <MenuItem onClick={() => {

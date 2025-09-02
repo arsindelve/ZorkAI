@@ -123,3 +123,38 @@ export async function handleGetSavedGamesRoute(route: Route) {
         body: JSON.stringify(mockResponses.savedGames)
     });
 }
+
+/**
+ * Helper function to handle the getSharedGames endpoint route
+ * This function intercepts requests to the shareGame GET endpoint and returns mock shared games
+ */
+export async function handleGetSharedGamesRoute(route: Route) {
+    await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+            {
+                id: "shared-game-1",
+                name: "Underground Adventure",
+                savedOn: "2023-12-01T10:30:00Z"
+            },
+            {
+                id: "shared-game-2",
+                name: "Treasure Hunt Save",
+                savedOn: "2023-12-01T15:45:00Z"
+            }
+        ])
+    });
+}
+
+/**
+ * Helper function to handle the copySharedGame endpoint route
+ * This function intercepts requests to the shareGame POST endpoint and returns success response
+ */
+export async function handleCopySharedGameRoute(route: Route) {
+    await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true })
+    });
+}

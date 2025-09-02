@@ -4,7 +4,9 @@ enum DialogType {
     Welcome = "Welcome",
     Restore = "Restore",
     Restart = "Restart",
-    ReleaseNotes = "ReleaseNotes"
+    ReleaseNotes = "ReleaseNotes",
+    Share = "Share",
+    LoadShared = "LoadShared"
 }
 
 export default DialogType;

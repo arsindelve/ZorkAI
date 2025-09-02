@@ -22,6 +22,9 @@ interface GameContextType {
 
     copyGameTranscript: () => Promise<void>;
     setCopyGameTranscript: (copyFn: () => () => Promise<void>) => void;
+
+    onSharedGameCopied: () => void;
+    setOnSharedGameCopied: (callback: () => void) => void;
 }
 
 // Create the context
@@ -44,6 +47,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({children}
     const [restoreGameRequest, setRestoreGameRequest] = useState(undefined as ISavedGame | undefined);
     const [deleteGameRequest, setDeleteGameRequest] = useState(undefined as ISavedGame | undefined);
     const [copyGameTranscript, setCopyGameTranscript] = useState<() => Promise<void>>(() => async () => {});
+    const [onSharedGameCopied, setOnSharedGameCopied] = useState<() => void>(() => () => {});
 
     return (
         <GameContext.Provider
@@ -59,7 +63,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 deleteGameRequest,
                 setDeleteGameRequest,
                 copyGameTranscript,
-                setCopyGameTranscript
+                setCopyGameTranscript,
+                onSharedGameCopied,
+                setOnSharedGameCopied
             }}>
             {children}
         </GameContext.Provider>
