@@ -1,4 +1,6 @@
 using GameEngine;
+using Model;
+using Model.Interface;
 
 namespace ZorkOne;
 
@@ -8,6 +10,17 @@ namespace ZorkOne;
 /// </summary>
 public class ZorkIContext : Context<ZorkI>
 {
+    public ZorkIContext()
+    {
+        // ZorkI traditionally defaults to SuperBrief verbosity
+        UserPreferences.Verbosity = Verbosity.SuperBrief;
+    }
+
+    public ZorkIContext(IGameEngine engine, ZorkI gameType) : base(engine, gameType)
+    {
+        // ZorkI traditionally defaults to SuperBrief verbosity
+        UserPreferences.Verbosity = Verbosity.SuperBrief;
+    }
     /// <summary>
     ///     Gets or sets the Death Counter of the game.
     /// </summary>

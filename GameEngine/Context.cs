@@ -1,5 +1,6 @@
 using System.Reflection;
 using GameEngine.Item;
+using Model;
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Item;
@@ -23,7 +24,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     protected Context(IGameEngine engine, T gameType)
     {
-        Verbosity = Verbosity.Brief;
+        UserPreferences = UserPreferences.Default;
         GameType = gameType;
         Engine = engine;
 
@@ -37,6 +38,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     protected Context()
     {
+        UserPreferences = UserPreferences.Default;
         CurrentLocation = Repository.GetStartingLocation<T>();
         Score = 0;
         Moves = 0;
@@ -57,8 +59,18 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// <summary>
     /// Gets/sets the verbosity, which is how detailed the player
     /// wants the room description to be when they enter the room. 
+    /// This property mirrors UserPreferences.Verbosity for backward compatibility.
     /// </summary>
-    public Verbosity Verbosity { get; set; }
+    public Verbosity Verbosity 
+    { 
+        get => UserPreferences.Verbosity;
+        set => UserPreferences.Verbosity = value;
+    }
+
+    /// <summary>
+    /// Gets/sets the user preferences that control various aspects of the game experience
+    /// </summary>
+    public UserPreferences UserPreferences { get; set; }
 
     public LimitedStack<string> Inputs { get; set; } = new();
 
@@ -428,5 +440,25 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         var item = Repository.GetItem<TItem>();
         Items.Add(item);
         item.CurrentLocation = location;
+    }
+
+    /// <summary>
+    /// Applies user preferences to the current game context
+    /// </summary>
+    /// <param name="preferences">The user preferences to apply</param>
+    public virtual void ApplyUserPreferences(UserPreferences preferences)
+    {
+        UserPreferences = preferences.Clone();
+    }
+
+    /// <summary>
+    /// Loads user preferences from the provided service
+    /// </summary>
+    /// <param name="preferencesService">The preferences service to load from</param>
+    /// <param name="userId">Optional user ID for multi-user scenarios</param>
+    public virtual async Task LoadUserPreferencesAsync(IUserPreferencesService preferencesService, string? userId = null)
+    {
+        var preferences = await preferencesService.GetPreferencesAsync(userId);
+        ApplyUserPreferences(preferences);
     }
 }

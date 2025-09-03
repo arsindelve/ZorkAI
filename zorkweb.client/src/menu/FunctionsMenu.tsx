@@ -10,7 +10,8 @@ import SaveIcon from '@mui/icons-material/Save';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { ListItemIcon, ListItemText } from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { ListItemIcon, ListItemText, Divider } from '@mui/material';
 
 export default function FunctionsMenu() {
     const {setDialogToOpen, copyGameTranscript} = useGameContext();
@@ -119,6 +120,18 @@ export default function FunctionsMenu() {
                         <ContentCopyIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>Copy Game Transcript</ListItemText>
+                </MenuItem>
+
+                <Divider />
+
+                <MenuItem onClick={() => {
+                    setDialogToOpen(DialogType.Preferences);
+                    handleClose();
+                }}>
+                    <ListItemIcon>
+                        <SettingsIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>User Preferences</ListItemText>
                 </MenuItem>
             </Menu>
         </div>

@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Model;
 using Model.AIGeneration.Requests;
 using Model.Interface;
 using Model.Web;
@@ -12,7 +13,8 @@ public class ZorkOneController(
     ILogger<ZorkOneController> logger,
     IGameEngine engine,
     ISessionRepository sessionRepository,
-    ISavedGameRepository savedGameRepository
+    ISavedGameRepository savedGameRepository,
+    IUserPreferencesService userPreferencesService
 )
     : ControllerBase
 {
@@ -141,5 +143,67 @@ public class ZorkOneController(
     {
         var savedGame = await sessionRepository.GetSessionState(sessionId, SessionTableName);
         return savedGame;
+    }
+
+    [HttpGet]
+    [Route("preferences")]
+    public async Task<UserPreferences> GetUserPreferences([FromQuery] string? userId = null)
+    {
+        return await userPreferencesService.GetPreferencesAsync(userId);
+    }
+
+    [HttpPost]
+    [Route("preferences")]
+    public async Task<IActionResult> SaveUserPreferences([FromBody] SaveUserPreferencesRequest request)
+    {
+        try
+        {
+            await userPreferencesService.SavePreferencesAsync(request.Preferences, request.UserId);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error saving user preferences");
+            return BadRequest("Failed to save user preferences");
+        }
+    }
+
+    [HttpPost]
+    [Route("preferences/reset")]
+    public async Task<IActionResult> ResetUserPreferences([FromBody] ResetUserPreferencesRequest request)
+    {
+        try
+        {
+            await userPreferencesService.ResetToDefaultsAsync(request.UserId);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error resetting user preferences");
+            return BadRequest("Failed to reset user preferences");
+        }
+    }
+
+    [HttpGet]
+    [Route("preferences/export")]
+    public async Task<string> ExportUserPreferences([FromQuery] string? userId = null)
+    {
+        return await userPreferencesService.ExportPreferencesAsync(userId);
+    }
+
+    [HttpPost]
+    [Route("preferences/import")]
+    public async Task<IActionResult> ImportUserPreferences([FromBody] ImportUserPreferencesRequest request)
+    {
+        try
+        {
+            await userPreferencesService.ImportPreferencesAsync(request.PreferencesJson, request.UserId);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error importing user preferences");
+            return BadRequest("Failed to import user preferences");
+        }
     }
 }

@@ -1,7 +1,8 @@
-import React, {createContext, useContext, useState} from "react";
+import React, {createContext, useContext, useState, useEffect} from "react";
 import {ISaveGameRequest} from "./model/SaveGameRequest.ts";
 import DialogType from "./model/DialogType.ts";
 import {ISavedGame} from "./model/SavedGame.ts";
+import {IUserPreferences, defaultUserPreferences} from "./model/UserPreferences.ts";
 
 // Define the context type
 interface GameContextType {
@@ -22,6 +23,9 @@ interface GameContextType {
 
     copyGameTranscript: () => Promise<void>;
     setCopyGameTranscript: (copyFn: () => () => Promise<void>) => void;
+
+    userPreferences: IUserPreferences;
+    setUserPreferences: (preferences: IUserPreferences) => void;
 }
 
 // Create the context
@@ -44,6 +48,26 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({children}
     const [restoreGameRequest, setRestoreGameRequest] = useState(undefined as ISavedGame | undefined);
     const [deleteGameRequest, setDeleteGameRequest] = useState(undefined as ISavedGame | undefined);
     const [copyGameTranscript, setCopyGameTranscript] = useState<() => Promise<void>>(() => async () => {});
+    const [userPreferences, setUserPreferences] = useState<IUserPreferences>(defaultUserPreferences);
+
+    // Load preferences from localStorage on startup
+    useEffect(() => {
+        const savedPreferences = localStorage.getItem('zork-user-preferences');
+        if (savedPreferences) {
+            try {
+                const parsed = JSON.parse(savedPreferences);
+                setUserPreferences({ ...defaultUserPreferences, ...parsed });
+            } catch (error) {
+                console.warn('Failed to parse saved preferences, using defaults:', error);
+            }
+        }
+    }, []);
+
+    // Save preferences to localStorage when they change
+    const handleSetUserPreferences = (preferences: IUserPreferences) => {
+        setUserPreferences(preferences);
+        localStorage.setItem('zork-user-preferences', JSON.stringify(preferences));
+    };
 
     return (
         <GameContext.Provider
@@ -59,7 +83,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 deleteGameRequest,
                 setDeleteGameRequest,
                 copyGameTranscript,
-                setCopyGameTranscript
+                setCopyGameTranscript,
+                userPreferences,
+                setUserPreferences: handleSetUserPreferences
             }}>
             {children}
         </GameContext.Provider>

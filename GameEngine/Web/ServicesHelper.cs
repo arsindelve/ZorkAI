@@ -19,5 +19,6 @@ public static class ServicesHelper
         services.AddScoped<ISecretsManager, AmazonSecretsManager>();
         services.AddSingleton<IAmazonLambda>(_ => new AmazonLambdaClient(RegionEndpoint.USEast1));
         services.AddScoped<IParseConversation, ParseConversation>();
+        services.AddScoped<IUserPreferencesService, DynamoDbUserPreferencesService>();
     }
 }

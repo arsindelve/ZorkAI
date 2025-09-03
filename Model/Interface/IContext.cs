@@ -104,6 +104,11 @@ public interface IContext : ICanContainItems
     Verbosity Verbosity { get; set; }
 
     /// <summary>
+    ///     Gets or sets the user preferences that control various aspects of the game experience
+    /// </summary>
+    UserPreferences UserPreferences { get; set; }
+
+    /// <summary>
     ///     Represents the current score of the adventurer.
     /// </summary>
     /// <remarks>

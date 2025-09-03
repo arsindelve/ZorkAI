@@ -13,6 +13,7 @@ import {useGameContext} from "./GameContext.tsx";
 import VideoDialog from "./modal/VideoModal.tsx";
 import WelcomeDialog from "./modal/WelcomeModal.tsx";
 import ReleaseNotesModal from "./modal/ReleaseNotesModal.tsx";
+import PreferencesModal from "./modal/PreferencesModal.tsx";
 import {Mixpanel} from "./Mixpanel.ts";
 import DialogType from "./model/DialogType.ts";
 
@@ -30,7 +31,7 @@ function App() {
     const sessionId = new SessionHandler();
     const queryClient = new QueryClient();
 
-    const {dialogToOpen, setDialogToOpen, setRestartGame} = useGameContext();
+    const {dialogToOpen, setDialogToOpen, setRestartGame, userPreferences, setUserPreferences} = useGameContext();
 
     useEffect(() => {
         if (!dialogToOpen) {
@@ -66,6 +67,10 @@ function App() {
                 case DialogType.ReleaseNotes:
                     Mixpanel.track('Open Release Notes Dialog', {});
                     setReleaseNotesDialogOpen(true);
+                    setDialogToOpen(undefined);
+                    break;
+                case DialogType.Preferences:
+                    Mixpanel.track('Open Preferences Dialog', {});
                     setDialogToOpen(undefined);
                     break;
                 default:
@@ -141,6 +146,13 @@ function App() {
                                        Mixpanel.track('Close Welcome Dialog', {});
                                    }}/>
 
+                    <PreferencesModal 
+                        userPreferences={userPreferences}
+                        onSave={(preferences) => {
+                            setUserPreferences(preferences);
+                            Mixpanel.track('Save User Preferences', {});
+                        }}
+                    />
 
                 </QueryClientProvider>
             </div>

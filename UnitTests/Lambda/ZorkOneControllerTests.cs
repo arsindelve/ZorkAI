@@ -17,6 +17,7 @@ public class ZorkOneControllerTests
         _mockEngine = new Mock<IGameEngine>();
         _mockSessionRepository = new Mock<ISessionRepository>();
         _mockSavedGameRepository = new Mock<ISavedGameRepository>();
+        _mockUserPreferencesService = new Mock<IUserPreferencesService>();
         _mockGenerationClient = new Mock<IGenerationClient>();
 
         _mockEngine.Setup(e => e.GenerationClient).Returns(_mockGenerationClient.Object);
@@ -29,13 +30,15 @@ public class ZorkOneControllerTests
             _mockLogger.Object,
             _mockEngine.Object,
             _mockSessionRepository.Object,
-            _mockSavedGameRepository.Object);
+            _mockSavedGameRepository.Object,
+            _mockUserPreferencesService.Object);
     }
 
     private Mock<ILogger<ZorkOneController>> _mockLogger;
     private Mock<IGameEngine> _mockEngine;
     private Mock<ISessionRepository> _mockSessionRepository;
     private Mock<ISavedGameRepository> _mockSavedGameRepository;
+    private Mock<IUserPreferencesService> _mockUserPreferencesService;
     private Mock<IGenerationClient> _mockGenerationClient;
     private ZorkOneController _controller;
 
