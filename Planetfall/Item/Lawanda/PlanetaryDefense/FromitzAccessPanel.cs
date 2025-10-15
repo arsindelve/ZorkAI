@@ -10,6 +10,8 @@ public class FromitzAccessPanel : OpenAndCloseContainerBase, ICanBeExamined
         return "The panel swings open. ";
     }
 
+    public override Type[] CanOnlyHoldTheseTypes => [typeof(FromitzBoardBase)];
+
     public override string NowClosed(ILocation currentLocation)
     {
         return "The panel swings closed. ";
