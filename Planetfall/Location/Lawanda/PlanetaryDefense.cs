@@ -1,14 +1,21 @@
 using GameEngine.Location;
+using Planetfall.Item.Lawanda;
+using Planetfall.Item.Lawanda.PlanetaryDefense;
 using Planetfall.Location.Kalamontee.Admin;
 
 namespace Planetfall.Location.Lawanda;
 
-internal class PlanetaryDefense : LocationWithNoStartingItems
+internal class PlanetaryDefense : LocationBase
 {
     public override string Name => "Planetary Defense";
 
     [UsedImplicitly]
     public bool Fixed { get; set; }
+
+    public override void Init()
+    {
+        StartWithItem<FromitzAccessPanel>();
+    }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
@@ -17,8 +24,6 @@ internal class PlanetaryDefense : LocationWithNoStartingItems
             { Direction.S, Go<SystemsCorridor>() }
         };
     }
-    
-    // TODO: Make some fromitz boards 
 
     private void ItIsFixed(IContext context)
     {
@@ -36,8 +41,3 @@ internal class PlanetaryDefense : LocationWithNoStartingItems
                 : "") + "There is a small access panel on one wall which is closed. ";
     }
 }
-// You jerk your hand back as you receive a powerful shock from the fromitz board.
-
-// The canteen doesn't fit.
-
-// The card clicks neatly into the socket. The warning lights stop flashing.
