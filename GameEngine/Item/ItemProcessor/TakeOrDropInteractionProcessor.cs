@@ -203,6 +203,6 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         container?.OnItemRemovedFromHere(castItem, context);
 
         return new PositiveInteractionResult(
-            $"Taken. {(!string.IsNullOrEmpty(onTakenText) ? onTakenText + Environment.NewLine : string.Empty)} ");
+            $"{(!string.IsNullOrEmpty(onTakenText) ? onTakenText + Environment.NewLine : "Taken. " )} ");
     }
 }

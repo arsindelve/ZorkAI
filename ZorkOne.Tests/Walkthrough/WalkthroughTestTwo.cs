@@ -37,7 +37,7 @@ public sealed class WalkthroughTestTwo : WalkthroughTestBase
     [TestCase("S", null, "North of House")]
     [TestCase("N", null, "Forest Path", "low branches")]
     [TestCase("N", null, "Clearing", "On the ground is a pile of leaves")]
-    [TestCase("take leaves", null, "a grating is revealed", "Taken")]
+    [TestCase("take leaves", null, "a grating is revealed")]
     [TestCase("examine grating", null, "grating is closed")]
     [TestCase("open grating", null, "grating is locked")]
     [TestCase("N", null, "The forest becomes impenetrable to the north")]
