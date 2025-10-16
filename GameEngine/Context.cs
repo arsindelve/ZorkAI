@@ -100,7 +100,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     public Type[] CanOnlyHoldTheseTypes => [];
 
-    public string? CanOnlyHoldTheseTypesErrorMessage => string.Empty;
+    public string? CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlaceHere) => string.Empty;
 
     /// <summary>
     ///     Gets a value indicating whether the adventurer has a light source that is on
@@ -339,6 +339,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     /// <param name="action">The simple interaction that the context needs to respond to.</param>
     /// <param name="client"></param>
+    /// <param name="itemProcessorFactory"></param>
     public async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IGenerationClient client,
         IItemProcessorFactory itemProcessorFactory)
     {

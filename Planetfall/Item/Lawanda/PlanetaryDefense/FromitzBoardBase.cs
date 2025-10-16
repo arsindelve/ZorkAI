@@ -9,6 +9,8 @@ public abstract class FromitzBoardBase : ItemBase, ICanBeExamined, ICanBeTakenAn
     /// </summary>
     public override string[] NounsForPreciseMatching => NounsForMatching.Except(["card", "access card"]).ToArray();
 
+    public override int Size => 1;
+
     public string ExaminationDescription =>
         "Like most fromitz boards, it is a twisted maze of silicon circuits. It is square, approximately seventeen centimeters on each side. ";
 
