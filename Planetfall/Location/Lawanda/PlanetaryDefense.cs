@@ -1,5 +1,4 @@
 using GameEngine.Location;
-using Planetfall.Item.Lawanda;
 using Planetfall.Item.Lawanda.PlanetaryDefense;
 using Planetfall.Location.Kalamontee.Admin;
 
@@ -37,7 +36,8 @@ internal class PlanetaryDefense : LocationBase
         return
             "This room is filled with a dazzling array of lights and controls. " + (!Fixed
                 ? "One light, blinking quickly, catches " +
-                  "your eye. It reads \"Surkit Boord Faalyur. WORNEENG: xis boord kuntroolz xe diskriminaashun\nsurkits.\" "
-                : "") + "There is a small access panel on one wall which is closed. ";
+                  "your eye. It reads \"Surkit Boord Faalyur. WORNEENG: xis boord kuntroolz xe diskriminaashun surkits.\" "
+                : "") +
+            $"There is a small access panel on one wall which is {(GetItem<FromitzAccessPanel>().IsOpen ? "open" : "closed")}. ";
     }
 }

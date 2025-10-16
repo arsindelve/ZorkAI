@@ -35,7 +35,9 @@ public class TestParser : IntentParser
             "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "zero", "dial", "shelves", "pocket",
             "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "dude", "hello", "17", "seventeen", "slot", "lever", "label",
             "tree", "branches", "house", "lettering", "mirror", "match", "yellow button", "red button", "button", "medicine",
-            "blue button", "brown button", "bolt", "bubble", "bodies", "gate", "lid", "switch", "slag", "engravings"
+            "blue button", "brown button", "bolt", "bubble", "bodies", "gate", "lid", "switch", "slag", "engravings",
+            "fromitz board", "board", "fromitz", "second fromitz board", "second board", "second",
+            "second board", "second fromitz board", "second fromitz"
         ];
 
         _allNouns = _allNouns.Union(specialNouns).ToArray();

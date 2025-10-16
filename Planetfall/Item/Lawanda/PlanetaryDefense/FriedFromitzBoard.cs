@@ -1,17 +1,28 @@
 ﻿namespace Planetfall.Item.Lawanda.PlanetaryDefense;
 
-public class SecondFromitzBoard : FromitzBoardBase
+public class FriedFromitzBoard : FromitzBoardBase
 {
-    public override string[] NounsForMatching =>
-    [
-        "fromitz board", "board", "fromitz", "second", "second fromitz board", "second board", "fried", "fried board", "fried fromitz board", "second fromitz"
-    ];
+
+    public override string[] NounsForMatching => CurrentLocation is FromitzAccessPanel
+        ?
+        [
+            "fromitz board", "board", "fromitz", "second fromitz board", "second board", "second",
+            "second board", "second fromitz board", "second fromitz"
+        ]
+        :
+        [
+            "fromitz board", "board", "fromitz", "fried board", "fried", "fried board",
+            "fried fromitz board", "fried fromitz"
+        ];
     
     public override string GenericDescription(ILocation? currentLocation)
     {
         return $"A {(CurrentLocation is FromitzAccessPanel ? "second" : "fried")} seventeen-centimeter fromitz board ";
     }
 
+    public override string ExaminationDescription =>
+        base.ExaminationDescription + (CurrentLocation is not FromitzAccessPanel ? "This one is a bit blackened around the edges, though." : "");
+    
     public override string OnTheGroundDescription(ILocation currentLocation)
     {
         return "There is a fried seventeen-centimeter fromitz board here. ";
