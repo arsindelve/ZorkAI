@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using GameEngine;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Lawanda.PlanetaryDefense;
 using Planetfall.Location.Lawanda;
@@ -7,6 +8,17 @@ namespace Planetfall.Tests;
 
 public class PlanetaryDefenseTests : EngineTestsBase
 {
+    [Test]
+    public async Task Look()
+    {
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        
+        string? response = await target.GetResponse("look");
+        response.Should().Contain("One light, blinking quickly");
+        response.Should().Contain("Surkit Boord Faalyur. WORNEENG: xis boord kuntroolz xe diskriminaashun surkits.");
+    }
+    
     [Test]
     public async Task ExaminePanel_Closed()
     {
@@ -68,7 +80,7 @@ public class PlanetaryDefenseTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<PlanetaryDefense>();
-        GetItem<SecondFromitzBoard>().CurrentLocation = GetLocation<PlanetaryDefense>();
+        GetItem<FriedFromitzBoard>().CurrentLocation = GetLocation<PlanetaryDefense>();
 
         var response = await target.GetResponse($"remove second");
 
@@ -80,9 +92,9 @@ public class PlanetaryDefenseTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<PlanetaryDefense>();
-        GetLocation<PlanetaryDefense>().ItemPlacedHere(GetItem<SecondFromitzBoard>());
+        GetLocation<PlanetaryDefense>().ItemPlacedHere(GetItem<FriedFromitzBoard>());
 
-        var response = await target.GetResponse("take second");
+        var response = await target.GetResponse("take fried");
 
         response.Should().Contain("Taken");
     }
@@ -104,12 +116,39 @@ public class PlanetaryDefenseTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<PlanetaryDefense>();
-        GetLocation<PlanetaryDefense>().ItemPlacedHere(GetItem<SecondFromitzBoard>());
+        GetLocation<PlanetaryDefense>().ItemPlacedHere(GetItem<FriedFromitzBoard>());
 
-        await target.GetResponse("take second");
+        await target.GetResponse("take fried");
         var response = await target.GetResponse("inventory");
 
         response.Should().Contain("  A fried seventeen-centimeter fromitz board");
+    }
+    
+    [Test]
+    public async Task InInventory_Examine()
+    {
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        GetItem<FromitzAccessPanel>().IsOpen = true;
+        
+        await target.GetResponse("take second");
+        var response = await target.GetResponse("examine fried");
+
+        response.Should().Contain("Like most fromitz boards, it is a twisted maze of silicon circuits. It is square, approximately seventeen centimeters on each side.");
+        response.Should().Contain("This one is a bit blackened around the edges, though");
+    }
+    
+    [Test]
+    public async Task InPanel_Examine()
+    {
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        GetItem<FromitzAccessPanel>().IsOpen = true;
+        
+        var response = await target.GetResponse("examine second");
+
+        response.Should().Contain("Like most fromitz boards, it is a twisted maze of silicon circuits. It is square, approximately seventeen centimeters on each side.");
+        response.Should().NotContain("This one is a bit blackened around the edges, though");
     }
     
     [Test]
@@ -117,7 +156,7 @@ public class PlanetaryDefenseTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<PlanetaryDefense>();
-        GetLocation<PlanetaryDefense>().ItemPlacedHere(GetItem<SecondFromitzBoard>());
+        GetLocation<PlanetaryDefense>().ItemPlacedHere(GetItem<FriedFromitzBoard>());
 
         var response = await target.GetResponse("look");
 
@@ -144,7 +183,7 @@ public class PlanetaryDefenseTests : EngineTestsBase
         StartHere<PlanetaryDefense>();
         GetItem<FromitzAccessPanel>().IsOpen = true;
         Take<Canteen>();
-        Take<SecondFromitzBoard>();
+        Take<FriedFromitzBoard>();
 
         var response = await target.GetResponse("put canteen in panel");
 
@@ -157,9 +196,9 @@ public class PlanetaryDefenseTests : EngineTestsBase
         var target = GetTarget();
         StartHere<PlanetaryDefense>();
         GetItem<FromitzAccessPanel>().IsOpen = true;
-        Take<SecondFromitzBoard>();
+        Take<FriedFromitzBoard>();
 
-        var response = await target.GetResponse("put second in panel");
+        var response = await target.GetResponse("put fried in panel");
 
         response.Should().Contain("The card clicks neatly into the socket");
     }
@@ -179,5 +218,58 @@ public class PlanetaryDefenseTests : EngineTestsBase
         response.Should()
             .Contain(
                 "Do you mean the first fromitz board, the second fromitz board, the third fromitz board or the fourth fromitz board?");
+    }
+    
+    [Test]
+    public async Task CompleteSolution_CannotPullBoardBackOut()
+    {
+        var target = GetTarget();
+        await Solve(target);
+
+        string? response = await target.GetResponse("take second");
+        response.Should().Contain("You jerk your hand back as you receive a powerful shock from the fromitz board");
+    }
+    
+    [Test]
+    public async Task CompleteSolution_TakeShiny()
+    {
+        var target = GetTarget();
+        await Solve(target);
+
+        string? response = await target.GetResponse("take shiny");
+        response!.Trim().Should().BeEmpty();
+    }
+    
+    [Test]
+    public async Task CompleteSolution_Look()
+    {
+        var target = GetTarget();
+        await Solve(target);
+
+        string? response = await target.GetResponse("look");
+        response.Should().NotContain("One light, blinking quickly");
+    }
+    
+    [Test]
+    public async Task CompleteSolution_PutFriedBack()
+    {
+        var target = GetTarget();
+        await Solve(target);
+
+        string? response = await target.GetResponse("put fried in panel");
+        response.Should().Contain("no room");
+    }
+
+    private async Task Solve(GameEngine<PlanetfallGame, PlanetfallContext> target)
+    {
+        StartHere<PlanetaryDefense>();
+        GetItem<FromitzAccessPanel>().IsOpen = true;
+        Take<ShinyFromitzBoard>();
+
+        await target.GetResponse("remove second");
+        var response = await target.GetResponse("put shiny in panel");
+        response.Should().Contain("The card clicks neatly into the socket");
+        response.Should().Contain("The warning lights stop flashing");
+        target.Context.Score.Should().Be(6);
     }
 }

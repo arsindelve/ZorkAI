@@ -23,9 +23,15 @@ public class FromitzAccessPanel : OpenAndCloseContainerBase, ICanBeExamined
 
     public override string ItemPlacedHereResult(IItem item, IContext context)
     {
-        return "The card clicks neatly into the socket. ";
-        // TODO:  // The card clicks neatly into the socket. The warning lights stop flashing.
-        Repository.GetLocation<Location.Lawanda.PlanetaryDefense>().ItIsFixed(context);
+        string response = "The card clicks neatly into the socket. ";
+
+        if (item is ShinyFromitzBoard)
+        {
+            response += "The card clicks neatly into the socket. The warning lights stop flashing. ";
+            Repository.GetLocation<Location.Lawanda.PlanetaryDefense>().ItIsFixed(context);
+        }
+
+        return response;
     }
 
     public override string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlace) => $"The {nameOfItemWeTriedToPlace} doesn't fit.";
@@ -34,7 +40,7 @@ public class FromitzAccessPanel : OpenAndCloseContainerBase, ICanBeExamined
     {
         IsOpen = false;
         StartWithItemInside<FirstFromitzBoard>();
-        StartWithItemInside<SecondFromitzBoard>();
+        StartWithItemInside<FriedFromitzBoard>();
         StartWithItemInside<ThirdFromitzBoard>();
         StartWithItemInside<FourthFromitzBoard>();
     }
