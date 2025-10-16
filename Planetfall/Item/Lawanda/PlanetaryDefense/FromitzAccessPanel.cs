@@ -25,6 +25,7 @@ public class FromitzAccessPanel : OpenAndCloseContainerBase, ICanBeExamined
     {
         return "The card clicks neatly into the socket. ";
         // TODO:  // The card clicks neatly into the socket. The warning lights stop flashing.
+        Repository.GetLocation<Location.Lawanda.PlanetaryDefense>().ItIsFixed(context);
     }
 
     public override string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlace) => $"The {nameOfItemWeTriedToPlace} doesn't fit.";
