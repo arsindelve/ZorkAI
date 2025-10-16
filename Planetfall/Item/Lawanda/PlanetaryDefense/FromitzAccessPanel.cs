@@ -1,4 +1,6 @@
-﻿namespace Planetfall.Item.Lawanda.PlanetaryDefense;
+﻿using Amazon.DynamoDBv2.DataModel;
+
+namespace Planetfall.Item.Lawanda.PlanetaryDefense;
 
 public class FromitzAccessPanel : OpenAndCloseContainerBase, ICanBeExamined
 {
@@ -17,9 +19,15 @@ public class FromitzAccessPanel : OpenAndCloseContainerBase, ICanBeExamined
         return "The panel swings closed. ";
     }
 
-    // The canteen doesn't fit.
-    
-    // The card clicks neatly into the socket. The warning lights stop flashing.
+    protected override int SpaceForItems => 4;
+
+    public override string ItemPlacedHereResult(IItem item, IContext context)
+    {
+        return "The card clicks neatly into the socket. ";
+        // TODO:  // The card clicks neatly into the socket. The warning lights stop flashing.
+    }
+
+    public override string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlace) => $"The {nameOfItemWeTriedToPlace} doesn't fit.";
 
     public override void Init()
     {

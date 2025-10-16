@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Lawanda.PlanetaryDefense;
 using Planetfall.Location.Lawanda;
 
@@ -121,6 +122,46 @@ public class PlanetaryDefenseTests : EngineTestsBase
         var response = await target.GetResponse("look");
 
         response.Should().Contain("There is a fried seventeen-centimeter fromitz board here.");
+    }
+    
+    [Test]
+    public async Task PutInPanel_Full()
+    {
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        GetItem<FromitzAccessPanel>().IsOpen = true;
+        Take<Canteen>();
+
+        var response = await target.GetResponse("put canteen in panel");
+
+        response.Should().Contain("There's no room");
+    }
+    
+    [Test]
+    public async Task PutInPanel_WrongItem()
+    {
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        GetItem<FromitzAccessPanel>().IsOpen = true;
+        Take<Canteen>();
+        Take<SecondFromitzBoard>();
+
+        var response = await target.GetResponse("put canteen in panel");
+
+        response.Should().Contain("The canteen doesn't fit.");
+    }
+    
+    [Test]
+    public async Task PutInPanel_Fried()
+    {
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        GetItem<FromitzAccessPanel>().IsOpen = true;
+        Take<SecondFromitzBoard>();
+
+        var response = await target.GetResponse("put second in panel");
+
+        response.Should().Contain("The card clicks neatly into the socket");
     }
 
     [Test]

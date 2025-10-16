@@ -98,6 +98,14 @@ public abstract class LocationBase : ILocation, ICanContainItems
         ItemPlacedHere(item);
     }
 
+    /// <summary>
+    /// Handles the result message when an item is placed in the location.
+    /// </summary>
+    /// <param name="item">The item being placed in the location.</param>
+    /// <param name="context">The context in which the placement is occurring.</param>
+    /// <returns>
+    /// A string representing the result of placing the item in the location, such as a status or descriptive message.
+    /// </returns>
     public virtual string ItemPlacedHereResult(IItem item, IContext context)
     {
         return string.Empty;
@@ -108,7 +116,18 @@ public abstract class LocationBase : ILocation, ICanContainItems
     /// </summary>
     public Type[] CanOnlyHoldTheseTypes => [];
 
-    public string CanOnlyHoldTheseTypesErrorMessage => string.Empty;
+    /// <summary>
+    /// Generates an error message indicating that the attempted item cannot be placed in this location,
+    /// as it does not match the allowed item types for this container.
+    /// </summary>
+    /// <param name="nameOfItemWeTriedToPlaceHere">
+    /// The name of the item that was attempted to be placed.
+    /// </param>
+    /// <returns>
+    /// A string containing the error message describing the mismatch between the item's type and
+    /// the allowed types for this location.
+    /// </returns>
+    public virtual string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlaceHere) => string.Empty;
 
     public void ItemPlacedHere(IItem item)
     {
@@ -368,7 +387,7 @@ public abstract class LocationBase : ILocation, ICanContainItems
     /// A string representing the descriptions of all items, including specific details
     /// for items that can be taken and those that cannot. If there are no items, an empty string is returned.
     /// </returns>
-    protected string GetItemDescriptions()
+    protected virtual string GetItemDescriptions()
     {
         if (Items.Count == 0)
             return string.Empty;

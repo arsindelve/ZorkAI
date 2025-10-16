@@ -20,6 +20,7 @@ public class PutProcessor : IMultiNounVerbProcessor
         switch (action.Verb.ToLowerInvariant().Trim())
         {
             case "put":
+            case "jam":
             case "place":
             case "shove":
             case "push":
@@ -62,10 +63,12 @@ public class PutProcessor : IMultiNounVerbProcessor
         if (!itemReceiver.HaveRoomForItem(item))
             return new PositiveInteractionResult(itemReceiver.NoRoomMessage);
 
-        if (itemReceiver.CanOnlyHoldTheseTypes.Any() && !itemReceiver.CanOnlyHoldTheseTypes.Contains(item.GetType()))
+        if (itemReceiver.CanOnlyHoldTheseTypes.Any() && 
+            !itemReceiver.CanOnlyHoldTheseTypes.Any(allowedType => allowedType.IsInstanceOfType(item)))
         {
-            if (!string.IsNullOrEmpty(itemReceiver.CanOnlyHoldTheseTypesErrorMessage))
-                return new PositiveInteractionResult(itemReceiver.CanOnlyHoldTheseTypesErrorMessage);
+            string? itemMismatchError = itemReceiver.CanOnlyHoldTheseTypesErrorMessage(item.Name);
+            if (!string.IsNullOrEmpty(itemMismatchError))
+                return new PositiveInteractionResult(itemMismatchError);
 
             return new NoNounMatchInteractionResult();
         }
