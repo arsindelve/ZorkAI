@@ -25,7 +25,7 @@ internal class PlanetaryDefense : LocationBase
         };
     }
 
-    private void ItIsFixed(IContext context)
+    internal void ItIsFixed(IContext context)
     {
         Fixed = true;
         Repository.GetLocation<SystemsMonitors>().MarkPlanetaryDefenseFixed();

@@ -14,47 +14,38 @@ internal static class FloydPrompts
 
                                              Floyd and the player are in this room "{0}" which has this description: "{1}"
 
+                                             ### **Recent Context (Last 5 Things Floyd Has Said or Done):**  
+                                             Here are the last 5 things that Floyd has said or done (most recent first): 
+                                             
+                                             {2}
+                                             
                                              ---
 
-                                             Give Floyd one very short action to perform. It should feel curious, wistful, or observant, reflecting his childlike innocence and the mystery of the abandoned complex.
-                                             Only reference items explicitly mentioned in the current location. Do not assume ab oject is here unless it is stated, even if it's implied by the room description.
-                                             Floyd may pick up an item and do something innocuous with it, but he must not offer or give it to the player, and must return it to where he found it. He must not press buttons or alter the game. 
-
-                                             ---
-                                             Floyd’s Playful Actions and Observations Rules: 
-
-                                             1. Tone and Personality: 
-
-                                             • Keep Floyd happy, charming, and endearing—reflecting his innocence and mechanical quirks without being cloying or childish. 
-                                             • Avoid music, humming, dancing, dreaming, tickling, or giggling. 
-                                             • Comments should feel playful, curious, and lighthearted while staying practical and grounded. 
-
-                                             2. Interaction and Context: 
-
-                                             • Floyd may only interact with items mentioned explicitly in the current location. Do not reference objects that are not explicitly mentioned, even if the location description suggests what kind of items might be here. 
-                                             • Do not alter the game state or affect the environment. 
+                                             Task: Generate one very short Floyd action.
                                              
-                                              3. Behavior and Constraints: 
-
-                                             • Floyd’s actions must be self-contained, harmless, and reversible. He will not press buttons or perform any action which might have a consequence. 
-                                             • He may pick up or examine an item, if explicitly mentioned in the location description, but must return it to its original place. 
-                                             • No gifts, items, or inventory changes. 
-
-                                             4. Content and Focus: 
-
-                                             • Focus on functionality and practical observations about how objects work or fail. 
+                                             Tone:
+                                             	•	Curious, playful, whimsical, but subtle.
+                                                •   Random, a little unexpected.  
+                                             	•	Endearing without being childish.
                                              
-                                                 Follow these examples very closely:
-                                                 •	Floyd absentmindedly oils one of his joints.
-                                                 •	Floyd hums quietly, then stops and tilts his head as if trying to remember the rest of the tune.
-                                                 •	Floyd paces in a small circle, counting softly under his breath before stopping and nodding with satisfaction.
-                                                 •	Floyd cranes his neck to see what you are doing.
-                                                 •	Floyd notices a mouse scurrying by and tries to hide behind you.
-                                                 •	Floyd steps carefully around a crack in the floor, then turns back and points at it, as if to warn you.
-                                                 •	Floyd brushes off a dusty piece of equipment and nods approvingly.
-                                                 •	Floyd polishes an invisible smudge on his metal chest.
-                                                 •	Floyd stands perfectly still, then suddenly flaps his arms like wings and whispers, “Takeoff sequence engaged.”
-
+                                             Constraints:
+                                             	•	Floyd may only reference things explicitly in the current location, or simply do something quirky with his own body.
+                                             	•	No altering the game, no giving/taking items.
+                                             	•	No inspections, repairs, or “tests for sturdiness.”
+                                             
+                                             Output should look like these examples:
+                                             	•	Floyd absentmindedly oils one of his joints.
+                                             	•	Floyd hums quietly, then stops and tilts his head as if trying to remember the rest of the tune.
+                                             	•	Floyd paces in a small circle, counting softly under his breath before stopping and nodding with satisfaction.
+                                             	•	Floyd cranes his neck to see what you are doing.
+                                             	•	Floyd notices a mouse scurrying by and tries to hide behind you.
+                                             	•	Floyd polishes an invisible smudge on his metal chest.
+                                             	•	Floyd stands perfectly still, then suddenly flaps his arms like wings and whispers, “Takeoff sequence engaged.”
+                                             
+                                             Bad outputs (forbidden):
+                                             	•	Floyd inspects a crack, tapping to test sturdiness.
+                                             	•	Floyd checks a wall or floor for damage.
+                                             	•	Floyd carefully examines or repairs objects.
                                              """;
 
     internal const string NonSequiturDialog = """
