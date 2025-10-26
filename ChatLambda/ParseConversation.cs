@@ -89,8 +89,8 @@ public class ParseConversation : IParseConversation
             var responseJson = await reader.ReadToEndAsync(cancellationToken);
             Logger.LogDebug($"[PARSE CONVERSATION DEBUG] Raw Lambda response JSON: {responseJson}");
 
-            // Parse the Lambda response
-            var lambdaResponse = JsonSerializer.Deserialize<LambdaResponse>(responseJson);
+            // Parse the Lambda response (body is a JSON string that needs to be deserialized)
+            var lambdaResponse = JsonSerializer.Deserialize<LambdaResponseWrapper>(responseJson);
             Logger.LogDebug($"[PARSE CONVERSATION DEBUG] Deserialized Lambda response - StatusCode: {lambdaResponse?.StatusCode}, Body length: {lambdaResponse?.Body.Length ?? 0}");
 
             if (lambdaResponse == null)
@@ -99,7 +99,7 @@ public class ParseConversation : IParseConversation
                 throw new Exception("Failed to deserialize Lambda response");
             }
 
-            // Parse the body content
+            // Parse the body content (which is a JSON string)
             Logger.LogDebug($"[PARSE CONVERSATION DEBUG] Lambda response body: {lambdaResponse.Body}");
             var bodyContent = JsonSerializer.Deserialize<BodyContent>(lambdaResponse.Body);
             Logger.LogDebug($"[PARSE CONVERSATION DEBUG] Deserialized body content - Results null: {bodyContent?.Results == null}");
@@ -139,7 +139,7 @@ public class ParseConversation : IParseConversation
     }
 
     // Records for JSON deserialization (same as ChatWithFloyd)
-    private record LambdaResponse(
+    private record LambdaResponseWrapper(
         [property: JsonPropertyName("statusCode")]
         int StatusCode,
         [property: JsonPropertyName("body")] string Body
@@ -153,6 +153,16 @@ public class ParseConversation : IParseConversation
     [UsedImplicitly]
     private record Results(
         [property: JsonPropertyName("single_message")]
-        string Response
+        string Response,
+        [property: JsonPropertyName("metadata")]
+        Metadata? Metadata
+    );
+
+    [UsedImplicitly]
+    private record Metadata(
+        [property: JsonPropertyName("assistant_type")]
+        string AssistantType,
+        [property: JsonPropertyName("parameters")]
+        Dictionary<string, object>? Parameters
     );
 }
