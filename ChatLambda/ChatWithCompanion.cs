@@ -37,8 +37,8 @@ public abstract class ChatWithCompanion
     /// Sends a question to the companion Lambda function and returns the response.
     /// </summary>
     /// <param name="prompt">The question to ask the companion</param>
-    /// <returns>The companion's response as a string</returns>
-    protected async Task<string> AskCompanionAsync(string prompt)
+    /// <returns>The companion's response including message and metadata</returns>
+    protected async Task<CompanionResponse> AskCompanionAsync(string prompt)
     {
         return await AskCompanionAsync(prompt, CancellationToken.None);
     }
@@ -48,8 +48,8 @@ public abstract class ChatWithCompanion
     /// </summary>
     /// <param name="prompt">The question to ask the companion</param>
     /// <param name="cancellationToken">Cancellation token to cancel the operation</param>
-    /// <returns>The companion's response as a string</returns>
-    private async Task<string> AskCompanionAsync(string prompt, CancellationToken cancellationToken)
+    /// <returns>The companion's response including message and metadata</returns>
+    private async Task<CompanionResponse> AskCompanionAsync(string prompt, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(prompt))
             throw new ArgumentException("Question cannot be empty", nameof(prompt));
@@ -84,18 +84,26 @@ public abstract class ChatWithCompanion
             using var reader = new StreamReader(response.Payload);
             var responseJson = await reader.ReadToEndAsync(cancellationToken);
 
-            // Parse the Lambda response
-            var lambdaResponse = JsonSerializer.Deserialize<LambdaResponse>(responseJson);
+            // Parse the Lambda response (body is a JSON string that needs to be deserialized)
+            var lambdaResponse = JsonSerializer.Deserialize<LambdaResponseWrapper>(responseJson);
 
-            if (lambdaResponse == null) throw new Exception("Failed to deserialize Lambda response");
+            if (lambdaResponse == null)
+                throw new Exception("Failed to deserialize Lambda response");
 
-            // Parse the body content
+            // Parse the body content (which is a JSON string)
             var bodyContent = JsonSerializer.Deserialize<BodyContent>(lambdaResponse.Body);
 
             if (bodyContent?.Results.Response == null)
                 throw new Exception("Failed to extract message from Lambda response");
 
-            return bodyContent.Results.Response;
+            // Map the internal metadata to the public metadata type
+            CompanionMetadata? metadata = bodyContent.Results.Metadata != null
+                ? new CompanionMetadata(
+                    bodyContent.Results.Metadata.AssistantType,
+                    bodyContent.Results.Metadata.Parameters)
+                : null;
+
+            return new CompanionResponse(bodyContent.Results.Response, metadata);
         }
         catch (Exception ex)
         {
@@ -104,7 +112,7 @@ public abstract class ChatWithCompanion
     }
 
     // Records for JSON deserialization
-    private record LambdaResponse(
+    private record LambdaResponseWrapper(
         [property: JsonPropertyName("statusCode")]
         int StatusCode,
         [property: JsonPropertyName("body")] string Body
@@ -118,6 +126,32 @@ public abstract class ChatWithCompanion
     [UsedImplicitly]
     private record Results(
         [property: JsonPropertyName("single_message")]
-        string Response
+        string Response,
+        [property: JsonPropertyName("metadata")]
+        Metadata? Metadata
+    );
+
+    [UsedImplicitly]
+    private record Metadata(
+        [property: JsonPropertyName("assistant_type")]
+        string AssistantType,
+        [property: JsonPropertyName("parameters")]
+        Dictionary<string, object>? Parameters
     );
 }
+
+/// <summary>
+/// Response from a companion Lambda function including the message and optional metadata.
+/// </summary>
+public record CompanionResponse(
+    string Message,
+    CompanionMetadata? Metadata
+);
+
+/// <summary>
+/// Metadata about the companion's response including assistant type and parameters.
+/// </summary>
+public record CompanionMetadata(
+    string AssistantType,
+    Dictionary<string, object>? Parameters
+);

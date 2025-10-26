@@ -115,9 +115,9 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICan
             var response = await _chatWithBlather.AskBlatherAsync(text);
             
             // Add the response to Blather's conversation history for continuity
-            LastTurnsOutput.Push(response);
+            LastTurnsOutput.Push(response.Message);
             
-            return response;
+            return response.Message;
         }
         catch (Exception)
         {

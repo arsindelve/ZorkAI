@@ -101,9 +101,9 @@ internal class Ambassador : QuirkyCompanion, ICanBeExamined, ICanBeTalkedTo
             var response = await _chatWithAmbassador.AskAmbassadorAsync(text);
             
             // Add the response to Ambassador's conversation history for continuity
-            LastTurnsOutput.Push(response);
+            LastTurnsOutput.Push(response.Message);
             
-            return response;
+            return response.Message;
         }
         catch (Exception)
         {

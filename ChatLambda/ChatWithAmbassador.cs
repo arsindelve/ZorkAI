@@ -10,8 +10,8 @@ public class ChatWithAmbassador(IAmazonLambda? lambdaClient) : ChatWithCompanion
     /// Sends a question to the Ambassador Lambda function and returns the response.
     /// </summary>
     /// <param name="prompt">The question to ask Ambassador</param>
-    /// <returns>Ambassador's response as a string</returns>
-    public async Task<string> AskAmbassadorAsync(string prompt)
+    /// <returns>Ambassador's response including message and metadata</returns>
+    public async Task<CompanionResponse> AskAmbassadorAsync(string prompt)
     {
         return await AskCompanionAsync(prompt);
     }

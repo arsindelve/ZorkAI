@@ -10,8 +10,8 @@ public class ChatWithFloyd(IAmazonLambda? lambdaClient) : ChatWithCompanion(lamb
     /// Sends a question to the Floyd Lambda function and returns the response.
     /// </summary>
     /// <param name="prompt">The question to ask Floyd</param>
-    /// <returns>Floyd's response as a string</returns>
-    public async Task<string> AskFloydAsync(string prompt)
+    /// <returns>Floyd's response including message and metadata</returns>
+    public async Task<CompanionResponse> AskFloydAsync(string prompt)
     {
         return await AskCompanionAsync(prompt);
     }

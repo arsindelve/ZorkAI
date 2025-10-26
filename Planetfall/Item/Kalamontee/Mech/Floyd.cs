@@ -272,9 +272,9 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
             var response = await _chatWithFloyd.AskFloydAsync(text);
             
             // Add the response to Floyd's conversation history for continuity
-            LastTurnsOutput.Push(response);
+            LastTurnsOutput.Push(response.Message);
             
-            return response;
+            return response.Message;
         }
         catch (Exception)
         {

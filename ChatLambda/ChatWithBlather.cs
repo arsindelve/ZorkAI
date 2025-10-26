@@ -10,8 +10,8 @@ public class ChatWithBlather(IAmazonLambda? lambdaClient) : ChatWithCompanion(la
     /// Sends a question to the Blather Lambda function and returns the response.
     /// </summary>
     /// <param name="prompt">The question to ask Blather</param>
-    /// <returns>Blather's response as a string</returns>
-    public async Task<string> AskBlatherAsync(string prompt)
+    /// <returns>Blather's response including message and metadata</returns>
+    public async Task<CompanionResponse> AskBlatherAsync(string prompt)
     {
         return await AskCompanionAsync(prompt);
     }
