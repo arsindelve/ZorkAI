@@ -37,4 +37,23 @@ public class ChatWithFloydTests
             }
         }
     }
+    
+    [Test]
+    public async Task FloydGetTheFromitzBoard()
+    {
+        var target = new ChatWithFloyd(null);
+        var result = await target.AskFloydAsync("floyd, get the fromitz board");
+        Console.WriteLine(result.Message);
+        if (result.Metadata != null)
+        {
+            Console.WriteLine($"Assistant Type: {result.Metadata.AssistantType}");
+            if (result.Metadata.Parameters != null)
+            {
+                foreach (var param in result.Metadata.Parameters)
+                {
+                    Console.WriteLine($"  {param.Key}: {param.Value}");
+                }
+            }
+        }
+    }
 }

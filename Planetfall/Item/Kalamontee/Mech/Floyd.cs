@@ -9,8 +9,8 @@ namespace Planetfall.Item.Kalamontee.Mech;
 
 public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGivenThings, ICanBeTalkedTo
 {
-    private readonly GiveSomethingToSomeoneDecisionEngine<Floyd> _giveHimSomethingEngine = new();
     private readonly ChatWithFloyd _chatWithFloyd = new(null);
+    private readonly GiveSomethingToSomeoneDecisionEngine<Floyd> _giveHimSomethingEngine = new();
 
     // This is the thing that he is holding, literally in his hand. 
     [UsedImplicitly] public IItem? ItemBeingHeld { get; set; }
@@ -22,6 +22,10 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     [UsedImplicitly] public bool IsOffWandering { get; set; }
 
     [UsedImplicitly] public bool HasEverBeenOn { get; set; }
+
+    [UsedImplicitly] public bool HasEverGoneThroughTheLittleDoor { get; set; }
+
+    [UsedImplicitly] public bool HasGottenTheFromitzBoard { get; set; }
 
     // When you initially turn on Floyd, nothing happens for 3 turns. This delay never happens
     // again if you turn him on/off another time. 
@@ -61,6 +65,32 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         ItemBeingHeld.OnBeingTakenCallback = "Floyd,BeingTakenCallback";
 
         return new PositiveInteractionResult(FloydConstants.ThanksYouForGivingItem);
+    }
+
+    public async Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
+    {
+        if (!IsOn)
+            return "The robot doesn't respond - it appears to be turned off.";
+
+        try
+        {
+            var response = await _chatWithFloyd.AskFloydAsync(text);
+
+            // Add the response to Floyd's conversation history for continuity
+            LastTurnsOutput.Push(response.Message);
+
+            var specificInteraction = GetSpecificInteraction(response);
+
+            if (!string.IsNullOrEmpty(specificInteraction))
+                return specificInteraction;
+
+            return response.Message;
+        }
+        catch (Exception)
+        {
+            // Fallback to a generic Floyd response if the service fails
+            return "Floyd tilts his head and makes some mechanical whirring sounds, but doesn't seem to understand.";
+        }
     }
 
     private bool IsInTheRoom(IContext context)
@@ -147,10 +177,10 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
             return new PositiveInteractionResult("He's already been activated. ");
 
         context.RegisterActor(this);
-        
+
         if (!HasEverBeenOn)
             context.AddPoints(2);
-        
+
         if (TurnOnCountdown > 0)
             return new PositiveInteractionResult("Nothing happens. ");
 
@@ -199,7 +229,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
         // Randomly, Floyd will say or do something (or possibly nothing) based on one of the
         // prompts below - or he might do one of the things from the original game. 
-        var action = Chooser.RollDice(10) switch
+        var action = Chooser.RollDice(15) switch
         {
             <= 3 => (Func<Task<string>>)(async () =>
                 await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
@@ -246,41 +276,42 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
             !Items.Any() ||
             !Chooser.RollDiceSuccess(3))
             return null;
- 
+
         // Remove it from inside, put it in his hand. 
         Items.Clear();
         ItemBeingHeld = Repository.GetItem<LowerElevatorAccessCard>();
         ItemBeingHeld.OnBeingTakenCallback = "Floyd,BeingTakenCallback";
-        
+
         return "\n\nFloyd claps his hands with excitement. \"Those cards are really neat, huh? Floyd has one for " +
                "himself--see?\" He reaches behind one of his panels and retrieves a magnetic-striped card. He waves it exuberantly in the air. ";
     }
-    
+
     [UsedImplicitly]
     public void BeingTakenCallback()
     {
         ItemBeingHeld = null;
     }
 
-    public async Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
+    private string? GetSpecificInteraction(CompanionResponse companionResponse)
     {
-        if (!IsOn)
-            return "The robot doesn't respond - it appears to be turned off.";
+        if (companionResponse.Metadata?.AssistantType == "GoSomewhere" &&
+            companionResponse.Metadata.Parameters?.FirstOrDefault().Value?.ToString() == "north")
+            return FloydGoesIntoTheSmallRobotDoor();
 
-        try
-        {
-            var response = await _chatWithFloyd.AskFloydAsync(text);
-            
-            // Add the response to Floyd's conversation history for continuity
-            LastTurnsOutput.Push(response.Message);
-            
-            return response.Message;
-        }
-        catch (Exception)
-        {
-            // Fallback to a generic Floyd response if the service fails
-            return "Floyd tilts his head and makes some mechanical whirring sounds, but doesn't seem to understand.";
-        }
+        return null;
+    }
+
+    private string FloydGoesIntoTheSmallRobotDoor()
+    {
+        var returnString = HasEverGoneThroughTheLittleDoor
+            ? "\"Not again,\" whines Floyd. "
+            : "Floyd squeezes through the opening and is gone for quite a while. You hear thudding noises and squeals " +
+              "of enjoyment. After a while the noise stops, and Floyd emerges, looking downcast. \"Floyd found a rubber " +
+              "ball inside. Lots of fun for a while, but must have been old, because it fell apart. Nothing else " +
+              "interesting inside. Just a shiny fromitz board. ";
+
+        HasEverGoneThroughTheLittleDoor = true;
+        return returnString;
     }
 }
 
