@@ -3,6 +3,8 @@ using GameEngine.IntentEngine;
 using Model.AIGeneration;
 using Newtonsoft.Json;
 using Planetfall.Item.Kalamontee.Admin;
+using Planetfall.Item.Lawanda.PlanetaryDefense;
+using Planetfall.Location.Lawanda;
 using Utilities;
 
 namespace Planetfall.Item.Kalamontee.Mech;
@@ -79,7 +81,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
             // Add the response to Floyd's conversation history for continuity
             LastTurnsOutput.Push(response.Message);
 
-            var specificInteraction = GetSpecificInteraction(response);
+            var specificInteraction = GetSpecificInteraction(response, context);
 
             if (!string.IsNullOrEmpty(specificInteraction))
                 return specificInteraction;
@@ -292,13 +294,33 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         ItemBeingHeld = null;
     }
 
-    private string? GetSpecificInteraction(CompanionResponse companionResponse)
+    private string? GetSpecificInteraction(CompanionResponse companionResponse, IContext context)
     {
+        if (context.CurrentLocation is not RepairRoom)
+            return null;
+        
+        if (companionResponse.Metadata?.AssistantType == "PickUp" &&
+            Repository.GetItem<ShinyFromitzBoard>().NounsForMatching.Contains(companionResponse.Metadata.Parameters?.FirstOrDefault().Value?.ToString()?.ToLowerInvariant()))
+            return FloydGoesAndGetsTheFromitzBoard(context);
+        
         if (companionResponse.Metadata?.AssistantType == "GoSomewhere" &&
             companionResponse.Metadata.Parameters?.FirstOrDefault().Value?.ToString() == "north")
             return FloydGoesIntoTheSmallRobotDoor();
 
         return null;
+    }
+
+    private string? FloydGoesAndGetsTheFromitzBoard(IContext context)
+    {
+        var returnString = HasGottenTheFromitzBoard
+            ? "Floyd looks half-bored and half-annoyed. Floyd already did that. How about some leap-frogger?\""
+            : "Floyd shrugs. \"If you say so.\" He vanishes for a few minutes, and returns holding the fromitz board. " +
+              "It seems to be in good shape. He tosses it toward you, and you just manage to catch it before it smashes.";
+
+        context.ItemPlacedHere<ShinyFromitzBoard>();
+        
+        HasGottenTheFromitzBoard = true;
+        return returnString;
     }
 
     private string FloydGoesIntoTheSmallRobotDoor()

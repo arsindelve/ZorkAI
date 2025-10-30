@@ -42,7 +42,7 @@ public class ChatWithFloydTests
     public async Task FloydGetTheFromitzBoard()
     {
         var target = new ChatWithFloyd(null);
-        var result = await target.AskFloydAsync("floyd, get the fromitz board");
+        var result = await target.AskFloydAsync("floyd, go get the fromitz board");
         Console.WriteLine(result.Message);
         if (result.Metadata != null)
         {
