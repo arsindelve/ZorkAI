@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Lawanda;
 

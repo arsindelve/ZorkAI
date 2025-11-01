@@ -1,9 +1,11 @@
 using GameEngine.Location;
+using Model.AIGeneration;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.Lab;
 
 namespace Planetfall.Location.Lawanda.Lab;
 
-internal class BioLockEast : LocationBase
+internal class BioLockEast : LocationBase, ITurnBasedActor
 {
     public override string Name => "Bio Lock East";
 
@@ -23,11 +25,35 @@ internal class BioLockEast : LocationBase
             { Direction.W, Go<BioLockWest>() }
         };
     }
+    
+    // Opening the door reveals a Bio-Lab full of horrible mutations. You stare at them, frozen with horror.
+    // Growling with hunger and delight, the mutations march into the bio-lock and devour you.
+    
+    // Your former companion, Floyd, is lying on the ground in a pool of oil.
 
     protected override string GetContextBasedDescription(IContext context)
     {
         return
             "The is the second half of the sterilization chamber leading from the main lab to the Bio Lab. The door " +
             "to the east, leading to the Bio Lab, has a window. The bio lock continues to the west. ";
+    }
+
+    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
+    {
+        context.RemoveActor(this);
+    }
+
+    public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
+    {
+        context.RegisterActor(this);
+        return base.BeforeEnterLocation(context, previousLocation);
+    }
+
+    public Task<string> Act(IContext context, IGenerationClient client)
+    {
+        if (Repository.GetItem<Floyd>().CurrentLocation != this || Repository.GetItem<Floyd>().IsOn || !new RandomChooser().RollDiceSuccess(3))
+            return Task.FromResult(string.Empty);
+
+        return Task.FromResult(FloydConstants.LookAMiniCard);
     }
 }

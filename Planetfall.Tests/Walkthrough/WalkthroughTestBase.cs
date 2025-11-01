@@ -8,6 +8,7 @@ using Model.Interface;
 using Moq;
 using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Mech;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 namespace Planetfall.Tests.Walkthrough;
 
