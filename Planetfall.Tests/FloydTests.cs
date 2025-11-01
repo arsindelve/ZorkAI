@@ -7,6 +7,7 @@ using Planetfall.Item;
 using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Mech;
 using Planetfall.Location.Lawanda;

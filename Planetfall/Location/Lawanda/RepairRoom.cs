@@ -4,6 +4,7 @@ using Model.AIGeneration;
 using Model.Interface;
 using Model.Location;
 using Planetfall.Item.Kalamontee.Mech;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda;
 
 namespace Planetfall.Location.Lawanda;

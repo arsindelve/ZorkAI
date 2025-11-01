@@ -1,12 +1,15 @@
 using GameEngine.Location;
 using Model.AIGeneration;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Lawanda.Lab;
 
 namespace Planetfall.Location.Lawanda;
 
-internal class ComputerRoom : LocationBase
+internal class ComputerRoom : LocationBase, ITurnBasedActor
 {
     public override string Name => "Computer Room";
+    
+    [UsedImplicitly] public bool FloydHasExpressedConcern { get; set; }
 
     public override void Init()
     {
@@ -39,5 +42,25 @@ internal class ComputerRoom : LocationBase
         return
             "This is the main computer room for the Project. The only sign of activity is a glowing red light. " +
             "The exits are north, west, and northeast. To the south is a small booth. ";
+    }
+    
+    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
+    {
+        context.RemoveActor(this);
+    }
+
+    public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
+    {
+        context.RegisterActor(this);
+        return base.BeforeEnterLocation(context, previousLocation);
+    }
+
+    public Task<string> Act(IContext context, IGenerationClient client)
+    {
+        if (Repository.GetItem<Floyd>().CurrentLocation != this || Repository.GetItem<Floyd>().IsOn || FloydHasExpressedConcern)
+            return Task.FromResult(string.Empty);
+        
+        FloydHasExpressedConcern = true;
+        return Task.FromResult(FloydConstants.ComputerBroken);
     }
 }
