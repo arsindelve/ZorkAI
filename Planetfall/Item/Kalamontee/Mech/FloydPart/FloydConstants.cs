@@ -45,6 +45,9 @@ public static class FloydConstants
         "From its design, the robot seems to be of the multi-purpose sort. It is slightly cross-eyed, and its " +
         "mechanical mouth forms a lopsided grin. ";
 
+    internal const string ExaminationDead =
+        "You turn to look at Floyd, but a tremendous sense of loss overcomes you, and you turn away. ";
+
     internal const string ExaminationOff =
         "The deactivated robot is leaning against the wall, its head lolling to the side. It is short, and seems " +
         "to be equipped for general-purpose work. It has apparently been turned off. ";
@@ -76,7 +79,7 @@ public static class FloydConstants
         "Floyd looks at you with a dash of impatience and a healthy helping of nervousness. \"Well?\" he asks. \"Are you going to open the door?\"";
 
     internal const string InTheLabOne =
-        "The door opens and Floyd, pausing only for the briefest moment, plunges into the Bio Lab. Immediately, he is set upon by hideous, mutated monsters! More are heading straight toward the open door! Floyd\nshrieks and yells to you to close the door.";
+        "The door opens and Floyd, pausing only for the briefest moment, plunges into the Bio Lab. Immediately, he is set upon by hideous, mutated monsters! More are heading straight toward the open door! Floyd shrieks and yells to you to close the door.";
 
     internal const string InTheLabTwo =
         "From within the lab you hear ferocious growlings, the sounds of a skirmish, and then a high-pitched metallic scream! ";
@@ -88,22 +91,38 @@ public static class FloydConstants
         "The three knocks come again, followed by a wild scream. Then, all is silence from within the Bio Lab, except for an occasional metallic crunch. ";
 
     internal const string AfterLab =
-        "And not a moment too soon! You hear a pounding from the door as the monsters within vent their frustration at " +
-        "losing their prey. " +
-        "\n\nFloyd staggers to the ground, dropping the mini card. He is badly torn apart, with loose wires and broken " +
-        "circuits everywhere. Oil flows from his lubrication system. He obviously has only moments to live." +
-        "\n\nYou drop to your knees and cradle Floyd's head in your lap. Floyd looks up at his friend with half-open " +
-        "eyes. \"Floyd did it ... got card. Floyd a good friend, huh?\" Quietly, you sing Floyd's favorite song, " +
-        "the Ballad of the Starcrossed Miner:" +
-        "\n\nO, they ruled the solar system\nNear ten thousand years before\nIn their single starcrossed scout ships " +
-        "Mining ast'roids, spinning lore.\n\nThen one true courageous miner\nSpied a spaceship from the starsBoarded " +
-        "he that alien liner\nOut beyond the orb of Mars.\n\nYes, that ship was filled with danger\nMighty monsters " +
-        "barred his way\nYet he solved the alien myst'ries Mining quite a lode that day.\n\nO, they ruled the " +
-        "solar system\nNear ten thousand years before\n'Til one brave advent'rous spirit\nBrought that mighty ship " +
-        "to shore.\n\nAs you finish the last verse, Floyd smiles with contentment, and then his eyes close as his " +
-        "head rolls to one side. You sit in silence for a moment, in memory of a brave friend who gave his life so " +
-        "that you\nmight live.";
-    
+        """
+        The door closes.
+
+        And not a moment too soon! You hear a pounding from the door as the monsters within vent their frustration at losing their prey.
+
+        Floyd staggers to the ground, dropping the mini card. He is badly torn apart, with loose wires and broken circuits everywhere. Oil flows from his lubrication system. He obviously has only moments to live.
+
+        You drop to your knees and cradle Floyd's head in your lap. Floyd looks up at his friend with half-open eyes. "Floyd did it...got card. Floyd a good friend, huh?" Quietly, you sing Floyd's favorite song, the Ballad of the Starcrossed Miner:
+
+        O, they ruled the solar system
+        Near ten thousand years before
+        In their single starcrossed scout ships
+        Mining ast'roids, spinning lore.
+
+        Then one true courageous miner
+        Spied a spaceship from the stars
+        Boarded he that alien liner
+        Out beyond the orb of Mars.
+
+        Yes, that ship was filled with danger
+        Mighty monsters barred his way
+        Yet he solved the alien myst'ries
+        Mining quite a lode that day.
+
+        O, they ruled the solar system
+        Near ten thousand years before
+        'Til one brave advent'rous spirit
+        Brought that mighty ship to shore.
+
+        As you finish the last verse, Floyd smiles with contentment, and then his eyes close as his head rolls to one side. You sit in silence for a moment, in memory of a brave friend who gave his life so that you might live.
+        """;
+        
     internal const string Sulk =
         "\"Okay,\" says Floyd with uncharacteristic annoyance. \"Forget about the stupid card.\" He goes to the other end of the bio-lock and sulks.";
     

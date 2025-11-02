@@ -57,9 +57,9 @@ internal class ComputerRoom : LocationBase, ITurnBasedActor
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
-        if (Repository.GetItem<Floyd>().CurrentLocation != this || Repository.GetItem<Floyd>().IsOn || FloydHasExpressedConcern)
+        if (Repository.GetItem<Floyd>().CurrentLocation != this || !Repository.GetItem<Floyd>().IsOn || FloydHasExpressedConcern)
             return Task.FromResult(string.Empty);
-        
+
         FloydHasExpressedConcern = true;
         return Task.FromResult(FloydConstants.ComputerBroken);
     }

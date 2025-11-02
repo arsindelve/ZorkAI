@@ -4,6 +4,9 @@ public class FloydPowerManager(Floyd floyd)
 {
     public InteractionResult Activate(IContext context)
     {
+        if (floyd.HasDied)
+            return new PositiveInteractionResult("As you touch Floyd's on-off switch, it falls off in your hands. ");
+
         if (floyd.IsOn)
             return new PositiveInteractionResult("He's already been activated. ");
 

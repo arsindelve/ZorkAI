@@ -26,7 +26,9 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     // This is the thing that he is holding, literally in his hand. 
     [UsedImplicitly] public IItem? ItemBeingHeld { get; set; }
-
+       
+    [UsedImplicitly] public bool HasDied { get; set; }
+    
     [UsedImplicitly] [JsonIgnore] public IRandomChooser Chooser { get; set; } = new RandomChooser();
 
     [UsedImplicitly] public bool IsOn { get; set; }
@@ -55,6 +57,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     protected override string SystemPrompt => FloydPrompts.SystemPrompt;
 
     public string ExaminationDescription =>
+        HasDied ? FloydConstants.ExaminationDead :
         IsOn
             ? FloydConstants.ExaminationOn
             : FloydConstants.ExaminationOff;
