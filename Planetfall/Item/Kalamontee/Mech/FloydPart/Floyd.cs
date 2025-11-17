@@ -127,6 +127,9 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     public override string GenericDescription(ILocation? currentLocation)
     {
+        if (HasDied)
+            return "Your former companion, Floyd, is lying on the ground in a pool of oil. ";
+
         return HasEverBeenOn
             ? "There is a multiple purpose robot here. " + _inventoryManager.DescribeItemBeingHeld(currentLocation)
             : "Only one robot, about four feet high, looks even remotely close to being in working order. ";
@@ -146,6 +149,12 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
+        if (action.Match(["turn on", "activate", "start"], NounsForMatching)) return _powerManager.Activate(context);
+        if (action.Match(["turn off", "deactivate", "stop"], NounsForMatching)) return _powerManager.Deactivate(context);
+        
+        if (HasDied)
+            return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+        
         if (ItemBeingHeld is not null)
         {
             var result = await ItemBeingHeld.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
@@ -160,14 +169,15 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         // Floyd can be "opened" but in no other way behaves like a typical open/close container. For him,
         // "open" is a synonym for "search"
         if (action.Match(["open", "search"], NounsForMatching)) return _inventoryManager.SearchFloyd(context);
-        if (action.Match(["turn off", "deactivate", "stop"], NounsForMatching)) return _powerManager.Deactivate(context);
-        if (action.Match(["turn on", "activate", "start"], NounsForMatching)) return _powerManager.Activate(context);
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override async Task<string> Act(IContext context, IGenerationClient client)
     {
+        if (HasDied)
+            return string.Empty;
+
         var countdownResult = _powerManager.HandleTurnOnCountdown();
         if (countdownResult != null)
             return countdownResult;
@@ -233,7 +243,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
     {
-        if (!IsOn)
+        if (!IsOn || HasDied)
             return await base.RespondToMultiNounInteraction(action, context);
 
         var result = _giveHimSomethingEngine.AreWeGivingSomethingToSomeone(action, this, context);

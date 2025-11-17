@@ -28,4 +28,9 @@ internal abstract class SimpleDoor : ItemBase, IOpenAndClose, ICanBeExamined
     {
         return string.Empty;
     }
+
+    public virtual string OnClosing(IContext context)
+    {
+        return string.Empty;
+    }
 }

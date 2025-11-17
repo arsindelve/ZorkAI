@@ -45,12 +45,17 @@ public class OpenAndCloseInteractionProcessor : IVerbProcessor
         if (!item.IsOpen)
             return new PositiveInteractionResult(item.AlreadyClosed);
 
-        // A non-empty, non-null string here indicates the item cannot be closed, and why. 
+        // A non-empty, non-null string here indicates the item cannot be closed, and why.
         var cannotBeOpenedReason = item.CannotBeClosedDescription(context);
         if (!string.IsNullOrEmpty(cannotBeOpenedReason))
             return new PositiveInteractionResult(cannotBeOpenedReason);
 
         item.IsOpen = false;
+
+        var customClosingMessage = item.OnClosing(context);
+        if (!string.IsNullOrEmpty(customClosingMessage))
+            return new PositiveInteractionResult(customClosingMessage);
+
         return new PositiveInteractionResult(item.NowClosed(context.CurrentLocation));
     }
 }

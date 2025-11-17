@@ -8,10 +8,10 @@ public class BioLockStateMachineManager
     public enum FloydLabSequenceState
     {
         NotStarted,
-        FloydRushedIn_NeedToCloseDoor,
-        DoorClosed_FloydFighting,
+        FloydRushedInNeedToCloseDoor,
+        DoorClosedFloydFighting,
         NeedToReopenDoor,
-        DoorReopened_NeedToCloseAgain,
+        DoorReopenedNeedToCloseAgain,
         Completed
     }
 
@@ -29,21 +29,21 @@ public class BioLockStateMachineManager
     /// Returns true if Floyd is currently in the Bio Lab fighting (not in the player's room).
     /// </summary>
     public bool IsFloydInLabFighting =>
-        LabSequenceState == FloydLabSequenceState.FloydRushedIn_NeedToCloseDoor ||
-        LabSequenceState == FloydLabSequenceState.DoorClosed_FloydFighting ||
+        LabSequenceState == FloydLabSequenceState.FloydRushedInNeedToCloseDoor ||
+        LabSequenceState == FloydLabSequenceState.DoorClosedFloydFighting ||
         LabSequenceState == FloydLabSequenceState.NeedToReopenDoor ||
-        LabSequenceState == FloydLabSequenceState.DoorReopened_NeedToCloseAgain;
+        LabSequenceState == FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
 
     /// <summary>
     /// Handle turn-based actions for Floyd in BioLockEast
     /// </summary>
-    public string HandleTurnAction(bool isFloydHereAndOn, bool computerRoomFloydHasExpressedConcern, IContext context)
+    public string HandleTurnAction(bool isFloydHereAndOn, bool computerRoomFloydHasExpressedConcern, IContext context, Floyd floyd)
     {
         // During the lab sequence, Floyd is not in the room (he's in the lab fighting)
-        var isFloydInLab = LabSequenceState == FloydLabSequenceState.FloydRushedIn_NeedToCloseDoor ||
-                           LabSequenceState == FloydLabSequenceState.DoorClosed_FloydFighting ||
+        var isFloydInLab = LabSequenceState == FloydLabSequenceState.FloydRushedInNeedToCloseDoor ||
+                           LabSequenceState == FloydLabSequenceState.DoorClosedFloydFighting ||
                            LabSequenceState == FloydLabSequenceState.NeedToReopenDoor ||
-                           LabSequenceState == FloydLabSequenceState.DoorReopened_NeedToCloseAgain;
+                           LabSequenceState == FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
 
         if (!isFloydInLab && !isFloydHereAndOn)
             return string.Empty;
@@ -56,7 +56,7 @@ public class BioLockStateMachineManager
         }
 
         // Lab sequence: Floyd is fighting inside the lab
-        if (LabSequenceState == FloydLabSequenceState.DoorClosed_FloydFighting)
+        if (LabSequenceState == FloydLabSequenceState.DoorClosedFloydFighting)
         {
             FloydFightingTurnCount++;
 
@@ -75,7 +75,7 @@ public class BioLockStateMachineManager
         }
 
         // Player failed to close door after Floyd rushed in
-        if (LabSequenceState == FloydLabSequenceState.FloydRushedIn_NeedToCloseDoor)
+        if (LabSequenceState == FloydLabSequenceState.FloydRushedInNeedToCloseDoor)
         {
             TurnsAfterFloydRushedIn++;
             if (TurnsAfterFloydRushedIn > 1)
@@ -86,7 +86,7 @@ public class BioLockStateMachineManager
         }
 
         // Player failed to close door after reopening it
-        if (LabSequenceState == FloydLabSequenceState.DoorReopened_NeedToCloseAgain)
+        if (LabSequenceState == FloydLabSequenceState.DoorReopenedNeedToCloseAgain)
         {
             TurnsAfterDoorReopened++;
             if (TurnsAfterDoorReopened > 1)
@@ -96,9 +96,10 @@ public class BioLockStateMachineManager
             return string.Empty; // Give player one turn to close the door
         }
 
-        // Player failed to reopen door after InTheLabFour - Floyd dies
+        // Player failed to reopen door after InTheLabThree - Floyd dies
         if (LabSequenceState == FloydLabSequenceState.NeedToReopenDoor)
         {
+            floyd.HasDied = true;
             return FloydConstants.FloydDies;
         }
 
@@ -135,17 +136,21 @@ public class BioLockStateMachineManager
     /// <summary>
     /// Handle door opening logic. Called from OnOpening after door is opened.
     /// </summary>
-    public string HandleDoorOpening(bool isFloydReady, IContext context, ICanContainItems bioLockEast)
+    public string HandleDoorOpening(IContext context)
     {
+        var bioLockEast = Repository.GetLocation<BioLockEast>();
+        var floyd = Repository.GetItem<Floyd>();
+
+        var isFloydReady = FloydHasSaidNeedToGetCard && floyd.IsHereAndIsOn(context);
+
         // If Floyd is ready to go get the card, start the sequence
         if (isFloydReady && LabSequenceState == FloydLabSequenceState.NotStarted)
         {
-            LabSequenceState = FloydLabSequenceState.FloydRushedIn_NeedToCloseDoor;
+            LabSequenceState = FloydLabSequenceState.FloydRushedInNeedToCloseDoor;
             FloydWaitingForDoorOpenCount = 0; // Reset the sulking counter
             TurnsAfterFloydRushedIn = 0; // Reset the turn counter
 
             // Remove Floyd from the room - he's now in the lab fighting!
-            var floyd = Repository.GetItem<Floyd>();
             bioLockEast.RemoveItem(floyd);
 
             return FloydConstants.InTheLabOne;
@@ -154,13 +159,13 @@ public class BioLockStateMachineManager
         // Player needs to reopen the door to let Floyd back (after 3 knocks)
         if (LabSequenceState == FloydLabSequenceState.NeedToReopenDoor)
         {
-            LabSequenceState = FloydLabSequenceState.DoorReopened_NeedToCloseAgain;
+            LabSequenceState = FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
             TurnsAfterDoorReopened = 0; // Reset the turn counter
             return FloydConstants.FloydReturnsWithCard;
         }
 
         // Player opened door while Floyd is still fighting (before he knocked) - immediate death
-        if (LabSequenceState == FloydLabSequenceState.DoorClosed_FloydFighting)
+        if (LabSequenceState == FloydLabSequenceState.DoorClosedFloydFighting)
         {
             return new DeathProcessor().Process(FloydConstants.BiologicalNightmaresDeath, context).InteractionMessage;
         }
@@ -176,20 +181,29 @@ public class BioLockStateMachineManager
     /// <summary>
     /// Handle door closing logic. Returns custom message or empty string to use default.
     /// </summary>
-    public string HandleDoorClosing()
+    public string HandleDoorClosing(IContext context)
     {
+        var floyd = Repository.GetItem<Floyd>();
+        var bioLockEast = Repository.GetLocation<BioLockEast>();
+
         // Floyd just rushed in, player closes door correctly
-        if (LabSequenceState == FloydLabSequenceState.FloydRushedIn_NeedToCloseDoor)
+        if (LabSequenceState == FloydLabSequenceState.FloydRushedInNeedToCloseDoor)
         {
-            LabSequenceState = FloydLabSequenceState.DoorClosed_FloydFighting;
+            LabSequenceState = FloydLabSequenceState.DoorClosedFloydFighting;
             FloydFightingTurnCount = 0;
             return "The door closes.\n\nAnd not a moment too soon! You hear a pounding from the door as the monsters within vent their frustration at losing their prey.";
         }
 
         // Player reopened door, now closes it immediately (success!)
-        if (LabSequenceState == FloydLabSequenceState.DoorReopened_NeedToCloseAgain)
+        if (LabSequenceState == FloydLabSequenceState.DoorReopenedNeedToCloseAgain)
         {
             LabSequenceState = FloydLabSequenceState.Completed;
+            floyd.HasDied = true;
+
+            // Unregister actors - the sequence is complete
+            context.RemoveActor(floyd);
+            context.RemoveActor(bioLockEast);
+
             return FloydConstants.AfterLab;
         }
 
