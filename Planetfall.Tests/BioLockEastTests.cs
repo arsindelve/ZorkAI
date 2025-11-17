@@ -17,6 +17,7 @@ public class BioLockEastTests : EngineTestsBase
         floyd.IsOn = true;
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
         target.Context.RegisterActor(bioLockEast);
         var computerRoom = GetLocation<ComputerRoom>();
         computerRoom.FloydHasExpressedConcern = false;
@@ -66,6 +67,7 @@ public class BioLockEastTests : EngineTestsBase
         floyd.IsOn = true;
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
         target.Context.RegisterActor(bioLockEast);
         var computerRoom = GetLocation<ComputerRoom>();
         computerRoom.FloydHasExpressedConcern = false;
@@ -102,6 +104,7 @@ public class BioLockEastTests : EngineTestsBase
         floyd.IsOn = true;
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
         target.Context.RegisterActor(bioLockEast);
         var computerRoom = GetLocation<ComputerRoom>();
         computerRoom.FloydHasExpressedConcern = true;
@@ -120,6 +123,7 @@ public class BioLockEastTests : EngineTestsBase
         floyd.IsOn = true;
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
         target.Context.RegisterActor(bioLockEast);
         var computerRoom = GetLocation<ComputerRoom>();
         computerRoom.FloydHasExpressedConcern = true;
@@ -139,6 +143,7 @@ public class BioLockEastTests : EngineTestsBase
         floyd.IsOn = true;
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
         bioLockEast.StateMachine.FloydHasSaidNeedToGetCard = true;
         target.Context.RegisterActor(bioLockEast);
 
@@ -156,6 +161,7 @@ public class BioLockEastTests : EngineTestsBase
         floyd.IsOn = true;
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
         bioLockEast.StateMachine.FloydHasSaidNeedToGetCard = true;
         target.Context.RegisterActor(bioLockEast);
 
@@ -175,6 +181,7 @@ public class BioLockEastTests : EngineTestsBase
         floyd.IsOn = true;
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
         bioLockEast.StateMachine.FloydHasSaidNeedToGetCard = true;
         target.Context.RegisterActor(bioLockEast);
 
@@ -199,6 +206,7 @@ public class BioLockEastTests : EngineTestsBase
         floyd.IsOn = true;
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
         bioLockEast.StateMachine.FloydHasSaidNeedToGetCard = true;
         bioLockEast.StateMachine.FloydWaitingForDoorOpenCount = 5;
         target.Context.RegisterActor(bioLockEast);
@@ -220,6 +228,10 @@ public class BioLockEastTests : EngineTestsBase
         target.Context.RegisterActor(bioLockEast);
         var computerRoom = GetLocation<ComputerRoom>();
         computerRoom.FloydHasExpressedConcern = false;
+
+        // Turn 0: One-turn delay (Floyd says nothing)
+        var response0 = await target.GetResponse("wait");
+        response0.Should().NotContain(FloydConstants.LookAMiniCard);
 
         // Turn 1: Look a mini card
         var response1 = await target.GetResponse("wait");
@@ -296,6 +308,7 @@ public class BioLockEastTests : EngineTestsBase
         floyd.IsOn = true;
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
         bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorClosed_FloydFighting;
         target.Context.RegisterActor(bioLockEast);
 
@@ -313,6 +326,7 @@ public class BioLockEastTests : EngineTestsBase
         floyd.IsOn = true;
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
         bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorClosed_FloydFighting;
         bioLockEast.StateMachine.FloydFightingTurnCount = 1;
         target.Context.RegisterActor(bioLockEast);
@@ -324,20 +338,21 @@ public class BioLockEastTests : EngineTestsBase
     }
 
     [Test]
-    public async Task FloydFighting_Turn3_ShouldShowInTheLabFourAndNeedToReopen()
+    public async Task FloydFighting_Turn2_ShouldShowInTheLabThreeAndNeedToReopen()
     {
         var target = GetTarget();
         var floyd = GetItem<Floyd>();
         floyd.IsOn = true;
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
         bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorClosed_FloydFighting;
-        bioLockEast.StateMachine.FloydFightingTurnCount = 2;
+        bioLockEast.StateMachine.FloydFightingTurnCount = 1;
         target.Context.RegisterActor(bioLockEast);
 
         var response = await target.GetResponse("wait");
 
-        response.Should().Contain("three knocks come again");
+        response.Should().Contain("three fast knocks");
         bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.NeedToReopenDoor);
     }
 
@@ -352,7 +367,7 @@ public class BioLockEastTests : EngineTestsBase
         bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.NeedToReopenDoor;
         target.Context.RegisterActor(bioLockEast);
 
-        var response = await target.GetResponse("open door");
+        await target.GetResponse("open door");
 
         bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.DoorReopened_NeedToCloseAgain);
     }
@@ -389,12 +404,15 @@ public class BioLockEastTests : EngineTestsBase
         floyd.IsOn = true;
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
         bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.FloydRushedIn_NeedToCloseDoor;
+        bioLockEast.StateMachine.TurnsAfterFloydRushedIn = 1; // Simulate one turn has passed
         target.Context.RegisterActor(bioLockEast);
 
         var response = await target.GetResponse("wait");
 
-        response.Should().Contain("TODO: You die because you didn't close the door in time.");
+        response.Should().Contain(FloydConstants.BiologicalNightmaresDeath);
+        response.Should().Contain("You have died");
     }
 
     [Test]
@@ -405,12 +423,15 @@ public class BioLockEastTests : EngineTestsBase
         floyd.IsOn = true;
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
         bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorReopened_NeedToCloseAgain;
+        bioLockEast.StateMachine.TurnsAfterDoorReopened = 1; // Simulate one turn has passed
         target.Context.RegisterActor(bioLockEast);
 
         var response = await target.GetResponse("wait");
 
-        response.Should().Contain("TODO: You die because you didn't close the door after reopening it.");
+        response.Should().Contain(FloydConstants.BiologicalNightmaresDeath);
+        response.Should().Contain("You have died");
     }
 
     [Test]
@@ -421,12 +442,12 @@ public class BioLockEastTests : EngineTestsBase
         floyd.IsOn = true;
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
-        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorClosed_FloydFighting;
-        bioLockEast.StateMachine.FloydFightingTurnCount = 3;
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.NeedToReopenDoor;
         target.Context.RegisterActor(bioLockEast);
 
         var response = await target.GetResponse("wait");
 
-        response.Should().Contain("TODO: Floyd dies because you didn't open the door in time.");
+        response.Should().Contain(FloydConstants.FloydDies);
     }
 }
