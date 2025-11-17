@@ -1,5 +1,6 @@
 using Planetfall.Command;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Item.Lawanda.Lab;
 
 namespace Planetfall.Location.Lawanda.Lab;
 
@@ -64,7 +65,8 @@ public class BioLockStateMachineManager
             {
                 return FloydConstants.InTheLabTwo;
             }
-            else if (FloydFightingTurnCount == 2)
+
+            if (FloydFightingTurnCount == 2)
             {
                 LabSequenceState = FloydLabSequenceState.NeedToReopenDoor;
                 return FloydConstants.InTheLabThree;
@@ -198,15 +200,26 @@ public class BioLockStateMachineManager
         if (LabSequenceState == FloydLabSequenceState.DoorReopenedNeedToCloseAgain)
         {
             LabSequenceState = FloydLabSequenceState.Completed;
-            floyd.HasDied = true;
-
-            // Unregister actors - the sequence is complete
-            context.RemoveActor(floyd);
-            context.RemoveActor(bioLockEast);
+            EndSequence(context, floyd, bioLockEast);
 
             return FloydConstants.AfterLab;
         }
 
         return string.Empty; // Use default door closing message
+    }
+
+    private static void EndSequence(IContext context, Floyd floyd, BioLockEast bioLockEast)
+    {
+        floyd.HasDied = true;
+
+        // Unregister actors - the sequence is complete
+        context.RemoveActor(floyd);
+        context.RemoveActor(bioLockEast);
+
+        // Drop the miniaturization access card in BioLockEast
+        var miniCard = Repository.GetItem<MiniaturizationAccessCard>();
+        bioLockEast.ItemPlacedHere(miniCard);
+
+        context.AddPoints(2);
     }
 }

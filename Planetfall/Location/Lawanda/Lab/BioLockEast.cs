@@ -1,5 +1,7 @@
 using GameEngine.Location;
 using Model.AIGeneration;
+using Model.Intent;
+using Model.Item;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.Lab;
 
@@ -10,15 +12,24 @@ internal class BioLockEast : LocationBase, ITurnBasedActor
     public override string Name => "Bio Lock East";
 
     public BioLockStateMachineManager StateMachine { get; } = new();
-    
+
     public override void Init()
     {
         StartWithItem<BioLockInnerDoor>();
     }
 
-    //>look through window
-    // You can see a large laboratory, dimly illuminated. A blue glow comes from a crack in the northern wall of the lab. Shadowy,
-    // ominous shapes move about within the room. On the floor, just inside the door, you can see a magnetic-striped card.
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
+    {
+        if (
+            (action.Match(["look", "examine"], ["window"]) && action.OriginalInput != null && action.OriginalInput.Contains("through")) ||
+            action.Match(["examine"], ["window"]))
+            return new PositiveInteractionResult(
+                "You can see a large laboratory, dimly illuminated. A blue glow comes from a crack in the northern wall of the lab. Shadowy, " +
+                "ominous shapes move about within the room. On the floor, just inside the door, you can see a magnetic-striped card. ");
+
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+    }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
@@ -27,8 +38,6 @@ internal class BioLockEast : LocationBase, ITurnBasedActor
             { Direction.W, Go<BioLockWest>() }
         };
     }
-
-    // Your former companion, Floyd, is lying on the ground in a pool of oil.
 
     protected override string GetContextBasedDescription(IContext context)
     {
