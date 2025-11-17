@@ -56,7 +56,8 @@ internal class BioLockEast : LocationBase, ITurnBasedActor
         var result = StateMachine.HandleTurnAction(
             floyd.IsHereAndIsOn(context),
             computerRoom.FloydHasExpressedConcern,
-            context);
+            context,
+            floyd);
 
         return Task.FromResult(result);
     }

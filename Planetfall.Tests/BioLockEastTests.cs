@@ -277,7 +277,7 @@ public class BioLockEastTests : EngineTestsBase
         var response = await target.GetResponse("open door");
 
         response.Should().Contain(FloydConstants.InTheLabOne);
-        bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.FloydRushedIn_NeedToCloseDoor);
+        bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.FloydRushedInNeedToCloseDoor);
     }
 
     [Test]
@@ -289,7 +289,7 @@ public class BioLockEastTests : EngineTestsBase
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
         bioLockEast.StateMachine.FloydHasSaidNeedToGetCard = true;
-        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.FloydRushedIn_NeedToCloseDoor;
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.FloydRushedInNeedToCloseDoor;
         var door = GetItem<BioLockInnerDoor>();
         door.IsOpen = true; // Door is open after Floyd rushes in
         target.Context.RegisterActor(bioLockEast);
@@ -297,7 +297,7 @@ public class BioLockEastTests : EngineTestsBase
         var response = await target.GetResponse("close door");
 
         response.Should().Contain("And not a moment too soon!");
-        bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.DoorClosed_FloydFighting);
+        bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.DoorClosedFloydFighting);
     }
 
     [Test]
@@ -309,7 +309,7 @@ public class BioLockEastTests : EngineTestsBase
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
         bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
-        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorClosed_FloydFighting;
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorClosedFloydFighting;
         target.Context.RegisterActor(bioLockEast);
 
         var response = await target.GetResponse("wait");
@@ -327,7 +327,7 @@ public class BioLockEastTests : EngineTestsBase
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
         bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
-        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorClosed_FloydFighting;
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorClosedFloydFighting;
         bioLockEast.StateMachine.FloydFightingTurnCount = 1;
         target.Context.RegisterActor(bioLockEast);
 
@@ -346,7 +346,7 @@ public class BioLockEastTests : EngineTestsBase
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
         bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
-        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorClosed_FloydFighting;
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorClosedFloydFighting;
         bioLockEast.StateMachine.FloydFightingTurnCount = 1;
         target.Context.RegisterActor(bioLockEast);
 
@@ -369,7 +369,7 @@ public class BioLockEastTests : EngineTestsBase
 
         await target.GetResponse("open door");
 
-        bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.DoorReopened_NeedToCloseAgain);
+        bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.DoorReopenedNeedToCloseAgain);
     }
 
     [Test]
@@ -380,7 +380,7 @@ public class BioLockEastTests : EngineTestsBase
         floyd.IsOn = true;
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
-        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorReopened_NeedToCloseAgain;
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
         var door = GetItem<BioLockInnerDoor>();
         door.IsOpen = true; // Door is open after reopening
         target.Context.RegisterActor(bioLockEast);
@@ -405,7 +405,7 @@ public class BioLockEastTests : EngineTestsBase
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
         bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
-        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.FloydRushedIn_NeedToCloseDoor;
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.FloydRushedInNeedToCloseDoor;
         bioLockEast.StateMachine.TurnsAfterFloydRushedIn = 1; // Simulate one turn has passed
         target.Context.RegisterActor(bioLockEast);
 
@@ -424,7 +424,7 @@ public class BioLockEastTests : EngineTestsBase
         var bioLockEast = StartHere<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
         bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
-        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorReopened_NeedToCloseAgain;
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
         bioLockEast.StateMachine.TurnsAfterDoorReopened = 1; // Simulate one turn has passed
         target.Context.RegisterActor(bioLockEast);
 
@@ -449,5 +449,55 @@ public class BioLockEastTests : EngineTestsBase
         var response = await target.GetResponse("wait");
 
         response.Should().Contain(FloydConstants.FloydDies);
+        floyd.HasDied.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task SuccessfulSequence_FloydReturnsWithCard_FloydHasDiedFlagSet()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
+
+        var door = GetItem<BioLockInnerDoor>();
+        door.IsOpen = true;
+
+        var response = await target.GetResponse("close door");
+
+        response.Should().Contain("Floyd staggers to the ground");
+        response.Should().Contain("Floyd did it");
+        response.Should().Contain("in memory of a brave friend");
+        floyd.HasDied.Should().BeTrue();
+        bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.Completed);
+    }
+
+    [Test]
+    public async Task SuccessfulSequence_ActorsAreUnregisteredAfterCompletion()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
+
+        var door = GetItem<BioLockInnerDoor>();
+        door.IsOpen = true;
+
+        // Register both actors
+        target.Context.RegisterActor(floyd);
+        target.Context.RegisterActor(bioLockEast);
+
+        var response = await target.GetResponse("close door");
+
+        // Verify actors are unregistered
+        target.Context.Actors.Should().NotContain(floyd);
+        target.Context.Actors.Should().NotContain(bioLockEast);
+        bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.Completed);
     }
 }

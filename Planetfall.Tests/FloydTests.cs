@@ -61,12 +61,26 @@ public class FloydTests : EngineTestsBase
         var target = GetTarget();
         StartHere<RobotShop>();
         GetItem<Floyd>().IsOn = true;
-        
+
         var response = await target.GetResponse("activate floyd");
 
         response.Should().Contain("already been");
     }
-    
+
+    [Test]
+    public async Task TurnOn_FloydIsDead()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+
+        var response = await target.GetResponse("activate floyd");
+
+        response.Should().Contain("As you touch Floyd's on-off switch, it falls off in your hands");
+    }
+
     [Test]
     public async Task PlayWithFloyd()
     {
@@ -199,12 +213,94 @@ public class FloydTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<RobotShop>();
-        
+
         var response = await target.GetResponse("examine floyd");
 
         response.Should().Contain("The deactivated robot is leaning against the wall");
     }
-    
+
+    [Test]
+    public async Task ExamineFloyd_Dead()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+
+        var response = await target.GetResponse("examine floyd");
+
+        response.Should().Contain("You turn to look at Floyd, but a tremendous sense of loss overcomes you, and you turn away");
+    }
+
+    [Test]
+    public async Task LookAtRoom_FloydIsDead()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("Your former companion, Floyd, is lying on the ground in a pool of oil");
+    }
+
+    [Test]
+    public async Task FloydIsDead_DoesNotPerformRandomActions()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        target.Context.RegisterActor(floyd);
+
+        // Trigger multiple turns - Floyd should not perform any actions
+        var response1 = await target.GetResponse("wait");
+        var response2 = await target.GetResponse("wait");
+        var response3 = await target.GetResponse("wait");
+
+        response1.Should().NotContain("Floyd");
+        response2.Should().NotContain("Floyd");
+        response3.Should().NotContain("Floyd");
+    }
+
+    [Test]
+    public async Task FloydIsDead_DoesNotFollowPlayer()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        target.Context.RegisterActor(floyd);
+
+        // Move to another location
+        var response = await target.GetResponse("w");
+
+        response.Should().NotContain("Floyd follows you");
+        floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
+    }
+
+    [Test]
+    public async Task TurnOff_FloydIsDead()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+
+        var response = await target.GetResponse("deactivate floyd");
+
+        response.Should().Contain("I'm afraid that Floyd has already been turned off, permanently, and gone to that great robot shop in the sky");
+    }
+
     [Test]
     public async Task DoesFloydOfferCard_AllSystemsGo()
     {

@@ -26,6 +26,10 @@ public class FloydPowerManager(Floyd floyd)
 
     public InteractionResult Deactivate(IContext context)
     {
+        if (floyd.HasDied)
+            return
+                new PositiveInteractionResult("I'm afraid that Floyd has already been turned off, permanently, and gone to that great robot shop in the sky. ");
+        
         if (!floyd.IsOn)
             return new PositiveInteractionResult("The robot doesn't seem to be on. ");
 
@@ -37,18 +41,18 @@ public class FloydPowerManager(Floyd floyd)
 
     public string? HandleTurnOnCountdown()
     {
-        if (floyd.TurnOnCountdown <= 0)
-            return null;
-
-        if (floyd.TurnOnCountdown == 1)
+        switch (floyd.TurnOnCountdown)
         {
-            floyd.IsOn = true;
-            floyd.HasEverBeenOn = true;
-            floyd.TurnOnCountdown = 0;
-            return FloydConstants.ComesAlive;
+            case <= 0:
+                return null;
+            case 1:
+                floyd.IsOn = true;
+                floyd.HasEverBeenOn = true;
+                floyd.TurnOnCountdown = 0;
+                return FloydConstants.ComesAlive;
+            default:
+                floyd.TurnOnCountdown--;
+                return string.Empty;
         }
-
-        floyd.TurnOnCountdown--;
-        return string.Empty;
     }
 }
