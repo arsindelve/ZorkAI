@@ -37,7 +37,7 @@ public class TestParser : IntentParser
             "tree", "branches", "house", "lettering", "mirror", "match", "yellow button", "red button", "button", "medicine",
             "blue button", "brown button", "bolt", "bubble", "bodies", "gate", "lid", "switch", "slag", "engravings",
             "fromitz board", "board", "fromitz", "second fromitz board", "second board", "second",
-            "second board", "second fromitz board", "second fromitz"
+            "second board", "second fromitz board", "second fromitz", "384"
         ];
 
         _allNouns = _allNouns.Union(specialNouns).ToArray();
@@ -450,6 +450,46 @@ public class TestParser : IntentParser
                 Preposition = "through",
                 Verb = "slide",
                 OriginalInput = "slide kitchen access card through slot"
+            });
+
+        if (input == "slide miniaturization access card through slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "miniaturization access card",
+                NounTwo = "slot",
+                Preposition = "through",
+                Verb = "slide",
+                OriginalInput = "slide miniaturization access card through slot"
+            });
+
+        if (input == "slide miniaturization card through slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "miniaturization card",
+                NounTwo = "slot",
+                Preposition = "through",
+                Verb = "slide",
+                OriginalInput = "slide miniaturization card through slot"
+            });
+
+        if (input == "slide miniaturization through slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "miniaturization",
+                NounTwo = "slot",
+                Preposition = "through",
+                Verb = "slide",
+                OriginalInput = "slide miniaturization through slot"
+            });
+
+        if (input == "slide mini card through slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "mini card",
+                NounTwo = "slot",
+                Preposition = "through",
+                Verb = "slide",
+                OriginalInput = "slide mini card through slot"
             });
 
         if (input == "slide access card through slot")

@@ -44,11 +44,12 @@ public class MoveEngine : IIntentEngine
         context.CurrentLocation.OnLeaveLocation(context, movement.Location!, previousLocation);
         context.CurrentLocation = movement.Location!;
 
+        var transitionMessage = movement.TransitionMessage ?? string.Empty;
         var beforeEnteringText = movement.Location!.BeforeEnterLocation(context, previousLocation);
         var processorText = LookProcessor.LookAround(context);
         var afterEnteringText = await movement.Location.AfterEnterLocation(context, previousLocation, generationClient);
 
-        var result = beforeEnteringText + processorText + afterEnteringText + Environment.NewLine;
+        var result = transitionMessage + beforeEnteringText + processorText + afterEnteringText + Environment.NewLine;
         return result;
     }
 
