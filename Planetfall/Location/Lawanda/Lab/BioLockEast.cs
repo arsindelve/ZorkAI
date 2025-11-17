@@ -9,15 +9,17 @@ internal class BioLockEast : LocationBase, ITurnBasedActor
 {
     public override string Name => "Bio Lock East";
 
+    public BioLockStateMachineManager StateMachine { get; } = new();
+    
     public override void Init()
     {
         StartWithItem<BioLockInnerDoor>();
     }
-    
+
     //>look through window
     // You can see a large laboratory, dimly illuminated. A blue glow comes from a crack in the northern wall of the lab. Shadowy,
     // ominous shapes move about within the room. On the floor, just inside the door, you can see a magnetic-striped card.
-    
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>
@@ -25,10 +27,10 @@ internal class BioLockEast : LocationBase, ITurnBasedActor
             { Direction.W, Go<BioLockWest>() }
         };
     }
-    
+
     // Opening the door reveals a Bio-Lab full of horrible mutations. You stare at them, frozen with horror.
     // Growling with hunger and delight, the mutations march into the bio-lock and devour you.
-    
+
     // Your former companion, Floyd, is lying on the ground in a pool of oil.
 
     protected override string GetContextBasedDescription(IContext context)
@@ -51,9 +53,15 @@ internal class BioLockEast : LocationBase, ITurnBasedActor
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
-        if (Repository.GetItem<Floyd>().CurrentLocation != this || Repository.GetItem<Floyd>().IsOn || !new RandomChooser().RollDiceSuccess(3))
-            return Task.FromResult(string.Empty);
+        var floyd = Repository.GetItem<Floyd>();
+        var computerRoom = Repository.GetLocation<ComputerRoom>();
 
-        return Task.FromResult(FloydConstants.LookAMiniCard);
+        var result = StateMachine.HandleTurnAction(
+            floyd.IsHereAndIsOn(context),
+            computerRoom.FloydHasExpressedConcern);
+
+        return Task.FromResult(result);
     }
+
+    
 }

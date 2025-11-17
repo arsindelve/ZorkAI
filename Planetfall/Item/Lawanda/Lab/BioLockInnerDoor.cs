@@ -1,4 +1,5 @@
-using Planetfall.Command;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Location.Lawanda.Lab;
 
 namespace Planetfall.Item.Lawanda.Lab;
 
@@ -11,10 +12,20 @@ internal class BioLockInnerDoor : SimpleDoor
 
     public override string OnOpening(IContext context)
     {
-        var youDie =
-            "Opening the door reveals a Bio-Lab full of horrible mutations. You stare at them, frozen with horror. " +
-            "Growling with hunger and delight, the mutations march into the bio-lock and devour you.";
+        var bioLockEast = Repository.GetLocation<BioLockEast>();
+        var floyd = Repository.GetItem<Floyd>();
 
-        return new DeathProcessor().Process(youDie, context).InteractionMessage;
+        var isFloydReady = bioLockEast.StateMachine.FloydHasSaidNeedToGetCard && floyd.IsHereAndIsOn(context);
+
+        return bioLockEast.StateMachine.HandleDoorOpening(isFloydReady, context, bioLockEast);
+    }
+
+    public override string NowClosed(ILocation currentLocation)
+    {
+        var bioLockEast = Repository.GetLocation<BioLockEast>();
+        var result = bioLockEast.StateMachine.HandleDoorClosing();
+
+        // If we get a custom message back, return it; otherwise use default
+        return !string.IsNullOrEmpty(result) ? result : base.NowClosed(currentLocation);
     }
 }

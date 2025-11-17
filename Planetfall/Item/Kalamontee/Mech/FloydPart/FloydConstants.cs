@@ -69,11 +69,7 @@ public static class FloydConstants
         "Floyd examines the glowing light. With a concerned frown, he says, \"Uh oh. Computer is broken. A Doctor-person once told Floyd that Computer is the most important part of the Project.\"";
 
     internal const string NeedToGetCard =
-        "Floyd stands on his tiptoes and peers in the window. \"Looks dangerous in there,\" says Floyd. \"I don't " +
-        "think you should go inside.\" He peers in again. \"We'll need card there to fix computer. " +
-        "Hmmm... I know! Floyd will get card. Robots are tough. Nothing can hurt robots. You open the door, " +
-        "then Floyd will rush in. Then you close door. When Floyd knocks, open door again. Okay? Go!\" Floyd's " +
-        "voice trembles slightly as he waits for you to open the door.";
+        """Floyd stands on his tiptoes and peers in the window. "Looks dangerous in there," says Floyd. "I don't think you should go inside." He peers in again. "We'll need card there to fix computer. Hmmm... I know! Floyd will get card. Robots are tough. Nothing can hurt robots. You open the door, then Floyd will rush in. Then you close door. When Floyd knocks, open door again. Okay? Go!" Floyd's voice trembles slightly as he waits for you to open the door.""";
 
     internal const string OpenTheDoor =
         "Floyd looks at you with a dash of impatience and a healthy helping of nervousness. \"Well?\" he asks. \"Are you going to open the door?\"";
