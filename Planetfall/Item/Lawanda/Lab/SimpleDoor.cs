@@ -14,12 +14,12 @@ internal abstract class SimpleDoor : ItemBase, IOpenAndClose, ICanBeExamined
 
     public bool HasEverBeenOpened { get; set; }
 
-    public string NowOpen(ILocation currentLocation)
+    public virtual string NowOpen(ILocation currentLocation)
     {
         return "The door opens. ";
     }
-    
-    public string NowClosed(ILocation currentLocation)
+
+    public virtual string NowClosed(ILocation currentLocation)
     {
         return "The door closes. ";
     }

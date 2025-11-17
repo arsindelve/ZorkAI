@@ -48,6 +48,16 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     // TODO: If you wander away before he wakes: The robot you were fiddling with in the Robot Shop bounds into the room.
     // "Hi!" he says, with a wide and friendly smile. "You turn Floyd on? Be Floyd's friend, yes?"
 
+    /// <summary>
+    /// Checks if Floyd is both turned on and in the same location as the player.
+    /// </summary>
+    /// <param name="context">The game context containing the player's current location.</param>
+    /// <returns>True if Floyd is on and in the player's current location; otherwise, false.</returns>
+    public bool IsHereAndIsOn(IContext context)
+    {
+        return IsOn && IsInTheRoom(context);
+    }
+    
     public override string[] NounsForMatching => ["floyd", "robot", "B-19-7", "multi-purpose robot"];
 
     public override string? CannotBeTakenDescription => IsOn
@@ -56,17 +66,33 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     protected override string SystemPrompt => FloydPrompts.SystemPrompt;
 
+    /// <summary>
+    /// Gets the examination description for Floyd based on his current state (dead, on, or off).
+    /// </summary>
     public string ExaminationDescription =>
         HasDied ? FloydConstants.ExaminationDead :
         IsOn
             ? FloydConstants.ExaminationOn
             : FloydConstants.ExaminationOff;
 
+    /// <summary>
+    /// Handles when an item is offered to Floyd. Floyd can accept and hold items.
+    /// </summary>
+    /// <param name="item">The item being offered to Floyd.</param>
+    /// <param name="context">The current game context.</param>
+    /// <returns>An InteractionResult indicating whether Floyd accepted the item.</returns>
     public InteractionResult OfferThisThing(IItem item, IContext context)
     {
         return _inventoryManager.OfferItem(item, context);
     }
 
+    /// <summary>
+    /// Handles conversation with Floyd using AI-generated responses based on his personality.
+    /// </summary>
+    /// <param name="text">The text spoken to Floyd.</param>
+    /// <param name="context">The current game context.</param>
+    /// <param name="client">The AI generation client for creating responses.</param>
+    /// <returns>Floyd's response to the conversation, or an error message if he's off or the AI service fails.</returns>
     public async Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
     {
         if (!IsOn)
@@ -157,6 +183,12 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     private string HandleFollowingPlayer(IContext context)
     {
+        // Check if Floyd is in the Bio Lab fighting - if so, don't follow
+        var bioLockEast = Repository.GetLocation<Planetfall.Location.Lawanda.Lab.BioLockEast>();
+
+        if (bioLockEast.StateMachine.IsFloydInLabFighting)
+            return string.Empty; // Floyd is busy fighting in the lab
+
         if (!IsOffWandering && !IsInTheRoom(context))
         {
             context.CurrentLocation.ItemPlacedHere(this);
@@ -168,6 +200,12 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     private async Task<string> PerformRandomAction(IContext context, IGenerationClient client)
     {
+        // Check if Floyd is in the Bio Lab fighting - if so, don't perform random actions
+        var bioLockEast = Repository.GetLocation<Planetfall.Location.Lawanda.Lab.BioLockEast>();
+
+        if (bioLockEast.StateMachine.IsFloydInLabFighting)
+            return string.Empty; // Floyd is busy fighting in the lab
+
         // Randomly, Floyd will say or do something (or possibly nothing) based on one of the
         // prompts below - or he might do one of the things from the original game.
         var action = Chooser.RollDice(15) switch
@@ -208,13 +246,16 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     /// <summary>
     /// Everytime Floyd sees you successfully swipe a card, there is a chance he will show you his own.
     /// </summary>
-    /// <param name="context"></param>
-    /// <returns></returns>
+    /// <param name="context">The current game context.</param>
+    /// <returns>A message if Floyd offers his lower elevator access card, or null if he doesn't.</returns>
     internal string? OffersLowerElevatorCard(IContext context)
     {
         return _inventoryManager.OfferLowerElevatorCard(context, Chooser);
     }
 
+    /// <summary>
+    /// Callback invoked when Floyd is taken by the player. Clears the item Floyd is currently holding.
+    /// </summary>
     [UsedImplicitly]
     public void BeingTakenCallback()
     {
