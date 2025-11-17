@@ -121,7 +121,16 @@ public static class FloydConstants
         
     internal const string Sulk =
         "\"Okay,\" says Floyd with uncharacteristic annoyance. \"Forget about the stupid card.\" He goes to the other end of the bio-lock and sulks.";
-    
+
+    internal const string BiologicalNightmaresDeath =
+        "The biological nightmares reach you. Gripping coils wrap around your limbs as powerful teeth begin tearing at your flesh. Something bites your leg, and you feel a powerful poison begin to work its numbing effects...";
+
+    internal const string FloydDies =
+        "You hear a final metallic scream from behind the door, followed by the sound of Floyd's body being torn apart. Then, silence. Floyd is dead.";
+
+    internal const string FloydReturnsWithCard =
+        "Floyd stumbles out of the Bio Lab, clutching the mini-booth card. The mutations rush toward the open doorway!";
+
     internal static readonly string[] RandomActions =
     [
         "Floyd produces a crayon from one of his compartments and scrawls his name on the wall. ",

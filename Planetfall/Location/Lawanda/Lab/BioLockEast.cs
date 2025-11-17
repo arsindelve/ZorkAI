@@ -28,9 +28,6 @@ internal class BioLockEast : LocationBase, ITurnBasedActor
         };
     }
 
-    // Opening the door reveals a Bio-Lab full of horrible mutations. You stare at them, frozen with horror.
-    // Growling with hunger and delight, the mutations march into the bio-lock and devour you.
-
     // Your former companion, Floyd, is lying on the ground in a pool of oil.
 
     protected override string GetContextBasedDescription(IContext context)
@@ -58,7 +55,8 @@ internal class BioLockEast : LocationBase, ITurnBasedActor
 
         var result = StateMachine.HandleTurnAction(
             floyd.IsHereAndIsOn(context),
-            computerRoom.FloydHasExpressedConcern);
+            computerRoom.FloydHasExpressedConcern,
+            context);
 
         return Task.FromResult(result);
     }

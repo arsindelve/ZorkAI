@@ -3,6 +3,7 @@ using GameEngine.IntentEngine;
 using Model.AIGeneration;
 using Newtonsoft.Json;
 using Planetfall.Item.Kalamontee.Admin;
+using Planetfall.Location.Lawanda.Lab;
 using Utilities;
 
 namespace Planetfall.Item.Kalamontee.Mech.FloydPart;
@@ -184,7 +185,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     private string HandleFollowingPlayer(IContext context)
     {
         // Check if Floyd is in the Bio Lab fighting - if so, don't follow
-        var bioLockEast = Repository.GetLocation<Planetfall.Location.Lawanda.Lab.BioLockEast>();
+        BioLockEast bioLockEast = Repository.GetLocation<BioLockEast>();
 
         if (bioLockEast.StateMachine.IsFloydInLabFighting)
             return string.Empty; // Floyd is busy fighting in the lab
@@ -201,7 +202,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     private async Task<string> PerformRandomAction(IContext context, IGenerationClient client)
     {
         // Check if Floyd is in the Bio Lab fighting - if so, don't perform random actions
-        var bioLockEast = Repository.GetLocation<Planetfall.Location.Lawanda.Lab.BioLockEast>();
+        var bioLockEast = Repository.GetLocation<BioLockEast>();
 
         if (bioLockEast.StateMachine.IsFloydInLabFighting)
             return string.Empty; // Floyd is busy fighting in the lab
