@@ -500,4 +500,63 @@ public class BioLockEastTests : EngineTestsBase
         target.Context.Actors.Should().NotContain(bioLockEast);
         bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.Completed);
     }
+
+    [Test]
+    public async Task SuccessfulSequence_MiniaturizationCardIsDroppedInRoom()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true;
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
+
+        var door = GetItem<BioLockInnerDoor>();
+        door.IsOpen = true;
+
+        await target.GetResponse("close door");
+
+        // Verify miniaturization card is in the room
+        var miniCard = GetItem<MiniaturizationAccessCard>();
+        miniCard.CurrentLocation.Should().Be(bioLockEast);
+        bioLockEast.Items.Should().Contain(miniCard);
+    }
+
+    [Test]
+    public async Task MiniaturizationCard_CanBeTakenAndExamined()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true;
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
+
+        var door = GetItem<BioLockInnerDoor>();
+        door.IsOpen = true;
+
+        await target.GetResponse("close door");
+
+        var takeResponse = await target.GetResponse("take miniaturization card");
+        takeResponse.Should().Contain("Taken");
+
+        var examineResponse = await target.GetResponse("examine miniaturization card");
+        examineResponse.Should().Contain("minitcurizaashun akses kard");
+    }
+
+    [Test]
+    public async Task LookThroughWindow()
+    {
+        var target = GetTarget();
+        StartHere<BioLockEast>();
+
+        var response = await target.GetResponse("look through window");
+
+        response.Should().Contain("large laboratory, dimly illuminated");
+        response.Should().Contain("blue glow comes from a crack in the northern wall");
+        response.Should().Contain("Shadowy, ominous shapes move about within the room");
+        response.Should().Contain("magnetic-striped card");
+    }
 }
