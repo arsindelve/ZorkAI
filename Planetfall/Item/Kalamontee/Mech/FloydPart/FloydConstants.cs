@@ -75,7 +75,7 @@ public static class FloydConstants
         "Floyd looks at you with a dash of impatience and a healthy helping of nervousness. \"Well?\" he asks. \"Are you going to open the door?\"";
 
     internal const string InTheLabOne =
-        "The door opens and Floyd, pausing only for the briefest moment, plunges into the Bio Lab. Immediately, he is set upon by hideous, mutated monsters! More are heading straight toward the open door! Floyd shrieks and yells to you to close the door.";
+        "Floyd, pausing only for the briefest moment, plunges into the Bio Lab. Immediately, he is set upon by hideous, mutated monsters! More are heading straight toward the open door! Floyd shrieks and yells to you to close the door.";
 
     internal const string InTheLabTwo =
         "From within the lab you hear ferocious growlings, the sounds of a skirmish, and then a high-pitched metallic scream! ";

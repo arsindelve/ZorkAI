@@ -60,4 +60,12 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         foreach (var output in outputs)
             result.Should().Contain(output);
     }
+
+    protected async Task DoWithSetup(string input, string? setup, params string[] outputs)
+    {
+        if (!string.IsNullOrWhiteSpace(setup))
+            InvokeGodMode(setup);
+
+        await Do(input, outputs);
+    }
 }

@@ -281,6 +281,64 @@ public class BioLockEastTests : EngineTestsBase
     }
 
     [Test]
+    public async Task OpenDoor_WhenFloydRushesIn_FloydLocationShouldBeNull()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.FloydHasSaidNeedToGetCard = true;
+        target.Context.RegisterActor(bioLockEast);
+
+        await target.GetResponse("open door");
+
+        // Floyd should have no location - he's in the lab fighting
+        floyd.CurrentLocation.Should().BeNull();
+        bioLockEast.Items.Should().NotContain(floyd);
+    }
+
+    [Test]
+    public async Task WhileFloydFighting_FloydLocationShouldRemainNull()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true;
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorClosedFloydFighting;
+        target.Context.RegisterActor(bioLockEast);
+
+        // Floyd should have no location while fighting
+        floyd.CurrentLocation.Should().BeNull();
+
+        await target.GetResponse("wait");
+
+        // Floyd should still have no location
+        floyd.CurrentLocation.Should().BeNull();
+    }
+
+    [Test]
+    public async Task WhileFloydFighting_FloydNotInRoomItems()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true;
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorClosedFloydFighting;
+        target.Context.RegisterActor(bioLockEast);
+
+        // Floyd should have no location and not be in the room
+        floyd.CurrentLocation.Should().BeNull();
+        bioLockEast.Items.Should().NotContain(floyd);
+
+        // Player should not be able to find Floyd in the room
+        var floydInRoom = bioLockEast.GetAllItemsRecursively.Any(item => item == floyd);
+        floydInRoom.Should().BeFalse("Floyd should not be accessible in the room while fighting");
+    }
+
+    [Test]
     public async Task CloseDoor_AfterFloydRushesIn_ShouldShowDoorClosedMessage()
     {
         var target = GetTarget();
@@ -521,6 +579,27 @@ public class BioLockEastTests : EngineTestsBase
         var miniCard = GetItem<MiniaturizationAccessCard>();
         miniCard.CurrentLocation.Should().Be(bioLockEast);
         bioLockEast.Items.Should().Contain(miniCard);
+    }
+
+    [Test]
+    public async Task SuccessfulSequence_FloydBodyIsPlacedInBioLockEast()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true;
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
+
+        var door = GetItem<BioLockInnerDoor>();
+        door.IsOpen = true;
+
+        await target.GetResponse("close door");
+
+        // Verify Floyd's body is in BioLockEast
+        floyd.CurrentLocation.Should().Be(bioLockEast);
+        bioLockEast.Items.Should().Contain(floyd);
     }
 
     [Test]
