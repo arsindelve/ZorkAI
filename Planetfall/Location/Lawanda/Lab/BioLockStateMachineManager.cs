@@ -154,6 +154,7 @@ public class BioLockStateMachineManager
 
             // Remove Floyd from the room - he's now in the lab fighting!
             bioLockEast.RemoveItem(floyd);
+            floyd.CurrentLocation = null; // Floyd has no location while in the lab
 
             return FloydConstants.InTheLabOne;
         }
@@ -216,7 +217,8 @@ public class BioLockStateMachineManager
         context.RemoveActor(floyd);
         context.RemoveActor(bioLockEast);
 
-        // Drop the miniaturization access card in BioLockEast
+        // Place Floyd's body and the miniaturization access card in BioLockEast
+        bioLockEast.ItemPlacedHere(floyd);
         var miniCard = Repository.GetItem<MiniaturizationAccessCard>();
         bioLockEast.ItemPlacedHere(miniCard);
 
