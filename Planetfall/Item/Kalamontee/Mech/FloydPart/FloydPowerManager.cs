@@ -1,5 +1,3 @@
-using Model.Interface;
-
 namespace Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 public class FloydPowerManager(Floyd floyd)
