@@ -299,10 +299,11 @@ function Game() {
             "/>
 
             <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word) => handleWordClicked(word)}
-                           className="relative p-6 sm:p-12 h-[65vh] overflow-auto font-mono rounded-lg border-2 border-cyan-500/30 shadow-lg clickable z-10"
+                           className="relative p-6 sm:p-12 h-[65vh] overflow-auto font-mono rounded-lg border-2 shadow-lg clickable z-10"
                            style={{
-                               background: 'linear-gradient(135deg, #0a1628 0%, #0f1f35 100%)',
-                               boxShadow: '0 0 40px rgba(0, 217, 255, 0.2), inset 0 0 60px rgba(0, 217, 255, 0.05)'
+                               background: 'linear-gradient(135deg, #1a0f2e 0%, #0f0a1e 100%)',
+                               borderColor: 'rgba(123, 47, 255, 0.4)',
+                               boxShadow: '0 0 40px rgba(123, 47, 255, 0.15), inset 0 0 60px rgba(255, 107, 157, 0.03)'
                            }}
                            data-testid="game-responses-container">
                 <div className="relative z-0">
@@ -310,9 +311,11 @@ function Game() {
                     <div
                         className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMjEyMTIxIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=')] opacity-5 pointer-events-none"></div>
                     <div
-                        className="absolute top-2 left-2 w-20 h-20 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none"></div>
+                        className="absolute top-2 left-2 w-20 h-20 rounded-full blur-3xl pointer-events-none"
+                        style={{background: 'rgba(123, 47, 255, 0.15)'}}></div>
                     <div
-                        className="absolute bottom-10 right-5 w-32 h-32 rounded-full bg-purple-500/5 blur-3xl pointer-events-none"></div>
+                        className="absolute bottom-10 right-5 w-32 h-32 rounded-full blur-3xl pointer-events-none"
+                        style={{background: 'rgba(255, 107, 157, 0.08)'}}></div>
                 </div>
 
                 {gameText.map((item: string, index: number) => (
@@ -327,8 +330,11 @@ function Game() {
             </ClickableText>
 
             <div
-                className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 py-2 min-h-[90px] rounded-b-lg border-t border-cyan-500/30 shadow-inner"
-                style={{background: 'linear-gradient(135deg, #0f1f35 0%, #0a1628 100%)'}}>
+                className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 py-2 min-h-[90px] rounded-b-lg border-t shadow-inner"
+                style={{
+                    background: 'linear-gradient(135deg, #2a1f4a 0%, #1a0f2e 100%)',
+                    borderColor: 'rgba(123, 47, 255, 0.3)'
+                }}>
                 <GameInput
                     playerInputElement={playerInputElement}
                     isPending={mutation.isPending}
@@ -340,8 +346,8 @@ function Game() {
                 {mutation.isPending && (
                     <div className="mr-4 p-2 flex items-center justify-center">
                         <CircularProgress size={28} sx={{
-                            color: '#00d9ff',
-                            boxShadow: '0 0 15px 5px rgba(0, 217, 255, 0.2)',
+                            color: '#ff6b9d',
+                            boxShadow: '0 0 15px 5px rgba(255, 107, 157, 0.3)',
                             borderRadius: '50%'
                         }}/>
                     </div>
@@ -378,7 +384,10 @@ function Game() {
                                 fontWeight: 'bold',
                                 minWidth: '80px',
                                 padding: '4px 10px',
-                                backgroundColor: '#00d9ff',
+                                backgroundColor: '#7b2fff',
+                                '&:hover': {
+                                    backgroundColor: '#9d4fff',
+                                },
                                 borderRadius: '8px',
                                 transition: 'all 0.3s ease',
 

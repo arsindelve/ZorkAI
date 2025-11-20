@@ -6,10 +6,10 @@
 :root {
   --planetfall-primary: #00d9ff;
   --planetfall-secondary: #7b2fff;
-  --planetfall-bg-dark: #0a1628;
-  --planetfall-bg-medium: #1a2f4a;
-  --planetfall-accent: #0ea5e9;
-  --planetfall-warning: #fb923c;
+  --planetfall-accent: #ff6b9d;
+  --planetfall-bg-dark: #1a0f2e;
+  --planetfall-bg-medium: #2a1f4a;
+  --planetfall-warning: #ff9500;
   --planetfall-text: #e0f2fe;
 }
 

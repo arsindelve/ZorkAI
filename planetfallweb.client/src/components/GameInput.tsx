@@ -32,7 +32,7 @@ const GameInput: React.FC<GameInputProps> = ({
                     transition-all duration-300 rounded-md -z-10
                 `}
                 style={{
-                    background: 'linear-gradient(90deg, rgba(0, 217, 255, 0.2) 0%, rgba(15, 31, 53, 0.8) 100%)'
+                    background: 'linear-gradient(90deg, rgba(123, 47, 255, 0.15) 0%, rgba(26, 15, 46, 0.8) 100%)'
                 }}
             ></div>
 
@@ -44,16 +44,18 @@ const GameInput: React.FC<GameInputProps> = ({
                         w-full
                         px-4 sm:px-5 py-1.5 sm:py-2
                         font-mono text-sm sm:text-base
-                        text-cyan-100
-                        border-2 ${isFocused ? 'border-cyan-400/70' : 'border-cyan-500/30'}
                         rounded-md
-                        shadow-md ${isFocused ? 'shadow-cyan-500/30' : ''}
+                        shadow-md
                         focus:outline-none
-                        placeholder-cyan-700
                         transition-all duration-300
                     `}
                     style={{
-                        background: '#0a1628'
+                        background: '#1a0f2e',
+                        color: '#e0d4ff',
+                        borderWidth: '2px',
+                        borderStyle: 'solid',
+                        borderColor: isFocused ? 'rgba(255, 107, 157, 0.6)' : 'rgba(123, 47, 255, 0.3)',
+                        boxShadow: isFocused ? '0 0 20px rgba(255, 107, 157, 0.2)' : 'none'
                     }}
                     value={playerInput}
                     placeholder="Type your command, then press enter/return..."

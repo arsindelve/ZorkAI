@@ -127,10 +127,10 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
         >
             <defs>
                 <style>{`
-      .cls-1 { fill: #1a2f4a; transition: fill 0.2s; opacity: 0.4; }
-      .cls-1.highlight { fill: rgba(0, 217, 255, 0.6); }
-      .cls-1.available { fill: #00d9ff; opacity: 0.8; }
-      .cls-1.available:hover { opacity: 1; fill: #00f0ff; }
+      .cls-1 { fill: #2a1f4a; transition: fill 0.2s; opacity: 0.4; }
+      .cls-1.highlight { fill: rgba(123, 47, 255, 0.6); }
+      .cls-1.available { fill: #ff6b9d; opacity: 0.8; }
+      .cls-1.available:hover { opacity: 1; fill: #ff8ab3; }
     `}</style>
             </defs>
 
