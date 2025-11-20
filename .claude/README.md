@@ -13,23 +13,24 @@ Executable bash script that runs when a Claude Code session starts. It:
 ### settings.local.json
 Permissions configuration allowing specific bash commands to run without user approval.
 
-### nuget-packages.tar.gz (Manually generated, not checked in)
+### nuget-packages.tar.gz (Generated and committed to git)
 Cached NuGet packages to enable offline builds in Claude Code sessions.
 
 **Generate this file by running:** `.claude/update-cache.sh`
 
-**Note:** This file is excluded from git via `.gitignore` because it's large (~100-500MB typically) and user-specific.
+**Important:** This file contains ONLY packages used by this project (not entire ~/.nuget/packages), so it's small enough to commit (~10-50MB typically).
 
 ### update-cache.sh
-Executable script to manually update the NuGet package cache. Run this after adding or updating packages.
+Executable script to update the NuGet package cache. Run this after adding or updating packages, then commit the updated tarball.
 
 ## How It Works
 
-### Manual Cache Generation
+### Project-Specific Cache Generation
 When you run `.claude/update-cache.sh`:
-1. Creates a tarball of `~/.nuget/packages`
-2. Saves it to `.claude/nuget-packages.tar.gz`
-3. Takes 30-60 seconds depending on cache size
+1. Scans all .csproj files to find PackageReference entries
+2. Copies only those specific packages from `~/.nuget/packages`
+3. Creates a tarball at `.claude/nuget-packages.tar.gz`
+4. Much smaller than full cache (suitable for git commit)
 
 ### Claude Code Session Startup
 When a Claude Code session starts:
@@ -51,18 +52,32 @@ Claude Code sessions run in sandboxed environments with restricted network acces
    ```bash
    dotnet restore
    .claude/update-cache.sh
+   git add .claude/nuget-packages.tar.gz
+   git commit -m "Add NuGet package cache for Claude Code"
    ```
-   The script will create `.claude/nuget-packages.tar.gz` (takes ~30-60 seconds)
 
 2. **Start Claude Code session:**
-   - SessionStart hook automatically extracts cached packages
+   - SessionStart hook automatically extracts cached packages from git
    - `dotnet build` and `dotnet test` work immediately
 
 ## Ongoing Usage
 
-**Update the cache when needed:**
-- After adding new packages: `dotnet add package Foo && .claude/update-cache.sh`
-- After updating packages: `dotnet restore && .claude/update-cache.sh`
-- After removing packages: `dotnet remove package Bar && .claude/update-cache.sh`
+**Update and commit the cache when dependencies change:**
 
-You don't need to update the cache for every build - only when your package dependencies change.
+After adding packages:
+```bash
+dotnet add package Foo
+.claude/update-cache.sh
+git add .claude/nuget-packages.tar.gz
+git commit -m "Update NuGet cache for new package"
+```
+
+After updating packages:
+```bash
+dotnet restore
+.claude/update-cache.sh
+git add .claude/nuget-packages.tar.gz
+git commit -m "Update NuGet cache"
+```
+
+**Important:** The tarball must be committed to git so Claude Code sessions can access it. You only need to update when package dependencies change, not for every build.
