@@ -1,12 +1,12 @@
 <Project>
   <!--
     Auto-generate NuGet package cache for Claude Code sessions
-    This runs after every dotnet restore to keep the cache up-to-date
+    This runs after build to keep the cache up-to-date with packages
   -->
 
   <Target Name="UpdateClaudeNuGetCache"
-          AfterTargets="Restore"
-          Condition="Exists('$(MSBuildThisFileDirectory).claude')">
+          AfterTargets="Build"
+          Condition="Exists('$(MSBuildThisFileDirectory).claude') AND '$(MSBuildProjectExtension)' == '.csproj'">
 
     <PropertyGroup>
       <ClaudeCachePath>$(MSBuildThisFileDirectory).claude/nuget-packages.tar.gz</ClaudeCachePath>
