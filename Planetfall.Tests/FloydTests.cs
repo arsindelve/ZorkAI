@@ -436,11 +436,11 @@ public class FloydTests : EngineTestsBase
         response.Should().Contain("you are having there");
         response.Should().Contain("Hider-and-Seeker");
 
-        // Should mention at least one inventory item
+        // Should mention at least one inventory item (checking for actual item.Name values)
         var hasItemMention = response.Contains("diary") ||
                             response.Contains("brush") ||
                             response.Contains("chronometer") ||
-                            response.Contains("uniform");
+                            response.Contains("patrol uniform");
         hasItemMention.Should().BeTrue("Floyd should mention a random item from inventory");
     }
 
