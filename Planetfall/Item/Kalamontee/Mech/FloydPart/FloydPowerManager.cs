@@ -56,7 +56,7 @@ public class FloydPowerManager(Floyd floyd)
         }
     }
 
-    private static string GetComesAliveGreeting(IContext context, IRandomChooser chooser)
+    private static string GetComesAliveGreeting(IContext context, IRandomChooser? chooser)
     {
         var greeting = FloydConstants.ComesAliveBase;
 
