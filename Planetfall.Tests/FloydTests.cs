@@ -431,7 +431,9 @@ public class FloydTests : EngineTestsBase
         floyd.CurrentLocation = GetLocation<RobotShop>();
 
         // Mock the Chooser to return the diary for deterministic testing
-        floyd.Chooser = Mock.Of<IRandomChooser>(r => r.Choose(It.IsAny<List<IItem>>()) == diary);
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.Choose(It.IsAny<List<IItem>>())).Returns(diary);
+        floyd.Chooser = mockChooser.Object;
 
         target.Context.RegisterActor(floyd);
 
