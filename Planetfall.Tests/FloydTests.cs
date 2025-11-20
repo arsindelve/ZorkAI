@@ -422,13 +422,17 @@ public class FloydTests : EngineTestsBase
         StartHere<RobotShop>();
 
         // Manually add an item to inventory for Floyd to comment on
-        Take<Diary>();
+        var diary = Take<Diary>();
 
         var floyd = GetItem<Floyd>();
         floyd.IsOn = false;
         floyd.HasEverBeenOn = false;
         floyd.TurnOnCountdown = 1;
         floyd.CurrentLocation = GetLocation<RobotShop>();
+
+        // Mock the Chooser to return the diary for deterministic testing
+        floyd.Chooser = Mock.Of<IRandomChooser>(r => r.Choose(It.IsAny<List<IItem>>()) == diary);
+
         target.Context.RegisterActor(floyd);
 
         // Player has diary in inventory - Floyd should mention it
