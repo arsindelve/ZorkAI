@@ -39,7 +39,7 @@ public class FloydPowerManager(Floyd floyd)
         return new PositiveInteractionResult(FloydConstants.TurnOffBetrayal);
     }
 
-    public string? HandleTurnOnCountdown()
+    public string? HandleTurnOnCountdown(IContext context)
     {
         switch (floyd.TurnOnCountdown)
         {
@@ -49,8 +49,23 @@ public class FloydPowerManager(Floyd floyd)
                 floyd.IsOn = true;
                 floyd.HasEverBeenOn = true;
                 floyd.TurnOnCountdown = 0;
+
+                // If player left during countdown, Floyd bounds into their room
+                if (floyd.NeedsToBoundIntoRoom)
+                {
+                    floyd.NeedsToBoundIntoRoom = false;
+                    context.CurrentLocation.ItemPlacedHere(floyd);
+                    return FloydConstants.BoundsIntoRoom;
+                }
+
                 return FloydConstants.ComesAlive;
             default:
+                // Check if player has left Floyd's location during countdown
+                if (floyd.CurrentLocation != context.CurrentLocation)
+                {
+                    floyd.NeedsToBoundIntoRoom = true;
+                }
+
                 floyd.TurnOnCountdown--;
                 return string.Empty;
         }

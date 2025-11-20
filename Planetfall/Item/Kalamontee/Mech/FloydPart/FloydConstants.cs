@@ -30,6 +30,10 @@ public static class FloydConstants
         "bounds over. \"Hi! I'm B-19-7, but to everyperson I'm called Floyd. Are you a doctor-person " +
         "or a planner-person? That's a nice {TODO} you are having there. Let's play Hider-and-Seeker you with me.\" ";
 
+    internal const string BoundsIntoRoom =
+        "The robot you were fiddling with in the Robot Shop bounds into the room. \"Hi!\" he says, " +
+        "with a wide and friendly smile. \"You turn Floyd on? Be Floyd's friend, yes?\" ";
+
     internal const string TickleFloyd =
         "Floyd giggles and pushes you away. \"You're tickling Floyd!\" He clutches at his " +
         "side panels, laughing hysterically. Oil drops stream from his eyes. ";

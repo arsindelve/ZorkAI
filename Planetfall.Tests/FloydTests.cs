@@ -386,7 +386,7 @@ public class FloydTests : EngineTestsBase
         floyd.IsOn = true;
         floyd.HasEverBeenOn = true;
         floyd.CurrentLocation = GetLocation<RobotShop>();
-        
+
         // Mock the generation client to capture the request that was sent
         var mockClient = Mock.Get(target.GenerationClient);
         mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
@@ -396,22 +396,104 @@ public class FloydTests : EngineTestsBase
                 // Verify that Floyd's description is not included in the room description
                 var floydDescription = floyd.GenericDescription(GetLocation<RobotShop>()).Trim();
                 request.UserMessage!.Should().NotContain(floydDescription);
-                
+
                 // Specifically check that it doesn't contain "multiple purpose robot"
                 request.UserMessage!.Should().NotContain("multiple purpose robot");
-                
+
                 // But verify that the room name is still included
                 request.UserMessage!.Should().Contain("Robot Shop");
             });
-        
+
         // Call GenerateCompanionSpeech directly through reflection to test the specific method
-        var methodInfo = typeof(QuirkyCompanion).GetMethod("GenerateCompanionSpeech", 
+        var methodInfo = typeof(QuirkyCompanion).GetMethod("GenerateCompanionSpeech",
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         methodInfo!.Should().NotBeNull();
-        
+
         await (Task<string>)methodInfo!.Invoke(floyd, new object[] { target.Context, target.GenerationClient, null! })!;
-        
+
         // Verify the mock was called
         mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Once);
+    }
+
+    [Test]
+    public async Task FloydWakesUp_PlayerStaysInRoom_NormalMessage()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+
+        // Activate Floyd
+        await target.GetResponse("turn on floyd");
+
+        // Wait for the 3-turn countdown while staying in the room
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        var response = await target.GetResponse("wait");
+
+        // Should use the normal "comes to life" message
+        response.Should().Contain("Suddenly, the robot comes to life");
+        response.Should().Contain("Hi! I'm B-19-7");
+        response.Should().NotContain("bounds into the room");
+        floyd.IsOn.Should().BeTrue();
+        floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
+    }
+
+    [Test]
+    public async Task FloydWakesUp_PlayerLeaves_BoundsIntoRoom()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+
+        // Activate Floyd
+        await target.GetResponse("turn on floyd");
+
+        // Wait one turn
+        await target.GetResponse("wait");
+
+        // Leave the room
+        await target.GetResponse("w");
+        target.Context.CurrentLocation.Should().Be(GetLocation<MachineShop>());
+
+        // Wait for Floyd to wake up
+        await target.GetResponse("wait");
+        var response = await target.GetResponse("wait");
+
+        // Should use the special "bounds into the room" message
+        response.Should().Contain("The robot you were fiddling with in the Robot Shop bounds into the room");
+        response.Should().Contain("\"Hi!\" he says, with a wide and friendly smile");
+        response.Should().Contain("You turn Floyd on? Be Floyd's friend, yes?");
+        response.Should().NotContain("Suddenly, the robot comes to life");
+        floyd.IsOn.Should().BeTrue();
+        floyd.CurrentLocation.Should().Be(GetLocation<MachineShop>());
+    }
+
+    [Test]
+    public async Task FloydWakesUp_PlayerLeavesAndKeepsMoving_BoundsIntoCurrentLocation()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+
+        // Activate Floyd
+        await target.GetResponse("turn on floyd");
+
+        // Wait one turn
+        await target.GetResponse("wait");
+
+        // Leave the room (go to Machine Shop)
+        await target.GetResponse("w");
+
+        // Move to another location (go to Mech Corridor South)
+        await target.GetResponse("n");
+        target.Context.CurrentLocation.Should().Be(GetLocation<MechCorridorSouth>());
+
+        // Wait for Floyd to wake up
+        var response = await target.GetResponse("wait");
+
+        // Floyd should appear in the current location (MechCorridorSouth)
+        response.Should().Contain("The robot you were fiddling with in the Robot Shop bounds into the room");
+        floyd.IsOn.Should().BeTrue();
+        floyd.CurrentLocation.Should().Be(GetLocation<MechCorridorSouth>());
     }
 }

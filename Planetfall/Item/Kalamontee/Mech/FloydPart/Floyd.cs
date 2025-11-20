@@ -46,8 +46,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     // again if you turn him on/off another time.
     [UsedImplicitly] public int TurnOnCountdown { get; set; } = 3;
 
-    // TODO: If you wander away before he wakes: The robot you were fiddling with in the Robot Shop bounds into the room.
-    // "Hi!" he says, with a wide and friendly smile. "You turn Floyd on? Be Floyd's friend, yes?"
+    // Track if the player left during the initial countdown, so Floyd can "bound into" their location
+    [UsedImplicitly] public bool NeedsToBoundIntoRoom { get; set; }
 
     /// <summary>
     /// Checks if Floyd is both turned on and in the same location as the player.
@@ -178,7 +178,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         if (HasDied)
             return string.Empty;
 
-        var countdownResult = _powerManager.HandleTurnOnCountdown();
+        var countdownResult = _powerManager.HandleTurnOnCountdown(context);
         if (countdownResult != null)
             return countdownResult;
 
