@@ -386,7 +386,7 @@ public class FloydTests : EngineTestsBase
         floyd.IsOn = true;
         floyd.HasEverBeenOn = true;
         floyd.CurrentLocation = GetLocation<RobotShop>();
-        
+
         // Mock the generation client to capture the request that was sent
         var mockClient = Mock.Get(target.GenerationClient);
         mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
@@ -396,22 +396,74 @@ public class FloydTests : EngineTestsBase
                 // Verify that Floyd's description is not included in the room description
                 var floydDescription = floyd.GenericDescription(GetLocation<RobotShop>()).Trim();
                 request.UserMessage!.Should().NotContain(floydDescription);
-                
+
                 // Specifically check that it doesn't contain "multiple purpose robot"
                 request.UserMessage!.Should().NotContain("multiple purpose robot");
-                
+
                 // But verify that the room name is still included
                 request.UserMessage!.Should().Contain("Robot Shop");
             });
-        
+
         // Call GenerateCompanionSpeech directly through reflection to test the specific method
-        var methodInfo = typeof(QuirkyCompanion).GetMethod("GenerateCompanionSpeech", 
+        var methodInfo = typeof(QuirkyCompanion).GetMethod("GenerateCompanionSpeech",
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         methodInfo!.Should().NotBeNull();
-        
+
         await (Task<string>)methodInfo!.Invoke(floyd, new object[] { target.Context, target.GenerationClient, null! })!;
-        
+
         // Verify the mock was called
         mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Once);
+    }
+
+    [Test]
+    public async Task FloydComesAlive_WithInventory_MentionsRandomItem()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = false;
+        floyd.HasEverBeenOn = false;
+        floyd.TurnOnCountdown = 1;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        target.Context.RegisterActor(floyd);
+
+        // Player has items in inventory (Diary, Brush, Chronometer, PatrolUniform from PlanetfallContext.Init)
+        // Floyd should mention one of them
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain("B-19-7");
+        response.Should().Contain("That's a nice");
+        response.Should().Contain("you are having there");
+        response.Should().Contain("Hider-and-Seeker");
+
+        // Should mention at least one inventory item
+        var hasItemMention = response.Contains("diary") ||
+                            response.Contains("brush") ||
+                            response.Contains("chronometer") ||
+                            response.Contains("uniform");
+        hasItemMention.Should().BeTrue("Floyd should mention a random item from inventory");
+    }
+
+    [Test]
+    public async Task FloydComesAlive_WithoutInventory_NoItemMention()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = false;
+        floyd.HasEverBeenOn = false;
+        floyd.TurnOnCountdown = 1;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        target.Context.RegisterActor(floyd);
+
+        // Remove all items from player inventory
+        target.Context.Items.Clear();
+
+        // Floyd should not mention any item
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain("B-19-7");
+        response.Should().NotContain("That's a nice");
+        response.Should().Contain("Hider-and-Seeker");
     }
 }

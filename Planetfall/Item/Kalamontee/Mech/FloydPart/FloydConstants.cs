@@ -25,10 +25,22 @@ public static class FloydConstants
     internal const string Kill =
         "Floyd starts dashing around the room. \"Oh boy oh boy oh boy! I haven't played Chase and Tag for years! You be It! Nah, nah!\" ";
 
-    internal const string ComesAlive =
-        "Suddenly, the robot comes to life and its head starts swivelling about. It notices you and " +
-        "bounds over. \"Hi! I'm B-19-7, but to everyperson I'm called Floyd. Are you a doctor-person " +
-        "or a planner-person? That's a nice {TODO} you are having there. Let's play Hider-and-Seeker you with me.\" ";
+    internal static string ComesAlive(IContext context)
+    {
+        var greeting = "Suddenly, the robot comes to life and its head starts swivelling about. It notices you and " +
+                      "bounds over. \"Hi! I'm B-19-7, but to everyperson I'm called Floyd. Are you a doctor-person " +
+                      "or a planner-person? ";
+
+        if (context.Items.Any())
+        {
+            var randomItem = new GameEngine.RandomChooser().Choose(context.Items.ToList());
+            greeting += $"That's a nice {randomItem.Name} you are having there. ";
+        }
+
+        greeting += "Let's play Hider-and-Seeker you with me.\" ";
+
+        return greeting;
+    }
 
     internal const string TickleFloyd =
         "Floyd giggles and pushes you away. \"You're tickling Floyd!\" He clutches at his " +

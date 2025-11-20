@@ -39,7 +39,7 @@ public class FloydPowerManager(Floyd floyd)
         return new PositiveInteractionResult(FloydConstants.TurnOffBetrayal);
     }
 
-    public string? HandleTurnOnCountdown()
+    public string? HandleTurnOnCountdown(IContext context)
     {
         switch (floyd.TurnOnCountdown)
         {
@@ -49,7 +49,7 @@ public class FloydPowerManager(Floyd floyd)
                 floyd.IsOn = true;
                 floyd.HasEverBeenOn = true;
                 floyd.TurnOnCountdown = 0;
-                return FloydConstants.ComesAlive;
+                return FloydConstants.ComesAlive(context);
             default:
                 floyd.TurnOnCountdown--;
                 return string.Empty;
