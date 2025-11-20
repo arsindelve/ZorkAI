@@ -15,9 +15,9 @@ export default function GameMenu() {
             data-testid="game-menu-container"
             className={`p-2 grid grid-cols-10 gap-2 w-full fixed top-0 z-10 shadow-lg transition-transform duration-500 ${isLoaded ? 'translate-y-0' : '-translate-y-full'}`}
             style={{
-                background: 'linear-gradient(90deg, #0a1628 0%, #0f2940 50%, #0a1628 100%)',
-                borderBottom: '2px solid rgba(0, 217, 255, 0.3)',
-                boxShadow: '0 4px 20px rgba(0, 217, 255, 0.15)'
+                background: 'linear-gradient(90deg, #1a0f2e 0%, #2a1f4a 50%, #1a0f2e 100%)',
+                borderBottom: '2px solid rgba(123, 47, 255, 0.4)',
+                boxShadow: '0 4px 20px rgba(123, 47, 255, 0.2)'
             }}
         >
             <div className="col-span-7 flex items-center">
