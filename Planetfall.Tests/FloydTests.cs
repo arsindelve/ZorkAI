@@ -420,6 +420,13 @@ public class FloydTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<RobotShop>();
+
+        // Manually add starting items to inventory since Init() isn't called in tests
+        Take<Diary>();
+        Take<Brush>();
+        Take<Chronometer>();
+        Take<PatrolUniform>();
+
         var floyd = GetItem<Floyd>();
         floyd.IsOn = false;
         floyd.HasEverBeenOn = false;
@@ -427,8 +434,7 @@ public class FloydTests : EngineTestsBase
         floyd.CurrentLocation = GetLocation<RobotShop>();
         target.Context.RegisterActor(floyd);
 
-        // Player has items in inventory (Diary, Brush, Chronometer, PatrolUniform from PlanetfallContext.Init)
-        // Floyd should mention one of them
+        // Player has items in inventory - Floyd should mention one of them
         var response = await target.GetResponse("wait");
 
         response.Should().Contain("B-19-7");
