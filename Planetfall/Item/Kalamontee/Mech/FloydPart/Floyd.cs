@@ -178,7 +178,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         if (HasDied)
             return string.Empty;
 
-        var countdownResult = _powerManager.HandleTurnOnCountdown();
+        var countdownResult = _powerManager.HandleTurnOnCountdown(context);
         if (countdownResult != null)
             return countdownResult;
 
