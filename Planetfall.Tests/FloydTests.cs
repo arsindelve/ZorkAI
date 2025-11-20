@@ -2,6 +2,7 @@ using Azure;
 using FluentAssertions;
 using Model.AIGeneration.Requests;
 using Model.Interface;
+using Model.Item;
 using Moq;
 using Planetfall.Item;
 using Planetfall.Item.Feinstein;
@@ -386,7 +387,7 @@ public class FloydTests : EngineTestsBase
         floyd.IsOn = true;
         floyd.HasEverBeenOn = true;
         floyd.CurrentLocation = GetLocation<RobotShop>();
-        
+
         // Mock the generation client to capture the request that was sent
         var mockClient = Mock.Get(target.GenerationClient);
         mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
@@ -396,22 +397,77 @@ public class FloydTests : EngineTestsBase
                 // Verify that Floyd's description is not included in the room description
                 var floydDescription = floyd.GenericDescription(GetLocation<RobotShop>()).Trim();
                 request.UserMessage!.Should().NotContain(floydDescription);
-                
+
                 // Specifically check that it doesn't contain "multiple purpose robot"
                 request.UserMessage!.Should().NotContain("multiple purpose robot");
-                
+
                 // But verify that the room name is still included
                 request.UserMessage!.Should().Contain("Robot Shop");
             });
-        
+
         // Call GenerateCompanionSpeech directly through reflection to test the specific method
-        var methodInfo = typeof(QuirkyCompanion).GetMethod("GenerateCompanionSpeech", 
+        var methodInfo = typeof(QuirkyCompanion).GetMethod("GenerateCompanionSpeech",
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         methodInfo!.Should().NotBeNull();
-        
+
         await (Task<string>)methodInfo!.Invoke(floyd, new object[] { target.Context, target.GenerationClient, null! })!;
-        
+
         // Verify the mock was called
         mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Once);
+    }
+
+    [Test]
+    public async Task FloydComesAlive_WithInventory_MentionsRandomItem()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+
+        // Manually add an item to inventory for Floyd to comment on
+        var diary = Take<Diary>();
+
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = false;
+        floyd.HasEverBeenOn = false;
+        floyd.TurnOnCountdown = 1;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+
+        // Mock the Chooser to return the diary for deterministic testing
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.Choose(It.IsAny<List<IItem>>())).Returns(diary);
+        floyd.Chooser = mockChooser.Object;
+
+        target.Context.RegisterActor(floyd);
+
+        // Player has diary in inventory - Floyd should mention it
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain("B-19-7");
+        response.Should().Contain("That's a nice");
+        response.Should().Contain("diary");
+        response.Should().Contain("you are having there");
+        response.Should().Contain("Hider-and-Seeker");
+    }
+
+    [Test]
+    public async Task FloydComesAlive_WithoutInventory_NoItemMention()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = false;
+        floyd.HasEverBeenOn = false;
+        floyd.TurnOnCountdown = 1;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        target.Context.RegisterActor(floyd);
+
+        // Remove all items from player inventory
+        target.Context.Items.Clear();
+
+        // Floyd should not mention any item
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain("B-19-7");
+        response.Should().NotContain("That's a nice");
+        response.Should().Contain("Hider-and-Seeker");
     }
 }
