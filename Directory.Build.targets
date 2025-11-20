@@ -1,0 +1,33 @@
+<Project>
+  <!--
+    Auto-generate NuGet package cache for Claude Code sessions
+    This runs after every dotnet restore to keep the cache up-to-date
+  -->
+
+  <Target Name="UpdateClaudeNuGetCache"
+          AfterTargets="Restore"
+          Condition="Exists('$(MSBuildThisFileDirectory).claude')">
+
+    <PropertyGroup>
+      <ClaudeCachePath>$(MSBuildThisFileDirectory).claude/nuget-packages.tar.gz</ClaudeCachePath>
+      <NuGetPackagesPath>$(USERPROFILE)/.nuget/packages</NuGetPackagesPath>
+      <NuGetPackagesPath Condition="'$(OS)' != 'Windows_NT'">$(HOME)/.nuget/packages</NuGetPackagesPath>
+    </PropertyGroup>
+
+    <Message Text="Updating Claude Code NuGet cache at $(ClaudeCachePath)..." Importance="high" />
+
+    <!-- Use tar command to create compressed archive of NuGet packages -->
+    <Exec Command="tar -czf &quot;$(ClaudeCachePath)&quot; -C &quot;$(NuGetPackagesPath)&quot; ."
+          IgnoreExitCode="false"
+          ContinueOnError="true" />
+
+    <Message Text="Claude Code NuGet cache updated successfully"
+             Importance="high"
+             Condition="Exists('$(ClaudeCachePath)')" />
+
+    <Warning Text="Failed to update Claude Code NuGet cache - tar command may not be available"
+             Condition="!Exists('$(ClaudeCachePath)')" />
+
+  </Target>
+
+</Project>
