@@ -62,8 +62,8 @@ public class FloydPowerManager(Floyd floyd)
 
         if (context.Items.Any())
         {
-            var randomItem = chooser.Choose(context.Items.ToList());
-            greeting += $"That's a nice {randomItem.Name} you are having there. ";
+            var randomItem = chooser?.Choose(context.Items.ToList());
+            greeting += $"That's a nice {randomItem?.Name} you are having there. ";
         }
 
         greeting += FloydConstants.ComesAliveEnd;
