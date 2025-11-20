@@ -2,139 +2,170 @@ import './App.css';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import Game from "./Game.tsx";
 import GameMenu from "./menu/GameMenu.tsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import Server from "./Server.ts";
 import {SessionHandler} from "./SessionHandler.ts";
 import RestoreModal from "./modal/RestoreModal.tsx";
 import {ISavedGame} from "./model/SavedGame.ts";
 import SaveModal from "./modal/SaveModal.tsx";
-import {ISaveGameRequest} from "./model/SaveGameRequest.ts";
-import ConfirmDialog from "./modal/ConfirmationDialog.tsx";
-
+import RestartConfirmDialog from "./modal/RestartConfirmDialog.tsx";
+import {useGameContext} from "./GameContext.tsx";
+import VideoDialog from "./modal/VideoModal.tsx";
+import WelcomeDialog from "./modal/WelcomeModal.tsx";
+import ReleaseNotesModal from "./modal/ReleaseNotesModal.tsx";
+import {Mixpanel} from "./Mixpanel.ts";
+import DialogType from "./model/DialogType.ts";
 
 function App() {
 
-    const [confirmOpen, setConfirmRestartOpen] = useState<boolean>(false);
-    const [forceMenuClose, setMenuForceClose] = useState<boolean>(false);
-    const [gameSaved, setGameSaved] = useState<boolean>(false);
-    const [restoreGameId, setRestoreGameId] = useState<string | undefined>(undefined);
+    const [restartConfirmOpen, setRestartConfirmOpen] = useState<boolean>(false);
     const [restoreDialogOpen, setRestoreDialogOpen] = useState<boolean>(false);
     const [saveDialogOpen, setSaveDialogOpen] = useState<boolean>(false);
     const [availableSavedGames, setAvailableSavedGames] = useState<ISavedGame[]>([]);
-    const [isRestarting, setIsRestarting] = useState<boolean>(false);
-    const [serverText, setServerText] = useState<string>("");
+    const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
+    const [videoDialogOpen, setVideoDialogOpen] = useState<boolean>(false);
+    const [releaseNotesDialogOpen, setReleaseNotesDialogOpen] = useState<boolean>(false);
 
     const server = new Server();
     const sessionId = new SessionHandler();
     const queryClient = new QueryClient();
 
-    function restart() {
-        setIsRestarting(false);
-        setConfirmRestartOpen(true);
-    }
+    const {dialogToOpen, setDialogToOpen, setRestartGame} = useGameContext();
 
-    async function restore(): Promise<void> {
-        setMenuForceClose(false);
-        await getSavedGames();
-        setRestoreDialogOpen(true);
-    }
+    useEffect(() => {
+        if (!dialogToOpen) {
+            return;
+        }
+
+        const handleDialog = async () => {
+            switch (dialogToOpen) {
+                case DialogType.Save:
+                    await getSavedGames();
+                    setSaveDialogOpen(true);
+                    setDialogToOpen(undefined);
+                    break;
+                case DialogType.Video:
+                    Mixpanel.track('Open Video Dialog', {});
+                    setVideoDialogOpen(true);
+                    setDialogToOpen(undefined);
+                    break;
+                case DialogType.Welcome:
+                    Mixpanel.track('Open Welcome Dialog', {});
+                    setWelcomeDialogOpen(true);
+                    setDialogToOpen(undefined);
+                    break;
+                case DialogType.Restore:
+                    await getSavedGames();
+                    setRestoreDialogOpen(true);
+                    setDialogToOpen(undefined);
+                    break;
+                case DialogType.Restart:
+                    setRestartConfirmOpen(true);
+                    setDialogToOpen(undefined);
+                    break;
+                case DialogType.ReleaseNotes:
+                    Mixpanel.track('Open Release Notes Dialog', {});
+                    setReleaseNotesDialogOpen(true);
+                    setDialogToOpen(undefined);
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        handleDialog().catch((error) => {
+            console.error("App.tsx: Error handling dialog:", error);
+        });
+
+    }, [dialogToOpen]);
+
+    const handleWatchVideo = () => {
+        setWelcomeDialogOpen(false);
+        setVideoDialogOpen(true);
+    };
 
     async function getSavedGames() {
         const id = sessionId.getClientId();
-        const savedGames = await server.getSavedGames(id);
-        setAvailableSavedGames(savedGames);
-    }
 
-    async function save(): Promise<void> {
-        setMenuForceClose(false);
-        await getSavedGames();
-        setSaveDialogOpen(true);
-    }
-
-    function handleRestartGameConfirmClose() {
-        setIsRestarting(true);
-    }
-
-    function handleRestoreModalClose(id: string | undefined): void {
-        if (id)
-            setRestoreGameId(id);
-        setRestoreDialogOpen(false);
-        setMenuForceClose(true);
-    }
-
-    async function handleSaveModalClose(request: ISaveGameRequest | undefined): Promise<void> {
-        setGameSaved(false);
-        if (request) {
-            request.sessionId = sessionId.getSessionId()[0];
-            request.clientId = sessionId.getClientId();
-            setServerText(await server.saveGame(request));
-        }
-        setSaveDialogOpen(false);
-        setMenuForceClose(true);
-        setGameSaved(true);
-    }
-
-    async function handleDeleteGame(game: ISavedGame): Promise<void> {
         try {
-            await server.deleteSavedGame(game.id!, sessionId.getClientId());
-            // Refresh the saved games list
-            await getSavedGames();
+            const savedGames = await server.getSavedGames(id);
+            setAvailableSavedGames(savedGames);
         } catch (error) {
-            console.error('Error deleting saved game:', error);
+            console.error('App.tsx: Error fetching saved games:', error);
         }
     }
 
     return (
+
         <div
-            className="bg-[url('https://planetfallai-assets.s3.amazonaws.com/Blue+Nebula+2+-+1024x1024.png')] bg-repeat">
-            <div className="flex flex-col min-h-screen">
-                <div className="flex-grow">
+            className="relative bg-[url('https://planetfallai-assets.s3.amazonaws.com/Blue+Nebula+2+-+1024x1024.png')] bg-cover bg-center bg-fixed min-h-screen flex flex-col justify-between"
+            style={{
+                backgroundSize: 'cover',
+                backgroundAttachment: 'fixed'
+            }}
+        >
+            {/* Overlay gradient for depth */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628]/80 to-[#1a2f4a]/60 pointer-events-none" />
 
-                    <GameMenu forceClose={forceMenuClose} gameMethods={[restart, restore, save]}/>
+            <div className="relative flex-grow flex flex-col min-h-0 z-10">
+                <GameMenu/>
 
-                    <QueryClientProvider client={queryClient}>
+                <QueryClientProvider client={queryClient}>
 
-                        <Game
-                            restartGame={isRestarting}
-                            serverText={serverText}
-                            onRestoreDone={() => setRestoreGameId(undefined)}
-                            restoreGameId={restoreGameId}
-                            gaveSaved={gameSaved}
-                            openRestoreModal={restore}
-                            openSaveModal={save}
-                            openRestartModal={restore}
-                            onRestartDone={() => {
-                                setConfirmRestartOpen(false);
-                                setMenuForceClose(true);
-                            }}/>
+                    <Game />
+
+                    <RestartConfirmDialog
+                        open={restartConfirmOpen}
+                        setOpen={setRestartConfirmOpen}
+                        onConfirm={() => {
+                            setRestartGame(true);
+                        }}
+                    />
+
+                    <RestoreModal games={availableSavedGames}
+                                  open={restoreDialogOpen}
+                                  setOpen={setRestoreDialogOpen}
+                    />
+
+                    <SaveModal games={availableSavedGames}
+                               setOpen={setSaveDialogOpen}
+                               open={saveDialogOpen}
+                    />
+
+                    <VideoDialog open={videoDialogOpen}
+                                 handleClose={() => {
+                                     setVideoDialogOpen(false);
+                                     Mixpanel.track('Close Video Dialog', {});
+                                 }}/>
+
+                    <ReleaseNotesModal handleClose={() => {
+                        setReleaseNotesDialogOpen(false);
+                        Mixpanel.track('Close Release Notes Dialog', {});
+                    }} open={releaseNotesDialogOpen}/>
+
+                    <WelcomeDialog handleWatchVideo={handleWatchVideo} open={welcomeDialogOpen}
+                                   handleClose={() => {
+                                       setWelcomeDialogOpen(false);
+                                       Mixpanel.track('Close Welcome Dialog', {});
+                                   }}/>
 
 
-                        <ConfirmDialog
-                            title="Restart Your Game? Are you sure? "
-                            open={confirmOpen}
-                            setOpen={setConfirmRestartOpen}
-                            onConfirm={handleRestartGameConfirmClose}
-                        />
-
-                        <RestoreModal games={availableSavedGames} open={restoreDialogOpen}
-                                      handleClose={handleRestoreModalClose} onDelete={handleDeleteGame}/>
-
-                        <SaveModal games={availableSavedGames} open={saveDialogOpen}
-                                   handleClose={handleSaveModalClose}/>
-
-                    </QueryClientProvider>
-
-
-                </div>
-                <footer className="bg-gray-200 py-2">
-                    <p className={"text-center text-black"}><a target="_blank"
-                                                               href="https://github.com/arsindelve/ZorkAI">Created
-                        By Mike in Dallas. Check out the repository.</a></p>
-                </footer>
+                </QueryClientProvider>
             </div>
+
+            <footer className="relative bg-gradient-to-r from-cyan-900/40 to-purple-900/40 backdrop-blur-md border-t-2 border-cyan-500/30 py-2 z-10">
+                <p className="text-center text-cyan-300">
+                    <a
+                        target="_blank"
+                        href="https://github.com/arsindelve/ZorkAI"
+                        className="hover:text-cyan-100 transition-colors duration-300"
+                    >
+                        Created By Mike in Dallas. Check out the repository.
+                    </a>
+                </p>
+            </footer>
         </div>
     );
 }
 
 export default App;
-
