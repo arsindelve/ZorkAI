@@ -2,6 +2,7 @@ using Azure;
 using FluentAssertions;
 using Model.AIGeneration.Requests;
 using Model.Interface;
+using Model.Item;
 using Moq;
 using Planetfall.Item;
 using Planetfall.Item.Feinstein;
