@@ -421,11 +421,8 @@ public class FloydTests : EngineTestsBase
         var target = GetTarget();
         StartHere<RobotShop>();
 
-        // Manually add starting items to inventory since Init() isn't called in tests
+        // Manually add an item to inventory for Floyd to comment on
         Take<Diary>();
-        Take<Brush>();
-        Take<Chronometer>();
-        Take<PatrolUniform>();
 
         var floyd = GetItem<Floyd>();
         floyd.IsOn = false;
@@ -434,20 +431,14 @@ public class FloydTests : EngineTestsBase
         floyd.CurrentLocation = GetLocation<RobotShop>();
         target.Context.RegisterActor(floyd);
 
-        // Player has items in inventory - Floyd should mention one of them
+        // Player has diary in inventory - Floyd should mention it
         var response = await target.GetResponse("wait");
 
         response.Should().Contain("B-19-7");
         response.Should().Contain("That's a nice");
+        response.Should().Contain("diary");
         response.Should().Contain("you are having there");
         response.Should().Contain("Hider-and-Seeker");
-
-        // Should mention at least one inventory item (checking for actual item.Name values)
-        var hasItemMention = response.Contains("diary") ||
-                            response.Contains("brush") ||
-                            response.Contains("chronometer") ||
-                            response.Contains("patrol uniform");
-        hasItemMention.Should().BeTrue("Floyd should mention a random item from inventory");
     }
 
     [Test]
