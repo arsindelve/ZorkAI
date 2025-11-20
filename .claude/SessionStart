@@ -5,12 +5,26 @@
 # It restores NuGet packages so dotnet build and test can run
 
 echo "=== ZorkAI Session Start ==="
-echo "Restoring NuGet packages..."
 
 cd /home/user/ZorkAI || exit 1
 
+# Check if cached NuGet packages tarball exists
+CACHE_TARBALL=".claude/nuget-packages.tar.gz"
+if [ -f "$CACHE_TARBALL" ]; then
+    echo "Found cached NuGet packages, extracting..."
+    mkdir -p ~/.nuget/packages
+    tar -xzf "$CACHE_TARBALL" -C ~/.nuget/packages 2>&1 | head -5
+    echo "Package cache extracted successfully."
+else
+    echo "No package cache found at $CACHE_TARBALL"
+    echo "To create one, run locally:"
+    echo "  dotnet restore"
+    echo "  tar -czf .claude/nuget-packages.tar.gz -C ~/.nuget/packages ."
+fi
+
 # Run dotnet restore with timeout to prevent hanging
-# Suppress most output, only show important messages
+# If cache was extracted, this should be fast and work offline
+echo "Restoring NuGet packages..."
 timeout 300 dotnet restore 2>&1 | grep -E "(Restored|restored|Restore completed|error NU|warning NU)" || {
     echo "Warning: dotnet restore may have failed or timed out"
     exit 0  # Don't fail the session start

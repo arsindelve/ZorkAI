@@ -4,10 +4,13 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 .idea
-*/Properties/launchSettings.json* 
+*/Properties/launchSettings.json*
 .env
 .vscocde
 Zork.sln.DotSettings.user
 Zork.sln.DotSettings
 .vscode/launch.json
 .vscode/tasks.json
+
+# Claude Code NuGet package cache (large binary)
+.claude/nuget-packages.tar.gz
