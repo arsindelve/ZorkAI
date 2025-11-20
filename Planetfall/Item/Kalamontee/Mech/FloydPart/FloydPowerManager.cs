@@ -50,22 +50,15 @@ public class FloydPowerManager(Floyd floyd)
                 floyd.HasEverBeenOn = true;
                 floyd.TurnOnCountdown = 0;
 
-                // If player left during countdown, Floyd bounds into their room
-                if (floyd.NeedsToBoundIntoRoom)
+                // If player is not in Floyd's room when he wakes, Floyd bounds into their room
+                if (floyd.CurrentLocation != context.CurrentLocation)
                 {
-                    floyd.NeedsToBoundIntoRoom = false;
                     context.CurrentLocation.ItemPlacedHere(floyd);
                     return FloydConstants.BoundsIntoRoom;
                 }
 
                 return FloydConstants.ComesAlive;
             default:
-                // Check if player has left Floyd's location during countdown
-                if (floyd.CurrentLocation != context.CurrentLocation)
-                {
-                    floyd.NeedsToBoundIntoRoom = true;
-                }
-
                 floyd.TurnOnCountdown--;
                 return string.Empty;
         }

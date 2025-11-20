@@ -46,9 +46,6 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     // again if you turn him on/off another time.
     [UsedImplicitly] public int TurnOnCountdown { get; set; } = 3;
 
-    // Track if the player left during the initial countdown, so Floyd can "bound into" their location
-    [UsedImplicitly] public bool NeedsToBoundIntoRoom { get; set; }
-
     /// <summary>
     /// Checks if Floyd is both turned on and in the same location as the player.
     /// </summary>
