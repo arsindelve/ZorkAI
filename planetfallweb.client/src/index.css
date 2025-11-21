@@ -2,14 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Planetfall Sci-Fi Color Palette */
+/* Planetfall Sci-Fi Color Palette - Warm Amber & Deep Blue */
 :root {
-  --planetfall-primary: #00d9ff;
-  --planetfall-secondary: #7b2fff;
-  --planetfall-accent: #ff6b9d;
-  --planetfall-bg-dark: #1a0f2e;
-  --planetfall-bg-medium: #2a1f4a;
-  --planetfall-warning: #ff9500;
+  --planetfall-primary: #ff9500;
+  --planetfall-secondary: #0ea5e9;
+  --planetfall-accent: #fbbf24;
+  --planetfall-bg-dark: #0a1929;
+  --planetfall-bg-medium: #1e293b;
+  --planetfall-warning: #ef4444;
   --planetfall-text: #e0f2fe;
 }
 
@@ -27,10 +27,10 @@
 
 @keyframes glowPulse {
   0%, 100% {
-    box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+    box-shadow: 0 0 10px rgba(255, 149, 0, 0.3);
   }
   50% {
-    box-shadow: 0 0 20px rgba(0, 217, 255, 0.6);
+    box-shadow: 0 0 20px rgba(255, 149, 0, 0.6);
   }
 }
 
@@ -85,23 +85,23 @@
 }
 
 .clickable::-webkit-scrollbar-track {
-  background: rgba(10, 22, 40, 0.5);
+  background: rgba(10, 25, 41, 0.5);
   border-radius: 4px;
 }
 
 .clickable::-webkit-scrollbar-thumb {
-  background: rgba(0, 217, 255, 0.3);
+  background: rgba(255, 149, 0, 0.3);
   border-radius: 4px;
   transition: background 0.3s;
 }
 
 .clickable::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 217, 255, 0.6);
+  background: rgba(255, 149, 0, 0.6);
 }
 
 /* Highlight clickable words on hover */
 .clickable p:hover {
-  text-shadow: 0 0 8px rgba(0, 217, 255, 0.6);
+  text-shadow: 0 0 8px rgba(255, 149, 0, 0.6);
 }
 
 /* Sci-fi scanline effect */
@@ -113,8 +113,8 @@
     0deg,
     transparent,
     transparent 2px,
-    rgba(0, 217, 255, 0.03) 2px,
-    rgba(0, 217, 255, 0.03) 4px
+    rgba(255, 149, 0, 0.03) 2px,
+    rgba(255, 149, 0, 0.03) 4px
   );
   pointer-events: none;
   animation: scanline 8s linear infinite;
@@ -123,22 +123,36 @@
 /* Glowing text effect */
 .text-glow {
   text-shadow:
-    0 0 10px rgba(0, 217, 255, 0.5),
-    0 0 20px rgba(0, 217, 255, 0.3),
-    0 0 30px rgba(0, 217, 255, 0.2);
+    0 0 10px rgba(255, 149, 0, 0.5),
+    0 0 20px rgba(255, 149, 0, 0.3),
+    0 0 30px rgba(255, 149, 0, 0.2);
 }
 
 /* Neon border effect */
 .neon-border {
-  border: 2px solid rgba(0, 217, 255, 0.3);
+  border: 2px solid rgba(255, 149, 0, 0.3);
   box-shadow:
-    0 0 10px rgba(0, 217, 255, 0.2),
-    inset 0 0 10px rgba(0, 217, 255, 0.1);
+    0 0 10px rgba(255, 149, 0, 0.2),
+    inset 0 0 10px rgba(255, 149, 0, 0.1);
 }
 
 /* Glass morphism effect */
 .glass-morphism {
-  background: rgba(10, 22, 40, 0.7);
+  background: rgba(10, 25, 41, 0.7);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 217, 255, 0.2);
+  border: 1px solid rgba(255, 149, 0, 0.2);
+}
+
+/* Footer styling */
+.footer-gradient {
+  background: linear-gradient(to right, color-mix(in srgb, var(--planetfall-bg-medium) 40%, transparent), color-mix(in srgb, var(--planetfall-secondary) 40%, transparent));
+  border-top-color: color-mix(in srgb, var(--planetfall-primary) 30%, transparent);
+}
+
+.footer-text {
+  color: color-mix(in srgb, var(--planetfall-primary) 80%, white);
+}
+
+.footer-text:hover {
+  color: color-mix(in srgb, var(--planetfall-primary) 60%, white);
 }
