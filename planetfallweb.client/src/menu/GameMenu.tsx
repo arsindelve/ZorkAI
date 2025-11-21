@@ -15,9 +15,9 @@ export default function GameMenu() {
             data-testid="game-menu-container"
             className={`p-2 grid grid-cols-10 gap-2 w-full fixed top-0 z-10 shadow-lg transition-transform duration-500 ${isLoaded ? 'translate-y-0' : '-translate-y-full'}`}
             style={{
-                background: 'linear-gradient(90deg, #1a0f2e 0%, #2a1f4a 50%, #1a0f2e 100%)',
-                borderBottom: '2px solid rgba(123, 47, 255, 0.4)',
-                boxShadow: '0 4px 20px rgba(123, 47, 255, 0.2)'
+                background: 'linear-gradient(90deg, var(--planetfall-bg-dark) 0%, var(--planetfall-bg-medium) 50%, var(--planetfall-bg-dark) 100%)',
+                borderBottom: '2px solid color-mix(in srgb, var(--planetfall-primary) 40%, transparent)',
+                boxShadow: '0 4px 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent)'
             }}
         >
             <div className="col-span-7 flex items-center">
@@ -32,8 +32,8 @@ export default function GameMenu() {
                     style={{
                         transitionDelay: '300ms',
                         fontFamily: 'Lato, sans-serif',
-                        color: '#e0f2fe',
-                        textShadow: '0 0 20px rgba(0, 217, 255, 0.3), 0 0 40px rgba(0, 217, 255, 0.1)'
+                        color: 'var(--planetfall-text)',
+                        textShadow: '0 0 20px color-mix(in srgb, var(--planetfall-primary) 30%, transparent), 0 0 40px color-mix(in srgb, var(--planetfall-primary) 10%, transparent)'
                     }}
                 >
                     Generative AI-Enhanced Planetfall

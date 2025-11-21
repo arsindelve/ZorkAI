@@ -166,7 +166,7 @@ function Game() {
         // Replace newline chars with HTML line breaks. 
         data.response = data.response.replace(/\n/g, "<br />");
 
-        const textToAppend = `<p class="text-cyan-400 font-extrabold mt-3 mb-3 text-glow">`
+        const textToAppend = `<p class="font-extrabold mt-3 mb-3 text-glow" style="color: var(--planetfall-primary);">`
             + (!playerInput ? "" : `> ${playerInput}`) + `</p>`
             + data.response;
 
@@ -301,9 +301,9 @@ function Game() {
             <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word) => handleWordClicked(word)}
                            className="relative p-6 sm:p-12 h-[65vh] overflow-auto font-mono rounded-lg border-2 shadow-lg clickable z-10"
                            style={{
-                               background: 'linear-gradient(135deg, #1a0f2e 0%, #0f0a1e 100%)',
-                               borderColor: 'rgba(123, 47, 255, 0.4)',
-                               boxShadow: '0 0 40px rgba(123, 47, 255, 0.15), inset 0 0 60px rgba(255, 107, 157, 0.03)'
+                               background: 'linear-gradient(135deg, var(--planetfall-bg-dark) 0%, #020617 100%)',
+                               borderColor: 'color-mix(in srgb, var(--planetfall-primary) 40%, transparent)',
+                               boxShadow: '0 0 40px color-mix(in srgb, var(--planetfall-primary) 15%, transparent), inset 0 0 60px color-mix(in srgb, var(--planetfall-secondary) 3%, transparent)'
                            }}
                            data-testid="game-responses-container">
                 <div className="relative z-0">
@@ -312,10 +312,10 @@ function Game() {
                         className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMjEyMTIxIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=')] opacity-5 pointer-events-none"></div>
                     <div
                         className="absolute top-2 left-2 w-20 h-20 rounded-full blur-3xl pointer-events-none"
-                        style={{background: 'rgba(123, 47, 255, 0.15)'}}></div>
+                        style={{background: 'color-mix(in srgb, var(--planetfall-primary) 15%, transparent)'}}></div>
                     <div
                         className="absolute bottom-10 right-5 w-32 h-32 rounded-full blur-3xl pointer-events-none"
-                        style={{background: 'rgba(255, 107, 157, 0.08)'}}></div>
+                        style={{background: 'color-mix(in srgb, var(--planetfall-secondary) 8%, transparent)'}}></div>
                 </div>
 
                 {gameText.map((item: string, index: number) => (
@@ -332,8 +332,8 @@ function Game() {
             <div
                 className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 py-2 min-h-[90px] rounded-b-lg border-t shadow-inner"
                 style={{
-                    background: 'linear-gradient(135deg, #2a1f4a 0%, #1a0f2e 100%)',
-                    borderColor: 'rgba(123, 47, 255, 0.3)'
+                    background: 'linear-gradient(135deg, var(--planetfall-bg-medium) 0%, var(--planetfall-bg-dark) 100%)',
+                    borderColor: 'color-mix(in srgb, var(--planetfall-primary) 30%, transparent)'
                 }}>
                 <GameInput
                     playerInputElement={playerInputElement}
@@ -346,8 +346,8 @@ function Game() {
                 {mutation.isPending && (
                     <div className="mr-4 p-2 flex items-center justify-center">
                         <CircularProgress size={28} sx={{
-                            color: '#ff6b9d',
-                            boxShadow: '0 0 15px 5px rgba(255, 107, 157, 0.3)',
+                            color: 'var(--planetfall-accent)',
+                            boxShadow: '0 0 15px 5px color-mix(in srgb, var(--planetfall-accent) 30%, transparent)',
                             borderRadius: '50%'
                         }}/>
                     </div>
@@ -384,9 +384,9 @@ function Game() {
                                 fontWeight: 'bold',
                                 minWidth: '80px',
                                 padding: '4px 10px',
-                                backgroundColor: '#7b2fff',
+                                backgroundColor: 'var(--planetfall-primary)',
                                 '&:hover': {
-                                    backgroundColor: '#9d4fff',
+                                    backgroundColor: 'color-mix(in srgb, var(--planetfall-primary) 80%, white)',
                                 },
                                 borderRadius: '8px',
                                 transition: 'all 0.3s ease',

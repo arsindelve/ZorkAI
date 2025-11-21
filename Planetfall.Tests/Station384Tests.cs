@@ -63,11 +63,11 @@ public class Station384Tests : EngineTestsBase
         var target = GetTarget();
         StartHere<Station384>();
 
-        var response = await target.GetResponse("west");
+        var response = await target.GetResponse("west") ?? "";
 
         // The transition message should appear before the location description
-        var transitionIndex = response.IndexOf("You feel the familiar wrenching of your innards");
-        var locationIndex = response.IndexOf("Miniaturization Booth");
+        var transitionIndex = response.IndexOf("You feel the familiar wrenching of your innards", StringComparison.Ordinal);
+        var locationIndex = response.IndexOf("Miniaturization Booth", StringComparison.Ordinal);
 
         transitionIndex.Should().BeGreaterThan(-1, "transition message should be present");
         locationIndex.Should().BeGreaterThan(-1, "location name should be present");

@@ -105,7 +105,9 @@ function App() {
             }}
         >
             {/* Overlay gradient for depth */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628]/80 to-[#1a2f4a]/60 pointer-events-none" />
+            <div className="absolute inset-0 pointer-events-none" style={{
+                background: 'linear-gradient(to bottom right, color-mix(in srgb, var(--planetfall-bg-dark) 80%, transparent), color-mix(in srgb, var(--planetfall-primary) 20%, var(--planetfall-bg-dark)))'
+            }} />
 
             <div className="relative flex-grow flex flex-col min-h-0 z-10">
                 <GameMenu/>
@@ -153,12 +155,12 @@ function App() {
                 </QueryClientProvider>
             </div>
 
-            <footer className="relative bg-gradient-to-r from-cyan-900/40 to-purple-900/40 backdrop-blur-md border-t-2 border-cyan-500/30 py-2 z-10">
-                <p className="text-center text-cyan-300">
+            <footer className="relative footer-gradient backdrop-blur-md border-t-2 py-2 z-10">
+                <p className="text-center">
                     <a
                         target="_blank"
                         href="https://github.com/arsindelve/ZorkAI"
-                        className="hover:text-cyan-100 transition-colors duration-300"
+                        className="footer-text transition-colors duration-300"
                     >
                         Created By Mike in Dallas. Check out the repository.
                     </a>
