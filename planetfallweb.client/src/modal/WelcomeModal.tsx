@@ -7,15 +7,13 @@ import Button from '@mui/material/Button';
 import { Typography, Paper, Box, Divider } from "@mui/material";
 import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
 import VideogameAssetIcon from '@mui/icons-material/VideogameAsset';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 
 interface WelcomeDialogProps {
     open: boolean;
     handleClose: () => void;
-    handleWatchVideo: () => void;
 }
 
-const WelcomeDialog: React.FC<WelcomeDialogProps> = ({open, handleClose, handleWatchVideo}) => (
+const WelcomeDialog: React.FC<WelcomeDialogProps> = ({open, handleClose}) => (
     <Dialog
         open={open}
         onClose={handleClose}
@@ -44,7 +42,7 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({open, handleClose, handleW
         >
             <EmojiObjectsIcon fontSize="large" />
             <Typography variant="h5" component="span" fontWeight="bold">
-                Welcome to Zork AI - A Modern Reimagining of the 1980s Classic!
+                Welcome to Planetfall AI - A Modern Reimagining of the 1983 Classic!
             </Typography>
         </DialogTitle>
         <DialogContent id="alert-dialog-description" sx={{ pt: 3, pb: 1 }}>
@@ -64,20 +62,27 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({open, handleClose, handleW
                 }}
             >
                 <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: 'grey.800', display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <VideogameAssetIcon /> About Zork AI
+                    <VideogameAssetIcon /> About Planetfall AI
                 </Typography>
 
                 <Typography variant="body1" paragraph sx={{ color: 'grey.800' }}>
-                    This is a modern re-imagining of the iconic text adventure game Zork I.
-                    While the story remains true to the original, Zork AI introduces AI-powered parsing and dynamic
-                    responses for a richer, more immersive experience. It understands complex commands far beyond what
-                    the original could handle and even delivers witty, sarcastic replies when you try something unexpected.
+                    This is a modern re-imagining of the beloved 1983 science fiction text adventure game Planetfall.
+                    You play as a lowly Ensign Seventh Class who crash-lands on the mysterious planet Resida after escaping
+                    the doomed spaceship Feinstein. While the story, puzzles, and humor remain faithful to the original,
+                    Planetfall AI introduces AI-powered parsing and dynamic responses for a richer, more immersive experience.
                 </Typography>
 
                 <Typography variant="body1" paragraph sx={{ color: 'grey.800' }}>
-                    Zork AI is interactive fiction. You control the story by typing commands in plain English in order to
-                    explore, solve puzzles, and shape the adventure. To get started, type a command in the grey box below and press
-                    Enter/Return. The game will process your input and continue the story based on your instructions.
+                    The game understands natural language commands far beyond what the 1983 version could handle—including
+                    complex sentences, context-aware interactions, and even witty responses when you try something creative.
+                    And along the way, you'll meet Floyd—everyone's favorite robot companion.
+                </Typography>
+
+                <Typography variant="body1" paragraph sx={{ color: 'grey.800' }}>
+                    Planetfall AI is interactive fiction. You control the story by typing commands in plain English to
+                    explore locations, manipulate objects, solve puzzles, and interact with characters. To get started,
+                    type a command in the input box below and press Enter/Return. The game will process your input and
+                    continue the adventure based on your actions.
                 </Typography>
 
                 <Divider sx={{ my: 2 }} />
@@ -86,64 +91,43 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({open, handleClose, handleW
                     Need inspiration? Try:
                 </Typography>
 
-                <Box sx={{ 
-                    bgcolor: 'grey.100', 
-                    p: 2, 
+                <Box sx={{
+                    bgcolor: 'grey.100',
+                    p: 2,
                     borderRadius: '8px',
                     mb: 2,
                     fontFamily: 'monospace'
                 }}>
                     <ul style={{ listStyleType: 'disc', paddingLeft: '1.5rem', margin: 0 }}>
-                        <li style={{ textTransform: 'uppercase', marginBottom: '0.5rem' }}>open the mailbox</li>
-                        <li style={{ textTransform: 'uppercase', marginBottom: '0.5rem' }}>go south</li>
-                        <li style={{ textTransform: 'uppercase', marginBottom: '0.5rem' }}>jump up and down</li>
-                        <li style={{ textTransform: 'uppercase' }}>tell me about the great underground empire</li>
+                        <li style={{ textTransform: 'uppercase', marginBottom: '0.5rem' }}>look around</li>
+                        <li style={{ textTransform: 'uppercase', marginBottom: '0.5rem' }}>take the kit</li>
+                        <li style={{ textTransform: 'uppercase', marginBottom: '0.5rem' }}>go west</li>
+                        <li style={{ textTransform: 'uppercase', marginBottom: '0.5rem' }}>talk to Floyd</li>
+                        <li style={{ textTransform: 'uppercase' }}>tell me about this place</li>
                     </ul>
                 </Box>
 
-                <Typography variant="body1" paragraph sx={{ color: 'grey.800', fontWeight: 'bold' }}>
-                    See if you can make your way into the house—and from there, descend into the Great Underground Empire,
-                    where the real adventure begins!
-                </Typography>
 
                 <Divider sx={{ my: 2 }} />
 
                 <Typography variant="body2" sx={{ color: 'grey.600', fontStyle: 'italic' }}>
-                    All credit for the original story, puzzles and Zork universe goes to <a
-                    href={"https://en.wikipedia.org/wiki/Zork"} target={"_blank"} style={{ color: 'inherit', textDecoration: 'underline' }}>
-                    Tim Anderson, Marc Blank, Bruce Daniels, and Dave Lebling - the brilliant minds behind the classic game.</a>
+                    All credit for the original story, puzzles, and the Planetfall universe goes to <a
+                    href={"https://en.wikipedia.org/wiki/Steve_Meretzky"} target={"_blank"} style={{ color: 'inherit', textDecoration: 'underline' }}>
+                    Steve Meretzky</a>, the brilliant mind behind this beloved 1983 Infocom classic.
                 </Typography>
             </Paper>
         </DialogContent>
         <DialogActions sx={{ p: 2, bgcolor: 'grey.100' }}>
-            <Button 
-                onClick={handleWatchVideo} 
+            <Button
+                onClick={handleClose}
                 variant="contained"
-                startIcon={<PlayArrowIcon />}
-                sx={{ 
+                data-testid="welcome-modal-close-button"
+                sx={{
                     borderRadius: '20px',
                     px: 3,
                     bgcolor: 'grey.800',
                     '&:hover': {
                         bgcolor: 'grey.700'
-                    }
-                }}
-            >
-                Watch an intro video
-            </Button>
-
-            <Button 
-                onClick={handleClose} 
-                variant="outlined"
-                data-testid="welcome-modal-close-button"
-                sx={{ 
-                    borderRadius: '20px',
-                    px: 3,
-                    borderColor: 'grey.600',
-                    color: 'grey.800',
-                    '&:hover': {
-                        borderColor: 'grey.800',
-                        bgcolor: 'grey.100'
                     }
                 }}
             >
