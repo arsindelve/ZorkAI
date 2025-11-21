@@ -21,12 +21,6 @@ export default function GameMenu() {
             }}
         >
             <div className="col-span-7 flex items-center">
-                <img
-                    src="https://planetfallai-assets.s3.amazonaws.com/Planetfall.webp"
-                    className="w-[100px] m-[3px] hover:scale-105 transition-all duration-300 hover:rotate-3"
-                    alt="Planetfall Logo"
-                />
-
                 <h1
                     className={`hidden lg:block text-xl m-3 ml-10 font-medium tracking-wider transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
                     style={{

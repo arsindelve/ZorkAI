@@ -10,12 +10,10 @@ import { ListItemIcon, ListItemText } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import HelpIcon from '@mui/icons-material/Help';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import CodeIcon from '@mui/icons-material/Code';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MapIcon from '@mui/icons-material/Map';
 import ListAltIcon from '@mui/icons-material/ListAlt';
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import ArticleIcon from '@mui/icons-material/Article';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
 
@@ -105,18 +103,7 @@ export default function AboutMenu() {
                     <ListItemIcon>
                         <HelpIcon fontSize="small" />
                     </ListItemIcon>
-                    <ListItemText>What is this game?</ListItemText>
-                </MenuItem>
-
-                <MenuItem
-                    onClick={() => {
-                        setDialogToOpen(DialogType.Video);
-                        handleClose();
-                    }}>
-                    <ListItemIcon>
-                        <PlayCircleOutlineIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>Watch intro video</ListItemText>
+                    <ListItemText>What is Planetfall.AI?</ListItemText>
                 </MenuItem>
 
                 <MenuItem onClick={() => go("Repo", "https://github.com/arsindelve/ZorkAI")}>
@@ -126,46 +113,32 @@ export default function AboutMenu() {
                     <ListItemText>See the source code</ListItemText>
                 </MenuItem>
 
-                <MenuItem onClick={() => go("1984 Manual", "https://infodoc.plover.net/manuals/zork1.pdf")}>
+                <MenuItem onClick={() => go("Planetfall Manual", "https://infodoc.plover.net/manuals/planetfa.pdf")}>
                     <ListItemIcon>
                         <MenuBookIcon fontSize="small" />
                     </ListItemIcon>
-                    <ListItemText>Read the 1984 Infocom Manual</ListItemText>
+                    <ListItemText>Read the Original Infocom Manual</ListItemText>
                 </MenuItem>
 
-                <MenuItem onClick={() => go("1982 Manual", "https://www.mocagh.org/infocom/zorkps-manual.pdf")}>
-                    <ListItemIcon>
-                        <MenuBookIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>Read the 1982 TRS-80 Manual</ListItemText>
-                </MenuItem>
-
-                <MenuItem onClick={() => go("Map", "https://www.mocagh.org/infocom/zork-map-front.pdf")}>
+                <MenuItem onClick={() => go("Map", "https://infodoc.plover.net/maps/planetfa.pdf")}>
                     <ListItemIcon>
                         <MapIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>Look at a Map (spoilers)</ListItemText>
                 </MenuItem>
 
-                <MenuItem onClick={() => go("Walkthrough", "https://web.mit.edu/marleigh/www/portfolio/Files/zork/transcript.html")}>
+                <MenuItem onClick={() => go("Walkthrough", "http://www.eristic.net/games/infocom/planetfall.html")}>
                     <ListItemIcon>
                         <ListAltIcon fontSize="small" />
                     </ListItemIcon>
-                    <ListItemText>Look at a Walkthrough (major spoilers!)</ListItemText>
+                    <ListItemText>Look at a Walkthrough (major spoilers)</ListItemText>
                 </MenuItem>
 
-                <MenuItem onClick={() => go("Play Original", "https://iplayif.com/?story=https%3A%2F%2Feblong.com%2Finfocom%2Fgamefiles%2Fzork1-r119-s880429.z3")}>
-                    <ListItemIcon>
-                        <SportsEsportsIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>Play the original Zork One</ListItemText>
-                </MenuItem>
-
-                <MenuItem onClick={() => go("Wikipedia", "https://en.wikipedia.org/wiki/Zork")}>
+                <MenuItem onClick={() => go("Wikipedia", "https://en.wikipedia.org/wiki/Planetfall")}>
                     <ListItemIcon>
                         <ArticleIcon fontSize="small" />
                     </ListItemIcon>
-                    <ListItemText>Wikipedia Article on Zork</ListItemText>
+                    <ListItemText>Wikipedia Article on Planetfall</ListItemText>
                 </MenuItem>
 
                 <MenuItem onClick={() => {

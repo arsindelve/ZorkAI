@@ -79,10 +79,6 @@ function App() {
 
     }, [dialogToOpen]);
 
-    const handleWatchVideo = () => {
-        setWelcomeDialogOpen(false);
-        setVideoDialogOpen(true);
-    };
 
     async function getSavedGames() {
         const id = sessionId.getClientId();
@@ -105,9 +101,7 @@ function App() {
             }}
         >
             {/* Overlay gradient for depth */}
-            <div className="absolute inset-0 pointer-events-none" style={{
-                background: 'linear-gradient(to bottom right, color-mix(in srgb, var(--planetfall-bg-dark) 80%, transparent), color-mix(in srgb, var(--planetfall-primary) 20%, var(--planetfall-bg-dark)))'
-            }} />
+            <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-black/40 pointer-events-none" />
 
             <div className="relative flex-grow flex flex-col min-h-0 z-10">
                 <GameMenu/>
@@ -145,7 +139,7 @@ function App() {
                         Mixpanel.track('Close Release Notes Dialog', {});
                     }} open={releaseNotesDialogOpen}/>
 
-                    <WelcomeDialog handleWatchVideo={handleWatchVideo} open={welcomeDialogOpen}
+                    <WelcomeDialog open={welcomeDialogOpen}
                                    handleClose={() => {
                                        setWelcomeDialogOpen(false);
                                        Mixpanel.track('Close Welcome Dialog', {});
