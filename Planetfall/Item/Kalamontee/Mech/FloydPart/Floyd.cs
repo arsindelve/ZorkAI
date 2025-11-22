@@ -46,9 +46,6 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     // again if you turn him on/off another time.
     [UsedImplicitly] public int TurnOnCountdown { get; set; } = 3;
 
-    // TODO: If you wander away before he wakes: The robot you were fiddling with in the Robot Shop bounds into the room.
-    // "Hi!" he says, with a wide and friendly smile. "You turn Floyd on? Be Floyd's friend, yes?"
-
     /// <summary>
     /// Checks if Floyd is both turned on and in the same location as the player.
     /// </summary>
