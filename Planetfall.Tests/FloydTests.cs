@@ -1,4 +1,3 @@
-using Azure;
 using FluentAssertions;
 using Model.AIGeneration.Requests;
 using Model.Interface;
@@ -7,7 +6,6 @@ using Moq;
 using Planetfall.Item;
 using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Admin;
-using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Mech;
@@ -408,9 +406,10 @@ public class FloydTests : EngineTestsBase
         // Call GenerateCompanionSpeech directly through reflection to test the specific method
         var methodInfo = typeof(QuirkyCompanion).GetMethod("GenerateCompanionSpeech",
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        
         methodInfo!.Should().NotBeNull();
 
-        await (Task<string>)methodInfo!.Invoke(floyd, new object[] { target.Context, target.GenerationClient, null! })!;
+        await (Task<string>)methodInfo.Invoke(floyd, [target.Context, target.GenerationClient, null!])!;
 
         // Verify the mock was called
         mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Once);

@@ -51,13 +51,12 @@ public class FloydPowerManager(Floyd floyd)
                 floyd.TurnOnCountdown = 0;
 
                 // If player is not in Floyd's room when he wakes, Floyd bounds into their room
-                if (floyd.CurrentLocation != context.CurrentLocation)
-                {
-                    context.CurrentLocation.ItemPlacedHere(floyd);
-                    return FloydConstants.BoundsIntoRoom;
-                }
+                if (floyd.CurrentLocation == context.CurrentLocation)
+                    return GetComesAliveGreeting(context, floyd.Chooser);
+                
+                context.CurrentLocation.ItemPlacedHere(floyd);
+                return FloydConstants.BoundsIntoRoom;
 
-                return GetComesAliveGreeting(context, floyd.Chooser);
             default:
                 floyd.TurnOnCountdown--;
                 return string.Empty;
