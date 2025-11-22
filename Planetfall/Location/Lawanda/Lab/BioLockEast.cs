@@ -1,7 +1,5 @@
 using GameEngine.Location;
 using Model.AIGeneration;
-using Model.Intent;
-using Model.Item;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.Lab;
 
@@ -22,7 +20,9 @@ internal class BioLockEast : LocationBase, ITurnBasedActor
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (
-            (action.Match(["look", "examine"], ["window"]) && action.OriginalInput != null && action.OriginalInput.Contains("through")) ||
+            (action.Match(new[] { "examine" }
+                .Concat(Verbs.LookVerbs)
+                .ToArray(), ["window"]) && action.OriginalInput != null && action.OriginalInput.Contains("through")) ||
             action.Match(["examine"], ["window"]))
             return new PositiveInteractionResult(
                 "You can see a large laboratory, dimly illuminated. A blue glow comes from a crack in the northern wall of the lab. Shadowy, " +

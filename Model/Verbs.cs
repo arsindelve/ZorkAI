@@ -20,6 +20,8 @@ public static class Verbs
     public static readonly string[] GiveVerbs = ["give", "offer", "transfer", "present", "provide"];
     public static readonly string[] ThrowVerbs = ["throw", "toss", "launch", "hurl", "fling", "heave", "chuck", "lob"];
 
+    public static readonly string[] LookVerbs = ["look", "peek", "peer", "check", "observe", "glance"];
+
     public static readonly string[] SayVerbs =
         ["say", "yell", "shout", "utter", "scream", "mumble", "whisper", "speak", "declare", "state", "announce", "tell"];
 }
