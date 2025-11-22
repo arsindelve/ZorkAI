@@ -100,4 +100,19 @@ public class MessHallPadlockedDoorTests : EngineTestsBase
         var response = await target.GetResponse("N");
         response.Should().Contain("Storage West");
     }
+
+    [Test]
+    public async Task LookUnderTable_ShowsJokeMessage()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MessHall>();
+
+        var response = await target.GetResponse("look under table");
+
+        response.Should().Contain("Wow!!! Under the table are three keys");
+        response.Should().Contain("a sack of food");
+        response.Should().Contain("a reactor elevator access pass");
+        response.Should().Contain("just kidding");
+        response.Should().Contain("Actually, there's nothing there.");
+    }
 }
