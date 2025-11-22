@@ -1,7 +1,5 @@
 using GameEngine.Location;
 using Model.AIGeneration;
-using Model.Intent;
-using Model.Item;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Kalamontee.Admin;
 
