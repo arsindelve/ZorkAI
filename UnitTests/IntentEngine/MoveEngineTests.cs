@@ -219,6 +219,159 @@ public class MoveEngineTests
         }
     }
 
+    [TestFixture]
+    public class DarkLocationDeathMechanic : MoveEngineTests
+    {
+        [Test]
+        public async Task Should_NotTriggerDeath_When_MovingFromLightToDark()
+        {
+            // Arrange
+            var moveEngineWithMock = new TestableMoveEngine(_mockRandomChooser.Object);
+            var moveIntent = new MoveIntent { Direction = Direction.N };
+            var movement = new MovementParameters
+            {
+                Location = _mockDestinationLocation.Object,
+                WeightLimit = 100,
+                CanGo = _ => true
+            };
+
+            // Setup: Currently in a lit location, moving to a dark location
+            _mockContext.Setup(c => c.ItIsDarkHere).Returns(false);
+            _mockCurrentLocation.Setup(l => l.Navigate(Direction.N, _mockContext.Object)).Returns(movement);
+            _mockCurrentLocation.Setup(l =>
+                l.OnLeaveLocation(_mockContext.Object, _mockDestinationLocation.Object, _mockCurrentLocation.Object));
+            _mockDestinationLocation.Setup(l => l.BeforeEnterLocation(_mockContext.Object, _mockCurrentLocation.Object))
+                .Returns("");
+            _mockDestinationLocation.Setup(l =>
+                    l.AfterEnterLocation(_mockContext.Object, _mockCurrentLocation.Object,
+                        _mockGenerationClient.Object))
+                .ReturnsAsync("");
+
+            // Act
+            var result = await moveEngineWithMock.Process(moveIntent, _mockContext.Object, _mockGenerationClient.Object);
+
+            // Assert - should not trigger death (result.resultObject should be null)
+            result.resultObject.Should().BeNull();
+        }
+
+        [Test]
+        public async Task Should_NotTriggerDeath_When_MovingFromDarkToLight()
+        {
+            // Arrange
+            var moveEngineWithMock = new TestableMoveEngine(_mockRandomChooser.Object);
+            var moveIntent = new MoveIntent { Direction = Direction.N };
+            var movement = new MovementParameters
+            {
+                Location = _mockDestinationLocation.Object,
+                WeightLimit = 100,
+                CanGo = _ => true
+            };
+
+            // Setup: Start in dark, but after moving, we're in light
+            var darkFirst = true;
+            _mockContext.Setup(c => c.ItIsDarkHere).Returns(() =>
+            {
+                if (darkFirst)
+                {
+                    darkFirst = false;
+                    return true;
+                }
+
+                return false;
+            });
+
+            _mockCurrentLocation.Setup(l => l.Navigate(Direction.N, _mockContext.Object)).Returns(movement);
+            _mockCurrentLocation.Setup(l =>
+                l.OnLeaveLocation(_mockContext.Object, _mockDestinationLocation.Object, _mockCurrentLocation.Object));
+            _mockDestinationLocation.Setup(l => l.BeforeEnterLocation(_mockContext.Object, _mockCurrentLocation.Object))
+                .Returns("");
+            _mockDestinationLocation.Setup(l =>
+                    l.AfterEnterLocation(_mockContext.Object, _mockCurrentLocation.Object,
+                        _mockGenerationClient.Object))
+                .ReturnsAsync("");
+
+            // Act
+            var result = await moveEngineWithMock.Process(moveIntent, _mockContext.Object, _mockGenerationClient.Object);
+
+            // Assert - should not trigger death
+            result.resultObject.Should().BeNull();
+        }
+
+        [Test]
+        public async Task Should_NotTriggerDeath_When_MovingDarkToDarkButRandomCheckFails()
+        {
+            // Arrange
+            var moveEngineWithMock = new TestableMoveEngine(_mockRandomChooser.Object);
+            var moveIntent = new MoveIntent { Direction = Direction.N };
+            var movement = new MovementParameters
+            {
+                Location = _mockDestinationLocation.Object,
+                WeightLimit = 100,
+                CanGo = _ => true
+            };
+
+            // Setup: Both locations dark, but random check fails (no death)
+            _mockContext.Setup(c => c.ItIsDarkHere).Returns(true);
+            _mockRandomChooser.Setup(r => r.RollDiceSuccess(2)).Returns(false);
+            _mockCurrentLocation.Setup(l => l.Navigate(Direction.N, _mockContext.Object)).Returns(movement);
+            _mockCurrentLocation.Setup(l =>
+                l.OnLeaveLocation(_mockContext.Object, _mockDestinationLocation.Object, _mockCurrentLocation.Object));
+            _mockDestinationLocation.Setup(l => l.BeforeEnterLocation(_mockContext.Object, _mockCurrentLocation.Object))
+                .Returns("");
+            _mockDestinationLocation.Setup(l =>
+                    l.AfterEnterLocation(_mockContext.Object, _mockCurrentLocation.Object,
+                        _mockGenerationClient.Object))
+                .ReturnsAsync("");
+
+            // Act
+            var result = await moveEngineWithMock.Process(moveIntent, _mockContext.Object, _mockGenerationClient.Object);
+
+            // Assert - should not trigger death because random check failed
+            result.resultObject.Should().BeNull();
+        }
+
+        [Test]
+        public async Task Should_TriggerDeathCheck_When_MovingDarkToDarkAndRandomCheckSucceeds()
+        {
+            // Arrange
+            var moveEngineWithMock = new TestableMoveEngine(_mockRandomChooser.Object);
+            var moveIntent = new MoveIntent { Direction = Direction.N };
+            var movement = new MovementParameters
+            {
+                Location = _mockDestinationLocation.Object,
+                WeightLimit = 100,
+                CanGo = _ => true
+            };
+
+            // Setup: Both locations dark, and random check succeeds
+            _mockContext.Setup(c => c.ItIsDarkHere).Returns(true);
+            _mockRandomChooser.Setup(r => r.RollDiceSuccess(2)).Returns(true);
+            _mockCurrentLocation.Setup(l => l.Navigate(Direction.N, _mockContext.Object)).Returns(movement);
+            _mockCurrentLocation.Setup(l =>
+                l.OnLeaveLocation(_mockContext.Object, _mockDestinationLocation.Object, _mockCurrentLocation.Object));
+            _mockDestinationLocation.Setup(l => l.BeforeEnterLocation(_mockContext.Object, _mockCurrentLocation.Object))
+                .Returns("");
+            _mockDestinationLocation.Setup(l =>
+                    l.AfterEnterLocation(_mockContext.Object, _mockCurrentLocation.Object,
+                        _mockGenerationClient.Object))
+                .ReturnsAsync("");
+
+            // Setup a minimal Game mock
+            var mockGame = new Mock<IInfocomGame>();
+            mockGame.Setup(g => g.GameName).Returns("UnknownGame");
+            _mockContext.Setup(c => c.Game).Returns(mockGame.Object);
+
+            // Act
+            var result = await moveEngineWithMock.Process(moveIntent, _mockContext.Object, _mockGenerationClient.Object);
+
+            // Assert - HandleDarkLocationDeath is called and attempts to find DeathProcessor
+            // Since there's no DeathProcessor for "UnknownGame", result.resultObject should be null
+            // but the code path was exercised
+            result.resultObject.Should().BeNull();
+            _mockRandomChooser.Verify(r => r.RollDiceSuccess(2), Times.Once);
+        }
+    }
+
     // Test helper class to allow mocking of the internal Chooser property
     private class TestableMoveEngine(IRandomChooser chooser) : MoveEngine
     {
