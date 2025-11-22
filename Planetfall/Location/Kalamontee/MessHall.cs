@@ -9,6 +9,16 @@ internal class MessHall : LocationBase
 {
     public override string Name => "Mess Hall";
 
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
+    {
+        if (action.Match(["look"], ["table"]) && action.OriginalInput != null && action.OriginalInput.Contains("under"))
+            return new PositiveInteractionResult(
+                "Wow!!! Under the table are three keys, a sack of food, a reactor elevator access pass, just kidding. Actually, there's nothing there.");
+
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+    }
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>
