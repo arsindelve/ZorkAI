@@ -269,6 +269,14 @@ public class TestParser : IntentParser
                 OriginalInput = "look under rug"
             });
 
+        if (input is "look under table")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "table",
+                Verb = "look",
+                OriginalInput = "look under table"
+            });
+
         if (input is "wait" or "z")
             return Task.FromResult<IntentBase>(new GlobalCommandIntent { Command = new WaitProcessor() });
 

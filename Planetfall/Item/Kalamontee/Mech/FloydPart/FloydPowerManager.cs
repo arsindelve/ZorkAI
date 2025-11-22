@@ -57,10 +57,24 @@ public class FloydPowerManager(Floyd floyd)
                     return FloydConstants.BoundsIntoRoom;
                 }
 
-                return FloydConstants.ComesAlive;
+                return GetComesAliveGreeting(context, floyd.Chooser);
             default:
                 floyd.TurnOnCountdown--;
                 return string.Empty;
         }
+    }
+
+    private static string GetComesAliveGreeting(IContext context, IRandomChooser? chooser)
+    {
+        var greeting = FloydConstants.ComesAliveBase;
+
+        if (context.Items.Any())
+        {
+            var randomItem = chooser?.Choose(context.Items.ToList());
+            greeting += $"That's a nice {randomItem?.Name} you are having there. ";
+        }
+
+        greeting += FloydConstants.ComesAliveEnd;
+        return greeting;
     }
 }

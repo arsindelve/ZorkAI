@@ -11,7 +11,9 @@
       "Bash(git stash:*)",
       "Bash(ls:*)",
       "Bash(rm:*)",
-      "Bash(timeout 30 dotnet test Planetfall.Tests --filter \"BlatherTests.ThePlayer_TriesToBlather_BlatherIsAlive\" --logger console)"
+      "Bash(timeout 30 dotnet test Planetfall.Tests --filter \"BlatherTests.ThePlayer_TriesToBlather_BlatherIsAlive\" --logger console)",
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)"
     ],
     "deny": []
   }

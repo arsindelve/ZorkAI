@@ -2,6 +2,7 @@ using Azure;
 using FluentAssertions;
 using Model.AIGeneration.Requests;
 using Model.Interface;
+using Model.Item;
 using Moq;
 using Planetfall.Item;
 using Planetfall.Item.Feinstein;
@@ -484,5 +485,60 @@ public class FloydTests : EngineTestsBase
         response.Should().Contain("The robot you were fiddling with in the Robot Shop bounds into the room");
         floyd.IsOn.Should().BeTrue();
         floyd.CurrentLocation.Should().Be(GetLocation<MechCorridorSouth>());
+    }
+
+    [Test]
+    public async Task FloydComesAlive_WithInventory_MentionsRandomItem()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+
+        // Manually add an item to inventory for Floyd to comment on
+        var diary = Take<Diary>();
+
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = false;
+        floyd.HasEverBeenOn = false;
+        floyd.TurnOnCountdown = 1;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+
+        // Mock the Chooser to return the diary for deterministic testing
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.Choose(It.IsAny<List<IItem>>())).Returns(diary);
+        floyd.Chooser = mockChooser.Object;
+
+        target.Context.RegisterActor(floyd);
+
+        // Player has diary in inventory - Floyd should mention it
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain("B-19-7");
+        response.Should().Contain("That's a nice");
+        response.Should().Contain("diary");
+        response.Should().Contain("you are having there");
+        response.Should().Contain("Hider-and-Seeker");
+    }
+
+    [Test]
+    public async Task FloydComesAlive_WithoutInventory_NoItemMention()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = false;
+        floyd.HasEverBeenOn = false;
+        floyd.TurnOnCountdown = 1;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        target.Context.RegisterActor(floyd);
+
+        // Remove all items from player inventory
+        target.Context.Items.Clear();
+
+        // Floyd should not mention any item
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain("B-19-7");
+        response.Should().NotContain("That's a nice");
+        response.Should().Contain("Hider-and-Seeker");
     }
 }

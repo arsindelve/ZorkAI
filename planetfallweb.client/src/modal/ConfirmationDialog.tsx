@@ -3,39 +3,82 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
+import { Typography } from '@mui/material';
 
+interface ConfirmationDialogProps {
+    open: boolean;
+    onConfirm: () => void;
+    onCancel: () => void;
+    title: string;
+    message: string;
+    confirmButtonText?: string;
+    cancelButtonText?: string;
+}
 
-const ConfirmDialog = (props: any) => {
-    const {title, children, open, setOpen, onConfirm} = props;
+const ConfirmationDialog = ({
+    open,
+    onConfirm,
+    onCancel,
+    title,
+    message,
+    confirmButtonText = "Confirm",
+    cancelButtonText = "Cancel"
+}: ConfirmationDialogProps) => {
     return (
         <Dialog
-            open={open} fullWidth={false}
-            onClose={() => setOpen(false)}
-            aria-labelledby="confirm-dialog"
+            open={open}
+            onClose={onCancel}
+            aria-labelledby="confirmation-dialog-title"
+            PaperProps={{
+                style: { 
+                    borderRadius: '12px'
+                }
+            }}
         >
-            <DialogTitle id="confirm-dialog">{title}</DialogTitle>
-            <DialogContent className="p-10">{children}</DialogContent>
-            <DialogActions>
+            <DialogTitle 
+                id="confirmation-dialog-title"
+                sx={{
+                    bgcolor: 'error.main',
+                    color: 'error.contrastText',
+                    py: 2
+                }}
+            >
+                <Typography variant="h6" component="span" fontWeight="bold">
+                    {title}
+                </Typography>
+            </DialogTitle>
+            
+            <DialogContent sx={{ pt: 3, pb: 2, px: 3 }}>
+                <Typography variant="body1" sx={{ lineHeight: 1.6, p: 5 }}>
+                    {message}
+                </Typography>
+            </DialogContent>
+            
+            <DialogActions sx={{ p: 2, gap: 1 }}>
                 <Button
-                    variant="contained"
-                    onClick={() => setOpen(false)}
-                    color="primary"
+                    onClick={onCancel}
+                    variant="outlined"
+                    sx={{ 
+                        borderRadius: '20px',
+                        px: 3
+                    }}
                 >
-                    No
+                    {cancelButtonText}
                 </Button>
                 <Button
+                    onClick={onConfirm}
                     variant="contained"
-                    onClick={() => {
-                        setOpen(false);
-                        onConfirm();
+                    color="error"
+                    sx={{ 
+                        borderRadius: '20px',
+                        px: 3
                     }}
-
                 >
-                    Yes
+                    {confirmButtonText}
                 </Button>
             </DialogActions>
         </Dialog>
     );
 };
 
-export default ConfirmDialog;
+export default ConfirmationDialog;

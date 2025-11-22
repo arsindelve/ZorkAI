@@ -5,10 +5,13 @@ import {ISaveGameRequest} from "./model/SaveGameRequest.ts";
 import {ISavedGame} from "./model/SavedGame.ts";
 import config from '../config.json';
 import {RestoreGameRequest} from "./model/RestoreGameRequest.ts";
+import {Mixpanel} from './Mixpanel';
+import {SessionHandler} from "./SessionHandler.ts";
 
 export default class Server {
 
     baseUrl = config.base_url;
+    sessionId = new SessionHandler();
 
     gameInput = async (input: GameRequest): Promise<GameResponse> => {
 
@@ -21,7 +24,15 @@ export default class Server {
                 'Accept': 'application/json',
             } as RawAxiosRequestHeaders,
         });
-
+        Mixpanel.track('Played a Turn', {
+            "score": response.data.score,
+            "moves": response.data.moves,
+            "location": response.data.locationName,
+            "input": input.input,
+            "output": response.data.response,
+            "sessionId": input.sessionId,
+            "clientId": this.sessionId.getClientId()
+        });
         return response.data;
     };
 
@@ -30,12 +41,23 @@ export default class Server {
             baseURL: this.baseUrl
         });
 
-        const response = await client.get<ISavedGame[], AxiosResponse>("saveGame", {
-            params: {
-                sessionId: clientId
-            }
-        });
-        return response.data;
+        try {
+            const response = await client.get<ISavedGame[], AxiosResponse>("saveGame", {
+                params: {
+                    sessionId: clientId
+                }
+            });
+
+            Mixpanel.track('Listed Saved Games', {
+                "clientId": clientId,
+                "gameCount": response.data.length
+            });
+
+            return response.data;
+        } catch (error) {
+            console.error('Server.ts: Error in getSavedGames:', error);
+            throw error;
+        }
     }
 
     async gameInit(sessionId: string): Promise<GameResponse> {
@@ -66,8 +88,12 @@ export default class Server {
             } as RawAxiosRequestHeaders,
         });
 
+        Mixpanel.track('Save Game', {
+            "clientId": this.sessionId.getClientId(),
+            "gameName": request.name,
+            "sessionId": request.sessionId,
+        });
         return response.data;
-
     }
 
     async gameRestore(restoreGameId: string, clientId: string, sessionId: string) {
@@ -84,6 +110,12 @@ export default class Server {
             } as RawAxiosRequestHeaders,
         });
 
+        Mixpanel.track('Restore Game', {
+            "clientId": this.sessionId.getClientId(),
+            "gameId": restoreGameId,
+            "sessionId": request.sessionId,
+        });
+
         return response.data;
     }
 
@@ -96,6 +128,12 @@ export default class Server {
             params: {
                 sessionId: sessionId
             }
+        });
+
+        Mixpanel.track('Delete Saved Game', {
+            "clientId": this.sessionId.getClientId(),
+            "gameId": id,
+            "sessionId": sessionId,
         });
     }
 }

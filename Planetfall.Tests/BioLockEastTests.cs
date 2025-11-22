@@ -319,7 +319,7 @@ public class BioLockEastTests : EngineTestsBase
     }
 
     [Test]
-    public async Task WhileFloydFighting_FloydNotInRoomItems()
+    public void WhileFloydFighting_FloydNotInRoomItems()
     {
         var target = GetTarget();
         var floyd = GetItem<Floyd>();
