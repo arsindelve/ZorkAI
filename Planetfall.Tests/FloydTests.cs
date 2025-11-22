@@ -422,11 +422,10 @@ public class FloydTests : EngineTestsBase
         StartHere<RobotShop>();
         var floyd = GetItem<Floyd>();
 
-        // Activate Floyd
-        await target.GetResponse("turn on floyd");
+        // Activate Floyd (this counts as a turn, countdown goes from 3 to 2)
+        await target.GetResponse("activate floyd");
 
-        // Wait for the 3-turn countdown while staying in the room
-        await target.GetResponse("wait");
+        // Wait for the countdown to complete (2 more turns needed: 2->1, 1->wake)
         await target.GetResponse("wait");
         var response = await target.GetResponse("wait");
 
@@ -445,18 +444,14 @@ public class FloydTests : EngineTestsBase
         StartHere<RobotShop>();
         var floyd = GetItem<Floyd>();
 
-        // Activate Floyd
-        await target.GetResponse("turn on floyd");
+        // Activate Floyd (countdown: 3->2)
+        await target.GetResponse("activate floyd");
 
-        // Wait one turn
-        await target.GetResponse("wait");
-
-        // Leave the room
+        // Leave the room (countdown: 2->1)
         await target.GetResponse("w");
         target.Context.CurrentLocation.Should().Be(GetLocation<MachineShop>());
 
-        // Wait for Floyd to wake up
-        await target.GetResponse("wait");
+        // Wait for Floyd to wake up (countdown: 1->wake)
         var response = await target.GetResponse("wait");
 
         // Should use the special "bounds into the room" message
@@ -475,21 +470,15 @@ public class FloydTests : EngineTestsBase
         StartHere<RobotShop>();
         var floyd = GetItem<Floyd>();
 
-        // Activate Floyd
-        await target.GetResponse("turn on floyd");
+        // Activate Floyd (countdown: 3->2)
+        await target.GetResponse("activate floyd");
 
-        // Wait one turn
-        await target.GetResponse("wait");
-
-        // Leave the room (go to Machine Shop)
+        // Leave the room (go to Machine Shop) - movement also processes actors (countdown: 2->1)
         await target.GetResponse("w");
 
-        // Move to another location (go to Mech Corridor South)
-        await target.GetResponse("n");
+        // Move to another location (go to Mech Corridor South) - movement processes actors (countdown: 1->wake)
+        var response = await target.GetResponse("n");
         target.Context.CurrentLocation.Should().Be(GetLocation<MechCorridorSouth>());
-
-        // Wait for Floyd to wake up
-        var response = await target.GetResponse("wait");
 
         // Floyd should appear in the current location (MechCorridorSouth)
         response.Should().Contain("The robot you were fiddling with in the Robot Shop bounds into the room");
