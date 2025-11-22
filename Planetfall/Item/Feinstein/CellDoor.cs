@@ -26,6 +26,16 @@ public class CellDoor : ItemBase, IOpenAndClose
         return "No way, Jose.";
     }
 
+    public override string? CannotBeClosedDescription(IContext context)
+    {
+        return null;
+    }
+
+    public override string OnOpening(IContext context)
+    {
+        return string.Empty;
+    }
+
     public string OnClosing(IContext context)
     {
         return string.Empty;
