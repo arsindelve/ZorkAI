@@ -417,6 +417,77 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
+    public async Task FloydWakesUp_PlayerStaysInRoom_NormalMessage()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+
+        // Activate Floyd (this counts as a turn, countdown goes from 3 to 2)
+        await target.GetResponse("activate floyd");
+
+        // Wait for the countdown to complete (2 more turns needed: 2->1, 1->wake)
+        await target.GetResponse("wait");
+        var response = await target.GetResponse("wait");
+
+        // Should use the normal "comes to life" message
+        response.Should().Contain("Suddenly, the robot comes to life");
+        response.Should().Contain("Hi! I'm B-19-7");
+        response.Should().NotContain("bounds into the room");
+        floyd.IsOn.Should().BeTrue();
+        floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
+    }
+
+    [Test]
+    public async Task FloydWakesUp_PlayerLeaves_BoundsIntoRoom()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+
+        // Activate Floyd (countdown: 3->2)
+        await target.GetResponse("activate floyd");
+
+        // Leave the room (countdown: 2->1)
+        await target.GetResponse("w");
+        target.Context.CurrentLocation.Should().Be(GetLocation<MachineShop>());
+
+        // Wait for Floyd to wake up (countdown: 1->wake)
+        var response = await target.GetResponse("wait");
+
+        // Should use the special "bounds into the room" message
+        response.Should().Contain("The robot you were fiddling with in the Robot Shop bounds into the room");
+        response.Should().Contain("\"Hi!\" he says, with a wide and friendly smile");
+        response.Should().Contain("You turn Floyd on? Be Floyd's friend, yes?");
+        response.Should().NotContain("Suddenly, the robot comes to life");
+        floyd.IsOn.Should().BeTrue();
+        floyd.CurrentLocation.Should().Be(GetLocation<MachineShop>());
+    }
+
+    [Test]
+    public async Task FloydWakesUp_PlayerLeavesAndKeepsMoving_BoundsIntoCurrentLocation()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+
+        // Activate Floyd (countdown: 3->2)
+        await target.GetResponse("activate floyd");
+
+        // Leave the room (go to Machine Shop) - movement also processes actors (countdown: 2->1)
+        await target.GetResponse("w");
+
+        // Move to another location (go to Mech Corridor South) - movement processes actors (countdown: 1->wake)
+        var response = await target.GetResponse("n");
+        target.Context.CurrentLocation.Should().Be(GetLocation<MechCorridorSouth>());
+
+        // Floyd should appear in the current location (MechCorridorSouth)
+        response.Should().Contain("The robot you were fiddling with in the Robot Shop bounds into the room");
+        floyd.IsOn.Should().BeTrue();
+        floyd.CurrentLocation.Should().Be(GetLocation<MechCorridorSouth>());
+    }
+
+    [Test]
     public async Task FloydComesAlive_WithInventory_MentionsRandomItem()
     {
         var target = GetTarget();
