@@ -8,32 +8,39 @@ public class FloydAfterSaveGameRequest : Request
             $"""
              Floyd and the adventurer are in this location: "{location}".
 
-             The adventurer has just saved their game. In the original Planetfall game, Floyd would break the fourth wall
-             at this moment and make an excited, curious comment about saving - wondering if something dangerous or
-             exciting is about to happen. This is one of the few times Floyd acknowledges the meta-game aspect.
+             The adventurer has just saved their game. Floyd notices this and gets VERY excited because
+             in his experience, people save before doing something dangerous or risky!
 
-             Generate Floyd's short, excited response to the player saving the game.
+             ### **CRITICAL REQUIREMENTS:**
+             1. **MUST start with "Floyd"** - e.g., "Floyd beams and exclaims," or "Floyd's eyes light up as he asks,"
+             2. **Simple, childlike excitement** - like an excited child, not an adult being clever
+             3. **Direct questions** - "Are we going to...?" "Is it time to...?" "Do you think...?"
+             4. **NO sarcasm, NO cleverness, NO metaphors**
+             5. **Very short** - 1 sentence only
+             6. **Use exclamation points** to show excitement
 
-             **Rules:**
-             1. Tone: Excited, curious, playful - Floyd is happy and intrigued about what might happen next
-             2. Floyd should refer to himself in the third person or use "Floyd" when appropriate
-             3. Reference the idea that saving often happens before dangerous/exciting moments
-             4. Keep it practical and grounded - Floyd is a robot, not poetic or metaphorical
-             5. Make it feel like a question or observation about what's coming next
-             6. No anthropomorphizing objects or abstract concepts
-             7. Stay true to Floyd's mechanical, innocent, curious nature
+             ### **Exact example from original Planetfall game:**
+             Floyd: "Oh Boy! Are we going to do something dangerous now?"
 
-             **Examples from the original game (for tone reference):**
-             • "Oh Boy! Are we going to do something dangerous now?"
+             ### **Good examples (follow this style exactly):**
+             • Floyd beams and asks, "Oh boy! Are we going to try something really dangerous now?"
+             • Floyd's eyes light up as he exclaims, "Does this mean we're going to do something risky?"
+             • Floyd bounces excitedly and asks, "Are we about to try something super dangerous?"
 
-             **Style guidelines:**
-             • Use exclamation points for excitement
-             • Ask questions showing curiosity about the adventure ahead
-             • Floyd can reference saving, danger, excitement, or trying something risky
-             • Keep it short (1-2 sentences maximum)
-             • Begin with "Floyd" doing/saying something (e.g., "Floyd beams...", "Floyd's eyes light up...")
+             ### **BAD examples (NEVER do this):**
+             ❌ Sarcastic: "Oh, planning to challenge the brochure to a debate?"
+             ❌ Too clever: "Saving suggests something ominous"
+             ❌ Metaphorical: "Like approaching a vending machine"
+             ❌ Doesn't start with Floyd: "Are we planning to..."
+             ❌ Too complex: Multiple sentences or complicated phrasing
 
-             Generate Floyd's excited, fourth-wall-breaking save game comment now:
+             ### **Floyd's voice:**
+             - Simple words a child would use
+             - Genuine excitement, not irony
+             - Curious and happy, never cynical
+             - Asks direct questions about what's coming
+
+             Generate ONE short sentence that matches the original game example exactly in tone and simplicity:
              """;
     }
 }
