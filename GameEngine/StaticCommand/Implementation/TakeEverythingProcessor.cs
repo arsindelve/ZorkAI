@@ -53,15 +53,18 @@ public class TakeEverythingProcessor : IGlobalCommand
     /// </summary>
     /// <param name="context">The game context containing the player's inventory and current location.</param>
     /// <param name="itemsWithNouns">A list of tuples containing the original noun from user input and the corresponding item (null if not found).</param>
+    /// <param name="client">The generation client for AI-generated snarky responses.</param>
     /// <returns>A formatted string with the result of attempting to take each item.</returns>
-    public static string TakeAll(IContext context, List<(string noun, IItem? item)> itemsWithNouns)
+    public static async Task<string> TakeAll(IContext context, List<(string noun, IItem? item)> itemsWithNouns, IGenerationClient client)
     {
         var sb = new StringBuilder();
         foreach (var (noun, item) in itemsWithNouns)
         {
             if (item is null)
             {
-                sb.AppendLine($"{noun}: You can't see that here.");
+                var message = await client.GenerateNarration(
+                    new TakeSomethingThatIsNotPortable(noun), context.SystemPromptAddendum);
+                sb.AppendLine($"{noun}: {message}");
                 continue;
             }
 

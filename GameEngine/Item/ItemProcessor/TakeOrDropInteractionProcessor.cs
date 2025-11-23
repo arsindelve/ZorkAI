@@ -53,10 +53,10 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             case "get":
             case "acquire":
             case "snatch":
-                return await GetItemsToTake(context, action);
+                return await GetItemsToTake(context, action, client);
 
             case "drop":
-                return await GetItemsToDrop(context, action);
+                return await GetItemsToDrop(context, action, client);
         }
 
         return null;
@@ -73,7 +73,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         IContext context, IGenerationClient client)
     {
         var result = await GetItemsToTake(context,
-            new SimpleIntent { OriginalInput = action.Message, Verb = "take", Noun = action.Noun });
+            new SimpleIntent { OriginalInput = action.Message, Verb = "take", Noun = action.Noun }, client);
 
         if (result is null or NoNounMatchInteractionResult)
         {
@@ -89,7 +89,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         IContext context, IGenerationClient client)
     {
         var result = await GetItemsToDrop(context,
-            new SimpleIntent { OriginalInput = action.Message, Verb = "drop", Noun = action.Noun });
+            new SimpleIntent { OriginalInput = action.Message, Verb = "drop", Noun = action.Noun }, client);
 
         if (result is null or NoNounMatchInteractionResult)
         {
@@ -101,7 +101,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         return (result, result.InteractionMessage);
     }
 
-    private async Task<InteractionResult?> GetItemsToDrop(IContext context, SimpleIntent action)
+    private async Task<InteractionResult?> GetItemsToDrop(IContext context, SimpleIntent action, IGenerationClient client)
     {
         if (string.IsNullOrEmpty(action.OriginalInput))
             return null;
@@ -128,10 +128,10 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             .Select(itemNoun => (itemNoun, Repository.GetItem(itemNoun)))
             .ToList();
 
-        return new PositiveInteractionResult(DropEverythingProcessor.DropAll(context, itemsWithFeedback));
+        return new PositiveInteractionResult(await DropEverythingProcessor.DropAll(context, itemsWithFeedback, client));
     }
 
-    private async Task<InteractionResult?> GetItemsToTake(IContext context, SimpleIntent action)
+    private async Task<InteractionResult?> GetItemsToTake(IContext context, SimpleIntent action, IGenerationClient client)
     {
         if (string.IsNullOrEmpty(action.OriginalInput))
             return null;
@@ -158,7 +158,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             .Select(itemNoun => (itemNoun, Repository.GetItem(itemNoun)))
             .ToList();
 
-        return new PositiveInteractionResult(TakeEverythingProcessor.TakeAll(context, itemsWithFeedback));
+        return new PositiveInteractionResult(await TakeEverythingProcessor.TakeAll(context, itemsWithFeedback, client));
     }
 
     public static InteractionResult DropIt(IContext context, IItem? castItem)
