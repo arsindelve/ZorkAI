@@ -32,7 +32,7 @@ const GameInput: React.FC<GameInputProps> = ({
                     transition-all duration-300 rounded-md -z-10
                 `}
                 style={{
-                    background: 'linear-gradient(90deg, color-mix(in srgb, var(--planetfall-primary) 15%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 80%, transparent) 100%)'
+                    background: 'linear-gradient(90deg, color-mix(in srgb, var(--planetfall-primary) 8%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 80%, transparent) 100%)'
                 }}
             ></div>
 
@@ -54,8 +54,8 @@ const GameInput: React.FC<GameInputProps> = ({
                         color: 'var(--planetfall-text)',
                         borderWidth: '2px',
                         borderStyle: 'solid',
-                        borderColor: isFocused ? 'color-mix(in srgb, var(--planetfall-accent) 60%, transparent)' : 'color-mix(in srgb, var(--planetfall-primary) 30%, transparent)',
-                        boxShadow: isFocused ? '0 0 20px color-mix(in srgb, var(--planetfall-primary) 40%, transparent)' : 'none'
+                        borderColor: isFocused ? 'color-mix(in srgb, var(--planetfall-accent) 35%, transparent)' : 'color-mix(in srgb, var(--planetfall-primary) 15%, transparent)',
+                        boxShadow: isFocused ? '0 0 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent)' : 'none'
                     }}
                     value={playerInput}
                     placeholder="Type your command, then press enter/return..."
