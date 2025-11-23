@@ -51,6 +51,15 @@ public class DropEverythingProcessor : IGlobalCommand
                 continue;
             }
 
+            // Check if the item is actually in the inventory
+            if (!context.Items.Contains(item))
+            {
+                var message = await client.GenerateNarration(
+                    new DropSomethingTheyDoNotHave(noun), context.SystemPromptAddendum);
+                sb.AppendLine($"{noun}: {message}");
+                continue;
+            }
+
             if (item is ICanBeTakenAndDropped)
                 sb.AppendLine(
                     $"{item.Name}: {TakeOrDropInteractionProcessor.DropIt(context, item).InteractionMessage}");

@@ -68,6 +68,16 @@ public class TakeEverythingProcessor : IGlobalCommand
                 continue;
             }
 
+            // Check if the item is actually available in the current location
+            var itemsInLocation = ((ICanContainItems)context.CurrentLocation).GetAllItemsRecursively;
+            if (!itemsInLocation.Contains(item))
+            {
+                var message = await client.GenerateNarration(
+                    new TakeSomethingThatIsNotPortable(noun), context.SystemPromptAddendum);
+                sb.AppendLine($"{noun}: {message}");
+                continue;
+            }
+
             if (!string.IsNullOrEmpty(item.CannotBeTakenDescription))
             {
                 sb.AppendLine($"{item.Name}: {item.CannotBeTakenDescription}");
