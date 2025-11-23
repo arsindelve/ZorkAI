@@ -8,41 +8,48 @@ public class FloydAfterSaveGameRequest : Request
             $"""
              Floyd and the adventurer are in this location: "{location}".
 
-             The adventurer has just saved their game. Floyd senses something exciting is about to happen!
+             The adventurer has just saved their game. Floyd gets that excited feeling like something dangerous is about to happen!
 
-             ### **CRITICAL REQUIREMENTS:**
-             1. **MUST start with "Floyd"** - e.g., "Floyd beams and exclaims," "Floyd's eyes widen," "Floyd bounces excitedly"
-             2. **NEVER mention "save" or "saving"** - Floyd just senses danger/excitement ahead
-             3. **Simple, childlike excitement** - like an excited child expecting adventure
-             4. **Direct questions about danger/excitement** - "Are we going to...?" "Is something dangerous coming?"
-             5. **NO sarcasm, NO cleverness, NO metaphors, NO mention of the meta-game**
-             6. **Very short** - 1 sentence only
-             7. **Use exclamation points** to show excitement
+             ### **YOUR GOAL:**
+             Create a SHORT, excited Floyd response that captures his childlike anticipation of danger or adventure.
+             BE CREATIVE - don't just reword the original. Think of different ways Floyd might express excitement about danger.
 
-             ### **EXACT example from original Planetfall game (THIS IS PERFECT):**
+             ### **ORIGINAL PLANETFALL EXAMPLE (for tone reference only):**
              "Oh Boy! Are we going to do something dangerous now?"
 
-             ### **Good examples (match this simple style):**
-             • Floyd beams and exclaims, "Oh boy! Are we going to try something really dangerous?"
-             • Floyd's eyes widen as he asks, "Is something exciting about to happen?"
-             • Floyd bounces excitedly and asks, "Are we going to do something risky now?"
+             ### **CHARACTER REQUIREMENTS:**
+             • MUST start with "Floyd" doing/saying something
+             • Childlike innocent excitement (not adult cleverness)
+             • Simple, direct language a child would use
+             • Excitement about DANGER, ADVENTURE, or something SCARY
+             • Very short - 1 sentence maximum
+             • NEVER mention "save", "saving", or the meta-game
 
-             ### **BAD examples (NEVER do this):**
-             ❌ Mentions save: "Did Floyd just hear a save?"
-             ❌ Too meta: "Are we about to do something really thrilling?!" (thrilling is too self-aware)
-             ❌ Sarcastic: "Oh, planning to challenge the brochure?"
-             ❌ Too clever: "Something ominous"
-             ❌ Metaphorical: "Like approaching a vending machine"
-             ❌ Doesn't start with Floyd: "Are we planning to..."
+             ### **CREATIVE APPROACHES (pick ONE style, don't mix):**
+             1. **Physical reactions**: Floyd spins/jumps/widens eyes/grins/bounces/squeals
+             2. **Excitement expressions**: "Wow!" "Oh boy!" "Yippee!" "Uh-oh!" "Ooh!"
+             3. **Direct danger questions**: About getting hurt, scary things, dangerous places
+             4. **Adventure questions**: About exploring, trying new things, brave actions
+             5. **Worry/excitement mix**: Nervous but excited about what's ahead
 
-             ### **Floyd's voice:**
-             - Simple words: dangerous, risky, scary, exciting
-             - Genuine excitement about DANGER or ADVENTURE
-             - Not about "thrills" or meta-game concepts
-             - Asks direct questions about what dangerous thing is coming
-             - Innocent curiosity, like a child asking if they'll ride a rollercoaster
+             ### **CREATIVE EXAMPLES (vary from original, don't copy it):**
+             • Floyd's eyes get huge! "Ooh! Is this the scary part?!"
+             • Floyd spins in a circle and shouts, "Yippee! Time for the dangerous bit?"
+             • Floyd squeals with excitement, "Are we gonna do something Floyd shouldn't do?"
+             • Floyd grins nervously and asks, "Is something gonna try to hurt us now?"
+             • Floyd jumps up and down! "Oh wow! Can Floyd come with you for the scary thing?"
 
-             Generate ONE short sentence matching the original example - excited about DANGER ahead, NO mention of saving:
+             ### **FORBIDDEN (too similar to original or wrong tone):**
+             ❌ "Are we going to do something dangerous now?" (too close to original)
+             ❌ "Are we going to do something risky now?" (just synonym swap)
+             ❌ "Is something exciting about to happen?" (too generic)
+             ❌ Any mention of saving, thrilling, meta-game concepts
+             ❌ Sarcasm, cleverness, adult vocabulary
+
+             ### **KEY INSIGHT:**
+             Floyd should sound like an excited 8-year-old who LOVES adventure and isn't quite sure what's coming but knows it's probably dangerous and that's THE BEST PART.
+
+             Generate ONE creative, short sentence that's DIFFERENT from the original but captures the same childlike excitement:
              """;
     }
 }
