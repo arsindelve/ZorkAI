@@ -12,7 +12,7 @@ internal class MessHall : LocationBase
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(Verbs.LookVerbs, ["table"]) && action.OriginalInput != null && action.OriginalInput.Contains("under"))
+        if (action.Match(Verbs.LookVerbs, ["table", "under table"]) && action.OriginalInput != null && action.OriginalInput.Contains("under"))
             return new PositiveInteractionResult(
                 "Wow!!! Under the table are three keys, a sack of food, a reactor elevator access pass, just kidding. Actually, there's nothing there.");
 
