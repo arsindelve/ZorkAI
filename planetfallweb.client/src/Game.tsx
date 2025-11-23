@@ -302,8 +302,8 @@ function Game() {
                            className="relative p-6 sm:p-12 h-[65vh] overflow-auto font-mono rounded-lg border-2 shadow-lg clickable z-10"
                            style={{
                                background: 'linear-gradient(135deg, var(--planetfall-bg-dark) 0%, #020617 100%)',
-                               borderColor: 'color-mix(in srgb, var(--planetfall-primary) 40%, transparent)',
-                               boxShadow: '0 0 40px color-mix(in srgb, var(--planetfall-primary) 15%, transparent), inset 0 0 60px color-mix(in srgb, var(--planetfall-secondary) 3%, transparent)'
+                               borderColor: 'color-mix(in srgb, var(--planetfall-primary) 20%, transparent)',
+                               boxShadow: '0 0 40px color-mix(in srgb, var(--planetfall-primary) 8%, transparent), inset 0 0 60px color-mix(in srgb, var(--planetfall-secondary) 3%, transparent)'
                            }}
                            data-testid="game-responses-container">
                 <div className="relative z-0">
@@ -333,7 +333,7 @@ function Game() {
                 className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 py-2 min-h-[90px] rounded-b-lg border-t shadow-inner"
                 style={{
                     background: 'linear-gradient(135deg, var(--planetfall-bg-medium) 0%, var(--planetfall-bg-dark) 100%)',
-                    borderColor: 'color-mix(in srgb, var(--planetfall-primary) 30%, transparent)'
+                    borderColor: 'color-mix(in srgb, var(--planetfall-primary) 15%, transparent)'
                 }}>
                 <GameInput
                     playerInputElement={playerInputElement}
