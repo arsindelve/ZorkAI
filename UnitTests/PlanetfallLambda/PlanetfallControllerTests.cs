@@ -233,14 +233,10 @@ public class PlanetfallControllerTests
         {
             // Arrange
             var request = new SaveGameRequest("session-id", "client-id", "My Save", "save-id");
-            var mockContext = new Mock<IContext>();
-            mockContext.Setup(c => c.GetSaveGameRequest(It.IsAny<string>())).Returns((Request?)null);
-            _mockEngine.Setup(e => e.Context).Returns(mockContext.Object);
             _mockSessionRepository.Setup(r => r.GetSessionState("session-id", "planetfall_session"))
                 .ReturnsAsync("dGVzdCBzYXZlZCBkYXRh");
             _mockEngine.Setup(e => e.SaveGame()).Returns("game state");
-            _mockGenerationClient.Setup(g => g.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()))
-                .ReturnsAsync("Game saved successfully.");
+            _mockEngine.Setup(e => e.GenerateSaveGameNarration()).ReturnsAsync("Game saved successfully.");
             _mockSavedGameRepository.Setup(r => r.SaveGame(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                     It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync("saved-game-id");
@@ -272,14 +268,10 @@ public class PlanetfallControllerTests
             // Arrange
             var request = new SaveGameRequest("session-id", "client-id", "My Save", "save-id");
             var sessionData = "dGVzdCBzYXZlZCBkYXRh"; // Base64 encoded data
-            var mockContext = new Mock<IContext>();
-            mockContext.Setup(c => c.GetSaveGameRequest(It.IsAny<string>())).Returns((Request?)null);
-            _mockEngine.Setup(e => e.Context).Returns(mockContext.Object);
             _mockSessionRepository.Setup(r => r.GetSessionState("session-id", "planetfall_session"))
                 .ReturnsAsync(sessionData);
             _mockEngine.Setup(e => e.SaveGame()).Returns("current game state");
-            _mockGenerationClient.Setup(g => g.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()))
-                .ReturnsAsync("Game saved successfully.");
+            _mockEngine.Setup(e => e.GenerateSaveGameNarration()).ReturnsAsync("Game saved successfully.");
             _mockSavedGameRepository.Setup(r => r.SaveGame(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                     It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync("saved-game-id");
@@ -295,81 +287,8 @@ public class PlanetfallControllerTests
                 "My Save",
                 It.IsAny<string>(),
                 "planetfall_savegame"), Times.Once);
+            _mockEngine.Verify(e => e.GenerateSaveGameNarration(), Times.Once);
             result.Should().Be("Game saved successfully.");
-        }
-
-        [Test]
-        public async Task Should_UseCustomSaveRequest_When_ContextProvidesOverride()
-        {
-            // Arrange
-            var request = new SaveGameRequest("session-id", "client-id", "My Save", "save-id");
-            var sessionData = "dGVzdCBzYXZlZCBkYXRh";
-
-            // Mock context to return a custom save request (e.g., Floyd-specific in Planetfall)
-            var mockContext = new Mock<IContext>();
-            var floydRequest = new FloydAfterSaveGameRequest("Test Location");
-            mockContext.Setup(c => c.GetSaveGameRequest("Test Location")).Returns(floydRequest);
-
-            _mockEngine.Setup(e => e.Context).Returns(mockContext.Object);
-            _mockEngine.Setup(e => e.LocationDescription).Returns("Test Location");
-            _mockSessionRepository.Setup(r => r.GetSessionState("session-id", "planetfall_session"))
-                .ReturnsAsync(sessionData);
-            _mockEngine.Setup(e => e.SaveGame()).Returns("current game state");
-            _mockGenerationClient.Setup(g => g.GenerateNarration(It.IsAny<FloydAfterSaveGameRequest>(), It.IsAny<string>()))
-                .ReturnsAsync("Floyd beams and asks, 'Oh boy! Are we going to do something dangerous now?'");
-            _mockSavedGameRepository.Setup(r => r.SaveGame(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
-                    It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync("saved-game-id");
-
-            // Act
-            var result = await _controller.SaveGame(request);
-
-            // Assert
-            mockContext.Verify(c => c.GetSaveGameRequest("Test Location"), Times.Once,
-                "Should ask context for custom save request");
-            _mockGenerationClient.Verify(
-                g => g.GenerateNarration(It.IsAny<FloydAfterSaveGameRequest>(), It.IsAny<string>()),
-                Times.Once,
-                "Should use custom save request when context provides one");
-            result.Should().Contain("Floyd");
-        }
-
-        [Test]
-        public async Task Should_UseDefaultSaveRequest_When_ContextReturnsNull()
-        {
-            // Arrange
-            var request = new SaveGameRequest("session-id", "client-id", "My Save", "save-id");
-            var sessionData = "dGVzdCBzYXZlZCBkYXRh";
-
-            // Mock context to return null (no custom override)
-            var mockContext = new Mock<IContext>();
-            mockContext.Setup(c => c.GetSaveGameRequest(It.IsAny<string>())).Returns((Request?)null);
-
-            _mockEngine.Setup(e => e.Context).Returns(mockContext.Object);
-            _mockEngine.Setup(e => e.LocationDescription).Returns("Test Location");
-            _mockSessionRepository.Setup(r => r.GetSessionState("session-id", "planetfall_session"))
-                .ReturnsAsync(sessionData);
-            _mockEngine.Setup(e => e.SaveGame()).Returns("current game state");
-            _mockGenerationClient.Setup(g => g.GenerateNarration(It.IsAny<AfterSaveGameRequest>(), It.IsAny<string>()))
-                .ReturnsAsync("Your game has been saved successfully.");
-            _mockSavedGameRepository.Setup(r => r.SaveGame(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
-                    It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync("saved-game-id");
-
-            // Act
-            var result = await _controller.SaveGame(request);
-
-            // Assert
-            mockContext.Verify(c => c.GetSaveGameRequest(It.IsAny<string>()), Times.Once,
-                "Should ask context for custom save request");
-            _mockGenerationClient.Verify(
-                g => g.GenerateNarration(It.IsAny<AfterSaveGameRequest>(), It.IsAny<string>()),
-                Times.Once,
-                "Should use default AfterSaveGameRequest when context returns null");
-            _mockGenerationClient.Verify(
-                g => g.GenerateNarration(It.IsAny<FloydAfterSaveGameRequest>(), It.IsAny<string>()),
-                Times.Never,
-                "Should NOT use custom request when context returns null");
         }
     }
 

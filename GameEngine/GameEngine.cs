@@ -286,6 +286,16 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         return JsonConvert.SerializeObject(savedGame, JsonSettings());
     }
 
+    public async Task<string> GenerateSaveGameNarration()
+    {
+        // Ask the context if it wants to provide a custom save game request (e.g., Floyd in Planetfall)
+        // If not, use the default AfterSaveGameRequest
+        var saveRequest = Context.GetSaveGameRequest(LocationDescription)
+                          ?? new Model.AIGeneration.Requests.AfterSaveGameRequest(LocationDescription);
+
+        return await GenerationClient.GenerateNarration(saveRequest, string.Empty);
+    }
+
     public async Task InitializeEngine()
     {
         try
