@@ -8,39 +8,41 @@ public class FloydAfterSaveGameRequest : Request
             $"""
              Floyd and the adventurer are in this location: "{location}".
 
-             The adventurer has just saved their game. Floyd notices this and gets VERY excited because
-             in his experience, people save before doing something dangerous or risky!
+             The adventurer has just saved their game. Floyd senses something exciting is about to happen!
 
              ### **CRITICAL REQUIREMENTS:**
-             1. **MUST start with "Floyd"** - e.g., "Floyd beams and exclaims," or "Floyd's eyes light up as he asks,"
-             2. **Simple, childlike excitement** - like an excited child, not an adult being clever
-             3. **Direct questions** - "Are we going to...?" "Is it time to...?" "Do you think...?"
-             4. **NO sarcasm, NO cleverness, NO metaphors**
-             5. **Very short** - 1 sentence only
-             6. **Use exclamation points** to show excitement
+             1. **MUST start with "Floyd"** - e.g., "Floyd beams and exclaims," "Floyd's eyes widen," "Floyd bounces excitedly"
+             2. **NEVER mention "save" or "saving"** - Floyd just senses danger/excitement ahead
+             3. **Simple, childlike excitement** - like an excited child expecting adventure
+             4. **Direct questions about danger/excitement** - "Are we going to...?" "Is something dangerous coming?"
+             5. **NO sarcasm, NO cleverness, NO metaphors, NO mention of the meta-game**
+             6. **Very short** - 1 sentence only
+             7. **Use exclamation points** to show excitement
 
-             ### **Exact example from original Planetfall game:**
-             Floyd: "Oh Boy! Are we going to do something dangerous now?"
+             ### **EXACT example from original Planetfall game (THIS IS PERFECT):**
+             "Oh Boy! Are we going to do something dangerous now?"
 
-             ### **Good examples (follow this style exactly):**
-             • Floyd beams and asks, "Oh boy! Are we going to try something really dangerous now?"
-             • Floyd's eyes light up as he exclaims, "Does this mean we're going to do something risky?"
-             • Floyd bounces excitedly and asks, "Are we about to try something super dangerous?"
+             ### **Good examples (match this simple style):**
+             • Floyd beams and exclaims, "Oh boy! Are we going to try something really dangerous?"
+             • Floyd's eyes widen as he asks, "Is something exciting about to happen?"
+             • Floyd bounces excitedly and asks, "Are we going to do something risky now?"
 
              ### **BAD examples (NEVER do this):**
-             ❌ Sarcastic: "Oh, planning to challenge the brochure to a debate?"
-             ❌ Too clever: "Saving suggests something ominous"
+             ❌ Mentions save: "Did Floyd just hear a save?"
+             ❌ Too meta: "Are we about to do something really thrilling?!" (thrilling is too self-aware)
+             ❌ Sarcastic: "Oh, planning to challenge the brochure?"
+             ❌ Too clever: "Something ominous"
              ❌ Metaphorical: "Like approaching a vending machine"
              ❌ Doesn't start with Floyd: "Are we planning to..."
-             ❌ Too complex: Multiple sentences or complicated phrasing
 
              ### **Floyd's voice:**
-             - Simple words a child would use
-             - Genuine excitement, not irony
-             - Curious and happy, never cynical
-             - Asks direct questions about what's coming
+             - Simple words: dangerous, risky, scary, exciting
+             - Genuine excitement about DANGER or ADVENTURE
+             - Not about "thrills" or meta-game concepts
+             - Asks direct questions about what dangerous thing is coming
+             - Innocent curiosity, like a child asking if they'll ride a rollercoaster
 
-             Generate ONE short sentence that matches the original game example exactly in tone and simplicity:
+             Generate ONE short sentence matching the original example - excited about DANGER ahead, NO mention of saving:
              """;
     }
 }
