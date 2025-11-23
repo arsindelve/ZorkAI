@@ -134,4 +134,9 @@ public interface IGameEngine
     /// </summary>
     /// <returns></returns>
     Task InitializeEngine();
+
+    /// <summary>
+    ///     Gets the current game context containing game state.
+    /// </summary>
+    IContext Context { get; }
 }

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Model.AIGeneration.Requests;
 using Model.Interface;
 using Model.Web;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using GameEngine;
 
 namespace Lambda.Controllers;
 
@@ -69,7 +71,16 @@ public class PlanetfallController(
         RestoreSession(savedSession);
         var encodedText = GetGameData();
         await savedGameRepository.SaveGame(request.Id, request.ClientId, request.Name, encodedText, SaveGameTableName);
-        return await engine.GenerationClient.GenerateNarration(new AfterSaveGameRequest(engine.LocationDescription), String.Empty);
+
+        // Check if Floyd is present and use appropriate save comment
+        var floyd = Repository.GetItem<Floyd>();
+        var isFloydPresent = floyd.IsHereAndIsOn(engine.Context);
+
+        Request saveRequest = isFloydPresent
+            ? new FloydAfterSaveGameRequest(engine.LocationDescription)
+            : new AfterSaveGameRequest(engine.LocationDescription);
+
+        return await engine.GenerationClient.GenerateNarration(saveRequest, String.Empty);
     }
 
     [HttpGet]

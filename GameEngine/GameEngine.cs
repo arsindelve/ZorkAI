@@ -51,7 +51,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     private bool _lastResponseWasGenerated;
     private IStatefulProcessor? _processorInProgress;
     private ICloudWatchLogger<TurnLog>? _turnLogger;
-    internal TContext Context;
+    public TContext Context { get; private set; }
     
     [ActivatorUtilitiesConstructor]
     public GameEngine(
