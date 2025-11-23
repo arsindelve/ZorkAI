@@ -193,4 +193,12 @@ public interface IContext : ICanContainItems
     /// </summary>
     /// <returns></returns>
     string? ProcessEndOfTurn();
+
+    /// <summary>
+    ///     Allows game-specific contexts to provide a custom save game request.
+    ///     For example, Planetfall can return a Floyd-specific request when Floyd is present.
+    /// </summary>
+    /// <param name="location">The current location description.</param>
+    /// <returns>A custom Request for save game narration, or null to use the default AfterSaveGameRequest.</returns>
+    Model.AIGeneration.Request? GetSaveGameRequest(string location);
 }

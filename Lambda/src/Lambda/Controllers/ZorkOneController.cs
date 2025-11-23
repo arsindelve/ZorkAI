@@ -70,7 +70,13 @@ public class ZorkOneController(
         RestoreSession(savedSession);
         var encodedText = GetGameData();
         await savedGameRepository.SaveGame(request.Id, request.ClientId, request.Name, encodedText, SaveGameTableName);
-        return await engine.GenerationClient.GenerateNarration(new AfterSaveGameRequest(engine.LocationDescription), String.Empty);
+
+        // Ask the context if it wants to provide a custom save game request
+        // If not, use the default AfterSaveGameRequest
+        var saveRequest = engine.Context.GetSaveGameRequest(engine.LocationDescription)
+                          ?? new AfterSaveGameRequest(engine.LocationDescription);
+
+        return await engine.GenerationClient.GenerateNarration(saveRequest, String.Empty);
     }
 
     [HttpGet]

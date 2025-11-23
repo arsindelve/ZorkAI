@@ -4,9 +4,6 @@ using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Interface;
 using Model.Web;
-using Planetfall.Item.Kalamontee.Mech.FloydPart;
-using Planetfall;
-using GameEngine;
 
 namespace UnitTests.PlanetfallLambda;
 
@@ -231,19 +228,13 @@ public class PlanetfallControllerTests
     [TestFixture]
     public class SaveGameMethod : PlanetfallControllerTests
     {
-        [SetUp]
-        public void SaveGameSetup()
-        {
-            // Clear Repository to ensure clean state for each test
-            Repository.ClearRepository();
-        }
-
         [Test]
         public async Task Should_InitializeEngine_When_Called()
         {
             // Arrange
             var request = new SaveGameRequest("session-id", "client-id", "My Save", "save-id");
             var mockContext = new Mock<IContext>();
+            mockContext.Setup(c => c.GetSaveGameRequest(It.IsAny<string>())).Returns((Request?)null);
             _mockEngine.Setup(e => e.Context).Returns(mockContext.Object);
             _mockSessionRepository.Setup(r => r.GetSessionState("session-id", "planetfall_session"))
                 .ReturnsAsync("dGVzdCBzYXZlZCBkYXRh");
@@ -282,6 +273,7 @@ public class PlanetfallControllerTests
             var request = new SaveGameRequest("session-id", "client-id", "My Save", "save-id");
             var sessionData = "dGVzdCBzYXZlZCBkYXRh"; // Base64 encoded data
             var mockContext = new Mock<IContext>();
+            mockContext.Setup(c => c.GetSaveGameRequest(It.IsAny<string>())).Returns((Request?)null);
             _mockEngine.Setup(e => e.Context).Returns(mockContext.Object);
             _mockSessionRepository.Setup(r => r.GetSessionState("session-id", "planetfall_session"))
                 .ReturnsAsync(sessionData);
@@ -307,21 +299,16 @@ public class PlanetfallControllerTests
         }
 
         [Test]
-        public async Task Should_UseFloydSaveRequest_When_FloydIsPresent()
+        public async Task Should_UseCustomSaveRequest_When_ContextProvidesOverride()
         {
             // Arrange
             var request = new SaveGameRequest("session-id", "client-id", "My Save", "save-id");
             var sessionData = "dGVzdCBzYXZlZCBkYXRh";
 
-            // Create a real context with Floyd present and on
+            // Mock context to return a custom save request (e.g., Floyd-specific in Planetfall)
             var mockContext = new Mock<IContext>();
-            var floyd = Repository.GetItem<Floyd>();
-            floyd.IsOn = true;
-
-            // Mock the location to make Floyd appear to be in the room
-            var mockLocation = new Mock<Model.Location.ILocation>();
-            mockLocation.Setup(l => l.Items).Returns(new List<Model.Item.IItem> { floyd });
-            mockContext.Setup(c => c.CurrentLocation).Returns(mockLocation.Object);
+            var floydRequest = new FloydAfterSaveGameRequest("Test Location");
+            mockContext.Setup(c => c.GetSaveGameRequest("Test Location")).Returns(floydRequest);
 
             _mockEngine.Setup(e => e.Context).Returns(mockContext.Object);
             _mockEngine.Setup(e => e.LocationDescription).Returns("Test Location");
@@ -338,28 +325,25 @@ public class PlanetfallControllerTests
             var result = await _controller.SaveGame(request);
 
             // Assert
+            mockContext.Verify(c => c.GetSaveGameRequest("Test Location"), Times.Once,
+                "Should ask context for custom save request");
             _mockGenerationClient.Verify(
                 g => g.GenerateNarration(It.IsAny<FloydAfterSaveGameRequest>(), It.IsAny<string>()),
                 Times.Once,
-                "Should use FloydAfterSaveGameRequest when Floyd is present and on");
+                "Should use custom save request when context provides one");
             result.Should().Contain("Floyd");
         }
 
         [Test]
-        public async Task Should_UseNormalSaveRequest_When_FloydIsNotPresent()
+        public async Task Should_UseDefaultSaveRequest_When_ContextReturnsNull()
         {
             // Arrange
             var request = new SaveGameRequest("session-id", "client-id", "My Save", "save-id");
             var sessionData = "dGVzdCBzYXZlZCBkYXRh";
 
-            // Create a context without Floyd present
+            // Mock context to return null (no custom override)
             var mockContext = new Mock<IContext>();
-            var floyd = Repository.GetItem<Floyd>();
-            floyd.IsOn = false; // Floyd is off
-
-            var mockLocation = new Mock<Model.Location.ILocation>();
-            mockLocation.Setup(l => l.Items).Returns(new List<Model.Item.IItem>());
-            mockContext.Setup(c => c.CurrentLocation).Returns(mockLocation.Object);
+            mockContext.Setup(c => c.GetSaveGameRequest(It.IsAny<string>())).Returns((Request?)null);
 
             _mockEngine.Setup(e => e.Context).Returns(mockContext.Object);
             _mockEngine.Setup(e => e.LocationDescription).Returns("Test Location");
@@ -376,14 +360,16 @@ public class PlanetfallControllerTests
             var result = await _controller.SaveGame(request);
 
             // Assert
+            mockContext.Verify(c => c.GetSaveGameRequest(It.IsAny<string>()), Times.Once,
+                "Should ask context for custom save request");
             _mockGenerationClient.Verify(
                 g => g.GenerateNarration(It.IsAny<AfterSaveGameRequest>(), It.IsAny<string>()),
                 Times.Once,
-                "Should use AfterSaveGameRequest when Floyd is not present");
+                "Should use default AfterSaveGameRequest when context returns null");
             _mockGenerationClient.Verify(
                 g => g.GenerateNarration(It.IsAny<FloydAfterSaveGameRequest>(), It.IsAny<string>()),
                 Times.Never,
-                "Should NOT use FloydAfterSaveGameRequest when Floyd is not present");
+                "Should NOT use custom request when context returns null");
         }
     }
 

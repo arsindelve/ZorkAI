@@ -430,4 +430,13 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         Items.Add(item);
         item.CurrentLocation = location;
     }
+
+    /// <summary>
+    ///     Default implementation returns null, meaning use the standard AfterSaveGameRequest.
+    ///     Game-specific contexts can override this to provide custom save game requests.
+    /// </summary>
+    public virtual Model.AIGeneration.Request? GetSaveGameRequest(string location)
+    {
+        return null;
+    }
 }
