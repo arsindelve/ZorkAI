@@ -124,11 +124,9 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             return DropIt(context, Repository.GetItem(items[0]));
 
         // When dropping multiple items, we need to provide feedback for items that don't exist
-        var itemsWithFeedback = new List<(string noun, IItem? item)>();
-        foreach (var itemNoun in items)
-        {
-            itemsWithFeedback.Add((itemNoun, Repository.GetItem(itemNoun)));
-        }
+        var itemsWithFeedback = items
+            .Select(itemNoun => (itemNoun, Repository.GetItem(itemNoun)))
+            .ToList();
 
         return new PositiveInteractionResult(DropEverythingProcessor.DropAll(context, itemsWithFeedback));
     }
@@ -156,11 +154,9 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             return TakeIt(context, Repository.GetItem(items[0]));
 
         // When taking multiple items, we need to provide feedback for items that don't exist
-        var itemsWithFeedback = new List<(string noun, IItem? item)>();
-        foreach (var itemNoun in items)
-        {
-            itemsWithFeedback.Add((itemNoun, Repository.GetItem(itemNoun)));
-        }
+        var itemsWithFeedback = items
+            .Select(itemNoun => (itemNoun, Repository.GetItem(itemNoun)))
+            .ToList();
 
         return new PositiveInteractionResult(TakeEverythingProcessor.TakeAll(context, itemsWithFeedback));
     }

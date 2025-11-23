@@ -48,6 +48,12 @@ public class TakeEverythingProcessor : IGlobalCommand
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Takes multiple items, providing feedback for each item including those that don't exist or can't be taken.
+    /// </summary>
+    /// <param name="context">The game context containing the player's inventory and current location.</param>
+    /// <param name="itemsWithNouns">A list of tuples containing the original noun from user input and the corresponding item (null if not found).</param>
+    /// <returns>A formatted string with the result of attempting to take each item.</returns>
     public static string TakeAll(IContext context, List<(string noun, IItem? item)> itemsWithNouns)
     {
         var sb = new StringBuilder();
