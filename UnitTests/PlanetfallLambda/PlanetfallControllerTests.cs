@@ -236,8 +236,7 @@ public class PlanetfallControllerTests
             _mockSessionRepository.Setup(r => r.GetSessionState("session-id", "planetfall_session"))
                 .ReturnsAsync("dGVzdCBzYXZlZCBkYXRh");
             _mockEngine.Setup(e => e.SaveGame()).Returns("game state");
-            _mockGenerationClient.Setup(g => g.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()))
-                .ReturnsAsync("Game saved successfully.");
+            _mockEngine.Setup(e => e.GenerateSaveGameNarration()).ReturnsAsync("Game saved successfully.");
             _mockSavedGameRepository.Setup(r => r.SaveGame(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                     It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync("saved-game-id");
@@ -272,8 +271,7 @@ public class PlanetfallControllerTests
             _mockSessionRepository.Setup(r => r.GetSessionState("session-id", "planetfall_session"))
                 .ReturnsAsync(sessionData);
             _mockEngine.Setup(e => e.SaveGame()).Returns("current game state");
-            _mockGenerationClient.Setup(g => g.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()))
-                .ReturnsAsync("Game saved successfully.");
+            _mockEngine.Setup(e => e.GenerateSaveGameNarration()).ReturnsAsync("Game saved successfully.");
             _mockSavedGameRepository.Setup(r => r.SaveGame(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                     It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync("saved-game-id");
@@ -289,6 +287,7 @@ public class PlanetfallControllerTests
                 "My Save",
                 It.IsAny<string>(),
                 "planetfall_savegame"), Times.Once);
+            _mockEngine.Verify(e => e.GenerateSaveGameNarration(), Times.Once);
             result.Should().Be("Game saved successfully.");
         }
     }

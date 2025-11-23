@@ -51,7 +51,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     private bool _lastResponseWasGenerated;
     private IStatefulProcessor? _processorInProgress;
     private ICloudWatchLogger<TurnLog>? _turnLogger;
-    internal TContext Context;
+    public TContext Context { get; private set; }
+
+    /// <summary>
+    ///     Explicit interface implementation to satisfy IGameEngine.Context requirement.
+    /// </summary>
+    IContext IGameEngine.Context => Context;
     
     [ActivatorUtilitiesConstructor]
     public GameEngine(
@@ -284,6 +289,16 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var savedGame = Repository.Save<TContext>();
         savedGame.Context = Context;
         return JsonConvert.SerializeObject(savedGame, JsonSettings());
+    }
+
+    public async Task<string> GenerateSaveGameNarration()
+    {
+        // Ask the context if it wants to provide a custom save game request (e.g., Floyd in Planetfall)
+        // If not, use the default AfterSaveGameRequest
+        var saveRequest = Context.GetSaveGameRequest(LocationDescription)
+                          ?? new Model.AIGeneration.Requests.AfterSaveGameRequest(LocationDescription);
+
+        return await GenerationClient.GenerateNarration(saveRequest, string.Empty);
     }
 
     public async Task InitializeEngine()
