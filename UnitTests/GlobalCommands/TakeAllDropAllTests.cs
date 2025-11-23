@@ -64,4 +64,48 @@ public class TakeAllDropAllTests : EngineTestsBase
         var response = await target.GetResponse("drop all");
         response.Should().Contain("nothing here buddy");
     }
+
+    [Test]
+    public async Task TakeMultipleItemsWithOneInvalid()
+    {
+        var target = GetTarget();
+        // Mock the AI parser to return both a valid item (leaflet) and an invalid item (dragon)
+        TakeAndDropParser.Setup(s => s.GetListOfItemsToTake(
+                It.IsAny<string>(),
+                It.IsAny<string>()))
+            .ReturnsAsync(new[] { "leaflet", "dragon" });
+
+        Repository.GetItem<Mailbox>().IsOpen = true;
+        var response = await target.GetResponse("take leaflet and dragon");
+
+        // Should take the leaflet
+        response.Should().Contain("leaflet: Taken");
+
+        // Should provide feedback about the dragon not being present
+        response.Should().Contain("dragon: You can't see that here");
+    }
+
+    [Test]
+    public async Task DropMultipleItemsWithOneInvalid()
+    {
+        var target = GetTarget();
+
+        // First, take the leaflet
+        Repository.GetItem<Mailbox>().IsOpen = true;
+        await target.GetResponse("take leaflet");
+
+        // Mock the AI parser to return both a valid item (leaflet) and an invalid item (dragon)
+        TakeAndDropParser.Setup(s => s.GetListOfItemsToDrop(
+                It.IsAny<string>(),
+                It.IsAny<string>()))
+            .ReturnsAsync(new[] { "leaflet", "dragon" });
+
+        var response = await target.GetResponse("drop leaflet and dragon");
+
+        // Should drop the leaflet
+        response.Should().Contain("leaflet: Dropped");
+
+        // Should provide feedback about not having the dragon
+        response.Should().Contain("dragon: You don't have that!");
+    }
 }

@@ -112,10 +112,10 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         // The parser did not see anything in the inventory that seemed like what we asked for
         if (!items.Any())
         {
-            // There is still a chance there is something for us to drop. This can happen when the parser is not 
-            // smart enough to match the noun to the item description. An example of this is the "magnet" which is 
+            // There is still a chance there is something for us to drop. This can happen when the parser is not
+            // smart enough to match the noun to the item description. An example of this is the "magnet" which is
             // (deliberately, as a puzzle) described as "a metal bar, curved into a U-shape" which the parser does not
-            // understand is a magnet. So as a final attempt, let's see if there is a direct noun match.  
+            // understand is a magnet. So as a final attempt, let's see if there is a direct noun match.
             var specificItem = Repository.GetItem(action.Noun);
             return specificItem is not null ? DropIt(context, specificItem) : new NoNounMatchInteractionResult();
         }
@@ -123,8 +123,14 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (items.Length == 1)
             return DropIt(context, Repository.GetItem(items[0]));
 
-        return new PositiveInteractionResult(DropEverythingProcessor.DropAll(context,
-            items.Select(Repository.GetItem).ToList()));
+        // When dropping multiple items, we need to provide feedback for items that don't exist
+        var itemsWithFeedback = new List<(string noun, IItem? item)>();
+        foreach (var itemNoun in items)
+        {
+            itemsWithFeedback.Add((itemNoun, Repository.GetItem(itemNoun)));
+        }
+
+        return new PositiveInteractionResult(DropEverythingProcessor.DropAll(context, itemsWithFeedback));
     }
 
     private async Task<InteractionResult?> GetItemsToTake(IContext context, SimpleIntent action)
@@ -138,10 +144,10 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         // The parser did not see anything in the room description that seemed like what we asked for
         if (!items.Any())
         {
-            // There is still a chance there is something for us to pick up. This can happen when the parser is not 
-            // smart enough to match the noun to the item description. An example of this is the "magnet" which is 
+            // There is still a chance there is something for us to pick up. This can happen when the parser is not
+            // smart enough to match the noun to the item description. An example of this is the "magnet" which is
             // (deliberately, as a puzzle) described as "a metal bar, curved into a U-shape" which the parser does not
-            // understand is a magnet. So as a final attempt, let's see if there is a direct noun match.  
+            // understand is a magnet. So as a final attempt, let's see if there is a direct noun match.
             var specificItem = Repository.GetItem(action.Noun);
             return specificItem is not null ? TakeIt(context, specificItem) : new NoNounMatchInteractionResult();
         }
@@ -149,8 +155,14 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (items.Length == 1)
             return TakeIt(context, Repository.GetItem(items[0]));
 
-        return new PositiveInteractionResult(TakeEverythingProcessor.TakeAll(context,
-            items.Select(Repository.GetItem).ToList()));
+        // When taking multiple items, we need to provide feedback for items that don't exist
+        var itemsWithFeedback = new List<(string noun, IItem? item)>();
+        foreach (var itemNoun in items)
+        {
+            itemsWithFeedback.Add((itemNoun, Repository.GetItem(itemNoun)));
+        }
+
+        return new PositiveInteractionResult(TakeEverythingProcessor.TakeAll(context, itemsWithFeedback));
     }
 
     public static InteractionResult DropIt(IContext context, IItem? castItem)

@@ -14,6 +14,8 @@ namespace UnitTests;
 
 public class EngineTestsBase : EngineTestsBaseCommon<ZorkIContext>
 {
+    protected Mock<IAITakeAndAndDropParser> TakeAndDropParser = new();
+
     /// <summary>
     ///     Returns an instance of the GameEngine class with the specified parser and client.
     ///     If parser is not provided, a default TestParser instance is used.
@@ -27,25 +29,25 @@ public class EngineTestsBase : EngineTestsBaseCommon<ZorkIContext>
 
         Repository.Reset();
 
-        var takeAndDropParser = new Mock<IAITakeAndAndDropParser>();
-        takeAndDropParser.Setup(s => s.GetListOfItemsToDrop(It.IsAny<string>(), It.IsAny<string>()))
+        TakeAndDropParser = new Mock<IAITakeAndAndDropParser>();
+        TakeAndDropParser.Setup(s => s.GetListOfItemsToDrop(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync((string input, string context) =>
             {
                 var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 return words.Length > 1 ? [words[1]] : [];
             });
-        
-        takeAndDropParser.Setup(s => s.GetListOfItemsToTake(It.IsAny<string>(), It.IsAny<string>()))
+
+        TakeAndDropParser.Setup(s => s.GetListOfItemsToTake(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync((string input, string context) =>
             {
                 var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 return words.Length > 1 ? [words[1]] : [];
             });
-        
+
         // Create a mock ParseConversation that mimics the old pattern behavior
         var mockParseConversation = CreateMockParseConversation();
-        
-        var engine = new GameEngine<ZorkI, ZorkIContext>(new ItemProcessorFactory(takeAndDropParser.Object),
+
+        var engine = new GameEngine<ZorkI, ZorkIContext>(new ItemProcessorFactory(TakeAndDropParser.Object),
             Parser, Client.Object, Mock.Of<ISecretsManager>(),
             Mock.Of<ICloudWatchLogger<TurnLog>>(), mockParseConversation.Object);
         

@@ -31,7 +31,7 @@ public class TakeEverythingProcessor : IGlobalCommand
         foreach (var nextItem in items)
         {
             if(nextItem is null) continue;
-            
+
             if (!string.IsNullOrEmpty(nextItem.CannotBeTakenDescription))
             {
                 sb.AppendLine($"{nextItem.Name}: {nextItem.CannotBeTakenDescription}");
@@ -43,6 +43,33 @@ public class TakeEverythingProcessor : IGlobalCommand
 
             sb.AppendLine($"{nextItem.Name}: Taken. ");
             context.ItemPlacedHere(nextItem);
+        }
+
+        return sb.ToString();
+    }
+
+    public static string TakeAll(IContext context, List<(string noun, IItem? item)> itemsWithNouns)
+    {
+        var sb = new StringBuilder();
+        foreach (var (noun, item) in itemsWithNouns)
+        {
+            if (item is null)
+            {
+                sb.AppendLine($"{noun}: You can't see that here.");
+                continue;
+            }
+
+            if (!string.IsNullOrEmpty(item.CannotBeTakenDescription))
+            {
+                sb.AppendLine($"{item.Name}: {item.CannotBeTakenDescription}");
+                continue;
+            }
+
+            if (item is not ICanBeTakenAndDropped)
+                continue;
+
+            sb.AppendLine($"{item.Name}: Taken. ");
+            context.ItemPlacedHere(item);
         }
 
         return sb.ToString();
