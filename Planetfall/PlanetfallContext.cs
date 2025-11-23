@@ -61,7 +61,7 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     ///     If Floyd is present and active, returns a Floyd-specific request with fourth-wall-breaking comments.
     ///     Otherwise, returns null to use the default AfterSaveGameRequest.
     /// </summary>
-    public override Model.AIGeneration.Request? GetSaveGameRequest(string location)
+    public override Request? GetSaveGameRequest(string location)
     {
         var floyd = Repository.GetItem<Floyd>();
         if (floyd.IsHereAndIsOn(this))

@@ -52,6 +52,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     private IStatefulProcessor? _processorInProgress;
     private ICloudWatchLogger<TurnLog>? _turnLogger;
     public TContext Context { get; private set; }
+
+    /// <summary>
+    ///     Explicit interface implementation to satisfy IGameEngine.Context requirement.
+    /// </summary>
+    IContext IGameEngine.Context => Context;
     
     [ActivatorUtilitiesConstructor]
     public GameEngine(

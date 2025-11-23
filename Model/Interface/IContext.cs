@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 using Model.Intent;
 using Model.Interaction;
 using Model.Item;
@@ -200,5 +201,5 @@ public interface IContext : ICanContainItems
     /// </summary>
     /// <param name="location">The current location description.</param>
     /// <returns>A custom Request for save game narration, or null to use the default AfterSaveGameRequest.</returns>
-    Model.AIGeneration.Request? GetSaveGameRequest(string location);
+    Request? GetSaveGameRequest(string location);
 }
