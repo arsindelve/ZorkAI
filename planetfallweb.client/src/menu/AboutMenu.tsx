@@ -22,7 +22,31 @@ export default function AboutMenu() {
     const {setDialogToOpen} = useGameContext();
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [latestVersion, setLatestVersion] = React.useState<string>(config.version);
     const open = Boolean(anchorEl);
+
+    // Fetch latest version on mount
+    React.useEffect(() => {
+        const fetchLatestVersion = async () => {
+            try {
+                const response = await fetch('https://api.github.com/repos/arsindelve/ZorkAI/releases', {
+                    headers: {
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                if (response.ok) {
+                    const releases = await response.json();
+                    if (releases.length > 0) {
+                        setLatestVersion(releases[0].tag_name || releases[0].name || config.version);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching latest version:', error);
+                // Keep using config.version as fallback
+            }
+        };
+        fetchLatestVersion();
+    }, []);
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -158,7 +182,7 @@ export default function AboutMenu() {
                     <ListItemIcon>
                         <NewReleasesIcon fontSize="small" />
                     </ListItemIcon>
-                    <ListItemText>Version {config.version}</ListItemText>
+                    <ListItemText>Version {latestVersion}</ListItemText>
                 </MenuItem>
             </Menu>
         </div>
