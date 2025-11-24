@@ -51,16 +51,23 @@ public static class SentenceSplitter
                 if (CommonAbbreviations.Contains(lastWord) && i < parts.Length - 1)
                 {
                     // Reconstruct with period and continue to next iteration
-                    var nextPart = i + 1 < parts.Length ? parts[i + 1] : "";
+                    // Trim the next part to avoid double spaces
+                    var nextPart = i + 1 < parts.Length ? parts[i + 1].Trim() : "";
                     parts[i + 1] = part + ". " + nextPart;
                     continue;
                 }
             }
 
             // Check if this is a single letter (directional command like "n", "e", etc.)
-            // If so, keep the period
+            // AND it's not part of a larger command
             if (part.Length == 1 && char.IsLetter(part[0]))
             {
+                sentences.Add(part + ".");
+            }
+            else if (words.Length > 1 && words[^1].Length == 1 && char.IsLetter(words[^1][0]))
+            {
+                // Multi-word command ending with single letter (like "go N")
+                // Keep the period
                 sentences.Add(part + ".");
             }
             else
@@ -70,7 +77,7 @@ public static class SentenceSplitter
             }
         }
 
-        // If no sentences were created, return the original input as a single sentence
-        return sentences.Count > 0 ? sentences : new List<string> { input.Trim() };
+        // If no sentences were created, return empty list (not the original input)
+        return sentences;
     }
 }
