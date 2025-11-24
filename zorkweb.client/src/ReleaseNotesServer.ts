@@ -16,11 +16,17 @@ export async function ReleaseNotesServer(): Promise<{ date: string; name: string
         const releases = await response.json();
 
         // Transform GitHub release format to expected format
-        return releases.map((release: any) => ({
-            date: release.published_at || release.created_at,
-            name: release.name || release.tag_name,
-            notes: release.body_html || release.body || ''
-        }));
+        // Filter out releases with no body text
+        return releases
+            .filter((release: any) => {
+                const body = release.body_html || release.body || '';
+                return body.trim().length > 0;
+            })
+            .map((release: any) => ({
+                date: release.published_at || release.created_at,
+                name: release.name || release.tag_name,
+                notes: release.body_html || release.body || ''
+            }));
     } catch (error) {
         console.error("Error fetching releases:", error);
         return [];
