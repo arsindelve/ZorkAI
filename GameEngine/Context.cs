@@ -1,6 +1,7 @@
 using System.Reflection;
 using GameEngine.Item;
 using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 using Model.Interface;
 using Model.Item;
 using Model.Location;
@@ -429,5 +430,14 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         var item = Repository.GetItem<TItem>();
         Items.Add(item);
         item.CurrentLocation = location;
+    }
+
+    /// <summary>
+    ///     Default implementation returns null, meaning use the standard AfterSaveGameRequest.
+    ///     Game-specific contexts can override this to provide custom save game requests.
+    /// </summary>
+    public virtual Request? GetSaveGameRequest(string location)
+    {
+        return null;
     }
 }

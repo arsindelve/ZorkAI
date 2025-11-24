@@ -69,7 +69,7 @@ public class PlanetfallController(
         RestoreSession(savedSession);
         var encodedText = GetGameData();
         await savedGameRepository.SaveGame(request.Id, request.ClientId, request.Name, encodedText, SaveGameTableName);
-        return await engine.GenerationClient.GenerateNarration(new AfterSaveGameRequest(engine.LocationDescription), String.Empty);
+        return await engine.GenerateSaveGameNarration();
     }
 
     [HttpGet]
