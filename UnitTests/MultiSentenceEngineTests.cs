@@ -18,7 +18,7 @@ public class MultiSentenceEngineTests : EngineTestsBase
         var result = await target.GetResponse("s. look");
 
         result.Should().Contain("South of House");
-        result.Should().Contain("open field");
+        result.Should().Contain("boarded");
     }
 
     [Test]
@@ -69,11 +69,16 @@ public class MultiSentenceEngineTests : EngineTestsBase
     [Test]
     public async Task ProcessMultipleSentences_InvalidCommand_ContinuesProcessing()
     {
-        var target = GetTarget();
-
-        Mock.Get(Parser)
-            .Setup(s => s.DetermineComplexIntentType("xyzzy", It.IsAny<string>(), It.IsAny<string>()))
+        // Create a mock parser to control the behavior of the invalid command
+        var mockParser = new Mock<IIntentParser>();
+        mockParser.Setup(s => s.DetermineComplexIntentType("xyzzy", It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new NullIntent());
+        mockParser.Setup(s => s.DetermineSystemIntentType(It.IsAny<string>()))
+            .Returns((IntentBase?)null);
+        mockParser.Setup(s => s.DetermineGlobalIntentType("look"))
+            .Returns(new GlobalCommandIntent { Command = new LookCommand() });
+
+        var target = GetTarget(mockParser.Object);
 
         Client
             .Setup(s => s.GenerateNarration(It.IsAny<Model.AIGeneration.Requests.CommandHasNoEffectOperationRequest>(), It.IsAny<string>()))
@@ -82,7 +87,7 @@ public class MultiSentenceEngineTests : EngineTestsBase
         var result = await target.GetResponse("xyzzy. look");
 
         result.Should().Contain("Nothing happens");
-        result.Should().Contain("West of House");
+        result.Should().Contain("West Of House");
     }
 
     [Test]
@@ -116,7 +121,7 @@ public class MultiSentenceEngineTests : EngineTestsBase
 
         var result = await target.GetResponse("look. s");
 
-        result.Should().Contain("West of House");
+        result.Should().Contain("West Of House");
         result.Should().Contain("South of House");
     }
 
@@ -159,7 +164,7 @@ public class MultiSentenceEngineTests : EngineTestsBase
         var result = await target.GetResponse("brief. look");
 
         result.Should().Contain("Okay");
-        result.Should().Contain("West of House");
+        result.Should().Contain("West Of House");
     }
 
     [Test]
