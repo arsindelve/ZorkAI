@@ -1,0 +1,28 @@
+{
+  "name": "zork-ai-web-clients",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ZorkAI Web Clients Monorepo - Shared game client library and game-specific implementations",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "build:core": "npm run build --workspace=packages/game-client-core",
+    "build:zork": "npm run build --workspace=packages/zorkweb-client",
+    "build:planetfall": "npm run build --workspace=packages/planetfallweb-client",
+    "dev:zork": "npm run dev --workspace=packages/zorkweb-client",
+    "dev:planetfall": "npm run dev --workspace=packages/planetfallweb-client",
+    "test": "npm run test --workspaces",
+    "test:unit": "npm run test:unit --workspaces --if-present",
+    "test:e2e": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces",
+    "clean": "rm -rf packages/*/node_modules packages/*/dist && rm -rf node_modules"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "author": "ZorkAI Contributors",
+  "license": "MIT"
+}
