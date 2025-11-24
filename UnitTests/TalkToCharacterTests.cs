@@ -62,7 +62,7 @@ public class TalkToCharacterTests : EngineTestsBase
     }
 
     [TestCase("bob, hello there", "hello there", TestName = "CommaSeparatedFormat_TalksToCharacter")]
-    [TestCase("say to bob. 'hi'", "hi", TestName = "SayVerbFormat_TalksToCharacter")]
+    [TestCase("say 'hi' to bob", "hi", TestName = "SayVerbFormat_TalksToCharacter")]
     [TestCase("yell at bob get out", "get out", TestName = "YellAtFormat_TalksToCharacter")]
     [TestCase("yell at bob to go north", "to go north", TestName = "YellAtToFormat_TalksToCharacter")]
     [TestCase("yell at bob \"go north\"", "go north", TestName = "YellAtQuotedFormat_TalksToCharacter")]
