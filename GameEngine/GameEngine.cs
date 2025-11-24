@@ -162,6 +162,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // Check for multi-sentence input
         var sentences = SentenceSplitter.Split(playerInput);
 
+        if (sentences.Count == 0)
+        {
+            // Empty input (like "...") - treat as empty command
+            return await ProcessSingleSentence(null);
+        }
+
         if (sentences.Count > 1)
         {
             return await ProcessMultipleSentences(sentences);
