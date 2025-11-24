@@ -51,7 +51,7 @@ public class MultiSentenceEngineTests : EngineTestsBase
 
         var result = await target.GetResponse("inventory. score");
 
-        result.Should().Contain("carrying");
+        result.Should().Contain("empty-handed");
         result.Should().Contain("score");
     }
 
