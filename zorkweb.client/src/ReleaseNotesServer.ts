@@ -5,7 +5,8 @@ export async function ReleaseNotesServer(): Promise<{ date: string; name: string
     try {
         const response = await fetch(GITHUB_API_URL, {
             headers: {
-                'Accept': 'application/vnd.github.v3+json'
+                // Request HTML-rendered body instead of Markdown
+                'Accept': 'application/vnd.github.v3.html+json'
             }
         });
 
@@ -19,13 +20,13 @@ export async function ReleaseNotesServer(): Promise<{ date: string; name: string
         // Filter out releases with no body text
         return releases
             .filter((release: any) => {
-                const body = release.body_html || release.body || '';
+                const body = release.body_html || '';
                 return body.trim().length > 0;
             })
             .map((release: any) => ({
                 date: release.published_at || release.created_at,
                 name: release.name || release.tag_name,
-                notes: release.body_html || release.body || ''
+                notes: release.body_html || ''
             }));
     } catch (error) {
         console.error("Error fetching releases:", error);
