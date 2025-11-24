@@ -1,8 +1,9 @@
 /**
  * Theme System
  *
- * Theme types and providers will be implemented in Phase 2.
+ * Provides a flexible theming system for game-specific visual customization.
+ * Each game can define its own theme configuration while using shared components.
  */
 
-// Placeholder - theme system will be implemented in Phase 2
-export {};
+export * from './types';
+export * from './ThemeProvider';
