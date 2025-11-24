@@ -297,8 +297,7 @@ public class ZorkOneControllerTests
             _mockSessionRepository.Setup(r => r.GetSessionStepsAsText("session-id", "zork1_session_steps"))
                 .ReturnsAsync("game history");
             _mockEngine.Setup(e => e.SaveGame()).Returns("current game state");
-            _mockGenerationClient.Setup(g => g.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()))
-                .ReturnsAsync("Game saved successfully.");
+            _mockEngine.Setup(e => e.GenerateSaveGameNarration()).ReturnsAsync("Game saved successfully.");
             _mockSavedGameRepository.Setup(r => r.SaveGame(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                     It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync("saved-game-id");
