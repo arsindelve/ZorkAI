@@ -21,8 +21,15 @@ const ReleaseNotesModal: React.FC<{ open: boolean; handleClose: () => void }> = 
     const [releases, setReleases] = useState<{ date: string; name: string; notes: string }[]>([]);
 
     useEffect(() => {
+        console.log('[ReleaseNotesModal] useEffect triggered, open:', open);
         if (open) {
-            ReleaseNotesServer().then(setReleases);
+            console.log('[ReleaseNotesModal] Fetching release notes...');
+            ReleaseNotesServer().then((data) => {
+                console.log('[ReleaseNotesModal] Received data:', data);
+                setReleases(data);
+            }).catch((error) => {
+                console.error('[ReleaseNotesModal] Error fetching releases:', error);
+            });
         }
     }, [open]);
 
@@ -88,7 +95,7 @@ const ReleaseNotesModal: React.FC<{ open: boolean; handleClose: () => void }> = 
             >
                 <UpdateIcon fontSize="large" />
                 <Typography variant="h5" component="span" fontWeight="bold">
-                    Zork AI Release Notes
+                    Planetfall AI Release Notes
                 </Typography>
             </DialogTitle>
 

@@ -64,8 +64,10 @@ function App() {
                     setDialogToOpen(undefined);
                     break;
                 case DialogType.ReleaseNotes:
+                    console.log('[App] Opening Release Notes Dialog');
                     Mixpanel.track('Open Release Notes Dialog', {});
                     setReleaseNotesDialogOpen(true);
+                    console.log('[App] releaseNotesDialogOpen set to true');
                     setDialogToOpen(undefined);
                     break;
                 default:

@@ -37,14 +37,14 @@ describe('ReleaseNotesModal Component', () => {
     render(<ReleaseNotesModal open={false} handleClose={mockHandleClose} />);
 
     // Dialog should not be in the document
-    expect(screen.queryByText('Zork AI Release Notes')).not.toBeInTheDocument();
+    expect(screen.queryByText('Planetfall AI Release Notes')).not.toBeInTheDocument();
   });
 
   test('renders dialog when open is true', () => {
     render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} />);
 
     // Dialog title should be in the document
-    expect(screen.getByText('Zork AI Release Notes')).toBeInTheDocument();
+    expect(screen.getByText('Planetfall AI Release Notes')).toBeInTheDocument();
   });
 
   test('shows loading skeletons while fetching data', () => {

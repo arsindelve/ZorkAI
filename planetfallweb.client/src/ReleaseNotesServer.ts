@@ -1,9 +1,26 @@
 export async function ReleaseNotesServer(): Promise<{ date: string; name: string; notes: string }[]> {
-    const API_URL = "https://oothkqo6lvnvbh7346hbxyduau0ghgsy.lambda-url.us-east-1.on.aws/";
+    // Fetch directly from GitHub Releases API
+    const GITHUB_API_URL = "https://api.github.com/repos/arsindelve/ZorkAI/releases";
 
     try {
-        const response = await fetch(API_URL);
-        return await response.json();
+        const response = await fetch(GITHUB_API_URL, {
+            headers: {
+                'Accept': 'application/vnd.github.v3+json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`GitHub API error: ${response.status}`);
+        }
+
+        const releases = await response.json();
+
+        // Transform GitHub release format to expected format
+        return releases.map((release: any) => ({
+            date: release.published_at || release.created_at,
+            name: release.name || release.tag_name,
+            notes: release.body_html || release.body || ''
+        }));
     } catch (error) {
         console.error("Error fetching releases:", error);
         return [];
