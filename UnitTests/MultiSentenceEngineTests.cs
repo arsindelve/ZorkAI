@@ -1,9 +1,5 @@
-using GameEngine;
-using Model.AIParsing;
 using Model.Intent;
-using Model.Movement;
-using ZorkOne;
-using ZorkOne.GlobalCommand;
+using Model.Interface;
 
 namespace UnitTests;
 
@@ -160,6 +156,9 @@ public class MultiSentenceEngineTests : EngineTestsBase
     public async Task ProcessMultipleSentences_SystemCommand_ProcessedFirst()
     {
         var target = GetTarget();
+
+        Client.Setup(s => s.GenerateNarration(It.IsAny<Model.AIGeneration.Requests.MediumVerbosityRequest>(), It.IsAny<string>()))
+            .ReturnsAsync("Okay");
 
         var result = await target.GetResponse("brief. look");
 

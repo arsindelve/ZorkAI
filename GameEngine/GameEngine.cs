@@ -195,13 +195,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
                 responses.Add(response.TrimEnd());
             }
 
-            // Check for game-ending conditions
-            if (Context.IsDead)
-            {
-                _logger?.LogDebug("Player died - stopping multi-sentence processing");
-                break;
-            }
-
             // Check if a processor needs user input (like save, quit, disambiguation)
             if (_processorInProgress != null)
             {
