@@ -142,9 +142,8 @@ public class SentenceSplitterTests
     {
         var result = SentenceSplitter.Split("take keys, coins, etc. and go north");
 
-        result.Should().HaveCount(2);
+        result.Should().HaveCount(1);
         result[0].Should().Be("take keys, coins, etc. and go north");
-        result[1].Should().Be("go north");
     }
 
     [Test]
@@ -207,5 +206,72 @@ public class SentenceSplitterTests
         result.Should().HaveCount(2);
         result[0].Should().Be("take lamp");
         result[1].Should().Be("go north");
+    }
+
+    [Test]
+    public void Split_SingleLetterDirections_SplitsCorrectly()
+    {
+        var result = SentenceSplitter.Split("e. w.");
+
+        result.Should().HaveCount(2);
+        result[0].Should().Be("e.");
+        result[1].Should().Be("w.");
+    }
+
+    [Test]
+    public void Split_MultipleCardinalDirections_EachIsSeparate()
+    {
+        var result = SentenceSplitter.Split("n. s. e. w.");
+
+        result.Should().HaveCount(4);
+        result[0].Should().Be("n.");
+        result[1].Should().Be("s.");
+        result[2].Should().Be("e.");
+        result[3].Should().Be("w.");
+    }
+
+    [Test]
+    public void Split_MixedDirectionsAndCommands_SplitsCorrectly()
+    {
+        var result = SentenceSplitter.Split("e. take sword. w.");
+
+        result.Should().HaveCount(3);
+        result[0].Should().Be("e.");
+        result[1].Should().Be("take sword");
+        result[2].Should().Be("w.");
+    }
+
+    [Test]
+    public void Split_NoSpacesBetweenCommands_SplitsCorrectly()
+    {
+        var result = SentenceSplitter.Split("look.wait.wait");
+
+        result.Should().HaveCount(3);
+        result[0].Should().Be("look");
+        result[1].Should().Be("wait");
+        result[2].Should().Be("wait");
+    }
+
+    [Test]
+    public void Split_NoSpacesBetweenDirections_SplitsCorrectly()
+    {
+        var result = SentenceSplitter.Split("e.w.n.s");
+
+        result.Should().HaveCount(4);
+        result[0].Should().Be("e.");
+        result[1].Should().Be("w.");
+        result[2].Should().Be("n.");
+        result[3].Should().Be("s.");
+    }
+
+    [Test]
+    public void Split_MixedSpacedAndNonSpaced_SplitsCorrectly()
+    {
+        var result = SentenceSplitter.Split("take lamp.turn it on. go north");
+
+        result.Should().HaveCount(3);
+        result[0].Should().Be("take lamp");
+        result[1].Should().Be("turn it on");
+        result[2].Should().Be("go north");
     }
 }

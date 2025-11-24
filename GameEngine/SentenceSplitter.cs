@@ -17,8 +17,9 @@ public static class SentenceSplitter
     ///     Splits input by periods, avoiding false positives from abbreviations.
     ///     Examples:
     ///     - "take lamp. go north" → ["take lamp", "go north"]
+    ///     - "look.wait.wait" → ["look", "wait", "wait"]
     ///     - "talk to Mr. Jones" → ["talk to Mr. Jones"]
-    ///     - "go N." → ["go N."]
+    ///     - "e. w." → ["e.", "w."]
     /// </summary>
     /// <param name="input">The raw user input</param>
     /// <returns>List of individual sentences/commands</returns>
@@ -27,69 +28,46 @@ public static class SentenceSplitter
         if (string.IsNullOrWhiteSpace(input))
             return new List<string>();
 
+        // First, split on periods
+        var parts = input.Split('.');
         var sentences = new List<string>();
-        var currentSentence = new StringBuilder();
 
-        var tokens = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-        for (var i = 0; i < tokens.Length; i++)
+        for (var i = 0; i < parts.Length; i++)
         {
-            var token = tokens[i];
-            currentSentence.Append(token);
+            var part = parts[i].Trim();
 
-            // Check if token ends with period
-            if (token.EndsWith('.'))
+            // Skip empty parts
+            if (string.IsNullOrWhiteSpace(part))
+                continue;
+
+            // Check if this part ends with an abbreviation
+            var words = part.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (words.Length > 0)
             {
-                var withoutPeriod = token.TrimEnd('.').ToLower();
+                var lastWord = words[^1].ToLower();
 
-                // Check if it's an abbreviation (Mr., Dr., etc.)
-                if (CommonAbbreviations.Contains(withoutPeriod))
+                // If the last word is an abbreviation and there's a next part,
+                // merge this part with the next
+                if (CommonAbbreviations.Contains(lastWord) && i < parts.Length - 1)
                 {
-                    currentSentence.Append(' ');
+                    // Reconstruct with period and continue to next iteration
+                    var nextPart = i + 1 < parts.Length ? parts[i + 1] : "";
+                    parts[i + 1] = part + ". " + nextPart;
                     continue;
                 }
-
-                // Check if it's a single letter followed by period (like "N." for North)
-                // Keep it as part of current sentence - it's likely a direction command
-                if (withoutPeriod.Length == 1)
-                {
-                    // If this is the last token or next token doesn't start with capital,
-                    // treat it as end of sentence
-                    if (i == tokens.Length - 1)
-                    {
-                        var sentence = currentSentence.ToString().Trim();
-                        if (!string.IsNullOrWhiteSpace(sentence))
-                        {
-                            sentences.Add(sentence);
-                        }
-                        currentSentence.Clear();
-                    }
-                    else
-                    {
-                        currentSentence.Append(' ');
-                    }
-                    continue;
-                }
-
-                // It's a sentence delimiter - add the sentence without the period
-                var completeSentence = currentSentence.ToString().TrimEnd('.').Trim();
-                if (!string.IsNullOrWhiteSpace(completeSentence))
-                {
-                    sentences.Add(completeSentence);
-                }
-                currentSentence.Clear();
             }
-            else if (i < tokens.Length - 1)
+
+            // Check if this is a single letter (directional command like "n", "e", etc.)
+            // If so, keep the period
+            if (part.Length == 1 && char.IsLetter(part[0]))
             {
-                currentSentence.Append(' ');
+                sentences.Add(part + ".");
             }
-        }
-
-        // Add any remaining content
-        var final = currentSentence.ToString().TrimEnd('.').Trim();
-        if (!string.IsNullOrWhiteSpace(final))
-        {
-            sentences.Add(final);
+            else
+            {
+                // Regular command - no period needed
+                sentences.Add(part);
+            }
         }
 
         // If no sentences were created, return the original input as a single sentence
