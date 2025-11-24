@@ -76,7 +76,7 @@ public class MultiSentenceEngineTests : EngineTestsBase
         mockParser.Setup(s => s.DetermineSystemIntentType(It.IsAny<string>()))
             .Returns((IntentBase?)null);
         mockParser.Setup(s => s.DetermineGlobalIntentType("look"))
-            .Returns(new GlobalCommandIntent { Command = new LookCommand() });
+            .Returns(new GlobalCommandIntent { Command = new GameEngine.StaticCommand.Implementation.LookProcessor() });
 
         var target = GetTarget(mockParser.Object);
 
