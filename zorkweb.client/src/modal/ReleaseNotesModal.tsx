@@ -146,11 +146,48 @@ const ReleaseNotesModal: React.FC<{ open: boolean; handleClose: () => void }> = 
                                     sx={{
                                         whiteSpace: "normal",
                                         wordWrap: "break-word",
-                                        '& ul': { pl: 4 },
-                                        '& li': { mb: 1 },
                                         color: 'grey.800',
                                         fontSize: '1rem',
-                                        lineHeight: 1.6
+                                        lineHeight: 1.6,
+                                        '& ul': {
+                                            pl: 4,
+                                            mb: 2,
+                                            listStyleType: 'disc',
+                                            listStylePosition: 'outside'
+                                        },
+                                        '& ol': {
+                                            pl: 4,
+                                            mb: 2,
+                                            listStyleType: 'decimal',
+                                            listStylePosition: 'outside'
+                                        },
+                                        '& li': {
+                                            mb: 0.5,
+                                            ml: 0,
+                                            display: 'list-item'
+                                        },
+                                        '& h2': {
+                                            fontSize: '1.25rem',
+                                            fontWeight: 'bold',
+                                            mt: 2,
+                                            mb: 1
+                                        },
+                                        '& h3': {
+                                            fontSize: '1.1rem',
+                                            fontWeight: 'bold',
+                                            mt: 1.5,
+                                            mb: 1
+                                        },
+                                        '& p': {
+                                            mb: 1
+                                        },
+                                        '& a': {
+                                            color: 'primary.main',
+                                            textDecoration: 'none',
+                                            '&:hover': {
+                                                textDecoration: 'underline'
+                                            }
+                                        }
                                     }}
                                 />
                             </Paper>
