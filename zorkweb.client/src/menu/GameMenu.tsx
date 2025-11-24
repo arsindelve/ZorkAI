@@ -3,7 +3,7 @@ import AboutMenu from "./AboutMenu.tsx";
 import FunctionsMenu from "./FunctionsMenu.tsx";
 import { useEffect, useState } from 'react';
 
-export default function GameMenu() {
+export default function GameMenu({ latestVersion }: { latestVersion: string }) {
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
@@ -33,7 +33,7 @@ export default function GameMenu() {
                 <div>
                     <FunctionsMenu />
                 </div>
-                <AboutMenu/>
+                <AboutMenu latestVersion={latestVersion} />
             </div>
         </div>
     );

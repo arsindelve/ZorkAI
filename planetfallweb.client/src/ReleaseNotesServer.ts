@@ -1,3 +1,11 @@
+interface GitHubRelease {
+    published_at?: string;
+    created_at: string;
+    name?: string;
+    tag_name: string;
+    body_html?: string;
+}
+
 export async function ReleaseNotesServer(): Promise<{ date: string; name: string; notes: string }[]> {
     // Fetch directly from GitHub Releases API
     const GITHUB_API_URL = "https://api.github.com/repos/arsindelve/ZorkAI/releases";
@@ -14,16 +22,16 @@ export async function ReleaseNotesServer(): Promise<{ date: string; name: string
             throw new Error(`GitHub API error: ${response.status}`);
         }
 
-        const releases = await response.json();
+        const releases: GitHubRelease[] = await response.json();
 
         // Transform GitHub release format to expected format
         // Filter out releases with no body text
         return releases
-            .filter((release: any) => {
+            .filter((release: GitHubRelease) => {
                 const body = release.body_html || '';
                 return body.trim().length > 0;
             })
-            .map((release: any) => ({
+            .map((release: GitHubRelease) => ({
                 date: release.published_at || release.created_at,
                 name: release.name || release.tag_name,
                 notes: release.body_html || ''
