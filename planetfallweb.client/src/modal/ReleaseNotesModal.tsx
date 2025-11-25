@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import { Typography, Paper, Box, Divider, Skeleton } from "@mui/material";
-import { ReleaseNotesServer } from "../ReleaseNotesServer";
 import UpdateIcon from '@mui/icons-material/Update';
 
 /**
@@ -17,14 +16,11 @@ const decodeHTML = (html: string) => {
     return txt.value;
 };
 
-const ReleaseNotesModal: React.FC<{ open: boolean; handleClose: () => void }> = ({ open, handleClose }) => {
-    const [releases, setReleases] = useState<{ date: string; name: string; notes: string }[]>([]);
-
-    useEffect(() => {
-        if (open) {
-            ReleaseNotesServer().then(setReleases);
-        }
-    }, [open]);
+const ReleaseNotesModal: React.FC<{
+    open: boolean;
+    handleClose: () => void;
+    releases: { date: string; name: string; notes: string }[];
+}> = ({ open, handleClose, releases }) => {
 
     // Function to render loading skeletons
     const renderSkeletons = () => {
@@ -88,7 +84,7 @@ const ReleaseNotesModal: React.FC<{ open: boolean; handleClose: () => void }> = 
             >
                 <UpdateIcon fontSize="large" />
                 <Typography variant="h5" component="span" fontWeight="bold">
-                    Zork AI Release Notes
+                    Planetfall AI Release Notes
                 </Typography>
             </DialogTitle>
 
@@ -146,11 +142,48 @@ const ReleaseNotesModal: React.FC<{ open: boolean; handleClose: () => void }> = 
                                     sx={{
                                         whiteSpace: "normal",
                                         wordWrap: "break-word",
-                                        '& ul': { pl: 4 },
-                                        '& li': { mb: 1 },
                                         color: 'grey.800',
                                         fontSize: '1rem',
-                                        lineHeight: 1.6
+                                        lineHeight: 1.6,
+                                        '& ul': {
+                                            pl: 4,
+                                            mb: 2,
+                                            listStyleType: 'disc',
+                                            listStylePosition: 'outside'
+                                        },
+                                        '& ol': {
+                                            pl: 4,
+                                            mb: 2,
+                                            listStyleType: 'decimal',
+                                            listStylePosition: 'outside'
+                                        },
+                                        '& li': {
+                                            mb: 0.5,
+                                            ml: 0,
+                                            display: 'list-item'
+                                        },
+                                        '& h2': {
+                                            fontSize: '1.25rem',
+                                            fontWeight: 'bold',
+                                            mt: 2,
+                                            mb: 1
+                                        },
+                                        '& h3': {
+                                            fontSize: '1.1rem',
+                                            fontWeight: 'bold',
+                                            mt: 1.5,
+                                            mb: 1
+                                        },
+                                        '& p': {
+                                            mb: 1
+                                        },
+                                        '& a': {
+                                            color: 'primary.main',
+                                            textDecoration: 'none',
+                                            '&:hover': {
+                                                textDecoration: 'underline'
+                                            }
+                                        }
                                     }}
                                 />
                             </Paper>
