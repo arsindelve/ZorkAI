@@ -1,8 +1,7 @@
 /**
  * React Contexts
  *
- * These contexts will be populated in Phase 4.
+ * Shared React context providers and hooks.
  */
 
-// Placeholder - contexts will be moved here in Phase 4
-export {};
+export { GameProvider, useGameContext } from './GameContext';

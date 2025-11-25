@@ -6,6 +6,7 @@
 
 export { default as CommandsButton } from './CommandsButton';
 export { default as Compass } from './Compass';
+export { default as Game } from './Game';
 export { default as GameInput } from './GameInput';
 export { default as Header } from './Header';
 export { default as InventoryButton } from './InventoryButton';
