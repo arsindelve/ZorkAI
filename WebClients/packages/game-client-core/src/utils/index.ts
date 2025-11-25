@@ -1,8 +1,8 @@
 /**
- * Utility Functions
+ * Utility Components and Functions
  *
- * These utilities will be populated in Phase 4.
+ * Shared utilities for game client applications.
  */
 
-// Placeholder - utilities will be moved here in Phase 4
-export {};
+export { default as ClickableText } from './ClickableText';
+export type { ClickableTextHandle } from './ClickableText';
