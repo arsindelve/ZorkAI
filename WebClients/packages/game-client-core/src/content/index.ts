@@ -1,8 +1,9 @@
 /**
  * Content Configuration System
  *
- * Content types and providers will be implemented in Phase 3.
+ * Provides a flexible content system for game-specific text, metadata, and links.
+ * Each game can define its own content while using shared display components.
  */
 
-// Placeholder - content system will be implemented in Phase 3
-export {};
+export * from './types';
+export * from './ContentProvider';
