@@ -1,8 +1,12 @@
 /**
  * Shared UI Components
  *
- * These components will be populated in Phase 4.
+ * Reusable React components for game interface.
  */
 
-// Placeholder - components will be moved here in Phase 4
-export {};
+export { default as CommandsButton } from './CommandsButton';
+export { default as Compass } from './Compass';
+export { default as GameInput } from './GameInput';
+export { default as Header } from './Header';
+export { default as InventoryButton } from './InventoryButton';
+export { default as VerbsButton } from './VerbsButton';

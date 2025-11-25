@@ -1,8 +1,12 @@
 /**
  * Modal Components
  *
- * These components will be populated in Phase 4.
+ * Reusable dialog/modal components for game interactions.
  */
 
-// Placeholder - modal components will be moved here in Phase 4
-export {};
+export { default as ConfirmationDialog } from './ConfirmationDialog';
+export { default as RestartConfirmDialog } from './RestartConfirmDialog';
+export { default as VideoModal } from './VideoModal';
+export { default as ReleaseNotesModal } from './ReleaseNotesModal';
+export { default as RestoreModal } from './RestoreModal';
+export { default as SaveModal } from './SaveModal';

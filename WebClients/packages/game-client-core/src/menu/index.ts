@@ -1,8 +1,10 @@
 /**
  * Menu Components
  *
- * These components will be populated in Phase 4.
+ * Reusable menu components for game navigation and settings.
  */
 
-// Placeholder - menu components will be moved here in Phase 4
-export {};
+export { default as FunctionsMenu } from './FunctionsMenu';
+export { default as GameMenu } from './GameMenu';
+export { default as AboutMenu } from './AboutMenu';
+export type { AboutMenuItem } from './AboutMenu';
