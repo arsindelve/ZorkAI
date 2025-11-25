@@ -1,23 +1,26 @@
 import {useMutation} from "@tanstack/react-query";
-import {GameRequest} from "./model/GameRequest.ts";
-import {GameResponse} from "./model/GameResponse.ts";
+import {
+    GameRequest,
+    GameResponse,
+    Header,
+    SessionHandler,
+    Server,
+    VerbsButton,
+    CommandsButton,
+    ClickableText,
+    ClickableTextHandle,
+    Compass,
+    Mixpanel,
+    InventoryButton,
+    DialogType,
+    GameInput
+} from "@zork-ai/game-client-core";
 import React, {useEffect, useState} from "react";
 import {Alert, Button, CircularProgress, Snackbar} from "@mui/material";
 import '@fontsource/roboto';
-import Header from "./components/Header.tsx";
-import {SessionHandler} from "./SessionHandler.ts";
-
-import Server from './Server';
-import VerbsButton from "./components/VerbsButton.tsx";
-import CommandsButton from "./components/CommandsButton.tsx";
-import ClickableText, {ClickableTextHandle} from "./ClickableText.tsx";
-import Compass from "./components/Compass.tsx";
-import {Mixpanel} from "./Mixpanel.ts";
+import config from '../config.json';
 
 import {useGameContext} from "./GameContext";
-import InventoryButton from "./components/InventoryButton.tsx";
-import DialogType from "./model/DialogType.ts";
-import GameInput from "./components/GameInput.tsx";
 
 function Game() {
 
@@ -37,7 +40,7 @@ function Game() {
     const [snackBarMessage, setSnackBarMessage] = useState<string>("");
 
     const sessionId = new SessionHandler();
-    const server = new Server();
+    const server = new Server(config.base_url);
 
     const gameContentElement = React.useRef<HTMLDivElement & ClickableTextHandle>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);

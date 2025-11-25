@@ -1,20 +1,26 @@
 import './App.css';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import Game from "./Game.tsx";
-import GameMenu from "./menu/GameMenu.tsx";
 import {useEffect, useState} from "react";
-import Server from "./Server.ts";
-import {SessionHandler} from "./SessionHandler.ts";
-import RestoreModal from "./modal/RestoreModal.tsx";
-import {ISavedGame} from "./model/SavedGame.ts";
-import SaveModal from "./modal/SaveModal.tsx";
-import RestartConfirmDialog from "./modal/RestartConfirmDialog.tsx";
+import {
+    Server,
+    SessionHandler,
+    RestoreModal,
+    ISavedGame,
+    SaveModal,
+    RestartConfirmDialog,
+    VideoModal,
+    ReleaseNotesModal,
+    Mixpanel,
+    DialogType,
+    GameMenu,
+    FunctionsMenu,
+    AboutMenu
+} from "@zork-ai/game-client-core";
+import config from '../config.json';
 import {useGameContext} from "./GameContext.tsx";
-import VideoDialog from "./modal/VideoModal.tsx";
 import WelcomeDialog from "./modal/WelcomeModal.tsx";
-import ReleaseNotesModal from "./modal/ReleaseNotesModal.tsx";
-import {Mixpanel} from "./Mixpanel.ts";
-import DialogType from "./model/DialogType.ts";
+import ZorkAboutMenu from "./menu/AboutMenu.tsx";
 
 function App() {
 
@@ -26,11 +32,11 @@ function App() {
     const [videoDialogOpen, setVideoDialogOpen] = useState<boolean>(false);
     const [releaseNotesDialogOpen, setReleaseNotesDialogOpen] = useState<boolean>(false);
 
-    const server = new Server();
+    const server = new Server(config.base_url);
     const sessionId = new SessionHandler();
     const queryClient = new QueryClient();
 
-    const {dialogToOpen, setDialogToOpen, setRestartGame} = useGameContext();
+    const {dialogToOpen, setDialogToOpen, setRestartGame, setRestoreGameRequest, setSaveGameRequest, setDeleteGameRequest, copyGameTranscript} = useGameContext();
 
     useEffect(() => {
         if (!dialogToOpen) {
@@ -100,7 +106,17 @@ function App() {
         <div
             className="bg-[url('./back2.png')] bg-repeat bg-[size:500px_500px] min-h-screen flex flex-col justify-between">
             <div className="flex-grow flex flex-col min-h-0 mt">
-                <GameMenu/>
+                <GameMenu
+                    logoUrl="https://zorkai-assets.s3.amazonaws.com/Zork.webp"
+                    logoAlt="Zork Logo"
+                    title="Generative AI-Enhanced Zork I"
+                >
+                    <FunctionsMenu
+                        onDialogOpen={setDialogToOpen}
+                        onCopyTranscript={copyGameTranscript}
+                    />
+                    <ZorkAboutMenu />
+                </GameMenu>
 
                 <QueryClientProvider client={queryClient}>
 
@@ -114,26 +130,39 @@ function App() {
                         }}
                     />
 
-                    <RestoreModal games={availableSavedGames}
-                                  open={restoreDialogOpen}
-                                  setOpen={setRestoreDialogOpen}
+                    <RestoreModal
+                        games={availableSavedGames}
+                        open={restoreDialogOpen}
+                        setOpen={setRestoreDialogOpen}
+                        onRestoreGame={setRestoreGameRequest}
+                        onDeleteGame={setDeleteGameRequest}
                     />
 
-                    <SaveModal games={availableSavedGames}
-                               setOpen={setSaveDialogOpen}
-                               open={saveDialogOpen}
+                    <SaveModal
+                        games={availableSavedGames}
+                        setOpen={setSaveDialogOpen}
+                        open={saveDialogOpen}
+                        onSaveGame={setSaveGameRequest}
                     />
 
-                    <VideoDialog open={videoDialogOpen}
-                                 handleClose={() => {
-                                     setVideoDialogOpen(false);
-                                     Mixpanel.track('Close Video Dialog', {});
-                                 }}/>
+                    <VideoModal
+                        open={videoDialogOpen}
+                        videoUrl="https://zorkai-assets.s3.amazonaws.com/zorkintro.mp4"
+                        title="Welcome to Zork AI"
+                        handleClose={() => {
+                            setVideoDialogOpen(false);
+                            Mixpanel.track('Close Video Dialog', {});
+                        }}
+                    />
 
-                    <ReleaseNotesModal handleClose={() => {
-                        setReleaseNotesDialogOpen(false);
-                        Mixpanel.track('Close Release Notes Dialog', {});
-                    }} open={releaseNotesDialogOpen}/>
+                    <ReleaseNotesModal
+                        title="Zork AI Release Notes"
+                        handleClose={() => {
+                            setReleaseNotesDialogOpen(false);
+                            Mixpanel.track('Close Release Notes Dialog', {});
+                        }}
+                        open={releaseNotesDialogOpen}
+                    />
 
                     <WelcomeDialog handleWatchVideo={handleWatchVideo} open={welcomeDialogOpen}
                                    handleClose={() => {
