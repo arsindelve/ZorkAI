@@ -16,12 +16,16 @@ import MapIcon from '@mui/icons-material/Map';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import ArticleIcon from '@mui/icons-material/Article';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 
-export default function AboutMenu() {
+export default function AboutMenu({ latestVersion }: { latestVersion: string }) {
     const {setDialogToOpen} = useGameContext();
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
+
+    // Use config.version as fallback if latestVersion is not yet loaded
+    const displayVersion = latestVersion || config.version;
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -141,6 +145,13 @@ export default function AboutMenu() {
                     <ListItemText>Wikipedia Article on Planetfall</ListItemText>
                 </MenuItem>
 
+                <MenuItem onClick={() => go("Playable Version", "https://archive.org/details/a2_Planetfall_1983_Infocom_a")}>
+                    <ListItemIcon>
+                        <PlayArrowIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Play the Original Infocom Version</ListItemText>
+                </MenuItem>
+
                 <MenuItem onClick={() => {
                     setDialogToOpen(DialogType.ReleaseNotes);
                     handleClose();
@@ -148,7 +159,7 @@ export default function AboutMenu() {
                     <ListItemIcon>
                         <NewReleasesIcon fontSize="small" />
                     </ListItemIcon>
-                    <ListItemText>Version {config.version}</ListItemText>
+                    <ListItemText>Version {displayVersion}</ListItemText>
                 </MenuItem>
             </Menu>
         </div>

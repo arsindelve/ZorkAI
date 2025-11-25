@@ -1,12 +1,6 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import ReleaseNotesModal from '../modal/ReleaseNotesModal';
-import { ReleaseNotesServer } from '../ReleaseNotesServer';
-
-// Mock the ReleaseNotesServer
-jest.mock('../ReleaseNotesServer', () => ({
-  ReleaseNotesServer: jest.fn(),
-}));
 
 describe('ReleaseNotesModal Component', () => {
   const mockHandleClose = jest.fn();
@@ -25,43 +19,32 @@ describe('ReleaseNotesModal Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Default mock implementation returns the mock releases after a short delay
-    (ReleaseNotesServer as jest.Mock).mockImplementation(() => 
-      new Promise(resolve => {
-        setTimeout(() => resolve(mockReleases), 100);
-      })
-    );
   });
 
   test('renders nothing when open is false', () => {
-    render(<ReleaseNotesModal open={false} handleClose={mockHandleClose} />);
+    render(<ReleaseNotesModal open={false} handleClose={mockHandleClose} releases={mockReleases} />);
 
     // Dialog should not be in the document
     expect(screen.queryByText('Zork AI Release Notes')).not.toBeInTheDocument();
   });
 
   test('renders dialog when open is true', () => {
-    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} />);
+    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} releases={mockReleases} />);
 
     // Dialog title should be in the document
     expect(screen.getByText('Zork AI Release Notes')).toBeInTheDocument();
   });
 
-  test('shows loading skeletons while fetching data', () => {
-    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} />);
+  test('shows loading skeletons when releases array is empty', () => {
+    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} releases={[]} />);
 
-    // Should show loading skeletons initially
+    // Should show loading skeletons when no releases
     const skeletons = document.querySelectorAll('[class*="MuiSkeleton-root"]');
     expect(skeletons.length).toBeGreaterThan(0);
   });
 
-  test('displays release notes after fetching', async () => {
-    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} />);
-
-    // Wait for the release notes to be displayed
-    await waitFor(() => {
-      expect(screen.getByText('Version 1.2.0')).toBeInTheDocument();
-    });
+  test('displays release notes when releases provided', () => {
+    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} releases={mockReleases} />);
 
     // Check that both releases are displayed
     expect(screen.getByText('Version 1.2.0')).toBeInTheDocument();
@@ -80,13 +63,8 @@ describe('ReleaseNotesModal Component', () => {
     expect(releaseNotes.length).toBe(2);
   });
 
-  test('calls handleClose when close button is clicked', async () => {
-    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} />);
-
-    // Wait for the release notes to be displayed
-    await waitFor(() => {
-      expect(screen.getByText('Version 1.2.0')).toBeInTheDocument();
-    });
+  test('calls handleClose when close button is clicked', () => {
+    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} releases={mockReleases} />);
 
     // Click the close button
     fireEvent.click(screen.getByText('Close'));
@@ -95,25 +73,14 @@ describe('ReleaseNotesModal Component', () => {
     expect(mockHandleClose).toHaveBeenCalledTimes(1);
   });
 
-  test('fetches data when opened', () => {
-    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} />);
-
-    // Check that ReleaseNotesServer was called
-    expect(ReleaseNotesServer).toHaveBeenCalledTimes(1);
-  });
-
-  test('handles error when fetching data', async () => {
-    // Mock ReleaseNotesServer to return an empty array (simulating an error)
-    (ReleaseNotesServer as jest.Mock).mockResolvedValue([]);
-
-    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} />);
-
-    // Wait for the component to finish rendering
-    await waitFor(() => {
-      expect(ReleaseNotesServer).toHaveBeenCalledTimes(1);
-    });
+  test('handles empty releases array', () => {
+    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} releases={[]} />);
 
     // No release notes should be displayed
     expect(screen.queryByText('Version 1.2.0')).not.toBeInTheDocument();
+
+    // Should show loading skeletons instead
+    const skeletons = document.querySelectorAll('[class*="MuiSkeleton-root"]');
+    expect(skeletons.length).toBeGreaterThan(0);
   });
 });
