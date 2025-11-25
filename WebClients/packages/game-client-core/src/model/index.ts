@@ -1,8 +1,13 @@
 /**
  * Data Models
  *
- * These models will be populated in Phase 4.
+ * TypeScript interfaces and classes for game data structures.
  */
 
-// Placeholder - models will be moved here in Phase 4
-export {};
+export { default as DialogType } from './DialogType';
+export * from './Directions';
+export * from './GameRequest';
+export * from './GameResponse';
+export * from './RestoreGameRequest';
+export * from './SavedGame';
+export * from './SaveGameRequest';
