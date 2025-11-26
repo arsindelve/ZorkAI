@@ -15,6 +15,7 @@ import WelcomeDialog from "./modal/WelcomeModal.tsx";
 import ReleaseNotesModal from "./modal/ReleaseNotesModal.tsx";
 import {Mixpanel} from "./Mixpanel.ts";
 import DialogType from "./model/DialogType.ts";
+import {ReleaseNotesServer} from "./ReleaseNotesServer.ts";
 
 function App() {
 
@@ -25,12 +26,26 @@ function App() {
     const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
     const [videoDialogOpen, setVideoDialogOpen] = useState<boolean>(false);
     const [releaseNotesDialogOpen, setReleaseNotesDialogOpen] = useState<boolean>(false);
+    const [releases, setReleases] = useState<{ date: string; name: string; notes: string }[]>([]);
+    const [latestVersion, setLatestVersion] = useState<string>('');
 
     const server = new Server();
     const sessionId = new SessionHandler();
     const queryClient = new QueryClient();
 
     const {dialogToOpen, setDialogToOpen, setRestartGame} = useGameContext();
+
+    // Fetch releases on mount
+    useEffect(() => {
+        ReleaseNotesServer().then((data) => {
+            setReleases(data);
+            if (data.length > 0) {
+                setLatestVersion(data[0].name);
+            }
+        }).catch((error) => {
+            console.error('Error fetching releases:', error);
+        });
+    }, []);
 
     useEffect(() => {
         if (!dialogToOpen) {
@@ -106,7 +121,7 @@ function App() {
             <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-black/40 pointer-events-none" />
 
             <div className="relative flex-grow flex flex-col min-h-0 z-10">
-                <GameMenu/>
+                <GameMenu latestVersion={latestVersion} />
 
                 <QueryClientProvider client={queryClient}>
 
@@ -139,7 +154,7 @@ function App() {
                     <ReleaseNotesModal handleClose={() => {
                         setReleaseNotesDialogOpen(false);
                         Mixpanel.track('Close Release Notes Dialog', {});
-                    }} open={releaseNotesDialogOpen}/>
+                    }} open={releaseNotesDialogOpen} releases={releases} />
 
                     <WelcomeDialog open={welcomeDialogOpen}
                                    handleClose={() => {

@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import { Typography, Paper, Box, Divider, Skeleton } from "@mui/material";
-import { ReleaseNotesServer } from "../ReleaseNotesServer";
 import UpdateIcon from '@mui/icons-material/Update';
 
 /**
@@ -17,21 +16,11 @@ const decodeHTML = (html: string) => {
     return txt.value;
 };
 
-const ReleaseNotesModal: React.FC<{ open: boolean; handleClose: () => void }> = ({ open, handleClose }) => {
-    const [releases, setReleases] = useState<{ date: string; name: string; notes: string }[]>([]);
-
-    useEffect(() => {
-        console.log('[ReleaseNotesModal] useEffect triggered, open:', open);
-        if (open) {
-            console.log('[ReleaseNotesModal] Fetching release notes...');
-            ReleaseNotesServer().then((data) => {
-                console.log('[ReleaseNotesModal] Received data:', data);
-                setReleases(data);
-            }).catch((error) => {
-                console.error('[ReleaseNotesModal] Error fetching releases:', error);
-            });
-        }
-    }, [open]);
+const ReleaseNotesModal: React.FC<{
+    open: boolean;
+    handleClose: () => void;
+    releases: { date: string; name: string; notes: string }[];
+}> = ({ open, handleClose, releases }) => {
 
     // Function to render loading skeletons
     const renderSkeletons = () => {
