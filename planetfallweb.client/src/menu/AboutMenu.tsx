@@ -3,9 +3,7 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import config from "../../config.json";
-import {Mixpanel} from "../Mixpanel.ts";
-import {useGameContext} from "../GameContext";
-import DialogType from "../model/DialogType.ts";
+import {Mixpanel, DialogType, useGameContext} from "@zork-ai/game-client-core";
 import { ListItemIcon, ListItemText } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -78,7 +76,7 @@ export default function AboutMenu() {
                 color="primary"
                 startIcon={<InfoIcon />}
                 endIcon={<KeyboardArrowDownIcon />}
-                sx={{ 
+                sx={{
                     borderRadius: '20px',
                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
                     color: 'white',
@@ -174,9 +172,7 @@ export default function AboutMenu() {
                 </MenuItem>
 
                 <MenuItem onClick={() => {
-                    console.log('[AboutMenu] Release Notes clicked');
                     setDialogToOpen(DialogType.ReleaseNotes);
-                    console.log('[AboutMenu] setDialogToOpen called with ReleaseNotes');
                     handleClose();
                 }}>
                     <ListItemIcon>

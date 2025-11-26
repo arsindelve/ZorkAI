@@ -16,6 +16,7 @@
     "test:unit:coverage": "jest --coverage"
   },
   "dependencies": {
+    "@zork-ai/game-client-core": "workspace:*",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@fontsource/platypi": "^5.0.1",
