@@ -1,6 +1,5 @@
 import './App.css';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
-import Game from "./Game.tsx";
 import {useEffect, useState} from "react";
 import {
     Server,
@@ -15,10 +14,10 @@ import {
     DialogType,
     GameMenu,
     FunctionsMenu,
-    AboutMenu
+    Game,
+    useGameContext
 } from "@zork-ai/game-client-core";
 import config from '../config.json';
-import {useGameContext} from "./GameContext.tsx";
 import WelcomeDialog from "./modal/WelcomeModal.tsx";
 import ZorkAboutMenu from "./menu/AboutMenu.tsx";
 
@@ -120,7 +119,7 @@ function App() {
 
                 <QueryClientProvider client={queryClient}>
 
-                    <Game />
+                    <Game baseUrl={config.base_url} />
 
                     <RestartConfirmDialog
                         open={restartConfirmOpen}
