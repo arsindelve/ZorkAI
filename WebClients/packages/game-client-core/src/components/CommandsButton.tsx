@@ -1,38 +1,40 @@
 import React, {useState, useEffect} from "react";
 import {Button, Menu, MenuItem, ListItemIcon, ListItemText} from "@mui/material";
+import {
+    KeyboardArrowDown as KeyboardArrowDownIcon,
+    Terminal as TerminalIcon,
+    Settings as SettingsIcon,
+    HealthAndSafety as HealthAndSafetyIcon,
+    Login as LoginIcon,
+    Logout as LogoutIcon,
+    KeyboardArrowUp as KeyboardArrowUpIcon,
+    HourglassEmpty as HourglassEmptyIcon,
+    Inventory as InventoryIcon,
+    Replay as ReplayIcon,
+    DeleteSweep as DeleteSweepIcon,
+    AddShoppingCart as AddShoppingCartIcon,
+    Visibility as VisibilityIcon
+} from '@mui/icons-material';
 import {Mixpanel} from "../services/Mixpanel";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import TerminalIcon from '@mui/icons-material/Terminal';
-import SettingsIcon from '@mui/icons-material/Settings';
-import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
-import LoginIcon from '@mui/icons-material/Login';
-import LogoutIcon from '@mui/icons-material/Logout';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import ReplayIcon from '@mui/icons-material/Replay';
-import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 
 type CommandButtonProps = {
     onCommandClick: (command: string) => void; // Callback prop to send the clicked command to the parent
 };
 
-// Map commands to their corresponding icons
-const commandIcons: Record<string, React.ReactElement> = {
-    "verbose": <SettingsIcon fontSize="small" />,
-    "diagnose": <HealthAndSafetyIcon fontSize="small" />,
-    "enter": <LoginIcon fontSize="small" />,
-    "exit": <LogoutIcon fontSize="small" />,
-    "go up": <KeyboardArrowUpIcon fontSize="small" />,
-    "go down": <KeyboardArrowDownIcon fontSize="small" />,
-    "wait": <HourglassEmptyIcon fontSize="small" />,
-    "inventory": <InventoryIcon fontSize="small" />,
-    "again": <ReplayIcon fontSize="small" />,
-    "drop all": <DeleteSweepIcon fontSize="small" />,
-    "take all": <AddShoppingCartIcon fontSize="small" />,
-    "look": <VisibilityIcon fontSize="small" />
+// Map commands to their corresponding icon components
+const commandIcons: Record<string, any> = {
+    "verbose": SettingsIcon,
+    "diagnose": HealthAndSafetyIcon,
+    "enter": LoginIcon,
+    "exit": LogoutIcon,
+    "go up": KeyboardArrowUpIcon,
+    "go down": KeyboardArrowDownIcon,
+    "wait": HourglassEmptyIcon,
+    "inventory": InventoryIcon,
+    "again": ReplayIcon,
+    "drop all": DeleteSweepIcon,
+    "take all": AddShoppingCartIcon,
+    "look": VisibilityIcon
 };
 
 export default function CommandsButton({onCommandClick}: CommandButtonProps) {
@@ -118,14 +120,17 @@ export default function CommandsButton({onCommandClick}: CommandButtonProps) {
                 }}
             >
                 {/* Map through the commands array to create MenuItems */}
-                {commands.map((command, index) => (
-                    <MenuItem key={index} onClick={() => handleClose(command)}>
-                        <ListItemIcon>
-                            {commandIcons[command] || <TerminalIcon fontSize="small" />}
-                        </ListItemIcon>
-                        <ListItemText>{command}</ListItemText>
-                    </MenuItem>
-                ))}
+                {commands.map((command, index) => {
+                    const IconComponent = commandIcons[command] || TerminalIcon;
+                    return (
+                        <MenuItem key={index} onClick={() => handleClose(command)}>
+                            <ListItemIcon>
+                                <IconComponent fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText>{command}</ListItemText>
+                        </MenuItem>
+                    );
+                })}
             </Menu>
         </>
     );

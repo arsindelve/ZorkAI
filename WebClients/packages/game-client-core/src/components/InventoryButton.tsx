@@ -1,12 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {Button, Menu, MenuItem, ListItemIcon, ListItemText, Badge} from "@mui/material";
 import {Mixpanel} from "../services/Mixpanel";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import BackpackIcon from '@mui/icons-material/Backpack';
-import DescriptionIcon from '@mui/icons-material/Description';
-import LightbulbIcon from '@mui/icons-material/Lightbulb';
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import { KeyboardArrowDown as KeyboardArrowDownIcon, Inventory as InventoryIcon, Backpack as BackpackIcon, Description as DescriptionIcon, Lightbulb as LightbulbIcon, SportsEsports as SportsEsportsIcon } from '@mui/icons-material';
 
 type InventoryButtonProps = {
     onInventoryClick: (verb: string) => void; // Callback prop to send the clicked inventory item to the parent

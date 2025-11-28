@@ -1,16 +1,9 @@
 import {ISavedGame} from "../model/SavedGame.ts";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import Button from "@mui/material/Button";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Paper, Box, Divider, TextField } from "@mui/material";
 import moment from 'moment';
 import {ISaveGameRequest, SaveGameRequest} from "../model/SaveGameRequest.ts";
-import {Typography, Paper, Box, Divider, TextField} from "@mui/material";
 import React, {useState} from "react";
-import SaveIcon from '@mui/icons-material/Save';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import { Save as SaveIcon, AccessTime as AccessTimeIcon, SportsEsports as SportsEsportsIcon } from '@mui/icons-material';
 
 interface SaveModalProps {
     open: boolean;

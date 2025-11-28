@@ -1,15 +1,8 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+import { Button, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import { Mixpanel } from "../services/Mixpanel.ts";
 import DialogType from "../model/DialogType.ts";
-import { ListItemIcon, ListItemText } from '@mui/material';
-import InfoIcon from '@mui/icons-material/Info';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import HelpIcon from '@mui/icons-material/HelpOutline';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
-import NewReleasesIcon from '@mui/icons-material/NewReleases';
+import { Info as InfoIcon, KeyboardArrowDown as KeyboardArrowDownIcon, HelpOutline as HelpIcon, PlayCircleOutline as PlayCircleOutlineIcon, NewReleases as NewReleasesIcon } from '@mui/icons-material';
 
 export interface AboutMenuItem {
     label: string;

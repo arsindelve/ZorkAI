@@ -1,11 +1,6 @@
 import React from 'react';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import Button from '@mui/material/Button';
-import { Typography } from '@mui/material';
-import WarningIcon from '@mui/icons-material/Warning';
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography } from '@mui/material';
+import { Warning as WarningIcon } from '@mui/icons-material';
 
 interface RestartConfirmDialogProps {
     open: boolean;

@@ -1,15 +1,14 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+import { Button, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
+import {
+    RestartAlt as RestartAltIcon,
+    Restore as RestoreIcon,
+    Save as SaveIcon,
+    ContentCopy as ContentCopyIcon,
+    SportsEsports as SportsEsportsIcon,
+    KeyboardArrowDown as KeyboardArrowDownIcon
+} from '@mui/icons-material';
 import DialogType from "../model/DialogType.ts";
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import RestoreIcon from '@mui/icons-material/Restore';
-import SaveIcon from '@mui/icons-material/Save';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { ListItemIcon, ListItemText } from '@mui/material';
 
 interface FunctionsMenuProps {
     onDialogOpen: (dialogType: DialogType) => void;

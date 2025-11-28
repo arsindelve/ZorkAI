@@ -17,6 +17,7 @@
     /* Library mode */
     "declaration": true,
     "declarationMap": true,
+    "emitDeclarationOnly": true,
     "outDir": "./dist",
     "composite": true,
 

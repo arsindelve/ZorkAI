@@ -1,7 +1,5 @@
 import React from 'react';
-import ExploreIcon from '@mui/icons-material/Explore';
-import ScoreboardIcon from '@mui/icons-material/Scoreboard';
-import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
+import { Explore as ExploreIcon, Scoreboard as ScoreboardIcon, DirectionsRun as DirectionsRunIcon } from '@mui/icons-material';
 
 interface HeaderComponentProps {
     locationName: string;

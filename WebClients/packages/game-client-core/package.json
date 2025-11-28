@@ -11,42 +11,8 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./components": {
-      "import": "./dist/components/index.js",
-      "types": "./dist/components/index.d.ts"
-    },
-    "./menu": {
-      "import": "./dist/menu/index.js",
-      "types": "./dist/menu/index.d.ts"
-    },
-    "./modal": {
-      "import": "./dist/modal/index.js",
-      "types": "./dist/modal/index.d.ts"
-    },
-    "./model": {
-      "import": "./dist/model/index.js",
-      "types": "./dist/model/index.d.ts"
-    },
-    "./services": {
-      "import": "./dist/services/index.js",
-      "types": "./dist/services/index.d.ts"
-    },
-    "./context": {
-      "import": "./dist/context/index.js",
-      "types": "./dist/context/index.d.ts"
-    },
-    "./theme": {
-      "import": "./dist/theme/index.js",
-      "types": "./dist/theme/index.d.ts"
-    },
-    "./content": {
-      "import": "./dist/content/index.js",
-      "types": "./dist/content/index.d.ts"
-    },
-    "./utils": {
-      "import": "./dist/utils/index.js",
-      "types": "./dist/utils/index.d.ts"
-    }
+    "./dist/style.css": "./dist/style.css",
+    "./style.css": "./dist/style.css"
   },
   "files": [
     "dist",

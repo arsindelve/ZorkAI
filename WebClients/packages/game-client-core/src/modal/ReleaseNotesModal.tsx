@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from "react";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import Button from "@mui/material/Button";
-import { Typography, Paper, Box, Divider, Skeleton } from "@mui/material";
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography, Paper, Box, Divider, Skeleton } from "@mui/material";
 import { ReleaseNotesServer } from "../services/ReleaseNotesServer";
-import UpdateIcon from '@mui/icons-material/Update';
+import { Update as UpdateIcon } from '@mui/icons-material';
 
 /**
  * Decodes HTML entities in the release notes.

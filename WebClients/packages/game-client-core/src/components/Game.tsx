@@ -4,17 +4,17 @@ import {Alert, Button, CircularProgress, Snackbar} from "@mui/material";
 import '@fontsource/roboto';
 import {GameRequest} from "../model/GameRequest";
 import {GameResponse} from "../model/GameResponse";
-import {Header} from "./Header";
+import Header from "./Header";
 import {SessionHandler} from "../services/SessionHandler";
-import {Server} from "../services/Server";
-import {VerbsButton} from "./VerbsButton";
-import {CommandsButton} from "./CommandsButton";
-import {ClickableText, ClickableTextHandle} from "../utils/ClickableText";
-import {Compass} from "./Compass";
+import Server from "../services/Server";
+import VerbsButton from "./VerbsButton";
+import CommandsButton from "./CommandsButton";
+import ClickableText, {ClickableTextHandle} from "../utils/ClickableText";
+import Compass from "./Compass";
 import {Mixpanel} from "../services/Mixpanel";
-import {InventoryButton} from "./InventoryButton";
-import {DialogType} from "../model/DialogType";
-import {GameInput} from "./GameInput";
+import InventoryButton from "./InventoryButton";
+import DialogType from "../model/DialogType";
+import GameInput from "./GameInput";
 import {useGameContext} from "../context/GameContext";
 
 interface GameProps {

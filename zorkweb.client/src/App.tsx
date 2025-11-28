@@ -1,22 +1,20 @@
 import './App.css';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {useEffect, useState} from "react";
-import {
-    Server,
-    SessionHandler,
-    RestoreModal,
-    ISavedGame,
-    SaveModal,
-    RestartConfirmDialog,
-    VideoModal,
-    ReleaseNotesModal,
-    Mixpanel,
-    DialogType,
-    GameMenu,
-    FunctionsMenu,
-    Game,
-    useGameContext
-} from "@zork-ai/game-client-core";
+import Server from "@shared/services/Server";
+import { SessionHandler } from "@shared/services/SessionHandler";
+import RestoreModal from "@shared/modal/RestoreModal";
+import { ISavedGame } from "@shared/model/SavedGame";
+import SaveModal from "@shared/modal/SaveModal";
+import RestartConfirmDialog from "@shared/modal/RestartConfirmDialog";
+import VideoModal from "@shared/modal/VideoModal";
+import ReleaseNotesModal from "@shared/modal/ReleaseNotesModal";
+import { Mixpanel } from "@shared/services/Mixpanel";
+import DialogType from "@shared/model/DialogType";
+import GameMenu from "@shared/menu/GameMenu";
+import FunctionsMenu from "@shared/menu/FunctionsMenu";
+import Game from "@shared/components/Game";
+import { useGameContext } from "@shared/context/GameContext";
 import config from '../config.json';
 import WelcomeDialog from "./modal/WelcomeModal.tsx";
 import ZorkAboutMenu from "./menu/AboutMenu.tsx";

@@ -1,15 +1,7 @@
 import {ISavedGame} from "../model/SavedGame.ts";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import Button from "@mui/material/Button";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Paper, Box, Divider, IconButton } from "@mui/material";
 import moment from 'moment';
-import RestoreIcon from '@mui/icons-material/Restore';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { Typography, Paper, Box, Divider, IconButton } from "@mui/material";
+import { Restore as RestoreIcon, AccessTime as AccessTimeIcon, SportsEsports as SportsEsportsIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useState } from "react";
 import ConfirmationDialog from "./ConfirmationDialog.tsx";
 

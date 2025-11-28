@@ -1,6 +1,6 @@
 import React, {createContext, useContext, useState} from "react";
 import {ISaveGameRequest} from "../model/SaveGameRequest";
-import {DialogType} from "../model/DialogType";
+import DialogType from "../model/DialogType";
 import {ISavedGame} from "../model/SavedGame";
 
 // Define the context type

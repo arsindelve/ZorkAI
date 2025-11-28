@@ -1,37 +1,39 @@
 import React, {useState, useEffect} from "react";
 import {Button, Menu, MenuItem, ListItemIcon, ListItemText} from "@mui/material";
+import {
+    KeyboardArrowDown as KeyboardArrowDownIcon,
+    TextFormat as TextFormatIcon,
+    Restaurant as RestaurantIcon,
+    LocalDrink as LocalDrinkIcon,
+    DeleteOutline as DeleteOutlineIcon,
+    SportsKabaddi as SportsKabaddiIcon,
+    PowerSettingsNew as PowerSettingsNewIcon,
+    PowerOff as PowerOffIcon,
+    MenuBook as MenuBookIcon,
+    LockOpen as LockOpenIcon,
+    Lock as LockIcon,
+    Search as SearchIcon,
+    PanTool as PanToolIcon
+} from '@mui/icons-material';
 import {Mixpanel} from "../services/Mixpanel";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import TextFormatIcon from '@mui/icons-material/TextFormat';
-import RestaurantIcon from '@mui/icons-material/Restaurant';
-import LocalDrinkIcon from '@mui/icons-material/LocalDrink';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import SportsKabaddiIcon from '@mui/icons-material/SportsKabaddi';
-import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
-import PowerOffIcon from '@mui/icons-material/PowerOff';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
-import LockIcon from '@mui/icons-material/Lock';
-import SearchIcon from '@mui/icons-material/Search';
-import PanToolIcon from '@mui/icons-material/PanTool';
 
 type VerbsButtonProps = {
     onVerbClick: (verb: string) => void; // Callback prop to send the clicked verb to the parent
 };
 
-// Map verbs to their corresponding icons
-const verbIcons: Record<string, React.ReactElement> = {
-    "eat": <RestaurantIcon fontSize="small" />,
-    "drink": <LocalDrinkIcon fontSize="small" />,
-    "drop": <DeleteOutlineIcon fontSize="small" />,
-    "attack": <SportsKabaddiIcon fontSize="small" />,
-    "turn on": <PowerSettingsNewIcon fontSize="small" />,
-    "turn off": <PowerOffIcon fontSize="small" />,
-    "read": <MenuBookIcon fontSize="small" />,
-    "open": <LockOpenIcon fontSize="small" />,
-    "close": <LockIcon fontSize="small" />,
-    "examine": <SearchIcon fontSize="small" />,
-    "take": <PanToolIcon fontSize="small" />
+// Map verbs to their corresponding icon components
+const verbIcons: Record<string, any> = {
+    "eat": RestaurantIcon,
+    "drink": LocalDrinkIcon,
+    "drop": DeleteOutlineIcon,
+    "attack": SportsKabaddiIcon,
+    "turn on": PowerSettingsNewIcon,
+    "turn off": PowerOffIcon,
+    "read": MenuBookIcon,
+    "open": LockOpenIcon,
+    "close": LockIcon,
+    "examine": SearchIcon,
+    "take": PanToolIcon
 };
 
 export default function VerbsButton({onVerbClick}: VerbsButtonProps) {
@@ -117,14 +119,17 @@ export default function VerbsButton({onVerbClick}: VerbsButtonProps) {
                 }}
             >
                 {/* Map through the verbs array to create MenuItems */}
-                {verbs.map((verb, index) => (
-                    <MenuItem key={index} onClick={() => handleClose(verb)}>
-                        <ListItemIcon>
-                            {verbIcons[verb] || <TextFormatIcon fontSize="small" />}
-                        </ListItemIcon>
-                        <ListItemText>{verb}</ListItemText>
-                    </MenuItem>
-                ))}
+                {verbs.map((verb, index) => {
+                    const IconComponent = verbIcons[verb] || TextFormatIcon;
+                    return (
+                        <MenuItem key={index} onClick={() => handleClose(verb)}>
+                            <ListItemIcon>
+                                <IconComponent fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText>{verb}</ListItemText>
+                        </MenuItem>
+                    );
+                })}
             </Menu>
         </>
     );

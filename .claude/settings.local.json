@@ -17,7 +17,16 @@
       "Bash(git pull:*)",
       "Bash(curl:*)",
       "Bash(npx tsc:*)",
-      "Bash(npm run test:unit:*)"
+      "Bash(npm run test:unit:*)",
+      "Bash(git reset:*)",
+      "Bash(npm run build:core:*)",
+      "Bash(npm run dev:zork:*)",
+      "Bash(cat:*)",
+      "Bash(lsof:*)",
+      "Bash(ps:*)",
+      "Bash(pkill:*)",
+      "Bash(npm run dev:*)",
+      "Bash(killall:*)"
     ],
     "deny": []
   }

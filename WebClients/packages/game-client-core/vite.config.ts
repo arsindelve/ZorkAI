@@ -24,26 +24,20 @@ export default defineConfig({
         'react',
         'react-dom',
         'react/jsx-runtime',
-        '@emotion/react',
-        '@emotion/styled',
-        '@mui/material',
-        '@mui/icons-material',
+        /^@mui\//,
+        /^@emotion\//,
         'axios',
         'mixpanel-browser',
         'moment',
-        '@tanstack/react-query',
-        '@microsoft/applicationinsights-react-js',
-        '@microsoft/applicationinsights-web',
+        /@tanstack\/react-query/,
+        /@microsoft\/applicationinsights/,
         'react-router-dom'
       ],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM'
-        },
-        preserveModules: true,
-        preserveModulesRoot: 'src',
-        entryFileNames: '[name].js'
+        }
       }
     },
     sourcemap: true,

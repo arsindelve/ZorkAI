@@ -4,7 +4,8 @@ export default {
         themes: ["black"]
     },
     content: [
-        './src/**/*.{html,js,jsx,tsx}'
+        './src/**/*.{html,js,jsx,tsx}',
+        '../WebClients/packages/game-client-core/src/**/*.{js,jsx,ts,tsx}'
     ],
     mode: 'jit',
     theme: {
