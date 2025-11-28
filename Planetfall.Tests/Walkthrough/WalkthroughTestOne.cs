@@ -215,6 +215,16 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("N", null, "Repair Room")]
     [TestCase("floyd, go north", null, "Just a shiny fromitz board")]
     [TestCase("floyd, take board", null, "If you say so")]
+    [TestCase("S", null, "Systems Corridor West")]
+    [TestCase("E", null, "Systems Corridor")]
+    [TestCase("N", null, "Planetary Defense")]
+    [TestCase("open panel", null, "swings open")]
+    [TestCase("take second", null, "producing an empty socket")]
+    [TestCase("put shiny in panel", null, "The warning lights stop flashing")]
+    [TestCase("score", null, "would be 48")]
+    [TestCase("drop fried", null, "Dropped")]
+    
+    
     //[TestCase("E", null, "Systems Corridor")]
     //[TestCase("E", null, "Systems Corridor East")]
     //[TestCase("S", null, "Library Lobby")]
