@@ -10,7 +10,6 @@ namespace Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGivenThings, ICanBeTalkedTo
 {
-    private readonly ChatWithFloyd _chatWithFloyd = new(null);
     private readonly GiveSomethingToSomeoneDecisionEngine<Floyd> _giveHimSomethingEngine = new();
     private readonly FloydLocationBehaviors _locationBehaviors;
     private readonly FloydPowerManager _powerManager;
@@ -31,6 +30,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     [UsedImplicitly] public bool HasDied { get; set; }
     
     [UsedImplicitly] [JsonIgnore] public IRandomChooser Chooser { get; set; } = new RandomChooser();
+
+    [UsedImplicitly] [JsonIgnore] public IChatWithFloyd ChatWithFloyd { get; set; } = new ChatWithFloyd(null);
 
     [UsedImplicitly] public bool IsOn { get; set; }
 
@@ -98,7 +99,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
         try
         {
-            var response = await _chatWithFloyd.AskFloydAsync(text);
+            CompanionResponse response = await ChatWithFloyd.AskFloydAsync(text);
 
             // Add the response to Floyd's conversation history for continuity
             LastTurnsOutput.Push(response.Message);

@@ -201,11 +201,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             }
 
             // Check if a processor needs user input (like save, quit, disambiguation)
-            if (_processorInProgress != null)
-            {
-                _logger?.LogDebug($"Processor in progress ({_processorInProgress.GetType().Name}) - stopping multi-sentence processing");
-                break;
-            }
+            if (_processorInProgress == null) 
+                continue;
+            
+            _logger?.LogDebug($"Processor in progress ({_processorInProgress.GetType().Name}) - stopping multi-sentence processing");
+            break;
         }
 
         return string.Join(Environment.NewLine + Environment.NewLine, responses);
@@ -351,7 +351,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // Ask the context if it wants to provide a custom save game request (e.g., Floyd in Planetfall)
         // If not, use the default AfterSaveGameRequest
         var saveRequest = Context.GetSaveGameRequest(LocationDescription)
-                          ?? new Model.AIGeneration.Requests.AfterSaveGameRequest(LocationDescription);
+                          ?? new AfterSaveGameRequest(LocationDescription);
 
         return await GenerationClient.GenerateNarration(saveRequest, string.Empty);
     }
