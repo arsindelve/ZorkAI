@@ -3,6 +3,7 @@ using GameEngine.IntentEngine;
 using Model.AIGeneration;
 using Newtonsoft.Json;
 using Planetfall.Item.Kalamontee.Admin;
+using Planetfall.Location;
 using Planetfall.Location.Lawanda.Lab;
 using Utilities;
 
@@ -186,6 +187,9 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         var followResult = HandleFollowingPlayer(context);
         if (!string.IsNullOrEmpty(followResult))
             return followResult;
+
+        if (context.CurrentLocation is IFloydDoesNotTalkHere)
+            return string.Empty;
 
         return await PerformRandomAction(context, client);
     }

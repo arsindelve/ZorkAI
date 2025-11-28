@@ -9,7 +9,7 @@ using Planetfall.Item.Lawanda;
 
 namespace Planetfall.Location.Lawanda;
 
-internal class RepairRoom : LocationBase, ITurnBasedActor
+internal class RepairRoom : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHere
 {
     public override string Name => "Repair Room";
 
@@ -75,13 +75,4 @@ internal class RepairRoom : LocationBase, ITurnBasedActor
         return Task.FromResult(FloydConstants.Achilles);
     }
 }
-
-// Floyd shrugs. "If you say so." He vanishes for a few minutes, and returns holding the fromitz board. It seems to be in good
-// shape. He tosses it toward you, and you just manage to catch it before it smashes.
-
-// Floyd squeezes through the opening and is gone for quite a while. You hear thudding noises and squeals of enjoyment. After
-// a while the noise stops, and Floyd emerges, looking downcast. "Floyd found a rubber ball inside. Lots of fun for a while,
-// but must have been old, because it fell apart. Nothing else interesting inside. Just a shiny fromitz board."
-
-// "Not again," whines Floyd.
 

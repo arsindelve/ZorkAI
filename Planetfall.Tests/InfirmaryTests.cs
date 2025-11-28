@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda;
 using Planetfall.Location.Lawanda;
 
@@ -139,9 +140,149 @@ public class InfirmaryTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<Infirmary>();
-        
+
         var response = await target.GetResponse("open bottle");
 
         response.Should().Contain("Opened");
+    }
+
+    [Test]
+    public async Task Floyd_IsPresent_AndTurnedOn_ShouldSpeakAboutLazarus_AfterOneTurn()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var infirmary = StartHere<Infirmary>();
+        infirmary.ItemPlacedHere(floyd);
+        target.Context.RegisterActor(infirmary);
+
+        // First turn - Floyd should not speak yet
+        var response1 = await target.GetResponse("wait");
+        response1.Should().NotContain("Lazarus");
+
+        // Second turn - Floyd should speak
+        var response2 = await target.GetResponse("wait");
+        response2.Should().Contain("Lazarus");
+    }
+
+    [Test]
+    public async Task Floyd_IsNotTurnedOn_ShouldNotSpeakAboutLazarus()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = false;
+        var infirmary = StartHere<Infirmary>();
+        infirmary.ItemPlacedHere(floyd);
+        target.Context.RegisterActor(infirmary);
+
+        var response1 = await target.GetResponse("wait");
+        response1.Should().NotContain("Lazarus");
+
+        var response2 = await target.GetResponse("wait");
+        response2.Should().NotContain("Lazarus");
+    }
+
+    [Test]
+    public async Task Floyd_SpeaksAboutLazarus_OnlyOnce()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var infirmary = StartHere<Infirmary>();
+        infirmary.ItemPlacedHere(floyd);
+        target.Context.RegisterActor(infirmary);
+
+        // First turn - wait
+        await target.GetResponse("wait");
+
+        // Second turn - Floyd speaks
+        var response2 = await target.GetResponse("wait");
+        response2.Should().Contain("Lazarus");
+
+        // Third turn - Floyd should not speak again (and Floyd has left the room)
+        var response3 = await target.GetResponse("wait");
+        response3.Should().NotContain("Lazarus");
+    }
+
+    [Test]
+    public async Task Floyd_NotInRoom_ShouldNotSpeakAboutLazarus()
+    {
+        var target = GetTarget();
+        GetItem<Floyd>().IsOn = true;
+        var infirmary = StartHere<Infirmary>();
+        target.Context.RegisterActor(infirmary);
+
+        var response1 = await target.GetResponse("wait");
+        response1.Should().NotContain("Lazarus");
+
+        var response2 = await target.GetResponse("wait");
+        response2.Should().NotContain("Lazarus");
+    }
+
+    [Test]
+    public async Task Floyd_SpeaksAboutLazarus_AndMedicalRobotBreastPlateAppears()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var infirmary = StartHere<Infirmary>();
+        infirmary.ItemPlacedHere(floyd);
+        target.Context.RegisterActor(infirmary);
+
+        // First turn - Floyd should not speak yet
+        var response1 = await target.GetResponse("wait");
+        response1.Should().NotContain("Lazarus");
+
+        // Second turn - Floyd speaks and breastplate appears
+        var response2 = await target.GetResponse("wait");
+        response2.Should().Contain("Lazarus");
+
+        // Verify breastplate is now in the room
+        var breastplate = GetItem<MedicalRobotBreastPlate>();
+        breastplate.CurrentLocation.Should().Be(infirmary);
+    }
+
+    [Test]
+    public async Task MedicalRobotBreastPlate_AppearsAndCanBeSeen()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var infirmary = StartHere<Infirmary>();
+        infirmary.ItemPlacedHere(floyd);
+        target.Context.RegisterActor(infirmary);
+
+        // Wait two turns for Floyd to speak and item to appear
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+
+        // Verify the item is in the room
+        var breastplate = GetItem<MedicalRobotBreastPlate>();
+        breastplate.CurrentLocation.Should().Be(infirmary);
+
+        // Verify the item can be seen in the room description
+        var look = await target.GetResponse("look");
+        look.Should().Contain("breastplate");
+    }
+
+    [Test]
+    public async Task Floyd_OnlyNeedsToBeInRoomForOneTurnBeforeSpeaking()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var infirmary = StartHere<Infirmary>();
+        infirmary.ItemPlacedHere(floyd);
+        target.Context.RegisterActor(infirmary);
+
+        // Verify the one-turn delay works correctly
+        infirmary.TurnsInInfirmary.Should().Be(0);
+
+        await target.GetResponse("wait");
+        infirmary.TurnsInInfirmary.Should().Be(1);
+
+        var response2 = await target.GetResponse("wait");
+        response2.Should().Contain("Lazarus");
+        infirmary.TurnsInInfirmary.Should().Be(2);
     }
 }
