@@ -68,6 +68,8 @@ public static class FloydConstants
         "ball inside. Lots of fun for a while, but must have been old, because it fell apart. Nothing else " +
         "interesting inside. Just a shiny fromitz board. ";
 
+    internal const string Achilles = """Floyd points at the fallen robot. "That's Achilles. He was in charge of repairing machinery. He repaired Floyd once. I never liked him much; he wasn't friendly like other robots. Looks like he fell down the stairs. He always had trouble with one of his feet working right. A Planner-person once told me that's why they named him Achilles.""";
+    
     internal const string LookAMiniCard =
         "Floyd stands on his tiptoes and peers in the window. \"Ooo, look,\" he says. \"There's a miniaturization booth access card!\"";
 
