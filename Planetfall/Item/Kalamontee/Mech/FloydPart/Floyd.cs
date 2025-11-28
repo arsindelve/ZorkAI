@@ -38,6 +38,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     [UsedImplicitly] public bool IsOffWandering { get; set; }
 
+    [UsedImplicitly] public int WanderingTurnsRemaining { get; set; }
+
     [UsedImplicitly] public bool HasEverBeenOn { get; set; }
 
     [UsedImplicitly] public bool HasEverGoneThroughTheLittleDoor { get; set; }
@@ -184,9 +186,42 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         if (!IsOn)
             return string.Empty;
 
+        // Handle wandering countdown - if Floyd is off wandering, decrement turns and check for return
+        if (IsOffWandering && WanderingTurnsRemaining > 0)
+        {
+            WanderingTurnsRemaining--;
+
+            if (WanderingTurnsRemaining == 0)
+            {
+                // Floyd returns to the player
+                IsOffWandering = false;
+                CurrentLocation = context.CurrentLocation as ICanContainItems;
+                context.CurrentLocation.ItemPlacedHere(this);
+                return FloydConstants.ReturnMessages.GetRandomElement();
+            }
+
+            return string.Empty; // Still wandering
+        }
+
         var followResult = HandleFollowingPlayer(context);
         if (!string.IsNullOrEmpty(followResult))
             return followResult;
+
+        // Spontaneous wandering trigger - 1 in 20 chance per turn
+        if (!IsOffWandering && IsInTheRoom(context) && context.CurrentLocation is not IFloydDoesNotTalkHere)
+        {
+            BioLockEast bioLockEast = Repository.GetLocation<BioLockEast>();
+
+            // Don't wander if fighting in the bio lab
+            if (!bioLockEast.StateMachine.IsFloydInLabFighting && Chooser.RollDice(20) == 1)
+            {
+                IsOffWandering = true;
+                WanderingTurnsRemaining = Chooser.RollDice(5); // 1-5 turns
+                (context.CurrentLocation as ICanContainItems)?.RemoveItem(this);
+                CurrentLocation = null; // Floyd is not in any location while wandering
+                return FloydConstants.GoingExploring;
+            }
+        }
 
         if (context.CurrentLocation is IFloydDoesNotTalkHere)
             return string.Empty;
@@ -202,8 +237,22 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         if (bioLockEast.StateMachine.IsFloydInLabFighting)
             return string.Empty; // Floyd is busy fighting in the lab
 
-        if (!IsOffWandering && !IsInTheRoom(context))
+        // Don't follow if already wandering
+        if (IsOffWandering)
+            return string.Empty;
+
+        if (!IsInTheRoom(context))
         {
+            // Random chance to not follow (1 in 5 chance)
+            if (Chooser.RollDice(5) == 1)
+            {
+                IsOffWandering = true;
+                WanderingTurnsRemaining = Chooser.RollDice(5); // 1-5 turns
+                CurrentLocation = null; // Floyd is not in any location while wandering
+                return string.Empty; // No message - player just doesn't see "Floyd follows you"
+            }
+
+            // Normal follow behavior
             context.CurrentLocation.ItemPlacedHere(this);
             return "Floyd follows you. ";
         }
