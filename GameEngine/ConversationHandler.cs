@@ -111,12 +111,12 @@ public class ConversationHandler(
         // Use ParseConversation to determine if this is actually communication
         logger?.LogDebug($"[CONVERSATION DEBUG] Calling ParseConversation.ParseAsync with input: '{input}'");
         var parseResult = await parseConversation.ParseAsync(input);
-        logger?.LogDebug($"[CONVERSATION DEBUG] ParseConversation result - isNo: {parseResult.isNo}, response: '{parseResult.response}'");
-        
-        // If ParseConversation says "No", continue with normal processing
-        if (parseResult.isNo)
+        logger?.LogDebug($"[CONVERSATION DEBUG] ParseConversation result - isConversational: {parseResult.isConversational}, response: '{parseResult.response}'");
+
+        // If not conversational, continue with normal processing
+        if (!parseResult.isConversational)
         {
-            logger?.LogDebug("[CONVERSATION DEBUG] ParseConversation returned 'No', continuing with normal processing");
+            logger?.LogDebug("[CONVERSATION DEBUG] Not conversational, continuing with normal processing");
             return null;
         }
 

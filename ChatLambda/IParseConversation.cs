@@ -8,11 +8,21 @@ namespace ChatLambda;
 public interface IParseConversation
 {
     /// <summary>
-    /// Parses conversation input and returns whether the response is "No" and the actual response.
+    /// Determines if the input is conversational speech directed at a companion (like "Floyd, go north").
+    /// If it IS conversation, returns the rewritten command in second person (e.g., "go north").
+    /// If it's NOT conversation (just a regular command), indicates no rewriting is needed.
     /// </summary>
-    /// <param name="input">The conversation input to parse</param>
-    /// <returns>A tuple where Item1 is true if response is "No", Item2 is the response (empty if "No")</returns>
-    Task<(bool isNo, string response)> ParseAsync(string input);
+    /// <param name="input">The user's input to analyze (e.g., "floyd, go north" or just "go north")</param>
+    /// <returns>
+    /// A tuple where:
+    /// - isConversational = true: Input IS conversational, use the rewritten response (e.g., "floyd, go north" → "go north")
+    /// - isConversational = false: Input is NOT conversational, no rewriting needed (response will be empty)
+    /// </returns>
+    /// <example>
+    /// ParseAsync("floyd, go north") → (true, "go north") // IS conversation, rewritten
+    /// ParseAsync("go north") → (false, "") // NOT conversation, use as-is
+    /// </example>
+    Task<(bool isConversational, string response)> ParseAsync(string input);
 
     /// <summary>
     /// Gets or sets the logger used for logging messages or events.
