@@ -142,6 +142,16 @@ public static class FloydConstants
     internal const string FloydReturnsWithCard =
         "Floyd stumbles out of the Bio Lab, clutching the mini-booth card. The mutations rush toward the open doorway!";
 
+    internal const string GoingExploring =
+        "Floyd says \"Floyd going exploring. See you later.\" He glides out of the room.";
+
+    internal static readonly string[] ReturnMessages =
+    [
+        "Floyd bounds into the room. \"Floyd here now!\" he cries. ",
+        "Floyd rushes into the room and barrels into you. \"Oops, sorry,\" he says. \"Floyd not looking at where he was going to.\" ",
+        "Floyd glides back into the room, looking pleased with himself. "
+    ];
+
     internal static readonly string[] RandomActions =
     [
         "Floyd produces a crayon from one of his compartments and scrawls his name on the wall. ",

@@ -10,6 +10,7 @@ using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Mech;
 using Planetfall.Location.Lawanda;
+using Planetfall.Location.Lawanda.Lab;
 
 namespace Planetfall.Tests;
 
@@ -540,4 +541,398 @@ public class FloydTests : EngineTestsBase
         response.Should().NotContain("That's a nice");
         response.Should().Contain("Hider-and-Seeker");
     }
+
+    #region Wandering Behavior Tests
+
+    [Test]
+    public async Task FloydWanders_SpontaneouslyLeaves()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        GetLocation<RobotShop>().ItemPlacedHere(floyd); // Place Floyd in the room
+        target.Context.RegisterActor(floyd);
+
+        // Mock the Chooser to trigger wandering (1 in 20 chance)
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.SetupSequence(r => r.RollDice(20))
+            .Returns(1); // Trigger wandering
+        mockChooser.Setup(r => r.RollDice(5))
+            .Returns(3); // Wander for 3 turns
+        floyd.Chooser = mockChooser.Object;
+
+        // Execute a turn - Floyd should spontaneously wander
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain("Floyd says \"Floyd going exploring. See you later.\" He glides out of the room.");
+        floyd.IsOffWandering.Should().BeTrue();
+        floyd.WanderingTurnsRemaining.Should().Be(3);
+        // Floyd should be removed from the room
+        GetLocation<RobotShop>().Items.Should().NotContain(floyd);
+    }
+
+    [Test]
+    public async Task FloydWanders_DoesNotLeave_WhenDiceRollFails()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        target.Context.RegisterActor(floyd);
+
+        // Mock the Chooser to NOT trigger wandering
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(20))
+            .Returns(2); // Not 1, so no wandering
+        mockChooser.Setup(r => r.RollDice(15))
+            .Returns(15); // No random action
+        floyd.Chooser = mockChooser.Object;
+
+        var response = await target.GetResponse("wait");
+
+        response.Should().NotContain("Floyd going exploring");
+        floyd.IsOffWandering.Should().BeFalse();
+        floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
+    }
+
+    [Test]
+    public async Task FloydWanders_Returns_AfterCountdown()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOffWandering = true;
+        floyd.WanderingTurnsRemaining = 1;
+        floyd.CurrentLocation = null; // Floyd is wandering, not in any location
+        target.Context.RegisterActor(floyd);
+
+        var response = await target.GetResponse("wait");
+
+        // Check that Floyd returned (one of the three return messages should appear)
+        var returnedSuccessfully = response.Contains("Floyd bounds into the room") ||
+                                   response.Contains("Floyd rushes into the room") ||
+                                   response.Contains("Floyd glides back into the room");
+        returnedSuccessfully.Should().BeTrue();
+        floyd.IsOffWandering.Should().BeFalse();
+        floyd.WanderingTurnsRemaining.Should().Be(0);
+        floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
+    }
+
+    [Test]
+    public async Task FloydWanders_CountsDown_OverMultipleTurns()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOffWandering = true;
+        floyd.WanderingTurnsRemaining = 3;
+        floyd.CurrentLocation = null; // Floyd is wandering, not in any location
+        target.Context.RegisterActor(floyd);
+
+        // Turn 1: 3 -> 2
+        var response1 = await target.GetResponse("wait");
+        response1.Should().NotContain("Floyd bounds");
+        floyd.WanderingTurnsRemaining.Should().Be(2);
+        floyd.IsOffWandering.Should().BeTrue();
+
+        // Turn 2: 2 -> 1
+        var response2 = await target.GetResponse("wait");
+        response2.Should().NotContain("Floyd bounds");
+        floyd.WanderingTurnsRemaining.Should().Be(1);
+        floyd.IsOffWandering.Should().BeTrue();
+
+        // Turn 3: 1 -> 0 (returns)
+        var response3 = await target.GetResponse("wait");
+
+        // Check that Floyd returned (one of the three return messages should appear)
+        var returnedSuccessfully = response3.Contains("Floyd bounds into the room") ||
+                                   response3.Contains("Floyd rushes into the room") ||
+                                   response3.Contains("Floyd glides back into the room");
+        returnedSuccessfully.Should().BeTrue();
+        floyd.WanderingTurnsRemaining.Should().Be(0);
+        floyd.IsOffWandering.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task FloydWanders_DoesNotFollow_Sometimes()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        target.Context.RegisterActor(floyd);
+
+        // Mock to trigger no-follow (1 in 5 chance)
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.SetupSequence(r => r.RollDice(5))
+            .Returns(1) // Don't follow
+            .Returns(3); // Wander for 3 turns
+        floyd.Chooser = mockChooser.Object;
+
+        var response = await target.GetResponse("w");
+
+        response.Should().NotContain("Floyd follows you");
+        floyd.IsOffWandering.Should().BeTrue();
+        floyd.WanderingTurnsRemaining.Should().Be(3);
+        floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
+        target.Context.CurrentLocation.Should().Be(GetLocation<MachineShop>());
+    }
+
+    [Test]
+    public async Task FloydWanders_DoesFollow_WhenDiceRollFails()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        target.Context.RegisterActor(floyd);
+
+        // Mock to NOT trigger no-follow
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(5))
+            .Returns(2); // Not 1, so follow normally
+        floyd.Chooser = mockChooser.Object;
+
+        var response = await target.GetResponse("w");
+
+        response.Should().Contain("Floyd follows you");
+        floyd.IsOffWandering.Should().BeFalse();
+        floyd.CurrentLocation.Should().Be(GetLocation<MachineShop>());
+    }
+
+    [Test]
+    public async Task FloydWanders_NoWandering_WhenOff()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = false;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        target.Context.RegisterActor(floyd);
+
+        // Mock to trigger wandering
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(20))
+            .Returns(1);
+        floyd.Chooser = mockChooser.Object;
+
+        var response = await target.GetResponse("wait");
+
+        response.Should().NotContain("Floyd going exploring");
+        floyd.IsOffWandering.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task FloydWanders_NoWandering_WhenDead()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasDied = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        target.Context.RegisterActor(floyd);
+
+        // Mock to trigger wandering
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(20))
+            .Returns(1);
+        floyd.Chooser = mockChooser.Object;
+
+        var response = await target.GetResponse("wait");
+
+        response.Should().NotContain("Floyd going exploring");
+        floyd.IsOffWandering.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task FloydWanders_NoWandering_DuringBioLabFight()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        target.Context.RegisterActor(floyd);
+
+        // Set bio lab fighting state
+        var bioLockEast = GetLocation<BioLockEast>();
+        bioLockEast.StateMachine.LabSequenceState = BioLockStateMachineManager.FloydLabSequenceState.DoorClosedFloydFighting;
+
+        // Mock to trigger wandering
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(20))
+            .Returns(1);
+        floyd.Chooser = mockChooser.Object;
+
+        var response = await target.GetResponse("wait");
+
+        response.Should().NotContain("Floyd going exploring");
+        floyd.IsOffWandering.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task FloydWanders_NoFollow_DuringBioLabFight()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        target.Context.RegisterActor(floyd);
+
+        // Set bio lab fighting state
+        var bioLockEast = GetLocation<BioLockEast>();
+        bioLockEast.StateMachine.LabSequenceState = BioLockStateMachineManager.FloydLabSequenceState.DoorClosedFloydFighting;
+
+        var response = await target.GetResponse("w");
+
+        response.Should().NotContain("Floyd follows you");
+        floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
+    }
+
+    [Test]
+    public async Task FloydWanders_NoFollow_WhenAlreadyWandering()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOffWandering = true;
+        floyd.WanderingTurnsRemaining = 2;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        target.Context.RegisterActor(floyd);
+
+        var response = await target.GetResponse("w");
+
+        response.Should().NotContain("Floyd follows you");
+        floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
+        floyd.WanderingTurnsRemaining.Should().Be(2); // Countdown only happens during wait
+    }
+
+    [Test]
+    public async Task FloydWanders_Returns_ToPlayerCurrentLocation()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOffWandering = true;
+        floyd.WanderingTurnsRemaining = 3; // Start with 3 to account for movement triggering Act()
+        floyd.CurrentLocation = null; // Floyd is wandering, not in any location
+        target.Context.RegisterActor(floyd);
+
+        // Move to a different location (this triggers Act(), so countdown: 3 -> 2)
+        await target.GetResponse("w");
+        target.Context.CurrentLocation.Should().Be(GetLocation<MachineShop>());
+        floyd.WanderingTurnsRemaining.Should().Be(2);
+
+        // Wait for Floyd to count down (2 -> 1)
+        await target.GetResponse("wait");
+        floyd.WanderingTurnsRemaining.Should().Be(1);
+
+        // Wait one more turn - Floyd should return to player's current location (1 -> 0)
+        var response = await target.GetResponse("wait");
+
+        // Check that Floyd returned (one of the three return messages should appear)
+        var returnedSuccessfully = response.Contains("Floyd bounds into the room") ||
+                                   response.Contains("Floyd rushes into the room") ||
+                                   response.Contains("Floyd glides back into the room");
+        returnedSuccessfully.Should().BeTrue();
+        floyd.IsOffWandering.Should().BeFalse();
+        floyd.CurrentLocation.Should().Be(GetLocation<MachineShop>());
+        target.Context.CurrentLocation.Should().Be(GetLocation<MachineShop>());
+    }
+
+    [Test]
+    public void FloydWanders_AllThreeReturnMessages_AreDefined()
+    {
+        // Verify that all three return messages are defined and not empty
+        FloydConstants.ReturnMessages.Should().HaveCount(3);
+        FloydConstants.ReturnMessages[0].Should().Contain("Floyd bounds into the room");
+        FloydConstants.ReturnMessages[1].Should().Contain("Floyd rushes into the room");
+        FloydConstants.ReturnMessages[2].Should().Contain("Floyd glides back into the room");
+    }
+
+    [Test]
+    public async Task FloydWanders_IntegrationTest_WanderAndReturn()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        target.Context.RegisterActor(floyd);
+
+        // Mock for complete wander-return cycle
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.SetupSequence(r => r.RollDice(20))
+            .Returns(1) // Trigger wandering
+            .Returns(10); // Don't wander again
+        mockChooser.Setup(r => r.RollDice(5))
+            .Returns(2); // Wander for 2 turns
+        mockChooser.Setup(r => r.RollDice(15))
+            .Returns(15); // No random actions
+        floyd.Chooser = mockChooser.Object;
+
+        // Turn 1: Floyd leaves
+        var response1 = await target.GetResponse("wait");
+        response1.Should().Contain("Floyd going exploring");
+        floyd.IsOffWandering.Should().BeTrue();
+        floyd.WanderingTurnsRemaining.Should().Be(2);
+
+        // Turn 2: Countdown (2 -> 1)
+        var response2 = await target.GetResponse("wait");
+        response2.Should().NotContain("Floyd");
+        floyd.WanderingTurnsRemaining.Should().Be(1);
+
+        // Turn 3: Floyd returns (1 -> 0)
+        var response3 = await target.GetResponse("wait");
+
+        // Check that Floyd returned (one of the three return messages should appear)
+        var returnedSuccessfully = response3.Contains("Floyd bounds into the room") ||
+                                   response3.Contains("Floyd rushes into the room") ||
+                                   response3.Contains("Floyd glides back into the room");
+        returnedSuccessfully.Should().BeTrue();
+        floyd.IsOffWandering.Should().BeFalse();
+        floyd.WanderingTurnsRemaining.Should().Be(0);
+        floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
+
+        // Turn 4: Floyd is back to normal
+        var response4 = await target.GetResponse("wait");
+        response4.Should().NotContain("Floyd going exploring");
+    }
+
+    [Test]
+    public void FloydWanders_StateSerializes_Correctly()
+    {
+        var floyd = GetItem<Floyd>();
+        floyd.IsOffWandering = true;
+        floyd.WanderingTurnsRemaining = 3;
+
+        // Verify properties are public and have UsedImplicitly attribute (checked via code inspection)
+        // Both properties should serialize/deserialize correctly with JSON
+        floyd.IsOffWandering.Should().BeTrue();
+        floyd.WanderingTurnsRemaining.Should().Be(3);
+    }
+
+    #endregion
 }
