@@ -214,6 +214,7 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("NE", null, "Systems Corridor West")]
     [TestCase("N", null, "Repair Room")]
     [TestCase("floyd, go north", null, "Just a shiny fromitz board")]
+    [TestCase("floyd, take board", null, "If you say so")]
     //[TestCase("E", null, "Systems Corridor")]
     //[TestCase("E", null, "Systems Corridor East")]
     //[TestCase("S", null, "Library Lobby")]

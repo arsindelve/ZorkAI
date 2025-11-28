@@ -36,7 +36,12 @@ public abstract class WalkthroughTestBase : EngineTestsBase
             "Floyd's response",
             new CompanionMetadata("GoSomewhere", new Dictionary<string, object> { { "direction", "north" } })
         ));
+        _chatWithFloyd.Setup(s => s.AskFloydAsync("take board")).ReturnsAsync(new CompanionResponse(
+            "Floyd's response",
+            new CompanionMetadata("PickUp", new Dictionary<string, object> { { "object", "board" } })
+        ));
 
+        ParseConversationMock.Setup(x => x.ParseAsync("floyd, take board")).Returns(Task.FromResult((true, "take board")));
         ParseConversationMock.Setup(x => x.ParseAsync("floyd, go north")).Returns(Task.FromResult((true, "go north")));
     }
 
