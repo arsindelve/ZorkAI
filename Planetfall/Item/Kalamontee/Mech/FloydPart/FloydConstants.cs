@@ -68,6 +68,9 @@ public static class FloydConstants
         "ball inside. Lots of fun for a while, but must have been old, because it fell apart. Nothing else " +
         "interesting inside. Just a shiny fromitz board. ";
 
+    internal const string Lazarus =
+        """Floyd, rummaging in a corner, finds something and carries it to the center of the room to examine it in the brighter light. It seems to be the breast plate of a robot, along with some connected inner circuitry. The entire piece is bent and rusting. Floyd stares at it in complete silence. A moment later, he begins sobbing quietly, awkwardly excuses himself, and runs out of the room. You look at the breast plate, and notice the name "Lazarus" engraved on it. """;
+
     internal const string Achilles = """Floyd points at the fallen robot. "That's Achilles. He was in charge of repairing machinery. He repaired Floyd once. I never liked him much; he wasn't friendly like other robots. Looks like he fell down the stairs. He always had trouble with one of his feet working right. A Planner-person once told me that's why they named him Achilles.""";
     
     internal const string LookAMiniCard =

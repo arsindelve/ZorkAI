@@ -5,7 +5,7 @@ using Planetfall.Item.Lawanda.Lab;
 
 namespace Planetfall.Location.Lawanda.Lab;
 
-internal class BioLockEast : LocationBase, ITurnBasedActor
+internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHere
 {
     public override string Name => "Bio Lock East";
 
