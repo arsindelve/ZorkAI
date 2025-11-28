@@ -13,8 +13,9 @@ public class ParseConversation : IParseConversation
     private const string FunctionName = "Floyd-LangGraphFunction-GefcykaLqwp-MySimpleLambda-lBRzg1jLKvXP";
     private readonly IAmazonLambda _lambdaClient;
 
-    public ParseConversation(IAmazonLambda? lambdaClient)
+    public ParseConversation(IAmazonLambda? lambdaClient, ILogger logger)
     {
+        Logger = logger;
         _lambdaClient = lambdaClient ?? CreateDefaultLambdaClient();
     }
 
@@ -24,11 +25,21 @@ public class ParseConversation : IParseConversation
     }
 
     /// <summary>
-    /// Parses conversation input and returns whether the response is "No" and the actual response.
+    /// Determines if the input is conversational speech directed at a companion (like "Floyd, go north").
+    /// If it IS conversation, returns the rewritten command in second person (e.g., "go north").
+    /// If it's NOT conversation (just a regular command), indicates no rewriting is needed.
     /// </summary>
-    /// <param name="input">The conversation input to parse</param>
-    /// <returns>A tuple where Item1 is true if response is "No", Item2 is the response (empty if "No")</returns>
-    public async Task<(bool isNo, string response)> ParseAsync(string input)
+    /// <param name="input">The user's input to analyze (e.g., "floyd, go north" or just "go north")</param>
+    /// <returns>
+    /// A tuple where:
+    /// - isConversational = true: Input IS conversational, use the rewritten response (e.g., "floyd, go north" → "go north")
+    /// - isConversational = false: Input is NOT conversational, no rewriting needed (response will be empty)
+    /// </returns>
+    /// <example>
+    /// ParseAsync("floyd, go north") → (true, "go north") // IS conversation, rewritten
+    /// ParseAsync("go north") → (false, "") // NOT conversation, use as-is
+    /// </example>
+    public async Task<(bool isConversational, string response)> ParseAsync(string input)
     {
         return await ParseAsync(input, CancellationToken.None);
     }
@@ -36,12 +47,18 @@ public class ParseConversation : IParseConversation
     public ILogger Logger { get; set; }
 
     /// <summary>
-    /// Parses conversation input and returns whether the response is "No" and the actual response.
+    /// Determines if the input is conversational speech directed at a companion (like "Floyd, go north").
+    /// If it IS conversation, returns the rewritten command in second person (e.g., "go north").
+    /// If it's NOT conversation (just a regular command), indicates no rewriting is needed.
     /// </summary>
-    /// <param name="input">The conversation input to parse</param>
+    /// <param name="input">The user's input to analyze (e.g., "floyd, go north" or just "go north")</param>
     /// <param name="cancellationToken">Cancellation token to cancel the operation</param>
-    /// <returns>A tuple where Item1 is true if response is "No", Item2 is the response (empty if "No")</returns>
-    private async Task<(bool isNo, string response)> ParseAsync(string input, CancellationToken cancellationToken)
+    /// <returns>
+    /// A tuple where:
+    /// - isConversational = true: Input IS conversational, use the rewritten response (e.g., "floyd, go north" → "go north")
+    /// - isConversational = false: Input is NOT conversational, no rewriting needed (response will be empty)
+    /// </returns>
+    private async Task<(bool isConversational, string response)> ParseAsync(string input, CancellationToken cancellationToken)
     {
         Logger.LogDebug($"[PARSE CONVERSATION DEBUG] Starting ParseAsync with input: '{input}'");
         
@@ -120,14 +137,14 @@ public class ParseConversation : IParseConversation
             var lambdaResponseText = bodyContent.Results.Response;
             Logger.LogDebug($"[PARSE CONVERSATION DEBUG] Lambda response text: '{lambdaResponseText}'");
             
-            // Check if the response is "No" (case-insensitive)
+            // Check if the response is conversational (anything other than "No")
             var trimmedResponse = lambdaResponseText.Trim();
-            bool isNo = string.Equals(trimmedResponse, "No", StringComparison.OrdinalIgnoreCase);
-            Logger.LogDebug($"[PARSE CONVERSATION DEBUG] Trimmed response: '{trimmedResponse}', isNo: {isNo}");
-            
-            var finalResult = (isNo, isNo ? string.Empty : lambdaResponseText);
-            Logger.LogDebug($"[PARSE CONVERSATION DEBUG] Final result: isNo={finalResult.Item1}, response='{finalResult.Item2}'");
-            
+            bool isConversational = !string.Equals(trimmedResponse, "No", StringComparison.OrdinalIgnoreCase);
+            Logger.LogDebug($"[PARSE CONVERSATION DEBUG] Trimmed response: '{trimmedResponse}', isConversational: {isConversational}");
+
+            var finalResult = (isConversational, isConversational ? lambdaResponseText : string.Empty);
+            Logger.LogDebug($"[PARSE CONVERSATION DEBUG] Final result: isConversational={finalResult.Item1}, response='{finalResult.Item2}'");
+
             return finalResult;
         }
         catch (Exception ex)

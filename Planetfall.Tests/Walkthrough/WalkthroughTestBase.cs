@@ -23,7 +23,11 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     public void Init()
     {
         _target = GetTarget();
-        
+
+        // Set up ParseConversation to recognize "floyd, go north" as conversation
+        ParseConversationMock.Setup(x => x.ParseAsync("floyd, go north"))
+            .ReturnsAsync((true, "go north")); // (true, "go north") means it IS conversational, rewritten to "go north"
+
         _floydChooser = new Mock<IRandomChooser>();
         _floydChooser.Setup(s => s.RollDiceSuccess(3)).Returns(true);
 
@@ -32,6 +36,8 @@ public abstract class WalkthroughTestBase : EngineTestsBase
             "Floyd's response",
             new CompanionMetadata("GoSomewhere", new Dictionary<string, object> { { "direction", "north" } })
         ));
+
+        ParseConversationMock.Setup(x => x.ParseAsync("floyd, go north")).Returns(Task.FromResult((true, "go north")));
     }
 
     protected void InvokeGodMode(string setup)

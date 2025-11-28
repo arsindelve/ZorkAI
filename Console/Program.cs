@@ -91,8 +91,9 @@ async Task<GameEngine<TGame, TContext>> CreateEngine<TGame, TContext>()
         );
 
     var logger = loggerFactory.CreateLogger<GameEngine<TGame, TContext>>();
+    var parseLogger = loggerFactory.CreateLogger<ParseConversation>();
 
-    var gameEngine = new GameEngine<TGame, TContext>(logger, new AmazonSecretsManager(), new ParseConversation(null))
+    var gameEngine = new GameEngine<TGame, TContext>(logger, new AmazonSecretsManager(), new ParseConversation(null, parseLogger))
     {
         Runtime = Runtime.Console
     };
