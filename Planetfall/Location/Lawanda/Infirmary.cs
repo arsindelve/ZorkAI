@@ -47,9 +47,10 @@ internal class Infirmary : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHere
 
         HasToldAboutLazarus = true;
         ItemPlacedHere<MedicalRobotBreastPlate>();
-        
-        // TODO: Floyd leaves the room. Implement this after we implement floyd being able to roam. 
-        
+
+        // Floyd becomes upset and wanders off after finding Lazarus's remains
+        Repository.GetItem<Floyd>().StartWandering(context);
+
         return Task.FromResult(FloydConstants.Lazarus);
     }
 
