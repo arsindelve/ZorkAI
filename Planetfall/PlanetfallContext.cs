@@ -45,7 +45,7 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
         StartWithItem<PatrolUniform>(this);
     }
 
-    public override string? ProcessBeginningOfTurn()
+    public override string ProcessBeginningOfTurn()
     {
         return SicknessNotifications.GetNotification(Day, CurrentTime) + base.ProcessBeginningOfTurn();
     }

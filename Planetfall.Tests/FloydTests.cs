@@ -548,12 +548,13 @@ public class FloydTests : EngineTestsBase
     public async Task FloydWanders_SpontaneouslyLeaves()
     {
         var target = GetTarget();
-        StartHere<RobotShop>();
+        var robotShop = StartHere<RobotShop>();
         var floyd = GetItem<Floyd>();
         floyd.IsOn = true;
         floyd.HasEverBeenOn = true;
-        floyd.CurrentLocation = GetLocation<RobotShop>();
-        GetLocation<RobotShop>().ItemPlacedHere(floyd); // Place Floyd in the room
+        floyd.TurnOnCountdown = 0; // Ensure no turn-on countdown interferes
+        floyd.CurrentLocation = robotShop; // Must be same instance as context location
+        robotShop.ItemPlacedHere(floyd); // Place Floyd in the room
         target.Context.RegisterActor(floyd);
 
         // Mock the Chooser to trigger wandering (1 in 20 chance)
@@ -608,6 +609,7 @@ public class FloydTests : EngineTestsBase
         var floyd = GetItem<Floyd>();
         floyd.IsOn = true;
         floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0; // Ensure no turn-on countdown interferes
         floyd.IsOffWandering = true;
         floyd.WanderingTurnsRemaining = 1;
         floyd.CurrentLocation = null; // Floyd is wandering, not in any location
@@ -633,6 +635,7 @@ public class FloydTests : EngineTestsBase
         var floyd = GetItem<Floyd>();
         floyd.IsOn = true;
         floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0; // Ensure no turn-on countdown interferes
         floyd.IsOffWandering = true;
         floyd.WanderingTurnsRemaining = 3;
         floyd.CurrentLocation = null; // Floyd is wandering, not in any location
@@ -666,11 +669,13 @@ public class FloydTests : EngineTestsBase
     public async Task FloydWanders_DoesNotFollow_Sometimes()
     {
         var target = GetTarget();
-        StartHere<RobotShop>();
+        var robotShop = StartHere<RobotShop>();
         var floyd = GetItem<Floyd>();
         floyd.IsOn = true;
         floyd.HasEverBeenOn = true;
-        floyd.CurrentLocation = GetLocation<RobotShop>();
+        floyd.TurnOnCountdown = 0; // Ensure no turn-on countdown interferes
+        floyd.CurrentLocation = robotShop; // Must be same instance as context location
+        robotShop.ItemPlacedHere(floyd);
         target.Context.RegisterActor(floyd);
 
         // Mock to trigger no-follow (1 in 5 chance)
@@ -685,7 +690,7 @@ public class FloydTests : EngineTestsBase
         response.Should().NotContain("Floyd follows you");
         floyd.IsOffWandering.Should().BeTrue();
         floyd.WanderingTurnsRemaining.Should().Be(3);
-        floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
+        floyd.CurrentLocation.Should().BeNull(); // Floyd is wandering, not in any specific location
         target.Context.CurrentLocation.Should().Be(GetLocation<MachineShop>());
     }
 
@@ -693,11 +698,13 @@ public class FloydTests : EngineTestsBase
     public async Task FloydWanders_DoesFollow_WhenDiceRollFails()
     {
         var target = GetTarget();
-        StartHere<RobotShop>();
+        var robotShop = StartHere<RobotShop>();
         var floyd = GetItem<Floyd>();
         floyd.IsOn = true;
         floyd.HasEverBeenOn = true;
-        floyd.CurrentLocation = GetLocation<RobotShop>();
+        floyd.TurnOnCountdown = 0; // Ensure no turn-on countdown interferes
+        floyd.CurrentLocation = robotShop; // Must be same instance as context location
+        robotShop.ItemPlacedHere(floyd);
         target.Context.RegisterActor(floyd);
 
         // Mock to NOT trigger no-follow
@@ -834,6 +841,7 @@ public class FloydTests : EngineTestsBase
         var floyd = GetItem<Floyd>();
         floyd.IsOn = true;
         floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0; // Ensure no turn-on countdown interferes
         floyd.IsOffWandering = true;
         floyd.WanderingTurnsRemaining = 3; // Start with 3 to account for movement triggering Act()
         floyd.CurrentLocation = null; // Floyd is wandering, not in any location
@@ -875,11 +883,13 @@ public class FloydTests : EngineTestsBase
     public async Task FloydWanders_IntegrationTest_WanderAndReturn()
     {
         var target = GetTarget();
-        StartHere<RobotShop>();
+        var robotShop = StartHere<RobotShop>();
         var floyd = GetItem<Floyd>();
         floyd.IsOn = true;
         floyd.HasEverBeenOn = true;
-        floyd.CurrentLocation = GetLocation<RobotShop>();
+        floyd.TurnOnCountdown = 0; // Ensure no turn-on countdown interferes
+        floyd.CurrentLocation = robotShop; // Must be same instance as context location
+        robotShop.ItemPlacedHere(floyd);
         target.Context.RegisterActor(floyd);
 
         // Mock for complete wander-return cycle
@@ -932,6 +942,64 @@ public class FloydTests : EngineTestsBase
         // Both properties should serialize/deserialize correctly with JSON
         floyd.IsOffWandering.Should().BeTrue();
         floyd.WanderingTurnsRemaining.Should().Be(3);
+    }
+
+    [Test]
+    public void FloydWanders_StartWandering_SetsPropertiesCorrectly()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        GetLocation<RobotShop>().ItemPlacedHere(floyd);
+
+        // Call the public StartWandering method
+        floyd.StartWandering(target.Context);
+
+        // Verify Floyd is now wandering
+        floyd.IsOffWandering.Should().BeTrue();
+        floyd.WanderingTurnsRemaining.Should().BeGreaterThan(0).And.BeLessThanOrEqualTo(5);
+        floyd.CurrentLocation.Should().BeNull();
+        GetLocation<RobotShop>().Items.Should().NotContain(floyd);
+    }
+
+    [Test]
+    public void FloydWanders_StartWandering_DoesNothingWhenOff()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = false;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        GetLocation<RobotShop>().ItemPlacedHere(floyd);
+
+        // Call StartWandering when Floyd is off
+        floyd.StartWandering(target.Context);
+
+        // Verify Floyd does NOT start wandering
+        floyd.IsOffWandering.Should().BeFalse();
+        floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
+    }
+
+    [Test]
+    public void FloydWanders_StartWandering_DoesNothingWhenDead()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasDied = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        GetLocation<RobotShop>().ItemPlacedHere(floyd);
+
+        // Call StartWandering when Floyd is dead
+        floyd.StartWandering(target.Context);
+
+        // Verify Floyd does NOT start wandering
+        floyd.IsOffWandering.Should().BeFalse();
+        floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
     }
 
     #endregion

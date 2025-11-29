@@ -316,6 +316,24 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     }
 
     /// <summary>
+    /// Makes Floyd start wandering for a random number of turns (1-5).
+    /// Floyd will be removed from his current location and will return to the player later.
+    /// </summary>
+    /// <param name="context">The current game context.</param>
+    public void StartWandering(IContext context)
+    {
+        if (!IsOn || HasDied)
+            return; // Can't wander if not on or dead
+
+        IsOffWandering = true;
+        WanderingTurnsRemaining = Chooser.RollDice(5); // 1-5 turns
+
+        // Remove Floyd from current location
+        (CurrentLocation as ICanContainItems)?.RemoveItem(this);
+        CurrentLocation = null; // Floyd is not in any location while wandering
+    }
+
+    /// <summary>
     /// Callback invoked when Floyd is taken by the player. Clears the item Floyd is currently holding.
     /// </summary>
     [UsedImplicitly]

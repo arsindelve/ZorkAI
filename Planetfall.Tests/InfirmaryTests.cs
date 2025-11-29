@@ -1,4 +1,6 @@
 using FluentAssertions;
+using Model.Interface;
+using Moq;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda;
 using Planetfall.Location.Lawanda;
@@ -284,5 +286,66 @@ public class InfirmaryTests : EngineTestsBase
         var response2 = await target.GetResponse("wait");
         response2.Should().Contain("Lazarus");
         infirmary.TurnsInInfirmary.Should().Be(2);
+    }
+
+    [Test]
+    public async Task Floyd_WandersAfterLazarusScene()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var infirmary = StartHere<Infirmary>();
+        infirmary.ItemPlacedHere(floyd);
+        target.Context.RegisterActor(infirmary);
+        target.Context.RegisterActor(floyd);
+
+        // First turn - Floyd should not speak yet
+        await target.GetResponse("wait");
+        floyd.IsOffWandering.Should().BeFalse();
+
+        // Second turn - Floyd speaks about Lazarus and starts wandering
+        var response2 = await target.GetResponse("wait");
+        response2.Should().Contain("Lazarus");
+
+        // Verify Floyd is now wandering
+        floyd.IsOffWandering.Should().BeTrue();
+        floyd.WanderingTurnsRemaining.Should().BeGreaterThan(0).And.BeLessThanOrEqualTo(5);
+        floyd.CurrentLocation.Should().BeNull(); // Floyd is not in any location while wandering
+        infirmary.Items.Should().NotContain(floyd); // Floyd was removed from the Infirmary
+    }
+
+    [Test]
+    public async Task Floyd_StartWanderingCalled_AfterLazarusScene()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        var infirmary = StartHere<Infirmary>();
+        infirmary.ItemPlacedHere(floyd);
+        target.Context.RegisterActor(infirmary);
+        target.Context.RegisterActor(floyd);
+
+        // Verify Floyd is in the room and not wandering initially
+        floyd.IsOffWandering.Should().BeFalse();
+        floyd.CurrentLocation.Should().Be(infirmary);
+
+        // First turn - Floyd should not speak yet
+        await target.GetResponse("wait");
+        floyd.IsOffWandering.Should().BeFalse();
+
+        // Second turn - Floyd speaks about Lazarus and StartWandering is called
+        var response2 = await target.GetResponse("wait");
+        response2.Should().Contain("Lazarus");
+
+        // Verify StartWandering was called (Floyd is now wandering)
+        floyd.IsOffWandering.Should().BeTrue();
+        floyd.WanderingTurnsRemaining.Should().BeGreaterThan(0).And.BeLessThanOrEqualTo(5);
+        floyd.CurrentLocation.Should().BeNull(); // Floyd is not in any location while wandering
+        infirmary.Items.Should().NotContain(floyd); // Floyd was removed from the Infirmary
+
+        // Verify the medical robot breastplate appeared
+        var breastplate = GetItem<MedicalRobotBreastPlate>();
+        breastplate.CurrentLocation.Should().Be(infirmary);
     }
 }
