@@ -3,9 +3,9 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import config from "../../config.json";
-import {Mixpanel} from "../Mixpanel.ts";
-import {useGameContext} from "../GameContext";
-import DialogType from "../model/DialogType.ts";
+import { Mixpanel } from "@shared/services/Mixpanel";
+import DialogType from "@shared/model/DialogType";
+import { useGameContext } from "@shared/context/GameContext";
 import { ListItemIcon, ListItemText } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -19,14 +19,35 @@ import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import ArticleIcon from '@mui/icons-material/Article';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
 
-export default function AboutMenu({ latestVersion }: { latestVersion: string }) {
+export default function AboutMenu() {
     const {setDialogToOpen} = useGameContext();
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [latestVersion, setLatestVersion] = React.useState<string>(config.version);
     const open = Boolean(anchorEl);
 
-    // Use config.version as fallback if latestVersion is not yet loaded
-    const displayVersion = latestVersion || config.version;
+    // Fetch latest version on mount
+    React.useEffect(() => {
+        const fetchLatestVersion = async () => {
+            try {
+                const response = await fetch('https://api.github.com/repos/arsindelve/ZorkAI/releases', {
+                    headers: {
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                if (response.ok) {
+                    const releases = await response.json();
+                    if (releases.length > 0) {
+                        setLatestVersion(releases[0].tag_name || releases[0].name || config.version);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching latest version:', error);
+                // Keep using config.version as fallback
+            }
+        };
+        fetchLatestVersion();
+    }, []);
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -178,7 +199,7 @@ export default function AboutMenu({ latestVersion }: { latestVersion: string }) 
                     <ListItemIcon>
                         <NewReleasesIcon fontSize="small" />
                     </ListItemIcon>
-                    <ListItemText>Version {displayVersion}</ListItemText>
+                    <ListItemText>Version {latestVersion}</ListItemText>
                 </MenuItem>
             </Menu>
         </div>
