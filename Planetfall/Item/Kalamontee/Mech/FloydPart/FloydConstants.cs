@@ -152,6 +152,9 @@ public static class FloydConstants
         "Floyd glides back into the room, looking pleased with himself. "
     ];
 
+    internal const string GivenLazarusBreastplate =
+        "At first, Floyd is all grins because of your gift. Then, he realizes what it is, begins weeping, drops the breastplate, and rushes out of the room.";
+
     internal static readonly string[] RandomActions =
     [
         "Floyd produces a crayon from one of his compartments and scrawls his name on the wall. ",
