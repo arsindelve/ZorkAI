@@ -16,6 +16,9 @@ public class FloydSocialResponses(Floyd floyd)
         if (action.Match(["kick"], floyd.NounsForMatching))
             return new PositiveInteractionResult(FloydConstants.Kick);
 
+        if (action.Match(["rub"], floyd.NounsForMatching))
+            return new PositiveInteractionResult(FloydConstants.Rub);
+
         if (action.Match(Verbs.KillVerbs, floyd.NounsForMatching))
             return new PositiveInteractionResult(FloydConstants.Kill);
 
