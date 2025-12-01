@@ -3,6 +3,7 @@ using GameEngine.IntentEngine;
 using Model.AIGeneration;
 using Newtonsoft.Json;
 using Planetfall.Item.Kalamontee.Admin;
+using Planetfall.Item.Lawanda;
 using Planetfall.Location;
 using Planetfall.Location.Lawanda.Lab;
 using Utilities;
@@ -85,6 +86,19 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     /// <returns>An InteractionResult indicating whether Floyd accepted the item.</returns>
     public InteractionResult OfferThisThing(IItem item, IContext context)
     {
+        // Special handling for Lazarus's breastplate
+        if (item is MedicalRobotBreastPlate)
+        {
+            // Remove breastplate from player's inventory and drop it in current location
+            context.RemoveItem(item);
+            context.CurrentLocation.ItemPlacedHere(item);
+
+            // Floyd becomes upset and wanders off
+            StartWandering(context);
+
+            return new PositiveInteractionResult(FloydConstants.GivenLazarusBreastplate);
+        }
+
         return _inventoryManager.OfferItem(item, context);
     }
 
