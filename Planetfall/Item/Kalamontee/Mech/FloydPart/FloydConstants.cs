@@ -19,6 +19,9 @@ public static class FloydConstants
     internal const string Kiss =
         "You receive a painful electric shock. ";
 
+    internal const string Rub =
+        "Floyd gives a contented sigh. ";
+
     internal const string MadAfterTurnOffAndBackOn =
         "Floyd jumps to his feet, hopping mad. \"Why you turn Floyd off?\" he asks accusingly.";
 

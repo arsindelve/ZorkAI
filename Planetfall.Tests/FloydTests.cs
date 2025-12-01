@@ -123,12 +123,24 @@ public class FloydTests : EngineTestsBase
         var target = GetTarget();
         StartHere<RobotShop>();
         GetItem<Floyd>().IsOn = true;
-        
+
         var response = await target.GetResponse("punch floyd");
 
         response.Should().Contain("Chase and Tag");
     }
-    
+
+    [Test]
+    public async Task RubFloyd()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("rub floyd");
+
+        response.Should().Contain("contented sigh");
+    }
+
     [Test]
     public async Task GiveSomethingToFloyd()
     {
