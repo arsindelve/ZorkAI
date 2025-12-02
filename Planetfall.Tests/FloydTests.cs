@@ -577,14 +577,59 @@ public class FloydTests : EngineTestsBase
             .Returns(3); // Wander for 3 turns
         floyd.Chooser = mockChooser.Object;
 
+        // Mock the generation client to return a departure message
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd says \"Floyd going to look around. Back soon.\" He wheels out the door.");
+
         // Execute a turn - Floyd should spontaneously wander
         var response = await target.GetResponse("wait");
 
-        response.Should().Contain("Floyd says \"Floyd going exploring. See you later.\" He glides out of the room.");
+        response.Should().Contain("Floyd says");
+        response.Should().Contain("Floyd going");
         floyd.IsOffWandering.Should().BeTrue();
         floyd.WanderingTurnsRemaining.Should().Be(3);
         // Floyd should be removed from the room
         GetLocation<RobotShop>().Items.Should().NotContain(floyd);
+        // Verify that the generation client was called
+        mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Once);
+    }
+
+    [Test]
+    public async Task FloydWanders_UsesCorrectPrompt_ForDeparture()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+        target.Context.RegisterActor(floyd);
+
+        // Mock the Chooser to trigger wandering
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(20)).Returns(1);
+        mockChooser.Setup(r => r.RollDice(5)).Returns(2);
+        floyd.Chooser = mockChooser.Object;
+
+        // Mock the generation client to capture the request
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd says \"Floyd going exploring. See you later.\" He glides out of the room.")
+            .Callback<CompanionRequest>(request =>
+            {
+                // Verify the prompt contains key phrases from FloydPrompts.LeavingToExplore
+                request.UserMessage!.Should().Contain("Generate Floyd's complete departure message");
+                request.UserMessage!.Should().Contain("going to explore");
+                request.UserMessage!.Should().Contain("Robot Shop"); // Location name
+            });
+
+        await target.GetResponse("wait");
+
+        // Verify the mock was called
+        mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Once);
     }
 
     [Test]
@@ -627,16 +672,52 @@ public class FloydTests : EngineTestsBase
         floyd.CurrentLocation = null; // Floyd is wandering, not in any location
         target.Context.RegisterActor(floyd);
 
+        // Mock the generation client to return a return message
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd bounds into the room. \"Floyd here now!\" he cries.");
+
         var response = await target.GetResponse("wait");
 
-        // Check that Floyd returned (one of the three return messages should appear)
-        var returnedSuccessfully = response.Contains("Floyd bounds into the room") ||
-                                   response.Contains("Floyd rushes into the room") ||
-                                   response.Contains("Floyd glides back into the room");
-        returnedSuccessfully.Should().BeTrue();
+        // Check that Floyd returned
+        response.Should().Contain("Floyd");
         floyd.IsOffWandering.Should().BeFalse();
         floyd.WanderingTurnsRemaining.Should().Be(0);
         floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
+        // Verify that the generation client was called
+        mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Once);
+    }
+
+    [Test]
+    public async Task FloydWanders_UsesCorrectPrompt_ForReturn()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.IsOffWandering = true;
+        floyd.WanderingTurnsRemaining = 1;
+        floyd.CurrentLocation = null;
+        target.Context.RegisterActor(floyd);
+
+        // Mock the generation client to capture the request
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd bounds into the room. \"Floyd here now!\" he cries.")
+            .Callback<CompanionRequest>(request =>
+            {
+                // Verify the prompt contains key phrases from FloydPrompts.ReturningFromExploring
+                request.UserMessage!.Should().Contain("Generate Floyd's return message");
+                request.UserMessage!.Should().Contain("comes back from exploring");
+                request.UserMessage!.Should().Contain("Robot Shop"); // Location name
+            });
+
+        await target.GetResponse("wait");
+
+        // Verify the mock was called
+        mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Once);
     }
 
     [Test]
@@ -653,28 +734,34 @@ public class FloydTests : EngineTestsBase
         floyd.CurrentLocation = null; // Floyd is wandering, not in any location
         target.Context.RegisterActor(floyd);
 
+        // Mock the generation client to return a return message
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd rushes into the room and barrels into you. \"Oops, sorry,\" he says.");
+
         // Turn 1: 3 -> 2
         var response1 = await target.GetResponse("wait");
         response1.Should().NotContain("Floyd bounds");
+        response1.Should().NotContain("Floyd rushes");
         floyd.WanderingTurnsRemaining.Should().Be(2);
         floyd.IsOffWandering.Should().BeTrue();
 
         // Turn 2: 2 -> 1
         var response2 = await target.GetResponse("wait");
         response2.Should().NotContain("Floyd bounds");
+        response2.Should().NotContain("Floyd rushes");
         floyd.WanderingTurnsRemaining.Should().Be(1);
         floyd.IsOffWandering.Should().BeTrue();
 
         // Turn 3: 1 -> 0 (returns)
         var response3 = await target.GetResponse("wait");
 
-        // Check that Floyd returned (one of the three return messages should appear)
-        var returnedSuccessfully = response3.Contains("Floyd bounds into the room") ||
-                                   response3.Contains("Floyd rushes into the room") ||
-                                   response3.Contains("Floyd glides back into the room");
-        returnedSuccessfully.Should().BeTrue();
+        // Check that Floyd returned
+        response3.Should().Contain("Floyd");
         floyd.WanderingTurnsRemaining.Should().Be(0);
         floyd.IsOffWandering.Should().BeFalse();
+        // Verify that the generation client was called once (only on the return turn)
+        mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Once);
     }
 
     [Test]
@@ -778,19 +865,17 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
-    public async Task FloydWanders_NoWandering_DuringBioLabFight()
+    public async Task FloydWanders_NoWandering_InBioLab()
     {
         var target = GetTarget();
-        StartHere<RobotShop>();
+        var bioLockEast = GetLocation<BioLockEast>();
+        StartHere<BioLockEast>();
         var floyd = GetItem<Floyd>();
         floyd.IsOn = true;
         floyd.HasEverBeenOn = true;
-        floyd.CurrentLocation = GetLocation<RobotShop>();
+        floyd.CurrentLocation = bioLockEast; // Floyd is IN the bio lab (which implements IFloydDoesNotTalkHere)
+        bioLockEast.ItemPlacedHere(floyd);
         target.Context.RegisterActor(floyd);
-
-        // Set bio lab fighting state
-        var bioLockEast = GetLocation<BioLockEast>();
-        bioLockEast.StateMachine.LabSequenceState = BioLockStateMachineManager.FloydLabSequenceState.DoorClosedFloydFighting;
 
         // Mock to trigger wandering
         var mockChooser = new Mock<IRandomChooser>();
@@ -800,29 +885,29 @@ public class FloydTests : EngineTestsBase
 
         var response = await target.GetResponse("wait");
 
+        // Floyd should not wander because BioLockEast implements IFloydDoesNotTalkHere
         response.Should().NotContain("Floyd going exploring");
         floyd.IsOffWandering.Should().BeFalse();
     }
 
     [Test]
-    public async Task FloydWanders_NoFollow_DuringBioLabFight()
+    public async Task FloydWanders_NoFollow_WhenInBioLab()
     {
         var target = GetTarget();
-        StartHere<RobotShop>();
+        var bioLockEast = GetLocation<BioLockEast>();
+        StartHere<BioLockEast>(); // Start in bio lab
         var floyd = GetItem<Floyd>();
         floyd.IsOn = true;
         floyd.HasEverBeenOn = true;
-        floyd.CurrentLocation = GetLocation<RobotShop>();
+        floyd.CurrentLocation = bioLockEast; // Floyd is IN the bio lab (which implements IFloydDoesNotTalkHere)
+        bioLockEast.ItemPlacedHere(floyd);
         target.Context.RegisterActor(floyd);
 
-        // Set bio lab fighting state
-        var bioLockEast = GetLocation<BioLockEast>();
-        bioLockEast.StateMachine.LabSequenceState = BioLockStateMachineManager.FloydLabSequenceState.DoorClosedFloydFighting;
-
+        // Move to adjacent location - Floyd shouldn't follow because he's in a IFloydDoesNotTalkHere location
         var response = await target.GetResponse("w");
 
         response.Should().NotContain("Floyd follows you");
-        floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
+        floyd.CurrentLocation.Should().Be(bioLockEast); // Floyd stays in bio lab
     }
 
     [Test]
@@ -859,6 +944,11 @@ public class FloydTests : EngineTestsBase
         floyd.CurrentLocation = null; // Floyd is wandering, not in any location
         target.Context.RegisterActor(floyd);
 
+        // Mock the generation client to return a return message
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd glides back into the room, looking pleased with himself.");
+
         // Move to a different location (this triggers Act(), so countdown: 3 -> 2)
         await target.GetResponse("w");
         target.Context.CurrentLocation.Should().Be(GetLocation<MachineShop>());
@@ -871,24 +961,13 @@ public class FloydTests : EngineTestsBase
         // Wait one more turn - Floyd should return to player's current location (1 -> 0)
         var response = await target.GetResponse("wait");
 
-        // Check that Floyd returned (one of the three return messages should appear)
-        var returnedSuccessfully = response.Contains("Floyd bounds into the room") ||
-                                   response.Contains("Floyd rushes into the room") ||
-                                   response.Contains("Floyd glides back into the room");
-        returnedSuccessfully.Should().BeTrue();
+        // Check that Floyd returned
+        response.Should().Contain("Floyd");
         floyd.IsOffWandering.Should().BeFalse();
         floyd.CurrentLocation.Should().Be(GetLocation<MachineShop>());
         target.Context.CurrentLocation.Should().Be(GetLocation<MachineShop>());
-    }
-
-    [Test]
-    public void FloydWanders_AllThreeReturnMessages_AreDefined()
-    {
-        // Verify that all three return messages are defined and not empty
-        FloydConstants.ReturnMessages.Should().HaveCount(3);
-        FloydConstants.ReturnMessages[0].Should().Contain("Floyd bounds into the room");
-        FloydConstants.ReturnMessages[1].Should().Contain("Floyd rushes into the room");
-        FloydConstants.ReturnMessages[2].Should().Contain("Floyd glides back into the room");
+        // Verify that the generation client was called once (only on the return turn)
+        mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Once);
     }
 
     [Test]
@@ -915,9 +994,16 @@ public class FloydTests : EngineTestsBase
             .Returns(15); // No random actions
         floyd.Chooser = mockChooser.Object;
 
+        // Mock the generation client to return departure and return messages
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.SetupSequence(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd says \"Floyd going exploring. See you later.\" He glides out of the room.")
+            .ReturnsAsync("Floyd bounds into the room. \"Floyd here now!\" he cries.");
+
         // Turn 1: Floyd leaves
         var response1 = await target.GetResponse("wait");
-        response1.Should().Contain("Floyd going exploring");
+        response1.Should().Contain("Floyd says");
+        response1.Should().Contain("Floyd going");
         floyd.IsOffWandering.Should().BeTrue();
         floyd.WanderingTurnsRemaining.Should().Be(2);
 
@@ -929,14 +1015,13 @@ public class FloydTests : EngineTestsBase
         // Turn 3: Floyd returns (1 -> 0)
         var response3 = await target.GetResponse("wait");
 
-        // Check that Floyd returned (one of the three return messages should appear)
-        var returnedSuccessfully = response3.Contains("Floyd bounds into the room") ||
-                                   response3.Contains("Floyd rushes into the room") ||
-                                   response3.Contains("Floyd glides back into the room");
-        returnedSuccessfully.Should().BeTrue();
+        // Check that Floyd returned
+        response3.Should().Contain("Floyd");
         floyd.IsOffWandering.Should().BeFalse();
         floyd.WanderingTurnsRemaining.Should().Be(0);
         floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
+        // Verify that the generation client was called twice (once for departure, once for return)
+        mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Exactly(2));
 
         // Turn 4: Floyd is back to normal
         var response4 = await target.GetResponse("wait");
