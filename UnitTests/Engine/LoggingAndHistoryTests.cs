@@ -93,4 +93,62 @@ public class LoggingAndHistoryTests
         last.Item1.Should().Be("look"); // last input
         last.Item2.Should().NotBeNullOrEmpty(); // response
     }
+
+    [Test]
+    public async Task PostProcessing_EmptyInput_NoTurnLog_ButUpdatesLastFive()
+    {
+        // Arrange
+        var client = new Mock<IGenerationClient>();
+        client.SetupAllProperties();
+        client.Object.LastFiveInputOutputs = new List<(string, string, bool)>();
+        client
+            .Setup(c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()))
+            .ReturnsAsync("Empty");
+
+        var turnLogger = new Mock<ICloudWatchLogger<TurnLog>>();
+        var engine = BuildEngine(client, turnLogger);
+
+        // Act: empty input path should not write a TurnLog
+        var response = await engine.GetResponse(string.Empty);
+
+        // Assert
+        response.Should().NotBeNullOrEmpty();
+        turnLogger.Verify(l => l.WriteLogEvents(It.IsAny<TurnLog>()), Times.Never);
+
+        client.Object.LastFiveInputOutputs.Should().NotBeNull();
+        client.Object.LastFiveInputOutputs.Should().HaveCount(1);
+        var last = client.Object.LastFiveInputOutputs.Last();
+        last.Item1.Should().Be(""); // input is empty string
+        last.Item2.Should().Contain("Empty"); // generated response captured
+    }
+
+    [Test]
+    public async Task LastFive_History_EvictionOrder()
+    {
+        // Arrange
+        var client = new Mock<IGenerationClient>();
+        client.SetupAllProperties();
+        client.Object.LastFiveInputOutputs = new List<(string, string, bool)>();
+        client
+            .Setup(c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()))
+            .ReturnsAsync("Generated");
+
+        var turnLogger = new Mock<ICloudWatchLogger<TurnLog>>();
+        var engine = BuildEngine(client, turnLogger);
+
+        var inputs = new[] { "look", "inventory", "wait", "east", "west", "look" };
+
+        // Act
+        foreach (var input in inputs)
+            (await engine.GetResponse(input)).Should().NotBeNullOrEmpty();
+
+        // Assert: capped at 5 and oldest evicted
+        var history = client.Object.LastFiveInputOutputs;
+        history.Should().NotBeNull();
+        history.Should().HaveCount(5);
+
+        // Oldest (index 0) should now be the second input, newest (last) the sixth
+        history[0].Item1.Should().Be(inputs[1]);
+        history.Last().Item1.Should().Be(inputs[5]);
+    }
 }
