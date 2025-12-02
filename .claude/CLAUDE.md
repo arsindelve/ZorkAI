@@ -18,12 +18,16 @@ This is a sophisticated C# .NET 8.0 recreation of classic Infocom-style text adv
 - **Check .NET version**: `dotnet --version` (requires .NET 8.0+)
 
 ### Test Projects Structure
-- **UnitTests**: Core engine tests (466+ comprehensive tests)
+- **UnitTests**: Core engine tests (667+ comprehensive tests)
+  - IntentEngine/: Decision engine tests (GiveSomethingToSomeone, Move, etc.)
+  - AWS/: DynamoDb and CloudWatch logic tests
+  - Engine/: Core game engine tests
+  - GlobalCommands/, SingleNounProcessors/, MultiNounProcessors/: Command processor tests
 - **ZorkOne.Tests**: Game-specific tests for Zork I
 - **Planetfall.Tests**: Game-specific tests for Planetfall
 - **Lambda.Tests**: AWS Lambda API tests
 - **Planetfall-Lambda.Tests**: Planetfall Lambda API tests
-- **IntegrationTests**: Cross-service integration tests
+- **IntegrationTests**: Cross-service integration tests (marked [Explicit], require AWS credentials)
 
 ## Key Architecture Components
 
@@ -115,11 +119,14 @@ This is a production-quality game engine that successfully combines classic text
 
 ## Recent Testing & Development Notes
 
-### Comprehensive Test Coverage Achieved (466 tests, 99.8% passing)
+### Comprehensive Test Coverage Achieved (667+ tests, 100% passing)
 - **Context.cs**: 26 tests covering inventory, scoring, item searching, game state
 - **IntentParser.cs**: 22 tests covering command parsing, AI integration, logging
 - **SimpleInteractionEngine.cs**: 10 tests covering item interactions with real Repository
 - **MoveEngine.cs**: Core movement logic, weight validation, failure scenarios
+- **GiveSomethingToSomeoneDecisionEngine.cs**: 18 tests covering verb matching, noun ordering, item validation, NPC interactions
+- **DynamoDb repositories**: 6 logic tests + 10 [Explicit] integration tests for AWS persistence
+- **CloudWatch logging**: 13 tests covering serialization, correlation IDs, interface contracts
 
 ### Key Testing Insights
 - **Real object integration** works better than complex mocking for this architecture
@@ -187,15 +194,19 @@ This Lambda integration demonstrates how the core game engine's excellent archit
 
 ### Testing Philosophy
 - **Use real Repository objects** in tests rather than mocking - the Repository pattern works better with integration-style testing
-- **Test core business logic** rather than focusing on edge cases with complex dependencies  
+- **Load items into Repository first**: Call `Repository.GetItem<ItemType>()` before testing to ensure items are available for lookups
+- **Test core business logic** rather than focusing on edge cases with complex dependencies
 - **AI integration tests** require environment setup but validate critical user experience paths
 - **Avoid mocking random generation** - focus on deterministic core functionality
+- **Nested TestFixtures** - organize tests by method/scenario for better readability and maintainability
 
 ### Working with the Repository Pattern
 - Items and locations are singletons - calling `Repository.GetItem<Lamp>()` always returns the same instance
 - **Lazy loading**: Items are only created when first requested, improving memory efficiency
 - **State consistency**: Since items are singletons, state changes persist across the entire game session
 - Use `Repository.GetItem<T>()` and `Repository.GetLocation<T>()` to access game objects
+- **Critical**: Always call `Repository.Reset()` in test `[SetUp]` to ensure clean state between tests
+- **Item lookups**: `Repository.GetItem(string noun)` searches all loaded items by their `NounsForMatching` property
 
 ### AI Integration Guidelines  
 - **Hierarchical parsing**: Try simple pattern matching first, then fall back to expensive AI calls
@@ -203,9 +214,31 @@ This Lambda integration demonstrates how the core game engine's excellent archit
 - **Performance**: Cache AI responses when possible, avoid unnecessary API calls
 - **Graceful degradation**: System should work even when AI services are unavailable
 
+### Testing AWS Components (DynamoDb, CloudWatch)
+- **Production architecture**: DynamoDbRepositoryBase and CloudWatchLogger create AWS clients directly (not injected)
+- **Testing approach**: Test pure logic (GUID generation, data formatting, serialization) without AWS calls
+- **Integration tests**: Mark tests requiring AWS credentials with `[Explicit("Requires AWS credentials - Integration test")]`
+- **Interface testing**: Production code uses interfaces (ICloudWatchLogger, ISavedGameRepository), test via interface contracts
+- **Logic tests**: Focus on testable aspects - date/time conversion, tuple parsing, JSON serialization, string formatting
+- Full integration tests exist in IntegrationTests/ project but are marked [Explicit] to prevent CI/CD failures
+
+### Common API Gotchas
+- **HasItem<T>()**: Generic method, not `HasItem(IItem item)` - use `troll.HasItem<BloodyAxe>()`
+- **Context.Take(IItem)**: Returns void, not bool - don't try to verify return value
+- **Context.RemoveItem()**: May be called instead of Take() in some interactions
+- **MultiNounIntent.Preposition**: Required property - must be set in initializers
+- **ICanContainItems**: Context implements this for RemoveItem() behavior - mock with `mockContext.As<ICanContainItems>()`
+
+### Adding New Tests
+1. Follow nested TestFixture pattern for organization (see GiveSomethingToSomeoneDecisionEngineTests.cs)
+2. Use FluentAssertions for readable assertions (`.Should().Be()`, `.Should().Contain()`)
+3. Name tests with Should_ExpectedBehavior_When_Condition format
+4. Always include SetUp/TearDown with Repository.Reset()
+5. Test happy path first, then edge cases, then error scenarios
+
 ### Adding New Games
 1. Create game-specific folder under solution (following ZorkOne/Planetfall pattern)
 2. Implement game-specific items/locations inheriting from base classes
-3. Create corresponding test project 
+3. Create corresponding test project
 4. Add Lambda deployment if needed
 5. Web client can reuse core engine through API calls
