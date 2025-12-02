@@ -571,8 +571,8 @@ public class FloydTests : EngineTestsBase
 
         // Mock the Chooser to trigger wandering (1 in 20 chance)
         var mockChooser = new Mock<IRandomChooser>();
-        mockChooser.SetupSequence(r => r.RollDice(20))
-            .Returns(1); // Trigger wandering
+        mockChooser.Setup(r => r.RollDiceSuccess(20))
+            .Returns(true); // Trigger wandering
         mockChooser.Setup(r => r.RollDice(5))
             .Returns(3); // Wander for 3 turns
         floyd.Chooser = mockChooser.Object;
@@ -610,7 +610,7 @@ public class FloydTests : EngineTestsBase
 
         // Mock the Chooser to trigger wandering
         var mockChooser = new Mock<IRandomChooser>();
-        mockChooser.Setup(r => r.RollDice(20)).Returns(1);
+        mockChooser.Setup(r => r.RollDiceSuccess(20)).Returns(true);
         mockChooser.Setup(r => r.RollDice(5)).Returns(2);
         floyd.Chooser = mockChooser.Object;
 
@@ -645,8 +645,8 @@ public class FloydTests : EngineTestsBase
 
         // Mock the Chooser to NOT trigger wandering
         var mockChooser = new Mock<IRandomChooser>();
-        mockChooser.Setup(r => r.RollDice(20))
-            .Returns(2); // Not 1, so no wandering
+        mockChooser.Setup(r => r.RollDiceSuccess(20))
+            .Returns(false); // Don't trigger wandering
         mockChooser.Setup(r => r.RollDice(15))
             .Returns(15); // No random action
         floyd.Chooser = mockChooser.Object;
@@ -779,8 +779,10 @@ public class FloydTests : EngineTestsBase
 
         // Mock to trigger no-follow (1 in 5 chance)
         var mockChooser = new Mock<IRandomChooser>();
-        mockChooser.SetupSequence(r => r.RollDice(5))
-            .Returns(1) // Don't follow
+        mockChooser.SetupSequence(r => r.RollDiceSuccess(5))
+            .Returns(true) // Don't follow
+            .Returns(false); // Not used in this test
+        mockChooser.Setup(r => r.RollDice(5))
             .Returns(3); // Wander for 3 turns
         floyd.Chooser = mockChooser.Object;
 
@@ -831,8 +833,8 @@ public class FloydTests : EngineTestsBase
 
         // Mock to trigger wandering
         var mockChooser = new Mock<IRandomChooser>();
-        mockChooser.Setup(r => r.RollDice(20))
-            .Returns(1);
+        mockChooser.Setup(r => r.RollDiceSuccess(20))
+            .Returns(true);
         floyd.Chooser = mockChooser.Object;
 
         var response = await target.GetResponse("wait");
@@ -854,8 +856,8 @@ public class FloydTests : EngineTestsBase
 
         // Mock to trigger wandering
         var mockChooser = new Mock<IRandomChooser>();
-        mockChooser.Setup(r => r.RollDice(20))
-            .Returns(1);
+        mockChooser.Setup(r => r.RollDiceSuccess(20))
+            .Returns(true);
         floyd.Chooser = mockChooser.Object;
 
         var response = await target.GetResponse("wait");
@@ -879,8 +881,8 @@ public class FloydTests : EngineTestsBase
 
         // Mock to trigger wandering
         var mockChooser = new Mock<IRandomChooser>();
-        mockChooser.Setup(r => r.RollDice(20))
-            .Returns(1);
+        mockChooser.Setup(r => r.RollDiceSuccess(20))
+            .Returns(true);
         floyd.Chooser = mockChooser.Object;
 
         var response = await target.GetResponse("wait");
@@ -985,9 +987,9 @@ public class FloydTests : EngineTestsBase
 
         // Mock for complete wander-return cycle
         var mockChooser = new Mock<IRandomChooser>();
-        mockChooser.SetupSequence(r => r.RollDice(20))
-            .Returns(1) // Trigger wandering
-            .Returns(10); // Don't wander again
+        mockChooser.SetupSequence(r => r.RollDiceSuccess(20))
+            .Returns(true) // Trigger wandering
+            .Returns(false); // Don't wander again
         mockChooser.Setup(r => r.RollDice(5))
             .Returns(2); // Wander for 2 turns
         mockChooser.Setup(r => r.RollDice(15))
