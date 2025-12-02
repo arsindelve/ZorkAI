@@ -134,4 +134,16 @@ public interface IGameEngine
     /// </summary>
     /// <returns></returns>
     Task InitializeEngine();
+
+    /// <summary>
+    ///     Gets the current game context containing game state.
+    /// </summary>
+    IContext Context { get; }
+
+    /// <summary>
+    ///     Generates the narration message after successfully saving the game.
+    ///     Uses the context's custom save game request if available, otherwise uses the default.
+    /// </summary>
+    /// <returns>The narration text to display to the player.</returns>
+    Task<string> GenerateSaveGameNarration();
 }

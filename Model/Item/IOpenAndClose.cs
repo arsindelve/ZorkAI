@@ -58,9 +58,16 @@ public interface IOpenAndClose : IInteractionTarget
     string? CannotBeClosedDescription(IContext context);
 
     /// <summary>
-    /// Called when the item is opened. The return text is appended to the output. 
+    /// Called when the item is opened. The return text is appended to the output.
     /// </summary>
     /// <param name="context"></param>
     /// <returns></returns>
     string OnOpening(IContext context);
+
+    /// <summary>
+    /// Called when the item is closed. The return text replaces the NowClosed message if not empty.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    string OnClosing(IContext context) => string.Empty;
 }

@@ -3,6 +3,7 @@ namespace Planetfall.Item.Feinstein;
 internal class ComputerOutput : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRead
 {
     public override string[] NounsForMatching => ["output", "computer output"];
+    
     public string ExaminationDescription => ReadDescription;
 
     public string ReadDescription => """
@@ -32,7 +33,6 @@ internal class ComputerOutput : ItemBase, ICanBeTakenAndDropped, ICanBeExamined,
     {
         return OnTheGroundDescription(currentLocation);
     }
-
 
     public override string GenericDescription(ILocation? currentLocation)
     {

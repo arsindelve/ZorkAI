@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using ChatLambda;
 using DynamoDb;
 using FluentAssertions;
 using GameEngine;
@@ -7,7 +8,7 @@ using JetBrains.Annotations;
 using Model.Interface;
 using Moq;
 using Planetfall.Item.Feinstein;
-using Planetfall.Item.Kalamontee.Mech;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 namespace Planetfall.Tests.Walkthrough;
 
@@ -16,14 +17,32 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     private readonly DynamoDbSessionRepository _database = new();
     private GameEngine<PlanetfallGame, PlanetfallContext> _target;
     private Mock<IRandomChooser> _floydChooser;
+    private Mock<IChatWithFloyd> _chatWithFloyd;
 
     [OneTimeSetUp]
     public void Init()
     {
         _target = GetTarget();
-        
+
+        // Set up ParseConversation to recognize "floyd, go north" as conversation
+        ParseConversationMock.Setup(x => x.ParseAsync("floyd, go north"))
+            .ReturnsAsync((true, "go north")); // (true, "go north") means it IS conversational, rewritten to "go north"
+
         _floydChooser = new Mock<IRandomChooser>();
         _floydChooser.Setup(s => s.RollDiceSuccess(3)).Returns(true);
+
+        _chatWithFloyd = new Mock<IChatWithFloyd>();
+        _chatWithFloyd.Setup(s => s.AskFloydAsync("go north")).ReturnsAsync(new CompanionResponse(
+            "Floyd's response",
+            new CompanionMetadata("GoSomewhere", new Dictionary<string, object> { { "direction", "north" } })
+        ));
+        _chatWithFloyd.Setup(s => s.AskFloydAsync("take board")).ReturnsAsync(new CompanionResponse(
+            "Floyd's response",
+            new CompanionMetadata("PickUp", new Dictionary<string, object> { { "object", "board" } })
+        ));
+
+        ParseConversationMock.Setup(x => x.ParseAsync("floyd, take board")).Returns(Task.FromResult((true, "take board")));
+        ParseConversationMock.Setup(x => x.ParseAsync("floyd, go north")).Returns(Task.FromResult((true, "go north")));
     }
 
     protected void InvokeGodMode(string setup)
@@ -45,12 +64,15 @@ public abstract class WalkthroughTestBase : EngineTestsBase
 
     protected async Task Do(string input, params string[] outputs)
     {
-        Repository.GetItem<Floyd>().Chooser = _floydChooser.Object;
+        var floyd = Repository.GetItem<Floyd>();
+        floyd.Chooser = _floydChooser.Object;
+        floyd.ChatWithFloyd = _chatWithFloyd.Object;
+        
         var result = await _target.GetResponse(input);
         if (Debugger.IsAttached)
         {
             Console.WriteLine(result);
-            var sessionId = Environment.MachineName;
+            var sessionId = Environment.MachineName + "8";
             var bytesToEncode = Encoding.UTF8.GetBytes(_target.Context.Engine!.SaveGame());
             var encodedText = Convert.ToBase64String(bytesToEncode);
             await _database.WriteSessionState(sessionId, encodedText, _target.SessionTableName);
@@ -58,5 +80,13 @@ public abstract class WalkthroughTestBase : EngineTestsBase
 
         foreach (var output in outputs)
             result.Should().Contain(output);
+    }
+
+    protected async Task DoWithSetup(string input, string? setup, params string[] outputs)
+    {
+        if (!string.IsNullOrWhiteSpace(setup))
+            InvokeGodMode(setup);
+
+        await Do(input, outputs);
     }
 }

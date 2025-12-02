@@ -29,7 +29,7 @@ public class SpoolReader : ContainerBase, ICanBeExamined, ICanBeTakenAndDropped,
         return "The spool fits neatly into the opening. Some information appears on the screen. ";
     }
 
-    public override string CanOnlyHoldTheseTypesErrorMessage => "It doesn't fit in the circular opening. ";
+    public override string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlace) => "It doesn't fit in the circular opening. ";
     
     public override Type[] CanOnlyHoldTheseTypes => [typeof(GreenSpool), typeof(RedSpool), typeof(BrownSpool)];
 

@@ -1,3 +1,4 @@
+using ChatLambda;
 using CloudWatch;
 using CloudWatch.Model;
 using GameEngine;
@@ -20,6 +21,7 @@ public class EngineTestsBase
     private Mock<IGenerationClient> _client = new();
     private IIntentParser _parser = Mock.Of<IIntentParser>();
     private PlanetfallContext Context { get; set; } = null!;
+    protected Mock<IParseConversation> ParseConversationMock { get; private set; } = null!;
 
     protected T StartHere<T>() where T : class, ILocation, new()
     {
@@ -53,21 +55,26 @@ public class EngineTestsBase
         
         var takeAndDropParser = new Mock<IAITakeAndAndDropParser>();
         takeAndDropParser.Setup(s => s.GetListOfItemsToDrop(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync((string input, string context) =>
+            .ReturnsAsync((string input, string _) =>
             {
                 var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 return words.Length > 1 ? [words[1]] : [];
             });
         
         takeAndDropParser.Setup(s => s.GetListOfItemsToTake(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync((string input, string context) =>
+            .ReturnsAsync((string input, string _) =>
             {
                 var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 return words.Length > 1 ? [words[1]] : [];
             });
 
+        // Create a simple mock ParseConversation that returns "no conversation" for all inputs
+        ParseConversationMock = new Mock<IParseConversation>();
+        ParseConversationMock.Setup(x => x.ParseAsync(It.IsAny<string>()))
+            .ReturnsAsync((false, "")); // Always return "not conversational" so tests behave like before
+
         var engine = new GameEngine<PlanetfallGame, PlanetfallContext>(new ItemProcessorFactory(takeAndDropParser.Object), _parser, _client.Object,
-            Mock.Of<ISecretsManager>(), Mock.Of<ICloudWatchLogger<TurnLog>>());
+            Mock.Of<ISecretsManager>(), Mock.Of<ICloudWatchLogger<TurnLog>>(), ParseConversationMock.Object);
         engine.Context.Verbosity = Verbosity.Verbose;
         Repository.GetLocation<DeckNine>().Init();
 
@@ -75,7 +82,6 @@ public class EngineTestsBase
 
         return engine;
     }
-
 
     protected T GetItem<T>() where T : IItem, new()
     {

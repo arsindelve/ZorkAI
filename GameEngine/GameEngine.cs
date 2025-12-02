@@ -1,10 +1,10 @@
 using System.Reflection;
+using ChatLambda;
 using CloudWatch;
 using CloudWatch.Model;
 using GameEngine.IntentEngine;
 using GameEngine.Item;
 using GameEngine.Item.ItemProcessor;
-using GameEngine.Location;
 using GameEngine.StaticCommand;
 using GameEngine.StaticCommand.Implementation;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,20 +45,28 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     private readonly string _sessionId = Guid.NewGuid().ToString();
     private readonly Guid _turnCorrelationId = Guid.NewGuid();
     private readonly OpenAITakeAndDropListParser _openAITakeAndDropListParser;
+    private readonly ConversationHandler _conversationHandler;
     private string? _currentInput;
     private TInfocomGame _gameInstance;
     private bool _lastResponseWasGenerated;
     private IStatefulProcessor? _processorInProgress;
     private ICloudWatchLogger<TurnLog>? _turnLogger;
-    internal TContext Context;
+    public TContext Context { get; private set; }
+
+    /// <summary>
+    ///     Explicit interface implementation to satisfy IGameEngine.Context requirement.
+    /// </summary>
+    IContext IGameEngine.Context => Context;
     
     [ActivatorUtilitiesConstructor]
     public GameEngine(
         ILogger<GameEngine<TInfocomGame, TContext>> logger,
-        ISecretsManager secretsManager)
+        ISecretsManager secretsManager,
+        IParseConversation parseConversation)
     {
         _logger = logger;
         _secretsManager = secretsManager;
+        parseConversation.Logger = logger;
         _gameInstance = new TInfocomGame();
         Context = new TContext
         {
@@ -83,6 +91,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _openAITakeAndDropListParser = new OpenAITakeAndDropListParser(logger);
         _itemProcessorFactory = new ItemProcessorFactory(_openAITakeAndDropListParser);
         _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
+        _conversationHandler = new ConversationHandler(_logger, parseConversation, GenerationClient);
         Inventory = [];
     }
 
@@ -94,12 +103,14 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     /// <param name="generationClient"></param>
     /// <param name="secretsManager"></param>
     /// <param name="turnLogger"></param>
+    /// <param name="parseConversation"></param>
     public GameEngine(
         IItemProcessorFactory itemProcessorFactory,
         IIntentParser parser,
         IGenerationClient generationClient,
         ISecretsManager secretsManager,
-        ICloudWatchLogger<TurnLog> turnLogger)
+        ICloudWatchLogger<TurnLog> turnLogger,
+        IParseConversation parseConversation)
     {
         Repository.Reset();
 
@@ -109,11 +120,13 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _parser = parser;
         GenerationClient = generationClient;
         _secretsManager = secretsManager;
+        var parseConversation1 = parseConversation;
         _gameInstance = (TInfocomGame)Context.Game;
         _gameInstance.Init(Context);
         _itemProcessorFactory = itemProcessorFactory;
         _turnLogger = turnLogger;
         _openAITakeAndDropListParser = null!;
+        _conversationHandler = new ConversationHandler(null, parseConversation1, GenerationClient);
     }
 
     public int Score => Context.Score;
@@ -143,6 +156,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     /// <summary>
     ///     Parse the input, determine the user's <see cref="IntentBase" /> and allow the
     ///     implementation of that specific intent to determine what to do next.
+    ///     Supports multiple sentences separated by periods (e.g., "take lamp. go north").
     /// </summary>
     /// <param name="playerInput">The text typed by the adventurer</param>
     /// <returns>The output which we need to display to the adventurer</returns>
@@ -150,22 +164,76 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     {
         _currentInput = playerInput;
 
+        // Check for multi-sentence input
+        var sentences = SentenceSplitter.Split(playerInput);
+
+        if (sentences.Count == 0)
+        {
+            // Empty input (like "...") - treat as empty command
+            return await ProcessSingleSentence(null);
+        }
+
+        if (sentences.Count > 1)
+        {
+            return await ProcessMultipleSentences(sentences);
+        }
+
+        // Single sentence processing
+        return await ProcessSingleSentence(playerInput);
+    }
+
+    /// <summary>
+    ///     Processes multiple sentences sequentially, maintaining game state between each command.
+    /// </summary>
+    private async Task<string> ProcessMultipleSentences(List<string> sentences)
+    {
+        var responses = new List<string>();
+
+        foreach (var sentence in sentences)
+        {
+            _logger?.LogDebug($"Processing sentence: {sentence}");
+
+            var response = await ProcessSingleSentence(sentence);
+
+            if (!string.IsNullOrWhiteSpace(response))
+            {
+                responses.Add(response.TrimEnd());
+            }
+
+            // Check if a processor needs user input (like save, quit, disambiguation)
+            if (_processorInProgress == null) 
+                continue;
+            
+            _logger?.LogDebug($"Processor in progress ({_processorInProgress.GetType().Name}) - stopping multi-sentence processing");
+            break;
+        }
+
+        return string.Join(Environment.NewLine + Environment.NewLine, responses);
+    }
+
+    /// <summary>
+    ///     Processes a single sentence/command through the game engine.
+    /// </summary>
+    private async Task<string?> ProcessSingleSentence(string? playerInput)
+    {
+        _currentInput = playerInput;
+
         // 1. ------- Processor in Progress -
         // See if we have something already running like a save, quit, etc.
-        // and see if it has any output.  Does not count as a turn. No actor or turn processing. 
+        // and see if it has any output.  Does not count as a turn. No actor or turn processing.
         var (returnProcessorInProgressOutput, processorInProgressOutput) =
             await RunProcessorInProgress(playerInput);
 
         if (returnProcessorInProgressOutput)
             return PostProcessing(processorInProgressOutput!);
 
-        // 2. -------  Empty command. Does not count as a turn. No actor or turn processing. 
+        // 2. -------  Empty command. Does not count as a turn. No actor or turn processing.
         if (string.IsNullOrEmpty(playerInput))
             return PostProcessing(await GetGeneratedNoCommandResponse());
 
         PreviousLocationName = LocationName;
 
-        // 3. ------- System, or "meta" commands - like save, restore, quit, verbose etc. Does not count as a turn. No actor or turn processing. 
+        // 3. ------- System, or "meta" commands - like save, restore, quit, verbose etc. Does not count as a turn. No actor or turn processing.
         var systemCommand = _parser.DetermineSystemIntentType(playerInput);
         if (systemCommand is GlobalCommandIntent global)
         {
@@ -173,7 +241,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return PostProcessing(globalResult);
         }
 
-        // Everything below here counts as a turn. Pre-process the turn. 
+        // Everything below here counts as a turn. Pre-process the turn.
         // See if the context needs to notify us of anything. Are we sleepy? Hungry?
         var contextPrepend = Context.ProcessBeginningOfTurn();
 
@@ -186,12 +254,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (returnResponseFromAgainProcessor)
             return PostProcessing(_currentInput);
 
-        // 4. ------- Location specific raw commands 
-        // Check if the location has an interaction with the raw, unparsed input. 
-        // Some locations have a special interaction to raw input that does not fit 
-        // the traditional sentence parsing. Sometimes that is a single verb with no 
+        // 4. ------- Location specific raw commands
+        // Check if the location has an interaction with the raw, unparsed input.
+        // Some locations have a special interaction to raw input that does not fit
+        // the traditional sentence parsing. Sometimes that is a single verb with no
         // noun like "jump" or "pray" or "echo", or some other specific phrase
-        // that does not lend itself well to parsing. 
+        // that does not lend itself well to parsing.
         var singleVerbResult = await Context.CurrentLocation.RespondToSpecificLocationInteraction(
             playerInput,
             Context,
@@ -200,8 +268,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (singleVerbResult.InteractionHappened)
             return await ProcessActorsAndContextEndOfTurn(contextPrepend, singleVerbResult.InteractionMessage);
 
-        // 5. ------- Global commands - these work always, everywhere: like look, inventory, wait and cardinal directions. These DO count as a turn, 
-        // We must process actors afterwards 
+        // 5. ------- Global commands - these work always, everywhere: like look, inventory, wait and cardinal directions. These DO count as a turn,
+        // We must process actors afterwards
         var simpleIntent = _parser.DetermineGlobalIntentType(playerInput);
         if (simpleIntent is not null)
         {
@@ -216,6 +284,16 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return await ProcessActorsAndContextEndOfTurn(contextPrepend, resultMessage);
         }
 
+        // Is the player talking to someone?
+        _logger?.LogDebug($"[GAME ENGINE DEBUG] About to check for conversation with input: '{_currentInput}'");
+        var conversation = await _conversationHandler.CheckForConversation(_currentInput, Context);
+        if (conversation is not null)
+        {
+            _logger?.LogDebug($"[GAME ENGINE DEBUG] Conversation detected, returning response: '{conversation}'");
+            return await ProcessActorsAndContextEndOfTurn(contextPrepend, conversation);
+        }
+        _logger?.LogDebug("[GAME ENGINE DEBUG] No conversation detected, continuing with normal processing");
+
         // 6. ------- Complex parsed commands. These require a parser to break them down into their noun(s) and verb.
 
         // if the user referenced an object using "it", let's see if we can handle that.
@@ -226,7 +304,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return PostProcessing(replacedInput);
         }
 
-        // Replace the "it" with the correct noun, if applicable. 
+        // Replace the "it" with the correct noun, if applicable.
         _currentInput = replacedInput;
 
         var parsedResult = await _parser.DetermineComplexIntentType(
@@ -237,7 +315,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         var complexIntentResult = await ProcessComplexIntent(parsedResult);
 
-        // Put it all together for return. 
+        // Put it all together for return.
         return await ProcessActorsAndContextEndOfTurn(contextPrepend, complexIntentResult.ResultMessage);
     }
 
@@ -266,6 +344,16 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var savedGame = Repository.Save<TContext>();
         savedGame.Context = Context;
         return JsonConvert.SerializeObject(savedGame, JsonSettings());
+    }
+
+    public async Task<string> GenerateSaveGameNarration()
+    {
+        // Ask the context if it wants to provide a custom save game request (e.g., Floyd in Planetfall)
+        // If not, use the default AfterSaveGameRequest
+        var saveRequest = Context.GetSaveGameRequest(LocationDescription)
+                          ?? new AfterSaveGameRequest(LocationDescription);
+
+        return await GenerationClient.GenerateNarration(saveRequest, string.Empty);
     }
 
     public async Task InitializeEngine()
@@ -488,6 +576,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum);
         return result + Environment.NewLine;
     }
+
 
     private async Task<string> GetGeneratedNoCommandResponse()
     {

@@ -271,7 +271,7 @@ public class ClearingAndGratingTests : EngineTestsBase
         var response = await target.GetResponse("take leaves");
 
         // Assert
-        response.Should().Contain("Taken");
+        response.Should().Contain("In disturbing the pile of leaves, a grating is revealed");
     }
 
     [Test]

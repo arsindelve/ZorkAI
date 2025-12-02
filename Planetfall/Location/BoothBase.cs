@@ -1,6 +1,7 @@
 using System.Text;
 using GameEngine.Location;
 using Planetfall.Item.Kalamontee.Mech;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Lawanda;
 
 namespace Planetfall.Location;

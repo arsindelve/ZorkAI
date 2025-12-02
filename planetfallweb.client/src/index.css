@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Planetfall Sci-Fi Color Palette - Warm Amber & Deep Blue */
+:root {
+  --planetfall-primary: #ff9500;
+  --planetfall-secondary: #0ea5e9;
+  --planetfall-accent: #fbbf24;
+  --planetfall-compass: #0095ff;
+  --planetfall-bg-dark: #0a1929;
+  --planetfall-bg-medium: #1e293b;
+  --planetfall-warning: #ef4444;
+  --planetfall-text: #e0f2fe;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 149, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 149, 0, 0.6);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-glow {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.animate-pulse {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.5s ease-out forwards;
+}
+
+/* Custom scrollbar for game text */
+.clickable::-webkit-scrollbar {
+  width: 10px;
+}
+
+.clickable::-webkit-scrollbar-track {
+  background: rgba(10, 25, 41, 0.5);
+  border-radius: 4px;
+}
+
+.clickable::-webkit-scrollbar-thumb {
+  background: rgba(255, 149, 0, 0.3);
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+.clickable::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 149, 0, 0.6);
+}
+
+/* Highlight clickable words on hover */
+.clickable p:hover {
+  text-shadow: 0 0 8px rgba(255, 149, 0, 0.6);
+}
+
+/* Sci-fi scanline effect */
+.scanline-effect::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 149, 0, 0.03) 2px,
+    rgba(255, 149, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  animation: scanline 8s linear infinite;
+}
+
+/* Glowing text effect */
+.text-glow {
+  text-shadow:
+    0 0 10px rgba(255, 149, 0, 0.5),
+    0 0 20px rgba(255, 149, 0, 0.3),
+    0 0 30px rgba(255, 149, 0, 0.2);
+}
+
+/* Neon border effect */
+.neon-border {
+  border: 2px solid rgba(255, 149, 0, 0.3);
+  box-shadow:
+    0 0 10px rgba(255, 149, 0, 0.2),
+    inset 0 0 10px rgba(255, 149, 0, 0.1);
+}
+
+/* Glass morphism effect */
+.glass-morphism {
+  background: rgba(10, 25, 41, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 149, 0, 0.2);
+}
+
+/* Footer styling */
+.footer-gradient {
+  background: linear-gradient(to right, color-mix(in srgb, var(--planetfall-bg-medium) 40%, transparent), color-mix(in srgb, var(--planetfall-secondary) 40%, transparent));
+  border-top-color: color-mix(in srgb, var(--planetfall-primary) 30%, transparent);
+}
+
+.footer-text {
+  color: color-mix(in srgb, var(--planetfall-primary) 80%, white);
+}
+
+.footer-text:hover {
+  color: color-mix(in srgb, var(--planetfall-primary) 60%, white);
+}

@@ -70,7 +70,7 @@ public class ZorkOneController(
         RestoreSession(savedSession);
         var encodedText = GetGameData();
         await savedGameRepository.SaveGame(request.Id, request.ClientId, request.Name, encodedText, SaveGameTableName);
-        return await engine.GenerationClient.GenerateNarration(new AfterSaveGameRequest(engine.LocationDescription), String.Empty);
+        return await engine.GenerateSaveGameNarration();
     }
 
     [HttpGet]
@@ -83,6 +83,15 @@ public class ZorkOneController(
             .OrderByDescending(s => s.SavedOn)
             .Select(s => new SavedGame(s.Id, s.Name, s.SavedOn))
             .ToList();
+    }
+
+    [HttpDelete]
+    [Route("saveGame/{id}")]
+    public async Task<IActionResult> DeleteSavedGame(string id, [FromQuery] string sessionId)
+    {
+        await engine.InitializeEngine();
+        await savedGameRepository.DeleteSavedGameAsync(id, sessionId, SaveGameTableName);
+        return Ok();
     }
 
     [HttpGet]

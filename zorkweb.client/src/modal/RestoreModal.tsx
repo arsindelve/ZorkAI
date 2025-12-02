@@ -9,7 +9,10 @@ import {useGameContext} from "../GameContext.tsx";
 import RestoreIcon from '@mui/icons-material/Restore';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
-import { Typography, Paper, Box, Divider } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Typography, Paper, Box, Divider, IconButton } from "@mui/material";
+import { useState } from "react";
+import ConfirmationDialog from "./ConfirmationDialog.tsx";
 
 interface RestoreModalProps {
     open: boolean;
@@ -19,12 +22,33 @@ interface RestoreModalProps {
 
 function RestoreModal(props: RestoreModalProps) {
 
-    const {setRestoreGameRequest} = useGameContext();
+    const {setRestoreGameRequest, setDeleteGameRequest} = useGameContext();
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [gameToDelete, setGameToDelete] = useState<ISavedGame | null>(null);
 
     function handleClose(item: ISavedGame | undefined) {
         console.log(item);
         setRestoreGameRequest(item);
         props.setOpen(false);
+    }
+
+    function handleDeleteClick(game: ISavedGame, event: React.MouseEvent) {
+        event.stopPropagation();
+        setGameToDelete(game);
+        setDeleteConfirmOpen(true);
+    }
+
+    function handleDeleteConfirm() {
+        if (gameToDelete) {
+            setDeleteGameRequest(gameToDelete);
+            setDeleteConfirmOpen(false);
+            setGameToDelete(null);
+        }
+    }
+
+    function handleDeleteCancel() {
+        setDeleteConfirmOpen(false);
+        setGameToDelete(null);
     }
 
     return (
@@ -107,21 +131,37 @@ function RestoreModal(props: RestoreModalProps) {
                                         </Box>
                                     </Box>
 
-                                    <Button 
-                                        variant="contained" 
-                                        startIcon={<RestoreIcon />}
-                                        onClick={() => handleClose(game)}
-                                        sx={{ 
-                                            borderRadius: '20px',
-                                            px: 2,
-                                            bgcolor: 'grey.800',
-                                            '&:hover': {
-                                                bgcolor: 'grey.700'
-                                            }
-                                        }}
-                                    >
-                                        Restore
-                                    </Button>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <IconButton
+                                            onClick={(e) => handleDeleteClick(game, e)}
+                                            sx={{
+                                                color: 'error.main',
+                                                '&:hover': {
+                                                    bgcolor: 'error.light',
+                                                    color: 'error.contrastText'
+                                                }
+                                            }}
+                                            title="Delete saved game"
+                                        >
+                                            <DeleteIcon />
+                                        </IconButton>
+                                        
+                                        <Button 
+                                            variant="contained" 
+                                            startIcon={<RestoreIcon />}
+                                            onClick={() => handleClose(game)}
+                                            sx={{ 
+                                                borderRadius: '20px',
+                                                px: 2,
+                                                bgcolor: 'grey.800',
+                                                '&:hover': {
+                                                    bgcolor: 'grey.700'
+                                                }
+                                            }}
+                                        >
+                                            Restore
+                                        </Button>
+                                    </Box>
                                 </Box>
                             </Paper>
                         ))}
@@ -147,6 +187,16 @@ function RestoreModal(props: RestoreModalProps) {
                     Cancel
                 </Button>
             </DialogActions>
+            
+            <ConfirmationDialog
+                open={deleteConfirmOpen}
+                onConfirm={handleDeleteConfirm}
+                onCancel={handleDeleteCancel}
+                title="Delete Saved Game"
+                message={`Are you sure you want to delete "${gameToDelete?.name}"? This action cannot be undone.`}
+                confirmButtonText="Delete"
+                cancelButtonText="Cancel"
+            />
         </Dialog>
     );
 }

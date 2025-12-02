@@ -1,4 +1,4 @@
-using Planetfall.Command;
+using Planetfall.Location.Lawanda.Lab;
 
 namespace Planetfall.Item.Lawanda.Lab;
 
@@ -11,10 +11,13 @@ internal class BioLockInnerDoor : SimpleDoor
 
     public override string OnOpening(IContext context)
     {
-        var youDie =
-            "Opening the door reveals a Bio-Lab full of horrible mutations. You stare at them, frozen with horror. " +
-            "Growling with hunger and delight, the mutations march into the bio-lock and devour you.";
+        var bioLockEast = Repository.GetLocation<BioLockEast>();
+        return bioLockEast.StateMachine.HandleDoorOpening(context);
+    }
 
-        return new DeathProcessor().Process(youDie, context).InteractionMessage;
+    public override string OnClosing(IContext context)
+    {
+        var bioLockEast = Repository.GetLocation<BioLockEast>();
+        return bioLockEast.StateMachine.HandleDoorClosing(context);
     }
 }

@@ -1,21 +1,57 @@
 using GameEngine.Location;
 using Model.AIGeneration;
 using Planetfall.Command;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda;
 using Planetfall.Item.Lawanda.Library;
 using Utilities;
 
 namespace Planetfall.Location.Lawanda;
 
-internal class Infirmary : LocationBase
+internal class Infirmary : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHere
 {
     public override string Name => "Infirmary";
+
+    [UsedImplicitly] public bool HasToldAboutLazarus { get; set; }
+    
+    [UsedImplicitly] public int TurnsInInfirmary { get; set; }
 
     public override void Init()
     {
         StartWithItem<RedSpool>();
         StartWithItem<MedicineBottle>();
         StartWithItem<InfirmaryBed>();
+    }
+
+    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
+    {
+        context.RemoveActor(this);
+        TurnsInInfirmary = 0; // Reset counter when leaving
+    }
+
+    public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
+    {
+        context.RegisterActor(this);
+        return base.BeforeEnterLocation(context, previousLocation);
+    }
+
+    public Task<string> Act(IContext context, IGenerationClient client)
+    {
+        if (!Repository.GetItem<Floyd>().IsHereAndIsOn(context) || HasToldAboutLazarus)
+            return Task.FromResult(string.Empty);
+
+        TurnsInInfirmary++;
+
+        if (TurnsInInfirmary <= 1)  // Wait one turn before speaking
+            return Task.FromResult(string.Empty);
+
+        HasToldAboutLazarus = true;
+        ItemPlacedHere<MedicalRobotBreastPlate>();
+
+        // Floyd becomes upset and wanders off after finding Lazarus's remains
+        Repository.GetItem<Floyd>().StartWandering(context);
+
+        return Task.FromResult(FloydConstants.Lazarus);
     }
 
     public override Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,

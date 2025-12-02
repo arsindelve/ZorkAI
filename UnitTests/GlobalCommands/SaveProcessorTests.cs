@@ -71,14 +71,15 @@ public class SaveProcessorTests
         var client = new Mock<IGenerationClient>();
         client.Setup(s => s.GenerateNarration(It.IsAny<BeforeSaveGameRequest>(), It.IsAny<string>()))
             .ReturnsAsync("shelly");
-        client.Setup(s => s.GenerateNarration(It.IsAny<AfterSaveGameRequest>(), It.IsAny<string>()))
-            .ReturnsAsync("karen");
 
-        var engine = Mock.Of<IGameEngine>(s => s.SaveGame() == "fred");
+        var engine = new Mock<IGameEngine>();
+        engine.Setup(s => s.SaveGame()).Returns("fred");
+        engine.Setup(s => s.GenerateSaveGameNarration()).ReturnsAsync("karen");
+
         var context = Mock.Of<IContext>(c => c.Game.DefaultSaveGameName == "bobby");
         Mock.Get(context).Setup(s => s.CurrentLocation.GetDescriptionForGeneration(Mock.Of<IContext>()))
             .Returns("here");
-        Mock.Get(context).Setup(s => s.Engine).Returns(engine);
+        Mock.Get(context).Setup(s => s.Engine).Returns(engine.Object);
 
         // Act
         await target.Process("input", context, client.Object, Runtime.Unknown);
@@ -87,6 +88,7 @@ public class SaveProcessorTests
         // Assert
         response.Should().Contain("karen");
         target.Completed.Should().BeTrue();
+        engine.Verify(e => e.GenerateSaveGameNarration(), Times.Once);
         var bytesToEncode = Encoding.UTF8.GetBytes("fred");
         var encodedText = Convert.ToBase64String(bytesToEncode);
         Mock.Get(writer).Verify(s => s.Write("bobby", encodedText));
@@ -101,14 +103,15 @@ public class SaveProcessorTests
         var client = new Mock<IGenerationClient>();
         client.Setup(s => s.GenerateNarration(It.IsAny<BeforeSaveGameRequest>(), It.IsAny<string>()))
             .ReturnsAsync("shelly");
-        client.Setup(s => s.GenerateNarration(It.IsAny<AfterSaveGameRequest>(), It.IsAny<string>()))
-            .ReturnsAsync("karen");
 
-        var engine = Mock.Of<IGameEngine>(s => s.SaveGame() == "fred");
+        var engine = new Mock<IGameEngine>();
+        engine.Setup(s => s.SaveGame()).Returns("fred");
+        engine.Setup(s => s.GenerateSaveGameNarration()).ReturnsAsync("karen");
+
         var context = Mock.Of<IContext>(c => c.Game.DefaultSaveGameName == "bobby");
         Mock.Get(context).Setup(s => s.CurrentLocation.GetDescriptionForGeneration(Mock.Of<IContext>()))
             .Returns("here");
-        Mock.Get(context).Setup(s => s.Engine).Returns(engine);
+        Mock.Get(context).Setup(s => s.Engine).Returns(engine.Object);
 
         // Act
         await target.Process("save", context, client.Object, Runtime.Unknown);
@@ -117,6 +120,7 @@ public class SaveProcessorTests
         // Assert
         response.Should().Contain("karen");
         target.Completed.Should().BeTrue();
+        engine.Verify(e => e.GenerateSaveGameNarration(), Times.Once);
         var bytesToEncode = Encoding.UTF8.GetBytes("fred");
         var encodedText = Convert.ToBase64String(bytesToEncode);
         Mock.Get(writer).Verify(s => s.Write("danny", encodedText));

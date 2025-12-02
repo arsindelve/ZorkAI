@@ -1,3 +1,5 @@
+using Model.AIGeneration.Requests;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Utilities;
 
 namespace Planetfall;
@@ -43,7 +45,7 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
         StartWithItem<PatrolUniform>(this);
     }
 
-    public override string? ProcessBeginningOfTurn()
+    public override string ProcessBeginningOfTurn()
     {
         return SicknessNotifications.GetNotification(Day, CurrentTime) + base.ProcessBeginningOfTurn();
     }
@@ -52,5 +54,18 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     {
         Repository.GetItem<Chronometer>().CurrentTime += 54;
         return base.ProcessEndOfTurn();
+    }
+
+    /// <summary>
+    ///     Planetfall-specific save game request logic.
+    ///     If Floyd is present and active, returns a Floyd-specific request with fourth-wall-breaking comments.
+    ///     Otherwise, returns null to use the default AfterSaveGameRequest.
+    /// </summary>
+    public override Request? GetSaveGameRequest(string location)
+    {
+        var floyd = Repository.GetItem<Floyd>();
+        return floyd.IsHereAndIsOn(this) ? 
+            new FloydAfterSaveGameRequest(location) : 
+            null; // Use default AfterSaveGameRequest
     }
 }

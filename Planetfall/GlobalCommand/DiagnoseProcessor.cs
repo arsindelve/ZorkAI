@@ -1,4 +1,5 @@
 ﻿using Model.AIGeneration;
+using Utilities;
 
 namespace Planetfall.GlobalCommand;
 
@@ -9,10 +10,10 @@ public class DiagnoseProcessor : IGlobalCommand
         if (context is not PlanetfallContext pc)
             throw new Exception("Context is not a PlanetfallContext");
 
-        // TODO: Tired
-        // TODO: Hungry
+        var response = pc.SicknessDescription + "\n" +
+                       pc.Tired.GetDescription() + "\n" +
+                       pc.Hunger.GetDescription();
 
-        var response = pc.SicknessDescription;
         return Task.FromResult(response);
     }
 }

@@ -12,6 +12,10 @@ namespace GameEngine.Item;
 /// </summary>
 public abstract class ContainerBase : ItemBase, ICanContainItems
 {
+    /// <summary>
+    /// Specifies the maximum capacity for items that the container can hold, represented as an integer value.
+    /// The value determines the combined size of items the container can accommodate.
+    /// </summary>
     protected virtual int SpaceForItems => 2;
 
     [UsedImplicitly] public List<IItem> Items { get; set; } = new();
@@ -140,7 +144,7 @@ public abstract class ContainerBase : ItemBase, ICanContainItems
     /// </summary>
     public virtual Type[] CanOnlyHoldTheseTypes => [];
 
-    public virtual string CanOnlyHoldTheseTypesErrorMessage => string.Empty;
+    public virtual string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlace) => string.Empty;
 
     public string SingleLineListOfItems()
     {

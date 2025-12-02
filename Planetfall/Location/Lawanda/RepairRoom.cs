@@ -4,11 +4,12 @@ using Model.AIGeneration;
 using Model.Interface;
 using Model.Location;
 using Planetfall.Item.Kalamontee.Mech;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda;
 
 namespace Planetfall.Location.Lawanda;
 
-internal class RepairRoom : LocationBase
+internal class RepairRoom : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHere
 {
     public override string Name => "Repair Room";
 
@@ -54,28 +55,24 @@ internal class RepairRoom : LocationBase
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
-    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient generationClient)
+    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
     {
-        if (HasToldMeAboutAchilles || GetItem<Floyd>().CurrentLocation != this)
-            return base.AfterEnterLocation(context, previousLocation, generationClient);
+        context.RemoveActor(this);
+    }
+
+    public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
+    {
+        context.RegisterActor(this);
+        return base.BeforeEnterLocation(context, previousLocation);
+    }
+
+    public Task<string> Act(IContext context, IGenerationClient client)
+    {
+        if (!Repository.GetItem<Floyd>().IsHereAndIsOn(context) || HasToldMeAboutAchilles)
+            return Task.FromResult(string.Empty);
 
         HasToldMeAboutAchilles = true;
-        
-        return Task.FromResult(
-            "\nFloyd points at the fallen robot. \"That's Achilles. He was in charge of repairing machinery. " +
-            "He repaired Floyd once. I never liked him much; he wasn't friendly like other robots. Looks like " +
-            "he fell down the stairs. He always had trouble with one of his feet working right. A " +
-            "Planner-person once told me that's why they named him Achilles.\"");
+        return Task.FromResult(FloydConstants.Achilles);
     }
 }
-
-// Floyd shrugs. "If you say so." He vanishes for a few minutes, and returns holding the fromitz board. It seems to be in good
-// shape. He tosses it toward you, and you just manage to catch it before it smashes.
-
-// Floyd squeezes through the opening and is gone for quite a while. You hear thudding noises and squeals of enjoyment. After
-// a while the noise stops, and Floyd emerges, looking downcast. "Floyd found a rubber ball inside. Lots of fun for a while,
-// but must have been old, because it fell apart. Nothing else interesting inside. Just a shiny fromitz board."
-
-// "Not again," whines Floyd.
 

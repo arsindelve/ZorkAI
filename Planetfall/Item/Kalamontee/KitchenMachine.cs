@@ -10,7 +10,7 @@ internal class KitchenMachine : ContainerBase, ICanBeExamined
 
     public override bool IsTransparent => true;
 
-    public override string CanOnlyHoldTheseTypesErrorMessage => "It doesn't fit in the niche. ";
+    public override string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlaceHere) => "It doesn't fit in the niche. ";
 
     public string ExaminationDescription =>
         "This wall-mounted unit contains an octagonal niche beneath a spout. Above the spout is a button. " +

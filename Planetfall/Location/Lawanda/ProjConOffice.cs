@@ -1,9 +1,10 @@
 using GameEngine.Location;
 using Model.AIGeneration;
+using Planetfall.Item.Lawanda;
 
 namespace Planetfall.Location.Lawanda;
 
-internal class ProjConOffice : LocationWithNoStartingItems
+internal class ProjConOffice : LocationBase
 {
     public override string Name => "ProjCon Office";
 
@@ -15,6 +16,11 @@ internal class ProjConOffice : LocationWithNoStartingItems
         };
     }
 
+    public override void Init()
+    {
+        StartWithItem<Mural>();
+    }
+
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
@@ -24,12 +30,6 @@ internal class ProjConOffice : LocationWithNoStartingItems
         if (action.MatchNoun(["logo"]))
             return new PositiveInteractionResult(
                 "The logo shows a flame burning over a sleep chamber of some type. Under that is the phrase \"Prajekt Kuntrool.\"");
-
-        if (action.MatchNoun(["mural"]))
-            return new PositiveInteractionResult(
-                "It's a gaudy work of orange and purple abstract shapes, reminiscent of the early works " +
-                "of Burstini Bonz. It doesn't appear to fit the decor of the room at all. The mural seems to ripple " +
-                "now and then, as though a breeze were blowing behind it.");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }

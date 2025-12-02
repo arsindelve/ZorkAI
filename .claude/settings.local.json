@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(dotnet build:*)",
+      "Bash(grep:*)",
+      "Bash(dotnet test:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)",
+      "Bash(ls:*)",
+      "Bash(rm:*)",
+      "Bash(timeout 30 dotnet test Planetfall.Tests --filter \"BlatherTests.ThePlayer_TriesToBlather_BlatherIsAlive\" --logger console)",
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(git pull:*)"
+    ],
+    "deny": []
+  }
+}

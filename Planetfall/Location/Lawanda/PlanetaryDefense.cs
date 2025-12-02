@@ -1,14 +1,20 @@
 using GameEngine.Location;
+using Planetfall.Item.Lawanda.PlanetaryDefense;
 using Planetfall.Location.Kalamontee.Admin;
 
 namespace Planetfall.Location.Lawanda;
 
-internal class PlanetaryDefense : LocationWithNoStartingItems
+internal class PlanetaryDefense : LocationBase
 {
     public override string Name => "Planetary Defense";
 
     [UsedImplicitly]
     public bool Fixed { get; set; }
+
+    public override void Init()
+    {
+        StartWithItem<FromitzAccessPanel>();
+    }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
@@ -17,10 +23,8 @@ internal class PlanetaryDefense : LocationWithNoStartingItems
             { Direction.S, Go<SystemsCorridor>() }
         };
     }
-    
-    // TODO: Make some fromitz boards 
 
-    private void ItIsFixed(IContext context)
+    internal void ItIsFixed(IContext context)
     {
         Fixed = true;
         Repository.GetLocation<SystemsMonitors>().MarkPlanetaryDefenseFixed();
@@ -32,12 +36,8 @@ internal class PlanetaryDefense : LocationWithNoStartingItems
         return
             "This room is filled with a dazzling array of lights and controls. " + (!Fixed
                 ? "One light, blinking quickly, catches " +
-                  "your eye. It reads \"Surkit Boord Faalyur. WORNEENG: xis boord kuntroolz xe diskriminaashun\nsurkits.\" "
-                : "") + "There is a small access panel on one wall which is closed. ";
+                  "your eye. It reads \"Surkit Boord Faalyur. WORNEENG: xis boord kuntroolz xe diskriminaashun surkits.\" "
+                : "") +
+            $"There is a small access panel on one wall which is {(GetItem<FromitzAccessPanel>().IsOpen ? "open" : "closed")}. ";
     }
 }
-// You jerk your hand back as you receive a powerful shock from the fromitz board.
-
-// The canteen doesn't fit.
-
-// The card clicks neatly into the socket. The warning lights stop flashing.

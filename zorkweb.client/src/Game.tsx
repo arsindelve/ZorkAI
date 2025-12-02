@@ -21,9 +21,9 @@ import GameInput from "./components/GameInput.tsx";
 
 function Game() {
 
-    const restoreResponse = "<Restore>\n";
-    const saveResponse = "<Save>\n";
-    const restartResponse = "<Restart>\n";
+    const restoreResponse = "<Restore>";
+    const saveResponse = "<Save>";
+    const restartResponse = "<Restart>";
 
     const [playerInput, setInput] = useState<string>("");
     const [gameText, setGameText] = useState<string[]>(["Your game is loading...."]);
@@ -50,6 +50,8 @@ function Game() {
         setSaveGameRequest,
         setRestoreGameRequest,
         restoreGameRequest,
+        deleteGameRequest,
+        setDeleteGameRequest,
         setCopyGameTranscript
     } = useGameContext();
 
@@ -87,6 +89,26 @@ function Game() {
         })
     }, [restoreGameRequest]);
 
+    // Delete a saved game
+    useEffect(() => {
+        if (!deleteGameRequest)
+            return;
+        (async () => {
+            try {
+                await server.deleteSavedGame(deleteGameRequest.id!, sessionId.getClientId());
+                setDeleteGameRequest(undefined);
+                setSnackBarMessage("Game Deleted Successfully.");
+                setSnackBarOpen(true);
+                // Refresh the restore dialog to show updated list
+                setDialogToOpen(DialogType.Restore);
+            } catch (error) {
+                console.error('Error deleting saved game:', error);
+                setSnackBarMessage("Failed to delete game.");
+                setSnackBarOpen(true);
+            }
+        })();
+    }, [deleteGameRequest]);
+
     // Scroll to the bottom of the container after we add text. 
     useEffect(() => {
         if (gameContentElement.current) {
@@ -122,19 +144,20 @@ function Game() {
     }, []);
 
     function handleResponse(data: GameResponse) {
-        if (data.response === saveResponse) {
+        const trimmed = (data.response ?? '').trim();
+        if (trimmed === saveResponse) {
             setDialogToOpen(DialogType.Save);
             setInput("");
             return;
         }
 
-        if (data.response === restoreResponse) {
+        if (trimmed === restoreResponse) {
             setDialogToOpen(DialogType.Restore);
             setInput("");
             return;
         }
 
-        if (data.response === restartResponse) {
+        if (trimmed === restartResponse) {
             setDialogToOpen(DialogType.Restart);
             setInput("");
             return;

@@ -49,4 +49,9 @@ public record MovementParameters
     ///     what message shall we give them?
     /// </summary>
     public string WeightLimitFailureMessage { get; init; } = string.Empty;
+
+    /// <summary>
+    /// An optional message to display as we transition to this location. 
+    /// </summary>
+    public string? TransitionMessage { get; init; } = string.Empty;
 }

@@ -5,7 +5,7 @@ using Planetfall.Location.Kalamontee.Admin;
 
 namespace Planetfall.Location.Kalamontee.Tower;
 
-internal class CommRoom : LocationWithNoStartingItems
+internal class CommRoom : LocationWithNoStartingItems, IFloydDoesNotTalkHere
 {
     private const string FixedDescription =
         " A screen on the console displays a message. Next to the screen is a flashing sign which " +

@@ -2,55 +2,58 @@ import {useMutation} from "@tanstack/react-query";
 import {GameRequest} from "./model/GameRequest.ts";
 import {GameResponse} from "./model/GameResponse.ts";
 import React, {useEffect, useState} from "react";
-import {Alert, CircularProgress, Snackbar} from "@mui/material";
+import {Alert, Button, CircularProgress, Snackbar} from "@mui/material";
 import '@fontsource/roboto';
-import Header from "./Header.tsx";
+import Header from "./components/Header.tsx";
 import {SessionHandler} from "./SessionHandler.ts";
-import WelcomeDialog from "./modal/WelcomeModal.tsx";
+
 import Server from './Server';
+import VerbsButton from "./components/VerbsButton.tsx";
+import CommandsButton from "./components/CommandsButton.tsx";
+import ClickableText, {ClickableTextHandle} from "./ClickableText.tsx";
+import Compass from "./components/Compass.tsx";
+import {Mixpanel} from "./Mixpanel.ts";
 
-interface GameProps {
-    restoreGameId?: string | undefined
-    restartGame: boolean
-    serverText: string
-    onRestoreDone: () => void
-    onRestartDone: () => void
-    openRestoreModal: () => void
-    openSaveModal: () => void
-    openRestartModal: () => void
-    gaveSaved: boolean;
-}
+import {useGameContext} from "./GameContext";
+import InventoryButton from "./components/InventoryButton.tsx";
+import DialogType from "./model/DialogType.ts";
+import GameInput from "./components/GameInput.tsx";
 
-function Game({
-                  restartGame,
-                  restoreGameId,
-                  serverText,
-                  gaveSaved,
-                  onRestoreDone,
-                  onRestartDone,
-                  openRestoreModal,
-                  openSaveModal,
-                  openRestartModal,
-              }: GameProps) {
+function Game() {
 
-    const restoreResponse = "<Restore>\n";
-    const saveResponse = "<Save>\n";
-    const restartResponse = "<Restart>\n";
+    const restoreResponse = "<Restore>";
+    const saveResponse = "<Save>";
+    const restartResponse = "<Restart>";
 
     const [playerInput, setInput] = useState<string>("");
     const [gameText, setGameText] = useState<string[]>(["Your game is loading...."]);
     const [score, setScore] = useState<string>("0");
-    const [time, setTime] = useState<string>("0");
+    const [moves, setMoves] = useState<string>("0");
+    const [inventory, setInventory] = useState<string[]>([]);
+    const [exits, setExits] = useState<string[]>([]);
     const [locationName, setLocationName] = useState<string>("");
-    const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
+
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
     const [snackBarMessage, setSnackBarMessage] = useState<string>("");
 
     const sessionId = new SessionHandler();
     const server = new Server();
 
-    const gameContentElement = React.useRef<HTMLDivElement>(null);
+    const gameContentElement = React.useRef<HTMLDivElement & ClickableTextHandle>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);
+
+    const {
+        setDialogToOpen,
+        restartGame,
+        setRestartGame,
+        saveGameRequest,
+        setSaveGameRequest,
+        setRestoreGameRequest,
+        restoreGameRequest,
+        deleteGameRequest,
+        setDeleteGameRequest,
+        setCopyGameTranscript
+    } = useGameContext();
 
     function focusOnPlayerInput() {
         if (playerInputElement.current)
@@ -60,31 +63,56 @@ function Game({
 
     // Save the game. 
     useEffect(() => {
-        if (gaveSaved) {
-            gaveSaved = false;
-            setSnackBarMessage("Game Saved Successfully.");
-            setSnackBarOpen(true);
+        if (saveGameRequest) {
+            (async () => {
+                saveGameRequest.sessionId = sessionId.getSessionId()[0];
+                saveGameRequest.clientId = sessionId.getClientId();
+                const response = await server.saveGame(saveGameRequest);
+                setGameText((prevGameText) => [...prevGameText, response]);
+                setSaveGameRequest(undefined);
+                setSnackBarMessage("Game Saved Successfully.");
+                setSnackBarOpen(true);
+            })();
         }
         focusOnPlayerInput();
-    }, [gaveSaved]);
-
+    }, [saveGameRequest]);
 
     // Restore a saved game
     useEffect(() => {
-        if (!restoreGameId)
+        if (!restoreGameRequest)
             return;
         setGameText([]);
-        gameRestore(restoreGameId!).then((data) => {
+        gameRestore(restoreGameRequest.id!).then((data) => {
             handleResponse(data);
-            onRestoreDone();
+            setRestoreGameRequest(undefined);
             focusOnPlayerInput();
         })
-    }, [restoreGameId]);
+    }, [restoreGameRequest]);
+
+    // Delete a saved game
+    useEffect(() => {
+        if (!deleteGameRequest)
+            return;
+        (async () => {
+            try {
+                await server.deleteSavedGame(deleteGameRequest.id!, sessionId.getClientId());
+                setDeleteGameRequest(undefined);
+                setSnackBarMessage("Game Deleted Successfully.");
+                setSnackBarOpen(true);
+                // Refresh the restore dialog to show updated list
+                setDialogToOpen(DialogType.Restore);
+            } catch (error) {
+                console.error('Error deleting saved game:', error);
+                setSnackBarMessage("Failed to delete game.");
+                setSnackBarOpen(true);
+            }
+        })();
+    }, [deleteGameRequest]);
 
     // Scroll to the bottom of the container after we add text. 
     useEffect(() => {
         if (gameContentElement.current) {
-            gameContentElement.current.scrollTop = gameContentElement.current.scrollHeight;
+            gameContentElement.current.scrollToBottom();
         }
     }, [gameText]);
 
@@ -96,14 +124,12 @@ function Game({
         setGameText([""]);
         gameInit().then((data) => {
             handleResponse(data);
-            onRestartDone();
+            setRestartGame(false);
+            setSnackBarMessage("Game Restarted Successfully.");
+            setSnackBarOpen(true);
             focusOnPlayerInput();
         })
     }, [restartGame]);
-
-    useEffect(() => {
-        setGameText((prevGameText) => [...prevGameText, serverText]);
-    }, [serverText]);
 
     // Set focus to the input box on load. 
     useEffect(() => {
@@ -117,23 +143,22 @@ function Game({
         })
     }, []);
 
-
     function handleResponse(data: GameResponse) {
-
-        if (data.response === saveResponse) {
-            openSaveModal();
+        const trimmed = (data.response ?? '').trim();
+        if (trimmed === saveResponse) {
+            setDialogToOpen(DialogType.Save);
             setInput("");
             return;
         }
 
-        if (data.response === restoreResponse) {
-            openRestoreModal();
+        if (trimmed === restoreResponse) {
+            setDialogToOpen(DialogType.Restore);
             setInput("");
             return;
         }
 
-        if (data.response === restartResponse) {
-            openRestartModal();
+        if (trimmed === restartResponse) {
+            setDialogToOpen(DialogType.Restart);
             setInput("");
             return;
         }
@@ -141,7 +166,7 @@ function Game({
         // Replace newline chars with HTML line breaks. 
         data.response = data.response.replace(/\n/g, "<br />");
 
-        const textToAppend = `<p class="text-lime-600 font-extrabold mt-3 mb-3">`
+        const textToAppend = `<p class="font-extrabold mt-3 mb-3 text-glow" style="color: var(--planetfall-primary);">`
             + (!playerInput ? "" : `> ${playerInput}`) + `</p>`
             + data.response;
 
@@ -149,7 +174,9 @@ function Game({
         setInput("");
         setLocationName(data.locationName);
         setScore(data.score.toString());
-        setTime(data.time.toString())
+        setMoves(data.moves.toString());
+        setInventory(data.inventory);
+        setExits(data.exits);
     }
 
     // noinspection JSUnusedGlobalSymbols
@@ -158,25 +185,52 @@ function Game({
         onSuccess: (response) => {
             handleResponse(response);
         },
-        onError: (r => {
-            console.log(r);
-        })
+        onError: () => {
+            // Error handling is done via the Alert component below
+        }
     });
+
+    function submitInput(inputValue?: string) {
+        const [id] = sessionId.getSessionId();
+        const valueToSubmit = (inputValue ?? playerInput).trim(); // Use parameter if provided, else fallback to state
+        mutation.mutate(new GameRequest(valueToSubmit, id));
+        focusOnPlayerInput();
+    }
+
+    function handleWordClicked(word: string) {
+        setInput(playerInput + " " + word + " ");
+        focusOnPlayerInput();
+        Mixpanel.track('Click on Word', {
+            "word": word
+        });
+    }
+
+    const handleVerbClick = (verb: string) => {
+        setInput(verb + " ");
+        focusOnPlayerInput();
+    };
+
+    const handleInventoryClick = (item: string) => {
+        setInput(playerInput + " " + item + " ");
+        focusOnPlayerInput();
+    };
+
+    const handleCommandClick = (command: string) => {
+        setInput(command);
+        submitInput(command);
+    };
 
     function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
         if (event.key === 'Enter') {
-            const [id] = sessionId.getSessionId();
-            mutation.mutate(new GameRequest(playerInput, id))
+            Mixpanel.track('Press Enter', {});
+            submitInput();
         }
     }
 
-    const handleWelcomeDialogClose = () => {
-        setWelcomeDialogOpen(false);
-    };
-
     async function gameInit(): Promise<GameResponse> {
         const [id, firstTime] = sessionId.getSessionId();
-        setWelcomeDialogOpen(firstTime);
+        if (firstTime)
+            setDialogToOpen(DialogType.Welcome);
         return await server.gameInit(id)
     }
 
@@ -192,9 +246,28 @@ function Game({
         setSnackBarOpen(false);
     }
 
+    async function handleCopyToClipboard() {
+        if (gameContentElement.current) {
+            const success = await gameContentElement.current.copyToClipboardAsRTF();
+            if (success) {
+                setSnackBarMessage("Game text copied to clipboard with formatting.");
+                setSnackBarOpen(true);
+                Mixpanel.track('Copy to Clipboard', {});
+            } else {
+                setSnackBarMessage("Failed to copy text to clipboard.");
+                setSnackBarOpen(true);
+            }
+        }
+    }
+
+    // Set the copyGameTranscript function in the context
+    useEffect(() => {
+        setCopyGameTranscript(() => handleCopyToClipboard);
+    }, [setCopyGameTranscript]);
+
     return (
 
-        <div className={"m-8"}>
+        <div className={"m-10 mt-20 relative"}>
 
             <div>
                 <Snackbar
@@ -206,27 +279,124 @@ function Game({
                 />
             </div>
 
-            <WelcomeDialog open={welcomeDialogOpen} handleClose={handleWelcomeDialogClose}/>
-            <Header locationName={locationName} time={time} score={score}/>
+            <Header locationName={locationName} moves={moves} score={score}/>
 
-            <div ref={gameContentElement} className={"p-12 h-[65vh] overflow-auto bg-stone-900 font-mono"}>
+            <Compass 
+            onCompassClick={handleCommandClick} 
+            exits={exits}
+            className="
+            hidden
+            cursor: pointer
+            md:block
+            absolute 
+            top-24
+            right-5
+            w-[10%] 
+            h-auto
+            opacity-75
+            z-20
+            pointer-events-auto
+            "/>
+
+            <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word) => handleWordClicked(word)}
+                           className="relative p-6 sm:p-12 h-[65vh] overflow-auto font-mono rounded-lg border-2 shadow-lg clickable z-10"
+                           style={{
+                               background: 'linear-gradient(135deg, var(--planetfall-bg-dark) 0%, #020617 100%)',
+                               borderColor: 'color-mix(in srgb, var(--planetfall-primary) 20%, transparent)',
+                               boxShadow: '0 0 40px color-mix(in srgb, var(--planetfall-primary) 8%, transparent), inset 0 0 60px color-mix(in srgb, var(--planetfall-secondary) 3%, transparent)'
+                           }}
+                           data-testid="game-responses-container">
+                <div className="relative z-0">
+                    {/* Background styling elements */}
+                    <div
+                        className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMjEyMTIxIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=')] opacity-5 pointer-events-none"></div>
+                    <div
+                        className="absolute top-2 left-2 w-20 h-20 rounded-full blur-3xl pointer-events-none"
+                        style={{background: 'color-mix(in srgb, var(--planetfall-primary) 15%, transparent)'}}></div>
+                    <div
+                        className="absolute bottom-10 right-5 w-32 h-32 rounded-full blur-3xl pointer-events-none"
+                        style={{background: 'color-mix(in srgb, var(--planetfall-secondary) 8%, transparent)'}}></div>
+                </div>
+
                 {gameText.map((item: string, index: number) => (
-                    <p dangerouslySetInnerHTML={{__html: item}} className={"mb-4"} key={index}>
+                    <p
+                        dangerouslySetInnerHTML={{__html: item}}
+                        className={`mb-4 relative z-10 ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
+                        key={index}
+                        data-testid="game-response"
+                    >
                     </p>
                 ))}
-            </div>
+            </ClickableText>
 
-            <div className="flex items-center bg-neutral-700">
-                <input ref={playerInputElement} readOnly={mutation.isPending}
-                       className={"w-full p-4 focus:border-transparent focus:outline-none focus:ring-0 bg-neutral-700"}
-                       value={playerInput} placeholder={"Enter your request then press enter / return."}
-                       onChange={(e) => setInput(e.target.value)}
-                       onKeyDown={handleKeyDown}
+            <div
+                className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 py-2 min-h-[90px] rounded-b-lg border-t shadow-inner"
+                style={{
+                    background: 'linear-gradient(135deg, var(--planetfall-bg-medium) 0%, var(--planetfall-bg-dark) 100%)',
+                    borderColor: 'color-mix(in srgb, var(--planetfall-primary) 15%, transparent)'
+                }}>
+                <GameInput
+                    playerInputElement={playerInputElement}
+                    isPending={mutation.isPending}
+                    playerInput={playerInput}
+                    setInput={setInput}
+                    handleKeyDown={handleKeyDown}
+                />
 
-                ></input>
+                {mutation.isPending && (
+                    <div className="mr-4 p-2 flex items-center justify-center">
+                        <CircularProgress size={28} sx={{
+                            color: 'var(--planetfall-accent)',
+                            boxShadow: '0 0 15px 5px color-mix(in srgb, var(--planetfall-accent) 30%, transparent)',
+                            borderRadius: '50%'
+                        }}/>
+                    </div>
+                )}
 
-                {mutation.isPending && <div className="mr-4 bg-neutral-700"><CircularProgress size={25}/></div>}
+                {!mutation.isPending && (
+                    <div
+                        className="
+                        flex 
+                        flex-row 
+                        justify-center 
+                        flex-wrap
+                        sm:ml-2 
+                        sm:mr-4 
+                        gap-3 sm:gap-4
+                        p-3
+                        ">
+                        <VerbsButton onVerbClick={handleVerbClick}/>
+                        {inventory.length > 0 && (
+                            <InventoryButton onInventoryClick={handleInventoryClick} inventory={inventory}/>
+                        )}
+                        <CommandsButton onCommandClick={handleCommandClick}/>
 
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            size="large"
+                            onClick={() => {
+                                Mixpanel.track('Click Go', {});
+                                submitInput();
+                            }}
+                            disabled={!playerInput}
+                            sx={{
+                                fontWeight: 'bold',
+                                minWidth: '80px',
+                                padding: '4px 10px',
+                                backgroundColor: 'var(--planetfall-primary)',
+                                '&:hover': {
+                                    backgroundColor: 'color-mix(in srgb, var(--planetfall-primary) 80%, white)',
+                                },
+                                borderRadius: '8px',
+                                transition: 'all 0.3s ease',
+
+                            }}
+                            data-testid="go-button">
+                            Go
+                        </Button>
+                    </div>
+                )}
             </div>
 
             {mutation.isError &&

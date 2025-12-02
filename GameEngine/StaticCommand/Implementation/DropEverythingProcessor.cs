@@ -21,11 +21,49 @@ public class DropEverythingProcessor : IGlobalCommand
     public static string DropAll(IContext context, List<IItem?> items)
     {
         var sb = new StringBuilder();
-      
+
         foreach (var nextItem in items.ToList())
             if (nextItem is ICanBeTakenAndDropped)
                 sb.AppendLine(
                     $"{nextItem.Name}: {TakeOrDropInteractionProcessor.DropIt(context, nextItem).InteractionMessage}");
+
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// Drops multiple items, providing feedback for each item including those that don't exist or can't be dropped.
+    /// </summary>
+    /// <param name="context">The game context containing the player's inventory and current state.</param>
+    /// <param name="itemsWithNouns">A list of tuples containing the original noun from user input and the corresponding item (null if not found).</param>
+    /// <param name="client">The generation client for AI-generated snarky responses.</param>
+    /// <returns>A formatted string with the result of attempting to drop each item.</returns>
+    public static async Task<string> DropAll(IContext context, List<(string noun, IItem? item)> itemsWithNouns, IGenerationClient client)
+    {
+        var sb = new StringBuilder();
+
+        foreach (var (noun, item) in itemsWithNouns)
+        {
+            if (item is null)
+            {
+                var message = await client.GenerateNarration(
+                    new DropSomethingTheyDoNotHave(noun), context.SystemPromptAddendum);
+                sb.AppendLine($"{noun}: {message}");
+                continue;
+            }
+
+            // Check if the item is actually in the inventory
+            if (!context.Items.Contains(item))
+            {
+                var message = await client.GenerateNarration(
+                    new DropSomethingTheyDoNotHave(noun), context.SystemPromptAddendum);
+                sb.AppendLine($"{noun}: {message}");
+                continue;
+            }
+
+            if (item is ICanBeTakenAndDropped)
+                sb.AppendLine(
+                    $"{item.Name}: {TakeOrDropInteractionProcessor.DropIt(context, item).InteractionMessage}");
+        }
 
         return sb.ToString();
     }

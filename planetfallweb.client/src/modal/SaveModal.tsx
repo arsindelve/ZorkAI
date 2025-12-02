@@ -6,100 +6,219 @@ import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import moment from 'moment';
 import {ISaveGameRequest, SaveGameRequest} from "../model/SaveGameRequest.ts";
-import {Input} from "@mui/material";
+import {Typography, Paper, Box, Divider, TextField} from "@mui/material";
 import React, {useState} from "react";
+import {useGameContext} from "../GameContext.tsx";
+import SaveIcon from '@mui/icons-material/Save';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 
 interface SaveModalProps {
     open: boolean;
-    handleClose: (savedGame: ISaveGameRequest | undefined) => void;
+    setOpen: (open: boolean) => void;
     games: ISavedGame[]
 }
 
 
 function SaveModal(props: SaveModalProps) {
-
     const [newName, setNewName] = useState<string>("");
 
-    function handleClose(savedGame: ISaveGameRequest | undefined) {
-        props.handleClose(savedGame);
+    const {setSaveGameRequest} = useGameContext();
+
+    function handleClose(savedGame: ISaveGameRequest) {
+        setSaveGameRequest(savedGame);
+        props.setOpen(false);
     }
 
-    function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>, savedGame: ISaveGameRequest) {
+    function justClose() {
+        props.setOpen(false);
+    }
+
+    function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>, savedGame: ISaveGameRequest) {
         if (event.key === 'Enter') {
             handleClose(savedGame);
         }
     }
 
 
-    return (<Dialog
-
+    return (
+        <Dialog
+            data-testid="save-game-modal"
             maxWidth={"md"}
             open={props.open}
             fullWidth={true}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
+            PaperProps={{
+                style: {
+                    borderRadius: '12px',
+                    overflow: 'hidden'
+                }
+            }}
         >
-            <DialogTitle id="alert-dialog-title">
-                {"Save Your Game"}
-                <hr/>
+            <DialogTitle
+                id="alert-dialog-title"
+                className="bg-gradient-to-r from-gray-800 to-gray-900"
+                sx={{
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    py: 2
+                }}
+            >
+                <SaveIcon fontSize="large"/>
+                <Typography variant="h5" component="span" fontWeight="bold">
+                    Save Your Game
+                </Typography>
             </DialogTitle>
 
-            <DialogContent className={"max-h-60 overflow-auto"}>
+            <DialogContent sx={{pt: 3, pb: 1}}>
 
+                <Paper
+                    data-testid="save-game-new-section"
+                    elevation={2}
+                    sx={{
+                        p: 3,
+                        mb: 3,
+                        mt: 3,
+                        borderRadius: '8px',
+                        bgcolor: 'background.paper'
+                    }}
+                >
+                    <Typography variant="h6" fontWeight="bold" sx={{mb: 2, color: 'grey.800'}}>
+                        Create New Save
+                    </Typography>
 
-                <div className={"columns-3"}>
-                    <div className={"mt-3"}>Name your saved game:</div>
-                    <div className={"w-full"}>
-                        <Input autoFocus inputProps={{maxLength: 25}} className={"w-full"}
-                               onKeyDown={(e) => handleKeyDown(e, new SaveGameRequest(newName, undefined))}
-                               onChange={(event) => setNewName(event.target.value)}/></div>
-                    <div className={"text-right"}><Button variant="outlined"
-                                                          onClick={() => handleClose(new SaveGameRequest(newName, undefined))}>Save</Button>
-                    </div>
-                </div>
+                    <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
+                        <TextField
+                            autoFocus
+                            label="Name your saved game"
+                            variant="outlined"
+                            fullWidth
+                            inputProps={{maxLength: 25}}
+                            value={newName}
+                            onChange={(event) => setNewName(event.target.value)}
+                            onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => handleKeyDown(e, new SaveGameRequest(newName, undefined))}
+                            sx={{flexGrow: 1}}
+                        />
+                        <Button
+                            variant="contained"
+                            sx={{
+                                borderRadius: '20px',
+                                px: 3,
+                                py: 1,
+                                bgcolor: 'grey.800',
+                                '&:hover': {
+                                    bgcolor: 'grey.700'
+                                }
+                            }}
+                            startIcon={<SaveIcon/>}
+                            onClick={() => handleClose(new SaveGameRequest(newName, undefined))}
+                            disabled={!newName.trim()}
+                        >
+                            Save
+                        </Button>
+                    </Box>
+                </Paper>
             </DialogContent>
 
-            {props.games.length > 0 && (
+            <DialogContent sx={{pt: 0, maxHeight: '40vh', overflow: 'auto'}}>
+                <Divider sx={{mb: 3}}/>
 
-                <DialogContent className={"max-h-60 overflow-auto"}>
-                    <h1 className={"mt-3 mb-3 "}>Overwrite a previously saved game: </h1>
-                    <hr/>
-                    <div className={"mt-5"}>
-                        <div>
-                            {props.games.map((game) => (
+                {props.games.length > 0 && (
+                    <>
+                        <Typography data-testid="overwrite-section-title" variant="h6" fontWeight="bold" sx={{mb: 2, color: 'grey.800'}}>
+                            Overwrite Existing Save
+                        </Typography>
+                    </>
+                )}
 
-                                <div key={game.id} className={"columns-3"}>
+                {props.games.length === 0 ? (
+                    <Box sx={{p: 4, textAlign: 'center'}}>
+                        <SportsEsportsIcon sx={{fontSize: 60, color: 'text.secondary', mb: 2}}/>
+                        <Typography variant="body1" color="text.secondary">
+                            No saved games found
+                        </Typography>
+                    </Box>
+                ) : (
+                    <Box data-testid="save-game-list" sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
+                        {props.games.map((game) => (
+                            <Paper
+                                data-testid="save-game-item"
+                                key={game.id}
+                                elevation={2}
+                                sx={{
+                                    p: 2,
+                                    borderRadius: '8px',
+                                    transition: 'all 0.2s',
+                                    '&:hover': {
+                                        transform: 'translateY(-2px)',
+                                        boxShadow: 4
+                                    }
+                                }}
+                            >
+                                <Box sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center'
+                                }}>
+                                    <Box sx={{display: 'flex', flexDirection: 'column', gap: 1, flex: 1}}>
+                                        <Typography variant="h6" fontWeight="bold" sx={{color: 'grey.800'}}>
+                                            {game.name}
+                                        </Typography>
 
-                                    <div
-                                        className={"mb-2"}>
-                                        {moment.utc(game.date).local().format('MMMM Do, h:mm a')}
-                                    </div>
+                                        <Box sx={{display: 'flex', alignItems: 'center', color: 'text.secondary'}}>
+                                            <AccessTimeIcon fontSize="small" sx={{mr: 1}}/>
+                                            <Typography variant="body2">
+                                                {moment.utc(game.date).local().format('MMMM Do, h:mm a')}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
 
-                                    <div className={"mb-4 text-left"}>
-                                        {game.name}
-                                    </div>
+                                    <Button
+                                        variant="outlined"
+                                        onClick={() => handleClose({
+                                            name: game.name,
+                                            id: game.id,
+                                            sessionId: undefined,
+                                            clientId: undefined
+                                        })}
+                                        sx={{
+                                            borderRadius: '20px',
+                                            px: 2,
+                                            borderColor: 'grey.600',
+                                            color: 'grey.800',
+                                            '&:hover': {
+                                                borderColor: 'grey.800',
+                                                bgcolor: 'grey.100'
+                                            }
+                                        }}
+                                    >
+                                        Overwrite
+                                    </Button>
+                                </Box>
+                            </Paper>
+                        ))}
+                    </Box>
+                )}
+            </DialogContent>
 
-                                    <div className="text-right">
-                                        <Button variant="outlined" size="small"
-                                                onClick={() => handleClose({
-                                                    name: game.name,
-                                                    id: game.id,
-                                                    sessionId: undefined,
-                                                    clientId: undefined
-                                                })}>Overwrite</Button>
-                                    </div>
-
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </DialogContent>
-
-            )}
-
-
-            <DialogActions>
-                <Button onClick={() => handleClose(undefined)} variant="contained">
+            <DialogActions sx={{p: 2, bgcolor: 'grey.100'}}>
+                <Button
+                    onClick={() => justClose()}
+                    variant="outlined"
+                    sx={{
+                        borderRadius: '20px',
+                        px: 3,
+                        borderColor: 'grey.600',
+                        color: 'grey.800',
+                        '&:hover': {
+                            borderColor: 'grey.800',
+                            bgcolor: 'grey.100'
+                        }
+                    }}
+                >
                     Cancel
                 </Button>
             </DialogActions>

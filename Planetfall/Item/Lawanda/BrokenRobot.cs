@@ -14,6 +14,6 @@ public class BrokenRobot : ItemBase
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return "A broken robot";
+        return NeverPickedUpDescription(currentLocation!);
     }
 }
