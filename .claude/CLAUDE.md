@@ -236,6 +236,577 @@ This Lambda integration demonstrates how the core game engine's excellent archit
 4. Always include SetUp/TearDown with Repository.Reset()
 5. Test happy path first, then edge cases, then error scenarios
 
+---
+
+## How-To Guides: Practical Development
+
+### Adding a New Item
+
+Items are the building blocks of the game world. Follow these steps to add a new item:
+
+**1. Create the Item Class**
+
+```csharp
+// Location: ZorkOne/Item/MagicRing.cs (or appropriate game folder)
+using GameEngine.Item;
+using Model.Interface;
+using Model.Item;
+
+namespace ZorkOne.Item;
+
+public class MagicRing : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeTurnedOn
+{
+    // Required: Define how players refer to this item
+    public override string[] NounsForMatching => ["ring", "magic ring", "gold ring", "jewelry"];
+
+    // Required: Size affects weight restrictions (1-10 typical range)
+    public override int Size => 1;
+
+    // ICanBeTakenAndDropped: Description when on ground
+    string ICanBeTakenAndDropped.OnTheGroundDescription(ILocation currentLocation)
+    {
+        return "A gold ring with mystical engravings lies here. ";
+    }
+
+    // ICanBeExamined: Description when examined
+    string ICanBeExamined.ExaminationDescription =>
+        "The ring glows faintly with an inner light. Ancient runes are carved along its band. ";
+
+    // ICanBeTurnedOn: What happens when activated
+    public bool IsOn { get; set; }
+
+    public string OnBeingTurnedOn(IContext context)
+    {
+        IsOn = true;
+        return "The ring begins to glow brightly! ";
+    }
+
+    public string OnBeingTurnedOff(IContext context)
+    {
+        IsOn = false;
+        return "The ring's glow fades. ";
+    }
+}
+```
+
+**2. Common Item Interfaces**
+
+Choose interfaces based on item behavior:
+
+- **ICanBeTakenAndDropped** - Portable items (most items)
+  - Required: `OnTheGroundDescription(ILocation)` - description when on floor
+
+- **ICanBeExamined** - Items that can be examined
+  - Required: `ExaminationDescription` - detailed description
+
+- **ICanBeOpened** - Containers, doors
+  - Required: `IsOpen`, `OnBeingOpened(IContext)`
+
+- **ICanBeTurnedOn/Off** - Toggleable items (lamps, machines)
+  - Required: `IsOn`, `OnBeingTurnedOn(IContext)`, `OnBeingTurnedOff(IContext)`
+
+- **ILightSource** - Provides illumination in dark areas
+  - Required: `IsOn`, `IsLit`, `LightSourceDescription`
+
+- **ICanBeEaten** - Consumable food items
+  - Required: `OnEating(IContext)` - returns message, removes item from game
+
+- **ICanBeRead** - Readable items (books, notes)
+  - Required: `ReadDescription` - text content
+
+**3. Place Item in Starting Location**
+
+```csharp
+// In your game's initialization (e.g., ZorkOne/ZorkI.cs or location class)
+var treasureRoom = Repository.GetLocation<TreasureRoom>();
+var ring = Repository.GetItem<MagicRing>();
+treasureRoom.ItemPlacedHere(ring);
+```
+
+**4. Add Custom Behavior (Optional)**
+
+For complex interactions, create an item processor:
+
+```csharp
+// GameEngine/Item/ItemProcessor/WearRingProcessor.cs
+public class WearRingProcessor : IInteractionProcessor
+{
+    public Task<InteractionResult?> Process(SimpleIntent action, IContext context,
+        IGenerationClient client)
+    {
+        if (!action.MatchVerb(["wear", "put on"]))
+            return Task.FromResult<InteractionResult?>(null);
+
+        var ring = Repository.GetItem<MagicRing>();
+        if (!context.Items.Contains(ring))
+            return Task.FromResult<InteractionResult?>(
+                new PositiveInteractionResult("You don't have the ring! "));
+
+        // Custom wearing logic
+        return Task.FromResult<InteractionResult?>(
+            new PositiveInteractionResult("You slip the ring onto your finger. It fits perfectly! "));
+    }
+}
+```
+
+**5. Examples to Study**
+
+- **Simple portable**: `ZorkOne/Item/Lunch.cs` - basic item with eating
+- **Container**: `ZorkOne/Item/TrophyCase.cs` - holds other items
+- **Light source**: `ZorkOne/Item/Lamp.cs` - provides light, can be turned on/off
+- **Complex NPC**: `ZorkOne/Item/Troll.cs` - combat, item acceptance, turn-based behavior
+
+---
+
+### Adding a New Command/Verb
+
+Commands allow players to interact with the game world. Here's how to add new verbs:
+
+**1. Add Verb to Verb Collections**
+
+```csharp
+// Model/Verbs.cs
+public static class Verbs
+{
+    // Add new verb array or extend existing one
+    public static readonly string[] WearVerbs = ["wear", "put on", "don"];
+    public static readonly string[] RemoveVerbs = ["remove", "take off", "doff"];
+
+    // Or extend existing array
+    public static readonly string[] UseVerbs =
+        ["use", "apply", "activate", "press", "push", "wield"]; // added "wield"
+}
+```
+
+**2. Create a Command Processor**
+
+For **global commands** (work anywhere):
+
+```csharp
+// GameEngine/StaticCommand/Implementation/InventoryProcessor.cs
+public class InventoryProcessor : IStaticCommandProcessor
+{
+    public Task<string?> Process(string? input, IContext context, IGenerationClient client)
+    {
+        // Match command variations
+        if (input is null || !input.Trim().Equals("inventory", StringComparison.OrdinalIgnoreCase)
+            && !input.Trim().Equals("i", StringComparison.OrdinalIgnoreCase))
+            return Task.FromResult<string?>(null);
+
+        // Implement logic
+        if (!context.Items.Any())
+            return Task.FromResult<string?>("You are empty-handed. ");
+
+        var itemList = string.Join(", ", context.Items.Select(i => i.NounsForMatching[0]));
+        return Task.FromResult<string?>($"You are carrying: {itemList}. ");
+    }
+}
+```
+
+For **item-specific commands**:
+
+```csharp
+// GameEngine/Item/ItemProcessor/ClimbProcessor.cs
+public class ClimbProcessor : IInteractionProcessor
+{
+    public Task<InteractionResult?> Process(SimpleIntent action, IContext context,
+        IGenerationClient client)
+    {
+        if (!action.MatchVerb(["climb", "scale", "ascend"]))
+            return Task.FromResult<InteractionResult?>(null);
+
+        // Check if item can be climbed
+        var item = Repository.GetItem(action.Noun);
+        if (item is not IClimbable climbable)
+            return Task.FromResult<InteractionResult?>(
+                new PositiveInteractionResult("You can't climb that! "));
+
+        return Task.FromResult<InteractionResult?>(climbable.OnBeingClimbed(context));
+    }
+}
+```
+
+**3. Register the Processor**
+
+Add to appropriate engine in `GameEngine/GameEngine.cs` initialization:
+
+```csharp
+// For global commands
+_staticCommands.Add(new InventoryProcessor());
+
+// For item interactions
+_itemProcessorFactory.RegisterProcessor(new ClimbProcessor());
+```
+
+**4. Test the Command**
+
+```csharp
+[Test]
+public async Task Should_ShowInventory_When_CommandIsI()
+{
+    Repository.Reset();
+    var context = new Context();
+    var sword = Repository.GetItem<Sword>();
+    context.Items.Add(sword);
+
+    var processor = new InventoryProcessor();
+    var result = await processor.Process("i", context, null);
+
+    result.Should().Contain("sword");
+}
+```
+
+**Examples to Study:**
+- **Simple command**: `GameEngine/StaticCommand/Implementation/ScoreProcessor.cs`
+- **Complex command**: `GameEngine/StaticCommand/Implementation/GodModeProcessor.cs`
+- **Item processor**: `GameEngine/Item/ItemProcessor/TakeProcessor.cs`
+
+---
+
+### Adding a New NPC (Non-Player Character)
+
+NPCs add life to the game world. They can move, fight, hold conversations, and respond to player actions.
+
+**1. Create the NPC Class**
+
+```csharp
+// ZorkOne/Item/Wizard.cs
+using GameEngine.IntentEngine;
+using GameEngine.Item;
+using Model.AIGeneration;
+using Model.Intent;
+using Model.Interface;
+
+namespace ZorkOne.Item;
+
+public class Wizard : ContainerBase,
+    ICanBeExamined,
+    ITurnBasedActor,
+    ICanBeGivenThings,
+    ICanBeAttacked,
+    ICanHaveConversation
+{
+    // Identity
+    public override string[] NounsForMatching => ["wizard", "mage", "old man"];
+
+    // State tracking
+    public bool IsHostile { get; set; }
+    public int HitPoints { get; set; } = 10;
+    public bool HasSpokenToPlayer { get; set; }
+
+    // Decision engine for accepting items
+    private readonly GiveSomethingToSomeoneDecisionEngine<Wizard> _giveEngine = new();
+
+    // Description
+    string ICanBeExamined.ExaminationDescription =>
+        IsHostile
+            ? "An angry wizard glares at you with glowing eyes! "
+            : "A kindly old wizard smiles at you. ";
+
+    // Turn-based behavior (called each game turn)
+    public Task<string> Act(IContext context, IGenerationClient client)
+    {
+        if (HitPoints <= 0)
+            return Task.FromResult(string.Empty);
+
+        // NPC logic here
+        if (IsHostile && context.CurrentLocation == CurrentLocation)
+        {
+            return Task.FromResult("The wizard waves his wand menacingly! ");
+        }
+
+        return Task.FromResult(string.Empty);
+    }
+
+    // Item acceptance
+    InteractionResult ICanBeGivenThings.OfferThisThing(IItem item, IContext context)
+    {
+        // Accept spell books, reject everything else
+        if (item is SpellBook)
+        {
+            context.RemoveItem(item);
+            ItemPlacedHere(item);
+            IsHostile = false;
+            return new PositiveInteractionResult(
+                "The wizard accepts the book gratefully. \"Thank you, traveler!\" ");
+        }
+
+        IsHostile = true;
+        return new PositiveInteractionResult(
+            "The wizard rejects your offering and becomes angry! ");
+    }
+
+    // Combat
+    public InteractionResult OnBeingAttacked(IItem weapon, IContext context)
+    {
+        HitPoints -= 2;
+
+        if (HitPoints <= 0)
+        {
+            CurrentLocation?.RemoveItem(this);
+            return new PositiveInteractionResult(
+                "The wizard collapses in defeat and vanishes in a puff of smoke! ");
+        }
+
+        IsHostile = true;
+        return new PositiveInteractionResult(
+            "You strike the wizard! He retaliates with a spell! ");
+    }
+
+    // Multi-noun interaction handling
+    public override async Task<InteractionResult> RespondToMultiNounInteraction(
+        MultiNounIntent action, IContext context, IGenerationClient client)
+    {
+        // Handle "give X to wizard"
+        var giveResult = _giveEngine.AreWeGivingSomethingToSomeone(action, this, context);
+        if (giveResult is not null)
+            return giveResult;
+
+        return await base.RespondToMultiNounInteraction(action, context, client);
+    }
+}
+```
+
+**2. NPC Behavior Patterns**
+
+- **Stationary NPC**: Just implement interfaces, don't move
+- **Wandering NPC**: Override `Act()` to change `CurrentLocation` randomly
+- **Following NPC**: Track player location in `Act()`, see `Floyd.cs:56-85`
+- **Aggressive NPC**: Attack player in `Act()` when in same room, see `Troll.cs:43-67`
+
+**3. Dialogue System (Optional)**
+
+```csharp
+// Implement ICanHaveConversation
+public string? ParseConversation(string conversation, IContext context,
+    IGenerationClient generationClient)
+{
+    // Simple keyword matching
+    if (conversation.Contains("spell", StringComparison.OrdinalIgnoreCase))
+        return "I know many spells. Which would you like to learn? ";
+
+    if (conversation.Contains("help", StringComparison.OrdinalIgnoreCase))
+        return "I can teach you magic, but you must prove yourself worthy. ";
+
+    // Use AI for open-ended conversation
+    return generationClient.GenerateCompanionSpeech(
+        companionName: "Wizard",
+        companionDescription: "A wise old wizard",
+        playerStatement: conversation,
+        context: context
+    );
+}
+```
+
+**4. Place NPC in World**
+
+```csharp
+var towerTop = Repository.GetLocation<TowerTop>();
+var wizard = Repository.GetItem<Wizard>();
+towerTop.ItemPlacedHere(wizard);
+
+// Add to actor list for turn processing
+context.Actors.Add(wizard);
+```
+
+**Examples to Study:**
+- **Simple NPC**: `ZorkOne/Item/Cyclops.cs` - stationary, accepts food
+- **Combat NPC**: `ZorkOne/Item/Troll.cs` - guards passage, can be defeated
+- **Companion NPC**: `Planetfall/Item/Kalamontee/Mech/FloydPart/Floyd.cs` - follows player, has dialogue, complex behavior
+
+---
+
+### Adding a New Location
+
+Locations are the rooms and areas players explore.
+
+**1. Create the Location Class**
+
+```csharp
+// ZorkOne/Location/MysticGrove.cs
+using GameEngine.Location;
+using Model.Interface;
+using Model.Movement;
+
+namespace ZorkOne.Location;
+
+public class MysticGrove : LocationBase
+{
+    // Required: Location name (shown to player)
+    public override string Name => "Mystic Grove";
+
+    // Required: Description (shown on entry and with "look")
+    public override string Description =>
+        "You are in a clearing surrounded by ancient trees. " +
+        "Mystical energy fills the air. The trees seem to whisper secrets. ";
+
+    // Optional: Map grouping for multi-area games
+    public override string GetMapName() => "Forest";
+
+    // Optional: Custom behaviors
+    public override bool IsLit => true; // Always lit (has ambient light)
+
+    // Define exits (return null for blocked directions)
+    protected override ILocation? GetNorth() => Repository.GetLocation<DarkForest>();
+    protected override ILocation? GetSouth() => Repository.GetLocation<ForestPath>();
+    protected override ILocation? GetEast() => null; // Dense trees
+    protected override ILocation? GetWest() => null; // Dense trees
+
+    // Optional: Entry restrictions
+    public override string? BeforeEnterLocation(IContext context, ILocation previousLocation)
+    {
+        // Check for required item
+        var talisman = Repository.GetItem<MagicTalisman>();
+        if (!context.Items.Contains(talisman))
+            return "A magical barrier prevents your entry! ";
+
+        return null; // null = allow entry
+    }
+
+    // Optional: Custom movement messages
+    public override string? GetCantGoThatWayMessage(Direction direction, IContext context,
+        IGenerationClient? generationClient)
+    {
+        if (direction is Direction.E or Direction.W)
+            return "The ancient trees block your path with their gnarled branches. ";
+
+        return base.GetCantGoThatWayMessage(direction, context, generationClient);
+    }
+}
+```
+
+**2. Special Location Features**
+
+**Dark Location** (requires light source):
+```csharp
+public override bool IsLit => false; // Player needs lamp/torch
+
+public override string DarknessDescription =>
+    "It is pitch black. You are likely to be eaten by a grue. ";
+```
+
+**Weighted Location** (size restrictions):
+```csharp
+public override int WeightLimit => 5; // Only small items fit
+
+public override string GetCantCarryThatMuchMessage(IItem item)
+{
+    return $"The {item.NounsForMatching[0]} won't fit through the narrow passage! ";
+}
+```
+
+**SubLocation** (on/in things):
+```csharp
+// For "get in boat" scenarios
+public class InsideBoat : LocationBase, ISubLocation
+{
+    public ILocation ParentLocation => Repository.GetLocation<LakeShore>();
+
+    public override string Name => "Inside Boat";
+    public override string Description => "You are sitting in a small boat. ";
+}
+```
+
+**3. Connect to Existing Locations**
+
+Update adjacent locations to point back:
+
+```csharp
+// In ForestPath.cs
+protected override ILocation? GetNorth() => Repository.GetLocation<MysticGrove>();
+```
+
+**4. Initialize with Items**
+
+```csharp
+// In game initialization
+var grove = Repository.GetLocation<MysticGrove>();
+var staff = Repository.GetItem<MagicStaff>();
+var potion = Repository.GetItem<HealingPotion>();
+
+grove.ItemPlacedHere(staff);
+grove.ItemPlacedHere(potion);
+```
+
+**Examples to Study:**
+- **Simple room**: `ZorkOne/Location/WestOfHouse.cs` - basic location with exits
+- **Complex room**: `ZorkOne/Location/TrollRoom.cs` - NPC guarding, conditional exits
+- **Dark room**: `ZorkOne/Location/MineEntrance.cs` - requires light source
+- **Puzzle room**: `ZorkOne/Location/RoundRoom.cs` - special mechanics
+
+---
+
+### Adding Custom Item Interactions
+
+For specialized item behaviors, create interaction processors:
+
+**1. Create Processor Class**
+
+```csharp
+// GameEngine/Item/ItemProcessor/PolishProcessor.cs
+public class PolishProcessor : IInteractionProcessor
+{
+    public Task<InteractionResult?> Process(SimpleIntent action, IContext context,
+        IGenerationClient client)
+    {
+        // Only handle "polish" verb
+        if (!action.MatchVerb(["polish", "shine", "clean", "rub"]))
+            return Task.FromResult<InteractionResult?>(null);
+
+        var item = Repository.GetItem(action.Noun);
+
+        // Only specific items can be polished
+        if (item is MagicRing ring)
+        {
+            if (!context.Items.Contains(ring))
+                return Task.FromResult<InteractionResult?>(
+                    new PositiveInteractionResult("You don't have the ring! "));
+
+            return Task.FromResult<InteractionResult?>(
+                new PositiveInteractionResult(
+                    "You polish the ring. It glows more brightly than before! "));
+        }
+
+        // Default response for non-polishable items
+        return Task.FromResult<InteractionResult?>(
+            new PositiveInteractionResult("That doesn't need polishing. "));
+    }
+}
+```
+
+**2. Register Processor**
+
+```csharp
+// In ItemProcessorFactory or engine initialization
+_processors.Add(new PolishProcessor());
+```
+
+**Examples to Study:**
+- **Simple processor**: `GameEngine/Item/ItemProcessor/SmellInteractionProcessor.cs`
+- **Complex processor**: `GameEngine/Item/ItemProcessor/ClothingOnAndOffProcessor.cs`
+- **Multi-item processor**: `GameEngine/IntentEngine/GiveSomethingToSomeoneDecisionEngine.cs`
+
+---
+
+### Quick Reference: Common Tasks
+
+| Task | File Location | Key Method/Property |
+|------|---------------|---------------------|
+| Add item noun | Item class | `NounsForMatching` override |
+| Make item portable | Item class | Implement `ICanBeTakenAndDropped` |
+| Add item description | Item class | Implement `ICanBeExamined` |
+| Make item light source | Item class | Implement `ILightSource` |
+| Add NPC behavior | NPC class | Implement `ITurnBasedActor.Act()` |
+| Add dialogue | NPC class | Implement `ICanHaveConversation` |
+| Create location | Location class | Inherit `LocationBase`, override exits |
+| Block direction | Location class | Return `null` from `GetNorth()` etc |
+| Require light | Location class | `IsLit => false` |
+| Add verb synonym | `Model/Verbs.cs` | Add to appropriate array |
+| Create command | `StaticCommand/Implementation/` | Implement `IStaticCommandProcessor` |
+| Custom interaction | `Item/ItemProcessor/` | Implement `IInteractionProcessor` |
+
+---
+
 ### Adding New Games
 1. Create game-specific folder under solution (following ZorkOne/Planetfall pattern)
 2. Implement game-specific items/locations inheriting from base classes
