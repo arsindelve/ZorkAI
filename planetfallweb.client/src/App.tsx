@@ -1,21 +1,23 @@
 import './App.css';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
-import Game from "./Game.tsx";
-import GameMenu from "./menu/GameMenu.tsx";
 import {useEffect, useState} from "react";
-import Server from "./Server.ts";
-import {SessionHandler} from "./SessionHandler.ts";
-import RestoreModal from "./modal/RestoreModal.tsx";
-import {ISavedGame} from "./model/SavedGame.ts";
-import SaveModal from "./modal/SaveModal.tsx";
-import RestartConfirmDialog from "./modal/RestartConfirmDialog.tsx";
-import {useGameContext} from "./GameContext.tsx";
-import VideoDialog from "./modal/VideoModal.tsx";
+import Server from "@shared/services/Server";
+import { SessionHandler } from "@shared/services/SessionHandler";
+import RestoreModal from "@shared/modal/RestoreModal";
+import { ISavedGame } from "@shared/model/SavedGame";
+import SaveModal from "@shared/modal/SaveModal";
+import RestartConfirmDialog from "@shared/modal/RestartConfirmDialog";
+import VideoModal from "@shared/modal/VideoModal";
+import ReleaseNotesModal from "@shared/modal/ReleaseNotesModal";
+import { Mixpanel } from "@shared/services/Mixpanel";
+import DialogType from "@shared/model/DialogType";
+import GameMenu from "@shared/menu/GameMenu";
+import FunctionsMenu from "@shared/menu/FunctionsMenu";
+import Game from "@shared/components/Game";
+import { useGameContext } from "@shared/context/GameContext";
+import config from '../config.json';
 import WelcomeDialog from "./modal/WelcomeModal.tsx";
-import ReleaseNotesModal from "./modal/ReleaseNotesModal.tsx";
-import {Mixpanel} from "./Mixpanel.ts";
-import DialogType from "./model/DialogType.ts";
-import {ReleaseNotesServer} from "./ReleaseNotesServer.ts";
+import PlanetfallAboutMenu from "./menu/AboutMenu.tsx";
 
 function App() {
 
@@ -26,26 +28,12 @@ function App() {
     const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
     const [videoDialogOpen, setVideoDialogOpen] = useState<boolean>(false);
     const [releaseNotesDialogOpen, setReleaseNotesDialogOpen] = useState<boolean>(false);
-    const [releases, setReleases] = useState<{ date: string; name: string; notes: string }[]>([]);
-    const [latestVersion, setLatestVersion] = useState<string>('');
 
-    const server = new Server();
+    const server = new Server(config.base_url);
     const sessionId = new SessionHandler();
     const queryClient = new QueryClient();
 
-    const {dialogToOpen, setDialogToOpen, setRestartGame} = useGameContext();
-
-    // Fetch releases on mount
-    useEffect(() => {
-        ReleaseNotesServer().then((data) => {
-            setReleases(data);
-            if (data.length > 0) {
-                setLatestVersion(data[0].name);
-            }
-        }).catch((error) => {
-            console.error('Error fetching releases:', error);
-        });
-    }, []);
+    const {dialogToOpen, setDialogToOpen, setRestartGame, setRestoreGameRequest, setSaveGameRequest, setDeleteGameRequest, copyGameTranscript} = useGameContext();
 
     useEffect(() => {
         if (!dialogToOpen) {
@@ -119,11 +107,21 @@ function App() {
             <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-black/40 pointer-events-none" />
 
             <div className="relative flex-grow flex flex-col min-h-0 z-10">
-                <GameMenu latestVersion={latestVersion} />
+                <GameMenu
+                    logoUrl="https://planetfallai-assets.s3.amazonaws.com/planetfall-logo.webp"
+                    logoAlt="Planetfall Logo"
+                    title="Generative AI-Enhanced Planetfall"
+                >
+                    <FunctionsMenu
+                        onDialogOpen={setDialogToOpen}
+                        onCopyTranscript={copyGameTranscript}
+                    />
+                    <PlanetfallAboutMenu />
+                </GameMenu>
 
                 <QueryClientProvider client={queryClient}>
 
-                    <Game />
+                    <Game baseUrl={config.base_url} />
 
                     <RestartConfirmDialog
                         open={restartConfirmOpen}
@@ -133,32 +131,46 @@ function App() {
                         }}
                     />
 
-                    <RestoreModal games={availableSavedGames}
-                                  open={restoreDialogOpen}
-                                  setOpen={setRestoreDialogOpen}
+                    <RestoreModal
+                        games={availableSavedGames}
+                        open={restoreDialogOpen}
+                        setOpen={setRestoreDialogOpen}
+                        onRestoreGame={setRestoreGameRequest}
+                        onDeleteGame={setDeleteGameRequest}
                     />
 
-                    <SaveModal games={availableSavedGames}
-                               setOpen={setSaveDialogOpen}
-                               open={saveDialogOpen}
+                    <SaveModal
+                        games={availableSavedGames}
+                        setOpen={setSaveDialogOpen}
+                        open={saveDialogOpen}
+                        onSaveGame={setSaveGameRequest}
                     />
 
-                    <VideoDialog open={videoDialogOpen}
-                                 handleClose={() => {
-                                     setVideoDialogOpen(false);
-                                     Mixpanel.track('Close Video Dialog', {});
-                                 }}/>
+                    <VideoModal
+                        open={videoDialogOpen}
+                        videoUrl="https://planetfallai-assets.s3.amazonaws.com/planetfall-intro.mp4"
+                        title="Welcome to Planetfall AI"
+                        handleClose={() => {
+                            setVideoDialogOpen(false);
+                            Mixpanel.track('Close Video Dialog', {});
+                        }}
+                    />
 
-                    <ReleaseNotesModal handleClose={() => {
-                        setReleaseNotesDialogOpen(false);
-                        Mixpanel.track('Close Release Notes Dialog', {});
-                    }} open={releaseNotesDialogOpen} releases={releases} />
+                    <ReleaseNotesModal
+                        title="Planetfall AI Release Notes"
+                        handleClose={() => {
+                            setReleaseNotesDialogOpen(false);
+                            Mixpanel.track('Close Release Notes Dialog', {});
+                        }}
+                        open={releaseNotesDialogOpen}
+                    />
 
-                    <WelcomeDialog open={welcomeDialogOpen}
-                                   handleClose={() => {
-                                       setWelcomeDialogOpen(false);
-                                       Mixpanel.track('Close Welcome Dialog', {});
-                                   }}/>
+                    <WelcomeDialog
+                        open={welcomeDialogOpen}
+                        handleClose={() => {
+                            setWelcomeDialogOpen(false);
+                            Mixpanel.track('Close Welcome Dialog', {});
+                        }}/>
 
 
                 </QueryClientProvider>

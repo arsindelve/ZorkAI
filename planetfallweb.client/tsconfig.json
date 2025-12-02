@@ -5,6 +5,10 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["../WebClients/packages/game-client-core/src/*"]
+    },
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -20,7 +24,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
+  "include": ["src", "../WebClients/packages/game-client-core/src"],
   "exclude": ["src/__tests__", "**/*.test.tsx", "**/*.test.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
