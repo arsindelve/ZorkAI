@@ -16,16 +16,13 @@ public class FloydMovementManager(Floyd floyd)
 
         floyd.WanderingTurnsRemaining--;
 
-        if (floyd.WanderingTurnsRemaining == 0)
-        {
-            // Floyd returns to the player
-            floyd.IsOffWandering = false;
-            floyd.CurrentLocation = context.CurrentLocation as ICanContainItems;
-            context.CurrentLocation.ItemPlacedHere(floyd);
-            return await GenerateReturnMessage(context, client);
-        }
-
-        return string.Empty; // Still wandering
+        if (floyd.WanderingTurnsRemaining != 0) return string.Empty; // Still wandering
+        
+        // Floyd returns to the player
+        floyd.IsOffWandering = false;
+        floyd.CurrentLocation = context.CurrentLocation as ICanContainItems;
+        context.CurrentLocation.ItemPlacedHere(floyd);
+        return await GenerateReturnMessage(context, client);
     }
 
     /// <summary>
@@ -41,7 +38,7 @@ public class FloydMovementManager(Floyd floyd)
         bool isInTheRoom = floyd.CurrentLocation == context.CurrentLocation;
         if (!isInTheRoom)
         {
-            // Random chance to not follow (1 in 5 chance)
+            // Random chance to no longer follow (1 in 5 chance)
             if (floyd.Chooser.RollDiceSuccess(5))
             {
                 floyd.IsOffWandering = true;
@@ -69,16 +66,14 @@ public class FloydMovementManager(Floyd floyd)
         if (floyd.IsOffWandering || !isInTheRoom || context.CurrentLocation is IFloydDoesNotTalkHere)
             return null;
 
-        if (floyd.Chooser.RollDiceSuccess(20))
-        {
-            floyd.IsOffWandering = true;
-            floyd.WanderingTurnsRemaining = floyd.Chooser.RollDice(5); // 1-5 turns
-            (context.CurrentLocation as ICanContainItems)?.RemoveItem(floyd);
-            floyd.CurrentLocation = null; // Floyd is not in any location while wandering
-            return await GenerateDepartureMessage(context, client);
-        }
+        if (!floyd.Chooser.RollDiceSuccess(20)) return null;
+        
+        floyd.IsOffWandering = true;
+        floyd.WanderingTurnsRemaining = floyd.Chooser.RollDice(5); // 1-5 turns
+        (context.CurrentLocation as ICanContainItems)?.RemoveItem(floyd);
+        floyd.CurrentLocation = null; // Floyd is not in any location while wandering
+        return await GenerateDepartureMessage(context, client);
 
-        return null;
     }
 
     /// <summary>
