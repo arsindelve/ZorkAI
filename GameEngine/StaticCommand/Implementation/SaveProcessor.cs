@@ -54,9 +54,7 @@ internal class SaveProcessor : IStatefulProcessor
         try
         {
             await SaveGame(context);
-            var generatedResponse =
-                await client.GenerateNarration(
-                    new AfterSaveGameRequest(context.CurrentLocation.GetDescriptionForGeneration(context)), context.SystemPromptAddendum);
+            var generatedResponse = await context.Engine!.GenerateSaveGameNarration();
             return $"{generatedResponse}";
         }
         catch (Exception)

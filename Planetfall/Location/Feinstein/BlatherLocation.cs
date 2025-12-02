@@ -6,6 +6,7 @@ namespace Planetfall.Location.Feinstein;
 
 internal abstract class BlatherLocation : LocationWithNoStartingItems, ITurnBasedActor
 {
+    [UsedImplicitly]
     public int TurnsSinceYouMadeBlatherMad { get; set; }
 
     public Task<string> Act(IContext context, IGenerationClient client)
@@ -67,7 +68,7 @@ internal abstract class BlatherLocation : LocationWithNoStartingItems, ITurnBase
         };
     }
 
-    private string? RandomBlatherBlock()
+    private string RandomBlatherBlock()
     {
         string[] array =
         {

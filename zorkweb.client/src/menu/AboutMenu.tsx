@@ -19,11 +19,14 @@ import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import ArticleIcon from '@mui/icons-material/Article';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
 
-export default function AboutMenu() {
+export default function AboutMenu({ latestVersion }: { latestVersion: string }) {
     const {setDialogToOpen} = useGameContext();
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
+
+    // Use config.version as fallback if latestVersion is not yet loaded
+    const displayVersion = latestVersion || config.version;
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -175,7 +178,7 @@ export default function AboutMenu() {
                     <ListItemIcon>
                         <NewReleasesIcon fontSize="small" />
                     </ListItemIcon>
-                    <ListItemText>Version {config.version}</ListItemText>
+                    <ListItemText>Version {displayVersion}</ListItemText>
                 </MenuItem>
             </Menu>
         </div>

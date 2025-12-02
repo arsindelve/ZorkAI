@@ -5,7 +5,9 @@ namespace Model.Item;
 
 /// <summary>
 ///     Represents an item that can be taken and dropped. This would include swords and leaflets, but not
-///     items like windows and mailboxes.
+///     items like windows and mailboxes - except sometimes the game will allow you to ATTEMPT to pick those up
+///     even though it's impossible, in which case you need to implement "CannotBeTakenDescription" which when non
+///     empty, will be returned to tell the adventurer that they cannot pick up the item. 
 /// </summary>
 public interface ICanBeTakenAndDropped : IInteractionTarget
 {

@@ -55,16 +55,16 @@ public class PlanetfallGame : IInfocomGame
     // [18 hints left.] -> Attacking or talking to the ambassador?
     // [17 hints left.] -> ** Touching, eating, smelling, or looking at the slime? It (feels/smells/tastes) like slime. Aren't you glad you didn't step in it? (Same "feels like" if you take it)
     // [16 hints left.] -> ** Scrubbing the slime? (Clean or scrub) Whew. You've cleaned up maybe one ten-thousandth of the slime. If you hurry, it might be all cleaned up before Ensign Blather gets here.
-    // [15 hints left.] -> ** Eating the celery? // >eat celery Oops. Looks like Blow'k-Bibben-Gordoan metabolism is not compatible with our own. You die of all sorts of convulsions.
+    // DONE [15 hints left.] -> ** Eating the celery? // >eat celery Oops. Looks like Blow'k-Bibben-Gordoan metabolism is not compatible with our own. You die of all sorts of convulsions.
     // [14 hints left.] -> ** Examining the games and tapes in the Rec Area?
-    // [13 hints left.] -> Looking under the table in the Mess Hall?
-    // [12 hints left.] -> Kicking, attacking, rubbing, or kissing Floyd?
+    // DONE [13 hints left.] -> Looking under the table in the Mess Hall?
+    // [12 hints left.] -> Kicking, attacking, RUBBING, or kissing Floyd?
     // [11 hints left.] -> Throwing acid at the mutants?
     // [10 hints left.] -> ** Reading your chronometer?
     // [9 hints left.] -> Taking off your chronometer or pouring acid on it?
     // [8 hints left.] -> Getting into bed in the Infirmary?
     // [7 hints left.] -> Scrubbing yourself?
-    // [6 hints left.] -> ** Reading the towel?
+    // DONE [6 hints left.] -> ** Reading the towel?
     // [5 hints left.] -> Removing your uniform while Blather or Floyd are present?
     // [4 hints left.] -> Destroying the mural?
     // [3 hints left.] -> "Stealing" the lower elevator card from Floyd and then showing it to him?

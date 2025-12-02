@@ -53,10 +53,10 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             case "get":
             case "acquire":
             case "snatch":
-                return await GetItemsToTake(context, action);
+                return await GetItemsToTake(context, action, client);
 
             case "drop":
-                return await GetItemsToDrop(context, action);
+                return await GetItemsToDrop(context, action, client);
         }
 
         return null;
@@ -73,7 +73,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         IContext context, IGenerationClient client)
     {
         var result = await GetItemsToTake(context,
-            new SimpleIntent { OriginalInput = action.Message, Verb = "take", Noun = action.Noun });
+            new SimpleIntent { OriginalInput = action.Message, Verb = "take", Noun = action.Noun }, client);
 
         if (result is null or NoNounMatchInteractionResult)
         {
@@ -89,7 +89,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         IContext context, IGenerationClient client)
     {
         var result = await GetItemsToDrop(context,
-            new SimpleIntent { OriginalInput = action.Message, Verb = "drop", Noun = action.Noun });
+            new SimpleIntent { OriginalInput = action.Message, Verb = "drop", Noun = action.Noun }, client);
 
         if (result is null or NoNounMatchInteractionResult)
         {
@@ -101,7 +101,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         return (result, result.InteractionMessage);
     }
 
-    private async Task<InteractionResult?> GetItemsToDrop(IContext context, SimpleIntent action)
+    private async Task<InteractionResult?> GetItemsToDrop(IContext context, SimpleIntent action, IGenerationClient client)
     {
         if (string.IsNullOrEmpty(action.OriginalInput))
             return null;
@@ -112,10 +112,10 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         // The parser did not see anything in the inventory that seemed like what we asked for
         if (!items.Any())
         {
-            // There is still a chance there is something for us to drop. This can happen when the parser is not 
-            // smart enough to match the noun to the item description. An example of this is the "magnet" which is 
+            // There is still a chance there is something for us to drop. This can happen when the parser is not
+            // smart enough to match the noun to the item description. An example of this is the "magnet" which is
             // (deliberately, as a puzzle) described as "a metal bar, curved into a U-shape" which the parser does not
-            // understand is a magnet. So as a final attempt, let's see if there is a direct noun match.  
+            // understand is a magnet. So as a final attempt, let's see if there is a direct noun match.
             var specificItem = Repository.GetItem(action.Noun);
             return specificItem is not null ? DropIt(context, specificItem) : new NoNounMatchInteractionResult();
         }
@@ -123,11 +123,15 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (items.Length == 1)
             return DropIt(context, Repository.GetItem(items[0]));
 
-        return new PositiveInteractionResult(DropEverythingProcessor.DropAll(context,
-            items.Select(Repository.GetItem).ToList()));
+        // When dropping multiple items, we need to provide feedback for items that don't exist
+        var itemsWithFeedback = items
+            .Select(itemNoun => (itemNoun, Repository.GetItem(itemNoun)))
+            .ToList();
+
+        return new PositiveInteractionResult(await DropEverythingProcessor.DropAll(context, itemsWithFeedback, client));
     }
 
-    private async Task<InteractionResult?> GetItemsToTake(IContext context, SimpleIntent action)
+    private async Task<InteractionResult?> GetItemsToTake(IContext context, SimpleIntent action, IGenerationClient client)
     {
         if (string.IsNullOrEmpty(action.OriginalInput))
             return null;
@@ -138,10 +142,10 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         // The parser did not see anything in the room description that seemed like what we asked for
         if (!items.Any())
         {
-            // There is still a chance there is something for us to pick up. This can happen when the parser is not 
-            // smart enough to match the noun to the item description. An example of this is the "magnet" which is 
+            // There is still a chance there is something for us to pick up. This can happen when the parser is not
+            // smart enough to match the noun to the item description. An example of this is the "magnet" which is
             // (deliberately, as a puzzle) described as "a metal bar, curved into a U-shape" which the parser does not
-            // understand is a magnet. So as a final attempt, let's see if there is a direct noun match.  
+            // understand is a magnet. So as a final attempt, let's see if there is a direct noun match.
             var specificItem = Repository.GetItem(action.Noun);
             return specificItem is not null ? TakeIt(context, specificItem) : new NoNounMatchInteractionResult();
         }
@@ -149,8 +153,12 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (items.Length == 1)
             return TakeIt(context, Repository.GetItem(items[0]));
 
-        return new PositiveInteractionResult(TakeEverythingProcessor.TakeAll(context,
-            items.Select(Repository.GetItem).ToList()));
+        // When taking multiple items, we need to provide feedback for items that don't exist
+        var itemsWithFeedback = items
+            .Select(itemNoun => (itemNoun, Repository.GetItem(itemNoun)))
+            .ToList();
+
+        return new PositiveInteractionResult(await TakeEverythingProcessor.TakeAll(context, itemsWithFeedback, client));
     }
 
     public static InteractionResult DropIt(IContext context, IItem? castItem)
@@ -203,6 +211,6 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         container?.OnItemRemovedFromHere(castItem, context);
 
         return new PositiveInteractionResult(
-            $"Taken. {(!string.IsNullOrEmpty(onTakenText) ? onTakenText + Environment.NewLine : string.Empty)} ");
+            $"{(!string.IsNullOrEmpty(onTakenText) ? onTakenText + Environment.NewLine : "Taken. " )} ");
     }
 }

@@ -1,6 +1,7 @@
 using System.Reflection;
 using GameEngine.Item;
 using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 using Model.Interface;
 using Model.Item;
 using Model.Location;
@@ -100,7 +101,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     public Type[] CanOnlyHoldTheseTypes => [];
 
-    public string? CanOnlyHoldTheseTypesErrorMessage => string.Empty;
+    public string? CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlaceHere) => string.Empty;
 
     /// <summary>
     ///     Gets a value indicating whether the adventurer has a light source that is on
@@ -339,6 +340,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     /// <param name="action">The simple interaction that the context needs to respond to.</param>
     /// <param name="client"></param>
+    /// <param name="itemProcessorFactory"></param>
     public async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IGenerationClient client,
         IItemProcessorFactory itemProcessorFactory)
     {
@@ -428,5 +430,14 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         var item = Repository.GetItem<TItem>();
         Items.Add(item);
         item.CurrentLocation = location;
+    }
+
+    /// <summary>
+    ///     Default implementation returns null, meaning use the standard AfterSaveGameRequest.
+    ///     Game-specific contexts can override this to provide custom save game requests.
+    /// </summary>
+    public virtual Request? GetSaveGameRequest(string location)
+    {
+        return null;
     }
 }

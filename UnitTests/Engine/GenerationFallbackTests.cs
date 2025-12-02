@@ -1,3 +1,4 @@
+using ChatLambda;
 using GameEngine;
 using GameEngine.Item;
 using Model.AIGeneration;
@@ -28,7 +29,7 @@ public class GenerationFallbackTests
             .ReturnsAsync((string input, string _) =>
             {
                 var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                return words.Length > 1 ? new[] { words[1] } : [];
+                return words.Length > 1 ? [words[1]] : [];
             });
 
         var itemProcessorFactory = new ItemProcessorFactory(takeAndDropParser.Object);
@@ -39,7 +40,8 @@ public class GenerationFallbackTests
             parser,
             client.Object,
             secrets,
-            Mock.Of<CloudWatch.ICloudWatchLogger<CloudWatch.Model.TurnLog>>()
+            Mock.Of<CloudWatch.ICloudWatchLogger<CloudWatch.Model.TurnLog>>(), 
+            Mock.Of<IParseConversation>()
         );
 
         // Ensure consistent starting location
