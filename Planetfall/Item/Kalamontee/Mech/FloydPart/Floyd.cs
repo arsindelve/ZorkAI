@@ -16,6 +16,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     private readonly FloydPowerManager _powerManager;
     private readonly FloydInventoryManager _inventoryManager;
     private readonly FloydSocialResponses _socialResponses;
+    private readonly FloydMovementManager _movementManager;
 
     public Floyd()
     {
@@ -23,6 +24,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         _powerManager = new FloydPowerManager(this);
         _inventoryManager = new FloydInventoryManager(this);
         _socialResponses = new FloydSocialResponses(this);
+        _movementManager = new FloydMovementManager(this);
     }
 
     // This is the thing that he is holding, literally in his hand. 
@@ -200,68 +202,23 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
             return string.Empty;
 
         // Handle wandering countdown - if Floyd is off wandering, decrement turns and check for return
-        if (IsOffWandering && WanderingTurnsRemaining > 0)
-        {
-            WanderingTurnsRemaining--;
+        var wanderingCountdownResult = await _movementManager.HandleWanderingCountdown(context, client);
+        if (wanderingCountdownResult != null)
+            return wanderingCountdownResult;
 
-            if (WanderingTurnsRemaining == 0)
-            {
-                // Floyd returns to the player
-                IsOffWandering = false;
-                CurrentLocation = context.CurrentLocation as ICanContainItems;
-                context.CurrentLocation.ItemPlacedHere(this);
-                return await GenerateCompanionSpeech(context, client, FloydPrompts.ReturningFromExploring);
-            }
-
-            return string.Empty; // Still wandering
-        }
-
-        var followResult = HandleFollowingPlayer(context);
+        var followResult = _movementManager.HandleFollowingPlayer(context);
         if (!string.IsNullOrEmpty(followResult))
             return followResult;
 
         // Spontaneous wandering trigger - 1 in 20 chance per turn
-        if (!IsOffWandering && IsInTheRoom(context) && context.CurrentLocation is not IFloydDoesNotTalkHere)
-        {
-            if (Chooser.RollDice(20) == 1)
-            {
-                IsOffWandering = true;
-                WanderingTurnsRemaining = Chooser.RollDice(5); // 1-5 turns
-                (context.CurrentLocation as ICanContainItems)?.RemoveItem(this);
-                CurrentLocation = null; // Floyd is not in any location while wandering
-                return await GenerateCompanionSpeech(context, client, FloydPrompts.LeavingToExplore);
-            }
-        }
+        var spontaneousWanderingResult = await _movementManager.HandleSpontaneousWandering(context, client);
+        if (spontaneousWanderingResult != null)
+            return spontaneousWanderingResult;
 
         if (context.CurrentLocation is IFloydDoesNotTalkHere)
             return string.Empty;
 
         return await PerformRandomAction(context, client);
-    }
-
-    private string HandleFollowingPlayer(IContext context)
-    {
-        // Don't follow if already wandering
-        if (IsOffWandering)
-            return string.Empty;
-
-        if (!IsInTheRoom(context))
-        {
-            // Random chance to not follow (1 in 5 chance)
-            if (Chooser.RollDice(5) == 1)
-            {
-                IsOffWandering = true;
-                WanderingTurnsRemaining = Chooser.RollDice(5); // 1-5 turns
-                CurrentLocation = null; // Floyd is not in any location while wandering
-                return string.Empty; // No message - player just doesn't see "Floyd follows you"
-            }
-
-            // Normal follow behavior
-            context.CurrentLocation.ItemPlacedHere(this);
-            return "Floyd follows you. ";
-        }
-
-        return string.Empty;
     }
 
     private async Task<string> PerformRandomAction(IContext context, IGenerationClient client)
@@ -320,15 +277,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     /// <param name="context">The current game context.</param>
     public void StartWandering(IContext context)
     {
-        if (!IsOn || HasDied)
-            return; // Can't wander if not on or dead
-
-        IsOffWandering = true;
-        WanderingTurnsRemaining = Chooser.RollDice(5); // 1-5 turns
-
-        // Remove Floyd from current location
-        CurrentLocation?.RemoveItem(this);
-        CurrentLocation = null; // Floyd is not in any location while wandering
+        _movementManager.StartWandering(context);
     }
 
     /// <summary>
