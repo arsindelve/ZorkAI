@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Lawanda;
 using Planetfall.Location;
-using Planetfall.Location.Lawanda.Lab;
 using Utilities;
 
 namespace Planetfall.Item.Kalamontee.Mech.FloydPart;
@@ -211,7 +210,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
                 IsOffWandering = false;
                 CurrentLocation = context.CurrentLocation as ICanContainItems;
                 context.CurrentLocation.ItemPlacedHere(this);
-                return FloydConstants.ReturnMessages.GetRandomElement();
+                return await GenerateCompanionSpeech(context, client, FloydPrompts.ReturningFromExploring);
             }
 
             return string.Empty; // Still wandering
@@ -224,16 +223,13 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         // Spontaneous wandering trigger - 1 in 20 chance per turn
         if (!IsOffWandering && IsInTheRoom(context) && context.CurrentLocation is not IFloydDoesNotTalkHere)
         {
-            BioLockEast bioLockEast = Repository.GetLocation<BioLockEast>();
-
-            // Don't wander if fighting in the bio lab
-            if (!bioLockEast.StateMachine.IsFloydInLabFighting && Chooser.RollDice(20) == 1)
+            if (Chooser.RollDice(20) == 1)
             {
                 IsOffWandering = true;
                 WanderingTurnsRemaining = Chooser.RollDice(5); // 1-5 turns
                 (context.CurrentLocation as ICanContainItems)?.RemoveItem(this);
                 CurrentLocation = null; // Floyd is not in any location while wandering
-                return FloydConstants.GoingExploring;
+                return await GenerateCompanionSpeech(context, client, FloydPrompts.LeavingToExplore);
             }
         }
 
@@ -245,12 +241,6 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     private string HandleFollowingPlayer(IContext context)
     {
-        // Check if Floyd is in the Bio Lab fighting - if so, don't follow
-        BioLockEast bioLockEast = Repository.GetLocation<BioLockEast>();
-
-        if (bioLockEast.StateMachine.IsFloydInLabFighting)
-            return string.Empty; // Floyd is busy fighting in the lab
-
         // Don't follow if already wandering
         if (IsOffWandering)
             return string.Empty;
@@ -276,26 +266,20 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     private async Task<string> PerformRandomAction(IContext context, IGenerationClient client)
     {
-        // Check if Floyd is in the Bio Lab fighting - if so, don't perform random actions
-        var bioLockEast = Repository.GetLocation<BioLockEast>();
-
-        if (bioLockEast.StateMachine.IsFloydInLabFighting)
-            return string.Empty; // Floyd is busy fighting in the lab
-
         // Randomly, Floyd will say or do something (or possibly nothing) based on one of the
         // prompts below - or he might do one of the things from the original game.
         var action = Chooser.RollDice(15) switch
         {
             <= 3 => (Func<Task<string>>)(async () =>
-                await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
+                await GenerateCompanionSpeech(context, client, FloydPrompts.DoSomethingSmall)),
             <= 4 => (Func<Task<string>>)(async () =>
-                await GenerateCompanionSpeech(context, client, FloydPrompts.HappyDoSomething)),
+                await GenerateCompanionSpeech(context, client, FloydPrompts.DoSomethingSmall)),
             <= 5 => (Func<Task<string>>)(async () =>
-                await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
+                await GenerateCompanionSpeech(context, client, FloydPrompts.DoSomethingSmall)),
             <= 6 => (Func<Task<string>>)(async () =>
-                await GenerateCompanionSpeech(context, client, FloydPrompts.HappyDoSomething)),
+                await GenerateCompanionSpeech(context, client, FloydPrompts.DoSomethingSmall)),
             <= 7 => (Func<Task<string>>)(async () =>
-                await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething)),
+                await GenerateCompanionSpeech(context, client, FloydPrompts.DoSomethingSmall)),
             <= 8 => (Func<Task<string>>)(() => Task.FromResult(FloydConstants.RandomActions.GetRandomElement())),
 
             _ => (Func<Task<string>>)(async () => await Task.FromResult(string.Empty))
@@ -343,7 +327,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         WanderingTurnsRemaining = Chooser.RollDice(5); // 1-5 turns
 
         // Remove Floyd from current location
-        (CurrentLocation as ICanContainItems)?.RemoveItem(this);
+        CurrentLocation?.RemoveItem(this);
         CurrentLocation = null; // Floyd is not in any location while wandering
     }
 
@@ -359,5 +343,3 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
 // TODO: Floyd gives you a nudge with his foot and giggles. "You sure look silly sleeping on the floor," he says.
 // TODO: Floyd bounces impatiently at the foot of the bed. "About time you woke up, you lazy bones! Let's explore around some more!"
-// TODO: Floyd says "Floyd going exploring. See you later." He glides out of the room.
-// TODO: Floyd rushes into the room and barrels into you. "Oops, sorry," he says. "Floyd not looking at where he was going to."
