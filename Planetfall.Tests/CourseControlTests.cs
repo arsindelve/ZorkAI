@@ -73,6 +73,17 @@ public class CourseControlTests : EngineTestsBase
     }
 
     [Test]
+    public void FusedBedistor_CurrentLocationIsCube()
+    {
+        GetTarget();
+        StartHere<CourseControl>();
+        var bedistor = GetItem<FusedBedistor>();
+        var cube = GetItem<LargeMetalCube>();
+
+        bedistor.CurrentLocation.Should().Be(cube);
+    }
+
+    [Test]
     public async Task LookAtCourseControl_ShowsCubeWithContents()
     {
         var target = GetTarget();
@@ -275,5 +286,22 @@ public class CourseControlTests : EngineTestsBase
         response.Should().Contain("Closed");
         var cube = GetItem<LargeMetalCube>();
         cube.IsOpen.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task NavigateToCourseControl_ThenTakeBedistor_CannotBeTaken()
+    {
+        var target = GetTarget();
+        StartHere<SystemsCorridorEast>();
+
+        // Navigate to Course Control (this will trigger Init() on the location)
+        await target.GetResponse("north");
+
+        // Open the cube so the bedistor is accessible
+        await target.GetResponse("open cube");
+
+        var response = await target.GetResponse("take bedistor");
+
+        response.Should().Contain("It seems to be fused to its socket");
     }
 }

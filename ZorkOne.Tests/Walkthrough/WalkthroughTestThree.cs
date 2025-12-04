@@ -250,6 +250,7 @@ public sealed class WalkthroughTestThree : WalkthroughTestBase
     [TestCase("put egg in case", null, "Done")]
     [TestCase("put bauble in case", null, "Done")]
     [TestCase("put chalice in case", null, "Done")]
+    [TestCase("E", null, "Kitchen")]
     [TestCase("take sack", null, "Taken")]
     [TestCase("open sack", null, "Opening the brown sack reveals a lunch, and a clove of garlic")]
     [TestCase("take garlic", null, "Taken")]
