@@ -18,13 +18,11 @@ internal class CourseControl : LocationBase
     protected override string GetContextBasedDescription(IContext context)
     {
         return
-            "This is a long room whose walls are covered with complicated controls and colored lights. " +
-            "One blinking light says \"Kors diivurjins minimiizeeng.\" ";
+            """This is a long room whose walls are covered with complicated controls and colored lights. Two of these lights are blinking. The first one reads "Bedistur Faalyur!" The other light reads "Kritikul diivurjins frum pland kors." """;
     }
     
     public override void Init()
     {
-        StartWithItem<FusedBedistor>();
         StartWithItem<LargeMetalCube>();
     }
 }
