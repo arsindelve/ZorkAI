@@ -36,17 +36,21 @@ This is a sophisticated C# .NET 8.0 recreation of classic Infocom-style text adv
 - **IntentParser.cs**: Parses user input into game intents (move, interact, system commands)
 - **Repository.cs**: Singleton pattern for all game items/locations - lazy-loaded, prevents duplicates
 - **GameEngine.cs**: Main game loop orchestration
+- **ConversationHandler.cs**: Detects and processes conversations between player and NPCs (ICanBeTalkedTo entities)
+- **SentenceSplitter.cs**: Enables multi-sentence commands (e.g., "take lamp. go north. look")
 
 ### Intent Processing (`GameEngine/IntentEngine/`)
 - **SimpleInteractionEngine.cs**: Handles item interactions (take, use, examine)
 - **MoveEngine.cs**: Movement between locations with weight limits and generation
 - **GiveSomethingToSomeoneDecisionEngine.cs**: Complex multi-object interactions
 
-### AI Integration (`Model/AIParsing/`, `Model/AIGeneration/`)
+### AI Integration (`Model/AIParsing/`, `Model/AIGeneration/`, `ChatLambda/`)
 - **OpenAI integration** for parsing complex natural language commands
 - **AWS Bedrock support** for text generation
+- **ChatLambda**: Conversation parsing service that determines if player input is conversational vs command-based
 - **Smart fallbacks** - tries simple parsing first, then AI if needed
 - **Generated narrative responses** for failed actions
+- **IParseConversation**: Interface for detecting and rewriting conversational input for NPC interactions
 
 ### Game Content
 - **ZorkOne/**: Complete Zork I implementation with all locations/items
@@ -57,9 +61,14 @@ This is a sophisticated C# .NET 8.0 recreation of classic Infocom-style text adv
 The solution is organized into logical groups:
 - **Games folder**: ZorkOne/, Planetfall/, ZorkTwo/ - each game with its own implementation, tests, web client, and Lambda
 - **AWS folder**: Cloud services (DynamoDb/, SecretsManager/, CloudWatch/, Bedrock/)
-- **Core libraries**: GameEngine/, Model/, OpenAI/, Utilities/
+- **Core libraries**: GameEngine/, Model/, OpenAI/, Utilities/, ChatLambda/
 - **Lambda APIs**: Individual Lambda functions for each game deployment
+  - `Lambda/` - Zork One Lambda API
+  - `Planetfall-Lambda/` - Planetfall Lambda API
 - **Web clients**: React/TypeScript SPAs for browser gameplay
+  - `zorkweb.client/` - Zork One web interface
+  - `planetfallweb.client/` - Planetfall web interface
+  - `ZorkWeb.Server/` - ASP.NET Core server for web clients
 
 ## Technical Highlights
 
@@ -84,6 +93,19 @@ The solution is organized into logical groups:
 - **Weight restrictions** per location (tight squeezes)
 - **Dynamic generation** - 20% chance of AI-generated "can't go" messages
 - **Custom failure messages** for specific blocked paths
+
+### Conversation System
+- **ICanBeTalkedTo interface** - NPCs and items can engage in AI-powered conversations
+- **ConversationHandler** - Detects conversational input and routes to appropriate character
+- **Multi-character support** - Automatically finds the target character based on noun matching
+- **Context-aware responses** - Characters like Floyd use AI to respond naturally while maintaining personality
+- **Dual-mode parsing** - ChatLambda determines if input is conversational or command-based
+
+### Multi-Sentence Command Support
+- **Period-separated commands** - Players can chain actions: "take lamp. turn it on. go north"
+- **Sequential processing** - Each sentence processed in order with state maintained between them
+- **Smart interruption** - Stops processing if a command requires user input (save, disambiguation)
+- **Individual responses** - Each command gets its own response, combined with double newlines
 
 ## Game Flow
 1. **User input** → IntentParser → Intent object

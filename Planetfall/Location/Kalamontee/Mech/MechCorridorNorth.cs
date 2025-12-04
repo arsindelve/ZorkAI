@@ -11,6 +11,7 @@ internal class MechCorridorNorth : LocationWithNoStartingItems
         return new Dictionary<Direction, MovementParameters>
         {
             { Direction.N, Go<CorridorJunction>() },
+            { Direction.E, Go<StorageEast>() },
             { Direction.W, Go<PhysicalPlant>() },
             { Direction.S, Go<MechCorridor>() }
         };
