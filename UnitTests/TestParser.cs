@@ -934,6 +934,46 @@ public class TestParser : IntentParser
                 Verb = "give",
                 OriginalInput = "give the key to floyd"
             });
+
+        if (input == "give the plate to floyd")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "plate",
+                NounTwo = "floyd",
+                Preposition = "to",
+                Verb = "give",
+                OriginalInput = "give the plate to floyd"
+            });
+
+        if (input == "give plate to floyd")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "plate",
+                NounTwo = "floyd",
+                Preposition = "to",
+                Verb = "give",
+                OriginalInput = "give plate to floyd"
+            });
+
+        if (input == "give the breastplate to floyd")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "breastplate",
+                NounTwo = "floyd",
+                Preposition = "to",
+                Verb = "give",
+                OriginalInput = "give the breastplate to floyd"
+            });
+
+        if (input == "give breastplate to floyd")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "breastplate",
+                NounTwo = "floyd",
+                Preposition = "to",
+                Verb = "give",
+                OriginalInput = "give breastplate to floyd"
+            });
         
         if (input == "kill thief with sword")
             return Task.FromResult<IntentBase>(new MultiNounIntent
