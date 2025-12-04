@@ -42,7 +42,7 @@ public class GiveSomethingToSomeoneDecisionEngine<TRecipient> where TRecipient :
                 return null;
         }
 
-        var thing = Repository.GetItem(otherThingNoun);
+        var thing = Repository.GetItemInScope(otherThingNoun, context);
         if (thing is null)
             return null;
 

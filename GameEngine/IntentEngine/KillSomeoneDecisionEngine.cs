@@ -44,7 +44,7 @@ public class KillSomeoneDecisionEngine<TFoe>(ICombatEngine combatEngine) where T
             !action.MatchNounTwo(_foe.NounsForMatching))
             return null;
 
-        var nounTwo = Repository.GetItem(action.NounTwo);
+        var nounTwo = Repository.GetItemInScope(action.NounTwo, context);
         {
             if (nounTwo is not IWeapon)
                 return null;
