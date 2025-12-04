@@ -174,6 +174,20 @@ public abstract class ContainerBase : ItemBase, ICanContainItems
         return await ApplyProcessors(action, context, null, client, itemProcessorFactory);
     }
 
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
+    {
+        // See if one of the items inside me has a matching interaction.
+        foreach (var item in Items.ToList())
+        {
+            var result = await item.RespondToMultiNounInteraction(action, context);
+            if (result is { InteractionHappened: true })
+                return result;
+        }
+
+        return await base.RespondToMultiNounInteraction(action, context);
+    }
+
     /// <summary>
     ///     Returns a description of the items contained in the specified container.
     /// </summary>
