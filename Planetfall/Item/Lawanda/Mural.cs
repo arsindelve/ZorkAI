@@ -12,7 +12,7 @@ public class Mural : ItemBase, ICanBeExamined
     public string ExaminationDescription =>
         "It's a gaudy work of orange and purple abstract shapes, reminiscent of the early works " +
         "of Burstini Bonz. It doesn't appear to fit the decor of the room at all. The mural seems to ripple " +
-        "now and then, as though a breeze were blowing behind it.";
+        "now and then, as though a breeze were blowing behind it. ";
 
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
