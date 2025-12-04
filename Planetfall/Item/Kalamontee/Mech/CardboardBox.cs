@@ -2,7 +2,7 @@ namespace Planetfall.Item.Kalamontee.Mech;
 
 public class CardboardBox : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined
 {
-    public override string[] NounsForMatching => ["box", "cardboard box", "small box", "small cardboard box", "cardboard"];
+    public override string[] NounsForMatching => ["small cardboard box", "box", "cardboard box", "small box", "cardboard"];
 
     public override bool IsTransparent => true;
 

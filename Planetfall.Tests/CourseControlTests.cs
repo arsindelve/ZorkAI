@@ -52,13 +52,13 @@ public class CourseControlTests : EngineTestsBase
     }
 
     [Test]
-    public void LargeMetalCube_StartsOpen()
+    public void LargeMetalCube_StartsClosed()
     {
         GetTarget();
         StartHere<CourseControl>();
         var cube = GetItem<LargeMetalCube>();
 
-        cube.IsOpen.Should().BeTrue();
+        cube.IsOpen.Should().BeFalse();
     }
 
     [Test]
@@ -77,6 +77,7 @@ public class CourseControlTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<CourseControl>();
+        GetItem<LargeMetalCube>().IsOpen = true;
 
         var response = await target.GetResponse("look");
 
@@ -136,6 +137,7 @@ public class CourseControlTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<CourseControl>();
+        GetItem<LargeMetalCube>().IsOpen = true;
 
         var response = await target.GetResponse("examine cube");
 
@@ -159,6 +161,7 @@ public class CourseControlTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<CourseControl>();
+        GetItem<LargeMetalCube>().IsOpen = true;
 
         var response = await target.GetResponse("take bedistor");
 
@@ -183,8 +186,9 @@ public class CourseControlTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<CourseControl>();
+        GetItem<LargeMetalCube>().IsOpen = true;
 
-        var response = await target.GetResponse("take fused ninety-ohm bedistor");
+        var response = await target.GetResponse("take fused");
 
         response.Should().Contain("It seems to be fused to its socket");
         target.Context.HasItem<FusedBedistor>().Should().BeFalse();
@@ -250,6 +254,7 @@ public class CourseControlTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<CourseControl>();
+        GetItem<LargeMetalCube>().IsOpen = true;
 
         var response = await target.GetResponse("close cube");
 
@@ -263,6 +268,7 @@ public class CourseControlTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<CourseControl>();
+        GetItem<LargeMetalCube>().IsOpen = true;
 
         var response = await target.GetResponse("close lid");
 

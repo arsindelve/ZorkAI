@@ -44,7 +44,7 @@ public class LargeMetalCube : OpenAndCloseContainerBase, ICanBeExamined
 
     public override void Init()
     {
-        IsOpen = true;
+        IsOpen = false;
         StartWithItemInside<FusedBedistor>();
     }
 }

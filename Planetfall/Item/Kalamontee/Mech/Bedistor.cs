@@ -1,8 +1,17 @@
 namespace Planetfall.Item.Kalamontee.Mech;
 
-public class GoodBedistor : ItemBase, ICanBeTakenAndDropped
+public abstract class BedistorBase : ItemBase
 {
-    public override string[] NounsForMatching => ["bedistor", "ninety-ohm bedistor", "good ninety-ohm bedistor", "good bedistor", "ninety-ohm", "90-ohm bedistor", "90-ohm"];
+    /// <summary>
+    /// Remove "bedistor" from the list of disambiguation nouns. The adventurer will have to be more specific. 
+    /// </summary>
+    public override string[] NounsForPreciseMatching => NounsForMatching.Except(["bedistor", "ninety-ohm bedistor", "ninety-ohm", "90-ohm bedistor", "90-ohm"]).ToArray();
+}
+
+
+public class GoodBedistor : BedistorBase, ICanBeTakenAndDropped
+{
+    public override string[] NounsForMatching => ["good ninety-ohm bedistor", "bedistor", "ninety-ohm bedistor", "good bedistor", "ninety-ohm", "90-ohm bedistor", "90-ohm"];
 
     public string OnTheGroundDescription(ILocation? currentLocation)
     {

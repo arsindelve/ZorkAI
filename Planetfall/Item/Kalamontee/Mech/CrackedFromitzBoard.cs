@@ -1,12 +1,23 @@
+using Planetfall.Item.Lawanda.PlanetaryDefense;
+
 namespace Planetfall.Item.Kalamontee.Mech;
 
-public class CrackedFromitzBoard : Lawanda.PlanetaryDefense.FromitzBoardBase
+public class CrackedFromitzBoard : FromitzBoardBase
 {
-    public override string[] NounsForMatching =>
+    private readonly string[] _inPanelNouns =
     [
-        "fromitz board", "board", "fromitz", "cracked", "cracked fromitz board", "cracked board",
-        "cracked fromitz", "seventeen-centimeter fromitz board", "17-centimeter fromitz board",
-        "seventeen-centimeter board", "17-centimeter board"
+        "fromitz board", "board", "fromitz", "second fromitz board", "second board", "second",
+        "second board", "second fromitz board", "second fromitz"
+    ];
+    
+    public override string[] NounsForMatching => CurrentLocation is FromitzAccessPanel
+        ? _inPanelNouns
+        : _outPanelNouns;
+    
+    private readonly string[] _outPanelNouns =
+    [
+        "fromitz board", "board", "fromitz", "cracked board", "cracked", "cracked board",
+        "cracked fromitz board", "cracked fromitz"
     ];
 
     public override string ExaminationDescription =>
