@@ -25,6 +25,13 @@ public class CrackedFromitzBoard : FromitzBoardBase
 
     public override string? CannotBeTakenDescription => null;
 
+    public override string? OnBeingTaken(IContext context, ICanContainItems? previousLocation)
+    {
+        return previousLocation is FromitzAccessPanel
+            ? "The fromitz board slides out of the panel, producing an empty socket for another board"
+            : null;
+    }
+
     public override string OnTheGroundDescription(ILocation currentLocation)
     {
         return "There is a cracked seventeen-centimeter fromitz board here. ";
@@ -32,6 +39,6 @@ public class CrackedFromitzBoard : FromitzBoardBase
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return "A cracked seventeen-centimeter fromitz board";
+        return $"A {(CurrentLocation is FromitzAccessPanel ? "second" : "cracked")} seventeen-centimeter fromitz board";
     }
 }
