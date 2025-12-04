@@ -29,7 +29,7 @@ internal class ProjConOffice : LocationBase
 
         if (action.MatchNoun(["logo"]))
             return new PositiveInteractionResult(
-                "The logo shows a flame burning over a sleep chamber of some type. Under that is the phrase \"Prajekt Kuntrool.\"");
+                "The logo shows a flame burning over a sleep chamber of some type. Under that is the phrase \"Prajekt Kuntrool.\" ");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
