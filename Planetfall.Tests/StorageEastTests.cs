@@ -1,5 +1,4 @@
 using FluentAssertions;
-using GameEngine;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Location.Kalamontee.Mech;
 
@@ -57,7 +56,6 @@ public class StorageEastTests : EngineTestsBase
     [Test]
     public void OilCan_ExistsInLocation()
     {
-        var target = GetTarget();
         var location = StartHere<StorageEast>();
 
         location.HasItem<OilCan>().Should().BeTrue();

@@ -3,7 +3,7 @@ using Model.Location;
 
 namespace Planetfall.Item.Lawanda;
 
-public class NinetyOhmBedistor : ItemBase, ICanBeTakenAndDropped
+public class FusedBedistor : ItemBase, ICanBeTakenAndDropped
 {
     public override string[] NounsForMatching => ["ninety-ohm bedistor", "bedistor", "fused", "fused bedistor"];
 

@@ -24,7 +24,7 @@ internal class CourseControl : LocationBase
     
     public override void Init()
     {
-        StartWithItem<NinetyOhmBedistor>();
+        StartWithItem<FusedBedistor>();
         StartWithItem<LargeMetalCube>();
     }
 }

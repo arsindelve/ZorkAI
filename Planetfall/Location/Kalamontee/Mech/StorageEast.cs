@@ -22,6 +22,7 @@ internal class StorageEast : LocationBase
 
     public override void Init()
     {
+        StartWithItem<CardboardBox>();
         StartWithItem<OilCan>();
     }
 }
