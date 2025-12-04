@@ -1,8 +1,11 @@
 using FluentAssertions;
+using GameEngine.Location;
 using Model.Interface;
 using Moq;
+using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda;
+using Planetfall.Location.Kalamontee.Mech;
 using Planetfall.Location.Lawanda;
 
 namespace Planetfall.Tests;
@@ -347,5 +350,90 @@ public class InfirmaryTests : EngineTestsBase
         // Verify the medical robot breastplate appeared
         var breastplate = GetItem<MedicalRobotBreastPlate>();
         breastplate.CurrentLocation.Should().Be(infirmary);
+    }
+
+    [Test]
+    public async Task GiveBreastplateToFloyd_FloydWeepsAndWanders()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<MedicalRobotBreastPlate>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().HasEverBeenOn = true;
+
+        var response = await target.GetResponse("give the plate to floyd");
+
+        response.Should().Contain("At first, Floyd is all grins");
+    }
+
+    [Test]
+    public async Task GiveBreastplateToFloyd_FloydNotInRoom_CannotGive()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<MedicalRobotBreastPlate>();
+        GetItem<Floyd>().IsOn = true;
+
+        // Move to a different room (Floyd doesn't follow since not turned on properly)
+        await target.GetResponse("w");
+
+        // Try to give it to Floyd (he's not in this room)
+        var response = await target.GetResponse("give breastplate to floyd");
+
+        // Should get generic response since Floyd isn't here
+        response.Should().NotContain("all grins");
+        response.Should().NotContain("weeping");
+        GetItem<Floyd>().IsOffWandering.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task GiveBreastplateToFloyd_FloydIsOff_NoResponse()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<MedicalRobotBreastPlate>();
+        GetItem<Floyd>().IsOn = false;
+
+        var response = await target.GetResponse("give breastplate to floyd");
+
+        response.Should().NotContain("all grins");
+        response.Should().NotContain("weeping");
+        GetItem<Floyd>().IsOffWandering.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task GiveBreastplateToFloyd_FloydIsDead_NoResponse()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<MedicalRobotBreastPlate>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().HasDied = true;
+
+        var response = await target.GetResponse("give breastplate to floyd");
+
+        response.Should().NotContain("all grins");
+        response.Should().NotContain("weeping");
+        GetItem<Floyd>().IsOffWandering.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task GiveBreastplateToFloyd_BreastplateDroppedInCurrentRoom()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<MedicalRobotBreastPlate>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().HasEverBeenOn = true;
+
+        await target.GetResponse("give the breastplate to floyd");
+
+        // Verify breastplate is on the floor, not in inventory
+        target.Context.Items.Should().NotContain(GetItem<MedicalRobotBreastPlate>());
+        ((LocationBase)target.Context.CurrentLocation).Items.Should().Contain(GetItem<MedicalRobotBreastPlate>());
+
+        // Verify we can see it in the room
+        var look = await target.GetResponse("look");
+        look.Should().Contain("breastplate");
     }
 }
