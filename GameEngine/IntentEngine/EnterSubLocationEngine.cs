@@ -16,7 +16,7 @@ internal class EnterSubLocationEngine : IIntentEngine
         if (string.IsNullOrEmpty(enter.Noun))
             throw new ArgumentException("Null or empty noun. What's up with that?");
 
-        IItem? subLocation = Repository.GetItem(enter.Noun);
+        IItem? subLocation = Repository.GetItemInScope(enter.Noun, context);
         if (subLocation == null)
             return (null, await GetGeneratedCantGoThatWayResponse(generationClient, context, enter.Noun));
 

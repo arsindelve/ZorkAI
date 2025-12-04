@@ -15,14 +15,14 @@ internal class ExitSubLocationEngine : IIntentEngine
         if (string.IsNullOrEmpty(exit.NounOne))
             throw new ArgumentException("Null or empty noun. What's up with that?");
 
-        var subLocation = Repository.GetItem(exit.NounOne);
+        var subLocation = Repository.GetItemInScope(exit.NounOne, context);
         if (subLocation == null)
         {
-            // Sometimes the name of the sub-location gets stuffed into the second noun. Stupid parser 
+            // Sometimes the name of the sub-location gets stuffed into the second noun. Stupid parser
 
             if (!string.IsNullOrEmpty(exit.NounTwo))
             {
-                subLocation = Repository.GetItem(exit.NounTwo);
+                subLocation = Repository.GetItemInScope(exit.NounTwo, context);
                 if (subLocation == null)
                     return (null, await GetGeneratedCantGoThatWayResponse(generationClient, context, exit.NounOne));
             }
