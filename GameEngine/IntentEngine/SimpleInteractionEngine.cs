@@ -28,7 +28,7 @@ internal class SimpleInteractionEngine(IItemProcessorFactory itemProcessorFactor
             return (requireDisambiguation, requireDisambiguation.InteractionMessage);
 
         // Turning on a light source should supersede all of this. Check the noun
-        bool refersToALightSource = Repository.GetItem(simpleInteraction.Noun) is IAmALightSourceThatTurnsOnAndOff;
+        bool refersToALightSource = Repository.GetItemInScope(simpleInteraction.Noun, context) is IAmALightSourceThatTurnsOnAndOff;
 
         // If it's dark, you can interact with items in your possession that are light sources that can be
         // turned on, but not any items in the room.
@@ -124,7 +124,7 @@ internal class SimpleInteractionEngine(IItemProcessorFactory itemProcessorFactor
         if (string.IsNullOrEmpty(noun))
             return string.Empty;
 
-        IItem? item = Repository.GetItem(noun);
+        IItem? item = Repository.GetItemInScope(noun, context);
         if (item is null)
             return string.Empty;
 

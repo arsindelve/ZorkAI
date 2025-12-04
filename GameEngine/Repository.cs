@@ -59,6 +59,55 @@ public static class Repository
         return (T)_allItems[typeof(T)];
     }
 
+    /// <summary>
+    /// Searches for an item by noun in the player's inventory only.
+    /// This is the preferred method for drop operations since you can only drop what you're carrying.
+    /// </summary>
+    public static IItem? GetItemInInventory(string? noun, IContext context)
+    {
+        if (string.IsNullOrEmpty(noun))
+            return null;
+
+        noun = noun.ToLowerInvariant().Trim();
+
+        var (hasMatch, item) = context.HasMatchingNoun(noun, lookInsideContainers: true);
+        return hasMatch ? item : null;
+    }
+
+    /// <summary>
+    /// Searches for an item by noun in the player's scope (inventory, current location, and containers).
+    /// This is the preferred method for player-initiated actions like "take" or "examine".
+    /// Prioritizes items in the current location over items in other locations to avoid ambiguity.
+    /// </summary>
+    public static IItem? GetItemInScope(string? noun, IContext context)
+    {
+        if (string.IsNullOrEmpty(noun))
+            return null;
+
+        noun = noun.ToLowerInvariant().Trim();
+
+        // 1. Check player's inventory
+        var (hasMatch, item) = context.HasMatchingNoun(noun, lookInsideContainers: true);
+        if (hasMatch && item != null)
+            return item;
+
+        // 2. Check current location (including containers)
+        if (context.CurrentLocation != null)
+        {
+            (hasMatch, item) = context.CurrentLocation.HasMatchingNoun(noun, lookInsideContainers: true);
+            if (hasMatch && item != null)
+                return item;
+        }
+
+        // 3. Fall back to global search as last resort
+        return GetItem(noun);
+    }
+
+    /// <summary>
+    /// Searches globally for any item matching the noun.
+    /// WARNING: This can return unpredictable results when multiple items share the same noun.
+    /// Prefer GetItemInScope for player-initiated actions.
+    /// </summary>
     public static IItem? GetItem(string? noun)
     {
         if (string.IsNullOrEmpty(noun))
@@ -93,6 +142,14 @@ public static class Repository
     {
         _allLocations = new Dictionary<Type, ILocation>();
         _allItems = new Dictionary<Type, IItem>();
+    }
+
+    /// <summary>
+    ///     For debugging purposes - returns all items currently in the repository.
+    /// </summary>
+    public static IEnumerable<IItem> GetAllItems()
+    {
+        return _allItems.Values;
     }
 
     public static ILocation GetStartingLocation<T>() where T : IInfocomGame, new()

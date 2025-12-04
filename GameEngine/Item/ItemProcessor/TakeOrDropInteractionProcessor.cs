@@ -146,16 +146,16 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             // smart enough to match the noun to the item description. An example of this is the "magnet" which is
             // (deliberately, as a puzzle) described as "a metal bar, curved into a U-shape" which the parser does not
             // understand is a magnet. So as a final attempt, let's see if there is a direct noun match.
-            var specificItem = Repository.GetItem(action.Noun);
+            var specificItem = Repository.GetItemInScope(action.Noun, context);
             return specificItem is not null ? TakeIt(context, specificItem) : new NoNounMatchInteractionResult();
         }
 
         if (items.Length == 1)
-            return TakeIt(context, Repository.GetItem(items[0]));
+            return TakeIt(context, Repository.GetItemInScope(items[0], context));
 
         // When taking multiple items, we need to provide feedback for items that don't exist
         var itemsWithFeedback = items
-            .Select(itemNoun => (itemNoun, Repository.GetItem(itemNoun)))
+            .Select(itemNoun => (itemNoun, Repository.GetItemInScope(itemNoun, context)))
             .ToList();
 
         return new PositiveInteractionResult(await TakeEverythingProcessor.TakeAll(context, itemsWithFeedback, client));
