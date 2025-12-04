@@ -26,15 +26,13 @@ public class FloydInventoryManager(Floyd floyd)
         if (floyd.IsOn)
             return new PositiveInteractionResult(FloydConstants.TickleFloyd);
 
-        if (floyd.HasItem<LowerElevatorAccessCard>())
-        {
-            context.ItemPlacedHere<LowerElevatorAccessCard>();
-            return new PositiveInteractionResult(FloydConstants.FindAndTakeLowerCard);
-        }
-
-        return new PositiveInteractionResult(
-            "Your search discovers nothing in the robot's compartments except a single crayon " +
-            "which you leave where you found it. ");
+        if (!floyd.HasItem<LowerElevatorAccessCard>())
+            return new PositiveInteractionResult(
+                "Your search discovers nothing in the robot's compartments except a single crayon " +
+                "which you leave where you found it. ");
+        
+        context.ItemPlacedHere<LowerElevatorAccessCard>();
+        return new PositiveInteractionResult(FloydConstants.FindAndTakeLowerCard);
     }
 
     public string? OfferLowerElevatorCard(IContext context, IRandomChooser chooser)
