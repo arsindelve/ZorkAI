@@ -2,9 +2,9 @@ using Planetfall.Item.Kalamontee.Mech;
 
 namespace Planetfall.Item.Lawanda;
 
-public class FusedBedistor : ItemBase, ICanBeTakenAndDropped
+public class FusedBedistor : BedistorBase, ICanBeTakenAndDropped
 {
-    public override string[] NounsForMatching => ["ninety-ohm bedistor", "bedistor", "fused", "fused bedistor"];
+    public override string[] NounsForMatching => ["fused ninety-ohm bedistor", "ninety-ohm bedistor", "bedistor", "fused", "fused bedistor"];
 
     public override string? CannotBeTakenDescription =>
         CurrentLocation is LargeMetalCube ? "It seems to be fused to its socket. " : null;
