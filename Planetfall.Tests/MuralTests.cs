@@ -53,13 +53,11 @@ public class MuralTests : EngineTestsBase
     }
 
     [Test]
-    public async Task ProjConOffice_MuralShouldBePresent()
+    public void ProjConOffice_MuralShouldBePresent()
     {
-        var target = GetTarget();
+        GetTarget();
         var location = StartHere<ProjConOffice>();
-
         var mural = GetItem<Mural>();
-
         mural.CurrentLocation.Should().Be(location);
         location.Items.Should().Contain(mural);
     }

@@ -228,17 +228,47 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("N", null, "Course Control")]
     [TestCase("open cube", null, "The lid swings open", "fused")]
     [TestCase("take bedistor", null, "fused to its socket")]
-    
-    
     [TestCase("S", null, "Systems Corridor East")]
     [TestCase("S", null, "Library Lobby")]
     [TestCase("S", null, "Project Corridor East")]  
     [TestCase("E", null, "Main Lab")]
     [TestCase("S", null, "Lab Storage")]  
-
+    [TestCase("open pocket", null, "You discover a teleportation access card")]
+    [TestCase("take teleportation", null, "Taken")]
+    [TestCase("N", null, "Main Lab")]
+    [TestCase("W", null, "Project Corridor East")]  
+    [TestCase("N", null, "Library Lobby")]
+    [TestCase("E", null, "Booth")]
+    [TestCase("slide teleportation card through slot", null, "Then a light flashes \"Redee.\"")]
+    [TestCase("press 2", null, "stomach")]
+    [TestCase("W", null, "Lobby")]  
+    [TestCase("drop upper", null, "Dropped")]  
+    [TestCase("drop lower", null, "Dropped")]
+    [TestCase("drop shuttle", null, "Dropped")]
+    [TestCase("W", null, "Junction")]  
+    [TestCase("S", null, "North")]
+    [TestCase("E", null, "East")]
+    [TestCase("take bedistor", null, "Taken")]
+    [TestCase("W", null, "North")]
+    [TestCase("S", null, "Mech")]
+    [TestCase("S", null, "South")]
+    [TestCase("SW", null, "Tool")]
+    [TestCase("take pliers", null, "Taken")]
+    [TestCase("NE", null, "South")]
+    [TestCase("N", null, "Mech")]
+    [TestCase("N", null, "North")]
+    [TestCase("N", null, "Junction")]  
+    [TestCase("E", null, "Lobby")]  
+    [TestCase("E", null, "Booth")]  
+    [TestCase("slide teleportation card through slot", null, "Then a light flashes \"Redee.\"")]
+    [TestCase("press 3", null, "stomach")]
+    [TestCase("W", null, "Library Lobby")]
+    [TestCase("N", null, "East")]
+    [TestCase("N", null, "Course")]
+    [TestCase("take fused with pliers", null, "With a tug")]
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
-        if (!string.IsNullOrWhiteSpace(setup))
+        if (!string.IsNullOrWhiteSpace(setup)) 
             InvokeGodMode(setup);
 
         await Do(input, expectedResponses);
