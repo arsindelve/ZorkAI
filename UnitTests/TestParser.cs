@@ -775,6 +775,16 @@ public class TestParser : IntentParser
                 OriginalInput = "unlock padlock with key"
             });
 
+        if (input == "take fused with pliers")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "fused",
+                NounTwo = "pliers",
+                Preposition = "with",
+                Verb = "take",
+                OriginalInput = "take fused with pliers"
+            });
+
         if (input == "light candles with torch")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
