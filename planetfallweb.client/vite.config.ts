@@ -23,7 +23,8 @@ export default defineConfig({
     plugins: [plugin()],
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url))
+            '@': fileURLToPath(new URL('./src', import.meta.url)),
+            '@shared': fileURLToPath(new URL('../WebClients/packages/game-client-core/src', import.meta.url))
         }
     },
     server: {
