@@ -21,17 +21,16 @@ export default function GameMenu({ latestVersion }: { latestVersion: string }) {
             }}
         >
             <div className="col-span-7 flex items-center">
-                <h1
-                    className={`hidden lg:block text-xl m-3 ml-10 font-medium tracking-wider transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+                <img
+                    src="/logo.png"
+                    alt="Planetfall"
+                    className={`hidden lg:block m-3 ml-10 transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
                     style={{
                         transitionDelay: '300ms',
-                        fontFamily: 'Lato, sans-serif',
-                        color: 'var(--planetfall-text)',
-                        textShadow: '0 0 20px color-mix(in srgb, var(--planetfall-primary) 30%, transparent), 0 0 40px color-mix(in srgb, var(--planetfall-primary) 10%, transparent)'
+                        width: '240px',
+                        height: 'auto'
                     }}
-                >
-                    Generative AI-Enhanced Planetfall
-                </h1>
+                />
             </div>
             <div className="col-span-3 flex justify-end items-center space-x-2">
                 <div>
