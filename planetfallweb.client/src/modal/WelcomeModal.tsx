@@ -99,11 +99,11 @@ const WelcomeDialog: React.FC<WelcomeDialogProps> = ({open, handleClose}) => (
                     fontFamily: 'monospace'
                 }}>
                     <ul style={{ listStyleType: 'disc', paddingLeft: '1.5rem', margin: 0 }}>
-                        <li style={{ textTransform: 'uppercase', marginBottom: '0.5rem' }}>look around</li>
+                        <li style={{ textTransform: 'uppercase', marginBottom: '0.5rem' }}>look</li>
                         <li style={{ textTransform: 'uppercase', marginBottom: '0.5rem' }}>take the kit</li>
                         <li style={{ textTransform: 'uppercase', marginBottom: '0.5rem' }}>go west</li>
-                        <li style={{ textTransform: 'uppercase', marginBottom: '0.5rem' }}>talk to Floyd</li>
-                        <li style={{ textTransform: 'uppercase' }}>tell me about this place</li>
+                        <li style={{ textTransform: 'uppercase', marginBottom: '0.5rem' }}>ask floyd about the control panel</li>
+                        <li style={{ textTransform: 'uppercase' }}>blather, tell me about the feinstein</li>
                     </ul>
                 </Box>
 
