@@ -43,11 +43,13 @@ public class FloydMovementManager(Floyd floyd)
             {
                 floyd.IsOffWandering = true;
                 floyd.WanderingTurnsRemaining = floyd.Chooser.RollDice(5); // 1-5 turns
+                floyd.CurrentLocation?.RemoveItem(floyd); // Remove Floyd from previous location
                 floyd.CurrentLocation = null; // Floyd is not in any location while wandering
                 return string.Empty; // No message - player just doesn't see "Floyd follows you"
             }
 
-            // Normal follow behavior
+            // Normal follow behavior - remove from old location before adding to new
+            floyd.CurrentLocation?.RemoveItem(floyd);
             context.CurrentLocation.ItemPlacedHere(floyd);
             return "Floyd follows you. ";
         }
