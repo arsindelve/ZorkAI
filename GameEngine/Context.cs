@@ -84,6 +84,8 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     // ReSharper disable once MemberCanBePrivate.Global
     public int Score { get; set; }
 
+    [JsonIgnore] public Queue<string> RecentResponses { get; } = new();
+
     /// <summary>
     ///     Gets or sets the current location of the player in the game.
     /// </summary>

@@ -4,7 +4,7 @@ namespace ZorkOne.Item;
 
 public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndDropped, ISmell
 {
-    public override string[] NounsForMatching => ["sack", "brown sack", "bag"];
+    public override string[] NounsForMatching => ["sack", "brown sack", "bag", "elongated brown sack"];
 
     public override string Name => "brown sack";
 

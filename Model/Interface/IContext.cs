@@ -51,6 +51,15 @@ public interface IContext : ICanContainItems
     string LastNoun { get; set; }
 
     /// <summary>
+    ///     Tracks the last 3 game responses for pronoun resolution.
+    /// </summary>
+    /// <remarks>
+    ///     This queue maintains a sliding window of recent game responses to help resolve
+    ///     pronouns like "it", "them", etc. Maximum capacity is 3 responses.
+    /// </remarks>
+    Queue<string> RecentResponses { get; }
+
+    /// <summary>
     ///     Gets or sets the current location in the game context.
     /// </summary>
     /// <remarks>

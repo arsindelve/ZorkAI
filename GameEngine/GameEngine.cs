@@ -33,7 +33,7 @@ namespace GameEngine;
 /// </remarks>
 public class GameEngine<TInfocomGame, TContext> : IGameEngine
     where TInfocomGame : IInfocomGame, new()
-    where TContext : IContext, new()
+    where TContext : class, IContext, new()
 {
     private readonly IItemProcessorFactory _itemProcessorFactory;
     private readonly AgainProcessor _againProcessor = new();
@@ -253,6 +253,16 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         );
         if (returnResponseFromAgainProcessor)
             return PostProcessing(_currentInput);
+
+        // Resolve pronouns from recent game responses (BEFORE ItProcessor)
+        if (Context.RecentResponses.Any())
+        {
+            var resolved = await _parser.ResolvePronounsAsync(_currentInput!, Context.RecentResponses);
+            if (resolved != null && !resolved.Equals(_currentInput, StringComparison.OrdinalIgnoreCase))
+            {
+                _currentInput = resolved;
+            }
+        }
 
         // 4. ------- Location specific raw commands
         // Check if the location has an interaction with the raw, unparsed input.
@@ -493,7 +503,17 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         }
 
         _lastResponseWasGenerated = false;
-        return finalResult.TrimEnd() + Environment.NewLine;
+
+        // Store response for pronoun resolution (keep last 3)
+        var trimmedResult = finalResult.TrimEnd();
+        if (!string.IsNullOrWhiteSpace(trimmedResult))
+        {
+            if (Context.RecentResponses.Count >= 3)
+                Context.RecentResponses.Dequeue();
+            Context.RecentResponses.Enqueue(trimmedResult);
+        }
+
+        return trimmedResult + Environment.NewLine;
     }
 
     private async Task<string> ProcessGlobalCommandIntent(GlobalCommandIntent intent)

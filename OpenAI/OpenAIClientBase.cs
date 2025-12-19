@@ -5,18 +5,28 @@ namespace OpenAI;
 
 public abstract class OpenAIClientBase
 {
-    protected readonly OpenAIClient Client;
+    protected readonly OpenAIClient? Client;
     protected readonly ILogger? Logger;
+    protected readonly bool HasApiKey;
 
-    protected OpenAIClientBase(ILogger? logger)
+    protected OpenAIClientBase(ILogger? logger, bool requireApiKey = true)
     {
         Logger = logger;
         var key = Environment.GetEnvironmentVariable("OPEN_AI_KEY");
 
         if (string.IsNullOrEmpty(key))
-            throw new Exception("Missing environment variable OPEN_AI_KEY");
+        {
+            if (requireApiKey)
+                throw new Exception("Missing environment variable OPEN_AI_KEY");
 
-        Client = new OpenAIClient(key);
+            HasApiKey = false;
+            Client = null;
+        }
+        else
+        {
+            HasApiKey = true;
+            Client = new OpenAIClient(key);
+        }
     }
 
     protected abstract string DeploymentName { get; }

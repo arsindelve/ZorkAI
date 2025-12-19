@@ -18,7 +18,9 @@ public class IntentParser : IIntentParser
 {
     private readonly IGlobalCommandFactory _defaultGlobalCommandFactory = new GlobalCommandFactory();
     private readonly IGlobalCommandFactory _gameSpecificCommandFactory;
+    private readonly ILogger? _logger;
     private readonly IAIParser _parser;
+    private readonly IPronounResolver _pronounResolver;
 
     /// <summary>
     ///     Constructor for unit testing
@@ -29,12 +31,15 @@ public class IntentParser : IIntentParser
     {
         _parser = parser;
         _gameSpecificCommandFactory = gameSpecificCommandFactory;
+        _pronounResolver = new PronounResolver(); // No logger per user preference
     }
 
     public IntentParser(IGlobalCommandFactory gameSpecificCommandFactory, ILogger? logger = null)
     {
         _gameSpecificCommandFactory = gameSpecificCommandFactory;
+        _logger = logger;
         _parser = new OpenAIParser(logger);
+        _pronounResolver = new PronounResolver(logger);
     }
 
     public IntentBase? DetermineSystemIntentType(string? input)
@@ -92,6 +97,13 @@ public class IntentParser : IIntentParser
 
         Debug.Assert(response != null, nameof(response) + " != null");
         return response;
+    }
+
+    public virtual async Task<string?> ResolvePronounsAsync(string input, IEnumerable<string> recentResponses)
+    {
+        string? result = await _pronounResolver.ResolvePronouns(input, recentResponses);
+        _logger?.LogDebug($"Result from pronoun replacement: {result}");
+        return result;
     }
 
     public Guid? TurnCorrelationId { get; set; }

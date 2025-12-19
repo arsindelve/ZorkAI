@@ -25,7 +25,7 @@ public class OpenAITakeAndDropListParser(ILogger? logger) : OpenAIClientBase(log
     {
         var prompt = string.Format(promptName, formatStringOne, formatStringTwo);
         var options = GetChatCompletionsOptions(prompt, 0f);
-        Response<ChatCompletions>? response = await Client.GetChatCompletionsAsync(options);
+        Response<ChatCompletions>? response = await Client!.GetChatCompletionsAsync(options);
         return JsonConvert.DeserializeObject<string[]>(response.Value.Choices[0].Message.Content) ?? [];
     }
 }
