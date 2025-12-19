@@ -47,7 +47,7 @@ public class Diary : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["press", "push", "use"], ["button"]))
+        if (action.Match(["press", "push", "use"], ["button", "more", "more button"]))
         {
             if (MessageNumber == _messages.Length - 1)
             {

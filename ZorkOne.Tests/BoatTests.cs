@@ -448,4 +448,34 @@ public class BoatTests : EngineTestsBase
         response.Should().Contain("You don't have");
         GetItem<PileOfPlastic>().IsPunctured.Should().BeTrue();
     }
+
+    [Test]
+    public async Task EnterTheBoat_ShouldWork_LikeGetIn()
+    {
+        var target = GetTarget();
+
+        target.Context.CurrentLocation = Repository.GetLocation<DamBase>();
+        var boat = Repository.GetItem<PileOfPlastic>();
+        boat.IsInflated = true;
+
+        var response = await target.GetResponse("enter the boat");
+
+        response.Should().Contain("You are now in the magic boat.");
+        target.Context.CurrentLocation.SubLocation.Should().NotBeNull();
+    }
+
+    [Test]
+    public async Task EnterBoat_ShouldWork_LikeGetIn()
+    {
+        var target = GetTarget();
+
+        target.Context.CurrentLocation = Repository.GetLocation<DamBase>();
+        var boat = Repository.GetItem<PileOfPlastic>();
+        boat.IsInflated = true;
+
+        var response = await target.GetResponse("enter boat");
+
+        response.Should().Contain("You are now in the magic boat.");
+        target.Context.CurrentLocation.SubLocation.Should().NotBeNull();
+    }
 }

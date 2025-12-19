@@ -19,7 +19,18 @@ public static class DirectionParser
             return false;
         }
 
-        intent = intent.ToLowerInvariant().StripNonChars();
+        var lowerIntent = intent.ToLowerInvariant();
+
+        // If "enter" or "exit" is followed by additional words, it's likely a sublocation command
+        // (e.g., "enter boat", "exit ship"). Let the AI parser handle these as Board/Disembark.
+        // Standalone "enter" or "exit" will still work as Direction.In/Out.
+        if (lowerIntent.StartsWith("enter ") || lowerIntent.StartsWith("exit "))
+        {
+            direction = Direction.Unknown;
+            return false;
+        }
+
+        intent = lowerIntent.StripNonChars();
 
         foreach (var verb in Verbs.MoveVerbs) intent = intent?.Replace($"{verb} ", "");
 
