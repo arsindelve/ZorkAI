@@ -40,4 +40,12 @@ public interface IIntentParser
     /// </param>
     /// <returns>The intent type as an instance of IntentBase.</returns>
     Task<IntentBase> DetermineComplexIntentType(string? input, string locationDescription, string sessionId);
+
+    /// <summary>
+    ///     Resolves pronouns in player input using recent game responses.
+    /// </summary>
+    /// <param name="input">The player's command (e.g., "open it")</param>
+    /// <param name="recentResponses">Last 3 game responses</param>
+    /// <returns>Rewritten command with pronouns replaced, or null if no pronouns found</returns>
+    Task<string?> ResolvePronounsAsync(string input, IEnumerable<string> recentResponses);
 }

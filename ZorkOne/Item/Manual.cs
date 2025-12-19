@@ -4,7 +4,7 @@ namespace ZorkOne.Item;
 
 public class Manual : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRead
 {
-    public override string[] NounsForMatching => ["paper", "piece", "manual", "zork owner's manual", "zork manual", "owner's manual", "owner manual"];
+    public override string[] NounsForMatching => ["paper", "piece of paper", "piece", "manual", "zork owner's manual", "zork manual", "owner's manual", "owner manual"];
 
     string ICanBeExamined.ExaminationDescription => ((ICanBeRead)this).ReadDescription;
 

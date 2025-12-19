@@ -1096,4 +1096,22 @@ public class TestParser : IntentParser
 
         return Task.FromResult<IntentBase>(new NullIntent());
     }
+
+    public override Task<string?> ResolvePronounsAsync(string input, IEnumerable<string> recentResponses)
+    {
+        // Simple test-mode pronoun resolution
+        var lower = input.ToLowerInvariant();
+        var responses = string.Join(" ", recentResponses).ToLowerInvariant();
+
+        // "open it" after door mentioned
+        if (lower.Contains("open it") && responses.Contains("door"))
+            return Task.FromResult<string?>("open door");
+
+        // "open it" after bulkhead mentioned
+        if (lower.Contains("open it") && responses.Contains("bulkhead"))
+            return Task.FromResult<string?>("open bulkhead");
+
+        // No resolution needed
+        return Task.FromResult<string?>(null);
+    }
 }

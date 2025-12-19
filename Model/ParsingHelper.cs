@@ -97,12 +97,8 @@ public static class ParsingHelper
         if (intentTag != "take")
             return null;
 
-        // If there are multiple nouns (e.g., "take fused with pliers"), this should be handled
-        // as a MultiNounIntent by DetermineActionIntent, not as a TakeIntent
         var nouns = ExtractElementsByTag(response, "noun");
-        if (nouns.Count > 1)
-            return null;
-
+        
         return new TakeIntent
         {
             Message = response,
@@ -120,11 +116,7 @@ public static class ParsingHelper
         if (intentTag != "drop")
             return null;
 
-        // If there are multiple nouns (e.g., "drop X with Y"), this should be handled
-        // as a MultiNounIntent by DetermineActionIntent, not as a DropIntent
         var nouns = ExtractElementsByTag(response, "noun");
-        if (nouns.Count > 1)
-            return null;
 
         return new DropIntent
         {
