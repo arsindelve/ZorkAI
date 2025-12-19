@@ -384,6 +384,17 @@ public class TestParser : IntentParser
                 Noun = "boat"
             });
 
+        if (input == "enter the boat")
+            return Task.FromResult<IntentBase>(new EnterSubLocationIntent
+            {
+                Noun = "boat"
+            });
+
+        if (input == "enter boat")
+            return Task.FromResult<IntentBase>(new EnterSubLocationIntent
+            {
+                Noun = "boat"
+            });
 
         if (input == "get out of the boat")
             return Task.FromResult<IntentBase>(new ExitSubLocationIntent
