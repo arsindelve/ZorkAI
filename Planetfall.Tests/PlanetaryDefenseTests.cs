@@ -1,7 +1,9 @@
 ﻿using FluentAssertions;
 using GameEngine;
 using Planetfall.Item.Kalamontee;
+using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Lawanda.PlanetaryDefense;
+using Planetfall.Location.Kalamontee.Mech;
 using Planetfall.Location.Lawanda;
 
 namespace Planetfall.Tests;
@@ -258,6 +260,109 @@ public class PlanetaryDefenseTests : EngineTestsBase
 
         string? response = await target.GetResponse("put fried in panel");
         response.Should().Contain("no room");
+    }
+
+    [Test]
+    public async Task CrackedBoard_CanBeTaken()
+    {
+        var target = GetTarget();
+        StartHere<StorageEast>();
+
+        var response = await target.GetResponse("take cracked");
+
+        response.Should().Contain("Taken");
+        target.Context.Items.Should().Contain(GetItem<CrackedFromitzBoard>());
+    }
+
+    [Test]
+    public async Task CrackedBoard_CanBePutInPanel()
+    {
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        GetItem<FromitzAccessPanel>().IsOpen = true;
+        Take<CrackedFromitzBoard>();
+        Take<FriedFromitzBoard>();
+
+        var response = await target.GetResponse("put cracked in panel");
+
+        response.Should().Contain("The card clicks neatly into the socket");
+        GetItem<FromitzAccessPanel>().HasItem<CrackedFromitzBoard>().Should().BeTrue();
+    }
+
+    [Test]
+    public async Task CrackedBoard_CanBeRemovedFromPanel()
+    {
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        GetItem<FromitzAccessPanel>().IsOpen = true;
+        Take<CrackedFromitzBoard>();
+        Take<FriedFromitzBoard>();
+
+        // Put cracked board in panel (now it's "second")
+        await target.GetResponse("put cracked in panel");
+
+        // Remove it
+        var response = await target.GetResponse("remove second");
+
+        response.Should().NotContain("shock");
+        response.Should().Contain("slides out of the panel");
+        target.Context.Items.Should().Contain(GetItem<CrackedFromitzBoard>());
+    }
+
+    [Test]
+    public async Task CrackedBoard_DoesNotSolvePuzzle()
+    {
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        GetItem<FromitzAccessPanel>().IsOpen = true;
+        Take<CrackedFromitzBoard>();
+        Take<FriedFromitzBoard>();
+
+        var response = await target.GetResponse("put cracked in panel");
+
+        response.Should().Contain("The card clicks neatly into the socket");
+        response.Should().NotContain("The warning lights stop flashing");
+        target.Context.Score.Should().Be(0);
+    }
+
+    [Test]
+    public async Task CrackedBoard_NounChanges_InPanel()
+    {
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        GetItem<FromitzAccessPanel>().IsOpen = true;
+        Take<CrackedFromitzBoard>();
+        Take<FriedFromitzBoard>();
+
+        await target.GetResponse("put cracked in panel");
+
+        var response = await target.GetResponse("examine panel");
+
+        response.Should().Contain("second seventeen-centimeter fromitz board");
+    }
+
+    [Test]
+    public async Task CrackedBoard_NounChanges_OutOfPanel()
+    {
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        GetLocation<PlanetaryDefense>().ItemPlacedHere(GetItem<CrackedFromitzBoard>());
+
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("cracked seventeen-centimeter fromitz board");
+    }
+
+    [Test]
+    public async Task CrackedBoard_ExaminationDescription()
+    {
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        Take<CrackedFromitzBoard>();
+
+        var response = await target.GetResponse("examine cracked");
+
+        response.Should().Contain("This one looks as though it's been dropped");
     }
 
     private async Task Solve(GameEngine<PlanetfallGame, PlanetfallContext> target)

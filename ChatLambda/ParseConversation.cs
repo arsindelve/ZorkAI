@@ -13,7 +13,7 @@ public class ParseConversation : IParseConversation
     private const string FunctionName = "Floyd-LangGraphFunction-GefcykaLqwp-MySimpleLambda-lBRzg1jLKvXP";
     private readonly IAmazonLambda _lambdaClient;
 
-    public ParseConversation(IAmazonLambda? lambdaClient, ILogger logger)
+    public ParseConversation(IAmazonLambda? lambdaClient, ILogger<ParseConversation> logger)
     {
         Logger = logger;
         _lambdaClient = lambdaClient ?? CreateDefaultLambdaClient();
