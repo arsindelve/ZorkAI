@@ -303,7 +303,8 @@ function Game() {
                            style={{
                                background: 'linear-gradient(135deg, var(--planetfall-bg-dark) 0%, #020617 100%)',
                                borderColor: 'color-mix(in srgb, var(--planetfall-primary) 20%, transparent)',
-                               boxShadow: '0 0 40px color-mix(in srgb, var(--planetfall-primary) 8%, transparent), inset 0 0 60px color-mix(in srgb, var(--planetfall-secondary) 3%, transparent)'
+                               boxShadow: '0 0 40px color-mix(in srgb, var(--planetfall-primary) 8%, transparent), inset 0 0 60px color-mix(in srgb, var(--planetfall-secondary) 3%, transparent)',
+                               opacity: 0.8
                            }}
                            data-testid="game-responses-container">
                 <div className="relative z-0">

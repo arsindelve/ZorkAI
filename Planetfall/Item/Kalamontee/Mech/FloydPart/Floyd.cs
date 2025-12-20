@@ -227,14 +227,6 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         // prompts below - or he might do one of the things from the original game.
         var action = Chooser.RollDice(15) switch
         {
-            <= 3 => (Func<Task<string>>)(async () =>
-                await GenerateCompanionSpeech(context, client, FloydPrompts.DoSomethingSmall)),
-            <= 4 => (Func<Task<string>>)(async () =>
-                await GenerateCompanionSpeech(context, client, FloydPrompts.DoSomethingSmall)),
-            <= 5 => (Func<Task<string>>)(async () =>
-                await GenerateCompanionSpeech(context, client, FloydPrompts.DoSomethingSmall)),
-            <= 6 => (Func<Task<string>>)(async () =>
-                await GenerateCompanionSpeech(context, client, FloydPrompts.DoSomethingSmall)),
             <= 7 => (Func<Task<string>>)(async () =>
                 await GenerateCompanionSpeech(context, client, FloydPrompts.DoSomethingSmall)),
             <= 8 => (Func<Task<string>>)(() => Task.FromResult(FloydConstants.RandomActions.GetRandomElement())),
