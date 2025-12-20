@@ -218,10 +218,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     {
         _currentInput = playerInput;
 
-        // Track player input for pronoun resolution
-        if (!string.IsNullOrWhiteSpace(playerInput))
-            Context.LastInput = playerInput;
-
         // 1. ------- Processor in Progress -
         // See if we have something already running like a save, quit, etc.
         // and see if it has any output.  Does not count as a turn. No actor or turn processing.
@@ -267,6 +263,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
                 _currentInput = resolved;
             }
         }
+
+        // Track player input for pronoun resolution (AFTER resolution, so next command can use this as context)
+        if (!string.IsNullOrWhiteSpace(playerInput))
+            Context.LastInput = playerInput;
 
         // 4. ------- Location specific raw commands
         // Check if the location has an interaction with the raw, unparsed input.
