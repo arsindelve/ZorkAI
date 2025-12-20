@@ -11,8 +11,8 @@ using Newtonsoft.Json;
 namespace GameEngine;
 
 /// <summary>
-///     This class will take the response from the text parser and try to determine which category
-///     of "intent" their input represents. Do they want to interact with something, move somewhere, etc.
+/// This class will take the response from the text parser and try to determine which category
+/// of "intent" their input represents. Do they want to interact with something, move somewhere, etc.
 /// </summary>
 public class IntentParser : IIntentParser
 {
@@ -20,7 +20,7 @@ public class IntentParser : IIntentParser
     private readonly IGlobalCommandFactory _gameSpecificCommandFactory;
     private readonly ILogger? _logger;
     private readonly IAIParser _parser;
-    private readonly IPronounResolver _pronounResolver;
+    private readonly IPronounResolver _pronounResolver; 
 
     /// <summary>
     ///     Constructor for unit testing
