@@ -128,11 +128,6 @@ public class ParseConversation : IParseConversation
             }
             
             Logger.LogDebug($"[PARSE CONVERSATION DEBUG] Results.Response: '{bodyContent.Results.Response}'");
-            if (bodyContent.Results.Response == null)
-            {
-                Logger.LogDebug($"[PARSE CONVERSATION DEBUG] Failed to extract message from Lambda response. Results: {JsonSerializer.Serialize(bodyContent.Results)}");
-                throw new Exception($"Failed to extract message from Lambda response. Results: {JsonSerializer.Serialize(bodyContent.Results)}");
-            }
 
             var lambdaResponseText = bodyContent.Results.Response;
             Logger.LogDebug($"[PARSE CONVERSATION DEBUG] Lambda response text: '{lambdaResponseText}'");

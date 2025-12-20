@@ -1,7 +1,3 @@
-using GameEngine.Item;
-using GameEngine.Location;
-using Model.Location;
-
 namespace Planetfall.Item.Lawanda;
 
 public class LargeMetalCube : OpenAndCloseContainerBase, ICanBeExamined
@@ -20,10 +16,7 @@ public class LargeMetalCube : OpenAndCloseContainerBase, ICanBeExamined
         if (IsOpen && Items.Any())
             return $"In one corner is a large metal cube whose lid is open. \n{ItemListDescription("large metal cube", currentLocation)}";
 
-        if (IsOpen)
-            return "In one corner is a large metal cube whose lid is open. ";
-
-        return "A large metal cube";
+        return $"In one corner is a large metal cube whose lid is {(IsOpen ? "open" : "closed")}. ";
     }
 
     public override string NowOpen(ILocation currentLocation)

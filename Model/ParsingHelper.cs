@@ -37,7 +37,7 @@ public static class ParsingHelper
             a) If the player is expressing a desire to move, enter, go in, or travel somewhere, put "Move"
             b) If the player wants to enter a vehicle or sub-location, put "Board"
             c) If the player wants to exit a vehicle or sub-location, put "Disembark"
-            d) If the player wants to take or pick up one or more items, put "Take"
+            d) If the player wants to take or pick up one or more items, put "Take" (EXCEPTION: if "take" is used WITH a tool or another object using prepositions like "with" or "using", put "Act" instead)
             e) If the player wants to drop one or more items, put "Drop"
             f) Something else, put "Act"
              
@@ -68,6 +68,8 @@ public static class ParsingHelper
         "prompt": "exit the boat", "completion": "<intent>disembark</intent>\n<noun>boat</noun>"
         "prompt": "take off the jacket", "completion": "<intent>act</intent>\n<verb>doff</verb>\n<noun>jacket</noun>"
         "prompt": "tie the rope to the railing", "completion": "<intent>act</intent>\n<verb>tie</verb>\n<noun>rope</noun>\n<noun>railing</noun>\n<preposition>to</preposition>"
+        "prompt": "take the bedistor with pliers", "completion": "<intent>act</intent>\n<verb>take</verb>\n<noun>bedistor</noun>\n<noun>pliers</noun>\n<preposition>with</preposition>"
+        "prompt": "remove the bedistor using pliers", "completion": "<intent>act</intent>\n<verb>remove</verb>\n<noun>bedistor</noun>\n<noun>pliers</noun>\n<preposition>using</preposition>"
 
         """;
 
