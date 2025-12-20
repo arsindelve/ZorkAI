@@ -5,6 +5,11 @@ using Model.AIParsing;
 
 namespace OpenAI;
 
+/// <summary>
+/// Resolves pronouns found in a player's input by analyzing the context provided from prior inputs and responses.
+/// The resolution process utilizes a language model for improved accuracy, where available, and can gracefully degrade
+/// when no API key is provided for interaction with the model.
+/// </summary>
 public class PronounResolver(ILogger? logger = null) : OpenAIClientBase(logger, requireApiKey: false), IPronounResolver
 {
     protected override string DeploymentName => "gpt-4o-mini"; // Cheaper model for pronoun resolution

@@ -353,6 +353,14 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         return Context;
     }
 
+    /// <summary>
+    /// Saves the current game state, including game context and other relevant metadata,
+    /// and returns it as a serialized JSON string.
+    /// </summary>
+    /// <returns>
+    /// A JSON string representing the serialized state of the game, including type
+    /// and reference metadata for restoration purposes.
+    /// </returns>
     public string SaveGame()
     {
         var savedGame = Repository.Save<TContext>();

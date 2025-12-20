@@ -2,7 +2,7 @@ namespace Model.AIParsing;
 
 public interface IPronounResolver
 {
-    /// <summary>
+    /// <summary> 
     /// Resolves pronouns in player input using the last player input and game response
     /// </summary>
     /// <param name="playerInput">The current player's command (e.g., "turn it on")</param>
