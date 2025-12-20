@@ -1,11 +1,45 @@
 using FluentAssertions;
 using GameEngine;
+using Model.AIParsing;
+using OpenAI;
 using Planetfall.Location.Feinstein;
 
 namespace Planetfall.Tests;
 
 public class ExplosionTests : EngineTestsBase
 {
+    [Test]
+    [Explicit("Requires OpenAI API key - tests pronoun resolution fix")]
+    public async Task PronounResolution_OpenIt_ResolvesToBulkhead()
+    {
+        // This test verifies the fix for pronoun resolution timing bug
+        // When user types "west" then "open it", the pronoun "it" should resolve to "bulkhead"
+
+        // Use real parser with pronoun resolution (requires OpenAI key in env)
+        var realParser = new IntentParser(new Planetfall.GlobalCommand.PlanetfallGlobalCommandFactory());
+        var target = GetTarget(realParser);
+        target.Context.CurrentLocation = Repository.GetLocation<DeckNine>();
+
+        // Clear actors to prevent random Blather interference
+        target.Context.Actors.Clear();
+
+        // Try to go west - bulkhead is closed at start
+        var response = await target.GetResponse("west");
+        Console.WriteLine($"Response to 'west': {response}");
+        response.Should().Contain("bulkhead");
+        response.Should().Contain("closed");
+
+        // Now try "open it" - should resolve "it" to "bulkhead" from previous response
+        // This would fail before the fix (would get AI-generated response)
+        // After the fix, it should use the game engine's OpenProcessor
+        response = await target.GetResponse("open it");
+        Console.WriteLine($"Response to 'open it': {response}");
+
+        // Check that we got a proper game engine response, not AI generation
+        // The exact response depends on the turn count (line 30-36 in BulkheadDoor.cs)
+        // At turn 0, it should say "Why open the door to the emergency escape pod if there's no emergency?"
+        response.Should().Contain("emergency");
+    }
     [Test]
     public async Task Experience_IntoEscapePod_ThenOut()
     {
