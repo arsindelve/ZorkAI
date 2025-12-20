@@ -1,4 +1,5 @@
 using GameEngine;
+using Model.Intent;
 using Model.Interface;
 using Model.Location;
 using Moq;
@@ -172,7 +173,7 @@ public class OpenAIParserTests
     [TestCase(typeof(WestOfHouse), "the mailbox, please smoke it",
         new[] { "<verb>smoke</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "let's steal the mailbox",
-        new[] { "<intent>take</intent>" })]
+        new[] { "<intent>steal</intent>" })]
     [TestCase(typeof(WestOfHouse), "it would be great if I can please lick the mailbox",
         new[] { "<verb>lick</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "light lantern",
@@ -450,11 +451,10 @@ public class OpenAIParserTests
     [TestCase("9")]
     public async Task TypeNumbers(string number)
     {
-        string locationObjectDescription;
         var sentence = $"type {number}";
 
         var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
-        locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
+        var locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
 
         var target = new OpenAIParser(null);
         var intent = await target.AskTheAIParser(sentence, locationObjectDescription, string.Empty);
@@ -484,5 +484,38 @@ public class OpenAIParserTests
 
         response.Should().Contain($"<verb>{expected}</verb>");
         response.Should().Contain("<noun>12");
+    }
+    
+    [Test]
+    [TestCase("what is in my inventory")]
+    [TestCase("what am I carrying?")]
+    [TestCase("tell me everything I have on me")]
+    [TestCase("inventory")]
+    [TestCase("tell me all the items I am carrying")]
+    public async Task Inventory(string input)
+    {
+        var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+        var locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
+
+        var target = new OpenAIParser(null);
+        var intent = await target.AskTheAIParser(input, locationObjectDescription, string.Empty);
+
+        intent.Should().BeOfType<InventoryIntent>();
+    }
+    
+    [Test]
+    [TestCase("where am I")]
+    [TestCase("what is this place?")]
+    [TestCase("look at my surroundings")]
+    [TestCase("tell me about my location")]
+    public async Task Look(string input)
+    {
+        var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+        var locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
+
+        var target = new OpenAIParser(null);
+        var intent = await target.AskTheAIParser(input, locationObjectDescription, string.Empty);
+
+        intent.Should().BeOfType<LookIntent>();
     }
 }

@@ -16,7 +16,7 @@ public class OpenAIParser(ILogger? logger) : OpenAIClientBase(logger), IAIParser
         var options = GetChatCompletionsOptions(systemPrompt, 0f); 
         options.Temperature = 0;
 
-        var response = await Client.GetChatCompletionsAsync(options);
+        var response = await Client!.GetChatCompletionsAsync(options);
         ChatResponseMessage? responseMessage = response.Value.Choices[0].Message;
         return ParsingHelper.GetIntent(input, responseMessage.Content, Logger);
     }

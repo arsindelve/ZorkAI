@@ -34,12 +34,14 @@ public static class ParsingHelper
         I need to know the player's intent. Given the sentence "{1}":
 
         1. Tell me in <intent> tags if:
-            a) If the player is expressing a desire to move, enter, go in, or travel somewhere, put "Move"
-            b) If the player wants to enter a vehicle or sub-location, put "Board"
-            c) If the player wants to exit a vehicle or sub-location, put "Disembark"
+            a) If the player is expressing a desire to move, enter, go in, or travel somewhere, put "move"
+            b) If the player wants to enter a vehicle or sub-location, put "board"
+            c) If the player wants to exit a vehicle or sub-location, put "disembark"
             d) If the player wants to take or pick up one or more items, put "Take" (EXCEPTION: if "take" is used WITH a tool or another object using prepositions like "with" or "using", put "Act" instead)
-            e) If the player wants to drop one or more items, put "Drop"
-            f) Something else, put "Act"
+            e) If the player wants to drop one or more items, put "drop"
+            f) If the players want to "look" or "look around" or asks "where am I?", put "look"
+            g) If the player wants to know what they are carrying, what is in their inventory or what items they have, put "inventory"
+            h) Something else, put "Act"
              
         2. In <verb> tags, put the single most important verb I need to know, which best expresses the player's intention. If there is a simpler, more common synonym for the verb, use that instead.
            To avoid confusion, if the player wants to turn something on, or turn on something like a light, use the verb "activate". if the player wants to turn something off, or turn off something light a lamp, use the verb "deactivate"
@@ -70,6 +72,10 @@ public static class ParsingHelper
         "prompt": "tie the rope to the railing", "completion": "<intent>act</intent>\n<verb>tie</verb>\n<noun>rope</noun>\n<noun>railing</noun>\n<preposition>to</preposition>"
         "prompt": "take the bedistor with pliers", "completion": "<intent>act</intent>\n<verb>take</verb>\n<noun>bedistor</noun>\n<noun>pliers</noun>\n<preposition>with</preposition>"
         "prompt": "remove the bedistor using pliers", "completion": "<intent>act</intent>\n<verb>remove</verb>\n<noun>bedistor</noun>\n<noun>pliers</noun>\n<preposition>using</preposition>"
+        "prompt": "where am I?", "completion": "<intent>look</intent>"
+        "prompt": "what is this place?", "completion": "<intent>look</intent>"
+        "prompt": "what items do I have on me?", "completion": "<intent>inventory</intent>"
+        "prompt": "tell me all the items I am carrying", "completion": "<intent>inventory</intent>"
 
         """;
 
@@ -227,6 +233,16 @@ public static class ParsingHelper
         var direction = DirectionParser.ParseDirection(directionTag);
         return direction == Direction.Unknown ? null : new MoveIntent { Direction = direction, Message = response };
     }
+    
+    private static T? DetermineSimpleIntent<T>(string? response) where T : IntentBase, new()
+    {
+        var tag = typeof(T).GetProperty("TagName")?.GetValue(null) as string;
+        var intentTag = ExtractElementsByTag(response, "intent").SingleOrDefault();
+        if (string.IsNullOrEmpty(intentTag))
+            return null;
+
+        return intentTag != tag ? null : new T();
+    }
 
     private static List<string> ExtractElementsByTag(string? response, string tag)
     {
@@ -263,6 +279,14 @@ public static class ParsingHelper
         var moveIntent = DetermineMoveIntent(response?.ToLowerInvariant());
         if (moveIntent != null)
             return moveIntent;
+        
+        var inventoryIntent = DetermineSimpleIntent<InventoryIntent>(response?.ToLowerInvariant());
+        if (inventoryIntent != null)
+            return inventoryIntent;
+        
+        var lookIntent = DetermineSimpleIntent<LookIntent>(response?.ToLowerInvariant());
+        if (lookIntent != null)
+            return lookIntent;
 
         var actionIntent = DetermineActionIntent(response?.ToLowerInvariant(), input, logger);
         if (actionIntent != null)
