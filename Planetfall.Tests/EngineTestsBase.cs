@@ -79,7 +79,8 @@ public class EngineTestsBase
         Repository.GetLocation<DeckNine>().Init();
 
         Context = engine.Context;
-        Context.RecentResponses.Clear(); // Ensure clean state for tests
+        Context.LastInput = null;
+        Context.LastResponse = null;
 
         return engine;
     }

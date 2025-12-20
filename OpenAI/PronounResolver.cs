@@ -15,7 +15,7 @@ public class PronounResolver(ILogger? logger = null) : OpenAIClientBase(logger, 
 
     // Base class handles API key setup with graceful degradation
 
-    public async Task<string?> ResolvePronouns(string playerInput, IEnumerable<string> recentResponses)
+    public async Task<string?> ResolvePronouns(string playerInput, string? lastInput, string? lastResponse)
     {
         // If no API key (test environment), skip resolution
         if (!HasApiKey)
@@ -25,15 +25,15 @@ public class PronounResolver(ILogger? logger = null) : OpenAIClientBase(logger, 
         if (!ContainsPronouns(playerInput))
             return null;
 
-        // Build context from recent responses
-        var responseContext = string.Join("\n", recentResponses.Reverse().Take(1));
-        if (string.IsNullOrWhiteSpace(responseContext))
-            return null; // No responses to reference
+        // Need at least one context source to resolve against
+        if (string.IsNullOrWhiteSpace(lastInput) && string.IsNullOrWhiteSpace(lastResponse))
+            return null;
 
         // Ask LLM to resolve pronouns
         try
         {
-            var rewrittenCommand = await ResolveWithLLM(playerInput, responseContext);
+            var rewrittenCommand = await ResolveWithLLM(playerInput, lastInput, lastResponse);
+            Logger?.LogDebug($"Pronoun resolved: '{playerInput}' -> '{rewrittenCommand}' (lastInput: '{lastInput}', lastResponse: '{lastResponse}')");
             return rewrittenCommand;
         }
         catch (Exception ex)
@@ -49,41 +49,50 @@ public class PronounResolver(ILogger? logger = null) : OpenAIClientBase(logger, 
         return Pronouns.Any(pronoun => Regex.IsMatch(lower, $@"\b{pronoun}\b"));
     }
 
-    private async Task<string> ResolveWithLLM(string playerInput, string responseContext)
+    private async Task<string> ResolveWithLLM(string playerInput, string? lastInput, string? lastResponse)
     {
         var systemPrompt = @"You are a pronoun resolver for a text adventure game.
 
-Your job: If the player's command contains a pronoun (it, them, that, this, those, these),
-identify what noun from the recent game responses the pronoun refers to, and rewrite the
-command replacing the pronoun with that specific noun.
+Your job: If the player's command contains a pronoun (it, them, that, this, those, these, him, her),
+identify what noun the pronoun refers to from either the previous player command OR the game's response,
+and rewrite the command replacing the pronoun with that specific noun.
 
-If there are no pronouns or they don't clearly refer to anything in the responses,
+Pronouns often refer to nouns in the PLAYER'S PREVIOUS COMMAND rather than the game's response.
+
+If there are no pronouns or they don't clearly refer to anything,
 return the original command UNCHANGED.
 
 IMPORTANT: Return ONLY the rewritten command with no explanation, quotes, or extra text.
 
 Examples:
 
-Game responses: ""The door is locked.""
-Player command: ""open it""
+Last player command: ""take lamp""
+Game response: ""Taken.""
+Current command: ""turn it on""
+Output: turn lamp on
+
+Last player command: ""examine door""
+Game response: ""The door is locked.""
+Current command: ""open it""
 Output: open door
 
-Game responses: ""You see a sword and shield here.""
-Player command: ""take them""
+Last player command: ""look""
+Game response: ""You see a sword and shield here.""
+Current command: ""take them""
 Output: take sword and shield
 
-Game responses: ""The pod door is closed.""
-Player command: ""open it""
-Output: open door
+Last player command: ""drop lamp""
+Game response: ""Dropped.""
+Current command: ""take it""
+Output: take lamp";
 
-Game responses: ""There is nothing special about the lamp.""
-Player command: ""drop it""
-Output: drop lamp";
+        var context = string.Empty;
+        if (!string.IsNullOrWhiteSpace(lastInput))
+            context += $"Last player command: \"{lastInput}\"\n";
+        if (!string.IsNullOrWhiteSpace(lastResponse))
+            context += $"Game response: \"{lastResponse}\"\n";
 
-        var userMessage = $@"Recent game responses:
-{responseContext}
-
-Player command: {playerInput}
+        var userMessage = $@"{context}Current command: {playerInput}
 
 Rewritten command:";
 

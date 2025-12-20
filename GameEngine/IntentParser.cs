@@ -99,10 +99,13 @@ public class IntentParser : IIntentParser
         return response;
     }
 
-    public virtual async Task<string?> ResolvePronounsAsync(string input, IEnumerable<string> recentResponses)
+    public virtual async Task<string?> ResolvePronounsAsync(string input, string? lastInput, string? lastResponse)
     {
-        string? result = await _pronounResolver.ResolvePronouns(input, recentResponses);
-        _logger?.LogDebug($"Result from pronoun replacement: {result}");
+        string? result = await _pronounResolver.ResolvePronouns(input, lastInput, lastResponse);
+        if (result != null && !result.Equals(input, StringComparison.OrdinalIgnoreCase))
+        {
+            _logger?.LogDebug($"Pronoun resolution: '{input}' -> '{result}' (lastInput: '{lastInput}', lastResponse: '{lastResponse}')");
+        }
         return result;
     }
 
