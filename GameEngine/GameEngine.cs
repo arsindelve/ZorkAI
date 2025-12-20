@@ -430,6 +430,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
                 await GetGeneratedNoOpResponse(_currentInput!, GenerationClient, Context)
             ),
 
+            InventoryIntent => (null, await new InventoryProcessor().Process("", Context, GenerationClient, Runtime.Unknown)),
+            
+            LookIntent => (null, await new LookProcessor().Process("", Context, GenerationClient, Runtime.Unknown)),
+            
             PromptIntent => (null, parsedResult.Message),
 
             EnterSubLocationIntent subLocationIntent => await new EnterSubLocationEngine().Process(
