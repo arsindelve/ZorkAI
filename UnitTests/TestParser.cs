@@ -1097,18 +1097,23 @@ public class TestParser : IntentParser
         return Task.FromResult<IntentBase>(new NullIntent());
     }
 
-    public override Task<string?> ResolvePronounsAsync(string input, IEnumerable<string> recentResponses)
+    public override Task<string?> ResolvePronounsAsync(string input, string? lastInput, string? lastResponse)
     {
         // Simple test-mode pronoun resolution
         var lower = input.ToLowerInvariant();
-        var responses = string.Join(" ", recentResponses).ToLowerInvariant();
+        var lastInputLower = lastInput?.ToLowerInvariant() ?? string.Empty;
+        var lastResponseLower = lastResponse?.ToLowerInvariant() ?? string.Empty;
 
-        // "open it" after door mentioned
-        if (lower.Contains("open it") && responses.Contains("door"))
+        // "turn it on" after "take lamp" - pronoun refers to player's previous input
+        if (lower.Contains("turn") && lower.Contains("it") && lastInputLower.Contains("lamp"))
+            return Task.FromResult<string?>("turn lamp on");
+
+        // "open it" after door mentioned in response
+        if (lower.Contains("open it") && lastResponseLower.Contains("door"))
             return Task.FromResult<string?>("open door");
 
-        // "open it" after bulkhead mentioned
-        if (lower.Contains("open it") && responses.Contains("bulkhead"))
+        // "open it" after bulkhead mentioned in response
+        if (lower.Contains("open it") && lastResponseLower.Contains("bulkhead"))
             return Task.FromResult<string?>("open bulkhead");
 
         // No resolution needed

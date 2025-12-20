@@ -218,6 +218,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     {
         _currentInput = playerInput;
 
+        // Track player input for pronoun resolution
+        if (!string.IsNullOrWhiteSpace(playerInput))
+            Context.LastInput = playerInput;
+
         // 1. ------- Processor in Progress -
         // See if we have something already running like a save, quit, etc.
         // and see if it has any output.  Does not count as a turn. No actor or turn processing.
@@ -254,10 +258,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (returnResponseFromAgainProcessor)
             return PostProcessing(_currentInput);
 
-        // Resolve pronouns from recent game responses (BEFORE ItProcessor)
-        if (Context.RecentResponses.Any())
+        // Resolve pronouns from recent player input and game response (BEFORE ItProcessor)
+        if (!string.IsNullOrEmpty(Context.LastInput) || !string.IsNullOrEmpty(Context.LastResponse))
         {
-            var resolved = await _parser.ResolvePronounsAsync(_currentInput!, Context.RecentResponses);
+            var resolved = await _parser.ResolvePronounsAsync(_currentInput!, Context.LastInput, Context.LastResponse);
             if (resolved != null && !resolved.Equals(_currentInput, StringComparison.OrdinalIgnoreCase))
             {
                 _currentInput = resolved;
@@ -504,14 +508,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         _lastResponseWasGenerated = false;
 
-        // Store response for pronoun resolution (keep last 3)
+        // Store response for pronoun resolution
         var trimmedResult = finalResult.TrimEnd();
         if (!string.IsNullOrWhiteSpace(trimmedResult))
-        {
-            if (Context.RecentResponses.Count >= 3)
-                Context.RecentResponses.Dequeue();
-            Context.RecentResponses.Enqueue(trimmedResult);
-        }
+            Context.LastResponse = trimmedResult;
 
         return trimmedResult + Environment.NewLine;
     }
