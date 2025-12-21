@@ -160,7 +160,6 @@ public static class Repository
         if (Activator.CreateInstance(gameEngine.StartingLocation) is not ILocation instance)
             throw new Exception();
 
-        instance.Init(); // Initialize location to populate Items list
         _allLocations.Add(gameEngine.StartingLocation, instance);
         return instance;
     }
