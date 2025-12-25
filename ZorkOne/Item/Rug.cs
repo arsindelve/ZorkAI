@@ -47,7 +47,7 @@ public class Rug : ItemBase
 
         return new PositiveInteractionResult(
             "Underneath the rug is a closed trap door. As you drop the corner of the rug, " +
-            "the trap door is once again concealed from view. ");
+            "the trap door is once again concealed from view. You'll need to move the rug in order to open the trap door. ");
     }
 
     private InteractionResult SitOnRug()
