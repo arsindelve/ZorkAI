@@ -518,4 +518,37 @@ public class OpenAIParserTests
 
         intent.Should().BeOfType<LookIntent>();
     }
+    
+    [Test]
+    [TestCase("look under the rug")]
+    [TestCase("look under rug")]
+    [TestCase("look under the rug")]
+    [TestCase("look under rug")]
+    [TestCase("look under the rug")]
+    [TestCase("look under the rug")]
+    [TestCase("look under the rug")]
+    [TestCase("look under the rug")]
+    [TestCase("look under rug")]
+    [TestCase("look under the rug")]
+    [TestCase("look under the rug")]    
+    [TestCase("peek under rug")]
+    
+    public async Task LookUnderTheRug(string input)
+    {
+        string locationObjectDescription;
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+            var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
+        }
+
+        var target = new OpenAIParser(null);
+        var intent = await target.AskTheAIParser(input, locationObjectDescription, string.Empty);
+
+        intent.Should().BeOfType<SimpleIntent>();
+        var simpleIntent = intent as SimpleIntent;
+        simpleIntent!.Noun.Should().Be("rug");
+    }
 }
