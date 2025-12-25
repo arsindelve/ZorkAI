@@ -42,7 +42,7 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
         if (action.Match(["count"], NounsForMatching))
             return new PositiveInteractionResult("There are 69,105 leaves here. ");
 
-        if (action.Match(["move"], NounsForMatching))
+        if (action.Match(["move", "search"], NounsForMatching))
         {
             HasEverBeenPickedUp = true;
             Repository.GetLocation<Clearing>().ItemPlacedHere(Repository.GetItem<Grating>());
