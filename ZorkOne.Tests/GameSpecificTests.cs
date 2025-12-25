@@ -67,6 +67,19 @@ public class GameSpecificTests : EngineTestsBase
         // Assert
         target.Context.CurrentLocation.Should().Be(Repository.GetLocation<UpATree>());
     }
+    
+    [Test]
+    public async Task LiftTheRug()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+
+        // Act
+        var response = await target.GetResponse("lift rug");
+
+        // Assert
+        response.Should().Contain("concealed from view");
+    }
 
     [Test]
     public async Task PrayAtTheAltar()

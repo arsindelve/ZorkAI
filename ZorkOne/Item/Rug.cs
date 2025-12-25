@@ -32,6 +32,9 @@ public class Rug : ItemBase
         if (action.MatchVerb(["look", "examine", "peek"]) && action.OriginalInput != null &&
             action.OriginalInput.ToLowerInvariant().Contains("under"))
             return LookUnderRug();
+        
+        if (action.MatchVerb(["lift", "hoist", "raise"]) && action.OriginalInput != null)
+            return LookUnderRug();
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
