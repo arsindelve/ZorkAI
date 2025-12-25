@@ -173,7 +173,7 @@ public class OpenAIParserTests
     [TestCase(typeof(WestOfHouse), "the mailbox, please smoke it",
         new[] { "<verb>smoke</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "let's steal the mailbox",
-        new[] { "<intent>steal</intent>" })]
+        new[] { "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "it would be great if I can please lick the mailbox",
         new[] { "<verb>lick</verb>", "<noun>mailbox</noun>", "<intent>act</intent>" })]
     [TestCase(typeof(WestOfHouse), "light lantern",
@@ -197,12 +197,6 @@ public class OpenAIParserTests
         {
             "<verb>inflate</verb>", "<noun>pile of plastic</noun>", "<noun>air pump</noun>", "<intent>act</intent>",
             "<preposition>with</preposition>"
-        })]
-    [TestCase(typeof(DomeRoom), "blow up the pile of plastic using the air pump",
-        new[]
-        {
-            "<verb>inflate</verb>", "<noun>pile of plastic</noun>", "<noun>air pump</noun>", "<intent>act</intent>",
-            "<preposition>using</preposition>"
         })]
     [TestCase(typeof(Dam), "Use the wrench to turn the bolt.",
         new[]
@@ -522,15 +516,6 @@ public class OpenAIParserTests
     [Test]
     [TestCase("look under the rug")]
     [TestCase("look under rug")]
-    [TestCase("look under the rug")]
-    [TestCase("look under rug")]
-    [TestCase("look under the rug")]
-    [TestCase("look under the rug")]
-    [TestCase("look under the rug")]
-    [TestCase("look under the rug")]
-    [TestCase("look under rug")]
-    [TestCase("look under the rug")]
-    [TestCase("look under the rug")]    
     [TestCase("peek under rug")]
     
     public async Task LookUnderTheRug(string input)

@@ -34,10 +34,10 @@ public static class ParsingHelper
         I need to know the player's intent. Given the sentence "{1}":
 
         1. Tell me in <intent> tags if:
-            a) If the player is expressing a desire to move, enter, go in, or travel somewhere, put "move"
+            a) If the player is expressing a desire to move, enter, exit, go in, or travel somewhere, put "move"
             b) If the player wants to enter a vehicle or sub-location, put "board"
             c) If the player wants to exit a vehicle or sub-location, put "disembark"
-            d) If the player wants to take or pick up one or more items, put "Take" (EXCEPTION: if "take" is used WITH a tool or another object using prepositions like "with" or "using", put "Act" instead)
+            d) If the player wants to take or pick up one or more items, put "take" (EXCEPTION: if "take" is used WITH a tool or another object using prepositions like "with" or "using", put "act" instead)
             e) If the player wants to drop one or more items, put "drop"
             f) If the players want to "look" or "look around" or asks "where am I?", put "look"
             g) If the player wants to know what they are carrying, what is in their inventory or what items they have, put "inventory"
@@ -47,7 +47,7 @@ public static class ParsingHelper
            To avoid confusion, if the player wants to turn something on, or turn on something like a light, use the verb "activate". if the player wants to turn something off, or turn off something light a lamp, use the verb "deactivate"
            To avoid confusion, if the player wants wear or put on clothing, replace their verb with the verb "don". If the player wants take off clothing, or remove clothing, replace their verb with the the verb "doff"
 
-        3. For each noun phrase that is an argument or modifier of the main verb, wrap the head noun (and any immediately preceding adjectives) in <noun>…</noun> tags. Do NOT include any preceding preposition (e.g., ‘with’, ‘under’) inside the tags
+        3. For each noun phrase that is an argument or modifier of the main verb, wrap the head noun (and any immediately preceding adjectives) in <noun>…</noun> tags. Do NOT include any preceding preposition (e.g., 'with', 'under') inside the tags
 
         4. If there are two nouns, in separate <preposition> tags outside any other tags, put the preposition which connects the nouns. Otherwise, omit these tags.
 
@@ -60,6 +60,7 @@ public static class ParsingHelper
         Examples: 
 
         "prompt": "type 1", "completion": "<intent>act</intent>\n<verb>type</verb>\n<noun>1</noun>"
+        "prompt": "press 0", "completion": "<intent>act</intent>\n<verb>press</verb>\n<noun>0</noun>"
         "prompt": "drop the sword", "completion": "<intent>drop</intent>\n<verb>drop</verb>\n<noun>sword</noun>"
         "prompt": "look under the rug", "completion": "<intent>act</intent>\n<verb>look</verb>\n<noun>rug</noun>"
         "prompt": "take the sword", "completion": "<intent>take</intent>\n<verb>take</verb>\n<noun>sword</noun>"
