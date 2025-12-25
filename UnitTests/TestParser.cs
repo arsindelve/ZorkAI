@@ -22,7 +22,7 @@ public class TestParser : IntentParser
         [
             "take", "drop", "open", "close", "examine", "look", "eat", "press", "remove", "play",
             "deactivate", "type", "key", "punch", "push", "pull", "burn", "set", "search", "empty",
-            "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate",
+            "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate", "search",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind", "kick", "deflate",
             "lower", "raise", "get", "inflate", "leave", "unlock", "lock", "climb", "extend", "lift"
         ];

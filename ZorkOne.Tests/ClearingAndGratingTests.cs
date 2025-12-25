@@ -22,6 +22,21 @@ public class ClearingAndGratingTests : EngineTestsBase
         response.Should().Contain("grating is revealed");
         target.Context.CurrentLocation.HasItem<Grating>().Should().BeTrue();
     }
+    
+    [Test]
+    public async Task Clearing_SearchTheLeaves_RevealAGrate()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Clearing>();
+        target.Context.CurrentLocation.HasItem<Grating>().Should().BeFalse();
+
+        // Act
+        var response = await target.GetResponse("search the leaves");
+
+        // Assert
+        response.Should().Contain("grating is revealed");
+        target.Context.CurrentLocation.HasItem<Grating>().Should().BeTrue();
+    }
 
     [Test]
     public async Task Clearing_TakeTheLeaves_RevealAGrate()
