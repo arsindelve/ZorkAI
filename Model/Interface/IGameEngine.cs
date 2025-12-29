@@ -98,6 +98,12 @@ public interface IGameEngine
     /// </summary>
     Runtime Runtime { get; set; }
 
+    /// <summary>
+    ///     When true, disables AI-generated narrative responses and conversation processing.
+    ///     AI command parsing is still enabled for understanding player intent.
+    /// </summary>
+    bool NoGeneratedResponses { get; set; }
+
     int CurrentTime { get; }
 
     /// <summary>

@@ -24,10 +24,14 @@ public class ZorkOneController(
     public async Task<GameResponse> Index([FromBody] GameRequest request)
     {
         await engine.InitializeEngine();
+
+        // Set the NoGeneratedResponses flag from the request
+        engine.NoGeneratedResponses = request.NoGeneratedResponses;
+
         var savedSession = await GetSavedSession(request.SessionId);
         if (!string.IsNullOrEmpty(savedSession)) RestoreSession(savedSession);
 
-        logger.LogInformation($"Request: {request.Input}");
+        logger.LogInformation($"Request: {request.Input} (NoGeneratedResponses: {request.NoGeneratedResponses})");
         var response = await engine.GetResponse(request.Input);
         logger.LogInformation($"Response: {response}");
 
