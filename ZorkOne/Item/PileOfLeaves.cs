@@ -23,8 +23,17 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
 
     public override string OnBeingTaken(IContext context, ICanContainItems? previousLocation)
     {
-        Repository.GetLocation<Clearing>().ItemPlacedHere(Repository.GetItem<Grating>());
-        return "In disturbing the pile of leaves, a grating is revealed. ";
+        var clearing = Repository.GetLocation<Clearing>();
+        var grating = Repository.GetItem<Grating>();
+
+        // Only reveal grating if not already visible
+        if (!clearing.Items.Contains(grating))
+        {
+            clearing.ItemPlacedHere(grating);
+            return "In disturbing the pile of leaves, a grating is revealed. ";
+        }
+
+        return "Taken. ";
     }
 
     public override string GenericDescription(ILocation? currentLocation)
@@ -44,8 +53,19 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
 
         if (action.Match(["move", "search"], NounsForMatching))
         {
+            var clearing = Repository.GetLocation<Clearing>();
+            var grating = Repository.GetItem<Grating>();
+
+            // Check if grating is already revealed
+            if (clearing.Items.Contains(grating))
+            {
+                return new PositiveInteractionResult(
+                    "The leaves have already been moved. The grating is clearly visible. "
+                );
+            }
+
             HasEverBeenPickedUp = true;
-            Repository.GetLocation<Clearing>().ItemPlacedHere(Repository.GetItem<Grating>());
+            clearing.ItemPlacedHere(grating);
             return new PositiveInteractionResult(
                 "In disturbing the pile of leaves, a grating is revealed. "
             );
