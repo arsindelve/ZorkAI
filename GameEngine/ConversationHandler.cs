@@ -22,6 +22,12 @@ public class ConversationHandler(
     /// <returns>The conversation response if a conversation was detected, null otherwise</returns>
     public async Task<string?> CheckForConversation(string input, IContext context)
     {
+        if (generationClient.IsDisabled)
+        {
+            logger?.LogDebug("[CONVERSATION DEBUG] Conversations disabled via NoGeneratedResponses flag");
+            return null;
+        }
+
         logger?.LogDebug($"[CONVERSATION DEBUG] Checking input: '{input}'");
         
         var talkers = CollectTalkableEntities(context);

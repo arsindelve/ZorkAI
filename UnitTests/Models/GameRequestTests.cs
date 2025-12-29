@@ -125,10 +125,26 @@ public class GameRequestTests
         var gameRequest = new GameRequest("examine potion", "def456");
 
         // Act
-        var (input, sessionId) = gameRequest;
+        var (input, sessionId, noGeneratedResponses) = gameRequest;
 
         // Assert
         input.Should().Be("examine potion");
         sessionId.Should().Be("def456");
+        noGeneratedResponses.Should().BeFalse();
+    }
+
+    [Test]
+    public void GameRequest_WithDeconstruction_IncludesNoGeneratedResponses()
+    {
+        // Arrange
+        var gameRequest = new GameRequest("take lamp", "abc123", NoGeneratedResponses: true);
+
+        // Act
+        var (input, sessionId, noGeneratedResponses) = gameRequest;
+
+        // Assert
+        input.Should().Be("take lamp");
+        sessionId.Should().Be("abc123");
+        noGeneratedResponses.Should().BeTrue();
     }
 }

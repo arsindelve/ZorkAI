@@ -133,6 +133,17 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public Runtime Runtime { get; set; }
 
+    private bool _noGeneratedResponses;
+    public bool NoGeneratedResponses
+    {
+        get => _noGeneratedResponses;
+        set
+        {
+            _noGeneratedResponses = value;
+            GenerationClient.IsDisabled = value;
+        }
+    }
+
     public string SessionTableName => _gameInstance.SessionTableName;
 
     public string IntroText { get; }
