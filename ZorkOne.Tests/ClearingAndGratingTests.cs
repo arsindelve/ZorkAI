@@ -282,11 +282,12 @@ public class ClearingAndGratingTests : EngineTestsBase
 
         // Act
         await target.GetResponse("unlock the grate with the key");
-        await target.GetResponse("open the grate");
+        await target.GetResponse("open the grate"); // This adds grating to Clearing
         var response = await target.GetResponse("take leaves");
 
-        // Assert
-        response.Should().Contain("In disturbing the pile of leaves, a grating is revealed");
+        // Assert - Grating is already visible from opening it, so no repeat message
+        response.Should().Contain("Taken");
+        response.Should().NotContain("a grating is revealed");
     }
 
     [Test]

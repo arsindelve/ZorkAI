@@ -13,6 +13,11 @@ public interface IGenerationClient
     public Action? OnGenerate { get; set; }
 
     /// <summary>
+    /// When true, generation methods return a default message instead of calling AI.
+    /// </summary>
+    bool IsDisabled { get; set; }
+
+    /// <summary>
     /// Sets the system prompt for AI generation.
     /// </summary>
     string SystemPrompt { set; }

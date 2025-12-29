@@ -18,6 +18,8 @@ public class ClaudeFourGenerationClient : ClaudeClientBase, IGenerationClient
 {
     public Action? OnGenerate { get; set; }
 
+    public bool IsDisabled { get; set; }
+
     public required string SystemPrompt { private get; set; }
 
     public List<(string, string, bool)> LastFiveInputOutputs { get; set; } = new();
@@ -28,6 +30,9 @@ public class ClaudeFourGenerationClient : ClaudeClientBase, IGenerationClient
 
     public async Task<string> GenerateNarration(Request request, string systemPromptAddendum)
     {
+        if (IsDisabled)
+            return "This action or command has no effect on the game. ";
+
         Debug.WriteLine($"Sending request of type: {request.GetType().Name} ");
         Debug.WriteLine($"Prompt says: {request.UserMessage}");
 
@@ -49,6 +54,9 @@ public class ClaudeFourGenerationClient : ClaudeClientBase, IGenerationClient
 
     public Task<string> GenerateCompanionSpeech(CompanionRequest request)
     {
+        if (IsDisabled)
+            return Task.FromResult("This action or command has no effect on the game. ");
+
         throw new NotImplementedException();
     }
 

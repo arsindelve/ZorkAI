@@ -18,6 +18,8 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
 
     public Action? OnGenerate { get; set; }
 
+    public bool IsDisabled { get; set; }
+
     public string? SystemPrompt { private get; set; }
 
     public List<(string, string, bool)> LastFiveInputOutputs { get; set; } = new();
@@ -34,6 +36,9 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
     /// <returns>The generated response message from the chat conversation.</returns>
     public async Task<string> GenerateNarration(Request request, string systemPromptAddendum)
     {
+        if (IsDisabled)
+            return "This action or command has no effect on the game. ";
+
         Logger?.LogDebug($"Sending request of type: {request.GetType().Name} ");
 
         var chatCompletionsOptions = GetChatCompletionsOptions(SystemPrompt + systemPromptAddendum, request.Temperature);
@@ -79,6 +84,9 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
 
     public async Task<string> GenerateCompanionSpeech(CompanionRequest request)
     {
+        if (IsDisabled)
+            return "This action or command has no effect on the game. ";
+
         var chatCompletionsOptions = GetChatCompletionsOptions(request.SystemMessage, request.Temperature);
         chatCompletionsOptions.Messages.Add(new ChatRequestUserMessage(request.UserMessage));
 
