@@ -56,8 +56,11 @@ public class MoveEngine : IIntentEngine
     private async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient, string direction,
         IContext context)
     {
-        // 20% of the time, let's generate a response. Otherwise, give the standard response
+        // If generation is disabled, always return standard response
+        if (generationClient.IsDisabled)
+            return "You cannot go that way. ";
 
+        // 20% of the time, let's generate a response. Otherwise, give the standard response
         if (!Chooser.RollDiceSuccess(5))
             return "You cannot go that way. ";
 
