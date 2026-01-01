@@ -84,23 +84,45 @@ public static class Repository
         if (string.IsNullOrEmpty(noun))
             return null;
 
-        noun = noun.ToLowerInvariant().Trim();
+        var fullItem = GetItem(noun.ToLowerInvariant().Trim());
 
-        // 1. Check player's inventory
-        var (hasMatch, item) = context.HasMatchingNoun(noun, lookInsideContainers: true);
-        if (hasMatch && item != null)
-            return item;
+        // No such item anywhere in the game? 
+        if (fullItem is null) return null;
+        
+        // Is it in the room? 
+        if (fullItem.CurrentLocation == context.CurrentLocation) return fullItem;
+        
+        // Is it in inventory?
+        if (fullItem.CurrentLocation == context) return fullItem;
+        
+        // Is it held by another item (like Floyd), or in a container in the room or inventory?
+        // Walk up the hierarchy checking accessibility at each level
+        var current = fullItem.CurrentLocation;
 
-        // 2. Check current location (including containers)
-        if (context.CurrentLocation != null)
+        while (current is IItem holderItem)
         {
-            (hasMatch, item) = context.CurrentLocation.HasMatchingNoun(noun, lookInsideContainers: true);
-            if (hasMatch && item != null)
-                return item;
+            // Check if the holder is in the room or inventory
+            if (holderItem.CurrentLocation == context.CurrentLocation || holderItem.CurrentLocation == context)
+            {
+                // For containers, check if they're accessible (open or transparent)
+                if (holderItem is ICanContainItems container)
+                {
+                    bool isAccessible = container.IsTransparent ||
+                                        (container is IOpenAndClose openable && openable.IsOpen);
+
+                    if (!isAccessible)
+                        return null; // Container is closed and opaque - item not accessible
+                }
+
+                // Item is in scope (either held by an item in the room, or in an accessible container)
+                return fullItem;
+            }
+
+            // Move up to the next level in the hierarchy
+            current = holderItem.CurrentLocation;
         }
 
-        // 3. Fall back to global search as last resort
-        return GetItem(noun);
+        return null;
     }
 
     /// <summary>
