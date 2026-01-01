@@ -175,6 +175,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             };
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([axe]);
+            axe.CurrentLocation = mockContext.Object;
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -202,6 +203,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             };
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([axe]);
+            axe.CurrentLocation = mockContext.Object;
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -365,6 +367,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([axe]);
             mockContext.Setup(c => c.Take(It.IsAny<IItem>()));
+            axe.CurrentLocation = mockContext.Object;
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -428,6 +431,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([axe]);
             mockContext.As<ICanContainItems>().Setup(c => c.RemoveItem(It.IsAny<IItem>()));
+            axe.CurrentLocation = mockContext.Object;
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
