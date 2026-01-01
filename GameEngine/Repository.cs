@@ -104,7 +104,15 @@ public static class Repository
             // Check if the holder is in the room or inventory
             if (holderItem.CurrentLocation == context.CurrentLocation || holderItem.CurrentLocation == context)
             {
-                // For containers, check if they're accessible (open or transparent)
+                // For containers (not just items that can hold things), check if they're accessible
+                // ICanHoldItems (like Floyd) always have their held items visible
+                // ICanContainItems (like boxes) need to be open or transparent
+                if (holderItem is ICanHoldItems)
+                {
+                    // Items held by ICanHoldItems (like Floyd holding a diary) are always accessible
+                    return fullItem;
+                }
+
                 if (holderItem is ICanContainItems container)
                 {
                     bool isAccessible = container.IsTransparent ||
@@ -114,7 +122,7 @@ public static class Repository
                         return null; // Container is closed and opaque - item not accessible
                 }
 
-                // Item is in scope (either held by an item in the room, or in an accessible container)
+                // Item is in scope
                 return fullItem;
             }
 
