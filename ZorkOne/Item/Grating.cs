@@ -52,9 +52,9 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
             return string.Empty;
 
         leaves.HasEverBeenPickedUp = true;
-
-        Repository.GetLocation<GratingRoom>().ItemPlacedHere(leaves);
+       
         Repository.GetLocation<Clearing>().Items.Add(this);
+        Repository.GetLocation<GratingRoom>().ItemPlacedHere(leaves);
         return "\nA pile of leaves falls onto your head and to the ground. ";
     }
 
