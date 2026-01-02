@@ -396,8 +396,8 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             // Assert
             result.Should().NotBeNull();
             result.Should().BeOfType<PositiveInteractionResult>();
-            // Troll should accept the axe
-            troll.HasItem<BloodyAxe>().Should().BeTrue();
+            // Troll should accept the axe (holding it, not containing it)
+            troll.ItemBeingHeld.Should().Be(axe);
         }
 
         [Test]
@@ -462,7 +462,8 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             // Assert
             result.Should().NotBeNull();
             result.Should().BeOfType<PositiveInteractionResult>();
-            troll.HasItem<BloodyAxe>().Should().BeTrue();
+            // Troll should accept the axe (holding it, not containing it)
+            troll.ItemBeingHeld.Should().Be(axe);
         }
 
         [Test]

@@ -66,7 +66,10 @@ public class TrollRoom : DarkLocation
             troll.IsUnconscious = false;
 
         if (axe.CurrentLocation == GetLocation<TrollRoom>())
-            troll.ItemPlacedHere(axe);
+        {
+            troll.ItemBeingHeld = axe;
+            axe.CurrentLocation = troll;
+        }
 
         context.RegisterActor(GetItem<Troll>());
 
