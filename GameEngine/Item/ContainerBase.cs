@@ -76,12 +76,23 @@ public abstract class ContainerBase : ItemBase, ICanContainItems
             return (true, this);
 
         if (lookInsideContainers)
+        {
+            // Check items in the Items collection
             foreach (var i in Items)
             {
                 var result = i.HasMatchingNoun(noun, lookInsideContainers);
                 if (result.HasItem)
                     return result;
             }
+
+            // Also check ItemBeingHeld if this implements ICanHoldItems (held items are always accessible)
+            if (this is ICanHoldItems holder && holder.ItemBeingHeld != null)
+            {
+                var heldResult = holder.ItemBeingHeld.HasMatchingNoun(noun, lookInsideContainers);
+                if (heldResult.HasItem)
+                    return heldResult;
+            }
+        }
 
         return (false, null);
     }

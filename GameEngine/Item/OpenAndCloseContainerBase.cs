@@ -64,9 +64,11 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
 
     public override (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
-        if (IsOpen)
+        // If open or transparent, search inside
+        if (IsOpen || IsTransparent)
             return base.HasMatchingNoun(noun, lookInsideContainers);
 
+        // If closed and not transparent, only match the container itself
         var hasMatch = NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
         return hasMatch ? (true, this) : (false, null);
     }

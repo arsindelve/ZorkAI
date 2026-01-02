@@ -178,6 +178,9 @@ public class SimpleInteractionEngineTests
             var sword = Repository.GetItem<ZorkOne.Item.Sword>();
             sword.CurrentLocation = _mockLocation.As<ICanContainItems>().Object;
 
+            // Mock HasMatchingNoun so GetItemInScope can find the sword in the location
+            _mockLocation.Setup(l => l.HasMatchingNoun("sword", true)).Returns((true, sword));
+
             var noVerbMatch = new NoVerbMatchInteractionResult { Noun = "sword", Verb = "push" };
             _mockLocation.Setup(l => l.RespondToSimpleInteraction(intent, _mockContext.Object, _mockGenerationClient.Object, _mockItemProcessorFactory.Object))
                 .ReturnsAsync(noVerbMatch);
@@ -207,6 +210,9 @@ public class SimpleInteractionEngineTests
             // Add sword to Repository and place it in the context (inventory) so GetItemInScope can find it
             var sword = Repository.GetItem<ZorkOne.Item.Sword>();
             sword.CurrentLocation = _mockContext.Object;
+
+            // Mock HasMatchingNoun so GetItemInScope can find the sword in inventory
+            _mockContext.Setup(c => c.HasMatchingNoun("sword", true)).Returns((true, sword));
 
             var locationInteraction = new InteractionResult();
             _mockLocation.Setup(l => l.RespondToSimpleInteraction(intent, _mockContext.Object, _mockGenerationClient.Object, _mockItemProcessorFactory.Object))

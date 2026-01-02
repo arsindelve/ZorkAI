@@ -291,7 +291,8 @@ public class BoatTests : EngineTestsBase
 
         target.Context.CurrentLocation = Repository.GetLocation<FrigidRiverOne>();
         var boat = Repository.GetItem<PileOfPlastic>();
-        boat.CurrentLocation = Repository.GetLocation<FrigidRiverOne>();
+        // Properly place the boat in the location so GetItemInScope can find it
+        Repository.GetLocation<FrigidRiverOne>().ItemPlacedHere(boat);
         boat.IsInflated = true;
         target.Context.CurrentLocation.SubLocation = boat;
 
