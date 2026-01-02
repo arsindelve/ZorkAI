@@ -137,7 +137,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             return null;
 
         var items = await _itemParser.GetListOfItemsToTake(action.OriginalInput,
-            context.CurrentLocation.GetDescriptionForGeneration(context));
+            context.CurrentLocation!.GetDescriptionForGeneration(context));
 
         // The parser did not see anything in the room description that seemed like what we asked for
         if (!items.Any())

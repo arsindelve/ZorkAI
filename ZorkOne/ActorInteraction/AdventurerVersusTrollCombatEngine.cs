@@ -66,7 +66,7 @@ internal class AdventurerVersusTrollCombatEngine : ICombatEngine
         if (_troll.IsUnconscious)
             return DeathBlow(context, "The unconscious troll cannot defend himself: He dies. ");
 
-        if (!_troll.HasItem<BloodyAxe>())
+        if (_troll.ItemBeingHeld != Repository.GetItem<BloodyAxe>())
             return DeathBlow(context, "The unarmed troll cannot defend himself: He dies.");
 
         var attack = _chooser.Choose(_notStunnedOutcomes);
@@ -95,10 +95,13 @@ internal class AdventurerVersusTrollCombatEngine : ICombatEngine
     private PositiveInteractionResult DeathBlow(IContext context, string attackText)
     {
         _troll!.IsDead = true;
-
+        
         // Dead troll drops the axe. 
-        if (_troll.HasItem<BloodyAxe>())
+        if (_troll.ItemBeingHeld is not null)
+        {
             _trollRoom!.ItemPlacedHere(_axe!);
+            _troll.ItemBeingHeld = null;
+        }
 
         // And he vanishes. Poof. 
         _troll.CurrentLocation = null;
