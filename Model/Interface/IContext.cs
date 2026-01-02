@@ -75,7 +75,7 @@ public interface IContext : ICanContainItems
     ///     The current location represents the player's current position
     ///     in the game world.
     /// </remarks>
-    ILocation CurrentLocation { get; set; }
+    ILocation? CurrentLocation { get; set; }
 
     /// <summary>
     ///     Property that indicates whether the context has a light source.

@@ -1,3 +1,4 @@
+using GameEngine;
 using GameEngine.IntentEngine;
 using GameEngine.Item;
 using Model.AIGeneration;
@@ -7,7 +8,7 @@ using ZorkOne.ActorInteraction;
 
 namespace ZorkOne.Item;
 
-public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked, ICanBeGivenThings
+public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked, ICanBeGivenThings, ICanHoldItems
 {
     private readonly GiveSomethingToSomeoneDecisionEngine<Troll> _giveHimSomethingEngine = new();
 
@@ -19,6 +20,8 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 
     public bool IsDead { get; set; }
 
+    public IItem? ItemBeingHeld { get; set; }
+
     public override string[] NounsForMatching => ["troll", "monster", "creature"];
 
     public override string CannotBeTakenDescription => IsUnconscious
@@ -27,7 +30,7 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 
     public string ExaminationDescription => IsUnconscious && !IsDead
         ? "An unconscious troll is sprawled on the floor. All passages out of the room are open. "
-        : !HasItem<BloodyAxe>()
+        : ItemBeingHeld is not BloodyAxe
             ? ""
             : "A nasty-looking troll, brandishing a bloody axe, blocks all passages out of the room. ";
 
@@ -45,7 +48,7 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
         if (IsDead || IsUnconscious)
             return Task.FromResult(string.Empty);
 
-        if (!HasItem<BloodyAxe>())
+        if (ItemBeingHeld is not BloodyAxe)
             return
                 Task.FromResult(
                     "\nThe troll, disarmed, cowers in terror, pleading for his life in the guttural tongue of the trolls. ");
@@ -71,8 +74,8 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 
     private InteractionResult OfferTheAxe(IItem item, IContext context)
     {
+        ItemBeingHeld = item;
         item.CurrentLocation = this;
-        Items.Add(item);
         context.RemoveItem(item);
 
         return new PositiveInteractionResult("The troll scratches his head in confusion, then takes the axe. ");
@@ -90,7 +93,9 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 
     public override void Init()
     {
-        StartWithItemInside<BloodyAxe>();
+        var axe = Repository.GetItem<BloodyAxe>();
+        ItemBeingHeld = axe;
+        axe.CurrentLocation = this;
     }
 
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
