@@ -84,53 +84,74 @@ public static class Repository
         if (string.IsNullOrEmpty(noun))
             return null;
 
-        var fullItem = GetItem(noun.ToLowerInvariant().Trim());
+        noun = noun.ToLowerInvariant().Trim();
 
-        // No such item anywhere in the game? 
-        if (fullItem is null) return null;
-        
-        // Is it in the room? 
-        if (fullItem.CurrentLocation == context.CurrentLocation) return fullItem;
-        
-        // Is it in inventory?
-        if (fullItem.CurrentLocation == context) return fullItem;
-        
-        // Is it held by another item (like Floyd), or in a container in the room or inventory?
+        // First search in the current room (including all nested containers)
+        if (context.CurrentLocation != null)
+        {
+            var (found, item) = context.CurrentLocation.HasMatchingNoun(noun, lookInsideContainers: true);
+            if (found && item != null)
+            {
+                // Validate that the item is accessible (walk up the hierarchy)
+                if (IsItemAccessible(item, context))
+                    return item;
+            }
+        }
+
+        // Then search in inventory (including all nested containers)
+        var (hasMatch, matchedItem) = context.HasMatchingNoun(noun, lookInsideContainers: true);
+        if (hasMatch && matchedItem != null)
+        {
+            // Validate that the item is accessible (walk up the hierarchy)
+            if (IsItemAccessible(matchedItem, context))
+                return matchedItem;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Checks if an item is accessible by walking up its containment hierarchy.
+    /// An item is accessible if all containers in the chain are either open or transparent,
+    /// and the highest level parent is in the room or inventory.
+    /// </summary>
+    private static bool IsItemAccessible(IItem item, IContext context)
+    {
+        // If the item is directly in the room or inventory, it's accessible
+        if (item.CurrentLocation == context.CurrentLocation || item.CurrentLocation == context)
+            return true;
+
         // Walk up the hierarchy checking accessibility at each level
-        var current = fullItem.CurrentLocation;
+        var current = item.CurrentLocation;
 
         while (current is IItem holderItem)
         {
             // Check if the holder is in the room or inventory
             if (holderItem.CurrentLocation == context.CurrentLocation || holderItem.CurrentLocation == context)
             {
-                // For containers (not just items that can hold things), check if they're accessible
-                // ICanHoldItems (like Floyd) always have their held items visible
-                // ICanContainItems (like boxes) need to be open or transparent
+                // For ICanHoldItems (like Floyd), held items are always accessible
                 if (holderItem is ICanHoldItems)
-                {
-                    // Items held by ICanHoldItems (like Floyd holding a diary) are always accessible
-                    return fullItem;
-                }
+                    return true;
 
+                // For ICanContainItems (like boxes), check if accessible
                 if (holderItem is ICanContainItems container)
                 {
                     bool isAccessible = container.IsTransparent ||
                                         (container is IOpenAndClose openable && openable.IsOpen);
 
-                    if (!isAccessible)
-                        return null; // Container is closed and opaque - item not accessible
+                    return isAccessible;
                 }
 
                 // Item is in scope
-                return fullItem;
+                return true;
             }
 
             // Move up to the next level in the hierarchy
             current = holderItem.CurrentLocation;
         }
 
-        return null;
+        // Item is not in scope
+        return false;
     }
 
     /// <summary>

@@ -4,6 +4,7 @@ using Model.Intent;
 using Model.Interface;
 using Model.Interaction;
 using Model.Item;
+using Model.Location;
 
 namespace UnitTests.IntentEngine;
 
@@ -67,6 +68,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             };
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([lunch]);
+            mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((true, lunch));
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -93,6 +95,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             };
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([lunch]);
+            mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((true, lunch));
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -119,6 +122,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             };
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([lunch]);
+            mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((true, lunch));
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -145,6 +149,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             };
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([lunch]);
+            mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((true, lunch));
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -175,6 +180,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             };
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([axe]);
+            mockContext.Setup(c => c.HasMatchingNoun("axe", true)).Returns((true, axe));
             axe.CurrentLocation = mockContext.Object;
 
             // Act
@@ -203,6 +209,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             };
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([axe]);
+            mockContext.Setup(c => c.HasMatchingNoun("axe", true)).Returns((true, axe));
             axe.CurrentLocation = mockContext.Object;
 
             // Act
@@ -255,6 +262,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             };
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([lunch]);
+            mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((true, lunch));
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -294,10 +302,10 @@ public class GiveSomethingToSomeoneDecisionEngineTests
         [Test]
         public void Should_ReturnMessage_When_ItemNotInInventory()
         {
-            // Arrange: Item exists but not in player's inventory
+            // Arrange: Item exists in room but not in player's inventory
             Repository.Reset();
             var troll = Repository.GetItem<Troll>();
-            var lunch = Repository.GetItem<Lunch>(); // Load lunch into Repository
+            var lunch = Repository.GetItem<Lunch>();
             var engine = new GiveSomethingToSomeoneDecisionEngine<Troll>();
             var intent = new MultiNounIntent
             {
@@ -307,8 +315,19 @@ public class GiveSomethingToSomeoneDecisionEngineTests
                 Preposition = "to",
                 OriginalInput = "give lunch to troll"
             };
+
+            // Set up location with lunch in it
+            var mockLocation = new Mock<ILocation>();
+            mockLocation.As<ICanContainItems>(); // Locations implement ICanContainItems
+            mockLocation.Setup(l => l.HasMatchingNoun("lunch", true)).Returns((true, lunch));
+
+            // Set lunch's location so IsItemAccessible can validate the hierarchy
+            lunch.CurrentLocation = mockLocation.As<ICanContainItems>().Object;
+
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([]); // Empty inventory
+            mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((false, null)); // Not in inventory
+            mockContext.Setup(c => c.CurrentLocation).Returns(mockLocation.Object); // Lunch is in the room
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -338,6 +357,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             };
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([lunch]);
+            mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((true, lunch));
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -367,6 +387,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([axe]);
             mockContext.Setup(c => c.Take(It.IsAny<IItem>()));
+            mockContext.Setup(c => c.HasMatchingNoun("axe", true)).Returns((true, axe));
             axe.CurrentLocation = mockContext.Object;
 
             // Act
@@ -397,6 +418,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             };
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([lunch]);
+            mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((true, lunch));
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, cyclops, mockContext.Object);
@@ -430,6 +452,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             };
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([axe]);
+            mockContext.Setup(c => c.HasMatchingNoun("axe", true)).Returns((true, axe));
             mockContext.As<ICanContainItems>().Setup(c => c.RemoveItem(It.IsAny<IItem>()));
             axe.CurrentLocation = mockContext.Object;
 
@@ -460,6 +483,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             };
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([sword]);
+            mockContext.Setup(c => c.HasMatchingNoun("sword", true)).Returns((true, sword));
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -489,6 +513,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             };
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([lunch]);
+            mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((true, lunch));
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, cyclops, mockContext.Object);
@@ -517,6 +542,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             };
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([garlic]);
+            mockContext.Setup(c => c.HasMatchingNoun("garlic", true)).Returns((true, garlic));
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, cyclops, mockContext.Object);
