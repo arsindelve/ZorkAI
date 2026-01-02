@@ -95,6 +95,21 @@ public class ParsingHelperTests
     }
 
     [Test]
+    public void ExtractElementsByTag_WithNullResponse_ReturnsEmptyList()
+    {
+        // Arrange
+        var privateMethod = typeof(ParsingHelper).GetMethod("ExtractElementsByTag",
+            BindingFlags.NonPublic | BindingFlags.Static);
+
+        // Act
+        var result = privateMethod?.Invoke(null, [null, "noun"]) as List<string>;
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEmpty();
+    }
+
+    [Test]
     public void GetIntent_WithMoveResponse_ReturnsMoveIntent()
     {
         // Arrange

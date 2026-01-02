@@ -59,8 +59,11 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
 
         Logger?.LogDebug(request.UserMessage);
 
-        Response<ChatCompletions> response = await Client.GetChatCompletionsAsync(chatCompletionsOptions);
+        Response<ChatCompletions> response = await Client!.GetChatCompletionsAsync(chatCompletionsOptions);
         var responseMessage = response.Value.Choices[0].Message;
+
+        if (string.IsNullOrEmpty(responseMessage.Content))
+            return "The narrator is silent. ";
 
         OnGenerate?.Invoke();
         Log(request, responseMessage, SystemPrompt + systemPromptAddendum);
@@ -90,9 +93,12 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
         var chatCompletionsOptions = GetChatCompletionsOptions(request.SystemMessage, request.Temperature);
         chatCompletionsOptions.Messages.Add(new ChatRequestUserMessage(request.UserMessage));
 
-        Response<ChatCompletions> response = await Client.GetChatCompletionsAsync(chatCompletionsOptions);
+        Response<ChatCompletions> response = await Client!.GetChatCompletionsAsync(chatCompletionsOptions);
         var responseMessage = response.Value.Choices[0].Message;
         
+        if (string.IsNullOrEmpty(responseMessage.Content))
+            return "Your companion says nothing. ";
+
         Log(request, responseMessage, request.SystemMessage);
 
         return responseMessage.Content;

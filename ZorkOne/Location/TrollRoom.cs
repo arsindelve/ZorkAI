@@ -67,6 +67,7 @@ public class TrollRoom : DarkLocation
 
         if (axe.CurrentLocation == GetLocation<TrollRoom>())
         {
+            Items.Remove(axe);
             troll.ItemBeingHeld = axe;
             axe.CurrentLocation = troll;
         }
