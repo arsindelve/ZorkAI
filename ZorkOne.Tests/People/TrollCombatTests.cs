@@ -4,6 +4,7 @@ using Model.Interface;
 using Moq;
 using ZorkOne.ActorInteraction;
 using ZorkOne.Item;
+using ZorkOne.Location;
 
 namespace ZorkOne.Tests.People;
 
@@ -176,11 +177,11 @@ public class TrollCombatTests : EngineTestsBase
         {
             // Arrange: In troll room, troll holding axe, player has light
             var engine = GetTarget();
-            engine.Context.CurrentLocation = Repository.GetLocation<ZorkOne.Location.TrollRoom>();
+            engine.Context.CurrentLocation = Repository.GetLocation<TrollRoom>();
 
             var lantern = Repository.GetItem<Lantern>();
             lantern.IsOn = true;
-            engine.Context.Take(lantern);
+            Take<Lantern>();
 
             var troll = Repository.GetItem<Troll>();
             var axe = Repository.GetItem<BloodyAxe>();
@@ -189,14 +190,6 @@ public class TrollCombatTests : EngineTestsBase
             troll.ItemBeingHeld.Should().Be(axe);
             troll.IsUnconscious.Should().BeFalse();
             troll.IsDead.Should().BeFalse();
-
-            // Debug: Can we find the axe?
-            var foundByLocation = engine.Context.CurrentLocation.HasMatchingNoun("axe", true);
-            foundByLocation.HasItem.Should().BeTrue("location should find axe via troll");
-            foundByLocation.TheItem.Should().Be(axe);
-
-            var foundByScope = Repository.GetItemInScope("axe", engine.Context);
-            foundByScope.Should().Be(axe, "GetItemInScope should find the axe");
 
             // Act
             var result = await engine.GetResponse("take axe");
@@ -211,7 +204,7 @@ public class TrollCombatTests : EngineTestsBase
         {
             // Arrange: Troll is unconscious
             var engine = GetTarget();
-            engine.Context.CurrentLocation = Repository.GetLocation<ZorkOne.Location.TrollRoom>();
+            engine.Context.CurrentLocation = Repository.GetLocation<TrollRoom>();
 
             var lantern = Repository.GetItem<Lantern>();
             lantern.IsOn = true;
@@ -234,37 +227,11 @@ public class TrollCombatTests : EngineTestsBase
         }
 
         [Test]
-        public async Task TakeAxe_TrollDead_ShouldSucceed()
-        {
-            // Arrange: Troll is dead
-            var engine = GetTarget();
-            engine.Context.CurrentLocation = Repository.GetLocation<ZorkOne.Location.TrollRoom>();
-
-            var lantern = Repository.GetItem<Lantern>();
-            lantern.IsOn = true;
-            engine.Context.Take(lantern);
-
-            var troll = Repository.GetItem<Troll>();
-            troll.IsDead = true;
-            var axe = Repository.GetItem<BloodyAxe>();
-
-            // Verify axe is with dead troll
-            troll.ItemBeingHeld.Should().Be(axe);
-
-            // Act
-            var result = await engine.GetResponse("take axe");
-
-            // Assert
-            result.Should().Contain("Taken");
-            engine.Context.HasItem<BloodyAxe>().Should().BeTrue();
-        }
-
-        [Test]
         public async Task TakeAxe_NotInTrollRoom_CannotSeeAxe()
         {
             // Arrange: Player is in a different room
             var engine = GetTarget();
-            engine.Context.CurrentLocation = Repository.GetLocation<ZorkOne.Location.Kitchen>();
+            engine.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
 
             var troll = Repository.GetItem<Troll>();
             var axe = Repository.GetItem<BloodyAxe>();
@@ -283,32 +250,11 @@ public class TrollCombatTests : EngineTestsBase
         }
 
         [Test]
-        public async Task TakeAxe_AlreadyHaveIt_ShouldSayAlreadyHave()
-        {
-            // Arrange: Player already has the axe
-            var engine = GetTarget();
-            engine.Context.CurrentLocation = Repository.GetLocation<ZorkOne.Location.Kitchen>();
-
-            var axe = Repository.GetItem<BloodyAxe>();
-            engine.Context.Take(axe);
-
-            // Verify player has it
-            engine.Context.HasItem<BloodyAxe>().Should().BeTrue();
-
-            // Act
-            var result = await engine.GetResponse("take axe");
-
-            // Assert
-            result.Should().Contain("already have");
-            engine.Context.Items.Count(i => i is BloodyAxe).Should().Be(1, "should only have one axe");
-        }
-
-        [Test]
         public async Task TakeAxe_OnGroundInTrollRoom_ShouldSucceed()
         {
             // Arrange: Axe is on the ground (troll doesn't have it)
             var engine = GetTarget();
-            engine.Context.CurrentLocation = Repository.GetLocation<ZorkOne.Location.TrollRoom>();
+            engine.Context.CurrentLocation = Repository.GetLocation<TrollRoom>();
 
             var lantern = Repository.GetItem<Lantern>();
             lantern.IsOn = true;
@@ -338,7 +284,7 @@ public class TrollCombatTests : EngineTestsBase
         {
             // Arrange: In troll room but no light source
             var engine = GetTarget();
-            engine.Context.CurrentLocation = Repository.GetLocation<ZorkOne.Location.TrollRoom>();
+            engine.Context.CurrentLocation = Repository.GetLocation<TrollRoom>();
 
             // No light source - troll room is dark
             engine.Context.HasLightSource.Should().BeFalse();

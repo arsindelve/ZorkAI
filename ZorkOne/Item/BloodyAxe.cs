@@ -1,5 +1,6 @@
 using GameEngine;
 using GameEngine.Item;
+using Model.Interface;
 
 namespace ZorkOne.Item;
 
@@ -12,11 +13,18 @@ public class BloodyAxe : ItemBase, ICanBeTakenAndDropped, IWeapon
         get
         {
             var troll = Repository.GetItem<Troll>();
-            if (CurrentLocation == troll && !troll.IsUnconscious)
+
+            if (troll.ItemBeingHeld == this && !troll.IsUnconscious)
                 return "The troll swings it out of your reach. ";
 
             return null;
         }
+    }
+
+    public override string? OnBeingTaken(IContext context, ICanContainItems? previousLocation)
+    {
+        Repository.GetItem<Troll>().ItemBeingHeld = null;
+        return base.OnBeingTaken(context, previousLocation);
     }
 
     string ICanBeTakenAndDropped.OnTheGroundDescription(ILocation currentLocation)

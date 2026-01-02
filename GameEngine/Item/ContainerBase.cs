@@ -86,7 +86,7 @@ public abstract class ContainerBase : ItemBase, ICanContainItems
             }
 
             // Also check ItemBeingHeld if this implements ICanHoldItems (held items are always accessible)
-            if (this is ICanHoldItems holder && holder.ItemBeingHeld != null)
+            if (this is ICanHoldItems { ItemBeingHeld: not null } holder)
             {
                 var heldResult = holder.ItemBeingHeld.HasMatchingNoun(noun, lookInsideContainers);
                 if (heldResult.HasItem)
@@ -175,7 +175,16 @@ public abstract class ContainerBase : ItemBase, ICanContainItems
             if (result is { InteractionHappened: true })
                 return result;
         }
-
+        
+        // Also check ItemBeingHeld if this implements ICanHoldItems (held items are always accessible)
+        if (this is ICanHoldItems { ItemBeingHeld: not null } holder)
+        {
+            var itemBeingHeld = holder.ItemBeingHeld;
+            result = await itemBeingHeld.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+            if (result is { InteractionHappened: true })
+                return result;
+        }
+        
         if (result != null && result is not NoNounMatchInteractionResult)
             return result;
 
