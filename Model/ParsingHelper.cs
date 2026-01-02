@@ -249,10 +249,14 @@ public static class ParsingHelper
     private static List<string> ExtractElementsByTag(string? response, string tag)
     {
         var list = new List<string>();
+        if (string.IsNullOrEmpty(response))
+            return list;
+            
         var doc = new HtmlDocument();
         doc.LoadHtml(response);
 
-        var nodes = doc.DocumentNode.SelectNodes($"//{tag}");
+        HtmlNodeCollection? nodes = doc.DocumentNode.SelectNodes($"//{tag}");
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (nodes != null)
             foreach (var node in nodes)
                 list.Add(node.InnerText.Trim());
