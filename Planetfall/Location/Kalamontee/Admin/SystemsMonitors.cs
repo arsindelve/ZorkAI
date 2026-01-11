@@ -73,6 +73,12 @@ public class SystemsMonitors : LocationWithNoStartingItems
         Fixed.Add("KUMUUNIKAASHUNZ");
     }
     
+    internal void MarkCourseControlFixed()
+    {
+        Busted.Remove("PLANATEREE KORS KUNTROOL");
+        Fixed.Add("PLANATEREE KORS KUNTROOL");
+    }
+    
     internal void MarkPlanetaryDefenseFixed()
     {
         Busted.Remove("PLANATEREE DEFENS");

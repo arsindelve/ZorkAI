@@ -1066,6 +1066,16 @@ public class TestParser : IntentParser
                 Verb = "put",
                 OriginalInput = "put green spool in reader"
             });
+        
+        if (input == "put good in cube")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "good bedistor",
+                NounTwo = "cube",
+                Preposition = "in",
+                Verb = "put",
+                OriginalInput = "put good in cube"
+            });
 
         if (input?.StartsWith("put") ?? false)
         {

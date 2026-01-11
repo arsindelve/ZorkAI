@@ -1,5 +1,7 @@
 using FluentAssertions;
+using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Lawanda;
+using Planetfall.Location.Kalamontee.Admin;
 using Planetfall.Location.Lawanda;
 
 namespace Planetfall.Tests;
@@ -31,7 +33,7 @@ public class CourseControlTests : EngineTestsBase
     }
 
     [Test]
-    public async Task LookAtCourseControl_ContainsCorrectDescription()
+    public async Task LookAtCourseControl_StillBroken_ContainsCorrectDescription()
     {
         var target = GetTarget();
         StartHere<CourseControl>();
@@ -39,7 +41,20 @@ public class CourseControlTests : EngineTestsBase
         var response = await target.GetResponse("look");
 
         response.Should().Contain("Course Control");
-        response.Should().Contain("This is a long room whose walls are covered with complicated controls and colored lights");
+        response.Should().Contain("Kritikul diivurjins frum pland kors");
+    }
+    
+    [Test]
+    public async Task LookAtCourseControl_Fixed_ContainsCorrectDescription()
+    {
+        var target = GetTarget();
+        StartHere<CourseControl>();
+        GetLocation<CourseControl>().Fixed = true;
+
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("Course Control");
+        response.Should().Contain("Kors diivurjins minimiizeeng");
     }
 
     [Test]
@@ -303,5 +318,29 @@ public class CourseControlTests : EngineTestsBase
         var response = await target.GetResponse("take bedistor");
 
         response.Should().Contain("It seems to be fused to its socket");
+    }
+    
+    [Test]
+    public async Task FullSolution()
+    {
+        var target = GetTarget();
+        StartHere<SystemsCorridorEast>();
+        Take<Pliers>();
+        Take<GoodBedistor>();
+
+        // Navigate to Course Control (this will trigger Init() on the location)
+        await target.GetResponse("north");
+        await target.GetResponse("open lid");
+        
+        var response = await target.GetResponse("take fused with pliers");
+        response.Should().Contain("With a tug, you manage to remove the fused bedistor");
+        
+        response = await target.GetResponse("put good in cube");
+        response.Should().Contain("Done. The warning lights go out and another light goes on.");
+        
+        target.Score.Should().Be(6);
+        GetLocation<SystemsMonitors>().Fixed.Count.Should().Be(4);
+        GetLocation<SystemsMonitors>().Busted.Count.Should().Be(3);
+        GetLocation<CourseControl>().Fixed.Should().BeTrue();
     }
 }
