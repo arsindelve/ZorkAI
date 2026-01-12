@@ -86,7 +86,7 @@ internal class RedGoo : GooBase
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return "Some red goo";
+        return "A blob of red goo";
     }
 }
 
@@ -98,7 +98,7 @@ internal class BrownGoo : GooBase
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return "Some brown goo";
+        return "A blob of brown goo";
     }
 }
 
@@ -110,6 +110,6 @@ internal class GreenGoo : GooBase
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return "Some green goo";
+        return "A blob of green goo";
     }
 }
