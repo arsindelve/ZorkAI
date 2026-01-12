@@ -1117,7 +1117,119 @@ public class TestParser : IntentParser
                 Verb = "set",
                 OriginalInput = "set laser to bob"
             });
-        
+
+        // Laser shooting commands
+        if (input == "shoot laser with laser")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "laser",
+                NounTwo = "laser",
+                Preposition = "with",
+                Verb = "shoot",
+                OriginalInput = "shoot laser with laser"
+            });
+
+        if (input == "fire laser at laser")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "laser",
+                NounTwo = "laser",
+                Preposition = "at",
+                Verb = "fire",
+                OriginalInput = "fire laser at laser"
+            });
+
+        if (input == "shoot battery with laser")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "battery",
+                NounTwo = "laser",
+                Preposition = "with",
+                Verb = "shoot",
+                OriginalInput = "shoot battery with laser"
+            });
+
+        if (input == "shoot old battery with laser")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "old battery",
+                NounTwo = "laser",
+                Preposition = "with",
+                Verb = "shoot",
+                OriginalInput = "shoot old battery with laser"
+            });
+
+        if (input == "shoot flask with laser")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "flask",
+                NounTwo = "laser",
+                Preposition = "with",
+                Verb = "shoot",
+                OriginalInput = "shoot flask with laser"
+            });
+
+        if (input == "shoot magnet with laser")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "magnet",
+                NounTwo = "laser",
+                Preposition = "with",
+                Verb = "shoot",
+                OriginalInput = "shoot magnet with laser"
+            });
+
+        if (input == "shoot canteen with laser")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "canteen",
+                NounTwo = "laser",
+                Preposition = "with",
+                Verb = "shoot",
+                OriginalInput = "shoot canteen with laser"
+            });
+
+        if (input == "shoot floyd with laser")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "floyd",
+                NounTwo = "laser",
+                Preposition = "with",
+                Verb = "shoot",
+                OriginalInput = "shoot floyd with laser"
+            });
+
+        // "shoot laser at X" syntax - laser is noun one
+        if (input == "shoot laser at flask")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "laser",
+                NounTwo = "flask",
+                Preposition = "at",
+                Verb = "shoot",
+                OriginalInput = "shoot laser at flask"
+            });
+
+        if (input == "shoot laser at floyd")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "laser",
+                NounTwo = "floyd",
+                Preposition = "at",
+                Verb = "shoot",
+                OriginalInput = "shoot laser at floyd"
+            });
+
+        if (input == "fire laser at flask")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "laser",
+                NounTwo = "flask",
+                Preposition = "at",
+                Verb = "fire",
+                OriginalInput = "fire laser at flask"
+            });
+
         if (input == "put good in cube")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -1139,6 +1251,56 @@ public class TestParser : IntentParser
                     NounTwo = putWords[3],
                     Verb = "put",
                     Preposition = "in",
+                    OriginalInput = input
+                });
+        }
+
+        // Handle multi-word goo nouns - must handle both adjective+noun and just "goo"
+        if (input?.Contains("red goo") ?? false)
+        {
+            var verb = input.Split(' ')[0];
+            if (_verbs.Contains(verb))
+                return Task.FromResult<IntentBase>(new SimpleIntent
+                {
+                    Verb = verb,
+                    Noun = "red goo",
+                    OriginalInput = input
+                });
+        }
+
+        if (input?.Contains("brown goo") ?? false)
+        {
+            var verb = input.Split(' ')[0];
+            if (_verbs.Contains(verb))
+                return Task.FromResult<IntentBase>(new SimpleIntent
+                {
+                    Verb = verb,
+                    Noun = "brown goo",
+                    OriginalInput = input
+                });
+        }
+
+        if (input?.Contains("green goo") ?? false)
+        {
+            var verb = input.Split(' ')[0];
+            if (_verbs.Contains(verb))
+                return Task.FromResult<IntentBase>(new SimpleIntent
+                {
+                    Verb = verb,
+                    Noun = "green goo",
+                    OriginalInput = input
+                });
+        }
+
+        // Handle just "goo" (defaults to first one found)
+        if (input?.Split(' ').Contains("goo") ?? false)
+        {
+            var verb = input.Split(' ')[0];
+            if (_verbs.Contains(verb))
+                return Task.FromResult<IntentBase>(new SimpleIntent
+                {
+                    Verb = verb,
+                    Noun = "goo",
                     OriginalInput = input
                 });
         }

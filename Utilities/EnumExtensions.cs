@@ -16,4 +16,17 @@ public static class EnumExtensions
         // Return the description if available, otherwise fallback to the enum value name
         return attribute?.Description ?? value.ToString();
     }
+
+    public static string? GetNotification(this Enum value)
+    {
+        // Get the field corresponding to the enum value
+        var fieldInfo = value.GetType().GetField(value.ToString());
+        if (fieldInfo is null) return null;
+
+        // Fetch the NotificationAttribute applied to it, if any
+        var attribute = fieldInfo.GetCustomAttribute<NotificationAttribute>();
+
+        // Return the notification if available, otherwise null
+        return attribute?.Description;
+    }
 }

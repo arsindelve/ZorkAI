@@ -9,6 +9,8 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
     /// </summary>
     public int WarmthLevel { get; set; }
 
+    public override bool IsTransparent => true;
+
     /// <summary>
     /// Flag indicating whether the laser was just shot this turn.
     /// Reset at the end of each turn's Act call.
@@ -65,7 +67,11 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
         return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
-    private InteractionResult ShootLaser(IContext context)
+    /// <summary>
+    /// Attempts to fire the laser. Returns an error result if firing fails, or null if successful.
+    /// On success, decrements battery charge and registers the laser as an actor for warmth tracking.
+    /// </summary>
+    private InteractionResult? TryFireLaser(IContext context)
     {
         if (CurrentLocation != context)
             return new PositiveInteractionResult("You're not holding the laser. ");
@@ -74,21 +80,86 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
         int chargesRemaining = battery?.ChargesRemaining ?? 0;
 
         if (chargesRemaining == 0)
-        {
             return new PositiveInteractionResult("Click.");
-        }
 
         battery!.ChargesRemaining--;
-
-        // Mark that we just shot and register as actor for warmth tracking
         JustShot = true;
         context.RegisterActor(this);
 
-        return new PositiveInteractionResult($"The laser emits a narrow {_dialColors[Setting]} beam of light. ");
+        return null; // Success - laser fired
+    }
+
+    private string BeamDescription => $"The laser emits a narrow {_dialColors[Setting]} beam of light";
+
+    private InteractionResult ShootLaser(IContext context)
+    {
+        var fireResult = TryFireLaser(context);
+        if (fireResult != null)
+            return fireResult;
+
+        return new PositiveInteractionResult($"{BeamDescription}. ");
+    }
+
+    private InteractionResult ShootLaserAt(string targetNoun, IContext context)
+    {
+        // Check target scope before firing (don't waste a charge on invalid target)
+        var target = Repository.GetItemInScope(targetNoun, context);
+        if (target == null)
+            return new PositiveInteractionResult($"You don't see any {targetNoun} here. ");
+
+        var fireResult = TryFireLaser(context);
+        if (fireResult != null)
+            return fireResult;
+
+        // Special response for shooting Floyd
+        if (target is FloydPart.Floyd)
+        {
+            return new PositiveInteractionResult(
+                $"{BeamDescription} which strikes Floyd. " +
+                "\"Yow!\" yells Floyd. He jumps to the other end of the room and eyes you warily. ");
+        }
+
+        var targetName = target.NounsForMatching.FirstOrDefault() ?? targetNoun;
+
+        return new PositiveInteractionResult(
+            $"{BeamDescription} which strikes the {targetName}. " +
+            $"The {targetName} grows a bit warm, but nothing else happens. ");
     }
 
     public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
+        // Handle "shoot X with laser" - laser is NounTwo, target is NounOne
+        if (action.MatchVerb(["shoot", "fire"]) &&
+            action.MatchPreposition(["with"]) &&
+            action.MatchNounTwo(NounsForMatching))
+        {
+            var targetIsLaser = action.MatchNounOne(NounsForMatching);
+            var targetIsInLaser = Items.Any(item => item.NounsForMatching.Contains(action.NounOne, StringComparer.OrdinalIgnoreCase));
+
+            if (targetIsLaser || targetIsInLaser)
+                return Task.FromResult<InteractionResult?>(
+                    new PositiveInteractionResult("Sorry, the laser doesn't have a rubber barrel. "));
+
+            // Shooting at something else
+            return Task.FromResult<InteractionResult?>(ShootLaserAt(action.NounOne, context));
+        }
+
+        // Handle "shoot laser at X" - laser is NounOne, target is NounTwo
+        if (action.MatchVerb(["shoot", "fire"]) &&
+            action.MatchPreposition(["at"]) &&
+            action.MatchNounOne(NounsForMatching))
+        {
+            var targetIsLaser = action.MatchNounTwo(NounsForMatching);
+            var targetIsInLaser = Items.Any(item => item.NounsForMatching.Contains(action.NounTwo, StringComparer.OrdinalIgnoreCase));
+
+            if (targetIsLaser || targetIsInLaser)
+                return Task.FromResult<InteractionResult?>(
+                    new PositiveInteractionResult("Sorry, the laser doesn't have a rubber barrel. "));
+
+            // Shooting at something else
+            return Task.FromResult<InteractionResult?>(ShootLaserAt(action.NounTwo, context));
+        }
+
         if (!action.MatchVerb(["turn", "set"]))
             return base.RespondToMultiNounInteraction(action, context);
 
@@ -98,10 +169,10 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
         if (!action.MatchNounOne(["dial", "laser", "setting"]))
             return base.RespondToMultiNounInteraction(action, context);
 
-        return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(AttemptUnlock(action.NounTwo)));
+        return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(AttemptSetDial(action.NounTwo)));
     }
     
-    private string AttemptUnlock(string actionNounTwo)
+    private string AttemptSetDial(string actionNounTwo)
     {
         var result = AnalyzeDialInput(actionNounTwo);
 
@@ -155,6 +226,11 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
     public override void Init()
     {
         StartWithItemInside<OldBattery>();
+    }
+
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return !Items.Any() ? "A laser" : $"A laser\n{ItemListDescription("laser", null)}";
     }
 
     /// <summary>

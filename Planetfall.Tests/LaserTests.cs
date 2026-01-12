@@ -3,6 +3,7 @@ using GameEngine;
 using Model.Interface;
 using Moq;
 using Planetfall.Item.Kalamontee.Mech;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Kalamontee.Mech;
 using Planetfall.Location.Lawanda;
 
@@ -663,6 +664,295 @@ public class LaserTests : EngineTestsBase
         await target.GetResponse("shoot laser");
 
         target.Context.Actors.Should().NotContain(GetItem<Laser>());
+    }
+
+    #endregion
+
+    #region Shooting At Targets Tests
+
+    [Test]
+    public async Task ShootLaserWithLaser_RubberBarrelMessage()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+
+        var response = await target.GetResponse("shoot laser with laser");
+
+        response.Should().Contain("rubber barrel");
+    }
+
+    [Test]
+    public async Task FireLaserAtLaser_RubberBarrelMessage()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+
+        var response = await target.GetResponse("fire laser at laser");
+
+        response.Should().Contain("rubber barrel");
+    }
+
+    [Test]
+    public async Task ShootBatteryWithLaser_RubberBarrelMessage()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+
+        var response = await target.GetResponse("shoot battery with laser");
+
+        response.Should().Contain("rubber barrel");
+    }
+
+    [Test]
+    public async Task ShootOldBatteryWithLaser_RubberBarrelMessage()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+
+        var response = await target.GetResponse("shoot old battery with laser");
+
+        response.Should().Contain("rubber barrel");
+    }
+
+    [Test]
+    public async Task ShootItemInRoom_BeamStrikesMessage()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+
+        var response = await target.GetResponse("shoot flask with laser");
+
+        response.Should().Contain("beam of light");
+        response.Should().Contain("strikes the");
+        response.Should().Contain("flask");
+        response.Should().Contain("grows a bit warm");
+    }
+
+    [Test]
+    public async Task ShootItemInInventory_BeamStrikesMessage()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>(); // Initialize ToolRoom which has magnet
+        Take<Laser>();
+        Take<Magnet>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+
+        var response = await target.GetResponse("shoot magnet with laser");
+
+        response.Should().Contain("beam of light");
+        response.Should().Contain("strikes the");
+        response.Should().Contain("grows a bit warm");
+    }
+
+    [Test]
+    public async Task ShootItem_ConsumesCharge()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<Laser>();
+        var battery = GetItem<OldBattery>();
+        battery.ChargesRemaining = 5;
+
+        await target.GetResponse("shoot flask with laser");
+
+        battery.ChargesRemaining.Should().Be(4);
+    }
+
+    [Test]
+    public async Task ShootItem_RegistersAsActor()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+
+        target.Context.Actors.Should().NotContain(GetItem<Laser>());
+
+        await target.GetResponse("shoot flask with laser");
+
+        target.Context.Actors.Should().Contain(GetItem<Laser>());
+    }
+
+    [Test]
+    public async Task ShootItem_IncreasesWarmthLevel()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        var laser = GetItem<Laser>();
+
+        laser.WarmthLevel.Should().Be(0);
+
+        await target.GetResponse("shoot flask with laser");
+
+        laser.WarmthLevel.Should().Be(1);
+    }
+
+    [Test]
+    public async Task ShootItem_ShowsCorrectColor()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        GetItem<Laser>().Setting = 1; // Red
+
+        var response = await target.GetResponse("shoot flask with laser");
+
+        response.Should().Contain("red beam of light");
+    }
+
+    [Test]
+    public async Task ShootItem_NotHoldingLaser_CannotShoot()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        // Don't take the laser - leave it in the room
+        GetItem<OldBattery>().ChargesRemaining = 10;
+
+        var response = await target.GetResponse("shoot flask with laser");
+
+        response.Should().Contain("not holding the laser");
+    }
+
+    [Test]
+    public async Task ShootItem_DeadBattery_Click()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 0;
+
+        var response = await target.GetResponse("shoot flask with laser");
+
+        response.Should().Contain("Click");
+    }
+
+    [Test]
+    public async Task ShootItem_NotInScope_CannotSee()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>(); // Flask is here, but let's try something not here
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+
+        var response = await target.GetResponse("shoot canteen with laser");
+
+        response.Should().Contain("don't see any canteen");
+    }
+
+    [Test]
+    public async Task ShootItem_RubberBarrel_DoesNotConsumeCharge()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        var battery = GetItem<OldBattery>();
+        battery.ChargesRemaining = 5;
+
+        await target.GetResponse("shoot laser with laser");
+
+        battery.ChargesRemaining.Should().Be(5);
+    }
+
+    [Test]
+    public async Task ShootItem_RubberBarrel_DoesNotRegisterAsActor()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+
+        await target.GetResponse("shoot laser with laser");
+
+        target.Context.Actors.Should().NotContain(GetItem<Laser>());
+    }
+
+    [Test]
+    public async Task ShootFloyd_SpecialResponse()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>(); // Floyd starts here
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        GetItem<Floyd>().IsOn = true; // Floyd must be on to be in scope
+
+        var response = await target.GetResponse("shoot floyd with laser");
+
+        response.Should().Contain("beam of light");
+        response.Should().Contain("strikes Floyd");
+        response.Should().Contain("Yow");
+        response.Should().Contain("eyes you warily");
+    }
+
+    #endregion
+
+    #region "shoot laser at X" syntax tests (laser is NounOne)
+
+    [Test]
+    public async Task ShootLaserAtFlask_HitsFlask()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>(); // Flask is here
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+
+        var response = await target.GetResponse("shoot laser at flask");
+
+        response.Should().Contain("beam of light");
+        response.Should().Contain("strikes the");
+        response.Should().Contain("flask");
+        response.Should().Contain("grows a bit warm");
+    }
+
+    [Test]
+    public async Task FireLaserAtFlask_HitsFlask()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>(); // Flask is here
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+
+        var response = await target.GetResponse("fire laser at flask");
+
+        response.Should().Contain("beam of light");
+        response.Should().Contain("strikes the");
+        response.Should().Contain("flask");
+        response.Should().Contain("grows a bit warm");
+    }
+
+    [Test]
+    public async Task ShootLaserAtFloyd_SpecialResponse()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>(); // Floyd starts here
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        GetItem<Floyd>().IsOn = true; // Floyd must be on to be in scope
+
+        var response = await target.GetResponse("shoot laser at floyd");
+
+        response.Should().Contain("beam of light");
+        response.Should().Contain("strikes Floyd");
+        response.Should().Contain("Yow");
+        response.Should().Contain("eyes you warily");
+    }
+
+    [Test]
+    public async Task ShootLaserAtLaser_RubberBarrelMessage()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+
+        var response = await target.GetResponse("fire laser at laser");
+
+        response.Should().Contain("rubber barrel");
     }
 
     #endregion

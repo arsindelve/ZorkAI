@@ -21,7 +21,8 @@ internal class PatrolUniformPocket : OpenAndCloseContainerBase, ICanBeExamined
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return ItemListDescription("", null);
+        // Don't add extra indentation - the parent uniform already indents
+        return string.Join("\n", Items.Select(s => s.GenericDescription(currentLocation)));
     }
 
     public override string? CannotBeClosedDescription(IContext context)

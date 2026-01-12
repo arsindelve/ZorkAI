@@ -163,8 +163,12 @@ function Game() {
             return;
         }
 
-        // Replace newline chars with HTML line breaks. 
-        data.response = data.response.replace(/\n/g, "<br />");
+        // Replace newline chars with HTML line breaks and preserve leading whitespace (spaces and tabs)
+        data.response = data.response
+            .replace(/\t/g, '    ')  // Convert tabs to 4 spaces
+            .replace(/\n/g, "<br />")
+            .replace(/^( +)/gm, (match) => '&nbsp;'.repeat(match.length))
+            .replace(/<br \/>( +)/g, (_, spaces) => '<br />' + '&nbsp;'.repeat(spaces.length));
 
         const textToAppend = `<p class="text-lime-600 font-extrabold mt-3 mb-3">`
             + (!playerInput ? "" : `> ${playerInput}`) + `</p>`

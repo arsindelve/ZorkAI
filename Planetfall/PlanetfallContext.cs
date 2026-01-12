@@ -1,4 +1,5 @@
 using Model.AIGeneration.Requests;
+using Planetfall.Command;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Utilities;
 
@@ -11,6 +12,9 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
 
     [UsedImplicitly]
     public SicknessNotifications SicknessNotifications { get; set; } = new();
+
+    [UsedImplicitly]
+    public HungerNotifications HungerNotifications { get; set; } = new();
 
     public override string CurrentScore =>
         $"Your score would be {Score} (out of 80 points). It is Day {Day} of your adventure. " +
@@ -43,11 +47,49 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
         StartWithItem<Diary>(this);
         StartWithItem<Chronometer>(this);
         StartWithItem<PatrolUniform>(this);
+
+        // Initialize hunger system with current time (after Chronometer is set up)
+        HungerNotifications.Initialize(CurrentTime);
     }
 
     public override string ProcessBeginningOfTurn()
     {
-        return SicknessNotifications.GetNotification(Day, CurrentTime) + base.ProcessBeginningOfTurn();
+        var messages = string.Empty;
+
+        // Check for sickness notifications
+        var sicknessNotification = SicknessNotifications.GetNotification(Day, CurrentTime);
+        if (!string.IsNullOrEmpty(sicknessNotification))
+        {
+            messages += sicknessNotification;
+        }
+
+        // Check if hunger level should advance
+        var nextHungerLevel = HungerNotifications.GetNextHungerLevel(CurrentTime, Hunger);
+        if (nextHungerLevel.HasValue)
+        {
+            // Get notification BEFORE advancing level (so it returns notification for the new level)
+            var hungerNotification = HungerNotifications.GetNotification(CurrentTime, Hunger);
+
+            Hunger = nextHungerLevel.Value;
+
+            // Check for death
+            if (Hunger == HungerLevel.Dead)
+            {
+                var deathResult = new DeathProcessor().Process(
+                    "You collapse from extreme thirst and hunger.", this);
+                return messages + "\n" + deathResult.InteractionMessage;
+            }
+
+            // Add notification message (with newline separator if sickness notification also fired)
+            if (!string.IsNullOrEmpty(hungerNotification))
+            {
+                if (!string.IsNullOrEmpty(messages))
+                    messages += "\n";
+                messages += hungerNotification;
+            }
+        }
+
+        return messages + base.ProcessBeginningOfTurn();
     }
 
     public override string? ProcessEndOfTurn()

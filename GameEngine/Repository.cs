@@ -222,7 +222,7 @@ public static class Repository
     }
 
     /// <summary>
-    /// For unit testing purposes only. 
+    /// For unit testing purposes only.
     /// </summary>
     /// <returns></returns>
     public static string[] GetNouns(string gameName = "ZorkOne")
