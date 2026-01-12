@@ -47,6 +47,9 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
         StartWithItem<Diary>(this);
         StartWithItem<Chronometer>(this);
         StartWithItem<PatrolUniform>(this);
+
+        // Initialize hunger system with current time (after Chronometer is set up)
+        HungerNotifications.Initialize(CurrentTime);
     }
 
     public override string ProcessBeginningOfTurn()

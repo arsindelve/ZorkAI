@@ -33,7 +33,16 @@ public class HungerNotifications
     };
 
     [UsedImplicitly]
-    public int NextWarningAt { get; set; } = InitialWarningTicks; // Initial warning at 2000 ticks
+    public int NextWarningAt { get; set; }
+
+    /// <summary>
+    /// Initializes the hunger notification system with the current game time.
+    /// Must be called after the Chronometer is initialized.
+    /// </summary>
+    internal void Initialize(int currentTime)
+    {
+        NextWarningAt = currentTime + InitialWarningTicks;
+    }
 
     /// <summary>
     /// Gets the notification message if it's time for the next hunger warning.
