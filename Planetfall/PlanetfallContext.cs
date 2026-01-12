@@ -16,6 +16,9 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     [UsedImplicitly]
     public HungerNotifications HungerNotifications { get; set; } = new();
 
+    [UsedImplicitly]
+    public SleepNotifications SleepNotifications { get; set; } = new();
+
     public override string CurrentScore =>
         $"Your score would be {Score} (out of 80 points). It is Day {Day} of your adventure. " +
         $"Current Galactic Standard Time (adjusted to your local day-cycle) is " +
@@ -50,17 +53,45 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
 
         // Initialize hunger system with current time (after Chronometer is set up)
         HungerNotifications.Initialize(CurrentTime);
+
+        // Initialize sleep system with current time
+        SleepNotifications.Initialize(CurrentTime);
     }
 
     public override string ProcessBeginningOfTurn()
     {
         var messages = string.Empty;
 
+        // Check for sleep events (voluntary or forced)
+        var sleepMessage = SleepEngine.CheckForSleep(this);
+        if (!string.IsNullOrEmpty(sleepMessage))
+        {
+            return sleepMessage + base.ProcessBeginningOfTurn();
+        }
+
         // Check for sickness notifications
         var sicknessNotification = SicknessNotifications.GetNotification(Day, CurrentTime);
         if (!string.IsNullOrEmpty(sicknessNotification))
         {
             messages += sicknessNotification;
+        }
+
+        // Check if sleep level should advance
+        var nextTiredLevel = SleepNotifications.GetNextTiredLevel(CurrentTime, Tired);
+        if (nextTiredLevel.HasValue)
+        {
+            // Get notification BEFORE advancing level
+            var sleepNotification = SleepNotifications.GetNotification(CurrentTime, Tired);
+
+            Tired = nextTiredLevel.Value;
+
+            // Add notification message (with newline separator if sickness notification also fired)
+            if (!string.IsNullOrEmpty(sleepNotification))
+            {
+                if (!string.IsNullOrEmpty(messages))
+                    messages += "\n";
+                messages += sleepNotification;
+            }
         }
 
         // Check if hunger level should advance
