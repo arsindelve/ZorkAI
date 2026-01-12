@@ -4,7 +4,7 @@ public class OldBattery : BatteryBase, ICanBeTakenAndDropped
 {
     public override string[] NounsForMatching => ["battery", "old battery"];
     
-    public override int ChargesRemaining { get; set; } = 3;
+    public override int ChargesRemaining { get; set; } = new RandomChooser().RollDice(3) + 2;
 
     public override string GenericDescription(ILocation? currentLocation)
     {

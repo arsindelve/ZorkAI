@@ -1,4 +1,4 @@
-namespace Planetfall.Item.Kalamontee.Admin;
+namespace Planetfall.Item;
 
 /// <summary>
 /// Represents an abstract base class for access cards in the game.

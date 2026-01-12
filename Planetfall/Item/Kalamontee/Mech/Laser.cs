@@ -2,9 +2,21 @@ using Model.AIGeneration;
 
 namespace Planetfall.Item.Kalamontee.Mech;
 
-public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined
+public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurnBasedActor
 {
-    public override string[] NounsForMatching => ["laser", "portable laser"];
+    /// <summary>
+    /// Tracks the laser's current temperature level (0 = cold, increases with each shot).
+    /// </summary>
+    public int WarmthLevel { get; set; }
+
+    /// <summary>
+    /// Flag indicating whether the laser was just shot this turn.
+    /// Reset at the end of each turn's Act call.
+    /// </summary>
+    public bool JustShot { get; set; }
+
+    public override string[] NounsForMatching =>
+        ["laser", "portable laser", "akmee portabul laazur", "laazur", "akmee laazur"];
 
     public override Type[] CanOnlyHoldTheseTypes => [typeof(BatteryBase)];
     
@@ -57,7 +69,7 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined
     {
         if (CurrentLocation != context)
             return new PositiveInteractionResult("You're not holding the laser. ");
-        
+
         BatteryBase? battery = Items.FirstOrDefault() as BatteryBase;
         int chargesRemaining = battery?.ChargesRemaining ?? 0;
 
@@ -65,8 +77,13 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined
         {
             return new PositiveInteractionResult("Click.");
         }
-        
+
         battery!.ChargesRemaining--;
+
+        // Mark that we just shot and register as actor for warmth tracking
+        JustShot = true;
+        context.RegisterActor(this);
+
         return new PositiveInteractionResult($"The laser emits a narrow {_dialColors[Setting]} beam of light. ");
     }
 
@@ -139,4 +156,172 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined
     {
         StartWithItemInside<OldBattery>();
     }
+
+    /// <summary>
+    /// Messages displayed when the laser warms up (threshold reached going UP).
+    /// </summary>
+    private static readonly Dictionary<int, string> WarmingMessages = new()
+    {
+        { 3, "The laser feels slightly warm now, but that doesn't seem to affect its performance at all." },
+        { 6, "The laser feels somewhat warm now, but that doesn't seem to affect its performance at all." },
+        { 9, "The laser feels very warm now, but that doesn't seem to affect its performance at all." },
+        { 12, "The laser feels quite hot, but that doesn't seem to affect its performance at all." }
+    };
+
+    /// <summary>
+    /// Messages displayed when the laser cools down (threshold reached going DOWN).
+    /// </summary>
+    private static readonly Dictionary<int, string> CoolingMessages = new()
+    {
+        { 12, "The laser has cooled, but it still feels quite hot." },
+        { 9, "The laser has cooled, but it still feels very warm." },
+        { 6, "The laser has cooled, but it still feels somewhat warm." },
+        { 3, "The laser has cooled, but it still feels slightly warm." }
+    };
+
+    /// <summary>
+    /// Determines if the player is in the same location as the laser.
+    /// The laser could be in the player's inventory (CurrentLocation == context) or
+    /// in the same room as the player.
+    /// </summary>
+    private bool IsPlayerWithLaser(IContext context)
+    {
+        // Laser is in player's inventory
+        if (CurrentLocation == context)
+            return true;
+
+        // Laser is in the same room as the player
+        if (CurrentLocation == context.CurrentLocation)
+            return true;
+
+        return false;
+    }
+
+    /// <summary>
+    /// Called each turn when the laser is registered as an actor.
+    /// Handles warming up when fired, cooling down when not fired.
+    /// </summary>
+    public Task<string> Act(IContext context, IGenerationClient client)
+    {
+        string message = string.Empty;
+
+        if (JustShot)
+        {
+            // Laser was fired this turn - heat up
+            WarmthLevel++;
+
+            // Check for warming message at this threshold
+            if (WarmingMessages.TryGetValue(WarmthLevel, out var warmingMessage))
+            {
+                if (IsPlayerWithLaser(context))
+                {
+                    message = warmingMessage;
+                }
+            }
+        }
+        else
+        {
+            // Laser was NOT fired this turn - cool down
+            if (WarmthLevel > 0)
+            {
+                WarmthLevel--;
+
+                // Check for cooling message at this threshold
+                if (CoolingMessages.TryGetValue(WarmthLevel, out var coolingMessage))
+                {
+                    if (IsPlayerWithLaser(context))
+                    {
+                        message = coolingMessage;
+                    }
+                }
+
+                // If fully cooled, remove from actors
+                if (WarmthLevel == 0)
+                {
+                    context.RemoveActor(this);
+                }
+            }
+        }
+
+        // Reset the JustShot flag for the next turn
+        JustShot = false;
+
+        return Task.FromResult(message);
+    }
 }
+
+
+/*
+ 
+ Shooting the Laser at the Microbe
+
+   The microbe is a hungry monster that blocks your path on the silicon strip (inside the computer). Here's how the laser interaction works:
+
+   Direct Laser Hits
+
+   - Setting 1 (red): The beam "passes harmlessly through its red skin" — the microbe's skin is red, so red light doesn't affect it
+   - Settings 2-6 (orange through violet): The beam hits and the microbe recoils momentarily, but quickly recovers. You get random flavor text like:
+     - "The microbe's outer membrane sizzles a bit, and some protoplasm oozes out"
+     - "The beam slices through the microbe's skin! A tremendous shudder passes..."
+     - "The monster rears back for a moment, but almost as soon as the beam goes off, it advances again"
+
+   You cannot kill the microbe by shooting it directly — it always regenerates.
+
+   The Heat Mechanic (How to Actually Defeat It)
+
+   Each time you fire the laser, WARMTH-FLAG increases. The laser heats up progressively: "slightly warm" → "somewhat warm" → "very warm" → "quite hot"
+
+   Once the laser is hot enough (WARMTH-FLAG > 7), you have options:
+
+   1. Throw the hot laser off the strip: The microbe, attracted to the heat, lunges after it and both plummet into the void (comptwo.zil:3019-3029)
+   2. Give/throw the hot laser to the microbe:
+     - If WARMTH-FLAG > 10: The microbe eats the laser, writhes in pain from the heat, and rolls off the strip
+     - If WARMTH-FLAG ≤ 10: The microbe eats the laser and turns toward you (bad outcome)
+   3. Danger: If WARMTH-FLAG > 13 and you're still holding the laser when the microbe attacks, it lunges at the pulsing heat, you lose your balance, and both of you fall into the void (death)
+
+   The solution is to heat up the laser by firing it several times, then sacrifice it to lure the microbe to its doom.
+ 
+ */
+ 
+ 
+
+
+ 
+ /*
+ 
+ Shooting the Laser at the Speck
+
+    The speck is a blue impurity/boulder wedged inside a vacuum-sealed micro-relay with a red plastic covering. You encounter this while miniaturized inside the computer, standing on a silicon strip. The speck is blocking the relay from closing, which prevents the computer from working.
+
+    The Puzzle
+
+    The relay has a red translucent plastic casing. This is the key:
+
+    Setting 1 (red beam): The red beam passes harmlessly through the red plastic and can hit the speck inside. This is the only correct setting.
+
+    Settings 2-6 (orange through violet): The non-red beam "slices through the red plastic covering of the relay like a hot knife through butter. Air rushes into the relay, which collapses into a heap of plastic shards." — This destroys the relay and makes the game unwinnable.
+
+    Hitting the Speck
+
+    Even with the correct red setting, you can miss. Each miss increases MARKSMANSHIP-COUNTER by 12, improving your odds on subsequent shots (comptwo.zil:2863). Miss messages include:
+    - "The beam just misses the speck!"
+    - "A near miss!"
+    - "A good shot, but just a little wide of the target."
+
+    Two Hits Required
+
+    The speck requires two successful hits to destroy:
+
+    1. First hit: "The speck is hit by the beam! It sizzles a little, but isn't destroyed yet." (sets SPECK-HIT to true)
+    2. Second hit: "The beam hits the speck again! This time, it vaporizes into a fine cloud of ash. The relay slowly begins to close, and a voice whispers in your ear 'Sector 384 will activate in 200 millichrons. Proceed to exit station.'"
+
+    After Success
+
+    Destroying the speck:
+    - Sets COMPUTER-FIXED to true
+    - Awards 8 points
+    - Opens the cryo-elevator door
+    - Starts a 200 turn timer (I-FRY) — you must escape the silicon strip before the sector powers up or you get electrocuted
+
+
+*/

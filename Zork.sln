@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 
+#
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAI", "OpenAI\OpenAI.csproj", "{E93443EC-DD10-499F-92C4-2DC04A17E2D6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "Console\Console.csproj", "{4B5E33DA-53FA-49F7-8C84-2EEAE5600AA2}"
@@ -31,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		savegame_schema.json = savegame_schema.json
 		session_schema.json = session_schema.json
 		sessionsteps_schema.json = sessionsteps_schema.json
+		HUNGER_THIRST_MECHANICS.md = HUNGER_THIRST_MECHANICS.md
+		SLEEP_MECHANICS.md = SLEEP_MECHANICS.md
 	EndProjectSection
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "zorkweb.client", "zorkweb.client\zorkweb.client.esproj", "{F26B8ED7-E39C-426D-BD87-6F9E6987F6BE}"

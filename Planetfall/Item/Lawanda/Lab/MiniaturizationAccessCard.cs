@@ -1,6 +1,6 @@
 namespace Planetfall.Item.Lawanda.Lab;
 
-public class MiniaturizationAccessCard : Kalamontee.Admin.AccessCard, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead,
+public class MiniaturizationAccessCard : AccessCard, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead,
     IGivePointsWhenFirstPickedUp
 {
     public override string[] NounsForMatching =>
