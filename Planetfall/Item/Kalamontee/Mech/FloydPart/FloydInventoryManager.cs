@@ -57,7 +57,7 @@ public class FloydInventoryManager(Floyd floyd)
         if (floyd.ItemBeingHeld is null)
             return "";
 
-        return "\nThe multiple purpose robot is holding: \n\t " + floyd.ItemBeingHeld.GenericDescription(currentLocation);
+        return "\nThe multiple purpose robot is holding: \n   " + floyd.ItemBeingHeld.GenericDescription(currentLocation);
     }
 
     private bool IsFloydInRoom(IContext context)
