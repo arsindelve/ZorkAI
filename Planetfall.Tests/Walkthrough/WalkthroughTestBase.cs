@@ -55,7 +55,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         // Invoke the method on the current instance
         method.Invoke(this, null);
     }
-    
+
     [UsedImplicitly]
     public void ResetTime()
     {

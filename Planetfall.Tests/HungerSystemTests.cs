@@ -32,11 +32,11 @@ public class HungerSystemTests : EngineTestsBase
     }
 
     [Test]
-    public void HungerNotifications_AfterInitialize_SetsNextWarningAt2000TicksFromStart()
+    public void HungerNotifications_AfterInitialize_SetsNextWarningAt4000TicksFromStart()
     {
         var notifications = new HungerNotifications();
         notifications.Initialize(4500); // Typical starting time
-        notifications.NextWarningAt.Should().Be(6500); // 4500 + 2000
+        notifications.NextWarningAt.Should().Be(8500); // 4500 + 4000
     }
 
     [Test]
@@ -44,7 +44,7 @@ public class HungerSystemTests : EngineTestsBase
     {
         var notifications = new HungerNotifications();
         notifications.Initialize(0); // Start at time 0
-        var result = notifications.GetNotification(1999, HungerLevel.WellFed);
+        var result = notifications.GetNotification(3999, HungerLevel.WellFed);
         result.Should().BeNull();
     }
 
@@ -53,18 +53,18 @@ public class HungerSystemTests : EngineTestsBase
     {
         var notifications = new HungerNotifications();
         notifications.Initialize(0); // Start at time 0
-        var result = notifications.GetNotification(2000, HungerLevel.WellFed);
+        var result = notifications.GetNotification(4000, HungerLevel.WellFed);
         result.Should().Contain("growl from your stomach");
         result.Should().Contain("hungry and thirsty");
     }
 
     [Test]
-    public void HungerNotifications_ProgressionToLevel2_SchedulesNext450Ticks()
+    public void HungerNotifications_ProgressionToLevel2_SchedulesNext900Ticks()
     {
         var notifications = new HungerNotifications();
         notifications.Initialize(0); // Start at time 0
-        notifications.GetNotification(2000, HungerLevel.WellFed);
-        notifications.NextWarningAt.Should().Be(2450); // 2000 + 450
+        notifications.GetNotification(4000, HungerLevel.WellFed);
+        notifications.NextWarningAt.Should().Be(4900); // 4000 + 900
     }
 
     [Test]
@@ -72,20 +72,20 @@ public class HungerSystemTests : EngineTestsBase
     {
         var notifications = new HungerNotifications();
         notifications.Initialize(0); // Start at time 0
-        notifications.GetNotification(2000, HungerLevel.WellFed); // First warning
-        var result = notifications.GetNotification(2450, HungerLevel.Hungry);
+        notifications.GetNotification(4000, HungerLevel.WellFed); // First warning
+        var result = notifications.GetNotification(4900, HungerLevel.Hungry);
         result.Should().Contain("ravenous");
         result.Should().Contain("parched");
     }
 
     [Test]
-    public void HungerNotifications_ProgressionToLevel3_SchedulesNext150Ticks()
+    public void HungerNotifications_ProgressionToLevel3_SchedulesNext300Ticks()
     {
         var notifications = new HungerNotifications();
         notifications.Initialize(0); // Start at time 0
-        notifications.GetNotification(2000, HungerLevel.WellFed);
-        notifications.GetNotification(2450, HungerLevel.Hungry);
-        notifications.NextWarningAt.Should().Be(2600); // 2450 + 150
+        notifications.GetNotification(4000, HungerLevel.WellFed);
+        notifications.GetNotification(4900, HungerLevel.Hungry);
+        notifications.NextWarningAt.Should().Be(5200); // 4900 + 300
     }
 
     [Test]
@@ -93,22 +93,22 @@ public class HungerSystemTests : EngineTestsBase
     {
         var notifications = new HungerNotifications();
         notifications.Initialize(0); // Start at time 0
-        notifications.GetNotification(2000, HungerLevel.WellFed);
-        notifications.GetNotification(2450, HungerLevel.Hungry);
-        var result = notifications.GetNotification(2600, HungerLevel.Ravenous);
+        notifications.GetNotification(4000, HungerLevel.WellFed);
+        notifications.GetNotification(4900, HungerLevel.Hungry);
+        var result = notifications.GetNotification(5200, HungerLevel.Ravenous);
         result.Should().Contain("faint");
         result.Should().Contain("food and liquid");
     }
 
     [Test]
-    public void HungerNotifications_ProgressionToLevel4_SchedulesNext100Ticks()
+    public void HungerNotifications_ProgressionToLevel4_SchedulesNext200Ticks()
     {
         var notifications = new HungerNotifications();
         notifications.Initialize(0); // Start at time 0
-        notifications.GetNotification(2000, HungerLevel.WellFed);
-        notifications.GetNotification(2450, HungerLevel.Hungry);
-        notifications.GetNotification(2600, HungerLevel.Ravenous);
-        notifications.NextWarningAt.Should().Be(2700); // 2600 + 100
+        notifications.GetNotification(4000, HungerLevel.WellFed);
+        notifications.GetNotification(4900, HungerLevel.Hungry);
+        notifications.GetNotification(5200, HungerLevel.Ravenous);
+        notifications.NextWarningAt.Should().Be(5400); // 5200 + 200
     }
 
     [Test]
@@ -116,24 +116,24 @@ public class HungerSystemTests : EngineTestsBase
     {
         var notifications = new HungerNotifications();
         notifications.Initialize(0); // Start at time 0
-        notifications.GetNotification(2000, HungerLevel.WellFed);
-        notifications.GetNotification(2450, HungerLevel.Hungry);
-        notifications.GetNotification(2600, HungerLevel.Ravenous);
-        var result = notifications.GetNotification(2700, HungerLevel.Faint);
+        notifications.GetNotification(4000, HungerLevel.WellFed);
+        notifications.GetNotification(4900, HungerLevel.Hungry);
+        notifications.GetNotification(5200, HungerLevel.Ravenous);
+        var result = notifications.GetNotification(5400, HungerLevel.Faint);
         result.Should().Contain("millichrons");
         result.Should().Contain("pass out");
     }
 
     [Test]
-    public void HungerNotifications_ProgressionToLevel5_SchedulesNext50Ticks()
+    public void HungerNotifications_ProgressionToLevel5_SchedulesNext100Ticks()
     {
         var notifications = new HungerNotifications();
         notifications.Initialize(0); // Start at time 0
-        notifications.GetNotification(2000, HungerLevel.WellFed);
-        notifications.GetNotification(2450, HungerLevel.Hungry);
-        notifications.GetNotification(2600, HungerLevel.Ravenous);
-        notifications.GetNotification(2700, HungerLevel.Faint);
-        notifications.NextWarningAt.Should().Be(2750); // 2700 + 50
+        notifications.GetNotification(4000, HungerLevel.WellFed);
+        notifications.GetNotification(4900, HungerLevel.Hungry);
+        notifications.GetNotification(5200, HungerLevel.Ravenous);
+        notifications.GetNotification(5400, HungerLevel.Faint);
+        notifications.NextWarningAt.Should().Be(5500); // 5400 + 100
     }
 
     [Test]
@@ -149,7 +149,7 @@ public class HungerSystemTests : EngineTestsBase
     {
         var notifications = new HungerNotifications();
         notifications.Initialize(0); // Start at time 0
-        var result = notifications.GetNextHungerLevel(2000, HungerLevel.WellFed);
+        var result = notifications.GetNextHungerLevel(4000, HungerLevel.WellFed);
         result.Should().Be(HungerLevel.Hungry);
     }
 
@@ -158,7 +158,7 @@ public class HungerSystemTests : EngineTestsBase
     {
         var notifications = new HungerNotifications();
         notifications.Initialize(0); // Start at time 0
-        var result = notifications.GetNextHungerLevel(1999, HungerLevel.WellFed);
+        var result = notifications.GetNextHungerLevel(3999, HungerLevel.WellFed);
         result.Should().BeNull();
     }
 
@@ -412,12 +412,12 @@ public class HungerSystemTests : EngineTestsBase
 
         var pfContext = target.Context;
 
-        // Initial stateF
+        // Initial state
         pfContext.Hunger.Should().Be(HungerLevel.WellFed);
 
-        // Simulate time passage to first warning (2000 ticks / 54 per turn ≈ 37 turns)
-        Repository.GetItem<Chronometer>().CurrentTime = 2000;
-        pfContext.HungerNotifications.NextWarningAt = 2000;
+        // Simulate time passage to first warning (4000 ticks)
+        Repository.GetItem<Chronometer>().CurrentTime = 4000;
+        pfContext.HungerNotifications.NextWarningAt = 4000;
 
         await target.GetResponse("look");
 
@@ -435,8 +435,8 @@ public class HungerSystemTests : EngineTestsBase
         pfContext.Hunger = HungerLevel.AboutToPassOut;
 
         // Set up for death
-        Repository.GetItem<Chronometer>().CurrentTime = 2750;
-        pfContext.HungerNotifications.NextWarningAt = 2750;
+        Repository.GetItem<Chronometer>().CurrentTime = 5500;
+        pfContext.HungerNotifications.NextWarningAt = 5500;
 
         var response = await target.GetResponse("look");
 

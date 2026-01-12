@@ -5,24 +5,24 @@ namespace Planetfall;
 /// <summary>
 /// Manages hunger/thirst notifications based on the timer system.
 /// The game uses a unified hunger/thirst system with progressive warnings.
-/// Initial warning at 2000 ticks, then escalating warnings at 450, 150, 100, 50 tick intervals.
+/// Time intervals have been doubled from the original Infocom values for a less punishing experience.
 /// </summary>
 public class HungerNotifications
 {
     /// <summary>
     /// Initial time in ticks before first hunger warning appears.
     /// </summary>
-    private const int InitialWarningTicks = 2000;
+    private const int InitialWarningTicks = 4000;
 
     /// <summary>
     /// Time intervals between hunger level progressions.
     /// </summary>
-    private const int HungryToRavenousTicks = 450;
-    private const int RavenousToFaintTicks = 150;
-    private const int FaintToAboutToPassOutTicks = 100;
-    private const int AboutToPassOutToDeadTicks = 50;
+    private const int HungryToRavenousTicks = 900;
+    private const int RavenousToFaintTicks = 300;
+    private const int FaintToAboutToPassOutTicks = 200;
+    private const int AboutToPassOutToDeadTicks = 100;
 
-    // Notification schedule: (initial: 2000) -> (450) -> (150) -> (100) -> (50) -> death
+    // Notification schedule: (initial: 4000) -> (900) -> (300) -> (200) -> (100) -> death
     private static readonly Dictionary<HungerLevel, int> NextWarningTimes = new()
     {
         { HungerLevel.WellFed, InitialWarningTicks },           // Initial warning time

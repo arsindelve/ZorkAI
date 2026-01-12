@@ -20,7 +20,7 @@ internal abstract class GooBase : ItemBase, ICanBeEaten, ICanBeTakenAndDropped
 
     public override int Size => 1;
 
-    public override string? CannotBeTakenDescription =>
+    public override string CannotBeTakenDescription =>
         "It would ooze through your fingers. You'll have to eat it right from the survival kit. ";
 
     string ICanBeTakenAndDropped.OnTheGroundDescription(ILocation currentLocation)
