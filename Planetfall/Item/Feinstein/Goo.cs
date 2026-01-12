@@ -6,6 +6,11 @@ namespace Planetfall.Item.Feinstein;
 /// </summary>
 internal abstract class GooBase : ItemBase, ICanBeEaten, ICanBeTakenAndDropped
 {
+    /// <summary>
+    /// Time in ticks that goo provides before hunger returns (1450 ticks).
+    /// </summary>
+    protected const int GooHungerResetTicks = 1450;
+
     protected abstract string FlavorDescription { get; }
 
     public override int Size => 1;
@@ -43,16 +48,22 @@ internal abstract class GooBase : ItemBase, ICanBeEaten, ICanBeTakenAndDropped
         if (pfContext.Hunger == HungerLevel.WellFed)
             return "Thanks, but you're not hungry. ";
 
-        // Check if player is holding the survival kit
+        // Goo can only be eaten from the survival kit
+        // By the time OnEating() is called, the goo has been destroyed, so we can't check its location.
+        // Instead, we check if the survival kit is in the player's inventory or current location.
         var survivalKit = Repository.GetItem<SurvivalKit>();
-        if (!pfContext.Items.Contains(survivalKit))
+        var locationHasKit = pfContext.CurrentLocation is ICanContainItems container && container.Items.Contains(survivalKit);
+        if (!pfContext.Items.Contains(survivalKit) && !locationHasKit)
             return "You aren't holding that. ";
 
         // Reset hunger to well-fed
         pfContext.Hunger = HungerLevel.WellFed;
 
         // Reset hunger notifications - goo provides 1450 ticks
-        pfContext.HungerNotifications.ResetAfterEating(pfContext.CurrentTime, 1450);
+        pfContext.HungerNotifications.ResetAfterEating(pfContext.CurrentTime, GooHungerResetTicks);
+
+        // Note: The goo is automatically destroyed by EatAndDrinkInteractionProcessor
+        // before OnEating() is called, so no need to remove it here
 
         return $"Mmmm...that tasted just like {FlavorDescription}. ";
     }
@@ -60,7 +71,7 @@ internal abstract class GooBase : ItemBase, ICanBeEaten, ICanBeTakenAndDropped
 
 internal class RedGoo : GooBase
 {
-    public override string[] NounsForMatching => ["red goo", "goo"];
+    public override string[] NounsForMatching => ["red goo", "red"];
 
     protected override string FlavorDescription => "scrumptious cherry pie";
 
@@ -72,7 +83,7 @@ internal class RedGoo : GooBase
 
 internal class BrownGoo : GooBase
 {
-    public override string[] NounsForMatching => ["brown goo", "goo"];
+    public override string[] NounsForMatching => ["brown goo", "brown"];
 
     protected override string FlavorDescription => "delicious Nebulan fungus pudding";
 
@@ -84,7 +95,7 @@ internal class BrownGoo : GooBase
 
 internal class GreenGoo : GooBase
 {
-    public override string[] NounsForMatching => ["green goo", "goo"];
+    public override string[] NounsForMatching => ["green goo", "green"];
 
     protected override string FlavorDescription => "yummy lima beans";
 

@@ -9,18 +9,31 @@ namespace Planetfall;
 /// </summary>
 public class HungerNotifications
 {
+    /// <summary>
+    /// Initial time in ticks before first hunger warning appears.
+    /// </summary>
+    private const int InitialWarningTicks = 2000;
+
+    /// <summary>
+    /// Time intervals between hunger level progressions.
+    /// </summary>
+    private const int HungryToRavenousTicks = 450;
+    private const int RavenousToFaintTicks = 150;
+    private const int FaintToAboutToPassOutTicks = 100;
+    private const int AboutToPassOutToDeadTicks = 50;
+
     // Notification schedule: (initial: 2000) -> (450) -> (150) -> (100) -> (50) -> death
     private static readonly Dictionary<HungerLevel, int> NextWarningTimes = new()
     {
-        { HungerLevel.WellFed, 2000 },    // Initial warning time
-        { HungerLevel.Hungry, 450 },      // Time until ravenous
-        { HungerLevel.Ravenous, 150 },    // Time until faint
-        { HungerLevel.Faint, 100 },       // Time until about to pass out
-        { HungerLevel.AboutToPassOut, 50 } // Time until death
+        { HungerLevel.WellFed, InitialWarningTicks },           // Initial warning time
+        { HungerLevel.Hungry, HungryToRavenousTicks },          // Time until ravenous
+        { HungerLevel.Ravenous, RavenousToFaintTicks },         // Time until faint
+        { HungerLevel.Faint, FaintToAboutToPassOutTicks },      // Time until about to pass out
+        { HungerLevel.AboutToPassOut, AboutToPassOutToDeadTicks } // Time until death
     };
 
     [UsedImplicitly]
-    public int NextWarningAt { get; set; } = 2000; // Initial warning at 2000 ticks
+    public int NextWarningAt { get; set; } = InitialWarningTicks; // Initial warning at 2000 ticks
 
     /// <summary>
     /// Gets the notification message if it's time for the next hunger warning.

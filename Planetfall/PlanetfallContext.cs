@@ -60,6 +60,9 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
         var nextHungerLevel = HungerNotifications.GetNextHungerLevel(CurrentTime, Hunger);
         if (nextHungerLevel.HasValue)
         {
+            // Get notification BEFORE advancing level (so it returns notification for the new level)
+            var hungerNotification = HungerNotifications.GetNotification(CurrentTime, Hunger);
+
             Hunger = nextHungerLevel.Value;
 
             // Check for death
@@ -70,8 +73,7 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
                 return messages + "\n" + deathResult.InteractionMessage;
             }
 
-            // Get notification for new hunger level
-            var hungerNotification = HungerNotifications.GetNotification(CurrentTime, Hunger);
+            // Add notification message
             if (!string.IsNullOrEmpty(hungerNotification))
             {
                 messages += "\n" + hungerNotification;
