@@ -229,36 +229,21 @@ public static class Repository
     {
         lock (_allNouns)
         {
-            // Save the current repository state
-            var savedItems = _allItems;
-            var savedLocations = _allLocations;
-
-            // Create a clean repository for noun collection
-            _allItems = new Dictionary<Type, IItem>();
-            _allLocations = new Dictionary<Type, ILocation>();
-
+            var allItems = new List<ItemBase>();
             var assembly = Assembly.Load(gameName);
+
             var types = assembly.GetTypes();
 
             foreach (var type in types)
+
                 if (type is { IsClass: true, IsGenericType: false, IsAbstract: false } &&
                     type.IsSubclassOf(typeof(ItemBase)))
                 {
                     var instance = (ItemBase)Activator.CreateInstance(type)!;
-                    _allItems[type] = instance;
-
-                    // Call Init() on containers so dynamically-created items (like goo) are included
-                    if (instance is ICanContainItems container)
-                        container.Init();
+                    allItems.Add(instance);
                 }
 
-            // Collect nouns from all items (including dynamically created ones)
-            _allNouns = _allItems.Values.OfType<ItemBase>().SelectMany(s => s.NounsForMatching).ToArray();
-
-            // Restore the original repository state
-            _allItems = savedItems;
-            _allLocations = savedLocations;
-
+            _allNouns = allItems.SelectMany(s => s.NounsForMatching).ToArray();
             return _allNouns;
         }
     }

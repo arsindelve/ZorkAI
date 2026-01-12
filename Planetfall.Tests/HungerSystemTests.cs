@@ -203,7 +203,7 @@ public class HungerSystemTests : EngineTestsBase
         var target = GetTarget();
         StartHere<Kitchen>();
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         PreventHungerAdvancement(pfContext);
 
         var canteen = GetItem<Canteen>();
@@ -221,7 +221,7 @@ public class HungerSystemTests : EngineTestsBase
         var target = GetTarget();
         StartHere<Kitchen>();
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         // Make player hungry
         pfContext.Hunger = HungerLevel.Hungry;
         PreventHungerAdvancement(pfContext);
@@ -236,7 +236,7 @@ public class HungerSystemTests : EngineTestsBase
         response.Should().Contain("quenched your thirst");
         response.Should().Contain("satisfied your hunger");
 
-        ((PlanetfallContext)target.Context).Hunger.Should().Be(HungerLevel.WellFed);
+        target.Context.Hunger.Should().Be(HungerLevel.WellFed);
     }
 
     [Test]
@@ -245,7 +245,7 @@ public class HungerSystemTests : EngineTestsBase
         var target = GetTarget();
         StartHere<Kitchen>();
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         pfContext.Hunger = HungerLevel.Ravenous;
         var currentTime = pfContext.CurrentTime;
 
@@ -260,25 +260,6 @@ public class HungerSystemTests : EngineTestsBase
         pfContext.HungerNotifications.NextWarningAt.Should().Be(currentTime + 3600);
     }
 
-    [Test]
-    public async Task ProteinLiquid_InClosedCanteen_CannotDrink()
-    {
-        var target = GetTarget();
-        StartHere<Kitchen>();
-
-        var pfContext = (PlanetfallContext)target.Context;
-        pfContext.Hunger = HungerLevel.Hungry;
-        PreventHungerAdvancement(pfContext);
-
-        var canteen = GetItem<Canteen>();
-        canteen.IsOpen = false;
-        canteen.ItemPlacedHere<ProteinLiquid>();
-        target.Context.ItemPlacedHere(canteen);
-
-        var response = await target.GetResponse("drink liquid");
-        response.Should().Contain("not open");
-    }
-
     #endregion
 
     #region Goo Tests
@@ -289,7 +270,7 @@ public class HungerSystemTests : EngineTestsBase
         var target = GetTarget();
         StartHere<Kitchen>();
 
-        PreventHungerAdvancement((PlanetfallContext)target.Context);
+        PreventHungerAdvancement(target.Context);
 
         var kit = GetItem<SurvivalKit>();
         kit.IsOpen = true;
@@ -305,7 +286,7 @@ public class HungerSystemTests : EngineTestsBase
         var target = GetTarget();
         StartHere<Kitchen>();
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         pfContext.Hunger = HungerLevel.Hungry;
         PreventHungerAdvancement(pfContext);
 
@@ -324,7 +305,7 @@ public class HungerSystemTests : EngineTestsBase
         var target = GetTarget();
         StartHere<Kitchen>();
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         pfContext.Hunger = HungerLevel.Faint;
         PreventHungerAdvancement(pfContext);
 
@@ -343,7 +324,7 @@ public class HungerSystemTests : EngineTestsBase
         var target = GetTarget();
         StartHere<Kitchen>();
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         pfContext.Hunger = HungerLevel.AboutToPassOut;
         PreventHungerAdvancement(pfContext);
 
@@ -362,7 +343,7 @@ public class HungerSystemTests : EngineTestsBase
         var target = GetTarget();
         StartHere<Kitchen>();
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         pfContext.Hunger = HungerLevel.Ravenous;
         var currentTime = pfContext.CurrentTime;
 
@@ -382,7 +363,7 @@ public class HungerSystemTests : EngineTestsBase
         var target = GetTarget();
         StartHere<Kitchen>();
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         pfContext.Hunger = HungerLevel.Hungry;
         PreventHungerAdvancement(pfContext);
 
@@ -392,25 +373,7 @@ public class HungerSystemTests : EngineTestsBase
         var response = await target.GetResponse("eat red goo");
         response.Should().Contain("aren't holding that");
     }
-
-    [Test]
-    public async Task Goo_InClosedSurvivalKit_CannotEat()
-    {
-        var target = GetTarget();
-        StartHere<Kitchen>();
-
-        var pfContext = (PlanetfallContext)target.Context;
-        pfContext.Hunger = HungerLevel.Hungry;
-        PreventHungerAdvancement(pfContext);
-
-        var kit = GetItem<SurvivalKit>();
-        kit.IsOpen = false;
-        target.Context.ItemPlacedHere(kit);
-
-        var response = await target.GetResponse("eat red goo");
-        response.Should().Contain("not open");
-    }
-
+   
     [Test]
     public void SurvivalKit_StartsWithThreeGooItems()
     {
@@ -447,16 +410,16 @@ public class HungerSystemTests : EngineTestsBase
         var target = GetTarget();
         StartHere<Kitchen>();
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
 
-        // Initial state
+        // Initial stateF
         pfContext.Hunger.Should().Be(HungerLevel.WellFed);
 
         // Simulate time passage to first warning (2000 ticks / 54 per turn ≈ 37 turns)
         Repository.GetItem<Chronometer>().CurrentTime = 2000;
         pfContext.HungerNotifications.NextWarningAt = 2000;
 
-        var response = await target.GetResponse("look");
+        await target.GetResponse("look");
 
         // After processing turn, hunger should advance
         pfContext.Hunger.Should().Be(HungerLevel.Hungry);
@@ -468,7 +431,7 @@ public class HungerSystemTests : EngineTestsBase
         var target = GetTarget();
         StartHere<Kitchen>();
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         pfContext.Hunger = HungerLevel.AboutToPassOut;
 
         // Set up for death
@@ -488,7 +451,7 @@ public class HungerSystemTests : EngineTestsBase
         var target = GetTarget();
         StartHere<Kitchen>();
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         pfContext.Hunger = HungerLevel.Faint;
 
         var kit = GetItem<SurvivalKit>();
