@@ -7,6 +7,11 @@ namespace Planetfall.Item.Feinstein;
 internal abstract class GooBase : ItemBase, ICanBeEaten, ICanBeTakenAndDropped
 {
     /// <summary>
+    /// Remove "goo" from the list of disambiguation nouns. The adventurer will have to be more specific. 
+    /// </summary>
+    public override string[] NounsForPreciseMatching => NounsForMatching.Except(["goo"]).ToArray();
+    
+    /// <summary>
     /// Time in ticks that goo provides before hunger returns (1450 ticks).
     /// </summary>
     protected const int GooHungerResetTicks = 1450;
@@ -75,7 +80,7 @@ internal abstract class GooBase : ItemBase, ICanBeEaten, ICanBeTakenAndDropped
 
 internal class RedGoo : GooBase
 {
-    public override string[] NounsForMatching => ["red goo", "red"];
+    public override string[] NounsForMatching => ["red goo", "red", "goo"];
 
     protected override string FlavorDescription => "scrumptious cherry pie";
 
@@ -87,7 +92,7 @@ internal class RedGoo : GooBase
 
 internal class BrownGoo : GooBase
 {
-    public override string[] NounsForMatching => ["brown goo", "brown"];
+    public override string[] NounsForMatching => ["brown goo", "brown", "goo"];
 
     protected override string FlavorDescription => "delicious Nebulan fungus pudding";
 
@@ -99,7 +104,7 @@ internal class BrownGoo : GooBase
 
 internal class GreenGoo : GooBase
 {
-    public override string[] NounsForMatching => ["green goo", "green"];
+    public override string[] NounsForMatching => ["green goo", "green", "goo"];
 
     protected override string FlavorDescription => "yummy lima beans";
 

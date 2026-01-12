@@ -1,10 +1,23 @@
+using Utilities;
+
 namespace Planetfall.Item.Feinstein;
 
 public class SurvivalKit : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeExamined
 {
-    public override string[] NounsForMatching => ["survival kit", "kit", "survival kit"];
+    public override string[] NounsForMatching => ["survival kit", "kit", "survival"];
 
-    public string ExaminationDescription => $"The survival kit is {(IsOpen ? "open" : "closed")}. ";
+    public string ExaminationDescription => IsOpen
+        ? ItemListDescription("survival kit", null)
+        : "The survival kit is closed. ";
+
+    public override string NowOpen(ILocation currentLocation)
+    {
+        if (!Items.Any())
+            return "Opened. ";
+
+        var gooDescriptions = Items.Select(item => "blob of " + item.NounsForMatching[0]).ToList();
+        return $"Opening the survival kit reveals {gooDescriptions.SingleLineListWithAnd()}. ";
+    }
 
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {
@@ -25,6 +38,6 @@ public class SurvivalKit : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICa
 
     public override string GenericDescription(ILocation? currentLocation)
     {
-        return "A survival kit ";
+        return !IsOpen ? "A survival kit" : $"A survival kit\n{ItemListDescription("survival kit", null)}";
     }
 }

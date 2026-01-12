@@ -157,6 +157,11 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
         StartWithItemInside<OldBattery>();
     }
 
+    public override string GenericDescription(ILocation? currentLocation)
+    {
+        return !Items.Any() ? "A laser" : $"A laser\n{ItemListDescription("laser", null)}";
+    }
+
     /// <summary>
     /// Messages displayed when the laser warms up (threshold reached going UP).
     /// </summary>

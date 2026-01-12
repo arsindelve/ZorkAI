@@ -80,7 +80,7 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
         if (container is IOpenAndClose { IsOpen: false })
             return $"The {container.Name} is not open. ";
 
-        if (container is not IContext)
+        if (container is not IContext && string.IsNullOrEmpty(item.CannotBeTakenDescription))
             message = "(Taken)\n";
 
         DestroyIt(item);
