@@ -4,9 +4,36 @@ namespace Planetfall.Item.Feinstein;
 /// Base class for the three types of goo in the survival kit.
 /// Each goo has a different flavor but the same nutritional value (1450 tick reset).
 /// </summary>
-internal abstract class GooBase : ItemBase, ICanBeEaten
+internal abstract class GooBase : ItemBase, ICanBeEaten, ICanBeTakenAndDropped
 {
     protected abstract string FlavorDescription { get; }
+
+    public override int Size => 1;
+
+    public override string? CannotBeTakenDescription =>
+        "It would ooze through your fingers. You'll have to eat it right from the survival kit. ";
+
+    string ICanBeTakenAndDropped.OnTheGroundDescription(ILocation currentLocation)
+    {
+        // Goo should never be on the ground - it's always in the survival kit
+        return string.Empty;
+    }
+
+    string? ICanBeTakenAndDropped.NeverPickedUpDescription(ILocation currentLocation)
+    {
+        return null;
+    }
+
+    string? ICanBeTakenAndDropped.OnBeingTaken(IContext context, ICanContainItems? previousLocation)
+    {
+        // This should never be called because CannotBeTakenDescription is set
+        return null;
+    }
+
+    void ICanBeTakenAndDropped.OnFailingToBeTaken(IContext context)
+    {
+        // No special action needed
+    }
 
     public string OnEating(IContext context)
     {
