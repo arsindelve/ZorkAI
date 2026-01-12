@@ -1143,6 +1143,56 @@ public class TestParser : IntentParser
                 });
         }
 
+        // Handle multi-word goo nouns - must handle both adjective+noun and just "goo"
+        if (input?.Contains("red goo") ?? false)
+        {
+            var verb = input.Split(' ')[0];
+            if (_verbs.Contains(verb))
+                return Task.FromResult<IntentBase>(new SimpleIntent
+                {
+                    Verb = verb,
+                    Noun = "red goo",
+                    OriginalInput = input
+                });
+        }
+
+        if (input?.Contains("brown goo") ?? false)
+        {
+            var verb = input.Split(' ')[0];
+            if (_verbs.Contains(verb))
+                return Task.FromResult<IntentBase>(new SimpleIntent
+                {
+                    Verb = verb,
+                    Noun = "brown goo",
+                    OriginalInput = input
+                });
+        }
+
+        if (input?.Contains("green goo") ?? false)
+        {
+            var verb = input.Split(' ')[0];
+            if (_verbs.Contains(verb))
+                return Task.FromResult<IntentBase>(new SimpleIntent
+                {
+                    Verb = verb,
+                    Noun = "green goo",
+                    OriginalInput = input
+                });
+        }
+
+        // Handle just "goo" (defaults to first one found)
+        if (input?.Split(' ').Contains("goo") ?? false)
+        {
+            var verb = input.Split(' ')[0];
+            if (_verbs.Contains(verb))
+                return Task.FromResult<IntentBase>(new SimpleIntent
+                {
+                    Verb = verb,
+                    Noun = "goo",
+                    OriginalInput = input
+                });
+        }
+
         input = input?.Replace("the ", "").Trim();
 
         var words = input?.Split(" ");

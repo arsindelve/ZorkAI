@@ -377,6 +377,7 @@ public class HungerSystemTests : EngineTestsBase
     [Test]
     public void SurvivalKit_StartsWithThreeGooItems()
     {
+        Repository.Reset();
         var kit = Repository.GetItem<SurvivalKit>();
         kit.Items.Should().HaveCount(3);
         kit.Items.Should().Contain(item => item is RedGoo);
@@ -389,6 +390,8 @@ public class HungerSystemTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<Kitchen>();
+
+        PreventHungerAdvancement((PlanetfallContext)target.Context);
 
         var kit = GetItem<SurvivalKit>();
         kit.IsOpen = true;
