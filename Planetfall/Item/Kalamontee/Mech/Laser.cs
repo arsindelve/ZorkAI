@@ -2,8 +2,19 @@ using Model.AIGeneration;
 
 namespace Planetfall.Item.Kalamontee.Mech;
 
-public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined
+public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurnBasedActor
 {
+    /// <summary>
+    /// Tracks the laser's current temperature level (0 = cold, increases with each shot).
+    /// </summary>
+    public int WarmthLevel { get; set; }
+
+    /// <summary>
+    /// Flag indicating whether the laser was just shot this turn.
+    /// Reset at the end of each turn's Act call.
+    /// </summary>
+    public bool JustShot { get; set; }
+
     public override string[] NounsForMatching =>
         ["laser", "portable laser", "akmee portabul laazur", "laazur", "akmee laazur"];
 
@@ -58,7 +69,7 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined
     {
         if (CurrentLocation != context)
             return new PositiveInteractionResult("You're not holding the laser. ");
-        
+
         BatteryBase? battery = Items.FirstOrDefault() as BatteryBase;
         int chargesRemaining = battery?.ChargesRemaining ?? 0;
 
@@ -66,8 +77,13 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined
         {
             return new PositiveInteractionResult("Click.");
         }
-        
+
         battery!.ChargesRemaining--;
+
+        // Mark that we just shot and register as actor for warmth tracking
+        JustShot = true;
+        context.RegisterActor(this);
+
         return new PositiveInteractionResult($"The laser emits a narrow {_dialColors[Setting]} beam of light. ");
     }
 
@@ -139,6 +155,98 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined
     public override void Init()
     {
         StartWithItemInside<OldBattery>();
+    }
+
+    /// <summary>
+    /// Messages displayed when the laser warms up (threshold reached going UP).
+    /// </summary>
+    private static readonly Dictionary<int, string> WarmingMessages = new()
+    {
+        { 3, "The laser feels slightly warm now, but that doesn't seem to affect its performance at all." },
+        { 6, "The laser feels somewhat warm now, but that doesn't seem to affect its performance at all." },
+        { 9, "The laser feels very warm now, but that doesn't seem to affect its performance at all." },
+        { 12, "The laser feels quite hot, but that doesn't seem to affect its performance at all." }
+    };
+
+    /// <summary>
+    /// Messages displayed when the laser cools down (threshold reached going DOWN).
+    /// </summary>
+    private static readonly Dictionary<int, string> CoolingMessages = new()
+    {
+        { 12, "The laser has cooled, but it still feels quite hot." },
+        { 9, "The laser has cooled, but it still feels very warm." },
+        { 6, "The laser has cooled, but it still feels somewhat warm." },
+        { 3, "The laser has cooled, but it still feels slightly warm." }
+    };
+
+    /// <summary>
+    /// Determines if the player is in the same location as the laser.
+    /// The laser could be in the player's inventory (CurrentLocation == context) or
+    /// in the same room as the player.
+    /// </summary>
+    private bool IsPlayerWithLaser(IContext context)
+    {
+        // Laser is in player's inventory
+        if (CurrentLocation == context)
+            return true;
+
+        // Laser is in the same room as the player
+        if (CurrentLocation == context.CurrentLocation)
+            return true;
+
+        return false;
+    }
+
+    /// <summary>
+    /// Called each turn when the laser is registered as an actor.
+    /// Handles warming up when fired, cooling down when not fired.
+    /// </summary>
+    public Task<string> Act(IContext context, IGenerationClient client)
+    {
+        string message = string.Empty;
+
+        if (JustShot)
+        {
+            // Laser was fired this turn - heat up
+            WarmthLevel++;
+
+            // Check for warming message at this threshold
+            if (WarmingMessages.TryGetValue(WarmthLevel, out var warmingMessage))
+            {
+                if (IsPlayerWithLaser(context))
+                {
+                    message = warmingMessage;
+                }
+            }
+        }
+        else
+        {
+            // Laser was NOT fired this turn - cool down
+            if (WarmthLevel > 0)
+            {
+                WarmthLevel--;
+
+                // Check for cooling message at this threshold
+                if (CoolingMessages.TryGetValue(WarmthLevel, out var coolingMessage))
+                {
+                    if (IsPlayerWithLaser(context))
+                    {
+                        message = coolingMessage;
+                    }
+                }
+
+                // If fully cooled, remove from actors
+                if (WarmthLevel == 0)
+                {
+                    context.RemoveActor(this);
+                }
+            }
+        }
+
+        // Reset the JustShot flag for the next turn
+        JustShot = false;
+
+        return Task.FromResult(message);
     }
 }
 
