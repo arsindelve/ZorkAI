@@ -394,6 +394,24 @@ public class HungerSystemTests : EngineTestsBase
     }
 
     [Test]
+    public async Task Goo_InClosedSurvivalKit_CannotEat()
+    {
+        var target = GetTarget();
+        StartHere<Kitchen>();
+
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.Hunger = HungerLevel.Hungry;
+        PreventHungerAdvancement(pfContext);
+
+        var kit = GetItem<SurvivalKit>();
+        kit.IsOpen = false;
+        target.Context.ItemPlacedHere(kit);
+
+        var response = await target.GetResponse("eat red goo");
+        response.Should().Contain("not open");
+    }
+
+    [Test]
     public void SurvivalKit_StartsWithThreeGooItems()
     {
         Repository.Reset();

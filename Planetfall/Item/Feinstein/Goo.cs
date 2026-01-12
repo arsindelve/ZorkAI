@@ -56,6 +56,10 @@ internal abstract class GooBase : ItemBase, ICanBeEaten, ICanBeTakenAndDropped
         if (!pfContext.Items.Contains(survivalKit) && !locationHasKit)
             return "You aren't holding that. ";
 
+        // Check if survival kit is open
+        if (!survivalKit.IsOpen)
+            return "The survival kit is not open. ";
+
         // Reset hunger to well-fed
         pfContext.Hunger = HungerLevel.WellFed;
 

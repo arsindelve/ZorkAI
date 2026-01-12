@@ -4,7 +4,7 @@ public class SurvivalKit : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICa
 {
     public override string[] NounsForMatching => ["survival kit", "kit", "survival kit"];
 
-    public string ExaminationDescription => $"The surival kit is {(IsOpen ? "open" : "closed")}. ";
+    public string ExaminationDescription => $"The survival kit is {(IsOpen ? "open" : "closed")}. ";
 
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {
