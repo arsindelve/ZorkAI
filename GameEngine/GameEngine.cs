@@ -420,7 +420,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var sb = new StringBuilder();
 
         if (!string.IsNullOrEmpty(contextPrepend))
-            sb.AppendLine("\n" + contextPrepend.TrimEnd());
+            sb.AppendLine(contextPrepend.TrimEnd());
 
         if (!string.IsNullOrEmpty(mainBody))
             sb.AppendLine(mainBody.TrimEnd());
