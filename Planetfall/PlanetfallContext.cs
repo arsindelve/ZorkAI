@@ -1,4 +1,5 @@
 using Model.AIGeneration.Requests;
+using Planetfall.Command;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Utilities;
 
@@ -11,6 +12,9 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
 
     [UsedImplicitly]
     public SicknessNotifications SicknessNotifications { get; set; } = new();
+
+    [UsedImplicitly]
+    public HungerNotifications HungerNotifications { get; set; } = new();
 
     public override string CurrentScore =>
         $"Your score would be {Score} (out of 80 points). It is Day {Day} of your adventure. " +
@@ -47,7 +51,34 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
 
     public override string ProcessBeginningOfTurn()
     {
-        return SicknessNotifications.GetNotification(Day, CurrentTime) + base.ProcessBeginningOfTurn();
+        var messages = string.Empty;
+
+        // Check for sickness notifications
+        messages += SicknessNotifications.GetNotification(Day, CurrentTime);
+
+        // Check if hunger level should advance
+        var nextHungerLevel = HungerNotifications.GetNextHungerLevel(CurrentTime, Hunger);
+        if (nextHungerLevel.HasValue)
+        {
+            Hunger = nextHungerLevel.Value;
+
+            // Check for death
+            if (Hunger == HungerLevel.Dead)
+            {
+                var deathResult = new DeathProcessor().Process(
+                    "You collapse from extreme thirst and hunger.", this);
+                return messages + "\n" + deathResult.InteractionMessage;
+            }
+
+            // Get notification for new hunger level
+            var hungerNotification = HungerNotifications.GetNotification(CurrentTime, Hunger);
+            if (!string.IsNullOrEmpty(hungerNotification))
+            {
+                messages += "\n" + hungerNotification;
+            }
+        }
+
+        return messages + base.ProcessBeginningOfTurn();
     }
 
     public override string? ProcessEndOfTurn()

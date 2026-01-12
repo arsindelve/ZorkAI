@@ -11,7 +11,19 @@ internal class ProteinLiquid : ItemBase, IAmADrink
 
     string IAmADrink.OnDrinking(IContext context)
     {
-        return "Thanks, but you're not hungry. ";
+        if (context is not PlanetfallContext pfContext)
+            return "Thanks, but you're not hungry. ";
+
+        if (pfContext.Hunger == HungerLevel.WellFed)
+            return "Thanks, but you're not hungry. ";
+
+        // Reset hunger to well-fed
+        pfContext.Hunger = HungerLevel.WellFed;
+
+        // Reset hunger notifications - protein liquid provides 3600 ticks
+        pfContext.HungerNotifications.ResetAfterEating(pfContext.CurrentTime, 3600);
+
+        return "Mmmm....that was good. It certainly quenched your thirst and satisfied your hunger. ";
     }
 
     public override string GenericDescription(ILocation? currentLocation)

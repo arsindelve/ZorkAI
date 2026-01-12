@@ -18,6 +18,9 @@ public class SurvivalKit : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICa
 
     public override void Init()
     {
+        ItemPlacedHere<RedGoo>();
+        ItemPlacedHere<BrownGoo>();
+        ItemPlacedHere<GreenGoo>();
     }
 
     public override string GenericDescription(ILocation? currentLocation)
