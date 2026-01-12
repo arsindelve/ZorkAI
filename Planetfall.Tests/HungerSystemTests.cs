@@ -384,6 +384,21 @@ public class HungerSystemTests : EngineTestsBase
         kit.Items.Should().Contain(item => item is GreenGoo);
     }
 
+    [Test]
+    public async Task Goo_WhenPlayerTriesToTake_ShowsCannotBeTakenMessage()
+    {
+        var target = GetTarget();
+        StartHere<Kitchen>();
+
+        var kit = GetItem<SurvivalKit>();
+        kit.IsOpen = true;
+        target.Context.ItemPlacedHere(kit);
+
+        var response = await target.GetResponse("take red goo");
+        response.Should().Contain("ooze through your fingers");
+        response.Should().Contain("eat it right from the survival kit");
+    }
+
     #endregion
 
     #region Integration Tests
