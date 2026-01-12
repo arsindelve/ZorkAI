@@ -57,7 +57,11 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
         var messages = string.Empty;
 
         // Check for sickness notifications
-        messages += SicknessNotifications.GetNotification(Day, CurrentTime);
+        var sicknessNotification = SicknessNotifications.GetNotification(Day, CurrentTime);
+        if (!string.IsNullOrEmpty(sicknessNotification))
+        {
+            messages += sicknessNotification;
+        }
 
         // Check if hunger level should advance
         var nextHungerLevel = HungerNotifications.GetNextHungerLevel(CurrentTime, Hunger);
@@ -76,10 +80,12 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
                 return messages + "\n" + deathResult.InteractionMessage;
             }
 
-            // Add notification message
+            // Add notification message (with newline separator if sickness notification also fired)
             if (!string.IsNullOrEmpty(hungerNotification))
             {
-                messages += "\n" + hungerNotification;
+                if (!string.IsNullOrEmpty(messages))
+                    messages += "\n";
+                messages += hungerNotification;
             }
         }
 
