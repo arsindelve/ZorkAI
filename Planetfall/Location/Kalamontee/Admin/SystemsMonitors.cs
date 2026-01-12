@@ -9,21 +9,10 @@ public class SystemsMonitors : LocationWithNoStartingItems
     public override string Name => "Systems Monitors";
 
     [UsedImplicitly]
-    public List<string> Fixed { get; set; } =
-    [
-        "LIIBREREE",
-        "REEAKTURZ",
-        "LIIF SUPORT"
-    ];
+    public List<string> Fixed { get; set; } = [];
 
     [UsedImplicitly]
-    public List<string> Busted { get; set; } =
-    [
-        "PLANATEREE DEFENS",
-        "PLANATEREE KORS KUNTROOL",
-        "KUMUUNIKAASHUNZ",
-        "PRAJEKT KUNTROOL"
-    ];
+    public List<string> Busted { get; set; } = [];
 
     private string Green => Fixed.SingleLineListWithAndNoArticle();
     
@@ -31,6 +20,11 @@ public class SystemsMonitors : LocationWithNoStartingItems
 
     private string Monitors()
     {
+        if (Busted.Count == 1)
+            return
+                $"The far wall is filled with a number of monitors. Of these, the ones labelled {Green} are green, but " +
+                $"the one labelled {Red} indicates a malfunctioning condition. ";
+
         return
             $"The far wall is filled with a number of monitors. Of these, the ones labelled {Green} are green, but " +
             $"the ones labelled {Red} indicate a malfunctioning condition. ";
@@ -83,5 +77,23 @@ public class SystemsMonitors : LocationWithNoStartingItems
     {
         Busted.Remove("PLANATEREE DEFENS");
         Fixed.Add("PLANATEREE DEFENS");
+    }
+
+    public override void Init()
+    {
+        Fixed =
+        [
+            "LIIBREREE",
+            "REEAKTURZ",
+            "LIIF SUPORT"
+        ];
+
+        Busted =
+        [
+            "PLANATEREE DEFENS",
+            "PLANATEREE KORS KUNTROOL",
+            "KUMUUNIKAASHUNZ",
+            "PRAJEKT KUNTROOL"
+        ];
     }
 }

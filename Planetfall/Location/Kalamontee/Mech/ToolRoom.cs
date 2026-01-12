@@ -26,5 +26,6 @@ internal class ToolRoom : LocationBase
         StartWithItem<Flask>();
         StartWithItem<Pliers>();
         StartWithItem<Magnet>();
+        StartWithItem<Laser>();
     }
 }

@@ -20,7 +20,7 @@ public class TestParser : IntentParser
     {
         _verbs =
         [
-            "take", "drop", "open", "close", "examine", "look", "eat", "press", "remove", "play",
+            "take", "drop", "open", "close", "examine", "look", "eat", "press", "remove", "play", "shoot",
             "deactivate", "type", "key", "punch", "push", "pull", "burn", "set", "search", "empty",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate", "search",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind", "kick", "deflate",
@@ -1065,6 +1065,57 @@ public class TestParser : IntentParser
                 Preposition = "in",
                 Verb = "put",
                 OriginalInput = "put green spool in reader"
+            });
+        
+        if (input == "set laser to 5")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "laser",
+                NounTwo = "5",
+                Preposition = "to",
+                Verb = "set",
+                OriginalInput = "set laser to 5"
+            });
+        
+        if (input == "set laser to 6")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "laser",
+                NounTwo = "6",
+                Preposition = "to",
+                Verb = "set",
+                OriginalInput = "set laser to 6"
+            });
+        
+        if (input == "set laser to 0")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "laser",
+                NounTwo = "0",
+                Preposition = "to",
+                Verb = "set",
+                OriginalInput = "set laser to 0"
+            });
+        
+        
+        if (input == "set laser to 90")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "laser",
+                NounTwo = "90",
+                Preposition = "to",
+                Verb = "set",
+                OriginalInput = "set laser to 90"
+            });
+        
+        if (input == "set laser to bob")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "laser",
+                NounTwo = "bob",
+                Preposition = "to",
+                Verb = "set",
+                OriginalInput = "set laser to bob"
             });
         
         if (input == "put good in cube")

@@ -1,8 +1,12 @@
+using Planetfall.Item.Kalamontee.Mech;
+
 namespace Planetfall.Item.Lawanda.Lab;
 
-public class FreshBattery : ItemBase, ICanBeTakenAndDropped
+public class FreshBattery : BatteryBase, ICanBeTakenAndDropped
 {
-    public override string[] NounsForMatching => ["battery", "fresh", "fresh battery"];
+    public override string[] NounsForMatching => ["battery", "fresh", "fresh battery", "new battery"];
+    
+    public override int ChargesRemaining { get; set; } = 3;
     
     public string OnTheGroundDescription(ILocation currentLocation)
     {

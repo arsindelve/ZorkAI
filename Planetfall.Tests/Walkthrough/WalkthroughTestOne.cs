@@ -268,6 +268,19 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("take fused with pliers", null, "With a tug")]
     [TestCase("put good in cube", null, "light goes on")]
     [TestCase("score", null, "would be 54")]
+    [TestCase("S", null, "Systems Corridor East")]
+    [TestCase("S", null, "Library Lobby")]
+    [TestCase("E", null, "Booth")]  
+    [TestCase("slide teleportation card through slot", null, "Then a light flashes \"Redee.\"")]
+    [TestCase("press 2", null, "stomach")]
+    [TestCase("W", null, "Lobby")]  
+    [TestCase("W", null, "Junction")]  
+    [TestCase("N", null, "Admin")]
+    [TestCase("N", null, "Admin")]
+    [TestCase("W", null, "This is a large room filled with tables full of strange equipment. The far wall is filled with a number of monitors. Of these, the ones labelled LIIBREREE, REEAKTURZ, LIIF SUPORT, KUMUUNIKAASHUNZ, PLANATEREE DEFENS and PLANATEREE KORS KUNTROOL are green, but the one labelled PRAJEKT KUNTROOL indicates a malfunctioning condition")] 
+    [TestCase("E", null, "Admin")]  
+    [TestCase("S", null, "Admin")]
+    [TestCase("S", null, "Junction")]
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) 
