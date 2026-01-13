@@ -1,8 +1,8 @@
 /**
- * Zork Game State Tests
- * 
- * These tests verify the functionality of game state display (location, score, moves).
- * 
+ * Planetfall Game State Tests
+ *
+ * These tests verify the functionality of game state display (location, score, time).
+ *
  * NOTE: API Mocking
  * To avoid dependency on the backend API (which may not always be running),
  * these tests use Playwright's route interception to mock API responses.
@@ -95,17 +95,17 @@ test.describe('Game State', () => {
         await expect(headerScore).toHaveText('Score:  10');
     });
 
-    test('Moves - when API returns moves, those moves are displayed in the header', async ({page}) => {
+    test('Time - when API returns time, that time is displayed in the header', async ({page}) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
         // Wait for the input field to be visible
         await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
 
-        // Verify initial moves in header
-        const headerMoves = page.locator('[data-testid="header-moves"]');
+        // Verify time element in header
+        const headerTime = page.locator('[data-testid="header-time"]');
 
-        // Type the "look" command in the input field (which returns a moves value of 1 in the mock response)
+        // Type the "look" command in the input field (which returns a time value of 4654 in the mock response)
         await page.fill('[data-testid="game-input"]', 'look');
 
         // Make sure the input field has the correct value before proceeding
@@ -117,8 +117,8 @@ test.describe('Game State', () => {
         // Wait for the game response to appear
         await waitForGameResponse(page);
 
-        // Verify that the moves in the header has changed to "1"
-        await expect(headerMoves).toHaveText('Moves:  1');
+        // Verify that the time in the header has changed to "4654"
+        await expect(headerTime).toHaveText('Time:  4654');
     });
 
 });

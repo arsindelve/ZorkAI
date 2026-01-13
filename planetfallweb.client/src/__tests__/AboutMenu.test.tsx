@@ -26,6 +26,9 @@ Object.defineProperty(window, 'open', {
 
 describe('AboutMenu Component', () => {
   const mockSetDialogToOpen = jest.fn();
+  const defaultProps = {
+    latestVersion: '1.0.0'
+  };
 
   beforeEach(() => {
     // Setup mock for useGameContext
@@ -38,7 +41,7 @@ describe('AboutMenu Component', () => {
   });
 
   test('renders the About button', () => {
-    render(<AboutMenu />);
+    render(<AboutMenu {...defaultProps} />);
 
     const aboutButton = screen.getByTestId('about-button');
     expect(aboutButton).toBeInTheDocument();
@@ -46,79 +49,40 @@ describe('AboutMenu Component', () => {
   });
 
   test('opens the menu when button is clicked', () => {
-    render(<AboutMenu />);
+    render(<AboutMenu {...defaultProps} />);
 
     // Menu should be closed initially
-    expect(screen.queryByText('What is this game?')).not.toBeInTheDocument();
+    expect(screen.queryByText('What is Planetfall.AI?')).not.toBeInTheDocument();
 
     // Click the button to open the menu
     fireEvent.click(screen.getByTestId('about-button'));
 
     // Menu should be open now
-    expect(screen.getByText('What is this game?')).toBeInTheDocument();
-    expect(screen.getByText('Watch intro video')).toBeInTheDocument();
+    expect(screen.getByText('What is Planetfall.AI?')).toBeInTheDocument();
     expect(screen.getByText('See the source code')).toBeInTheDocument();
   });
 
-  test('closes the menu when clicking outside', () => {
-    // Mock the implementation of useState to control the state
-    const originalUseState = React.useState;
-    const mockSetAnchorEl = jest.fn();
-
-    // Mock useState to return a non-null anchorEl initially (menu open)
-    // and a function to set it to null (close the menu)
-    jest.spyOn(React, 'useState').mockImplementationOnce(() => [document.createElement('div'), mockSetAnchorEl]);
-
-    render(<AboutMenu />);
-
-    // Verify the menu is open
-    expect(screen.getByText('What is this game?')).toBeInTheDocument();
-
-    // Simulate closing the menu by calling setAnchorEl(null)
-    mockSetAnchorEl(null);
-
-    // Restore the original useState
-    jest.spyOn(React, 'useState').mockRestore();
-
-    // Since we're mocking, we can't actually check if the menu is closed in the DOM
-    // Instead, we verify that setAnchorEl was called with null
-    expect(mockSetAnchorEl).toHaveBeenCalledWith(null);
-  });
-
-  test('opens Welcome dialog when "What is this game?" is clicked', () => {
-    render(<AboutMenu />);
+  test('opens Welcome dialog when "What is Planetfall.AI?" is clicked', () => {
+    render(<AboutMenu {...defaultProps} />);
 
     // Open the menu
     fireEvent.click(screen.getByTestId('about-button'));
 
-    // Click the "What is this game?" menu item
-    fireEvent.click(screen.getByText('What is this game?'));
+    // Click the "What is Planetfall.AI?" menu item
+    fireEvent.click(screen.getByText('What is Planetfall.AI?'));
 
     // Check if setDialogToOpen was called with Welcome
     expect(mockSetDialogToOpen).toHaveBeenCalledWith(DialogType.Welcome);
   });
 
-  test('opens Video dialog when "Watch intro video" is clicked', () => {
-    render(<AboutMenu />);
-
-    // Open the menu
-    fireEvent.click(screen.getByTestId('about-button'));
-
-    // Click the "Watch intro video" menu item
-    fireEvent.click(screen.getByText('Watch intro video'));
-
-    // Check if setDialogToOpen was called with Video
-    expect(mockSetDialogToOpen).toHaveBeenCalledWith(DialogType.Video);
-  });
-
   test('opens ReleaseNotes dialog when version is clicked', () => {
-    render(<AboutMenu />);
+    render(<AboutMenu {...defaultProps} />);
 
     // Open the menu
     fireEvent.click(screen.getByTestId('about-button'));
 
-    // Find and click the version menu item (it contains "Version")
-    const versionItem = screen.getByText(/Version/);
+    // Find and click the version menu item (it shows "Version 1.0.0")
+    const versionItem = screen.getByText('Version 1.0.0');
     fireEvent.click(versionItem);
 
     // Check if setDialogToOpen was called with ReleaseNotes
@@ -126,7 +90,7 @@ describe('AboutMenu Component', () => {
   });
 
   test('opens external link when "See the source code" is clicked', () => {
-    render(<AboutMenu />);
+    render(<AboutMenu {...defaultProps} />);
 
     // Open the menu
     fireEvent.click(screen.getByTestId('about-button'));
@@ -144,22 +108,22 @@ describe('AboutMenu Component', () => {
     });
   });
 
-  test('opens external link when "Read the 1984 Infocom Manual" is clicked', () => {
-    render(<AboutMenu />);
+  test('opens external link when "Read the Original Infocom Manual" is clicked', () => {
+    render(<AboutMenu {...defaultProps} />);
 
     // Open the menu
     fireEvent.click(screen.getByTestId('about-button'));
 
     // Click the menu item
-    fireEvent.click(screen.getByText('Read the 1984 Infocom Manual'));
+    fireEvent.click(screen.getByText('Read the Original Infocom Manual'));
 
     // Check if window.open was called with the correct URL
-    expect(mockOpen).toHaveBeenCalledWith('https://infodoc.plover.net/manuals/zork1.pdf', '_blank');
+    expect(mockOpen).toHaveBeenCalledWith('https://infodoc.plover.net/manuals/planetfa.pdf', '_blank');
 
     // Check if Mixpanel.track was called
     expect(Mixpanel.track).toHaveBeenCalledWith('Click on Menu Item', {
-      url: 'https://infodoc.plover.net/manuals/zork1.pdf',
-      name: '1984 Manual'
+      url: 'https://infodoc.plover.net/manuals/planetfa.pdf',
+      name: 'Planetfall Manual'
     });
   });
 });

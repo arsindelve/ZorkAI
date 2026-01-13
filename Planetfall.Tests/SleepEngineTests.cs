@@ -1,6 +1,8 @@
 using FluentAssertions;
 using GameEngine;
 using GameEngine.Location;
+using Model.Interface;
+using Moq;
 using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
@@ -346,6 +348,46 @@ public class SleepEngineTests : EngineTestsBase
         else
         {
             result.Should().Contain("SEPTEM"); // Woke up successfully
+        }
+    }
+
+    [Test]
+    public void ProcessForcedSleep_OnGround_DropsItemsToCurrentLocation()
+    {
+        var target = GetTarget();
+        var pfContext = target.Context;
+        var kitchen = StartHere<Kitchen>();
+
+        // Add item to inventory
+        var brush = GetItem<Brush>();
+        pfContext.ItemPlacedHere(brush);
+        pfContext.Items.Should().Contain(brush);
+
+        pfContext.Tired = TiredLevel.AboutToDrop;
+        pfContext.Day = 2; // Avoid day-specific drowning
+
+        // Mock chooser to ensure player survives (RollDice > 30 means no beast attack)
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(c => c.RollDice(100)).Returns(50); // > 30, survives
+        mockChooser.Setup(c => c.RollDice(5)).Returns(1); // Dream selection
+        SleepEngine.Chooser = mockChooser.Object;
+
+        try
+        {
+            var result = SleepEngine.ProcessForcedSleep(pfContext);
+
+            // Should have survived
+            result.Should().NotContain("You have died");
+            result.Should().Contain("SEPTEM");
+
+            // Items should be dropped to the floor (current location)
+            pfContext.Items.Should().NotContain(brush);
+            kitchen.Items.Should().Contain(brush);
+        }
+        finally
+        {
+            // Reset static chooser
+            SleepEngine.Chooser = new GameEngine.RandomChooser();
         }
     }
 

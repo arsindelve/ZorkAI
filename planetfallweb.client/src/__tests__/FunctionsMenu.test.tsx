@@ -48,32 +48,6 @@ describe('FunctionsMenu Component', () => {
     expect(screen.getByText('Copy Game Transcript')).toBeInTheDocument();
   });
 
-  test('closes the menu when clicking outside', () => {
-
-
-    // Mock the implementation of useState to control the state
-    const mockSetAnchorElement = jest.fn();
-
-    // Mock useState to return a non-null anchorElement initially (menu open)
-    // and a function to set it to null (close the menu)
-    jest.spyOn(React, 'useState').mockImplementationOnce(() => [document.createElement('div'), mockSetAnchorElement]);
-
-    render(<FunctionsMenu />);
-
-    // Verify the menu is open
-    expect(screen.getByText('Restart Your Game')).toBeInTheDocument();
-
-    // Simulate closing the menu by calling setAnchorElement(null)
-    mockSetAnchorElement(null);
-
-    // Restore the original useState
-    jest.spyOn(React, 'useState').mockRestore();
-
-    // Since we're mocking, we can't actually check if the menu is closed in the DOM
-    // Instead, we verify that setAnchorElement was called with null
-    expect(mockSetAnchorElement).toHaveBeenCalledWith(null);
-  });
-
   test('opens Restart dialog when "Restart Your Game" is clicked', () => {
     render(<FunctionsMenu />);
 

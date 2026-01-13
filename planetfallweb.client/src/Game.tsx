@@ -28,7 +28,7 @@ function Game() {
     const [playerInput, setInput] = useState<string>("");
     const [gameText, setGameText] = useState<string[]>(["Your game is loading...."]);
     const [score, setScore] = useState<string>("0");
-    const [moves, setMoves] = useState<string>("0");
+    const [time, setTime] = useState<string>("0");
     const [inventory, setInventory] = useState<string[]>([]);
     const [exits, setExits] = useState<string[]>([]);
     const [locationName, setLocationName] = useState<string>("");
@@ -178,7 +178,7 @@ function Game() {
         setInput("");
         setLocationName(data.locationName);
         setScore(data.score.toString());
-        setMoves(data.moves.toString());
+        setTime(data.time.toString());
         setInventory(data.inventory);
         setExits(data.exits);
     }
@@ -283,7 +283,7 @@ function Game() {
                 />
             </div>
 
-            <Header locationName={locationName} moves={moves} score={score}/>
+            <Header locationName={locationName} time={time} score={score}/>
 
             <Compass 
             onCompassClick={handleCommandClick} 

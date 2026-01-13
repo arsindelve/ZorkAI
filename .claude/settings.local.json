@@ -17,7 +17,8 @@
       "Bash(git pull:*)",
       "Bash(find:*)",
       "Bash(cat:*)",
-      "Bash(tee:*)"
+      "Bash(tee:*)",
+      "Bash(npm run test:unit:*)"
     ],
     "deny": []
   }

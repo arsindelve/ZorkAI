@@ -5,7 +5,7 @@ import HeaderComponent from '../components/Header';
 describe('Header Component', () => {
   const defaultProps = {
     locationName: 'West of House',
-    moves: '10',
+    time: '4600',
     score: '5'
   };
 
@@ -24,11 +24,11 @@ describe('Header Component', () => {
     expect(locationElement).toHaveTextContent('West of House');
   });
 
-  test('displays the correct moves count', () => {
+  test('displays the correct time', () => {
     render(<HeaderComponent {...defaultProps} />);
-    
-    const movesElement = screen.getByTestId('header-moves');
-    expect(movesElement).toHaveTextContent('Moves: 10');
+
+    const timeElement = screen.getByTestId('header-time');
+    expect(timeElement).toHaveTextContent('Time: 4600');
   });
 
   test('displays the correct score', () => {
@@ -41,14 +41,14 @@ describe('Header Component', () => {
   test('renders with different props values', () => {
     const newProps = {
       locationName: 'Inside Cave',
-      moves: '25',
+      time: '7200',
       score: '15'
     };
-    
+
     render(<HeaderComponent {...newProps} />);
-    
+
     expect(screen.getByTestId('header-location')).toHaveTextContent('Inside Cave');
-    expect(screen.getByTestId('header-moves')).toHaveTextContent('Moves: 25');
+    expect(screen.getByTestId('header-time')).toHaveTextContent('Time: 7200');
     expect(screen.getByTestId('header-score')).toHaveTextContent('Score: 15');
   });
 });
