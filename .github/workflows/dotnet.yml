@@ -26,20 +26,20 @@ jobs:
     - name: .NET tests
       run: dotnet test --no-build --verbosity normal
   
-  react-tests:
+  zorkweb-tests:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        
+
     - name: Install dependencies for zorkweb.client
       working-directory: ./zorkweb.client
       run: npm ci
-      
+
     - name: Install Jest
       working-directory: ./zorkweb.client
       run: npm install jest
@@ -47,19 +47,57 @@ jobs:
     - name: Install Playwright browsers
       working-directory: ./zorkweb.client
       run: npx playwright install --with-deps
-      
+
     - name: Playwright tests
       working-directory: ./zorkweb.client
       run: npx playwright test
-      
+
     - name: Upload Playwright test results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: playwright-report
+        name: zorkweb-playwright-report
         path: zorkweb.client/playwright-report/
         retention-days: 30
 
     - name: UI Unit tests
       working-directory: ./zorkweb.client
+      run: npx jest
+
+  planetfallweb-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies for planetfallweb.client
+      working-directory: ./planetfallweb.client
+      run: npm ci
+
+    - name: Install Jest
+      working-directory: ./planetfallweb.client
+      run: npm install jest
+
+    - name: Install Playwright browsers
+      working-directory: ./planetfallweb.client
+      run: npx playwright install --with-deps
+
+    - name: Playwright tests
+      working-directory: ./planetfallweb.client
+      run: npx playwright test
+
+    - name: Upload Playwright test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: planetfallweb-playwright-report
+        path: planetfallweb.client/playwright-report/
+        retention-days: 30
+
+    - name: UI Unit tests
+      working-directory: ./planetfallweb.client
       run: npx jest
