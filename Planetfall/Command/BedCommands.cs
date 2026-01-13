@@ -70,41 +70,16 @@ public static class BedCommands
         "lay on bed",
         "lay on the bed",
 
-        // go to bed/sleep variations
+        // go to bed variations (NOT "go to sleep" - that's handled by SleepProcessor)
         "go to bed",
-        "go to sleep",
         "go to the bed",
         "go to the bunk",
-        "go sleep",
-
-        // sleep variations
-        "sleep",
-        "sleep in bed",
-        "sleep in the bed",
-        "sleep on bed",
-        "sleep on the bed",
-        "sleep in bunk",
-        "sleep in the bunk",
-        "sleep on bunk",
-        "sleep on the bunk",
 
         // use variations
         "use bed",
         "use the bed",
         "use bunk",
         "use the bunk",
-
-        // rest/nap variations
-        "rest",
-        "rest in bed",
-        "rest in the bed",
-        "rest on bed",
-        "rest on the bed",
-        "take a nap",
-        "take nap",
-        "nap",
-        "nap in bed",
-        "nap on bed",
 
         // hop/jump variations
         "hop in bed",
