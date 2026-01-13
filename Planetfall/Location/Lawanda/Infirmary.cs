@@ -80,21 +80,10 @@ internal class Infirmary : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHere
     public override Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
         IGenerationClient client)
     {
-        switch (input?.ToLowerInvariant().StripNonChars())
+        if (BedCommands.IsBedEntryCommand(input))
         {
-            case "lay down":
-            case "sleep":
-            case "go to sleep":
-            case "lay down in bed":
-            case "lay down in the bed":
-            case "lie down":
-            case "lie down in bed":
-            case "lie down in the bed":
-            case "get in bed":
-            case "enter the bed":
-            case "get in the bed":
-                var inMessage = Repository.GetItem<InfirmaryBed>().GetIn(context);
-                return Task.FromResult<InteractionResult>(new PositiveInteractionResult(inMessage));
+            var inMessage = Repository.GetItem<InfirmaryBed>().GetIn(context);
+            return Task.FromResult<InteractionResult>(new PositiveInteractionResult(inMessage));
         }
 
         return base.RespondToSpecificLocationInteraction(input, context, client);

@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.AIGeneration;
+using Planetfall.Command;
 using Planetfall.Item.Kalamontee;
 
 namespace Planetfall.Location.Kalamontee.Dorm;
@@ -25,28 +26,14 @@ internal abstract class DormBase : LocationWithNoStartingItems
     public override Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
         IGenerationClient client)
     {
-        switch (input?.ToLowerInvariant().Trim())
+        if (BedCommands.IsBedEntryCommand(input))
         {
-            case "enter bed":
-            case "enter the bed":
-            case "get in bed":
-            case "get in the bed":
-            case "climb in bed":
-            case "climb into bed":
-            case "get in bunk":
-            case "get in the bunk":
-            case "climb in bunk":
-            case "climb in the bunk":
-            case "lie down":
-            case "lie down in bed":
-            case "lay down":
-            case "lay down in bed":
-                var bed = Repository.GetItem<Bed>();
-                var bedLocation = Repository.GetLocation<BedLocation>();
-                bedLocation.ParentLocation = this;
-                context.CurrentLocation = bedLocation;
-                var message = bed.GetIn(context);
-                return Task.FromResult<InteractionResult>(new PositiveInteractionResult(message));
+            var bed = Repository.GetItem<Bed>();
+            var bedLocation = Repository.GetLocation<BedLocation>();
+            bedLocation.ParentLocation = this;
+            context.CurrentLocation = bedLocation;
+            var message = bed.GetIn(context);
+            return Task.FromResult<InteractionResult>(new PositiveInteractionResult(message));
         }
 
         return base.RespondToSpecificLocationInteraction(input, context, client);

@@ -1,7 +1,7 @@
 using GameEngine.Location;
 using Model.AIGeneration;
+using Planetfall.Command;
 using Planetfall.Item.Kalamontee;
-using Planetfall.Location.Kalamontee.Dorm;
 
 namespace Planetfall.Location.Kalamontee;
 
@@ -17,6 +17,24 @@ internal class BedLocation : LocationWithNoStartingItems, ISubLocation
 
     public string LocationDescription => "You are lying in one of the bunk beds. ";
 
+    public string GetIn(IContext context)
+    {
+        var bed = Repository.GetItem<Bed>();
+        return bed.GetIn(context);
+    }
+
+    public string GetOut(IContext context)
+    {
+        var bed = Repository.GetItem<Bed>();
+        var result = bed.GetOut(context);
+
+        // Only move player back to parent location if they were actually allowed to leave
+        // (Bed.GetOut returns different messages based on whether exit was allowed)
+        if (!bed.PlayerInBed) context.CurrentLocation = ParentLocation;
+
+        return result;
+    }
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         // No movement while in bed - player must exit first
@@ -31,50 +49,16 @@ internal class BedLocation : LocationWithNoStartingItems, ISubLocation
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
         // Set the parent location to wherever the player was before getting in bed
-        if (previousLocation is not ISubLocation)
-        {
-            ParentLocation = previousLocation;
-        }
+        if (previousLocation is not ISubLocation) ParentLocation = previousLocation;
 
         return base.BeforeEnterLocation(context, previousLocation);
-    }
-
-    public string GetIn(IContext context)
-    {
-        var bed = Repository.GetItem<Bed>();
-        return bed.GetIn(context);
-    }
-
-    public string GetOut(IContext context)
-    {
-        var bed = Repository.GetItem<Bed>();
-        var result = bed.GetOut(context);
-
-        // Only move player back to parent location if they were actually allowed to leave
-        // (Bed.GetOut returns different messages based on whether exit was allowed)
-        if (bed.PlayerInBed == false)
-        {
-            context.CurrentLocation = ParentLocation;
-        }
-
-        return result;
     }
 
     public override Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
         IGenerationClient client)
     {
-        // Handle commands to exit the bed
-        switch (input?.ToLowerInvariant().Trim())
-        {
-            case "stand":
-            case "stand up":
-            case "get up":
-            case "get out":
-            case "get out of bed":
-            case "exit bed":
-            case "leave bed":
-                return Task.FromResult<InteractionResult>(new PositiveInteractionResult(GetOut(context)));
-        }
+        if (BedCommands.IsBedExitCommand(input))
+            return Task.FromResult<InteractionResult>(new PositiveInteractionResult(GetOut(context)));
 
         return base.RespondToSpecificLocationInteraction(input, context, client);
     }
