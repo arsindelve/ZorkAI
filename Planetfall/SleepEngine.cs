@@ -1,4 +1,5 @@
 using Planetfall.Command;
+using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
@@ -141,10 +142,14 @@ public class SleepEngine
                 "Unfortunately, you don't seem to have survived the night.",
                 context).InteractionMessage;
 
+        // Reset chronometer to morning time for the new day
+        // (Per SLEEP_MECHANICS.md reset_time routine - each day starts at progressively later time)
+        Repository.GetItem<Chronometer>().ResetToMorning(context.Day);
+
         // Reset fatigue
         context.Tired = TiredLevel.WellRested;
 
-        // Reset sleep timer for new day
+        // Reset sleep timer for new day (must be after chronometer reset since it uses CurrentTime)
         context.SleepNotifications.ResetForNewDay(context.CurrentTime, context.Day);
 
         // Enable next sickness check
@@ -198,15 +203,18 @@ public class SleepEngine
         }
 
         // Hunger adjustment
+        // Original game set HUNGER_LEVEL = 4 (AboutToPassOut) with 100 tick delay - very punishing
+        // Override: Reset to WellFed with shorter initial timer, giving player ~31 turns to find food
+        // This is more forgiving while still creating urgency via the warning message
         if (context.Hunger > HungerLevel.WellFed)
         {
-            context.Hunger = HungerLevel.AboutToPassOut;
-            context.HungerNotifications.ResetAfterEating(context.CurrentTime, 100);
+            context.Hunger = HungerLevel.WellFed;
+            context.HungerNotifications.NextWarningAt = context.CurrentTime + 200;
             message += "You are also incredibly famished. Better get some breakfast! ";
         }
         else
         {
-            context.HungerNotifications.ResetAfterEating(context.CurrentTime, 400);
+            context.HungerNotifications.NextWarningAt = context.CurrentTime + 800;
         }
 
         // Floyd greeting (if present and active)
@@ -225,13 +233,8 @@ public class SleepEngine
                            "sleeping on the floor,\" he says.";
         }
 
-        // Exit bed if in bed
-        if (context.CurrentLocation is BedLocation bedLocation)
-        {
-            var bed = Repository.GetItem<Bed>();
-            bed.PlayerInBed = false;
-            context.CurrentLocation = bedLocation.ParentLocation;
-        }
+        // Player remains in bed after waking - must manually exit
+        // (Per original game behavior in SLEEP_MECHANICS.md)
 
         return message;
     }

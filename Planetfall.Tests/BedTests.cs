@@ -144,6 +144,74 @@ public class BedTests : EngineTestsBase
     }
 
     [Test]
+    public async Task Bed_Stand_ExitsBed()
+    {
+        var target = GetTarget();
+        StartHere<DormA>();
+
+        var pfContext = target.Context;
+        pfContext.Tired = TiredLevel.WellRested;
+
+        await target.GetResponse("get in bed");
+        var response = await target.GetResponse("stand");
+
+        response.Should().Contain("climb out of the bed");
+        pfContext.CurrentLocation.Should().BeOfType<DormA>();
+    }
+
+    [Test]
+    public async Task Bed_StandUp_ExitsBed()
+    {
+        var target = GetTarget();
+        StartHere<DormA>();
+
+        var pfContext = target.Context;
+        pfContext.Tired = TiredLevel.WellRested;
+
+        await target.GetResponse("get in bed");
+        var response = await target.GetResponse("stand up");
+
+        response.Should().Contain("climb out of the bed");
+        pfContext.CurrentLocation.Should().BeOfType<DormA>();
+    }
+
+    [Test]
+    public async Task Bed_GetUp_ExitsBed()
+    {
+        var target = GetTarget();
+        StartHere<DormA>();
+
+        var pfContext = target.Context;
+        pfContext.Tired = TiredLevel.WellRested;
+
+        await target.GetResponse("get in bed");
+        var response = await target.GetResponse("get up");
+
+        response.Should().Contain("climb out of the bed");
+        pfContext.CurrentLocation.Should().BeOfType<DormA>();
+    }
+
+    [Test]
+    public async Task Bed_Stand_WhenFallingAsleep_IsPrevented()
+    {
+        var target = GetTarget();
+        StartHere<DormA>();
+
+        var pfContext = target.Context;
+        pfContext.Tired = TiredLevel.Tired;
+
+        await target.GetResponse("get in bed");
+
+        // Extend the fall asleep timer so we can test the prevention
+        pfContext.SleepNotifications.FallAsleepAt = pfContext.CurrentTime + 10000;
+
+        var response = await target.GetResponse("stand");
+
+        response.Should().Contain("How could you suggest");
+        pfContext.CurrentLocation.Should().BeOfType<BedLocation>();
+    }
+
+    [Test]
     public async Task Bed_CanBeAccessedFromAllDorms()
     {
         var target = GetTarget();
@@ -284,10 +352,10 @@ public class BedTests : EngineTestsBase
             await target.GetResponse("wait");
         }
 
-        // Should have slept and woken up
+        // Should have slept and woken up - but still in bed (per original game behavior)
         pfContext.Day.Should().Be(initialDay + 1);
         pfContext.Tired.Should().Be(TiredLevel.WellRested);
-        pfContext.CurrentLocation.Should().NotBeOfType<BedLocation>();
+        pfContext.CurrentLocation.Should().BeOfType<BedLocation>();
     }
 
     [Test]

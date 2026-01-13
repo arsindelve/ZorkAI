@@ -181,8 +181,8 @@ public class SleepEngineTests : EngineTestsBase
 
         result.Should().Contain("climb into one of the bunk beds");
         result.Should().Contain("immediately fall asleep");
-        // After full sleep cycle completes, player wakes up back in the dormitory
-        pfContext.CurrentLocation.Should().BeOfType<DormA>();
+        // Player wakes up still in bed - must manually exit (per original game behavior)
+        pfContext.CurrentLocation.Should().BeOfType<BedLocation>();
     }
 
     [Test]
@@ -198,8 +198,8 @@ public class SleepEngineTests : EngineTestsBase
         var result = SleepEngine.ProcessForcedSleep(pfContext);
 
         result.Should().Contain("climb into one of the bunk beds");
-        // After full sleep cycle completes, player wakes up back in the dormitory
-        pfContext.CurrentLocation.Should().BeOfType<DormB>();
+        // Player wakes up still in bed - must manually exit (per original game behavior)
+        pfContext.CurrentLocation.Should().BeOfType<BedLocation>();
     }
 
     [Test]
@@ -215,8 +215,8 @@ public class SleepEngineTests : EngineTestsBase
         var result = SleepEngine.ProcessForcedSleep(pfContext);
 
         result.Should().Contain("climb into one of the bunk beds");
-        // After full sleep cycle completes, player wakes up back in the dormitory
-        pfContext.CurrentLocation.Should().BeOfType<DormC>();
+        // Player wakes up still in bed - must manually exit (per original game behavior)
+        pfContext.CurrentLocation.Should().BeOfType<BedLocation>();
     }
 
     [Test]
@@ -232,12 +232,12 @@ public class SleepEngineTests : EngineTestsBase
         var result = SleepEngine.ProcessForcedSleep(pfContext);
 
         result.Should().Contain("climb into one of the bunk beds");
-        // After full sleep cycle completes, player wakes up back in the dormitory
-        pfContext.CurrentLocation.Should().BeOfType<DormD>();
+        // Player wakes up still in bed - must manually exit (per original game behavior)
+        pfContext.CurrentLocation.Should().BeOfType<BedLocation>();
     }
 
     [Test]
-    public void ProcessForcedSleep_InDormitory_ResetsPlayerInBedAfterWaking()
+    public void ProcessForcedSleep_InDormitory_PlayerStillInBedAfterWaking()
     {
         var target = GetTarget();
         var pfContext = target.Context;
@@ -251,8 +251,8 @@ public class SleepEngineTests : EngineTestsBase
 
         SleepEngine.ProcessForcedSleep(pfContext);
 
-        // After waking up, player is no longer in bed
-        bed.PlayerInBed.Should().BeFalse();
+        // Player wakes up still in bed - must manually exit (per original game behavior)
+        bed.PlayerInBed.Should().BeTrue();
     }
 
     #endregion
@@ -502,7 +502,70 @@ public class SleepEngineTests : EngineTestsBase
 
         result.Should().Contain("incredibly famished");
         result.Should().Contain("get some breakfast");
-        pfContext.Hunger.Should().Be(HungerLevel.AboutToPassOut);
+        // Override from original: reset to WellFed for more forgiving gameplay (~31 turns to find food)
+        pfContext.Hunger.Should().Be(HungerLevel.WellFed);
+    }
+
+    [Test]
+    public void WakeUp_WhenHungry_SetsHungerTimerTo200Ticks()
+    {
+        var target = GetTarget();
+        var pfContext = target.Context;
+        StartHere<BedLocation>();
+
+        pfContext.Hunger = HungerLevel.Hungry;
+        pfContext.Day = 1;
+        pfContext.SleepNotifications.QueueFallAsleep(pfContext.CurrentTime);
+
+        SleepEngine.ProcessFallAsleep(pfContext);
+
+        // Chronometer is reset to morning on wake-up, so check offset from NEW current time
+        // 200 ticks = ~4 turns (4 * 54 = 216 ticks) to find food before first warning
+        var ticksUntilWarning = pfContext.HungerNotifications.NextWarningAt - pfContext.CurrentTime;
+        ticksUntilWarning.Should().Be(200);
+    }
+
+    [Test]
+    public void WakeUp_WhenWellFed_SetsHungerTimerTo800Ticks()
+    {
+        var target = GetTarget();
+        var pfContext = target.Context;
+        StartHere<BedLocation>();
+
+        pfContext.Hunger = HungerLevel.WellFed;
+        pfContext.Day = 1;
+        pfContext.SleepNotifications.QueueFallAsleep(pfContext.CurrentTime);
+
+        SleepEngine.ProcessFallAsleep(pfContext);
+
+        // Chronometer is reset to morning on wake-up, so check offset from NEW current time
+        var ticksUntilWarning = pfContext.HungerNotifications.NextWarningAt - pfContext.CurrentTime;
+        ticksUntilWarning.Should().Be(800);
+    }
+
+    [Test]
+    public void WakeUp_WhenHungry_PlayerHasManyTurnsToFindFood()
+    {
+        // Regression test: Player was dying immediately after waking because
+        // hunger was set to AboutToPassOut with only 100 ticks delay
+        // Fix: Reset to WellFed, giving ~31 turns total before death
+        var target = GetTarget();
+        var pfContext = target.Context;
+        StartHere<BedLocation>();
+
+        pfContext.Hunger = HungerLevel.Hungry;
+        pfContext.Day = 1;
+        pfContext.SleepNotifications.QueueFallAsleep(pfContext.CurrentTime);
+
+        SleepEngine.ProcessFallAsleep(pfContext);
+
+        // Hunger should be reset to WellFed
+        pfContext.Hunger.Should().Be(HungerLevel.WellFed);
+
+        // First warning at 200 ticks (~4 turns), then full progression to death
+        // Total: 200 + 900 + 300 + 200 + 100 = 1700 ticks (~31 turns)
+        var ticksUntilFirstWarning = pfContext.HungerNotifications.NextWarningAt - pfContext.CurrentTime;
+        ticksUntilFirstWarning.Should().Be(200);
     }
 
     [Test]
@@ -567,8 +630,9 @@ public class SleepEngineTests : EngineTestsBase
     }
 
     [Test]
-    public void WakeUp_ExitsBedLocation()
+    public void WakeUp_StaysInBedLocation()
     {
+        // Per original game behavior: player wakes up still in bed and must manually exit
         var target = GetTarget();
         var pfContext = target.Context;
         var dorm = GetLocation<DormA>();
@@ -583,8 +647,8 @@ public class SleepEngineTests : EngineTestsBase
 
         SleepEngine.ProcessFallAsleep(pfContext);
 
-        pfContext.CurrentLocation.Should().Be(dorm);
-        bed.PlayerInBed.Should().BeFalse();
+        pfContext.CurrentLocation.Should().Be(bedLocation);
+        bed.PlayerInBed.Should().BeTrue();
     }
 
     [Test]
@@ -595,13 +659,14 @@ public class SleepEngineTests : EngineTestsBase
         StartHere<BedLocation>();
 
         pfContext.Day = 1;
-        var currentTime = pfContext.CurrentTime;
-        pfContext.SleepNotifications.QueueFallAsleep(currentTime);
+        pfContext.SleepNotifications.QueueFallAsleep(pfContext.CurrentTime);
 
         SleepEngine.ProcessFallAsleep(pfContext);
 
-        // Should reset for day 2 (5800 ticks)
-        pfContext.SleepNotifications.NextWarningAt.Should().Be(currentTime + 5800);
+        // Chronometer is reset to morning on wake-up, so check offset from NEW current time
+        // Should reset for day 2 (5800 ticks until first sleep warning)
+        var ticksUntilWarning = pfContext.SleepNotifications.NextWarningAt - pfContext.CurrentTime;
+        ticksUntilWarning.Should().Be(5800);
     }
 
     [Test]

@@ -31,8 +31,14 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     [UsedImplicitly] public HungerLevel Hunger { get; set; } = HungerLevel.WellFed;
 
     [UsedImplicitly] public TiredLevel Tired { get; set; } = TiredLevel.WellRested;
-    
+
     [UsedImplicitly] public bool HasTakenExperimentalMedicine { get; set; }
+
+    /// <summary>
+    /// Flag indicating that sleep was just processed this turn.
+    /// Used to prevent the SleepProcessor from adding redundant messages after a sleep cycle.
+    /// </summary>
+    public bool SleepJustOccurred { get; set; }
 
     public string SicknessDescription => ((SicknessLevel)Day).GetDescription();
     
@@ -66,6 +72,7 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
         var sleepMessage = SleepEngine.CheckForSleep(this);
         if (!string.IsNullOrEmpty(sleepMessage))
         {
+            SleepJustOccurred = true;
             return sleepMessage + base.ProcessBeginningOfTurn();
         }
 
@@ -126,6 +133,7 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     public override string? ProcessEndOfTurn()
     {
         Repository.GetItem<Chronometer>().CurrentTime += 54;
+        SleepJustOccurred = false;
         return base.ProcessEndOfTurn();
     }
 

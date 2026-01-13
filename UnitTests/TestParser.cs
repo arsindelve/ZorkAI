@@ -408,7 +408,7 @@ public class TestParser : IntentParser
                 NounOne = "boat"
             });
 
-        if (input is "get out of bed" or "exit bed" or "leave bed" or "get out")
+        if (input is "get out of bed" or "exit bed" or "leave bed" or "get out" or "stand" or "stand up" or "get up")
             return Task.FromResult<IntentBase>(new ExitSubLocationIntent
             {
                 NounOne = "bed"

@@ -91,4 +91,53 @@ public class SleepProcessorTests : EngineTestsBase
         response2.Should().Contain("not tired");
         response3.Should().Contain("not tired");
     }
+
+    [Test]
+    public async Task SleepCommand_AfterSleepCycleCompletes_DoesNotShowNotTiredMessage()
+    {
+        var target = GetTarget();
+        StartHere<DormA>();
+
+        var pfContext = target.Context;
+        pfContext.Tired = TiredLevel.Tired;
+
+        // Get in bed to trigger sleep queue
+        await target.GetResponse("get in bed");
+
+        // Force the sleep to occur by setting the timer to now
+        pfContext.SleepNotifications.FallAsleepAt = pfContext.CurrentTime;
+
+        // This should trigger sleep AND run the sleep command
+        // The response should NOT contain "not tired" after the sleep message
+        var response = await target.GetResponse("sleep");
+
+        // Should contain sleep/wake messages
+        response.Should().Contain("SEPTEM");
+        // Should NOT contain "not tired" - that would be redundant
+        response.Should().NotContain("not tired");
+    }
+
+    [Test]
+    public void SleepJustOccurred_InitiallyFalse()
+    {
+        var target = GetTarget();
+        target.Context.SleepJustOccurred.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task SleepJustOccurred_ResetAfterTurn()
+    {
+        var target = GetTarget();
+        StartHere<DormA>();
+
+        var pfContext = target.Context;
+
+        // Manually set the flag
+        pfContext.SleepJustOccurred = true;
+
+        // Process a turn (this should reset the flag at end of turn)
+        await target.GetResponse("look");
+
+        pfContext.SleepJustOccurred.Should().BeFalse();
+    }
 }

@@ -14,6 +14,10 @@ internal class SleepProcessor : IGlobalCommand
         if (!(context is PlanetfallContext planetfallContext))
             return Task.FromResult(string.Empty);
 
+        // If sleep just occurred this turn, don't add redundant messages
+        if (planetfallContext.SleepJustOccurred)
+            return Task.FromResult(string.Empty);
+
         // Not tired
         if (planetfallContext.Tired == TiredLevel.WellRested)
         {

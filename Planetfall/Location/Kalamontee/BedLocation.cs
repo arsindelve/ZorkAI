@@ -1,4 +1,5 @@
 using GameEngine.Location;
+using Model.AIGeneration;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Location.Kalamontee.Dorm;
 
@@ -27,7 +28,7 @@ internal class BedLocation : LocationWithNoStartingItems, ISubLocation
         return LocationDescription;
     }
 
-    public string? BeforeEnterLocation(IContext context, ILocation previousLocation)
+    public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
         // Set the parent location to wherever the player was before getting in bed
         if (previousLocation is not ISubLocation)
@@ -35,7 +36,7 @@ internal class BedLocation : LocationWithNoStartingItems, ISubLocation
             ParentLocation = previousLocation;
         }
 
-        return null;
+        return base.BeforeEnterLocation(context, previousLocation);
     }
 
     public string GetIn(IContext context)
@@ -57,5 +58,24 @@ internal class BedLocation : LocationWithNoStartingItems, ISubLocation
         }
 
         return result;
+    }
+
+    public override Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
+        IGenerationClient client)
+    {
+        // Handle commands to exit the bed
+        switch (input?.ToLowerInvariant().Trim())
+        {
+            case "stand":
+            case "stand up":
+            case "get up":
+            case "get out":
+            case "get out of bed":
+            case "exit bed":
+            case "leave bed":
+                return Task.FromResult<InteractionResult>(new PositiveInteractionResult(GetOut(context)));
+        }
+
+        return base.RespondToSpecificLocationInteraction(input, context, client);
     }
 }
