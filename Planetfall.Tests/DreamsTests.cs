@@ -1,11 +1,13 @@
 using FluentAssertions;
+using Model.Interface;
+using Moq;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Kalamontee.Dorm;
 
 namespace Planetfall.Tests;
 
 /// <summary>
-/// Tests for the Dreams system.
+/// Tests for the Dreams system using mocked IRandomChooser for deterministic behavior.
 /// </summary>
 public class DreamsTests : EngineTestsBase
 {
@@ -18,23 +20,22 @@ public class DreamsTests : EngineTestsBase
         var floyd = GetItem<Floyd>();
         floyd.HasEverBeenOn = false;
 
-        // Try many times to ensure Floyd dream doesn't appear
-        var foundFloydDream = false;
-        for (int i = 0; i < 100; i++)
-        {
-            var dream = Dreams.GetDream(pfContext, new Random(i));
-            if (dream != null && dream.Contains("Floyd"))
-            {
-                foundFloydDream = true;
-                break;
-            }
-        }
+        // When Floyd is not on, first RollDice(100) is for normal dream check
+        // Return 1 which would trigger normal dream
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(c => c.RollDice(100)).Returns(1); // Triggers normal dream
+        mockChooser.Setup(c => c.RollDice(5)).Returns(1); // Feinstein dream
 
-        foundFloydDream.Should().BeFalse();
+        var dream = Dreams.GetDream(pfContext, mockChooser.Object);
+
+        // Should not contain Floyd since Floyd has never been on
+        dream.Should().NotBeNull();
+        dream.Should().NotContain("office");
+        dream.Should().Contain("Feinstein"); // Got a normal dream instead
     }
 
     [Test]
-    public void Dreams_GetDream_WithFloydOn_CanReturnFloydDream()
+    public void Dreams_GetDream_WithFloydOn_AndFloydRollSucceeds_ReturnsFloydDream()
     {
         var target = GetTarget();
         var pfContext = target.Context;
@@ -42,19 +43,37 @@ public class DreamsTests : EngineTestsBase
         var floyd = GetItem<Floyd>();
         floyd.HasEverBeenOn = true;
 
-        // Try many times to find Floyd dream (13% chance)
-        var foundFloydDream = false;
-        for (int i = 0; i < 200; i++)
-        {
-            var dream = Dreams.GetDream(pfContext, new Random(i));
-            if (dream != null && dream.Contains("Floyd") && dream.Contains("office"))
-            {
-                foundFloydDream = true;
-                break;
-            }
-        }
+        // Mock: first roll is 13 or less (triggers Floyd dream)
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(c => c.RollDice(100)).Returns(5);
 
-        foundFloydDream.Should().BeTrue();
+        var dream = Dreams.GetDream(pfContext, mockChooser.Object);
+
+        dream.Should().NotBeNull();
+        dream.Should().Contain("Floyd");
+        dream.Should().Contain("office");
+    }
+
+    [Test]
+    public void Dreams_GetDream_WithFloydOn_AndFloydRollFails_ChecksNormalDream()
+    {
+        var target = GetTarget();
+        var pfContext = target.Context;
+
+        var floyd = GetItem<Floyd>();
+        floyd.HasEverBeenOn = true;
+
+        // Mock: first roll is > 13 (Floyd check fails), second roll is <= 60 (normal dream), third roll picks dream index
+        var mockChooser = new Mock<IRandomChooser>();
+        var rollSequence = mockChooser.SetupSequence(c => c.RollDice(100));
+        rollSequence.Returns(50);  // Floyd check - > 13, fails
+        rollSequence.Returns(30);  // Normal dream check - <= 60, succeeds
+        mockChooser.Setup(c => c.RollDice(5)).Returns(1); // Pick first dream (Feinstein)
+
+        var dream = Dreams.GetDream(pfContext, mockChooser.Object);
+
+        dream.Should().NotBeNull();
+        dream.Should().Contain("Feinstein");
     }
 
     [Test]
@@ -66,125 +85,150 @@ public class DreamsTests : EngineTestsBase
         var floyd = GetItem<Floyd>();
         floyd.HasEverBeenOn = true;
 
-        // Try to find Floyd dream
-        string? floydDream = null;
-        for (int i = 0; i < 200; i++)
-        {
-            var dream = Dreams.GetDream(pfContext, new Random(i));
-            if (dream != null && dream.Contains("Floyd") && dream.Contains("office"))
-            {
-                floydDream = dream;
-                break;
-            }
-        }
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(c => c.RollDice(100)).Returns(10); // Triggers Floyd dream
 
-        floydDream.Should().NotBeNull();
-        floydDream.Should().Contain("busy office");
-        floydDream.Should().Contain("carrying papers");
-        floydDream.Should().Contain("delivering coffee");
-        floydDream.Should().Contain("tell him a story");
-        floydDream.Should().Contain("trusting eyes");
+        var dream = Dreams.GetDream(pfContext, mockChooser.Object);
+
+        dream.Should().NotBeNull();
+        dream.Should().Contain("busy office");
+        dream.Should().Contain("carrying papers");
+        dream.Should().Contain("delivering coffee");
+        dream.Should().Contain("tell him a story");
+        dream.Should().Contain("trusting eyes");
     }
 
     [Test]
-    public void Dreams_GetDream_CanReturnNormalDreams()
+    public void Dreams_GetDream_CanReturnNormalDream_Feinstein()
     {
         var target = GetTarget();
         var pfContext = target.Context;
 
-        // Try many times to find at least one normal dream
-        var foundDream = false;
-        for (int i = 0; i < 100; i++)
-        {
-            var dream = Dreams.GetDream(pfContext, new Random(i));
-            if (dream != null && !dream.Contains("office")) // Not Floyd dream
-            {
-                foundDream = true;
-                break;
-            }
-        }
+        var mockChooser = new Mock<IRandomChooser>();
+        var rollSequence = mockChooser.SetupSequence(c => c.RollDice(100));
+        rollSequence.Returns(50);  // Floyd check fails (no Floyd on)
+        rollSequence.Returns(30);  // Normal dream check succeeds
+        mockChooser.Setup(c => c.RollDice(5)).Returns(1); // Pick first dream
 
-        foundDream.Should().BeTrue();
+        var dream = Dreams.GetDream(pfContext, mockChooser.Object);
+
+        dream.Should().NotBeNull();
+        dream.Should().Contain("Feinstein");
+        dream.Should().Contain("Blather");
+        dream.Should().Contain("self-destruct");
     }
 
     [Test]
-    public void Dreams_GetDream_CanReturnNull()
+    public void Dreams_GetDream_CanReturnNormalDream_Ramos()
     {
         var target = GetTarget();
         var pfContext = target.Context;
 
-        // 27% chance of no dream, should find null in reasonable attempts
-        var foundNull = false;
-        for (int i = 0; i < 50; i++)
-        {
-            var dream = Dreams.GetDream(pfContext, new Random(i));
-            if (dream == null)
-            {
-                foundNull = true;
-                break;
-            }
-        }
+        var mockChooser = new Mock<IRandomChooser>();
+        var rollSequence = mockChooser.SetupSequence(c => c.RollDice(100));
+        rollSequence.Returns(50);  // Floyd check fails
+        rollSequence.Returns(30);  // Normal dream check succeeds
+        mockChooser.Setup(c => c.RollDice(5)).Returns(2); // Pick second dream
 
-        foundNull.Should().BeTrue();
+        var dream = Dreams.GetDream(pfContext, mockChooser.Object);
+
+        dream.Should().NotBeNull();
+        dream.Should().Contain("Ramos");
+        dream.Should().Contain("Fire Nectar");
     }
 
     [Test]
-    public void Dreams_NormalDreams_ContainExpectedThemes()
+    public void Dreams_GetDream_CanReturnNormalDream_Gallium()
     {
         var target = GetTarget();
         var pfContext = target.Context;
 
-        var dreams = new HashSet<string>();
+        var mockChooser = new Mock<IRandomChooser>();
+        var rollSequence = mockChooser.SetupSequence(c => c.RollDice(100));
+        rollSequence.Returns(50);  // Floyd check fails
+        rollSequence.Returns(30);  // Normal dream check succeeds
+        mockChooser.Setup(c => c.RollDice(5)).Returns(3); // Pick third dream
 
-        // Collect a variety of dreams
-        for (int i = 0; i < 500; i++)
-        {
-            var dream = Dreams.GetDream(pfContext, new Random(i));
-            if (dream != null && !dream.Contains("office"))
-            {
-                dreams.Add(dream);
-            }
-        }
+        var dream = Dreams.GetDream(pfContext, mockChooser.Object);
 
-        // Should have found multiple different dreams
-        dreams.Should().HaveCountGreaterThan(3);
-
-        var allDreamsText = string.Join(" ", dreams);
-
-        // Check for known dream themes
-        var hasFeinstein = allDreamsText.Contains("Feinstein");
-        var hasRamos = allDreamsText.Contains("Ramos");
-        var hasGallium = allDreamsText.Contains("Gallium");
-        var hasWaterfall = allDreamsText.Contains("waterfall");
-        var hasNebulon = allDreamsText.Contains("Nebulon");
-
-        // Should have found at least 3 of the 5 different dreams
-        var themeCount = new[] { hasFeinstein, hasRamos, hasGallium, hasWaterfall, hasNebulon }
-            .Count(x => x);
-        themeCount.Should().BeGreaterThanOrEqualTo(3);
+        dream.Should().NotBeNull();
+        dream.Should().Contain("Gallium");
+        dream.Should().Contain("sponge-cat");
     }
 
     [Test]
-    public void Dreams_Feinstein_ContainsExpectedContent()
+    public void Dreams_GetDream_CanReturnNormalDream_Waterfall()
     {
         var target = GetTarget();
         var pfContext = target.Context;
 
-        string? feinsteinDream = null;
-        for (int i = 0; i < 500; i++)
-        {
-            var dream = Dreams.GetDream(pfContext, new Random(i));
-            if (dream != null && dream.Contains("Feinstein") && dream.Contains("bridge"))
-            {
-                feinsteinDream = dream;
-                break;
-            }
-        }
+        var mockChooser = new Mock<IRandomChooser>();
+        var rollSequence = mockChooser.SetupSequence(c => c.RollDice(100));
+        rollSequence.Returns(50);  // Floyd check fails
+        rollSequence.Returns(30);  // Normal dream check succeeds
+        mockChooser.Setup(c => c.RollDice(5)).Returns(4); // Pick fourth dream
 
-        feinsteinDream.Should().NotBeNull();
-        feinsteinDream.Should().Contain("Blather");
-        feinsteinDream.Should().Contain("scrub");
-        feinsteinDream.Should().Contain("self-destruct");
+        var dream = Dreams.GetDream(pfContext, mockChooser.Object);
+
+        dream.Should().NotBeNull();
+        dream.Should().Contain("waterfall");
+        dream.Should().Contain("rainbow");
+    }
+
+    [Test]
+    public void Dreams_GetDream_CanReturnNormalDream_Nebulon()
+    {
+        var target = GetTarget();
+        var pfContext = target.Context;
+
+        var mockChooser = new Mock<IRandomChooser>();
+        var rollSequence = mockChooser.SetupSequence(c => c.RollDice(100));
+        rollSequence.Returns(50);  // Floyd check fails
+        rollSequence.Returns(30);  // Normal dream check succeeds
+        mockChooser.Setup(c => c.RollDice(5)).Returns(5); // Pick fifth dream
+
+        var dream = Dreams.GetDream(pfContext, mockChooser.Object);
+
+        dream.Should().NotBeNull();
+        dream.Should().Contain("Nebulon");
+        dream.Should().Contain("spider");
+    }
+
+    [Test]
+    public void Dreams_GetDream_CanReturnNull_WhenNormalDreamRollFails()
+    {
+        var target = GetTarget();
+        var pfContext = target.Context;
+
+        // Floyd is not on, so only normal dream check happens
+        var floyd = GetItem<Floyd>();
+        floyd.HasEverBeenOn = false;
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(c => c.RollDice(100)).Returns(80); // > 60, no dream
+
+        var dream = Dreams.GetDream(pfContext, mockChooser.Object);
+
+        dream.Should().BeNull();
+    }
+
+    [Test]
+    public void Dreams_GetDream_CanReturnNull_WhenFloydOnButBothRollsFail()
+    {
+        var target = GetTarget();
+        var pfContext = target.Context;
+
+        var floyd = GetItem<Floyd>();
+        floyd.HasEverBeenOn = true;
+
+        var mockChooser = new Mock<IRandomChooser>();
+        var rollSequence = mockChooser.SetupSequence(c => c.RollDice(100));
+        rollSequence.Returns(50);  // Floyd check fails (> 13)
+        rollSequence.Returns(80);  // Normal dream check fails (> 60)
+
+        var dream = Dreams.GetDream(pfContext, mockChooser.Object);
+
+        dream.Should().BeNull();
     }
 
     [Test]
@@ -197,34 +241,31 @@ public class DreamsTests : EngineTestsBase
         pfContext.Tired = TiredLevel.Tired;
         pfContext.Day = 1;
 
+        // Set up mock chooser for deterministic dream
+        var mockChooser = new Mock<IRandomChooser>();
+        var rollSequence = mockChooser.SetupSequence(c => c.RollDice(100));
+        rollSequence.Returns(50);  // Floyd check fails
+        rollSequence.Returns(30);  // Normal dream check succeeds
+        mockChooser.Setup(c => c.RollDice(5)).Returns(1); // Feinstein dream
+        SleepEngine.Chooser = mockChooser.Object;
+
         // Get in bed and trigger forced sleep
         pfContext.Tired = TiredLevel.AboutToDrop;
         pfContext.SleepNotifications.NextWarningAt = pfContext.CurrentTime;
 
         var result = SleepEngine.ProcessForcedSleep(pfContext);
 
-        // Should either contain a dream or not (27% chance of no dream)
-        // But if there's a dream, it should be formatted correctly
-        if (result.Contains("Feinstein") || result.Contains("Floyd") ||
-            result.Contains("Ramos") || result.Contains("Gallium") ||
-            result.Contains("Nebulon") || result.Contains("waterfall"))
-        {
-            // Dream appeared - verify it's between sleep and wake messages
-            var sleepIndex = result.IndexOf("fall asleep");
-            var wakeIndex = result.IndexOf("SEPTEM");
-            var dreamIndex = Math.Max(
-                Math.Max(result.IndexOf("Feinstein"), result.IndexOf("Floyd")),
-                Math.Max(
-                    Math.Max(result.IndexOf("Ramos"), result.IndexOf("Gallium")),
-                    Math.Max(result.IndexOf("Nebulon"), result.IndexOf("waterfall"))
-                )
-            );
+        result.Should().Contain("Feinstein");
 
-            if (dreamIndex > 0)
-            {
-                dreamIndex.Should().BeGreaterThan(sleepIndex);
-                dreamIndex.Should().BeLessThan(wakeIndex);
-            }
-        }
+        // Verify dream is between sleep and wake messages
+        var sleepIndex = result.IndexOf("fall asleep", StringComparison.Ordinal);
+        var dreamIndex = result.IndexOf("Feinstein", StringComparison.Ordinal);
+        var wakeIndex = result.IndexOf("SEPTEM", StringComparison.Ordinal);
+
+        dreamIndex.Should().BeGreaterThan(sleepIndex);
+        dreamIndex.Should().BeLessThan(wakeIndex);
+
+        // Reset static chooser
+        SleepEngine.Chooser = new GameEngine.RandomChooser();
     }
 }

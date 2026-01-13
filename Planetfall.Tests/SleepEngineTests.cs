@@ -168,7 +168,7 @@ public class SleepEngineTests : EngineTestsBase
     #region ProcessForcedSleep - In Dormitory Tests
 
     [Test]
-    public void ProcessForcedSleep_InDormA_ClimbsIntoBed()
+    public void ProcessForcedSleep_InDormA_ClimbsIntoBedAndWakes()
     {
         var target = GetTarget();
         var pfContext = target.Context;
@@ -181,11 +181,12 @@ public class SleepEngineTests : EngineTestsBase
 
         result.Should().Contain("climb into one of the bunk beds");
         result.Should().Contain("immediately fall asleep");
-        pfContext.CurrentLocation.Should().BeOfType<BedLocation>();
+        // After full sleep cycle completes, player wakes up back in the dormitory
+        pfContext.CurrentLocation.Should().BeOfType<DormA>();
     }
 
     [Test]
-    public void ProcessForcedSleep_InDormB_ClimbsIntoBed()
+    public void ProcessForcedSleep_InDormB_ClimbsIntoBedAndWakes()
     {
         var target = GetTarget();
         var pfContext = target.Context;
@@ -197,11 +198,12 @@ public class SleepEngineTests : EngineTestsBase
         var result = SleepEngine.ProcessForcedSleep(pfContext);
 
         result.Should().Contain("climb into one of the bunk beds");
-        pfContext.CurrentLocation.Should().BeOfType<BedLocation>();
+        // After full sleep cycle completes, player wakes up back in the dormitory
+        pfContext.CurrentLocation.Should().BeOfType<DormB>();
     }
 
     [Test]
-    public void ProcessForcedSleep_InDormC_ClimbsIntoBed()
+    public void ProcessForcedSleep_InDormC_ClimbsIntoBedAndWakes()
     {
         var target = GetTarget();
         var pfContext = target.Context;
@@ -213,11 +215,12 @@ public class SleepEngineTests : EngineTestsBase
         var result = SleepEngine.ProcessForcedSleep(pfContext);
 
         result.Should().Contain("climb into one of the bunk beds");
-        pfContext.CurrentLocation.Should().BeOfType<BedLocation>();
+        // After full sleep cycle completes, player wakes up back in the dormitory
+        pfContext.CurrentLocation.Should().BeOfType<DormC>();
     }
 
     [Test]
-    public void ProcessForcedSleep_InDormD_ClimbsIntoBed()
+    public void ProcessForcedSleep_InDormD_ClimbsIntoBedAndWakes()
     {
         var target = GetTarget();
         var pfContext = target.Context;
@@ -229,11 +232,12 @@ public class SleepEngineTests : EngineTestsBase
         var result = SleepEngine.ProcessForcedSleep(pfContext);
 
         result.Should().Contain("climb into one of the bunk beds");
-        pfContext.CurrentLocation.Should().BeOfType<BedLocation>();
+        // After full sleep cycle completes, player wakes up back in the dormitory
+        pfContext.CurrentLocation.Should().BeOfType<DormD>();
     }
 
     [Test]
-    public void ProcessForcedSleep_InDormitory_SetsBedPlayerInBedFlag()
+    public void ProcessForcedSleep_InDormitory_ResetsPlayerInBedAfterWaking()
     {
         var target = GetTarget();
         var pfContext = target.Context;
@@ -247,7 +251,8 @@ public class SleepEngineTests : EngineTestsBase
 
         SleepEngine.ProcessForcedSleep(pfContext);
 
-        bed.PlayerInBed.Should().BeTrue();
+        // After waking up, player is no longer in bed
+        bed.PlayerInBed.Should().BeFalse();
     }
 
     #endregion
@@ -404,7 +409,10 @@ public class SleepEngineTests : EngineTestsBase
     {
         var target = GetTarget();
         var pfContext = target.Context;
+        var dormA = GetLocation<DormA>();
         var location = StartHere<BedLocation>();
+        // Set parent location so waking up returns to DormA
+        location.ParentLocation = dormA;
 
         var brush = GetItem<Brush>();
         pfContext.ItemPlacedHere(brush);
@@ -415,7 +423,7 @@ public class SleepEngineTests : EngineTestsBase
         SleepEngine.ProcessFallAsleep(pfContext);
 
         pfContext.Items.Should().NotContain(brush);
-        ((LocationBase)location.ParentLocation).Items.Should().Contain(brush);
+        dormA.Items.Should().Contain(brush);
     }
 
     [Test]

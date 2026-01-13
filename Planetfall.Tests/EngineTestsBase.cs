@@ -82,6 +82,10 @@ public class EngineTestsBase
         Context.LastInput = null;
         Context.LastResponse = null;
 
+        // Prevent notifications from firing unexpectedly in tests by pushing warning times far into the future
+        Context.SleepNotifications.NextWarningAt = Context.CurrentTime + 100000;
+        Context.HungerNotifications.NextWarningAt = Context.CurrentTime + 100000;
+
         return engine;
     }
 

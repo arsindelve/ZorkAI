@@ -15,6 +15,11 @@ internal class ExitSubLocationEngine : IIntentEngine
         if (string.IsNullOrEmpty(exit.NounOne))
             throw new ArgumentException("Null or empty noun. What's up with that?");
 
+        // Model 2: CurrentLocation IS the sub-location (e.g., Planetfall BedLocation)
+        // Check this first because the item might not be in scope from the sub-location
+        if (context.CurrentLocation is ISubLocation currentAsSubLocation)
+            return (null, currentAsSubLocation.GetOut(context));
+
         var subLocation = Repository.GetItemInScope(exit.NounOne, context);
         if (subLocation == null)
         {
@@ -35,10 +40,11 @@ internal class ExitSubLocationEngine : IIntentEngine
         if (subLocation is not ISubLocation subLocationInstance)
             return (null, await GetGeneratedCantGoThatWayResponse(generationClient, context, exit.NounOne));
 
-        if (context.CurrentLocation.SubLocation != subLocationInstance)
-            return (null, $"You're not in the {exit.NounOne}. ");
+        // Model 1: Parent location with SubLocation property set (e.g., ZorkOne boat)
+        if (context.CurrentLocation.SubLocation == subLocationInstance)
+            return (null, subLocationInstance.GetOut(context));
 
-        return (null, subLocationInstance.GetOut(context));
+        return (null, $"You're not in the {exit.NounOne}. ");
     }
 
     private async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient, IContext context,

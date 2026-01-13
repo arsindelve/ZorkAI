@@ -8,7 +8,12 @@ namespace Planetfall;
 /// </summary>
 public static class Dreams
 {
-    private static readonly string[] DreamSequences =
+    internal const string FloydDream =
+        "You are in a busy office crowded with people. The only one you recognize is Floyd. He rushes back " +
+        "and forth between the desks, carrying papers and delivering coffee. He notices you, and asks how your " +
+        "project is coming, and whether you have time to tell him a story. You look into his deep, trusting eyes...";
+
+    internal static readonly string[] DreamSequences =
     [
         "...You find yourself on the bridge of the Feinstein. Ensign Blather is here, as well as Admiral " +
         "Smithers. You are diligently scrubbing the control panel. Blather keeps yelling at you to scrub " +
@@ -38,30 +43,26 @@ public static class Dreams
         "web. A giant spider crawls closer and closer..."
     ];
 
-    private const string FloydDream =
-        "You are in a busy office crowded with people. The only one you recognize is Floyd. He rushes back " +
-        "and forth between the desks, carrying papers and delivering coffee. He notices you, and asks how your " +
-        "project is coming, and whether you have time to tell him a story. You look into his deep, trusting eyes...";
-
     /// <summary>
     /// Gets a random dream sequence, or null if no dream occurs.
-    /// 13% chance of Floyd dream (if Fork has been touched/Floyd introduced).
+    /// 13% chance of Floyd dream (if Floyd has been turned on).
     /// 60% chance of random dream.
     /// 27% chance of no dream.
     /// </summary>
-    public static string? GetDream(IContext context, Random random)
+    public static string? GetDream(IContext context, IRandomChooser? chooser = null)
     {
-        // Check for Floyd dream (13% chance if Floyd has been turned on)
-        var floyd = Repository.GetItem<Floyd>();
-        if (floyd.HasEverBeenOn && random.Next(100) < 13)
-        {
-            return "\n" + FloydDream;
-        }
+        chooser ??= new RandomChooser();
 
-        // 60% chance of normal dream
-        if (random.Next(100) < 60)
+        // Check for Floyd dream (13% chance if Floyd has been turned on)
+        // RollDice(100) returns 1-100, so checking for <= 13 gives 13% chance
+        var floyd = Repository.GetItem<Floyd>();
+        if (floyd.HasEverBeenOn && chooser.RollDice(100) <= 13) return "\n" + FloydDream;
+
+        // 60% chance of normal dream (roll <= 60 means 60% chance)
+        if (chooser.RollDice(100) <= 60)
         {
-            var selectedDream = DreamSequences[random.Next(DreamSequences.Length)];
+            var dreamIndex = chooser.RollDice(DreamSequences.Length) - 1; // RollDice returns 1-based
+            var selectedDream = DreamSequences[dreamIndex];
             return "\n" + selectedDream;
         }
 

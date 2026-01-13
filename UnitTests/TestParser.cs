@@ -408,6 +408,12 @@ public class TestParser : IntentParser
                 NounOne = "boat"
             });
 
+        if (input is "get out of bed" or "exit bed" or "leave bed" or "get out")
+            return Task.FromResult<IntentBase>(new ExitSubLocationIntent
+            {
+                NounOne = "bed"
+            });
+
         if (input == "set dial to 5651")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {

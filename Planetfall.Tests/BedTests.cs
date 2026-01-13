@@ -114,6 +114,11 @@ public class BedTests : EngineTestsBase
         pfContext.Tired = TiredLevel.Tired;
 
         await target.GetResponse("get in bed");
+
+        // Extend the fall asleep timer so we can test the prevention without actually falling asleep
+        // (each turn advances 54 ticks, but FallAsleepAt is only 16 ticks ahead by default)
+        pfContext.SleepNotifications.FallAsleepAt = pfContext.CurrentTime + 10000;
+
         var response = await target.GetResponse("get out");
 
         response.Should().Contain("How could you suggest such a thing");
@@ -225,7 +230,7 @@ public class BedTests : EngineTestsBase
         await target.GetResponse("get in bed");
         var response = await target.GetResponse("north");
 
-        response.Should().Contain("can't go that way");
+        response.Should().Contain("cannot go that way");
     }
 
     [Test]
@@ -293,12 +298,19 @@ public class BedTests : EngineTestsBase
 
         var pfContext = target.Context;
         pfContext.Tired = TiredLevel.VeryTired;
+        // Prevent automatic tiredness and hunger progression
+        pfContext.SleepNotifications.NextWarningAt = pfContext.CurrentTime + 10000;
+        pfContext.HungerNotifications.NextWarningAt = pfContext.CurrentTime + 10000;
 
         // Get in bed
         await target.GetResponse("get in bed");
 
-        // Try to leave
-        var response = await target.GetResponse("get out");
+        // Extend the fall asleep timer so we can test the prevention without actually falling asleep
+        // (each turn advances 54 ticks, but FallAsleepAt is only 16 ticks ahead by default)
+        pfContext.SleepNotifications.FallAsleepAt = pfContext.CurrentTime + 10000;
+
+        // Try to leave (use explicit command that TestParser handles)
+        var response = await target.GetResponse("get out of bed");
 
         response.Should().Contain("How could you suggest");
         pfContext.CurrentLocation.Should().BeOfType<BedLocation>();

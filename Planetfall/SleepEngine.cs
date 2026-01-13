@@ -1,9 +1,7 @@
-using Model.Item;
 using Planetfall.Command;
-using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee;
+using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
-using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Dorm;
 
 namespace Planetfall;
@@ -14,17 +12,20 @@ namespace Planetfall;
 /// </summary>
 public class SleepEngine
 {
-    private static readonly Random Random = new();
-
     /// <summary>
     /// Dangerous locations where sleeping on the ground can result in drowning on specific days.
     /// </summary>
     private static readonly Dictionary<Type, int> DrowningLocations = new()
     {
-        { typeof(Crag), 1 },           // Day 1: drown at Crag
-        { typeof(Balcony), 3 },        // Day 3: drown at Balcony
-        { typeof(WindingStair), 5 }    // Day 5: drown at Winding Stair
+        { typeof(Crag), 1 }, // Day 1: drown at Crag
+        { typeof(Balcony), 3 }, // Day 3: drown at Balcony
+        { typeof(WindingStair), 5 } // Day 5: drown at Winding Stair
     };
+
+    /// <summary>
+    /// Injectable random chooser for deterministic testing.
+    /// </summary>
+    public static IRandomChooser Chooser { get; set; } = new RandomChooser();
 
     /// <summary>
     /// Processes voluntary sleep (player enters bed while tired).
@@ -37,7 +38,7 @@ public class SleepEngine
         var message = "\nYou slowly sink into a deep and restful sleep.";
 
         // Add dream
-        var dream = Dreams.GetDream(context, Random);
+        var dream = Dreams.GetDream(context, Chooser);
         if (dream != null)
             message += dream;
 
@@ -59,7 +60,7 @@ public class SleepEngine
         if (location is BedLocation)
         {
             var message = "\nYou slowly sink into a deep and blissful sleep.";
-            var dream = Dreams.GetDream(context, Random);
+            var dream = Dreams.GetDream(context, Chooser);
             if (dream != null)
                 message += dream;
 
@@ -72,10 +73,12 @@ public class SleepEngine
         {
             var bed = Repository.GetItem<Bed>();
             bed.PlayerInBed = true;
-            context.CurrentLocation = Repository.GetLocation<BedLocation>();
+            var bedLocation = Repository.GetLocation<BedLocation>();
+            bedLocation.ParentLocation = location;
+            context.CurrentLocation = bedLocation;
 
             var message = "\nYou climb into one of the bunk beds and immediately fall asleep.";
-            var dream = Dreams.GetDream(context, Random);
+            var dream = Dreams.GetDream(context, Chooser);
             if (dream != null)
                 message += dream;
 
@@ -105,8 +108,8 @@ public class SleepEngine
             return message + new DeathProcessor().Process(deathMessage, context).InteractionMessage;
         }
 
-        // 30% chance of beast attack
-        if (Random.Next(100) < 30)
+        // 30% chance of beast attack (RollDice returns 1-100, so <= 30 is 30%)
+        if (Chooser.RollDice(100) <= 30)
         {
             var deathMessage = "\n\nSuddenly, in the middle of the night, you awake as several ferocious beasts " +
                                "(could they be grues?) surround and attack you. Perhaps you should have found a " +
@@ -115,7 +118,7 @@ public class SleepEngine
         }
 
         // 70% chance of survival - still wake up normally
-        var dream = Dreams.GetDream(context, Random);
+        var dream = Dreams.GetDream(context, Chooser);
         if (dream != null)
             message += dream;
 
@@ -134,11 +137,9 @@ public class SleepEngine
 
         // Check for day 9 death
         if (context.Day >= 9)
-        {
             return new DeathProcessor().Process(
                 "Unfortunately, you don't seem to have survived the night.",
                 context).InteractionMessage;
-        }
 
         // Reset fatigue
         context.Tired = TiredLevel.WellRested;
@@ -149,34 +150,31 @@ public class SleepEngine
         // Enable next sickness check
         context.SicknessNotifications.DaysNotified.Remove(context.Day);
 
-        // Drop non-worn inventory items
-        var droppedItems = new List<IItem>();
-        var itemsToRemove = new List<IItem>();
+        // Drop non-worn inventory items to the floor
+        // If in bed, drop to parent location (dormitory floor), otherwise drop to current location
+        var dropLocation = context.CurrentLocation is BedLocation { ParentLocation: not null } bedLoc
+            ? bedLoc.ParentLocation
+            : context.CurrentLocation;
 
         foreach (var item in context.Items.ToList())
         {
-            // Check if item is worn
+            // Check if item is worn - worn items stay with player
             if (item is IAmClothing clothing && clothing.BeingWorn)
                 continue;
 
-            // Drop the item
+            // Drop the item to the floor
             context.RemoveItem(item);
-            context.CurrentLocation.ItemPlacedHere(item);
-            droppedItems.Add(item);
+            dropLocation.ItemPlacedHere(item);
 
             // Spoil food in open canteen
             if (item is Canteen canteen)
             {
                 var proteinLiquid = Repository.GetItem<ProteinLiquid>();
-                if (canteen.IsOpen && canteen.Items.Contains(proteinLiquid))
-                {
-                    canteen.RemoveItem(proteinLiquid);
-                    itemsToRemove.Add(proteinLiquid);
-                }
+                if (canteen.IsOpen && canteen.Items.Contains(proteinLiquid)) canteen.RemoveItem(proteinLiquid);
             }
 
-            // Spoil chemical fluid in flask (if needed in future)
-            // Note: Flask spoiling logic would go here if ChemicalFluid item exists
+            // Spoil chemical fluid in flask
+            if (item is Flask flask && !string.IsNullOrEmpty(flask.LiquidColor)) flask.LiquidColor = null;
         }
 
         // Build wake message
@@ -192,17 +190,11 @@ public class SleepEngine
             // Health-based message (sickness gets worse each day)
             var sicknessLevel = (SicknessLevel)context.Day;
             if (sicknessLevel < SicknessLevel.Meh)
-            {
                 message += "You wake up feeling refreshed and ready to face the challenges of this mysterious world. ";
-            }
             else if (sicknessLevel < SicknessLevel.ReallySick)
-            {
                 message += "You wake after sleeping restlessly. You feel weak and listless. ";
-            }
             else
-            {
                 message += "You wake feeling weak and worn-out. It will be an effort just to stand up. ";
-            }
         }
 
         // Hunger adjustment
@@ -226,15 +218,11 @@ public class SleepEngine
             context.CurrentLocation.ItemPlacedHere(floyd);
 
             if (context.CurrentLocation is BedLocation)
-            {
                 message += "\n\nFloyd bounces impatiently at the foot of the bed. \"About time you woke up, " +
-                          "you lazy bones! Let's explore around some more!\"";
-            }
+                           "you lazy bones! Let's explore around some more!\"";
             else
-            {
                 message += "\n\nFloyd gives you a nudge with his foot and giggles. \"You sure look silly " +
-                          "sleeping on the floor,\" he says.";
-            }
+                           "sleeping on the floor,\" he says.";
         }
 
         // Exit bed if in bed
@@ -255,16 +243,11 @@ public class SleepEngine
     public static string? CheckForSleep(PlanetfallContext context)
     {
         // Check for voluntary sleep (in bed, fall asleep queued)
-        if (context.SleepNotifications.ShouldFallAsleep(context.CurrentTime))
-        {
-            return ProcessFallAsleep(context);
-        }
+        if (context.SleepNotifications.ShouldFallAsleep(context.CurrentTime)) return ProcessFallAsleep(context);
 
         // Check for forced sleep (maximum tiredness reached)
         if (context.SleepNotifications.ShouldForceSleep(context.CurrentTime, context.Tired))
-        {
             return ProcessForcedSleep(context);
-        }
 
         return null;
     }

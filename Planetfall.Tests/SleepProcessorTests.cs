@@ -16,6 +16,9 @@ public class SleepProcessorTests : EngineTestsBase
 
         var pfContext = target.Context;
         pfContext.Tired = TiredLevel.WellRested;
+        // Prevent automatic tiredness progression by setting next warning far in the future
+        pfContext.SleepNotifications.NextWarningAt = pfContext.CurrentTime + 10000;
+        pfContext.HungerNotifications.NextWarningAt = pfContext.CurrentTime + 10000;
 
         var response = await target.GetResponse("sleep");
 
@@ -76,6 +79,9 @@ public class SleepProcessorTests : EngineTestsBase
 
         var pfContext = target.Context;
         pfContext.Tired = TiredLevel.WellRested;
+        // Prevent automatic tiredness progression by setting next warning far in the future
+        pfContext.SleepNotifications.NextWarningAt = pfContext.CurrentTime + 10000;
+        pfContext.HungerNotifications.NextWarningAt = pfContext.CurrentTime + 10000;
 
         var response1 = await target.GetResponse("sleep");
         var response2 = await target.GetResponse("go to sleep");

@@ -17,7 +17,10 @@ public class PlanetfallGlobalCommandFactory : GlobalCommandFactory
 
             case "sleep":
             case "gotosleep":
+            case "go to sleep":
             case "fallasleep":
+            case "fall asleep":
+            case "rest":
                 return new SleepProcessor();
         }
 

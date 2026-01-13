@@ -49,8 +49,12 @@ internal class BedLocation : LocationWithNoStartingItems, ISubLocation
         var bed = Repository.GetItem<Bed>();
         var result = bed.GetOut(context);
 
-        // Move player back to parent location
-        context.CurrentLocation = ParentLocation;
+        // Only move player back to parent location if they were actually allowed to leave
+        // (Bed.GetOut returns different messages based on whether exit was allowed)
+        if (bed.PlayerInBed == false)
+        {
+            context.CurrentLocation = ParentLocation;
+        }
 
         return result;
     }
