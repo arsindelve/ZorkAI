@@ -20,7 +20,10 @@
       "Bash(tee:*)",
       "Bash(npm run test:unit:*)",
       "Bash(npx playwright test --project=chromium)",
-      "Bash(npx jest)"
+      "Bash(npx jest)",
+      "Bash(wc:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run:*)"
     ],
     "deny": []
   }

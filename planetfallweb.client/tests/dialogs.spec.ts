@@ -1,8 +1,8 @@
 /**
- * Zork Game Dialog Tests
- * 
+ * Planetfall Game Dialog Tests
+ *
  * These tests verify the functionality of various dialogs in the game.
- * 
+ *
  * NOTE: API Mocking
  * To avoid dependency on the backend API (which may not always be running),
  * these tests use Playwright's route interception to mock API responses.
@@ -52,11 +52,11 @@ test.describe('Game Dialogs', () => {
 
         // Verify that the welcome modal contains the expected title
         const modalTitle = page.locator('[data-testid="welcome-modal"] #alert-dialog-title');
-        await expect(modalTitle).toContainText('Welcome to Zork AI - A Modern Reimagining of the 1980s Classic!');
+        await expect(modalTitle).toContainText('Welcome to Planetfall AI - A Modern Reimagining of the 1983 Classic!');
 
         // Verify that the welcome modal contains some expected content
         const modalContent = page.locator('[data-testid="welcome-modal"] #alert-dialog-description');
-        await expect(modalContent).toContainText('This is a modern re-imagining of the iconic text adventure game Zork I.');
+        await expect(modalContent).toContainText('This is a modern re-imagining of the beloved 1983 science fiction text adventure game Planetfall.');
         await expect(modalContent).toContainText('Need inspiration? Try:');
 
         // Close the welcome modal
@@ -66,38 +66,9 @@ test.describe('Game Dialogs', () => {
         await expect(page.locator('[data-testid="welcome-modal"]')).not.toBeVisible();
     });
 
-    test('Video dialog - video dialog can be opened from About menu and closed', async ({page}) => {
-        // Close the welcome modal using the helper function
-        await closeWelcomeModal(page);
-
-        // Wait for the About button to be visible
-        await page.waitForSelector('[data-testid="about-button"]', {state: 'visible'});
-
-        // Click the About button
-        await page.locator('[data-testid="about-button"]').click();
-
-        // Wait for the About menu to appear
-        await page.waitForSelector('#basic-menu', {state: 'visible'});
-
-        // Click the "Watch intro video" menu item
-        await page.locator('#basic-menu li:has-text("Watch intro video")').click();
-
-        // Wait for the video dialog to appear
-        await page.waitForSelector('div[role="dialog"]', {state: 'visible'});
-
-        // Verify that the video dialog contains the expected title
-        const modalTitle = page.locator('div[role="dialog"] #video-dialog-title');
-        await expect(modalTitle).toContainText('Welcome to Zork AI');
-
-        // Verify that the video dialog contains a video element
-        const videoElement = page.locator('div[role="dialog"] video');
-        await expect(videoElement).toBeVisible();
-
-        // Close the video dialog
-        await page.locator('div[role="dialog"] button:has-text("Close")').click();
-
-        // Verify that the video dialog is closed
-        await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
+    // Note: Planetfall does not have a video dialog - this test is skipped
+    test.skip('Video dialog - video dialog can be opened from About menu and closed', async ({page}) => {
+        // This test is skipped for Planetfall as there is no intro video
     });
 
     test('Release notes dialog - release notes dialog can be opened from About menu and closed', async ({page}) => {
@@ -121,7 +92,7 @@ test.describe('Game Dialogs', () => {
 
         // Verify that the release notes dialog contains the expected title
         const modalTitle = page.locator('div[role="dialog"] #release-notes-title');
-        await expect(modalTitle).toContainText('Zork AI Release Notes');
+        await expect(modalTitle).toContainText('Planetfall AI Release Notes');
 
         // Verify that the release notes dialog contains either loading text or release notes
         const modalContent = page.locator('div[role="dialog"] .MuiDialogContent-root');

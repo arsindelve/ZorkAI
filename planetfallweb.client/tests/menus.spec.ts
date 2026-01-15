@@ -135,7 +135,7 @@ test.describe('Game Menus', () => {
         await waitForGameResponse(page);
 
         // Now check if our specific command was echoed
-        const commandEcho = page.locator('p.text-lime-600').filter({ hasText: /look/i });
+        const commandEcho = page.locator('p.text-glow').filter({ hasText: /look/i });
         await expect(commandEcho).toBeVisible({ timeout: 5000 });
 
         // Verify that the game responded to the command

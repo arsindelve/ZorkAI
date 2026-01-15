@@ -63,7 +63,7 @@ test.describe('Game Commands', () => {
         await waitForGameResponse(page);
 
         // Now check if our specific command was echoed
-        const commandEcho = page.locator('p.text-lime-600').filter({ hasText: /look around/i });
+        const commandEcho = page.locator('p.text-glow').filter({ hasText: /look around/i });
         await expect(commandEcho.first()).toBeVisible({ timeout: 5000 });
 
         // Verify that the game responded to the command
@@ -98,7 +98,7 @@ test.describe('Game Commands', () => {
         await waitForGameResponse(page);
 
         // Now check if our specific command was echoed
-        const commandEcho = page.locator('p.text-lime-600').filter({ hasText: /look around/i });
+        const commandEcho = page.locator('p.text-glow').filter({ hasText: /look around/i });
         await expect(commandEcho.first()).toBeVisible({ timeout: 5000 });
 
         // Verify that the game responded to the command
@@ -137,7 +137,7 @@ test.describe('Game Commands', () => {
         await waitForGameResponse(page);
 
         // Now check if our specific command was echoed
-        const commandEcho = page.locator('p.text-lime-600').filter({ hasText: /North/i });
+        const commandEcho = page.locator('p.text-glow').filter({ hasText: /North/i });
         await expect(commandEcho).toBeVisible({ timeout: 5000 });
 
         // Verify that the game responded to the command

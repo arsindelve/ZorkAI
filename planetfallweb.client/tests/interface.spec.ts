@@ -48,10 +48,10 @@ test.describe('Game Interface', () => {
         await closeWelcomeModal(page);
 
         // Wait for initial game content to load
-        await page.waitForSelector('.bg-stone-900', {state: 'visible'});
+        await page.waitForSelector('[data-testid="game-responses-container"]', {state: 'visible'});
 
         // Check that the game container is visible
-        const gameContainer = page.locator('.bg-stone-900');
+        const gameContainer = page.locator('[data-testid="game-responses-container"]');
         await expect(gameContainer).toBeVisible();
 
         // Check that the input field is visible
