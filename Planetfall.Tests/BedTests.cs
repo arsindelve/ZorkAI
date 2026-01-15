@@ -1,5 +1,7 @@
 using FluentAssertions;
+using GameEngine.Item;
 using Model.Location;
+using Model.Movement;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Dorm;
@@ -290,15 +292,16 @@ public class BedTests : EngineTestsBase
     }
 
     [Test]
-    public async Task BedLocation_HasNoExits()
+    public void BedLocation_HasNoExits()
     {
         var target = GetTarget();
-        StartHere<DormA>();
+        var bedLocation = GetLocation<BedLocation>();
 
-        await target.GetResponse("get in bed");
-        var response = await target.GetResponse("north");
-
-        response.Should().Contain("cannot go that way");
+        // BedLocation.Navigate should return null for all directions (no exits)
+        bedLocation.Navigate(Direction.N, target.Context).Should().BeNull();
+        bedLocation.Navigate(Direction.S, target.Context).Should().BeNull();
+        bedLocation.Navigate(Direction.E, target.Context).Should().BeNull();
+        bedLocation.Navigate(Direction.W, target.Context).Should().BeNull();
     }
 
     [Test]

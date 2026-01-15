@@ -59,10 +59,10 @@ test.describe('Game Menus', () => {
 
         // Verify that the menu contains expected items
         const menuItems = page.locator('#basic-menu li');
-        await expect(menuItems).toHaveCount(10); // There are 10 menu items in the AboutMenu component
+        await expect(menuItems).toHaveCount(8); // There are 8 menu items in the Planetfall AboutMenu component
 
         // Verify a specific menu item is present
-        const whatIsThisGameItem = page.locator('#basic-menu li:has-text("What is this game?")');
+        const whatIsThisGameItem = page.locator('#basic-menu li:has-text("What is Planetfall.AI?")');
         await expect(whatIsThisGameItem).toBeVisible();
     });
 
