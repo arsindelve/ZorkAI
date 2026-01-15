@@ -26,7 +26,7 @@ jobs:
     - name: .NET tests
       run: dotnet test --no-build --verbosity normal
   
-  zorkweb-tests:
+  react-tests:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
