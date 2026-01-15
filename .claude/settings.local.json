@@ -18,7 +18,9 @@
       "Bash(find:*)",
       "Bash(cat:*)",
       "Bash(tee:*)",
-      "Bash(npm run test:unit:*)"
+      "Bash(npm run test:unit:*)",
+      "Bash(npx playwright test --project=chromium)",
+      "Bash(npx jest)"
     ],
     "deny": []
   }

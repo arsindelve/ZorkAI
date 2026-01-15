@@ -37,10 +37,10 @@ export async function waitForGameResponse(page: Page) {
 }
 
 /**
- * Helper function to handle the main ZorkOne endpoint route
- * This function intercepts requests to the ZorkOne endpoint and returns mock responses
+ * Helper function to handle the main Planetfall endpoint route
+ * This function intercepts requests to the Planetfall endpoint and returns mock responses
  */
-export async function handleZorkOneRoute(route: Route) {
+export async function handlePlanetfallRoute(route: Route) {
     const method = route.request().method();
 
     if (method === 'GET') {
