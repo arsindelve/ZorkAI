@@ -96,7 +96,7 @@ async Task<GameEngine<TGame, TContext>> CreateEngine<TGame, TContext>()
     var gameEngine = new GameEngine<TGame, TContext>(logger, new AmazonSecretsManager(), new ParseConversation(null, parseLogger))
     {
         Runtime = Runtime.Console,
-        NoGeneratedResponses = true
+        NoGeneratedResponses = false
     };
     await gameEngine.InitializeEngine();
     return gameEngine;
