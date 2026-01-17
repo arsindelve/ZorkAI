@@ -31,6 +31,10 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         _floydChooser = new Mock<IRandomChooser>();
         _floydChooser.Setup(s => s.RollDiceSuccess(3)).Returns(true);
 
+        // Prevent Floyd from wandering during walkthrough tests
+        _floydChooser.Setup(s => s.RollDiceSuccess(5)).Returns(false);  // Don't stop following when player moves
+        _floydChooser.Setup(s => s.RollDiceSuccess(20)).Returns(false); // Don't spontaneously wander
+
         _chatWithFloyd = new Mock<IChatWithFloyd>();
         _chatWithFloyd.Setup(s => s.AskFloydAsync("go north")).ReturnsAsync(new CompanionResponse(
             "Floyd's response",
