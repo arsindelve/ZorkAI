@@ -1,5 +1,5 @@
-using System.Text;
 using GameEngine.Location;
+using GameEngine.StaticCommand.Implementation;
 using Model.AIGeneration;
 using Planetfall.Command;
 using Planetfall.Item.Lawanda;
@@ -49,13 +49,12 @@ internal class MiniaturizationBooth : LocationBase
                 if (keyPress.Value == 384)
                 {
                     // Teleport to Station 384
-                    var sb = new StringBuilder();
-
                     IsEnabled = false;
                     context.CurrentLocation = Repository.GetLocation<Station384>();
 
-                    sb.AppendLine("You notice the walls of the booth sliding away in all directions, followed by a momentary queasiness in the pit of your stomach...");
-                    return new PositiveInteractionResult(sb.ToString());
+                    var message = "You notice the walls of the booth sliding away in all directions, followed by a momentary queasiness in the pit of your stomach...\n\n" +
+                        await new LookProcessor().Process(string.Empty, context, client, Runtime.Unknown);
+                    return new PositiveInteractionResult(message);
                 }
 
                 // Wrong sector - player dies
