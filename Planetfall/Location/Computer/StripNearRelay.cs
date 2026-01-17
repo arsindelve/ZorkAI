@@ -1,9 +1,15 @@
-﻿using GameEngine.Location;
+using GameEngine.Location;
+using Planetfall.Item.Computer;
 
 namespace Planetfall.Location.Computer;
 
-internal class StripNearRelay : LocationWithNoStartingItems
+internal class StripNearRelay : LocationBase
 {
+    public override void Init()
+    {
+        StartWithItem<Relay>();
+    }
+
     public override string Name => "Strip Near Relay";
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)

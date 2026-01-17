@@ -958,6 +958,109 @@ public class LaserTests : EngineTestsBase
 
     #endregion
 
+    #region First Fire Scoring Tests
+
+    [Test]
+    public async Task ShootLaser_FirstTime_AddsPointsToScore()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        var initialScore = target.Context.Score;
+
+        await target.GetResponse("shoot laser");
+
+        target.Context.Score.Should().Be(initialScore + 2);
+    }
+
+    [Test]
+    public async Task ShootLaser_SecondTime_DoesNotAddPoints()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+
+        await target.GetResponse("shoot laser");
+        var scoreAfterFirstShot = target.Context.Score;
+
+        await target.GetResponse("shoot laser");
+
+        target.Context.Score.Should().Be(scoreAfterFirstShot);
+    }
+
+    [Test]
+    public async Task ShootLaser_MultipleTimesAfterFirst_NeverAddsMorePoints()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        var initialScore = target.Context.Score;
+
+        await target.GetResponse("shoot laser");
+        await target.GetResponse("shoot laser");
+        await target.GetResponse("shoot laser");
+        await target.GetResponse("shoot laser");
+
+        target.Context.Score.Should().Be(initialScore + 2);
+    }
+
+    [Test]
+    public async Task ShootLaserAtTarget_FirstTime_AddsPointsToScore()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        var initialScore = target.Context.Score;
+
+        await target.GetResponse("shoot flask with laser");
+
+        target.Context.Score.Should().Be(initialScore + 2);
+    }
+
+    [Test]
+    public async Task ShootLaser_SetsHasBeenFiredFlag()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        var laser = GetItem<Laser>();
+
+        laser.HasBeenFired.Should().BeFalse();
+
+        await target.GetResponse("shoot laser");
+
+        laser.HasBeenFired.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task ShootLaser_WithDeadBattery_DoesNotSetHasBeenFired()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 0;
+        var laser = GetItem<Laser>();
+
+        await target.GetResponse("shoot laser");
+
+        laser.HasBeenFired.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task ShootLaser_WithDeadBattery_DoesNotAddPoints()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 0;
+        var initialScore = target.Context.Score;
+
+        await target.GetResponse("shoot laser");
+
+        target.Context.Score.Should().Be(initialScore);
+    }
+
+    #endregion
+
     #region Battery Removal Tests
 
     [Test]
@@ -1049,7 +1152,7 @@ public class LaserTests : EngineTestsBase
 
         // Put it back
         var response = await target.GetResponse("put battery in laser");
-        response.Should().Contain("Done");
+        response.Should().Contain("The battery is now resting in the depression, attached to the laser.");
         laser.Items.Should().Contain(battery);
         target.Context.Items.Should().NotContain(battery);
     }

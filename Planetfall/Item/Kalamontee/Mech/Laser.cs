@@ -17,12 +17,24 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
     /// </summary>
     public bool JustShot { get; set; }
 
+    /// <summary>
+    /// Flag indicating whether the laser has ever been successfully fired.
+    /// Used for awarding points on first successful shot.
+    /// </summary>
+    [UsedImplicitly]
+    public bool HasBeenFired { get; set; }
+
     public override string[] NounsForMatching =>
         ["laser", "portable laser", "akmee portabul laazur", "laazur", "akmee laazur"];
 
     public override Type[] CanOnlyHoldTheseTypes => [typeof(BatteryBase)];
-    
+
     public override int Size => 1;
+
+    public override string ItemPlacedHereResult(IItem item, IContext context)
+    {
+        return "The battery is now resting in the depression, attached to the laser. ";
+    }
 
     public string OnTheGroundDescription(ILocation currentLocation)
     {
@@ -85,6 +97,12 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
         battery!.ChargesRemaining--;
         JustShot = true;
         context.RegisterActor(this);
+
+        if (!HasBeenFired)
+        {
+            HasBeenFired = true;
+            context.AddPoints(2);
+        }
 
         return null; // Success - laser fired
     }

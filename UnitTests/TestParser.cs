@@ -1236,6 +1236,39 @@ public class TestParser : IntentParser
                 OriginalInput = "fire laser at flask"
             });
 
+        // Look at/into relay commands
+        if (input == "look at relay")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Verb = "look at",
+                Noun = "relay",
+                OriginalInput = "look at relay"
+            });
+
+        if (input == "look into relay")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Verb = "look into",
+                Noun = "relay",
+                OriginalInput = "look into relay"
+            });
+
+        if (input == "look at microrelay")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Verb = "look at",
+                Noun = "microrelay",
+                OriginalInput = "look at microrelay"
+            });
+
+        if (input == "look into micro-relay")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Verb = "look into",
+                Noun = "micro-relay",
+                OriginalInput = "look into micro-relay"
+            });
+
         if (input == "put good in cube")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
