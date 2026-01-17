@@ -1,6 +1,4 @@
 using FluentAssertions;
-using GameEngine;
-using GameEngine.Location;
 using Model.Interface;
 using Moq;
 using Planetfall.Item.Feinstein;

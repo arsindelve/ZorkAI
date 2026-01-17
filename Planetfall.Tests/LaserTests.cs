@@ -4,6 +4,7 @@ using Model.Interface;
 using Moq;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Item.Lawanda.Lab;
 using Planetfall.Location.Kalamontee.Mech;
 using Planetfall.Location.Lawanda;
 
@@ -953,6 +954,161 @@ public class LaserTests : EngineTestsBase
         var response = await target.GetResponse("fire laser at laser");
 
         response.Should().Contain("rubber barrel");
+    }
+
+    #endregion
+
+    #region Battery Removal Tests
+
+    [Test]
+    public async Task RemoveBattery_WhenHoldingLaser_RemovesBattery()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        var battery = GetItem<OldBattery>();
+
+        GetItem<Laser>().Items.Should().Contain(battery);
+        target.Context.Items.Should().NotContain(battery);
+
+        var response = await target.GetResponse("remove battery");
+
+        response.Should().Contain("Taken");
+        GetItem<Laser>().Items.Should().NotContain(battery);
+        target.Context.Items.Should().Contain(battery);
+    }
+
+    [Test]
+    public async Task RemoveBattery_MultipleTimes_CanReinsert()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        var battery = GetItem<OldBattery>();
+        var laser = GetItem<Laser>();
+
+        // Remove it
+        var response = await target.GetResponse("remove battery");
+        response.Should().Contain("Taken");
+        laser.Items.Should().NotContain(battery);
+
+        // Put it back
+        await target.GetResponse("put battery in laser");
+        laser.Items.Should().Contain(battery);
+
+        // Remove it again
+        response = await target.GetResponse("remove battery");
+        response.Should().Contain("Taken");
+        laser.Items.Should().NotContain(battery);
+    }
+
+    [Test]
+    public async Task RemoveBattery_LaserOnGround_RemovesBattery()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        var laser = GetItem<Laser>();
+        var battery = GetItem<OldBattery>();
+
+        laser.Items.Should().Contain(battery);
+
+        var response = await target.GetResponse("remove battery");
+
+        response.Should().Contain("Taken");
+        laser.Items.Should().NotContain(battery);
+        target.Context.Items.Should().Contain(battery);
+    }
+
+    [Test]
+    public async Task RemoveBattery_BatteryNotInLaser_CannotTake()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        var battery = GetItem<OldBattery>();
+
+        // Remove battery from laser first
+        GetItem<Laser>().Items.Clear();
+        battery.CurrentLocation = null;
+
+        var response = await target.GetResponse("remove battery");
+
+        response.Should().NotContain("Taken");
+        target.Context.Items.Should().NotContain(battery);
+    }
+
+    [Test]
+    public async Task RemoveBattery_ThenInsertBack_Works()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        var battery = GetItem<OldBattery>();
+        var laser = GetItem<Laser>();
+
+        // Remove it
+        await target.GetResponse("remove battery");
+        laser.Items.Should().NotContain(battery);
+        target.Context.Items.Should().Contain(battery);
+
+        // Put it back
+        var response = await target.GetResponse("put battery in laser");
+        response.Should().Contain("Done");
+        laser.Items.Should().Contain(battery);
+        target.Context.Items.Should().NotContain(battery);
+    }
+
+    [Test]
+    public async Task RemoveBattery_WithFreshBattery_RemovesFreshBattery()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        var oldBattery = GetItem<OldBattery>();
+        var freshBattery = GetItem<FreshBattery>();
+        var laser = GetItem<Laser>();
+
+        // Replace old with fresh
+        laser.Items.Clear();
+        oldBattery.CurrentLocation = null;
+        laser.ItemPlacedHere(freshBattery);
+
+        var response = await target.GetResponse("remove battery");
+
+        response.Should().Contain("Taken");
+        laser.Items.Should().NotContain(freshBattery);
+        target.Context.Items.Should().Contain(freshBattery);
+    }
+
+    [Test]
+    public async Task RemoveBattery_UsingRemoveFreshBattery_Works()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        var oldBattery = GetItem<OldBattery>();
+        var freshBattery = GetItem<FreshBattery>();
+        var laser = GetItem<Laser>();
+
+        // Replace old with fresh
+        laser.Items.Clear();
+        oldBattery.CurrentLocation = null;
+        laser.ItemPlacedHere(freshBattery);
+
+        var response = await target.GetResponse("remove fresh battery");
+
+        response.Should().Contain("Taken");
+        laser.Items.Should().NotContain(freshBattery);
+        target.Context.Items.Should().Contain(freshBattery);
+    }
+
+    [Test]
+    public async Task TakeBattery_StillWorks_WhenInLaser()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        var battery = GetItem<OldBattery>();
+
+        // "take" should also work as an alternative to "remove"
+        var response = await target.GetResponse("take battery");
+
+        response.Should().Contain("Taken");
+        GetItem<Laser>().Items.Should().NotContain(battery);
+        target.Context.Items.Should().Contain(battery);
     }
 
     #endregion

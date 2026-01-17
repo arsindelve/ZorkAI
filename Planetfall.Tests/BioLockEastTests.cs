@@ -551,7 +551,7 @@ public class BioLockEastTests : EngineTestsBase
         target.Context.RegisterActor(floyd);
         target.Context.RegisterActor(bioLockEast);
 
-        var response = await target.GetResponse("close door");
+        await target.GetResponse("close door");
 
         // Verify actors are unregistered
         target.Context.Actors.Should().NotContain(floyd);
