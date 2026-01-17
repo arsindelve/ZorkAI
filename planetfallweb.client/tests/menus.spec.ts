@@ -10,17 +10,17 @@
  */
 
 import {test, expect} from '@playwright/test';
-import { closeWelcomeModal, waitForGameResponse, handleZorkOneRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
+import { closeWelcomeModal, waitForGameResponse, handlePlanetfallRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
 
 test.describe('Game Menus', () => {
 
     // Set up API mocking before each test
     test.beforeEach(async ({ page }) => {
         // Intercept requests to the API endpoints
-        await page.route('http://localhost:5000/ZorkOne', handleZorkOneRoute);
+        await page.route('http://localhost:5000/Planetfall', handlePlanetfallRoute);
 
         // Explicitly intercept GET requests to /saveGame for getSavedGames
-        await page.route('http://localhost:5000/ZorkOne/saveGame?*', async (route) => {
+        await page.route('http://localhost:5000/Planetfall/saveGame?*', async (route) => {
             if (route.request().method() === 'GET') {
                 await handleGetSavedGamesRoute(route);
             } else {
@@ -29,7 +29,7 @@ test.describe('Game Menus', () => {
         });
 
         // Explicitly intercept POST requests to /saveGame for saveGame
-        await page.route('http://localhost:5000/ZorkOne/saveGame', async (route) => {
+        await page.route('http://localhost:5000/Planetfall/saveGame', async (route) => {
             if (route.request().method() === 'POST') {
                 await handleSaveGameRoute(route);
             } else if (route.request().method() === 'GET' && !route.request().url().includes('?')) {
@@ -40,7 +40,7 @@ test.describe('Game Menus', () => {
             }
         });
 
-        await page.route('http://localhost:5000/ZorkOne/restoreGame', handleRestoreGameRoute);
+        await page.route('http://localhost:5000/Planetfall/restoreGame', handleRestoreGameRoute);
     });
 
     test('About menu - when About button is clicked, the about menu appears', async ({page}) => {
@@ -59,10 +59,10 @@ test.describe('Game Menus', () => {
 
         // Verify that the menu contains expected items
         const menuItems = page.locator('#basic-menu li');
-        await expect(menuItems).toHaveCount(10); // There are 10 menu items in the AboutMenu component
+        await expect(menuItems).toHaveCount(8); // There are 8 menu items in the Planetfall AboutMenu component
 
         // Verify a specific menu item is present
-        const whatIsThisGameItem = page.locator('#basic-menu li:has-text("What is this game?")');
+        const whatIsThisGameItem = page.locator('#basic-menu li:has-text("What is Planetfall.AI?")');
         await expect(whatIsThisGameItem).toBeVisible();
     });
 
@@ -135,7 +135,7 @@ test.describe('Game Menus', () => {
         await waitForGameResponse(page);
 
         // Now check if our specific command was echoed
-        const commandEcho = page.locator('p.text-lime-600').filter({ hasText: /look/i });
+        const commandEcho = page.locator('p.text-glow').filter({ hasText: /look/i });
         await expect(commandEcho).toBeVisible({ timeout: 5000 });
 
         // Verify that the game responded to the command

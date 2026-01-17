@@ -10,7 +10,7 @@
  */
 
 import {test, expect} from '@playwright/test';
-import { closeWelcomeModal, handleZorkOneRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
+import { closeWelcomeModal, handlePlanetfallRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
 import { mockResponses } from './mockResponses';
 
 test.describe('Game Save and Restore', () => {
@@ -18,7 +18,7 @@ test.describe('Game Save and Restore', () => {
     // Set up API mocking before each test
     test.beforeEach(async ({ page }) => {
         // Intercept DELETE requests to /saveGame/{id} for deleteSavedGame
-        await page.route('http://localhost:5000/ZorkOne/saveGame/*', async (route) => {
+        await page.route('http://localhost:5000/Planetfall/saveGame/*', async (route) => {
             if (route.request().method() === 'DELETE') {
                 await route.fulfill({ status: 200, contentType: 'application/json', body: '' });
             } else {
@@ -26,10 +26,10 @@ test.describe('Game Save and Restore', () => {
             }
         });
         // Intercept requests to the API endpoints
-        await page.route('http://localhost:5000/ZorkOne', handleZorkOneRoute);
+        await page.route('http://localhost:5000/Planetfall', handlePlanetfallRoute);
 
         // Explicitly intercept GET requests to /saveGame for getSavedGames
-        await page.route('http://localhost:5000/ZorkOne/saveGame?*', async (route) => {
+        await page.route('http://localhost:5000/Planetfall/saveGame?*', async (route) => {
             if (route.request().method() === 'GET') {
                 await handleGetSavedGamesRoute(route);
             } else {
@@ -38,7 +38,7 @@ test.describe('Game Save and Restore', () => {
         });
 
         // Explicitly intercept POST requests to /saveGame for saveGame
-        await page.route('http://localhost:5000/ZorkOne/saveGame', async (route) => {
+        await page.route('http://localhost:5000/Planetfall/saveGame', async (route) => {
             if (route.request().method() === 'POST') {
                 await handleSaveGameRoute(route);
             } else if (route.request().method() === 'GET' && !route.request().url().includes('?')) {
@@ -49,7 +49,7 @@ test.describe('Game Save and Restore', () => {
             }
         });
 
-        await page.route('http://localhost:5000/ZorkOne/restoreGame', handleRestoreGameRoute);
+        await page.route('http://localhost:5000/Planetfall/restoreGame', handleRestoreGameRoute);
     });
 
     test('Restore Modal - clicking delete opens confirmation dialog with correct game name', async ({ page }) => {
@@ -105,7 +105,7 @@ test.describe('Game Save and Restore', () => {
         await page.waitForSelector('[data-testid="restore-game-list"]', { state: 'visible', timeout: 10000 });
         const firstItem = page.locator('[data-testid="restore-game-item"]').first();
         // Prepare to wait for DELETE request
-        const deleteRequestPromise = page.waitForRequest((req) => req.method() === 'DELETE' && /\/ZorkOne\/saveGame\/.+\?sessionId=/.test(req.url()));
+        const deleteRequestPromise = page.waitForRequest((req) => req.method() === 'DELETE' && /\/Planetfall\/saveGame\/.+\?sessionId=/.test(req.url()));
         // Open confirmation dialog and confirm
         await firstItem.locator('button[title="Delete saved game"]').click();
         const confirmDialog = page.locator('[aria-labelledby="confirmation-dialog-title"]');
@@ -444,7 +444,7 @@ test.describe('Game Save and Restore', () => {
 
     test('Save Modal - Overwrite Existing Save section is hidden when no saved games exist', async ({page}) => {
         // Override the getSavedGames route to return an empty array
-        await page.route('http://localhost:5000/ZorkOne/saveGame?*', async (route) => {
+        await page.route('http://localhost:5000/Planetfall/saveGame?*', async (route) => {
             if (route.request().method() === 'GET') {
                 await route.fulfill({ 
                     status: 200, 

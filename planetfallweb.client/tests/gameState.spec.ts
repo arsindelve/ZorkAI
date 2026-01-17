@@ -1,8 +1,8 @@
 /**
- * Zork Game State Tests
- * 
- * These tests verify the functionality of game state display (location, score, moves).
- * 
+ * Planetfall Game State Tests
+ *
+ * These tests verify the functionality of game state display (location, score, time).
+ *
  * NOTE: API Mocking
  * To avoid dependency on the backend API (which may not always be running),
  * these tests use Playwright's route interception to mock API responses.
@@ -10,17 +10,17 @@
  */
 
 import {test, expect} from '@playwright/test';
-import { closeWelcomeModal, waitForGameResponse, handleZorkOneRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
+import { closeWelcomeModal, waitForGameResponse, handlePlanetfallRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
 
 test.describe('Game State', () => {
 
     // Set up API mocking before each test
     test.beforeEach(async ({ page }) => {
         // Intercept requests to the API endpoints
-        await page.route('http://localhost:5000/ZorkOne', handleZorkOneRoute);
+        await page.route('http://localhost:5000/Planetfall', handlePlanetfallRoute);
 
         // Explicitly intercept GET requests to /saveGame for getSavedGames
-        await page.route('http://localhost:5000/ZorkOne/saveGame?*', async (route) => {
+        await page.route('http://localhost:5000/Planetfall/saveGame?*', async (route) => {
             if (route.request().method() === 'GET') {
                 await handleGetSavedGamesRoute(route);
             } else {
@@ -29,7 +29,7 @@ test.describe('Game State', () => {
         });
 
         // Explicitly intercept POST requests to /saveGame for saveGame
-        await page.route('http://localhost:5000/ZorkOne/saveGame', async (route) => {
+        await page.route('http://localhost:5000/Planetfall/saveGame', async (route) => {
             if (route.request().method() === 'POST') {
                 await handleSaveGameRoute(route);
             } else if (route.request().method() === 'GET' && !route.request().url().includes('?')) {
@@ -40,7 +40,7 @@ test.describe('Game State', () => {
             }
         });
 
-        await page.route('http://localhost:5000/ZorkOne/restoreGame', handleRestoreGameRoute);
+        await page.route('http://localhost:5000/Planetfall/restoreGame', handleRestoreGameRoute);
     });
 
     test('Location - when API returns a location, that location name is displayed in the header', async ({page}) => {
@@ -95,17 +95,17 @@ test.describe('Game State', () => {
         await expect(headerScore).toHaveText('Score:  10');
     });
 
-    test('Moves - when API returns moves, those moves are displayed in the header', async ({page}) => {
+    test('Time - when API returns time, that time is displayed in the header', async ({page}) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
         // Wait for the input field to be visible
         await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
 
-        // Verify initial moves in header
-        const headerMoves = page.locator('[data-testid="header-moves"]');
+        // Verify time element in header
+        const headerTime = page.locator('[data-testid="header-time"]');
 
-        // Type the "look" command in the input field (which returns a moves value of 1 in the mock response)
+        // Type the "look" command in the input field (which returns a time value of 4654 in the mock response)
         await page.fill('[data-testid="game-input"]', 'look');
 
         // Make sure the input field has the correct value before proceeding
@@ -117,8 +117,8 @@ test.describe('Game State', () => {
         // Wait for the game response to appear
         await waitForGameResponse(page);
 
-        // Verify that the moves in the header has changed to "1"
-        await expect(headerMoves).toHaveText('Moves:  1');
+        // Verify that the time in the header has changed to "4654"
+        await expect(headerTime).toHaveText('Time:  4654');
     });
 
 });

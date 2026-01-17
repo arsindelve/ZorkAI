@@ -16,6 +16,9 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     [UsedImplicitly]
     public HungerNotifications HungerNotifications { get; set; } = new();
 
+    [UsedImplicitly]
+    public SleepNotifications SleepNotifications { get; set; } = new();
+
     public override string CurrentScore =>
         $"Your score would be {Score} (out of 80 points). It is Day {Day} of your adventure. " +
         $"Current Galactic Standard Time (adjusted to your local day-cycle) is " +
@@ -28,8 +31,14 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     [UsedImplicitly] public HungerLevel Hunger { get; set; } = HungerLevel.WellFed;
 
     [UsedImplicitly] public TiredLevel Tired { get; set; } = TiredLevel.WellRested;
-    
+
     [UsedImplicitly] public bool HasTakenExperimentalMedicine { get; set; }
+
+    /// <summary>
+    /// Flag indicating that sleep was just processed this turn.
+    /// Used to prevent the SleepProcessor from adding redundant messages after a sleep cycle.
+    /// </summary>
+    public bool SleepJustOccurred { get; set; }
 
     public string SicknessDescription => ((SicknessLevel)Day).GetDescription();
     
@@ -50,17 +59,46 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
 
         // Initialize hunger system with current time (after Chronometer is set up)
         HungerNotifications.Initialize(CurrentTime);
+
+        // Initialize sleep system with current time
+        SleepNotifications.Initialize(CurrentTime);
     }
 
     public override string ProcessBeginningOfTurn()
     {
         var messages = string.Empty;
 
+        // Check for sleep events (voluntary or forced)
+        var sleepMessage = SleepEngine.CheckForSleep(this);
+        if (!string.IsNullOrEmpty(sleepMessage))
+        {
+            SleepJustOccurred = true;
+            return sleepMessage + base.ProcessBeginningOfTurn();
+        }
+
         // Check for sickness notifications
         var sicknessNotification = SicknessNotifications.GetNotification(Day, CurrentTime);
         if (!string.IsNullOrEmpty(sicknessNotification))
         {
             messages += sicknessNotification;
+        }
+
+        // Check if sleep level should advance
+        var nextTiredLevel = SleepNotifications.GetNextTiredLevel(CurrentTime, Tired);
+        if (nextTiredLevel.HasValue)
+        {
+            // Get notification BEFORE advancing level
+            var sleepNotification = SleepNotifications.GetNotification(CurrentTime, Tired);
+
+            Tired = nextTiredLevel.Value;
+
+            // Add notification message (with newline separator if sickness notification also fired)
+            if (!string.IsNullOrEmpty(sleepNotification))
+            {
+                if (!string.IsNullOrEmpty(messages))
+                    messages += "\n";
+                messages += sleepNotification;
+            }
         }
 
         // Check if hunger level should advance
@@ -95,6 +133,7 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     public override string? ProcessEndOfTurn()
     {
         Repository.GetItem<Chronometer>().CurrentTime += 54;
+        SleepJustOccurred = false;
         return base.ProcessEndOfTurn();
     }
 

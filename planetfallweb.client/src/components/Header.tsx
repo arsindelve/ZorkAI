@@ -1,15 +1,15 @@
 import React from 'react';
 import ExploreIcon from '@mui/icons-material/Explore';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
-import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 interface HeaderComponentProps {
     locationName: string;
-    moves: string;
+    time: string;
     score: string;
 }
 
-const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, moves, score}) => (
+const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, time, score}) => (
     <div className="hidden sm:flex items-center
     mt-5
     justify-between
@@ -33,15 +33,15 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, moves, s
         <div className="flex gap-4">
             <div
                 className="hidden sm:flex items-center px-3 py-2 rounded-lg border transition-colors duration-200"
-                data-testid="header-moves"
+                data-testid="header-time"
                 style={{
                     background: 'color-mix(in srgb, var(--planetfall-bg-dark) 60%, transparent)',
                     borderColor: 'color-mix(in srgb, var(--planetfall-primary) 30%, transparent)'
                 }}
             >
-                <DirectionsRunIcon className="mr-2 text-sm" fontSize="small" style={{color: 'var(--planetfall-accent)'}}/>
-                <span className="mr-2 text-sm" style={{color: 'var(--planetfall-text)'}}>Moves: </span>
-                <span className="font-medium" style={{color: 'var(--planetfall-primary)'}}>{moves}</span>
+                <AccessTimeIcon className="mr-2 text-sm" fontSize="small" style={{color: 'var(--planetfall-accent)'}}/>
+                <span className="mr-2 text-sm" style={{color: 'var(--planetfall-text)'}}>Time: </span>
+                <span className="font-medium" style={{color: 'var(--planetfall-primary)'}}>{time}</span>
             </div>
             <div
                 className="hidden sm:flex items-center px-3 py-2 rounded-lg border transition-colors duration-200"

@@ -10,17 +10,17 @@
  */
 
 import {test, expect} from '@playwright/test';
-import { closeWelcomeModal, handleZorkOneRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
+import { closeWelcomeModal, handlePlanetfallRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
 
 test.describe('Game Interface', () => {
 
     // Set up API mocking before each test
     test.beforeEach(async ({ page }) => {
         // Intercept requests to the API endpoints
-        await page.route('http://localhost:5000/ZorkOne', handleZorkOneRoute);
+        await page.route('http://localhost:5000/Planetfall', handlePlanetfallRoute);
 
         // Explicitly intercept GET requests to /saveGame for getSavedGames
-        await page.route('http://localhost:5000/ZorkOne/saveGame?*', async (route) => {
+        await page.route('http://localhost:5000/Planetfall/saveGame?*', async (route) => {
             if (route.request().method() === 'GET') {
                 await handleGetSavedGamesRoute(route);
             } else {
@@ -29,7 +29,7 @@ test.describe('Game Interface', () => {
         });
 
         // Explicitly intercept POST requests to /saveGame for saveGame
-        await page.route('http://localhost:5000/ZorkOne/saveGame', async (route) => {
+        await page.route('http://localhost:5000/Planetfall/saveGame', async (route) => {
             if (route.request().method() === 'POST') {
                 await handleSaveGameRoute(route);
             } else if (route.request().method() === 'GET' && !route.request().url().includes('?')) {
@@ -40,7 +40,7 @@ test.describe('Game Interface', () => {
             }
         });
 
-        await page.route('http://localhost:5000/ZorkOne/restoreGame', handleRestoreGameRoute);
+        await page.route('http://localhost:5000/Planetfall/restoreGame', handleRestoreGameRoute);
     });
 
     test('should load the game interface', async ({page}) => {
@@ -48,10 +48,10 @@ test.describe('Game Interface', () => {
         await closeWelcomeModal(page);
 
         // Wait for initial game content to load
-        await page.waitForSelector('.bg-stone-900', {state: 'visible'});
+        await page.waitForSelector('[data-testid="game-responses-container"]', {state: 'visible'});
 
         // Check that the game container is visible
-        const gameContainer = page.locator('.bg-stone-900');
+        const gameContainer = page.locator('[data-testid="game-responses-container"]');
         await expect(gameContainer).toBeVisible();
 
         // Check that the input field is visible

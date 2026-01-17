@@ -281,6 +281,3 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         ItemBeingHeld = null;
     }
 }
-
-// TODO: Floyd gives you a nudge with his foot and giggles. "You sure look silly sleeping on the floor," he says.
-// TODO: Floyd bounces impatiently at the foot of the bed. "About time you woke up, you lazy bones! Let's explore around some more!"

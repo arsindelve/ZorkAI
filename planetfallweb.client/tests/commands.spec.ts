@@ -10,17 +10,17 @@
  */
 
 import {test, expect} from '@playwright/test';
-import { closeWelcomeModal, waitForGameResponse, handleZorkOneRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
+import { closeWelcomeModal, waitForGameResponse, handlePlanetfallRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
 
 test.describe('Game Commands', () => {
 
     // Set up API mocking before each test
     test.beforeEach(async ({ page }) => {
         // Intercept requests to the API endpoints
-        await page.route('http://localhost:5000/ZorkOne', handleZorkOneRoute);
+        await page.route('http://localhost:5000/Planetfall', handlePlanetfallRoute);
 
         // Explicitly intercept GET requests to /saveGame for getSavedGames
-        await page.route('http://localhost:5000/ZorkOne/saveGame?*', async (route) => {
+        await page.route('http://localhost:5000/Planetfall/saveGame?*', async (route) => {
             if (route.request().method() === 'GET') {
                 await handleGetSavedGamesRoute(route);
             } else {
@@ -29,7 +29,7 @@ test.describe('Game Commands', () => {
         });
 
         // Explicitly intercept POST requests to /saveGame for saveGame
-        await page.route('http://localhost:5000/ZorkOne/saveGame', async (route) => {
+        await page.route('http://localhost:5000/Planetfall/saveGame', async (route) => {
             if (route.request().method() === 'POST') {
                 await handleSaveGameRoute(route);
             } else if (route.request().method() === 'GET' && !route.request().url().includes('?')) {
@@ -40,7 +40,7 @@ test.describe('Game Commands', () => {
             }
         });
 
-        await page.route('http://localhost:5000/ZorkOne/restoreGame', handleRestoreGameRoute);
+        await page.route('http://localhost:5000/Planetfall/restoreGame', handleRestoreGameRoute);
     });
 
     test('Game input - player can enter a command and receive a response', async ({page}) => {
@@ -63,7 +63,7 @@ test.describe('Game Commands', () => {
         await waitForGameResponse(page);
 
         // Now check if our specific command was echoed
-        const commandEcho = page.locator('p.text-lime-600').filter({ hasText: /look around/i });
+        const commandEcho = page.locator('p.text-glow').filter({ hasText: /look around/i });
         await expect(commandEcho.first()).toBeVisible({ timeout: 5000 });
 
         // Verify that the game responded to the command
@@ -98,7 +98,7 @@ test.describe('Game Commands', () => {
         await waitForGameResponse(page);
 
         // Now check if our specific command was echoed
-        const commandEcho = page.locator('p.text-lime-600').filter({ hasText: /look around/i });
+        const commandEcho = page.locator('p.text-glow').filter({ hasText: /look around/i });
         await expect(commandEcho.first()).toBeVisible({ timeout: 5000 });
 
         // Verify that the game responded to the command
@@ -137,7 +137,7 @@ test.describe('Game Commands', () => {
         await waitForGameResponse(page);
 
         // Now check if our specific command was echoed
-        const commandEcho = page.locator('p.text-lime-600').filter({ hasText: /North/i });
+        const commandEcho = page.locator('p.text-glow').filter({ hasText: /North/i });
         await expect(commandEcho).toBeVisible({ timeout: 5000 });
 
         // Verify that the game responded to the command
