@@ -1,5 +1,8 @@
 using FluentAssertions;
+using GameEngine;
+using Model.AIGeneration;
 using Model.Interaction;
+using Model.Interface;
 using Planetfall.Command;
 using Planetfall.Item.Feinstein;
 using Planetfall.Location.Feinstein;
@@ -343,6 +346,83 @@ public class DeathProcessorTests : EngineTestsBase
 
             // PendingDeath should be cleared after restart (new context has null)
             engine.Context.PendingDeath.Should().BeNull();
+        }
+
+        [Test]
+        public async Task Should_StopProcessingActors_WhenDeathOccurs()
+        {
+            var engine = GetTarget();
+            StartHere<MessHall>();
+
+            // Create a death-triggering actor and a post-death actor
+            var deathActor = new TestDeathActor();
+            var postDeathActor = new TestPostDeathActor();
+
+            // Register both actors - death actor first, then post-death actor
+            engine.Context.RegisterActor(deathActor);
+            engine.Context.RegisterActor(postDeathActor);
+
+            var result = await engine.GetResponse("wait");
+
+            // Death actor's message should be present
+            result.Should().Contain("TestDeathActor killed you");
+
+            // Post-death actor's message should NOT be present - it should not have run
+            result.Should().NotContain("PostDeathActor should not appear");
+        }
+
+        [Test]
+        public async Task Should_NotIncludeBlatherAction_WhenExplosionKillsPlayer()
+        {
+            var engine = GetTarget();
+
+            // Start on Deck Eight (not an escape location)
+            StartHere<DeckEight>();
+
+            // Set up Blather as an actor
+            var blather = Repository.GetItem<Blather>();
+            engine.Context.CurrentLocation.ItemPlacedHere(blather);
+            engine.Context.RegisterActor(blather);
+
+            // Set up explosion coordinator
+            var explosionCoordinator = new ExplosionCoordinator();
+            engine.Context.RegisterActor(explosionCoordinator);
+
+            // Set moves to trigger death explosion (TurnWhenFeinsteinBlowsUp + 2 = 12)
+            engine.Context.Moves = ExplosionCoordinator.TurnWhenFeinsteinBlowsUp + 1;
+
+            var result = await engine.GetResponse("wait");
+
+            // Should have death message from explosion
+            result.Should().Contain("*** You have died ***");
+            result.Should().Contain("Too bad you weren't in the escape pod");
+
+            // Should NOT have Blather's action after death
+            result.Should().NotContain("Blather loses his last vestige");
+            result.Should().NotContain("brig");
+        }
+    }
+
+    /// <summary>
+    /// Test actor that triggers death when it acts.
+    /// </summary>
+    internal class TestDeathActor : ITurnBasedActor
+    {
+        public Task<string> Act(IContext context, IGenerationClient client)
+        {
+            return Task.FromResult(
+                new DeathProcessor().Process("TestDeathActor killed you.", context).InteractionMessage);
+        }
+    }
+
+    /// <summary>
+    /// Test actor that should NOT run after death - its output should never appear.
+    /// </summary>
+    internal class TestPostDeathActor : ITurnBasedActor
+    {
+        public Task<string> Act(IContext context, IGenerationClient client)
+        {
+            return Task.FromResult("PostDeathActor should not appear after death!");
         }
     }
 }

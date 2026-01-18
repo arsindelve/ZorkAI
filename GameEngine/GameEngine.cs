@@ -628,6 +628,13 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             _logger?.LogDebug($"Processing actor: {actor.GetType()}");
             var task = await actor.Act(Context, GenerationClient);
             actorResults += $"{task} ";
+
+            // Stop processing actors if death occurred - subsequent actors should not run
+            if (Context.PendingDeath is not null)
+            {
+                _logger?.LogDebug("Death occurred during actor processing, stopping remaining actors");
+                break;
+            }
         }
 
         return actorResults.Trim();
