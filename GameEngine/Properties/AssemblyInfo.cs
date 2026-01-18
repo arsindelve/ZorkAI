@@ -4,4 +4,5 @@
 [assembly: InternalsVisibleTo("IntegrationTests")]
 [assembly: InternalsVisibleTo("ZorkOne.Tests")]
 [assembly: InternalsVisibleTo("Planetfall.Tests")]
+[assembly: InternalsVisibleTo("EscapeRoom.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

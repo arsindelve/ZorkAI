@@ -2,6 +2,7 @@
 using System.Text;
 using ChatLambda;
 using DynamoDb;
+using EscapeRoom;
 using GameEngine;
 using Microsoft.Extensions.Logging;
 using Model;
@@ -108,6 +109,7 @@ async Task<IGameEngine> GetEngine()
     {
         "Planetfall" => await CreateEngine<PlanetfallGame, PlanetfallContext>(),
         "ZorkOne" => await CreateEngine<ZorkI, ZorkIContext>(),
+        "EscapeRoom" => await CreateEngine<EscapeRoomGame, EscapeRoomContext>(),
         //"ZorkTwo" => CreateEngine<ZorkII, ZorkIIContext>(),
 
         _ => throw new InvalidOperationException($"Unsupported engine type: {args[0]}")

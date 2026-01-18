@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\DynamoDb\DynamoDb.csproj"/>
+        <ProjectReference Include="..\EscapeRoom\EscapeRoom.csproj"/>
         <ProjectReference Include="..\GameEngine\GameEngine.csproj"/>
         <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>
         <ProjectReference Include="..\Planetfall\Planetfall.csproj"/>

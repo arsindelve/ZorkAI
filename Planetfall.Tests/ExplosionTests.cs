@@ -2,6 +2,7 @@ using FluentAssertions;
 using GameEngine;
 using Model.AIParsing;
 using OpenAI;
+using Planetfall.Item.Feinstein;
 using Planetfall.Location.Feinstein;
 
 namespace Planetfall.Tests;
@@ -335,5 +336,35 @@ public class ExplosionTests : EngineTestsBase
             .Contain(
                 "The ship rocks from the force of multiple explosions. The lights go out, and you feel a sudden drop in pressure accompanied by a loud hissing. Too bad you weren't in the escape pod...");
         response.Should().Contain("You have died");
+    }
+
+    [Test]
+    public async Task OpenBulkhead_FromDeckNine_AfterLaunchBegins_ShouldSayTooLate()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<DeckNine>();
+
+        // Wait for the explosion (9 waits to get to turn 10)
+        for (var i = 0; i < 9; i++)
+            await target.GetResponse("wait");
+
+        // Turn 10: Explosion happens, bulkhead opens
+        var response = await target.GetResponse("wait");
+        response.Should().Contain("A massive explosion rocks the ship");
+        response.Should().Contain("door to port slides open");
+        Repository.GetItem<BulkheadDoor>().IsOpen.Should().BeTrue();
+
+        // Turn 11: More explosions, emergency bulkheads closing around the ship
+        response = await target.GetResponse("wait");
+        response.Should().Contain("More distant explosions");
+
+        // Turn 12: The escape-pod bulkhead clangs shut (pod launch begins)
+        response = await target.GetResponse("wait");
+        response.Should().Contain("escape-pod bulkhead clangs shut");
+        Repository.GetItem<BulkheadDoor>().IsOpen.Should().BeFalse();
+
+        // Now try to open the bulkhead from Deck Nine - should say "Too late"
+        response = await target.GetResponse("open bulkhead");
+        response.Should().Contain("Too late. The pod's launching procedure has already begun.");
     }
 }
