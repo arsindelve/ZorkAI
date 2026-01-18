@@ -14,8 +14,12 @@ public abstract class FloydSpecialInteractionLocation : LocationBase, IFloydSpec
     public override async Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        InteractionHasHappened = true;
         var floyd = GetItem<Floyd>();
+
+        if (!floyd.IsHereAndIsOn(context))
+            return string.Empty;
+
+        InteractionHasHappened = true;
         return Environment.NewLine + Environment.NewLine +
                await floyd.GenerateCompanionSpeech(context, generationClient, FloydPrompt);
     }
