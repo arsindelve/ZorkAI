@@ -93,7 +93,10 @@ public class PlanetfallGame : IInfocomGame
 
     public void Init(IContext context)
     {
-        Repository.GetLocation<EscapePod>().Init();
+        // Note: GetLocation already calls Init() internally when creating the location,
+        // so we don't call Init() explicitly here to avoid double-initialization.
+        // The explicit call was causing BulkheadDoor to be added twice to EscapePod.Items.
+        Repository.GetLocation<EscapePod>();
         var explosion = new ExplosionCoordinator();
         context.RegisterActor(Repository.GetLocation<DeckNine>());
         context.RegisterActor(explosion);
