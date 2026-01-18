@@ -2,6 +2,7 @@ using System.Reflection;
 using GameEngine.Item;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
+using Model.Interaction;
 using Model.Interface;
 using Model.Item;
 using Model.Location;
@@ -73,6 +74,13 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     public string LastNoun { get; set; } = "";
 
     public int Moves { get; set; }
+
+    /// <summary>
+    ///     When set, signals that the player has died and the game should restart.
+    ///     The GameEngine checks this after ProcessBeginningOfTurn and handles the restart.
+    /// </summary>
+    [JsonIgnore]
+    public DeathInteractionResult? PendingDeath { get; set; }
 
     public List<TItem> GetItems<TItem>()
     {
@@ -443,4 +451,14 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     {
         return null;
     }
+
+    /// <summary>
+    ///     Gets the current death count. Override in game-specific contexts that track deaths.
+    /// </summary>
+    public virtual int GetDeathCount() => 0;
+
+    /// <summary>
+    ///     Sets the death count after a restart. Override in game-specific contexts that track deaths.
+    /// </summary>
+    public virtual void SetDeathCount(int count) { }
 }

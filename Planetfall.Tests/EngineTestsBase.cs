@@ -20,7 +20,14 @@ public class EngineTestsBase
 {
     private Mock<IGenerationClient> _client = new();
     private IIntentParser _parser = Mock.Of<IIntentParser>();
-    private PlanetfallContext Context { get; set; } = null!;
+    private GameEngine<PlanetfallGame, PlanetfallContext>? _storedEngine;
+
+    /// <summary>
+    /// Context always pulls from the stored engine to handle death restarts correctly.
+    /// After RestartAfterDeath, the engine has a new Context, so we must not cache it.
+    /// </summary>
+    protected PlanetfallContext Context => _storedEngine?.Context ?? throw new InvalidOperationException("Engine not initialized");
+
     protected Mock<IParseConversation> ParseConversationMock { get; private set; } = null!;
 
     protected T StartHere<T>() where T : class, ILocation, new()
@@ -78,13 +85,14 @@ public class EngineTestsBase
         engine.Context.Verbosity = Verbosity.Verbose;
         Repository.GetLocation<DeckNine>().Init();
 
-        Context = engine.Context;
-        Context.LastInput = null;
-        Context.LastResponse = null;
+        // Store engine reference so Context property always gets current context
+        _storedEngine = engine;
+        engine.Context.LastInput = null;
+        engine.Context.LastResponse = null;
 
         // Prevent notifications from firing unexpectedly in tests by pushing warning times far into the future
-        Context.SleepNotifications.NextWarningAt = Context.CurrentTime + 100000;
-        Context.HungerNotifications.NextWarningAt = Context.CurrentTime + 100000;
+        engine.Context.SleepNotifications.NextWarningAt = engine.Context.CurrentTime + 100000;
+        engine.Context.HungerNotifications.NextWarningAt = engine.Context.CurrentTime + 100000;
 
         return engine;
     }

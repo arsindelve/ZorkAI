@@ -10,6 +10,12 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     [UsedImplicitly]
     public int Day { get; set; } = 1;
 
+    /// <summary>
+    ///     Number of times the player has died. Preserved across death restarts.
+    /// </summary>
+    [UsedImplicitly]
+    public int DeathCounter { get; set; }
+
     [UsedImplicitly]
     public SicknessNotifications SicknessNotifications { get; set; } = new();
 
@@ -145,10 +151,14 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     public override Request? GetSaveGameRequest(string location)
     {
         var floyd = Repository.GetItem<Floyd>();
-        return floyd.IsHereAndIsOn(this) ? 
-            new FloydAfterSaveGameRequest(location) : 
+        return floyd.IsHereAndIsOn(this) ?
+            new FloydAfterSaveGameRequest(location) :
             null; // Use default AfterSaveGameRequest
     }
+
+    public override int GetDeathCount() => DeathCounter;
+
+    public override void SetDeathCount(int count) => DeathCounter = count;
 }
 
 

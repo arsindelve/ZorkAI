@@ -61,13 +61,13 @@ public sealed class WalkthroughBioLock : WalkthroughTestBase
     [TestCase("e", "SetupBioLock", "Bio Lock East")]
     [TestCase("z", null, "Time passes", "Floyd stands on his tiptoes", "Looks dangerous in there", "We'll need card there to fix computer", "Floyd will get card", "You open the door, then Floyd will rush in", "Floyd's voice trembles")]
     [TestCase("open door", null, "The door opens", "Floyd, pausing only for the briefest moment, plunges into the Bio Lab", "he is set upon by hideous, mutated monsters", "More are heading straight toward the open door", "Floyd shrieks and yells to you to close the door")]
-    [TestCase("z", null, "Time passes", "biological nightmares reach you", "Gripping coils wrap around your limbs", "powerful teeth begin tearing at your flesh", "you feel a powerful poison", "You have died")]
+    [TestCase("z", null, "Time passes", "biological nightmares reach you", "Gripping coils wrap around your limbs", "powerful teeth begin tearing at your flesh", "you feel a powerful poison", "You have died", "Deck Nine")]
     public async Task PlayerDoesNotCloseDoor_PlayerDies(string input, string? setup, params string[] expectedResponses)
         => await DoWithSetup(input, setup, expectedResponses);
 
     [Test]
     [TestCase("e", "SetupBioLock", "Bio Lock East")]
-    [TestCase("open door", null, "Opening the door reveals a Bio-Lab full of horrible mutations", "You stare at them, frozen with horror", "Growling with hunger and delight", "the mutations march into the bio-lock and devour you", "You have died")]
+    [TestCase("open door", null, "Opening the door reveals a Bio-Lab full of horrible mutations", "You stare at them, frozen with horror", "Growling with hunger and delight", "the mutations march into the bio-lock and devour you", "You have died", "Deck Nine")]
     public async Task PlayerOpensDoorTooSoon_PlayerDies(string input, string? setup, params string[] expectedResponses)
         => await DoWithSetup(input, setup, expectedResponses);
 
@@ -76,7 +76,7 @@ public sealed class WalkthroughBioLock : WalkthroughTestBase
     [TestCase("z", null, "Time passes", "Floyd stands on his tiptoes", "Looks dangerous in there", "We'll need card there to fix computer", "Floyd will get card", "You open the door, then Floyd will rush in", "Floyd's voice trembles")]
     [TestCase("open door", null, "The door opens", "Floyd, pausing only for the briefest moment, plunges into the Bio Lab", "he is set upon by hideous, mutated monsters", "More are heading straight toward the open door", "Floyd shrieks and yells to you to close the door")]
     [TestCase("close door", null, "The door closes", "And not a moment too soon")]
-    [TestCase("open door", null, "The door opens", "biological nightmares reach you", "Gripping coils wrap around your limbs", "powerful teeth begin tearing at your flesh", "you feel a powerful poison", "You have died")]
+    [TestCase("open door", null, "The door opens", "biological nightmares reach you", "Gripping coils wrap around your limbs", "powerful teeth begin tearing at your flesh", "you feel a powerful poison", "You have died", "Deck Nine")]
     public async Task PlayerReopensDoorTooSoon_PlayerDies(string input, string? setup, params string[] expectedResponses)
         => await DoWithSetup(input, setup, expectedResponses);
 
@@ -122,7 +122,7 @@ public sealed class WalkthroughBioLock : WalkthroughTestBase
     [TestCase("close door", null, "The door closes", "And not a moment too soon", "From within the lab you hear ferocious growlings", "the sounds of a skirmish", "high-pitched metallic scream")]
     [TestCase("z", null, "Time passes", "You hear, slightly muffled by the door, three fast knocks", "followed by the distinctive sound of tearing metal")]
     [TestCase("open door", null, "The door opens", "Floyd stumbles out of the Bio Lab", "clutching the mini-booth card", "The mutations rush toward the open doorway")]
-    [TestCase("z", null, "Time passes", "biological nightmares reach you", "Gripping coils wrap around your limbs", "powerful teeth begin tearing at your flesh", "you feel a powerful poison", "You have died")]
+    [TestCase("z", null, "Time passes", "biological nightmares reach you", "Gripping coils wrap around your limbs", "powerful teeth begin tearing at your flesh", "you feel a powerful poison", "You have died", "Deck Nine")]
     public async Task PlayerFailsToCloseTheFinalDoor_PlayerDies(string input, string? setup, params string[] expectedResponses)
         => await DoWithSetup(input, setup, expectedResponses);
 }

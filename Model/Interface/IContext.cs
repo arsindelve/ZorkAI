@@ -220,4 +220,20 @@ public interface IContext : ICanContainItems
     /// <param name="location">The current location description.</param>
     /// <returns>A custom Request for save game narration, or null to use the default AfterSaveGameRequest.</returns>
     Request? GetSaveGameRequest(string location);
+
+    /// <summary>
+    ///     When set, signals that the player has died and the game should restart.
+    ///     The GameEngine checks this after ProcessBeginningOfTurn and handles the restart.
+    /// </summary>
+    DeathInteractionResult? PendingDeath { get; set; }
+
+    /// <summary>
+    ///     Gets the current death count. Override in game-specific contexts that track deaths.
+    /// </summary>
+    int GetDeathCount();
+
+    /// <summary>
+    ///     Sets the death count after a restart. Override in game-specific contexts that track deaths.
+    /// </summary>
+    void SetDeathCount(int count);
 }

@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
+using Model.Interaction;
 using Model.Interface;
 using Model.Movement;
 using Newtonsoft.Json;
@@ -256,6 +257,15 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // See if the context needs to notify us of anything. Are we sleepy? Hungry?
         var contextPrepend = Context.ProcessBeginningOfTurn();
 
+        // Check if player died during beginning-of-turn processing (e.g., hunger death)
+        if (Context.PendingDeath is not null)
+        {
+            var deathResult = Context.PendingDeath;
+            var deathMessage = deathResult.InteractionMessage;
+            RestartAfterDeath(deathResult.DeathCount);
+            return PostProcessing(deathMessage + Context.CurrentLocation.GetDescription(Context));
+        }
+
         // See if the user typed "again" or some variation.
         // if so, we'll replace the input with their previous input.
         (_currentInput, var returnResponseFromAgainProcessor) = _againProcessor.Process(
@@ -362,6 +372,39 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         Context.Game = new TInfocomGame();
 
         return Context;
+    }
+
+    /// <summary>
+    ///     Restarts the game after player death, preserving only the death counter.
+    ///     Uses the same code path as starting a fresh game to ensure complete state reset.
+    /// </summary>
+    /// <param name="deathCount">The death counter to preserve across restarts.</param>
+    private void RestartAfterDeath(int deathCount)
+    {
+        _logger?.LogInformation($"Restarting game after death #{deathCount}");
+
+        // Reset repository (clears all items/locations)
+        Repository.Reset();
+
+        // Create fresh game instance and context
+        _gameInstance = new TInfocomGame();
+        Context = new TContext
+        {
+            Engine = this,
+            Game = _gameInstance,
+            Verbosity = Verbosity.Brief
+        };
+
+        // Re-initialize location and game
+        Context.CurrentLocation.Init();
+        Context.Init();
+        _gameInstance.Init(Context);
+
+        // Restore cross-death state via virtual method (game-agnostic)
+        Context.SetDeathCount(deathCount);
+
+        // Update inventory list for web clients
+        Inventory = Context.Items.Select(s => s.Name).ToList();
     }
 
     /// <summary>
@@ -500,7 +543,30 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     private async Task<string> ProcessActorsAndContextEndOfTurn(string? contextPrepend, string? turnResult)
     {
+        // Check if player died during the turn (e.g., from location hazards, items, etc.)
+        if (Context.PendingDeath is not null)
+        {
+            var deathResult = Context.PendingDeath;
+            // Include any context and turn result before the death message (e.g., "The door opens.")
+            // The death message is already in turnResult since it was returned from the interaction
+            var preDeathOutput = FormatResult(contextPrepend, turnResult, null, null);
+            RestartAfterDeath(deathResult.DeathCount);
+            return PostProcessing(preDeathOutput + "\n" + Context.CurrentLocation.GetDescription(Context));
+        }
+
         var actors = await ProcessActors();
+
+        // Check if player died during actor processing (e.g., Bio Lock mutations)
+        if (Context.PendingDeath is not null)
+        {
+            var deathResult = Context.PendingDeath;
+            // The death message is already included in actors output (from BioLockStateMachineManager etc.)
+            // We just need to format everything before death, restart, and append the new location
+            var preDeathOutput = FormatResult(contextPrepend, turnResult, actors, null);
+            RestartAfterDeath(deathResult.DeathCount);
+            return PostProcessing(preDeathOutput + "\n" + Context.CurrentLocation.GetDescription(Context));
+        }
+
         var contextAppend = Context.ProcessEndOfTurn();
         Inventory = Context.Items.Select(s => s.Name).ToList();
         return PostProcessing(FormatResult(contextPrepend, turnResult, actors, contextAppend));
