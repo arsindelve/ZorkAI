@@ -15,13 +15,14 @@ public class Slime : ItemBase, ICanBeExamined, ISmell
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.MatchVerb(["taste", "eat"]))
+        // Must check both verb AND noun to avoid intercepting commands like "remove battery"
+        if (action.Match(["taste", "eat"], NounsForMatching))
             return new PositiveInteractionResult("It tastes like slime. Aren't you glad you didn't step in it? ");
 
-        if (action.MatchVerb(["clean", "scrub", "remove"]))
+        if (action.Match(["clean", "scrub", "remove"], NounsForMatching))
             return new PositiveInteractionResult("Whew. You've cleaned up maybe one ten-thousandth of the slime. ");
 
-        if (action.MatchVerb(["touch", "feel"]))
+        if (action.Match(["touch", "feel"], NounsForMatching))
             return new PositiveInteractionResult(CannotBeTakenDescription);
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

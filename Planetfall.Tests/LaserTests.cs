@@ -1084,6 +1084,9 @@ public class LaserTests : EngineTestsBase
     public async Task RemoveBattery_MultipleTimes_CanReinsert()
     {
         var target = GetTarget();
+        // Start in ToolRoom to avoid DeckNine's random actor spawning (Ambassador places slime
+        // which responds to "remove" verb, causing flaky test failures)
+        StartHere<ToolRoom>();
         Take<Laser>();
         var battery = GetItem<OldBattery>();
         var laser = GetItem<Laser>();
