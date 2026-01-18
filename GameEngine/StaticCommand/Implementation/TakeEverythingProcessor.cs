@@ -68,9 +68,10 @@ public class TakeEverythingProcessor : IGlobalCommand
                 continue;
             }
 
-            // Check if the item is actually available in the current location
+            // Check if the item is actually available in scope (room or inventory containers)
             var itemsInLocation = ((ICanContainItems)context.CurrentLocation).GetAllItemsRecursively;
-            if (!itemsInLocation.Contains(item))
+            var itemsInInventory = context.GetAllItemsRecursively;
+            if (!itemsInLocation.Contains(item) && !itemsInInventory.Contains(item))
             {
                 var message = await client.GenerateNarration(
                     new TakeSomethingThatIsNotPortable(noun), context.SystemPromptAddendum);

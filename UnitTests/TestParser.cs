@@ -1236,6 +1236,57 @@ public class TestParser : IntentParser
                 OriginalInput = "fire laser at flask"
             });
 
+        // Shoot relay/speck commands
+        if (input == "shoot relay with laser")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "relay",
+                NounTwo = "laser",
+                Preposition = "with",
+                Verb = "shoot",
+                OriginalInput = "shoot relay with laser"
+            });
+
+        if (input == "shoot speck with laser")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "relay",
+                NounTwo = "laser",
+                Preposition = "with",
+                Verb = "shoot",
+                OriginalInput = "shoot speck with laser"
+            });
+
+        if (input == "shoot laser at relay")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "laser",
+                NounTwo = "relay",
+                Preposition = "at",
+                Verb = "shoot",
+                OriginalInput = "shoot laser at relay"
+            });
+
+        if (input == "shoot laser at speck")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "laser",
+                NounTwo = "relay",
+                Preposition = "at",
+                Verb = "shoot",
+                OriginalInput = "shoot laser at speck"
+            });
+
+        if (input == "fire laser at relay")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "laser",
+                NounTwo = "relay",
+                Preposition = "at",
+                Verb = "fire",
+                OriginalInput = "fire laser at relay"
+            });
+
         // Look at/into relay commands
         if (input == "look at relay")
             return Task.FromResult<IntentBase>(new SimpleIntent

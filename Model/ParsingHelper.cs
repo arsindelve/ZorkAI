@@ -8,23 +8,23 @@ namespace Model;
 public static class ParsingHelper
 {
     public static readonly string TakeUserPrompt = """
-                                                         The player is in this location: 
+                                                         The player is in this location:
                                                          -------------------------
                                                          {0}
                                                          -------------------------
                                                          They wrote: "{1}"
-                                                         
-                                                         Reply with a json array, containing a list of nouns they wish to take. Provide single nouns only, no adjectives or descriptive words. Respond only in JSON array format, and do not preface your response with 'json'. Example: [\"item1\", \"item2\", \"item3\"]"
+
+                                                         Reply with a json array containing the item name(s) they wish to take. Keep compound nouns together as single items (e.g., "id card", "brass lantern", "scrub brush"). Only return multiple array elements if the player wants multiple different items. Respond only in JSON array format. Example: ["id card"] or ["sword", "shield"]
                                                          """;
     
     public static readonly string DropUserPrompt = """
-                                                   The player has the following items in their inventory 
+                                                   The player has the following items in their inventory:
                                                    -------------------------
                                                    {0}
                                                    -------------------------
                                                    They wrote: "{1}"
 
-                                                   Reply with a json array, containing a list of single nouns they wish to drop. Provide single nouns only, no adjectives or descriptive words. Respond only in JSON array format, and do not preface your response with 'json'. Example: [\"item1\", \"item2\", \"item3\"]"
+                                                   Reply with a json array containing the item name(s) they wish to drop. Keep compound nouns together as single items (e.g., "id card", "brass lantern", "scrub brush"). Only return multiple array elements if the player wants multiple different items. Respond only in JSON array format. Example: ["id card"] or ["sword", "shield"]
                                                    """;
     
     public static readonly string SystemPrompt =

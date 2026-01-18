@@ -1,4 +1,5 @@
 using Model.AIGeneration;
+using Planetfall.Item.Computer;
 
 namespace Planetfall.Item.Kalamontee.Mech;
 
@@ -137,11 +138,84 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
                 "\"Yow!\" yells Floyd. He jumps to the other end of the room and eyes you warily. ");
         }
 
+        // Special response for shooting the Relay
+        if (target is Relay relay)
+        {
+            return ShootRelay(relay, context);
+        }
+
         var targetName = target.NounsForMatching.FirstOrDefault() ?? targetNoun;
 
         return new PositiveInteractionResult(
             $"{BeamDescription} which strikes the {targetName}. " +
             $"The {targetName} grows a bit warm, but nothing else happens. ");
+    }
+
+    private static readonly string[] MissMessages =
+    [
+        "The beam just misses the speck!",
+        "A near miss!",
+        "A good shot, but just a little wide of the target."
+    ];
+
+    private InteractionResult ShootRelay(Relay relay, IContext context)
+    {
+        // If relay is already destroyed, nothing more to do
+        if (relay.RelayDestroyed)
+            return new PositiveInteractionResult($"{BeamDescription}. ");
+
+        // If speck is already destroyed, nothing more to do
+        if (relay.SpeckDestroyed)
+            return new PositiveInteractionResult($"{BeamDescription}. ");
+
+        // Setting 1 (red) - beam passes through red plastic
+        if (Setting == 1)
+        {
+            return ShootSpeckWithRedLaser(relay, context);
+        }
+
+        // Settings 2-6 (non-red) - destroys the relay
+        relay.RelayDestroyed = true;
+        return new PositiveInteractionResult(
+            $"{BeamDescription} which slices through the red plastic covering of the relay like a hot knife through butter. " +
+            "Air rushes into the relay, which collapses into a heap of plastic shards. ");
+    }
+
+    private InteractionResult ShootSpeckWithRedLaser(Relay relay, IContext context)
+    {
+        // Random hit check based on MarksmanshipCounter
+        // Base chance is low, improves with each miss (+12 to counter per miss)
+        var hitChance = 20 + relay.MarksmanshipCounter;
+        var roll = Random.Shared.Next(100);
+
+        if (roll >= hitChance)
+        {
+            // Miss - increase marksmanship for next attempt
+            relay.MarksmanshipCounter += 12;
+            var missMessage = MissMessages[Random.Shared.Next(MissMessages.Length)];
+            return new PositiveInteractionResult($"{BeamDescription}. {missMessage} ");
+        }
+
+        // Hit!
+        if (!relay.SpeckHit)
+        {
+            // First hit
+            relay.SpeckHit = true;
+            return new PositiveInteractionResult(
+                "The speck is hit by the beam! It sizzles a little, but isn't destroyed yet. ");
+        }
+
+        // Second hit - destroy the speck!
+        relay.SpeckDestroyed = true;
+        context.AddPoints(8);
+
+        // Start 200-turn timer to escape before sector activates
+        context.RegisterActor(Repository.GetItem<SectorActivationTimer>());
+
+        return new PositiveInteractionResult(
+            "The beam hits the speck again! This time, it vaporizes into a fine cloud of ash. " +
+            "The relay slowly begins to close, and a voice whispers in your ear " +
+            "\"Sector 384 will activate in 200 millichrons. Proceed to exit station.\" ");
     }
 
     public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)

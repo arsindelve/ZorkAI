@@ -1,4 +1,5 @@
 using FluentAssertions;
+using GameEngine;
 using Planetfall.Item.Feinstein;
 using Planetfall.Location.Feinstein;
 using Planetfall.Location.Lawanda.Lab;
@@ -173,8 +174,101 @@ public class UniformTests : EngineTestsBase
         var target = GetTarget();
         StartHere<LabStorage>();
         Take<PatrolUniform>();
-        
+
         var response = await target.GetResponse("examine uniform");
         response.Should().Contain("Do you mean the patrol uniform or the lab uniform");
+    }
+
+    [Test]
+    public async Task PatrolUniform_TakeIdCard()
+    {
+        var target = GetTarget();
+        StartHere<DeckNine>();
+        Take<PatrolUniform>(); // Add uniform to inventory
+
+        // ID card should be inside the uniform pocket
+        var uniform = Repository.GetItem<PatrolUniform>();
+        var pocket = Repository.GetItem<PatrolUniformPocket>();
+        var idCard = Repository.GetItem<IdCard>();
+
+        uniform.Items.Should().Contain(pocket);
+        pocket.Items.Should().Contain(idCard);
+
+        var response = await target.GetResponse("take id card");
+        response.Should().Contain("Taken");
+
+        // ID card should now be in direct inventory
+        target.Context.Items.Should().Contain(idCard);
+    }
+
+    [Test]
+    public async Task PatrolUniform_TakeCard()
+    {
+        var target = GetTarget();
+        StartHere<DeckNine>();
+        Take<PatrolUniform>(); // Add uniform to inventory
+
+        var response = await target.GetResponse("take card");
+        response.Should().Contain("Taken");
+
+        var idCard = Repository.GetItem<IdCard>();
+        target.Context.Items.Should().Contain(idCard);
+    }
+
+    [Test]
+    public void PatrolUniform_IdCardIsInPocket()
+    {
+        GetTarget();
+        StartHere<DeckNine>();
+
+        var uniform = Repository.GetItem<PatrolUniform>();
+        var pocket = Repository.GetItem<PatrolUniformPocket>();
+        var idCard = Repository.GetItem<IdCard>();
+
+        // Verify structure
+        uniform.Items.Should().Contain(pocket);
+        pocket.Items.Should().Contain(idCard);
+        idCard.CurrentLocation.Should().Be(pocket);
+        pocket.CurrentLocation.Should().Be(uniform);
+    }
+
+    [Test]
+    public void PatrolUniform_HasMatchingNoun_FindsIdCard()
+    {
+        GetTarget();
+        StartHere<DeckNine>();
+
+        var uniform = Repository.GetItem<PatrolUniform>();
+
+        var result = uniform.HasMatchingNoun("card", lookInsideContainers: true);
+        result.HasItem.Should().BeTrue();
+        result.TheItem.Should().BeOfType<IdCard>();
+    }
+
+    [Test]
+    public void Context_HasMatchingNoun_FindsIdCard()
+    {
+        var target = GetTarget();
+        StartHere<DeckNine>();
+        var uniform = Take<PatrolUniform>(); // Add uniform to inventory
+
+        // Verify uniform is in inventory
+        target.Context.Items.Should().Contain(uniform);
+
+        var result = target.Context.HasMatchingNoun("card", lookInsideContainers: true);
+        result.HasItem.Should().BeTrue();
+        result.TheItem.Should().BeOfType<IdCard>();
+    }
+
+    [Test]
+    public void GetItemInScope_FindsIdCard()
+    {
+        var target = GetTarget();
+        StartHere<DeckNine>();
+        Take<PatrolUniform>(); // Add uniform to inventory
+
+        var item = Repository.GetItemInScope("card", target.Context);
+        item.Should().NotBeNull();
+        item.Should().BeOfType<IdCard>();
     }
 }
