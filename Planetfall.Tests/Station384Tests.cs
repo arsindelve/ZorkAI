@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Planetfall.Item.Computer;
 using Planetfall.Item.Lawanda.Lab;
 using Planetfall.Location.Computer;
 using Planetfall.Location.Lawanda;
@@ -7,6 +8,117 @@ namespace Planetfall.Tests;
 
 public class Station384Tests : EngineTestsBase
 {
+    [TestFixture]
+    public class TeleportFromStripTests : EngineTestsBase
+    {
+        [Test]
+        public async Task EnterFromStrip_ComputerNotFixed_TeleportsToMiniaturizationBooth()
+        {
+            var target = GetTarget();
+            StartHere<StripNearStation>();
+
+            await target.GetResponse("west");
+
+            target.Context.CurrentLocation.Should().BeOfType<MiniaturizationBooth>();
+        }
+
+        [Test]
+        public async Task EnterFromStrip_ComputerNotFixed_ShowsTeleportMessage()
+        {
+            var target = GetTarget();
+            StartHere<StripNearStation>();
+
+            var response = await target.GetResponse("west");
+
+            response.Should().Contain("You feel the familiar wrenching of your innards");
+            response.Should().Contain("find yourself in a vast room whose distant walls are rushing straight toward you");
+        }
+
+        [Test]
+        public async Task EnterFromStrip_ComputerFixed_TeleportsToAuxiliaryBooth()
+        {
+            var target = GetTarget();
+            StartHere<StripNearStation>();
+            GetItem<Relay>().SpeckDestroyed = true;
+
+            await target.GetResponse("west");
+
+            target.Context.CurrentLocation.Should().BeOfType<AuxiliaryBooth>();
+        }
+
+        [Test]
+        public async Task EnterFromStrip_ComputerFixed_ShowsAuxiliaryBoothMessage()
+        {
+            var target = GetTarget();
+            StartHere<StripNearStation>();
+            GetItem<Relay>().SpeckDestroyed = true;
+
+            var response = await target.GetResponse("west");
+
+            response.Should().Contain("Main Miniaturization and Teleportation Booth has malfunctioned");
+            response.Should().Contain("switching to Auxiliary Booth");
+            response.Should().Contain("You feel the familiar wrenching of your innards");
+        }
+
+        [Test]
+        public async Task EnterFromStrip_ComputerFixed_AwardsPointsForAuxiliaryBooth()
+        {
+            var target = GetTarget();
+            StartHere<StripNearStation>();
+            GetItem<Relay>().SpeckDestroyed = true;
+            var initialScore = target.Context.Score;
+
+            await target.GetResponse("west");
+
+            (target.Context.Score - initialScore).Should().Be(4);
+        }
+
+        [Test]
+        public async Task EnterFromStrip_ComputerFixed_ShowsAuxiliaryBoothDescription()
+        {
+            var target = GetTarget();
+            StartHere<StripNearStation>();
+            GetItem<Relay>().SpeckDestroyed = true;
+
+            var response = await target.GetResponse("west");
+
+            response.Should().Contain("Auxiliary Booth");
+            response.Should().Contain("Unlike the Miniaturization Booth");
+            response.Should().Contain("no slot or keyboard");
+            response.Should().Contain("receiving station");
+        }
+    }
+
+    [TestFixture]
+    public class AuxiliaryBoothTests : EngineTestsBase
+    {
+        [Test]
+        public async Task AuxiliaryBooth_HasCorrectDescription()
+        {
+            var target = GetTarget();
+            StartHere<AuxiliaryBooth>();
+
+            var response = await target.GetResponse("look");
+
+            response.Should().Contain("another small booth");
+            response.Should().Contain("Unlike the Miniaturization Booth");
+            response.Should().Contain("no slot or keyboard");
+            response.Should().Contain("receiving station");
+            response.Should().Contain("exit is on the northern side");
+        }
+
+        [Test]
+        public async Task AuxiliaryBooth_NorthExitGoesToComputerRoom()
+        {
+            var target = GetTarget();
+            StartHere<AuxiliaryBooth>();
+
+            await target.GetResponse("north");
+
+            target.Context.CurrentLocation.Should().BeOfType<ComputerRoom>();
+        }
+    }
+
     [Test]
     public async Task Station384_ShouldHaveCorrectDescription()
     {

@@ -335,6 +335,10 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("score", null, "would be 63")]
     [TestCase("shoot speck with laser", null, "The beam hits the speck again! This time, it vaporizes into a fine cloud of ash. The relay slowly begins to close, and a voice whispers in your ear \"Sector 384 will activate in 200 millichrons. Proceed to exit station")]
     [TestCase("score", null, "would be 71")]
+    [TestCase("S", null, "Middle of Strip")]
+    [TestCase("S", null, "Strip Near Station")]  
+    [TestCase("W", null, "switching to Auxiliary Booth", "wrenching of your innards", "only as a receiving station")]  
+    [TestCase("score", null, "would be 75")]
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) 

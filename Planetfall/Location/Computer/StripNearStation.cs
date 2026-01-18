@@ -11,7 +11,8 @@ internal class StripNearStation : LocationWithNoStartingItems
         return new Dictionary<Direction, MovementParameters>
         {
             { Direction.S, new MovementParameters{ CanGo = _ => false, CustomFailureMessage = "The plunge would probably be fatal." }  },
-            { Direction.N, Go<MiddleOfStrip>() }
+            { Direction.N, Go<MiddleOfStrip>() },
+            { Direction.W, Go<Station384>() }
         };
     }
     
