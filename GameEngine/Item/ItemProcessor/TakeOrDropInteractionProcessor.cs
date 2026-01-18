@@ -73,7 +73,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         IContext context, IGenerationClient client)
     {
         var result = await GetItemsToTake(context,
-            new SimpleIntent { OriginalInput = action.Message, Verb = "take", Noun = action.Noun }, client);
+            new SimpleIntent { OriginalInput = action.OriginalInput, Verb = "take", Noun = action.Noun }, client);
 
         if (result is null or NoNounMatchInteractionResult)
         {
@@ -89,7 +89,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         IContext context, IGenerationClient client)
     {
         var result = await GetItemsToDrop(context,
-            new SimpleIntent { OriginalInput = action.Message, Verb = "drop", Noun = action.Noun }, client);
+            new SimpleIntent { OriginalInput = action.OriginalInput, Verb = "drop", Noun = action.Noun }, client);
 
         if (result is null or NoNounMatchInteractionResult)
         {

@@ -636,7 +636,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             TypeNameHandling = TypeNameHandling.All,
             PreserveReferencesHandling = PreserveReferencesHandling.Objects,
             ContractResolver = new DoNotSerializeReadOnlyPropertiesResolver(),
-            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
+            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
+            // Replace collections during deserialization instead of adding to them.
+            // This prevents items from accumulating in Items lists across session restores.
+            ObjectCreationHandling = ObjectCreationHandling.Replace
         };
     }
 }
