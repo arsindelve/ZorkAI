@@ -83,6 +83,7 @@ public class WalkthroughTests : EscapeRoomEngineTestsBase
 
         // Verify win condition
         engine.Context.HasEscaped.Should().BeTrue();
+        // Score breakdown: Flashlight(10) + Key(30) + Unlock(10) + Escape(50) = 100
         engine.Context.Score.Should().Be(100);
     }
 
@@ -163,5 +164,56 @@ public class WalkthroughTests : EscapeRoomEngineTestsBase
         // Can now open the box and see the key
         response = await engine.GetResponse("open box");
         response.Should().Contain("key");
+    }
+
+    [Test]
+    public async Task EnteringMaintenanceShaft_ShouldKillPlayer_AndRestartGame()
+    {
+        // Arrange
+        var engine = GetTarget();
+
+        // Start at Reception
+        engine.Context.CurrentLocation.Should().BeOfType<Reception>();
+        engine.Context.DeathCounter.Should().Be(0);
+
+        // Go east to Lounge
+        var response = await engine.GetResponse("e");
+        engine.Context.CurrentLocation.Should().BeOfType<Lounge>();
+        response.Should().Contain("DANGER");
+
+        // Go south to the deadly Maintenance Shaft
+        response = await engine.GetResponse("s");
+
+        // Should contain death message
+        response.Should().Contain("plummet");
+        response.Should().Contain("You have died");
+
+        // Death counter should be incremented
+        engine.Context.DeathCounter.Should().Be(1);
+
+        // Game should restart - player back at Reception
+        engine.Context.CurrentLocation.Should().BeOfType<Reception>();
+    }
+
+    [Test]
+    public async Task DyingMultipleTimes_ShouldIncrementDeathCounter()
+    {
+        // Arrange
+        var engine = GetTarget();
+
+        // Die once
+        await engine.GetResponse("e"); // Go to Lounge
+        await engine.GetResponse("s"); // Die in Maintenance Shaft
+        engine.Context.DeathCounter.Should().Be(1);
+
+        // Die again
+        await engine.GetResponse("e"); // Go to Lounge
+        await engine.GetResponse("s"); // Die in Maintenance Shaft
+        engine.Context.DeathCounter.Should().Be(2);
+
+        // Die a third time
+        await engine.GetResponse("e"); // Go to Lounge
+        await engine.GetResponse("s"); // Die in Maintenance Shaft
+        engine.Context.DeathCounter.Should().Be(3);
     }
 }

@@ -23,7 +23,8 @@
       "Bash(npx jest)",
       "Bash(wc:*)",
       "Bash(gh run list:*)",
-      "Bash(gh run:*)"
+      "Bash(gh run:*)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }

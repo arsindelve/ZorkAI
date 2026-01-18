@@ -14,6 +14,8 @@ public class ExitDoor : ItemBase, IOpenAndClose, ICanBeExamined
 
     public bool IsOpen { get; set; }
 
+    private bool _hasAwardedUnlockPoints;
+
     public string ExaminationDescription =>
         IsLocked
             ? "A heavy metal door with a prominent lock. The word 'EXIT' is painted above it. "
@@ -46,10 +48,17 @@ public class ExitDoor : ItemBase, IOpenAndClose, ICanBeExamined
         if (context is EscapeRoomContext escapeContext)
         {
             escapeContext.HasEscaped = true;
-            escapeContext.AddPoints(100);
+            escapeContext.AddPoints(50);
         }
 
         return string.Empty;
+    }
+
+    private void AwardUnlockPoints(IContext context)
+    {
+        if (_hasAwardedUnlockPoints) return;
+        _hasAwardedUnlockPoints = true;
+        context.AddPoints(10);
     }
 
     public string NowClosed(ILocation currentLocation)
@@ -78,6 +87,7 @@ public class ExitDoor : ItemBase, IOpenAndClose, ICanBeExamined
                 return new PositiveInteractionResult("You don't have the key. ");
 
             IsLocked = false;
+            AwardUnlockPoints(context);
             return new PositiveInteractionResult("The door is now unlocked. ");
         }
 
@@ -103,6 +113,7 @@ public class ExitDoor : ItemBase, IOpenAndClose, ICanBeExamined
             if (context.HasItem<BrassKey>())
             {
                 IsLocked = false;
+                AwardUnlockPoints(context);
                 return new PositiveInteractionResult("(with the brass key)\n\nThe door is now unlocked. ");
             }
 

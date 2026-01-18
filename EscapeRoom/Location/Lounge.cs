@@ -12,14 +12,15 @@ public class Lounge : LocationBase
     {
         return "A cozy lounge with a worn couch and a small coffee table. " +
                "A vending machine hums quietly in the corner. " +
-               "The only exit is west to the reception area.";
+               "Exits lead west to the reception area and south through a door marked 'DANGER - DO NOT ENTER'.";
     }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.W, new MovementParameters { Location = GetLocation<Reception>() } }
+            { Direction.W, new MovementParameters { Location = GetLocation<Reception>() } },
+            { Direction.S, new MovementParameters { Location = GetLocation<MaintenanceShaft>() } }
         };
     }
 

@@ -4,7 +4,7 @@ namespace EscapeRoom;
 
 /// <summary>
 ///     Context for the Escape Room tutorial game.
-///     Tracks whether the player has escaped.
+///     Tracks whether the player has escaped and death count.
 /// </summary>
 public class EscapeRoomContext : Context<EscapeRoomGame>
 {
@@ -13,8 +13,17 @@ public class EscapeRoomContext : Context<EscapeRoomGame>
     /// </summary>
     public bool HasEscaped { get; set; }
 
+    /// <summary>
+    ///     Tracks how many times the player has died.
+    /// </summary>
+    public int DeathCounter { get; set; }
+
     public override string CurrentScore =>
         HasEscaped
             ? $"Your score is {Score} (total of 100 points), in {Moves} moves.\nYou have escaped!"
             : $"Your score is {Score} (total of 100 points), in {Moves} moves.\nThis score gives you the rank of {Game.GetScoreDescription(Score)}.";
+
+    public override int GetDeathCount() => DeathCounter;
+
+    public override void SetDeathCount(int count) => DeathCounter = count;
 }
