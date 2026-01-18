@@ -14,7 +14,7 @@ public static class ParsingHelper
                                                          -------------------------
                                                          They wrote: "{1}"
 
-                                                         Reply with a json array containing the item name(s) they wish to take. Keep compound nouns together as single items (e.g., "id card", "brass lantern", "scrub brush"). Only return multiple array elements if the player wants multiple different items. Respond only in JSON array format. Example: ["id card"] or ["sword", "shield"]
+                                                         Reply with a JSON object containing an "items" array with the item name(s) they wish to take. Keep compound nouns together as single items (e.g., "id card", "brass lantern", "scrub brush"). Only return multiple array elements if the player wants multiple different items. Example: {{"items": ["id card"]}} or {{"items": ["sword", "shield"]}}
                                                          """;
     
     public static readonly string DropUserPrompt = """
@@ -24,7 +24,7 @@ public static class ParsingHelper
                                                    -------------------------
                                                    They wrote: "{1}"
 
-                                                   Reply with a json array containing the item name(s) they wish to drop. Keep compound nouns together as single items (e.g., "id card", "brass lantern", "scrub brush"). Only return multiple array elements if the player wants multiple different items. Respond only in JSON array format. Example: ["id card"] or ["sword", "shield"]
+                                                   Reply with a JSON object containing an "items" array with the item name(s) they wish to drop. Keep compound nouns together as single items (e.g., "id card", "brass lantern", "scrub brush"). Only return multiple array elements if the player wants multiple different items. Example: {{"items": ["id card"]}} or {{"items": ["sword", "shield"]}}
                                                    """;
     
     public static readonly string SystemPrompt =

@@ -5,7 +5,7 @@ namespace Planetfall.Item.Kalamontee.Mech;
 
 public class Flask : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
 {
-    public override string[] NounsForMatching => ["glass flask", "flask"];
+    public override string[] NounsForMatching => ["glass flask", "flask", "large glass flask"];
 
     public string? LiquidColor { get; set; }
 
