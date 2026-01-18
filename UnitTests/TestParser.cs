@@ -1093,6 +1093,16 @@ public class TestParser : IntentParser
                 OriginalInput = "set laser to 6"
             });
         
+        if (input == "set laser to 1")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "laser",
+                NounTwo = "1",
+                Preposition = "to",
+                Verb = "set",
+                OriginalInput = "set laser to 1"
+            });
+        
         if (input == "set laser to 0")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {

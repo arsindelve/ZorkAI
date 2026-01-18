@@ -219,7 +219,8 @@ This Lambda integration demonstrates how the core game engine's excellent archit
 - **Load items into Repository first**: Call `Repository.GetItem<ItemType>()` before testing to ensure items are available for lookups
 - **Test core business logic** rather than focusing on edge cases with complex dependencies
 - **AI integration tests** require environment setup but validate critical user experience paths
-- **Avoid mocking random generation** - focus on deterministic core functionality
+- **All tests must be deterministic** - never allow randomness in unit tests
+- **Always mock IRandomChooser** - see Randomness Pattern section below
 - **Nested TestFixtures** - organize tests by method/scenario for better readability and maintainability
 
 ### Working with the Repository Pattern
@@ -229,6 +230,28 @@ This Lambda integration demonstrates how the core game engine's excellent archit
 - Use `Repository.GetItem<T>()` and `Repository.GetLocation<T>()` to access game objects
 - **Critical**: Always call `Repository.Reset()` in test `[SetUp]` to ensure clean state between tests
 - **Item lookups**: `Repository.GetItem(string noun)` searches all loaded items by their `NounsForMatching` property
+
+### Randomness Pattern (IRandomChooser)
+- **Never use `Random` directly** in game code - always use `IRandomChooser` interface
+- **Interface location**: `Model/Interface/IRandomChooser.cs`
+- **Production implementation**: `GameEngine/RandomChooser.cs`
+- **Available methods**:
+  - `Choose<T>(List<T> items)` - select random item from list
+  - `RollDice(int sides)` - returns 1 to sides (inclusive)
+  - `RollDiceSuccess(int sides)` - returns true if roll equals 1
+- **Adding randomness to a class**:
+  ```csharp
+  [UsedImplicitly] [JsonIgnore]
+  public IRandomChooser Chooser { get; set; } = new RandomChooser();
+  ```
+- **Mocking in tests** (required for all tests with randomness):
+  ```csharp
+  var mockChooser = new Mock<IRandomChooser>();
+  mockChooser.Setup(r => r.RollDice(100)).Returns(1); // Force specific outcome
+  mockChooser.Setup(r => r.Choose(It.IsAny<List<string>>())).Returns("specific item");
+  GetItem<MyItem>().Chooser = mockChooser.Object;
+  ```
+- **Examples**: See `Laser.cs`, `Floyd.cs`, `SleepEngine.cs` for usage patterns
 
 ### AI Integration Guidelines  
 - **Hierarchical parsing**: Try simple pattern matching first, then fall back to expensive AI calls

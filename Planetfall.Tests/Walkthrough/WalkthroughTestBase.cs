@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Model.Interface;
 using Moq;
 using Planetfall.Item.Feinstein;
+using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 namespace Planetfall.Tests.Walkthrough;
@@ -17,6 +18,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     private readonly DynamoDbSessionRepository _database = new();
     private GameEngine<PlanetfallGame, PlanetfallContext> _target;
     private Mock<IRandomChooser> _floydChooser;
+    private Mock<IRandomChooser> _laserChooser;
     private Mock<IChatWithFloyd> _chatWithFloyd;
 
     [OneTimeSetUp]
@@ -34,6 +36,10 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         // Prevent Floyd from wandering during walkthrough tests
         _floydChooser.Setup(s => s.RollDiceSuccess(5)).Returns(false);  // Don't stop following when player moves
         _floydChooser.Setup(s => s.RollDiceSuccess(20)).Returns(false); // Don't spontaneously wander
+
+        // Laser always hits the speck (roll 1 is always <= hitChance)
+        _laserChooser = new Mock<IRandomChooser>();
+        _laserChooser.Setup(s => s.RollDice(100)).Returns(1);
 
         _chatWithFloyd = new Mock<IChatWithFloyd>();
         _chatWithFloyd.Setup(s => s.AskFloydAsync("go north")).ReturnsAsync(new CompanionResponse(
@@ -71,7 +77,10 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         var floyd = Repository.GetItem<Floyd>();
         floyd.Chooser = _floydChooser.Object;
         floyd.ChatWithFloyd = _chatWithFloyd.Object;
-        
+
+        var laser = Repository.GetItem<Laser>();
+        laser.Chooser = _laserChooser.Object;
+
         var result = await _target.GetResponse(input);
         if (Debugger.IsAttached)
         {

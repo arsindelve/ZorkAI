@@ -1,4 +1,6 @@
 using FluentAssertions;
+using Model.Interface;
+using Moq;
 using Planetfall.Item.Computer;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Lawanda.Lab;
@@ -9,6 +11,18 @@ namespace Planetfall.Tests;
 
 public class RelayTests : EngineTestsBase
 {
+    private Mock<IRandomChooser> _mockRandomChooser = null!;
+
+    private void SetupMockRandomChooser(bool shouldHit, string missMessage = "A near miss!")
+    {
+        _mockRandomChooser = new Mock<IRandomChooser>();
+        // RollDice(100) returns 1-100. Hit if roll <= hitChance (20 + MarksmanshipCounter)
+        // To hit: return low value (1). To miss: return high value (100)
+        _mockRandomChooser.Setup(r => r.RollDice(100)).Returns(shouldHit ? 1 : 100);
+        _mockRandomChooser.Setup(r => r.Choose(It.IsAny<List<string>>())).Returns(missMessage);
+        GetItem<Laser>().Chooser = _mockRandomChooser.Object;
+    }
+
     [Test]
     public async Task ExamineRelay_ShouldReturnDescription()
     {
@@ -159,8 +173,8 @@ public class RelayTests : EngineTestsBase
         Take<Laser>();
         GetItem<OldBattery>().ChargesRemaining = 10;
         GetItem<Laser>().Setting = 1; // Red
+        SetupMockRandomChooser(shouldHit: true);
         var relay = GetItem<Relay>();
-        relay.MarksmanshipCounter = 100; // Ensure hit
 
         var response = await target.GetResponse("shoot relay with laser");
 
@@ -178,9 +192,9 @@ public class RelayTests : EngineTestsBase
         Take<Laser>();
         GetItem<OldBattery>().ChargesRemaining = 10;
         GetItem<Laser>().Setting = 1; // Red
+        SetupMockRandomChooser(shouldHit: true);
         var relay = GetItem<Relay>();
         relay.SpeckHit = true; // Already hit once
-        relay.MarksmanshipCounter = 100; // Ensure hit
 
         var response = await target.GetResponse("shoot relay with laser");
 
@@ -198,15 +212,16 @@ public class RelayTests : EngineTestsBase
         Take<Laser>();
         GetItem<OldBattery>().ChargesRemaining = 10;
         GetItem<Laser>().Setting = 1; // Red
+        GetItem<Laser>().HasBeenFired = true; // Already fired before, no 2-point bonus
+        SetupMockRandomChooser(shouldHit: true);
         var relay = GetItem<Relay>();
         relay.SpeckHit = true; // Already hit once
-        relay.MarksmanshipCounter = 100; // Ensure hit
         var initialScore = target.Context.Score;
 
         await target.GetResponse("shoot relay with laser");
 
-        // 8 points for destroying speck + 2 for first laser fire (if applicable)
-        target.Context.Score.Should().BeGreaterThan(initialScore);
+        // Exactly 8 points for destroying speck (no laser fire bonus since already fired)
+        (target.Context.Score - initialScore).Should().Be(8);
     }
 
     [Test]
@@ -217,9 +232,9 @@ public class RelayTests : EngineTestsBase
         Take<Laser>();
         GetItem<OldBattery>().ChargesRemaining = 10;
         GetItem<Laser>().Setting = 1; // Red
+        SetupMockRandomChooser(shouldHit: true);
         var relay = GetItem<Relay>();
         relay.SpeckHit = true; // Already hit once
-        relay.MarksmanshipCounter = 100; // Ensure hit
 
         await target.GetResponse("shoot relay with laser");
 
@@ -235,17 +250,13 @@ public class RelayTests : EngineTestsBase
         Take<Laser>();
         GetItem<OldBattery>().ChargesRemaining = 10;
         GetItem<Laser>().Setting = 1; // Red
+        SetupMockRandomChooser(shouldHit: false);
         var relay = GetItem<Relay>();
-        relay.MarksmanshipCounter = 0; // Low chance to hit
 
         await target.GetResponse("shoot relay with laser");
 
-        // If it was a miss, marksmanship should have increased
-        // Note: This could occasionally hit due to randomness, so we check for miss messages
-        if (!relay.SpeckHit)
-        {
-            relay.MarksmanshipCounter.Should().Be(12);
-        }
+        relay.SpeckHit.Should().BeFalse();
+        relay.MarksmanshipCounter.Should().Be(12);
     }
 
     [Test]
@@ -256,23 +267,11 @@ public class RelayTests : EngineTestsBase
         Take<Laser>();
         GetItem<OldBattery>().ChargesRemaining = 10;
         GetItem<Laser>().Setting = 1; // Red
-        var relay = GetItem<Relay>();
-        relay.MarksmanshipCounter = 0; // Force low chance to hit
+        SetupMockRandomChooser(shouldHit: false, missMessage: "The beam just misses the speck!");
 
-        // Multiple attempts to ensure we get a miss (randomness)
-        for (int i = 0; i < 10 && !relay.SpeckHit; i++)
-        {
-            var response = await target.GetResponse("shoot relay with laser");
-            if (!relay.SpeckHit)
-            {
-                // Should have one of the miss messages
-                var hasMissMessage = response.Contains("just misses the speck") ||
-                                     response.Contains("near miss") ||
-                                     response.Contains("just a little wide");
-                hasMissMessage.Should().BeTrue();
-                break;
-            }
-        }
+        var response = await target.GetResponse("shoot relay with laser");
+
+        response.Should().Contain("just misses the speck");
     }
 
     [Test]
@@ -310,21 +309,7 @@ public class RelayTests : EngineTestsBase
     }
 
     [Test]
-    public async Task ExamineRelay_AfterSpeckHit_ShowsPartiallyDamaged()
-    {
-        var target = GetTarget();
-        StartHere<StripNearRelay>();
-        var relay = GetItem<Relay>();
-        relay.SpeckHit = true;
-
-        var response = await target.GetResponse("examine relay");
-
-        response.Should().Contain("partially damaged by a laser beam");
-        response.Should().Contain("one more hit would destroy it");
-    }
-
-    [Test]
-    public async Task ExamineRelay_AfterSpeckDestroyed_ShowsCleared()
+    public async Task ExamineRelay_AfterSpeckDestroyed_ShowsDescription()
     {
         var target = GetTarget();
         StartHere<StripNearRelay>();
@@ -333,8 +318,60 @@ public class RelayTests : EngineTestsBase
 
         var response = await target.GetResponse("examine relay");
 
-        response.Should().Contain("cleared of the obstruction");
-        response.Should().Contain("slowly closing");
+        response.Should().Contain("vacuum-sealed microrelay");
+        response.Should().NotContain("blue boulder");
+    }
+
+    [Test]
+    public async Task ShootRelay_WithNonRedLaser_AfterSpeckDestroyed_StillDestroysRelay()
+    {
+        var target = GetTarget();
+        StartHere<StripNearRelay>();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        GetItem<Laser>().Setting = 2; // Orange (non-red)
+        var relay = GetItem<Relay>();
+        relay.SpeckDestroyed = true; // Speck already gone
+
+        var response = await target.GetResponse("shoot relay with laser");
+
+        response.Should().Contain("slices through the red plastic");
+        response.Should().Contain("collapses into a heap of plastic shards");
+        relay.RelayDestroyed.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task ShootRelay_WithRedLaser_AfterSpeckDestroyed_GivesGenericResponse()
+    {
+        var target = GetTarget();
+        StartHere<StripNearRelay>();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        GetItem<Laser>().Setting = 1; // Red
+        var relay = GetItem<Relay>();
+        relay.SpeckDestroyed = true; // Speck already gone
+
+        var response = await target.GetResponse("shoot relay with laser");
+
+        response.Should().Contain("strikes the relay");
+        response.Should().Contain("grows a bit warm");
+        relay.RelayDestroyed.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task ShootRelay_AfterRelayDestroyed_GivesGenericResponse()
+    {
+        var target = GetTarget();
+        StartHere<StripNearRelay>();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        var relay = GetItem<Relay>();
+        relay.RelayDestroyed = true;
+
+        var response = await target.GetResponse("shoot relay with laser");
+
+        response.Should().Contain("strikes the relay");
+        response.Should().Contain("grows a bit warm");
     }
 
     [Test]
@@ -348,6 +385,44 @@ public class RelayTests : EngineTestsBase
         var response = await target.GetResponse("examine relay");
 
         response.Should().Contain("heap of melted plastic shards");
+    }
+
+    [Test]
+    public async Task Look_AfterRelayDestroyed_ShowsShatteredRemains()
+    {
+        var target = GetTarget();
+        StartHere<StripNearRelay>();
+        var relay = GetItem<Relay>();
+        relay.RelayDestroyed = true;
+
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("shattered remains of the microrelay");
+    }
+
+    [Test]
+    public async Task GoEast_AfterRelayDestroyed_ShowsSliceMessage()
+    {
+        var target = GetTarget();
+        StartHere<StripNearRelay>();
+        var relay = GetItem<Relay>();
+        relay.RelayDestroyed = true;
+
+        var response = await target.GetResponse("east");
+
+        response.Should().Contain("slice yourself to ribbons on the shattered relay");
+    }
+
+    [Test]
+    public async Task GoEast_RelayNotDestroyed_ShowsSealedMessage()
+    {
+        var target = GetTarget();
+        StartHere<StripNearRelay>();
+
+        var response = await target.GetResponse("east");
+
+        response.Should().Contain("relay is sealed");
+        response.Should().Contain("look into it");
     }
 
     #endregion

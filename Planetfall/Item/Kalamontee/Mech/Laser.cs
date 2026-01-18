@@ -1,10 +1,14 @@
 using Model.AIGeneration;
+using Newtonsoft.Json;
 using Planetfall.Item.Computer;
 
 namespace Planetfall.Item.Kalamontee.Mech;
 
 public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurnBasedActor
 {
+    [UsedImplicitly] [JsonIgnore]
+    public IRandomChooser Chooser { get; set; } = new RandomChooser();
+
     /// <summary>
     /// Tracks the laser's current temperature level (0 = cold, increases with each shot).
     /// </summary>
@@ -141,7 +145,7 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
         // Special response for shooting the Relay
         if (target is Relay relay)
         {
-            return ShootRelay(relay, context);
+            return LaserSpeckHelper.ShootRelay(relay, context, BeamDescription, Setting, Chooser);
         }
 
         var targetName = target.NounsForMatching.FirstOrDefault() ?? targetNoun;
@@ -149,73 +153,6 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
         return new PositiveInteractionResult(
             $"{BeamDescription} which strikes the {targetName}. " +
             $"The {targetName} grows a bit warm, but nothing else happens. ");
-    }
-
-    private static readonly string[] MissMessages =
-    [
-        "The beam just misses the speck!",
-        "A near miss!",
-        "A good shot, but just a little wide of the target."
-    ];
-
-    private InteractionResult ShootRelay(Relay relay, IContext context)
-    {
-        // If relay is already destroyed, nothing more to do
-        if (relay.RelayDestroyed)
-            return new PositiveInteractionResult($"{BeamDescription}. ");
-
-        // If speck is already destroyed, nothing more to do
-        if (relay.SpeckDestroyed)
-            return new PositiveInteractionResult($"{BeamDescription}. ");
-
-        // Setting 1 (red) - beam passes through red plastic
-        if (Setting == 1)
-        {
-            return ShootSpeckWithRedLaser(relay, context);
-        }
-
-        // Settings 2-6 (non-red) - destroys the relay
-        relay.RelayDestroyed = true;
-        return new PositiveInteractionResult(
-            $"{BeamDescription} which slices through the red plastic covering of the relay like a hot knife through butter. " +
-            "Air rushes into the relay, which collapses into a heap of plastic shards. ");
-    }
-
-    private InteractionResult ShootSpeckWithRedLaser(Relay relay, IContext context)
-    {
-        // Random hit check based on MarksmanshipCounter
-        // Base chance is low, improves with each miss (+12 to counter per miss)
-        var hitChance = 20 + relay.MarksmanshipCounter;
-        var roll = Random.Shared.Next(100);
-
-        if (roll >= hitChance)
-        {
-            // Miss - increase marksmanship for next attempt
-            relay.MarksmanshipCounter += 12;
-            var missMessage = MissMessages[Random.Shared.Next(MissMessages.Length)];
-            return new PositiveInteractionResult($"{BeamDescription}. {missMessage} ");
-        }
-
-        // Hit!
-        if (!relay.SpeckHit)
-        {
-            // First hit
-            relay.SpeckHit = true;
-            return new PositiveInteractionResult(
-                "The speck is hit by the beam! It sizzles a little, but isn't destroyed yet. ");
-        }
-
-        // Second hit - destroy the speck!
-        relay.SpeckDestroyed = true;
-        context.AddPoints(8);
-
-        // Start 200-turn timer to escape before sector activates
-        context.RegisterActor(Repository.GetItem<SectorActivationTimer>());
-
-        return new PositiveInteractionResult(
-            "The beam hits the speck again! This time, it vaporizes into a fine cloud of ash. " +
-            "The relay slowly begins to close, and a voice whispers in your ear " +
-            "\"Sector 384 will activate in 200 millichrons. Proceed to exit station.\" ");
     }
 
     public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
@@ -450,46 +387,3 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
    The solution is to heat up the laser by firing it several times, then sacrifice it to lure the microbe to its doom.
  
  */
- 
- 
-
-
- 
- /*
- 
- Shooting the Laser at the Speck
-
-    The speck is a blue impurity/boulder wedged inside a vacuum-sealed micro-relay with a red plastic covering. You encounter this while miniaturized inside the computer, standing on a silicon strip. The speck is blocking the relay from closing, which prevents the computer from working.
-
-    The Puzzle
-
-    The relay has a red translucent plastic casing. This is the key:
-
-    Setting 1 (red beam): The red beam passes harmlessly through the red plastic and can hit the speck inside. This is the only correct setting.
-
-    Settings 2-6 (orange through violet): The non-red beam "slices through the red plastic covering of the relay like a hot knife through butter. Air rushes into the relay, which collapses into a heap of plastic shards." — This destroys the relay and makes the game unwinnable.
-
-    Hitting the Speck
-
-    Even with the correct red setting, you can miss. Each miss increases MARKSMANSHIP-COUNTER by 12, improving your odds on subsequent shots (comptwo.zil:2863). Miss messages include:
-    - "The beam just misses the speck!"
-    - "A near miss!"
-    - "A good shot, but just a little wide of the target."
-
-    Two Hits Required
-
-    The speck requires two successful hits to destroy:
-
-    1. First hit: "The speck is hit by the beam! It sizzles a little, but isn't destroyed yet." (sets SPECK-HIT to true)
-    2. Second hit: "The beam hits the speck again! This time, it vaporizes into a fine cloud of ash. The relay slowly begins to close, and a voice whispers in your ear 'Sector 384 will activate in 200 millichrons. Proceed to exit station.'"
-
-    After Success
-
-    Destroying the speck:
-    - Sets COMPUTER-FIXED to true
-    - Awards 8 points
-    - Opens the cryo-elevator door
-    - Starts a 200 turn timer (I-FRY) — you must escape the silicon strip before the sector powers up or you get electrocuted
-
-
-*/

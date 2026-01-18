@@ -327,8 +327,14 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("slide mini card through slot", null, "A melodic high-pitched voice says \"Miniaturization and teleportation booth activated. Please type in damaged sector number.\"")]
     [TestCase("type 384", null, "followed by a momentary queasiness", "Station 384")]  
     [TestCase("E", null, "Strip Near Station")]  
-    [TestCase("N", null, "Middle of Strip")]  
     [TestCase("score", null, "would be 61")]
+    [TestCase("N", null, "Middle of Strip")]
+    [TestCase("N", null, "Strip Near Relay")]
+    [TestCase("set laser to 1", null, "The dial is now set to 1.")]
+    [TestCase("shoot speck with laser", null, "The speck is hit by the beam! It sizzles a little, but isn't destroyed yet.")]
+    [TestCase("score", null, "would be 63")]
+    [TestCase("shoot speck with laser", null, "The beam hits the speck again! This time, it vaporizes into a fine cloud of ash. The relay slowly begins to close, and a voice whispers in your ear \"Sector 384 will activate in 200 millichrons. Proceed to exit station")]
+    [TestCase("score", null, "would be 71")]
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) 
