@@ -11,19 +11,6 @@ public abstract class FloydSpecialInteractionLocation : LocationBase, IFloydSpec
 
     public abstract string FloydPrompt { get; }
 
-    public override async Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
-        IGenerationClient generationClient)
-    {
-        if (InteractionHasHappened)
-            return string.Empty;
-
-        var floyd = GetItem<Floyd>();
-
-        if (!floyd.IsHereAndIsOn(context))
-            return string.Empty;
-
-        InteractionHasHappened = true;
-        return Environment.NewLine + Environment.NewLine +
-               await floyd.GenerateCompanionSpeech(context, generationClient, FloydPrompt);
-    }
+    // Special location comments are handled by Floyd when he follows the player
+    // into the location - see FloydMovementManager.HandleFollowingPlayer
 }

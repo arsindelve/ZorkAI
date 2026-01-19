@@ -265,12 +265,8 @@ internal static class FloydPrompts
         "put his comment in quotes. Do not anthropomorphize the equipment or pretend it has feelings.  ";
 
     public static string ObservationDeck =>
-        "Give Floyd something short and interesting to say as he reacts to being on the Observation Deck, " +
-        "a balcony half a kilometer high with a breathtaking view of the island, the ocean, and another " +
-        "island visible 20 kilometers away. Floyd is impressed by the height and the view, and might " +
-        "comment on being able to see so far, or how small things look from up here, or wonder about " +
-        "the other island. Preface it with 'Floyd gazes out' or 'Floyd peers over the edge' or something " +
-        "similar, and put his comment in quotes. Do not anthropomorphize the view or pretend it has feelings. ";
+        "Floyd reacts to being on a balcony half a kilometer high with a view of the island and ocean. " +
+        "Preface with an action, put his words in quotes. ";
 
     public static string KalamonteePlatform =>
         "Give Floyd something short and wistful to say as he recognizes the shuttle platform. " +

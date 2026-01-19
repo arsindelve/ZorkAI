@@ -28,8 +28,9 @@ public class FloydMovementManager(Floyd floyd)
     /// <summary>
     /// Handles Floyd's following behavior when the player moves to a different location.
     /// Returns a message if Floyd follows, starts wandering, or an empty string if he stays put.
+    /// Also handles special location comments when Floyd enters a special location.
     /// </summary>
-    public string HandleFollowingPlayer(IContext context)
+    public async Task<string> HandleFollowingPlayer(IContext context, IGenerationClient client)
     {
         // Don't follow if already wandering
         if (floyd.IsOffWandering)
@@ -51,10 +52,29 @@ public class FloydMovementManager(Floyd floyd)
             // Normal follow behavior - remove from old location before adding to new
             floyd.CurrentLocation?.RemoveItem(floyd);
             context.CurrentLocation.ItemPlacedHere(floyd);
-            return "Floyd follows you. ";
+
+            // Check for special location comment
+            var specialLocationComment = await CheckForSpecialLocationComment(context, client);
+
+            return string.IsNullOrEmpty(specialLocationComment)
+                ? "Floyd follows you. "
+                : "Floyd follows you. " + specialLocationComment;
         }
 
         return string.Empty;
+    }
+
+    private async Task<string> CheckForSpecialLocationComment(IContext context, IGenerationClient client)
+    {
+        if (context.CurrentLocation is not FloydSpecialInteractionLocation specialLocation)
+            return string.Empty;
+
+        if (specialLocation.InteractionHasHappened)
+            return string.Empty;
+
+        specialLocation.InteractionHasHappened = true;
+        return Environment.NewLine + Environment.NewLine +
+               await floyd.GenerateCompanionSpeech(context, client, specialLocation.FloydPrompt);
     }
 
     /// <summary>

@@ -243,7 +243,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         if (wanderingCountdownResult != null)
             return wanderingCountdownResult;
 
-        var followResult = _movementManager.HandleFollowingPlayer(context);
+        var followResult = await _movementManager.HandleFollowingPlayer(context, client);
         if (!string.IsNullOrEmpty(followResult))
             return followResult;
 
