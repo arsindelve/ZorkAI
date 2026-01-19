@@ -1,4 +1,8 @@
+using GameEngine;
 using GameEngine.Item;
+using Model.AIGeneration;
+using Model.Intent;
+using Model.Interface;
 
 namespace EscapeRoom.Item;
 
@@ -12,7 +16,9 @@ public class WoodenDesk : OpenAndCloseContainerBase, ICanBeExamined
 
     public string ExaminationDescription =>
         ((IOpenAndClose)this).IsOpen
-            ? "A sturdy wooden desk with an open drawer. "
+            ? Items.Any()
+                ? "A sturdy wooden desk with an open drawer. Inside is a flashlight. "
+                : "A sturdy wooden desk with an open drawer. The drawer is empty. "
             : "A sturdy wooden desk with a closed drawer. ";
 
     public override string GenericDescription(ILocation? currentLocation)
@@ -28,5 +34,14 @@ public class WoodenDesk : OpenAndCloseContainerBase, ICanBeExamined
     public override void Init()
     {
         StartWithItemInside<Flashlight>();
+    }
+
+    public override Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
+    {
+        if (action.Match(["search", "look in", "look inside"], NounsForMatching))
+            return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(ExaminationDescription));
+
+        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }

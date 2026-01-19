@@ -29,5 +29,6 @@ public class Reception : LocationBase
     public override void Init()
     {
         StartWithItem<WelcomeDesk>();
+        StartWithItem<WallSign>();
     }
 }

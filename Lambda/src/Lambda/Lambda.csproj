@@ -12,10 +12,10 @@
         <PublishReadyToRun>true</PublishReadyToRun>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="9.0.0"/>
+        <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="9.2.1" />
         <PackageReference Include="DotNetEnv" Version="3.0.0"/>
-        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.5.0"/>
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.1.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.0" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\..\DynamoDb\DynamoDb.csproj"/>
