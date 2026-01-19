@@ -1,8 +1,27 @@
+using Planetfall.Item.Kalamontee.Admin;
+
 namespace Planetfall.Item.Kalamontee;
 
 public class MessDoor : ItemBase, IOpenAndClose, ICanBeExamined
 {
     public override string[] NounsForMatching => ["door"];
+
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
+    {
+        // "unlock door with key" should unlock the padlock when it's attached
+        var padlock = Repository.GetItem<Padlock>();
+        if (padlock.AttachedToDoor && context.HasItem<Key>())
+        {
+            if (action.Match<Key>(["unlock", "open"], NounsForMatching, ["with", "using"]))
+            {
+                // Delegate to the padlock
+                return await padlock.RespondToMultiNounInteraction(action, context);
+            }
+        }
+
+        return await base.RespondToMultiNounInteraction(action, context);
+    }
 
     public string ExaminationDescription => $"The door is {(IsOpen ? "open" : "closed")}.";
 

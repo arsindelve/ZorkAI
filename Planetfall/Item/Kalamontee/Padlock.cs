@@ -65,7 +65,12 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
         if (!context.HasItem<Key>())
             return new NoNounMatchInteractionResult();
 
-        var match = action.Match<Key>(["unlock", "open"], NounsForMatching, ["with", "using"]);
+        // Allow "unlock door with key" when padlock is attached to the door
+        var nounsToMatch = AttachedToDoor
+            ? [..NounsForMatching, "door"]
+            : NounsForMatching;
+
+        var match = action.Match<Key>(["unlock", "open"], nounsToMatch, ["with", "using"]);
         match |= action.Match<Padlock>(["use"], Repository.GetItem<Key>().NounsForMatching, ["on"]);
 
         if (match)

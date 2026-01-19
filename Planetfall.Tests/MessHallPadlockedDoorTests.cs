@@ -43,6 +43,19 @@ public class MessHallPadlockedDoorTests : EngineTestsBase
     }
 
     [Test]
+    public async Task UnlockDoorWithKey_UnlocksPadlock()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MessCorridor>();
+        target.Context.ItemPlacedHere<Key>();
+
+        var response = await target.GetResponse("unlock door with key");
+        response.Should().Contain("springs open");
+        Repository.GetItem<Padlock>().Locked.Should().BeFalse();
+        Repository.GetItem<Padlock>().AttachedToDoor.Should().BeTrue();
+    }
+
+    [Test]
     public async Task OpenDoor_WhileAttached()
     {
         var target = GetTarget();

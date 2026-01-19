@@ -2,6 +2,7 @@ using FluentAssertions;
 using GameEngine;
 using Model.Interface;
 using Moq;
+using Planetfall;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.Lab;
@@ -1346,6 +1347,52 @@ public class LaserTests : EngineTestsBase
         response.Should().Contain("Taken");
         GetItem<Laser>().Items.Should().NotContain(battery);
         target.Context.Items.Should().Contain(battery);
+    }
+
+    #endregion
+
+    #region Floyd Comment Tests
+
+    [Test]
+    public async Task TakeLaser_FloydCommentsWhenPresent()
+    {
+        var target = GetTarget();
+        var toolRoom = GetLocation<ToolRoom>();
+        target.Context.CurrentLocation = toolRoom;
+
+        // Set up Floyd as present and active
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = toolRoom;
+        toolRoom.ItemPlacedHere(floyd);
+
+        await target.GetResponse("take laser");
+
+        // Verify Floyd's pending comment was set
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().NotBeNull();
+        pfContext.PendingFloydActionCommentPrompt.Should().Contain("laser");
+    }
+
+    [Test]
+    public async Task TakeLaser_FloydDoesNotComment_WhenNotPresent()
+    {
+        var target = GetTarget();
+        var toolRoom = GetLocation<ToolRoom>();
+        target.Context.CurrentLocation = toolRoom;
+
+        // Floyd is NOT in the room
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>(); // Different location
+
+        await target.GetResponse("take laser");
+
+        // Verify Floyd's pending comment was NOT set
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
     }
 
     #endregion

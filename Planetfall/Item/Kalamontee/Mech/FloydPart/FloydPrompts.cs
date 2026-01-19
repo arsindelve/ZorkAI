@@ -304,6 +304,34 @@ internal static class FloydPrompts
         "Preface it with 'Floyd claps his hands' or 'Floyd bounces with excitement' or something similar, " +
         "and put his comment in quotes. ";
 
+    public static string LaserPickedUp =>
+        "Give Floyd something short and nervous to say as you pick up a portable laser weapon. " +
+        "Floyd is a bit worried about dangerous weapons and hopes you'll be careful with it. " +
+        "He might back up a step or eye it warily. Keep it brief with a touch of concern. " +
+        "Preface it with 'Floyd takes a step back' or 'Floyd eyes the laser nervously' or something similar, " +
+        "and put his comment in quotes. ";
+
+    public static string LibraryComputerFirstUse =>
+        "Give Floyd something short and curious to say as you start typing on a library computer terminal. " +
+        "Floyd is fascinated by the computer and watches intently as you navigate the menus. " +
+        "He might peer at the screen or comment on wanting to try pressing buttons. Keep it brief and curious. " +
+        "Preface it with 'Floyd peers at the screen' or 'Floyd watches your fingers on the keyboard' or something similar, " +
+        "and put his comment in quotes. ";
+
+    public static string ShuttleControlsFirstUse =>
+        "Give Floyd something short and excited to say as you manipulate the shuttle car controls for the first time. " +
+        "Floyd is thrilled about the idea of riding the shuttle and going somewhere new. " +
+        "He might grip something for support or watch the controls with wide eyes. Keep it brief and enthusiastic. " +
+        "Preface it with 'Floyd grips the seat' or 'Floyd watches the lever eagerly' or something similar, " +
+        "and put his comment in quotes. ";
+
+    public static string ConferenceRoomDoorOpened =>
+        "Give Floyd something short and impressed to say as you crack the code and open the conference room door. " +
+        "Floyd is amazed that you figured out the combination and curious about what's inside. " +
+        "Keep it brief with a sense of wonder. " +
+        "Preface it with 'Floyd's eyes widen' or 'Floyd peers through the doorway' or something similar, " +
+        "and put his comment in quotes. ";
+
     internal const string LeavingToExplore = """
 
                                              Floyd and the player are in this room "{0}" which has this description: "{1}"

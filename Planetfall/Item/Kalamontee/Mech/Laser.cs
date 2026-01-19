@@ -1,6 +1,7 @@
 using Model.AIGeneration;
 using Newtonsoft.Json;
 using Planetfall.Item.Computer;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Utilities;
 
 namespace Planetfall.Item.Kalamontee.Mech;
@@ -266,6 +267,12 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
     public override void Init()
     {
         StartWithItemInside<OldBattery>();
+    }
+
+    public override string? OnBeingTaken(IContext context, ICanContainItems? previousLocation)
+    {
+        Repository.GetItem<Floyd>().CommentOnAction(FloydPrompts.LaserPickedUp, context);
+        return base.OnBeingTaken(context, previousLocation);
     }
 
     public override string GenericDescription(ILocation? currentLocation)

@@ -1,4 +1,6 @@
 using FluentAssertions;
+using Planetfall;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.Library.Computer;
 using Planetfall.Location.Lawanda;
 
@@ -250,5 +252,77 @@ public class ComputerTerminalTests : EngineTestsBase
         await target.GetResponse($"type {secondPress}");
         var response = await target.GetResponse($"press {thirdPress}");
         response.Should().Contain(expectedResponse);
+    }
+
+    [Test]
+    public async Task TypeOnComputer_FloydCommentsWhenPresent()
+    {
+        var target = GetTarget();
+        var libraryLobby = GetLocation<LibraryLobby>();
+        target.Context.CurrentLocation = libraryLobby;
+        GetItem<ComputerTerminal>().IsOn = true;
+
+        // Set up Floyd as present and active
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = libraryLobby;
+        libraryLobby.ItemPlacedHere(floyd);
+
+        await target.GetResponse("type 1");
+
+        // Verify Floyd's pending comment was set
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().NotBeNull();
+        pfContext.PendingFloydActionCommentPrompt.Should().Contain("library computer");
+    }
+
+    [Test]
+    public async Task TypeOnComputer_FloydDoesNotComment_WhenNotPresent()
+    {
+        var target = GetTarget();
+        var libraryLobby = GetLocation<LibraryLobby>();
+        target.Context.CurrentLocation = libraryLobby;
+        GetItem<ComputerTerminal>().IsOn = true;
+
+        // Floyd is NOT in the room
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = GetLocation<Library>(); // Different location
+
+        await target.GetResponse("type 1");
+
+        // Verify Floyd's pending comment was NOT set
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    [Test]
+    public async Task TypeOnComputer_FloydOnlyCommentsOnce()
+    {
+        var target = GetTarget();
+        var libraryLobby = GetLocation<LibraryLobby>();
+        target.Context.CurrentLocation = libraryLobby;
+        GetItem<ComputerTerminal>().IsOn = true;
+
+        // Set up Floyd as present and active
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = libraryLobby;
+        libraryLobby.ItemPlacedHere(floyd);
+
+        // First keypress - should set pending comment
+        await target.GetResponse("type 1");
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().NotBeNull();
+
+        // Clear the pending comment (simulating it being processed)
+        pfContext.PendingFloydActionCommentPrompt = null;
+
+        // Second keypress - should NOT set pending comment (prompt already used)
+        await target.GetResponse("type 2");
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
     }
 }

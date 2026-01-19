@@ -1,7 +1,9 @@
 using FluentAssertions;
 using GameEngine;
+using Planetfall;
 using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Admin;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Shuttle;
 
 namespace Planetfall.Tests;
@@ -623,13 +625,86 @@ public class ShuttleTests : EngineTestsBase
         var target = GetTarget();
         Take<ShuttleAccessCard>();
         StartHere<AlfieControlEast>();
-        
+
         Repository.GetItem<Chronometer>().CurrentTime = 6500;
-        
+
         var response = await target.GetResponse("slide shuttle access card through slot");
-        
+
         response.Should().Contain("A recorded voice explains that using the shuttle car during the evening hours requires special authorization.");
-        
+
         GetLocation<AlfieControlEast>().Activated.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task PushLever_FloydCommentsWhenPresent()
+    {
+        var target = GetTarget();
+        Take<ShuttleAccessCard>();
+        var controls = StartHere<AlfieControlEast>();
+
+        // Set up Floyd as present and active
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = controls;
+        controls.ItemPlacedHere(floyd);
+
+        await target.GetResponse("slide shuttle access card through slot");
+        await target.GetResponse("push lever");
+
+        // Verify Floyd's pending comment was set
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().NotBeNull();
+        pfContext.PendingFloydActionCommentPrompt.Should().Contain("shuttle");
+    }
+
+    [Test]
+    public async Task PushLever_FloydDoesNotComment_WhenNotPresent()
+    {
+        var target = GetTarget();
+        Take<ShuttleAccessCard>();
+        StartHere<AlfieControlEast>();
+
+        // Floyd is NOT in the room
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = GetLocation<ShuttleCarAlfie>(); // Different location
+
+        await target.GetResponse("slide shuttle access card through slot");
+        await target.GetResponse("push lever");
+
+        // Verify Floyd's pending comment was NOT set
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    [Test]
+    public async Task PullLever_FloydOnlyCommentsOnce()
+    {
+        var target = GetTarget();
+        Take<ShuttleAccessCard>();
+        var controls = StartHere<AlfieControlEast>();
+
+        // Set up Floyd as present and active
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = controls;
+        controls.ItemPlacedHere(floyd);
+
+        await target.GetResponse("slide shuttle access card through slot");
+        await target.GetResponse("push lever");
+
+        // First lever manipulation - should set pending comment
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().NotBeNull();
+
+        // Clear the pending comment (simulating it being processed)
+        pfContext.PendingFloydActionCommentPrompt = null;
+
+        // Second lever manipulation - should NOT set pending comment (prompt already used)
+        await target.GetResponse("pull lever");
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
     }
 }

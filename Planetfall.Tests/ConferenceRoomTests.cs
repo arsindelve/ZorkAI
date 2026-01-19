@@ -1,5 +1,7 @@
 using FluentAssertions;
+using Planetfall;
 using Planetfall.Item.Kalamontee;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Kalamontee;
 
 namespace Planetfall.Tests;
@@ -329,6 +331,73 @@ public class ConferenceRoomTests : EngineTestsBase
 
         response = await target.GetResponse("set dial to nineteen");
         response.Should().Contain("The dial is now set to 19");
+    }
+
+    #endregion
+
+    #region Floyd Comment Tests
+
+    [Test]
+    public async Task SetDial_CorrectCode_FloydCommentsWhenPresent()
+    {
+        var target = GetTarget();
+        var recArea = StartHere<RecArea>();
+        GetItem<ConferenceRoomDoor>().UnlockCode = "42";
+
+        // Set up Floyd as present and active
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = recArea;
+        recArea.ItemPlacedHere(floyd);
+
+        await target.GetResponse("set dial to 42");
+
+        // Verify Floyd's pending comment was set
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().NotBeNull();
+        pfContext.PendingFloydActionCommentPrompt.Should().Contain("conference");
+    }
+
+    [Test]
+    public async Task SetDial_CorrectCode_FloydDoesNotComment_WhenNotPresent()
+    {
+        var target = GetTarget();
+        StartHere<RecArea>();
+        GetItem<ConferenceRoomDoor>().UnlockCode = "42";
+
+        // Floyd is NOT in the room
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = GetLocation<ConferenceRoom>(); // Different location
+
+        await target.GetResponse("set dial to 42");
+
+        // Verify Floyd's pending comment was NOT set
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    [Test]
+    public async Task SetDial_WrongCode_FloydDoesNotComment()
+    {
+        var target = GetTarget();
+        var recArea = StartHere<RecArea>();
+        GetItem<ConferenceRoomDoor>().UnlockCode = "42";
+
+        // Set up Floyd as present and active
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = recArea;
+        recArea.ItemPlacedHere(floyd);
+
+        await target.GetResponse("set dial to 99"); // Wrong code
+
+        // Verify Floyd's pending comment was NOT set (door didn't open)
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
     }
 
     #endregion

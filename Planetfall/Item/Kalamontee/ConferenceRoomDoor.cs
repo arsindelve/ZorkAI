@@ -1,4 +1,8 @@
+using GameEngine;
 using Model.AIGeneration;
+using Model.Interface;
+using Newtonsoft.Json;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Utilities;
 
 namespace Planetfall.Item.Kalamontee;
@@ -7,14 +11,27 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
 {
     public override string[] NounsForMatching => ["conference room door", "door"];
 
+    [UsedImplicitly] [JsonIgnore]
+    public IRandomChooser Chooser { get; set; } = new RandomChooser();
+
     [UsedImplicitly]
     public string Code { get; set; } = "0";
 
+    private string? _unlockCode;
+
     [UsedImplicitly]
-    public string UnlockCode { get; set; } = new Random().Next(1, 999).ToString();
+    public string UnlockCode
+    {
+        get => _unlockCode ??= Chooser.RollDice(999).ToString();
+        set => _unlockCode = value;
+    }
+
     public bool IsOpen { get; set; }
+    
     public string AlreadyOpen => "It's already open! ";
+    
     public string AlreadyClosed => "It is closed! ";
+    
     public bool HasEverBeenOpened { get; set; }
 
     public string NowOpen(ILocation currentLocation)
@@ -32,7 +49,7 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
             // Try to extract text after "to" from the original input (handles "set dial to twelve" case)
             var textAfterTo = action.OriginalInput.ExtractTextAfterTo();
             if (textAfterTo != null && context.CurrentLocation is RecArea)
-                return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(AttemptUnlock(textAfterTo)));
+                return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(AttemptUnlock(textAfterTo, context)));
 
             return Task.FromResult<InteractionResult?>(
                 new PositiveInteractionResult("You must specify a number to set the dial to. "));
@@ -55,10 +72,10 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
         if (!action.MatchNounOne(["dial", "door", "conference room door", "lock"]))
             return base.RespondToMultiNounInteraction(action, context);
 
-        return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(AttemptUnlock(action.NounTwo)));
+        return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(AttemptUnlock(action.NounTwo, context)));
     }
 
-    private string AttemptUnlock(string actionNounTwo)
+    private string AttemptUnlock(string actionNounTwo, IContext context)
     {
         var result = AnalyzeDialInput(actionNounTwo);
 
@@ -77,6 +94,7 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
 
                 IsOpen = true;
                 Code = "0";
+                Repository.GetItem<Floyd>().CommentOnAction(FloydPrompts.ConferenceRoomDoorOpened, context);
                 return "The door swings open, and the dial resets to 0. ";
             }
             case TurnDialResult.IsNumberAbove999:

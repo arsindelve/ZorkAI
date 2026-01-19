@@ -1,4 +1,5 @@
 using Model.AIGeneration;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Utilities;
 
 namespace Planetfall.Item.Lawanda.Library.Computer;
@@ -60,6 +61,8 @@ public class ComputerTerminal : ItemBase, ICanBeExamined, ICanBeRead, ITurnOffAn
 
         if (keyPress.HasValue)
         {
+            Repository.GetItem<Floyd>().CommentOnAction(FloydPrompts.LibraryComputerFirstUse, context);
+
             if (keyPress.Value == 0)
                 return new PositiveInteractionResult(MenuState.GoUp());
 

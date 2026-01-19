@@ -2,6 +2,7 @@ using System.Text;
 using GameEngine.Location;
 using Model.AIGeneration;
 using Planetfall.Command;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 // ReSharper disable StaticMemberInGenericType
 
@@ -117,12 +118,18 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
         }
 
         if (action.Match(DecelerateVerbs, LeverNouns))
+        {
+            Repository.GetItem<Floyd>().CommentOnAction(FloydPrompts.ShuttleControlsFirstUse, context);
             return Task.FromResult<InteractionResult>(
                 new PositiveInteractionResult(AdjustLever(ShuttleLeverDirection.Pull)));
+        }
 
         if (action.Match(AccelerateVerbs, LeverNouns))
+        {
+            Repository.GetItem<Floyd>().CommentOnAction(FloydPrompts.ShuttleControlsFirstUse, context);
             return Task.FromResult<InteractionResult>(
                 new PositiveInteractionResult(AdjustLever(ShuttleLeverDirection.Push)));
+        }
 
         return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
