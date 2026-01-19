@@ -73,6 +73,137 @@ public class LaserTests : EngineTestsBase
         GetItem<Laser>().Setting.Should().Be(5);
     }
 
+    #region Word-Based Number Input Tests
+
+    [Test]
+    [TestCase("one", 1)]
+    [TestCase("two", 2)]
+    [TestCase("three", 3)]
+    [TestCase("four", 4)]
+    [TestCase("five", 5)]
+    [TestCase("six", 6)]
+    public async Task SetDialToWordNumber_ValidNumbers(string word, int expected)
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        GetItem<Laser>().Setting = 3; // Start at a different setting
+
+        var response = await target.GetResponse($"set laser to {word}");
+
+        if (expected == 3)
+        {
+            response.Should().Contain("That's where it's set now");
+        }
+        else
+        {
+            response.Should().Contain($"now set to {expected}");
+        }
+        GetItem<Laser>().Setting.Should().Be(expected);
+    }
+
+    [Test]
+    [TestCase("zero")]
+    [TestCase("seven")]
+    [TestCase("eight")]
+    [TestCase("nine")]
+    [TestCase("ten")]
+    [TestCase("twenty")]
+    [TestCase("one hundred")]
+    public async Task SetDialToWordNumber_OutOfRange(string word)
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        var initialSetting = GetItem<Laser>().Setting;
+
+        var response = await target.GetResponse($"set laser to {word}");
+
+        response.Should().Contain("he dial can only be set to numbers between 1 and 6");
+        GetItem<Laser>().Setting.Should().Be(initialSetting);
+    }
+
+    [Test]
+    [TestCase("ONE", 1)]
+    [TestCase("Two", 2)]
+    [TestCase("THREE", 3)]
+    [TestCase("FoUr", 4)]
+    public async Task SetDialToWordNumber_CaseInsensitive(string word, int expected)
+    {
+        var target = GetTarget();
+        Take<Laser>();
+
+        var response = await target.GetResponse($"set laser to {word}");
+
+        response.Should().Contain($"now set to {expected}");
+        GetItem<Laser>().Setting.Should().Be(expected);
+    }
+
+    [Test]
+    public async Task SetDialToWordNumber_AlreadyAtSetting()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        GetItem<Laser>().Setting = 3;
+
+        var response = await target.GetResponse("set laser to three");
+
+        response.Should().Contain("That's where it's set now");
+        GetItem<Laser>().Setting.Should().Be(3);
+    }
+
+    [Test]
+    [TestCase("hello")]
+    [TestCase("red")]
+    [TestCase("blue")]
+    public async Task SetDialToWordNumber_NonNumericWords(string word)
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        var initialSetting = GetItem<Laser>().Setting;
+
+        var response = await target.GetResponse($"set laser to {word}");
+
+        response.Should().Contain("he dial can only be set to numbers between 1 and 6");
+        GetItem<Laser>().Setting.Should().Be(initialSetting);
+    }
+
+    [Test]
+    public async Task SetDialToWordNumber_MixedWithDigits()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+
+        // Should work with both "1" and "one"
+        var response1 = await target.GetResponse("set laser to 1");
+        response1.Should().Contain("now set to 1");
+        GetItem<Laser>().Setting.Should().Be(1);
+
+        var response2 = await target.GetResponse("set laser to six");
+        response2.Should().Contain("now set to 6");
+        GetItem<Laser>().Setting.Should().Be(6);
+
+        var response3 = await target.GetResponse("set laser to 3");
+        response3.Should().Contain("now set to 3");
+        GetItem<Laser>().Setting.Should().Be(3);
+
+        var response4 = await target.GetResponse("set laser to two");
+        response4.Should().Contain("now set to 2");
+        GetItem<Laser>().Setting.Should().Be(2);
+    }
+
+    [Test]
+    public async Task TurnDialToWordNumber_Works()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+
+        var response = await target.GetResponse("turn dial to four");
+
+        response.Should().Contain("now set to 4");
+        GetItem<Laser>().Setting.Should().Be(4);
+    }
+
+    #endregion
+
     [Test]
     public async Task ShootLaserWithoutBattery()
     {

@@ -12,7 +12,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentAssertions" Version="8.6.0" />
+        <PackageReference Include="FluentAssertions" Version="8.8.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.2" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
         <PackageReference Include="Moq" Version="4.20.72" />
@@ -33,7 +33,7 @@
         <ProjectReference Include="..\DynamoDb\DynamoDb.csproj"/>
         <ProjectReference Include="..\GameEngine\GameEngine.csproj"/>
         <ProjectReference Include="..\Lambda\src\Lambda\Lambda.csproj"/>
-        <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>
+        <ProjectReference Include="..\ZorkAI.OpenAI\ZorkAI.OpenAI.csproj" />
         <ProjectReference Include="..\Planetfall\Planetfall.csproj"/>
         <ProjectReference Include="..\Planetfall-Lambda\src\Planetfall-Lambda\Planetfall-Lambda.csproj"/>
         <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
@@ -41,7 +41,6 @@
 
     <ItemGroup>
       <Folder Include="AWS\" />
-        <Folder Include="Parser\"/>
     </ItemGroup>
 
 </Project>

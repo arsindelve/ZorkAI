@@ -1,20 +1,19 @@
 using System.Text;
-using Azure;
-using Azure.AI.OpenAI;
 using CloudWatch;
 using CloudWatch.Model;
 using Microsoft.Extensions.Logging;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
+using OpenAI.Chat;
 
-namespace OpenAI;
+namespace ZorkAI.OpenAI;
 
 /// <summary>
-///     Represents a client for interacting with OpenAI API to generate text.
+///     Represents a client for interacting with ZorkAI.OpenAI API to generate text.
 /// </summary>
 public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerationClient
 {
-    protected override string DeploymentName => "gpt-4o";
+    protected override string ModelName => "gpt-4o";
 
     public Action? OnGenerate { get; set; }
 
@@ -29,7 +28,7 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
     public ICloudWatchLogger<GenerationLog>? CloudWatchLogger { get; set; }
 
     /// <summary>
-    ///     Completes a chat conversation using the OpenAI API.
+    ///     Completes a chat conversation using the ZorkAI.OpenAI API.
     /// </summary>
     /// <param name="request">The request object containing the system and user messages for the chat conversation.</param>
     /// <param name="systemPromptAddendum"></param>
@@ -41,8 +40,12 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
 
         Logger?.LogDebug($"Sending request of type: {request.GetType().Name} ");
 
-        var chatCompletionsOptions = GetChatCompletionsOptions(SystemPrompt + systemPromptAddendum, request.Temperature);
+        var messages = new List<ChatMessage>();
 
+        // Add system prompt
+        messages.Add(new SystemChatMessage(SystemPrompt + systemPromptAddendum));
+
+        // Add context from last interactions
         var reverse = LastFiveInputOutputs.ToList();
         reverse.Reverse();
 
@@ -52,35 +55,40 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
 
         foreach (var tuple in reverse) lastInputs.AppendLine($"Input: {tuple.Item1}. Output: {tuple.Item2}");
 
-        chatCompletionsOptions.Messages.Add(new ChatRequestSystemMessage(lastInputs.ToString()));
+        messages.Add(new SystemChatMessage(lastInputs.ToString()));
 
         // Add the most recent request
-        chatCompletionsOptions.Messages.Add(new ChatRequestUserMessage(request.UserMessage));
+        messages.Add(new UserChatMessage(request.UserMessage));
 
         Logger?.LogDebug(request.UserMessage);
 
-        Response<ChatCompletions> response = await Client!.GetChatCompletionsAsync(chatCompletionsOptions);
-        var responseMessage = response.Value.Choices[0].Message;
+        var options = new ChatCompletionOptions
+        {
+            Temperature = request.Temperature
+        };
 
-        if (string.IsNullOrEmpty(responseMessage.Content))
+        ChatCompletion completion = await Client!.CompleteChatAsync(messages, options);
+        var responseContent = completion.Content[0].Text;
+
+        if (string.IsNullOrEmpty(responseContent))
             return "The narrator is silent. ";
 
         OnGenerate?.Invoke();
-        Log(request, responseMessage, SystemPrompt + systemPromptAddendum);
+        Log(request, responseContent, SystemPrompt + systemPromptAddendum);
 
-        return responseMessage.Content;
+        return responseContent;
     }
 
-    private void Log(Request request, ChatResponseMessage responseMessage, string systemMessage)
+    private void Log(Request request, string responseContent, string systemMessage)
     {
         if (!string.IsNullOrEmpty(request.UserMessage))
             CloudWatchLogger?.WriteLogEvents(new GenerationLog
             {
                 SystemPrompt = systemMessage,
                 Temperature = request.Temperature,
-                LanguageModel = DeploymentName,
+                LanguageModel = ModelName,
                 UserPrompt = request.UserMessage,
-                Response = responseMessage.Content,
+                Response = responseContent,
                 TurnCorrelationId = TurnCorrelationId.ToString()
             });
     }
@@ -90,17 +98,25 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
         if (IsDisabled)
             return "This action or command has no effect on the game. ";
 
-        var chatCompletionsOptions = GetChatCompletionsOptions(request.SystemMessage, request.Temperature);
-        chatCompletionsOptions.Messages.Add(new ChatRequestUserMessage(request.UserMessage));
+        var messages = new List<ChatMessage>
+        {
+            new SystemChatMessage(request.SystemMessage),
+            new UserChatMessage(request.UserMessage)
+        };
 
-        Response<ChatCompletions> response = await Client!.GetChatCompletionsAsync(chatCompletionsOptions);
-        var responseMessage = response.Value.Choices[0].Message;
-        
-        if (string.IsNullOrEmpty(responseMessage.Content))
+        var options = new ChatCompletionOptions
+        {
+            Temperature = request.Temperature
+        };
+
+        ChatCompletion completion = await Client!.CompleteChatAsync(messages, options);
+        var responseContent = completion.Content[0].Text;
+
+        if (string.IsNullOrEmpty(responseContent))
             return "Your companion says nothing. ";
 
-        Log(request, responseMessage, request.SystemMessage);
+        Log(request, responseContent, request.SystemMessage);
 
-        return responseMessage.Content;
+        return responseContent;
     }
 }

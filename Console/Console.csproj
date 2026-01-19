@@ -11,7 +11,7 @@
         <ProjectReference Include="..\DynamoDb\DynamoDb.csproj"/>
         <ProjectReference Include="..\EscapeRoom\EscapeRoom.csproj"/>
         <ProjectReference Include="..\GameEngine\GameEngine.csproj"/>
-        <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>
+        <ProjectReference Include="..\ZorkAI.OpenAI\ZorkAI.OpenAI.csproj" />
         <ProjectReference Include="..\Planetfall\Planetfall.csproj"/>
         <ProjectReference Include="..\Utilities\Utilities.csproj"/>
         <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>

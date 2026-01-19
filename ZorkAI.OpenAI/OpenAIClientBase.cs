@@ -1,11 +1,11 @@
-using Azure.AI.OpenAI;
 using Microsoft.Extensions.Logging;
+using OpenAI.Chat;
 
-namespace OpenAI;
+namespace ZorkAI.OpenAI;
 
 public abstract class OpenAIClientBase
 {
-    protected readonly OpenAIClient? Client;
+    protected readonly ChatClient? Client;
     protected readonly ILogger? Logger;
     protected readonly bool HasApiKey;
 
@@ -25,22 +25,9 @@ public abstract class OpenAIClientBase
         else
         {
             HasApiKey = true;
-            Client = new OpenAIClient(key);
+            Client = new ChatClient(model: ModelName, apiKey: key);
         }
     }
 
-    protected abstract string DeploymentName { get; }
-
-    protected ChatCompletionsOptions GetChatCompletionsOptions(string? message, float temperature)
-    {
-        return new ChatCompletionsOptions
-        {
-            Temperature = temperature,
-            DeploymentName = DeploymentName,
-            Messages =
-            {
-                new ChatRequestSystemMessage(message)
-            }
-        };
-    }
+    protected abstract string ModelName { get; }
 }

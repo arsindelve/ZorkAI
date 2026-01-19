@@ -7,6 +7,7 @@ using Model.AIParsing;
 using Model.Interface;
 using Model.Movement;
 using Newtonsoft.Json;
+using ZorkAI.OpenAI;
 
 namespace GameEngine;
 

@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Model.AIGeneration;
 using Model.Interface;
 using SecretsManager;
+using ZorkAI.OpenAI;
 
 namespace GameEngine.Web;
 

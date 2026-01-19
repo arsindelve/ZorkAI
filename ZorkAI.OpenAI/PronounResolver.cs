@@ -1,9 +1,9 @@
 using System.Text.RegularExpressions;
-using Azure.AI.OpenAI;
 using Microsoft.Extensions.Logging;
 using Model.AIParsing;
+using OpenAI.Chat;
 
-namespace OpenAI;
+namespace ZorkAI.OpenAI;
 
 /// <summary>
 /// Resolves pronouns found in a player's input by analyzing the context provided from prior inputs and responses.
@@ -12,7 +12,7 @@ namespace OpenAI;
 /// </summary>
 public class PronounResolver(ILogger? logger = null) : OpenAIClientBase(logger, requireApiKey: false), IPronounResolver
 {
-    protected override string DeploymentName => "gpt-4o-mini"; // Cheaper model for pronoun resolution
+    protected override string ModelName => "gpt-4o-mini"; // Cheaper model for pronoun resolution
 
     // Pronouns we want to resolve
     private static readonly string[] Pronouns =
@@ -101,19 +101,19 @@ Output: take lamp";
 
 Rewritten command:";
 
-        var options = new ChatCompletionsOptions
+        var messages = new List<ChatMessage>
         {
-            DeploymentName = DeploymentName,
-            Temperature = 0f, // Deterministic for pronoun resolution
-            Messages =
-            {
-                new ChatRequestSystemMessage(systemPrompt),
-                new ChatRequestUserMessage(userMessage)
-            }
+            new SystemChatMessage(systemPrompt),
+            new UserChatMessage(userMessage)
         };
 
-        var response = await Client!.GetChatCompletionsAsync(options);
-        var result = response.Value.Choices[0].Message.Content;
+        var options = new ChatCompletionOptions
+        {
+            Temperature = 0f // Deterministic for pronoun resolution
+        };
+
+        ChatCompletion completion = await Client!.CompleteChatAsync(messages, options);
+        var result = completion.Content[0].Text;
 
         // Clean up response (remove quotes, trim)
         result = result.Trim().Trim('"').Trim('\'');

@@ -24,7 +24,8 @@
       "Bash(wc:*)",
       "Bash(gh run list:*)",
       "Bash(gh run:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(mdfind:*)"
     ],
     "deny": []
   }

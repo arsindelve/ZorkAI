@@ -1,4 +1,5 @@
 using Model.AIGeneration;
+using Utilities;
 
 namespace Planetfall.Item.Kalamontee;
 
@@ -27,8 +28,15 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
         IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["turn", "set"], ["dial"]))
+        {
+            // Try to extract text after "to" from the original input (handles "set dial to twelve" case)
+            var textAfterTo = action.OriginalInput.ExtractTextAfterTo();
+            if (textAfterTo != null && context.CurrentLocation is RecArea)
+                return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(AttemptUnlock(textAfterTo)));
+
             return Task.FromResult<InteractionResult?>(
                 new PositiveInteractionResult("You must specify a number to set the dial to. "));
+        }
 
         return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
@@ -54,14 +62,17 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
     {
         var result = AnalyzeDialInput(actionNounTwo);
 
-        switch (result)
+        switch (result.resultType)
         {
             case TurnDialResult.IsNumberBetween0And999:
             {
-                if (actionNounTwo != UnlockCode)
+                var parsedNumber = result.number!.Value;
+                var unlockCodeNumber = int.Parse(UnlockCode);
+
+                if (parsedNumber != unlockCodeNumber)
                 {
-                    Code = actionNounTwo;
-                    return $"The dial is now set to {actionNounTwo}. ";
+                    Code = parsedNumber.ToString();
+                    return $"The dial is now set to {parsedNumber}. ";
                 }
 
                 IsOpen = true;
@@ -94,24 +105,27 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
 
     public string ExaminationDescription => $"The door is {(IsOpen ? "open" : "closed")}. ";
 
-    private static TurnDialResult AnalyzeDialInput(string input)
+    private static (TurnDialResult resultType, int? number) AnalyzeDialInput(string input)
     {
         if (string.IsNullOrWhiteSpace(input))
         {
-            return TurnDialResult.IsNotANumber;
+            return (TurnDialResult.IsNotANumber, null);
         }
 
-        if (int.TryParse(input, out int result))
+        // Use ToInteger() to support both numeric ("12") and word ("twelve") input
+        var result = input.ToInteger();
+
+        if (result.HasValue)
         {
-            return result switch
+            return result.Value switch
             {
-                >= 0 and <= 999 => TurnDialResult.IsNumberBetween0And999,
-                > 999 => TurnDialResult.IsNumberAbove999,
-                _ => TurnDialResult.IsNumberBelow0
+                >= 0 and <= 999 => (TurnDialResult.IsNumberBetween0And999, result.Value),
+                > 999 => (TurnDialResult.IsNumberAbove999, null),
+                _ => (TurnDialResult.IsNumberBelow0, null)
             };
         }
 
-        return TurnDialResult.IsNotANumber;
+        return (TurnDialResult.IsNotANumber, null);
     }
 
     private enum TurnDialResult

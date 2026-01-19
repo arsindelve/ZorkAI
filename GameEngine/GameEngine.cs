@@ -17,6 +17,7 @@ using Model.Movement;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Utilities;
+using ZorkAI.OpenAI;
 
 namespace GameEngine;
 

@@ -5,6 +5,7 @@ using Model.Location;
 using Moq;
 using OpenAI;
 using Planetfall.Location.Kalamontee;
+using ZorkAI.OpenAI;
 using ZorkOne.Item;
 using ZorkOne.Location;
 using ZorkOne.Location.CoalMineLocation;

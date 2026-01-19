@@ -62,54 +62,74 @@ public static class Utilities
     /// <returns>A new string containing only alphabetic characters and whitespace. Returns an empty string if the input is null.</returns>
     public static string StripNonChars(this string? s)
     {
-        if (s == null) return string.Empty;
-        return Regex.Replace(s, "[^a-zA-Z\\s]", string.Empty);
+        return s == null ? string.Empty : Regex.Replace(s, "[^a-zA-Z\\s]", string.Empty);
     }
 
-    /// <summary>
-    /// Constructs a concise, single-line string representation of a list of nouns, with the items separated by commas and the last item joined using "and."
-    /// </summary>
-    /// <example>"A sword, a diamond and a pile of leaves. </example>
     /// <param name="nouns">The list of nouns to be formatted into a single string.</param>
-    /// <returns>A string where the nouns are combined with commas and the final noun is preceded by "and."</returns>
-    public static string SingleLineListWithAnd(this List<string> nouns)
+    extension(List<string> nouns)
     {
-        return SingleLineList(nouns, "and", "a");
+        /// <summary>
+        /// Constructs a concise, single-line string representation of a list of nouns, with the items separated by commas and the last item joined using "and."
+        /// </summary>
+        /// <example>"A sword, a diamond and a pile of leaves. </example>
+        /// <returns>A string where the nouns are combined with commas and the final noun is preceded by "and."</returns>
+        public string SingleLineListWithAnd()
+        {
+            return nouns.SingleLineList("and", "a");
+        }
+
+        /// <summary>
+        /// Combines a list of nouns into a single string, separated by commas, and uses "and" before the last item.
+        /// Any articles are omitted from the resulting string.
+        /// </summary>
+        /// <returns>A single string representing the combined nouns, separated by commas, with "and" before the last item and no articles.</returns>
+        public string SingleLineListWithAndNoArticle()
+        {
+            return nouns.SingleLineList("and", "");
+        }
+
+        /// <summary>
+        /// Creates a single-line, human-readable string representation of a list of nouns, combining them with the word "or".
+        /// </summary>
+        /// <example>The brass lantern, the green lantern or the useless lantern</example>
+        /// <returns>A string representing the list of nouns combined with "or". For example, "item1, item2, or item3".</returns>
+        public string SingleLineListWithOr()
+        {
+            return nouns.SingleLineList("or", "the");
+        }
+
+        private string SingleLineList(string connector, string articles)
+        {
+            var convertNouns = !string.IsNullOrEmpty(articles) ?
+                nouns.ConvertAll(noun => $"{articles} {noun}")  :
+                nouns.ConvertAll(noun => $"{noun}");
+
+            var lastNoun = convertNouns.Last();
+            convertNouns.Remove(lastNoun);
+
+            return convertNouns.Count > 0
+                ? $"{string.Join(", ", convertNouns)} {connector} {lastNoun}"
+                : lastNoun;
+        }
     }
 
     /// <summary>
-    /// Combines a list of nouns into a single string, separated by commas, and uses "and" before the last item.
-    /// Any articles are omitted from the resulting string.
+    /// Extracts the text after "to" from the input string.
+    /// Looks for patterns like "set X to Y" or "turn X to Y" and returns Y.
     /// </summary>
-    /// <param name="nouns">The list of nouns to combine into a single line.</param>
-    /// <returns>A single string representing the combined nouns, separated by commas, with "and" before the last item and no articles.</returns>
-    public static string SingleLineListWithAndNoArticle(this List<string> nouns)
+    /// <param name="input">The input string to parse.</param>
+    /// <returns>The text after "to", or null if not found or empty.</returns>
+    public static string? ExtractTextAfterTo(this string? input)
     {
-        return SingleLineList(nouns, "and", "");
-    }
+        if (string.IsNullOrWhiteSpace(input))
+            return null;
 
-    /// <summary>
-    /// Creates a single-line, human-readable string representation of a list of nouns, combining them with the word "or".
-    /// </summary>
-    /// <example>The brass lantern, the green lantern or the useless lantern</example>
-    /// <param name="nouns">The list of noun strings to format into a single line.</param>
-    /// <returns>A string representing the list of nouns combined with "or". For example, "item1, item2, or item3".</returns>
-    public static string SingleLineListWithOr(this List<string> nouns)
-    {
-        return SingleLineList(nouns, "or", "the");
-    }
+        // Look for " to " pattern in the input
+        var toIndex = input.LastIndexOf(" to ", StringComparison.OrdinalIgnoreCase);
+        if (toIndex == -1)
+            return null;
 
-    private static string SingleLineList(this List<string> nouns, string connector, string articles)
-    {
-        var convertNouns = !string.IsNullOrEmpty(articles) ? 
-            nouns.ConvertAll(noun => $"{articles} {noun}")  : 
-            nouns.ConvertAll(noun => $"{noun}");
-        
-        var lastNoun = convertNouns.Last();
-        convertNouns.Remove(lastNoun);
-
-        return convertNouns.Count > 0
-            ? $"{string.Join(", ", convertNouns)} {connector} {lastNoun}"
-            : lastNoun;
+        var afterTo = input[(toIndex + 4)..].Trim();
+        return string.IsNullOrWhiteSpace(afterTo) ? null : afterTo;
     }
 }

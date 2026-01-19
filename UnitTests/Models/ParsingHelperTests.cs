@@ -289,6 +289,315 @@ public class ParsingHelperTests
         // Assert
         result.Should().BeOfType<NullIntent>();
     }
+
+    [Test]
+    public void GetIntent_WithInventoryResponse_ReturnsInventoryIntent()
+    {
+        // Arrange
+        var input = "what am I carrying?";
+        var response = "<intent>inventory</intent>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<InventoryIntent>();
+    }
+
+    [Test]
+    public void GetIntent_WithLookResponse_ReturnsLookIntent()
+    {
+        // Arrange
+        var input = "look around";
+        var response = "<intent>look</intent>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<LookIntent>();
+    }
+
+    [Test]
+    public void GetIntent_WithMoveResponse_UsesVerbAsFallback_When_DirectionTagMissing()
+    {
+        // Arrange
+        var input = "go north";
+        var response = @"<intent>move</intent>
+<verb>north</verb>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<MoveIntent>();
+        var moveIntent = result as MoveIntent;
+        moveIntent?.Direction.Should().Be(Direction.N);
+    }
+
+    [Test]
+    public void GetIntent_WithUnknownDirection_ReturnsNullIntent()
+    {
+        // Arrange
+        var input = "go sideways";
+        var response = @"<intent>move</intent>
+<direction>sideways</direction>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<NullIntent>();
+    }
+
+    [Test]
+    public void GetIntent_WithMultiNounNoPreposition_DefaultsToWith()
+    {
+        // Arrange
+        var input = "unlock door key";
+        var response = @"<intent>act</intent>
+<verb>unlock</verb>
+<noun>door</noun>
+<noun>key</noun>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<MultiNounIntent>();
+        var multiNounIntent = result as MultiNounIntent;
+        multiNounIntent?.Preposition.Should().Be("with");
+    }
+
+    [Test]
+    public void GetIntent_WithAdjectiveTag_IncludesAdjective()
+    {
+        // Arrange
+        var input = "take red sword";
+        var response = @"<intent>act</intent>
+<verb>take</verb>
+<adjective>red</adjective>
+<noun>sword</noun>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<SimpleIntent>();
+        var simpleIntent = result as SimpleIntent;
+        simpleIntent?.Adjective.Should().Be("red");
+    }
+
+    [Test]
+    public void GetIntent_WithAdverbFromPreposition_IncludesAdverb()
+    {
+        // Arrange
+        var input = "look under rug";
+        var response = @"<intent>act</intent>
+<verb>look</verb>
+<noun>rug</noun>
+<preposition>under</preposition>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<SimpleIntent>();
+        var simpleIntent = result as SimpleIntent;
+        simpleIntent?.Adverb.Should().Be("under");
+    }
+
+    [Test]
+    public void GetIntent_WithDisembarkAndTwoNouns_PopulatesNounOneAndNounTwo()
+    {
+        // Arrange - "get out of boat" parses as NounOne="out", NounTwo="boat"
+        var input = "get out of boat";
+        var response = @"<intent>disembark</intent>
+<verb>exit</verb>
+<noun>out</noun>
+<noun>boat</noun>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<ExitSubLocationIntent>();
+        var exitIntent = result as ExitSubLocationIntent;
+        exitIntent?.NounOne.Should().Be("out");
+        exitIntent?.NounTwo.Should().Be("boat");
+    }
+
+    [Test]
+    public void GetIntent_WithNoNouns_ReturnsNullIntent_ForActionIntent()
+    {
+        // Arrange
+        var input = "dance";
+        var response = @"<intent>act</intent>
+<verb>dance</verb>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<NullIntent>();
+    }
+
+    [Test]
+    public void GetIntent_WithNoNouns_ReturnsNull_ForBoardIntent()
+    {
+        // Arrange
+        var input = "board";
+        var response = @"<intent>board</intent>
+<verb>board</verb>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<NullIntent>();
+    }
+
+    [Test]
+    public void GetIntent_WithNoNouns_ReturnsNull_ForDisembarkIntent()
+    {
+        // Arrange
+        var input = "exit";
+        var response = @"<intent>disembark</intent>
+<verb>exit</verb>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<NullIntent>();
+    }
+
+    [Test]
+    public void GetIntent_WithNoVerb_ReturnsNullIntent_ForActionIntent()
+    {
+        // Arrange
+        var input = "sword";
+        var response = @"<intent>act</intent>
+<noun>sword</noun>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<NullIntent>();
+    }
+
+    [Test]
+    public void GetIntent_WithWhitespaceInTags_TrimsCorrectly()
+    {
+        // Arrange
+        var input = "take sword";
+        var response = @"<intent>  take  </intent>
+<verb>  take  </verb>
+<noun>  sword  </noun>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<TakeIntent>();
+        var takeIntent = result as TakeIntent;
+        takeIntent?.Noun.Should().Be("sword");
+    }
+
+    [Test]
+    public void GetIntent_WithMixedCaseResponse_ParsesCorrectly()
+    {
+        // Arrange - response gets lowercased internally
+        var input = "take sword";
+        var response = @"<INTENT>take</INTENT>
+<VERB>take</VERB>
+<NOUN>sword</NOUN>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<TakeIntent>();
+    }
+
+    [Test]
+    [TestCase("east", Direction.E)]
+    [TestCase("west", Direction.W)]
+    [TestCase("north", Direction.N)]
+    [TestCase("south", Direction.S)]
+    [TestCase("up", Direction.Up)]
+    [TestCase("down", Direction.Down)]
+    [TestCase("north-east", Direction.NE)]
+    [TestCase("north-west", Direction.NW)]
+    [TestCase("south-east", Direction.SE)]
+    [TestCase("south-west", Direction.SW)]
+    [TestCase("in", Direction.In)]
+    [TestCase("out", Direction.Out)]
+    public void GetIntent_WithDirectionalMove_ReturnsCorrectDirection(string directionTag, Direction expected)
+    {
+        // Arrange
+        var input = $"go {directionTag}";
+        var response = $@"<intent>move</intent>
+<direction>{directionTag}</direction>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<MoveIntent>();
+        var moveIntent = result as MoveIntent;
+        moveIntent?.Direction.Should().Be(expected);
+    }
+
+    [Test]
+    public void GetIntent_TakeIntentPriorityOverDropIntent()
+    {
+        // Arrange - take should match before other intents
+        var input = "take the sword";
+        var response = @"<intent>take</intent>
+<verb>take</verb>
+<noun>sword</noun>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<TakeIntent>();
+    }
+
+    [Test]
+    public void ExtractElementsByTag_WithEmptyResponse_ReturnsEmptyList()
+    {
+        // Arrange
+        var privateMethod = typeof(ParsingHelper).GetMethod("ExtractElementsByTag",
+            BindingFlags.NonPublic | BindingFlags.Static);
+
+        // Act
+        var result = privateMethod?.Invoke(null, ["", "noun"]) as List<string>;
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEmpty();
+    }
+
+    [Test]
+    public void GetIntent_PreserveOriginalInputCase()
+    {
+        // Arrange
+        var input = "Take The SWORD";
+        var response = @"<intent>take</intent>
+<verb>take</verb>
+<noun>sword</noun>";
+
+        // Act
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        // Assert
+        result.Should().BeOfType<TakeIntent>();
+        var takeIntent = result as TakeIntent;
+        takeIntent?.OriginalInput.Should().Be("Take The SWORD");
+    }
 }
 
 // Interface to help with mocking ParsingHelper for tests

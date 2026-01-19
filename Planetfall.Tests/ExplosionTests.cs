@@ -10,13 +10,13 @@ namespace Planetfall.Tests;
 public class ExplosionTests : EngineTestsBase
 {
     [Test]
-    [Explicit("Requires OpenAI API key - tests pronoun resolution fix")]
+    [Explicit("Requires ZorkAI.OpenAI API key - tests pronoun resolution fix")]
     public async Task PronounResolution_OpenIt_ResolvesToBulkhead()
     {
         // This test verifies the fix for pronoun resolution timing bug
         // When user types "west" then "open it", the pronoun "it" should resolve to "bulkhead"
 
-        // Use real parser with pronoun resolution (requires OpenAI key in env)
+        // Use real parser with pronoun resolution (requires ZorkAI.OpenAI key in env)
         var realParser = new IntentParser(new Planetfall.GlobalCommand.PlanetfallGlobalCommandFactory());
         var target = GetTarget(realParser);
         target.Context.CurrentLocation = Repository.GetLocation<DeckNine>();

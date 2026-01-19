@@ -1,6 +1,7 @@
 using Model.AIGeneration;
 using Newtonsoft.Json;
 using Planetfall.Item.Computer;
+using Utilities;
 
 namespace Planetfall.Item.Kalamontee.Mech;
 
@@ -74,13 +75,20 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
         IItemProcessorFactory itemProcessorFactory)
     {
         if (action.Match(["turn", "set"], ["dial", "laser", "setting"]))
+        {
+            // Try to extract text after "to" from the original input (handles "set laser to one" or "set laser to blue" case)
+            var textAfterTo = action.OriginalInput.ExtractTextAfterTo();
+            if (textAfterTo != null)
+                return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(AttemptSetDial(textAfterTo)));
+
             return Task.FromResult<InteractionResult?>(
                 new PositiveInteractionResult("You must specify a number to set the dial to. "));
+        }
 
         if (action.Match(["shoot", "fire", "activate", "discharge"], NounsForMatching))
             return Task.FromResult<InteractionResult?>(
                 ShootLaser(context));
-    
+
         return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
@@ -231,11 +239,14 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
             return (TurnDialResult.IsNotANumber, null);
         }
 
-        if (int.TryParse(input, out int result))
+        // Use ToInteger() to support both numeric ("5") and word ("five") input
+        var result = input.ToInteger();
+
+        if (result.HasValue)
         {
-            return result switch
+            return result.Value switch
             {
-                >= 1 and <= 6 => (TurnDialResult.IsNumberBetween1And6, result),
+                >= 1 and <= 6 => (TurnDialResult.IsNumberBetween1And6, result.Value),
                 > 6 => (TurnDialResult.IsNumberAbove6, null),
                 _ => (TurnDialResult.IsNumberBelow1, null)
             };

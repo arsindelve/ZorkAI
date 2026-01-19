@@ -16,12 +16,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Bedrock\Bedrock.csproj"/>
         <ProjectReference Include="..\ChatLambda\ChatLambda.csproj"/>
         <ProjectReference Include="..\CloudWatch\CloudWatch.csproj"/>
         <ProjectReference Include="..\DynamoDb\DynamoDb.csproj"/>
         <ProjectReference Include="..\Model\Model.csproj"/>
-        <ProjectReference Include="..\OpenAI\OpenAI.csproj"/>
+        <ProjectReference Include="..\ZorkAI.OpenAI\ZorkAI.OpenAI.csproj" />
         <ProjectReference Include="..\SecretsManager\SecretsManager.csproj"/>
         <ProjectReference Include="..\Utilities\Utilities.csproj"/>
     </ItemGroup>

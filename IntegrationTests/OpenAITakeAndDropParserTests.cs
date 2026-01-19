@@ -3,6 +3,7 @@ using Model.Interface;
 using Model.Location;
 using Moq;
 using OpenAI;
+using ZorkAI.OpenAI;
 using ZorkOne.Location;
 
 namespace IntegrationTests;

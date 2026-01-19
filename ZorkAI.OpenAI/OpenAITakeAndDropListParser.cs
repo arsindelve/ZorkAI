@@ -1,15 +1,14 @@
-using Azure;
-using Azure.AI.OpenAI;
 using Microsoft.Extensions.Logging;
 using Model;
 using Model.AIParsing;
 using Newtonsoft.Json;
+using OpenAI.Chat;
 
-namespace OpenAI;
+namespace ZorkAI.OpenAI;
 
 public class OpenAITakeAndDropListParser(ILogger? logger) : OpenAIClientBase(logger), IAITakeAndAndDropParser
 {
-    protected override string DeploymentName => "gpt-4o-mini";
+    protected override string ModelName => "gpt-4o-mini";
 
     public async Task<string[]> GetListOfItemsToTake(string input, string locationDescription)
     {
@@ -24,10 +23,20 @@ public class OpenAITakeAndDropListParser(ILogger? logger) : OpenAIClientBase(log
     private async Task<string[]> Go(string formatStringOne, string formatStringTwo, string promptName)
     {
         var prompt = string.Format(promptName, formatStringOne, formatStringTwo);
-        var options = GetChatCompletionsOptions(prompt, 0f);
-        options.ResponseFormat = ChatCompletionsResponseFormat.JsonObject;
-        Response<ChatCompletions>? response = await Client!.GetChatCompletionsAsync(options);
-        var result = JsonConvert.DeserializeObject<ItemsResponse>(response.Value.Choices[0].Message.Content);
+
+        var messages = new List<ChatMessage>
+        {
+            new SystemChatMessage(prompt)
+        };
+
+        var options = new ChatCompletionOptions
+        {
+            Temperature = 0f,
+            ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat()
+        };
+
+        ChatCompletion completion = await Client!.CompleteChatAsync(messages, options);
+        var result = JsonConvert.DeserializeObject<ItemsResponse>(completion.Content[0].Text);
         return result?.Items ?? [];
     }
 
