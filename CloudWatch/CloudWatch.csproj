@@ -8,7 +8,7 @@
 
     <ItemGroup>
         <PackageReference Include="AWSSDK.CloudWatchLogs" Version="4.0.14.3" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     </ItemGroup>
 
 </Project>

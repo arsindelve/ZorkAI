@@ -16,7 +16,7 @@
         <PackageReference Include="AWSSDK.Core" Version="4.0.3.9" />
         <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.2" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     </ItemGroup>
 
 </Project>
