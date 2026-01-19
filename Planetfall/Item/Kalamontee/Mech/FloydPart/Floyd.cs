@@ -61,7 +61,36 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     {
         return IsOn && IsInTheRoom(context);
     }
-    
+
+    /// <summary>
+    /// Call this from anywhere to queue Floyd to comment on a player action.
+    /// The comment will be generated automatically during Floyd's Act() phase.
+    /// Each prompt can only be used once per game - repeat calls with the same prompt are ignored.
+    /// </summary>
+    /// <param name="prompt">The AI prompt describing what Floyd should say</param>
+    /// <param name="context">Current game context</param>
+    public void CommentOnAction(string prompt, IContext context)
+    {
+        // Must be on and in the same location as player
+        if (!IsHereAndIsOn(context))
+            return;
+
+        if (context is not PlanetfallContext planetfallContext)
+            return;
+
+        // Only one action comment per turn
+        if (planetfallContext.PendingFloydActionCommentPrompt != null)
+            return;
+
+        // Don't repeat prompts that have already been used
+        if (planetfallContext.UsedFloydActionCommentPrompts.Contains(prompt))
+            return;
+
+        // Store the prompt for Act() to process and mark as used
+        planetfallContext.PendingFloydActionCommentPrompt = prompt;
+        planetfallContext.UsedFloydActionCommentPrompts.Add(prompt);
+    }
+
     public override string[] NounsForMatching => ["floyd", "robot", "B-19-7", "multi-purpose robot"];
 
     public override string? CannotBeTakenDescription => IsOn
@@ -193,6 +222,14 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     {
         if (HasDied)
             return string.Empty;
+
+        // Check for pending action comment - this takes priority over random behavior
+        if (context is PlanetfallContext { PendingFloydActionCommentPrompt: not null } pfContext)
+        {
+            var prompt = pfContext.PendingFloydActionCommentPrompt;
+            pfContext.PendingFloydActionCommentPrompt = null; // Clear after use
+            return await GenerateCompanionSpeech(context, client, prompt);
+        }
 
         var countdownResult = _powerManager.HandleTurnOnCountdown(context);
         if (countdownResult != null)

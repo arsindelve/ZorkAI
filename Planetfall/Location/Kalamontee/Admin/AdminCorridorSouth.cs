@@ -2,6 +2,7 @@ using GameEngine.Location;
 using Model.AIGeneration;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 namespace Planetfall.Location.Kalamontee.Admin;
 
@@ -86,6 +87,9 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
 
             HasTakenTheKey = true;
             context.ItemPlacedHere<Key>();
+
+            Repository.GetItem<Floyd>().CommentOnAction(FloydPrompts.MagnetRetrievesKey, context);
+
             return new PositiveInteractionResult(
                 "With a spray of dust and a loud clank, a piece of metal leaps from the crevice and " +
                 "affixes itself to the magnet. It is a steel key! With a tug, you remove the key from the magnet. ");

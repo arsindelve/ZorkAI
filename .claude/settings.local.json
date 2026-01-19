@@ -25,7 +25,8 @@
       "Bash(gh run list:*)",
       "Bash(gh run:*)",
       "Bash(curl:*)",
-      "Bash(mdfind:*)"
+      "Bash(mdfind:*)",
+      "Bash(npm ls:*)"
     ],
     "deny": []
   }

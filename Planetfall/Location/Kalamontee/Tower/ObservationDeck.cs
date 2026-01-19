@@ -1,10 +1,12 @@
-using GameEngine.Location;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 namespace Planetfall.Location.Kalamontee.Tower;
 
-public class ObservationDeck : LocationWithNoStartingItems
+public class ObservationDeck : FloydSpecialInteractionLocation
 {
     public override string Name => "Observation Deck";
+
+    public override string FloydPrompt => FloydPrompts.ObservationDeck;
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
@@ -12,6 +14,10 @@ public class ObservationDeck : LocationWithNoStartingItems
         {
             { Direction.NE, Go<TowerCore>() }
         };
+    }
+
+    public override void Init()
+    {
     }
 
     protected override string GetContextBasedDescription(IContext context)

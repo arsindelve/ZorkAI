@@ -1,4 +1,5 @@
-using GameEngine.Location;
+using Model.AIGeneration;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Lawanda;
 
 namespace Planetfall.Location.Shuttle;
@@ -6,16 +7,22 @@ namespace Planetfall.Location.Shuttle;
 /// <summary>
 /// <remarks>
 /// Both trains can never be at the other station. If you teleport back and ride the other train, the elevator will be stuck at the top,
-/// and the platform has no elevator call button. 
+/// and the platform has no elevator call button.
 /// </remarks>
 /// </summary>
-internal class LawandaPlatform : LocationWithNoStartingItems
+internal class LawandaPlatform : FloydSpecialInteractionLocation
 {
     public override string Name => "Lawanda Platform";
 
-    private bool AlifeIsHere => Repository.GetLocation<AlfieControlWest>().TunnelPosition == 0;
+    public override string FloydPrompt => FloydPrompts.LawandaPlatform;
+
+    private bool AlfieIsHere => Repository.GetLocation<AlfieControlWest>().TunnelPosition == 0;
 
     private bool BettyIsHere => Repository.GetLocation<BettyControlWest>().TunnelPosition == 0;
+
+    public override void Init()
+    {
+    }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
@@ -26,7 +33,7 @@ internal class LawandaPlatform : LocationWithNoStartingItems
                 Direction.S,
                 new MovementParameters
                 {
-                    CanGo = _ => AlifeIsHere, Location = Repository.GetLocation<ShuttleCarAlfie>(),
+                    CanGo = _ => AlfieIsHere, Location = Repository.GetLocation<ShuttleCarAlfie>(),
                     CustomFailureMessage = "You can't go that way. "
                 }
             },
@@ -52,9 +59,9 @@ internal class LawandaPlatform : LocationWithNoStartingItems
         
         return
             "This is a wide, flat strip of concrete. " +
-            (AlifeIsHere && BettyIsHere ? "Open shuttle cars lie to the north and south. " : "" ) +
-            (AlifeIsHere && !BettyIsHere ? "An open shuttle car lies to the south. " : "") +
-            (!AlifeIsHere && BettyIsHere ? "An open shuttle car lies to the north. " : "") +
+            (AlfieIsHere && BettyIsHere ? "Open shuttle cars lie to the north and south. " : "" ) +
+            (AlfieIsHere && !BettyIsHere ? "An open shuttle car lies to the south. " : "") +
+            (!AlfieIsHere && BettyIsHere ? "An open shuttle car lies to the north. " : "") +
             "A wide escalator, not currently operating, beckons upward at the east end of the platform. A faded sign " +
             "reads \"Shutul Platform -- Lawanda Staashun.\"";
     }

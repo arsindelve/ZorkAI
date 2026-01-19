@@ -2,6 +2,7 @@ using FluentAssertions;
 using GameEngine;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Kalamontee.Admin;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Kalamontee;
 
 namespace Planetfall.Tests;
@@ -114,5 +115,48 @@ public class MessHallPadlockedDoorTests : EngineTestsBase
         response.Should().Contain("a reactor elevator access pass");
         response.Should().Contain("just kidding");
         response.Should().Contain("Actually, there's nothing there.");
+    }
+
+    [Test]
+    public async Task UnlockPadlock_FloydCommentsWhenPresent()
+    {
+        var target = GetTarget();
+        var messCorridor = GetLocation<MessCorridor>();
+        target.Context.CurrentLocation = messCorridor;
+        target.Context.ItemPlacedHere<Key>();
+
+        // Set up Floyd as present and active
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = messCorridor;
+        messCorridor.ItemPlacedHere(floyd);
+
+        await target.GetResponse("unlock padlock with key");
+
+        // Verify Floyd's pending comment was set
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().NotBeNull();
+        pfContext.PendingFloydActionCommentPrompt.Should().Contain("padlock");
+    }
+
+    [Test]
+    public async Task UnlockPadlock_FloydDoesNotComment_WhenNotPresent()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MessCorridor>();
+        target.Context.ItemPlacedHere<Key>();
+
+        // Floyd is NOT in the room
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = GetLocation<MessHall>(); // Different location
+
+        await target.GetResponse("unlock padlock with key");
+
+        // Verify Floyd's pending comment was NOT set
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
     }
 }

@@ -1,4 +1,5 @@
 using Model.AIGeneration.Requests;
+using Newtonsoft.Json;
 using Planetfall.Command;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Utilities;
@@ -46,6 +47,21 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     /// </summary>
     public bool SleepJustOccurred { get; set; }
 
+    /// <summary>
+    /// Stores a prompt for Floyd to comment on during his Act() phase.
+    /// When set, Floyd will generate this comment at the start of his Act() instead of random behavior.
+    /// Reset at the beginning of each turn.
+    /// </summary>
+    [JsonIgnore]
+    public string? PendingFloydActionCommentPrompt { get; set; }
+
+    /// <summary>
+    /// Tracks Floyd action comment prompts that have already been used.
+    /// Prompts in this set will not be repeated.
+    /// </summary>
+    [UsedImplicitly]
+    public HashSet<string> UsedFloydActionCommentPrompts { get; set; } = [];
+
     public string SicknessDescription => ((SicknessLevel)Day).GetDescription();
     
     [UsedImplicitly]
@@ -72,6 +88,9 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
 
     public override string ProcessBeginningOfTurn()
     {
+        // Reset Floyd's pending action comment for the new turn
+        PendingFloydActionCommentPrompt = null;
+
         var messages = string.Empty;
 
         // Check for sleep events (voluntary or forced)

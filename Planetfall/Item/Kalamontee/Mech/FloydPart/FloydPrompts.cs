@@ -260,9 +260,49 @@ internal static class FloydPrompts
     public static string Helicopter =>
         "Give Floyd something short and interesting to say as he comments on how it's " +
         "unfortunate that this helicopter is so rusty, and the controls are locked, because he " +
-        "could have amazing adventures and go to interesting places.  " +
+        "could have adventures and go to interesting places.  " +
         "Preface it with 'Floyd exclaims' or 'Floyd shouts' or something similar, and " +
         "put his comment in quotes. Do not anthropomorphize the equipment or pretend it has feelings.  ";
+
+    public static string ObservationDeck =>
+        "Give Floyd something short and interesting to say as he reacts to being on the Observation Deck, " +
+        "a balcony half a kilometer high with a breathtaking view of the island, the ocean, and another " +
+        "island visible 20 kilometers away. Floyd is impressed by the height and the view, and might " +
+        "comment on being able to see so far, or how small things look from up here, or wonder about " +
+        "the other island. Preface it with 'Floyd gazes out' or 'Floyd peers over the edge' or something " +
+        "similar, and put his comment in quotes. Do not anthropomorphize the view or pretend it has feelings. ";
+
+    public static string KalamonteePlatform =>
+        "Give Floyd something short and wistful to say as he recognizes the shuttle platform. " +
+        "Floyd has a vague, incomplete memory of riding this shuttle a long time ago, but he cannot " +
+        "remember why he took it or exactly when. This troubles him slightly - the memory is fuzzy " +
+        "and fragmented. He might mention that something feels familiar, or that he thinks he's been " +
+        "here before but the details won't come. Keep it melancholy and uncertain, not dramatic. " +
+        "Preface it with 'Floyd pauses' or 'Floyd tilts his head' or something similar, and put his " +
+        "comment in quotes. Do not be overly emotional or dramatic. ";
+
+    public static string LawandaPlatform =>
+        "Give Floyd something short and curious to say as he looks around this unfamiliar shuttle " +
+        "platform after a long trip. Floyd doesn't recognize this place at all - it's completely new " +
+        "to him. He might wonder where they are now, express curiosity about this new station, or " +
+        "comment on how far they must have traveled. The sign says 'Lawanda Staashun' but Floyd " +
+        "doesn't know what Lawanda is. Keep it light and curious, with a touch of wonder at being " +
+        "somewhere new. Preface it with 'Floyd looks around' or 'Floyd peers at the sign' or something " +
+        "similar, and put his comment in quotes. ";
+
+    public static string PadlockUnlocked =>
+        "Give Floyd something short and excited to say as you unlock the padlock on a door. " +
+        "Floyd gets excited with childlike curiosity about what might be behind the locked door - " +
+        "maybe treasures, interesting equipment, or something fun. Keep it brief and enthusiastic. " +
+        "Preface it with 'Floyd bounces excitedly' or 'Floyd peers at the door' or something similar, " +
+        "and put his comment in quotes. ";
+
+    public static string MagnetRetrievesKey =>
+        "Give Floyd something short and impressed to say after you cleverly used a magnet to retrieve " +
+        "a key from a crack in the floor. Floyd is impressed by your cleverness and excited to see " +
+        "what the key might unlock. Keep it brief and enthusiastic. " +
+        "Preface it with 'Floyd claps his hands' or 'Floyd bounces with excitement' or something similar, " +
+        "and put his comment in quotes. ";
 
     internal const string LeavingToExplore = """
 

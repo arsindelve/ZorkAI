@@ -1102,4 +1102,477 @@ public class FloydTests : EngineTestsBase
     }
 
     #endregion
+
+    #region CommentOnAction Tests
+
+    [Test]
+    public void CommentOnAction_DoesNotSetPrompt_WhenFloydNotInRoom()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        // Floyd is NOT placed in the room - he's somewhere else
+        floyd.CurrentLocation = GetLocation<StorageWest>();
+
+        floyd.CommentOnAction("Test prompt", target.Context);
+
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    [Test]
+    public void CommentOnAction_DoesNotSetPrompt_WhenFloydNotOn()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = false; // Floyd is off
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        floyd.CommentOnAction("Test prompt", target.Context);
+
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    [Test]
+    public void CommentOnAction_DoesNotSetPrompt_WhenPromptAlreadyPending()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        // Set a pending prompt to indicate Floyd already has a comment queued
+        ((PlanetfallContext)target.Context).PendingFloydActionCommentPrompt = "First prompt";
+
+        floyd.CommentOnAction("Second prompt", target.Context);
+
+        // Prompt should still be the first one
+        ((PlanetfallContext)target.Context).PendingFloydActionCommentPrompt.Should().Be("First prompt");
+    }
+
+    [Test]
+    public void CommentOnAction_StoresPrompt_WhenConditionsMet()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        floyd.CommentOnAction("Test prompt about something interesting", target.Context);
+
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().Be("Test prompt about something interesting");
+    }
+
+    [Test]
+    public void CommentOnAction_SecondCallIgnored_SameTurn()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        // First call should set the prompt
+        floyd.CommentOnAction("First prompt", target.Context);
+        ((PlanetfallContext)target.Context).PendingFloydActionCommentPrompt.Should().Be("First prompt");
+
+        // Second call should be ignored (flag already set)
+        floyd.CommentOnAction("Second prompt", target.Context);
+
+        // Should still have first prompt
+        ((PlanetfallContext)target.Context).PendingFloydActionCommentPrompt.Should().Be("First prompt");
+    }
+
+    [Test]
+    public async Task Act_GeneratesComment_WhenPendingPromptSet()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        // Mock the generation client
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd tilts his head and says, \"Interesting!\"");
+
+        // Set a pending prompt
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt = "Test prompt about something";
+
+        // Call Act directly
+        var result = await floyd.Act(target.Context, target.GenerationClient);
+
+        result.Should().Contain("Floyd tilts his head");
+        // Prompt should be cleared after use
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    [Test]
+    public async Task Act_PerformsNormally_WhenNoPromptPending()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        // Mock the chooser to pick a random action from constants (roll 8 picks from constant list)
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(20)).Returns(false); // Don't wander
+        mockChooser.Setup(r => r.RollDice(15)).Returns(8); // Pick random action from FloydConstants.RandomActions
+        mockChooser.Setup(r => r.Choose(It.IsAny<List<string>>())).Returns((List<string> list) => list[0]);
+        floyd.Chooser = mockChooser.Object;
+
+        // No pending prompt
+        ((PlanetfallContext)target.Context).PendingFloydActionCommentPrompt.Should().BeNull();
+
+        // Call Act directly
+        var result = await floyd.Act(target.Context, target.GenerationClient);
+
+        // Should return something (the random action starts with "Floyd")
+        result.Should().NotBeEmpty();
+        result.Should().StartWith("Floyd");
+    }
+
+    [Test]
+    public void ProcessBeginningOfTurn_ResetsPrompt()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+
+        var pfContext = (PlanetfallContext)target.Context;
+        // Set prompt to a non-null value
+        pfContext.PendingFloydActionCommentPrompt = "Some prompt";
+
+        // Call ProcessBeginningOfTurn
+        target.Context.ProcessBeginningOfTurn();
+
+        // Prompt should be reset
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    [Test]
+    public async Task Act_PassesPromptToGenerationClient()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        string capturedPrompt = null!;
+
+        // Mock the generation client to capture the request
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd responds")
+            .Callback<CompanionRequest>(request => capturedPrompt = request.UserMessage!);
+
+        // Set the pending prompt
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt = "This is my specific test prompt about the item";
+
+        await floyd.Act(target.Context, target.GenerationClient);
+
+        capturedPrompt.Should().Contain("This is my specific test prompt about the item");
+    }
+
+    [Test]
+    public async Task FullFlow_CommentOnAction_ThenAct_GeneratesComment()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        // Mock the generation client
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd says, \"Ooh, neat!\"");
+
+        // Step 1: Call CommentOnAction (stores prompt)
+        floyd.CommentOnAction("Floyd should comment on finding a shiny object", target.Context);
+
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().NotBeNull();
+
+        // Step 2: Call Act (generates comment from stored prompt)
+        var result = await floyd.Act(target.Context, target.GenerationClient);
+
+        result.Should().Contain("Floyd says");
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull(); // Cleared after use
+
+        // Verify the generation client was called
+        mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Once);
+    }
+
+    [Test]
+    public async Task FullFlow_NextTurn_PromptReset()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        var pfContext = (PlanetfallContext)target.Context;
+
+        // Turn 1: Floyd comments on action
+        floyd.CommentOnAction("Some prompt", target.Context);
+        pfContext.PendingFloydActionCommentPrompt.Should().NotBeNull();
+
+        // Simulate new turn
+        pfContext.ProcessBeginningOfTurn();
+
+        // Prompt should be reset, allowing Floyd to comment again
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+
+        // Floyd can comment on a new action
+        floyd.CommentOnAction("New prompt for new turn", target.Context);
+        pfContext.PendingFloydActionCommentPrompt.Should().Be("New prompt for new turn");
+    }
+
+    [Test]
+    public void CommentOnAction_IgnoresRepeatedPrompt_AcrossTurns()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        var pfContext = (PlanetfallContext)target.Context;
+
+        // First use of prompt - should work
+        floyd.CommentOnAction("Unique prompt", target.Context);
+        pfContext.PendingFloydActionCommentPrompt.Should().Be("Unique prompt");
+        pfContext.UsedFloydActionCommentPrompts.Should().Contain("Unique prompt");
+
+        // Simulate turn processing (clears pending prompt)
+        pfContext.ProcessBeginningOfTurn();
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+
+        // Try to use the same prompt again - should be ignored
+        floyd.CommentOnAction("Unique prompt", target.Context);
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    [Test]
+    public void CommentOnAction_TracksMultipleUsedPrompts()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        var pfContext = (PlanetfallContext)target.Context;
+
+        // Use first prompt
+        floyd.CommentOnAction("First prompt", target.Context);
+        pfContext.ProcessBeginningOfTurn();
+
+        // Use second prompt
+        floyd.CommentOnAction("Second prompt", target.Context);
+        pfContext.ProcessBeginningOfTurn();
+
+        // Use third prompt
+        floyd.CommentOnAction("Third prompt", target.Context);
+
+        // All three should be tracked
+        pfContext.UsedFloydActionCommentPrompts.Should().HaveCount(3);
+        pfContext.UsedFloydActionCommentPrompts.Should().Contain("First prompt");
+        pfContext.UsedFloydActionCommentPrompts.Should().Contain("Second prompt");
+        pfContext.UsedFloydActionCommentPrompts.Should().Contain("Third prompt");
+    }
+
+    [Test]
+    public void CommentOnAction_UsedPromptsPersistedAcrossSaves()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        var pfContext = (PlanetfallContext)target.Context;
+
+        // Use a prompt
+        floyd.CommentOnAction("Persisted prompt", target.Context);
+
+        // Verify it's tracked (UsedImplicitly attribute means it will be serialized)
+        pfContext.UsedFloydActionCommentPrompts.Should().Contain("Persisted prompt");
+    }
+
+    [Test]
+    public void CommentOnAction_DifferentPromptWorksAfterOneUsed()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        var pfContext = (PlanetfallContext)target.Context;
+
+        // Use first prompt
+        floyd.CommentOnAction("First prompt", target.Context);
+        pfContext.ProcessBeginningOfTurn();
+
+        // Different prompt should still work
+        floyd.CommentOnAction("Different prompt", target.Context);
+        pfContext.PendingFloydActionCommentPrompt.Should().Be("Different prompt");
+    }
+
+    [Test]
+    public void CommentOnAction_DoesNotTrackPrompt_WhenFloydNotPresent()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        // Floyd is in a different location
+        floyd.CurrentLocation = GetLocation<StorageWest>();
+
+        var pfContext = (PlanetfallContext)target.Context;
+
+        // Try to use prompt when Floyd not present
+        floyd.CommentOnAction("Should not be tracked", target.Context);
+
+        // Prompt should NOT be tracked since Floyd wasn't present
+        pfContext.UsedFloydActionCommentPrompts.Should().BeEmpty();
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    [Test]
+    public void CommentOnAction_DoesNotTrackPrompt_WhenFloydOff()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = false; // Floyd is off
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        var pfContext = (PlanetfallContext)target.Context;
+
+        // Try to use prompt when Floyd is off
+        floyd.CommentOnAction("Should not be tracked", target.Context);
+
+        // Prompt should NOT be tracked since Floyd was off
+        pfContext.UsedFloydActionCommentPrompts.Should().BeEmpty();
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    [Test]
+    public void CommentOnAction_PromptNotTracked_WhenAnotherPending()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        var pfContext = (PlanetfallContext)target.Context;
+
+        // Use first prompt
+        floyd.CommentOnAction("First prompt", target.Context);
+
+        // Try second prompt same turn (should be ignored, NOT tracked)
+        floyd.CommentOnAction("Second prompt same turn", target.Context);
+
+        // Only first prompt should be tracked
+        pfContext.UsedFloydActionCommentPrompts.Should().HaveCount(1);
+        pfContext.UsedFloydActionCommentPrompts.Should().Contain("First prompt");
+        pfContext.UsedFloydActionCommentPrompts.Should().NotContain("Second prompt same turn");
+    }
+
+    [Test]
+    public async Task FullFlow_UsedPromptIgnored_AfterActProcesses()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        // Mock chooser to prevent random behavior on second Act() call
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(20)).Returns(false); // Don't wander
+        mockChooser.Setup(r => r.RollDice(15)).Returns(15); // No random action
+        floyd.Chooser = mockChooser.Object;
+
+        var pfContext = (PlanetfallContext)target.Context;
+
+        // Mock the generation client
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd comments");
+
+        // Turn 1: Use prompt, Act processes it
+        floyd.CommentOnAction("One-time prompt", target.Context);
+        await floyd.Act(target.Context, target.GenerationClient);
+
+        // Start new turn
+        pfContext.ProcessBeginningOfTurn();
+
+        // Try to use same prompt again - should be ignored
+        floyd.CommentOnAction("One-time prompt", target.Context);
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+
+        // Act should have nothing to do (no pending prompt, and random behavior mocked out)
+        var result = await floyd.Act(target.Context, target.GenerationClient);
+        result.Should().BeEmpty();
+
+        // Generation should only have been called once (from turn 1)
+        mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Once);
+    }
+
+    #endregion
 }

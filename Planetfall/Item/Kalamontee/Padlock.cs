@@ -1,5 +1,6 @@
 using Model.AIGeneration;
 using Planetfall.Item.Kalamontee.Admin;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 namespace Planetfall.Item.Kalamontee;
 
@@ -70,6 +71,9 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
         if (match)
         {
             Locked = false;
+
+            Repository.GetItem<Floyd>().CommentOnAction(FloydPrompts.PadlockUnlocked, context);
+
             return new PositiveInteractionResult("The padlock springs open. ");
         }
 

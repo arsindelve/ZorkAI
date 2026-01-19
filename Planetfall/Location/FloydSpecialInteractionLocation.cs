@@ -1,12 +1,12 @@
 using GameEngine.Location;
 using Model.AIGeneration;
-using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 namespace Planetfall.Location;
 
 public abstract class FloydSpecialInteractionLocation : LocationBase, IFloydSpecialInteractionLocation
 {
+    [UsedImplicitly]
     public bool InteractionHasHappened { get; set; }
 
     public abstract string FloydPrompt { get; }
@@ -14,6 +14,9 @@ public abstract class FloydSpecialInteractionLocation : LocationBase, IFloydSpec
     public override async Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
+        if (InteractionHasHappened)
+            return string.Empty;
+
         var floyd = GetItem<Floyd>();
 
         if (!floyd.IsHereAndIsOn(context))
