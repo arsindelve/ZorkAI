@@ -1,13 +1,10 @@
 using GameEngine.Location;
-using Model.AIGeneration;
-using Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 namespace Planetfall.Location;
 
 public abstract class FloydSpecialInteractionLocation : LocationBase, IFloydSpecialInteractionLocation
 {
-    [UsedImplicitly]
-    public bool InteractionHasHappened { get; set; }
+    [UsedImplicitly] public bool InteractionHasHappened { get; set; }
 
     public abstract string FloydPrompt { get; }
 
