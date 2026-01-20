@@ -91,6 +91,17 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         planetfallContext.UsedFloydActionCommentPrompts.Add(prompt);
     }
 
+    /// <summary>
+    /// Call this from anywhere to prevent Floyd from acting or talking this turn.
+    /// Useful when something important is happening and Floyd's chatter would be disruptive.
+    /// </summary>
+    /// <param name="context">Current game context</param>
+    public void SkipActingThisTurn(IContext context)
+    {
+        if (context is PlanetfallContext pfc)
+            pfc.FloydShouldNotActThisTurn = true;
+    }
+
     public override string[] NounsForMatching => ["floyd", "robot", "B-19-7", "multi-purpose robot"];
 
     public override string? CannotBeTakenDescription => IsOn
@@ -221,6 +232,10 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     public override async Task<string> Act(IContext context, IGenerationClient client)
     {
         if (HasDied)
+            return string.Empty;
+
+        // Check if Floyd should skip acting this turn
+        if (context is PlanetfallContext { FloydShouldNotActThisTurn: true })
             return string.Empty;
 
         // Check for pending action comment - this takes priority over random behavior

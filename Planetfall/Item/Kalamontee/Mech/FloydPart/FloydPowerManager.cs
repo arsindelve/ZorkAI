@@ -20,6 +20,7 @@ public class FloydPowerManager(Floyd floyd)
 
         floyd.IsOn = true;
         floyd.HasEverBeenOn = true;
+        floyd.SkipActingThisTurn(context);
 
         return new PositiveInteractionResult(FloydConstants.MadAfterTurnOffAndBackOn);
     }
@@ -36,6 +37,7 @@ public class FloydPowerManager(Floyd floyd)
         context.RemoveActor(floyd);
 
         floyd.IsOn = false;
+        floyd.SkipActingThisTurn(context);
         return new PositiveInteractionResult(FloydConstants.TurnOffBetrayal);
     }
 
@@ -49,6 +51,7 @@ public class FloydPowerManager(Floyd floyd)
                 floyd.IsOn = true;
                 floyd.HasEverBeenOn = true;
                 floyd.TurnOnCountdown = 0;
+                floyd.SkipActingThisTurn(context);
 
                 // If player is not in Floyd's room when he wakes, Floyd bounds into their room
                 if (floyd.CurrentLocation == context.CurrentLocation)

@@ -1,3 +1,4 @@
+using System.Reflection;
 using FluentAssertions;
 using Model.AIGeneration.Requests;
 using Model.Interface;
@@ -22,13 +23,13 @@ public class FloydTests : EngineTestsBase
         var target = GetTarget();
         StartHere<RobotShop>();
         GetItem<Floyd>().IsOn = false;
-        
+
         var response = await target.GetResponse("search floyd");
 
         response.Should().Contain("find and take");
         target.Context.HasItem<LowerElevatorAccessCard>().Should().BeTrue();
     }
-    
+
     [Test]
     public async Task Search_AlreadyGone()
     {
@@ -36,25 +37,25 @@ public class FloydTests : EngineTestsBase
         StartHere<RobotShop>();
         GetItem<Floyd>().IsOn = false;
         Take<LowerElevatorAccessCard>();
-        
+
         var response = await target.GetResponse("search floyd");
 
         response.Should().Contain("search discovers nothing");
         target.Context.HasItem<LowerElevatorAccessCard>().Should().BeTrue();
     }
-    
+
     [Test]
     public async Task Search_Activated()
     {
         var target = GetTarget();
         StartHere<RobotShop>();
         GetItem<Floyd>().IsOn = true;
-        
+
         var response = await target.GetResponse("search floyd");
 
         response.Should().Contain("giggles");
     }
-    
+
     [Test]
     public async Task TurnOn_AlreadyOn()
     {
@@ -87,36 +88,36 @@ public class FloydTests : EngineTestsBase
         var target = GetTarget();
         StartHere<RobotShop>();
         GetItem<Floyd>().IsOn = true;
-        
+
         var response = await target.GetResponse("play with floyd");
 
         response.Should().Contain("centichrons");
     }
-    
+
     [Test]
     public async Task KissFloyd()
     {
         var target = GetTarget();
         StartHere<RobotShop>();
         GetItem<Floyd>().IsOn = true;
-        
+
         var response = await target.GetResponse("kiss floyd");
 
         response.Should().Contain("shock");
     }
-    
+
     [Test]
     public async Task KickFloyd()
     {
         var target = GetTarget();
         StartHere<RobotShop>();
         GetItem<Floyd>().IsOn = true;
-        
+
         var response = await target.GetResponse("kick floyd");
 
         response.Should().Contain("wire");
     }
-    
+
     [Test]
     public async Task KillFloyd()
     {
@@ -146,16 +147,16 @@ public class FloydTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<RobotShop>();
-        Take<Diary>(); 
+        Take<Diary>();
         GetItem<Floyd>().IsOn = true;
-        
+
         var response = await target.GetResponse("give the diary to floyd");
 
         response.Should().Contain("Neat");
         GetItem<Diary>().CurrentLocation.Should().BeOfType<Floyd>();
         GetItem<Floyd>().Items.Should().NotBeNull();
     }
-    
+
     [Test]
     public async Task GiveSomethingToFloyd_AlreadyHolding()
     {
@@ -164,7 +165,7 @@ public class FloydTests : EngineTestsBase
         Take<Diary>();
         Take<Key>();
         GetItem<Floyd>().IsOn = true;
-        
+
         await target.GetResponse("give the diary to floyd");
         var response = await target.GetResponse("give the key to floyd");
 
@@ -173,7 +174,7 @@ public class FloydTests : EngineTestsBase
         GetItem<Key>().CurrentLocation.Should().BeOfType<RobotShop>();
         GetItem<Floyd>().Items.Should().NotBeNull();
     }
-    
+
     [Test]
     public async Task GiveSomethingToFloyd_SeeHimHoldingIt()
     {
@@ -182,14 +183,14 @@ public class FloydTests : EngineTestsBase
         Take<Diary>();
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().HasEverBeenOn = true;
-        
+
         await target.GetResponse("give the diary to floyd");
         var response = await target.GetResponse("look");
 
         response.Should().Contain("multiple purpose robot is holding:");
         response.Should().Contain("A diary");
     }
-    
+
     [Test]
     public async Task GiveSomethingToFloyd_TakeItBack()
     {
@@ -198,7 +199,7 @@ public class FloydTests : EngineTestsBase
         Take<Diary>();
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().HasEverBeenOn = true;
-        
+
         await target.GetResponse("give the diary to floyd");
         var response = await target.GetResponse("take diary");
 
@@ -206,7 +207,7 @@ public class FloydTests : EngineTestsBase
         GetItem<Floyd>().ItemBeingHeld.Should().BeNull();
         target.Context.HasItem<Diary>().Should().BeTrue();
     }
-    
+
     [Test]
     public async Task ExamineFloyd_On()
     {
@@ -214,12 +215,12 @@ public class FloydTests : EngineTestsBase
         StartHere<RobotShop>();
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().HasEverBeenOn = true;
-        
+
         var response = await target.GetResponse("examine floyd");
 
         response.Should().Contain("From its design, the robot seems to be of the multi-purpose sort");
     }
-    
+
     [Test]
     public async Task ExamineFloyd_Off()
     {
@@ -241,7 +242,8 @@ public class FloydTests : EngineTestsBase
 
         var response = await target.GetResponse("examine floyd");
 
-        response.Should().Contain("You turn to look at Floyd, but a tremendous sense of loss overcomes you, and you turn away");
+        response.Should()
+            .Contain("You turn to look at Floyd, but a tremendous sense of loss overcomes you, and you turn away");
     }
 
     [Test]
@@ -310,7 +312,9 @@ public class FloydTests : EngineTestsBase
 
         var response = await target.GetResponse("deactivate floyd");
 
-        response.Should().Contain("I'm afraid that Floyd has already been turned off, permanently, and gone to that great robot shop in the sky");
+        response.Should()
+            .Contain(
+                "I'm afraid that Floyd has already been turned off, permanently, and gone to that great robot shop in the sky");
     }
 
     [Test]
@@ -322,13 +326,13 @@ public class FloydTests : EngineTestsBase
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
         GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
-        
+
         var response = await target.GetResponse("slide kitchen access card through slot");
 
         response.Should().Contain("Floyd claps his hands with excitement");
         GetItem<Floyd>().ItemBeingHeld.Should().BeOfType<LowerElevatorAccessCard>();
     }
-    
+
     [Test]
     public async Task DoesFloydOfferCard_NotHere()
     {
@@ -338,12 +342,12 @@ public class FloydTests : EngineTestsBase
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().CurrentLocation = GetLocation<Library>();
         GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
-        
+
         var response = await target.GetResponse("slide kitchen access card through slot");
 
         response.Should().NotContain("Floyd claps his hands with excitement");
     }
-    
+
     [Test]
     public async Task DoesFloydOfferCard_DiceRollFail()
     {
@@ -353,12 +357,12 @@ public class FloydTests : EngineTestsBase
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
         GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == false);
-        
+
         var response = await target.GetResponse("slide kitchen access card through slot");
 
         response.Should().NotContain("Floyd claps his hands with excitement");
     }
-    
+
     [Test]
     public async Task DoesFloydOfferCard_HeIsOff()
     {
@@ -367,12 +371,12 @@ public class FloydTests : EngineTestsBase
         Take<KitchenAccessCard>();
         GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
         GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
-        
+
         var response = await target.GetResponse("slide kitchen access card through slot");
 
         response.Should().NotContain("Floyd claps his hands with excitement");
     }
-    
+
     [Test]
     public async Task DoesFloydOfferCard_NoLongerHasIt()
     {
@@ -383,12 +387,12 @@ public class FloydTests : EngineTestsBase
         GetItem<Floyd>().Items.Clear();
         GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
         GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
-        
+
         var response = await target.GetResponse("slide kitchen access card through slot");
 
         response.Should().NotContain("Floyd claps his hands with excitement");
     }
-    
+
     [Test]
     public async Task GenerateCompanionSpeech_ExcludesFloydFromRoomDescription()
     {
@@ -418,8 +422,8 @@ public class FloydTests : EngineTestsBase
 
         // Call GenerateCompanionSpeech directly through reflection to test the specific method
         var methodInfo = typeof(QuirkyCompanion).GetMethod("GenerateCompanionSpeech",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        
+            BindingFlags.NonPublic | BindingFlags.Instance);
+
         methodInfo!.Should().NotBeNull();
 
         await (Task<string>)methodInfo.Invoke(floyd, [target.Context, target.GenerationClient, null!])!;
@@ -1118,7 +1122,7 @@ public class FloydTests : EngineTestsBase
 
         floyd.CommentOnAction("Test prompt", target.Context);
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
     }
 
@@ -1134,7 +1138,7 @@ public class FloydTests : EngineTestsBase
 
         floyd.CommentOnAction("Test prompt", target.Context);
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
     }
 
@@ -1150,12 +1154,12 @@ public class FloydTests : EngineTestsBase
         robotShop.ItemPlacedHere(floyd);
 
         // Set a pending prompt to indicate Floyd already has a comment queued
-        ((PlanetfallContext)target.Context).PendingFloydActionCommentPrompt = "First prompt";
+        target.Context.PendingFloydActionCommentPrompt = "First prompt";
 
         floyd.CommentOnAction("Second prompt", target.Context);
 
         // Prompt should still be the first one
-        ((PlanetfallContext)target.Context).PendingFloydActionCommentPrompt.Should().Be("First prompt");
+        target.Context.PendingFloydActionCommentPrompt.Should().Be("First prompt");
     }
 
     [Test]
@@ -1171,7 +1175,7 @@ public class FloydTests : EngineTestsBase
 
         floyd.CommentOnAction("Test prompt about something interesting", target.Context);
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         pfContext.PendingFloydActionCommentPrompt.Should().Be("Test prompt about something interesting");
     }
 
@@ -1188,13 +1192,13 @@ public class FloydTests : EngineTestsBase
 
         // First call should set the prompt
         floyd.CommentOnAction("First prompt", target.Context);
-        ((PlanetfallContext)target.Context).PendingFloydActionCommentPrompt.Should().Be("First prompt");
+        target.Context.PendingFloydActionCommentPrompt.Should().Be("First prompt");
 
         // Second call should be ignored (flag already set)
         floyd.CommentOnAction("Second prompt", target.Context);
 
         // Should still have first prompt
-        ((PlanetfallContext)target.Context).PendingFloydActionCommentPrompt.Should().Be("First prompt");
+        target.Context.PendingFloydActionCommentPrompt.Should().Be("First prompt");
     }
 
     [Test]
@@ -1215,7 +1219,7 @@ public class FloydTests : EngineTestsBase
             .ReturnsAsync("Floyd tilts his head and says, \"Interesting!\"");
 
         // Set a pending prompt
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         pfContext.PendingFloydActionCommentPrompt = "Test prompt about something";
 
         // Call Act directly
@@ -1246,7 +1250,7 @@ public class FloydTests : EngineTestsBase
         floyd.Chooser = mockChooser.Object;
 
         // No pending prompt
-        ((PlanetfallContext)target.Context).PendingFloydActionCommentPrompt.Should().BeNull();
+        target.Context.PendingFloydActionCommentPrompt.Should().BeNull();
 
         // Call Act directly
         var result = await floyd.Act(target.Context, target.GenerationClient);
@@ -1262,7 +1266,7 @@ public class FloydTests : EngineTestsBase
         var target = GetTarget();
         StartHere<RobotShop>();
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         // Set prompt to a non-null value
         pfContext.PendingFloydActionCommentPrompt = "Some prompt";
 
@@ -1294,7 +1298,7 @@ public class FloydTests : EngineTestsBase
             .Callback<CompanionRequest>(request => capturedPrompt = request.UserMessage!);
 
         // Set the pending prompt
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         pfContext.PendingFloydActionCommentPrompt = "This is my specific test prompt about the item";
 
         await floyd.Act(target.Context, target.GenerationClient);
@@ -1322,7 +1326,7 @@ public class FloydTests : EngineTestsBase
         // Step 1: Call CommentOnAction (stores prompt)
         floyd.CommentOnAction("Floyd should comment on finding a shiny object", target.Context);
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         pfContext.PendingFloydActionCommentPrompt.Should().NotBeNull();
 
         // Step 2: Call Act (generates comment from stored prompt)
@@ -1336,7 +1340,7 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
-    public async Task FullFlow_NextTurn_PromptReset()
+    public void FullFlow_NextTurn_PromptReset()
     {
         var target = GetTarget();
         var robotShop = StartHere<RobotShop>();
@@ -1347,7 +1351,7 @@ public class FloydTests : EngineTestsBase
         floyd.CurrentLocation = robotShop;
         robotShop.ItemPlacedHere(floyd);
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
 
         // Turn 1: Floyd comments on action
         floyd.CommentOnAction("Some prompt", target.Context);
@@ -1375,7 +1379,7 @@ public class FloydTests : EngineTestsBase
         floyd.CurrentLocation = robotShop;
         robotShop.ItemPlacedHere(floyd);
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
 
         // First use of prompt - should work
         floyd.CommentOnAction("Unique prompt", target.Context);
@@ -1402,7 +1406,7 @@ public class FloydTests : EngineTestsBase
         floyd.CurrentLocation = robotShop;
         robotShop.ItemPlacedHere(floyd);
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
 
         // Use first prompt
         floyd.CommentOnAction("First prompt", target.Context);
@@ -1433,7 +1437,7 @@ public class FloydTests : EngineTestsBase
         floyd.CurrentLocation = robotShop;
         robotShop.ItemPlacedHere(floyd);
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
 
         // Use a prompt
         floyd.CommentOnAction("Persisted prompt", target.Context);
@@ -1453,7 +1457,7 @@ public class FloydTests : EngineTestsBase
         floyd.CurrentLocation = robotShop;
         robotShop.ItemPlacedHere(floyd);
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
 
         // Use first prompt
         floyd.CommentOnAction("First prompt", target.Context);
@@ -1475,7 +1479,7 @@ public class FloydTests : EngineTestsBase
         // Floyd is in a different location
         floyd.CurrentLocation = GetLocation<StorageWest>();
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
 
         // Try to use prompt when Floyd not present
         floyd.CommentOnAction("Should not be tracked", target.Context);
@@ -1495,7 +1499,7 @@ public class FloydTests : EngineTestsBase
         floyd.CurrentLocation = robotShop;
         robotShop.ItemPlacedHere(floyd);
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
 
         // Try to use prompt when Floyd is off
         floyd.CommentOnAction("Should not be tracked", target.Context);
@@ -1516,7 +1520,7 @@ public class FloydTests : EngineTestsBase
         floyd.CurrentLocation = robotShop;
         robotShop.ItemPlacedHere(floyd);
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
 
         // Use first prompt
         floyd.CommentOnAction("First prompt", target.Context);
@@ -1548,7 +1552,7 @@ public class FloydTests : EngineTestsBase
         mockChooser.Setup(r => r.RollDice(15)).Returns(15); // No random action
         floyd.Chooser = mockChooser.Object;
 
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
 
         // Mock the generation client
         var mockClient = Mock.Get(target.GenerationClient);
@@ -1572,6 +1576,143 @@ public class FloydTests : EngineTestsBase
 
         // Generation should only have been called once (from turn 1)
         mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Once);
+    }
+
+    #endregion
+
+    #region SkipActingThisTurn Tests
+
+    [Test]
+    public async Task Act_ReturnsEmpty_WhenSkipActingFlagSet()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        // Mock the Chooser to trigger random behavior (roll 1-7 generates AI speech)
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(20)).Returns(false); // Don't wander
+        mockChooser.Setup(r => r.RollDice(15)).Returns(1); // Would trigger AI speech
+        floyd.Chooser = mockChooser.Object;
+
+        // Mock the generation client - this should NOT be called
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd says something random");
+
+        // Set the skip flag
+        floyd.SkipActingThisTurn(target.Context);
+
+        // Call Act directly
+        var result = await floyd.Act(target.Context, target.GenerationClient);
+
+        // Should return empty despite mocked dice roll that would trigger speech
+        result.Should().BeEmpty();
+
+        // Generation client should NOT have been called
+        mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Act_ReturnsEmpty_WhenSkipActingFlagSet_EvenWithPendingComment()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        var pfContext = target.Context;
+
+        // Set a pending comment prompt
+        pfContext.PendingFloydActionCommentPrompt = "Floyd should comment on something";
+
+        // Also set the skip flag
+        floyd.SkipActingThisTurn(target.Context);
+
+        // Mock the generation client - should NOT be called
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd comments");
+
+        // Call Act directly
+        var result = await floyd.Act(target.Context, target.GenerationClient);
+
+        // Should return empty - skip flag overrides pending comment
+        result.Should().BeEmpty();
+
+        // Generation client should NOT have been called
+        mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Never);
+    }
+
+    [Test]
+    public void SkipActingThisTurn_SetsFlag()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+
+        var pfContext = target.Context;
+        pfContext.FloydShouldNotActThisTurn.Should().BeFalse();
+
+        floyd.SkipActingThisTurn(target.Context);
+
+        pfContext.FloydShouldNotActThisTurn.Should().BeTrue();
+    }
+
+    [Test]
+    public void ProcessBeginningOfTurn_ResetsSkipFlag()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+
+        var pfContext = target.Context;
+        pfContext.FloydShouldNotActThisTurn = true;
+
+        pfContext.ProcessBeginningOfTurn();
+
+        pfContext.FloydShouldNotActThisTurn.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task Act_WorksNormally_AfterFlagReset()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        var pfContext = target.Context;
+
+        // Mock the Chooser to trigger constant action (roll 8 picks from constants)
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(20)).Returns(false); // Don't wander
+        mockChooser.Setup(r => r.RollDice(15)).Returns(8); // Pick random action from FloydConstants
+        mockChooser.Setup(r => r.Choose(It.IsAny<List<string>>())).Returns((List<string> list) => list[0]);
+        floyd.Chooser = mockChooser.Object;
+
+        // Turn 1: Skip flag set, Floyd silent
+        floyd.SkipActingThisTurn(target.Context);
+        var result1 = await floyd.Act(target.Context, target.GenerationClient);
+        result1.Should().BeEmpty();
+
+        // Turn 2: Flag reset, Floyd acts normally
+        pfContext.ProcessBeginningOfTurn();
+        var result2 = await floyd.Act(target.Context, target.GenerationClient);
+        result2.Should().NotBeEmpty();
+        result2.Should().StartWith("Floyd");
     }
 
     #endregion

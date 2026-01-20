@@ -56,6 +56,13 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     public string? PendingFloydActionCommentPrompt { get; set; }
 
     /// <summary>
+    /// When true, Floyd will not act or talk this turn.
+    /// Reset at the beginning of each turn.
+    /// </summary>
+    [JsonIgnore]
+    public bool FloydShouldNotActThisTurn { get; set; }
+
+    /// <summary>
     /// Tracks Floyd action comment prompts that have already been used.
     /// Prompts in this set will not be repeated.
     /// </summary>
@@ -88,8 +95,9 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
 
     public override string ProcessBeginningOfTurn()
     {
-        // Reset Floyd's pending action comment for the new turn
+        // Reset Floyd's turn flags for the new turn
         PendingFloydActionCommentPrompt = null;
+        FloydShouldNotActThisTurn = false;
 
         var messages = string.Empty;
 

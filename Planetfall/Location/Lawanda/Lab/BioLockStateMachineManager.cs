@@ -60,6 +60,7 @@ public class BioLockStateMachineManager
         if (LabSequenceState == FloydLabSequenceState.DoorClosedFloydFighting)
         {
             FloydFightingTurnCount++;
+            floyd.SkipActingThisTurn(context);
 
             if (FloydFightingTurnCount == 1)
             {
@@ -109,6 +110,7 @@ public class BioLockStateMachineManager
         if (FloydHasSaidNeedToGetCard && FloydWaitingForDoorOpenCount < 5)
         {
             FloydWaitingForDoorOpenCount++;
+            floyd.SkipActingThisTurn(context);
 
             if (FloydWaitingForDoorOpenCount == 5)
             {
@@ -122,6 +124,7 @@ public class BioLockStateMachineManager
         if (computerRoomFloydHasExpressedConcern && !FloydHasSaidNeedToGetCard)
         {
             FloydHasSaidNeedToGetCard = true;
+            floyd.SkipActingThisTurn(context);
             return FloydConstants.NeedToGetCard;
         }
 
@@ -129,6 +132,7 @@ public class BioLockStateMachineManager
         if (!computerRoomFloydHasExpressedConcern && !FloydHasSaidLookAMiniCard)
         {
             FloydHasSaidLookAMiniCard = true;
+            floyd.SkipActingThisTurn(context);
             return FloydConstants.LookAMiniCard;
         }
 
@@ -155,6 +159,7 @@ public class BioLockStateMachineManager
             // Remove Floyd from the room - he's now in the lab fighting!
             bioLockEast.RemoveItem(floyd);
             floyd.CurrentLocation = null; // Floyd has no location while in the lab
+            floyd.SkipActingThisTurn(context);
 
             return FloydConstants.InTheLabOne;
         }
@@ -164,6 +169,7 @@ public class BioLockStateMachineManager
         {
             LabSequenceState = FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
             TurnsAfterDoorReopened = 0; // Reset the turn counter
+            floyd.SkipActingThisTurn(context);
             return FloydConstants.FloydReturnsWithCard;
         }
 

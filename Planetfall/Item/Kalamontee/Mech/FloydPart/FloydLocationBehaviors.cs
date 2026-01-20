@@ -19,7 +19,7 @@ public class FloydLocationBehaviors(Floyd floyd)
 
         if (companionResponse.Metadata?.AssistantType == "GoSomewhere" &&
             companionResponse.Metadata.Parameters?.FirstOrDefault().Value?.ToString() == "north")
-            return HandleSmallDoorExploration();
+            return HandleSmallDoorExploration(context);
 
         return null;
     }
@@ -33,16 +33,18 @@ public class FloydLocationBehaviors(Floyd floyd)
         context.ItemPlacedHere<ShinyFromitzBoard>();
 
         floyd.HasGottenTheFromitzBoard = true;
+        floyd.SkipActingThisTurn(context);
         return returnString;
     }
 
-    private string HandleSmallDoorExploration()
+    private string HandleSmallDoorExploration(IContext context)
     {
         var returnString = floyd.HasEverGoneThroughTheLittleDoor
             ? "\"Not again,\" whines Floyd. "
             : FloydConstants.GoNorth;
 
         floyd.HasEverGoneThroughTheLittleDoor = true;
+        floyd.SkipActingThisTurn(context);
         return returnString;
     }
 }

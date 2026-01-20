@@ -231,6 +231,9 @@ public class SleepEngine
             else
                 message += "\n\nFloyd gives you a nudge with his foot and giggles. \"You sure look silly " +
                            "sleeping on the floor,\" he says.";
+
+            // Floyd already greeted, don't let him also do random behavior this turn
+            floyd.SkipActingThisTurn(context);
         }
 
         // Player remains in bed after waking - must manually exit
