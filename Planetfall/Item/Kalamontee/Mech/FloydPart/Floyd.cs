@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Lawanda;
 using Planetfall.Location;
-using Utilities;
 
 namespace Planetfall.Item.Kalamontee.Mech.FloydPart;
 
@@ -288,7 +287,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
             3 => await GenerateCompanionSpeech(context, client, FloydPrompts.NonSequiturReflection),
             4 => await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething),
             5 => await GenerateCompanionSpeech(context, client, FloydPrompts.MelancholyNonSequitur),
-            _ => FloydConstants.RandomActions.GetRandomElement()
+            _ => Chooser.Choose(FloydConstants.RandomActions.ToList())
         };
     }
 
