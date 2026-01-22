@@ -12,8 +12,26 @@ internal class BioLockOuterDoor : SimpleDoor, ITurnBasedActor
         "bio-lock door", "door", "biolock", "bio lock", "bio lock door", "bio-lock", "bio door"
     ];
 
+    public override string CannotBeOpenedDescription(IContext context)
+    {
+        var innerDoor = Repository.GetItem<BioLockInnerDoor>();
+        if (innerDoor.IsOpen)
+        {
+            return "A very bored-sounding recorded voice explains that, in order to prevent contamination, " +
+                   "both lock doors cannot be open simultaneously. ";
+        }
+
+        return base.CannotBeOpenedDescription(context);
+    }
+
     public override string OnOpening(IContext context)
     {
+        var innerDoor = Repository.GetItem<BioLockInnerDoor>();
+        if (innerDoor.IsOpen)
+        {
+            return CannotBeOpenedDescription(context);
+        }
+
         context.RegisterActor(this);
         TurnsSinceOpening = 1;
         return base.OnOpening(context);

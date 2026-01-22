@@ -69,6 +69,30 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     [UsedImplicitly]
     public HashSet<string> UsedFloydActionCommentPrompts { get; set; } = [];
 
+    /// <summary>
+    /// Bio Lab escape sequence flags
+    /// </summary>
+    [UsedImplicitly]
+    public bool LabFlooded { get; set; }
+
+    [UsedImplicitly]
+    public bool LabLightsOn { get; set; }
+
+    [UsedImplicitly]
+    public bool CryoScoreFlag { get; set; }
+
+    [UsedImplicitly]
+    public bool ExtraMoveFlag { get; set; }
+
+    [UsedImplicitly]
+    public bool CryoMoveFlag { get; set; }
+
+    [UsedImplicitly]
+    public ILocation? LastChaseRoom { get; set; }
+
+    [UsedImplicitly]
+    public ILocation? SecondToLastRoom { get; set; }
+
     public string SicknessDescription => ((SicknessLevel)Day).GetDescription();
     
     [UsedImplicitly]

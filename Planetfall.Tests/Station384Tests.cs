@@ -3,6 +3,7 @@ using Planetfall.Item.Computer;
 using Planetfall.Item.Lawanda.Lab;
 using Planetfall.Location.Computer;
 using Planetfall.Location.Lawanda;
+using Planetfall.Location.Lawanda.Lab;
 
 namespace Planetfall.Tests;
 
@@ -108,14 +109,14 @@ public class Station384Tests : EngineTestsBase
         }
 
         [Test]
-        public async Task AuxiliaryBooth_NorthExitGoesToComputerRoom()
+        public async Task AuxiliaryBooth_NorthExitGoesToLabOffice()
         {
             var target = GetTarget();
             StartHere<AuxiliaryBooth>();
 
             await target.GetResponse("north");
 
-            target.Context.CurrentLocation.Should().BeOfType<ComputerRoom>();
+            target.Context.CurrentLocation.Should().BeOfType<LabOfficeLocation>();
         }
     }
 

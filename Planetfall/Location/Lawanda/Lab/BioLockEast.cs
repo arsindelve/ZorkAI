@@ -42,7 +42,7 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
     protected override string GetContextBasedDescription(IContext context)
     {
         return
-            "The is the second half of the sterilization chamber leading from the main lab to the Bio Lab. The door " +
+            "This is the second half of the sterilization chamber leading from the main lab to the Bio Lab. The door " +
             "to the east, leading to the Bio Lab, has a window. The bio lock continues to the west. ";
     }
 
