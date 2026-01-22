@@ -1,6 +1,8 @@
 using Model.AIGeneration;
+using Planetfall.Item.Computer;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda;
+using Planetfall.Location.Lawanda.LabOffice;
 
 namespace Planetfall.Location.Lawanda;
 
@@ -12,10 +14,21 @@ internal class ProjConOffice : FloydSpecialInteractionLocation
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
-        return new Dictionary<Direction, MovementParameters>
+        var relay = Repository.GetItem<Relay>();
+        var computerFixed = relay.SpeckDestroyed;
+
+        var map = new Dictionary<Direction, MovementParameters>
         {
             { Direction.N, Go<ProjectCorridor>() }
         };
+
+        // Add east exit to cryo-elevator only when computer is fixed
+        if (computerFixed)
+        {
+            map.Add(Direction.E, Go<CryoElevatorLocation>());
+        }
+
+        return map;
     }
 
     public override void Init()
@@ -38,8 +51,15 @@ internal class ProjConOffice : FloydSpecialInteractionLocation
 
     protected override string GetContextBasedDescription(IContext context)
     {
+        var relay = Repository.GetItem<Relay>();
+        var computerFixed = relay.SpeckDestroyed;
+
+        var exitDescription = computerFixed
+            ? "Exits lead north and east. "
+            : "The exit leads north. ";
+
         return
-            "This office looks like a headquarters of some kind. Exits lead north and east. The west wall displays a " +
+            $"This office looks like a headquarters of some kind. {exitDescription}The west wall displays a " +
             "logo. The south wall is completely covered by a garish mural which clashes with the other decor of the room. ";
     }
 }

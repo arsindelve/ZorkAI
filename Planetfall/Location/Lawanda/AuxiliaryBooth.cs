@@ -1,4 +1,5 @@
 using GameEngine.Location;
+using Planetfall.Location.Lawanda.LabOffice;
 
 namespace Planetfall.Location.Lawanda;
 
@@ -10,7 +11,7 @@ internal class AuxiliaryBooth : LocationWithNoStartingItems
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.N, Go<ComputerRoom>() }
+            { Direction.W, Go<LabOfficeLocation>() }
         };
     }
 
@@ -18,6 +19,6 @@ internal class AuxiliaryBooth : LocationWithNoStartingItems
     {
         return
             "This is another small booth. Unlike the Miniaturization Booth, this room has no slot or keyboard, " +
-            "so presumably it is intended only as a receiving station. The exit is on the northern side. ";
+            "so presumably it is intended only as a receiving station. An office lies to the west. ";
     }
 }
