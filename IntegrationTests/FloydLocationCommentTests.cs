@@ -10,9 +10,11 @@ using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.Library.Computer;
 using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Admin;
+using SmallOffice = Planetfall.Location.Kalamontee.Admin.SmallOffice;
 using Planetfall.Location.Kalamontee.Mech;
 using Planetfall.Location.Kalamontee.Tower;
 using Planetfall.Location.Lawanda;
+using ProjectCorridor = Planetfall.Location.Lawanda.ProjectCorridor;
 using Planetfall.Location.Shuttle;
 using ZorkAI.OpenAI;
 using PhysicalPlant = Planetfall.Location.Kalamontee.Mech.PhysicalPlant;
@@ -296,6 +298,76 @@ public class FloydLocationCommentTests
 
         // Verify the interaction was marked as happened (so it won't repeat)
         helicopter.InteractionHasHappened.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task FloydComment_LargeOffice_ViewFromWindow()
+    {
+        Repository.Reset();
+
+        // Create real generation client (requires OPEN_AI_KEY)
+        var generationClient = new ChatGPTClient(null);
+
+        // Set up the context
+        var context = new PlanetfallContext();
+
+        // Place Floyd in a PREVIOUS location (he will follow the player)
+        var previousLocation = Repository.GetLocation<SmallOffice>();
+        var largeOffice = Repository.GetLocation<LargeOffice>();
+        var floyd = Repository.GetItem<Floyd>();
+        ConfigureFloydForTesting(floyd);
+        previousLocation.ItemPlacedHere(floyd);
+
+        // Player moves to the large office
+        context.CurrentLocation = largeOffice;
+
+        // Floyd follows the player - this triggers the special location comment
+        var result = await floyd.Act(context, generationClient);
+
+        Console.WriteLine("=== Floyd's Comment at Large Office ===");
+        Console.WriteLine(result);
+        Console.WriteLine("========================================");
+
+        // Verify we got a response (includes "Floyd follows you. " prefix)
+        result.Should().NotBeNullOrEmpty("Floyd should have made a comment");
+
+        // Verify the interaction was marked as happened (so it won't repeat)
+        largeOffice.InteractionHasHappened.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task FloydComment_ProjConOffice_GarishMural()
+    {
+        Repository.Reset();
+
+        // Create real generation client (requires OPEN_AI_KEY)
+        var generationClient = new ChatGPTClient(null);
+
+        // Set up the context
+        var context = new PlanetfallContext();
+
+        // Place Floyd in a PREVIOUS location (he will follow the player)
+        var previousLocation = Repository.GetLocation<ProjectCorridor>();
+        var projConOffice = Repository.GetLocation<ProjConOffice>();
+        var floyd = Repository.GetItem<Floyd>();
+        ConfigureFloydForTesting(floyd);
+        previousLocation.ItemPlacedHere(floyd);
+
+        // Player moves to the ProjCon Office
+        context.CurrentLocation = projConOffice;
+
+        // Floyd follows the player - this triggers the special location comment
+        var result = await floyd.Act(context, generationClient);
+
+        Console.WriteLine("=== Floyd's Comment at ProjCon Office ===");
+        Console.WriteLine(result);
+        Console.WriteLine("==========================================");
+
+        // Verify we got a response (includes "Floyd follows you. " prefix)
+        result.Should().NotBeNullOrEmpty("Floyd should have made a comment");
+
+        // Verify the interaction was marked as happened (so it won't repeat)
+        projConOffice.InteractionHasHappened.Should().BeTrue();
     }
 
     [Test]

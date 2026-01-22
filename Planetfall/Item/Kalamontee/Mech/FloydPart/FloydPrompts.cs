@@ -325,6 +325,16 @@ internal static class FloydPrompts
         "Preface it with 'Floyd's eyes widen' or 'Floyd peers through the doorway' or something similar, " +
         "and put his comment in quotes. ";
 
+    public static string LargeOfficeWindow =>
+        "Give Floyd something short to say as he looks out a large picture window at the ocean below. " +
+        "Preface it with 'Floyd presses his face to the glass' or 'Floyd peers out the window' or something similar, " +
+        "and put his comment in quotes. Do not anthropomorphize objects.";
+
+    public static string ProjConOfficeMural =>
+        "Give Floyd something short to say about a garish mural that clashes with the room's decor. " +
+        "Preface it with 'Floyd stares at the mural' or 'Floyd tilts his head at the wall' or something similar, " +
+        "and put his comment in quotes. Do not anthropomorphize objects.";
+
     internal const string LeavingToExplore = """
 
                                              Floyd and the player are in this room "{0}" which has this description: "{1}"

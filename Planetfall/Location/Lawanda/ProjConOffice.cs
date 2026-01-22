@@ -1,12 +1,14 @@
-using GameEngine.Location;
 using Model.AIGeneration;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda;
 
 namespace Planetfall.Location.Lawanda;
 
-internal class ProjConOffice : LocationBase
+internal class ProjConOffice : FloydSpecialInteractionLocation
 {
     public override string Name => "ProjCon Office";
+
+    public override string FloydPrompt => FloydPrompts.ProjConOfficeMural;
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {

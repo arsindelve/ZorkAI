@@ -1,11 +1,13 @@
-﻿using GameEngine.Location;
-using Planetfall.Item.Kalamontee.Admin;
+﻿using Planetfall.Item.Kalamontee.Admin;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 namespace Planetfall.Location.Kalamontee.Admin;
 
-internal class LargeOffice : LocationBase
+internal class LargeOffice : FloydSpecialInteractionLocation
 {
     public override string Name => "Large Office";
+
+    public override string FloydPrompt => FloydPrompts.LargeOfficeWindow;
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
