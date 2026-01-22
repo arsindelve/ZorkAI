@@ -651,8 +651,8 @@ public class FloydTests : EngineTestsBase
         var mockChooser = new Mock<IRandomChooser>();
         mockChooser.Setup(r => r.RollDiceSuccess(20))
             .Returns(false); // Don't trigger wandering
-        mockChooser.Setup(r => r.RollDice(15))
-            .Returns(15); // No random action
+        mockChooser.Setup(r => r.RollDice(12))
+            .Returns(12); // No random action (needs to be 1 to trigger)
         floyd.Chooser = mockChooser.Object;
 
         var response = await target.GetResponse("wait");
@@ -996,8 +996,8 @@ public class FloydTests : EngineTestsBase
             .Returns(false); // Don't wander again
         mockChooser.Setup(r => r.RollDice(5))
             .Returns(2); // Wander for 2 turns
-        mockChooser.Setup(r => r.RollDice(15))
-            .Returns(15); // No random actions
+        mockChooser.Setup(r => r.RollDice(12))
+            .Returns(12); // No random actions (needs to be 1 to trigger)
         floyd.Chooser = mockChooser.Object;
 
         // Mock the generation client to return departure and return messages
@@ -1242,10 +1242,11 @@ public class FloydTests : EngineTestsBase
         floyd.CurrentLocation = robotShop;
         robotShop.ItemPlacedHere(floyd);
 
-        // Mock the chooser to pick a random action from constants (roll 8 picks from constant list)
+        // Mock the chooser to pick a random action from constants
         var mockChooser = new Mock<IRandomChooser>();
         mockChooser.Setup(r => r.RollDiceSuccess(20)).Returns(false); // Don't wander
-        mockChooser.Setup(r => r.RollDice(15)).Returns(8); // Pick random action from FloydConstants.RandomActions
+        mockChooser.Setup(r => r.RollDice(12)).Returns(1); // Pass the 1-in-12 chance check
+        mockChooser.Setup(r => r.RollDice(6)).Returns(6); // Pick default case (FloydConstants.RandomActions)
         mockChooser.Setup(r => r.Choose(It.IsAny<List<string>>())).Returns((List<string> list) => list[0]);
         floyd.Chooser = mockChooser.Object;
 
@@ -1549,7 +1550,7 @@ public class FloydTests : EngineTestsBase
         // Mock chooser to prevent random behavior on second Act() call
         var mockChooser = new Mock<IRandomChooser>();
         mockChooser.Setup(r => r.RollDiceSuccess(20)).Returns(false); // Don't wander
-        mockChooser.Setup(r => r.RollDice(15)).Returns(15); // No random action
+        mockChooser.Setup(r => r.RollDice(12)).Returns(12); // No random action (needs to be 1 to trigger)
         floyd.Chooser = mockChooser.Object;
 
         var pfContext = target.Context;
@@ -1594,10 +1595,11 @@ public class FloydTests : EngineTestsBase
         floyd.CurrentLocation = robotShop;
         robotShop.ItemPlacedHere(floyd);
 
-        // Mock the Chooser to trigger random behavior (roll 1-7 generates AI speech)
+        // Mock the Chooser to trigger random behavior (would trigger AI speech if not skipped)
         var mockChooser = new Mock<IRandomChooser>();
         mockChooser.Setup(r => r.RollDiceSuccess(20)).Returns(false); // Don't wander
-        mockChooser.Setup(r => r.RollDice(15)).Returns(1); // Would trigger AI speech
+        mockChooser.Setup(r => r.RollDice(12)).Returns(1); // Pass chance check
+        mockChooser.Setup(r => r.RollDice(6)).Returns(1); // Would trigger AI speech
         floyd.Chooser = mockChooser.Object;
 
         // Mock the generation client - this should NOT be called
@@ -1696,10 +1698,11 @@ public class FloydTests : EngineTestsBase
 
         var pfContext = target.Context;
 
-        // Mock the Chooser to trigger constant action (roll 8 picks from constants)
+        // Mock the Chooser to trigger constant action
         var mockChooser = new Mock<IRandomChooser>();
         mockChooser.Setup(r => r.RollDiceSuccess(20)).Returns(false); // Don't wander
-        mockChooser.Setup(r => r.RollDice(15)).Returns(8); // Pick random action from FloydConstants
+        mockChooser.Setup(r => r.RollDice(12)).Returns(1); // Pass the 1-in-12 chance check
+        mockChooser.Setup(r => r.RollDice(6)).Returns(6); // Pick default case (FloydConstants.RandomActions)
         mockChooser.Setup(r => r.Choose(It.IsAny<List<string>>())).Returns((List<string> list) => list[0]);
         floyd.Chooser = mockChooser.Object;
 
