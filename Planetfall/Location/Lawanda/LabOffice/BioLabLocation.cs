@@ -18,26 +18,15 @@ internal class BioLabLocation : LocationBase
 
     protected override string GetContextBasedDescription(IContext context)
     {
-        if (!LightsOn)
-            return "It is pitch black. You can hear disturbing sounds of movement around you. ";
-
-        var mutantsPresent = Repository.GetItem<RatAnt>().CurrentLocation == this ||
-                             Repository.GetItem<MutantTroll>().CurrentLocation == this ||
-                             Repository.GetItem<MutantGrue>().CurrentLocation == this ||
-                             Repository.GetItem<Triffid>().CurrentLocation == this;
-
-        var baseDescription =
-            "This is a large biological laboratory filled with strange equipment and specimen containers. ";
-
-        if (mutantsPresent)
-        {
-            baseDescription +=
-                "FOUR TERRIFYING MUTANT CREATURES are here: a rat-ant, a troll, a grue, and a triffid! ";
-        }
-
-        baseDescription += "The office is to the east. A passage leads west. ";
-
-        return baseDescription;
+        return "This is a huge laboratory filled with many biological experiments. The lighting is dim, and a faint " +
+               "blue glow comes from a gaping crack in the northern wall. Some of the experiments seem to be out of " +
+               "control...A giant plant, teeming with poisonous tentacles, is shuffling toward you on three leg-like " +
+               "stalks. Lurking nearby is a vicious-looking creature with slavering fangs. Squinting in the light, " +
+               "it eyes you hungrily. Rushing toward you is an ugly, deformed humanoid, bellowing in a guttural " +
+               "tongue. It brandishes a piece of lab equipment shaped somewhat like a battle axe. A ferocious " +
+               "feral creature, with a hairy shelled body and a whip-like tail snaps its enormous mandibles at you. " +
+               "The air is filled with mist, which is affecting the mutants. They appear to be stunned and confused, " +
+               "but are slowly recovering.";
     }
 
     public override void Init()
@@ -58,7 +47,7 @@ internal class BioLabLocation : LocationBase
                 {
                     CanGo = _ => Repository.GetItem<OfficeDoor>().IsOpen,
                     CustomFailureMessage = "The office door is closed. ",
-                    Location = GetLocation<LabOfficeLocation>()
+                    Location = GetLocation<LabOffice>()
                 }
             },
             { Direction.W, Go<Planetfall.Location.Lawanda.Lab.BioLockWest>() }

@@ -11,7 +11,7 @@ internal class AuxiliaryBooth : LocationWithNoStartingItems
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.W, Go<LabOfficeLocation>() }
+            { Direction.W, Go<LabOffice.LabOffice>() }
         };
     }
 
@@ -19,6 +19,6 @@ internal class AuxiliaryBooth : LocationWithNoStartingItems
     {
         return
             "This is another small booth. Unlike the Miniaturization Booth, this room has no slot or keyboard, " +
-            "so presumably it is intended only as a receiving station. An office lies to the west. ";
+            "so presumably it is intended only as a receiving station. The exit is on the northern side. ";
     }
 }

@@ -3,13 +3,11 @@ using Planetfall.Location.Lawanda.LabOffice;
 
 namespace Planetfall.Item.Lawanda.LabOffice;
 
-public class FungicideButton : ItemBase
+public class RedButton : ItemBase
 {
-    public override string[] NounsForMatching => ["fungicide button", "fungicide", "button"];
+    public override string[] NounsForMatching => ["red button", "red", "button"];
 
-    public override int Size => 100; // Can't be taken
-
-    public override Task<InteractionResult> RespondToSimpleInteraction(
+    public override Task<InteractionResult?> RespondToSimpleInteraction(
         SimpleIntent action, IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (!action.MatchVerb(["push", "press", "activate"]))
@@ -23,9 +21,7 @@ public class FungicideButton : ItemBase
 
         timer.Reset();
 
-        return Task.FromResult<InteractionResult>(
-            new PositiveInteractionResult(
-                "You push the FUNGICIDE button. A misting system activates in the Bio Lab with a soft hiss. " +
-                "The fungicide should protect against the mutants for approximately 50 turns. "));
+        return Task.FromResult<InteractionResult?>(
+            new PositiveInteractionResult("You hear a hissing from beyond the door to the west. "));
     }
 }

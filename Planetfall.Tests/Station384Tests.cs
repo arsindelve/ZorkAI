@@ -115,7 +115,7 @@ public class Station384Tests : EngineTestsBase
 
             await target.GetResponse("north");
 
-            target.Context.CurrentLocation.Should().BeOfType<ComputerRoom>();
+            target.Context.CurrentLocation.Should().BeOfType<AuxiliaryBooth>();
         }
     }
 

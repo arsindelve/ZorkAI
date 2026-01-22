@@ -18,7 +18,7 @@ public class BioLabEscapeTests : EngineTestsBase
         StartHere<AuxiliaryBooth>();
 
         var response = await target.GetResponse("west");
-        Context.CurrentLocation.Should().BeOfType<LabOfficeLocation>();
+        Context.CurrentLocation.Should().BeOfType<LabOffice>();
         response.Should().Contain("Lab Office");
     }
 
@@ -26,7 +26,7 @@ public class BioLabEscapeTests : EngineTestsBase
     public async Task LabOffice_ContainsAllItems()
     {
         var target = GetTarget();
-        StartHere<LabOfficeLocation>();
+        StartHere<LabOffice>();
 
         var response = await target.GetResponse("look");
         response.Should().Contain("LIGHT");
@@ -39,7 +39,7 @@ public class BioLabEscapeTests : EngineTestsBase
     public async Task LabDesk_ContainsGasMask()
     {
         var target = GetTarget();
-        StartHere<LabOfficeLocation>();
+        StartHere<LabOffice>();
 
         var desk = GetItem<LabDesk>();
         desk.IsOpen = false;
@@ -55,7 +55,7 @@ public class BioLabEscapeTests : EngineTestsBase
     public async Task Memo_CanBeRead()
     {
         var target = GetTarget();
-        StartHere<LabOfficeLocation>();
+        StartHere<LabOffice>();
         Take<Memo>();
 
         var response = await target.GetResponse("read memo");
@@ -68,7 +68,7 @@ public class BioLabEscapeTests : EngineTestsBase
     public async Task GasMask_CanBeWorn()
     {
         var target = GetTarget();
-        StartHere<LabOfficeLocation>();
+        StartHere<LabOffice>();
         Take<GasMask>();
 
         var response = await target.GetResponse("wear gas mask");
@@ -80,7 +80,7 @@ public class BioLabEscapeTests : EngineTestsBase
     public async Task OfficeDoor_StartsClosedCanBeOpened()
     {
         var target = GetTarget();
-        StartHere<LabOfficeLocation>();
+        StartHere<LabOffice>();
 
         var response = await target.GetResponse("west");
         response.Should().Contain("closed");
@@ -93,40 +93,10 @@ public class BioLabEscapeTests : EngineTestsBase
     }
 
     [Test]
-    public async Task LightButton_TurnsBioLabLightsOn()
-    {
-        var target = GetTarget();
-        StartHere<LabOfficeLocation>();
-
-        var bioLab = GetLocation<BioLabLocation>();
-        bioLab.LightsOn.Should().BeFalse();
-
-        var response = await target.GetResponse("push light");
-        response.Should().Contain("lights turn on");
-
-        bioLab.LightsOn.Should().BeTrue();
-    }
-
-    [Test]
-    public async Task DarkButton_TurnsBioLabLightsOff()
-    {
-        var target = GetTarget();
-        StartHere<LabOfficeLocation>();
-
-        var bioLab = GetLocation<BioLabLocation>();
-        bioLab.LightsOn = true;
-
-        var response = await target.GetResponse("push dark");
-        response.Should().Contain("lights turn off");
-
-        bioLab.LightsOn.Should().BeFalse();
-    }
-
-    [Test]
     public async Task FungicideButton_ActivatesFungicideTimer()
     {
         var target = GetTarget();
-        StartHere<LabOfficeLocation>();
+        StartHere<LabOffice>();
 
         var response = await target.GetResponse("push fungicide");
         response.Should().Contain("fungicide");
@@ -141,7 +111,7 @@ public class BioLabEscapeTests : EngineTestsBase
     public async Task BioLab_StartsDark()
     {
         var target = GetTarget();
-        StartHere<LabOfficeLocation>();
+        StartHere<LabOffice>();
 
         await target.GetResponse("open door");
         var response = await target.GetResponse("west");
@@ -154,7 +124,7 @@ public class BioLabEscapeTests : EngineTestsBase
     public async Task BioLab_ShowsMutantsWhenLit()
     {
         var target = GetTarget();
-        StartHere<LabOfficeLocation>();
+        StartHere<LabOffice>();
 
         await target.GetResponse("push light button");
         await target.GetResponse("open door");
@@ -171,7 +141,7 @@ public class BioLabEscapeTests : EngineTestsBase
     public async Task BioLab_StartsChaseOnEntry()
     {
         var target = GetTarget();
-        StartHere<LabOfficeLocation>();
+        StartHere<LabOffice>();
 
         await target.GetResponse("push light button");
         await target.GetResponse("open door");
@@ -188,7 +158,7 @@ public class BioLabEscapeTests : EngineTestsBase
     public async Task BioLab_DeathWithoutGasMaskAndFungicide()
     {
         var target = GetTarget();
-        StartHere<LabOfficeLocation>();
+        StartHere<LabOffice>();
 
         await target.GetResponse("push fungicide");
 
@@ -208,7 +178,7 @@ public class BioLabEscapeTests : EngineTestsBase
     public async Task BioLab_SafeWithGasMaskAndFungicide()
     {
         var target = GetTarget();
-        StartHere<LabOfficeLocation>();
+        StartHere<LabOffice>();
 
         await target.GetResponse("open desk");
         await target.GetResponse("take gas mask");

@@ -4,28 +4,27 @@ using Planetfall.Item.Lawanda.LabOffice;
 
 namespace Planetfall.Location.Lawanda.LabOffice;
 
-internal class LabOfficeLocation : LocationBase
+internal class LabOffice : LocationBase
 {
     public override string Name => "Lab Office";
 
     protected override string GetContextBasedDescription(IContext context)
     {
-        var door = Repository.GetItem<OfficeDoor>();
-        var deskDescription = Repository.GetItem<LabDesk>().NeverPickedUpDescription(this);
-
         return
-            "This small office appears to be a control room for the Bio Lab. " +
-            $"On the wall are three buttons labeled LIGHT, DARK, and FUNGICIDE. {deskDescription}" +
-            $"A door leads west{(door.IsOpen ? " (open)" : " (closed)")}. The exit is east. ";
+            "This is the office for storing files on Bio Lab experiments. A large and messy desk is surrounded by " +
+            "locked files. A small booth lies to the south. A closed door to the west is labelled \"Biioo Lab.\" " +
+            "You realize with shock and horror that the only way out is through the mutant-infested Bio Lab. " +
+            "\nOn the wall are three buttons: a white button labelled \"Lab Liits On\", a black button labelled " +
+            "\"Lab Liits Of\", and a red button labelled \"Eemurjensee Sistum.\" ";
     }
 
     public override void Init()
     {
         StartWithItem<LabDesk>();
         StartWithItem<Memo>();
-        StartWithItem<LightButton>();
-        StartWithItem<DarkButton>();
-        StartWithItem<FungicideButton>();
+        StartWithItem<WhiteButton>();
+        StartWithItem<BlackButton>();
+        StartWithItem<RedButton>();
         StartWithItem<OfficeDoor>();
     }
 
@@ -46,7 +45,7 @@ internal class LabOfficeLocation : LocationBase
         };
     }
 
-    public override string? BeforeEnterLocation(IContext context, ILocation previousLocation)
+    public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
         // Death check: entering without gas mask while fungicide is active
         var fungicideTimer = Repository.GetItem<FungicideTimer>();
