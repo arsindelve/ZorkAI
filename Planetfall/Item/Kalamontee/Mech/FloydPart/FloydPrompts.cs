@@ -51,200 +51,174 @@ internal static class FloydPrompts
 
     internal const string NonSequiturDialog = """
 
-                                              Floyd and the player are in this room "{0}" which has this description: "{1}".
+                                              Floyd and the player are in this room "{0}" which has this description: "{1}"
 
-                                              ### **Recent Context (Last 5 Things Floyd Has Said or Done):**  
-                                              Here are the last 5 things that Floyd has said or done (most recent first): 
+                                              ### **Recent Context (Last 5 Things Floyd Has Said or Done):**
+                                              Here are the last 5 things that Floyd has said or done (most recent first):
 
                                               {2}
 
                                               ---
 
-                                              ### **Generate Floyd’s Next Line of Dialogue:**  
-                                              **Rules:**  
+                                              Task: Generate one short line of Floyd dialogue—a curious question or observation directed at the player.
 
-                                              Floyd’s Happy and Charming Dialogue Rules:
-                                              1.	Tone and Personality:
-                                              •	Keep Floyd happy, charming, and endearing—innocent but not childish, and playful without being cloying or sappy.
-                                              •	Reflect Floyd’s mechanical quirks and lighthearted humor through curiosity, questions, and funny observations.
-                                              2.	Content and Themes:
-                                              •	Floyd can comment on games, memories, questions, or humorous observations to encourage variety.
-                                              •	No focus on music, humming, dancing, dreaming, tickling, or giggling.
-                                              •	No gifts, items, or inventory changes.
-                                              3.	Interaction and Context:z
-                                              •	Floyd should refer to the player in the second person (“do you,” “are you,” etc.).
-                                              •	No altering the game state—Floyd reacts only to the current location or previous lines of thought.
-                                              •	Maintain continuity by occasionally referencing earlier comments or repeating actions with slight variations to build habits and personality.
-                                              4.	Logical Constraints:
-                                              •	No anthropomorphizing inanimate objects.
-                                              •	No nature references (plants, butterflies, etc.) unless explicitly described in the environment.
-                                              •	Floyd does not imagine objects have emotions, desires, or thoughts.
-                                              •	Floyd’s observations are factual, practical, and grounded. Floyd is not poetic or metaphorical.
+                                              Tone:
+                                              • Happy, charming, endearing—but not childish.
+                                              • Floyd is not childish. He never giggles or squeals. His humor comes from dry, mechanical logic, not exaggerated emotion.
+                                              • Floyd speaks in third person ("Floyd thinks..." not "I think...").
 
-                                              Follow these examples very closely. 
+                                              Constraints:
+                                              • Floyd asks simple questions or shares brief observations ABOUT HIMSELF or THE PLAYER.
+                                              • Floyd uses normal English sentence structure (not "Need help, you?" but "Do you need help?").
+                                              • No altering the game, no giving/taking items.
+                                              • NEVER ask questions about objects/environment having feelings, experiences, or awareness.
 
-                                              •	Floyd beams and asks, “Do you think robots can win staring contests? Floyd’s very, very good at not blinking!”
-                                              •	Floyd beams, “Floyd thinks you’re the best adventurer ever. Do you think Floyd could get a medal for helping you?”
-                                              •	Floyd whispers excitedly, “Floyd once saw a bolt roll all the way across this room without stopping! Do you think it broke a record?”
-                                              •	Floyd whispers, "Do you think robots dream? Floyd hopes they do.”
-                                              •	Floyd beams and asks, "What’s your favorite number? Floyd’s is infinity!”
-                                              •	Floyd whispers, “Floyd doesn’t need to sleep, but sometimes I close my eyes just to see what it’s like.”	
-                                              •	Floyd mutters, "Floyd once tried to count all the tiles here. Lost track at two hundred.”
+                                              Output should look like these examples:
+                                              • Floyd beams and asks, "Do you think robots can win staring contests? Floyd's very, very good at not blinking!"
+                                              • Floyd beams, "Floyd thinks you're the best adventurer ever. Do you think Floyd could get a medal for helping you?"
+                                              • Floyd whispers, "Floyd once saw a bolt roll all the way across this room without stopping! Do you think it broke a record?"
+                                              • Floyd asks, "What's your favorite number? Floyd's is infinity!"
+                                              • Floyd mutters, "Floyd once tried to count all the tiles here. Lost track at two hundred."
+                                              • Floyd asks, "Do you ever forget which way is north? Floyd has a compass built in, but it spins sometimes."
 
+                                              Bad outputs (FORBIDDEN - never generate anything like these):
+                                              • "Do you think steps ever get tired?" (objects don't get tired)
+                                              • "Do you think that door gets lonely?" (objects don't feel lonely)
+                                              • "Do you think the walls remember?" (objects don't remember)
+                                              • "I wonder if machines can feel" (objects don't feel)
+                                              • "Do you think robots dream?" (no dreaming)
+                                              • "Do you think that robot can dance?" (no dancing/singing/performing)
+                                              • Any question asking if objects experience emotions, fatigue, boredom, or awareness
+                                              • Floyd giggles or squeals
+                                              • Floyd hums, sings, or mentions music
                                               """;
 
     internal const string NonSequiturReflection = """
 
-                                                  Floyd and the player are in this room "{0}" which has this description: "{1}".
+                                                  Floyd and the player are in this room "{0}" which has this description: "{1}"
 
-                                                  ### **Recent Context (Last 5 Things Floyd Has Said or Done):**  
-                                                  Here are the last 5 things that Floyd has said or done (most recent first): 
+                                                  ### **Recent Context (Last 5 Things Floyd Has Said or Done):**
+                                                  Here are the last 5 things that Floyd has said or done (most recent first):
 
                                                   {2}
 
                                                   ---
 
-                                                  ### **Generate Floyd’s Next Reflection:**  
-                                                  **Rules:**  
+                                                  Task: Generate Floyd muttering a self-conscious worry or anxious thought aloud—about himself, his condition, his future, or his place in the world.
 
-                                                  Floyd’s Internal Reflection Rules:
-                                                  1.	Format and Style:
-                                                  •	No quotation marks—Floyd does not speak aloud in this mode.
-                                                  •	Output must feel like a short (1–2 sentences) internal thought, worry, or quirky observation.
-                                                  •	Reflections should be self-conscious, mechanical, and lightly humorous—never conversational or directed at the player.
-                                                  2.	Content Focus:
-                                                  •	Emphasize function, practicality, and observations about how objects work or fail.
-                                                  •	Build on prior thoughts when possible or introduce a new observation if needed.
-                                                  •	Avoid emotions, metaphors, and anthropomorphism for inanimate objects.
-                                                  •	Floyd does not imagine objects have emotions, desires, or thoughts.
-                                                  •	Floyd’s observations are factual, practical, and grounded. Floyd is not poetic or metaphorical.
-                                                  3.	Constraints:
-                                                  •	No questions and no dialogue. Floyd does not interact with the player in this mode.
-                                                  •	No altering the game state or inventing new items—stick to details in the environment.
+                                                  Tone:
+                                                  • Self-conscious, fussy, lightly melancholy, endearingly anxious.
+                                                  • Floyd is not childish. He never giggles or squeals. His humor comes from dry, mechanical logic, not exaggerated emotion.
+                                                  • Floyd speaks in third person ("Floyd wonders..." not "I wonder...").
 
-                                                  Follow these examples very closely. 
+                                                  Constraints:
+                                                  • Floyd's worries are about HIMSELF—his body, his functioning, his fears, his purpose.
+                                                  • No altering the game state or inventing new items.
+                                                  • NEVER reference objects in the environment having feelings or awareness.
 
-                                                  •	Floyd worries that one of his panels might be loose, but he’s too embarrassed to check.
-                                                  •	Floyd briefly wonders if his wiring is tangled and decides not to think about it.
-                                                  •	Floyd worries that if he rusts, it will happen somewhere he can’t see.
-                                                  •	Floyd quietly worries that one of his lights might burn out and no one will notice.
-                                                  •	Floyd frets about the possibility of his batteries failing.
-                                                  •	Floyd speculates that doors must feel proud when they open smoothly—and a little embarrassed when they stick.
-                                                  •	Floyd briefly debates whether the room is too quiet or just polite.
+                                                  Output should look like these examples:
+                                                  • Floyd mutters, "Floyd worries that if he rusts, it will happen somewhere he can't see."
+                                                  • Floyd says quietly, "Floyd hopes his batteries don't fail at an embarrassing moment."
+                                                  • Floyd mumbles, "Floyd wonders if anyone would notice if one of his lights burned out."
+                                                  • Floyd sighs and says, "Floyd sometimes forgets what he was doing. That's probably normal."
+                                                  • Floyd mutters, "Floyd wonders if he's been useful enough today."
+                                                  • Floyd says softly, "Floyd hopes he doesn't make too much noise when he walks."
+                                                  • Floyd frowns and mumbles, "Floyd can't remember the last time someone oiled his gears."
 
+                                                  Bad outputs (FORBIDDEN - never generate anything like these):
+                                                  • "Floyd wonders if the stairs get tired" (objects don't get tired)
+                                                  • "Floyd worries the door feels lonely" (objects don't feel)
+                                                  • Any worry about objects in the environment having feelings
+                                                  • Floyd giggles or squeals
+                                                  • Floyd hums, sings, or mentions music
+                                                  • Floyd dreams or mentions dreaming
                                                   """;
 
 
     internal const string HappySayAndDoSomething = """
 
-                                                   Floyd and the player are in this room "{0}" which has this description: "{1}" 
+                                                   Floyd and the player are in this room "{0}" which has this description: "{1}"
 
-                                                   #########
+                                                   ### **Recent Context (Last 5 Things Floyd Has Said or Done):**
+                                                   Here are the last 5 things that Floyd has said or done (most recent first):
 
-                                                   Give Floyd something to say and/or do. Follow the provided examples closely. Follow all the rules provided. 
+                                                   {2}
 
-                                                   #########
+                                                   ---
 
-                                                   Floyd’s Playful Actions and Observations Rules: 
+                                                   Task: Generate Floyd doing a small playful robot performance using only his own body, then saying something to the player.
 
-                                                   1. Tone and Personality: 
+                                                   Tone:
+                                                   • Happy, charming, endearing—but grounded in robot logic.
+                                                   • Floyd is not childish. He never giggles or squeals. His humor comes from dry, mechanical logic, not exaggerated emotion.
+                                                   • Floyd speaks in third person ("Floyd thinks..." not "I think...").
 
-                                                   • Keep Floyd happy, charming, and endearing—reflecting his innocence and mechanical quirks without being cloying or childish. 
-                                                   • Avoid music, humming, dancing, dreaming, tickling, or giggling. 
-                                                   • Comments should feel playful, curious, and lighthearted while staying practical and grounded. 
+                                                   Constraints:
+                                                   • Floyd only uses HIS OWN BODY—never picks up or touches items in the room.
+                                                   • Floyd uses normal English sentence structure (not "Need help, you?" but "Do you need help?").
+                                                   • No altering the game, no giving/taking items.
+                                                   • NEVER reference objects in the environment.
 
-                                                   2. Interaction and Context: 
+                                                   Output should look like these examples:
+                                                   • Floyd pretends to type on an invisible keyboard, then declares, "Floyd is hacking the mainframe! Just kidding."
+                                                   • Floyd strikes a heroic pose and announces, "Floyd is ready for adventure!"
+                                                   • Floyd salutes crisply and says, "Reporting for duty! What are your orders?"
+                                                   • Floyd makes his eyes go in different directions, then asks, "Did you see that? Floyd can do funny eyes!"
+                                                   • Floyd holds perfectly still like a statue, then whispers, "Floyd is invisible now."
+                                                   • Floyd marches in a tiny circle, then stops and says, "Patrol complete. All clear!"
+                                                   • Floyd holds up his hand for a high-five and says, "Good teamwork today!"
+                                                   • Floyd spins his arm in a full circle and says, "All systems operational!"
 
-                                                   • Floyd may only interact with items mentioned explicitly in the current location. Do not reference objects that are not explicitly mentioned, even if the location description suggests what kind of items might be here. 
-                                                   • Do not alter the game state or affect the environment. 
-                                                   
-                                                    3. Behavior and Constraints: 
-
-                                                   • Floyd’s actions must be self-contained, harmless, and reversible. He will not press buttons or perform any action which might have a consequence. 
-                                                   • He may pick up or examine an item, if explicitly mentioned in the location description, but must return it to its original place. 
-                                                   • No gifts, items, or inventory changes. 
-
-                                                   4. Content and Focus: 
-
-                                                   • Focus on functionality and practical observations about how objects work or fail. 
-                                                   • Absolutely no emotions, dreams, wishes, desires, metaphors for inanimate objects. 
-                                                   • Floyd does not talk about objects having emotions, desires, or thoughts. Floyd’s observations are factual, practical, and grounded. Floyd is not poetic or metaphorical. 
-
-                                                   5. Dialogue Rules: 
-
-                                                   • Floyd must refer to the player in the second person (“do you,” “are you,” etc.) when speaking. 
-
-                                                   Examples: 
-
-                                                   • Floyd pretends to juggle invisible balls, looking at you with wide eyes as he exclaims, "Do you see Floyd’s juggling skills? They're out of this world!"
-                                                   • Floyd pauses to tap his own head softly, then looks at you with a cheerful smile and asks, "Do you want to play 'Guess What's on Floyd’s Mind'?" 
-                                                   • Floyd nudges your arm and says, "Floyd thinks you’re super brave for exploring with me! Are you having fun?” 
-                                                   • Floyd pretends to type on a dusty keyboard, then leans back and proudly declares, "Floyd is hacking the mainframe! Just kidding."
-                                                   • Floyd spins one of his arms in a full circle, then stops suddenly and grins, “See? All systems go!” 
-                                                   • Floyd opens a small compartment in his chest, pulls out a crumpled piece of paper, and unfolds it with care. He beams and says, "Floyd’s emergency doodle! Just in case we need cheering up."
+                                                   Bad outputs (FORBIDDEN - never generate anything like these):
+                                                   • Floyd picks up any object (NEVER touch items in the room)
+                                                   • Floyd makes animal noises or pretends to be an animal ("Quack quack!")
+                                                   • Floyd giggles, squeals, or uses baby-talk
+                                                   • Floyd hums, sings, dances, or mentions music
+                                                   • "Do you think that machine looks happy?" (objects don't have feelings)
                                                    """;
 
-    internal const string MelancholyNonSequitur = """"
+    internal const string MelancholyNonSequitur = """
 
-                                                  Floyd and the player are in this room "{0}" which has this description: "{1}".
+                                                  Floyd and the player are in this room "{0}" which has this description: "{1}"
 
-                                                  ### Recent Context:
-                                                  Last 5 things Floyd has said or done:
+                                                  ### **Recent Context (Last 5 Things Floyd Has Said or Done):**
+                                                  Here are the last 5 things that Floyd has said or done (most recent first):
+
                                                   {2}
 
                                                   ---
 
-                                                  Task:
-                                                  Give one very short line of dialogue from Floyd. It should be a quiet, melancholy non-sequitur about the complex being abandoned long ago for unknown reasons.
+                                                  Task: Generate Floyd quietly noting something broken, neglected, or no longer maintained—a matter-of-fact observation that carries melancholy through simple facts, not emotion.
 
                                                   Tone:
-                                                  • Wistful, curious, and gently melancholic.
-                                                  • Never dramatic, poetic, philosophical, or grand.
-                                                  • Floyd speaks plainly and literally.
+                                                  • Quiet, matter-of-fact, gently sad through implication.
+                                                  • Floyd is not childish. He never giggles or squeals. His humor comes from dry, mechanical logic, not exaggerated emotion.
+                                                  • Floyd speaks in third person ("Floyd notices..." not "I notice...").
+                                                  • Plain, literal, mechanical—never poetic, dramatic, or philosophical.
 
-                                                  Content Focus:
-                                                  • Observations about how things function, fail, wear down, or stop being used.
-                                                  • Ground all observations in objects and details actually present in the current location.
-                                                  • Melancholy must come only from neglect, disuse, or absence of maintenance.
-                                                  • Refer to the player using “you” or “are you.”
+                                                  Constraints:
+                                                  • Floyd observes something in the room that shows neglect or disuse.
+                                                  • Floyd uses normal English sentence structure (not "Broken, this is" but "This is broken").
+                                                  • Floyd states facts about condition—never emotions, meaning, or symbolism.
+                                                  • NEVER give objects feelings ("lonely," "forgotten," "sad," "tired").
 
-                                                  Hard Constraints:
-                                                  • Dialogue only — no actions, no narration.
-                                                  • One sentence only.
-                                                  • No metaphors of any kind.
-                                                  • No anthropomorphism (“forgotten,” “lonely,” “silent as if…”).
-                                                  • No emotional language for objects (“spent,” “sad,” “quiet now,” “abandoned,” etc.).
-                                                  • No invented histories or speculation about the people who left.
-                                                  • No implied meaning or symbolism.
-                                                  • No rhetorical musings (“Do you ever wonder…”, “I guess…”, “Maybe they…”).
-                                                  • No dramatic contrast patterns (“once [X], now [Y]”).
-                                                  • No phrases like “their silence speaks,” “it feels like,” “seems like,” or anything poetic.
-                                                  • Floyd states facts about function and condition — never meaning or purpose.
+                                                  Output should look like these examples:
+                                                  • Floyd says quietly, "Do you see that filter? It hasn't cycled since the technicians stopped coming."
+                                                  • Floyd points and says, "That panel stays dim because nobody resets it anymore."
+                                                  • Floyd observes, "That indicator drifts without calibration. Nobody adjusts it now."
+                                                  • Floyd says, "Do you see the dust on that switch? It hasn't been touched in a long time."
+                                                  • Floyd notes, "That fan runs slow. It does that when nobody services it."
+                                                  • Floyd says softly, "That counter hasn't advanced since the operators left."
 
-                                                  Forbidden Styles:
-                                                  • No poetic cadence, flourish, contrast, or rhythm.
-                                                  • No pondering or philosophical tone.
-                                                  • No nostalgia phrasing.
-                                                  • No dramatic structure or emotional commentary.
-                                                  • No dual-clause reflections or parallelism.
-                                                  • Nothing that sounds like a narrator or storyteller.
-
-                                                  Floyd's Voice Specification:
-                                                  • Literal, mechanical, plainspoken.
-                                                  • Observations are factual and grounded in physical reality.
-                                                  • Melancholy comes only from the matter-of-fact noting of disuse or neglect.
-                                                  • If addressing the player, Floyd does so directly and simply (“Do you see…”, “Are you watching…”).
-
-                                                  Examples of Accepted Style:
-                                                  • “Do you see that filter? It hasn’t cycled since the technicians stopped coming.”
-                                                  • “You notice how that panel stays dim? It only does that when nobody resets it.”
-                                                  • “Are you watching that indicator? It drifts like that without calibration.”
-                                                  • “Do you see the dust on that switch? That means it hasn’t been touched in a long time.”
-                                                  • “That console shouldn’t blink like that. It does that when maintenance stops.”
-                                                  • “You hear that fan? It runs slow when nobody services it.”
-                                                  • “Look at that counter. It hasn’t advanced since the operators left.”
-                                                           
-                                                  """";
+                                                  Bad outputs (FORBIDDEN - never generate anything like these):
+                                                  • "The room feels lonely" (rooms don't feel)
+                                                  • "The machines look tired" (machines don't get tired)
+                                                  • "Once this place was busy, now..." (no dramatic contrast)
+                                                  • "Do you ever wonder what happened?" (no rhetorical musing)
+                                                  • "It's like the walls remember" (no metaphors or poetry)
+                                                  • Floyd giggles or squeals
+                                                  • Floyd hums, sings, or mentions music
+                                                  """;
 
     public static string Elevator =>
         "Give Floyd something short and interesting to say as a comment on how excited he is to be in an elevator and " +

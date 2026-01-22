@@ -275,19 +275,21 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     private async Task<string> PerformRandomAction(IContext context, IGenerationClient client)
     {
-        // Randomly, Floyd will say or do something (or possibly nothing) based on one of the
-        // prompts below - or he might do one of the things from the original game.
-        var action = Chooser.RollDice(15) switch
+        // 1 in 12 chance of any output (~8.3%)
+        if (Chooser.RollDice(12) != 1)
+            return string.Empty;
+
+        // Pick which prompt (each has 1/72 chance overall, ~1.4%)
+        var promptRoll = Chooser.RollDice(6);
+        return promptRoll switch
         {
-            <= 7 => (Func<Task<string>>)(async () =>
-                await GenerateCompanionSpeech(context, client, FloydPrompts.DoSomethingSmall)),
-            <= 8 => (Func<Task<string>>)(() => Task.FromResult(FloydConstants.RandomActions.GetRandomElement())),
-
-            _ => (Func<Task<string>>)(async () => await Task.FromResult(string.Empty))
+            1 => await GenerateCompanionSpeech(context, client, FloydPrompts.DoSomethingSmall),
+            2 => await GenerateCompanionSpeech(context, client, FloydPrompts.NonSequiturDialog),
+            3 => await GenerateCompanionSpeech(context, client, FloydPrompts.NonSequiturReflection),
+            4 => await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething),
+            5 => await GenerateCompanionSpeech(context, client, FloydPrompts.MelancholyNonSequitur),
+            _ => FloydConstants.RandomActions.GetRandomElement()
         };
-
-        var chosenAction = action.Invoke();
-        return await chosenAction;
     }
 
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
