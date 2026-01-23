@@ -14,7 +14,7 @@ public class FungicideTimer : ItemBase, ITurnBasedActor
     public int TurnsRemaining { get; set; } = 50;
 
     [UsedImplicitly]
-    public bool IsActive { get; set; } = false;
+    public bool IsActive { get; set; } 
 
     public void Reset()
     {

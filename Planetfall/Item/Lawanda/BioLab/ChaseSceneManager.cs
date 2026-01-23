@@ -1,46 +1,60 @@
 using Model.AIGeneration;
+using Newtonsoft.Json;
 using Planetfall.Command;
-using Planetfall.Item.Lawanda.LabOffice;
 using Planetfall.Location.Lawanda.Lab;
 using Planetfall.Location.Lawanda.LabOffice;
 
 namespace Planetfall.Item.Lawanda.BioLab;
 
 /// <summary>
-/// Manages the chase scene after the player enters the Bio Lab.
-/// Tracks player movement and determines when mutants catch the player.
+/// Manages the chase scene after the player leaves BioLockWest.
+/// Player dies if they pause (do anything) or backtrack.
+/// Exception: One free turn in BioLockWest and BioLab to open doors.
 /// </summary>
 public class ChaseSceneManager : ItemBase, ITurnBasedActor
 {
+    private static readonly List<string> ChaseMessages =
+    [
+        "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms! ",
+        "The mutants burst into the room right on your heels! The mobile plant whips its poisonous tentacles against your ankles! ",
+        "The mutants burst into the room right on your heels! A pair of slavering fangs removes part of your clothing! ",
+        "The mutants burst into the room right on your heels! The growling humanoid is charging straight at you, waving his axe-like implement! "
+    ];
+
     public override string[] NounsForMatching => [];
 
+    [UsedImplicitly] [JsonIgnore]
+    public IRandomChooser Chooser { get; set; } = new RandomChooser();
+
     [UsedImplicitly]
-    public bool ChaseActive { get; set; } = false;
+    public bool ChaseActive { get; set; }
 
     [UsedImplicitly]
     public ILocation? LastLocation { get; set; }
 
     [UsedImplicitly]
-    public ILocation? SecondToLastLocation { get; set; }
+    public ILocation? PreviousLocation { get; set; }
 
     [UsedImplicitly]
-    public int TurnsInBioLockWest { get; set; } = 0;
+    public bool UsedBioLockWestFreeTurn { get; set; }
 
     [UsedImplicitly]
-    public int TurnsInCryoElevator { get; set; } = 0;
+    public bool UsedBioLabFreeTurn { get; set; }
 
-    public void StartChase()
+    public void StartChase(ILocation startingLocation)
     {
         ChaseActive = true;
-        LastLocation = null;
-        SecondToLastLocation = null;
-        TurnsInBioLockWest = 0;
-        TurnsInCryoElevator = 0;
+        LastLocation = startingLocation;
+        PreviousLocation = null;
+        UsedBioLockWestFreeTurn = false;
+        UsedBioLabFreeTurn = false;
     }
 
     public void StopChase()
     {
         ChaseActive = false;
+        LastLocation = null;
+        PreviousLocation = null;
     }
 
     public Task<string> Act(IContext context, IGenerationClient client)
@@ -50,94 +64,47 @@ public class ChaseSceneManager : ItemBase, ITurnBasedActor
 
         var currentLoc = context.CurrentLocation;
 
-        // Check if fungicide is active
-        var fungicideTimer = Repository.GetItem<FungicideTimer>();
-        bool fungicideActive = fungicideTimer.IsActive;
-
-        // Death condition: Backtracking
-        if (currentLoc == SecondToLastLocation && currentLoc != null)
+        // Death: Player paused (stayed in same location)
+        if (currentLoc == LastLocation)
         {
+            // Exception: One free turn in BioLockWest to open the door
+            if (currentLoc is BioLockWest && !UsedBioLockWestFreeTurn)
+            {
+                UsedBioLockWestFreeTurn = true;
+                return Task.FromResult("The mutants are almost upon you now! ");
+            }
+
+            // Exception: One free turn in BioLab to open the door
+            if (currentLoc is BioLabLocation && !UsedBioLabFreeTurn)
+            {
+                UsedBioLabFreeTurn = true;
+                return Task.FromResult("The mutants are almost upon you now! ");
+            }
+
+            StopChase();
             context.RemoveActor(this);
             return Task.FromResult(
                 new DeathProcessor().Process(
-                    "As you backtrack, you run directly into the pursuing mutants! " +
-                    "The rat-ant, troll, grue, and triffid overwhelm you before you can react. ",
+                    "Dozens of hungry eyes fix on you as the mutations surround you and begin feasting. ",
                     context).InteractionMessage);
         }
 
-        // Track turns in Bio-Lock-West for warning
-        if (currentLoc is BioLockWest)
+        // Death: Player backtracked to previous location
+        if (currentLoc == PreviousLocation)
         {
-            TurnsInBioLockWest++;
-            if (TurnsInBioLockWest == 1)
-            {
-                return Task.FromResult(
-                    "You hear terrible sounds behind you as the mutants give chase! ");
-            }
-            if (TurnsInBioLockWest >= 2)
-            {
-                context.RemoveActor(this);
-                return Task.FromResult(
-                    new DeathProcessor().Process(
-                        "You lingered too long! The mutants catch up to you in the bio-lock. " +
-                        "The rat-ant, troll, grue, and triffid tear you apart. ",
-                        context).InteractionMessage);
-            }
-        }
-        else
-        {
-            TurnsInBioLockWest = 0;
-        }
-
-        // Track turns in Cryo Elevator for warning
-        if (currentLoc is CryoElevatorLocation)
-        {
-            TurnsInCryoElevator++;
-            if (TurnsInCryoElevator == 1)
-            {
-                return Task.FromResult(
-                    "The mutants are right behind you! You can hear them approaching the elevator! ");
-            }
-        }
-        else
-        {
-            TurnsInCryoElevator = 0;
-        }
-
-        // Move mutants to player's location if fungicide is not active
-        if (!fungicideActive && ChaseActive)
-        {
-            var bioLab = Repository.GetLocation<BioLabLocation>();
-            var mutants = new List<ItemBase>
-            {
-                Repository.GetItem<RatAnt>(),
-                Repository.GetItem<MutantTroll>(),
-                Repository.GetItem<MutantGrue>(),
-                Repository.GetItem<Triffid>()
-            };
-
-            foreach (var mutant in mutants)
-            {
-                mutant.CurrentLocation?.RemoveItem(mutant);
-                currentLoc.ItemPlacedHere(mutant);
-            }
-
-            // Death if mutants catch player outside Bio Lab
-            if (currentLoc != bioLab)
-            {
-                context.RemoveActor(this);
-                return Task.FromResult(
-                    new DeathProcessor().Process(
-                        "The mutants catch up to you! The rat-ant, troll, grue, and triffid " +
-                        "attack you from all sides. You don't stand a chance. ",
-                        context).InteractionMessage);
-            }
+            StopChase();
+            context.RemoveActor(this);
+            return Task.FromResult(
+                new DeathProcessor().Process(
+                    "You stupidly run right into the jaws of the pursuing mutants. ",
+                    context).InteractionMessage);
         }
 
         // Update location history
-        SecondToLastLocation = LastLocation;
+        PreviousLocation = LastLocation;
         LastLocation = currentLoc;
 
-        return Task.FromResult(string.Empty);
+        // Player is successfully fleeing - show random chase message
+        return Task.FromResult(Chooser.Choose(ChaseMessages));
     }
 }

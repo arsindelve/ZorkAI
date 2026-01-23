@@ -1,21 +1,15 @@
 namespace Planetfall.Item.Lawanda.LabOffice;
 
-public class GasMask : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IAmClothing
+public class GasMask : ItemBase, ICanBeTakenAndDropped, IAmClothing
 {
-    public override string[] NounsForMatching => ["gas mask", "mask", "breathing equipment"];
-
-    public override int Size => 2;
+    public override string[] NounsForMatching => ["gas mask", "mask"];
 
     public bool BeingWorn { get; set; } = false;
 
     public string OnTheGroundDescription(ILocation currentLocation)
     {
-        return "A gas mask lies here. ";
+        return "There is a gas mask here. ";
     }
-
-    public string ExaminationDescription =>
-        "It's a protective gas mask with a clear visor and breathing filters. " +
-        "It looks like it would protect against airborne contaminants. ";
 
     public override string GenericDescription(ILocation? currentLocation)
     {

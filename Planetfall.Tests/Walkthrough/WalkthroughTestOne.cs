@@ -339,6 +339,9 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("S", null, "Strip Near Station")]  
     [TestCase("W", null, "switching to Auxiliary Booth", "wrenching of your innards", "only as a receiving station")]  
     [TestCase("score", null, "would be 75")]
+    [TestCase("N", null, "Lab Office")]
+    [TestCase("examine desk", null, "a memo of some sort")]
+    [TestCase("read memo", null, "Propur preecawshunz shud bee taakin")]
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) 

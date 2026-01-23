@@ -6,20 +6,20 @@ public class LabDesk : OpenAndCloseContainerBase, ICanBeExamined
 
     public override int Size => 20;
 
-    public string ExaminationDescription =>
-        "It's a standard laboratory desk with a single drawer. " +
-        (IsOpen ? "The drawer is open. " : "The drawer is closed. ") +
-        (IsOpen && Items.Any() ? $"\n{ItemListDescription("drawer", null)}" : "");
-
-    public override string NeverPickedUpDescription(ILocation currentLocation)
+    public string ExaminationDescription
     {
-        return "A laboratory desk stands here with a drawer. " +
-               (IsOpen && Items.Any() ? $"\n{ItemListDescription("drawer", null)}" : "");
-    }
+        get
+        {
+            var memoTaken = Repository.GetItem<Memo>().HasEverBeenPickedUp;
 
-    public override string GenericDescription(ILocation? currentLocation)
-    {
-        return "A laboratory desk";
+            if (memoTaken)
+                return IsOpen ? "The desk is open. " : "The desk is closed. ";
+
+            return IsOpen
+                ? ItemListDescription("desk", null)
+                : "After inspecting the various papers on the desk, you find only one item of interest, a memo of some sort. " +
+                  "The desk itself is closed, but it doesn't look locked. ";
+        }
     }
 
     public override void Init()

@@ -1,5 +1,8 @@
 using FluentAssertions;
+using GameEngine;
+using Planetfall.Item.Lawanda.LabOffice;
 using Planetfall.Location.Lawanda.Lab;
+using Planetfall.Location.Lawanda.LabOffice;
 
 namespace Planetfall.Tests;
 
@@ -263,8 +266,273 @@ public class LabsAndDoorsTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<RadiationLab>();
-        
+
         var response = await target.GetResponse("examine equipment");
         response.Should().Contain("The equipment here is so complicated that you couldn't even begin to figure out how to operate it.");
+    }
+
+    [Test]
+    public void LabDesk_Init_SetsIsOpenToFalse()
+    {
+        Repository.Reset();
+        var desk = GetItem<LabDesk>();
+
+        desk.IsOpen.Should().BeFalse();
+    }
+
+    [Test]
+    public void LabDesk_Init_ContainsGasMask()
+    {
+        Repository.Reset();
+        var desk = GetItem<LabDesk>();
+        var gasMask = GetItem<GasMask>();
+
+        desk.Items.Should().Contain(gasMask);
+    }
+
+    [Test]
+    public void LabDesk_ExaminationDescription_WhenClosed_MemoNotTaken_DescribesMemo()
+    {
+        Repository.Reset();
+        var desk = GetItem<LabDesk>();
+        desk.IsOpen = false;
+        GetItem<Memo>().HasEverBeenPickedUp = false;
+
+        desk.ExaminationDescription.Should().Contain("memo");
+        desk.ExaminationDescription.Should().Contain("closed");
+        desk.ExaminationDescription.Should().Contain("doesn't look locked");
+    }
+
+    [Test]
+    public void LabDesk_ExaminationDescription_WhenOpen_MemoNotTaken_ListsContents()
+    {
+        Repository.Reset();
+        var desk = GetItem<LabDesk>();
+        desk.IsOpen = true;
+        GetItem<Memo>().HasEverBeenPickedUp = false;
+
+        desk.ExaminationDescription.Should().Contain("desk");
+        desk.ExaminationDescription.Should().Contain("gas mask");
+    }
+
+    [Test]
+    public void LabDesk_ExaminationDescription_WhenClosed_MemoTaken_ShowsSimpleDescription()
+    {
+        Repository.Reset();
+        var desk = GetItem<LabDesk>();
+        desk.IsOpen = false;
+        GetItem<Memo>().HasEverBeenPickedUp = true;
+
+        desk.ExaminationDescription.Should().Be("The desk is closed. ");
+        desk.ExaminationDescription.Should().NotContain("memo");
+    }
+
+    [Test]
+    public void LabDesk_ExaminationDescription_WhenOpen_MemoTaken_ShowsSimpleDescription()
+    {
+        Repository.Reset();
+        var desk = GetItem<LabDesk>();
+        desk.IsOpen = true;
+        GetItem<Memo>().HasEverBeenPickedUp = true;
+
+        desk.ExaminationDescription.Should().Be("The desk is open. ");
+    }
+
+    [Test]
+    public async Task LabDesk_ExamineDesk_WhenClosed_MemoNotTaken_ShowsMemoDescription()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+        GetItem<LabDesk>().IsOpen = false;
+        GetItem<Memo>().HasEverBeenPickedUp = false;
+
+        var response = await target.GetResponse("examine desk");
+
+        response.Should().Contain("memo");
+        response.Should().Contain("closed");
+    }
+
+    [Test]
+    public async Task LabDesk_ExamineDesk_WhenOpen_MemoNotTaken_ShowsContents()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+        var desk = GetItem<LabDesk>();
+        desk.IsOpen = true;
+        GetItem<Memo>().HasEverBeenPickedUp = false;
+
+        var response = await target.GetResponse("examine desk");
+
+        response.Should().Contain("gas mask");
+    }
+
+    [Test]
+    public async Task LabDesk_ExamineDesk_AfterTakingMemo_ShowsSimpleDescription()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+        GetItem<LabDesk>().IsOpen = false;
+
+        // Take the memo
+        await target.GetResponse("take memo");
+
+        var response = await target.GetResponse("examine desk");
+
+        response.Should().Contain("The desk is closed");
+        response.Should().NotContain("memo");
+    }
+
+    [Test]
+    public async Task LabDesk_OpenDesk_OpensIt()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+        var desk = GetItem<LabDesk>();
+        desk.IsOpen = false;
+
+        await target.GetResponse("open desk");
+
+        desk.IsOpen.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task LabDesk_CloseDesk_ClosesIt()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+        var desk = GetItem<LabDesk>();
+        desk.IsOpen = true;
+
+        await target.GetResponse("close desk");
+
+        desk.IsOpen.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task LabDesk_TakeGasMask_FromOpenDesk()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+        var desk = GetItem<LabDesk>();
+        desk.IsOpen = true;
+
+        await target.GetResponse("take mask from desk");
+
+        Context.HasItem<GasMask>().Should().BeTrue();
+        desk.Items.Should().NotContain(GetItem<GasMask>());
+    }
+
+    [Test]
+    public async Task LabDesk_TakeGasMask_FromClosedDesk_Fails()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+        var desk = GetItem<LabDesk>();
+        desk.IsOpen = false;
+
+        await target.GetResponse("take mask from desk");
+
+        Context.HasItem<GasMask>().Should().BeFalse();
+    }
+
+    [Test]
+    public async Task LabOffice_PressRedButton_ActivatesFungicide()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+
+        // Use "press red" to avoid noun matching issues with "red button"
+        var response = await target.GetResponse("press red");
+
+        response.Should().Contain("hissing");
+        var timer = GetItem<FungicideTimer>();
+        timer.IsActive.Should().BeTrue();
+        // Timer starts at 50 but may tick down to 49 after turn processing
+        timer.TurnsRemaining.Should().BeInRange(49, 50);
+    }
+
+    [Test]
+    public async Task LabOffice_PressRedButton_RegistersTimerAsActor()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+
+        await target.GetResponse("press red");
+
+        var timer = GetItem<FungicideTimer>();
+        Context.Actors.Should().Contain(timer);
+    }
+
+    [Test]
+    public async Task FungicideTimer_CountsDown()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+
+        await target.GetResponse("press red");
+        var timer = GetItem<FungicideTimer>();
+        var initialTurns = timer.TurnsRemaining;
+
+        await target.GetResponse("wait");
+
+        timer.TurnsRemaining.Should().Be(initialTurns - 1);
+    }
+
+    [Test]
+    public async Task LabOffice_ButtonDisambiguation_Red()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+
+        await target.GetResponse("press button");
+        var response = await target.GetResponse("red");
+
+        response.Should().Contain("hissing");
+    }
+
+    [Test]
+    public async Task LabOffice_ButtonDisambiguation_White()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+
+        await target.GetResponse("press button");
+        var response = await target.GetResponse("white");
+
+        response.Should().Contain("relay clicking");
+    }
+
+    [Test]
+    public async Task LabOffice_ButtonDisambiguation_Black()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+
+        await target.GetResponse("press button");
+        var response = await target.GetResponse("black");
+
+        response.Should().Contain("relay clicking");
+    }
+
+    [Test]
+    public async Task LabOffice_PressWhiteButton_RelayClicking()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+
+        var response = await target.GetResponse("press white");
+
+        response.Should().Contain("relay clicking");
+    }
+
+    [Test]
+    public async Task LabOffice_PressBlackButton_RelayClicking()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+
+        var response = await target.GetResponse("press black");
+
+        response.Should().Contain("relay clicking");
     }
 }

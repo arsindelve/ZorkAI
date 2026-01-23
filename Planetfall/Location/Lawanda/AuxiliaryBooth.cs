@@ -1,5 +1,4 @@
 using GameEngine.Location;
-using Planetfall.Location.Lawanda.LabOffice;
 
 namespace Planetfall.Location.Lawanda;
 
@@ -11,7 +10,7 @@ internal class AuxiliaryBooth : LocationWithNoStartingItems
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.W, Go<LabOffice.LabOffice>() }
+            { Direction.N, Go<LabOffice.LabOffice>() }
         };
     }
 

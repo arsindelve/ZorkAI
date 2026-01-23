@@ -106,17 +106,6 @@ public class Station384Tests : EngineTestsBase
             response.Should().Contain("receiving station");
             response.Should().Contain("exit is on the northern side");
         }
-
-        [Test]
-        public async Task AuxiliaryBooth_NorthExitGoesToComputerRoom()
-        {
-            var target = GetTarget();
-            StartHere<AuxiliaryBooth>();
-
-            await target.GetResponse("north");
-
-            target.Context.CurrentLocation.Should().BeOfType<AuxiliaryBooth>();
-        }
     }
 
     [Test]

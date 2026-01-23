@@ -4,20 +4,24 @@ public class Memo : ItemBase, ICanBeTakenAndDropped, ICanBeRead, ICanBeExamined
 {
     public override string[] NounsForMatching => ["memo", "note", "paper"];
 
-    public override int Size => 1;
-
     public string OnTheGroundDescription(ILocation currentLocation)
     {
-        return "A memo lies here. ";
+        return "There is a memo here. ";
     }
 
-    public string ExaminationDescription =>
-        "It's a short memo describing the fungicide misting system controls. ";
+    public override string NeverPickedUpDescription(ILocation currentLocation)
+    {
+        // This is unusual - the memo is not made known to the player until they examine the desk, and only
+        // via the desk description. 
+        return string.Empty;
+    }
+
+    public string ExaminationDescription => ReadDescription;
 
     public string ReadDescription =>
-        "MEMO: The fungicide misting system can be activated using the button marked 'FUNGICIDE'. " +
-        "The system will run for approximately 50 turns. CAUTION: Wear protective breathing equipment " +
-        "when entering the Bio Lab while the system is active. ";
+        "Memoo tuu awl lab pursunel: Duu tuu xe daanjuris naatshur uv xe biioo eksperiments, an eemurjensee " +
+        "sistum haz bin instawld. Xis\nsistum wud flud xe entiir Biioo Lab wic aa dedlee fungasiid. Propur " +
+        "preecawshunz shud bee taakin if xis sistum iz evur yuuzd. ";
 
     public override string GenericDescription(ILocation? currentLocation)
     {

@@ -11,10 +11,7 @@ internal class BioLabLocation : LocationBase
     public override string Name => "Bio Lab";
 
     [UsedImplicitly]
-    public bool LightsOn { get; set; } = false;
-
-    [UsedImplicitly]
-    public bool ChaseStarted { get; set; } = false;
+    public bool ChaseStarted { get; set; } 
 
     protected override string GetContextBasedDescription(IContext context)
     {
@@ -26,7 +23,7 @@ internal class BioLabLocation : LocationBase
                "tongue. It brandishes a piece of lab equipment shaped somewhat like a battle axe. A ferocious " +
                "feral creature, with a hairy shelled body and a whip-like tail snaps its enormous mandibles at you. " +
                "The air is filled with mist, which is affecting the mutants. They appear to be stunned and confused, " +
-               "but are slowly recovering.";
+               "but are slowly recovering. ";
     }
 
     public override void Init()
@@ -50,7 +47,7 @@ internal class BioLabLocation : LocationBase
                     Location = GetLocation<LabOffice>()
                 }
             },
-            { Direction.W, Go<Planetfall.Location.Lawanda.Lab.BioLockWest>() }
+            { Direction.W, Go<Lab.BioLockWest>() }
         };
     }
 
@@ -65,8 +62,7 @@ internal class BioLabLocation : LocationBase
         {
             return Task.FromResult(
                 new DeathProcessor().Process(
-                    "You enter the Bio Lab but immediately start coughing. The fungicide mist fills your lungs! " +
-                    "You should have worn the gas mask. ",
+                    "Unfortunately, you don't seem to be that hardy. ",
                     context).InteractionMessage);
         }
 
@@ -75,7 +71,7 @@ internal class BioLabLocation : LocationBase
         {
             ChaseStarted = true;
             var chaseManager = Repository.GetItem<ChaseSceneManager>();
-            chaseManager.StartChase();
+            chaseManager.StartChase(this);
 
             if (!context.Actors.Contains(chaseManager))
                 context.RegisterActor(chaseManager);
