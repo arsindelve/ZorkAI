@@ -51,6 +51,9 @@ public class FungicideTimer : ItemBase, ITurnBasedActor
     // Track if fungicide was just activated this turn (skip first state advance)
     [UsedImplicitly] public bool JustActivatedThisTurn { get; set; }
 
+    // Track if player tried to exit west but door was closed (free action)
+    [UsedImplicitly] public bool TriedToExitWestThisTurn { get; set; }
+
 
     /// <summary>
     /// Returns true if fungicide is providing protection (not Inactive or Expired)
@@ -82,27 +85,30 @@ public class FungicideTimer : ItemBase, ITurnBasedActor
         var inBioLab = context.CurrentLocation is BioLabLocation;
         var inBioLockEast = context.CurrentLocation is BioLockEast;
 
-        // Already expired - check for death in office
-        if (State == FungicideState.Expired)
+        switch (State)
         {
-            if (officeDoor.IsOpen && inLabOffice)
-            {
-                var chaseManager = Repository.GetItem<ChaseSceneManager>();
-                // If chase is active and player just arrived (backtracking), let ChaseSceneManager handle it
-                // If player paused (stayed in same location), we handle it here
-                if (chaseManager.ChaseActive && chaseManager.LastLocation != context.CurrentLocation)
-                    return Task.FromResult(string.Empty);
+            // Already expired - check for death in office
+            case FungicideState.Expired:
+                switch (officeDoor.IsOpen)
+                {
+                    case true when inLabOffice:
+                    {
+                        var chaseManager = Repository.GetItem<ChaseSceneManager>();
+                        // If chase is active and player just arrived (backtracking), let ChaseSceneManager handle it
+                        // If player paused (stayed in same location), we handle it here
+                        if (chaseManager.ChaseActive && chaseManager.LastLocation != context.CurrentLocation)
+                            return Task.FromResult(string.Empty);
 
-                var deathResult = new DeathProcessor().Process(OfficeDeathMessage, context);
-                return Task.FromResult(deathResult.InteractionMessage);
-            }
-            return Task.FromResult(string.Empty);
-        }
+                        var deathResult = new DeathProcessor().Process(OfficeDeathMessage, context);
+                        return Task.FromResult(deathResult.InteractionMessage);
+                    }
+                    default:
+                        return Task.FromResult(string.Empty);
+                }
 
-        // Not active yet - nothing to do
-        if (State == FungicideState.Inactive)
-        {
-            return Task.FromResult(string.Empty);
+            // Not active yet - nothing to do
+            case FungicideState.Inactive:
+                return Task.FromResult(string.Empty);
         }
 
         var message = new StringBuilder();
@@ -124,6 +130,14 @@ public class FungicideTimer : ItemBase, ITurnBasedActor
             {
                 isFreeTurn = true;
                 labDoor.JustOpenedFromBioLabThisTurn = false;
+                message.Append(BioLabMistMessage);
+            }
+
+            // Free turn: tried to go west but door was closed (still in BioLab)
+            if (TriedToExitWestThisTurn)
+            {
+                isFreeTurn = true;
+                TriedToExitWestThisTurn = false;
                 message.Append(BioLabMistMessage);
             }
         }
@@ -187,27 +201,28 @@ public class FungicideTimer : ItemBase, ITurnBasedActor
         }
 
         // In BioLockEast (just escaped west from BioLab) - start chase
-        if (inBioLockEast && labDoor.IsOpen)
-        {
-            var bioLab = Repository.GetLocation<BioLabLocation>();
-            if (!bioLab.ChaseStarted)
-            {
-                bioLab.ChaseStarted = true;
-                var chaseManager = Repository.GetItem<ChaseSceneManager>();
-                // Pass current location (BioLockEast) as starting point, and BioLab as previous
-                // (player just came from BioLab, so going back E would be backtracking)
-                // ChaseSceneManager won't run this turn (just registered), so we output
-                // the chase message here. On the NEXT turn, if player pauses, they die.
-                chaseManager.StartChase(context.CurrentLocation, bioLab);
+        if (!inBioLockEast || !labDoor.IsOpen) 
+            return message.ToString();
+        
+        var bioLab = Repository.GetLocation<BioLabLocation>();
+            
+        if (bioLab.ChaseStarted) 
+            return message.ToString();
+            
+        bioLab.ChaseStarted = true;
+        
+        var chaseManager = Repository.GetItem<ChaseSceneManager>();
+        // Pass current location (BioLockEast) as starting point, and BioLab as previous
+        // (player just came from BioLab, so going back E would be backtracking)
+        // ChaseSceneManager won't run this turn (just registered), so we output
+        // the chase message here. On the NEXT turn, if player pauses, they die.
+        chaseManager.StartChase(context.CurrentLocation, bioLab);
 
-                if (!context.Actors.Contains(chaseManager))
-                    context.RegisterActor(chaseManager);
+        context.RegisterActor(chaseManager);
 
-                // Show both the mist vanishing AND chase message since ChaseSceneManager won't run this turn
-                message.Append("The last traces of mist in the air vanish. The mutants, recovering quickly, notice you and begin salivating. ");
-                message.Append(chaseManager.Chooser.Choose(ChaseSceneManager.ChaseMessages));
-            }
-        }
+        // Show both the mist vanishing AND chase message since ChaseSceneManager won't run this turn
+        message.Append("The last traces of mist in the air vanish. The mutants, recovering quickly, notice you and begin salivating. ");
+        message.Append(chaseManager.Chooser.Choose(ChaseSceneManager.ChaseMessages));
 
         return message.ToString();
     }

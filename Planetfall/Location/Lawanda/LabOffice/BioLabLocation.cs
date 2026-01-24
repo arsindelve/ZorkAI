@@ -55,7 +55,16 @@ internal class BioLabLocation : LocationBase
                 Direction.W,
                 new MovementParameters
                 {
-                    CanGo = _ => Repository.GetItem<BioLockInnerDoor>().IsOpen,
+                    CanGo = _ =>
+                    {
+                        var door = Repository.GetItem<BioLockInnerDoor>();
+                        if (!door.IsOpen)
+                        {
+                            // Track that player tried to go west but couldn't (free turn for fungicide)
+                            Repository.GetItem<FungicideTimer>().TriedToExitWestThisTurn = true;
+                        }
+                        return door.IsOpen;
+                    },
                     CustomFailureMessage = "The lab door is closed. ",
                     Location = GetLocation<BioLockEast>()
                 }

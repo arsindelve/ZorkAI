@@ -121,10 +121,6 @@ public class ChaseSceneManager : ItemBase, ITurnBasedActor
         LastLocation = currentLoc;
 
         // CryoElevator has its own entry message, don't duplicate
-        if (currentLoc is CryoElevatorLocation)
-            return Task.FromResult(string.Empty);
-
-        // Player is successfully fleeing - show random chase message
-        return Task.FromResult(Chooser.Choose(ChaseMessages));
+        return Task.FromResult(currentLoc is CryoElevatorLocation ? string.Empty : Chooser.Choose(ChaseMessages));
     }
 }
