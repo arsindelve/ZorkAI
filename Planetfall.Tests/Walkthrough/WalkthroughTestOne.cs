@@ -339,6 +339,37 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("S", null, "Strip Near Station")]  
     [TestCase("W", null, "switching to Auxiliary Booth", "wrenching of your innards", "only as a receiving station")]  
     [TestCase("score", null, "would be 75")]
+    [TestCase("N", null, "Lab Office")]
+    [TestCase("examine desk", null, "a memo of some sort")]
+    [TestCase("read memo", null, "Propur preecawshunz shud bee taakin")]
+    [TestCase("open desk", null, "Opening the desk reveals a gas mask")]
+    [TestCase("take mask", null, "Taken")]
+    [TestCase("wear gas mask", null, "You are wearing the gas mask")]
+    [TestCase("press red button", null, "hissing from beyond the door")]
+    [TestCase("open door", null, "The office door is now open.", "filled with a light mist")]
+    [TestCase("w", null, "stunned and confused, but are slowly recovering")]
+    [TestCase("open lab door", null, "The door opens", "They appear to be stunned and confused, but are slowly recovering")]
+    [TestCase("w", null, "former companion", "right on your heels")]
+    [TestCase("w", null, "Bio Lock West", "right on your heels")]
+    [TestCase("open door", null, "The door opens", "almost upon you now")]
+    [TestCase("w", null, "Lab", "right on your heels")]
+    [TestCase("w", null, "East", "right on your heels")]
+    [TestCase("w", null, "Project", "right on your heels")]
+    [TestCase("s", null, "Office", "revealing an open doorway", "right on your heels")]
+    [TestCase("s", null, "Cryo-Elevator", "The monsters are storming straight toward the elevator door!")]
+    [TestCase("press button", null, "The elevator door closes just as the monsters reach it!")]
+    [TestCase("score", null, "would be 80")]
+    [TestCase("z", null, "Time passes")]
+    [TestCase("z", null, "Time passes", "The elevator door opens onto a room to the north.")]
+    [TestCase("N", null, 
+        "A door slides open and a medical robot glides in. It opens the cryo-unit and administers an injection to its inhabitant. As the robot glides away, a figure rises from the cryo-unit -- a handsome, middle-aged woman with flowing red hair. She spends some time studying readouts from the control panel, pressing several keys",
+        "As other cryo-units in the chambers beyond begin opening, the woman turns to you, bows gracefully, and speaks in a beautiful, lilting voice. \"I am Veldina, leader of Resida. Thanks to you, the cure has been discovered, and the planetary systems repaired. We are eternally grateful.\"",
+        "\"You will also be glad to hear that a ship of your Stellar Patrol now orbits the planet. I have sent them the coordinates for this room.\" As if on cue, a landing party from the S.P.S. Flathead materializes nearby. Blather is with them, having been picked up from deep space in another escape pod, babbling cravenly. Captain Sterling of the Flathead acknowledges your heroic actions, and informs you of your promotion to Lieutenant First Class",
+        "As a team of mutant hunters head for the cryo-elevator, Veldina mentions that the grateful people of Resida offer you leadership of their world. Captain Sterling points out that, even if you choose to remain on Resida, Blather (demoted to Ensign Twelfth Class) has been assigned as your personal toilet attendant",
+        "You feel a sting from your arm and turn to see a medical robot moving away after administering the antidote for The Disease.",
+        "A team of robot technicians step into the anteroom. They part their ranks, and a familiar figure comes bounding toward you! \"Hi!\" shouts Floyd, with uncontrolled enthusiasm. \"Floyd feeling better now!\" Smiling from ear to ear, he says, \"Look what Floyd found!\" He hands you a helicopter key, a reactor elevator card, and a paddleball set. \"Maybe we can use them in the sequel...\""
+    )]
+
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {
         if (!string.IsNullOrWhiteSpace(setup)) 

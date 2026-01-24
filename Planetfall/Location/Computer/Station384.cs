@@ -48,6 +48,11 @@ internal class Station384 : LocationWithNoStartingItems
                 var auxiliaryBooth = Repository.GetLocation<AuxiliaryBooth>();
                 context.AddPoints(4);
                 context.CurrentLocation = auxiliaryBooth;
+
+                // Start the revival announcement timer
+                var timer = Repository.GetItem<AuxiliaryBoothTimer>();
+                context.RegisterActor(timer);
+
                 var description = await new LookProcessor().Process(string.Empty, context, generationClient, Runtime.Unknown);
                 return TeleportToAuxiliaryBoothMessage + Environment.NewLine + Environment.NewLine + description;
             }

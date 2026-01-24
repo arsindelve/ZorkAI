@@ -9,7 +9,7 @@ internal class BioLockOuterDoor : SimpleDoor, ITurnBasedActor
 
     public override string[] NounsForMatching =>
     [
-        "bio-lock door", "door", "biolock", "bio lock", "bio lock door", "bio-lock", "bio door"
+        "bio-lock door", "door", "biolock", "bio lock", "bio lock door", "bio-lock", "bio door", "biolock door"
     ];
 
     public override string OnOpening(IContext context)
@@ -21,7 +21,7 @@ internal class BioLockOuterDoor : SimpleDoor, ITurnBasedActor
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
-        if (TurnsSinceOpening == 1)
+        if (TurnsSinceOpening <= 2)
         {
             TurnsSinceOpening++;
         }

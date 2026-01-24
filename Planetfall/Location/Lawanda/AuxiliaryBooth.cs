@@ -10,7 +10,7 @@ internal class AuxiliaryBooth : LocationWithNoStartingItems
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.N, Go<ComputerRoom>() }
+            { Direction.N, Go<LabOffice.LabOffice>() }
         };
     }
 

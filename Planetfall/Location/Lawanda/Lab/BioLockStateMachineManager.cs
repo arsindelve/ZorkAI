@@ -1,5 +1,6 @@
 using Planetfall.Command;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Item.Lawanda.BioLab;
 using Planetfall.Item.Lawanda.Lab;
 
 namespace Planetfall.Location.Lawanda.Lab;
@@ -210,6 +211,13 @@ public class BioLockStateMachineManager
             EndSequence(context, floyd, bioLockEast);
 
             return FloydConstants.AfterLab;
+        }
+
+        // Check if mutant chase is active - closing door won't help!
+        var chaseManager = Repository.GetItem<ChaseSceneManager>();
+        if (chaseManager.ChaseActive)
+        {
+            return "The door closes, but not soon enough!";
         }
 
         return string.Empty; // Use default door closing message

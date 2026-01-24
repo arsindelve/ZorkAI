@@ -2,6 +2,7 @@ using GameEngine.Location;
 using Model.AIGeneration;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.Lab;
+using Planetfall.Location.Lawanda.LabOffice;
 
 namespace Planetfall.Location.Lawanda.Lab;
 
@@ -35,14 +36,23 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.W, Go<BioLockWest>() }
+            { Direction.W, Go<BioLockWest>() },
+            {
+                Direction.E,
+                new MovementParameters
+                {
+                    CanGo = _ => GetItem<BioLockInnerDoor>().IsOpen,
+                    CustomFailureMessage = "The door to the Bio Lab is closed. ",
+                    Location = GetLocation<BioLabLocation>()
+                }
+            }
         };
     }
 
     protected override string GetContextBasedDescription(IContext context)
     {
         return
-            "The is the second half of the sterilization chamber leading from the main lab to the Bio Lab. The door " +
+            "This is the second half of the sterilization chamber leading from the main lab to the Bio Lab. The door " +
             "to the east, leading to the Bio Lab, has a window. The bio lock continues to the west. ";
     }
 

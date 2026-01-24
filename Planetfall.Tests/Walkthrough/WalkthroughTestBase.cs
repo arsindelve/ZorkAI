@@ -10,6 +10,7 @@ using Moq;
 using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Item.Lawanda.BioLab;
 
 namespace Planetfall.Tests.Walkthrough;
 
@@ -19,6 +20,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     private GameEngine<PlanetfallGame, PlanetfallContext> _target;
     private Mock<IRandomChooser> _floydChooser;
     private Mock<IRandomChooser> _laserChooser;
+    private Mock<IRandomChooser> _chaseChooser;
     private Mock<IChatWithFloyd> _chatWithFloyd;
 
     [OneTimeSetUp]
@@ -40,6 +42,11 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         // Laser always hits the speck (roll 1 is always <= hitChance)
         _laserChooser = new Mock<IRandomChooser>();
         _laserChooser.Setup(s => s.RollDice(100)).Returns(1);
+
+        // Chase scene always uses the first message for deterministic tests
+        _chaseChooser = new Mock<IRandomChooser>();
+        _chaseChooser.Setup(s => s.Choose(It.IsAny<List<string>>()))
+            .Returns("The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms! ");
 
         _chatWithFloyd = new Mock<IChatWithFloyd>();
         _chatWithFloyd.Setup(s => s.AskFloydAsync("go north")).ReturnsAsync(new CompanionResponse(
@@ -80,6 +87,9 @@ public abstract class WalkthroughTestBase : EngineTestsBase
 
         var laser = Repository.GetItem<Laser>();
         laser.Chooser = _laserChooser.Object;
+
+        var chaseManager = Repository.GetItem<ChaseSceneManager>();
+        chaseManager.Chooser = _chaseChooser.Object;
 
         var result = await _target.GetResponse(input);
         if (Debugger.IsAttached)

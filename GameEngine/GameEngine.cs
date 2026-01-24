@@ -11,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
-using Model.Interaction;
 using Model.Interface;
 using Model.Movement;
 using Newtonsoft.Json;
@@ -54,7 +53,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     private IStatefulProcessor? _processorInProgress;
     private ICloudWatchLogger<TurnLog>? _turnLogger;
     public TContext Context { get; private set; }
-
+    
+    public List<string> Inventory { get; set; }
+    
     /// <summary>
     ///     Explicit interface implementation to satisfy IGameEngine.Context requirement.
     /// </summary>
@@ -240,6 +241,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (returnProcessorInProgressOutput)
             return PostProcessing(processorInProgressOutput!);
 
+        // After disambiguation resolution, _currentInput may have been updated to the clarified command
+        // Use it for all subsequent processing
+        playerInput = _currentInput;
+
         // 2. -------  Empty command. Does not count as a turn. No actor or turn processing.
         if (string.IsNullOrEmpty(playerInput))
             return PostProcessing(await GetGeneratedNoCommandResponse());
@@ -287,8 +292,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         }
 
         // Track player input for pronoun resolution (AFTER resolution, so next command can use this as context)
-        if (!string.IsNullOrWhiteSpace(playerInput))
-            Context.LastInput = playerInput;
+        // Store the RESOLVED input so subsequent pronoun resolution has the actual noun, not the pronoun
+        if (!string.IsNullOrWhiteSpace(_currentInput))
+            Context.LastInput = _currentInput;
 
         // 4. ------- Location specific raw commands
         // Check if the location has an interaction with the raw, unparsed input.
@@ -354,8 +360,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // Put it all together for return.
         return await ProcessActorsAndContextEndOfTurn(contextPrepend, complexIntentResult.ResultMessage);
     }
-
-    public List<string> Inventory { get; set; }
 
     public IContext RestoreGame(string data)
     {
@@ -555,7 +559,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return PostProcessing(preDeathOutput + "\n" + Context.CurrentLocation.GetDescription(Context));
         }
 
-        var actors = await ProcessActors();
+        // Skip actor processing when disambiguation question is being asked
+        // The player hasn't completed a real action yet - just asking for clarification
+        // Note: When disambiguation is resolved (player answers), the clarified command IS a real action
+        var actors = _processorInProgress is DisambiguationProcessor
+            ? string.Empty
+            : await ProcessActors();
 
         // Check if player died during actor processing (e.g., Bio Lock mutations)
         if (Context.PendingDeath is not null)

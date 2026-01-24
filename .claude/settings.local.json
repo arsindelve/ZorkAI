@@ -26,7 +26,11 @@
       "Bash(gh run:*)",
       "Bash(curl:*)",
       "Bash(mdfind:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(for test in \"OpenDoorWithoutFungicide\" \"EnterNoGasMask\" \"SitAndWaitForFungicideToDissappear\" \"WaitOneTurnTooLongToEnterLab\" \"WaitOneTurnInLab\" \"OpenLabDoorButStay\" \"GoBackToOffice\" \"TryToCloseDoor\" \"LingerAfterExit\")",
+      "Bash(do)",
+      "Bash(echo:*)",
+      "Bash(done)"
     ],
     "deny": []
   }

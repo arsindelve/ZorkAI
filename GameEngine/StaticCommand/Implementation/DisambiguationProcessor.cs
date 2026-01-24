@@ -12,8 +12,8 @@ internal class DisambiguationProcessor(DisambiguationInteractionResult disambigu
         if (string.IsNullOrEmpty(input))
             return Task.FromResult("");
 
-        // The order by here makes sure we get the most precise (longest) matching description 
-        foreach (var possibleResponse in disambiguator.PossibleResponses.Keys)
+        // Order by length descending to check longer (more precise) matches first
+        foreach (var possibleResponse in disambiguator.PossibleResponses.Keys.OrderByDescending(k => k.Length))
             if (input.ToLowerInvariant().Trim().Contains(possibleResponse))
             {
                 var result = string.Format(disambiguator.ReplacementString,
