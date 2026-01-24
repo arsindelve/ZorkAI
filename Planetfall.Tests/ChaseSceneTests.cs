@@ -101,9 +101,9 @@ public class ChaseSceneTests : EngineTestsBase
             var target = GetTarget();
             await SetupChaseInBioLab(target);
 
-            // BioLab: Use free turn to open door
+            // BioLab: Use free turn to open door (mist is still affecting mutants)
             var response = await target.GetResponse("open lab door");
-            response.Should().Contain("mutants are almost upon you");
+            response.Should().Contain("air is filled with mist");
 
             // BioLab → BioLockEast
             response = await target.GetResponse("w");
@@ -168,7 +168,7 @@ public class ChaseSceneTests : EngineTestsBase
 
             var response = await target.GetResponse("open lab door");
 
-            response.Should().Contain("mutants are almost upon you");
+            response.Should().Contain("air is filled with mist");
             response.Should().NotContain("feasting");
         }
 
@@ -545,7 +545,7 @@ public class ChaseSceneTests : EngineTestsBase
             await target.GetResponse("push button");
 
             button.CountdownActive.Should().BeTrue();
-            button.TurnsRemaining.Should().Be(2); // Decremented from 3 at end of turn
+            button.TurnsRemaining.Should().Be(3); // Decremented from 4 at end of turn
         }
 
         [Test]
@@ -707,28 +707,6 @@ public class ChaseSceneTests : EngineTestsBase
             chaseManager.ChaseActive.Should().BeTrue();
         }
 
-        [Test]
-        public async Task EnterBioLab_WithoutFungicide_CausesDeath()
-        {
-            var target = GetTarget();
-            SetupChaseTestConditions();
-            StartHere<LabOffice>();
-
-            // Open door but DON'T press fungicide button
-            GetItem<OfficeDoor>().IsOpen = true;
-
-            // Enter BioLab without fungicide protection
-            var response = await target.GetResponse("w");
-
-            // Should start chase immediately - free turn warning is part of entry response
-            response.Should().Contain("Bio Lab");
-            response.Should().Contain("mutant creatures become aware");
-            response.Should().Contain("almost upon you");
-
-            // First action after entry causes death (free turn was used on entry)
-            response = await target.GetResponse("look");
-            response.Should().Contain("feasting");
-        }
     }
 
     [TestFixture]

@@ -10,7 +10,7 @@ public class CryoElevatorButton : ItemBase, ITurnBasedActor
 
     [UsedImplicitly] public bool CountdownActive { get; set; }
 
-    [UsedImplicitly] public int TurnsRemaining { get; set; } = 3;
+    [UsedImplicitly] public int TurnsRemaining { get; set; } = 4;
 
     [UsedImplicitly] public bool AlreadyArrived { get; set; }
 
@@ -40,7 +40,6 @@ public class CryoElevatorButton : ItemBase, ITurnBasedActor
 
         // Start countdown
         CountdownActive = true;
-        TurnsRemaining = 3;
 
         // Stop the chase scene
         var chaseManager = Repository.GetItem<ChaseSceneManager>();
@@ -50,9 +49,6 @@ public class CryoElevatorButton : ItemBase, ITurnBasedActor
         // Add this as an actor if not already
         if (!context.Actors.Contains(this))
             context.RegisterActor(this);
-
-        // Award points
-        context.AddPoints(5);
 
         return Task.FromResult<InteractionResult?>(
             new PositiveInteractionResult(

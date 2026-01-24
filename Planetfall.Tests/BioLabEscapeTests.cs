@@ -76,8 +76,8 @@ public class BioLabEscapeTests : EngineTestsBase
         Console.WriteLine($"Step 4: [{response}]");
         // Door should open
         response.Should().Contain("door opens");
-        // The free turn message appears from ChaseSceneManager
-        response.Should().Contain("mutants are almost upon you");
+        // The free turn message appears from ChaseSceneManager (mist still affecting mutants)
+        response.Should().Contain("air is filled with mist");
         // Should NOT contain death or Floyd rushing messages
         response.Should().NotContain("devour");
         response.Should().NotContain("Floyd");

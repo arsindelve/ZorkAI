@@ -79,7 +79,9 @@ public class ChaseSceneManager : ItemBase, ITurnBasedActor
             if (currentLoc is BioLabLocation && !UsedBioLabFreeTurn)
             {
                 UsedBioLabFreeTurn = true;
-                return Task.FromResult("The mutants are almost upon you now! ");
+                return Task.FromResult(
+                    "The air is filled with mist, which is affecting the mutants. " +
+                    "They appear to be stunned and confused, but are slowly recovering. ");
             }
 
             // CryoElevator: If they paused here without pushing button, instant death
