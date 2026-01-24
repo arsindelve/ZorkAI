@@ -10,6 +10,9 @@ public class RedButton : ItemBase
     public override Task<InteractionResult?> RespondToSimpleInteraction(
         SimpleIntent action, IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
+        if (!action.MatchNounAndAdjective(NounsForMatching))
+            return Task.FromResult<InteractionResult?>(new NoNounMatchInteractionResult());
+
         if (!action.MatchVerb(["push", "press", "activate"]))
             return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 

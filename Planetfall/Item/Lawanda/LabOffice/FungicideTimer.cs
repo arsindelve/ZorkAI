@@ -1,42 +1,75 @@
+using System.Text;
 using Model.AIGeneration;
+using Planetfall.Command;
 
 namespace Planetfall.Item.Lawanda.LabOffice;
 
 /// <summary>
-/// Timer that counts down 50 turns after fungicide is activated.
-/// Protects player from mutants while active.
+/// Timer that counts down 3 turns after fungicide is activated.
+/// Protects player from mutants while active. When timer expires,
+/// mutants recover and will kill the player if door remains open.
 /// </summary>
 public class FungicideTimer : ItemBase, ITurnBasedActor
 {
+    private const string MistMessage =
+        "Through the open doorway you can see the Bio Lab. It seems to be filled with a light mist. " +
+        "Horrifying biological nightmares stagger about making choking noises. ";
+
+    private const string MistClearsMessage =
+        "\nThe mist in the Bio Lab clears. The mutants recover and rush toward the door! ";
+
+    private const string DeathMessage =
+        "Mutated monsters from the Bio Lab pour into the office. You are devoured. ";
+
     public override string[] NounsForMatching => [];
 
     [UsedImplicitly]
-    public int TurnsRemaining { get; set; } = 50;
+    public int TurnsRemaining { get; set; } = 4;
 
     [UsedImplicitly]
-    public bool IsActive { get; set; } 
+    public bool IsActive { get; set; }
 
     public void Reset()
     {
-        TurnsRemaining = 50;
+        // Set to 4 because the timer ticks on the same turn the button is pressed.
+        // This gives the player 3 actual turns of protection after the button press.
+        TurnsRemaining = 4;
         IsActive = true;
     }
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
+        var door = Repository.GetItem<OfficeDoor>();
+        var inLabOffice = context.CurrentLocation is Location.Lawanda.LabOffice.LabOffice;
+
+        // Fungicide has worn off - mutants attack if door is open and player is in office
         if (!IsActive)
+        {
+            if (door.IsOpen && inLabOffice)
+            {
+                var deathResult = new DeathProcessor().Process(DeathMessage, context);
+                return Task.FromResult(deathResult.InteractionMessage);
+            }
+
             return Task.FromResult(string.Empty);
+        }
 
         TurnsRemaining--;
 
+        var message = new StringBuilder();
+
+        // Show mist message if door is open and player is in office
+        if (door.IsOpen && inLabOffice)
+            message.Append(MistMessage);
+
+        // Timer expired - mist clears
         if (TurnsRemaining <= 0)
         {
             IsActive = false;
-            return Task.FromResult(
-                "The fungicide misting system shuts off with a hiss. " +
-                "The Bio Lab is no longer protected! ");
+            if (door.IsOpen && inLabOffice)
+                message.Append(MistClearsMessage);
         }
 
-        return Task.FromResult(string.Empty);
+        return Task.FromResult(message.ToString());
     }
 }

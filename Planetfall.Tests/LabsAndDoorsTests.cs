@@ -447,8 +447,8 @@ public class LabsAndDoorsTests : EngineTestsBase
         response.Should().Contain("hissing");
         var timer = GetItem<FungicideTimer>();
         timer.IsActive.Should().BeTrue();
-        // Timer starts at 50 but may tick down to 49 after turn processing
-        timer.TurnsRemaining.Should().BeInRange(49, 50);
+        // Timer starts at 4 (to give 3 turns of protection) but ticks down to 3 after turn processing
+        timer.TurnsRemaining.Should().BeInRange(3, 4);
     }
 
     [Test]
@@ -476,6 +476,106 @@ public class LabsAndDoorsTests : EngineTestsBase
         await target.GetResponse("wait");
 
         timer.TurnsRemaining.Should().Be(initialTurns - 1);
+    }
+
+    [Test]
+    public async Task FungicideTimer_Turn1_OpenDoor_ShowsMistMessage()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+
+        await target.GetResponse("press red");
+        var response = await target.GetResponse("open door");
+
+        response.Should().Contain("filled with a light mist");
+        response.Should().Contain("choking noises");
+    }
+
+    [Test]
+    public async Task FungicideTimer_Turn2_DoorOpen_ShowsMistMessage()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+
+        await target.GetResponse("press red");
+        await target.GetResponse("open door");
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain("filled with a light mist");
+        response.Should().Contain("choking noises");
+    }
+
+    [Test]
+    public async Task FungicideTimer_Turn3_DoorOpen_MistClearsMessage()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+
+        await target.GetResponse("press red");
+        await target.GetResponse("open door");
+        await target.GetResponse("wait");
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain("mist in the Bio Lab clears");
+        response.Should().Contain("mutants recover and rush toward the door");
+    }
+
+    [Test]
+    public async Task FungicideTimer_Turn4_DoorOpen_PlayerDies()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+
+        await target.GetResponse("press red");
+        await target.GetResponse("open door");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain("Mutated monsters from the Bio Lab pour into the office");
+        response.Should().Contain("devoured");
+        // Note: PendingDeath is cleared after restart, so we check the death message instead
+    }
+
+    [Test]
+    public async Task FungicideTimer_Turn4_DoorClosed_PlayerSurvives()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+
+        await target.GetResponse("press red");
+        await target.GetResponse("open door");
+        await target.GetResponse("close door");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        var response = await target.GetResponse("wait");
+
+        response.Should().NotContain("devoured");
+        Context.PendingDeath.Should().BeNull();
+    }
+
+    [Test]
+    public async Task FungicideTimer_PlayerNotInOffice_NoMessagesOrDeath()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+
+        // Press button and open door
+        await target.GetResponse("press red");
+        await target.GetResponse("open door");
+
+        // Leave the office (go to auxiliary booth)
+        await target.GetResponse("e");
+
+        // Wait for timer to expire
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        var response = await target.GetResponse("wait");
+
+        // Should not see mist messages or death since we're not in the office
+        response.Should().NotContain("mist");
+        response.Should().NotContain("devoured");
+        Context.PendingDeath.Should().BeNull();
     }
 
     [Test]
