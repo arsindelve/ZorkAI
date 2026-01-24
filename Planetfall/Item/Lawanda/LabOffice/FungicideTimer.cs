@@ -29,6 +29,8 @@ public class FungicideTimer : ItemBase, ITurnBasedActor
 
     [UsedImplicitly] public bool IsActive { get; set; }
 
+    [UsedImplicitly] public bool HasEverBeenActivated { get; set; }
+
     public void Reset()
     {
         // Set to 3 because the timer ticks on the same turn the button is pressed.
@@ -36,6 +38,7 @@ public class FungicideTimer : ItemBase, ITurnBasedActor
         // Turn 1: Open door (mist visible), Turn 2: Wait (mist clears), Turn 3: Death
         TurnsRemaining = 3;
         IsActive = true;
+        HasEverBeenActivated = true;
     }
 
     public Task<string> Act(IContext context, IGenerationClient client)

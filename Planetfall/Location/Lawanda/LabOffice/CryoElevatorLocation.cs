@@ -10,8 +10,10 @@ internal class CryoElevatorLocation : LocationBase
 
     protected override string GetContextBasedDescription(IContext context)
     {
+        var button = Repository.GetItem<CryoElevatorButton>();
+        var doorState = button.AlreadyArrived ? "open" : "closed";
         return
-            "This is a large, plain elevator with one solitary button and a door to the north which is open. ";
+            $"This is a large, plain elevator with one solitary button and a door to the north which is {doorState}. ";
     }
 
     public override void Init()
@@ -26,12 +28,12 @@ internal class CryoElevatorLocation : LocationBase
         return new Dictionary<Direction, MovementParameters>
         {
             {
-                Direction.E,
+                Direction.N,
                 new MovementParameters
                 {
-                    CanGo = _ => !button.CountdownActive,
-                    CustomFailureMessage = "The elevator doors are sealed shut during descent. ",
-                    Location = GetLocation<ProjConOffice>()
+                    CanGo = _ => button.AlreadyArrived,
+                    CustomFailureMessage = "The elevator door to the north is closed. ",
+                    Location = GetLocation<CryoAnteroomLocation>()
                 }
             }
         };

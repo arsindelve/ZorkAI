@@ -1,7 +1,6 @@
 using Model.AIGeneration;
 using Planetfall.Command;
 using Planetfall.Item.Lawanda.BioLab;
-using Planetfall.Location.Lawanda.LabOffice;
 
 namespace Planetfall.Item.Lawanda.CryoElevator;
 
@@ -11,7 +10,7 @@ public class CryoElevatorButton : ItemBase, ITurnBasedActor
 
     [UsedImplicitly] public bool CountdownActive { get; set; }
 
-    [UsedImplicitly] public int TurnsRemaining { get; set; } = 100;
+    [UsedImplicitly] public int TurnsRemaining { get; set; } = 3;
 
     [UsedImplicitly] public bool AlreadyArrived { get; set; }
 
@@ -24,30 +23,29 @@ public class CryoElevatorButton : ItemBase, ITurnBasedActor
         // Hilarious death if player pushes button after arriving
         if (AlreadyArrived)
         {
-            context.RemoveActor(this);
             return Task.FromResult<InteractionResult?>(
                 new DeathInteractionResult(
                     new DeathProcessor().Process(
-                        "You push the button again. The elevator lurches and begins ascending back up! " +
-                        "Unfortunately, the mutants are still waiting at the top. The elevator doors open " +
-                        "and you are immediately torn apart by the rat-ant, troll, grue, and triffid. ",
+                        "Stunning. After days of surviving on a hostile, plague-ridden planet, solving several of Infocom's " +
+                        "toughest puzzles, and coming within one move of completing Planetfall, you blow it all in one " +
+                        "amazingly dumb input.\n\nThe doors close and the elevator rises quickly to the top of the shaft. " +
+                        "The doors open, and the mutants, which were waiting impatiently in the ProjCon Office for just " +
+                        "such an occurence, happily saunter in and begin munching. ",
                         context).InteractionMessage,
                     ((PlanetfallContext)context).DeathCounter));
         }
 
         if (CountdownActive)
-        {
-            return Task.FromResult<InteractionResult?>(
-                new PositiveInteractionResult("The elevator is already descending. "));
-        }
+            return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("Nothing happens. "));
 
         // Start countdown
         CountdownActive = true;
-        TurnsRemaining = 100;
+        TurnsRemaining = 3;
 
         // Stop the chase scene
         var chaseManager = Repository.GetItem<ChaseSceneManager>();
         chaseManager.StopChase();
+        context.RemoveActor(chaseManager);
 
         // Add this as an actor if not already
         if (!context.Actors.Contains(this))
@@ -58,8 +56,8 @@ public class CryoElevatorButton : ItemBase, ITurnBasedActor
 
         return Task.FromResult<InteractionResult?>(
             new PositiveInteractionResult(
-                "You push the button. The elevator doors close and it begins its long descent " +
-                "to the cryogenic anteroom. The mutants' sounds fade away above you. "));
+                "The elevator door closes just as the monsters reach it! You slump back against the wall, " +
+                "exhausted from the chase. The elevator begins to move downward. "));
     }
 
     public Task<string> Act(IContext context, IGenerationClient client)
@@ -73,30 +71,10 @@ public class CryoElevatorButton : ItemBase, ITurnBasedActor
         {
             CountdownActive = false;
             AlreadyArrived = true;
-
-            // Move player to Cryo Anteroom
-            var cryoAnteroom = Repository.GetLocation<CryoAnteroomLocation>();
-            context.CurrentLocation = cryoAnteroom;
-
             context.RemoveActor(this);
 
-            return Task.FromResult(
-                "After a long descent, the elevator comes to a stop. The doors open, revealing " +
-                "the cryogenic anteroom. You've made it! ");
+            return Task.FromResult("The elevator door opens onto a room to the north. ");
         }
-
-        // Progress messages
-        if (TurnsRemaining == 75)
-            return Task.FromResult("The elevator continues its descent. ");
-
-        if (TurnsRemaining == 50)
-            return Task.FromResult("You're about halfway down. ");
-
-        if (TurnsRemaining == 25)
-            return Task.FromResult("The elevator is getting close to the bottom. ");
-
-        if (TurnsRemaining == 10)
-            return Task.FromResult("Almost there... ");
 
         return Task.FromResult(string.Empty);
     }

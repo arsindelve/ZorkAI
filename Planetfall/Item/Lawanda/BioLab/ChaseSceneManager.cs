@@ -82,6 +82,19 @@ public class ChaseSceneManager : ItemBase, ITurnBasedActor
                 return Task.FromResult("The mutants are almost upon you now! ");
             }
 
+            // CryoElevator: If they paused here without pushing button, instant death
+            if (currentLoc is CryoElevatorLocation)
+            {
+                StopChase();
+                context.RemoveActor(this);
+                return Task.FromResult(
+                    new DeathProcessor().Process(
+                        "The biological nightmares reach you. Gripping coils wrap around your limbs as powerful " +
+                        "teeth begin tearing at your flesh. Something bites your leg, and you feel a powerful " +
+                        "poison begin to work its numbing effects... ",
+                        context).InteractionMessage);
+            }
+
             StopChase();
             context.RemoveActor(this);
             return Task.FromResult(
@@ -104,6 +117,10 @@ public class ChaseSceneManager : ItemBase, ITurnBasedActor
         // Update location history
         PreviousLocation = LastLocation;
         LastLocation = currentLoc;
+
+        // CryoElevator has its own entry message, don't duplicate
+        if (currentLoc is CryoElevatorLocation)
+            return Task.FromResult(string.Empty);
 
         // Player is successfully fleeing - show random chase message
         return Task.FromResult(Chooser.Choose(ChaseMessages));
