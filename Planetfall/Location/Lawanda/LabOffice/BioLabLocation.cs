@@ -61,7 +61,7 @@ internal class BioLabLocation : LocationBase
                         if (!door.IsOpen)
                         {
                             // Track that player tried to go west but couldn't (free turn for fungicide)
-                            Repository.GetItem<FungicideTimer>().TriedToExitWestThisTurn = true;
+                            Repository.GetItem<FungicideTimer>().NotifyTriedToExitWest();
                         }
                         return door.IsOpen;
                     },
@@ -76,23 +76,10 @@ internal class BioLabLocation : LocationBase
     {
         var fungicideTimer = Repository.GetItem<FungicideTimer>();
 
-        // If leaving to LabOffice while fungicide is active, start chase when it expires
-        // (The office door must be open for player to go that way)
+        // Track if player exited BioLab to LabOffice while fungicide active
+        // FungicideTimer will start the chase when it expires
         if (newLocation is LabOffice && fungicideTimer.IsActive)
-        {
-            var bioLab = Repository.GetLocation<BioLabLocation>();
-            if (!bioLab.ChaseStarted)
-            {
-                bioLab.ChaseStarted = true;
-                var chaseManager = Repository.GetItem<ChaseSceneManager>();
-                // Start chase with BioLab as LastLocation (where player currently is)
-                // When they arrive at LabOffice, Act() will update locations and show chase message
-                chaseManager.StartChase(bioLab);
-
-                if (!context.Actors.Contains(chaseManager))
-                    context.RegisterActor(chaseManager);
-            }
-        }
+            fungicideTimer.PlayerExitedBioLabToLabOffice = true;
 
         base.OnLeaveLocation(context, newLocation, currentLocation);
     }

@@ -22,6 +22,7 @@ public class ChaseSceneManager : ItemBase, ITurnBasedActor
         "The monsters gallop toward you, smacking their lips. "
     ];
 
+    [UsedImplicitly]
     public override string[] NounsForMatching => [];
 
     [UsedImplicitly] [JsonIgnore]

@@ -37,9 +37,8 @@ public sealed class WalkthroughMutantChase : WalkthroughTestBase
 
         var fungicideTimer = Repository.GetItem<FungicideTimer>();
         fungicideTimer.State = FungicideTimer.FungicideState.Inactive;
-        fungicideTimer.JustEnteredBioLab = false;
-        fungicideTimer.JustActivatedThisTurn = false;
-        fungicideTimer.TriedToExitWestThisTurn = false;
+        fungicideTimer.TurnFlags = FungicideTimer.FreeTurnFlags.None;
+        fungicideTimer.PlayerExitedBioLabToLabOffice = false;
 
         // Reset doors
         var officeDoor = Repository.GetItem<OfficeDoor>();
