@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Item.Lawanda.LabOffice;
 using Planetfall.Location.Lawanda.Lab;
 using Planetfall.Location.Lawanda.LabOffice;
 
@@ -45,6 +46,11 @@ public class BioLabEscapeTests : EngineTestsBase
         floyd.HasDied = true;
         var bioLockEast = GetLocation<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
+
+        // Player must wear gas mask to survive the fungicide mist
+        var gasMask = GetItem<GasMask>();
+        Context.Take(gasMask);
+        gasMask.BeingWorn = true;
 
         // Step 1: Press red button - activates fungicide (TurnsRemaining = 3)
         var response = await target.GetResponse("press red button");

@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.AIGeneration;
+using Planetfall.Command;
 using Planetfall.Item.Lawanda.BioLab;
 using Planetfall.Item.Lawanda.Lab;
 using Planetfall.Item.Lawanda.LabOffice;
@@ -67,9 +68,19 @@ internal class BioLabLocation : LocationBase
     {
         var fungicideTimer = Repository.GetItem<FungicideTimer>();
 
-        // When fungicide is active, the mutants are stunned - no chase scene
+        // When fungicide is active, the mutants are stunned - but mist is deadly without mask
         if (fungicideTimer.IsActive)
+        {
+            var gasMask = Repository.GetItem<GasMask>();
+            if (!context.Items.Contains(gasMask) || !gasMask.BeingWorn)
+            {
+                return Task.FromResult(
+                    new DeathProcessor().Process(
+                        "Unfortunately, you don't seem to be that hardy. ",
+                        context).InteractionMessage);
+            }
             return base.AfterEnterLocation(context, previousLocation, generationClient);
+        }
 
         // No fungicide - mutants attack! Start chase scene on first entry
         if (!ChaseStarted)

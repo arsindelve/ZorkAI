@@ -61,6 +61,11 @@ public class ChaseSceneTests : EngineTestsBase
         SetupChaseTestConditions();
         StartHere<LabOffice>();
 
+        // Player must wear gas mask to survive the fungicide mist
+        var gasMask = GetItem<GasMask>();
+        Context.Take(gasMask);
+        gasMask.BeingWorn = true;
+
         // Press fungicide button, open door, enter BioLab
         await target.GetResponse("press red button");
         await target.GetResponse("open door");
