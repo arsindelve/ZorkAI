@@ -347,5 +347,21 @@ public sealed class WalkthroughMutantChase : WalkthroughTestBase
     
     public async Task LoopForever(string input, string? setup, params string[] expectedResponses)
         => await DoWithSetup(input, setup, expectedResponses);
+    
+    [Test]
+    [TestCase("w", "SetupBioLock", "Auxiliary")]
+    [TestCase("n", null, "Lab Office")]
+    [TestCase("open desk", null, "Opening the desk reveals a gas mask.")]
+    [TestCase("take mask", null, "Taken")]
+    [TestCase("wear mask", null, "You are wearing the gas mask.")]
+    [TestCase("press red button", null, "hissing")]
+    [TestCase("open door", null, "The office door is now open.", "Through the open doorway you can see the Bio Lab. It seems to be filled with a light mist. Horrifying biological nightmares stagger about making choking noises")]
+    [TestCase("w", "", "They appear to be stunned and confused, but are slowly recovering")]
+    [TestCase("w", "", "The lab door is closed.", "They appear to be stunned and confused, but are slowly recovering")]
+    [TestCase("open door", null, "Do you mean the office door or the lab door")]
+    [TestCase("lab door", null, "The door opens.", "The air is filled with mist, which is affecting the mutants. They appear to be stunned and confused, but are slowly recovering.")]
+    [TestCase("w", null, "The bio lock continues to the west.", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    public async Task DoorDisambiguation(string input, string? setup, params string[] expectedResponses)
+        => await DoWithSetup(input, setup, expectedResponses);
 
 }

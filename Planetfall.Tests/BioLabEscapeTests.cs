@@ -1,5 +1,8 @@
 using FluentAssertions;
+using Model.Interface;
+using Moq;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Item.Lawanda.BioLab;
 using Planetfall.Item.Lawanda.LabOffice;
 using Planetfall.Location.Lawanda.Lab;
 using Planetfall.Location.Lawanda.LabOffice;
@@ -46,6 +49,12 @@ public class BioLabEscapeTests : EngineTestsBase
         floyd.HasDied = true;
         var bioLockEast = GetLocation<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
+
+        // Mock the chase chooser for deterministic chase messages
+        var chaseChooser = new Mock<IRandomChooser>();
+        chaseChooser.Setup(s => s.Choose(It.IsAny<List<string>>()))
+            .Returns("The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms! ");
+        GetItem<ChaseSceneManager>().Chooser = chaseChooser.Object;
 
         // Player must wear gas mask to survive the fungicide mist
         var gasMask = GetItem<GasMask>();

@@ -125,18 +125,11 @@ public class FungicideTimer : ItemBase, ITurnBasedActor
                 JustEnteredBioLab = false;
             }
 
-            // Free turn: just opened lab door from inside BioLab
-            if (labDoor.JustOpenedFromBioLabThisTurn)
+            // Free turn: opened lab door OR tried to exit west (door closed)
+            if (labDoor.JustOpenedFromBioLabThisTurn || TriedToExitWestThisTurn)
             {
                 isFreeTurn = true;
                 labDoor.JustOpenedFromBioLabThisTurn = false;
-                message.Append(BioLabMistMessage);
-            }
-
-            // Free turn: tried to go west but door was closed (still in BioLab)
-            if (TriedToExitWestThisTurn)
-            {
-                isFreeTurn = true;
                 TriedToExitWestThisTurn = false;
                 message.Append(BioLabMistMessage);
             }

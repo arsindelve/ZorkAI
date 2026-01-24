@@ -241,6 +241,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (returnProcessorInProgressOutput)
             return PostProcessing(processorInProgressOutput!);
 
+        // After disambiguation resolution, _currentInput may have been updated to the clarified command
+        // Use it for all subsequent processing
+        playerInput = _currentInput;
+
         // 2. -------  Empty command. Does not count as a turn. No actor or turn processing.
         if (string.IsNullOrEmpty(playerInput))
             return PostProcessing(await GetGeneratedNoCommandResponse());
@@ -555,7 +559,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return PostProcessing(preDeathOutput + "\n" + Context.CurrentLocation.GetDescription(Context));
         }
 
-        var actors = await ProcessActors();
+        // Skip actor processing when disambiguation question is being asked
+        // The player hasn't completed a real action yet - just asking for clarification
+        // Note: When disambiguation is resolved (player answers), the clarified command IS a real action
+        var actors = _processorInProgress is DisambiguationProcessor
+            ? string.Empty
+            : await ProcessActors();
 
         // Check if player died during actor processing (e.g., Bio Lock mutations)
         if (Context.PendingDeath is not null)
