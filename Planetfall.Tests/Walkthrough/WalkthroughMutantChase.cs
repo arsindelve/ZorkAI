@@ -4,6 +4,7 @@ using Model;
 using Planetfall.Item.Computer;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.BioLab;
+using Planetfall.Item.Lawanda.CryoElevator;
 using Planetfall.Item.Lawanda.Lab;
 using Planetfall.Item.Lawanda.LabOffice;
 using Planetfall.Location.Computer;
@@ -62,6 +63,7 @@ public sealed class WalkthroughMutantChase : WalkthroughTestBase
             Context.Drop(gasMask);
         // Put it back in desk
         desk.ItemPlacedHere(gasMask);
+ 
     }
     
     [Test]
@@ -267,7 +269,6 @@ public sealed class WalkthroughMutantChase : WalkthroughTestBase
     [TestCase("open door", null, "The door opens", "The mutants are almost upon you now!")]
     [TestCase("w", null, "Main Lab", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
     [TestCase("close bio-lock door", null, "The door closes", "Dozens of hungry eyes fix on you as the mutations surround you and begin feasting")]
-
     public async Task TryToCloseBioLockOuterDoor(string input, string? setup, params string[] expectedResponses)
         => await DoWithSetup(input, setup, expectedResponses);
     
@@ -288,7 +289,6 @@ public sealed class WalkthroughMutantChase : WalkthroughTestBase
     [TestCase("w", null, "Main Lab", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
     [TestCase("w", null, "Project Corridor East")]
     [TestCase("look", null, "Dozens of hungry eyes fix on you as the mutations surround you and begin feasting.")]
-
     public async Task RandomPause(string input, string? setup, params string[] expectedResponses)
         => await DoWithSetup(input, setup, expectedResponses);
     
@@ -310,7 +310,6 @@ public sealed class WalkthroughMutantChase : WalkthroughTestBase
     [TestCase("w", null, "Main Lab", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
     [TestCase("w", null, "Project Corridor East")]
     [TestCase("e", null, "You stupidly run right into the jaws of the pursuing mutants")]
-
     public async Task RandomBacktrack(string input, string? setup, params string[] expectedResponses)
         => await DoWithSetup(input, setup, expectedResponses);
     
@@ -329,22 +328,18 @@ public sealed class WalkthroughMutantChase : WalkthroughTestBase
     [TestCase("w", null, "Bio Lock West", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
     [TestCase("open door", null, "The door opens", "The mutants are almost upon you now!")]
     [TestCase("w", null, "Main Lab", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
-
     [TestCase("w", null, "Project Corridor East", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
     [TestCase("s", null, "Computer Room", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
     [TestCase("w", null, "ProjCon Office", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
     [TestCase("n", null, "Project Corridor", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
-    
     [TestCase("e", null, "Project Corridor East", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
     [TestCase("s", null, "Computer Room", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
     [TestCase("w", null, "ProjCon Office", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
     [TestCase("n", null, "Project Corridor", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
-    
     [TestCase("e", null, "Project Corridor East", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
     [TestCase("s", null, "Computer Room", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
     [TestCase("w", null, "ProjCon Office", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
     [TestCase("n", null, "Project Corridor", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
-    
     public async Task LoopForever(string input, string? setup, params string[] expectedResponses)
         => await DoWithSetup(input, setup, expectedResponses);
     
@@ -362,6 +357,78 @@ public sealed class WalkthroughMutantChase : WalkthroughTestBase
     [TestCase("lab door", null, "The door opens.", "The air is filled with mist, which is affecting the mutants. They appear to be stunned and confused, but are slowly recovering.")]
     [TestCase("w", null, "The bio lock continues to the west.", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
     public async Task DoorDisambiguation(string input, string? setup, params string[] expectedResponses)
+        => await DoWithSetup(input, setup, expectedResponses);
+    
+    [Test]
+    [TestCase("w", "SetupBioLock", "Auxiliary")]
+    [TestCase("n", null, "Lab Office")]
+    [TestCase("open desk", null, "Opening the desk reveals a gas mask.")]
+    [TestCase("take mask", null, "Taken")]
+    [TestCase("wear mask", null, "You are wearing the gas mask.")]
+    [TestCase("press red button", null, "hissing")]
+    [TestCase("open door", null, "The office door is now open.", "Through the open doorway you can see the Bio Lab. It seems to be filled with a light mist. Horrifying biological nightmares stagger about making choking noises")]
+    [TestCase("w", "", "They appear to be stunned and confused, but are slowly recovering")]
+    [TestCase("w", "", "The lab door is closed.", "They appear to be stunned and confused, but are slowly recovering")]
+    [TestCase("open lab door", null, "The door opens.", "The air is filled with mist, which is affecting the mutants. They appear to be stunned and confused, but are slowly recovering.")]
+    [TestCase("w", null, "The bio lock continues to the west.", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("w", null, "Bio Lock West", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("open door", null, "The door opens", "The mutants are almost upon you now!")]
+    [TestCase("w", null, "Main Lab", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("w", null, "Project Corridor East", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("s", null, "Computer Room", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("w", null, "ProjCon Office", "revealing an open doorway to a large elevator!", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("s", null, "Cryo-Elevator", "The monsters are storming straight toward the elevator door!")]
+    public async Task MakeItToElevator(string input, string? setup, params string[] expectedResponses)
+        => await DoWithSetup(input, setup, expectedResponses);
+    
+    [Test]
+    [TestCase("w", "SetupBioLock", "Auxiliary")]
+    [TestCase("n", null, "Lab Office")]
+    [TestCase("open desk", null, "Opening the desk reveals a gas mask.")]
+    [TestCase("take mask", null, "Taken")]
+    [TestCase("wear mask", null, "You are wearing the gas mask.")]
+    [TestCase("press red button", null, "hissing")]
+    [TestCase("open door", null, "The office door is now open.", "Through the open doorway you can see the Bio Lab. It seems to be filled with a light mist. Horrifying biological nightmares stagger about making choking noises")]
+    [TestCase("w", "", "They appear to be stunned and confused, but are slowly recovering")]
+    [TestCase("w", "", "The lab door is closed.", "They appear to be stunned and confused, but are slowly recovering")]
+    [TestCase("open lab door", null, "The door opens.", "The air is filled with mist, which is affecting the mutants. They appear to be stunned and confused, but are slowly recovering.")]
+    [TestCase("w", null, "The bio lock continues to the west.", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("w", null, "Bio Lock West", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("open door", null, "The door opens", "The mutants are almost upon you now!")]
+    [TestCase("w", null, "Main Lab", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("w", null, "Project Corridor East", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("s", null, "Computer Room", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("w", null, "ProjCon Office", "revealing an open doorway to a large elevator!", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("s", null, "Cryo-Elevator", "The monsters are storming straight toward the elevator door!")]
+    [TestCase("wait", null, "The biological nightmares reach you. Gripping coils wrap around your limbs as powerful teeth begin tearing at your flesh. Something bites your leg, and you feel a powerful poison begin to work its numbing effects")]
+    public async Task DieInElevator(string input, string? setup, params string[] expectedResponses)
+        => await DoWithSetup(input, setup, expectedResponses);
+    
+    [Test]
+    [TestCase("w", "SetupBioLock", "Auxiliary")]
+    [TestCase("n", null, "Lab Office")]
+    [TestCase("open desk", null, "Opening the desk reveals a gas mask.")]
+    [TestCase("take mask", null, "Taken")]
+    [TestCase("wear mask", null, "You are wearing the gas mask.")]
+    [TestCase("press red button", null, "hissing")]
+    [TestCase("open door", null, "The office door is now open.", "Through the open doorway you can see the Bio Lab. It seems to be filled with a light mist. Horrifying biological nightmares stagger about making choking noises")]
+    [TestCase("w", "", "They appear to be stunned and confused, but are slowly recovering")]
+    [TestCase("w", "", "The lab door is closed.", "They appear to be stunned and confused, but are slowly recovering")]
+    [TestCase("open lab door", null, "The door opens.", "The air is filled with mist, which is affecting the mutants. They appear to be stunned and confused, but are slowly recovering.")]
+    [TestCase("w", null, "The bio lock continues to the west.", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("w", null, "Bio Lock West", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("open door", null, "The door opens", "The mutants are almost upon you now!")]
+    [TestCase("w", null, "Main Lab", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("w", null, "Project Corridor East", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("s", null, "Computer Room", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("w", null, "ProjCon Office", "revealing an open doorway to a large elevator!", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    [TestCase("s", null, "Cryo-Elevator", "The monsters are storming straight toward the elevator door!")] 
+    [TestCase("press button", null, "The elevator door closes just as the monsters reach it!")]
+    [TestCase("z", null, "Time passes")] 
+    [TestCase("z", null, "Time passes")] 
+    [TestCase("z", null, "Time passes", "The elevator door opens onto a room to the north.")] 
+    [TestCase("press button", null, "Stunning", "you blow it all in one")]
+    public async Task MakeItToElevatorAndThenBackUp(string input, string? setup, params string[] expectedResponses)
         => await DoWithSetup(input, setup, expectedResponses);
 
 }
