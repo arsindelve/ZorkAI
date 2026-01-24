@@ -32,7 +32,7 @@ internal class LabOffice : LocationBase
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.E, Go<AuxiliaryBooth>() },
+            { Direction.S, Go<AuxiliaryBooth>() },
             {
                 Direction.W,
                 new MovementParameters

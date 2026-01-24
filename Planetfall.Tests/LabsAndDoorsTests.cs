@@ -463,8 +463,8 @@ public class LabsAndDoorsTests : EngineTestsBase
         response.Should().Contain("hissing");
         var timer = GetItem<FungicideTimer>();
         timer.IsActive.Should().BeTrue();
-        // Timer starts at 3 (to give 2 turns of protection) but ticks down to 2 after turn processing
-        timer.TurnsRemaining.Should().BeInRange(2, 3);
+        // Timer starts at FullProtection and stays there (activation turn is free)
+        timer.State.Should().Be(FungicideTimer.FungicideState.FullProtection);
     }
 
     [Test]
@@ -480,18 +480,20 @@ public class LabsAndDoorsTests : EngineTestsBase
     }
 
     [Test]
-    public async Task FungicideTimer_CountsDown()
+    public async Task FungicideTimer_AdvancesState()
     {
         var target = GetTarget();
         StartHere<LabOffice>();
 
         await target.GetResponse("press red");
         var timer = GetItem<FungicideTimer>();
-        var initialTurns = timer.TurnsRemaining;
+        // After press red + turn end: FullProtection (activation turn is free)
+        timer.State.Should().Be(FungicideTimer.FungicideState.FullProtection);
 
         await target.GetResponse("wait");
 
-        timer.TurnsRemaining.Should().Be(initialTurns - 1);
+        // After wait + turn end: PartialProtection
+        timer.State.Should().Be(FungicideTimer.FungicideState.PartialProtection);
     }
 
     [Test]

@@ -1,9 +1,14 @@
 using GameEngine;
 using JetBrains.Annotations;
+using Model;
 using Planetfall.Item.Computer;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Item.Lawanda.BioLab;
+using Planetfall.Item.Lawanda.Lab;
+using Planetfall.Item.Lawanda.LabOffice;
 using Planetfall.Location.Computer;
 using Planetfall.Location.Lawanda.Lab;
+using Planetfall.Location.Lawanda.LabOffice;
 
 namespace Planetfall.Tests.Walkthrough;
 
@@ -18,6 +23,41 @@ public sealed class WalkthroughMutantChase : WalkthroughTestBase
         floyd.HasDied = true;
         floyd.CurrentLocation = Repository.GetLocation<BioLockEast>();
         Repository.GetItem<Relay>().SpeckDestroyed = true;
+
+        // Reset chase-related state to prevent test pollution
+        var bioLab = Repository.GetLocation<BioLabLocation>();
+        bioLab.ChaseStarted = false;
+
+        // Verbose mode always shows full descriptions regardless of visit count
+        Context.Verbosity = Verbosity.Verbose;
+
+        var chaseManager = Repository.GetItem<ChaseSceneManager>();
+        chaseManager.StopChase();
+
+        var fungicideTimer = Repository.GetItem<FungicideTimer>();
+        fungicideTimer.State = FungicideTimer.FungicideState.Inactive;
+        fungicideTimer.JustEnteredBioLab = false;
+        fungicideTimer.JustActivatedThisTurn = false;
+
+        // Reset doors
+        var officeDoor = Repository.GetItem<OfficeDoor>();
+        officeDoor.IsOpen = false;
+        officeDoor.JustOpenedThisTurn = false;
+
+        var labDoor = Repository.GetItem<BioLockInnerDoor>();
+        labDoor.IsOpen = false;
+
+        // Reset desk and gas mask
+        var desk = Repository.GetItem<LabDesk>();
+        desk.IsOpen = false;
+
+        var gasMask = Repository.GetItem<GasMask>();
+        gasMask.BeingWorn = false;
+        // Remove from inventory if present
+        if (Context.Items.Contains(gasMask))
+            Context.Drop(gasMask);
+        // Put it back in desk
+        desk.ItemPlacedHere(gasMask);
     }
     
     [Test]
@@ -54,9 +94,108 @@ public sealed class WalkthroughMutantChase : WalkthroughTestBase
     [TestCase("wear mask", null, "You are wearing the gas mask.")]
     [TestCase("press red button", null, "hissing")]
     [TestCase("open door", null, "The office door is now open.", "Through the open doorway you can see the Bio Lab. It seems to be filled with a light mist. Horrifying biological nightmares stagger about making choking noises")]
-    [TestCase("z", null, "The mist in the Bio Lab clears. The mutants recover and rush toward the door")]
+    [TestCase("wait", null, "The mist in the Bio Lab clears. The mutants recover and rush toward the door")]
     [TestCase("w", "", "The mutants attack you and rip you to shreds within seconds.")]
     public async Task WaitOneTurnTooLongToEnterLab(string input, string? setup, params string[] expectedResponses)
+        => await DoWithSetup(input, setup, expectedResponses);
+    
+    [Test]
+    [TestCase("w", "SetupBioLock", "Auxiliary")]
+    [TestCase("n", null, "Lab Office")]
+    [TestCase("open desk", null, "Opening the desk reveals a gas mask.")]
+    [TestCase("take mask", null, "Taken")]
+    [TestCase("wear mask", null, "You are wearing the gas mask.")]
+    [TestCase("press red button", null, "hissing")]
+    [TestCase("open door", null, "The office door is now open.", "Through the open doorway you can see the Bio Lab. It seems to be filled with a light mist. Horrifying biological nightmares stagger about making choking noises")]
+    [TestCase("w", "", "They appear to be stunned and confused, but are slowly recovering")]
+    [TestCase("wait", null, "The last traces of mist in the air vanish. The mutants, recovering quickly, notice you and begin salivating", "Dozens of hungry eyes fix on you as the mutations surround you and begin feasting")]
+    public async Task WaitOneTurnInLab(string input, string? setup, params string[] expectedResponses)
+        => await DoWithSetup(input, setup, expectedResponses);
+    
+    [Test]
+    [TestCase("w", "SetupBioLock", "Auxiliary")]
+    [TestCase("n", null, "Lab Office")]
+    [TestCase("open desk", null, "Opening the desk reveals a gas mask.")]
+    [TestCase("take mask", null, "Taken")]
+    [TestCase("wear mask", null, "You are wearing the gas mask.")]
+    [TestCase("press red button", null, "hissing")]
+    [TestCase("open door", null, "The office door is now open.", "Through the open doorway you can see the Bio Lab. It seems to be filled with a light mist. Horrifying biological nightmares stagger about making choking noises")]
+    [TestCase("w", "", "They appear to be stunned and confused, but are slowly recovering")]
+    [TestCase("open lab door", null, "The door opens.", "The air is filled with mist, which is affecting the mutants. They appear to be stunned and confused, but are slowly recovering.")]
+    [TestCase("wait", null, "The last traces of mist in the air vanish. The mutants, recovering quickly, notice you and begin salivating", "Dozens of hungry eyes fix on you as the mutations surround you and begin feasting")]
+    public async Task OpenLabDoorButStay(string input, string? setup, params string[] expectedResponses)
+        => await DoWithSetup(input, setup, expectedResponses);
+    
+    [Test]
+    [TestCase("w", "SetupBioLock", "Auxiliary")]
+    [TestCase("n", null, "Lab Office")]
+    [TestCase("open desk", null, "Opening the desk reveals a gas mask.")]
+    [TestCase("take mask", null, "Taken")]
+    [TestCase("wear mask", null, "You are wearing the gas mask.")]
+    [TestCase("press red button", null, "hissing")]
+    [TestCase("open door", null, "The office door is now open.", "Through the open doorway you can see the Bio Lab. It seems to be filled with a light mist. Horrifying biological nightmares stagger about making choking noises")]
+    [TestCase("w", "", "They appear to be stunned and confused, but are slowly recovering")]
+    [TestCase("e", null, "Lab Office", "The mist in the Bio Lab clears. The mutants recover and rush toward the door!")]
+    [TestCase("wait", null, "Mutated monsters from the Bio Lab pour into the office. You are devoured.")]
+    public async Task GoBackToOffice(string input, string? setup, params string[] expectedResponses)
+        => await DoWithSetup(input, setup, expectedResponses);
+    
+    [Test]
+    [TestCase("w", "SetupBioLock", "Auxiliary")]
+    [TestCase("n", null, "Lab Office")]
+    [TestCase("open desk", null, "Opening the desk reveals a gas mask.")]
+    [TestCase("take mask", null, "Taken")]
+    [TestCase("wear mask", null, "You are wearing the gas mask.")]
+    [TestCase("press red button", null, "hissing")]
+    [TestCase("open door", null, "The office door is now open.", "Through the open doorway you can see the Bio Lab. It seems to be filled with a light mist. Horrifying biological nightmares stagger about making choking noises")]
+    [TestCase("w", "", "They appear to be stunned and confused, but are slowly recovering")]
+    [TestCase("open lab door", null, "The door opens.", "The air is filled with mist, which is affecting the mutants. They appear to be stunned and confused, but are slowly recovering.")]
+    [TestCase("w", null, "The bio lock continues to the west.")]
+    [TestCase("close door", null, "The door closes, but not soon enough!", "Dozens of hungry eyes fix on you as the mutations surround you and begin feasting.")]
+    public async Task TryToCloseDoor(string input, string? setup, params string[] expectedResponses)
+        => await DoWithSetup(input, setup, expectedResponses);
+    
+    [Test]
+    [TestCase("w", "SetupBioLock", "Auxiliary")]
+    [TestCase("n", null, "Lab Office")]
+    [TestCase("open desk", null, "Opening the desk reveals a gas mask.")]
+    [TestCase("take mask", null, "Taken")]
+    [TestCase("wear mask", null, "You are wearing the gas mask.")]
+    [TestCase("press red button", null, "hissing")]
+    [TestCase("open door", null, "The office door is now open.", "Through the open doorway you can see the Bio Lab. It seems to be filled with a light mist. Horrifying biological nightmares stagger about making choking noises")]
+    [TestCase("w", "", "They appear to be stunned and confused, but are slowly recovering")]
+    [TestCase("open lab door", null, "The door opens.", "The air is filled with mist, which is affecting the mutants. They appear to be stunned and confused, but are slowly recovering.")]
+    [TestCase("w", null, "The bio lock continues to the west.")]
+    [TestCase("wait", null, "Dozens of hungry eyes fix on you as the mutations surround you and begin feasting")]
+    public async Task LingerAfterExit(string input, string? setup, params string[] expectedResponses)
+        => await DoWithSetup(input, setup, expectedResponses);
+    
+    [Test]
+    [TestCase("w", "SetupBioLock", "Auxiliary")]
+    [TestCase("n", null, "Lab Office")]
+    [TestCase("open desk", null, "Opening the desk reveals a gas mask.")]
+    [TestCase("take mask", null, "Taken")]
+    [TestCase("wear mask", null, "You are wearing the gas mask.")]
+    [TestCase("press red button", null, "hissing")]
+    [TestCase("open door", null, "The office door is now open.", "Through the open doorway you can see the Bio Lab. It seems to be filled with a light mist. Horrifying biological nightmares stagger about making choking noises")]
+    [TestCase("w", "", "They appear to be stunned and confused, but are slowly recovering")]
+    [TestCase("e", null, "Lab Office", "The mist in the Bio Lab clears. The mutants recover and rush toward the door!")]
+    [TestCase("w", null, "Bio Lab", "You stupidly run right into the jaws of the pursuing mutants.")]
+    public async Task GoBackToOfficeAndBacktrack(string input, string? setup, params string[] expectedResponses)
+        => await DoWithSetup(input, setup, expectedResponses);
+    
+    [Test]
+    [TestCase("w", "SetupBioLock", "Auxiliary")]
+    [TestCase("n", null, "Lab Office")]
+    [TestCase("open desk", null, "Opening the desk reveals a gas mask.")]
+    [TestCase("take mask", null, "Taken")]
+    [TestCase("wear mask", null, "You are wearing the gas mask.")]
+    [TestCase("press red button", null, "hissing")]
+    [TestCase("open door", null, "The office door is now open.", "Through the open doorway you can see the Bio Lab. It seems to be filled with a light mist. Horrifying biological nightmares stagger about making choking noises")]
+    [TestCase("w", "", "They appear to be stunned and confused, but are slowly recovering")]
+    [TestCase("e", null, "Lab Office", "The mist in the Bio Lab clears. The mutants recover and rush toward the door!")]
+    [TestCase("s", null, "Auxiliary Booth", "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms!")]
+    public async Task GoBackToOfficeAndAuxAndGetTrapped(string input, string? setup, params string[] expectedResponses)
         => await DoWithSetup(input, setup, expectedResponses);
 
 }

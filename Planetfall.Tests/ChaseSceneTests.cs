@@ -708,6 +708,11 @@ public class ChaseSceneTests : EngineTestsBase
             var target = GetTarget();
             await SetupChaseInBioLab(target);
 
+            // After SetupChaseInBioLab, player is in BioLab with PartialProtection
+            // Need to escape to BioLockEast for chase to actually start
+            await target.GetResponse("open lab door"); // Free turn
+            await target.GetResponse("w"); // To BioLockEast - chase starts here
+
             var chaseManager = GetItem<ChaseSceneManager>();
             chaseManager.ChaseActive.Should().BeTrue();
         }
@@ -736,22 +741,20 @@ public class ChaseSceneTests : EngineTestsBase
             var target = GetTarget();
             await SetupChaseInBioLab(target);
 
-            // Even with door open, going back is backtracking (came from LabOffice via "w")
-            // Wait - we came from LabOffice, so going E would be backtracking
-            // Actually the chase started in BioLab, so PreviousLocation would be LabOffice
-            // Let me check - SetupChaseInBioLab goes: LabOffice -> press button -> open door -> w to BioLab
-            // So when chase starts in BioLab, the LastLocation is BioLab, PreviousLocation is null initially
-
             // Keep the door open
             GetItem<OfficeDoor>().IsOpen = true;
 
-            // Use free turn first
+            // Use free turn first (staying in BioLab)
             await target.GetResponse("open lab door");
 
-            // Go east to LabOffice - mutants follow through open door
+            // Go east to LabOffice - mist clears, mutants rush toward door
+            // Per walkthrough: not immediate death, but trapped with mutants at door
             var response = await target.GetResponse("e");
+            response.Should().Contain("mist in the Bio Lab clears");
+            response.Should().Contain("rush toward the door");
 
-            // FungicideTimer kills player when in LabOffice with door open and no fungicide
+            // Death happens on the NEXT turn (per WalkthroughMutantChase.GoBackToOffice)
+            response = await target.GetResponse("wait");
             response.Should().Contain("devoured");
         }
     }

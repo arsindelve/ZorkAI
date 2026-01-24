@@ -1,5 +1,4 @@
 using Model.AIGeneration;
-using Planetfall.Location.Lawanda.LabOffice;
 
 namespace Planetfall.Item.Lawanda.LabOffice;
 
@@ -22,7 +21,7 @@ public class RedButton : ItemBase
         if (!context.Actors.Contains(timer))
             context.RegisterActor(timer);
 
-        timer.Reset();
+        timer.Activate();
 
         return Task.FromResult<InteractionResult?>(
             new PositiveInteractionResult("You hear a hissing from beyond the door to the west. "));

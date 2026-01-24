@@ -22,6 +22,8 @@ public class ChaseSceneManager : ItemBase, ITurnBasedActor
         "The monsters gallop toward you, smacking their lips. "
     ];
 
+    public static List<string> GetChaseMessages() => ChaseMessages;
+
     public override string[] NounsForMatching => [];
 
     [UsedImplicitly] [JsonIgnore]
@@ -42,13 +44,18 @@ public class ChaseSceneManager : ItemBase, ITurnBasedActor
     [UsedImplicitly]
     public bool UsedBioLabFreeTurn { get; set; }
 
-    public void StartChase(ILocation startingLocation)
+    // Flag to handle the first turn after chase starts - show chase message instead of death
+    [UsedImplicitly]
+    public bool JustStartedChase { get; set; }
+
+    public void StartChase(ILocation startingLocation, ILocation? previousLocation = null)
     {
         ChaseActive = true;
         LastLocation = startingLocation;
-        PreviousLocation = null;
+        PreviousLocation = previousLocation;
         UsedBioLockWestFreeTurn = false;
         UsedBioLabFreeTurn = false;
+        JustStartedChase = true;
     }
 
     public void StopChase()
@@ -119,6 +126,7 @@ public class ChaseSceneManager : ItemBase, ITurnBasedActor
         // Update location history
         PreviousLocation = LastLocation;
         LastLocation = currentLoc;
+        JustStartedChase = false; // Clear the flag once player moves
 
         // CryoElevator has its own entry message, don't duplicate
         if (currentLoc is CryoElevatorLocation)

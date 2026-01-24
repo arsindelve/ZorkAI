@@ -63,6 +63,31 @@ internal class BioLabLocation : LocationBase
         };
     }
 
+    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation currentLocation)
+    {
+        var fungicideTimer = Repository.GetItem<FungicideTimer>();
+
+        // If leaving to LabOffice while fungicide is active, start chase when it expires
+        // (The office door must be open for player to go that way)
+        if (newLocation is LabOffice && fungicideTimer.IsActive)
+        {
+            var bioLab = Repository.GetLocation<BioLabLocation>();
+            if (!bioLab.ChaseStarted)
+            {
+                bioLab.ChaseStarted = true;
+                var chaseManager = Repository.GetItem<ChaseSceneManager>();
+                // Start chase with BioLab as LastLocation (where player currently is)
+                // When they arrive at LabOffice, Act() will update locations and show chase message
+                chaseManager.StartChase(bioLab);
+
+                if (!context.Actors.Contains(chaseManager))
+                    context.RegisterActor(chaseManager);
+            }
+        }
+
+        base.OnLeaveLocation(context, newLocation, currentLocation);
+    }
+
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
@@ -79,24 +104,23 @@ internal class BioLabLocation : LocationBase
                         "Unfortunately, you don't seem to be that hardy. ",
                         context).InteractionMessage);
             }
+
+            // Mark this as a free turn for the fungicide state machine
+            fungicideTimer.NotifyEnteredBioLab();
             return base.AfterEnterLocation(context, previousLocation, generationClient);
         }
 
-        // No fungicide - mutants attack! Start chase scene on first entry
-        if (!ChaseStarted)
+        // Fungicide not active - check if chase is already in progress
+        if (ChaseStarted)
         {
-            ChaseStarted = true;
-            var chaseManager = Repository.GetItem<ChaseSceneManager>();
-            chaseManager.StartChase(this);
-
-            if (!context.Actors.Contains(chaseManager))
-                context.RegisterActor(chaseManager);
-
-            return Task.FromResult(
-                "As you enter the Bio Lab, the mutant creatures become aware of your presence! " +
-                "They begin to stir and move toward you menacingly! ");
+            // Re-entering during chase - let ChaseSceneManager handle it
+            return base.AfterEnterLocation(context, previousLocation, generationClient);
         }
 
-        return base.AfterEnterLocation(context, previousLocation, generationClient);
+        // No fungicide and no chase - mutants attack immediately
+        return Task.FromResult(
+            new DeathProcessor().Process(
+                "The mutants attack you and rip you to shreds within seconds. ",
+                context).InteractionMessage);
     }
 }
