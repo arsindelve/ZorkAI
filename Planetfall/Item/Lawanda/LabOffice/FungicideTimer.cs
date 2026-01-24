@@ -87,6 +87,12 @@ public class FungicideTimer : ItemBase, ITurnBasedActor
         {
             if (officeDoor.IsOpen && inLabOffice)
             {
+                var chaseManager = Repository.GetItem<ChaseSceneManager>();
+                // If chase is active and player just arrived (backtracking), let ChaseSceneManager handle it
+                // If player paused (stayed in same location), we handle it here
+                if (chaseManager.ChaseActive && chaseManager.LastLocation != context.CurrentLocation)
+                    return Task.FromResult(string.Empty);
+
                 var deathResult = new DeathProcessor().Process(OfficeDeathMessage, context);
                 return Task.FromResult(deathResult.InteractionMessage);
             }
@@ -192,15 +198,14 @@ public class FungicideTimer : ItemBase, ITurnBasedActor
                 // (player just came from BioLab, so going back E would be backtracking)
                 // ChaseSceneManager won't run this turn (just registered), so we output
                 // the chase message here. On the NEXT turn, if player pauses, they die.
-                var bioLockEast = Repository.GetLocation<BioLockEast>();
-                chaseManager.StartChase(bioLockEast, bioLab);
+                chaseManager.StartChase(context.CurrentLocation, bioLab);
 
                 if (!context.Actors.Contains(chaseManager))
                     context.RegisterActor(chaseManager);
 
                 // Show both the mist vanishing AND chase message since ChaseSceneManager won't run this turn
                 message.Append("The last traces of mist in the air vanish. The mutants, recovering quickly, notice you and begin salivating. ");
-                message.Append(chaseManager.Chooser.Choose(ChaseSceneManager.GetChaseMessages()));
+                message.Append(chaseManager.Chooser.Choose(ChaseSceneManager.ChaseMessages));
             }
         }
 

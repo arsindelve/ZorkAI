@@ -13,7 +13,7 @@ namespace Planetfall.Item.Lawanda.BioLab;
 /// </summary>
 public class ChaseSceneManager : ItemBase, ITurnBasedActor
 {
-    private static readonly List<string> ChaseMessages =
+    public static readonly List<string> ChaseMessages =
     [
         "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms! ",
         "The mutants burst into the room right on your heels! The mobile plant whips its poisonous tentacles against your ankles! ",
@@ -21,8 +21,6 @@ public class ChaseSceneManager : ItemBase, ITurnBasedActor
         "The mutants burst into the room right on your heels! The growling humanoid is charging straight at you, waving his axe-like implement! ",
         "The monsters gallop toward you, smacking their lips. "
     ];
-
-    public static List<string> GetChaseMessages() => ChaseMessages;
 
     public override string[] NounsForMatching => [];
 
@@ -44,10 +42,6 @@ public class ChaseSceneManager : ItemBase, ITurnBasedActor
     [UsedImplicitly]
     public bool UsedBioLabFreeTurn { get; set; }
 
-    // Flag to handle the first turn after chase starts - show chase message instead of death
-    [UsedImplicitly]
-    public bool JustStartedChase { get; set; }
-
     public void StartChase(ILocation startingLocation, ILocation? previousLocation = null)
     {
         ChaseActive = true;
@@ -55,7 +49,6 @@ public class ChaseSceneManager : ItemBase, ITurnBasedActor
         PreviousLocation = previousLocation;
         UsedBioLockWestFreeTurn = false;
         UsedBioLabFreeTurn = false;
-        JustStartedChase = true;
     }
 
     public void StopChase()
@@ -126,7 +119,6 @@ public class ChaseSceneManager : ItemBase, ITurnBasedActor
         // Update location history
         PreviousLocation = LastLocation;
         LastLocation = currentLoc;
-        JustStartedChase = false; // Clear the flag once player moves
 
         // CryoElevator has its own entry message, don't duplicate
         if (currentLoc is CryoElevatorLocation)
