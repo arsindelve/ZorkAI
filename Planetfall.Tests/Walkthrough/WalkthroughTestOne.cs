@@ -361,6 +361,14 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("score", null, "would be 80")]
     [TestCase("z", null, "Time passes")]
     [TestCase("z", null, "Time passes", "The elevator door opens onto a room to the north.")]
+    [TestCase("N", null, 
+        "A door slides open and a medical robot glides in. It opens the cryo-unit and administers an injection to its inhabitant. As the robot glides away, a figure rises from the cryo-unit -- a handsome, middle-aged woman with flowing red hair. She spends some time studying readouts from the control panel, pressing several keys",
+        "As other cryo-units in the chambers beyond begin opening, the woman turns to you, bows gracefully, and speaks in a beautiful, lilting voice. \"I am Veldina, leader of Resida. Thanks to you, the cure has been discovered, and the planetary systems repaired. We are eternally grateful.\"",
+        "\"You will also be glad to hear that a ship of your Stellar Patrol now orbits the planet. I have sent them the coordinates for this room.\" As if on cue, a landing party from the S.P.S. Flathead materializes nearby. Blather is with them, having been picked up from deep space in another escape pod, babbling cravenly. Captain Sterling of the Flathead acknowledges your heroic actions, and informs you of your promotion to Lieutenant First Class",
+        "As a team of mutant hunters head for the cryo-elevator, Veldina mentions that the grateful people of Resida offer you leadership of their world. Captain Sterling points out that, even if you choose to remain on Resida, Blather (demoted to Ensign Twelfth Class) has been assigned as your personal toilet attendant",
+        "You feel a sting from your arm and turn to see a medical robot moving away after administering the antidote for The Disease.",
+        "A team of robot technicians step into the anteroom. They part their ranks, and a familiar figure comes bounding toward you! \"Hi!\" shouts Floyd, with uncontrolled enthusiasm. \"Floyd feeling better now!\" Smiling from ear to ear, he says, \"Look what Floyd found!\" He hands you a helicopter key, a reactor elevator card, and a paddleball set. \"Maybe we can use them in the sequel...\""
+    )]
 
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
     {

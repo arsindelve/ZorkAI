@@ -13,7 +13,7 @@ internal class CryoAnteroomLocation : LocationBase
 
     // Common opening for all endings
     private const string CommonOpening =
-        "A door slides open and a medical robot glides in. It opens the cryo-unit and administers an injection to its inhabitant. As the robot glides away, a figure rises from the cryo-unit -- a handsome, middle-aged woman with flowing red hair. She spends some time studying readouts from the control panel.";
+        "A door slides open and a medical robot glides in. It opens the cryo-unit and administers an injection to its inhabitant. As the robot glides away, a figure rises from the cryo-unit -- a handsome, middle-aged woman with flowing red hair. She spends some time studying readouts from the control panel, pressing several keys. ";
 
     // Victory opening (used when course control is fixed)
     private const string VictoryOpening =
