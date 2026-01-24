@@ -61,18 +61,25 @@ public class SystemsMonitors : LocationWithNoStartingItems
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
+    // Properties to check system status
+    public bool CommunicationsFixed => Fixed.Contains("KUMUUNIKAASHUNZ");
+    
+    public bool CourseControlFixed => Fixed.Contains("PLANATEREE KORS KUNTROOL");
+    
+    public bool PlanetaryDefenseFixed => Fixed.Contains("PLANATEREE DEFENS");
+
     internal void MarkCommunicationsFixed()
     {
         Busted.Remove("KUMUUNIKAASHUNZ");
         Fixed.Add("KUMUUNIKAASHUNZ");
     }
-    
+
     internal void MarkCourseControlFixed()
     {
         Busted.Remove("PLANATEREE KORS KUNTROOL");
         Fixed.Add("PLANATEREE KORS KUNTROOL");
     }
-    
+
     internal void MarkPlanetaryDefenseFixed()
     {
         Busted.Remove("PLANATEREE DEFENS");
