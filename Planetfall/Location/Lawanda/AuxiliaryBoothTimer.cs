@@ -8,6 +8,8 @@ namespace Planetfall.Location.Lawanda;
 public class AuxiliaryBoothTimer : ItemBase, ITurnBasedActor
 {
     public override string[] NounsForMatching => [];
+    
+
 
     [UsedImplicitly]
     public int TurnsRemaining { get; set; } = 7;
@@ -19,6 +21,8 @@ public class AuxiliaryBoothTimer : ItemBase, ITurnBasedActor
         if (TurnsRemaining > 0)
             return Task.FromResult(string.Empty);
 
+        Repository.GetLocation<ProjConOffice>().AnnouncmentHasBeenMade = true;
+        
         context.RemoveActor(this);
         return Task.FromResult(
             "A recorded announcement blares from the public address system. " +

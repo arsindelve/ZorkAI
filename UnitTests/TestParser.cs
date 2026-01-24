@@ -21,7 +21,7 @@ public class TestParser : IntentParser
         _verbs =
         [
             "take", "drop", "open", "close", "examine", "look", "eat", "press", "remove", "play", "shoot",
-            "deactivate", "type", "key", "punch", "push", "pull", "burn", "set", "search", "empty",
+            "deactivate", "type", "key", "punch", "push", "pull", "burn", "set", "search", "empty", "wear",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate", "search",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind", "kick", "deflate",
             "lower", "raise", "get", "inflate", "leave", "unlock", "lock", "climb", "extend", "lift"
@@ -243,6 +243,13 @@ public class TestParser : IntentParser
             return Task.FromResult<IntentBase>(new SimpleIntent
             {
                 Noun = "cell door",
+                Verb = "open"
+            });
+
+        if (input is "open lab door")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Noun = "lab door",
                 Verb = "open"
             });
 
@@ -749,6 +756,11 @@ public class TestParser : IntentParser
         if (input == "turn on lamp")
             return Task.FromResult<IntentBase>(new SimpleIntent
                 { Adverb = "on", Verb = "turn", Noun = "lamp", OriginalInput = "turn the lamp on" });
+
+        // Handle "turn lantern on" (after pronoun resolution)
+        if (input == "turn lantern on")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+                { Adverb = "on", Verb = "turn", Noun = "lantern", OriginalInput = "turn lantern on" });
 
         if (input == "turn off lantern")
             return Task.FromResult<IntentBase>(new SimpleIntent
@@ -1340,6 +1352,38 @@ public class TestParser : IntentParser
                 OriginalInput = "look into micro-relay"
             });
 
+        if (input == "wear gas mask")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Verb = "wear",
+                Noun = "gas mask",
+                OriginalInput = "wear gas mask"
+            });
+
+        if (input == "take gas mask")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Verb = "take",
+                Noun = "gas mask",
+                OriginalInput = "take gas mask"
+            });
+
+        if (input == "drop gas mask")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Verb = "drop",
+                Noun = "gas mask",
+                OriginalInput = "drop gas mask"
+            });
+
+        if (input == "examine gas mask")
+            return Task.FromResult<IntentBase>(new SimpleIntent
+            {
+                Verb = "examine",
+                Noun = "gas mask",
+                OriginalInput = "examine gas mask"
+            });
+
         if (input == "put good in cube")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -1448,6 +1492,55 @@ public class TestParser : IntentParser
         // "open it" after bulkhead mentioned in response
         if (lower.Contains("open it") && lastResponseLower.Contains("bulkhead"))
             return Task.FromResult<string?>("open bulkhead");
+
+        // Chained pronoun resolution tests: "put it on" after taking gas mask
+        if ((lower.Contains("put it on") || lower.Contains("wear it")) && lastInputLower.Contains("gas mask"))
+            return Task.FromResult<string?>("wear gas mask");
+
+        // "drop it" after any gas mask interaction
+        if (lower.Contains("drop it") && lastInputLower.Contains("gas mask"))
+            return Task.FromResult<string?>("drop gas mask");
+
+        // "take it" after "drop gas mask"
+        if (lower.Contains("take it") && lastInputLower.Contains("drop gas mask"))
+            return Task.FromResult<string?>("take gas mask");
+
+        // Chained pronoun resolution: "drop it" after taking an item
+        if (lower.Contains("drop it") && lastInputLower.Contains("take "))
+        {
+            // Extract the noun from "take X" in lastInput
+            var match = System.Text.RegularExpressions.Regex.Match(lastInputLower, @"take\s+(.+)");
+            if (match.Success)
+                return Task.FromResult<string?>($"drop {match.Groups[1].Value}");
+        }
+
+        // "examine it" after taking an item
+        if (lower.Contains("examine it") && lastInputLower.Contains("take "))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(lastInputLower, @"take\s+(.+)");
+            if (match.Success)
+                return Task.FromResult<string?>($"examine {match.Groups[1].Value}");
+        }
+
+        // "take it" after "open desk" reveals gas mask
+        if (lower.Contains("take it") && lastResponseLower.Contains("gas mask"))
+            return Task.FromResult<string?>("take gas mask");
+
+        // General "it" resolution from lastInput noun (catches many cases)
+        if (lower.Contains(" it") || lower.StartsWith("it "))
+        {
+            // Try to extract noun from lastInput pattern like "verb noun"
+            var inputWords = lastInputLower.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (inputWords.Length >= 2)
+            {
+                // The noun could be the second word, or the rest of the string after the verb
+                var potentialNoun = string.Join(" ", inputWords.Skip(1));
+                var resolvedInput = System.Text.RegularExpressions.Regex.Replace(
+                    lower, @"\bit\b", potentialNoun, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                if (resolvedInput != lower)
+                    return Task.FromResult<string?>(resolvedInput);
+            }
+        }
 
         // No resolution needed
         return Task.FromResult<string?>(null);

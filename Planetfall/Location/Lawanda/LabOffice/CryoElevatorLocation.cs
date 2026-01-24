@@ -1,4 +1,5 @@
 using GameEngine.Location;
+using Model.AIGeneration;
 using Planetfall.Item.Lawanda.CryoElevator;
 
 namespace Planetfall.Location.Lawanda.LabOffice;
@@ -10,14 +11,12 @@ internal class CryoElevatorLocation : LocationBase
     protected override string GetContextBasedDescription(IContext context)
     {
         return
-            "You are in a small elevator with metal walls. A single button is mounted on the wall. " +
-            "Heavy doors seal the entrance. ";
+            "This is a large, plain elevator with one solitary button and a door to the north which is open. ";
     }
 
     public override void Init()
     {
         StartWithItem<CryoElevatorButton>();
-        StartWithItem<CryoElevatorDoor>();
     }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
@@ -36,6 +35,11 @@ internal class CryoElevatorLocation : LocationBase
                 }
             }
         };
+    }
+
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation, IGenerationClient generationClient)
+    {
+        return Task.FromResult("The monsters are storming straight toward the elevator door! ");
     }
 }
 

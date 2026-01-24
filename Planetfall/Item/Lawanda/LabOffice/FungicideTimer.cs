@@ -1,6 +1,8 @@
 using System.Text;
 using Model.AIGeneration;
 using Planetfall.Command;
+using Planetfall.Item.Lawanda.BioLab;
+using Planetfall.Location.Lawanda.LabOffice;
 
 namespace Planetfall.Item.Lawanda.LabOffice;
 
@@ -72,7 +74,7 @@ public class FungicideTimer : ItemBase, ITurnBasedActor
             if (door.IsOpen && inLabOffice)
                 message.Append(MistClearsMessage);
 
-        // If player is in Bio Lab when fungicide wears off, start the chase
+            // If player is in Bio Lab when fungicide wears off, start the chase
             if (context.CurrentLocation is BioLabLocation bioLab && !bioLab.ChaseStarted)
             {
                 bioLab.ChaseStarted = true;

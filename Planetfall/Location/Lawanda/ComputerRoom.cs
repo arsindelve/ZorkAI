@@ -22,7 +22,8 @@ internal class ComputerRoom : LocationBase, ITurnBasedActor
         {
             { Direction.N, Go<ProjectCorridorEast>() },
             { Direction.NE, Go<MainLab>() },
-            { Direction.S, Go<MiniaturizationBooth>() }
+            { Direction.S, Go<MiniaturizationBooth>() },
+            { Direction.W, Go<ProjConOffice>() }
         };
     }
 

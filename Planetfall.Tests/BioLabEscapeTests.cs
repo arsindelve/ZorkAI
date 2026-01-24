@@ -46,10 +46,11 @@ public class BioLabEscapeTests : EngineTestsBase
         var bioLockEast = GetLocation<BioLockEast>();
         bioLockEast.ItemPlacedHere(floyd);
 
-        // Step 1: Press red button
+        // Step 1: Press red button - activates fungicide (TurnsRemaining = 3)
         var response = await target.GetResponse("press red button");
         Console.WriteLine($"Step 1: {response}");
         response.Should().Contain("hissing from beyond the door");
+        // End of turn: TurnsRemaining decrements to 2
 
         // Step 2: Open office door
         response = await target.GetResponse("open door");
@@ -59,6 +60,7 @@ public class BioLabEscapeTests : EngineTestsBase
         // Should only appear once (no duplicate)
         var mistCount = response.Split("filled with a light mist").Length - 1;
         mistCount.Should().Be(1);
+        // End of turn: TurnsRemaining decrements to 1
 
         // Step 3: Go west to Bio Lab
         response = await target.GetResponse("w");
@@ -66,22 +68,27 @@ public class BioLabEscapeTests : EngineTestsBase
         response.Should().Contain("Bio Lab");
         response.Should().Contain("mist");
         response.Should().Contain("mutants");
+        // End of turn: TurnsRemaining decrements to 0, fungicide wears off, chase starts
 
-        // Step 4: Open lab door (BioLockInnerDoor)
+        // Step 4: Open lab door (uses free turn in BioLab)
+        // The chase has started, but player gets one free action to open the door
         response = await target.GetResponse("open lab door");
         Console.WriteLine($"Step 4: [{response}]");
+        // Door should open
         response.Should().Contain("door opens");
+        // The free turn message appears from ChaseSceneManager
+        response.Should().Contain("mutants are almost upon you");
         // Should NOT contain death or Floyd rushing messages
         response.Should().NotContain("devour");
         response.Should().NotContain("Floyd");
 
-        // Step 5: Go west to Bio Lock East
+        // Step 5: Go west to Bio Lock East - fleeing from mutants
         response = await target.GetResponse("w");
         Console.WriteLine($"Step 5: {response}");
         response.Should().Contain("Bio Lock");
         // Should see Floyd's body
         response.Should().Contain("Floyd");
-        // Chase scene should start
+        // Chase continues with random chase message
         response.Should().Contain("mutants burst into the room");
     }
 }

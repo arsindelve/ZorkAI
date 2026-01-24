@@ -18,7 +18,8 @@ public class ChaseSceneManager : ItemBase, ITurnBasedActor
         "The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms! ",
         "The mutants burst into the room right on your heels! The mobile plant whips its poisonous tentacles against your ankles! ",
         "The mutants burst into the room right on your heels! A pair of slavering fangs removes part of your clothing! ",
-        "The mutants burst into the room right on your heels! The growling humanoid is charging straight at you, waving his axe-like implement! "
+        "The mutants burst into the room right on your heels! The growling humanoid is charging straight at you, waving his axe-like implement! ",
+        "The monsters gallop toward you, smacking their lips. "
     ];
 
     public override string[] NounsForMatching => [];
