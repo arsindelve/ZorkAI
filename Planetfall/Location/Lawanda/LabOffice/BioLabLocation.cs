@@ -1,8 +1,9 @@
 using GameEngine.Location;
 using Model.AIGeneration;
-using Planetfall.Command;
 using Planetfall.Item.Lawanda.BioLab;
+using Planetfall.Item.Lawanda.Lab;
 using Planetfall.Item.Lawanda.LabOffice;
+using Planetfall.Location.Lawanda.Lab;
 
 namespace Planetfall.Location.Lawanda.LabOffice;
 
@@ -10,8 +11,7 @@ internal class BioLabLocation : LocationBase
 {
     public override string Name => "Bio Lab";
 
-    [UsedImplicitly]
-    public bool ChaseStarted { get; set; } 
+    [UsedImplicitly] public bool ChaseStarted { get; set; }
 
     protected override string GetContextBasedDescription(IContext context)
     {
@@ -32,6 +32,9 @@ internal class BioLabLocation : LocationBase
         StartWithItem<MutantTroll>();
         StartWithItem<MutantGrue>();
         StartWithItem<Triffid>();
+
+        StartWithItem<OfficeDoor>();
+        StartWithItem<BioLockInnerDoor>();
     }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
@@ -47,26 +50,28 @@ internal class BioLabLocation : LocationBase
                     Location = GetLocation<LabOffice>()
                 }
             },
-            { Direction.W, Go<Lab.BioLockWest>() }
+            {
+                Direction.W,
+                new MovementParameters
+                {
+                    CanGo = _ => Repository.GetItem<BioLockInnerDoor>().IsOpen,
+                    CustomFailureMessage = "The lab door is closed. ",
+                    Location = GetLocation<BioLockEast>()
+                }
+            }
         };
     }
 
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        // Check if player is wearing gas mask when fungicide is active
         var fungicideTimer = Repository.GetItem<FungicideTimer>();
-        var gasMask = Repository.GetItem<GasMask>();
 
-        if (fungicideTimer.IsActive && (!context.Items.Contains(gasMask) || !gasMask.BeingWorn))
-        {
-            return Task.FromResult(
-                new DeathProcessor().Process(
-                    "Unfortunately, you don't seem to be that hardy. ",
-                    context).InteractionMessage);
-        }
+        // When fungicide is active, the mutants are stunned - no chase scene
+        if (fungicideTimer.IsActive)
+            return base.AfterEnterLocation(context, previousLocation, generationClient);
 
-        // Start chase scene on first entry
+        // No fungicide - mutants attack! Start chase scene on first entry
         if (!ChaseStarted)
         {
             ChaseStarted = true;

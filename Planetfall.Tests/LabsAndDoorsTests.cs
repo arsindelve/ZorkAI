@@ -335,6 +335,7 @@ public class LabsAndDoorsTests : EngineTestsBase
     {
         Repository.Reset();
         var desk = GetItem<LabDesk>();
+        desk.Items.Clear();
         desk.IsOpen = true;
         GetItem<Memo>().HasEverBeenPickedUp = true;
 

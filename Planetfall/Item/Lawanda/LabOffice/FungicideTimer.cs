@@ -71,6 +71,17 @@ public class FungicideTimer : ItemBase, ITurnBasedActor
             IsActive = false;
             if (door.IsOpen && inLabOffice)
                 message.Append(MistClearsMessage);
+
+        // If player is in Bio Lab when fungicide wears off, start the chase
+            if (context.CurrentLocation is BioLabLocation bioLab && !bioLab.ChaseStarted)
+            {
+                bioLab.ChaseStarted = true;
+                var chaseManager = Repository.GetItem<ChaseSceneManager>();
+                chaseManager.StartChase(bioLab);
+
+                if (!context.Actors.Contains(chaseManager))
+                    context.RegisterActor(chaseManager);
+            }
         }
 
         return Task.FromResult(message.ToString());

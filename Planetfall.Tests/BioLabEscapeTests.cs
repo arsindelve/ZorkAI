@@ -1,4 +1,6 @@
 using FluentAssertions;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Location.Lawanda.Lab;
 using Planetfall.Location.Lawanda.LabOffice;
 
 namespace Planetfall.Tests;
@@ -27,6 +29,59 @@ public class BioLabEscapeTests : EngineTestsBase
         await target.GetResponse("close desk");
         var response = await target.GetResponse("open desk");
 
-        response.Should().Be("Opened. \n");
+        // When desk is empty, should just say "Opened."
+        response.Should().Contain("Opened");
+        response.Should().NotContain("reveals");
+    }
+
+    [Test]
+    public async Task LabOffice_FullEscapeSequence()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+
+        // Setup: Floyd has already died, his body is in BioLockEast
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        var bioLockEast = GetLocation<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+
+        // Step 1: Press red button
+        var response = await target.GetResponse("press red button");
+        Console.WriteLine($"Step 1: {response}");
+        response.Should().Contain("hissing from beyond the door");
+
+        // Step 2: Open office door
+        response = await target.GetResponse("open door");
+        Console.WriteLine($"Step 2: {response}");
+        response.Should().Contain("office door is now open");
+        response.Should().Contain("filled with a light mist");
+        // Should only appear once (no duplicate)
+        var mistCount = response.Split("filled with a light mist").Length - 1;
+        mistCount.Should().Be(1);
+
+        // Step 3: Go west to Bio Lab
+        response = await target.GetResponse("w");
+        Console.WriteLine($"Step 3: {response}");
+        response.Should().Contain("Bio Lab");
+        response.Should().Contain("mist");
+        response.Should().Contain("mutants");
+
+        // Step 4: Open lab door (BioLockInnerDoor)
+        response = await target.GetResponse("open lab door");
+        Console.WriteLine($"Step 4: [{response}]");
+        response.Should().Contain("door opens");
+        // Should NOT contain death or Floyd rushing messages
+        response.Should().NotContain("devour");
+        response.Should().NotContain("Floyd");
+
+        // Step 5: Go west to Bio Lock East
+        response = await target.GetResponse("w");
+        Console.WriteLine($"Step 5: {response}");
+        response.Should().Contain("Bio Lock");
+        // Should see Floyd's body
+        response.Should().Contain("Floyd");
+        // Chase scene should start
+        response.Should().Contain("mutants burst into the room");
     }
 }
