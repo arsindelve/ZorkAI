@@ -58,6 +58,13 @@ public class ChaseSceneManager : ItemBase, ITurnBasedActor
         PreviousLocation = null;
     }
 
+    private Task<string> ProcessDeath(IContext context, string deathMessage)
+    {
+        StopChase();
+        context.RemoveActor(this);
+        return Task.FromResult(new DeathProcessor().Process(deathMessage, context).InteractionMessage);
+    }
+
     public Task<string> Act(IContext context, IGenerationClient client)
     {
         if (!ChaseActive)
@@ -86,35 +93,18 @@ public class ChaseSceneManager : ItemBase, ITurnBasedActor
 
             // CryoElevator: If they paused here without pushing button, instant death
             if (currentLoc is CryoElevatorLocation)
-            {
-                StopChase();
-                context.RemoveActor(this);
-                return Task.FromResult(
-                    new DeathProcessor().Process(
-                        "The biological nightmares reach you. Gripping coils wrap around your limbs as powerful " +
-                        "teeth begin tearing at your flesh. Something bites your leg, and you feel a powerful " +
-                        "poison begin to work its numbing effects... ",
-                        context).InteractionMessage);
-            }
+                return ProcessDeath(context,
+                    "The biological nightmares reach you. Gripping coils wrap around your limbs as powerful " +
+                    "teeth begin tearing at your flesh. Something bites your leg, and you feel a powerful " +
+                    "poison begin to work its numbing effects... ");
 
-            StopChase();
-            context.RemoveActor(this);
-            return Task.FromResult(
-                new DeathProcessor().Process(
-                    "Dozens of hungry eyes fix on you as the mutations surround you and begin feasting. ",
-                    context).InteractionMessage);
+            return ProcessDeath(context,
+                "Dozens of hungry eyes fix on you as the mutations surround you and begin feasting. ");
         }
 
         // Death: Player backtracked to previous location
         if (currentLoc == PreviousLocation)
-        {
-            StopChase();
-            context.RemoveActor(this);
-            return Task.FromResult(
-                new DeathProcessor().Process(
-                    "You stupidly run right into the jaws of the pursuing mutants. ",
-                    context).InteractionMessage);
-        }
+            return ProcessDeath(context, "You stupidly run right into the jaws of the pursuing mutants. ");
 
         // Update location history
         PreviousLocation = LastLocation;
