@@ -2,6 +2,8 @@ namespace Planetfall.Item.Lawanda.LabOffice;
 
 public class GasMask : ItemBase, ICanBeTakenAndDropped, IAmClothing
 {
+    public override int Size => 3;
+
     public override string[] NounsForMatching => ["gas mask", "mask"];
 
     public bool BeingWorn { get; set; } = false;

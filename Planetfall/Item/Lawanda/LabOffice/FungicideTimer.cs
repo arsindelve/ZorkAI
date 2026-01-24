@@ -23,17 +23,16 @@ public class FungicideTimer : ItemBase, ITurnBasedActor
 
     public override string[] NounsForMatching => [];
 
-    [UsedImplicitly]
-    public int TurnsRemaining { get; set; } = 4;
+    [UsedImplicitly] public int TurnsRemaining { get; set; } = 4;
 
-    [UsedImplicitly]
-    public bool IsActive { get; set; }
+    [UsedImplicitly] public bool IsActive { get; set; }
 
     public void Reset()
     {
-        // Set to 4 because the timer ticks on the same turn the button is pressed.
-        // This gives the player 3 actual turns of protection after the button press.
-        TurnsRemaining = 4;
+        // Set to 3 because the timer ticks on the same turn the button is pressed.
+        // This gives the player 2 actual turns of protection after the button press:
+        // Turn 1: Open door (mist visible), Turn 2: Wait (mist clears), Turn 3: Death
+        TurnsRemaining = 3;
         IsActive = true;
     }
 
@@ -59,8 +58,12 @@ public class FungicideTimer : ItemBase, ITurnBasedActor
         var message = new StringBuilder();
 
         // Show mist message if door is open and player is in office
-        if (door.IsOpen && inLabOffice)
+        // Skip if door was just opened this turn (OnOpening already showed it)
+        if (door.IsOpen && inLabOffice && !door.JustOpenedThisTurn)
             message.Append(MistMessage);
+
+        // Clear the flag for next turn
+        door.JustOpenedThisTurn = false;
 
         // Timer expired - mist clears
         if (TurnsRemaining <= 0)

@@ -9,18 +9,13 @@ public class CryoElevatorButton : ItemBase, ITurnBasedActor
 {
     public override string[] NounsForMatching => ["button", "elevator button"];
 
-    public override int Size => 100; // Can't be taken
+    [UsedImplicitly] public bool CountdownActive { get; set; }
 
-    [UsedImplicitly]
-    public bool CountdownActive { get; set; } = false;
+    [UsedImplicitly] public int TurnsRemaining { get; set; } = 100;
 
-    [UsedImplicitly]
-    public int TurnsRemaining { get; set; } = 100;
+    [UsedImplicitly] public bool AlreadyArrived { get; set; }
 
-    [UsedImplicitly]
-    public bool AlreadyArrived { get; set; } = false;
-
-    public override Task<InteractionResult> RespondToSimpleInteraction(
+    public override Task<InteractionResult?> RespondToSimpleInteraction(
         SimpleIntent action, IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (!action.MatchVerb(["push", "press"]))
@@ -30,7 +25,7 @@ public class CryoElevatorButton : ItemBase, ITurnBasedActor
         if (AlreadyArrived)
         {
             context.RemoveActor(this);
-            return Task.FromResult<InteractionResult>(
+            return Task.FromResult<InteractionResult?>(
                 new DeathInteractionResult(
                     new DeathProcessor().Process(
                         "You push the button again. The elevator lurches and begins ascending back up! " +
@@ -42,7 +37,7 @@ public class CryoElevatorButton : ItemBase, ITurnBasedActor
 
         if (CountdownActive)
         {
-            return Task.FromResult<InteractionResult>(
+            return Task.FromResult<InteractionResult?>(
                 new PositiveInteractionResult("The elevator is already descending. "));
         }
 
@@ -61,7 +56,7 @@ public class CryoElevatorButton : ItemBase, ITurnBasedActor
         // Award points
         context.AddPoints(5);
 
-        return Task.FromResult<InteractionResult>(
+        return Task.FromResult<InteractionResult?>(
             new PositiveInteractionResult(
                 "You push the button. The elevator doors close and it begins its long descent " +
                 "to the cryogenic anteroom. The mutants' sounds fade away above you. "));
