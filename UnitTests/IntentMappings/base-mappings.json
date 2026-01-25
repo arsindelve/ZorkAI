@@ -1,0 +1,216 @@
+{
+  "version": "1.0",
+  "gameName": "base",
+  "extends": null,
+
+  "globalCommands": [
+    { "inputs": ["look", "l"], "processorType": "LookProcessor" },
+    { "inputs": ["inventory", "i"], "processorType": "InventoryProcessor" },
+    { "inputs": ["take all", "get all"], "processorType": "TakeEverythingProcessor" },
+    { "inputs": ["drop all"], "processorType": "DropEverythingProcessor" },
+    { "inputs": ["wait", "z"], "processorType": "WaitProcessor" }
+  ],
+
+  "simpleIntents": [
+    { "inputs": ["press the button", "press button"], "verb": "press", "noun": "button" },
+    { "inputs": ["press elevator button"], "verb": "press", "noun": "elevator button" },
+    { "inputs": ["press up button"], "verb": "press", "noun": "up button" },
+    { "inputs": ["press down button"], "verb": "press", "noun": "down button" },
+    { "inputs": ["press blue button"], "verb": "press", "noun": "blue button" },
+    { "inputs": ["press black button"], "verb": "press", "noun": "black button" },
+    { "inputs": ["press gray button"], "verb": "press", "noun": "gray button" },
+    { "inputs": ["press the one button"], "verb": "press", "noun": "one button" },
+    { "inputs": ["press the two button"], "verb": "press", "noun": "two button" },
+    { "inputs": ["press the three button"], "verb": "press", "noun": "three button" },
+    { "inputs": ["press the 1 button"], "verb": "press", "noun": "1 button" },
+    { "inputs": ["press the 2 button"], "verb": "press", "noun": "2 button" },
+    { "inputs": ["press the tan button"], "verb": "press", "noun": "tan button" },
+    { "inputs": ["press the brown button"], "verb": "press", "noun": "brown button", "adverb": "the" },
+    { "inputs": ["press round button"], "verb": "press", "noun": "round button" },
+    { "inputs": ["press square button"], "verb": "press", "noun": "square button" },
+    { "inputs": ["press the beige button"], "verb": "press", "noun": "beige button" },
+    { "inputs": ["press red button"], "verb": "press", "noun": "red button" },
+    { "inputs": ["press the yellow button", "press yellow"], "verb": "press", "noun": "yellow button", "adverb": "the" },
+    { "inputs": ["press yellow button"], "verb": "press", "noun": "yellow", "adverb": "" },
+    { "inputs": ["press the blue button"], "verb": "press", "noun": "blue button", "adverb": "the" },
+    { "inputs": ["press the red button"], "verb": "press", "noun": "red button", "adverb": "the" },
+
+    { "inputs": ["open red door"], "verb": "open", "noun": "red door" },
+    { "inputs": ["close red door"], "verb": "close", "noun": "red door" },
+    { "inputs": ["examine red door"], "verb": "examine", "noun": "red door" },
+    { "inputs": ["examine blue door"], "verb": "examine", "noun": "blue door" },
+    { "inputs": ["open elevator door"], "verb": "open", "noun": "elevator door" },
+    { "inputs": ["open blue door"], "verb": "open", "noun": "blue door" },
+    { "inputs": ["close blue door"], "verb": "close", "noun": "blue door" },
+    { "inputs": ["open cell door"], "verb": "open", "noun": "cell door" },
+    { "inputs": ["open lab door"], "verb": "open", "noun": "lab door" },
+    { "inputs": ["open trap door"], "verb": "open", "noun": "trap door", "adverb": "" },
+
+    { "inputs": ["play with floyd"], "verb": "play", "noun": "floyd" },
+    { "inputs": ["cross the rainbow"], "verb": "cross", "noun": "rainbow" },
+    { "inputs": ["drop the access card"], "verb": "drop", "noun": "access card" },
+
+    { "inputs": ["sit on rug"], "verb": "sit", "noun": "rug", "originalInput": "sit on rug" },
+    { "inputs": ["look under rug"], "verb": "look", "noun": "rug", "originalInput": "look under rug" },
+    { "inputs": ["look under table"], "verb": "look", "noun": "table", "originalInput": "look under table" },
+
+    { "inputs": ["say temple"], "verb": "say", "noun": "temple" },
+    { "inputs": ["say treasure"], "verb": "say", "noun": "treasure" },
+
+    { "inputs": ["turn the lamp off"], "verb": "turn", "noun": "lamp", "adverb": "off" },
+    { "inputs": ["turn the lamp on"], "verb": "turn", "noun": "lamp", "adverb": "on", "originalInput": "turn the lamp on" },
+    { "inputs": ["turn on lantern", "turn on lamp"], "verb": "turn", "noun": "lamp", "adverb": "on", "originalInput": "turn the lamp on" },
+    { "inputs": ["turn lantern on"], "verb": "turn", "noun": "lantern", "adverb": "on", "originalInput": "turn lantern on" },
+    { "inputs": ["turn off lantern"], "verb": "turn", "noun": "lamp", "adverb": "off", "originalInput": "turn the lamp on" },
+
+    { "inputs": ["examine crack"], "verb": "examine", "noun": "crack", "originalInput": "examine crack" },
+    { "inputs": ["look through crack"], "verb": "look", "noun": "crack", "originalInput": "look through crack" },
+    { "inputs": ["look through window"], "verb": "look", "noun": "window", "originalInput": "look through window" },
+    { "inputs": ["examine equipment"], "verb": "examine", "noun": "equipment", "originalInput": "examine equipment" },
+
+    { "inputs": ["light a match"], "verb": "light", "noun": "match", "adverb": "a" },
+
+    { "inputs": ["look at relay"], "verb": "look at", "noun": "relay", "originalInput": "look at relay" },
+    { "inputs": ["look into relay"], "verb": "look into", "noun": "relay", "originalInput": "look into relay" },
+    { "inputs": ["look at microrelay"], "verb": "look at", "noun": "microrelay", "originalInput": "look at microrelay" },
+    { "inputs": ["look into micro-relay"], "verb": "look into", "noun": "micro-relay", "originalInput": "look into micro-relay" },
+
+    { "inputs": ["wear gas mask"], "verb": "wear", "noun": "gas mask", "originalInput": "wear gas mask" },
+    { "inputs": ["take gas mask"], "verb": "take", "noun": "gas mask", "originalInput": "take gas mask" },
+    { "inputs": ["drop gas mask"], "verb": "drop", "noun": "gas mask", "originalInput": "drop gas mask" },
+    { "inputs": ["examine gas mask"], "verb": "examine", "noun": "gas mask", "originalInput": "examine gas mask" }
+  ],
+
+  "multiNounIntents": [
+    { "inputs": ["tie rope to railing"], "verb": "tie", "nounOne": "rope", "nounTwo": "railing", "preposition": "to", "originalInput": "tie rope to railing" },
+    { "inputs": ["place ladder across rift"], "verb": "place", "nounOne": "ladder", "nounTwo": "rift", "preposition": "across", "originalInput": "place ladder across rift" },
+    { "inputs": ["put flask under spout"], "verb": "put", "nounOne": "flask", "nounTwo": "spout", "preposition": "under", "originalInput": "put flask under spout" },
+    { "inputs": ["put trident in boat"], "verb": "put", "nounOne": "trident", "nounTwo": "boat", "preposition": "in", "originalInput": "put trident in boat" },
+    { "inputs": ["put bar in boat"], "verb": "put", "nounOne": "bar", "nounTwo": "boat", "preposition": "in", "originalInput": "put bar in boat" },
+    { "inputs": ["put emerald in boat"], "verb": "put", "nounOne": "emerald", "nounTwo": "boat", "preposition": "in", "originalInput": "put emerald in boat" },
+    { "inputs": ["put scarab in boat"], "verb": "put", "nounOne": "scarab", "nounTwo": "boat", "preposition": "in", "originalInput": "put scarab in boat" },
+
+    { "inputs": ["set dial to 5651"], "verb": "set", "nounOne": "dial", "nounTwo": "5651", "preposition": "to", "originalInput": "set dial to 5651" },
+    { "inputs": ["set dial to 12"], "verb": "set", "nounOne": "dial", "nounTwo": "12", "preposition": "to", "originalInput": "set dial to 12" },
+    { "inputs": ["set dial to -12"], "verb": "set", "nounOne": "dial", "nounTwo": "-12", "preposition": "to", "originalInput": "set dial to -12" },
+    { "inputs": ["set dial to goo"], "verb": "set", "nounOne": "dial", "nounTwo": "goo", "preposition": "to", "originalInput": "set dial to goo" },
+
+    { "inputs": ["slide upper access card through slot"], "verb": "slide", "nounOne": "upper access card", "nounTwo": "slot", "preposition": "through", "originalInput": "slide upper access card through slot" },
+    { "inputs": ["slide lower access card through slot"], "verb": "slide", "nounOne": "lower access card", "nounTwo": "slot", "preposition": "through", "originalInput": "slide lower access card through slot" },
+    { "inputs": ["slide kitchen access card through slot"], "verb": "slide", "nounOne": "kitchen access card", "nounTwo": "slot", "preposition": "through", "originalInput": "slide kitchen access card through slot" },
+    { "inputs": ["slide miniaturization access card through slot"], "verb": "slide", "nounOne": "miniaturization access card", "nounTwo": "slot", "preposition": "through", "originalInput": "slide miniaturization access card through slot" },
+    { "inputs": ["slide miniaturization card through slot"], "verb": "slide", "nounOne": "miniaturization card", "nounTwo": "slot", "preposition": "through", "originalInput": "slide miniaturization card through slot" },
+    { "inputs": ["slide miniaturization through slot"], "verb": "slide", "nounOne": "miniaturization", "nounTwo": "slot", "preposition": "through", "originalInput": "slide miniaturization through slot" },
+    { "inputs": ["slide mini card through slot"], "verb": "slide", "nounOne": "mini card", "nounTwo": "slot", "preposition": "through", "originalInput": "slide mini card through slot" },
+    { "inputs": ["slide access card through slot"], "verb": "slide", "nounOne": "access card", "nounTwo": "slot", "preposition": "through", "originalInput": "slide access card through slot" },
+    { "inputs": ["slide shuttle access card through slot"], "verb": "slide", "nounOne": "shuttle access card", "nounTwo": "slot", "preposition": "through", "originalInput": "slide shuttle access card through slot" },
+    { "inputs": ["slide upper elevator access card through slot"], "verb": "slide", "nounOne": "upper elevator access card", "nounTwo": "slot", "preposition": "through", "originalInput": "slide upper elevator access card through slot" },
+    { "inputs": ["slide teleportation access card through slot"], "verb": "slide", "nounOne": "teleportation access card", "nounTwo": "slot", "preposition": "through", "originalInput": "slide teleportation access card through slot" },
+    { "inputs": ["slide teleportation card through slot"], "verb": "slide", "nounOne": "teleportation card", "nounTwo": "slot", "preposition": "through", "originalInput": "slide access card through slot" },
+    { "inputs": ["slide teleportation through slot"], "verb": "slide", "nounOne": "teleportation", "nounTwo": "slot", "preposition": "through", "originalInput": "slide teleportation through slot" },
+    { "inputs": ["slide card through slot"], "verb": "slide", "nounOne": "card", "nounTwo": "slot", "preposition": "through", "originalInput": "slide card through slot" },
+
+    { "inputs": ["put upper elevator access card in slot"], "verb": "put", "nounOne": "upper elevator access card", "nounTwo": "slot", "preposition": "in", "originalInput": "put upper elevator access card in slot" },
+    { "inputs": ["put lower elevator access card in slot"], "verb": "put", "nounOne": "lower elevator access card", "nounTwo": "slot", "preposition": "in", "originalInput": "put lower elevator access card in slot" },
+
+    { "inputs": ["inflate plastic with pump"], "verb": "inflate", "nounOne": "boat", "nounTwo": "pump", "preposition": "with", "originalInput": "inflate plastic with pump" },
+    { "inputs": ["unlock grate with the key"], "verb": "unlock", "nounOne": "grate", "nounTwo": "key", "preposition": "with", "originalInput": "unlock grate with the key" },
+    { "inputs": ["lock the grate with the key"], "verb": "lock", "nounOne": "grate", "nounTwo": "key", "preposition": "with", "originalInput": "lock the grate with the key" },
+    { "inputs": ["turn bolt with wrench"], "verb": "turn", "nounOne": "bolt", "nounTwo": "wrench", "preposition": "with", "originalInput": "turn bolt with wrench" },
+    { "inputs": ["turn switch with screwdriver"], "verb": "turn", "nounOne": "switch", "nounTwo": "screwdriver", "preposition": "with", "originalInput": "turn switch with screwdriver" },
+
+    { "inputs": ["open the egg with the screwdriver"], "verb": "open", "nounOne": "egg", "nounTwo": "screwdriver", "preposition": "with", "originalInput": "open the egg with the screwdriver" },
+    { "inputs": ["open the egg with the knife"], "verb": "open", "nounOne": "egg", "nounTwo": "knife", "preposition": "with", "originalInput": "open the egg with the knife" },
+    { "inputs": ["open the egg with the sword"], "verb": "open", "nounOne": "egg", "nounTwo": "sword", "preposition": "with", "originalInput": "open the egg with the sword" },
+
+    { "inputs": ["light candles with match"], "verb": "light", "nounOne": "candles", "nounTwo": "match", "preposition": "with", "originalInput": "light candles with match" },
+    { "inputs": ["put magnet on crevice"], "verb": "put", "nounOne": "magnet", "nounTwo": "crevice", "preposition": "on", "originalInput": "put magnet on crevice" },
+    { "inputs": ["unlock padlock with key"], "verb": "unlock", "nounOne": "padlock", "nounTwo": "key", "preposition": "with", "originalInput": "unlock padlock with key" },
+    { "inputs": ["unlock door with key"], "verb": "unlock", "nounOne": "door", "nounTwo": "key", "preposition": "with", "originalInput": "unlock door with key" },
+
+    { "inputs": ["use key on door"], "verb": "use", "nounOne": "key", "nounTwo": "door", "preposition": "on", "originalInput": "use key on door" },
+    { "inputs": ["use key on padlock"], "verb": "use", "nounOne": "key", "nounTwo": "padlock", "preposition": "on", "originalInput": "use key on padlock" },
+    { "inputs": ["take fused with pliers"], "verb": "take", "nounOne": "fused", "nounTwo": "pliers", "preposition": "with", "originalInput": "take fused with pliers" },
+    { "inputs": ["use pliers on bedistor"], "verb": "use", "nounOne": "pliers", "nounTwo": "bedistor", "preposition": "on", "originalInput": "use pliers on bedistor" },
+    { "inputs": ["use pliers on fused"], "verb": "use", "nounOne": "pliers", "nounTwo": "fused", "preposition": "on", "originalInput": "use pliers on fused" },
+    { "inputs": ["use magnet on crevice"], "verb": "use", "nounOne": "magnet", "nounTwo": "crevice", "preposition": "on", "originalInput": "use magnet on crevice" },
+    { "inputs": ["use magnet on key"], "verb": "use", "nounOne": "magnet", "nounTwo": "key", "preposition": "on", "originalInput": "use magnet on key" },
+    { "inputs": ["use magnet on floor"], "verb": "use", "nounOne": "magnet", "nounTwo": "floor", "preposition": "on", "originalInput": "use magnet on floor" },
+    { "inputs": ["use bar on crevice"], "verb": "use", "nounOne": "bar", "nounTwo": "crevice", "preposition": "on", "originalInput": "use bar on crevice" },
+    { "inputs": ["use ladder on rift"], "verb": "use", "nounOne": "ladder", "nounTwo": "rift", "preposition": "on", "originalInput": "use ladder on rift" },
+    { "inputs": ["use ladder on chasm"], "verb": "use", "nounOne": "ladder", "nounTwo": "chasm", "preposition": "on", "originalInput": "use ladder on chasm" },
+
+    { "inputs": ["use kitchen access card on slot"], "verb": "use", "nounOne": "kitchen access card", "nounTwo": "slot", "preposition": "on", "originalInput": "use kitchen access card on slot" },
+    { "inputs": ["use kitchen access card in slot"], "verb": "use", "nounOne": "kitchen access card", "nounTwo": "slot", "preposition": "in", "originalInput": "use kitchen access card in slot" },
+    { "inputs": ["use kitchen card on slot"], "verb": "use", "nounOne": "kitchen card", "nounTwo": "slot", "preposition": "on", "originalInput": "use kitchen card on slot" },
+    { "inputs": ["use upper elevator access card on slot"], "verb": "use", "nounOne": "upper elevator access card", "nounTwo": "slot", "preposition": "on", "originalInput": "use upper elevator access card on slot" },
+    { "inputs": ["use shuttle access card on slot"], "verb": "use", "nounOne": "shuttle access card", "nounTwo": "slot", "preposition": "on", "originalInput": "use shuttle access card on slot" },
+
+    { "inputs": ["light candles with torch"], "verb": "light", "nounOne": "candles", "nounTwo": "torch", "preposition": "with", "originalInput": "light candles with torch" },
+    { "inputs": ["light matches with torch"], "verb": "light", "nounOne": "matches", "nounTwo": "torch", "preposition": "with", "originalInput": "light matches with torch" },
+
+    { "inputs": ["kill the cyclops with the sword"], "verb": "kill", "nounOne": "cyclops", "nounTwo": "sword", "preposition": "with", "originalInput": "kill the cyclops with the sword" },
+    { "inputs": ["kill the troll with the sword"], "verb": "kill", "nounOne": "troll", "nounTwo": "sword", "preposition": "with", "originalInput": "kill the troll with the sword" },
+
+    { "inputs": ["dig in sand with shovel"], "verb": "dig", "nounOne": "sand", "nounTwo": "shovel", "preposition": "with", "originalInput": "dig in sand with shovel" },
+    { "inputs": ["offer the cyclops the lunch"], "verb": "offer", "nounOne": "cyclops", "nounTwo": "lunch", "preposition": "", "originalInput": "offer the cyclops the lunch" },
+    { "inputs": ["pour fluid into hole"], "verb": "pour", "nounOne": "fluid", "nounTwo": "hole", "preposition": "into", "originalInput": "pour fluid into hole" },
+
+    { "inputs": ["give the lunch to the cyclops"], "verb": "give", "nounOne": "lunch", "nounTwo": "cyclops", "preposition": "to", "originalInput": "give the lunch to the cyclops" },
+    { "inputs": ["give the bottle to the cyclops"], "verb": "give", "nounOne": "bottle", "nounTwo": "cyclops", "preposition": "to", "originalInput": "give the bottle to the cyclops" },
+    { "inputs": ["give the garlic to the cyclops"], "verb": "give", "nounOne": "garlic", "nounTwo": "cyclops", "preposition": "to", "originalInput": "give the garlic to the cyclops" },
+    { "inputs": ["give the axe to the cyclops"], "verb": "give", "nounOne": "axe", "nounTwo": "cyclops", "preposition": "to", "originalInput": "give the axe to the cyclops" },
+    { "inputs": ["give the egg to the thief"], "verb": "give", "nounOne": "egg", "nounTwo": "thief", "preposition": "to", "originalInput": "give the egg to the thief" },
+    { "inputs": ["give the trident to the thief"], "verb": "give", "nounOne": "trident", "nounTwo": "thief", "preposition": "to", "originalInput": "give the trident to the thief" },
+    { "inputs": ["give the sceptre to the thief"], "verb": "give", "nounOne": "sceptre", "nounTwo": "thief", "preposition": "to", "originalInput": "give the sceptre to the thief" },
+    { "inputs": ["give the diary to floyd"], "verb": "give", "nounOne": "diary", "nounTwo": "floyd", "preposition": "to", "originalInput": "give the diary to floyd" },
+    { "inputs": ["give the key to floyd"], "verb": "give", "nounOne": "key", "nounTwo": "floyd", "preposition": "to", "originalInput": "give the key to floyd" },
+    { "inputs": ["give the plate to floyd", "give plate to floyd"], "verb": "give", "nounOne": "plate", "nounTwo": "floyd", "preposition": "to", "originalInput": "give the plate to floyd" },
+    { "inputs": ["give the breastplate to floyd", "give breastplate to floyd"], "verb": "give", "nounOne": "breastplate", "nounTwo": "floyd", "preposition": "to", "originalInput": "give the breastplate to floyd" },
+
+    { "inputs": ["kill thief with sword"], "verb": "kill", "nounOne": "thief", "nounTwo": "sword", "preposition": "with", "originalInput": "kill thief with sword" },
+    { "inputs": ["kill thief with knife"], "verb": "kill", "nounOne": "thief", "nounTwo": "knife", "preposition": "with", "originalInput": "kill thief with knife" },
+
+    { "inputs": ["plug the leak with the gunk"], "verb": "plug", "nounOne": "leak", "nounTwo": "gunk", "preposition": "with", "originalInput": "plug the leak with the gunk" },
+    { "inputs": ["fix the plastic with the gunk"], "verb": "fix", "nounOne": "plastic", "nounTwo": "gunk", "preposition": "with", "originalInput": "fix the plastic with the gunk" },
+    { "inputs": ["apply the gunk to the water"], "verb": "apply", "nounOne": "gunk", "nounTwo": "leak", "preposition": "to", "originalInput": "apply the gunk to the water" },
+
+    { "inputs": ["put red spool in reader"], "verb": "put", "nounOne": "red spool", "nounTwo": "reader", "preposition": "in", "originalInput": "put red spool in reader" },
+    { "inputs": ["put green spool in reader"], "verb": "put", "nounOne": "green spool", "nounTwo": "reader", "preposition": "in", "originalInput": "put green spool in reader" },
+
+    { "inputs": ["set laser to 5"], "verb": "set", "nounOne": "laser", "nounTwo": "5", "preposition": "to", "originalInput": "set laser to 5" },
+    { "inputs": ["set laser to 6"], "verb": "set", "nounOne": "laser", "nounTwo": "6", "preposition": "to", "originalInput": "set laser to 6" },
+    { "inputs": ["set laser to 1"], "verb": "set", "nounOne": "laser", "nounTwo": "1", "preposition": "to", "originalInput": "set laser to 1" },
+    { "inputs": ["set laser to 0"], "verb": "set", "nounOne": "laser", "nounTwo": "0", "preposition": "to", "originalInput": "set laser to 0" },
+    { "inputs": ["set laser to 90"], "verb": "set", "nounOne": "laser", "nounTwo": "90", "preposition": "to", "originalInput": "set laser to 90" },
+    { "inputs": ["set laser to bob"], "verb": "set", "nounOne": "laser", "nounTwo": "bob", "preposition": "to", "originalInput": "set laser to bob" },
+
+    { "inputs": ["shoot laser with laser"], "verb": "shoot", "nounOne": "laser", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot laser with laser" },
+    { "inputs": ["fire laser at laser"], "verb": "fire", "nounOne": "laser", "nounTwo": "laser", "preposition": "at", "originalInput": "fire laser at laser" },
+    { "inputs": ["shoot battery with laser"], "verb": "shoot", "nounOne": "battery", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot battery with laser" },
+    { "inputs": ["shoot old battery with laser"], "verb": "shoot", "nounOne": "old battery", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot old battery with laser" },
+    { "inputs": ["shoot flask with laser"], "verb": "shoot", "nounOne": "flask", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot flask with laser" },
+    { "inputs": ["shoot magnet with laser"], "verb": "shoot", "nounOne": "magnet", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot magnet with laser" },
+    { "inputs": ["shoot canteen with laser"], "verb": "shoot", "nounOne": "canteen", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot canteen with laser" },
+    { "inputs": ["shoot floyd with laser"], "verb": "shoot", "nounOne": "floyd", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot floyd with laser" },
+
+    { "inputs": ["shoot laser at flask"], "verb": "shoot", "nounOne": "laser", "nounTwo": "flask", "preposition": "at", "originalInput": "shoot laser at flask" },
+    { "inputs": ["shoot laser at floyd"], "verb": "shoot", "nounOne": "laser", "nounTwo": "floyd", "preposition": "at", "originalInput": "shoot laser at floyd" },
+    { "inputs": ["fire laser at flask"], "verb": "fire", "nounOne": "laser", "nounTwo": "flask", "preposition": "at", "originalInput": "fire laser at flask" },
+
+    { "inputs": ["shoot relay with laser", "shoot speck with laser"], "verb": "shoot", "nounOne": "relay", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot relay with laser" },
+    { "inputs": ["shoot laser at relay", "shoot laser at speck"], "verb": "shoot", "nounOne": "laser", "nounTwo": "relay", "preposition": "at", "originalInput": "shoot laser at relay" },
+    { "inputs": ["fire laser at relay"], "verb": "fire", "nounOne": "laser", "nounTwo": "relay", "preposition": "at", "originalInput": "fire laser at relay" },
+
+    { "inputs": ["put good in cube"], "verb": "put", "nounOne": "good bedistor", "nounTwo": "cube", "preposition": "in", "originalInput": "put good in cube" }
+  ],
+
+  "enterSubLocationIntents": [
+    { "inputs": ["get in the boat", "enter the boat", "enter boat"], "noun": "boat" }
+  ],
+
+  "exitSubLocationIntents": [
+    { "inputs": ["get out of the boat", "leave boat"], "nounOne": "boat" },
+    { "inputs": ["get out of bed", "exit bed", "leave bed", "get out", "stand", "stand up", "get up"], "nounOne": "bed" }
+  ]
+}

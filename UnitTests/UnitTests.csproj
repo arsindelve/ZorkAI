@@ -43,4 +43,8 @@
       <Folder Include="AWS\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <EmbeddedResource Include="IntentMappings\*.json" />
+    </ItemGroup>
+
 </Project>
