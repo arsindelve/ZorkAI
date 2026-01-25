@@ -11,9 +11,9 @@ public class Water : ItemBase, IAmADrink
 
     public override int Size => 2;
 
-    string IAmADrink.OnDrinking(IContext context)
+    (string Message, bool WasConsumed) IAmADrink.OnDrinking(IContext context)
     {
-        return "Thank you very much -- I was very thirsty (probably from all this talking).";
+        return ("Thank you very much -- I was very thirsty (probably from all this talking).", true);
     }
 
     public override string GenericDescription(ILocation? currentLocation)

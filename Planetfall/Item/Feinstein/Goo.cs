@@ -45,25 +45,23 @@ internal abstract class GooBase : ItemBase, ICanBeEaten, ICanBeTakenAndDropped
         // No special action needed
     }
 
-    public string OnEating(IContext context)
+    public (string Message, bool WasConsumed) OnEating(IContext context)
     {
         if (context is not PlanetfallContext pfContext)
-            return "Thanks, but you're not hungry. ";
+            return ("Thanks, but you're not hungry. ", false);
 
         if (pfContext.Hunger == HungerLevel.WellFed)
-            return "Thanks, but you're not hungry. ";
+            return ("Thanks, but you're not hungry. ", false);
 
         // Goo can only be eaten from the survival kit
-        // By the time OnEating() is called, the goo has been destroyed, so we can't check its location.
-        // Instead, we check if the survival kit is in the player's inventory or current location.
         var survivalKit = Repository.GetItem<SurvivalKit>();
         var locationHasKit = pfContext.CurrentLocation is ICanContainItems container && container.Items.Contains(survivalKit);
         if (!pfContext.Items.Contains(survivalKit) && !locationHasKit)
-            return "You aren't holding that. ";
+            return ("You aren't holding that. ", false);
 
         // Check if survival kit is open
         if (!survivalKit.IsOpen)
-            return "The survival kit is not open. ";
+            return ("The survival kit is not open. ", false);
 
         // Reset hunger to well-fed
         pfContext.Hunger = HungerLevel.WellFed;
@@ -71,10 +69,7 @@ internal abstract class GooBase : ItemBase, ICanBeEaten, ICanBeTakenAndDropped
         // Reset hunger notifications - goo provides 1450 ticks
         pfContext.HungerNotifications.ResetAfterEating(pfContext.CurrentTime, GooHungerResetTicks);
 
-        // Note: The goo is automatically destroyed by EatAndDrinkInteractionProcessor
-        // before OnEating() is called, so no need to remove it here
-
-        return $"Mmmm...that tasted just like {FlavorDescription}. ";
+        return ($"Mmmm...that tasted just like {FlavorDescription}. ", true);
     }
 }
 

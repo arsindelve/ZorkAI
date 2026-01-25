@@ -4,12 +4,12 @@ internal class Medicine : ItemBase, IAmADrink
 {
     public override string[] NounsForMatching => ["medicine"];
 
-    public string OnDrinking(IContext context)
+    public (string Message, bool WasConsumed) OnDrinking(IContext context)
     {
         if (context is PlanetfallContext pc)
             pc.HasTakenExperimentalMedicine = true;
 
-        return "The medicine tasted extremely bitter. ";
+        return ("The medicine tasted extremely bitter. ", true);
     }
 
     public override string GenericDescription(ILocation? currentLocation)

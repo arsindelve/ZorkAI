@@ -281,6 +281,28 @@ public class HungerSystemTests : EngineTestsBase
     }
 
     [Test]
+    public async Task RedGoo_WhenNotHungry_DoesNotConsumeGoo()
+    {
+        var target = GetTarget();
+        StartHere<Kitchen>();
+
+        PreventHungerAdvancement(target.Context);
+
+        var kit = GetItem<SurvivalKit>();
+        kit.IsOpen = true;
+        target.Context.ItemPlacedHere(kit);
+
+        // Verify goo exists before
+        kit.Items.Should().Contain(item => item is RedGoo);
+
+        var response = await target.GetResponse("eat red goo");
+        response.Should().Contain("not hungry");
+
+        // Goo should NOT be consumed when player is not hungry
+        kit.Items.Should().Contain(item => item is RedGoo, "the goo should not be consumed when player is not hungry");
+    }
+
+    [Test]
     public async Task RedGoo_WhenHungry_ConsumesWithCherryPieFlavor()
     {
         var target = GetTarget();

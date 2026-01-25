@@ -53,7 +53,7 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
     {
         // Drinking is a little different, because liquid usually has to be inside a container
         // right up until the moment we drink it. We cannot "hold" water in inventory without
-        // a bottle, the way we can "hold" a sandwich. 
+        // a bottle, the way we can "hold" a sandwich.
 
         var container = item.CurrentLocation as IItem;
 
@@ -63,19 +63,23 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
         if (container is IOpenAndClose { IsOpen: false })
             return $"The {container.Name} is not open. ";
 
-        DestroyIt(item);
-        return drink.OnDrinking(context);
+        var (message, wasConsumed) = drink.OnDrinking(context);
+
+        if (wasConsumed)
+            DestroyIt(item);
+
+        return message;
     }
 
     private static string EatIt(IItem item, string message, ICanBeEaten food, IContext context)
     {
         // We know the item is in this location, but it might be inside something else. If so
         // we need to take it first. This will have no practical effect because we are just
-        // about to destroy it, but we do need to say "(Taken)" first. 
+        // about to destroy it, but we do need to say "(Taken)" first.
 
         var container = item.CurrentLocation;
 
-        // If it's in a container, is the container open? We might be able to see it but not 
+        // If it's in a container, is the container open? We might be able to see it but not
         // take it, if it's in the trophy case for example
         if (container is IOpenAndClose { IsOpen: false })
             return $"The {container.Name} is not open. ";
@@ -83,9 +87,12 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
         if (container is not IContext && string.IsNullOrEmpty(item.CannotBeTakenDescription))
             message = "(Taken)\n";
 
-        DestroyIt(item);
+        var (eatingMessage, wasConsumed) = food.OnEating(context);
 
-        message += food.OnEating(context);
+        if (wasConsumed)
+            DestroyIt(item);
+
+        message += eatingMessage;
         return message;
     }
 

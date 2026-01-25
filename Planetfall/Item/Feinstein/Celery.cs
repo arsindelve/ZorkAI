@@ -9,10 +9,10 @@ public class Celery : ItemBase, ICanBeEaten
     public override string? CannotBeTakenDescription =>
         "The ambassador seems perturbed by your lack of normal protocol. ";
 
-    public string OnEating(IContext context)
+    public (string Message, bool WasConsumed) OnEating(IContext context)
     {
-        return new DeathProcessor().Process(
+        return (new DeathProcessor().Process(
             "Oops. Looks like Blow'k-Bibben-Gordoan metabolism is not compatible with our own. You die of all sorts of convulsions.",
-            context).InteractionMessage;
+            context).InteractionMessage, true);
     }
 }

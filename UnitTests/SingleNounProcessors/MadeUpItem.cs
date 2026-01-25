@@ -6,9 +6,9 @@ namespace UnitTests.SingleNounProcessors;
 
 internal class MadeUpItem : ICanBeEaten, ICanBeTakenAndDropped
 {
-    public string OnEating(IContext context)
+    public (string Message, bool WasConsumed) OnEating(IContext context)
     {
-        return "";
+        return ("", true);
     }
 
     public string OnTheGroundDescription(ILocation currentLocation)

@@ -7,7 +7,13 @@ namespace Model.Item;
 /// </summary>
 public interface ICanBeEaten : IInteractionTarget
 {
-    public string OnEating(IContext context);
+    /// <summary>
+    /// Called when the player attempts to eat this item.
+    /// </summary>
+    /// <param name="context">The game context.</param>
+    /// <returns>A tuple containing the message to display and whether the item was consumed.
+    /// If WasConsumed is false, the item remains in the game world.</returns>
+    public (string Message, bool WasConsumed) OnEating(IContext context);
 }
 
 /// <summary>
@@ -15,5 +21,11 @@ public interface ICanBeEaten : IInteractionTarget
 /// </summary>
 public interface IAmADrink : IInteractionTarget
 {
-    public string OnDrinking(IContext context);
+    /// <summary>
+    /// Called when the player attempts to drink this item.
+    /// </summary>
+    /// <param name="context">The game context.</param>
+    /// <returns>A tuple containing the message to display and whether the item was consumed.
+    /// If WasConsumed is false, the item remains in the game world.</returns>
+    public (string Message, bool WasConsumed) OnDrinking(IContext context);
 }
