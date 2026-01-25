@@ -36,6 +36,9 @@ public class FusedBedistor : BedistorBase, ICanBeTakenAndDropped
 
         var match = action.Match<Pliers>(["take", "remove"], NounsForMatching, ["with", "using"]);
 
+        // Also support "use pliers on bedistor"
+        match |= action.Match<FusedBedistor>(["use"], Repository.GetItem<Pliers>().NounsForMatching, ["on"]);
+
         if (match)
         {
             // Remove from the cube and place in the player's inventory

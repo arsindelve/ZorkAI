@@ -71,14 +71,12 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
             : NounsForMatching;
 
         var match = action.Match<Key>(["unlock", "open"], nounsToMatch, ["with", "using"]);
-        match |= action.Match<Padlock>(["use"], Repository.GetItem<Key>().NounsForMatching, ["on"]);
+        match |= action.Match(["use"], Repository.GetItem<Key>().NounsForMatching, nounsToMatch, ["on"]);
 
         if (match)
         {
             Locked = false;
-
             Repository.GetItem<Floyd>().CommentOnAction(FloydPrompts.PadlockUnlocked, context);
-
             return new PositiveInteractionResult("The padlock springs open. ");
         }
 

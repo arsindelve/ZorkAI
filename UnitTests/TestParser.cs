@@ -814,6 +814,26 @@ public class TestParser : IntentParser
                 OriginalInput = "unlock door with key"
             });
 
+        if (input == "use key on door")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "key",
+                NounTwo = "door",
+                Preposition = "on",
+                Verb = "use",
+                OriginalInput = "use key on door"
+            });
+
+        if (input == "use key on padlock")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "key",
+                NounTwo = "padlock",
+                Preposition = "on",
+                Verb = "use",
+                OriginalInput = "use key on padlock"
+            });
+
         if (input == "take fused with pliers")
             return Task.FromResult<IntentBase>(new MultiNounIntent
             {
@@ -822,6 +842,136 @@ public class TestParser : IntentParser
                 Preposition = "with",
                 Verb = "take",
                 OriginalInput = "take fused with pliers"
+            });
+
+        if (input == "use pliers on bedistor")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "pliers",
+                NounTwo = "bedistor",
+                Preposition = "on",
+                Verb = "use",
+                OriginalInput = "use pliers on bedistor"
+            });
+
+        if (input == "use pliers on fused")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "pliers",
+                NounTwo = "fused",
+                Preposition = "on",
+                Verb = "use",
+                OriginalInput = "use pliers on fused"
+            });
+
+        if (input == "use magnet on crevice")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "magnet",
+                NounTwo = "crevice",
+                Preposition = "on",
+                Verb = "use",
+                OriginalInput = "use magnet on crevice"
+            });
+
+        if (input == "use magnet on key")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "magnet",
+                NounTwo = "key",
+                Preposition = "on",
+                Verb = "use",
+                OriginalInput = "use magnet on key"
+            });
+
+        if (input == "use magnet on floor")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "magnet",
+                NounTwo = "floor",
+                Preposition = "on",
+                Verb = "use",
+                OriginalInput = "use magnet on floor"
+            });
+
+        if (input == "use bar on crevice")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "bar",
+                NounTwo = "crevice",
+                Preposition = "on",
+                Verb = "use",
+                OriginalInput = "use bar on crevice"
+            });
+
+        if (input == "use ladder on rift")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "ladder",
+                NounTwo = "rift",
+                Preposition = "on",
+                Verb = "use",
+                OriginalInput = "use ladder on rift"
+            });
+
+        if (input == "use ladder on chasm")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "ladder",
+                NounTwo = "chasm",
+                Preposition = "on",
+                Verb = "use",
+                OriginalInput = "use ladder on chasm"
+            });
+
+        if (input == "use kitchen access card on slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "kitchen access card",
+                NounTwo = "slot",
+                Preposition = "on",
+                Verb = "use",
+                OriginalInput = "use kitchen access card on slot"
+            });
+
+        if (input == "use kitchen access card in slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "kitchen access card",
+                NounTwo = "slot",
+                Preposition = "in",
+                Verb = "use",
+                OriginalInput = "use kitchen access card in slot"
+            });
+
+        if (input == "use kitchen card on slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "kitchen card",
+                NounTwo = "slot",
+                Preposition = "on",
+                Verb = "use",
+                OriginalInput = "use kitchen card on slot"
+            });
+
+        if (input == "use upper elevator access card on slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "upper elevator access card",
+                NounTwo = "slot",
+                Preposition = "on",
+                Verb = "use",
+                OriginalInput = "use upper elevator access card on slot"
+            });
+
+        if (input == "use shuttle access card on slot")
+            return Task.FromResult<IntentBase>(new MultiNounIntent
+            {
+                NounOne = "shuttle access card",
+                NounTwo = "slot",
+                Preposition = "on",
+                Verb = "use",
+                OriginalInput = "use shuttle access card on slot"
             });
 
         if (input == "light candles with torch")

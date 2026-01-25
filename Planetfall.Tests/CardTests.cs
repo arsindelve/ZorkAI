@@ -228,4 +228,69 @@ public class CardTests : EngineTestsBase
         engine.Context.Items.Should().HaveCount(3);
         Repository.GetItem<UpperElevatorAccessCard>().CurrentLocation.Should().BeOfType<MessCorridor>();
     }
+
+    [Test]
+    public async Task UseCardOnSlot_Kitchen_OpensKitchenDoor()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        engine.Context.ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
+        engine.Context.CurrentLocation = room;
+
+        var response = await engine.GetResponse("use kitchen access card on slot");
+
+        response.Should().Contain("The kitchen door quietly slides open");
+    }
+
+    [Test]
+    public async Task UseCardInSlot_Kitchen_OpensKitchenDoor()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        engine.Context.ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
+        engine.Context.CurrentLocation = room;
+
+        var response = await engine.GetResponse("use kitchen access card in slot");
+
+        response.Should().Contain("The kitchen door quietly slides open");
+    }
+
+    [Test]
+    public async Task UseCardOnSlot_Kitchen_ShortNoun()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        engine.Context.ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
+        engine.Context.CurrentLocation = room;
+
+        var response = await engine.GetResponse("use kitchen card on slot");
+
+        response.Should().Contain("The kitchen door quietly slides open");
+    }
+
+    [Test]
+    public async Task UseCardOnSlot_WrongCard_Rejected()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        engine.Context.ItemPlacedHere(Repository.GetItem<ShuttleAccessCard>());
+        engine.Context.CurrentLocation = room;
+
+        var response = await engine.GetResponse("use shuttle access card on slot");
+
+        response.Should().Contain("Inkorekt awtharazaashun kard");
+    }
+
+    [Test]
+    public async Task SlideCardThroughSlot_StillWorks()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        engine.Context.ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
+        engine.Context.CurrentLocation = room;
+
+        var response = await engine.GetResponse("slide kitchen access card through slot");
+
+        response.Should().Contain("The kitchen door quietly slides open");
+    }
 }

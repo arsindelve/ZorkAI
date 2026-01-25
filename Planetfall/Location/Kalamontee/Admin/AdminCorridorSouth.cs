@@ -75,12 +75,15 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
             return new NoNounMatchInteractionResult();
         }
 
-        if (action.Match(["put", "place", "hold"], Repository.GetItem<Magnet>().NounsForMatching,
-            [
-                "ground", "crack", "crevice"
-            ], [
-                "on", "over", "beside", "next to"
-            ]))
+        string[] targetNouns = ["ground", "crack", "crevice", "key", "floor"];
+
+        var match = action.Match(["put", "place", "hold"], Repository.GetItem<Magnet>().NounsForMatching,
+            targetNouns, ["on", "over", "beside", "next to"]);
+
+        // Also support "use magnet on crevice/key/floor"
+        match |= action.Match(["use"], Repository.GetItem<Magnet>().NounsForMatching, targetNouns, ["on"]);
+
+        if (match)
         {
             if (HasTakenTheKey)
                 return new PositiveInteractionResult("Nothing interesting happens. ");

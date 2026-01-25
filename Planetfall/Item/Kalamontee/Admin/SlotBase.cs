@@ -37,8 +37,8 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot> : ItemBase, ICanBeExa
                 "The slot is shallow, so you can't put anything in it. It may be possible to slide " +
                 "something through the slot, though. ");
 
-        verbs = ["slide", "swipe", "scan", "pass", "glide", "draw", "push"];
-        string[] prepositions = ["across", "through"];
+        verbs = ["slide", "swipe", "scan", "pass", "glide", "draw", "push", "use"];
+        string[] prepositions = ["across", "through", "on", "in"];
 
         if (action.Match<TAccessCard, TAccessSlot>(verbs, prepositions))
         {

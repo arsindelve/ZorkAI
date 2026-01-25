@@ -331,16 +331,59 @@ public class CourseControlTests : EngineTestsBase
         // Navigate to Course Control (this will trigger Init() on the location)
         await target.GetResponse("north");
         await target.GetResponse("open lid");
-        
+
         var response = await target.GetResponse("take fused with pliers");
         response.Should().Contain("With a tug, you manage to remove the fused bedistor");
-        
+
         response = await target.GetResponse("put good in cube");
         response.Should().Contain("Done. The warning lights go out and another light goes on.");
-        
+
         target.Score.Should().Be(6);
         GetLocation<SystemsMonitors>().Fixed.Count.Should().Be(4);
         GetLocation<SystemsMonitors>().Busted.Count.Should().Be(3);
         GetLocation<CourseControl>().Fixed.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task UsePliersOnBedistor_RemovesBedistor()
+    {
+        var target = GetTarget();
+        StartHere<CourseControl>();
+        Take<Pliers>();
+        GetItem<LargeMetalCube>().IsOpen = true;
+
+        var response = await target.GetResponse("use pliers on bedistor");
+
+        response.Should().Contain("With a tug, you manage to remove the fused bedistor");
+        target.Context.HasItem<FusedBedistor>().Should().BeTrue();
+        GetItem<LargeMetalCube>().HasItem<FusedBedistor>().Should().BeFalse();
+    }
+
+    [Test]
+    public async Task UsePliersOnFused_RemovesBedistor()
+    {
+        var target = GetTarget();
+        StartHere<CourseControl>();
+        Take<Pliers>();
+        GetItem<LargeMetalCube>().IsOpen = true;
+
+        var response = await target.GetResponse("use pliers on fused");
+
+        response.Should().Contain("With a tug, you manage to remove the fused bedistor");
+        target.Context.HasItem<FusedBedistor>().Should().BeTrue();
+        GetItem<LargeMetalCube>().HasItem<FusedBedistor>().Should().BeFalse();
+    }
+
+    [Test]
+    public async Task UsePliersOnBedistor_WithoutPliers_Fails()
+    {
+        var target = GetTarget();
+        StartHere<CourseControl>();
+        GetItem<LargeMetalCube>().IsOpen = true;
+
+        var response = await target.GetResponse("use pliers on bedistor");
+
+        target.Context.HasItem<FusedBedistor>().Should().BeFalse();
+        GetItem<LargeMetalCube>().HasItem<FusedBedistor>().Should().BeTrue();
     }
 }

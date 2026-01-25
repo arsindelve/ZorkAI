@@ -56,6 +56,32 @@ public class MessHallPadlockedDoorTests : EngineTestsBase
     }
 
     [Test]
+    public async Task UseKeyOnDoor_UnlocksPadlock()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MessCorridor>();
+        target.Context.ItemPlacedHere<Key>();
+
+        var response = await target.GetResponse("use key on door");
+        response.Should().Contain("springs open");
+        Repository.GetItem<Padlock>().Locked.Should().BeFalse();
+        Repository.GetItem<Padlock>().AttachedToDoor.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task UseKeyOnPadlock_UnlocksPadlock()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MessCorridor>();
+        target.Context.ItemPlacedHere<Key>();
+
+        var response = await target.GetResponse("use key on padlock");
+        response.Should().Contain("springs open");
+        Repository.GetItem<Padlock>().Locked.Should().BeFalse();
+        Repository.GetItem<Padlock>().AttachedToDoor.Should().BeTrue();
+    }
+
+    [Test]
     public async Task OpenDoor_WhileAttached()
     {
         var target = GetTarget();
@@ -148,7 +174,7 @@ public class MessHallPadlockedDoorTests : EngineTestsBase
         await target.GetResponse("unlock padlock with key");
 
         // Verify Floyd's pending comment was set
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         pfContext.PendingFloydActionCommentPrompt.Should().NotBeNull();
         pfContext.PendingFloydActionCommentPrompt.Should().Contain("padlock");
     }
@@ -169,7 +195,7 @@ public class MessHallPadlockedDoorTests : EngineTestsBase
         await target.GetResponse("unlock padlock with key");
 
         // Verify Floyd's pending comment was NOT set
-        var pfContext = (PlanetfallContext)target.Context;
+        var pfContext = target.Context;
         pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
     }
 }
