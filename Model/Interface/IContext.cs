@@ -30,8 +30,8 @@ public interface IContext : ICanContainItems
     /// system prompt with this new information. For example, after the explosion of the Feinstein in Planetfall, we no
     /// longer want the AI to think the player is in space. 
     /// </summary>
-    string SystemPromptAddendum { get; set; } 
-    
+    string SystemPromptAddendum { get; set; }
+
     /// <summary>
     ///     Represents adventurer's current score.
     /// </summary>
@@ -236,4 +236,15 @@ public interface IContext : ICanContainItems
     ///     Sets the death count after a restart. Override in game-specific contexts that track deaths.
     /// </summary>
     void SetDeathCount(int count);
+
+    /// <summary>
+    /// Retrieves a list of available actions for items currently in the inventory.
+    /// The actions are based on custom attributes associated with the item's
+    /// implemented interfaces, defining applicable verbs for each item.
+    /// </summary>
+    /// <returns>
+    /// A list of strings representing the available actions for each inventory item.
+    /// Each action describes a verb-item combination, such as "take item" or "eat item".
+    /// </returns>
+    List<string> GetAvailableActionsForInventory();
 }

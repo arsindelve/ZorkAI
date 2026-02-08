@@ -3,6 +3,7 @@ namespace Model.Item;
 /// <summary>
 /// Represents a clothing item that can be worn or taken off.
 /// </summary>
+[ApplicableVerbs("put on", "take off")]
 public interface IAmClothing
 {
     /// <summary>

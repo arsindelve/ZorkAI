@@ -2,7 +2,6 @@ using System.Reflection;
 using GameEngine.Item;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
-using Model.Interaction;
 using Model.Interface;
 using Model.Item;
 using Model.Location;
@@ -112,7 +111,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     public Type[] CanOnlyHoldTheseTypes => [];
 
-    public string? CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlaceHere) => string.Empty;
+    public string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlaceHere) => string.Empty;
 
     /// <summary>
     ///     Gets a value indicating whether the adventurer has a light source that is on
@@ -460,5 +459,21 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// <summary>
     ///     Sets the death count after a restart. Override in game-specific contexts that track deaths.
     /// </summary>
-    public virtual void SetDeathCount(int count) { }
+    public virtual void SetDeathCount(int count)
+    {
+    }
+
+    /// <summary>
+    /// Retrieves a list of available actions for items currently in the inventory.
+    /// The actions are based on custom attributes associated with the item's
+    /// implemented interfaces, defining applicable verbs for each item.
+    /// </summary>
+    /// <returns>
+    /// A list of strings representing the available actions for each inventory item.
+    /// Each action describes a verb-item combination, such as "take item" or "eat item".
+    /// </returns>
+    public List<string> GetAvailableActionsForInventory()
+    {
+        return ApplicableVerbsAttribute.GetAvailableActions(Items);
+    }
 }

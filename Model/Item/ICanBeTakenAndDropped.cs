@@ -9,6 +9,7 @@ namespace Model.Item;
 ///     even though it's impossible, in which case you need to implement "CannotBeTakenDescription" which when non
 ///     empty, will be returned to tell the adventurer that they cannot pick up the item. 
 /// </summary>
+[ApplicableVerbs("take", "drop")]
 public interface ICanBeTakenAndDropped : IInteractionTarget
 {
     /// <summary>

@@ -6,6 +6,7 @@ namespace Model.Item;
 /// <summary>
 ///     Represents an object that can be opened and closed like a window or a mailbox.
 /// </summary>
+[ApplicableVerbs("open", "close")]
 public interface IOpenAndClose : IInteractionTarget
 {
     bool IsOpen { get; set; }
