@@ -472,8 +472,9 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// A list of strings representing the available actions for each inventory item.
     /// Each action describes a verb-item combination, such as "take item" or "eat item".
     /// </returns>
-    public List<string> GetAvailableActionsForInventory()
+    public Dictionary<string, List<string>> GetAvailableActionsForInventory()
     {
-        return ApplicableVerbsAttribute.GetAvailableActions(Items);
+        // Exclude "take" because this is inventory, thus we already have the item. 
+        return ApplicableVerbsAttribute.GetAvailableActions(Items, ["take"]);
     }
 }

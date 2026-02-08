@@ -8,7 +8,7 @@ public class ApplicableVerbsTests : EngineTestsBase
     {
         var engine = GetTarget();
         Take<Lunch>();
-        engine.Context.GetAvailableActionsForInventory().Should().Contain("eat lunch");
+        engine.Context.GetAvailableActionsForInventory().SelectMany(s => s.Value).Should().Contain("eat lunch");
     }
 
     [Test]
@@ -16,9 +16,9 @@ public class ApplicableVerbsTests : EngineTestsBase
     {
         var engine = GetTarget();
         Take<Lunch>();
-        engine.Context.GetAvailableActionsForInventory().Should().Contain("eat lunch");
-        engine.Context.GetAvailableActionsForInventory().Should().Contain("drop lunch");
-        engine.Context.GetAvailableActionsForInventory().Should().Contain("take lunch");
+        engine.Context.GetAvailableActionsForInventory().SelectMany(s => s.Value).Should().Contain("eat lunch");
+        engine.Context.GetAvailableActionsForInventory().SelectMany(s => s.Value).Should().Contain("drop lunch");
+        engine.Context.GetAvailableActionsForInventory().SelectMany(s => s.Value).Should().NotContain("take lunch");
     }
 
     [Test]
@@ -26,8 +26,8 @@ public class ApplicableVerbsTests : EngineTestsBase
     {
         var engine = GetTarget();
         Take<Lantern>();
-        engine.Context.GetAvailableActionsForInventory().Should().Contain("turn on lantern");
-        engine.Context.GetAvailableActionsForInventory().Should().Contain("turn off lantern");
+        engine.Context.GetAvailableActionsForInventory().SelectMany(s => s.Value).Should().Contain("turn on lantern");
+        engine.Context.GetAvailableActionsForInventory().SelectMany(s => s.Value).Should().Contain("turn off lantern");
     }
 
     [Test]
@@ -36,8 +36,8 @@ public class ApplicableVerbsTests : EngineTestsBase
         var engine = GetTarget();
         Take<Lantern>();
         Take<Rope>();
-        engine.Context.GetAvailableActionsForInventory().Should().Contain("turn on lantern");
-        engine.Context.GetAvailableActionsForInventory().Should().Contain("drop rope");
+        engine.Context.GetAvailableActionsForInventory().SelectMany(s => s.Value).Should().Contain("turn on lantern");
+        engine.Context.GetAvailableActionsForInventory().SelectMany(s => s.Value).Should().Contain("drop rope");
     }
 
     [Test]
@@ -45,7 +45,10 @@ public class ApplicableVerbsTests : EngineTestsBase
     {
         var engine = GetTarget();
         StartHere<MaintenanceRoom>();
-        engine.Context.CurrentLocation.GetAvailableActionsInLocation().Should().Contain("examine tool chest");
-        engine.Context.CurrentLocation.GetAvailableActionsInLocation().Should().Contain("take tube");
+        var selectMany = engine.Context.CurrentLocation.GetAvailableActionsInLocation();
+        var result = selectMany.SelectMany(s => s.Value).ToList();
+        result.Should().Contain("examine tool chest");
+        result.Should().Contain("take tube");
+        result.Should().NotContain("drop tube");
     }
 }

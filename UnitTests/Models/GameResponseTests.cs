@@ -1,6 +1,8 @@
 using Model.Interface;
+using Model.Item;
 using Model.Movement;
 using Model.Web;
+using Planetfall.Item.Lawanda.Lab;
 
 namespace UnitTests.Models;
 
@@ -20,8 +22,8 @@ public class GameResponseTests
         var expectedLastMovementDirection = "N";
         List<string> expectedInventory = new() { "sword", "lamp" };
         List<Direction> expectedExits = new() { Direction.N, Direction.S, Direction.E };
-        List<string> availablleActionsFromInventory = new List<string> { "drink water" };
-        List<string> availablleActionsFromLocation = new List<string> { "take lamp" };
+        var availablleActionsFromInventory = ApplicableVerbsAttribute.GetAvailableActions([new Lamp()]);
+        var availablleActionsFromLocation = ApplicableVerbsAttribute.GetAvailableActions([new Lamp()]);
 
         // Act
         var gameResponse = new GameResponse(
@@ -64,8 +66,8 @@ public class GameResponseTests
         var expectedLastMovementDirection = "N";
         List<string> expectedInventory = new() { "sword", "lamp" };
         List<Direction> expectedExits = new() { Direction.N, Direction.S, Direction.E };
-        List<string> availablleActionsFromInventory = new List<string> { "drink water" };
-        List<string> availablleActionsFromLocation = new List<string> { "take lamp" };
+        var availablleActionsFromInventory = ApplicableVerbsAttribute.GetAvailableActions([new Lamp()]);
+        var availablleActionsFromLocation = ApplicableVerbsAttribute.GetAvailableActions([new Lamp()]);
 
         // Act
         var gameResponse = new GameResponse(
@@ -98,8 +100,8 @@ public class GameResponseTests
         string? expectedLastMovementDirection = null;
         List<string> expectedInventory = new() { "sword", "lamp" };
         List<Direction> expectedExits = new() { Direction.N, Direction.S, Direction.E };
-        List<string> availablleActionsFromInventory = new List<string> { "drink water" };
-        List<string> availablleActionsFromLocation = new List<string> { "take lamp" };
+        var availablleActionsFromInventory = ApplicableVerbsAttribute.GetAvailableActions([new Lamp()]);
+        var availablleActionsFromLocation = ApplicableVerbsAttribute.GetAvailableActions([new Lamp()]);
 
         // Act
         var gameResponse = new GameResponse(
@@ -132,8 +134,8 @@ public class GameResponseTests
         var expectedLastMovementDirection = "N";
         List<string> expectedInventory = new();
         List<Direction> expectedExits = new() { Direction.N, Direction.S, Direction.E };
-        List<string> availablleActionsFromInventory = new List<string> { "drink water" };
-        List<string> availablleActionsFromLocation = new List<string> { "take lamp" };
+        var availablleActionsFromInventory = ApplicableVerbsAttribute.GetAvailableActions([new Lamp()]);
+        var availablleActionsFromLocation = ApplicableVerbsAttribute.GetAvailableActions([new Lamp()]);
 
         // Act
         var gameResponse = new GameResponse(
@@ -166,8 +168,8 @@ public class GameResponseTests
         var expectedLastMovementDirection = "N";
         List<string> expectedInventory = new() { "sword", "lamp" };
         List<Direction> expectedExits = new();
-        List<string> availablleActionsFromInventory = new List<string> { "drink water" };
-        List<string> availablleActionsFromLocation = new List<string> { "take lamp" };
+        var availablleActionsFromInventory = ApplicableVerbsAttribute.GetAvailableActions([new Lamp()]);
+        var availablleActionsFromLocation = ApplicableVerbsAttribute.GetAvailableActions([new Lamp()]);
 
         // Act
         var gameResponse = new GameResponse(
@@ -201,8 +203,8 @@ public class GameResponseTests
         var expectedLastMovementDirection = "N";
         List<string> expectedInventory = new() { "sword", "lamp" };
         List<Direction> expectedExits = new() { Direction.N, Direction.S, Direction.E };
-        List<string> availablleActionsFromInventory = new List<string> { "drink water" };
-        List<string> availablleActionsFromLocation = new List<string> { "take lamp" };
+        var availablleActionsFromInventory = ApplicableVerbsAttribute.GetAvailableActions([new Lamp()]);
+        var availablleActionsFromLocation = ApplicableVerbsAttribute.GetAvailableActions([new Lamp()]);
 
         var mockGameEngine = new Mock<IGameEngine>();
         mockGameEngine.Setup(ge => ge.LocationName).Returns(expectedLocationName);
@@ -245,8 +247,8 @@ public class GameResponseTests
             100,
             "Cave",
             "N",
-            new List<string> { "sword", "lamp" },
-            new List<Direction> { Direction.N, Direction.S, Direction.E }, new List<string>(), new List<string>());
+            ["sword", "lamp"],
+            [Direction.N, Direction.S, Direction.E], new Dictionary<string, List<string>>(), new Dictionary<string, List<string>>());
 
         var gameResponse2 = new GameResponse(
             "You see a mountain.", // Different response
@@ -257,8 +259,8 @@ public class GameResponseTests
             "Forest", // Different previous location
             "S", // Different direction
             new List<string> { "potion" }, // Different inventory
-            new List<Direction> { Direction.W, Direction.E }, new List<string>(),
-            new List<string>()); // Different exits
+            new List<Direction> { Direction.W, Direction.E }, new Dictionary<string, List<string>>() ,
+            new Dictionary<string, List<string>>()); // Different exits
 
         // Act & Assert
         gameResponse1.Should().NotBeEquivalentTo(gameResponse2);

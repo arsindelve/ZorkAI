@@ -165,5 +165,5 @@ public interface ILocation
     /// A list of strings representing the actions that can be performed in the current location,
     /// determined by the applicable verbs associated with the items within the location and its subcontainers.
     /// </returns>
-    List<string> GetAvailableActionsInLocation();
+    Dictionary<string, List<string>> GetAvailableActionsInLocation();
 }

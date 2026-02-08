@@ -10,13 +10,26 @@ public class ApplicableVerbsAttribute(params string[] verbs) : Attribute
 {
     private string[] Verb { get; } = verbs;
 
-    public static List<string> GetAvailableActions(IEnumerable<IItem> items)
+    /// <summary>
+    /// Retrieves a dictionary of available actions for a collection of items,
+    /// excluding specific actions based on the provided exclusions.
+    /// </summary>
+    /// <param name="items">A collection of items implementing the IItem interface.</param>
+    /// <param name="exclusions">An array of action strings to be excluded from the results.</param>
+    /// <returns>A dictionary where the key is the item name and the value is a list of applicable action strings
+    /// associated with the item.</returns>
+    public static Dictionary<string, List<string>> GetAvailableActions(IEnumerable<IItem> items,
+        params string[] exclusions)
     {
         return items
-            .SelectMany(item => item.GetType().GetInterfaces()
-                .Select(i => i.GetCustomAttribute<ApplicableVerbsAttribute>())
-                .Where(attr => attr != null)
-                .SelectMany(attr => attr!.Verb.Select(verb => $"{verb} {item.Name}")))
-            .ToList();
+            .ToDictionary(
+                item => item.Name,
+                item => item.GetType().GetInterfaces()
+                    .Select(i => i.GetCustomAttribute<ApplicableVerbsAttribute>())
+                    .Where(attr => attr != null)
+                    .SelectMany(attr => attr!.Verb
+                        .Where(verb => !exclusions.Contains(verb))
+                        .Select(verb => $"{verb} {item.Name}"))
+                    .ToList());
     }
 }

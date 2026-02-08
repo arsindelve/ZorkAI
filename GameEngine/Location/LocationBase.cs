@@ -73,9 +73,10 @@ public abstract class LocationBase : ILocation, ICanContainItems
     /// A list of strings representing the actions that can be performed in the current location,
     /// determined by the applicable verbs associated with the items within the location and its subcontainers.
     /// </returns>
-    public virtual List<string> GetAvailableActionsInLocation()
+    public virtual Dictionary<string, List<string>> GetAvailableActionsInLocation()
     {
-        return ApplicableVerbsAttribute.GetAvailableActions(GetAllItemsRecursively);
+        // Exclude "drop" because this is in the location, thus we don't have the item to drop
+        return ApplicableVerbsAttribute.GetAvailableActions(GetAllItemsRecursively, "drop");
     }
 
     /// <summary>

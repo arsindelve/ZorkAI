@@ -246,5 +246,5 @@ public interface IContext : ICanContainItems
     /// A list of strings representing the available actions for each inventory item.
     /// Each action describes a verb-item combination, such as "take item" or "eat item".
     /// </returns>
-    List<string> GetAvailableActionsForInventory();
+    Dictionary<string, List<string>> GetAvailableActionsForInventory();
 }
