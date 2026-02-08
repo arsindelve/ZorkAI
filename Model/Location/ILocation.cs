@@ -69,7 +69,8 @@ public interface ILocation
     /// <param name="client"></param>
     /// <param name="itemProcessorFactory"></param>
     /// <returns>InteractionResult that describes if and and how the interaction took place.</returns>
-    Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory);
+    Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client,
+        IItemProcessorFactory itemProcessorFactory);
 
     /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="MultiNounIntent" /> corresponding
@@ -156,4 +157,13 @@ public interface ILocation
     /// </summary>
     /// <returns></returns>
     string LogItems();
+
+    /// <summary>
+    /// Retrieves a list of available actions based on the items present in the location.
+    /// </summary>
+    /// <returns>
+    /// A list of strings representing the actions that can be performed in the current location,
+    /// determined by the applicable verbs associated with the items within the location and its subcontainers.
+    /// </returns>
+    List<string> GetAvailableActionsInLocation();
 }

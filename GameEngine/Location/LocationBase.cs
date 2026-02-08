@@ -20,7 +20,7 @@ public abstract class LocationBase : ILocation, ICanContainItems
     {
         Items.Remove(item);
     }
-    
+
     public virtual ICanContainItems? ForwardingContainer => null;
 
     /// <summary>
@@ -64,6 +64,18 @@ public abstract class LocationBase : ILocation, ICanContainItems
 
     public void OnItemRemovedFromHere(IItem item, IContext context)
     {
+    }
+
+    /// <summary>
+    /// Retrieves a list of available actions based on the items present in the location.
+    /// </summary>
+    /// <returns>
+    /// A list of strings representing the actions that can be performed in the current location,
+    /// determined by the applicable verbs associated with the items within the location and its subcontainers.
+    /// </returns>
+    public virtual List<string> GetAvailableActionsInLocation()
+    {
+        return ApplicableVerbsAttribute.GetAvailableActions(GetAllItemsRecursively);
     }
 
     /// <summary>
@@ -254,6 +266,18 @@ public abstract class LocationBase : ILocation, ICanContainItems
             .ToList();
     }
 
+    /// <summary>
+    /// Generates a description of the current location based on the specified context and description mode.
+    /// </summary>
+    /// <param name="context">The context providing additional details about items and state within the location.</param>
+    /// <param name="fullDescription">
+    /// A flag indicating whether to include the full description, which combines the contextual details and item descriptions,
+    /// or a brief description of the location.
+    /// </param>
+    /// <returns>
+    /// A string representing the description of the current location, including sublocation details,
+    /// context-based information, and item descriptions depending on the specified parameters.
+    /// </returns>
     public virtual string GetDescription(IContext context, bool fullDescription = true)
     {
         var stringBuilder = new StringBuilder();
@@ -300,6 +324,15 @@ public abstract class LocationBase : ILocation, ICanContainItems
         return result ?? new NoNounMatchInteractionResult();
     }
 
+    /// <summary>
+    /// Processes interactions involving multiple nouns within the context of the current location.
+    /// </summary>
+    /// <param name="action">The multi-noun intent specifying the nouns involved in the interaction.</param>
+    /// <param name="context">The context within which the interaction takes place, including relevant environmental or state information.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The result is an <see cref="InteractionResult"/>
+    /// indicating the outcome of the interaction or null if no valid interaction is found.
+    /// </returns>
     public virtual Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
         return Task.FromResult<InteractionResult?>(new NoNounMatchInteractionResult());

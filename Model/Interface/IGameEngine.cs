@@ -53,7 +53,7 @@ public interface IGameEngine
     /// The inventory is updated dynamically as the player picks up or drops items.
     /// </remarks>
     List<string> Inventory { get; }
-    
+
     /// <summary>
     ///     Represents the name of the location the player was in BEFORE this location.
     ///     Will be null at the beginning of the game.
@@ -144,7 +144,7 @@ public interface IGameEngine
     /// <summary>
     ///     Gets the current game context containing game state.
     /// </summary>
-    IContext Context { get; }
+    IContext? Context { get; }
 
     /// <summary>
     ///     Generates the narration message after successfully saving the game.

@@ -20,6 +20,8 @@ public class GameResponseTests
         var expectedLastMovementDirection = "N";
         List<string> expectedInventory = new() { "sword", "lamp" };
         List<Direction> expectedExits = new() { Direction.N, Direction.S, Direction.E };
+        List<string> availablleActionsFromInventory = new List<string> { "drink water" };
+        List<string> availablleActionsFromLocation = new List<string> { "take lamp" };
 
         // Act
         var gameResponse = new GameResponse(
@@ -31,7 +33,9 @@ public class GameResponseTests
             expectedPreviousLocationName,
             expectedLastMovementDirection,
             expectedInventory,
-            expectedExits);
+            expectedExits,
+            availablleActionsFromLocation,
+            availablleActionsFromInventory);
 
         // Assert
         gameResponse.Response.Should().Be(expectedResponse);
@@ -43,6 +47,8 @@ public class GameResponseTests
         gameResponse.LastMovementDirection.Should().Be(expectedLastMovementDirection);
         gameResponse.Inventory.Should().BeEquivalentTo(expectedInventory);
         gameResponse.Exits.Should().BeEquivalentTo(expectedExits);
+        gameResponse.ActionsAvailaibleFromInventory.Should().BeEquivalentTo(availablleActionsFromInventory);
+        gameResponse.ActionsAvailaibleFromLocation.Should().BeEquivalentTo(availablleActionsFromLocation);
     }
 
     [Test]
@@ -58,6 +64,8 @@ public class GameResponseTests
         var expectedLastMovementDirection = "N";
         List<string> expectedInventory = new() { "sword", "lamp" };
         List<Direction> expectedExits = new() { Direction.N, Direction.S, Direction.E };
+        List<string> availablleActionsFromInventory = new List<string> { "drink water" };
+        List<string> availablleActionsFromLocation = new List<string> { "take lamp" };
 
         // Act
         var gameResponse = new GameResponse(
@@ -69,7 +77,9 @@ public class GameResponseTests
             expectedPreviousLocationName,
             expectedLastMovementDirection,
             expectedInventory,
-            expectedExits);
+            expectedExits,
+            availablleActionsFromInventory,
+            availablleActionsFromLocation);
 
         // Assert
         gameResponse.PreviousLocationName.Should().BeNull();
@@ -88,6 +98,8 @@ public class GameResponseTests
         string? expectedLastMovementDirection = null;
         List<string> expectedInventory = new() { "sword", "lamp" };
         List<Direction> expectedExits = new() { Direction.N, Direction.S, Direction.E };
+        List<string> availablleActionsFromInventory = new List<string> { "drink water" };
+        List<string> availablleActionsFromLocation = new List<string> { "take lamp" };
 
         // Act
         var gameResponse = new GameResponse(
@@ -99,7 +111,9 @@ public class GameResponseTests
             expectedPreviousLocationName,
             expectedLastMovementDirection,
             expectedInventory,
-            expectedExits);
+            expectedExits,
+            availablleActionsFromInventory,
+            availablleActionsFromLocation);
 
         // Assert
         gameResponse.LastMovementDirection.Should().BeNull();
@@ -118,6 +132,8 @@ public class GameResponseTests
         var expectedLastMovementDirection = "N";
         List<string> expectedInventory = new();
         List<Direction> expectedExits = new() { Direction.N, Direction.S, Direction.E };
+        List<string> availablleActionsFromInventory = new List<string> { "drink water" };
+        List<string> availablleActionsFromLocation = new List<string> { "take lamp" };
 
         // Act
         var gameResponse = new GameResponse(
@@ -129,7 +145,9 @@ public class GameResponseTests
             expectedPreviousLocationName,
             expectedLastMovementDirection,
             expectedInventory,
-            expectedExits);
+            expectedExits,
+            availablleActionsFromInventory,
+            availablleActionsFromLocation);
 
         // Assert
         gameResponse.Inventory.Should().BeEmpty();
@@ -148,6 +166,8 @@ public class GameResponseTests
         var expectedLastMovementDirection = "N";
         List<string> expectedInventory = new() { "sword", "lamp" };
         List<Direction> expectedExits = new();
+        List<string> availablleActionsFromInventory = new List<string> { "drink water" };
+        List<string> availablleActionsFromLocation = new List<string> { "take lamp" };
 
         // Act
         var gameResponse = new GameResponse(
@@ -159,7 +179,9 @@ public class GameResponseTests
             expectedPreviousLocationName,
             expectedLastMovementDirection,
             expectedInventory,
-            expectedExits);
+            expectedExits,
+            availablleActionsFromInventory,
+            availablleActionsFromLocation);
 
         // Assert
         gameResponse.Exits.Should().BeEmpty();
@@ -179,6 +201,8 @@ public class GameResponseTests
         var expectedLastMovementDirection = "N";
         List<string> expectedInventory = new() { "sword", "lamp" };
         List<Direction> expectedExits = new() { Direction.N, Direction.S, Direction.E };
+        List<string> availablleActionsFromInventory = new List<string> { "drink water" };
+        List<string> availablleActionsFromLocation = new List<string> { "take lamp" };
 
         var mockGameEngine = new Mock<IGameEngine>();
         mockGameEngine.Setup(ge => ge.LocationName).Returns(expectedLocationName);
@@ -189,6 +213,10 @@ public class GameResponseTests
         mockGameEngine.Setup(ge => ge.LastMovementDirection).Returns(expectedDirectionEnum);
         mockGameEngine.Setup(ge => ge.Inventory).Returns(expectedInventory);
         mockGameEngine.Setup(ge => ge.Exits).Returns(expectedExits);
+        mockGameEngine.Setup(ge => ge.Context!.GetAvailableActionsForInventory())
+            .Returns(availablleActionsFromInventory);
+        mockGameEngine.Setup(ge => ge.Context!.CurrentLocation.GetAvailableActionsInLocation())
+            .Returns(availablleActionsFromLocation);
 
         // Act
         var gameResponse = new GameResponse(expectedResponse, mockGameEngine.Object);
@@ -218,7 +246,7 @@ public class GameResponseTests
             "Cave",
             "N",
             new List<string> { "sword", "lamp" },
-            new List<Direction> { Direction.N, Direction.S, Direction.E });
+            new List<Direction> { Direction.N, Direction.S, Direction.E }, new List<string>(), new List<string>());
 
         var gameResponse2 = new GameResponse(
             "You see a mountain.", // Different response
@@ -229,7 +257,8 @@ public class GameResponseTests
             "Forest", // Different previous location
             "S", // Different direction
             new List<string> { "potion" }, // Different inventory
-            new List<Direction> { Direction.W, Direction.E }); // Different exits
+            new List<Direction> { Direction.W, Direction.E }, new List<string>(),
+            new List<string>()); // Different exits
 
         // Act & Assert
         gameResponse1.Should().NotBeEquivalentTo(gameResponse2);

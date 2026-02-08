@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using FluentAssertions;
+using Model.Movement;
 using Model.Web;
 
 namespace ZorkOne.Tests.Walkthrough;
@@ -28,20 +28,12 @@ public class ExploringZorkViaAPI
 {
     private HttpClient _client = null!;
     private string _sessionId = null!;
-    private JsonSerializerOptions _jsonOptions = null!;
 
     [SetUp]
     public void Setup()
     {
         _client = new HttpClient { BaseAddress = new Uri("http://localhost:5000") };
         _sessionId = Guid.NewGuid().ToString();
-
-        // Configure JSON options to handle record types properly
-        _jsonOptions = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-            Converters = { new JsonStringEnumConverter() }
-        };
     }
 
     [TearDown]
@@ -71,10 +63,16 @@ public class ExploringZorkViaAPI
             Moves: root.GetProperty("moves").GetInt32(),
             Score: root.GetProperty("score").GetInt32(),
             Time: root.GetProperty("time").GetInt32(),
-            PreviousLocationName: root.TryGetProperty("previousLocationName", out var prevLoc) ? prevLoc.GetString() : null,
-            LastMovementDirection: root.TryGetProperty("lastMovementDirection", out var lastDir) ? lastDir.GetString() : null,
+            PreviousLocationName: root.TryGetProperty("previousLocationName", out var prevLoc)
+                ? prevLoc.GetString()
+                : null,
+            LastMovementDirection: root.TryGetProperty("lastMovementDirection", out var lastDir)
+                ? lastDir.GetString()
+                : null,
             Inventory: root.GetProperty("inventory").EnumerateArray().Select(e => e.GetString()!).ToList(),
-            Exits: root.GetProperty("exits").EnumerateArray().Select(e => (Model.Movement.Direction)e.GetInt32()).ToList()
+            Exits: root.GetProperty("exits").EnumerateArray().Select(e => (Direction)e.GetInt32()).ToList(),
+            ActionsAvailaibleFromInventory: new List<string>(),
+            ActionsAvailaibleFromLocation: new List<string>()
         );
 
         // Display for debugging
@@ -207,16 +205,16 @@ public class ExploringZorkViaAPI
         response.Inventory.Should().Contain("bottle");
         Console.WriteLine($"'pick up' works: {response.Inventory.Contains("bottle")}");
 
-        response = await Do("get the elongated brown sack");  // Try with adjectives
+        await Do("get the elongated brown sack"); // Try with adjectives
         // Already have it, should get a message
 
         // Go to living room
-        response = await Do("west");
+        await Do("west");
 
-        response = await Do("acquire the brass lamp");  // Formal synonym
+        response = await Do("acquire the brass lamp"); // Formal synonym
         Console.WriteLine($"'acquire' result: Has lamp = {response.Inventory.Contains("lamp")}");
 
-        response = await Do("pocket the sword");  // Creative verb
+        response = await Do("pocket the sword"); // Creative verb
         Console.WriteLine($"'pocket' result: Has sword = {response.Inventory.Contains("sword")}");
 
         Console.WriteLine($"\nFinal inventory count: {response.Inventory.Count}");
@@ -226,7 +224,8 @@ public class ExploringZorkViaAPI
     [Test]
     public async Task TestInvalidCommands_SeeHowAIResponds()
     {
-        var response = await Do("look");
+        GameResponse response;
+        await Do("look");
 
         // Try nonsense
         response = await Do("flibbertigibbet the mailbox");
@@ -243,7 +242,8 @@ public class ExploringZorkViaAPI
         response.LocationName.Should().Be("West Of House"); // Shouldn't move
 
         // Try extremely verbose natural language
-        response = await Do("I would very much appreciate it if you could be so kind as to open the small mailbox that is located nearby");
+        response = await Do(
+            "I would very much appreciate it if you could be so kind as to open the small mailbox that is located nearby");
         Console.WriteLine($"\nVerbose command response: {response.Response}");
 
         // Try  command with typos

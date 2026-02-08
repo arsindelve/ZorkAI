@@ -4,7 +4,7 @@ namespace UnitTests;
 public class ApplicableVerbsTests : EngineTestsBase
 {
     [Test]
-    public void SingleItemSingleVerb()
+    public void Context_SingleItemSingleVerb()
     {
         var engine = GetTarget();
         Take<Lunch>();
@@ -12,7 +12,7 @@ public class ApplicableVerbsTests : EngineTestsBase
     }
 
     [Test]
-    public void SingleItemMultiVerb()
+    public void Context_SingleItemMultiVerb()
     {
         var engine = GetTarget();
         Take<Lunch>();
@@ -22,7 +22,7 @@ public class ApplicableVerbsTests : EngineTestsBase
     }
 
     [Test]
-    public void SingleItemMultiVerbInAttribute()
+    public void Context_SingleItemMultiVerbInAttribute()
     {
         var engine = GetTarget();
         Take<Lantern>();
@@ -31,12 +31,21 @@ public class ApplicableVerbsTests : EngineTestsBase
     }
 
     [Test]
-    public void MultiItem()
+    public void Context_MultiItem()
     {
         var engine = GetTarget();
         Take<Lantern>();
         Take<Rope>();
         engine.Context.GetAvailableActionsForInventory().Should().Contain("turn on lantern");
         engine.Context.GetAvailableActionsForInventory().Should().Contain("drop rope");
+    }
+
+    [Test]
+    public void Location()
+    {
+        var engine = GetTarget();
+        StartHere<MaintenanceRoom>();
+        engine.Context.CurrentLocation.GetAvailableActionsInLocation().Should().Contain("examine tool chest");
+        engine.Context.CurrentLocation.GetAvailableActionsInLocation().Should().Contain("take tube");
     }
 }
