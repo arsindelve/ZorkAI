@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Compass from '../components/Compass';
-import { Direction } from '../model/Directions';
+import { Direction } from '@zork-ai/shared-types';
 
 // Mock the Mixpanel module
 jest.mock('../Mixpanel.ts', () => ({

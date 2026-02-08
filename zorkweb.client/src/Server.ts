@@ -1,10 +1,6 @@
 import axios, {AxiosResponse, RawAxiosRequestHeaders} from 'axios';
-import {GameRequest} from './model/GameRequest.ts';
-import {GameResponse} from "./model/GameResponse.ts";
-import {ISaveGameRequest} from "./model/SaveGameRequest.ts";
-import {ISavedGame} from "./model/SavedGame.ts";
+import {GameRequest, GameResponse, ISaveGameRequest, ISavedGame, RestoreGameRequest} from "@zork-ai/shared-types";
 import config from '../config.json';
-import {RestoreGameRequest} from "./model/RestoreGameRequest.ts";
 import {Mixpanel} from './Mixpanel';
 import {SessionHandler} from "./SessionHandler.ts";
 

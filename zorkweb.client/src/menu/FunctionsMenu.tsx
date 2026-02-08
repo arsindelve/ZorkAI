@@ -3,7 +3,7 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import {useGameContext} from "../GameContext";
-import DialogType from "../model/DialogType.ts";
+import {DialogType} from "@zork-ai/shared-types";
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import RestoreIcon from '@mui/icons-material/Restore';
 import SaveIcon from '@mui/icons-material/Save';

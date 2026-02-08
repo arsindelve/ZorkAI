@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import AboutMenu from '../menu/AboutMenu';
 import { useGameContext } from '../GameContext';
-import DialogType from '../model/DialogType';
+import {DialogType} from '@zork-ai/shared-types';
 import { Mixpanel } from '../Mixpanel';
 
 // Mock the GameContext hook

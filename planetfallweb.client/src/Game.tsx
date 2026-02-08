@@ -1,6 +1,5 @@
 import {useMutation} from "@tanstack/react-query";
-import {GameRequest} from "./model/GameRequest.ts";
-import {GameResponse} from "./model/GameResponse.ts";
+import {GameRequest, GameResponse} from "@zork-ai/shared-types";
 import React, {useEffect, useState} from "react";
 import {Alert, Button, CircularProgress, Snackbar} from "@mui/material";
 import '@fontsource/roboto';
@@ -16,7 +15,7 @@ import {Mixpanel} from "./Mixpanel.ts";
 
 import {useGameContext} from "./GameContext";
 import InventoryButton from "./components/InventoryButton.tsx";
-import DialogType from "./model/DialogType.ts";
+import {DialogType} from "@zork-ai/shared-types";
 import GameInput from "./components/GameInput.tsx";
 
 function Game() {
@@ -178,7 +177,7 @@ function Game() {
         setInput("");
         setLocationName(data.locationName);
         setScore(data.score.toString());
-        setTime(data.time.toString());
+        setTime((data.time ?? 0).toString());
         setInventory(data.inventory);
         setExits(data.exits);
     }

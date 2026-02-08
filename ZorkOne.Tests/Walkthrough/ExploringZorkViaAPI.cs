@@ -71,8 +71,8 @@ public class ExploringZorkViaAPI
                 : null,
             Inventory: root.GetProperty("inventory").EnumerateArray().Select(e => e.GetString()!).ToList(),
             Exits: root.GetProperty("exits").EnumerateArray().Select(e => (Direction)e.GetInt32()).ToList(),
-            ActionsAvailaibleFromInventory: new Dictionary<string, List<string>>(),
-            ActionsAvailaibleFromLocation: new Dictionary<string, List<string>>()
+            ActionsAvailableFromInventory: new Dictionary<string, List<string>>(),
+            ActionsAvailableFromLocation: new Dictionary<string, List<string>>()
         );
 
         // Display for debugging

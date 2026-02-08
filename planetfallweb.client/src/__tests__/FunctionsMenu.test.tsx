@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import FunctionsMenu from '../menu/FunctionsMenu';
 import { useGameContext } from '../GameContext';
-import DialogType from '../model/DialogType';
+import {DialogType} from '@zork-ai/shared-types';
 
 // Mock the GameContext hook
 jest.mock('../GameContext', () => ({

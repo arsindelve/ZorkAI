@@ -1,4 +1,4 @@
-import {ISavedGame} from "../model/SavedGame.ts";
+import {ISavedGame} from "@zork-ai/shared-types";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";

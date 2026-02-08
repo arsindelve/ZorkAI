@@ -18,8 +18,8 @@ public record GameResponse(
     string? LastMovementDirection,
     List<string> Inventory,
     List<Direction> Exits,
-    Dictionary<string, List<string>> ActionsAvailaibleFromLocation,
-    Dictionary<string, List<string>> ActionsAvailaibleFromInventory)
+    Dictionary<string, List<string>> ActionsAvailableFromLocation,
+    Dictionary<string, List<string>> ActionsAvailableFromInventory)
 {
     [SetsRequiredMembers]
     public GameResponse(string response, IGameEngine gameEngine) : this(response, gameEngine.LocationName,
@@ -46,10 +46,10 @@ public record GameResponse(
     [UsedImplicitly] public required List<string> Inventory { get; init; } = Inventory;
 
     [UsedImplicitly]
-    public required Dictionary<string, List<string>> ActionsAvailaibleFromInventory { get; init; } = ActionsAvailaibleFromInventory;
+    public required Dictionary<string, List<string>> ActionsAvailableFromInventory { get; init; } = ActionsAvailableFromInventory;
 
     [UsedImplicitly]
-    public required Dictionary<string, List<string>> ActionsAvailaibleFromLocation { get; init; } = ActionsAvailaibleFromLocation;
+    public required Dictionary<string, List<string>> ActionsAvailableFromLocation { get; init; } = ActionsAvailableFromLocation;
 
     [UsedImplicitly] public required int Time { get; init; } = Time;
 

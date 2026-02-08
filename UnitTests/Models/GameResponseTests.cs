@@ -49,8 +49,8 @@ public class GameResponseTests
         gameResponse.LastMovementDirection.Should().Be(expectedLastMovementDirection);
         gameResponse.Inventory.Should().BeEquivalentTo(expectedInventory);
         gameResponse.Exits.Should().BeEquivalentTo(expectedExits);
-        gameResponse.ActionsAvailaibleFromInventory.Should().BeEquivalentTo(availablleActionsFromInventory);
-        gameResponse.ActionsAvailaibleFromLocation.Should().BeEquivalentTo(availablleActionsFromLocation);
+        gameResponse.ActionsAvailableFromInventory.Should().BeEquivalentTo(availablleActionsFromInventory);
+        gameResponse.ActionsAvailableFromLocation.Should().BeEquivalentTo(availablleActionsFromLocation);
     }
 
     [Test]
