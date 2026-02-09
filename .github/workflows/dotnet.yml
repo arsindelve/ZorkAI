@@ -44,10 +44,6 @@ jobs:
       working-directory: ./zorkweb.client
       run: npm ci
 
-    - name: Install Jest
-      working-directory: ./zorkweb.client
-      run: npm install --legacy-peer-deps jest
-
     - name: Install Playwright browsers
       working-directory: ./zorkweb.client
       run: npx playwright install --with-deps
@@ -85,10 +81,6 @@ jobs:
     - name: Install dependencies for planetfallweb.client
       working-directory: ./planetfallweb.client
       run: npm ci
-
-    - name: Install Jest
-      working-directory: ./planetfallweb.client
-      run: npm install --legacy-peer-deps jest
 
     - name: Install Playwright browsers
       working-directory: ./planetfallweb.client
