@@ -30,6 +30,7 @@ public class ApplicableVerbsAttribute(params string[] verbs) : Attribute
                     .SelectMany(attr => attr!.Verb
                         .Where(verb => !exclusions.Contains(verb))
                         .Select(verb => $"{verb} {item.Name}"))
+                    .Distinct()
                     .ToList());
     }
 }

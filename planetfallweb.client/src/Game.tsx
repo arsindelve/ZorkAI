@@ -15,6 +15,7 @@ import {Mixpanel} from "./Mixpanel.ts";
 
 import {useGameContext} from "./GameContext";
 import InventoryButton from "./components/InventoryButton.tsx";
+import LocationButton from "./components/LocationButton.tsx";
 import {DialogType} from "@zork-ai/shared-types";
 import GameInput from "./components/GameInput.tsx";
 
@@ -29,6 +30,8 @@ function Game() {
     const [score, setScore] = useState<string>("0");
     const [time, setTime] = useState<string>("0");
     const [inventory, setInventory] = useState<string[]>([]);
+    const [inventoryActions, setInventoryActions] = useState<Record<string, string[]>>({});
+    const [locationActions, setLocationActions] = useState<Record<string, string[]>>({});
     const [exits, setExits] = useState<string[]>([]);
     const [locationName, setLocationName] = useState<string>("");
 
@@ -179,6 +182,8 @@ function Game() {
         setScore(data.score.toString());
         setTime((data.time ?? 0).toString());
         setInventory(data.inventory);
+        setInventoryActions(data.actionsAvailableFromInventory ?? {});
+        setLocationActions(data.actionsAvailableFromLocation ?? {});
         setExits(data.exits);
     }
 
@@ -371,7 +376,19 @@ function Game() {
                         ">
                         <VerbsButton onVerbClick={handleVerbClick}/>
                         {inventory.length > 0 && (
-                            <InventoryButton onInventoryClick={handleInventoryClick} inventory={inventory}/>
+                            <InventoryButton
+                                onInventoryClick={handleInventoryClick}
+                                onActionClick={handleCommandClick}
+                                inventory={inventory}
+                                inventoryActions={inventoryActions}
+                            />
+                        )}
+                        {Object.values(locationActions).some(actions => actions.length > 0) && (
+                            <LocationButton
+                                onItemClick={handleInventoryClick}
+                                onActionClick={handleCommandClick}
+                                locationActions={locationActions}
+                            />
                         )}
                         <CommandsButton onCommandClick={handleCommandClick}/>
 

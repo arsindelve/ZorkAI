@@ -1,7 +1,8 @@
-import React, {useState, useEffect} from "react";
-import {Button, Menu, MenuItem, ListItemIcon, ListItemText, Badge} from "@mui/material";
+import React, {useState, useEffect, useRef} from "react";
+import {Button, Menu, MenuItem, ListItemIcon, ListItemText, Badge, Popper, Paper, MenuList, ClickAwayListener, Grow} from "@mui/material";
 import {Mixpanel} from "../Mixpanel.ts";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import BackpackIcon from '@mui/icons-material/Backpack';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -9,11 +10,12 @@ import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 
 type InventoryButtonProps = {
-    onInventoryClick: (verb: string) => void; // Callback prop to send the clicked inventory item to the parent
-    inventory: string[]
+    onInventoryClick: (item: string) => void;
+    onActionClick: (action: string) => void;
+    inventory: string[];
+    inventoryActions: Record<string, string[]>;
 };
 
-// Function to get an appropriate icon for an inventory item
 const getItemIcon = (item: string) => {
     const itemLower = item.toLowerCase();
     if (itemLower.includes('leaflet') || itemLower.includes('letter') || itemLower.includes('note') || itemLower.includes('book')) {
@@ -27,33 +29,94 @@ const getItemIcon = (item: string) => {
     }
 };
 
-export default function InventoryButton({inventory, onInventoryClick}: InventoryButtonProps) {
+export default function InventoryButton({inventory, inventoryActions, onInventoryClick, onActionClick}: InventoryButtonProps) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [activeItem, setActiveItem] = useState<string | null>(null);
+    const [submenuAnchorEl, setSubmenuAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const [isLoaded, setIsLoaded] = useState(false);
+    const submenuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         setIsLoaded(true);
     }, []);
 
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (submenuTimeoutRef.current) {
+                clearTimeout(submenuTimeoutRef.current);
+            }
+        };
+    }, []);
+
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget); // Set the anchor element
+        setAnchorEl(event.currentTarget);
     };
 
-    const handleClose = (item?: string) => {
-        if (item) {
-            Mixpanel.track('Click Item', {
-                "item": item
-            });
-            onInventoryClick(item); // Pass the clicked item to the parent
+    const handleClose = () => {
+        setAnchorEl(null);
+        setSubmenuAnchorEl(null);
+        setActiveItem(null);
+        if (submenuTimeoutRef.current) {
+            clearTimeout(submenuTimeoutRef.current);
         }
-        setAnchorEl(null); // Close the menu
     };
+
+    const handleItemHover = (event: React.MouseEvent<HTMLLIElement>, item: string) => {
+        // Clear any pending timeout
+        if (submenuTimeoutRef.current) {
+            clearTimeout(submenuTimeoutRef.current);
+            submenuTimeoutRef.current = null;
+        }
+
+        const actions = inventoryActions[item];
+        if (actions && actions.length > 0) {
+            setSubmenuAnchorEl(event.currentTarget);
+            setActiveItem(item);
+        } else {
+            setSubmenuAnchorEl(null);
+            setActiveItem(null);
+        }
+    };
+
+    const handleItemClick = (item: string) => {
+        Mixpanel.track('Click Item', { "item": item });
+        onInventoryClick(item);
+        handleClose();
+    };
+
+    const handleActionClick = (action: string) => {
+        Mixpanel.track('Click Inventory Action', { "action": action });
+        onActionClick(action);
+        handleClose();
+    };
+
+    const handleSubmenuMouseEnter = () => {
+        // Cancel any pending close
+        if (submenuTimeoutRef.current) {
+            clearTimeout(submenuTimeoutRef.current);
+            submenuTimeoutRef.current = null;
+        }
+    };
+
+    const handleSubmenuMouseLeave = () => {
+        // Delay closing the submenu to allow moving back to main menu
+        submenuTimeoutRef.current = setTimeout(() => {
+            setSubmenuAnchorEl(null);
+            setActiveItem(null);
+        }, 150);
+    };
+
+    // Use inventoryActions keys if available, otherwise fall back to inventory array
+    const items = Object.keys(inventoryActions).length > 0
+        ? Object.keys(inventoryActions)
+        : inventory;
 
     return (
         <>
-            <Badge 
-                badgeContent={inventory.length} 
+            <Badge
+                badgeContent={items.length}
                 color="secondary"
                 sx={{
                     '& .MuiBadge-badge': {
@@ -72,7 +135,7 @@ export default function InventoryButton({inventory, onInventoryClick}: Inventory
                     startIcon={<InventoryIcon />}
                     endIcon={<KeyboardArrowDownIcon />}
                     disabled={!isLoaded}
-                    sx={{ 
+                    sx={{
                         borderRadius: '20px',
                         backgroundColor: 'rgba(255, 255, 255, 0.1)',
                         color: 'white',
@@ -94,7 +157,7 @@ export default function InventoryButton({inventory, onInventoryClick}: Inventory
             <Menu
                 anchorEl={anchorEl}
                 open={open}
-                onClose={() => handleClose()} // Handle menu close
+                onClose={handleClose}
                 anchorOrigin={{
                     vertical: "bottom",
                     horizontal: "center",
@@ -122,16 +185,72 @@ export default function InventoryButton({inventory, onInventoryClick}: Inventory
                     }
                 }}
             >
-                {/* Map through the inventory array to create MenuItems */}
-                {inventory.map((item, index) => (
-                    <MenuItem key={index} onClick={() => handleClose(item)}>
-                        <ListItemIcon>
-                            {getItemIcon(item)}
-                        </ListItemIcon>
-                        <ListItemText>{item}</ListItemText>
-                    </MenuItem>
-                ))}
+                {items.map((item, index) => {
+                    const hasActions = inventoryActions[item] && inventoryActions[item].length > 0;
+                    return (
+                        <MenuItem
+                            key={index}
+                            onClick={() => handleItemClick(item)}
+                            onMouseEnter={(e) => handleItemHover(e, item)}
+                            sx={{
+                                backgroundColor: activeItem === item ? 'rgba(0, 0, 0, 0.08)' : 'transparent',
+                            }}
+                        >
+                            <ListItemIcon>
+                                {getItemIcon(item)}
+                            </ListItemIcon>
+                            <ListItemText>{item}</ListItemText>
+                            {hasActions && (
+                                <ChevronRightIcon fontSize="small" sx={{ ml: 1, color: 'text.secondary' }} />
+                            )}
+                        </MenuItem>
+                    );
+                })}
             </Menu>
+
+            {/* Submenu using Popper for better hover behavior */}
+            <Popper
+                open={Boolean(submenuAnchorEl) && activeItem !== null}
+                anchorEl={submenuAnchorEl}
+                placement="right-start"
+                transition
+                style={{ zIndex: 1300 }}
+            >
+                {({ TransitionProps }) => (
+                    <Grow {...TransitionProps}>
+                        <Paper
+                            elevation={4}
+                            sx={{
+                                borderRadius: '8px',
+                                ml: 0.5,
+                            }}
+                            onMouseEnter={handleSubmenuMouseEnter}
+                            onMouseLeave={handleSubmenuMouseLeave}
+                        >
+                            <ClickAwayListener onClickAway={handleClose}>
+                                <MenuList>
+                                    {activeItem && inventoryActions[activeItem]?.map((action, index) => (
+                                        <MenuItem
+                                            key={index}
+                                            onClick={() => handleActionClick(action)}
+                                            sx={{
+                                                px: 2,
+                                                py: 1,
+                                                fontSize: '0.9rem',
+                                                '&:hover': {
+                                                    backgroundColor: 'rgba(132, 204, 22, 0.15)',
+                                                },
+                                            }}
+                                        >
+                                            <ListItemText>{action}</ListItemText>
+                                        </MenuItem>
+                                    ))}
+                                </MenuList>
+                            </ClickAwayListener>
+                        </Paper>
+                    </Grow>
+                )}
+            </Popper>
         </>
     );
 }

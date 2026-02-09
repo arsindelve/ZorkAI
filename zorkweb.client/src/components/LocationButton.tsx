@@ -3,33 +3,32 @@ import {Button, Menu, MenuItem, ListItemIcon, ListItemText, Badge, Popper, Paper
 import {Mixpanel} from "../Mixpanel.ts";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import BackpackIcon from '@mui/icons-material/Backpack';
-import DescriptionIcon from '@mui/icons-material/Description';
-import LightbulbIcon from '@mui/icons-material/Lightbulb';
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import PlaceIcon from '@mui/icons-material/Place';
+import ChairIcon from '@mui/icons-material/Chair';
+import DoorFrontIcon from '@mui/icons-material/DoorFront';
+import NatureIcon from '@mui/icons-material/Nature';
+import CategoryIcon from '@mui/icons-material/Category';
 
-type InventoryButtonProps = {
-    onInventoryClick: (item: string) => void;
+type LocationButtonProps = {
+    onItemClick: (item: string) => void;
     onActionClick: (action: string) => void;
-    inventory: string[];
-    inventoryActions: Record<string, string[]>;
+    locationActions: Record<string, string[]>;
 };
 
 const getItemIcon = (item: string) => {
     const itemLower = item.toLowerCase();
-    if (itemLower.includes('leaflet') || itemLower.includes('letter') || itemLower.includes('note') || itemLower.includes('book')) {
-        return <DescriptionIcon fontSize="small" />;
-    } else if (itemLower.includes('lantern') || itemLower.includes('lamp') || itemLower.includes('light')) {
-        return <LightbulbIcon fontSize="small" />;
-    } else if (itemLower.includes('sword') || itemLower.includes('knife') || itemLower.includes('weapon')) {
-        return <SportsEsportsIcon fontSize="small" />;
+    if (itemLower.includes('door') || itemLower.includes('gate') || itemLower.includes('window')) {
+        return <DoorFrontIcon fontSize="small" />;
+    } else if (itemLower.includes('tree') || itemLower.includes('plant') || itemLower.includes('bush') || itemLower.includes('forest')) {
+        return <NatureIcon fontSize="small" />;
+    } else if (itemLower.includes('chair') || itemLower.includes('table') || itemLower.includes('bed') || itemLower.includes('furniture')) {
+        return <ChairIcon fontSize="small" />;
     } else {
-        return <BackpackIcon fontSize="small" />;
+        return <CategoryIcon fontSize="small" />;
     }
 };
 
-export default function InventoryButton({inventory, inventoryActions, onInventoryClick, onActionClick}: InventoryButtonProps) {
+export default function LocationButton({locationActions, onItemClick, onActionClick}: LocationButtonProps) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [activeItem, setActiveItem] = useState<string | null>(null);
     const [submenuAnchorEl, setSubmenuAnchorEl] = useState<null | HTMLElement>(null);
@@ -70,7 +69,7 @@ export default function InventoryButton({inventory, inventoryActions, onInventor
             submenuTimeoutRef.current = null;
         }
 
-        const actions = inventoryActions[item];
+        const actions = locationActions[item];
         if (actions && actions.length > 0) {
             setSubmenuAnchorEl(event.currentTarget);
             setActiveItem(item);
@@ -81,13 +80,13 @@ export default function InventoryButton({inventory, inventoryActions, onInventor
     };
 
     const handleItemClick = (item: string) => {
-        Mixpanel.track('Click Item', { "item": item });
-        onInventoryClick(item);
+        Mixpanel.track('Click Location Item', { "item": item });
+        onItemClick(item);
         handleClose();
     };
 
     const handleActionClick = (action: string) => {
-        Mixpanel.track('Click Inventory Action', { "action": action });
+        Mixpanel.track('Click Location Action', { "action": action });
         onActionClick(action);
         handleClose();
     };
@@ -108,10 +107,10 @@ export default function InventoryButton({inventory, inventoryActions, onInventor
         }, 150);
     };
 
-    // Use inventoryActions keys if available, otherwise fall back to inventory array
-    const items = Object.keys(inventoryActions).length > 0
-        ? Object.keys(inventoryActions)
-        : inventory;
+    // Only show items that have actions
+    const items = Object.keys(locationActions).filter(
+        item => locationActions[item] && locationActions[item].length > 0
+    );
 
     return (
         <>
@@ -128,11 +127,11 @@ export default function InventoryButton({inventory, inventoryActions, onInventor
                 }}
             >
                 <Button
-                    data-testid="inventory-button"
+                    data-testid="location-button"
                     onClick={handleClick}
                     variant="contained"
                     color="primary"
-                    startIcon={<InventoryIcon />}
+                    startIcon={<PlaceIcon />}
                     endIcon={<KeyboardArrowDownIcon />}
                     disabled={!isLoaded}
                     sx={{
@@ -150,7 +149,7 @@ export default function InventoryButton({inventory, inventoryActions, onInventor
                         transform: isLoaded ? 'translateY(0)' : 'translateY(10px)',
                     }}
                 >
-                    Inventory
+                    Location
                 </Button>
             </Badge>
 
@@ -186,7 +185,7 @@ export default function InventoryButton({inventory, inventoryActions, onInventor
                 }}
             >
                 {items.map((item, index) => {
-                    const hasActions = inventoryActions[item] && inventoryActions[item].length > 0;
+                    const hasActions = locationActions[item] && locationActions[item].length > 0;
                     return (
                         <MenuItem
                             key={index}
@@ -229,7 +228,7 @@ export default function InventoryButton({inventory, inventoryActions, onInventor
                         >
                             <ClickAwayListener onClickAway={handleClose}>
                                 <MenuList>
-                                    {activeItem && inventoryActions[activeItem]?.map((action, index) => (
+                                    {activeItem && locationActions[activeItem]?.map((action, index) => (
                                         <MenuItem
                                             key={index}
                                             onClick={() => handleActionClick(action)}
