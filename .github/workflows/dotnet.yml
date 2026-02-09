@@ -38,7 +38,7 @@ jobs:
 
     - name: Install dependencies for shared-web-types
       working-directory: ./shared-web-types
-      run: npm install
+      run: npm install --legacy-peer-deps
 
     - name: Install dependencies for zorkweb.client
       working-directory: ./zorkweb.client
@@ -46,7 +46,7 @@ jobs:
 
     - name: Install Jest
       working-directory: ./zorkweb.client
-      run: npm install jest
+      run: npm install --legacy-peer-deps jest
 
     - name: Install Playwright browsers
       working-directory: ./zorkweb.client
@@ -80,7 +80,7 @@ jobs:
 
     - name: Install dependencies for shared-web-types
       working-directory: ./shared-web-types
-      run: npm install
+      run: npm install --legacy-peer-deps
 
     - name: Install dependencies for planetfallweb.client
       working-directory: ./planetfallweb.client
@@ -88,7 +88,7 @@ jobs:
 
     - name: Install Jest
       working-directory: ./planetfallweb.client
-      run: npm install jest
+      run: npm install --legacy-peer-deps jest
 
     - name: Install Playwright browsers
       working-directory: ./planetfallweb.client
