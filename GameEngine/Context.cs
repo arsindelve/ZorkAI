@@ -92,6 +92,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     public int Score { get; set; }
 
     public string? LastInput { get; set; }
+    
     public string? LastResponse { get; set; }
 
     /// <summary>
@@ -111,6 +112,16 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     public Type[] CanOnlyHoldTheseTypes => [];
 
+    /// <summary>
+    /// Generates an error message when attempting to place an item in a container
+    /// that can only hold specific types of items.
+    /// </summary>
+    /// <param name="nameOfItemWeTriedToPlaceHere">
+    /// The name of the item that was attempted to be placed in the container.
+    /// </param>
+    /// <returns>
+    /// A string containing the error message indicating the item type restriction.
+    /// </returns>
     public string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlaceHere) => string.Empty;
 
     /// <summary>
@@ -301,6 +312,10 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     {
         if (item == null)
             throw new Exception("Null item was added to inventory");
+        
+        // No duplicates in any game, ever. 
+        if (Items.Any(i => i.GetType() == item.GetType()))
+            return;
 
         if (item is IGivePointsWhenFirstPickedUp up && !item.HasEverBeenPickedUp) AddPoints(up.NumberOfPoints);
 

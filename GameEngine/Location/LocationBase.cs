@@ -144,6 +144,10 @@ public abstract class LocationBase : ILocation, ICanContainItems
 
     public void ItemPlacedHere(IItem item)
     {
+        // No duplicates in any game, ever. 
+        if (Items.Any(i => i.GetType() == item.GetType()))
+            return;
+        
         var oldLocation = item.CurrentLocation;
         oldLocation?.RemoveItem(item);
         item.CurrentLocation = this;

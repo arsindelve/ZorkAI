@@ -2,5 +2,11 @@
   "name": "@zork-ai/shared-types",
   "version": "1.0.0",
   "main": "src/index.ts",
-  "types": "src/index.ts"
+  "types": "src/index.ts",
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "@mui/material": "^5.15.15",
+    "@mui/icons-material": "^5.15.15",
+    "mixpanel-browser": "^2.58.0"
+  }
 }

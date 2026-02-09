@@ -72,6 +72,23 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
         return Task.FromResult(string.Empty);
     }
 
+    public override Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
+        IGenerationClient client)
+    {
+        if (string.IsNullOrEmpty(input))
+            return base.RespondToSpecificLocationInteraction(input, context, client);
+
+        if (input.ToLowerInvariant() == "press up button")
+            return RespondToSimpleInteraction(new SimpleIntent { Verb = "press", Noun = "up button" }, context, client,
+                null);
+
+        if (input.ToLowerInvariant() == "press down button")
+            return RespondToSimpleInteraction(new SimpleIntent { Verb = "press", Noun = "down button" }, context, client,
+                null);
+        
+        return base.RespondToSpecificLocationInteraction(input, context, client);
+    }
+
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {

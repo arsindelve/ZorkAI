@@ -21,7 +21,15 @@ public class ApplicableVerbsAttribute(params string[] verbs) : Attribute
     public static Dictionary<string, List<string>> GetAvailableActions(IEnumerable<IItem> items,
         params string[] exclusions)
     {
-        return items
+        List<IItem> itemsList = new();
+
+        foreach (var item in items.ToList())
+        {
+            if (itemsList.All(i => i.GetType() != item.GetType()))
+                itemsList.Add(item);
+        }
+
+        return itemsList
             .ToDictionary(
                 item => item.Name,
                 item => item.GetType().GetInterfaces()
