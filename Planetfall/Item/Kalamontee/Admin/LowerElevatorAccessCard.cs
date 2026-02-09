@@ -1,5 +1,6 @@
 namespace Planetfall.Item.Kalamontee.Admin;
 
+[WorksInConjunctionWithItem(typeof(LowerElevatorAccessSlot), "slide lower elevator access card through slot")]
 public class LowerElevatorAccessCard : ElevatorAccessCard, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead,
     IGivePointsWhenFirstPickedUp
 {

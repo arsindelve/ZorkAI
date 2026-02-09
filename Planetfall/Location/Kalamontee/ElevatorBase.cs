@@ -80,11 +80,11 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
 
         if (input.ToLowerInvariant() == "press up button")
             return RespondToSimpleInteraction(new SimpleIntent { Verb = "press", Noun = "up button" }, context, client,
-                null);
+                null!);
 
         if (input.ToLowerInvariant() == "press down button")
             return RespondToSimpleInteraction(new SimpleIntent { Verb = "press", Noun = "down button" }, context, client,
-                null);
+                null!);
         
         return base.RespondToSpecificLocationInteraction(input, context, client);
     }

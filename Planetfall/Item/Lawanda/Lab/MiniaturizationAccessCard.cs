@@ -1,5 +1,6 @@
 namespace Planetfall.Item.Lawanda.Lab;
 
+[WorksInConjunctionWithItem(typeof(MiniaturizationSlot), "slide miniaturization access card through slot")]
 public class MiniaturizationAccessCard : AccessCard, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead,
     IGivePointsWhenFirstPickedUp
 {

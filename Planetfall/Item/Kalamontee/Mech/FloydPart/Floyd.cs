@@ -8,7 +8,7 @@ using Planetfall.Location;
 
 namespace Planetfall.Item.Kalamontee.Mech.FloydPart;
 
-public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGivenThings, ICanBeTalkedTo
+public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGivenThings, ICanBeTalkedTo, IDoNotAppearInItemLists
 {
     private readonly GiveSomethingToSomeoneDecisionEngine<Floyd> _giveHimSomethingEngine = new();
     private readonly FloydLocationBehaviors _locationBehaviors;

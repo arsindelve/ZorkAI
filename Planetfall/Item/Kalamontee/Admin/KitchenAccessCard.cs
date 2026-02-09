@@ -1,5 +1,6 @@
 ﻿namespace Planetfall.Item.Kalamontee.Admin;
 
+[WorksInConjunctionWithItem(typeof(KitchenSlot), "slide kitchen access card through slot")]
 public class KitchenAccessCard : AccessCard, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead,
     IGivePointsWhenFirstPickedUp
 {

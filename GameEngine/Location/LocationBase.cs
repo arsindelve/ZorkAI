@@ -76,7 +76,7 @@ public abstract class LocationBase : ILocation, ICanContainItems
     public virtual Dictionary<string, List<string>> GetAvailableActionsInLocation()
     {
         // Exclude "drop" because this is in the location, thus we don't have the item to drop
-        return ApplicableVerbsAttribute.GetAvailableActions(GetAllItemsRecursively, "drop");
+        return ApplicableVerbsAttribute.GetAvailableActions(GetAllItemsRecursively.Where(s => s is not IDoNotAppearInItemLists), "drop");
     }
 
     /// <summary>

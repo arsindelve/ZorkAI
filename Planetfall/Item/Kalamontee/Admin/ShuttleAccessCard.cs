@@ -1,5 +1,8 @@
+using Planetfall.Location.Shuttle;
+
 namespace Planetfall.Item.Kalamontee.Admin;
 
+[WorksInConjunctionWithItem(typeof(ShuttleSlot<>), "slide shuttle acces card through slot")]
 public class ShuttleAccessCard : AccessCard, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead,
     IGivePointsWhenFirstPickedUp
 {

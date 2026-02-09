@@ -1,5 +1,6 @@
 namespace Planetfall.Item.Kalamontee.Admin;
 
+[WorksInConjunctionWithItem(typeof(TeleportationSlot<>), "slide teleportation access card through slot")]
 public class TeleportationAccessCard : AccessCard, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead
 {
     public override string[] NounsForMatching =>

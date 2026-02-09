@@ -3,6 +3,18 @@ using System.Reflection;
 namespace Model.Item;
 
 /// <summary>
+/// Represents an attribute used to associate an item with another item which, if present, allows an action
+/// to become available. For example, when "kitchen access card" is in inventory and "kitchen access slot" is
+/// in the current location, "slide kitchen access card through slot" becomes available as an action. 
+/// </summary>
+public class WorksInConjunctionWithItemAttribute(Type otherItem, string action) : Attribute
+{
+    public Type OtherItem { get; } = otherItem;
+    public string Action { get; } = action;
+}
+
+
+/// <summary>
 /// Represents an attribute used to associate a "main verb" with an interface, allowing
 /// it to define the primary action verb relevant to its purpose or behavior.
 /// </summary>
