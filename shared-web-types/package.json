@@ -4,9 +4,18 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "peerDependencies": {
-    "react": "^18.2.0",
-    "@mui/material": "^5.15.15",
     "@mui/icons-material": "^5.15.15",
-    "mixpanel-browser": "^2.58.0"
+    "@mui/material": "^5.15.15",
+    "mixpanel-browser": "^2.58.0",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^5.18.0",
+    "@mui/material": "^5.18.0",
+    "@types/react": "^18.3.28",
+    "mixpanel-browser": "^2.74.0",
+    "react": "^18.3.1"
   }
 }

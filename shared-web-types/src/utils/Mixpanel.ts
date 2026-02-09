@@ -1,4 +1,4 @@
-import {SessionHandler} from "./SessionHandler.ts";
+import {SessionHandler} from "./SessionHandler";
 import mixpanel, {Dict} from 'mixpanel-browser';
 
 let sessionId = new SessionHandler();

@@ -1,4 +1,4 @@
-﻿export class SessionHandler {
+export class SessionHandler {
 
     getSessionId(): [string, boolean] {
 

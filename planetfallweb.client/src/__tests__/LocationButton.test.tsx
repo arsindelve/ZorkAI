@@ -1,13 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import LocationButton from '../components/LocationButton';
-
-// Mock the Mixpanel module
-jest.mock('../Mixpanel.ts', () => ({
-  Mixpanel: {
-    track: jest.fn()
-  }
-}));
+import {LocationButton} from '@zork-ai/shared-types';
 
 describe('LocationButton Component', () => {
   const mockOnItemClick = jest.fn();

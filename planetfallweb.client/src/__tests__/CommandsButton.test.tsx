@@ -1,13 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import CommandsButton from '../components/CommandsButton';
-
-// Mock the Mixpanel module
-jest.mock('../Mixpanel.ts', () => ({
-  Mixpanel: {
-    track: jest.fn()
-  }
-}));
+import {CommandsButton} from '@zork-ai/shared-types';
 
 describe('CommandsButton Component', () => {
   const mockOnCommandClick = jest.fn();

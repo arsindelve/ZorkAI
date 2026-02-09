@@ -3,18 +3,11 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import AboutMenu from '../menu/AboutMenu';
 import { useGameContext } from '../GameContext';
 import {DialogType} from '@zork-ai/shared-types';
-import { Mixpanel } from '../Mixpanel';
+import { Mixpanel } from '@zork-ai/shared-types';
 
 // Mock the GameContext hook
 jest.mock('../GameContext', () => ({
   useGameContext: jest.fn(),
-}));
-
-// Mock the Mixpanel
-jest.mock('../Mixpanel', () => ({
-  Mixpanel: {
-    track: jest.fn(),
-  },
 }));
 
 // Mock window.open

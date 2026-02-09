@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from "react";
 import {Button, Menu, MenuItem, ListItemText, Badge, Popper, Paper, MenuList, ClickAwayListener, Grow, Box} from "@mui/material";
-import {Mixpanel} from "../Mixpanel.ts";
+import {Mixpanel} from "../utils/Mixpanel";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import PlaceIcon from '@mui/icons-material/Place';

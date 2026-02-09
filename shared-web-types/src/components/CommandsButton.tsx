@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import {Button, Menu, MenuItem, ListItemText, Box} from "@mui/material";
-import {Mixpanel} from "../Mixpanel.ts";
+import {Mixpanel} from "../utils/Mixpanel";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import TerminalIcon from '@mui/icons-material/Terminal';
 

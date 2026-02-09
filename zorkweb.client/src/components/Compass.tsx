@@ -1,6 +1,5 @@
 import React from "react";
-import {Mixpanel} from "../Mixpanel.ts";
-import {Direction} from "@zork-ai/shared-types";
+import {Mixpanel, Direction} from "@zork-ai/shared-types";
 
 interface CompassProps extends React.SVGProps<SVGSVGElement> {
     onCompassClick?: (angle: string) => void; // Callback for compass click angle

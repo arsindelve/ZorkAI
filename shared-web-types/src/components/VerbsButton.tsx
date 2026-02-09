@@ -1,17 +1,17 @@
 import React, {useState, useEffect} from "react";
 import {Button, Menu, MenuItem, ListItemText, Box} from "@mui/material";
-import {Mixpanel} from "../Mixpanel.ts";
+import {Mixpanel} from "../utils/Mixpanel";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import TerminalIcon from '@mui/icons-material/Terminal';
+import TextFormatIcon from '@mui/icons-material/TextFormat';
 
-type CommandButtonProps = {
-    onCommandClick: (command: string) => void; // Callback prop to send the clicked command to the parent
+type VerbsButtonProps = {
+    onVerbClick: (verb: string) => void; // Callback prop to send the clicked verb to the parent
 };
 
 const toSentenceCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-export default function CommandsButton({onCommandClick}: CommandButtonProps) {
-    const commands = ["verbose", "diagnose", "enter", "exit", "go up", "go down", "wait", "inventory", "again", "drop all", "take all", "look"];
+export default function VerbsButton({onVerbClick}: VerbsButtonProps) {
+    const verbs = ["eat", "drink", "drop", "attack", "turn on", "turn off", "read", "open", "close", "examine", "take"];
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const [isLoaded, setIsLoaded] = useState(false);
@@ -24,12 +24,12 @@ export default function CommandsButton({onCommandClick}: CommandButtonProps) {
         setAnchorEl(event.currentTarget); // Set the anchor element
     };
 
-    const handleClose = (command?: string) => {
-        if (command) {
-            Mixpanel.track('Click Command', {
-                "command": command
+    const handleClose = (verb?: string) => {
+        if (verb) {
+            Mixpanel.track('Click Verb', {
+                "verb": verb
             });
-            onCommandClick(command); // Pass the clicked command to the parent
+            onVerbClick(verb); // Pass the clicked verb to the parent
         }
         setAnchorEl(null); // Close the menu
     };
@@ -40,7 +40,7 @@ export default function CommandsButton({onCommandClick}: CommandButtonProps) {
                 onClick={handleClick}
                 variant="contained"
                 color="primary"
-                startIcon={<TerminalIcon />}
+                startIcon={<TextFormatIcon />}
                 endIcon={<KeyboardArrowDownIcon />}
                 disabled={!isLoaded}
                 sx={{
@@ -63,7 +63,7 @@ export default function CommandsButton({onCommandClick}: CommandButtonProps) {
                     '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 } },
                 }}
             >
-                <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Commands</Box>
+                <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Verbs</Box>
             </Button>
 
             <Menu
@@ -97,10 +97,10 @@ export default function CommandsButton({onCommandClick}: CommandButtonProps) {
                     }
                 }}
             >
-                {/* Map through the commands array to create MenuItems */}
-                {commands.map((command, index) => (
-                    <MenuItem key={index} onClick={() => handleClose(command)}>
-                        <ListItemText>{toSentenceCase(command)}</ListItemText>
+                {/* Map through the verbs array to create MenuItems */}
+                {verbs.map((verb, index) => (
+                    <MenuItem key={index} onClick={() => handleClose(verb)}>
+                        <ListItemText>{toSentenceCase(verb)}</ListItemText>
                     </MenuItem>
                 ))}
             </Menu>

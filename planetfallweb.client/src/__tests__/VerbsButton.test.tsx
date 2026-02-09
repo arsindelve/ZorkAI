@@ -1,13 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import VerbsButton from '../components/VerbsButton';
-
-// Mock the Mixpanel module
-jest.mock('../Mixpanel.ts', () => ({
-  Mixpanel: {
-    track: jest.fn()
-  }
-}));
+import {VerbsButton} from '@zork-ai/shared-types';
 
 describe('VerbsButton Component', () => {
   const mockOnVerbClick = jest.fn();

@@ -1,22 +1,15 @@
 import {useMutation} from "@tanstack/react-query";
-import {GameRequest, GameResponse} from "@zork-ai/shared-types";
+import {GameRequest, GameResponse, SessionHandler, Mixpanel, VerbsButton, CommandsButton, InventoryButton, LocationButton, DialogType} from "@zork-ai/shared-types";
 import React, {useEffect, useState} from "react";
 import {Alert, Button, CircularProgress, Snackbar} from "@mui/material";
 import '@fontsource/roboto';
 import Header from "./components/Header.tsx";
-import {SessionHandler} from "./SessionHandler.ts";
 
 import Server from './Server';
-import VerbsButton from "./components/VerbsButton.tsx";
-import CommandsButton from "./components/CommandsButton.tsx";
 import ClickableText, {ClickableTextHandle} from "./ClickableText.tsx";
 import Compass from "./components/Compass.tsx";
-import {Mixpanel} from "./Mixpanel.ts";
 
 import {useGameContext} from "./GameContext";
-import InventoryButton from "./components/InventoryButton.tsx";
-import LocationButton from "./components/LocationButton.tsx";
-import {DialogType} from "@zork-ai/shared-types";
 import GameInput from "./components/GameInput.tsx";
 
 function Game() {
@@ -365,12 +358,13 @@ function Game() {
                 {!mutation.isPending && (
                     <div
                         className="
-                        flex 
-                        flex-row 
-                        justify-center 
+                        flex
+                        flex-row
+                        justify-center
+                        items-center
                         flex-wrap
-                        sm:ml-2 
-                        sm:mr-4 
+                        sm:ml-2
+                        sm:mr-4
                         gap-3 sm:gap-4
                         p-3
                         ">
