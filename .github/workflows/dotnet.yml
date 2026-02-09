@@ -36,6 +36,10 @@ jobs:
       with:
         node-version: '24'
 
+    - name: Install dependencies for shared-web-types
+      working-directory: ./shared-web-types
+      run: npm install
+
     - name: Install dependencies for zorkweb.client
       working-directory: ./zorkweb.client
       run: npm ci
@@ -73,6 +77,10 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '24'
+
+    - name: Install dependencies for shared-web-types
+      working-directory: ./shared-web-types
+      run: npm install
 
     - name: Install dependencies for planetfallweb.client
       working-directory: ./planetfallweb.client
