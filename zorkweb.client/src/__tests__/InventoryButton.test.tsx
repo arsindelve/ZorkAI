@@ -1,13 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import InventoryButton from '../components/InventoryButton';
-
-// Mock the Mixpanel module
-jest.mock('../Mixpanel.ts', () => ({
-  Mixpanel: {
-    track: jest.fn()
-  }
-}));
+import {InventoryButton} from '@zork-ai/shared-types';
 
 describe('InventoryButton Component', () => {
   const mockOnInventoryClick = jest.fn();
