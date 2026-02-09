@@ -397,6 +397,68 @@ public class HungerSystemTests : EngineTestsBase
     }
    
     [Test]
+    public async Task Goo_WhenSurvivalKitIsOnGround_CanEat()
+    {
+        var target = GetTarget();
+        StartHere<Kitchen>();
+
+        var pfContext = target.Context;
+        pfContext.Hunger = HungerLevel.Hungry;
+        PreventHungerAdvancement(pfContext);
+
+        // Place the survival kit on the ground in the location (NOT in inventory)
+        var kit = GetItem<SurvivalKit>();
+        kit.IsOpen = true;
+        target.Context.CurrentLocation.ItemPlacedHere(kit);
+
+        var response = await target.GetResponse("eat green goo");
+        response.Should().Contain("Mmmm", "player should be able to eat goo from a survival kit on the ground");
+        response.Should().Contain("lima beans");
+    }
+
+    [Test]
+    public async Task Goo_WhenSurvivalKitInInventoryAndOpen_CanEat()
+    {
+        var target = GetTarget();
+        StartHere<Kitchen>();
+
+        var pfContext = target.Context;
+        pfContext.Hunger = HungerLevel.Hungry;
+        PreventHungerAdvancement(pfContext);
+
+        var kit = GetItem<SurvivalKit>();
+        kit.IsOpen = true;
+        target.Context.ItemPlacedHere(kit); // kit in inventory
+
+        var response = await target.GetResponse("eat green goo");
+        response.Should().Contain("Mmmm", "player should be able to eat goo when holding the open kit");
+        response.Should().Contain("lima beans");
+    }
+
+    [Test]
+    public async Task Goo_WhenSurvivalKitIsDroppedOnGround_CanEat()
+    {
+        var target = GetTarget();
+        StartHere<Kitchen>();
+
+        var pfContext = target.Context;
+        pfContext.Hunger = HungerLevel.Hungry;
+        PreventHungerAdvancement(pfContext);
+
+        // Simulate taking and then dropping the kit (as a player would do)
+        var kit = GetItem<SurvivalKit>();
+        kit.IsOpen = true;
+        target.Context.ItemPlacedHere(kit); // take it
+
+        // Drop it
+        await target.GetResponse("drop kit");
+
+        var response = await target.GetResponse("eat green goo");
+        response.Should().Contain("Mmmm", "player should be able to eat goo from a dropped survival kit");
+        response.Should().Contain("lima beans");
+    }
+
+    [Test]
     public void SurvivalKit_StartsWithThreeGooItems()
     {
         Repository.Reset();

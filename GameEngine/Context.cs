@@ -286,7 +286,7 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
             {
                 result.Add(item);
                 if (item is ICanContainItems holder)
-                    result.AddRange(holder.GetAllItemsRecursively);
+                    result.AddRange(holder.GetAllItemsRecursively.Where(s => s is not IDoNotAppearInItemLists));
             }
 
             return result;
@@ -490,6 +490,6 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     public Dictionary<string, List<string>> GetAvailableActionsForInventory()
     {
         // Exclude "take" because this is inventory, thus we already have the item. 
-        return ApplicableVerbsAttribute.GetAvailableActions(Items, ["take"]);
+        return ApplicableVerbsAttribute.GetAvailableActions(GetAllItemsRecursively, ["take"]);
     }
 }
