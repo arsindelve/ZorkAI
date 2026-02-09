@@ -12,3 +12,7 @@ Zork.sln.DotSettings.user
 Zork.sln.DotSettings
 .vscode/launch.json
 .vscode/tasks.json
+.DS_Store
+.claude/.DS_Store
+.claude/docs/
+shared-web-types/node_modules/
