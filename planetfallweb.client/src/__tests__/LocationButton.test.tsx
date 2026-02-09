@@ -81,10 +81,11 @@ describe('LocationButton Component', () => {
     const buttonElement = screen.getByTestId('location-button');
     fireEvent.click(buttonElement);
 
-    expect(screen.getByText('console')).toBeInTheDocument();
-    expect(screen.getByText('door')).toBeInTheDocument();
-    expect(screen.getByText('panel')).toBeInTheDocument();
-    expect(screen.getByText('window')).toBeInTheDocument();
+    // Items displayed in Sentence Case
+    expect(screen.getByText('Console')).toBeInTheDocument();
+    expect(screen.getByText('Door')).toBeInTheDocument();
+    expect(screen.getByText('Panel')).toBeInTheDocument();
+    expect(screen.getByText('Window')).toBeInTheDocument();
   });
 
   test('calls onItemClick when an item is clicked', () => {
@@ -103,9 +104,11 @@ describe('LocationButton Component', () => {
     const buttonElement = screen.getByTestId('location-button');
     fireEvent.click(buttonElement);
 
-    const consoleItem = screen.getByText('console');
+    // Click item displayed in Sentence Case
+    const consoleItem = screen.getByText('Console');
     fireEvent.click(consoleItem);
 
+    // Callback receives original lowercase value
     expect(mockOnItemClick).toHaveBeenCalledWith('console');
   });
 
@@ -125,10 +128,11 @@ describe('LocationButton Component', () => {
     const buttonElement = screen.getByTestId('location-button');
     fireEvent.click(buttonElement);
 
-    const doorItem = screen.getByText('door');
+    // Click item displayed in Sentence Case
+    const doorItem = screen.getByText('Door');
     fireEvent.click(doorItem);
 
-    expect(screen.queryByText('door')).not.toBeVisible();
+    expect(screen.queryByText('Door')).not.toBeVisible();
   });
 
   test('button is enabled after loading', () => {
@@ -211,17 +215,18 @@ describe('LocationButton Component', () => {
     const buttonElement = screen.getByTestId('location-button');
     fireEvent.click(buttonElement);
 
-    // Hover over the console item
-    const consoleItem = screen.getByText('console');
+    // Hover over the console item (displayed in Sentence Case)
+    const consoleItem = screen.getByText('Console');
     fireEvent.mouseEnter(consoleItem);
 
-    // Check that submenu actions are displayed
-    expect(screen.getByText('examine console')).toBeInTheDocument();
-    expect(screen.getByText('use console')).toBeInTheDocument();
+    // Check that submenu actions are displayed (Sentence Case)
+    expect(screen.getByText('Examine console')).toBeInTheDocument();
+    expect(screen.getByText('Use console')).toBeInTheDocument();
 
     // Click an action
-    fireEvent.click(screen.getByText('examine console'));
+    fireEvent.click(screen.getByText('Examine console'));
 
+    // Callback receives original lowercase value
     expect(mockOnActionClick).toHaveBeenCalledWith('examine console');
   });
 });

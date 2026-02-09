@@ -1,13 +1,9 @@
 import React, {useState, useEffect, useRef} from "react";
-import {Button, Menu, MenuItem, ListItemIcon, ListItemText, Badge, Popper, Paper, MenuList, ClickAwayListener, Grow} from "@mui/material";
+import {Button, Menu, MenuItem, ListItemText, Badge, Popper, Paper, MenuList, ClickAwayListener, Grow, Box} from "@mui/material";
 import {Mixpanel} from "../Mixpanel.ts";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import PlaceIcon from '@mui/icons-material/Place';
-import ChairIcon from '@mui/icons-material/Chair';
-import DoorFrontIcon from '@mui/icons-material/DoorFront';
-import NatureIcon from '@mui/icons-material/Nature';
-import CategoryIcon from '@mui/icons-material/Category';
 
 type LocationButtonProps = {
     onItemClick: (item: string) => void;
@@ -15,18 +11,7 @@ type LocationButtonProps = {
     locationActions: Record<string, string[]>;
 };
 
-const getItemIcon = (item: string) => {
-    const itemLower = item.toLowerCase();
-    if (itemLower.includes('door') || itemLower.includes('gate') || itemLower.includes('window')) {
-        return <DoorFrontIcon fontSize="small" />;
-    } else if (itemLower.includes('tree') || itemLower.includes('plant') || itemLower.includes('bush') || itemLower.includes('forest')) {
-        return <NatureIcon fontSize="small" />;
-    } else if (itemLower.includes('chair') || itemLower.includes('table') || itemLower.includes('bed') || itemLower.includes('furniture')) {
-        return <ChairIcon fontSize="small" />;
-    } else {
-        return <CategoryIcon fontSize="small" />;
-    }
-};
+const toSentenceCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function LocationButton({locationActions, onItemClick, onActionClick}: LocationButtonProps) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -135,7 +120,7 @@ export default function LocationButton({locationActions, onItemClick, onActionCl
                     endIcon={<KeyboardArrowDownIcon />}
                     disabled={!isLoaded}
                     sx={{
-                        borderRadius: '20px',
+                        borderRadius: { xs: '50%', sm: '20px' },
                         backgroundColor: 'rgba(255, 255, 255, 0.1)',
                         color: 'white',
                         '&:hover': {
@@ -147,9 +132,14 @@ export default function LocationButton({locationActions, onItemClick, onActionCl
                         display: { xs: isLoaded ? 'inline-flex' : 'none', sm: 'inline-flex' },
                         opacity: { xs: 1, sm: isLoaded ? 1 : 0.6 },
                         transform: isLoaded ? 'translateY(0)' : 'translateY(10px)',
+                        minWidth: { xs: 'auto', sm: '64px' },
+                        px: { xs: 1.5, sm: 2 },
+                        py: { xs: 1, sm: undefined },
+                        '& .MuiButton-endIcon': { display: { xs: 'none', sm: 'flex' } },
+                        '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 } },
                     }}
                 >
-                    Location
+                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Location</Box>
                 </Button>
             </Badge>
 
@@ -195,10 +185,7 @@ export default function LocationButton({locationActions, onItemClick, onActionCl
                                 backgroundColor: activeItem === item ? 'rgba(0, 0, 0, 0.08)' : 'transparent',
                             }}
                         >
-                            <ListItemIcon>
-                                {getItemIcon(item)}
-                            </ListItemIcon>
-                            <ListItemText>{item}</ListItemText>
+                            <ListItemText>{toSentenceCase(item)}</ListItemText>
                             {hasActions && (
                                 <ChevronRightIcon fontSize="small" sx={{ ml: 1, color: 'text.secondary' }} />
                             )}
@@ -241,7 +228,7 @@ export default function LocationButton({locationActions, onItemClick, onActionCl
                                                 },
                                             }}
                                         >
-                                            <ListItemText>{action}</ListItemText>
+                                            <ListItemText>{toSentenceCase(action)}</ListItemText>
                                         </MenuItem>
                                     ))}
                                 </MenuList>

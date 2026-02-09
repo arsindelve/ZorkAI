@@ -1,13 +1,9 @@
 import React, {useState, useEffect, useRef} from "react";
-import {Button, Menu, MenuItem, ListItemIcon, ListItemText, Badge, Popper, Paper, MenuList, ClickAwayListener, Grow} from "@mui/material";
+import {Button, Menu, MenuItem, ListItemText, Badge, Popper, Paper, MenuList, ClickAwayListener, Grow, Box} from "@mui/material";
 import {Mixpanel} from "../Mixpanel.ts";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import BackpackIcon from '@mui/icons-material/Backpack';
-import DescriptionIcon from '@mui/icons-material/Description';
-import LightbulbIcon from '@mui/icons-material/Lightbulb';
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 
 type InventoryButtonProps = {
     onInventoryClick: (item: string) => void;
@@ -16,18 +12,7 @@ type InventoryButtonProps = {
     inventoryActions: Record<string, string[]>;
 };
 
-const getItemIcon = (item: string) => {
-    const itemLower = item.toLowerCase();
-    if (itemLower.includes('leaflet') || itemLower.includes('letter') || itemLower.includes('note') || itemLower.includes('book')) {
-        return <DescriptionIcon fontSize="small" />;
-    } else if (itemLower.includes('lantern') || itemLower.includes('lamp') || itemLower.includes('light')) {
-        return <LightbulbIcon fontSize="small" />;
-    } else if (itemLower.includes('sword') || itemLower.includes('knife') || itemLower.includes('weapon')) {
-        return <SportsEsportsIcon fontSize="small" />;
-    } else {
-        return <BackpackIcon fontSize="small" />;
-    }
-};
+const toSentenceCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function InventoryButton({inventory, inventoryActions, onInventoryClick, onActionClick}: InventoryButtonProps) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -136,7 +121,7 @@ export default function InventoryButton({inventory, inventoryActions, onInventor
                     endIcon={<KeyboardArrowDownIcon />}
                     disabled={!isLoaded}
                     sx={{
-                        borderRadius: '20px',
+                        borderRadius: { xs: '50%', sm: '20px' },
                         backgroundColor: 'rgba(255, 255, 255, 0.1)',
                         color: 'white',
                         '&:hover': {
@@ -148,9 +133,14 @@ export default function InventoryButton({inventory, inventoryActions, onInventor
                         display: { xs: isLoaded ? 'inline-flex' : 'none', sm: 'inline-flex' },
                         opacity: { xs: 1, sm: isLoaded ? 1 : 0.6 },
                         transform: isLoaded ? 'translateY(0)' : 'translateY(10px)',
+                        minWidth: { xs: 'auto', sm: '64px' },
+                        px: { xs: 1.5, sm: 2 },
+                        py: { xs: 1, sm: undefined },
+                        '& .MuiButton-endIcon': { display: { xs: 'none', sm: 'flex' } },
+                        '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 } },
                     }}
                 >
-                    Inventory
+                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Inventory</Box>
                 </Button>
             </Badge>
 
@@ -196,10 +186,7 @@ export default function InventoryButton({inventory, inventoryActions, onInventor
                                 backgroundColor: activeItem === item ? 'rgba(0, 0, 0, 0.08)' : 'transparent',
                             }}
                         >
-                            <ListItemIcon>
-                                {getItemIcon(item)}
-                            </ListItemIcon>
-                            <ListItemText>{item}</ListItemText>
+                            <ListItemText>{toSentenceCase(item)}</ListItemText>
                             {hasActions && (
                                 <ChevronRightIcon fontSize="small" sx={{ ml: 1, color: 'text.secondary' }} />
                             )}
@@ -242,7 +229,7 @@ export default function InventoryButton({inventory, inventoryActions, onInventor
                                                 },
                                             }}
                                         >
-                                            <ListItemText>{action}</ListItemText>
+                                            <ListItemText>{toSentenceCase(action)}</ListItemText>
                                         </MenuItem>
                                     ))}
                                 </MenuList>

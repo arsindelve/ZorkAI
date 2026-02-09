@@ -26,12 +26,12 @@ describe('VerbsButton Component', () => {
 
   test('renders the verbs button', () => {
     render(<VerbsButton onVerbClick={mockOnVerbClick} />);
-    
+
     // Run useEffect to set isLoaded to true
     act(() => {
       jest.runAllTimers();
     });
-    
+
     // Check if the button is rendered
     const buttonElement = screen.getByText('Verbs');
     expect(buttonElement).toBeInTheDocument();
@@ -39,74 +39,74 @@ describe('VerbsButton Component', () => {
 
   test('opens menu when clicked', () => {
     render(<VerbsButton onVerbClick={mockOnVerbClick} />);
-    
+
     // Run useEffect to set isLoaded to true
     act(() => {
       jest.runAllTimers();
     });
-    
+
     // Click the button to open the menu
     const buttonElement = screen.getByText('Verbs');
     fireEvent.click(buttonElement);
-    
-    // Check if menu items are displayed
-    expect(screen.getByText('eat')).toBeInTheDocument();
-    expect(screen.getByText('drink')).toBeInTheDocument();
-    expect(screen.getByText('examine')).toBeInTheDocument();
-    expect(screen.getByText('take')).toBeInTheDocument();
+
+    // Check if menu items are displayed (Sentence Case)
+    expect(screen.getByText('Eat')).toBeInTheDocument();
+    expect(screen.getByText('Drink')).toBeInTheDocument();
+    expect(screen.getByText('Examine')).toBeInTheDocument();
+    expect(screen.getByText('Take')).toBeInTheDocument();
   });
 
   test('calls onVerbClick when a verb is selected', () => {
     render(<VerbsButton onVerbClick={mockOnVerbClick} />);
-    
+
     // Run useEffect to set isLoaded to true
     act(() => {
       jest.runAllTimers();
     });
-    
+
     // Click the button to open the menu
     const buttonElement = screen.getByText('Verbs');
     fireEvent.click(buttonElement);
-    
-    // Click a verb in the menu
-    const examineVerb = screen.getByText('examine');
+
+    // Click a verb in the menu (displayed in Sentence Case)
+    const examineVerb = screen.getByText('Examine');
     fireEvent.click(examineVerb);
-    
-    // Check if onVerbClick was called with the correct verb
+
+    // Check if onVerbClick was called with the original lowercase verb
     expect(mockOnVerbClick).toHaveBeenCalledWith('examine');
   });
 
   test('closes menu after selecting a verb', () => {
     render(<VerbsButton onVerbClick={mockOnVerbClick} />);
-    
+
     // Run useEffect to set isLoaded to true
     act(() => {
       jest.runAllTimers();
     });
-    
+
     // Click the button to open the menu
     const buttonElement = screen.getByText('Verbs');
     fireEvent.click(buttonElement);
-    
-    // Click a verb in the menu
-    const takeVerb = screen.getByText('take');
+
+    // Click a verb in the menu (displayed in Sentence Case)
+    const takeVerb = screen.getByText('Take');
     fireEvent.click(takeVerb);
-    
+
     // Menu should be closed, so the verb should no longer be visible
-    expect(screen.queryByText('take')).not.toBeVisible();
+    expect(screen.queryByText('Take')).not.toBeVisible();
   });
 
   test('button is enabled after loading', () => {
     render(<VerbsButton onVerbClick={mockOnVerbClick} />);
-    
+
     // Run useEffect to set isLoaded to true
     act(() => {
       jest.runAllTimers();
     });
-    
+
     // Get the button element
     const buttonElement = screen.getByText('Verbs');
-    
+
     // After useEffect runs, button should be enabled
     expect(buttonElement).not.toBeDisabled();
     expect(buttonElement).toBeVisible();
@@ -114,22 +114,22 @@ describe('VerbsButton Component', () => {
 
   test('displays all expected verbs in the menu', () => {
     render(<VerbsButton onVerbClick={mockOnVerbClick} />);
-    
+
     // Run useEffect to set isLoaded to true
     act(() => {
       jest.runAllTimers();
     });
-    
+
     // Click the button to open the menu
     const buttonElement = screen.getByText('Verbs');
     fireEvent.click(buttonElement);
-    
-    // Check if all expected verbs are in the menu
+
+    // Check if all expected verbs are in the menu (Sentence Case)
     const expectedVerbs = [
-      "eat", "drink", "drop", "attack", "turn on", "turn off", 
-      "read", "open", "close", "examine", "take"
+      "Eat", "Drink", "Drop", "Attack", "Turn on", "Turn off",
+      "Read", "Open", "Close", "Examine", "Take"
     ];
-    
+
     expectedVerbs.forEach(verb => {
       expect(screen.getByText(verb)).toBeInTheDocument();
     });

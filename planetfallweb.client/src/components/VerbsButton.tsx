@@ -1,38 +1,14 @@
 import React, {useState, useEffect} from "react";
-import {Button, Menu, MenuItem, ListItemIcon, ListItemText} from "@mui/material";
+import {Button, Menu, MenuItem, ListItemText, Box} from "@mui/material";
 import {Mixpanel} from "../Mixpanel.ts";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import TextFormatIcon from '@mui/icons-material/TextFormat';
-import RestaurantIcon from '@mui/icons-material/Restaurant';
-import LocalDrinkIcon from '@mui/icons-material/LocalDrink';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import SportsKabaddiIcon from '@mui/icons-material/SportsKabaddi';
-import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
-import PowerOffIcon from '@mui/icons-material/PowerOff';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
-import LockIcon from '@mui/icons-material/Lock';
-import SearchIcon from '@mui/icons-material/Search';
-import PanToolIcon from '@mui/icons-material/PanTool';
 
 type VerbsButtonProps = {
     onVerbClick: (verb: string) => void; // Callback prop to send the clicked verb to the parent
 };
 
-// Map verbs to their corresponding icons
-const verbIcons: Record<string, React.ReactElement> = {
-    "eat": <RestaurantIcon fontSize="small" />,
-    "drink": <LocalDrinkIcon fontSize="small" />,
-    "drop": <DeleteOutlineIcon fontSize="small" />,
-    "attack": <SportsKabaddiIcon fontSize="small" />,
-    "turn on": <PowerSettingsNewIcon fontSize="small" />,
-    "turn off": <PowerOffIcon fontSize="small" />,
-    "read": <MenuBookIcon fontSize="small" />,
-    "open": <LockOpenIcon fontSize="small" />,
-    "close": <LockIcon fontSize="small" />,
-    "examine": <SearchIcon fontSize="small" />,
-    "take": <PanToolIcon fontSize="small" />
-};
+const toSentenceCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function VerbsButton({onVerbClick}: VerbsButtonProps) {
     const verbs = ["eat", "drink", "drop", "attack", "turn on", "turn off", "read", "open", "close", "examine", "take"];
@@ -67,8 +43,8 @@ export default function VerbsButton({onVerbClick}: VerbsButtonProps) {
                 startIcon={<TextFormatIcon />}
                 endIcon={<KeyboardArrowDownIcon />}
                 disabled={!isLoaded}
-                sx={{ 
-                    borderRadius: '20px',
+                sx={{
+                    borderRadius: { xs: '50%', sm: '20px' },
                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
                     color: 'white',
                     '&:hover': {
@@ -80,9 +56,14 @@ export default function VerbsButton({onVerbClick}: VerbsButtonProps) {
                     display: { xs: isLoaded ? 'inline-flex' : 'none', sm: 'inline-flex' },
                     opacity: { xs: 1, sm: isLoaded ? 1 : 0.6 },
                     transform: isLoaded ? 'translateY(0)' : 'translateY(10px)',
+                    minWidth: { xs: 'auto', sm: '64px' },
+                    px: { xs: 1.5, sm: 2 },
+                    py: { xs: 1, sm: undefined },
+                    '& .MuiButton-endIcon': { display: { xs: 'none', sm: 'flex' } },
+                    '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 } },
                 }}
             >
-                Verbs
+                <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Verbs</Box>
             </Button>
 
             <Menu
@@ -119,10 +100,7 @@ export default function VerbsButton({onVerbClick}: VerbsButtonProps) {
                 {/* Map through the verbs array to create MenuItems */}
                 {verbs.map((verb, index) => (
                     <MenuItem key={index} onClick={() => handleClose(verb)}>
-                        <ListItemIcon>
-                            {verbIcons[verb] || <TextFormatIcon fontSize="small" />}
-                        </ListItemIcon>
-                        <ListItemText>{verb}</ListItemText>
+                        <ListItemText>{toSentenceCase(verb)}</ListItemText>
                     </MenuItem>
                 ))}
             </Menu>
