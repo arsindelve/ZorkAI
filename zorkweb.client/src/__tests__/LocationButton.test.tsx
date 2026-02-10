@@ -1,13 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import LocationButton from '../components/LocationButton';
-
-// Mock the Mixpanel module
-jest.mock('../Mixpanel.ts', () => ({
-  Mixpanel: {
-    track: jest.fn()
-  }
-}));
+import {LocationButton} from '@zork-ai/shared-types';
 
 describe('LocationButton Component', () => {
   const mockOnItemClick = jest.fn();
@@ -81,10 +74,11 @@ describe('LocationButton Component', () => {
     const buttonElement = screen.getByTestId('location-button');
     fireEvent.click(buttonElement);
 
-    expect(screen.getByText('mailbox')).toBeInTheDocument();
-    expect(screen.getByText('door')).toBeInTheDocument();
-    expect(screen.getByText('tree')).toBeInTheDocument();
-    expect(screen.getByText('window')).toBeInTheDocument();
+    // Items displayed in Sentence Case
+    expect(screen.getByText('Mailbox')).toBeInTheDocument();
+    expect(screen.getByText('Door')).toBeInTheDocument();
+    expect(screen.getByText('Tree')).toBeInTheDocument();
+    expect(screen.getByText('Window')).toBeInTheDocument();
   });
 
   test('calls onItemClick when an item is clicked', () => {
@@ -103,7 +97,7 @@ describe('LocationButton Component', () => {
     const buttonElement = screen.getByTestId('location-button');
     fireEvent.click(buttonElement);
 
-    const mailboxItem = screen.getByText('mailbox');
+    const mailboxItem = screen.getByText('Mailbox');
     fireEvent.click(mailboxItem);
 
     expect(mockOnItemClick).toHaveBeenCalledWith('mailbox');
@@ -125,10 +119,10 @@ describe('LocationButton Component', () => {
     const buttonElement = screen.getByTestId('location-button');
     fireEvent.click(buttonElement);
 
-    const doorItem = screen.getByText('door');
+    const doorItem = screen.getByText('Door');
     fireEvent.click(doorItem);
 
-    expect(screen.queryByText('door')).not.toBeVisible();
+    expect(screen.queryByText('Door')).not.toBeVisible();
   });
 
   test('button is enabled after loading', () => {
@@ -212,15 +206,15 @@ describe('LocationButton Component', () => {
     fireEvent.click(buttonElement);
 
     // Hover over the mailbox item
-    const mailboxItem = screen.getByText('mailbox');
+    const mailboxItem = screen.getByText('Mailbox');
     fireEvent.mouseEnter(mailboxItem);
 
-    // Check that submenu actions are displayed
-    expect(screen.getByText('open mailbox')).toBeInTheDocument();
-    expect(screen.getByText('examine mailbox')).toBeInTheDocument();
+    // Check that submenu actions are displayed (Sentence Case)
+    expect(screen.getByText('Open mailbox')).toBeInTheDocument();
+    expect(screen.getByText('Examine mailbox')).toBeInTheDocument();
 
     // Click an action
-    fireEvent.click(screen.getByText('open mailbox'));
+    fireEvent.click(screen.getByText('Open mailbox'));
 
     expect(mockOnActionClick).toHaveBeenCalledWith('open mailbox');
   });

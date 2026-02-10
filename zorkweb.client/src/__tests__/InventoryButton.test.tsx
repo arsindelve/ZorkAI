@@ -78,10 +78,11 @@ describe('InventoryButton Component', () => {
     const buttonElement = screen.getByTestId('inventory-button');
     fireEvent.click(buttonElement);
 
-    expect(screen.getByText('sword')).toBeInTheDocument();
-    expect(screen.getByText('lantern')).toBeInTheDocument();
-    expect(screen.getByText('leaflet')).toBeInTheDocument();
-    expect(screen.getByText('food')).toBeInTheDocument();
+    // Items displayed in Sentence Case
+    expect(screen.getByText('Sword')).toBeInTheDocument();
+    expect(screen.getByText('Lantern')).toBeInTheDocument();
+    expect(screen.getByText('Leaflet')).toBeInTheDocument();
+    expect(screen.getByText('Food')).toBeInTheDocument();
   });
 
   test('calls onInventoryClick when an item is clicked', () => {
@@ -101,7 +102,7 @@ describe('InventoryButton Component', () => {
     const buttonElement = screen.getByTestId('inventory-button');
     fireEvent.click(buttonElement);
 
-    const swordItem = screen.getByText('sword');
+    const swordItem = screen.getByText('Sword');
     fireEvent.click(swordItem);
 
     expect(mockOnInventoryClick).toHaveBeenCalledWith('sword');
@@ -124,10 +125,10 @@ describe('InventoryButton Component', () => {
     const buttonElement = screen.getByTestId('inventory-button');
     fireEvent.click(buttonElement);
 
-    const lanternItem = screen.getByText('lantern');
+    const lanternItem = screen.getByText('Lantern');
     fireEvent.click(lanternItem);
 
-    expect(screen.queryByText('lantern')).not.toBeVisible();
+    expect(screen.queryByText('Lantern')).not.toBeVisible();
   });
 
   test('button is enabled after loading', () => {
@@ -215,15 +216,15 @@ describe('InventoryButton Component', () => {
     fireEvent.click(buttonElement);
 
     // Hover over the sword item
-    const swordItem = screen.getByText('sword');
+    const swordItem = screen.getByText('Sword');
     fireEvent.mouseEnter(swordItem);
 
-    // Check that submenu actions are displayed
-    expect(screen.getByText('examine sword')).toBeInTheDocument();
-    expect(screen.getByText('drop sword')).toBeInTheDocument();
+    // Check that submenu actions are displayed (Sentence Case)
+    expect(screen.getByText('Examine sword')).toBeInTheDocument();
+    expect(screen.getByText('Drop sword')).toBeInTheDocument();
 
     // Click an action
-    fireEvent.click(screen.getByText('examine sword'));
+    fireEvent.click(screen.getByText('Examine sword'));
 
     expect(mockOnActionClick).toHaveBeenCalledWith('examine sword');
   });
@@ -248,7 +249,7 @@ describe('InventoryButton Component', () => {
     const buttonElement = screen.getByTestId('inventory-button');
     fireEvent.click(buttonElement);
 
-    expect(screen.getByText('sword')).toBeInTheDocument();
-    expect(screen.getByText('lantern')).toBeInTheDocument();
+    expect(screen.getByText('Sword')).toBeInTheDocument();
+    expect(screen.getByText('Lantern')).toBeInTheDocument();
   });
 });

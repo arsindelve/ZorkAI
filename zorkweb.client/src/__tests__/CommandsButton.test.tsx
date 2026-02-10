@@ -1,13 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import CommandsButton from '../components/CommandsButton';
-
-// Mock the Mixpanel module
-jest.mock('../Mixpanel.ts', () => ({
-  Mixpanel: {
-    track: jest.fn()
-  }
-}));
+import {CommandsButton} from '@zork-ai/shared-types';
 
 describe('CommandsButton Component', () => {
   const mockOnCommandClick = jest.fn();
@@ -52,11 +45,12 @@ describe('CommandsButton Component', () => {
     fireEvent.click(buttonElement);
 
     // Check if menu items are displayed
-    expect(screen.getByText('verbose')).toBeInTheDocument();
-    expect(screen.getByText('diagnose')).toBeInTheDocument();
-    expect(screen.getByText('inventory')).toBeInTheDocument();
+    // Items displayed in Sentence Case
+    expect(screen.getByText('Verbose')).toBeInTheDocument();
+    expect(screen.getByText('Diagnose')).toBeInTheDocument();
+    expect(screen.getByText('Inventory')).toBeInTheDocument();
     // Check a few more to ensure the menu is populated correctly
-    expect(screen.getByText('look')).toBeInTheDocument();
+    expect(screen.getByText('Look')).toBeInTheDocument();
   });
 
   test('calls onCommandClick when a command is selected', () => {
@@ -72,7 +66,7 @@ describe('CommandsButton Component', () => {
     fireEvent.click(buttonElement);
 
     // Click a command in the menu
-    const inventoryCommand = screen.getByText('inventory');
+    const inventoryCommand = screen.getByText('Inventory');
     fireEvent.click(inventoryCommand);
 
     // Check if onCommandClick was called with the correct command
@@ -92,11 +86,11 @@ describe('CommandsButton Component', () => {
     fireEvent.click(buttonElement);
 
     // Click a command in the menu
-    const lookCommand = screen.getByText('look');
+    const lookCommand = screen.getByText('Look');
     fireEvent.click(lookCommand);
 
     // Menu should be closed, so the command should no longer be visible
-    expect(screen.queryByText('look')).not.toBeVisible();
+    expect(screen.queryByText('Look')).not.toBeVisible();
   });
 
   test('button is enabled after loading', () => {

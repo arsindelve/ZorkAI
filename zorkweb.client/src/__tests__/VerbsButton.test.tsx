@@ -1,13 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import VerbsButton from '../components/VerbsButton';
-
-// Mock the Mixpanel module
-jest.mock('../Mixpanel.ts', () => ({
-  Mixpanel: {
-    track: jest.fn()
-  }
-}));
+import {VerbsButton} from '@zork-ai/shared-types';
 
 describe('VerbsButton Component', () => {
   const mockOnVerbClick = jest.fn();
@@ -50,10 +43,11 @@ describe('VerbsButton Component', () => {
     fireEvent.click(buttonElement);
     
     // Check if menu items are displayed
-    expect(screen.getByText('eat')).toBeInTheDocument();
-    expect(screen.getByText('drink')).toBeInTheDocument();
-    expect(screen.getByText('examine')).toBeInTheDocument();
-    expect(screen.getByText('take')).toBeInTheDocument();
+    // Items displayed in Sentence Case
+    expect(screen.getByText('Eat')).toBeInTheDocument();
+    expect(screen.getByText('Drink')).toBeInTheDocument();
+    expect(screen.getByText('Examine')).toBeInTheDocument();
+    expect(screen.getByText('Take')).toBeInTheDocument();
   });
 
   test('calls onVerbClick when a verb is selected', () => {
@@ -69,7 +63,7 @@ describe('VerbsButton Component', () => {
     fireEvent.click(buttonElement);
     
     // Click a verb in the menu
-    const examineVerb = screen.getByText('examine');
+    const examineVerb = screen.getByText('Examine');
     fireEvent.click(examineVerb);
     
     // Check if onVerbClick was called with the correct verb
@@ -89,11 +83,11 @@ describe('VerbsButton Component', () => {
     fireEvent.click(buttonElement);
     
     // Click a verb in the menu
-    const takeVerb = screen.getByText('take');
+    const takeVerb = screen.getByText('Take');
     fireEvent.click(takeVerb);
-    
+
     // Menu should be closed, so the verb should no longer be visible
-    expect(screen.queryByText('take')).not.toBeVisible();
+    expect(screen.queryByText('Take')).not.toBeVisible();
   });
 
   test('button is enabled after loading', () => {
@@ -126,8 +120,8 @@ describe('VerbsButton Component', () => {
     
     // Check if all expected verbs are in the menu
     const expectedVerbs = [
-      "eat", "drink", "drop", "attack", "turn on", "turn off", 
-      "read", "open", "close", "examine", "take"
+      "Eat", "Drink", "Drop", "Attack", "Turn on", "Turn off",
+      "Read", "Open", "Close", "Examine", "Take"
     ];
     
     expectedVerbs.forEach(verb => {

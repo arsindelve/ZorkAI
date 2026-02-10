@@ -3,12 +3,6 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import Compass from '../components/Compass';
 import { Direction } from '@zork-ai/shared-types';
 
-// Mock the Mixpanel module
-jest.mock('../Mixpanel.ts', () => ({
-  Mixpanel: {
-    track: jest.fn()
-  }
-}));
 
 describe('Compass Component', () => {
   // Helper function to find a polygon by its ID
