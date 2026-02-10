@@ -30,12 +30,12 @@ const ConfirmationDialog = ({
             onClose={onCancel}
             aria-labelledby="confirmation-dialog-title"
             PaperProps={{
-                style: { 
+                style: {
                     borderRadius: '12px'
                 }
             }}
         >
-            <DialogTitle 
+            <DialogTitle
                 id="confirmation-dialog-title"
                 sx={{
                     bgcolor: 'error.main',
@@ -47,18 +47,18 @@ const ConfirmationDialog = ({
                     {title}
                 </Typography>
             </DialogTitle>
-            
+
             <DialogContent sx={{ pt: 3, pb: 2, px: 3 }}>
                 <Typography variant="body1" sx={{ lineHeight: 1.6, p: 5 }}>
                     {message}
                 </Typography>
             </DialogContent>
-            
+
             <DialogActions sx={{ p: 2, gap: 1 }}>
                 <Button
                     onClick={onCancel}
                     variant="outlined"
-                    sx={{ 
+                    sx={{
                         borderRadius: '20px',
                         px: 3
                     }}
@@ -69,7 +69,7 @@ const ConfirmationDialog = ({
                     onClick={onConfirm}
                     variant="contained"
                     color="error"
-                    sx={{ 
+                    sx={{
                         borderRadius: '20px',
                         px: 3
                     }}

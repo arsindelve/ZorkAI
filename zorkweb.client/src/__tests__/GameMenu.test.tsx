@@ -1,8 +1,6 @@
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 import GameMenu from '../menu/GameMenu';
-import { useGameContext } from '../GameContext';
-
 // Mock the child components
 jest.mock('../menu/AboutMenu', () => {
   return function MockAboutMenu() {
@@ -10,14 +8,11 @@ jest.mock('../menu/AboutMenu', () => {
   };
 });
 
-jest.mock('../menu/FunctionsMenu', () => {
-  return function MockFunctionsMenu() {
+jest.mock('@zork-ai/shared-types', () => ({
+  ...jest.requireActual('@zork-ai/shared-types'),
+  FunctionsMenu: function MockFunctionsMenu() {
     return <div data-testid="functions-menu-mock">Functions Menu</div>;
-  };
-});
-
-// Mock the GameContext hook since it might be used by child components
-jest.mock('../GameContext', () => ({
+  },
   useGameContext: jest.fn().mockReturnValue({}),
 }));
 

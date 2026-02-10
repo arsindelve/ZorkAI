@@ -2,8 +2,8 @@ import * as React from 'react';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import {useGameContext} from "../GameContext";
-import {DialogType} from "@zork-ai/shared-types";
+import {useGameContext} from "../context/GameContext";
+import DialogType from "../DialogType";
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import RestoreIcon from '@mui/icons-material/Restore';
 import SaveIcon from '@mui/icons-material/Save';
@@ -38,7 +38,7 @@ export default function FunctionsMenu() {
                 color="primary"
                 startIcon={<SportsEsportsIcon />}
                 endIcon={<KeyboardArrowDownIcon />}
-                sx={{ 
+                sx={{
                     borderRadius: '20px',
                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
                     color: 'white',

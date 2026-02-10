@@ -126,7 +126,7 @@ public abstract class ContainerBase : ItemBase, ICanContainItems
         {
             var result = new List<IItem>();
 
-            if (this is not IOpenAndClose { IsOpen: true })
+            if (this is not IOpenAndClose { IsOpen: true } && !IsTransparent)
                 return result;
 
             foreach (var item in Items)

@@ -28,7 +28,7 @@ const VideoDialog: React.FC<VideoDialogProps> = ({open, handleClose}) => (
             }
         }}
     >
-        <DialogTitle 
+        <DialogTitle
             id="video-dialog-title"
             className="bg-gradient-to-r from-gray-800 to-gray-900"
             sx={{
@@ -46,9 +46,9 @@ const VideoDialog: React.FC<VideoDialogProps> = ({open, handleClose}) => (
         </DialogTitle>
         <DialogContent
             sx={{
-                display: "flex", 
-                justifyContent: "center", 
-                alignItems: "center", 
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
                 padding: 0,
                 height: "70vh"
             }}
@@ -62,10 +62,10 @@ const VideoDialog: React.FC<VideoDialogProps> = ({open, handleClose}) => (
             />
         </DialogContent>
         <DialogActions sx={{ p: 2, bgcolor: 'grey.100' }}>
-            <Button 
-                onClick={handleClose} 
+            <Button
+                onClick={handleClose}
                 variant="outlined"
-                sx={{ 
+                sx={{
                     borderRadius: '20px',
                     px: 3,
                     borderColor: 'grey.600',

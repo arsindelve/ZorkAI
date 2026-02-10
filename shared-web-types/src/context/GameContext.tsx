@@ -1,5 +1,7 @@
 import React, {createContext, useContext, useState} from "react";
-import {ISaveGameRequest, DialogType, ISavedGame} from "@zork-ai/shared-types";
+import {ISaveGameRequest} from "../SaveGameRequest";
+import DialogType from "../DialogType";
+import {ISavedGame} from "../SavedGame";
 
 // Define the context type
 interface GameContextType {

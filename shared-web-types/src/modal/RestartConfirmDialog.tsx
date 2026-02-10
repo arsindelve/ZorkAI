@@ -35,7 +35,7 @@ const RestartConfirmDialog: React.FC<RestartConfirmDialogProps> = ({
                 }
             }}
         >
-            <DialogTitle 
+            <DialogTitle
                 id="restart-confirm-dialog"
                 className="bg-gradient-to-r from-gray-800 to-gray-900"
                 sx={{
@@ -63,8 +63,8 @@ const RestartConfirmDialog: React.FC<RestartConfirmDialogProps> = ({
                         setOpen(false);
                         if (onCancel) onCancel();
                     }}
-                    sx={{ 
-                        borderRadius: '20px', 
+                    sx={{
+                        borderRadius: '20px',
                         px: 3,
                         borderColor: 'grey.600',
                         color: 'grey.800',
@@ -84,7 +84,7 @@ const RestartConfirmDialog: React.FC<RestartConfirmDialogProps> = ({
                         onConfirm();
                     }}
                     color="error"
-                    sx={{ 
+                    sx={{
                         borderRadius: '20px',
                         px: 3
                     }}

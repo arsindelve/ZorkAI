@@ -1,14 +1,14 @@
-import {ISavedGame} from "@zork-ai/shared-types";
+import {ISavedGame} from "../SavedGame";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import moment from 'moment';
-import {ISaveGameRequest, SaveGameRequest} from "@zork-ai/shared-types";
+import {ISaveGameRequest, SaveGameRequest} from "../SaveGameRequest";
 import {Typography, Paper, Box, Divider, TextField} from "@mui/material";
 import React, {useState} from "react";
-import {useGameContext} from "../GameContext.tsx";
+import {useGameContext} from "../context/GameContext";
 import SaveIcon from '@mui/icons-material/Save';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';

@@ -33,7 +33,8 @@
       "Bash(done)",
       "Bash(source:*)",
       "Bash(nvm use:*)",
-      "Bash(gh api:*)"
+      "Bash(gh api:*)",
+      "Bash(npx jest:*)"
     ],
     "deny": []
   }

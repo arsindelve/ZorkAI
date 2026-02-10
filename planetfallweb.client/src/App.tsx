@@ -4,16 +4,9 @@ import Game from "./Game.tsx";
 import GameMenu from "./menu/GameMenu.tsx";
 import {useEffect, useState} from "react";
 import Server from "./Server.ts";
-import RestoreModal from "./modal/RestoreModal.tsx";
-import {ISavedGame, SessionHandler} from "@zork-ai/shared-types";
-import SaveModal from "./modal/SaveModal.tsx";
-import RestartConfirmDialog from "./modal/RestartConfirmDialog.tsx";
-import {useGameContext} from "./GameContext.tsx";
-import VideoDialog from "./modal/VideoModal.tsx";
+import {ISavedGame, SessionHandler, RestoreModal, SaveModal, RestartConfirmDialog, useGameContext, VideoDialog, Mixpanel, DialogType, ReleaseNotesServer} from "@zork-ai/shared-types";
 import WelcomeDialog from "./modal/WelcomeModal.tsx";
 import ReleaseNotesModal from "./modal/ReleaseNotesModal.tsx";
-import {Mixpanel, DialogType} from "@zork-ai/shared-types";
-import {ReleaseNotesServer} from "./ReleaseNotesServer.ts";
 
 function App() {
 

@@ -1,18 +1,18 @@
-import {ISavedGame} from "@zork-ai/shared-types";
+import {ISavedGame} from "../SavedGame";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import moment from 'moment';
-import {useGameContext} from "../GameContext.tsx";
+import {useGameContext} from "../context/GameContext";
 import RestoreIcon from '@mui/icons-material/Restore';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Typography, Paper, Box, Divider, IconButton } from "@mui/material";
 import { useState } from "react";
-import ConfirmationDialog from "./ConfirmationDialog.tsx";
+import ConfirmationDialog from "./ConfirmationDialog";
 
 interface RestoreModalProps {
     open: boolean;
@@ -60,13 +60,13 @@ function RestoreModal(props: RestoreModalProps) {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
             PaperProps={{
-                style: { 
+                style: {
                     borderRadius: '12px',
                     overflow: 'hidden'
                 }
             }}
         >
-            <DialogTitle 
+            <DialogTitle
                 id="alert-dialog-title"
                 className="bg-gradient-to-r from-gray-800 to-gray-900"
                 sx={{
@@ -99,12 +99,12 @@ function RestoreModal(props: RestoreModalProps) {
 
                     <Box data-testid="restore-game-list" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         {props.games.map((game) => (
-                            <Paper 
+                            <Paper
                                 data-testid="restore-game-item"
-                                key={game.id} 
-                                elevation={2} 
-                                sx={{ 
-                                    p: 2, 
+                                key={game.id}
+                                elevation={2}
+                                sx={{
+                                    p: 2,
                                     borderRadius: '8px',
                                     transition: 'all 0.2s',
                                     '&:hover': {
@@ -113,8 +113,8 @@ function RestoreModal(props: RestoreModalProps) {
                                     }
                                 }}
                             >
-                                <Box sx={{ 
-                                    display: 'flex', 
+                                <Box sx={{
+                                    display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center'
                                 }}>
@@ -145,12 +145,12 @@ function RestoreModal(props: RestoreModalProps) {
                                         >
                                             <DeleteIcon />
                                         </IconButton>
-                                        
-                                        <Button 
-                                            variant="contained" 
+
+                                        <Button
+                                            variant="contained"
                                             startIcon={<RestoreIcon />}
                                             onClick={() => handleClose(game)}
-                                            sx={{ 
+                                            sx={{
                                                 borderRadius: '20px',
                                                 px: 2,
                                                 bgcolor: 'grey.800',
@@ -170,11 +170,11 @@ function RestoreModal(props: RestoreModalProps) {
             )}
 
             <DialogActions sx={{ p: 2, bgcolor: 'grey.100' }}>
-                <Button 
-                    onClick={() => handleClose(undefined)} 
+                <Button
+                    onClick={() => handleClose(undefined)}
                     variant="outlined"
-                    sx={{ 
-                        borderRadius: '20px', 
+                    sx={{
+                        borderRadius: '20px',
                         px: 3,
                         borderColor: 'grey.600',
                         color: 'grey.800',
@@ -187,7 +187,7 @@ function RestoreModal(props: RestoreModalProps) {
                     Cancel
                 </Button>
             </DialogActions>
-            
+
             <ConfirmationDialog
                 open={deleteConfirmOpen}
                 onConfirm={handleDeleteConfirm}

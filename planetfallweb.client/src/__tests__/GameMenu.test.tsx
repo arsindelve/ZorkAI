@@ -10,11 +10,12 @@ jest.mock('../menu/AboutMenu', () => ({
   }
 }));
 
-jest.mock('../menu/FunctionsMenu', () => ({
-  __esModule: true,
-  default: function MockFunctionsMenu() {
+jest.mock('@zork-ai/shared-types', () => ({
+  ...jest.requireActual('@zork-ai/shared-types'),
+  FunctionsMenu: function MockFunctionsMenu() {
     return <div data-testid="functions-menu-mock">Functions Menu</div>;
-  }
+  },
+  useGameContext: jest.fn().mockReturnValue({}),
 }));
 
 describe('GameMenu Component', () => {

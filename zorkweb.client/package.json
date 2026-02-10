@@ -16,7 +16,6 @@
     "test:unit:coverage": "jest --coverage"
   },
   "dependencies": {
-    "@zork-ai/shared-types": "file:../shared-web-types",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@fontsource/platypi": "^5.0.1",
@@ -26,7 +25,9 @@
     "@mui/icons-material": "^5.15.15",
     "@mui/material": "^5.15.15",
     "@tanstack/react-query": "^5.29.2",
+    "@testing-library/dom": "^10.4.1",
     "@types/moment": "^2.13.0",
+    "@zork-ai/shared-types": "file:../shared-web-types",
     "axios": "^1.6.8",
     "mixpanel-browser": "^2.58.0",
     "moment": "^2.30.1",

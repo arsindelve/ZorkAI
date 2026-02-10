@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import RestartConfirmDialog from '../modal/RestartConfirmDialog';
+import {RestartConfirmDialog} from '@zork-ai/shared-types';
 
 describe('RestartConfirmDialog Component', () => {
   const mockSetOpen = jest.fn();

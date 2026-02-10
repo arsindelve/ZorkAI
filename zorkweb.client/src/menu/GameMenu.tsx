@@ -1,6 +1,6 @@
 import '@fontsource/platypi/500.css';
 import AboutMenu from "./AboutMenu.tsx";
-import FunctionsMenu from "./FunctionsMenu.tsx";
+import {FunctionsMenu} from "@zork-ai/shared-types";
 import { useEffect, useState } from 'react';
 
 export default function GameMenu({ latestVersion }: { latestVersion: string }) {

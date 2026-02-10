@@ -4,7 +4,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import config from "../../config.json";
 import {Mixpanel, DialogType} from "@zork-ai/shared-types";
-import {useGameContext} from "../GameContext";
+import {useGameContext} from "@zork-ai/shared-types";
 import { ListItemIcon, ListItemText } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import VideoDialog from '../modal/VideoModal';
+import {VideoDialog} from '@zork-ai/shared-types';
 
 describe('VideoDialog Component', () => {
   const mockHandleClose = jest.fn();

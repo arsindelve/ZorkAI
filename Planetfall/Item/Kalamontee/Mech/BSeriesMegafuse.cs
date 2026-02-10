@@ -2,7 +2,7 @@ namespace Planetfall.Item.Kalamontee.Mech;
 
 public class BSeriesMegafuse : ItemBase, ICanBeTakenAndDropped
 {
-    public override string[] NounsForMatching => ["megafuse", "b-series megafuse", "b-series", "fuse", "b megafuse", "b-megafuse"];
+    public override string[] NounsForMatching => ["b-series megafuse", "b-series", "fuse", "b megafuse", "b-megafuse", "megafuse"];
 
     public string OnTheGroundDescription(ILocation? currentLocation)
     {

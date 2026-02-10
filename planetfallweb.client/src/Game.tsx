@@ -6,10 +6,10 @@ import '@fontsource/roboto';
 import Header from "./components/Header.tsx";
 
 import Server from './Server';
-import ClickableText, {ClickableTextHandle} from "./ClickableText.tsx";
+import {ClickableText, ClickableTextHandle} from "@zork-ai/shared-types";
 import Compass from "./components/Compass.tsx";
 
-import {useGameContext} from "./GameContext";
+import {useGameContext} from "@zork-ai/shared-types";
 import GameInput from "./components/GameInput.tsx";
 
 function Game() {

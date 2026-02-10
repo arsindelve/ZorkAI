@@ -1,6 +1,6 @@
 namespace Planetfall.Item.Kalamontee.Admin;
 
-public class Key : ItemBase, ICanBeTakenAndDropped
+public class Key : ItemBase, ICanBeTakenAndDropped, IDoNotAppearInItemLists
 {
     public override string[] NounsForMatching => ["key", "shiny object", "steel key", "shiny thing"];
 

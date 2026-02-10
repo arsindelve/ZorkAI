@@ -43,7 +43,7 @@ public class ApplicableVerbsAttribute(params string[] verbs) : Attribute
 
         return itemsList
             .ToDictionary(
-                item => item.Name,
+                item => item.NounsForMatching.OrderByDescending(n => n.Length).First(),
                 item => item.GetType().GetInterfaces()
                     .Select(i => i.GetCustomAttribute<ApplicableVerbsAttribute>())
                     .Where(attr => attr != null)

@@ -8,6 +8,8 @@ export default {
     '\\.(jpg|jpeg|png|gif|webp|svg)$': '<rootDir>/__mocks__/fileMock.js',
     // Auto-mock Mixpanel from shared-types (components import from ../utils/Mixpanel)
     '/utils/Mixpanel': '<rootDir>/src/__mocks__/Mixpanel.ts',
+    // Auto-mock GameContext from shared-types
+    '/context/GameContext': '<rootDir>/src/__mocks__/GameContext.ts',
     // Prevent duplicate React instances when shared-web-types has its own node_modules
     '^react$': '<rootDir>/node_modules/react',
     '^react/(.*)$': '<rootDir>/node_modules/react/$1',

@@ -1,14 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import AboutMenu from '../menu/AboutMenu';
-import { useGameContext } from '../GameContext';
-import {DialogType} from '@zork-ai/shared-types';
-import { Mixpanel } from '@zork-ai/shared-types';
-
-// Mock the GameContext hook
-jest.mock('../GameContext', () => ({
-  useGameContext: jest.fn(),
-}));
+import {useGameContext, DialogType, Mixpanel} from '@zork-ai/shared-types';
 
 // Mock window.open
 const mockOpen = jest.fn();
