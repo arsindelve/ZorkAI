@@ -20,7 +20,8 @@ const ReleaseNotesModal: React.FC<{
     open: boolean;
     handleClose: () => void;
     releases: { date: string; name: string; notes: string }[];
-}> = ({ open, handleClose, releases }) => {
+    gameName: string;
+}> = ({ open, handleClose, releases, gameName }) => {
 
     // Function to render loading skeletons
     const renderSkeletons = () => {
@@ -64,14 +65,14 @@ const ReleaseNotesModal: React.FC<{
             maxWidth="md"
             fullWidth
             PaperProps={{
-                style: { 
+                style: {
                     borderRadius: '12px',
                     overflow: 'hidden',
                     maxHeight: '90vh'
                 },
             }}
         >
-            <DialogTitle 
+            <DialogTitle
                 id="release-notes-title"
                 className="bg-gradient-to-r from-gray-800 to-gray-900"
                 sx={{
@@ -84,7 +85,7 @@ const ReleaseNotesModal: React.FC<{
             >
                 <UpdateIcon fontSize="large" />
                 <Typography variant="h5" component="span" fontWeight="bold">
-                    Zork AI Release Notes
+                    {gameName} Release Notes
                 </Typography>
             </DialogTitle>
 
@@ -111,21 +112,21 @@ const ReleaseNotesModal: React.FC<{
                                     }
                                 }}
                             >
-                                <Typography 
-                                    variant="h6" 
-                                    fontWeight="bold" 
-                                    sx={{ 
-                                        mb: 1, 
+                                <Typography
+                                    variant="h6"
+                                    fontWeight="bold"
+                                    sx={{
+                                        mb: 1,
                                         color: 'grey.800',
                                         display: 'flex',
                                         alignItems: 'center'
                                     }}
                                 >
                                     {release.name}
-                                    <Typography 
-                                        variant="subtitle1" 
-                                        component="span" 
-                                        sx={{ 
+                                    <Typography
+                                        variant="subtitle1"
+                                        component="span"
+                                        sx={{
                                             ml: 2,
                                             color: 'text.secondary',
                                             fontWeight: 'normal'
@@ -193,10 +194,10 @@ const ReleaseNotesModal: React.FC<{
             </DialogContent>
 
             <DialogActions sx={{ p: 2, bgcolor: 'grey.100' }}>
-                <Button 
-                    onClick={handleClose} 
+                <Button
+                    onClick={handleClose}
                     variant="outlined"
-                    sx={{ 
+                    sx={{
                         borderRadius: '20px',
                         px: 3,
                         borderColor: 'grey.600',

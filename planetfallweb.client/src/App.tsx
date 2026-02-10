@@ -4,9 +4,8 @@ import Game from "./Game.tsx";
 import GameMenu from "./menu/GameMenu.tsx";
 import {useEffect, useState} from "react";
 import Server from "./Server.ts";
-import {ISavedGame, SessionHandler, RestoreModal, SaveModal, RestartConfirmDialog, useGameContext, VideoDialog, Mixpanel, DialogType, ReleaseNotesServer} from "@zork-ai/shared-types";
+import {ISavedGame, SessionHandler, RestoreModal, SaveModal, RestartConfirmDialog, useGameContext, VideoDialog, Mixpanel, DialogType, ReleaseNotesServer, ReleaseNotesModal} from "@zork-ai/shared-types";
 import WelcomeDialog from "./modal/WelcomeModal.tsx";
-import ReleaseNotesModal from "./modal/ReleaseNotesModal.tsx";
 
 function App() {
 
@@ -143,7 +142,7 @@ function App() {
                     <ReleaseNotesModal handleClose={() => {
                         setReleaseNotesDialogOpen(false);
                         Mixpanel.track('Close Release Notes Dialog', {});
-                    }} open={releaseNotesDialogOpen} releases={releases} />
+                    }} open={releaseNotesDialogOpen} releases={releases} gameName="Planetfall AI" />
 
                     <WelcomeDialog open={welcomeDialogOpen}
                                    handleClose={() => {

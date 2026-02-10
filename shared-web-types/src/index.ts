@@ -23,3 +23,4 @@ export { default as VideoDialog } from './modal/VideoModal';
 export { default as FunctionsMenu } from './menu/FunctionsMenu';
 export { default as RestoreModal } from './modal/RestoreModal';
 export { default as SaveModal } from './modal/SaveModal';
+export { default as ReleaseNotesModal } from './modal/ReleaseNotesModal';

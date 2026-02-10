@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import ReleaseNotesModal from '../modal/ReleaseNotesModal';
+import {ReleaseNotesModal} from '@zork-ai/shared-types';
 
 describe('ReleaseNotesModal Component', () => {
   const mockHandleClose = jest.fn();
@@ -22,21 +22,21 @@ describe('ReleaseNotesModal Component', () => {
   });
 
   test('renders nothing when open is false', () => {
-    render(<ReleaseNotesModal open={false} handleClose={mockHandleClose} releases={mockReleases} />);
+    render(<ReleaseNotesModal open={false} handleClose={mockHandleClose} releases={mockReleases} gameName="Planetfall AI" />);
 
     // Dialog should not be in the document
     expect(screen.queryByText('Planetfall AI Release Notes')).not.toBeInTheDocument();
   });
 
   test('renders dialog when open is true', () => {
-    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} releases={mockReleases} />);
+    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} releases={mockReleases} gameName="Planetfall AI" />);
 
     // Dialog title should be in the document
     expect(screen.getByText('Planetfall AI Release Notes')).toBeInTheDocument();
   });
 
   test('shows loading skeletons when releases array is empty', () => {
-    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} releases={[]} />);
+    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} releases={[]} gameName="Planetfall AI" />);
 
     // Should show loading skeletons when no releases
     const skeletons = document.querySelectorAll('[class*="MuiSkeleton-root"]');
@@ -44,7 +44,7 @@ describe('ReleaseNotesModal Component', () => {
   });
 
   test('displays release notes when releases provided', () => {
-    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} releases={mockReleases} />);
+    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} releases={mockReleases} gameName="Planetfall AI" />);
 
     // Check that both releases are displayed
     expect(screen.getByText('Version 1.2.0')).toBeInTheDocument();
@@ -64,7 +64,7 @@ describe('ReleaseNotesModal Component', () => {
   });
 
   test('calls handleClose when close button is clicked', () => {
-    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} releases={mockReleases} />);
+    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} releases={mockReleases} gameName="Planetfall AI" />);
 
     // Click the close button
     fireEvent.click(screen.getByText('Close'));
@@ -74,7 +74,7 @@ describe('ReleaseNotesModal Component', () => {
   });
 
   test('handles empty releases array', () => {
-    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} releases={[]} />);
+    render(<ReleaseNotesModal open={true} handleClose={mockHandleClose} releases={[]} gameName="Planetfall AI" />);
 
     // No release notes should be displayed
     expect(screen.queryByText('Version 1.2.0')).not.toBeInTheDocument();
