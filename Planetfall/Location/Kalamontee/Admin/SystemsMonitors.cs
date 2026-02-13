@@ -46,7 +46,7 @@ public class SystemsMonitors : LocationWithNoStartingItems
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        string[] verbs = ["examine", "look at"];
+        string[] verbs = ["examine", "look at", "read"];
 
         if (!action.MatchVerb(verbs))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

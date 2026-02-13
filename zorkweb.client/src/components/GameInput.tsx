@@ -2,7 +2,7 @@ import React, { ChangeEvent, KeyboardEvent, RefObject, useState } from 'react';
 import { Box } from '@mui/material';
 
 interface GameInputProps {
-    playerInputElement: RefObject<HTMLInputElement>;
+    playerInputElement: RefObject<HTMLInputElement | null>;
     isPending: boolean;
     playerInput: string;
     setInput: (value: string) => void;
