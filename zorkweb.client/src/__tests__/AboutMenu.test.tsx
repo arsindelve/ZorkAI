@@ -48,7 +48,6 @@ describe('AboutMenu Component', () => {
 
   test('closes the menu when clicking outside', () => {
     // Mock the implementation of useState to control the state
-    const originalUseState = React.useState;
     const mockSetAnchorEl = jest.fn();
 
     // Mock useState to return a non-null anchorEl initially (menu open)

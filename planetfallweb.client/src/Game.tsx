@@ -70,6 +70,7 @@ function Game() {
             })();
         }
         focusOnPlayerInput();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [saveGameRequest]);
 
     // Restore a saved game
@@ -82,6 +83,7 @@ function Game() {
             setRestoreGameRequest(undefined);
             focusOnPlayerInput();
         })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [restoreGameRequest]);
 
     // Delete a saved game
@@ -102,6 +104,7 @@ function Game() {
                 setSnackBarOpen(true);
             }
         })();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [deleteGameRequest]);
 
     // Scroll to the bottom of the container after we add text. 
@@ -124,6 +127,7 @@ function Game() {
             setSnackBarOpen(true);
             focusOnPlayerInput();
         })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [restartGame]);
 
     // Set focus to the input box on load. 
@@ -131,11 +135,12 @@ function Game() {
         focusOnPlayerInput();
     }, []);
 
-    // Load the initial text, either from the new session, or loading their old session. 
+    // Load the initial text, either from the new session, or loading their old session.
     useEffect(() => {
         gameInit().then((data) => {
             handleResponse(data);
         })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function handleResponse(data: GameResponse) {

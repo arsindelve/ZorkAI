@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Compass from '../components/Compass';
-import { Direction } from '@zork-ai/shared-types';
 
 
 describe('Compass Component', () => {

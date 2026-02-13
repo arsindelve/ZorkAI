@@ -67,6 +67,7 @@ test.describe('Game Dialogs', () => {
     });
 
     // Note: Planetfall does not have a video dialog - this test is skipped
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     test.skip('Video dialog - video dialog can be opened from About menu and closed', async ({page}) => {
         // This test is skipped for Planetfall as there is no intro video
     });

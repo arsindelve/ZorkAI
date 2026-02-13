@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import GameMenu from '../menu/GameMenu';
 // Mock the child components
 jest.mock('../menu/AboutMenu', () => {
@@ -55,7 +55,6 @@ describe('GameMenu Component', () => {
     jest.useFakeTimers();
 
     // Mock useState to control the initial state
-    const originalUseState = React.useState;
     const mockSetState = jest.fn();
 
     // Mock useState to return false initially

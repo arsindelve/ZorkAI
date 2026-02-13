@@ -107,7 +107,6 @@ describe('CommandsButton Component', () => {
     expect(buttonElement).not.toBeDisabled();
 
     // Check that the button has the expected styling for loaded state
-    const buttonStyles = window.getComputedStyle(buttonElement);
     expect(buttonElement).toBeVisible();
   });
 });

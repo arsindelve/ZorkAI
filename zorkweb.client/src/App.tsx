@@ -82,6 +82,7 @@ function App() {
             console.error("App.tsx: Error handling dialog:", error);
         });
 
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dialogToOpen]);
 
     const handleWatchVideo = () => {
