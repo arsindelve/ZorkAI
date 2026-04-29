@@ -16,3 +16,4 @@ Zork.sln.DotSettings
 .claude/.DS_Store
 .claude/docs/
 shared-web-types/node_modules/
+node_modules/

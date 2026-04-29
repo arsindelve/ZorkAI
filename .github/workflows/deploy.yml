@@ -75,15 +75,19 @@ jobs:
               "version": "${{ github.event.inputs.version }}"
             }
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install workspace dependencies
+        run: npm ci --legacy-peer-deps
+
       - name: Build Front End Zork
-        run: |
-          cd /home/runner/work/ZorkAI/ZorkAI/zorkweb.client
-          npm run build
+        run: npm run build -w zorkweb.client
 
       - name: Build Front End Planetfall
-        run: |
-          cd /home/runner/work/ZorkAI/ZorkAI/planetfallweb.client
-          npm run build
+        run: npm run build -w planetfall.client
 
       - name: Setup AWS CLI
         uses: aws-actions/configure-aws-credentials@v1

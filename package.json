@@ -1,0 +1,9 @@
+{
+  "name": "zork-ai-monorepo",
+  "private": true,
+  "workspaces": [
+    "shared-web-types",
+    "zorkweb.client",
+    "planetfallweb.client"
+  ]
+}

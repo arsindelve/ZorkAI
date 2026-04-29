@@ -36,13 +36,8 @@ jobs:
       with:
         node-version: '24'
 
-    - name: Install dependencies for shared-web-types
-      working-directory: ./shared-web-types
-      run: npm install --legacy-peer-deps
-
-    - name: Install dependencies for zorkweb.client
-      working-directory: ./zorkweb.client
-      run: npm ci
+    - name: Install workspace dependencies
+      run: npm ci --legacy-peer-deps
 
     - name: Install Playwright browsers
       working-directory: ./zorkweb.client
@@ -74,13 +69,8 @@ jobs:
       with:
         node-version: '24'
 
-    - name: Install dependencies for shared-web-types
-      working-directory: ./shared-web-types
-      run: npm install --legacy-peer-deps
-
-    - name: Install dependencies for planetfallweb.client
-      working-directory: ./planetfallweb.client
-      run: npm ci
+    - name: Install workspace dependencies
+      run: npm ci --legacy-peer-deps
 
     - name: Install Playwright browsers
       working-directory: ./planetfallweb.client
