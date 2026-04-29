@@ -401,4 +401,69 @@ public class ConferenceRoomTests : EngineTestsBase
     }
 
     #endregion
+
+    #region Examine Dial Tests
+
+    [Test]
+    public async Task ExamineDial_ShowsCurrentValue_WhenDialIsAtZero()
+    {
+        var target = GetTarget();
+        StartHere<RecArea>();
+
+        string? response = await target.GetResponse("examine dial");
+        response.Should().Contain("The dial is set to 0");
+    }
+
+    [Test]
+    public async Task ExamineDial_ShowsCurrentValue_AfterSettingDial()
+    {
+        var target = GetTarget();
+        StartHere<RecArea>();
+        GetItem<ConferenceRoomDoor>().UnlockCode = "9999";
+
+        await target.GetResponse("set dial to 42");
+
+        string? response = await target.GetResponse("examine dial");
+        response.Should().Contain("The dial is set to 42");
+    }
+
+    [Test]
+    public async Task ExamineDial_ShowsCurrentValue_AfterSettingDialWithWord()
+    {
+        var target = GetTarget();
+        StartHere<RecArea>();
+        GetItem<ConferenceRoomDoor>().UnlockCode = "9999";
+
+        await target.GetResponse("set dial to seventy seven");
+
+        string? response = await target.GetResponse("examine dial");
+        response.Should().Contain("The dial is set to 77");
+    }
+
+    [Test]
+    public async Task ExamineDial_ShowsZero_AfterDoorOpens()
+    {
+        var target = GetTarget();
+        StartHere<RecArea>();
+        GetItem<ConferenceRoomDoor>().UnlockCode = "12";
+
+        await target.GetResponse("set dial to 12");
+
+        string? response = await target.GetResponse("examine dial");
+        response.Should().Contain("The dial is set to 0");
+    }
+
+    [Test]
+    public async Task ExamineDial_ShowsCurrentValue_WhenDoorIsOpen()
+    {
+        var target = GetTarget();
+        StartHere<RecArea>();
+        GetItem<ConferenceRoomDoor>().IsOpen = true;
+        GetItem<ConferenceRoomDoor>().Code = "55";
+
+        string? response = await target.GetResponse("examine dial");
+        response.Should().Contain("The dial is set to 55");
+    }
+
+    #endregion
 }
