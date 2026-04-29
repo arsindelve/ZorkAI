@@ -5,6 +5,9 @@
         <JavaScriptTestFramework>Jest</JavaScriptTestFramework>
         <!-- Allows the build (or compile) script located on package.json to run on Build -->
         <ShouldRunBuildScript>false</ShouldRunBuildScript>
+        <!-- node_modules lives at the workspace root; the SDK's npm install collides
+             with the root symlink the planetfall esproj already created. Skip it. -->
+        <ShouldRunNpmInstall>false</ShouldRunNpmInstall>
         <!-- Folder where production build objects will be placed -->
         <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
     </PropertyGroup>
