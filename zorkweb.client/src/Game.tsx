@@ -304,7 +304,7 @@ function Game() {
             pointer-events-auto
             "/>
 
-            <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word) => handleWordClicked(word)}
+            <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word: string) => handleWordClicked(word)}
                            className={"p-6 sm:p-12 bg-opacity-80 h-[65vh] overflow-auto " +
                                "bg-stone-900 font-mono rounded-lg border-2 " +
                                "border-stone-700/50 shadow-lg z-10"}
