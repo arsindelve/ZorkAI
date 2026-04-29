@@ -4,7 +4,7 @@ namespace ZorkOne.Item;
 
 public class Sword : ItemBase, ICanBeTakenAndDropped, IWeapon, IAmPointyAndPunctureThings
 {
-    public override string[] NounsForMatching => ["sword", "glamdring", "orcrist", "elvish", "elvish sword"];
+    public override string[] NounsForMatching => ["sword", "glamdring", "orcrist", "elvish"];
 
     public override int Size => 4;
 
