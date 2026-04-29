@@ -7,7 +7,7 @@ namespace EscapeRoom.Item;
 public class Flashlight : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, IAmALightSourceThatTurnsOnAndOff, IGivePointsWhenFirstPickedUp
 {
     public int NumberOfPoints => 10;
-    public override string[] NounsForMatching => ["flashlight", "torch", "light"];
+    public override string[] NounsForMatching => ["flashlight", "torch", "light", "small flashlight", "sturdy flashlight"];
 
     public override int Size => 2;
 

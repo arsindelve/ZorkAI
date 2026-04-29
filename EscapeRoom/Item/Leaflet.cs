@@ -4,7 +4,7 @@ namespace EscapeRoom.Item;
 
 public class Leaflet : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRead
 {
-    public override string[] NounsForMatching => ["leaflet", "paper", "instructions"];
+    public override string[] NounsForMatching => ["leaflet", "paper", "instructions", "small leaflet"];
 
     string ICanBeExamined.ExaminationDescription => """
                                                     WELCOME TO INTERACTIVE FICTION!

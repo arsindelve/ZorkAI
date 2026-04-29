@@ -10,7 +10,7 @@ public class CardboardBox : OpenAndCloseContainerBase, ICanBeExamined
 {
     public override string? CannotBeTakenDescription => "The box is too bulky to carry around. ";
 
-    public override string[] NounsForMatching => ["box", "cardboard box", "cardboard"];
+    public override string[] NounsForMatching => ["box", "cardboard box", "cardboard", "dusty box", "dusty cardboard box"];
 
     public override string Name => "cardboard box";
 

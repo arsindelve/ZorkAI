@@ -8,7 +8,7 @@ namespace EscapeRoom.Item;
 
 public class ExitDoor : ItemBase, IOpenAndClose, ICanBeExamined
 {
-    public override string[] NounsForMatching => ["door", "exit door", "metal door", "exit", "lock"];
+    public override string[] NounsForMatching => ["door", "exit door", "metal door", "exit", "lock", "heavy door", "heavy metal door"];
 
     public bool IsLocked { get; set; } = true;
 

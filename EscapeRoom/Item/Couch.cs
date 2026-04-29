@@ -4,7 +4,7 @@ namespace EscapeRoom.Item;
 
 public class Couch : ItemBase, ICanBeExamined
 {
-    public override string[] NounsForMatching => ["couch", "sofa", "worn couch"];
+    public override string[] NounsForMatching => ["couch", "sofa", "worn couch", "comfortable couch"];
 
     public override string? CannotBeTakenDescription => "The couch is too heavy to move. ";
 

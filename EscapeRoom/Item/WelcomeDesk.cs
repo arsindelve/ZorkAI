@@ -10,7 +10,7 @@ public class WelcomeDesk : OpenAndCloseContainerBase, ICanBeExamined
 {
     public override string? CannotBeTakenDescription => "The desk is too heavy to move. ";
 
-    public override string[] NounsForMatching => ["desk", "welcome desk", "drawer"];
+    public override string[] NounsForMatching => ["desk", "welcome desk", "drawer", "desk drawer", "welcome drawer"];
 
     public override string Name => "welcome desk";
 
