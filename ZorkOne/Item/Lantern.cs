@@ -14,7 +14,7 @@ public class Lantern : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, IAmALigh
     [UsedImplicitly]
     public bool BurnedOut { get; set; }
 
-    public override string[] NounsForMatching => ["lantern", "lamp", "light"];
+    public override string[] NounsForMatching => ["lantern", "lamp", "light", "brass lantern"];
 
     public override int Size => 3;
 

@@ -238,6 +238,33 @@ public class ItemTests : EngineTestsBase
         Repository.ItemExistsInTheStory("unicorn").Should().BeFalse();
     }
 
+    [TestCase("brass lantern")]
+    [TestCase("battery-powered brass lantern")]
+    [TestCase("the lantern")]
+    public void HasMatchingNoun_CompoundPhrase_MatchesItemWithSimpleNoun_Lantern(string phrase)
+    {
+        // The OpenAI take/drop parser returns compound phrases (e.g. "brass lantern") even
+        // when the player typed just "lantern". The matcher must resolve those to the item
+        // whose NounsForMatching contains a token that appears as a complete word in the phrase.
+        Repository.GetItem<Lantern>().HasMatchingNoun(phrase).HasItem.Should().BeTrue();
+    }
+
+    [TestCase("elvish sword")]
+    [TestCase("elvish sword of great antiquity")]
+    [TestCase("the sword")]
+    public void HasMatchingNoun_CompoundPhrase_MatchesItemWithSimpleNoun_Sword(string phrase)
+    {
+        Repository.GetItem<Sword>().HasMatchingNoun(phrase).HasItem.Should().BeTrue();
+    }
+
+    [TestCase("monkey")]   // must not match Lantern's "key"-less nouns; also not match the Skeleton Key's "key"
+    [TestCase("crowbar")]
+    [TestCase("nothing")]
+    public void HasMatchingNoun_UnrelatedPhrase_DoesNotMatchSword(string phrase)
+    {
+        Repository.GetItem<Sword>().HasMatchingNoun(phrase).HasItem.Should().BeFalse();
+    }
+
     [Test]
     public void Repository_DoesNotExistInTheStory_Blank()
     {

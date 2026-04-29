@@ -112,8 +112,19 @@ public abstract class ItemBase : IItem
     /// <returns>A tuple indicating whether a matching item was found and, if found, the matching item.</returns>
     public virtual (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
-        var hasItem = NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase));
-        if (hasItem)
+        if (string.IsNullOrEmpty(noun))
+            return (false, null);
+
+        if (NounsForMatching.Any(s => s.Equals(noun, StringComparison.InvariantCultureIgnoreCase)))
+            return (true, this);
+
+        // The AI take/drop parser sometimes returns compound phrases (e.g. "brass lantern",
+        // "elvish sword") that don't appear verbatim in NounsForMatching. Fall back to a
+        // word-boundary containment check so "brass lantern" still resolves to the Lantern
+        // (whose nouns include "lantern"). Padding both sides with spaces avoids false
+        // positives like matching "key" inside "monkey".
+        var paddedInput = $" {noun.ToLowerInvariant().Trim()} ";
+        if (NounsForMatching.Any(s => paddedInput.Contains($" {s.ToLowerInvariant()} ")))
             return (true, this);
 
         return (false, null);

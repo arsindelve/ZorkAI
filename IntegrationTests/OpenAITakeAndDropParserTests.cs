@@ -91,6 +91,41 @@ public class OpenAITakeAndDropParserTests
     }
 
     [Test]
+    [TestCase("take sword", typeof(ZorkOne.Item.Sword))]
+    [TestCase("take the sword", typeof(ZorkOne.Item.Sword))]
+    [TestCase("take lantern", typeof(ZorkOne.Item.Lantern))]
+    [TestCase("take the lantern", typeof(ZorkOne.Item.Lantern))]
+    [TestCase("take lamp", typeof(ZorkOne.Item.Lantern))]
+    public async Task TakeFromLivingRoom_ParserOutput_ResolvesToCorrectItem(string command, Type expectedItemType)
+    {
+        // End-to-end: the parser is allowed to return compound phrases like "brass lantern" /
+        // "elvish sword" (and does — see Console output). HasMatchingNoun must still resolve
+        // those phrases to the right item. This test catches both a parser regression AND a
+        // matcher regression.
+        ILocation locationObject;
+        string locationDescription;
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            locationObject = (ILocation)Activator.CreateInstance(typeof(LivingRoom))!;
+            locationObject.Init();
+            locationDescription = locationObject.GetDescription(Mock.Of<IContext>());
+        }
+
+        var target = new OpenAITakeAndDropListParser(null);
+        var response = await target.GetListOfItemsToTake(command, locationDescription);
+
+        Console.WriteLine($"Input: '{command}'");
+        Console.WriteLine($"Parser returned: [{string.Join(", ", response.Select(s => $"'{s}'"))}]");
+
+        response.Length.Should().Be(1, "we asked for one item");
+
+        var (found, item) = locationObject.HasMatchingNoun(response[0]);
+        found.Should().BeTrue($"parser returned '{response[0]}', which must resolve to an item in the Living Room");
+        item.Should().BeOfType(expectedItemType);
+    }
+
+    [Test]
     [TestCase("drop the leaflet", "leaflet")]
     [TestCase("drop the weapons", "sword", "nasty knife")]
     [TestCase("drop the leaflet and the rope", "leaflet", "rope")]

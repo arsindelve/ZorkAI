@@ -121,7 +121,12 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         }
 
         if (items.Length == 1)
-            return DropIt(context, Repository.GetItem(items[0]));
+        {
+            // The AI may return a compound phrase (e.g. "brass lantern") that doesn't resolve;
+            // fall back to the noun the IntentParser already extracted from the player's input.
+            var item = Repository.GetItem(items[0]) ?? Repository.GetItem(action.Noun);
+            return DropIt(context, item);
+        }
 
         // When dropping multiple items, we need to provide feedback for items that don't exist
         var itemsWithFeedback = items
@@ -151,7 +156,13 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         }
 
         if (items.Length == 1)
-            return TakeIt(context, Repository.GetItemInScope(items[0], context));
+        {
+            // The AI may return a compound phrase (e.g. "brass lantern") that doesn't resolve;
+            // fall back to the noun the IntentParser already extracted from the player's input.
+            var item = Repository.GetItemInScope(items[0], context)
+                       ?? Repository.GetItemInScope(action.Noun, context);
+            return TakeIt(context, item);
+        }
 
         // When taking multiple items, we need to provide feedback for items that don't exist
         var itemsWithFeedback = items
