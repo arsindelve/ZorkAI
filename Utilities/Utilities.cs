@@ -105,7 +105,9 @@ public static class Utilities
                 nouns.ConvertAll(noun => $"{noun}");
 
             var lastNoun = convertNouns.Last();
-            convertNouns.Remove(lastNoun);
+            // Remove the final element by position. Remove(lastNoun) would delete the FIRST
+            // occurrence of that value, dropping an item when the list has duplicate nouns.
+            convertNouns.RemoveAt(convertNouns.Count - 1);
 
             return convertNouns.Count > 0
                 ? $"{string.Join(", ", convertNouns)} {connector} {lastNoun}"

@@ -271,6 +271,19 @@ public class ExtensionMethodsTests
     }
 
     [Test]
+    public void SingleLineListWithAnd_WithDuplicateNouns_KeepsEveryItem()
+    {
+        // Arrange: two identical items in the list (e.g. two lanterns in a room).
+        var nouns = new List<string> { "lantern", "sword", "lantern" };
+
+        // Act
+        var result = nouns.SingleLineListWithAnd();
+
+        // Assert: every item must be listed; the duplicate must not be dropped.
+        result.Should().Be("a lantern, a sword and a lantern");
+    }
+
+    [Test]
     public void SingleLineListWithAnd_WithSingleItem_ReturnsSingleItemWithArticle()
     {
         // Arrange
