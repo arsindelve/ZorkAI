@@ -10,7 +10,8 @@ public static class SentenceSplitter
 {
     private static readonly HashSet<string> CommonAbbreviations = new()
     {
-        "mr", "mrs", "ms", "dr", "prof", "sr", "jr", "st", "vs", "etc", "no", "corp", "inc"
+        // "no" omitted: it is a common standalone yes/no answer, not an abbreviation in game input.
+        "mr", "mrs", "ms", "dr", "prof", "sr", "jr", "st", "vs", "etc", "corp", "inc"
     };
 
     /// <summary>
