@@ -27,9 +27,15 @@ jobs:
     - name: .NET tests
       run: dotnet test --no-build --verbosity normal
 
+  # Web jobs run inside the official Playwright image: browsers + all OS deps are
+  # preinstalled (at /ms-playwright), so there is no `playwright install` download
+  # step that can hang. The image tag MUST match the @playwright/test version in
+  # package-lock.json (currently 1.59.1) so the preinstalled browsers match.
   zork-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-noble
     steps:
     - uses: actions/checkout@v4
 
@@ -40,37 +46,6 @@ jobs:
 
     - name: Install workspace dependencies
       run: npm ci --legacy-peer-deps
-
-    - name: Get Playwright version
-      id: playwright-version
-      working-directory: ./zorkweb.client
-      run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
-
-    - name: Cache Playwright browsers
-      id: playwright-cache
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/ms-playwright
-        key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
-
-    # Browser binaries are restored from cache on a hit (download skipped); --with-deps still
-    # installs the apt system libraries each run. timeout + retry guards against a stalled
-    # download from cdn.playwright.dev hanging the job indefinitely (see no-timeout incident).
-    - name: Install Playwright browsers
-      working-directory: ./zorkweb.client
-      run: |
-        for attempt in 1 2 3; do
-          echo "::group::npx playwright install --with-deps (attempt $attempt)"
-          if timeout -k 30 600 npx playwright install --with-deps; then
-            echo "::endgroup::"
-            exit 0
-          fi
-          echo "::endgroup::"
-          echo "playwright install attempt $attempt failed or stalled; retrying in 10s..."
-          sleep 10
-        done
-        echo "::error::playwright install --with-deps failed after 3 attempts"
-        exit 1
 
     - name: Playwright tests
       working-directory: ./zorkweb.client
@@ -91,6 +66,8 @@ jobs:
   planetfallweb-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-noble
     steps:
     - uses: actions/checkout@v4
 
@@ -101,37 +78,6 @@ jobs:
 
     - name: Install workspace dependencies
       run: npm ci --legacy-peer-deps
-
-    - name: Get Playwright version
-      id: playwright-version
-      working-directory: ./planetfallweb.client
-      run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
-
-    - name: Cache Playwright browsers
-      id: playwright-cache
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/ms-playwright
-        key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
-
-    # Browser binaries are restored from cache on a hit (download skipped); --with-deps still
-    # installs the apt system libraries each run. timeout + retry guards against a stalled
-    # download from cdn.playwright.dev hanging the job indefinitely (see no-timeout incident).
-    - name: Install Playwright browsers
-      working-directory: ./planetfallweb.client
-      run: |
-        for attempt in 1 2 3; do
-          echo "::group::npx playwright install --with-deps (attempt $attempt)"
-          if timeout -k 30 600 npx playwright install --with-deps; then
-            echo "::endgroup::"
-            exit 0
-          fi
-          echo "::endgroup::"
-          echo "playwright install attempt $attempt failed or stalled; retrying in 10s..."
-          sleep 10
-        done
-        echo "::error::playwright install --with-deps failed after 3 attempts"
-        exit 1
 
     - name: Playwright tests
       working-directory: ./planetfallweb.client
