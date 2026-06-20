@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # ZorkAI - Text Adventure Game Engine with AI Integration
 
 ## Project Overview
-This is a sophisticated C# .NET 8.0 recreation of classic Infocom-style text adventure games (like Zork) with modern AI integration. The engine can run multiple games including Zork I and Planetfall.
+This is a sophisticated C# .NET 10.0 recreation of classic Infocom-style text adventure games (like Zork) with modern AI integration. The engine can run multiple games including Zork I and Planetfall.
 
 ## Essential Development Commands
 
@@ -15,7 +15,7 @@ This is a sophisticated C# .NET 8.0 recreation of classic Infocom-style text adv
 - **Run tests for specific project**: `dotnet test UnitTests` or `dotnet test ZorkOne.Tests`
 - **Run specific test class**: `dotnet test --filter "TestClass=ContextTests"`
 - **Run specific test**: `dotnet test --filter "BlatherTests.ThePlayer_TriesToBlather_BlatherIsAlive"`
-- **Check .NET version**: `dotnet --version` (requires .NET 8.0+)
+- **Check .NET version**: `dotnet --version` (requires .NET 10.0+)
 
 ### Test Projects Structure
 - **UnitTests**: Core engine tests (667+ comprehensive tests)
@@ -168,6 +168,21 @@ This project exemplifies **thoughtful AI integration** - using AI to enhance rat
 The codebase demonstrates production-level C# development with proper dependency injection, logging, monitoring, and testing practices while maintaining the essential character of classic text adventures.
 
 ## AWS Lambda Integration & Deployment
+
+### AWS Account & Credentials (IMPORTANT)
+All ZorkAI AWS infrastructure lives in a **dedicated AWS account (`576431164672`, "Delve")** in region `us-east-1`. This includes:
+- `ZorkStack-AspNetCoreFunction-*` (Zork One Lambda)
+- `PlanetfallStack-AspNetCoreFunction-*` (Planetfall Lambda)
+- `Floyd-LangGraphFunction-...-MySimpleLambda-*` (the Floyd/companion LangGraph lambda invoked by `ChatLambda/`)
+- `planetfall-hints-*`, `ZorkReleaseNotes`
+
+**The machine's default `~/.aws` credentials point at a DIFFERENT account and do not contain these resources.** The Lambda invocation code (`ChatLambda/ChatWithCompanion.cs`, `ChatLambda/ParseConversation.cs`) calls Floyd by its bare function name, which resolves to whatever account the active credentials belong to. Running under the wrong (default) account therefore fails with:
+`Function not found: arn:aws:lambda:us-east-1:<wrong-account>:function:Floyd-...`
+This is an account/credentials problem, **not** a wrong function name — the hardcoded Floyd function name is correct.
+
+Note: the **deployed** lambdas run *inside* the Delve account, so production is unaffected — the bare function name resolves to the correct (in-account) Floyd. The mismatch only bites when running locally (e.g. the `[Explicit]` integration tests in `IntegrationTests/ChatWithFloydTests.cs`), where the SDK falls back to the machine's default credential chain.
+
+A named `delve` AWS profile is configured in `~/.aws/credentials` / `~/.aws/config` (alongside, and without disturbing, `[default]`). The `IntegrationTests` project selects it automatically via `IntegrationTests/AwsProfileSetup.cs` (an assembly-wide NUnit `[SetUpFixture]` that sets `AWS_PROFILE=delve`), so the AWS-touching tests just run — in Rider or `dotnet test` — with no extra configuration. Verify the account with `aws sts get-caller-identity --profile delve` (expect `576431164672`).
 
 ### Lambda Project Structure (`Lambda/src/Lambda/`)
 - **ZorkOneController.cs**: RESTful API endpoints for game interaction
