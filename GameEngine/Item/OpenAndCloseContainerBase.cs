@@ -62,6 +62,16 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
         return await ApplyProcessors(action, context, null, client, itemProcessorFactory);
     }
 
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
+    {
+        // A closed, non-transparent container hides its contents from multi-noun interactions, just like simple ones.
+        if (!IsOpen && !IsTransparent)
+            return new NoNounMatchInteractionResult();
+
+        return await base.RespondToMultiNounInteraction(action, context);
+    }
+
     public override (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
         // If open or transparent, search inside
