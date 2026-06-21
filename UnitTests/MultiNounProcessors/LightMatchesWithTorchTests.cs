@@ -31,7 +31,7 @@ public class LightMatchesWithTorchTests : EngineTestsBase
         var matchbook = Take<Matchbook>();
         var torch = Take<Torch>();
         
-        matchbook.MatchesUsed = 5; // All matches used up
+        matchbook.MatchesUsed = 6; // All six matches used up
         
         engine.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
         
