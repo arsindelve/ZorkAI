@@ -36,8 +36,12 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
 
     public string NowOpen(ILocation currentLocation)
     {
-        // The door can never be opened directly. It opens automatically when the dial has the correct code. 
-        throw new NotImplementedException();
+        // The door has no handle or latch and can never be opened directly — it only opens when the
+        // dial is set to the correct code (AttemptUnlock sets IsOpen itself). The "open" verb is
+        // normally shielded by CannotBeOpenedDescription always returning a reason, so this message
+        // isn't shown in normal play. We return it instead of throwing so a future change to that
+        // guard can never crash the turn (#225).
+        return "The door has no handle or latch; it opens only when the dial is set to the right number. ";
     }
 
     public override Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
