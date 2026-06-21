@@ -106,4 +106,15 @@ public class BioLabEscapeTests : EngineTestsBase
         // Chase continues with random chase message
         response.Should().Contain("mutants burst into the room");
     }
+
+    // Issue #228: the original gives every Bio Lab mutant MONSTER as a synonym (shared via
+    // MutantBase), so a panicked player can type "attack monster"/"kill monster" during the chase.
+    private static readonly MutantBase[] Mutants =
+        [new MutantGrue(), new MutantTroll(), new RatAnt(), new Triffid()];
+
+    [TestCaseSource(nameof(Mutants))]
+    public void Mutant_RecognizesMonsterSynonym(MutantBase mutant)
+    {
+        mutant.HasMatchingNoun("monster").HasItem.Should().BeTrue();
+    }
 }

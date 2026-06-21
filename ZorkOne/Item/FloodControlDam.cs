@@ -17,7 +17,5 @@ public class FloodControlDam : ItemBase, ICanBeExamined
     public override string[] NounsForMatching =>
         ["dam", "gates", "sluice gate", "sluice gates", "flood control dam", "flood control dam #3", "dam #3"];
 
-    public override string Name => "dam";
-
     public string ExaminationDescription => Repository.GetLocation<Dam>().GatesDescription();
 }

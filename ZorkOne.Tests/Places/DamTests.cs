@@ -9,6 +9,21 @@ namespace ZorkOne.Tests.Places;
 
 public class DamTests : EngineTestsBase
 {
+    // Issue #228: the original Flood Control Dam #3 (ZIL DAM object, SYNONYM DAM GATE GATES) is
+    // examinable. This port models the dam as a location, so a FloodControlDam stand-in item
+    // carries those nouns and reports the live sluice-gate state.
+    [TestCase("examine dam")]
+    [TestCase("examine gates")]
+    public async Task ExamineDam_DescribesTheSluiceGates(string input)
+    {
+        var target = GetTarget();
+        StartHere<Dam>();
+
+        var response = await target.GetResponse(input);
+
+        response.Should().Contain("sluice gates");
+    }
+
     [Test]
     public async Task CannotTurnBolt()
     {
