@@ -6,6 +6,8 @@ public class ViscousMaterial : ItemBase, ICanBeTakenAndDropped
 {
     public override string[] NounsForMatching => ["viscous material", "viscous", "material", "gunk"];
 
+    public override bool IsSoft => true;
+
     public string OnTheGroundDescription(ILocation currentLocation)
     {
         return "There is a viscous material here. ";

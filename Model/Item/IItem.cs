@@ -49,6 +49,12 @@ public interface IItem : IInteractionTarget
     int Size { get; }
 
     /// <summary>
+    ///     True for soft, lightweight, non-rigid items (food, paper, cloth, putty, etc.) that would not
+    ///     shatter glass if thrown at it. Defaults to false; soft items opt in by overriding.
+    /// </summary>
+    bool IsSoft { get; }
+
+    /// <summary>
     /// If the item can be picked up, this is the description in inventory..."A rope", "A towel".
     /// If the item cannot be picked up, this is the description of the item, on the ground, where you find it.
     /// This can be left blank, and then these items will not appear in the location description, but can still be

@@ -7,6 +7,8 @@ public class Lunch : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeEate
 {
     public override string[] NounsForMatching => ["lunch", "sandwich"];
 
+    public override bool IsSoft => true;
+
     public override int Size => 2;
 
     (string Message, bool WasConsumed) ICanBeEaten.OnEating(IContext context)

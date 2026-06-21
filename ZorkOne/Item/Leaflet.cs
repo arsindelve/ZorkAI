@@ -6,6 +6,8 @@ public class Leaflet : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRe
 {
     public override string[] NounsForMatching => ["leaflet"];
 
+    public override bool IsSoft => true;
+
     string ICanBeExamined.ExaminationDescription => """
                                                     "WELCOME TO ZORK!
 

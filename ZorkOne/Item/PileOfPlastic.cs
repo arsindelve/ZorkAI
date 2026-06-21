@@ -19,6 +19,8 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
     public override string[] NounsForMatching =>
         ["pile", "pile of plastic", "plastic", "boat", "punctured boat", "raft", "magic boat"];
 
+    public override bool IsSoft => true;
+
     public override int Size => 14;
 
     public string ExaminationDescription => IsPunctured

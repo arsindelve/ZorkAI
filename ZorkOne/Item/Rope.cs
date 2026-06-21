@@ -7,6 +7,8 @@ public class Rope : ItemBase, ICanBeTakenAndDropped
 {
     public override string[] NounsForMatching => ["rope"];
 
+    public override bool IsSoft => true;
+
     public override int Size => 2;
 
     public bool TiedToRailing { get; set; }
