@@ -49,6 +49,19 @@ public class MirrorRoomTests : EngineTestsBase
     }
 
     [Test]
+    public async Task BreakMirror_WhenAlreadyBroken_GivesEnoughDamageMessage()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MirrorRoomNorth>();
+
+        await target.GetResponse("kick mirror");
+        var response = await target.GetResponse("kick mirror");
+        Console.WriteLine(response);
+
+        response.Should().Contain("Haven't you done enough damage already?");
+    }
+
+    [Test]
     public async Task TouchMirror_AfterBroken_DoesNotTeleport()
     {
         var target = GetTarget();

@@ -33,7 +33,7 @@ internal abstract class MirrorRoom : LocationBase, IThiefMayVisit
                 "throw", "punch", "vandalize"]))
         {
             if (mirror.IsBroken)
-                return new PositiveInteractionResult("The mirror is already broken into many pieces. ");
+                return new PositiveInteractionResult("Haven't you done enough damage already? ");
 
             mirror.IsBroken = true;
             return new PositiveInteractionResult(
