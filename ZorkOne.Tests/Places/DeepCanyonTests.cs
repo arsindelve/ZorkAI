@@ -43,7 +43,9 @@ public class DeepCanyonTests : EngineTestsBase
 
         var response = await target.GetResponse("look");
 
-        response.Should().NotContain("water from below");
+        // Both water variants start with "You can hear ..." — asserting on "hear" is more robust
+        // than a phrase match if the water copy ever changes but still mentions water.
+        response.Should().NotContain("hear");
     }
 
     [Test]
