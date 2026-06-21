@@ -21,6 +21,8 @@ public class Matchbook
 
     public override string[] NounsForMatching => ["matches", "matchbook", "match"];
 
+    public override bool IsSoft => true;
+
     public bool IsOn { get; set; }
 
     // The on-message is produced entirely by OnBeingTurnedOn so that a match struck in a

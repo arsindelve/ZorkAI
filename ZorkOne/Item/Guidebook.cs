@@ -7,6 +7,8 @@ public class Guidebook : ItemBase, ICanBeTakenAndDropped, ICanBeRead, ICanBeExam
     public override string[] NounsForMatching =>
         ["book", "books", "guidebook", "guidebooks", "guide book", "guide books"];
 
+    public override bool IsSoft => true;
+
     string ICanBeExamined.ExaminationDescription => ReadDescription;
 
     public string ReadDescription =>

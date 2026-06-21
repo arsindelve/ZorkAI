@@ -6,6 +6,8 @@ public class Manual : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRea
 {
     public override string[] NounsForMatching => ["paper", "piece of paper", "piece", "manual", "zork owner's manual", "zork manual", "owner's manual", "owner manual"];
 
+    public override bool IsSoft => true;
+
     string ICanBeExamined.ExaminationDescription => ((ICanBeRead)this).ReadDescription;
 
     string ICanBeRead.ReadDescription => """

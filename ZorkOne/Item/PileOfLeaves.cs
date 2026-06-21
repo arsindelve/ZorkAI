@@ -11,6 +11,8 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
 {
     public override string[] NounsForMatching => ["leaves", "pile", "pile of leaves"];
 
+    public override bool IsSoft => true;
+
     public string OnTheGroundDescription(ILocation currentLocation)
     {
         return "On the ground is a pile of leaves. ";
