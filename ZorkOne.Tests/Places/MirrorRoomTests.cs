@@ -1,5 +1,7 @@
 using FluentAssertions;
 using GameEngine;
+using Model.AIGeneration.Requests;
+using Moq;
 using ZorkOne.Item;
 using ZorkOne.Location;
 
@@ -36,18 +38,53 @@ public class MirrorRoomTests : EngineTestsBase
     }
 
     [Test]
-    public async Task ThrowMirror_DoesNotBreakIt()
+    public async Task ThrowMirror_DoesNotBreakIt_AndFallsBackToAi()
     {
         // You can't "throw" a wall-sized mirror with no second noun; throwing something AT it is a
-        // separate (multi-noun) interaction. So a bare "throw mirror" must not break it.
+        // separate (multi-noun) interaction. So a bare "throw mirror" must not break it — it falls
+        // through to the normal AI "that verb has no effect" narration.
         var target = GetTarget();
         target.Context.CurrentLocation = Repository.GetLocation<MirrorRoomSouth>();
+        Client.Setup(c => c.GenerateNarration(It.IsAny<VerbHasNoEffectOperationRequest>(), It.IsAny<string>()))
+            .ReturnsAsync("Throwing the mirror accomplishes nothing. ");
 
         var response = await target.GetResponse("throw mirror");
         Console.WriteLine(response);
 
+        response.Should().Contain("Throwing the mirror accomplishes nothing.");
         response.Should().NotContain("broken the mirror");
         Repository.GetItem<Mirror>().IsBroken.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task ThrowObjectYouDoNotHaveAtMirror_DoesNotBreakIt()
+    {
+        // You can only throw what you're holding. The player is not carrying the sword here.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MirrorRoomNorth>();
+
+        var response = await target.GetResponse("throw sword at mirror");
+        Console.WriteLine(response);
+
+        response.Should().Contain("don't have");
+        Repository.GetItem<Mirror>().IsBroken.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task ThrowObjectAtAlreadyBrokenMirror_DropsItOnFloor()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MirrorRoomNorth>();
+        Repository.GetItem<Mirror>().IsBroken = true;
+        target.Context.ItemPlacedHere(Repository.GetItem<Sword>());
+
+        var response = await target.GetResponse("throw sword at mirror");
+        Console.WriteLine(response);
+
+        response.Should().Contain("enough damage");
+        // The item still ends up on the floor.
+        target.Context.HasItem<Sword>().Should().BeFalse();
+        Repository.GetLocation<MirrorRoomNorth>().HasItem<Sword>().Should().BeTrue();
     }
 
     [Test]
