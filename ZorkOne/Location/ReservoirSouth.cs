@@ -111,7 +111,11 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
 
     public void StartFilling(IContext context)
     {
-        IsFull = IsDrained = IsDraining = false;
+        // Issue #233: do NOT clear IsDrained here. LOW-TIDE (IsDrained) must persist for the whole
+        // refill and only clear when the reservoir is full again — mirroring the ZIL I-RFILL daemon,
+        // which is QUEUEd with a delay when the gates close and clears LOW-TIDE only when it fires
+        // (at completion). Act() clears IsDrained on the turn the fill countdown reaches zero.
+        IsFull = IsDraining = false;
         IsFilling = true;
         FillingCountDown = 7;
         context.RegisterActor(this);

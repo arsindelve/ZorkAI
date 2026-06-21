@@ -149,6 +149,52 @@ public class DamTests : EngineTestsBase
     }
 
     [Test]
+    public async Task Refilling_StaysLowTideUntilFull()
+    {
+        // Issue #233: closing the gates starts the refill, but LOW-TIDE (IsDrained) must stay set
+        // for the whole refill and only clear when the reservoir is full again — mirroring the ZIL
+        // I-RFILL daemon, which is QUEUEd with a delay when the gates close and clears LOW-TIDE only
+        // when it fires (at completion), not the instant the gates are operated.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MaintenanceRoom>();
+        target.Context.Take(Repository.GetItem<Wrench>());
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
+
+        await target.GetResponse("press the yellow button");
+        await target.GetResponse("S");
+        await target.GetResponse("S");
+        await target.GetResponse("turn bolt with wrench"); // gates open, draining starts
+
+        var sr = Repository.GetLocation<ReservoirSouth>();
+
+        // Drain the reservoir completely.
+        await target.GetResponse("W");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        sr.IsDrained.Should().BeTrue();
+
+        // Close the gates -> refilling begins. Low tide must persist until the reservoir is full.
+        await target.GetResponse("E"); // back to the Dam
+        await target.GetResponse("turn bolt with wrench");
+
+        sr.IsFilling.Should().BeTrue();
+        sr.IsFull.Should().BeFalse();
+        sr.IsDrained.Should().BeTrue();
+
+        // Wait out the refill; only on completion does low tide end and the reservoir read full.
+        for (var i = 0; i < 8; i++)
+            await target.GetResponse("wait");
+
+        sr.IsFull.Should().BeTrue();
+        sr.IsFilling.Should().BeFalse();
+        sr.IsDrained.Should().BeFalse();
+    }
+
+    [Test]
     public async Task Dam_Red_Button()
     {
         var target = GetTarget();
