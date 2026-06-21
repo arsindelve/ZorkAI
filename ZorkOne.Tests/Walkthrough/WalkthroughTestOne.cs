@@ -192,10 +192,11 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
         "light candles with match",
         null,
         "candles are lit",
-        "The match has gone",
         "The flames flicker"
     )]
-    [TestCase("read book", null, "Each word of the prayer reverberates through")]
+    // The match burns for two turns (issue #193), so it goes out one turn after the candles
+    // are lit rather than on the same turn.
+    [TestCase("read book", null, "Each word of the prayer reverberates through", "The match has gone")]
     [TestCase("drop book", null, "Dropped")]
     [TestCase(
         "S",

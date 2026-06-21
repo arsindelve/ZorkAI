@@ -2,6 +2,7 @@
 using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
+using ZorkOne.Location.CoalMineLocation;
 
 namespace ZorkOne.Item;
 
@@ -22,7 +23,9 @@ public class Matchbook
 
     public bool IsOn { get; set; }
 
-    public string NowOnText => "One of the matches starts to burn. ";
+    // The on-message is produced entirely by OnBeingTurnedOn so that a match struck in a
+    // drafty room can report that it went out instantly rather than that it started to burn.
+    public string NowOnText => string.Empty;
 
     public string NowOffText => "The match has gone out. ";
 
@@ -30,15 +33,30 @@ public class Matchbook
 
     public string AlreadyOnText => string.Empty;
 
+    // The matchbook holds six matches (original: MATCH-COUNT runs out after six). The count
+    // is incremented in OnBeingTurnedOn, so once six have been struck no more can be lit.
     public string CannotBeTurnedOnText =>
-        MatchesUsed == 5 ? "I'm afraid that you have run out of matches. " : "";
+        MatchesUsed >= 6 ? "I'm afraid that you have run out of matches. " : "";
 
     public string OnBeingTurnedOn(IContext context)
     {
-        TurnsRemainingLit = 1;
+        // Striking a match always consumes one, even if a draft snuffs it out instantly.
         MatchesUsed++;
+
+        // The lower shaft (the Drafty Room) and the Timber Room have a strong draft that
+        // blows the match out the moment it is struck. (Original: I-MATCH checks HERE for
+        // LOWER-SHAFT / TIMBER-ROOM in zork1/1actions.zil.)
+        if (context.CurrentLocation is DraftyRoom or TimberRoom)
+        {
+            IsOn = false;
+            context.RemoveActor(this);
+            return "This room is drafty, and the match goes out instantly. ";
+        }
+
+        // A struck match burns for two turns before going out. (Original: QUEUE I-MATCH 2.)
+        TurnsRemainingLit = 2;
         context.RegisterActor(this);
-        return "One of the matches starts to burn.";
+        return "One of the matches starts to burn. ";
     }
 
     public void OnBeingTurnedOff(IContext context)
@@ -80,9 +98,9 @@ public class Matchbook
             return string.Empty;
         }
 
-        if (TurnsRemainingLit == 1)
+        if (TurnsRemainingLit > 0)
         {
-            TurnsRemainingLit = 0;
+            TurnsRemainingLit--;
             return string.Empty;
         }
 
@@ -105,9 +123,9 @@ public class Matchbook
             return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(CannotBeTurnedOnText));
         
         IsOn = true;
-        OnBeingTurnedOn(context);
-        
-        return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(NowOnText));
+        var message = OnBeingTurnedOn(context);
+
+        return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(message));
     }
     
     public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
