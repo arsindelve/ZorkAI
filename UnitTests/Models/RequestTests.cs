@@ -260,14 +260,72 @@ public class RequestTests
     {
         // Arrange
         string input = "drop king's crown";
-        
+
         // Act
         var request = new DropSomethingTheyDoNotHave(input);
-        
+
         // Assert
         request.UserMessage.Should().Contain($"The player said '{input}'");
         request.UserMessage.Should().Contain("sarcastic response");
         request.UserMessage.Should().NotBeNullOrEmpty();
     }
 
+    // The narrator was observed inventing concrete objects that do not exist in the room
+    // (e.g. deflecting "examine the wizard" by claiming "it's just a paint-splattered broom"
+    // in a room that contains no broom). These "negative" deflection prompts must explicitly
+    // forbid the model from introducing objects/characters not already present, and must not
+    // run at the high creative temperature used for normal narration.
+
+    [Test]
+    public void NounNotPresentOperationRequest_ForbidsInventingObjects_AndIsLowTemperature()
+    {
+        // Arrange / Act
+        var request = new NounNotPresentOperationRequest(
+            "Studio. A zork owner's manual is here.", "wizard");
+
+        // Assert
+        request.UserMessage.Should().Contain("there is no \"wizard\" here");
+        request.UserMessage.Should().Contain("Do not invent");
+        request.UserMessage.Should().Contain("not already explicitly present");
+        request.Temperature.Should().BeLessThan(0.8f);
+    }
+
+    [Test]
+    public void VerbHasNoEffectOperationRequest_ForbidsInventingObjects_AndIsLowTemperature()
+    {
+        // Arrange / Act
+        var request = new VerbHasNoEffectOperationRequest(
+            "Studio. A zork owner's manual is here.", "manual", "rub");
+
+        // Assert
+        request.UserMessage.Should().Contain("Do not invent");
+        request.UserMessage.Should().Contain("not already explicitly present");
+        request.Temperature.Should().BeLessThan(0.8f);
+    }
+
+    [Test]
+    public void CommandHasNoEffectOperationRequest_ForbidsInventingObjects_AndIsLowTemperature()
+    {
+        // Arrange / Act
+        var request = new CommandHasNoEffectOperationRequest(
+            "Studio. A zork owner's manual is here.", "examine the wizard");
+
+        // Assert
+        request.UserMessage.Should().Contain("Do not invent");
+        request.UserMessage.Should().Contain("not already explicitly present");
+        // The benign/atmospheric branch ("describe it creatively") must not contradict the guard:
+        // creativity is for tone only, never for introducing concrete objects.
+        request.UserMessage.Should().Contain("tone and flavor only");
+        request.Temperature.Should().BeLessThan(0.8f);
+    }
+
+    [Test]
+    public void CannotGoThatWayRequest_UsesLowDeflectionTemperature()
+    {
+        // This is the same category of "stay in room state" deflection as the no-effect prompts,
+        // so it should not run at the embellishment-prone 0.8 default either.
+        var request = new CannotGoThatWayRequest("Forest", "north");
+
+        request.Temperature.Should().BeLessThan(0.8f);
+    }
 }

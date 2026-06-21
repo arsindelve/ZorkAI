@@ -21,6 +21,10 @@ public class CommandHasNoEffectOperationRequest : Request
             Player input: ""break the window""
             AI response: ""You consider breaking the window, but then think better of it. Maybe there's another way to solve this problem.""
 
-            Please follow these guidelines when generating responses. ";
+            Please follow these guidelines when generating responses. " + NoInventionGuard + @" When you describe a
+            benign or atmospheric action creatively (like dancing or singing), that creativity applies to tone and flavor only
+            — never to introducing new concrete objects, characters, exits, or state. ";
+
+        Temperature = DeflectionTemperature;
     }
 }

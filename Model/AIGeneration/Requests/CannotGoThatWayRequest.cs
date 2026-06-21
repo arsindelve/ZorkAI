@@ -8,5 +8,8 @@ public class CannotGoThatWayRequest : Request
             $"The player is in this location: \"{location}\". They tried to go {direction} but going that way is  " +
             $"not possible from this location. Respond with a very short, sarcastic and simple message informing them " +
             $"that they cannot go that way. Do not be creative about why or what is preventing them, do not alter the state of the game or provide additional information. ";
+
+        // Same "stay in room state" deflection category as the no-effect prompts: keep creativity low.
+        Temperature = DeflectionTemperature;
     }
 }
