@@ -17,3 +17,9 @@ Zork.sln.DotSettings
 .claude/docs/
 shared-web-types/node_modules/
 node_modules/
+
+# Local reference clones of the original Infocom ZIL source (read-only, not part of this project).
+# zork1 = historicalsource/zork1, planetfall-source = historicalsource/planetfall.
+# (planetfall-source is named to avoid a case-insensitive clash with the C# Planetfall/ project.)
+zork1/
+planetfall-source/
