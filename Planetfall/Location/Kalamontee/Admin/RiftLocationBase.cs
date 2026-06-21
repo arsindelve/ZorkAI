@@ -28,7 +28,7 @@ internal abstract class RiftLocationBase : LocationWithNoStartingItems
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["jump", "leap"], RiftNouns))
+        if (action.Match(Verbs.JumpVerbs, RiftNouns))
             return new DeathProcessor().Process(
                 "You get a brief (but much closer) view of the sharp and nasty rocks at the bottom of the rift. ",
                 context);

@@ -79,4 +79,22 @@ public class DomeTests : EngineTestsBase
         response.Should().Contain("died");
         target.Context.DeathCounter.Should().Be(1);
     }
+
+    [Test]
+    public async Task DomeRoom_Leap_Fatal()
+    {
+        // "leap" is a synonym for "jump" (Verbs.JumpVerbs) and should be just as fatal here.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<DomeRoom>();
+        target.Context.Take(Repository.GetItem<Lantern>());
+        target.Context.Take(Repository.GetItem<Rope>());
+        Repository.GetItem<Lantern>().IsOn = true;
+
+        // Act
+        var response = await target.GetResponse("leap");
+
+        // Assert
+        response.Should().Contain("died");
+        target.Context.DeathCounter.Should().Be(1);
+    }
 }

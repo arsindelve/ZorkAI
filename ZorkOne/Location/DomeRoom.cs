@@ -1,4 +1,5 @@
 ﻿using GameEngine.Location;
+using Model;
 using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
@@ -42,12 +43,13 @@ public class DomeRoom : LocationBase, IThiefMayVisit
     public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
         IGenerationClient client)
     {
-        switch (input)
+        var command = input?.ToLowerInvariant().Trim();
+
+        if (command is not null && Verbs.JumpVerbs.Contains(command))
         {
-            case "jump":
-                var death =
-                    "This was not a very safe place to try jumping.\nYou should have looked before you leaped. \n";
-                return new DeathProcessor().Process(death, context);
+            var death =
+                "This was not a very safe place to try jumping.\nYou should have looked before you leaped. \n";
+            return new DeathProcessor().Process(death, context);
         }
 
         return await base.RespondToSpecificLocationInteraction(input, context, client);

@@ -34,4 +34,11 @@ public static class Verbs
 
     public static readonly string[] SayVerbs =
         ["say", "yell", "shout", "utter", "scream", "mumble", "whisper", "speak", "declare", "state", "announce", "tell"];
+
+    /// <summary>
+    ///     The "jump / leap" family — a player flinging themselves into the air. Used both for fatal
+    ///     leaps (e.g. Canyon View and the Dome Room in Zork, the rift in Planetfall) and survivable
+    ///     ones (e.g. Up A Tree). Centralized here so every location recognizes the same synonyms.
+    /// </summary>
+    public static readonly string[] JumpVerbs = ["jump", "leap"];
 }

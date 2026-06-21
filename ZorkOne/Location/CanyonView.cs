@@ -1,5 +1,6 @@
 ﻿using GameEngine;
 using GameEngine.Location;
+using Model;
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;
@@ -47,19 +48,21 @@ public class CanyonView : LocationWithNoStartingItems
         IGenerationClient client
         )
     {
-        switch (input?.ToLowerInvariant().Trim())
-        {
-            case "climb down":
-                context.CurrentLocation = Repository.GetLocation<RockyLedge>();
-                var message = Repository.GetLocation<RockyLedge>().GetDescription(context);
-                return new PositiveInteractionResult(message);
+        var command = input?.ToLowerInvariant().Trim();
 
-            // Leaping from the canyon's edge is fatal in the original (CANYON-VIEW-F).
-            // Note: descending safely is "climb down" / "down", handled separately above and via the Map.
-            case "jump":
-            case "leap":
-                var death = "Nice view, lousy place to jump.\n";
-                return new DeathProcessor().Process(death, context);
+        if (command == "climb down")
+        {
+            context.CurrentLocation = Repository.GetLocation<RockyLedge>();
+            var message = Repository.GetLocation<RockyLedge>().GetDescription(context);
+            return new PositiveInteractionResult(message);
+        }
+
+        // Leaping from the canyon's edge is fatal in the original (CANYON-VIEW-F).
+        // Note: descending safely is "climb down" / "down", handled separately above and via the Map.
+        if (command is not null && Verbs.JumpVerbs.Contains(command))
+        {
+            var death = "Nice view, lousy place to jump.\n";
+            return new DeathProcessor().Process(death, context);
         }
 
         return await base.RespondToSpecificLocationInteraction(input, context, client);
