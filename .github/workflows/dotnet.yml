@@ -9,25 +9,37 @@ on:
 jobs:
   dotnet-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 10.0.x
-        
+
     - name: Restore .NET dependencies
       run: dotnet restore
-      
+
     - name: Build
       run: dotnet build --no-restore
-      
+
     - name: .NET tests
       run: dotnet test --no-build --verbosity normal
-  
+
+  # Web jobs run inside the official Playwright image: browsers + all OS deps are
+  # preinstalled (at /ms-playwright), so there is no `playwright install` download
+  # step that can hang. The image tag MUST match the @playwright/test version in
+  # package-lock.json (currently 1.59.1) so the preinstalled browsers match.
   zork-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-noble
+    # Firefox refuses to launch when $HOME isn't owned by the running user. In this
+    # container GitHub sets HOME=/github/home (owned by pwuser), so point it at /root.
+    env:
+      HOME: /root
     steps:
     - uses: actions/checkout@v4
 
@@ -38,10 +50,6 @@ jobs:
 
     - name: Install workspace dependencies
       run: npm ci --legacy-peer-deps
-
-    - name: Install Playwright browsers
-      working-directory: ./zorkweb.client
-      run: npx playwright install --with-deps
 
     - name: Playwright tests
       working-directory: ./zorkweb.client
@@ -61,6 +69,13 @@ jobs:
 
   planetfallweb-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-noble
+    # Firefox refuses to launch when $HOME isn't owned by the running user. In this
+    # container GitHub sets HOME=/github/home (owned by pwuser), so point it at /root.
+    env:
+      HOME: /root
     steps:
     - uses: actions/checkout@v4
 
@@ -71,10 +86,6 @@ jobs:
 
     - name: Install workspace dependencies
       run: npm ci --legacy-peer-deps
-
-    - name: Install Playwright browsers
-      working-directory: ./planetfallweb.client
-      run: npx playwright install --with-deps
 
     - name: Playwright tests
       working-directory: ./planetfallweb.client

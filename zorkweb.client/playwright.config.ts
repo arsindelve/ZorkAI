@@ -29,8 +29,10 @@ export default defineConfig({
   outputDir: 'test-artifacts',
   use: {
     baseURL: 'http://localhost:5173',
-    // Always capture traces for better debugging
-    trace: 'on',
+    // Trace on retry only. trace:'on' records continuously and makes the
+    // route-mocked tests time out; on-first-retry still captures a trace for
+    // any test that fails and retries.
+    trace: 'on-first-retry',
     // Capture screenshots on failure and at the end of each test
     screenshot: 'on',
     // Record video for failed tests
