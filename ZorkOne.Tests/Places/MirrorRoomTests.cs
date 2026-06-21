@@ -51,6 +51,39 @@ public class MirrorRoomTests : EngineTestsBase
     }
 
     [Test]
+    public async Task ThrowHardObjectAtMirror_BreaksIt_AndDropsItOnFloor()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MirrorRoomNorth>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Sword>());
+
+        var response = await target.GetResponse("throw sword at mirror");
+        Console.WriteLine(response);
+
+        response.Should().Contain("seven years");
+        Repository.GetItem<Mirror>().IsBroken.Should().BeTrue();
+        // The thrown item leaves your hands and lands on the floor.
+        target.Context.HasItem<Sword>().Should().BeFalse();
+        Repository.GetLocation<MirrorRoomNorth>().HasItem<Sword>().Should().BeTrue();
+    }
+
+    [Test]
+    public async Task ThrowSoftObjectAtMirror_BouncesOff_AndDropsItOnFloor()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MirrorRoomNorth>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Garlic>());
+
+        var response = await target.GetResponse("throw garlic at mirror");
+        Console.WriteLine(response);
+
+        response.Should().Contain("bounces");
+        Repository.GetItem<Mirror>().IsBroken.Should().BeFalse();
+        target.Context.HasItem<Garlic>().Should().BeFalse();
+        Repository.GetLocation<MirrorRoomNorth>().HasItem<Garlic>().Should().BeTrue();
+    }
+
+    [Test]
     public async Task AttackVerb_BreaksMirror()
     {
         // "punch" comes from the shared Verbs.KillVerbs set, proving the consolidated verb list is wired.

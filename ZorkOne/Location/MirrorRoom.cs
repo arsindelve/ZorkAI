@@ -65,4 +65,37 @@ internal abstract class MirrorRoom : LocationBase, IThiefMayVisit
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
+
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
+    {
+        // "throw <X> at mirror": anything you hurl at the mirror shatters it (and disables the teleport),
+        // except a few soft, lightweight items that just bounce off. Either way the item ends up on the floor.
+        if (!action.MatchVerb(Verbs.ThrowVerbs) || !action.MatchNounTwo(["mirror"]))
+            return await base.RespondToMultiNounInteraction(action, context);
+
+        var (hasItem, thrownItem) = context.HasMatchingNoun(action.NounOne);
+        if (!hasItem || thrownItem is null)
+            return new PositiveInteractionResult("You don't have that. ");
+
+        var mirror = GetItem<Mirror>();
+        var itemName = thrownItem.NounsForMatching.OrderByDescending(s => s.Length).First();
+
+        // The item leaves your hands and lands on the floor of this room, broken mirror or not.
+        ItemPlacedHere(thrownItem);
+
+        // Soft, lightweight items aren't going to shatter a wall-sized mirror.
+        if (thrownItem is Garlic or BrownSack or Lunch)
+            return new PositiveInteractionResult(
+                $"The {itemName} bounces off the mirror and falls harmlessly to the floor. ");
+
+        if (mirror.IsBroken)
+            return new PositiveInteractionResult(
+                $"Haven't you done enough damage already? The {itemName} falls to the floor. ");
+
+        mirror.IsBroken = true;
+        return new PositiveInteractionResult(
+            $"The {itemName} shatters the mirror and falls to the floor among the fragments. " +
+            "I hope you have a seven years' supply of good luck handy. ");
+    }
 }
