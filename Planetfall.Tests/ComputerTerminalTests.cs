@@ -255,6 +255,78 @@ public class ComputerTerminalTests : EngineTestsBase
     }
 
     [Test]
+    [TestCase("type 1 on the keyboard")]
+    [TestCase("type one on the keyboard")]
+    [TestCase("key 4 on the terminal")]
+    [TestCase("type 2 on the screen")]
+    public async Task TypeNumberOnTerminal_MultiNoun_NavigatesIntoSubmenu(string command)
+    {
+        var target = GetTarget();
+        StartHere<LibraryLobby>();
+        GetItem<ComputerTerminal>().IsOn = true;
+
+        var response = await target.GetResponse(command);
+        response.Should()
+            .Contain(
+                "The screen clears and a different menu appears:\n\n    0. Maan Menyuu");
+    }
+
+    [Test]
+    public async Task KeyFourOnTerminal_MultiNoun_OpensGeographyMenu()
+    {
+        var target = GetTarget();
+        StartHere<LibraryLobby>();
+        GetItem<ComputerTerminal>().IsOn = true;
+
+        var response = await target.GetResponse("key 4 on the terminal");
+        response.Should().Contain(GeographyMenu.MainMenu);
+    }
+
+    [Test]
+    public async Task PressZeroOnTerminal_MultiNoun_FromMainMenu_HasNoEffect()
+    {
+        var target = GetTarget();
+        StartHere<LibraryLobby>();
+        GetItem<ComputerTerminal>().IsOn = true;
+
+        var response = await target.GetResponse("press 0 on the terminal");
+        response.Should().Contain(MenuState.NoEffect);
+    }
+
+    [Test]
+    public async Task PressZeroOnTerminal_MultiNoun_FromSubmenu_GoesUp()
+    {
+        var target = GetTarget();
+        StartHere<LibraryLobby>();
+        GetItem<ComputerTerminal>().IsOn = true;
+
+        await target.GetResponse("type 1 on the keyboard");
+        var response = await target.GetResponse("press 0 on the terminal");
+        response.Should().Contain(MainMenu.MainMenuText);
+    }
+
+    [Test]
+    public async Task TypeOnTerminal_MultiNoun_FloydCommentsWhenPresent()
+    {
+        var target = GetTarget();
+        var libraryLobby = GetLocation<LibraryLobby>();
+        target.Context.CurrentLocation = libraryLobby;
+        GetItem<ComputerTerminal>().IsOn = true;
+
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = libraryLobby;
+        libraryLobby.ItemPlacedHere(floyd);
+
+        await target.GetResponse("type 1 on the keyboard");
+
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().NotBeNull();
+        pfContext.PendingFloydActionCommentPrompt.Should().Contain("library computer");
+    }
+
+    [Test]
     public async Task TypeOnComputer_FloydCommentsWhenPresent()
     {
         var target = GetTarget();
