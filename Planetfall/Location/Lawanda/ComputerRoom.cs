@@ -30,7 +30,7 @@ internal class ComputerRoom : LocationBase, ITurnBasedActor
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["look at", "examine"], ["light", "red light"]))
+        if (action.Match(Verbs.ExamineVerbs, ["light", "red light"]))
             // TODO: Update when the computer is fixed. 
             return new PositiveInteractionResult(
                 "The red light would seem to indicate a malfunction in the computer. ");

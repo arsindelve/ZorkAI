@@ -35,9 +35,7 @@ internal class RecArea : LocationBase
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        string[] verbs = ["examine", "look at"];
-
-        if (!action.MatchVerb(verbs))
+        if (!action.MatchVerb(Verbs.ExamineVerbs))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (action.MatchNoun(["games"]))

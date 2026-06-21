@@ -49,7 +49,7 @@ public class Relay : ItemBase, ICanBeExamined
     public override Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["look at", "look into"], NounsForMatching))
+        if (action.Match(Verbs.ExamineVerbs, NounsForMatching))
             return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(ExaminationDescription));
 
         return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

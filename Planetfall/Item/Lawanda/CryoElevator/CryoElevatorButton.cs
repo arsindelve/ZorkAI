@@ -17,7 +17,7 @@ public class CryoElevatorButton : ItemBase, ITurnBasedActor
     public override Task<InteractionResult?> RespondToSimpleInteraction(
         SimpleIntent action, IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (!action.MatchVerb(["push", "press"]))
+        if (!action.MatchVerb(Verbs.PushVerbs))
             return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         // Hilarious death if player pushes button after arriving
