@@ -32,6 +32,9 @@ public static class Verbs
 
     public static readonly string[] LookVerbs = ["look", "peek", "peer", "check", "observe", "glance"];
 
+    public static readonly string[] TouchVerbs =
+        ["touch", "rub", "feel", "press", "stroke", "pat", "tap", "poke", "brush", "caress", "prod", "nudge"];
+
     public static readonly string[] SayVerbs =
     [
         "say", "yell", "shout", "utter", "scream", "mumble", "whisper", "speak", "declare", "state", "announce", "tell",

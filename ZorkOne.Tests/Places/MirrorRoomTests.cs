@@ -36,16 +36,18 @@ public class MirrorRoomTests : EngineTestsBase
     }
 
     [Test]
-    public async Task ThrowMirror_BreaksIt()
+    public async Task ThrowMirror_DoesNotBreakIt()
     {
+        // You can't "throw" a wall-sized mirror with no second noun; throwing something AT it is a
+        // separate (multi-noun) interaction. So a bare "throw mirror" must not break it.
         var target = GetTarget();
         target.Context.CurrentLocation = Repository.GetLocation<MirrorRoomSouth>();
 
         var response = await target.GetResponse("throw mirror");
         Console.WriteLine(response);
 
-        response.Should().Contain("broken the mirror");
-        Repository.GetItem<Mirror>().IsBroken.Should().BeTrue();
+        response.Should().NotContain("broken the mirror");
+        Repository.GetItem<Mirror>().IsBroken.Should().BeFalse();
     }
 
     [Test]
