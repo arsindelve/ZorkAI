@@ -118,7 +118,12 @@ const ClickableText = forwardRef<HTMLDivElement & ClickableTextHandle, Clickable
                 ) {
                 clonedRange.setStart(node, clonedRange.startOffset - 1);
             }
-            clonedRange.setStart(node, clonedRange.startOffset + 1);
+            // Only step past the leading space when the loop actually stopped ON one.
+            // If it stopped because we hit the start of the text node (offset 0), the
+            // first character IS part of the word and stepping forward would drop it.
+            if (clonedRange.toString().indexOf(" ") === 0) {
+                clonedRange.setStart(node, clonedRange.startOffset + 1);
+            }
 
             // Find ending point
             // Keep extending until we find a space or reach the end of the text
