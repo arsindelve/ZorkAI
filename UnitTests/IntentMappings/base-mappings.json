@@ -148,6 +148,13 @@
     { "inputs": ["use upper elevator access card on slot"], "verb": "use", "nounOne": "upper elevator access card", "nounTwo": "slot", "preposition": "on", "originalInput": "use upper elevator access card on slot" },
     { "inputs": ["use shuttle access card on slot"], "verb": "use", "nounOne": "shuttle access card", "nounTwo": "slot", "preposition": "on", "originalInput": "use shuttle access card on slot" },
 
+    { "inputs": ["type 1 on the keyboard", "type 1 on keyboard"], "verb": "type", "nounOne": "1", "nounTwo": "keyboard", "preposition": "on", "originalInput": "type 1 on the keyboard" },
+    { "inputs": ["type one on the keyboard"], "verb": "type", "nounOne": "one", "nounTwo": "keyboard", "preposition": "on", "originalInput": "type one on the keyboard" },
+    { "inputs": ["key 4 on the terminal", "key 4 on terminal"], "verb": "key", "nounOne": "4", "nounTwo": "terminal", "preposition": "on", "originalInput": "key 4 on the terminal" },
+    { "inputs": ["press 0 on the terminal"], "verb": "press", "nounOne": "0", "nounTwo": "terminal", "preposition": "on", "originalInput": "press 0 on the terminal" },
+    { "inputs": ["type 2 on the screen"], "verb": "type", "nounOne": "2", "nounTwo": "screen", "preposition": "on", "originalInput": "type 2 on the screen" },
+    { "inputs": ["push 9 on the keyboard"], "verb": "push", "nounOne": "9", "nounTwo": "keyboard", "preposition": "on", "originalInput": "push 9 on the keyboard" },
+
     { "inputs": ["light candles with torch"], "verb": "light", "nounOne": "candles", "nounTwo": "torch", "preposition": "with", "originalInput": "light candles with torch" },
     { "inputs": ["light matches with torch"], "verb": "light", "nounOne": "matches", "nounTwo": "torch", "preposition": "with", "originalInput": "light matches with torch" },
 
