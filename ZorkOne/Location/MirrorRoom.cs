@@ -11,6 +11,11 @@ internal abstract class MirrorRoom : LocationBase, IThiefMayVisit
 
     protected override string GetContextBasedDescription(IContext context)
     {
+        if (GetItem<Mirror>().IsBroken)
+            return "You are in a large square room with tall ceilings. The enormous mirror which once filled " +
+                   "the south wall now lies shattered in countless pieces. There are exits on the other three " +
+                   "sides of the room.";
+
         return "You are in a large square room with tall ceilings. On the south wall is an " +
                "enormous mirror which fills the entire wall. There are exits on the other three sides of the room.";
     }
@@ -21,11 +26,31 @@ internal abstract class MirrorRoom : LocationBase, IThiefMayVisit
         if (!action.MatchNoun(["mirror"]))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
+        var mirror = GetItem<Mirror>();
+
+        // Breaking the mirror (mung/throw/attack in the original) permanently disables the teleport.
+        if (action.MatchVerb(["break", "smash", "shatter", "mung", "attack", "kill", "destroy", "hit", "kick",
+                "throw", "punch", "vandalize"]))
+        {
+            if (mirror.IsBroken)
+                return new PositiveInteractionResult("The mirror is already broken into many pieces. ");
+
+            mirror.IsBroken = true;
+            return new PositiveInteractionResult(
+                "You have broken the mirror. I hope you have a seven years' supply of good luck handy. ");
+        }
+
         if (action.MatchVerb(["look", "examine", "peer"]))
-            return new PositiveInteractionResult("There is an ugly person staring back at you. ");
+            return new PositiveInteractionResult(mirror.IsBroken
+                ? "The mirror is broken into many pieces. "
+                : "There is an ugly person staring back at you. ");
 
         if (action.MatchVerb(["rub", "touch", "feel", "press"]))
         {
+            // A broken mirror no longer teleports the player between the two mirror rooms.
+            if (mirror.IsBroken)
+                return new PositiveInteractionResult("The mirror is broken into many pieces. ");
+
             if (this is MirrorRoomNorth)
                 context.CurrentLocation = GetLocation<MirrorRoomSouth>();
             else
