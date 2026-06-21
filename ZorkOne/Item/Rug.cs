@@ -29,7 +29,7 @@ public class Rug : ItemBase
             action.OriginalInput.ToLowerInvariant().Contains("on"))
             return SitOnRug();
 
-        if (action.MatchVerb(["look", "examine", "peek"]) && action.OriginalInput != null &&
+        if (action.MatchVerb(Verbs.ExamineVerbs) && action.OriginalInput != null &&
             action.OriginalInput.ToLowerInvariant().Contains("under"))
             return LookUnderRug();
         

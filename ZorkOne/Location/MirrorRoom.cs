@@ -21,7 +21,7 @@ internal abstract class MirrorRoom : LocationBase, IThiefMayVisit
         if (!action.MatchNoun(["mirror"]))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
-        if (action.MatchVerb(["look", "examine", "peer"]))
+        if (action.MatchVerb(Verbs.ExamineVerbs))
             return new PositiveInteractionResult("There is an ugly person staring back at you. ");
 
         if (action.MatchVerb(["rub", "touch", "feel", "press"]))

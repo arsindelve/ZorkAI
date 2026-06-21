@@ -25,7 +25,7 @@ public class Helicopter : FloydSpecialInteractionLocation
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["examine"], ["controls", "control panel"]))
+        if (action.Match(Verbs.ExamineVerbs, ["controls", "control panel"]))
             return new PositiveInteractionResult("The controls are covered and locked.");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
