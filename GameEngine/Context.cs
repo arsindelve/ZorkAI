@@ -151,7 +151,10 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
                 .Any(container =>
                     container is IOpenAndClose { IsOpen: true } or ContainerBase { IsTransparent: true } &&
                     container.Items.Any(s =>
-                        s is IAmALightSource or IAmALightSourceThatTurnsOnAndOff { IsOn: true }));
+                        // A toggleable lamp only lights the room when it's on; constant sources always do.
+                        // (IAmALightSourceThatTurnsOnAndOff derives from IAmALightSource, so exclude an off one.)
+                        s is IAmALightSourceThatTurnsOnAndOff { IsOn: true } ||
+                        s is IAmALightSource and not IAmALightSourceThatTurnsOnAndOff));
 
             return constantLightSources ||
                    lightSourcesThatAreInMyPossession ||
