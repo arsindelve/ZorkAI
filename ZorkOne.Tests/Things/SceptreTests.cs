@@ -100,4 +100,61 @@ public class SceptreTests : EngineTestsBase
         response.Should().Contain("Bye");
         target.Context.DeathCounter.Should().Be(1);
     }
+
+    // Issue #23: the original Zork I source accepts both the British "sceptre" and the
+    // American "scepter" spelling: (SYNONYM SCEPTRE SCEPTER TREASURE). The port had dropped
+    // the American spelling, so "scepter" did not match the item at all.
+    [Test]
+    public void Sceptre_RecognizesBothSpellings()
+    {
+        GetTarget();
+        var sceptre = Repository.GetItem<Sceptre>();
+
+        sceptre.HasMatchingNoun("sceptre").HasItem.Should().BeTrue();
+        sceptre.HasMatchingNoun("scepter").HasItem.Should().BeTrue();
+        sceptre.HasMatchingNoun("ornamental sceptre").HasItem.Should().BeTrue();
+        sceptre.HasMatchingNoun("ornamental scepter").HasItem.Should().BeTrue();
+    }
+
+    [TestCase("sceptre")]
+    [TestCase("scepter")]
+    public async Task PutSceptreInCase_FromInventory_GoesIntoCase(string noun)
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+        await target.GetResponse("open case");
+
+        var sceptre = Repository.GetItem<Sceptre>();
+        target.Context.Take(sceptre);
+
+        var response = await target.GetResponse($"put {noun} in case");
+
+        response.Should().Contain("Done");
+        sceptre.CurrentLocation.Should().Be(Repository.GetItem<TrophyCase>());
+    }
+
+    [TestCase("sceptre")]
+    [TestCase("scepter")]
+    public async Task PutSceptreInCase_WhenAlreadyInCase_ResolvesToSceptre(string noun)
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+        await target.GetResponse("open case");
+
+        var sceptre = Repository.GetItem<Sceptre>();
+        var trophyCase = Repository.GetItem<TrophyCase>();
+
+        // Put it in the case first (using the canonical spelling).
+        target.Context.Take(sceptre);
+        await target.GetResponse("put sceptre in case");
+        sceptre.CurrentLocation.Should().Be(trophyCase);
+
+        // Now ask again with the spelling under test. It must resolve to the sceptre
+        // (which is already in the case) rather than silently no-op or mis-resolve to
+        // the case itself.
+        var response = await target.GetResponse($"put {noun} in case");
+
+        response.Should().Contain("sceptre");
+        sceptre.CurrentLocation.Should().Be(trophyCase);
+    }
 }

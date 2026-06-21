@@ -7,6 +7,55 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 This is a sophisticated C# .NET 10.0 recreation of classic Infocom-style text adventure games (like Zork) with modern AI integration. The engine can run multiple games including Zork I and Planetfall.
 
+## Original Zork I Source (`zork1/`) — Reference Only
+
+The original Infocom Zork I source (the `historicalsource/zork1` repository, written in ZIL) is
+cloned locally into `zork1/` at the repo root. It is **gitignored** and is **not** part of this
+project — it is a local reference checkout only.
+
+**Permitted use — verification:** Read the ZIL to establish the *intended* original behavior so you
+can confirm a suspected bug or detect where this C# port has **unintentionally diverged** from the
+original game. The ZIL is ground truth for facts like object synonyms/adjectives (`SYNONYM`,
+`ADJECTIVE`), treasure scoring (`VALUE`/`TVALUE`), flags, sizes, room exits, and what an action
+routine is supposed to do. Quote a specific `file:line` from `zork1/` as evidence in commits/PRs
+when a fix restores original behavior (see PR for issue #23).
+
+**Forbidden use — copying/reproducing:** Never copy, paste, transliterate, or mechanically port ZIL
+code, routines, structures, or large/verbatim text passages into this codebase. Do not "reproduce"
+the original implementation. Use it strictly to *understand and confirm* correct behavior, then write
+original C# that fits this engine's existing patterns. When in doubt, treat the ZIL as read-only
+documentation of intended behavior, not as source to be transcribed.
+
+## Bug Fixes Require TDD (Mandatory)
+
+**Every bug fix MUST follow test-driven development. No exceptions.** A "fix" without a test that
+fails before it and passes after it is not done.
+
+The required order is:
+
+1. **Reproduce first.** Understand the bug and identify the exact wrong behavior, the correct
+   behavior, and a concrete reproducing input. For behavioral questions about Zork I, confirm the
+   intended behavior against the original ZIL (see "Original Zork I Source" above).
+2. **Write a failing test (red).** Add a deterministic test next to related tests, matching the
+   surrounding file's style and framework. Run *just that test* and confirm it fails **for the right
+   reason** — read the assertion diff, not merely a non-zero exit. A test that errors on setup has
+   not proven the bug.
+3. **Make the minimal fix (green).** Change only what is needed to correct the behavior, preserving
+   everything that already worked. Add a brief comment explaining the trap so it is not reintroduced.
+4. **Verify, no regressions.** Re-run the new test (green), then run every suite that exercises the
+   changed code (run each project separately — `dotnet test A B` errors with MSB1008).
+
+Rules:
+- The proving test must run in the component's **normal** test command — never `[Explicit]`,
+  integration-only, or cloud/credential-gated.
+- Tests must be **deterministic**: no real randomness, clock, network, filesystem, AWS, or AI. Use
+  real `Repository` objects with `Repository.Reset()` and mock `IRandomChooser` (see "Randomness
+  Pattern"); stub the equivalent seams in the web clients.
+- Put the test in the most appropriate **existing** test class rather than creating a new one when a
+  natural home exists.
+- This applies to *all* bug fixes anywhere in the repo — C# engine/games, the React/TypeScript web
+  clients, and the Lambda APIs — not just the game engine.
+
 ## Essential Development Commands
 
 ### Building and Testing
