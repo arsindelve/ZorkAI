@@ -274,4 +274,16 @@ public class SentenceSplitterTests
         result[1].Should().Be("turn it on");
         result[2].Should().Be("go north");
     }
+
+    [Test]
+    public void Split_NoAnswerFollowedByCommand_SplitsCorrectly()
+    {
+        // "no" is a standalone answer (e.g. to a yes/no prompt), not an abbreviation,
+        // so it must split rather than merge with the following command.
+        var result = SentenceSplitter.Split("no. take lamp");
+
+        result.Should().HaveCount(2);
+        result[0].Should().Be("no");
+        result[1].Should().Be("take lamp");
+    }
 }
