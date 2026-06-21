@@ -23,6 +23,8 @@ public class Candles
 
     public override string[] NounsForMatching => ["candle", "candles", "pair of candles"];
 
+    public override bool IsSoft => true;
+
     public bool IsOn { get; set; }
 
     public string NowOnText => "The candles are lit. ";

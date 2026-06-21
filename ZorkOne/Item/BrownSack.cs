@@ -6,6 +6,8 @@ public class BrownSack : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenA
 {
     public override string[] NounsForMatching => ["sack", "brown sack", "bag", "elongated brown sack"];
 
+    public override bool IsSoft => true;
+
     public override string Name => "brown sack";
 
     protected override int SpaceForItems => 4;

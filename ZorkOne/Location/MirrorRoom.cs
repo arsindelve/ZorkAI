@@ -84,8 +84,9 @@ internal abstract class MirrorRoom : LocationBase, IThiefMayVisit
         // The item leaves your hands and lands on the floor of this room, broken mirror or not.
         ItemPlacedHere(thrownItem);
 
-        // Soft, lightweight items aren't going to shatter a wall-sized mirror.
-        if (thrownItem is Garlic or BrownSack or Lunch)
+        // Soft, lightweight items aren't going to shatter a wall-sized mirror. Each item decides for
+        // itself whether it's soft (IItem.IsSoft) — the room doesn't keep a list of item types.
+        if (thrownItem.IsSoft)
             return new PositiveInteractionResult(
                 $"The {itemName} bounces off the mirror and falls harmlessly to the floor. ");
 

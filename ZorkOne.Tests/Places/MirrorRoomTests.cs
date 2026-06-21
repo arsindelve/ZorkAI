@@ -68,6 +68,25 @@ public class MirrorRoomTests : EngineTestsBase
     }
 
     [Test]
+    public void SoftItems_AreFlaggedSoft_AndHardItemsAreNot()
+    {
+        // Locks the soft-item audit and the IsSoft default. The mirror reads IItem.IsSoft rather than
+        // keeping its own list of item types, so this is what decides bounce-vs-shatter.
+        GetTarget(); // resets the repository
+
+        Repository.GetItem<Garlic>().IsSoft.Should().BeTrue();
+        Repository.GetItem<Lunch>().IsSoft.Should().BeTrue();
+        Repository.GetItem<BrownSack>().IsSoft.Should().BeTrue();
+        Repository.GetItem<Leaflet>().IsSoft.Should().BeTrue();
+        Repository.GetItem<Map>().IsSoft.Should().BeTrue();
+        Repository.GetItem<Rope>().IsSoft.Should().BeTrue();
+
+        Repository.GetItem<Sword>().IsSoft.Should().BeFalse();
+        Repository.GetItem<Diamond>().IsSoft.Should().BeFalse();
+        Repository.GetItem<Lantern>().IsSoft.Should().BeFalse();
+    }
+
+    [Test]
     public async Task ThrowSoftObjectAtMirror_BouncesOff_AndDropsItOnFloor()
     {
         var target = GetTarget();

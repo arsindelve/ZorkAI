@@ -105,6 +105,12 @@ public abstract class ItemBase : IItem
     public virtual int Size => 1;
 
     /// <summary>
+    ///     True for soft, lightweight, non-rigid items (food, paper, cloth, putty, etc.) that would not
+    ///     shatter glass if thrown at it. Defaults to false; soft items override this to true.
+    /// </summary>
+    public virtual bool IsSoft => false;
+
+    /// <summary>
     /// Checks if the current item matches the specified noun.
     /// </summary>
     /// <param name="noun">The noun to match against the item's nouns.</param>

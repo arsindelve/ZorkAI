@@ -7,6 +7,8 @@ public class Garlic : ItemBase, ICanBeTakenAndDropped, ICanBeEaten
 {
     public override string[] NounsForMatching => ["clove of garlic", "garlic", "clove"];
 
+    public override bool IsSoft => true;
+
     public override int Size => 1;
 
     (string Message, bool WasConsumed) ICanBeEaten.OnEating(IContext context)
