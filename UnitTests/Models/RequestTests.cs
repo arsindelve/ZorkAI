@@ -313,6 +313,19 @@ public class RequestTests
         // Assert
         request.UserMessage.Should().Contain("Do not invent");
         request.UserMessage.Should().Contain("not already explicitly present");
+        // The benign/atmospheric branch ("describe it creatively") must not contradict the guard:
+        // creativity is for tone only, never for introducing concrete objects.
+        request.UserMessage.Should().Contain("tone and flavor only");
+        request.Temperature.Should().BeLessThan(0.8f);
+    }
+
+    [Test]
+    public void CannotGoThatWayRequest_UsesLowDeflectionTemperature()
+    {
+        // This is the same category of "stay in room state" deflection as the no-effect prompts,
+        // so it should not run at the embellishment-prone 0.8 default either.
+        var request = new CannotGoThatWayRequest("Forest", "north");
+
         request.Temperature.Should().BeLessThan(0.8f);
     }
 }
