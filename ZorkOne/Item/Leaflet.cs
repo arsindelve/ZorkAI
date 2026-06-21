@@ -4,7 +4,12 @@ namespace ZorkOne.Item;
 
 public class Leaflet : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRead
 {
-    public override string[] NounsForMatching => ["leaflet"];
+    // The original Zork I source declares the leaflet (ADVERTISEMENT object) with the synonyms
+    // ADVERTISEMENT, LEAFLET, MAIL, BOOKLET, and PAMPHLET, so the player can refer to the
+    // mailbox's contents as "mail", "booklet", etc. The port only had "leaflet", so natural
+    // early-game commands like "read mail" failed to resolve to the item.
+    public override string[] NounsForMatching =>
+        ["leaflet", "mail", "booklet", "pamphlet", "advertisement"];
 
     public override bool IsSoft => true;
 

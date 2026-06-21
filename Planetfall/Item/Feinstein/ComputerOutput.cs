@@ -2,7 +2,9 @@ namespace Planetfall.Item.Feinstein;
 
 internal class ComputerOutput : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRead
 {
-    public override string[] NounsForMatching => ["output", "computer output"];
+    // The pile of computer output is described throughout as "the printout", so "read printout"
+    // should resolve here as it does in the original.
+    public override string[] NounsForMatching => ["output", "computer output", "printout"];
     
     public string ExaminationDescription => ReadDescription;
 
