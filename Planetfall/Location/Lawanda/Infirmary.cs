@@ -120,6 +120,9 @@ internal class InfirmaryBed : ItemBase, ISubLocation
 
     public string GetOut(IContext context)
     {
-        throw new NotImplementedException();
+        // Climbing into this bed triggers an immediate death (the rusty diagnostic robot),
+        // so the player can never actually occupy it and this is unreachable in normal play.
+        // Return a safe message rather than throwing, so any unexpected call path can't crash.
+        return "You're not in the bed. ";
     }
 }
