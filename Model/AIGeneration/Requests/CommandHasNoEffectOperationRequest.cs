@@ -21,6 +21,11 @@ public class CommandHasNoEffectOperationRequest : Request
             Player input: ""break the window""
             AI response: ""You consider breaking the window, but then think better of it. Maybe there's another way to solve this problem.""
 
-            Please follow these guidelines when generating responses. ";
+            Please follow these guidelines when generating responses. Do not invent, name, or describe any object, item,
+            scenery, exit, or character that is not already explicitly present in the location description above; refer only to
+            things actually present, or keep it generic, and do not alter the state of the game or add new information. ";
+
+        // Deflection responses should not embellish; keep creativity low to avoid invented detail.
+        Temperature = 0.4f;
     }
 }
