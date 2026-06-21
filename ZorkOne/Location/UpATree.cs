@@ -110,21 +110,19 @@ public class UpATree : LocationBase, IDropSpecialLocation, ITurnBasedActor
         IGenerationClient client
         )
     {
-        switch (input?.ToLowerInvariant().Trim())
-        {
-            case "jump":
-            case "leap":
-            case "jump down":
-            case "climb down":
-            case "jump out of tree":
-            case "jump out of the tree":
-            case "jump down from the tree":
+        var command = input?.ToLowerInvariant().Trim();
 
-                context.CurrentLocation = Repository.GetLocation<ForestPath>();
-                var message =
-                    "In a feat of unaccustomed daring, you manage to land on your feet without killing yourself.\n\n";
-                message += Repository.GetLocation<ForestPath>().GetDescription(context);
-                return new PositiveInteractionResult(message);
+        // A bare "jump"/"leap" or any of these descent phrases drops you safely to the path below.
+        string[] descentPhrases =
+            ["jump down", "climb down", "jump out of tree", "jump out of the tree", "jump down from the tree"];
+
+        if (command is not null && (Verbs.JumpVerbs.Contains(command) || descentPhrases.Contains(command)))
+        {
+            context.CurrentLocation = Repository.GetLocation<ForestPath>();
+            var message =
+                "In a feat of unaccustomed daring, you manage to land on your feet without killing yourself.\n\n";
+            message += Repository.GetLocation<ForestPath>().GetDescription(context);
+            return new PositiveInteractionResult(message);
         }
 
         return await base.RespondToSpecificLocationInteraction(input, context, client);
