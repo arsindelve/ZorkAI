@@ -53,9 +53,16 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     private IStatefulProcessor? _processorInProgress;
     private ICloudWatchLogger<TurnLog>? _turnLogger;
     public TContext Context { get; private set; }
-    
-    public List<string> Inventory { get; set; }
-    
+
+    /// <summary>
+    ///     The flat list of held item names, used by the web clients to render the player's hands.
+    ///     Derived live from <see cref="Context" />.Items rather than stored, so the projection can
+    ///     never drift from the authoritative game state. A stored copy previously went stale on the
+    ///     GET no-turn rehydrate path (RestoreGame did not refresh it), reporting empty hands on
+    ///     reconnect/refresh even while items were held (issue #230).
+    /// </summary>
+    public List<string> Inventory => Context.Items.Select(s => s.Name).ToList();
+
     /// <summary>
     ///     Explicit interface implementation to satisfy IGameEngine.Context requirement.
     /// </summary>
@@ -95,7 +102,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _itemProcessorFactory = new ItemProcessorFactory(_openAITakeAndDropListParser);
         _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
         _conversationHandler = new ConversationHandler(_logger, parseConversation, GenerationClient);
-        Inventory = [];
     }
 
     /// <summary>
@@ -118,7 +124,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         Repository.Reset();
 
         Context = new TContext { Engine = this };
-        Inventory = [];
         IntroText = string.Empty;
         _parser = parser;
         GenerationClient = generationClient;
@@ -407,9 +412,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         // Restore cross-death state via virtual method (game-agnostic)
         Context.SetDeathCount(deathCount);
-
-        // Update inventory list for web clients
-        Inventory = Context.Items.Select(s => s.Name).ToList();
     }
 
     /// <summary>
@@ -578,7 +580,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         }
 
         var contextAppend = Context.ProcessEndOfTurn();
-        Inventory = Context.Items.Select(s => s.Name).ToList();
         return PostProcessing(FormatResult(contextPrepend, turnResult, actors, contextAppend));
     }
 
