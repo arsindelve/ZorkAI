@@ -376,6 +376,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         Context.Engine = this;
         Context.Game = new TInfocomGame();
 
+        // Keep the flat Inventory projection in sync with the restored Context.Items, mirroring
+        // RestartAfterDeath/GetResponse. Without this, the GET (no-turn) rehydrate path reports
+        // empty hands on reconnect/refresh even though the items are still held (issue #230).
+        Inventory = Context.Items.Select(s => s.Name).ToList();
+
         return Context;
     }
 

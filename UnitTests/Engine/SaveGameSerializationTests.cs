@@ -6,6 +6,31 @@ namespace UnitTests.Engine;
 public class SaveGameSerializationTests : EngineTestsBase
 {
     [Test]
+    public async Task RestoreGame_RepopulatesInventoryProjection_FromContextItems()
+    {
+        // Arrange: progress a game so the player is holding the lantern, then save it.
+        // The flat Inventory projection (used by the web client to render "your hands")
+        // is populated as a side effect of GetResponse(...).
+        var engine = GetTarget();
+        engine.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+        await engine.GetResponse("take lantern");
+        engine.Inventory.Should().Contain("lantern", "the lantern is now held");
+
+        var saved = engine.SaveGame();
+
+        // Act: restore into a fresh engine, exactly like the GET rehydrate path which runs
+        // no engine turn. A fresh engine starts with an empty Inventory projection.
+        var restoredEngine = GetTarget();
+        restoredEngine.Inventory.Should().BeEmpty("a fresh engine starts with no inventory");
+        restoredEngine.RestoreGame(saved);
+
+        // Assert: the projection must match the restored Context.Items even without a turn,
+        // otherwise a returning player sees empty hands on reconnect/refresh (issue #230).
+        restoredEngine.Context.HasItem<Lantern>().Should().BeTrue("the saved state holds the lantern");
+        restoredEngine.Inventory.Should().Contain("lantern");
+    }
+
+    [Test]
     public void SaveGame_Contains_TypeAndReferenceMetadata()
     {
         // Arrange
