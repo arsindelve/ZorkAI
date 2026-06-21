@@ -7,18 +7,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 This is a sophisticated C# .NET 10.0 recreation of classic Infocom-style text adventure games (like Zork) with modern AI integration. The engine can run multiple games including Zork I and Planetfall.
 
-## Original Zork I Source (`zork1/`) — Reference Only
+## Original Infocom Source (ZIL) — Reference Only
 
-The original Infocom Zork I source (the `historicalsource/zork1` repository, written in ZIL) is
-cloned locally into `zork1/` at the repo root. It is **gitignored** and is **not** part of this
-project — it is a local reference checkout only.
+The original Infocom source for the games this engine recreates, written in ZIL, is cloned locally
+at the repo root as a reference checkout. Both are **gitignored** and are **not** part of this
+project:
+
+- **`zork1/`** — `historicalsource/zork1` (the Zork I source).
+- **`planetfall-source/`** — `historicalsource/planetfall` (the Planetfall source). Named
+  `planetfall-source` rather than `planetfall` to avoid a case-insensitive clash with the C#
+  `Planetfall/` project directory on macOS.
 
 **Permitted use — verification:** Read the ZIL to establish the *intended* original behavior so you
-can confirm a suspected bug or detect where this C# port has **unintentionally diverged** from the
+can confirm a suspected bug or detect where a C# port has **unintentionally diverged** from the
 original game. The ZIL is ground truth for facts like object synonyms/adjectives (`SYNONYM`,
 `ADJECTIVE`), treasure scoring (`VALUE`/`TVALUE`), flags, sizes, room exits, and what an action
-routine is supposed to do. Quote a specific `file:line` from `zork1/` as evidence in commits/PRs
-when a fix restores original behavior (see PR for issue #23).
+routine is supposed to do. Quote a specific `file:line` from `zork1/` or `planetfall-source/` as
+evidence in commits/PRs when a fix restores original behavior (see PRs for issues #23 and #190).
 
 **Forbidden use — copying/reproducing:** Never copy, paste, transliterate, or mechanically port ZIL
 code, routines, structures, or large/verbatim text passages into this codebase. Do not "reproduce"
@@ -35,7 +40,7 @@ The required order is:
 
 1. **Reproduce first.** Understand the bug and identify the exact wrong behavior, the correct
    behavior, and a concrete reproducing input. For behavioral questions about Zork I, confirm the
-   intended behavior against the original ZIL (see "Original Zork I Source" above).
+   intended behavior against the original ZIL (see "Original Infocom Source (ZIL)" above).
 2. **Write a failing test (red).** Add a deterministic test next to related tests, matching the
    surrounding file's style and framework. Run *just that test* and confirm it fails **for the right
    reason** — read the assertion diff, not merely a non-zero exit. A test that errors on setup has
