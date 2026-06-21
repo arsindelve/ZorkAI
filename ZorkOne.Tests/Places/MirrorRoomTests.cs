@@ -49,6 +49,20 @@ public class MirrorRoomTests : EngineTestsBase
     }
 
     [Test]
+    public async Task AttackVerb_BreaksMirror()
+    {
+        // "punch" comes from the shared Verbs.KillVerbs set, proving the consolidated verb list is wired.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MirrorRoomNorth>();
+
+        var response = await target.GetResponse("punch mirror");
+        Console.WriteLine(response);
+
+        response.Should().Contain("broken the mirror");
+        Repository.GetItem<Mirror>().IsBroken.Should().BeTrue();
+    }
+
+    [Test]
     public async Task BreakMirror_WhenAlreadyBroken_GivesEnoughDamageMessage()
     {
         var target = GetTarget();

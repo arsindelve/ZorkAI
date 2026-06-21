@@ -28,9 +28,11 @@ internal abstract class MirrorRoom : LocationBase, IThiefMayVisit
 
         var mirror = GetItem<Mirror>();
 
-        // Breaking the mirror (mung/throw/attack in the original) permanently disables the teleport.
-        if (action.MatchVerb(["break", "smash", "shatter", "mung", "attack", "kill", "destroy", "hit", "kick",
-                "throw", "punch", "vandalize"]))
+        // Breaking the mirror (mung/throw/attack in the original ZIL MIRROR-MIRROR) permanently disables
+        // the teleport. Reuse the shared attack/throw synonym sets so the verb coverage stays consistent
+        // with the rest of the engine, plus the break-specific verbs the original recognized.
+        if (action.MatchVerb([..Verbs.KillVerbs, ..Verbs.ThrowVerbs, "break", "smash", "shatter", "mung", "kick",
+                "hit", "vandalize"]))
         {
             if (mirror.IsBroken)
                 return new PositiveInteractionResult("Haven't you done enough damage already? ");
@@ -42,14 +44,14 @@ internal abstract class MirrorRoom : LocationBase, IThiefMayVisit
 
         if (action.MatchVerb(["look", "examine", "peer"]))
             return new PositiveInteractionResult(mirror.IsBroken
-                ? "The mirror is broken into many pieces. "
+                ? Mirror.BrokenDescription
                 : "There is an ugly person staring back at you. ");
 
         if (action.MatchVerb(["rub", "touch", "feel", "press"]))
         {
             // A broken mirror no longer teleports the player between the two mirror rooms.
             if (mirror.IsBroken)
-                return new PositiveInteractionResult("The mirror is broken into many pieces. ");
+                return new PositiveInteractionResult(Mirror.BrokenDescription);
 
             if (this is MirrorRoomNorth)
                 context.CurrentLocation = GetLocation<MirrorRoomSouth>();
