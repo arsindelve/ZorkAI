@@ -1,0 +1,12 @@
+# Runtime output: per-run transcripts, ledgers, checkpoints pointer
+runs/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# Editors
+.idea/
+.vscode/

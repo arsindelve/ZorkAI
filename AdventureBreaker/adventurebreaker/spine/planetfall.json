@@ -1,0 +1,2908 @@
+{
+  "game": "planetfall",
+  "source": [
+    "/home/user/ZorkAI/Planetfall.Tests/Walkthrough/WalkthroughTestOne.cs"
+  ],
+  "count": 358,
+  "replayable_count": 357,
+  "steps": [
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Time passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Time passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Time passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Time passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Time passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Time passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Time passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Time passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Time passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "A massive explosion rocks the ship"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "port",
+      "setup": null,
+      "expect": [
+        "Escape Pod"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "sit",
+      "setup": null,
+      "expect": [
+        "You are now safely cushioned within the web"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "You feel the pod begin to slide down its ejection"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "the escape pod tumbles away from th"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "The auxiliary rockets fire "
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "The main thrusters fire a long"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Time passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Time passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Time passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "The pod is buffeted"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "You feel the temperature"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "The viewport suddenly becomes transparent"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "The pod is now approaching"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "The pod lands with a thud"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 3"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take kit",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open door",
+      "setup": null,
+      "expect": [
+        "The bulkhead opens and cold ocean"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "out",
+      "setup": null,
+      "expect": [
+        "Underwater"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "up",
+      "setup": null,
+      "expect": [
+        "Crag"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 6"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "up",
+      "setup": null,
+      "expect": [
+        "Balcony"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "up",
+      "setup": null,
+      "expect": [
+        "Winding Stair"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "up",
+      "setup": null,
+      "expect": [
+        "Courtyard"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Plain Hall"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "NE",
+      "setup": null,
+      "expect": [
+        "Rec Corridor"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Mess Corridor"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Dorm Corridor"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Corridor Junction"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Mech Corridor North"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Mech Corridor"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Mech Corridor South"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SW",
+      "setup": null,
+      "expect": [
+        "Tool Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take magnet",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Machine Shop"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Robot Shop"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "activate floyd",
+      "setup": null,
+      "expect": [
+        "happens"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Time passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Suddenly, the robot comes to life"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 8"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "NW",
+      "setup": null,
+      "expect": [
+        "Mech Corridor South"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Mech Corridor"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Mech Corridor North"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Corridor Junction"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Admin Corridor South"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put magnet on crevice",
+      "setup": null,
+      "expect": [
+        "clank",
+        "steel key"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Corridor Junction"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Dorm Corridor"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Mess Corridor"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "unlock padlock with key",
+      "setup": null,
+      "expect": [
+        "springs open"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "remove lock",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open door",
+      "setup": null,
+      "expect": [
+        "Opened"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Storage West"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 12"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop all",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take ladder",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Mess"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Dorm"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Junction",
+        "Finally, you see an intersection"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "South"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Admin"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop ladder",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "extend ladder",
+      "setup": null,
+      "expect": [
+        "The ladder extends "
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "place ladder across rift",
+      "setup": null,
+      "expect": [
+        "The ladder swings out "
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Admin",
+        "North",
+        "slowly make your way across the swaying"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 16"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Small Office"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open desk",
+      "setup": null,
+      "expect": [
+        "Opening the small"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take upper card",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 17"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take kitchen card",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 18"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Large Office"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open desk",
+      "setup": null,
+      "expect": [
+        "Opening the large desk reveals a shuttle access card"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take shuttle card",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 19"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Small Office"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Admin",
+        "North"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Admin",
+        "slowly make your way across the swaying"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "South"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Junction"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Dorm",
+        "Finally, you see an intersection"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Mess Corridor"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Mess Hall"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take canteen",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "slide kitchen access card through slot",
+      "setup": null,
+      "expect": [
+        "slides",
+        "Floyd claps"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Kitchen"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 23"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take lower card",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 24"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Mess Hall"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Mess Corridor"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Dorm"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Junction"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Mech Corridor North"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Mech Corridor"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Mech Corridor South"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SW",
+      "setup": null,
+      "expect": [
+        "Tool Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take flask",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Machine Shop"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put flask under spout",
+      "setup": null,
+      "expect": [
+        "sitting under the spout"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "press black button",
+      "setup": null,
+      "expect": [
+        "The fluid gradually turns milky white"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take flask",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Mech Corridor South"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Mech Corridor"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Mech Corridor North"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Corridor Junction"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Elevator Lobby"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "press blue button",
+      "setup": null,
+      "expect": [
+        "whirring noise from behind the blue door"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "press red button",
+      "setup": null,
+      "expect": [
+        "The red door begins vibrating a bit"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "north end of the room slides open"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Upper Elevator"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "slide upper access card through slot",
+      "setup": null,
+      "expect": [
+        "A recorded voice chimes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "press up button",
+      "setup": null,
+      "expect": [
+        "vertical movement"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "slides open"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Tower Core"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 28"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "NE",
+      "setup": null,
+      "expect": [
+        "A black colored light"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "pour fluid into hole",
+      "setup": null,
+      "expect": [
+        "a gray light"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SW",
+      "setup": null,
+      "expect": [
+        "Tower Core"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Upper Elevator"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "slide upper access card through slot",
+      "setup": null,
+      "expect": [
+        "A recorded voice chimes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "press down button",
+      "setup": null,
+      "expect": [
+        "vertical movement"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "slides open"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Elevator Lobby"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Corridor Junction"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Mech Corridor North"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Mech Corridor"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Mech Corridor South"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Machine Shop"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put flask under spout",
+      "setup": null,
+      "expect": [
+        "sitting under the spout"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "press gray button",
+      "setup": null,
+      "expect": [
+        "The fluid gradually turns milky white"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take flask",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Mech Corridor South"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Mech Corridor"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Mech Corridor North"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Corridor Junction"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Elevator Lobby"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Upper Elevator"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "slide upper access card through slot",
+      "setup": null,
+      "expect": [
+        "A recorded voice chimes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "press up button",
+      "setup": null,
+      "expect": [
+        "vertical movement"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "slides open"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Tower Core"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "NE",
+      "setup": null,
+      "expect": [
+        "A gray colored light"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "pour fluid into hole",
+      "setup": null,
+      "expect": [
+        "message is now being sent"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 34"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SW",
+      "setup": null,
+      "expect": [
+        "Tower Core"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Upper Elevator"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "slide upper access card through slot",
+      "setup": null,
+      "expect": [
+        "A recorded voice chimes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "press down button",
+      "setup": null,
+      "expect": [
+        "vertical movement"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "slides open"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Elevator Lobby"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Lower Elevator"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "slide lower access card through slot",
+      "setup": null,
+      "expect": [
+        "A recorded voice chimes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "press down button",
+      "setup": null,
+      "expect": [
+        "vertical movement"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "slides open"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Waiting Area"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Kalamontee Platform"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 38"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Alfie"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Control",
+        "parallel rails",
+        "vanishing in the distance"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "slide shuttle access card through slot",
+      "setup": "ResetTime",
+      "expect": [
+        "activated"
+      ],
+      "http_replayable": false
+    },
+    {
+      "cmd": "push lever",
+      "setup": null,
+      "expect": [
+        "now in the upper position"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "pull lever",
+      "setup": null,
+      "expect": [
+        "now in the central position",
+        "still reads 5"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "You pass a sign which says"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "The tunnel levels out"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "15"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "10"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "5"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "brightly lit area"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "pull lever",
+      "setup": null,
+      "expect": [
+        "comes to rest"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Alfie"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Lawanda"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 42"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Escalator"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Fork"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "NE",
+      "setup": null,
+      "expect": [
+        "Systems Corridor West"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Repair Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "floyd, go north",
+      "setup": null,
+      "expect": [
+        "Just a shiny fromitz board"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "floyd, take board",
+      "setup": null,
+      "expect": [
+        "If you say so"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Systems Corridor West"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Systems Corridor"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Planetary Defense"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open panel",
+      "setup": null,
+      "expect": [
+        "swings open"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take second",
+      "setup": null,
+      "expect": [
+        "producing an empty socket"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put shiny in panel",
+      "setup": null,
+      "expect": [
+        "The warning lights stop flashing"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 48"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop fried",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Systems Corridor"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Systems Corridor East"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Course Control"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open cube",
+      "setup": null,
+      "expect": [
+        "The lid swings open",
+        "fused"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take bedistor",
+      "setup": null,
+      "expect": [
+        "fused to its socket"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Systems Corridor East"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Library Lobby"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Project Corridor East"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Main Lab"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Lab Storage"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open pocket",
+      "setup": null,
+      "expect": [
+        "You discover a teleportation access card"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take teleportation",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Main Lab"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Project Corridor East"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Library Lobby"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Booth"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "slide teleportation card through slot",
+      "setup": null,
+      "expect": [
+        "Then a light flashes \"Redee.\""
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "press 2",
+      "setup": null,
+      "expect": [
+        "stomach"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Lobby"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop upper",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop lower",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop shuttle",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Junction"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "North"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "East"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take bedistor",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "North"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Mech"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "South"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SW",
+      "setup": null,
+      "expect": [
+        "Tool"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take pliers",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "NE",
+      "setup": null,
+      "expect": [
+        "South"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Mech"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "North"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Junction"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Lobby"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Booth"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "slide teleportation card through slot",
+      "setup": null,
+      "expect": [
+        "Then a light flashes \"Redee.\""
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "press 3",
+      "setup": null,
+      "expect": [
+        "stomach"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Library Lobby"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "East"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Course"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take fused with pliers",
+      "setup": null,
+      "expect": [
+        "With a tug"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put good in cube",
+      "setup": null,
+      "expect": [
+        "light goes on"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 54"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Systems Corridor East"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Library Lobby"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Booth"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "slide teleportation card through slot",
+      "setup": null,
+      "expect": [
+        "Then a light flashes \"Redee.\""
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "press 2",
+      "setup": null,
+      "expect": [
+        "stomach"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Lobby"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Junction"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Admin"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Admin"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "This is a large room filled with tables full of strange equipment. The far wall is filled with a number of monitors. Of these, the ones labelled LIIBREREE, REEAKTURZ, LIIF SUPORT, KUMUUNIKAASHUNZ, PLANATEREE DEFENS and PLANATEREE KORS KUNTROOL are green, but the one labelled PRAJEKT KUNTROOL indicates a malfunctioning condition"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Admin"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Admin"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Junction"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "North"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Mech"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "South"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SW",
+      "setup": null,
+      "expect": [
+        "Tool Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take laser",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "remove battery",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop battery",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "NE",
+      "setup": null,
+      "expect": [
+        "South"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Mech"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "North"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Junction"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Lobby"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Booth 2"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "slide teleportation card through slot",
+      "setup": null,
+      "expect": [
+        "Then a light flashes \"Redee.\""
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "press 3",
+      "setup": null,
+      "expect": [
+        "stomach"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Lobby"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "East"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Computer Room",
+        "Computer is broken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "read output",
+      "setup": null,
+      "expect": [
+        "The printout is hundreds of pages long"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "East"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Main Lab"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open biolock door",
+      "setup": null,
+      "expect": [
+        "The door opens"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SE",
+      "setup": null,
+      "expect": [
+        "West"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "East"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "look through window",
+      "setup": null,
+      "expect": [
+        "magnetic-striped card",
+        "Looks dangerous in there"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open door",
+      "setup": null,
+      "expect": [
+        "plunges into the Bio Lab"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "close door",
+      "setup": null,
+      "expect": [
+        "ferocious growlings, the sounds of a skirmish"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "three fast knocks, followed by the distinctive sound of tearing metal"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open door",
+      "setup": null,
+      "expect": [
+        "The mutations rush toward the open doorway"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "close door",
+      "setup": null,
+      "expect": [
+        "Floyd smiles with contentment"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 56"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take miniaturization card",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 57"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "West"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open door",
+      "setup": null,
+      "expect": [
+        "The door opens"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Main Lab"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Lab Storage"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take fresh battery",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put battery in laser",
+      "setup": null,
+      "expect": [
+        "The battery is now resting in the depression, attached to the laser."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Main Lab"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Project Corridor East"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Computer Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Miniaturization Booth"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "slide mini card through slot",
+      "setup": null,
+      "expect": [
+        "A melodic high-pitched voice says \"Miniaturization and teleportation booth activated. Please type in damaged sector number.\""
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "type 384",
+      "setup": null,
+      "expect": [
+        "followed by a momentary queasiness",
+        "Station 384"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Strip Near Station"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 61"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Middle of Strip"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Strip Near Relay"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "set laser to 1",
+      "setup": null,
+      "expect": [
+        "The dial is now set to 1."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "shoot speck with laser",
+      "setup": null,
+      "expect": [
+        "The speck is hit by the beam! It sizzles a little, but isn't destroyed yet."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 63"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "shoot speck with laser",
+      "setup": null,
+      "expect": [
+        "The beam hits the speck again! This time, it vaporizes into a fine cloud of ash. The relay slowly begins to close, and a voice whispers in your ear \"Sector 384 will activate in 200 millichrons. Proceed to exit station"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 71"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Middle of Strip"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Strip Near Station"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "switching to Auxiliary Booth",
+        "wrenching of your innards",
+        "only as a receiving station"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 75"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Lab Office"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "examine desk",
+      "setup": null,
+      "expect": [
+        "a memo of some sort"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "read memo",
+      "setup": null,
+      "expect": [
+        "Propur preecawshunz shud bee taakin"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open desk",
+      "setup": null,
+      "expect": [
+        "Opening the desk reveals a gas mask"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take mask",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wear gas mask",
+      "setup": null,
+      "expect": [
+        "You are wearing the gas mask"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "press red button",
+      "setup": null,
+      "expect": [
+        "hissing from beyond the door"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open door",
+      "setup": null,
+      "expect": [
+        "The office door is now open.",
+        "filled with a light mist"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "w",
+      "setup": null,
+      "expect": [
+        "stunned and confused, but are slowly recovering"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open lab door",
+      "setup": null,
+      "expect": [
+        "The door opens",
+        "They appear to be stunned and confused, but are slowly recovering"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "w",
+      "setup": null,
+      "expect": [
+        "former companion",
+        "right on your heels"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "w",
+      "setup": null,
+      "expect": [
+        "Bio Lock West",
+        "right on your heels"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open door",
+      "setup": null,
+      "expect": [
+        "The door opens",
+        "almost upon you now"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "w",
+      "setup": null,
+      "expect": [
+        "Lab",
+        "right on your heels"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "w",
+      "setup": null,
+      "expect": [
+        "East",
+        "right on your heels"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "w",
+      "setup": null,
+      "expect": [
+        "Project",
+        "right on your heels"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "s",
+      "setup": null,
+      "expect": [
+        "Office",
+        "revealing an open doorway",
+        "right on your heels"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "s",
+      "setup": null,
+      "expect": [
+        "Cryo-Elevator",
+        "The monsters are storming straight toward the elevator door!"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "press button",
+      "setup": null,
+      "expect": [
+        "The elevator door closes just as the monsters reach it!"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "would be 80"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "z",
+      "setup": null,
+      "expect": [
+        "Time passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "z",
+      "setup": null,
+      "expect": [
+        "Time passes",
+        "The elevator door opens onto a room to the north."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "A door slides open and a medical robot glides in. It opens the cryo-unit and administers an injection to its inhabitant. As the robot glides away, a figure rises from the cryo-unit -- a handsome, middle-aged woman with flowing red hair. She spends some time studying readouts from the control panel, pressing several keys",
+        "As other cryo-units in the chambers beyond begin opening, the woman turns to you, bows gracefully, and speaks in a beautiful, lilting voice. \"I am Veldina, leader of Resida. Thanks to you, the cure has been discovered, and the planetary systems repaired. We are eternally grateful.\"",
+        "\"You will also be glad to hear that a ship of your Stellar Patrol now orbits the planet. I have sent them the coordinates for this room.\" As if on cue, a landing party from the S.P.S. Flathead materializes nearby. Blather is with them, having been picked up from deep space in another escape pod, babbling cravenly. Captain Sterling of the Flathead acknowledges your heroic actions, and informs you of your promotion to Lieutenant First Class",
+        "As a team of mutant hunters head for the cryo-elevator, Veldina mentions that the grateful people of Resida offer you leadership of their world. Captain Sterling points out that, even if you choose to remain on Resida, Blather (demoted to Ensign Twelfth Class) has been assigned as your personal toilet attendant",
+        "You feel a sting from your arm and turn to see a medical robot moving away after administering the antidote for The Disease.",
+        "A team of robot technicians step into the anteroom. They part their ranks, and a familiar figure comes bounding toward you! \"Hi!\" shouts Floyd, with uncontrolled enthusiasm. \"Floyd feeling better now!\" Smiling from ear to ear, he says, \"Look what Floyd found!\" He hands you a helicopter key, a reactor elevator card, and a paddleball set. \"Maybe we can use them in the sequel...\""
+      ],
+      "http_replayable": true
+    }
+  ]
+}

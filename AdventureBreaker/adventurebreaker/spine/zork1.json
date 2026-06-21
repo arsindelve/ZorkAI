@@ -1,0 +1,3292 @@
+{
+  "game": "zork",
+  "source": [
+    "/home/user/ZorkAI/ZorkOne.Tests/Walkthrough/WalkthroughTestOne.cs"
+  ],
+  "count": 387,
+  "replayable_count": 385,
+  "steps": [
+    {
+      "cmd": "open mailbox",
+      "setup": null,
+      "expect": [
+        "Opening the small mailbox reveals a leaflet."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "read leaflet",
+      "setup": null,
+      "expect": [
+        "ZORK is a game of adventure, danger, and low cunning. In it you will explore"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop leaflet",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "South of House"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Behind House"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open window",
+      "setup": null,
+      "expect": [
+        "With great effort, you open the window far enough to allow entry."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "In",
+      "setup": null,
+      "expect": [
+        "Kitchen",
+        "A quantity of water",
+        "smelling of hot peppers."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Living Room",
+        "A battery-powered brass lantern",
+        "and a large oriental rug in the center of"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "10"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take lamp",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "move rug",
+      "setup": null,
+      "expect": [
+        "With a great effort,"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open trap door",
+      "setup": null,
+      "expect": [
+        "The door reluctantly opens to reveal a rickety staircase "
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "turn on lantern",
+      "setup": null,
+      "expect": [
+        "The brass lantern is now on."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "The trap door crashes shut",
+        "You are in a dark and damp cellar "
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "35"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "You are on the east edge of a chasm"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Most of the paintings have been stolen by",
+        "Fortunately, there is"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take painting",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "This appears to have been an artist's studio.",
+        "Loosely attached to a wall is a small"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "39"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Kitchen"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Attic",
+        "a nasty-looking knife",
+        "A large coil of rope is lying in the corner"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take knife",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take rope",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Kitchen"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Above the trophy case hangs an elvish sword of great antiquity.",
+        "Living Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open case",
+      "setup": null,
+      "expect": [
+        "Opened"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put painting in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "45"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop knife",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take sword",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open trap door",
+      "setup": null,
+      "expect": [
+        "The door reluctantly opens"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "faint blue glow"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Bloodstains"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "kill the troll with the sword",
+      "setup": null,
+      "expect": [
+        "black fog envelops him"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop sword",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "This is a narrow east-west passageway"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "This is a circular stone room with passages in all direction",
+        "Round Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "50"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SE",
+      "setup": null,
+      "expect": [
+        "There are old engravings on the walls here",
+        "Engravings Cave"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "periphery of a large dome, which forms the ceiling of another room below",
+        "Dome Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "tie rope to railing",
+      "setup": null,
+      "expect": [
+        "The rope drops over the side and comes within ten feet of the floor."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Torch Room",
+        "Sitting on the pedestal is a flaming torch, made of ivory."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Temple"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Egyptian Room",
+        "The solid-gold coffin used for the burial of Ramses II is here."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take coffin",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "60"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Temple"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Altar"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "pray",
+      "setup": null,
+      "expect": [
+        "Forest",
+        "sunlight"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "turn off lantern",
+      "setup": null,
+      "expect": [
+        "The brass lantern is now off"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "This is a dimly lit forest"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Clearing"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Canyon View",
+        "stretching for miles around"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Rocky Ledge",
+        "which appears climbable"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Canyon Bottom",
+        "Aragain Falls"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "End of Rainbow",
+        "The beach is narrow due to the presence of the White Cliffs."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop coffin",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open coffin",
+      "setup": null,
+      "expect": [
+        "The gold coffin opens",
+        "sceptre is ornamented with "
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take sceptre",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "64"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wave sceptre",
+      "setup": null,
+      "expect": [
+        "Suddenly, the rainbow appears to become solid",
+        "A shimmering pot of gold"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take gold",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "74"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take coffin",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "74"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SW",
+      "setup": null,
+      "expect": [
+        "Canyon Bottom"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Rocky Ledge"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Canyon View"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "NW",
+      "setup": null,
+      "expect": [
+        "Clearing"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Behind House"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "In",
+      "setup": null,
+      "expect": [
+        "Kitchen",
+        "A bottle is sitting on the table",
+        "elongated"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open sack",
+      "setup": null,
+      "expect": [
+        "Opening the brown sack reveals a lunch, and a clove of garlic"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take garlic",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Living Room",
+        "Your collection of treasures consists of",
+        "A painting"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put coffin in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "89"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put sceptre in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "95"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put gold in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "105"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "turn on lantern",
+      "setup": null,
+      "expect": [
+        "The brass lantern is now on."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Cellar"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Bloodstains",
+        "Troll Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "This is a narrow east-west passageway"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Chasm",
+        "A chasm runs southwest to northeast and the path follows it"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "NE",
+      "setup": null,
+      "expect": [
+        "Reservoir South",
+        "far too deep and wide for crossing"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Dam",
+        "You are standing on the top of the Flood Control Dam #3"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Lobby",
+        "Some guidebooks",
+        "Visit Beautiful"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take matches",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Maintenance",
+        "ransacked",
+        "blue",
+        "yellow"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take wrench",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take screwdriver",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "press the yellow button",
+      "setup": null,
+      "expect": [
+        "Click"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Dam Lobby"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Dam",
+        "glowing serenely"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "turn bolt with wrench",
+      "setup": null,
+      "expect": [
+        "The sluice gates open and water pours through the dam."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop wrench",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Deep Canyon"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "It is unbearably loud here, with an ear-splitting"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SE",
+      "setup": "GoToRoundRoom",
+      "expect": [
+        "There are old engravings on the walls here"
+      ],
+      "http_replayable": false
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Dome Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Torch Room",
+        "flaming torch, made of ivory."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take torch",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "turn off lantern",
+      "setup": null,
+      "expect": [
+        "The brass lantern is now off."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Temple",
+        "There is a brass bell here."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take bell",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Altar",
+        "altar are burning candles.",
+        "large black book"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take book",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take candles",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Cave",
+        "dark, forbidding staircase leading down"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Entrance to Hades",
+        "who jeer at your attempts to pass."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "ring bell",
+      "setup": null,
+      "expect": [
+        "red hot",
+        "as if paralyzed",
+        "candles drop to the ground"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take candles",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "light a match",
+      "setup": null,
+      "expect": [
+        "One of the matches starts to burn"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "light candles with match",
+      "setup": null,
+      "expect": [
+        "candles are lit",
+        "The flames flicker"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "read book",
+      "setup": null,
+      "expect": [
+        "Each word of the prayer reverberates through",
+        "The match has gone"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop book",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "You have entered the Land of the Living Dead",
+        "It appears to be grinning at you"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take skull",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "129"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "bell",
+        "There is a black book here."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Cave"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Mirror Room",
+        "You are in a large square room with tall ceilings."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "rub mirror",
+      "setup": null,
+      "expect": [
+        "There is a rumble from deep within the earth and the room shakes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Cold Passage",
+        "This is a cold and damp corridor"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Slide Room",
+        "On the south wall of the chamber the letters \"Granite Wall\""
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Mine Entrance",
+        "You are standing at the entrance of what might have been a coal mine."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Squeaky Room",
+        "You may also escape to the east."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "inventory",
+      "setup": null,
+      "expect": [
+        "garlic",
+        "skull",
+        "candles",
+        "lantern",
+        "torch (providing",
+        "match",
+        "screw"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Bat Room",
+        "holding his nose",
+        "exquisite jade figurine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Shaft Room",
+        "the chain is a basket"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put torch in basket",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put screwdriver in basket",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "turn on lantern",
+      "setup": null,
+      "expect": [
+        "The brass lantern is now on"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Smelly Room",
+        "To the south is a narrow tunnel"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Gas Room",
+        "sapphire-encrusted",
+        "short climb up some stairs"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Coal Mine",
+        "This is a nondescript part of a coal mine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "NE",
+      "setup": null,
+      "expect": [
+        "Coal Mine",
+        "This is a nondescript part of a coal mine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SE",
+      "setup": null,
+      "expect": [
+        "Coal Mine",
+        "This is a nondescript part of a coal mine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SW",
+      "setup": null,
+      "expect": [
+        "Coal Mine",
+        "This is a nondescript part of a coal mine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Ladder Top",
+        "This is a very small room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Ladder Bottom",
+        "This is a rather wide room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "dead end in the mine.",
+        "There is a small pile of coal here"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take coal",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Ladder Bottom"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Ladder Top"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Coal Mine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Coal Mine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Coal Mine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Coal Mine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Gas Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Smelly Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Shaft Room",
+        "A screwdriver",
+        "A torch (p"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put coal in basket",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "lower basket",
+      "setup": null,
+      "expect": [
+        "The basket is lowered to the bottom of the shaft."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Smelly Room",
+        "To the south is a narrow tunnel"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Gas Room",
+        "sapphire-encrusted",
+        "short climb up some stairs"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Coal Mine",
+        "This is a nondescript part of a coal mine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "NE",
+      "setup": null,
+      "expect": [
+        "Coal Mine",
+        "This is a nondescript part of a coal mine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SE",
+      "setup": null,
+      "expect": [
+        "Coal Mine",
+        "This is a nondescript part of a coal mine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SW",
+      "setup": null,
+      "expect": [
+        "Coal Mine",
+        "This is a nondescript part of a coal mine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Ladder Top",
+        "This is a very small room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Ladder Bottom",
+        "This is a rather wide room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Timber Room",
+        "This is a long and narrow passage",
+        "a broken timber here"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop all",
+      "setup": null,
+      "expect": [
+        "skull: Dropped",
+        "garlic: Dropped",
+        "lantern: Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Drafty Room",
+        "contains",
+        "torch (pr",
+        "coal"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "142"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take coal",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take screwdriver",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take torch",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Machine Room",
+        "large lid, which is closed."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open lid",
+      "setup": null,
+      "expect": [
+        "The lid opens"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put coal in machine",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "close lid",
+      "setup": null,
+      "expect": [
+        "The lid closes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "turn switch with screwdriver",
+      "setup": null,
+      "expect": [
+        "display of colored lights and bizarre noises"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop screwdriver",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open lid",
+      "setup": null,
+      "expect": [
+        "The lid opens revealing a huge diamond"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take diamond",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "152"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Drafty Room",
+        "At the end of the chain is a basket"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put torch in basket",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put diamond in basket",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Timber Room",
+        "brass",
+        "clove",
+        "match",
+        "candle",
+        "skull",
+        "broken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take skull",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take lamp",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take garlic",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Ladder Bottom"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Ladder Top"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Coal Mine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Coal Mine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Coal Mine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Coal Mine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Gas Room",
+        "bracelet"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take bracelet",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "157"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Smelly Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Shaft Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "raise basket",
+      "setup": null,
+      "expect": [
+        "The basket is raised to the top of the shaft"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "examine basket",
+      "setup": null,
+      "expect": [
+        "huge diamond",
+        "torch"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take torch",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take diamond",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "turn off lantern",
+      "setup": null,
+      "expect": [
+        "now off"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Bat Room",
+        "jade",
+        "deranged"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take jade",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "162"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Squeaky Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Mine Entrance"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Slide Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Cellar"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Living",
+        "sceptre",
+        "pot",
+        "coffin",
+        "painting"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "inventory",
+      "setup": null,
+      "expect": [
+        "jade",
+        "torch",
+        "diamond",
+        "garlic",
+        "lantern"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put jade in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "167"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put diamond in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "177"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "turn on lantern",
+      "setup": null,
+      "expect": [
+        "now on"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Cellar"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Troll Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "East-West"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Chasm"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "NE",
+      "setup": null,
+      "expect": [
+        "Reservoir South",
+        "formerly a lake"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Reservoir",
+        "used to be a",
+        "mud pile",
+        "bulging with jewels"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take trunk",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "192"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Reservoir North",
+        "cavernous",
+        "There is a hand-held air pump here"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take pump",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Atlantis Room",
+        "long under water",
+        "On the shore lies Poseidon's own crystal trident"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take trident",
+      "setup": null,
+      "expect": [
+        "Your load is too heavy"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "inventory",
+      "setup": null,
+      "expect": [
+        "pump",
+        "trunk",
+        "torch",
+        "garlic",
+        "lantern"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop torch",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take trident",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "196"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Reservoir N"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Reservoir"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Reservoir S"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Dam",
+        "wrench here"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Dam Base",
+        "river as it winds its way downstream",
+        "There is a folded pile of plastic"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "inflate plastic with pump",
+      "setup": null,
+      "expect": [
+        "The boat inflates and appears seaworthy"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop pump",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "get in the boat",
+      "setup": null,
+      "expect": [
+        "You are now in the magic boat"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "launch",
+      "setup": null,
+      "expect": [
+        "Frigid River, in the magic boat",
+        "tan label",
+        "vicinity of the Dam"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Frigid River, in the magic boat",
+        "carries you",
+        "The river turns a corner",
+        "Time passes"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Frigid River, in the magic boat",
+        "descends here into a valley",
+        "Time passes",
+        "carries you"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wait",
+      "setup": null,
+      "expect": [
+        "Frigid River, in the magic boat",
+        "running faster here",
+        "Time passes",
+        "carries you",
+        "sandy beach",
+        "red buoy"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take buoy",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Sandy Beach, in the magic boat",
+        "large sandy beach on the east shore",
+        "shovel here"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "leave boat",
+      "setup": null,
+      "expect": [
+        "You are on your own feet again"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take shovel",
+      "setup": null,
+      "expect": [
+        "Your load is too heavy"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop garlic",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take shovel",
+      "setup": null,
+      "expect": [
+        "Your load is too heavy"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop buoy",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take shovel",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "NE",
+      "setup": null,
+      "expect": [
+        "Sandy Cave",
+        "This is a sand-filled cave"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "dig in sand with shovel",
+      "setup": null,
+      "expect": [
+        "You seem to be digging a hole here"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "dig in sand with shovel",
+      "setup": null,
+      "expect": [
+        "The hole is getting deeper, but that's about it"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "dig in sand with shovel",
+      "setup": null,
+      "expect": [
+        "You are surrounded by a wall of sand on all sides"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "dig in sand with shovel",
+      "setup": null,
+      "expect": [
+        "You can see a scarab here in the sand"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take scarab",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "201"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop shovel",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SW",
+      "setup": null,
+      "expect": [
+        "Sandy Beach",
+        "red buoy",
+        "clove",
+        "magic boat"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open buoy",
+      "setup": null,
+      "expect": [
+        "Opening the red buoy reveals a large emerald"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take emerald",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "206"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Shore",
+        "You are on the east shore of the river. The water here seems somewhat"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Aragain",
+        "A solid rainbow spans the falls"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "cross the rainbow",
+      "setup": null,
+      "expect": [
+        "End of Rainbow"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "turn off lantern",
+      "setup": null,
+      "expect": [
+        "The brass lantern is now off"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SW",
+      "setup": null,
+      "expect": [
+        "Canyon Bottom"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Rocky Ledge"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Canyon View"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "NW",
+      "setup": null,
+      "expect": [
+        "Clearing"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Behind House"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Kitchen",
+        "water"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Living Room",
+        "gold coffin",
+        "figurine"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "inventory",
+      "setup": null,
+      "expect": [
+        "emerald",
+        "scarab",
+        "trident"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put emerald in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "216"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put scarab in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "221"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put trident in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "232"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put jewels in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "237"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Kitchen",
+        "water"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Behind House"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "North of House"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Forest Path"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Up A Tree"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take egg",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "242"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Forest Path"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "North of House"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Behind House"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Kitchen",
+        "water"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Living Room",
+        "scarab",
+        "emerald"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "turn on lantern",
+      "setup": null,
+      "expect": [
+        "The brass lantern is now on"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Cellar"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Troll Room",
+        "sword",
+        "bloody axe"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Maze",
+        "twisty little passages, all alike"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Maze",
+        "twisty little passages, all alike"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Maze",
+        "twisty little passages, all alike"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Maze",
+        "skeleton",
+        "lantern",
+        "key",
+        "coins"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take coins",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "252"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take key",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SW",
+      "setup": null,
+      "expect": [
+        "Maze",
+        "twisty little passages, all alike"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Maze",
+        "twisty little passages, all alike"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Maze",
+        "twisty little passages, all alike"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SE",
+      "setup": null,
+      "expect": [
+        "Cyclops Room",
+        "A cyclops, who looks prepared to eat horses"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Ulysses",
+      "setup": null,
+      "expect": [
+        "name of his father's deadly nemesis, flees the room by knocking "
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Treasure Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "277"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "give the egg to the thief",
+      "setup": null,
+      "expect": [
+        "taken aback by your unexpected generosity"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Cyclops Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Strange Passage",
+        "On the east there is an old wooden door, with a"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Living Room",
+        "coffin",
+        "emerald",
+        "diamond"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put coins in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "282"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take knife",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Strange Passage",
+        "On the east there is an old wooden door, with a"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Cyclops Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": "PutTheTorchHere",
+      "expect": [
+        "Treasure Room"
+      ],
+      "http_replayable": false
+    },
+    {
+      "cmd": "kill thief with knife",
+      "setup": null,
+      "expect": [
+        "black fog envelops him"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take torch",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take chalice",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take egg",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take canary",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "298"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Cyclops Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "NW",
+      "setup": null,
+      "expect": [
+        "Maze",
+        "twisty little passages, all alike"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Maze",
+        "twisty little passages, all alike"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Maze",
+        "twisty little passages, all alike"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Maze",
+        "twisty little passages, all alike"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Maze",
+        "You won't be able to get back up to the tunnel"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "NE",
+      "setup": null,
+      "expect": [
+        "Grating Room",
+        "Above you is a grating locked with a skull-and-crossbones lock."
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "unlock grate",
+      "setup": null,
+      "expect": [
+        "(with the skeleton key)",
+        "The grate is unlocked"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "open grate",
+      "setup": null,
+      "expect": [
+        "The grating opens to reveal trees above you.",
+        "A pile of leaves falls onto"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Clearing",
+        "There is an open grating, descending into darkness"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Forest Path"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Up A Tree"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "wind canary",
+      "setup": null,
+      "expect": [
+        "The canary chirps, slightly off-key, an aria from a forgotten opera"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "There is a beautiful brass bauble here"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take bauble",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "299"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "drop knife",
+      "setup": null,
+      "expect": [
+        "Dropped"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "North of House"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Behind House"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Kitchen"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Living Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put bauble in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "300"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put chalice in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "305"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put canary in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "309"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put egg in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "314"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put bracelet in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "319"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put skull in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "329"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Down",
+      "setup": null,
+      "expect": [
+        "Cellar"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "N",
+      "setup": null,
+      "expect": [
+        "Troll Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "East-West"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Round Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Loud Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "echo",
+      "setup": null,
+      "expect": [
+        "The acoustics of the room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take bar",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "339"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Round Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "East-West"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Troll Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "Cellar"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "Up",
+      "setup": null,
+      "expect": [
+        "Living Room"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put bar in case",
+      "setup": null,
+      "expect": [
+        "Done"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "344"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "put torch in case",
+      "setup": null,
+      "expect": [
+        "Done",
+        "inaudible voice"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "score",
+      "setup": null,
+      "expect": [
+        "350"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "take map",
+      "setup": null,
+      "expect": [
+        "Taken"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Kitchen"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "E",
+      "setup": null,
+      "expect": [
+        "Behind House"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "S",
+      "setup": null,
+      "expect": [
+        "South of House"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "West Of House"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "SW",
+      "setup": null,
+      "expect": [
+        "Stone Barrow"
+      ],
+      "http_replayable": true
+    },
+    {
+      "cmd": "W",
+      "setup": null,
+      "expect": [
+        "Inside the Barrow",
+        "test your skill and bravery",
+        "350",
+        "ZORK III"
+      ],
+      "http_replayable": true
+    }
+  ]
+}

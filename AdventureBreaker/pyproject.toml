@@ -1,0 +1,15 @@
+[project]
+name = "adventurebreaker"
+version = "0.1.0"
+description = "Adversarial playtester for the ZorkAI engine (Zork I & Planetfall): plays the real backend, follows the walkthrough spine to reach deep states, and probes each state to break the engine, parser, and AI narrator."
+requires-python = ">=3.11"
+# Core harness is intentionally dependency-free (stdlib only) so it runs against
+# production with zero install. Optional extras enable nicer UX / future batch mode.
+dependencies = []
+
+[project.optional-dependencies]
+rich = ["rich>=14.0.0"]        # optional live TUI (adapted from PlayZork display_manager)
+anthropic = ["anthropic>=0.97.0"]  # optional embedded critic for non-interactive runs
+
+[project.scripts]
+adventurebreaker = "adventurebreaker.harness:main"
