@@ -77,7 +77,7 @@ public class ReactorElevatorTests : EngineTestsBase
         var target = GetTarget();
         StartHere<ReactorElevator>();
 
-        var response = await target.GetResponse("push up button");
+        var response = await target.GetResponse("press up button");
 
         response.Should().Contain("Nothing happens");
         target.Context.CurrentLocation.Should().BeOfType<ReactorElevator>();
@@ -89,7 +89,7 @@ public class ReactorElevatorTests : EngineTestsBase
         var target = GetTarget();
         StartHere<ReactorElevator>();
 
-        var response = await target.GetResponse("push down button");
+        var response = await target.GetResponse("press down button");
 
         response.Should().Contain("Nothing happens");
         target.Context.CurrentLocation.Should().BeOfType<ReactorElevator>();

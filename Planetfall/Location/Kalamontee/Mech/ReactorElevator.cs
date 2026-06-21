@@ -50,24 +50,6 @@ internal class ReactorElevator : LocationWithNoStartingItems
         StartWithItem<ReactorElevatorDoor>();
     }
 
-    public override Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
-        IGenerationClient client)
-    {
-        if (string.IsNullOrEmpty(input))
-            return base.RespondToSpecificLocationInteraction(input, context, client);
-
-        // "up" and "down" are normally interpreted as movement directions, so the buttons need to be
-        // recognized from the raw input before the parser runs (same approach as the working elevators).
-        var normalized = input.ToLowerInvariant().Trim();
-        if (normalized is "press up button" or "push up button" or "press up" or "push up"
-            or "press down button" or "push down button" or "press down" or "push down")
-            return RespondToSimpleInteraction(
-                new SimpleIntent { Verb = "push", Noun = normalized.Replace("press ", "").Replace("push ", "") },
-                context, client, null!);
-
-        return base.RespondToSpecificLocationInteraction(input, context, client);
-    }
-
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {

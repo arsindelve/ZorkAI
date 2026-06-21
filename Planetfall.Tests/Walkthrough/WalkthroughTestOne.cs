@@ -46,7 +46,7 @@ public sealed class WalkthroughTestOne : WalkthroughTestBase
     [TestCase("S", null, "Mech Corridor")]
     [TestCase("E", null, "Reactor Control")]
     [TestCase("E", null, "Reactor Elevator", "an Up button, a Down button, and a small slot")]
-    [TestCase("push up button", null, "Nothing happens")]
+    [TestCase("press up button", null, "Nothing happens")]
     [TestCase("examine slot", null, "small slot")]
     [TestCase("W", null, "Reactor Control")]
     [TestCase("W", null, "Mech Corridor")]
