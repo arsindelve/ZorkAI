@@ -31,6 +31,9 @@ public class SpoolReader : ContainerBase, ICanBeExamined, ICanBeTakenAndDropped,
 
     public override string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlace) => "It doesn't fit in the circular opening. ";
     
+    // BrownSpool is listed for completeness, but in practice it can never reach the reader: the
+    // player dies of radiation poisoning before carrying it here from the Radiation Lab. Hence
+    // BrownSpool.Contents is never read (and deliberately throws). See BrownSpool.cs for details.
     public override Type[] CanOnlyHoldTheseTypes => [typeof(GreenSpool), typeof(RedSpool), typeof(BrownSpool)];
 
     public override string NoRoomMessage => "There's already a spool in the reader. ";
