@@ -73,6 +73,35 @@ public class ConferenceRoomTests : EngineTestsBase
     }
     
     [Test]
+    public void NowOpen_DoesNotThrow_AndReturnsAMessage()
+    {
+        // Regression for #225: NowOpen() used to throw NotImplementedException. Even though the
+        // CannotBeOpenedDescription guard normally shields it from the "open" verb, the throw is a
+        // landmine that crashes the turn if that guard ever stops returning a reason. NowOpen must
+        // return a safe message, never throw.
+        var door = GetItem<ConferenceRoomDoor>();
+        var location = GetLocation<RecArea>();
+
+        var act = () => door.NowOpen(location);
+
+        act.Should().NotThrow();
+        door.NowOpen(location).Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Test]
+    public async Task OpenConferenceDoor_ReturnsMessage_AndDoesNotThrow()
+    {
+        // Regression for #225: "open conference door" must return a message and never crash the turn.
+        var target = GetTarget();
+        StartHere<RecArea>();
+
+        Func<Task> act = async () => await target.GetResponse("open conference door");
+
+        await act.Should().NotThrowAsync();
+        GetItem<ConferenceRoomDoor>().IsOpen.Should().BeFalse();
+    }
+
+    [Test]
     public async Task CloseDoor_FromConferenceRoom()
     {
         var target = GetTarget();
