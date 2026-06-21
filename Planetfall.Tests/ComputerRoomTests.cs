@@ -66,4 +66,16 @@ public class ComputerRoomTests : EngineTestsBase
         response.Should().NotContain(FloydConstants.ComputerBroken);
     }
 
+    // Issue #228: the pile of computer output is described throughout as "the printout", so
+    // "read printout" resolves here alongside the original "output".
+    [TestCase("output")]
+    [TestCase("printout")]
+    public async Task ComputerOutput_Synonyms_Resolve(string noun)
+    {
+        var target = GetTarget();
+        StartHere<ComputerRoom>();
+
+        var response = await target.GetResponse($"read {noun}");
+        response.Should().Contain("hundreds of pages long");
+    }
 }

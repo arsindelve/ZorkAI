@@ -31,7 +31,8 @@ public class Dam : LocationBase
             "There are paths to the north, south, and west, and a scramble down. " + GatesDescription();
     }
 
-    private string GatesDescription()
+    // Public so the examinable FloodControlDam item can describe the current sluice-gate state.
+    internal string GatesDescription()
     {
         var reservoir = GetLocation<ReservoirSouth>();
         if (reservoir.IsDrained && SluiceGatesOpen)
@@ -50,6 +51,10 @@ public class Dam : LocationBase
     public override void Init()
     {
         StartWithItem<ControlPanel>();
+        // The original Flood Control Dam #3 is itself an examinable object (the ZIL DAM object,
+        // SYNONYM DAM GATE GATES). The port models the dam as a location, so we place an
+        // examinable stand-in here so "examine dam"/"examine gates" resolves as it did originally.
+        StartWithItem<FloodControlDam>();
     }
 
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,

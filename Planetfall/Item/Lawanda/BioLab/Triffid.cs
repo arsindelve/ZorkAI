@@ -1,12 +1,10 @@
 namespace Planetfall.Item.Lawanda.BioLab;
 
-public class Triffid : ItemBase, ICanBeExamined
+public class Triffid : MutantBase
 {
-    public override string[] NounsForMatching => ["triffid", "plant"];
+    protected override string[] SpecificNouns => ["triffid", "plant"];
 
-    public override int Size => 100; // Can't be taken
-
-    public string ExaminationDescription =>
+    public override string ExaminationDescription =>
         "A mobile carnivorous plant with writhing tentacles and a poisonous sting. " +
         "It makes a distinctive rattling sound. ";
 }

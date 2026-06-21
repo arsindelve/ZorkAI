@@ -2,10 +2,11 @@ namespace Planetfall.Item.Lawanda.Lab;
 
 public class Lamp : ItemBase, IAmALightSourceThatTurnsOnAndOff, ICanBeExamined, ICanBeTakenAndDropped
 {
+    // "lantern" is a synonym so Zork-muscle-memory players who type "turn on lantern" resolve here.
     public override string[] NounsForMatching =>
     [
-        "lamp", "light", "portable lamp", "powerful lamp", "portable light", "powerful light", "powerful portable lamp",
-        "portable powerful lamp"
+        "lamp", "light", "lantern", "portable lamp", "powerful lamp", "portable light", "powerful light",
+        "powerful portable lamp", "portable powerful lamp"
     ];
 
     public bool IsOn { get; set; }

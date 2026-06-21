@@ -208,6 +208,20 @@ public class LabsAndDoorsTests : EngineTestsBase
         response.Should().Contain("There is a powerful portable lamp here, currently off");
     }
 
+    // Issue #228: the portable lamp also answers to "lantern" (Zork muscle memory), alongside
+    // the original "lamp"/"light" synonyms.
+    [TestCase("lamp")]
+    [TestCase("light")]
+    [TestCase("lantern")]
+    public async Task RadLab_LampSynonyms_Resolve(string noun)
+    {
+        var target = GetTarget();
+        StartHere<RadiationLab>();
+
+        var response = await target.GetResponse($"examine {noun}");
+        response.Should().Contain("The lamp is off");
+    }
+
     [Test]
     public async Task RadLab_ExamineSpool()
     {

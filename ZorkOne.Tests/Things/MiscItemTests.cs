@@ -10,6 +10,13 @@ public class MiscItemTests : EngineTestsBase
     [TestCase("i", "An ancient map", "Map")]
     [TestCase("i", "A rusty knife", "rusty")]
     [TestCase("examine map", "The map shows a forest with three clearings", "Map")]
+    // Issue #228: the map also answers to "parchment" ("ancient parchment which appears to be a map").
+    [TestCase("examine parchment", "The map shows a forest with three clearings", "Map")]
+    // Issue #228: the leaflet (ZIL ADVERTISEMENT) answers to mail/booklet/pamphlet/advertisement.
+    [TestCase("read mail", "WELCOME TO ZORK!", "leaflet")]
+    [TestCase("read booklet", "WELCOME TO ZORK!", "leaflet")]
+    [TestCase("read pamphlet", "WELCOME TO ZORK!", "leaflet")]
+    [TestCase("read advertisement", "WELCOME TO ZORK!", "leaflet")]
     [TestCase("i", "A tour guidebook", "guidebook")]
     [TestCase("read guidebook", "You will notice on your right", "guidebook")]
     [TestCase("examine guidebook", "You will notice on your right", "guidebook")]
@@ -96,6 +103,9 @@ public class MiscItemTests : EngineTestsBase
     [TestCase("extremely heavy", "rug", "move rug")]
     [TestCase("You can't be serious.", "ladder")]
     [TestCase("A ghost appears in the room and is appalled at your desecration of the remains of a fellow adventurer", "skeleton")]
+    // Issue #228: the skeleton (ZIL BONES) also answers to "bones" and "body".
+    [TestCase("A ghost appears in the room and is appalled at your desecration of the remains of a fellow adventurer", "bones")]
+    [TestCase("A ghost appears in the room and is appalled at your desecration of the remains of a fellow adventurer", "body")]
     public async Task CannotBeTaken(string expectedResponse, string itemType, string? precondition = null)
     {
         var target = GetTarget();

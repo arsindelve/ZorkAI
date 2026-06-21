@@ -4,7 +4,10 @@ namespace ZorkOne.Item;
 
 public class Skeleton : ItemBase, ICanBeTakenAndDropped
 {
-    public override string[] NounsForMatching => ["skeleton", "remains", "adventurer", "luckless adventurer"];
+    // The original Zork I source declares the skeleton (BONES object) with the synonyms
+    // BONES, BODY and SKELETON, so "examine bones"/"examine body" should resolve here.
+    public override string[] NounsForMatching =>
+        ["skeleton", "bones", "body", "remains", "adventurer", "luckless adventurer"];
 
     public override string CannotBeTakenDescription =>
         "A ghost appears in the room and is appalled at your desecration of the remains of a fellow adventurer. " +

@@ -4,7 +4,9 @@ namespace ZorkOne.Item;
 
 internal class Map : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
 {
-    public override string[] NounsForMatching => ["map", "ancient map"];
+    // The map is described as "ancient parchment which appears to be a map", and the original
+    // Zork I source lists PARCHMENT as a synonym, so "examine parchment" should resolve here.
+    public override string[] NounsForMatching => ["map", "ancient map", "parchment", "ancient parchment"];
 
     public override bool IsSoft => true;
 
