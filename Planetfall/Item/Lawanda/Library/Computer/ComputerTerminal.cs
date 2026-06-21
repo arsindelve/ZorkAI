@@ -8,7 +8,8 @@ public class ComputerTerminal : ItemBase, ICanBeExamined, ICanBeRead, ITurnOffAn
 {
     [UsedImplicitly] public MenuState MenuState { get; set; } = new();
 
-    public override string[] NounsForMatching => ["terminal", "computer terminal", "computer", "screen"];
+    public override string[] NounsForMatching =>
+        ["terminal", "computer terminal", "computer", "screen", "keyboard", "keypad", "keys"];
 
     public string ExaminationDescription =>
         "The computer terminal consists of a video display screen, a keyboard with ten keys numbered from zero through nine, and an on-off switch. " +
@@ -46,9 +47,21 @@ public class ComputerTerminal : ItemBase, ICanBeExamined, ICanBeRead, ITurnOffAn
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
     {
-        // TODO: type 1 on the keyboard
-        // TODO: key in 4 on the terminal. 
-        return await base.RespondToMultiNounInteraction(action, context);
+        // Handle phrasings where the player names both the key and the terminal/keyboard as
+        // separate nouns, e.g. "type 1 on the keyboard" or "key 4 on the terminal". One noun
+        // must refer to this terminal; the other is the number to key in.
+        if (!action.MatchVerb(Verbs.TypeVerbs.Union(["press", "push"]).ToArray()))
+            return await base.RespondToMultiNounInteraction(action, context);
+
+        var nounOneIsTerminal = action.MatchNounOne(NounsForMatching);
+        var nounTwoIsTerminal = action.MatchNounTwo(NounsForMatching);
+
+        if (!nounOneIsTerminal && !nounTwoIsTerminal)
+            return await base.RespondToMultiNounInteraction(action, context);
+
+        // The key to press is whichever noun isn't the terminal itself.
+        var keyNoun = nounOneIsTerminal ? action.NounTwo : action.NounOne;
+        return ProcessKeyPress(keyNoun.ToInteger(), context);
     }
 
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
@@ -57,18 +70,23 @@ public class ComputerTerminal : ItemBase, ICanBeExamined, ICanBeRead, ITurnOffAn
         if (!action.MatchVerb(Verbs.TypeVerbs.Union(["press", "push"]).ToArray()))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
-        var keyPress = action.Noun.ToInteger();
+        return ProcessKeyPress(action.Noun.ToInteger(), context);
+    }
 
-        if (keyPress.HasValue)
-        {
-            Repository.GetItem<Floyd>().CommentOnAction(FloydPrompts.LibraryComputerFirstUse, context);
+    /// <summary>
+    /// Applies a single numeric keypress to the menu, mirroring the original terminal: zero moves
+    /// up a level, any other digit selects that submenu item. Floyd comments on the first use.
+    /// </summary>
+    private InteractionResult ProcessKeyPress(int? keyPress, IContext context)
+    {
+        if (!keyPress.HasValue)
+            return new PositiveInteractionResult("The keyboard only has the keys 0 through 9");
 
-            if (keyPress.Value == 0)
-                return new PositiveInteractionResult(MenuState.GoUp());
+        Repository.GetItem<Floyd>().CommentOnAction(FloydPrompts.LibraryComputerFirstUse, context);
 
-            return new PositiveInteractionResult(MenuState.GoDown(keyPress.Value));
-        }
+        if (keyPress.Value == 0)
+            return new PositiveInteractionResult(MenuState.GoUp());
 
-        return new PositiveInteractionResult("The keyboard only has the keys 0 through 9");
+        return new PositiveInteractionResult(MenuState.GoDown(keyPress.Value));
     }
 }
