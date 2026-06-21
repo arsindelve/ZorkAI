@@ -31,8 +31,7 @@ internal abstract class MirrorRoom : LocationBase, IThiefMayVisit
         // Breaking the mirror (mung/throw/attack in the original ZIL MIRROR-MIRROR) permanently disables
         // the teleport. Reuse the shared attack/throw synonym sets so the verb coverage stays consistent
         // with the rest of the engine, plus the break-specific verbs the original recognized.
-        if (action.MatchVerb([..Verbs.KillVerbs, ..Verbs.ThrowVerbs, "break", "smash", "shatter", "mung", "kick",
-                "hit", "vandalize"]))
+        if (action.MatchVerb([..Verbs.KillVerbs, ..Verbs.ThrowVerbs, ..Verbs.BreakVerbs, "kick", "hit"]))
         {
             if (mirror.IsBroken)
                 return new PositiveInteractionResult("Haven't you done enough damage already? ");

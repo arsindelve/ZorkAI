@@ -15,6 +15,7 @@ public static class Verbs
         ["move", "go", "walk", "run", "travel", "proceed", "head", "stroll", "escape"];
 
     public static readonly string[] KillVerbs = ["kill", "attack", "defeat", "destroy", "murder", "stab", "punch"];
+    public static readonly string[] BreakVerbs = ["break", "smash", "shatter", "mung", "vandalize"];
     public static readonly string[] CloseVerbs = ["close", "shut", "bar", "lower"];
     public static readonly string[] OpenVerbs = ["open", "lift", "pry", "unbar", "raise"];
     public static readonly string[] GiveVerbs = ["give", "offer", "transfer", "present", "provide"];
