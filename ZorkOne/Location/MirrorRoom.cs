@@ -44,7 +44,7 @@ internal abstract class MirrorRoom : LocationBase, IThiefMayVisit
                 "You have broken the mirror. I hope you have a seven years' supply of good luck handy. ");
         }
 
-        if (action.MatchVerb(["look", "examine", "peer"]))
+        if (action.MatchVerb(Verbs.ExamineVerbs))
             return new PositiveInteractionResult(mirror.IsBroken
                 ? Mirror.BrokenDescription
                 : "There is an ugly person staring back at you. ");

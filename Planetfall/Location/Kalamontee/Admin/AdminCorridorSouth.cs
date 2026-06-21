@@ -104,7 +104,7 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (!action.MatchVerb(["look at", "examine", "look"]))
+        if (!action.MatchVerb(Verbs.ExamineVerbs))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (action.MatchNoun(["floor", "ground"]))

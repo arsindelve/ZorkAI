@@ -24,7 +24,7 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
             (action.Match(new[] { "examine" }
                 .Concat(Verbs.LookVerbs)
                 .ToArray(), ["window"]) && action.OriginalInput != null && action.OriginalInput.Contains("through")) ||
-            action.Match(["examine"], ["window"]))
+            action.Match(Verbs.ExamineVerbs, ["window"]))
             return new PositiveInteractionResult(
                 "You can see a large laboratory, dimly illuminated. A blue glow comes from a crack in the northern wall of the lab. Shadowy, " +
                 "ominous shapes move about within the room. On the floor, just inside the door, you can see a magnetic-striped card. ");

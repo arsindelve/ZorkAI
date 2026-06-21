@@ -27,7 +27,7 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICan
             return await base.RespondToMultiNounInteraction(action, context);
 
         if (action.MatchNounOne(Repository.GetItem<Brush>().NounsForMatching) &&
-            action.MatchVerb(["throw", "toss", "launch"]))
+            action.MatchVerb(Verbs.ThrowVerbs))
         {
             if (!context.HasItem<Brush>())
             {

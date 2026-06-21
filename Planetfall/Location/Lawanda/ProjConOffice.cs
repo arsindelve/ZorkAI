@@ -42,7 +42,7 @@ internal class ProjConOffice : FloydSpecialInteractionLocation
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (!action.MatchVerb(["examine", "look at", "look"]))
+        if (!action.MatchVerb(Verbs.ExamineVerbs))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (action.MatchNoun(["logo"]))

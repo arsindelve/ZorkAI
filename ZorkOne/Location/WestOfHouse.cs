@@ -60,13 +60,13 @@ public class WestOfHouse : LocationBase
     {
         string[] nouns = ["door", "front door"];
 
-        if (action.Match(["examine", "look"], nouns))
+        if (action.Match(Verbs.ExamineVerbs, nouns))
             return new PositiveInteractionResult("The door is closed. ");
 
         if (action.Match(["open"], nouns))
             return new PositiveInteractionResult("The door cannot be opened. ");
 
-        if (action.Match(["examine", "look"], ["house", "white house"]))
+        if (action.Match(Verbs.ExamineVerbs, ["house", "white house"]))
             return new PositiveInteractionResult(
                 "The house is a beautiful colonial house which is painted white. It is clear " +
                 "that the owners must have been extremely wealthy. "

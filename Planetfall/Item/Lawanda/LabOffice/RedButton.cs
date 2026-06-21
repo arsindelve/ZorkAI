@@ -12,7 +12,7 @@ public class RedButton : ItemBase
         if (!action.MatchNounAndAdjective(NounsForMatching))
             return Task.FromResult<InteractionResult?>(new NoNounMatchInteractionResult());
 
-        if (!action.MatchVerb(["push", "press", "activate"]))
+        if (!action.MatchVerb(Verbs.PushVerbs))
             return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         var timer = Repository.GetItem<FungicideTimer>();

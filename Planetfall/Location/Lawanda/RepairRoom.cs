@@ -47,7 +47,7 @@ internal class RepairRoom : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHere
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["examine"], ["cabinets", "cabinet", "storage cabinets", "storage cabinet"]))
+        if (action.Match(Verbs.ExamineVerbs, ["cabinets", "cabinet", "storage cabinets", "storage cabinet"]))
         {
             return new PositiveInteractionResult("The cabinets are locked. ");
         }

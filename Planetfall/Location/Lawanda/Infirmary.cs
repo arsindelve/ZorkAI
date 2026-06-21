@@ -58,11 +58,11 @@ internal class Infirmary : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHere
         IGenerationClient client,
         IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["examine"], ["equipment"]))
+        if (action.Match(Verbs.ExamineVerbs, ["equipment"]))
             return Task.FromResult<InteractionResult>(new PositiveInteractionResult(
                 "The equipment here is so complicated that you couldn't even begin to figure out how to operate it. "));
 
-        if (action.Match(["examine"], ["shelves", "shelf"]))
+        if (action.Match(Verbs.ExamineVerbs, ["shelves", "shelf"]))
             return Task.FromResult<InteractionResult>(new PositiveInteractionResult(
                 "The shelves are pretty dusty. "));
 

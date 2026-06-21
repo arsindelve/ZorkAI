@@ -28,7 +28,7 @@ internal class KitchenMachine : ContainerBase, ICanBeExamined
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["push", "press"], ["button"]))
+        if (action.Match(Verbs.PushVerbs, ["button"]))
         {
             var canteen = Repository.GetItem<Canteen>();
 
