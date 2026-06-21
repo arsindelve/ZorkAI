@@ -1,14 +1,10 @@
 namespace Planetfall.Item.Lawanda.BioLab;
 
-public class MutantTroll : ItemBase, ICanBeExamined
+public class MutantTroll : MutantBase
 {
-    // The original Planetfall source gives the mutant creatures MONSTER as a synonym, so during
-    // the Bio Lab chase a panicked player typing "attack monster"/"kill monster" resolves here.
-    public override string[] NounsForMatching => ["troll", "mutant troll", "monster"];
+    protected override string[] SpecificNouns => ["troll", "mutant troll"];
 
-    public override int Size => 100; // Can't be taken
-
-    public string ExaminationDescription =>
+    public override string ExaminationDescription =>
         "A massive, mutated troll with greenish skin and bulging muscles. " +
         "It growls threateningly. ";
 }

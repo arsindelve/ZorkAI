@@ -1,14 +1,10 @@
 namespace Planetfall.Item.Lawanda.BioLab;
 
-public class MutantGrue : ItemBase, ICanBeExamined
+public class MutantGrue : MutantBase
 {
-    // The original Planetfall source gives the mutant creatures MONSTER as a synonym, so during
-    // the Bio Lab chase a panicked player typing "attack monster"/"kill monster" resolves here.
-    public override string[] NounsForMatching => ["grue", "mutant grue", "monster"];
+    protected override string[] SpecificNouns => ["grue", "mutant grue"];
 
-    public override int Size => 100; // Can't be taken
-
-    public string ExaminationDescription =>
+    public override string ExaminationDescription =>
         "A sinister creature that lurks in shadows, with glowing eyes and sharp teeth. " +
         "Looking at it fills you with dread. ";
 }

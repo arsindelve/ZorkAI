@@ -14,33 +14,14 @@ namespace Planetfall.Tests;
 public class SynonymVocabularyTests : EngineTestsBase
 {
     // In the Bio Lab chase a panicked player naturally types "attack monster" / "kill monster".
-    // The original gives each mutant MONSTER as a synonym; restore it for every mutant.
-    [Test]
-    public void MutantGrue_RecognizesMonsterSynonym()
-    {
-        GetTarget();
-        Repository.GetItem<MutantGrue>().HasMatchingNoun("monster").HasItem.Should().BeTrue();
-    }
+    // The original gives each mutant MONSTER as a synonym, shared via MutantBase.
+    private static readonly MutantBase[] Mutants =
+        [new MutantGrue(), new MutantTroll(), new RatAnt(), new Triffid()];
 
-    [Test]
-    public void MutantTroll_RecognizesMonsterSynonym()
+    [TestCaseSource(nameof(Mutants))]
+    public void Mutants_RecognizeMonsterSynonym(MutantBase mutant)
     {
-        GetTarget();
-        Repository.GetItem<MutantTroll>().HasMatchingNoun("monster").HasItem.Should().BeTrue();
-    }
-
-    [Test]
-    public void RatAnt_RecognizesMonsterSynonym()
-    {
-        GetTarget();
-        Repository.GetItem<RatAnt>().HasMatchingNoun("monster").HasItem.Should().BeTrue();
-    }
-
-    [Test]
-    public void Triffid_RecognizesMonsterSynonym()
-    {
-        GetTarget();
-        Repository.GetItem<Triffid>().HasMatchingNoun("monster").HasItem.Should().BeTrue();
+        mutant.HasMatchingNoun("monster").HasItem.Should().BeTrue();
     }
 
     // Zork-muscle-memory players type "lantern" for the portable lamp.
