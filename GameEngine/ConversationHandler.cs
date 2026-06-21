@@ -119,17 +119,71 @@ public class ConversationHandler(
         var parseResult = await parseConversation.ParseAsync(input);
         logger?.LogDebug($"[CONVERSATION DEBUG] ParseConversation result - isConversational: {parseResult.isConversational}, response: '{parseResult.response}'");
 
-        // If not conversational, continue with normal processing
-        if (!parseResult.isConversational)
+        string textForCharacter;
+        if (parseResult.isConversational)
+        {
+            // The rewriter recognized a command/speech directed at the character; use its
+            // second-person rewrite (e.g. "floyd, go north" -> "go north").
+            textForCharacter = parseResult.response;
+        }
+        else if (TryStripDirectAddress(input, targetCharacter, out var remainder))
+        {
+            // The player explicitly addressed the character by name (e.g. "blather, ...").
+            // That is an unambiguous signal of conversation even when the rewriter doesn't
+            // recognize a command, so route what they said (minus the leading name) to the
+            // character rather than dropping it back into normal command parsing.
+            logger?.LogDebug($"[CONVERSATION DEBUG] Direct address detected; using remainder: '{remainder}'");
+            textForCharacter = remainder;
+        }
+        else
         {
             logger?.LogDebug("[CONVERSATION DEBUG] Not conversational, continuing with normal processing");
             return null;
         }
 
-        // Send the rewritten message to the character
-        logger?.LogDebug($"[CONVERSATION DEBUG] Sending rewritten message '{parseResult.response}' to character");
-        var result = await targetCharacter.OnBeingTalkedTo(parseResult.response, context, generationClient);
+        logger?.LogDebug($"[CONVERSATION DEBUG] Sending message '{textForCharacter}' to character");
+        var result = await targetCharacter.OnBeingTalkedTo(textForCharacter, context, generationClient);
         logger?.LogDebug($"[CONVERSATION DEBUG] Character response: '{result}'");
         return result;
+    }
+
+    /// <summary>
+    /// Detects the vocative "Name, ..." direct-address pattern (e.g. "blather, you clean the
+    /// floor") and returns the text that follows the name. This is a strong, deterministic
+    /// signal that the player is speaking to the character, independent of the AI rewriter,
+    /// which only reliably recognizes imperative commands.
+    /// </summary>
+    private static bool TryStripDirectAddress(string input, ICanBeTalkedTo targetCharacter, out string remainder)
+    {
+        remainder = input;
+
+        if (targetCharacter is not IItem item)
+            return false;
+
+        var trimmed = input.TrimStart();
+
+        // Prefer the longest matching noun so "ensign blather" wins over "blather".
+        foreach (var noun in item.NounsForMatching.OrderByDescending(n => n.Length))
+        {
+            if (!trimmed.StartsWith(noun, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            var rest = trimmed[noun.Length..];
+
+            // Require the name to be followed by a comma (or to be the whole input) so we
+            // only catch genuine direct address and never hijack a real command.
+            if (!rest.StartsWith(',') && rest.Trim().Length != 0)
+                continue;
+
+            remainder = rest.TrimStart(',', ' ', '.', '!', '?').Trim();
+
+            // "blather" / "blather," on its own: pass the whole utterance through.
+            if (string.IsNullOrWhiteSpace(remainder))
+                remainder = input.Trim();
+
+            return true;
+        }
+
+        return false;
     }
 }
