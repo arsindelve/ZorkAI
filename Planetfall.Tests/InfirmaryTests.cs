@@ -418,6 +418,20 @@ public class InfirmaryTests : EngineTestsBase
     }
 
     [Test]
+    public void GetOutOfBed_DoesNotThrow_AndReturnsSafeMessage()
+    {
+        GetTarget();
+        var bed = GetItem<InfirmaryBed>();
+
+        // Getting into the bed triggers an immediate death, so GetOut is unreachable
+        // in normal play. It must still return a safe message rather than throw.
+        var act = () => bed.GetOut(Context);
+
+        act.Should().NotThrow();
+        bed.GetOut(Context).Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Test]
     public async Task GiveBreastplateToFloyd_BreastplateDroppedInCurrentRoom()
     {
         var target = GetTarget();
