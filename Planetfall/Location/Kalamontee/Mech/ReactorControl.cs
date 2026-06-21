@@ -27,7 +27,7 @@ internal class ReactorControl : LocationWithNoStartingItems
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["push", "press", "activate"], ["button"]))
+        if (action.Match(Verbs.PushVerbs, ["button"]))
             return new PositiveInteractionResult("Nothing happens. ");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

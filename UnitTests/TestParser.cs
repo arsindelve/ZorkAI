@@ -23,7 +23,7 @@ public class TestParser : IntentParser
     {
         _verbs =
         [
-            "take", "drop", "open", "close", "examine", "look", "eat", "press", "remove", "play", "shoot",
+            "take", "drop", "open", "close", "examine", "inspect", "look", "eat", "press", "remove", "play", "shoot",
             "deactivate", "type", "key", "punch", "push", "pull", "burn", "set", "search", "empty", "wear",
             "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate", "search",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind", "kick", "deflate",
@@ -40,7 +40,8 @@ public class TestParser : IntentParser
             "tree", "branches", "house", "lettering", "mirror", "match", "yellow button", "red button", "button", "medicine",
             "blue button", "brown button", "bolt", "bubble", "bodies", "gate", "lid", "switch", "slag", "engravings",
             "fromitz board", "board", "fromitz", "second fromitz board", "second board", "second",
-            "second board", "second fromitz board", "second fromitz", "384"
+            "second board", "second fromitz board", "second fromitz", "384",
+            "games", "tapes", "controls", "control panel", "light", "red light", "equipment"
         ];
 
         _allNouns = _allNouns.Union(specialNouns).ToArray();

@@ -67,9 +67,8 @@ public class ForestPath : LocationWithNoStartingItems, ITurnBasedActor
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         string[] nouns = ["tree", "branches"];
-        string[] verbs = ["examine", "look"];
 
-        if (action.Match(verbs, nouns))
+        if (action.Match(Verbs.ExamineVerbs, nouns))
             return new PositiveInteractionResult("There's nothing special about the tree.");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

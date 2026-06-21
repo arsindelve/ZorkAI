@@ -22,6 +22,16 @@ public static class Verbs
 
     public static readonly string[] LookVerbs = ["look", "peek", "peer", "check", "observe", "glance"];
 
+    /// <summary>
+    ///     The "look at / examine" family. Distinct from <see cref="LookVerbs" /> (which is about
+    ///     glancing/observing and is used for things like "look through the crack"). These are the
+    ///     synonyms a player reaches for when they want to inspect a specific object. Always pair this
+    ///     with a noun match — the bare "look" room-description command is handled earlier by the
+    ///     global command factory and never reaches here.
+    /// </summary>
+    public static readonly string[] ExamineVerbs =
+        ["examine", "look at", "look", "look into", "inspect", "x", "view", "study", "peek", "peer"];
+
     public static readonly string[] SayVerbs =
         ["say", "yell", "shout", "utter", "scream", "mumble", "whisper", "speak", "declare", "state", "announce", "tell"];
 }

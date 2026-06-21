@@ -33,7 +33,7 @@ internal abstract class RiftLocationBase : LocationWithNoStartingItems
                 "You get a brief (but much closer) view of the sharp and nasty rocks at the bottom of the rift. ",
                 context);
 
-        if (action.Match(["examine", "look at", "look into"], RiftNouns))
+        if (action.Match(Verbs.ExamineVerbs, RiftNouns))
             return new PositiveInteractionResult(
                 "The rift is at least eight meters wide and more than thirty meters deep. The bottom is covered with sharp and nasty rocks. ");
 
