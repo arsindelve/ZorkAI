@@ -1,6 +1,5 @@
 ﻿using GameEngine;
 using GameEngine.Location;
-using Model;
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Movement;

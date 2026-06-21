@@ -56,6 +56,20 @@ public class GameSpecificTests : EngineTestsBase
     }
 
     [Test]
+    public async Task LeapOutOfATree()
+    {
+        // "leap" is a Verbs.JumpVerbs synonym; like "jump" it should drop you safely to the path below.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<UpATree>();
+
+        // Act
+        await target.GetResponse("leap");
+
+        // Assert
+        target.Context.CurrentLocation.Should().Be(Repository.GetLocation<ForestPath>());
+    }
+
+    [Test]
     public async Task ClimbATree()
     {
         var target = GetTarget(new IntentParser(Mock.Of<IAIParser>(), new ZorkOneGlobalCommandFactory()));

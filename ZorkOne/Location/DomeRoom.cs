@@ -1,5 +1,4 @@
 ﻿using GameEngine.Location;
-using Model;
 using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
