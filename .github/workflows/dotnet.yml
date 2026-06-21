@@ -36,6 +36,10 @@ jobs:
     timeout-minutes: 20
     container:
       image: mcr.microsoft.com/playwright:v1.59.1-noble
+    # Firefox refuses to launch when $HOME isn't owned by the running user. In this
+    # container GitHub sets HOME=/github/home (owned by pwuser), so point it at /root.
+    env:
+      HOME: /root
     steps:
     - uses: actions/checkout@v4
 
@@ -68,6 +72,10 @@ jobs:
     timeout-minutes: 20
     container:
       image: mcr.microsoft.com/playwright:v1.59.1-noble
+    # Firefox refuses to launch when $HOME isn't owned by the running user. In this
+    # container GitHub sets HOME=/github/home (owned by pwuser), so point it at /root.
+    env:
+      HOME: /root
     steps:
     - uses: actions/checkout@v4
 
