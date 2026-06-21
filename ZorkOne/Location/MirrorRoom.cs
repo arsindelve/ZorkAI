@@ -7,6 +7,12 @@ namespace ZorkOne.Location;
 
 internal abstract class MirrorRoom : LocationBase, IThiefMayVisit
 {
+    // Breaking the mirror permanently disables the touch-to-teleport. Reuse the shared attack/throw synonym
+    // sets so the verb coverage stays consistent with the rest of the engine, plus the break-specific verbs.
+    // Built once, not per call.
+    private static readonly string[] BreakMirrorVerbs =
+        [..Verbs.KillVerbs, ..Verbs.ThrowVerbs, ..Verbs.BreakVerbs, "kick", "hit"];
+
     public override string Name => "Mirror Room";
 
     protected override string GetContextBasedDescription(IContext context)
@@ -28,10 +34,7 @@ internal abstract class MirrorRoom : LocationBase, IThiefMayVisit
 
         var mirror = GetItem<Mirror>();
 
-        // Breaking the mirror (mung/throw/attack in the original ZIL MIRROR-MIRROR) permanently disables
-        // the teleport. Reuse the shared attack/throw synonym sets so the verb coverage stays consistent
-        // with the rest of the engine, plus the break-specific verbs the original recognized.
-        if (action.MatchVerb([..Verbs.KillVerbs, ..Verbs.ThrowVerbs, ..Verbs.BreakVerbs, "kick", "hit"]))
+        if (action.MatchVerb(BreakMirrorVerbs))
         {
             if (mirror.IsBroken)
                 return new PositiveInteractionResult("Haven't you done enough damage already? ");
