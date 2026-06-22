@@ -56,7 +56,6 @@ internal class ItProcessor : IStatefulProcessor
     public (bool, string) Check(string input, IContext context)
     {
         var lastNoun = context.LastNoun;
-        var item = Repository.GetItem(lastNoun);
 
         var usedItOrThem = DidWeUseItOrThem(input);
 
@@ -73,15 +72,24 @@ internal class ItProcessor : IStatefulProcessor
             // existing take/drop list handling does the rest — a single noun string can't represent
             // a set of distinct singular items, which is why this used to dead-end (issue #248).
             if (context.LastNouns.Count >= 2)
-                return Resolved(Regex.Replace(input, @"\bthem\b",
-                    string.Join(" and ", context.LastNouns), RegexOptions.IgnoreCase));
+            {
+                // Resolve only to members still relevant to *this* command — you can only drop what
+                // you're holding — so a remembered item that has since left scope (already dropped,
+                // eaten, left in another room) doesn't drag a spurious "you don't have it" into an
+                // otherwise successful "drop them".
+                var inScope = ItemsStillInScope(input, context);
+                return inScope.Count > 0
+                    ? Resolved(Regex.Replace(input, @"\bthem\b", string.Join(" and ", inScope), RegexOptions.IgnoreCase))
+                    : AskForClarification(input);
+            }
 
             // A lone item is only a valid "them" antecedent if it is intrinsically plural (candles,
             // matches, ...). Otherwise we still have to ask which item they mean.
-            if (string.IsNullOrEmpty(lastNoun) || item is not IPluralNoun)
+            var soleNoun = context.LastNouns.Count == 1 ? context.LastNouns[0] : lastNoun;
+            if (string.IsNullOrEmpty(soleNoun) || Repository.GetItem(soleNoun) is not IPluralNoun)
                 return AskForClarification(input);
 
-            return Resolved(Regex.Replace(input, @"\bthem\b", lastNoun, RegexOptions.IgnoreCase));
+            return Resolved(Regex.Replace(input, @"\bthem\b", soleNoun, RegexOptions.IgnoreCase));
         }
 
         // Pronoun.It
@@ -89,6 +97,23 @@ internal class ItProcessor : IStatefulProcessor
             return AskForClarification(input);
 
         return Resolved(Regex.Replace(input, @"\bit\b", lastNoun, RegexOptions.IgnoreCase));
+    }
+
+    // Verbs whose direct object must be in the player's hand. Used to scope "them" so "drop them"
+    // never resolves to an item that is no longer being carried.
+    private static readonly string[] DropVerbs = ["drop"];
+
+    private static List<string> ItemsStillInScope(string input, IContext context)
+    {
+        var verb = input.TrimStart().Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty;
+        var dropping = DropVerbs.Contains(verb, StringComparer.OrdinalIgnoreCase);
+
+        // Dropping needs the item carried; for everything else (take/put/...) it only needs to be
+        // reachable — carried, or present in the current room.
+        return context.LastNouns
+            .Where(noun => context.HasMatchingNoun(noun).HasItem ||
+                           (!dropping && context.CurrentLocation.HasMatchingNoun(noun).HasItem))
+            .ToList();
     }
 
     private (bool, string) Resolved(string input)

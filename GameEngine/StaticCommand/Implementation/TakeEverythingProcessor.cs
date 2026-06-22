@@ -64,7 +64,7 @@ public class TakeEverythingProcessor : IGlobalCommand
     private static void SetAntecedent(IContext context, List<string> nouns)
     {
         if (nouns.Count > 0)
-            context.LastNouns = nouns;
+            context.LastNouns = nouns.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
 
     /// <summary>
