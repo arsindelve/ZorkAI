@@ -62,7 +62,6 @@ public class TakeEverythingProcessor : IGlobalCommand
     public static async Task<string> TakeAll(IContext context, List<(string noun, IItem? item)> itemsWithNouns, IGenerationClient client)
     {
         var sb = new StringBuilder();
-        var taken = new List<string?>();
         foreach (var (noun, item) in itemsWithNouns)
         {
             if (item is null)
@@ -95,10 +94,11 @@ public class TakeEverythingProcessor : IGlobalCommand
 
             sb.AppendLine($"{item.Name}: Taken. ");
             context.ItemPlacedHere(item);
-            taken.Add(item.NounsForMatching.FirstOrDefault());
+            // A "take X and Y" command is part of the player's contiguous take run, so append each
+            // item to the "them" group rather than replacing it (issue #248 review follow-up).
+            context.RememberAntecedentNoun(item.NounsForMatching.FirstOrDefault());
         }
 
-        context.RememberAntecedentNouns(taken);
         return sb.ToString();
     }
 }

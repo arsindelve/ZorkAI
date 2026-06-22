@@ -47,7 +47,6 @@ public class DropEverythingProcessor : IGlobalCommand
     public static async Task<string> DropAll(IContext context, List<(string noun, IItem? item)> itemsWithNouns, IGenerationClient client)
     {
         var sb = new StringBuilder();
-        var dropped = new List<string?>();
 
         foreach (var (noun, item) in itemsWithNouns)
         {
@@ -69,14 +68,12 @@ public class DropEverythingProcessor : IGlobalCommand
             }
 
             if (item is ICanBeTakenAndDropped)
-            {
+                // DropIt records each item in the "them" group (append), so a "drop X and Y" command
+                // extends the player's contiguous drop run rather than replacing it (issue #248).
                 sb.AppendLine(
                     $"{item.Name}: {TakeOrDropInteractionProcessor.DropIt(context, item).InteractionMessage}");
-                dropped.Add(item.NounsForMatching.FirstOrDefault());
-            }
         }
 
-        context.RememberAntecedentNouns(dropped);
         return sb.ToString();
     }
 }
