@@ -223,6 +223,7 @@
 
     { "inputs": ["enter trap door", "board trap door", "enter trapdoor"], "noun": "trap door" },
     { "inputs": ["enter mailbox", "board mailbox"], "noun": "mailbox" },
+    { "inputs": ["enter grate", "enter grating", "board grate"], "noun": "grate" },
 
     { "inputs": ["enter pod", "board pod", "enter the pod", "board the pod"], "noun": "pod" },
     { "inputs": ["enter bulkhead", "board bulkhead"], "noun": "bulkhead" },

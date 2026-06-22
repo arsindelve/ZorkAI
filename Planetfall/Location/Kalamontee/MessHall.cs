@@ -21,17 +21,20 @@ internal class MessHall : LocationBase
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
+        // The kitchen door gates the passage south to the Kitchen. "enter door" routes to
+        // Direction.In (EnterSubLocationEngine), so expose that passage under "in" too. (#262)
+        var doorPassage = new MovementParameters
+        {
+            CanGo = _ => GetItem<KitchenDoor>().IsOpen,
+            Location = GetLocation<Kitchen>(),
+            CustomFailureMessage = "The door is closed. "
+        };
+
         return new Dictionary<Direction, MovementParameters>
         {
             { Direction.N, Go<MessCorridor>() },
-            {
-                Direction.S, new MovementParameters
-                {
-                    CanGo = _ => GetItem<KitchenDoor>().IsOpen,
-                    Location = GetLocation<Kitchen>(),
-                    CustomFailureMessage = "The door is closed. "
-                }
-            }
+            { Direction.S, doorPassage },
+            { Direction.In, doorPassage }
         };
     }
 

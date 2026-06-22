@@ -10,17 +10,19 @@ public class GratingRoom : DarkLocation, IThiefMayVisit
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
+        // The grating gates the passage up to the Clearing. "enter grate" routes to Direction.In
+        // (EnterSubLocationEngine), so expose that passage under "in" too. (#262)
+        var gratingPassage = new MovementParameters
+        {
+            Location = GetLocation<Clearing>(), CanGo = _ => GetItem<Grating>().IsOpen,
+            CustomFailureMessage = "The grating is closed. "
+        };
+
         return new Dictionary<Direction, MovementParameters>
         {
             { Direction.SW, new MovementParameters { Location = GetLocation<MazeEleven>() } },
-            {
-                Direction.Up,
-                new MovementParameters
-                {
-                    Location = GetLocation<Clearing>(), CanGo = _ => GetItem<Grating>().IsOpen,
-                    CustomFailureMessage = "The grating is closed. "
-                }
-            }
+            { Direction.Up, gratingPassage },
+            { Direction.In, gratingPassage }
         };
     }
 
