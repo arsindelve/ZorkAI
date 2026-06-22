@@ -12,8 +12,14 @@ public class FloydPowerManager(Floyd floyd)
 
         context.RegisterActor(floyd);
 
-        if (!floyd.HasEverBeenOn)
+        // Award the activation points exactly once. HasEverBeenOn isn't set until Floyd finishes
+        // his wake-up countdown, so guarding on it would re-award on every repeated activation
+        // during the countdown. Use the dedicated one-shot flag instead.
+        if (!floyd.HasAwardedActivationPoints)
+        {
             context.AddPoints(2);
+            floyd.HasAwardedActivationPoints = true;
+        }
 
         if (floyd.TurnOnCountdown > 0)
             return new PositiveInteractionResult("Nothing happens. ");

@@ -43,6 +43,12 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     [UsedImplicitly] public bool HasEverBeenOn { get; set; }
 
+    // Tracks whether the one-time +2 award for turning Floyd on has already been granted. We can't
+    // key this off HasEverBeenOn: that flag only flips when Floyd actually wakes (after a 3-turn
+    // countdown), so during the countdown every repeated "activate floyd" would otherwise re-award
+    // the points (score 2 -> 4 -> 6). This dedicated guard makes the award strictly once.
+    [UsedImplicitly] public bool HasAwardedActivationPoints { get; set; }
+
     [UsedImplicitly] public bool HasEverGoneThroughTheLittleDoor { get; set; }
 
     [UsedImplicitly] public bool HasGottenTheFromitzBoard { get; set; }

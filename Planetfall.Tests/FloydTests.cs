@@ -433,6 +433,26 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
+    public async Task Activate_RepeatedDuringCountdown_AwardsPointsOnce()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+
+        // Turning Floyd on is worth 2 points, exactly once. He doesn't actually wake until a
+        // 3-turn countdown elapses, and HasEverBeenOn isn't set until then -- so a guard keyed on
+        // HasEverBeenOn re-awards the 2 points on every repeated "activate floyd" issued during the
+        // countdown (score climbs 2 -> 4 -> 6). The score must stay at 2 no matter how many times
+        // the player re-issues the command before Floyd comes alive.
+        await target.GetResponse("activate floyd"); // countdown 3 -> 2
+        await target.GetResponse("activate floyd"); // countdown 2 -> 1
+        await target.GetResponse("activate floyd"); // countdown 1 -> wake
+
+        floyd.IsOn.Should().BeTrue();
+        target.Context.Score.Should().Be(2);
+    }
+
+    [Test]
     public async Task FloydWakesUp_PlayerStaysInRoom_NormalMessage()
     {
         var target = GetTarget();
