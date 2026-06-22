@@ -3,7 +3,9 @@ using GameEngine.Item;
 
 namespace ZorkOne.Item;
 
-public class Stiletto : ItemBase, ICanBeTakenAndDropped, IWeapon
+// IAmPointyAndPunctureThings: the stiletto is one of the sharp items that punctures the
+// inflatable boat on boarding (ZIL RBOAT-FUNCTION, zork1/1actions.zil:2787-2799).
+public class Stiletto : ItemBase, ICanBeTakenAndDropped, IWeapon, IAmPointyAndPunctureThings
 {
     public override string[] NounsForMatching => ["stiletto"];
 
