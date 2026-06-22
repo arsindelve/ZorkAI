@@ -21,6 +21,8 @@ public class Kitchen : LocationBase
     {
         var exit = new MovementParameters
         {
+            // "exit window" resolves the window to this exit (DoorReroute). (issue #262)
+            GatingItem = GetItem<KitchenWindow>(),
             CanGo = _ => GetItem<KitchenWindow>().IsOpen,
             CustomFailureMessage = "The kitchen window is closed.",
             Location = Repository.GetLocation<BehindHouse>()

@@ -21,10 +21,12 @@ internal class MessHall : LocationBase
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
-        // The kitchen door gates the passage south to the Kitchen. "enter door" routes to
-        // Direction.In (EnterSubLocationEngine), so expose that passage under "in" too. (#262)
+        // The kitchen door gates the passage south to the Kitchen. Declaring it as the GatingItem
+        // lets "enter/exit door" resolve to this exit (DoorReroute). The door's card/auto-close
+        // mechanic is unaffected - we only walk through when it is already open. (issue #262)
         var doorPassage = new MovementParameters
         {
+            GatingItem = GetItem<KitchenDoor>(),
             CanGo = _ => GetItem<KitchenDoor>().IsOpen,
             Location = GetLocation<Kitchen>(),
             CustomFailureMessage = "The door is closed. "
@@ -33,8 +35,7 @@ internal class MessHall : LocationBase
         return new Dictionary<Direction, MovementParameters>
         {
             { Direction.N, Go<MessCorridor>() },
-            { Direction.S, doorPassage },
-            { Direction.In, doorPassage }
+            { Direction.S, doorPassage }
         };
     }
 

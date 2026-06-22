@@ -46,6 +46,8 @@ internal class DeckNine : LocationBase, ITurnBasedActor
                 Direction.W,
                 new MovementParameters
                 {
+                    // "enter pod"/"enter bulkhead" resolves the bulkhead to this exit (DoorReroute). (#262)
+                    GatingItem = Repository.GetItem<BulkheadDoor>(),
                     Location = Repository.GetLocation<EscapePod>(),
                     CanGo = _ => Repository.GetItem<BulkheadDoor>().IsOpen,
                     CustomFailureMessage = "The escape pod bulkhead is closed. "

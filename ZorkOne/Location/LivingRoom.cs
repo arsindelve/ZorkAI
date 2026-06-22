@@ -28,10 +28,11 @@ public class LivingRoom : LocationBase
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
-        // The trap door passage. "enter trap door" routes to Direction.In (EnterSubLocationEngine),
-        // so the same passage is exposed under both "down" and "in". (issue #262)
+        // The trap door gates the passage down to the Cellar. Declaring it as the GatingItem lets
+        // "enter/exit trap door" resolve to this exit (DoorReroute), no In alias needed. (issue #262)
         var trapDoorPassage = new MovementParameters
         {
+            GatingItem = Repository.GetItem<TrapDoor>(),
             Location = GetLocation<Cellar>(),
             CanGo = _ =>
                 Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>() &&
@@ -55,8 +56,7 @@ public class LivingRoom : LocationBase
                     Location = GetLocation<StrangePassage>()
                 }
             },
-            { Direction.Down, trapDoorPassage },
-            { Direction.In, trapDoorPassage }
+            { Direction.Down, trapDoorPassage }
         };
     }
 

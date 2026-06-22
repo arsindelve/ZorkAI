@@ -2,9 +2,7 @@ using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Intent;
 using Model.Interface;
-using Model.Item;
 using Model.Location;
-using Model.Movement;
 
 namespace GameEngine.IntentEngine;
 
@@ -42,10 +40,11 @@ internal class ExitSubLocationEngine : IIntentEngine
 
         if (subLocation is not ISubLocation subLocationInstance)
         {
-            // Symmetric to EnterSubLocationEngine (issue #262): "exit <door>" means "go out through
-            // it" -> Move(Out), so "exit window" from the Kitchen leaves the same way "enter window"
-            // from Behind House arrives. Same door definition (see DoorReroute).
-            var reroute = await DoorReroute.TryProcess(subLocation, Direction.Out, context, generationClient);
+            // Symmetric to EnterSubLocationEngine (issue #262): "exit <door>" means "go through it",
+            // so "exit window" from the Kitchen leaves the same way "enter window" from Behind House
+            // arrives. From a given room a door gates one passage, so enter/exit traverse it
+            // identically - the map says which way. See DoorReroute.
+            var reroute = await DoorReroute.TryTraverse(subLocation, context, generationClient);
             if (reroute is not null)
                 return reroute.Value;
 
