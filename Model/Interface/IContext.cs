@@ -138,6 +138,14 @@ public interface IContext : ICanContainItems
     Direction? LastMovementDirection { get; set; }
 
     /// <summary>
+    ///     The name of the location the adventurer was in at the start of the most recent turn —
+    ///     i.e. where they "came from". Lives on the context (rather than on the engine) so it is
+    ///     serialized and restored, keeping the GET no-turn rehydrate path in parity with POST
+    ///     (issue #250).
+    /// </summary>
+    string? PreviousLocationName { get; set; }
+
+    /// <summary>
     ///     For debugging purposes, will list everything in inventory.
     /// </summary>
     /// <returns></returns>

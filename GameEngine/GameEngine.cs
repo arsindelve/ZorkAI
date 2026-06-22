@@ -160,7 +160,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public string LocationName => Context.CurrentLocation.Name;
 
-    public string? PreviousLocationName { get; private set; }
+    // Projection of Context.PreviousLocationName (mirrors LastMovementDirection below). It must
+    // live on Context, not as an engine-only field, so it serializes/restores — otherwise the GET
+    // no-turn rehydrate path leaves it null while POST returns it, losing the "came from" location
+    // on reconnect (issue #250).
+    public string? PreviousLocationName => Context.PreviousLocationName;
 
     public Direction? LastMovementDirection => Context.LastMovementDirection;
 
@@ -254,7 +258,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (string.IsNullOrEmpty(playerInput))
             return PostProcessing(await GetGeneratedNoCommandResponse());
 
-        PreviousLocationName = LocationName;
+        Context.PreviousLocationName = LocationName;
 
         // 3. ------- System, or "meta" commands - like save, restore, quit, verbose etc. Does not count as a turn. No actor or turn processing.
         var systemCommand = _parser.DetermineSystemIntentType(playerInput);
