@@ -1,6 +1,8 @@
 using FluentAssertions;
 using GameEngine;
 using Model.AIParsing;
+using Model.Interface;
+using Moq;
 using OpenAI;
 using Planetfall.Item.Feinstein;
 using Planetfall.Location.Feinstein;
@@ -366,5 +368,74 @@ public class ExplosionTests : EngineTestsBase
         // Now try to open the bulkhead from Deck Nine - should say "Too late"
         response = await target.GetResponse("open bulkhead");
         response.Should().Contain("Too late. The pod's launching procedure has already begun.");
+    }
+
+    // When the Feinstein explodes (case 4 of HandleBeingInSpaceAndLanding), the original
+    // penalizes a player who hasn't strapped into the safety web: 20% instant (head-first)
+    // death, otherwise a bruising message. In the web is unharmed. Verified against
+    // planetfall-source/globals.zil I-BLOWUP-FEINSTEIN (BLOWUP-COUNTER 5).
+    [Test]
+    public async Task Explosion_NotInWeb_DeathRoll_KillsPlayer()
+    {
+        var target = GetTarget();
+        var pod = Repository.GetLocation<EscapePod>();
+        target.Context.CurrentLocation = pod;
+        pod.SubLocation = null; // NOT in the web
+        pod.TurnsSinceExplosion = 3; // next Act -> case 4
+        target.Context.RegisterActor(pod);
+
+        var chooser = new Mock<IRandomChooser>();
+        chooser.Setup(c => c.RollDiceSuccess(5)).Returns(true); // force the 20%
+        pod.Chooser = chooser.Object;
+
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain("head first");
+        response.Should().Contain("You have died");
+    }
+
+    [Test]
+    public async Task Explosion_NotInWeb_Survives_Bruised()
+    {
+        var target = GetTarget();
+        var pod = Repository.GetLocation<EscapePod>();
+        target.Context.CurrentLocation = pod;
+        pod.SubLocation = null; // NOT in the web
+        pod.TurnsSinceExplosion = 3; // next Act -> case 4
+        target.Context.RegisterActor(pod);
+
+        var chooser = new Mock<IRandomChooser>();
+        chooser.Setup(c => c.RollDiceSuccess(5)).Returns(false); // survive the death roll
+        pod.Chooser = chooser.Object;
+
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain("bruising a few limbs");
+        response.Should().NotContain("You have died");
+        // Still stabilizes / searches for a destination after surviving.
+        response.Should().Contain("autopilot searches for a reasonable destination");
+    }
+
+    [Test]
+    public async Task Explosion_InWeb_Unharmed()
+    {
+        var target = GetTarget();
+        var pod = Repository.GetLocation<EscapePod>();
+        target.Context.CurrentLocation = pod;
+        pod.SubLocation = Repository.GetItem<SafetyWeb>(); // safely in the web
+        pod.TurnsSinceExplosion = 3; // next Act -> case 4
+        target.Context.RegisterActor(pod);
+
+        var chooser = new Mock<IRandomChooser>();
+        chooser.Setup(c => c.RollDiceSuccess(5)).Returns(true); // the web must bypass the roll entirely
+        pod.Chooser = chooser.Object;
+
+        var response = await target.GetResponse("wait");
+
+        response.Should().NotContain("bruising");
+        response.Should().NotContain("head first");
+        response.Should().NotContain("You have died");
+        // The web is unharmed, but the pod still stabilizes and looks for a destination.
+        response.Should().Contain("autopilot searches for a reasonable destination");
     }
 }

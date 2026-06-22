@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.AIGeneration;
+using Newtonsoft.Json;
 using Planetfall.Command;
 using Utilities;
 
@@ -58,6 +59,10 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
 
 internal class EscapePod : LocationBase, ITurnBasedActor
 {
+    // Locations are serialized into save state, so the random source must not be persisted.
+    [UsedImplicitly] [JsonIgnore]
+    public IRandomChooser Chooser { get; set; } = new RandomChooser();
+
     public bool LandedSafely { get; set; }
 
     public byte TurnsSinceExplosion { get; set; }
@@ -237,15 +242,31 @@ internal class EscapePod : LocationBase, ITurnBasedActor
                 break;
 
             case 4:
-                // TODO: If not in web, You are thrown against the bulkhead, bruising a few limbs. The safety webbing might have offered a bit more protection.
-                // TODO: If not in web, chance of: You are thrown against the bulkhead, head first. It seems that getting in the safety webbing would have been a good idea.
-
-                action =
+                // The Feinstein blows apart. If the player never strapped into the safety web,
+                // they're thrown against the bulkhead: a 20% chance of an instant head-first death,
+                // otherwise a survivable bruising. In the web they ride it out unharmed. The death
+                // path must stop early so the stabilization text isn't appended after dying.
+                var explosion =
                     "Through the viewport of the pod you see the Feinstein dwindle as you head away. Bursts of light " +
                     "dot its hull. Suddenly, a huge explosion blows the Feinstein into tiny pieces, sending the " +
-                    "escape pod tumbling away! \n\nAs the escape pod tumbles away from the former location of " +
-                    "the Feinstein, its gyroscopes whine. The pod slowly stops tumbling. Lights on the control " +
-                    "panel blink furiously as the autopilot searches for a reasonable destination. ";
+                    "escape pod tumbling away! ";
+                var inWeb = context.CurrentLocation.SubLocation is SafetyWeb;
+
+                if (!inWeb && Chooser.RollDiceSuccess(5)) // PROB 20 -> head-first death
+                    return Die(explosion + "\n\nYou are thrown against the bulkhead, head first. It seems that " +
+                               "getting in the safety webbing would have been a good idea.", context);
+
+                var bruise = inWeb
+                    ? ""
+                    : "\n\nYou are thrown against the bulkhead, bruising a few limbs. The safety webbing might have " +
+                      "offered a bit more protection. ";
+
+                var stabilize =
+                    "\n\nAs the escape pod tumbles away from the former location of the Feinstein, its gyroscopes " +
+                    "whine. The pod slowly stops tumbling. Lights on the control panel blink furiously as the " +
+                    "autopilot searches for a reasonable destination. ";
+
+                action = explosion + bruise + stabilize;
                 break;
 
             case 5:
