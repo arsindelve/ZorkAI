@@ -365,6 +365,32 @@ public class CourseControlTests : EngineTestsBase
     }
 
     [Test]
+    public async Task PutGoodBedistorInCube_WhenFusedIsFirstInInventory_ActsOnTheNamedGoodBedistor()
+    {
+        // Issue #246: the multi-noun path (put/give/slide X in/to Y) resolved its nouns through
+        // MultiNounEngine.IsItemHere, which used the raw, adjective-blind containment matcher - so
+        // #244's single-noun fix did not cover it. With the fused bedistor FIRST in inventory, the
+        // fused bedistor's bare noun "bedistor" is contained in "good bedistor", and inventory-first
+        // containment returned the FUSED one. "put good in cube" must act on the GOOD bedistor (the
+        // adjective-qualified, precise match), not the fused one that merely shares the bare noun.
+        var target = GetTarget();
+        StartHere<CourseControl>();
+        GetItem<LargeMetalCube>().IsOpen = true;
+
+        // Force the failing order: fused (the wrong, containment-only match) ahead of good in inventory.
+        Take<FusedBedistor>();
+        Take<GoodBedistor>();
+
+        var response = await target.GetResponse("put good in cube");
+
+        response.Should().Contain("The warning lights go out");
+        GetItem<LargeMetalCube>().HasItem<GoodBedistor>().Should().BeTrue();
+        target.Context.HasItem<GoodBedistor>().Should().BeFalse();
+        target.Context.HasItem<FusedBedistor>().Should().BeTrue();
+        GetLocation<CourseControl>().Fixed.Should().BeTrue();
+    }
+
+    [Test]
     public async Task UsePliersOnBedistor_RemovesBedistor()
     {
         var target = GetTarget();

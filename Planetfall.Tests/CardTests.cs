@@ -293,4 +293,41 @@ public class CardTests : EngineTestsBase
 
         response.Should().Contain("The kitchen door quietly slides open");
     }
+
+    [Test]
+    [TestCase(true)] // shuttle carried first - the issue's reported failing order
+    [TestCase(false)] // kitchen carried first
+    public void KitchenCard_ResolvesToKitchenNotShuttle_RegardlessOfInventoryOrder(bool shuttleFirst)
+    {
+        // Issue #246, resolver-level guard for the card-collision family. The shuttle card's bare
+        // noun "card" is contained in "kitchen card", so an adjective-blind matcher returns the
+        // shuttle card when it is first in inventory. This locks in that the SHARED adjective-aware
+        // resolver - GetPreciseMatchInScope (the pass MultiNounEngine.IsItemHere now runs first) and
+        // GetItemInScope (the single-noun #244 path) - lands on the KITCHEN card regardless of order,
+        // guarding the cards' NounsForPreciseMatching definitions against future drift.
+        //
+        // This asserts the resolver directly, not the engine turn: the end-to-end multi-noun engine
+        // path (IsItemHere) is proven red-before/green-after by the bedistor test
+        // CourseControlTests.PutGoodBedistorInCube_WhenFusedIsFirstInInventory... A card slide/put
+        // cannot stand in for it, because SlotBase resolves cards by type (Match<KitchenAccessCard,
+        // KitchenSlot> + HasItem<KitchenAccessCard>) and returns before IsItemHere is ever reached.
+        var engine = GetTarget();
+        engine.Context.CurrentLocation = Repository.GetLocation<MessHall>();
+
+        if (shuttleFirst)
+        {
+            engine.Context.ItemPlacedHere(Repository.GetItem<ShuttleAccessCard>());
+            engine.Context.ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
+        }
+        else
+        {
+            engine.Context.ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
+            engine.Context.ItemPlacedHere(Repository.GetItem<ShuttleAccessCard>());
+        }
+
+        var kitchen = Repository.GetItem<KitchenAccessCard>();
+
+        Repository.GetPreciseMatchInScope("kitchen card", engine.Context).Should().Be(kitchen);
+        Repository.GetItemInScope("kitchen card", engine.Context).Should().Be(kitchen);
+    }
 }
