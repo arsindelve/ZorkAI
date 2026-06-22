@@ -453,6 +453,30 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
+    public async Task Activate_AfterWaking_DeactivateReactivate_DoesNotReAwardPoints()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+
+        // Wake Floyd normally (the one-time +2 is paid here).
+        await target.GetResponse("activate floyd"); // countdown 3 -> 2
+        await target.GetResponse("wait");           // 2 -> 1
+        await target.GetResponse("wait");           // 1 -> wake
+        floyd.IsOn.Should().BeTrue();
+        target.Context.Score.Should().Be(2);
+
+        // Turning him off and back on (now that he's already woken once) must never re-award the
+        // activation bonus -- the one-shot flag is set and never reset.
+        await target.GetResponse("turn off floyd");
+        await target.GetResponse("turn on floyd");
+        await target.GetResponse("turn off floyd");
+        await target.GetResponse("turn on floyd");
+
+        target.Context.Score.Should().Be(2);
+    }
+
+    [Test]
     public async Task FloydWakesUp_PlayerStaysInRoom_NormalMessage()
     {
         var target = GetTarget();
