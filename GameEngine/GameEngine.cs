@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.RegularExpressions;
 using ChatLambda;
 using CloudWatch;
 using CloudWatch.Model;
@@ -399,8 +400,15 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (returnResponseFromAgainProcessor)
             return PostProcessing(_currentInput);
 
-        // Resolve pronouns from recent player input and game response (BEFORE ItProcessor)
-        if (!string.IsNullOrEmpty(Context.LastInput) || !string.IsNullOrEmpty(Context.LastResponse))
+        // Resolve pronouns from recent player input and game response (BEFORE ItProcessor), UNLESS a
+        // just-completed move left the deterministic engine holding a still-carried antecedent for
+        // this pronoun. After a move, LastInput is the movement command ("north") and LastResponse is
+        // the destination room's description, so the AI resolver would re-bind "it"/"them" to a noun
+        // in the NEW room and lose the carried-item antecedent that MoveEngine deliberately preserved
+        // across the move (issues #248 / #275). In that case we defer to the deterministic ItProcessor
+        // below, which resolves the pronoun from the preserved LastNoun/LastNouns.
+        if (!MoveJustClobberedPronounContext(_currentInput!, Context)
+            && (!string.IsNullOrEmpty(Context.LastInput) || !string.IsNullOrEmpty(Context.LastResponse)))
         {
             var resolved = await _parser.ResolvePronounsAsync(_currentInput!, Context.LastInput, Context.LastResponse);
             if (resolved != null && !resolved.Equals(_currentInput, StringComparison.OrdinalIgnoreCase))
@@ -477,6 +485,39 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         // Put it all together for return.
         return await ProcessActorsAndContextEndOfTurn(contextPrepend, complexIntentResult.ResultMessage);
+    }
+
+    /// <summary>
+    ///     True when the immediately preceding command was a movement and the player's current command
+    ///     uses "it"/"them" with a still-carried antecedent that <see cref="MoveEngine" /> preserved
+    ///     across that move (issue #248). When this holds we must NOT run the AI pronoun resolver: right
+    ///     after a move its only context is the movement command (LastInput) and the destination room's
+    ///     description (LastResponse), so it re-binds the pronoun to a noun in the NEW room and the
+    ///     carried-item antecedent is lost (issue #275 — "the invisible gangway"). The deterministic
+    ///     <see cref="ItProcessor" /> downstream resolves the pronoun from LastNoun/LastNouns instead.
+    ///
+    ///     The check is deliberately scoped to the post-move case so the AI resolver keeps its value for
+    ///     every other turn — semantic rewrites like "put it on" -> "wear X", resolving from response
+    ///     narration, the other pronouns (him/her/that/...), and so on.
+    /// </summary>
+    private static bool MoveJustClobberedPronounContext(string input, IContext context)
+    {
+        // "the move is the trigger": only defer to the preserved antecedent when the previous command
+        // (now sitting in LastInput) was itself a movement. Any non-move command refreshes LastInput
+        // with a real noun phrase, which is exactly what the AI resolver needs to work correctly.
+        if (!DirectionParser.IsDirection(context.LastInput, out _))
+            return false;
+
+        // Only "it"/"them" are resolved deterministically from LastNoun/LastNouns; for any other
+        // pronoun (him, her, that, ...) the AI resolver is the only thing that can help, so let it run.
+        if (Regex.IsMatch(input, @"\bit\b", RegexOptions.IgnoreCase))
+            return !string.IsNullOrEmpty(context.LastNoun) &&
+                   context.HasMatchingNoun(context.LastNoun).HasItem;
+
+        if (Regex.IsMatch(input, @"\bthem\b", RegexOptions.IgnoreCase))
+            return context.LastNouns.Any(noun => context.HasMatchingNoun(noun).HasItem);
+
+        return false;
     }
 
     public IContext RestoreGame(string data)
