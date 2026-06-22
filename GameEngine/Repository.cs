@@ -125,10 +125,21 @@ public static class Repository
     /// <see cref="IItem.NounsForPreciseMatching"/> contains an exact match for the noun. This is
     /// the adjective-aware pass that lets "good bedistor" win over a bare "bedistor" containment
     /// match (issue #244). Returns null when no precise match is in scope, leaving the broader
-    /// containment fallback in <see cref="GetItemInScope"/> to do its job.
+    /// containment fallback in the caller to do its job.
+    ///
+    /// Shared by every scope resolver so they agree on adjectives: <see cref="GetItemInScope"/>
+    /// (single-noun take/drop/put, #244) and <see cref="IntentEngine.MultiNounEngine"/>'s noun
+    /// resolution (multi-noun put/give/slide, #246). The raw <see cref="IItem.HasMatchingNoun"/> /
+    /// location matchers are adjective-blind containment matchers, so callers must run this pass
+    /// first to keep "kitchen card" from resolving to a shuttle "card".
     /// </summary>
-    private static IItem? GetPreciseMatchInScope(string noun, IContext context)
+    public static IItem? GetPreciseMatchInScope(string? noun, IContext context)
     {
+        if (string.IsNullOrEmpty(noun))
+            return null;
+
+        noun = noun.ToLowerInvariant().Trim();
+
         // Room before inventory, mirroring the search order in GetItemInScope. Guard against null:
         // production always returns a real list, but under-configured test mocks of IContext /
         // ICanContainItems return null for GetAllItemsRecursively.

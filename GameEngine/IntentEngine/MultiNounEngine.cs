@@ -133,6 +133,16 @@ public class MultiNounEngine : IIntentEngine
 
     private static (bool IsHere, IItem? item) IsItemHere(IContext context, string item)
     {
+        // Issue #246: an adjective-qualified noun ("kitchen card", "good bedistor") must resolve to
+        // the precise item, not the first raw-containment match (a shuttle "card" is contained in
+        // "kitchen card"; a fused "bedistor" in "good bedistor"). Mirror the single-noun #244 fix by
+        // giving the shared adjective-aware pass priority over the containment fallback below. The
+        // existing inventory-first fallback is left untouched so plain, non-adjective nouns behave
+        // exactly as before.
+        var preciseMatch = Repository.GetPreciseMatchInScope(item, context);
+        if (preciseMatch is not null)
+            return (true, preciseMatch);
+
         var result = context.HasMatchingNoun(item);
         if (result.HasItem)
             return result;

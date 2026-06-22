@@ -293,4 +293,36 @@ public class CardTests : EngineTestsBase
 
         response.Should().Contain("The kitchen door quietly slides open");
     }
+
+    [Test]
+    [TestCase(true)] // shuttle carried first - the issue's reported failing order
+    [TestCase(false)] // kitchen carried first
+    public void KitchenCard_ResolvesToKitchenNotShuttle_RegardlessOfInventoryOrder(bool shuttleFirst)
+    {
+        // Issue #246: the multi-noun path (put/give/slide X in/to Y) resolves each noun through
+        // MultiNounEngine.IsItemHere, which used the raw, adjective-blind containment matcher. The
+        // shuttle card's bare noun "card" is contained in "kitchen card", so when the shuttle card
+        // is first in inventory the raw matcher returned it - ignoring the "kitchen" adjective. Both
+        // the multi-noun resolver (GetPreciseMatchInScope, the pass IsItemHere now runs first) and
+        // the single-noun #244 resolver (GetItemInScope) must land on the KITCHEN card regardless of
+        // inventory order.
+        var engine = GetTarget();
+        engine.Context.CurrentLocation = Repository.GetLocation<MessHall>();
+
+        if (shuttleFirst)
+        {
+            engine.Context.ItemPlacedHere(Repository.GetItem<ShuttleAccessCard>());
+            engine.Context.ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
+        }
+        else
+        {
+            engine.Context.ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
+            engine.Context.ItemPlacedHere(Repository.GetItem<ShuttleAccessCard>());
+        }
+
+        var kitchen = Repository.GetItem<KitchenAccessCard>();
+
+        Repository.GetPreciseMatchInScope("kitchen card", engine.Context).Should().Be(kitchen);
+        Repository.GetItemInScope("kitchen card", engine.Context).Should().Be(kitchen);
+    }
 }
