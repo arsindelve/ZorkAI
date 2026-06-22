@@ -266,6 +266,20 @@ public static class ParsingHelper
 
     public static IntentBase GetIntent(string input, string? response, ILogger? logger)
     {
+        // #256: More than one <verb> or <intent> tag means the player ran several commands
+        // together on one line without periods (e.g. "look examine bulkhead open bulkhead").
+        // A well-formed single command has exactly one of each (two *nouns* is still fine — that
+        // is a normal multi-noun command like "tie rope to railing"). We do not execute these;
+        // we ask the player to separate them with periods. Detecting it here also keeps us out of
+        // the determiners below, whose .SingleOrDefault() calls throw on duplicate tags — the
+        // original uncaught exception that surfaced as an HTTP 500.
+        var lowered = response?.ToLowerInvariant();
+        if (ExtractElementsByTag(lowered, "verb").Count > 1 || ExtractElementsByTag(lowered, "intent").Count > 1)
+        {
+            logger?.LogDebug("Multiple verbs/intents detected - treating as multiple commands on one line");
+            return new MultipleCommandsIntent { Message = response };
+        }
+
         var takeIntent = DetermineTakeIntent(response?.ToLowerInvariant(), input);
         if (takeIntent != null)
             return takeIntent;

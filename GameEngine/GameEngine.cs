@@ -511,6 +511,13 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             
             PromptIntent => (null, parsedResult.Message),
 
+            // #256: the player ran multiple commands together on one line with no periods.
+            // We don't execute them; the narrator asks them to separate commands with periods.
+            MultipleCommandsIntent => (
+                null,
+                await GetGeneratedMultipleCommandsResponse(_currentInput!, GenerationClient, Context)
+            ),
+
             EnterSubLocationIntent subLocationIntent => await new EnterSubLocationEngine().Process(
                 subLocationIntent,
                 Context,
@@ -710,6 +717,20 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         return result + Environment.NewLine;
     }
 
+
+    private static async Task<string> GetGeneratedMultipleCommandsResponse(
+        string input,
+        IGenerationClient generationClient,
+        IContext context
+        )
+    {
+        var request = new MultipleCommandsRequest(
+            context.CurrentLocation.GetDescriptionForGeneration(context),
+            input
+        );
+        var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum);
+        return result + Environment.NewLine;
+    }
 
     private async Task<string> GetGeneratedNoCommandResponse()
     {
