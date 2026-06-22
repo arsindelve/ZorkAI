@@ -30,6 +30,31 @@ public class SaveGameSerializationTests : EngineTestsBase
     }
 
     [Test]
+    public async Task RestoreGame_RepopulatesPreviousLocationName_FromContext()
+    {
+        // Arrange: move the player so the engine records a "came from" location, then save.
+        var engine = GetTarget();
+        engine.Context.CurrentLocation = Repository.GetLocation<WestOfHouse>();
+        await engine.GetResponse("N");
+        engine.LocationName.Should().Be("North of House");
+        engine.PreviousLocationName.Should().Be("West Of House", "the player just came from West Of House");
+
+        var saved = engine.SaveGame();
+
+        // Act: restore into a fresh engine, exactly like the GET rehydrate path, which runs
+        // no engine turn (so the engine-only PreviousLocationName is never re-assigned).
+        var restoredEngine = GetTarget();
+        restoredEngine.PreviousLocationName.Should().BeNull("a fresh engine has no prior location");
+        restoredEngine.RestoreGame(saved);
+
+        // Assert: PreviousLocationName must survive the no-turn GET rehydrate path so a
+        // reconnecting client still knows where the player came from. It now lives on Context
+        // (mirroring LastMovementDirection) so it serializes/restores and GET matches POST
+        // (issue #250).
+        restoredEngine.PreviousLocationName.Should().Be("West Of House");
+    }
+
+    [Test]
     public void SaveGame_Contains_TypeAndReferenceMetadata()
     {
         // Arrange

@@ -306,6 +306,8 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public Direction? LastMovementDirection { get; set; }
 
+    public string? PreviousLocationName { get; set; }
+
     /// <summary>
     ///     Adds the specified item to the inventory of the game context and removes it from the current location
     /// </summary>
