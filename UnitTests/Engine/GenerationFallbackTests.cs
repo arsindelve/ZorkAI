@@ -14,7 +14,8 @@ public class GenerationFallbackTests
 {
     private static GameEngine<ZorkI, ZorkIContext> BuildEngine(
         Mock<IGenerationClient> client,
-        IIntentParser parser)
+        IIntentParser parser,
+        CloudWatch.ICloudWatchLogger<CloudWatch.Model.TurnLog>? turnLogger = null)
     {
         var takeAndDropParser = new Mock<IAITakeAndAndDropParser>();
         takeAndDropParser
@@ -40,7 +41,7 @@ public class GenerationFallbackTests
             parser,
             client.Object,
             secrets,
-            Mock.Of<CloudWatch.ICloudWatchLogger<CloudWatch.Model.TurnLog>>(), 
+            turnLogger ?? Mock.Of<CloudWatch.ICloudWatchLogger<CloudWatch.Model.TurnLog>>(),
             Mock.Of<IParseConversation>()
         );
 
@@ -172,5 +173,73 @@ public class GenerationFallbackTests
         // Assert: still a graceful 200 body, this time the guaranteed canned sentence.
         result.Should().NotBeNullOrEmpty();
         result.Should().Contain(GameEngine<ZorkI, ZorkIContext>.EngineErrorFallbackMessage);
+    }
+
+    // The "exception stays discoverable" acceptance criterion: a failed turn must leave a CloudWatch
+    // TurnLog carrying the raw exception and the turn correlation id, so the swallowed bug can still
+    // be found. Verify the diagnostic TurnLog content directly, not just that generation happened.
+    [Test]
+    public async Task UnhandledException_WritesDiagnosticTurnLog_WithEngineErrorAndCorrelationId()
+    {
+        // Arrange: capture every TurnLog the engine writes during the failed turn.
+        var parser = new Mock<IIntentParser>();
+        parser.Setup(p => p.DetermineSystemIntentType(It.IsAny<string>()))
+            .Throws(new InvalidOperationException("boom — simulated deep engine crash"));
+
+        var loggedTurns = new List<CloudWatch.Model.TurnLog>();
+        var turnLogger = new Mock<CloudWatch.ICloudWatchLogger<CloudWatch.Model.TurnLog>>();
+        turnLogger.Setup(l => l.WriteLogEvents(It.IsAny<CloudWatch.Model.TurnLog>()))
+            .Callback<CloudWatch.Model.TurnLog>(loggedTurns.Add)
+            .Returns(Task.CompletedTask);
+
+        var client = new Mock<IGenerationClient>();
+        client.SetupAllProperties();
+        client.Object.LastFiveInputOutputs = new List<(string, string, bool)>();
+        client
+            .Setup(c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()))
+            .ReturnsAsync("The world flickers for a moment.");
+
+        var engine = BuildEngine(client, parser.Object, turnLogger.Object);
+
+        // Act
+        await engine.GetResponse("do something that explodes");
+
+        // Assert: a diagnostic row exists carrying the raw exception and a correlation-id GUID.
+        loggedTurns.Should().Contain(t =>
+            t.Response.Contains("ENGINE ERROR") && t.Response.Contains("boom"));
+        loggedTurns.Should().Contain(t =>
+            System.Text.RegularExpressions.Regex.IsMatch(
+                t.Response, @"ENGINE ERROR \([0-9a-fA-F-]{36}\)"));
+    }
+
+    // The third branch of HandleUnexpectedEngineError: when generation is disabled
+    // (NoGeneratedResponses), the net must skip the AI call entirely and return the guaranteed
+    // static fallback. Covered only implicitly by the "generation throws" test otherwise.
+    [Test]
+    public async Task UnhandledException_WhenGenerationDisabled_ReturnsStaticFallback_WithoutCallingGeneration()
+    {
+        // Arrange
+        var parser = new Mock<IIntentParser>();
+        parser.Setup(p => p.DetermineSystemIntentType(It.IsAny<string>()))
+            .Throws(new InvalidOperationException("boom — simulated deep engine crash"));
+
+        var client = new Mock<IGenerationClient>();
+        client.SetupAllProperties();
+        client.Object.LastFiveInputOutputs = new List<(string, string, bool)>();
+
+        var engine = BuildEngine(client, parser.Object);
+        engine.NoGeneratedResponses = true;
+
+        // Act
+        string? result = null;
+        var act = async () => result = await engine.GetResponse("do something that explodes");
+        await act.Should().NotThrowAsync();
+
+        // Assert: static fallback returned, and no AI generation was attempted on the error path.
+        result.Should().NotBeNullOrEmpty();
+        result.Should().Contain(GameEngine<ZorkI, ZorkIContext>.EngineErrorFallbackMessage);
+        client.Verify(
+            c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()),
+            Times.Never);
     }
 }
