@@ -1,4 +1,5 @@
 using FluentAssertions;
+using GameEngine;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Lawanda;
 using Planetfall.Location.Kalamontee.Admin;
@@ -342,6 +343,25 @@ public class CourseControlTests : EngineTestsBase
         GetLocation<SystemsMonitors>().Fixed.Count.Should().Be(4);
         GetLocation<SystemsMonitors>().Busted.Count.Should().Be(3);
         GetLocation<CourseControl>().Fixed.Should().BeTrue();
+    }
+
+    [Test]
+    public void GetItemInScope_GoodBedistor_ResolvesToGoodNotFused()
+    {
+        // Issue #244: when the good bedistor (inventory) and the fused bedistor (the open cube,
+        // in scope) are both present, "good bedistor" must resolve to the GOOD one. The fused
+        // bedistor's bare noun "bedistor" is contained in the input "good bedistor", and the
+        // resolver used to search the location first and return that containment match - ignoring
+        // the adjective. An exact precise-noun match must beat a containment match.
+        var target = GetTarget();
+        StartHere<CourseControl>();
+        Take<GoodBedistor>();                    // good in inventory
+        GetItem<LargeMetalCube>().IsOpen = true; // fused in the open cube, in scope
+
+        var good = GetItem<GoodBedistor>();
+
+        Repository.GetItemInScope("good bedistor", target.Context).Should().Be(good);
+        Repository.GetItemInScope("good ninety-ohm bedistor", target.Context).Should().Be(good);
     }
 
     [Test]

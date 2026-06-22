@@ -86,6 +86,16 @@ public static class Repository
 
         noun = noun.ToLowerInvariant().Trim();
 
+        // Issue #244: an exact match against an item's *precise* (adjective-qualified) nouns must
+        // beat the word-boundary containment fallback in ItemBase.HasMatchingNoun - regardless of
+        // whether the precise match is in the room or in inventory. Without this, "good bedistor"
+        // resolved to the FUSED bedistor, because its bare noun "bedistor" is contained in the
+        // input and the location (searched first) won on a containment match while the adjective
+        // was ignored. Trap: do this pass BEFORE the location-first search below.
+        var preciseMatch = GetPreciseMatchInScope(noun, context);
+        if (preciseMatch != null)
+            return preciseMatch;
+
         // First search in the current room (including all nested containers)
         if (context.CurrentLocation != null)
         {
@@ -108,6 +118,28 @@ public static class Repository
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Finds the single accessible item in scope (room first, then inventory) whose
+    /// <see cref="IItem.NounsForPreciseMatching"/> contains an exact match for the noun. This is
+    /// the adjective-aware pass that lets "good bedistor" win over a bare "bedistor" containment
+    /// match (issue #244). Returns null when no precise match is in scope, leaving the broader
+    /// containment fallback in <see cref="GetItemInScope"/> to do its job.
+    /// </summary>
+    private static IItem? GetPreciseMatchInScope(string noun, IContext context)
+    {
+        // Room before inventory, mirroring the search order in GetItemInScope. Guard against null:
+        // production always returns a real list, but under-configured test mocks of IContext /
+        // ICanContainItems return null for GetAllItemsRecursively.
+        var candidates = new List<IItem>();
+        if (context.CurrentLocation is ICanContainItems locationItems)
+            candidates.AddRange(locationItems.GetAllItemsRecursively ?? []);
+        candidates.AddRange(context.GetAllItemsRecursively ?? []);
+
+        return candidates.FirstOrDefault(item =>
+            IsItemAccessible(item, context) &&
+            item.NounsForPreciseMatching.Any(n => n.Equals(noun, StringComparison.InvariantCultureIgnoreCase)));
     }
 
     /// <summary>
