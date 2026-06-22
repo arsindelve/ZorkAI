@@ -150,5 +150,19 @@ public class IntentMappingResolver
                 };
             }
         }
+
+        // Register go-to destination intents (issue #268)
+        foreach (var mapping in config.GoToDestinationIntents)
+        {
+            foreach (var input in mapping.Inputs)
+            {
+                var destination = mapping.Destination;
+
+                _intentFactories[input] = () => new GoToDestinationIntent
+                {
+                    Destination = destination
+                };
+            }
+        }
     }
 }

@@ -16,6 +16,15 @@ public interface ILocation
     string Name { get; }
 
     /// <summary>
+    /// The set of names/synonyms a player can use to refer to THIS location as a travel destination
+    /// (issue #268 destination navigation, e.g. "go to the dome room"). Defaults to the display
+    /// <see cref="Name"/>; rooms override to add colloquial names ("the dome", "blue elevator").
+    /// Unlike an item's nouns, this is only consulted by destination navigation, never by item scope
+    /// resolution.
+    /// </summary>
+    string[] NounsForMatching => [Name];
+
+    /// <summary>
     /// This property represents a sub-location inside another location. It can be used to define a location
     /// that exists within another location, such as a vehicle or a specific area within a larger space.
     /// </summary>

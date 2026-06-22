@@ -18,7 +18,22 @@ internal class EnterSubLocationEngine : IIntentEngine
 
         IItem? subLocation = Repository.GetItemInScope(enter.Noun, context);
         if (subLocation == null)
+        {
+            // Issue #268: "enter <room>" — when the noun isn't an item in scope, it may be the NAME of
+            // an adjacent room ("enter the kitchen", "enter elevator"). Route it through destination
+            // navigation (same 0/1/many handling as "go to <room>") before refusing.
+            var matches = DestinationNavigation.ResolveAllAdjacent(enter.Noun, context);
+            if (matches.Count == 1)
+                return await new MoveEngine().Process(
+                    new MoveIntent { Direction = matches[0].Direction }, context, generationClient);
+            if (matches.Count > 1)
+            {
+                var disambiguation = DestinationNavigation.BuildDisambiguation(matches);
+                return (disambiguation, disambiguation.InteractionMessage);
+            }
+
             return (null, await GetGeneratedCantGoThatWayResponse(generationClient, context, enter.Noun));
+        }
 
         if (subLocation is not ISubLocation subLocationInstance)
             return (null, await GetGeneratedCantGoThatWayResponse(generationClient, context, enter.Noun));

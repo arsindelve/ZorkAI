@@ -7,6 +7,9 @@ internal class LowerElevator : ElevatorBase<LowerElevatorDoor, LowerElevatorAcce
 {
     public override string Name => "Lower Elevator";
 
+    // Issue #268: "elevator" is the shared/ambiguous term; "lower"/"red"/"red elevator" distinguish it.
+    public override string[] NounsForMatching => ["lower elevator", "elevator", "red elevator", "red", "lower"];
+
     protected override string Color => "red";
 
     protected override string Size => "medium-sized";

@@ -634,6 +634,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             MoveIntent moveInteraction => await new MoveEngine().Process(moveInteraction, Context,
                 GenerationClient),
 
+            // Issue #268: "go to / walk to / enter <named room>" — resolve the name against the
+            // current room's exits and walk there (one hop), or ask which one / refuse.
+            GoToDestinationIntent goToIntent => await new DestinationNavigationEngine().Process(goToIntent,
+                Context, GenerationClient),
+
             ExitSubLocationIntent exitSubLocationIntent =>
                 await new ExitSubLocationEngine().Process(
                     exitSubLocationIntent,

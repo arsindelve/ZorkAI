@@ -7,6 +7,10 @@ internal class UpperElevator : ElevatorBase<UpperElevatorDoor, UpperElevatorAcce
 {
     public override string Name => "Upper Elevator";
 
+    // Issue #268: "elevator" is the shared/ambiguous term (both elevators answer to it, triggering the
+    // "which one?" prompt); "upper"/"blue"/"blue elevator" are the distinguishing reply keys.
+    public override string[] NounsForMatching => ["upper elevator", "elevator", "blue elevator", "blue", "upper"];
+
     protected override string Color => "blue";
 
     protected override string Size => "tiny";

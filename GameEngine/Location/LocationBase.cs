@@ -175,6 +175,12 @@ public abstract class LocationBase : ILocation, ICanContainItems
     public abstract string Name { get; }
 
     /// <summary>
+    /// The names/synonyms a player can use to name this room as a travel destination (issue #268).
+    /// Defaults to the display <see cref="Name"/>; individual rooms override to add colloquial names.
+    /// </summary>
+    public virtual string[] NounsForMatching => [Name];
+
+    /// <summary>
     /// Determines if there is an item within the location that matches the specified noun.
     /// </summary>
     /// <param name="noun">The noun to search for that identifies the item.</param>

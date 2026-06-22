@@ -215,11 +215,20 @@
   ],
 
   "enterSubLocationIntents": [
-    { "inputs": ["get in the boat", "enter the boat", "enter boat"], "noun": "boat" }
+    { "inputs": ["get in the boat", "enter the boat", "enter boat"], "noun": "boat" },
+    { "inputs": ["enter elevator", "enter the elevator"], "noun": "elevator" },
+    { "inputs": ["enter the kitchen", "enter kitchen"], "noun": "kitchen" }
   ],
 
   "exitSubLocationIntents": [
     { "inputs": ["get out of the boat", "leave boat"], "nounOne": "boat" },
     { "inputs": ["get out of bed", "exit bed", "leave bed", "get out", "stand", "stand up", "get up"], "nounOne": "bed" }
+  ],
+
+  "goToDestinationIntents": [
+    { "inputs": ["go to the kitchen", "go to kitchen", "walk to the kitchen"], "destination": "kitchen" },
+    { "inputs": ["go to the upper elevator", "go to upper elevator"], "destination": "upper elevator" },
+    { "inputs": ["go to the lower elevator", "go to lower elevator"], "destination": "lower elevator" },
+    { "inputs": ["go to the reactor", "walk to the reactor"], "destination": "reactor" }
   ]
 }
