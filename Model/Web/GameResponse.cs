@@ -30,12 +30,13 @@ public record GameResponse(
         gameEngine.LastMovementDirection.ToString(),
         gameEngine.Inventory,
         // Issue #238: in the dark the prose hides the room, so the structured payload must not leak
-        // the location's exits or action chips either. Inventory-derived fields stay populated —
-        // the player can still feel what they're carrying. (Context is always initialized in
-        // GameEngine and never null in production; the null fall-throughs here exist only because
-        // IGameEngine.Context is annotated nullable. Both darkness checks use the same idiom so a
-        // future third location-derived field can copy the pattern without re-introducing skew.)
-        gameEngine.Context is { ItIsDarkHere: true } ? new List<Direction>() : gameEngine.Exits,
+        // the location's exits or action chips either. Both location-derived fields populate only
+        // when the room is lit; inventory-derived fields stay populated (the player can still feel
+        // what they're carrying). Both checks use the same `is { ItIsDarkHere: false }` polarity so
+        // a future location-derived field can copy the pattern without re-introducing skew. Context
+        // is never null in production (GameEngine.Exits would NRE first), so the non-lit branch also
+        // safely covers the nullable IGameEngine.Context interface contract.
+        gameEngine.Context is { ItIsDarkHere: false } ? gameEngine.Exits : new List<Direction>(),
         gameEngine.Context is { ItIsDarkHere: false } litContext
             ? litContext.CurrentLocation.GetAvailableActionsInLocation()
             : new Dictionary<string, List<string>>(),
