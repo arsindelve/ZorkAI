@@ -114,7 +114,16 @@ public class ConversationHandler(
 
         var parseResult = await parseConversation.ParseAsync(input);
         logger?.LogDebug($"[CONVERSATION DEBUG] Absent-talker classifier isConversational: {parseResult.isConversational}");
-        return parseResult.isConversational ? referenced[0] : null;
+        if (!parseResult.isConversational)
+            return null;
+
+        // The classifier confirms the input is address but not WHOM it addresses. When more than one
+        // absent talker is named, attribute to the one whose name appears earliest in the input (the
+        // addressed party in "tell floyd that blather left" phrasings) rather than arbitrary roster
+        // order.
+        return referenced
+            .OrderBy(talker => FirstMentionIndex(input, (IItem)talker))
+            .First();
     }
 
     /// <summary>
@@ -124,7 +133,31 @@ public class ConversationHandler(
     private static bool Mentions(string input, IItem item) =>
         item.NounsForMatching.Any(noun => ContainsWholeWord(input, noun));
 
-    private static bool ContainsWholeWord(string text, string word)
+    /// <summary>
+    /// The index of the earliest whole-word mention of any of the item's nouns in the input, or
+    /// <see cref="int.MaxValue"/> if none — used to attribute an ambiguous classifier-detected
+    /// address to the talker named first.
+    /// </summary>
+    private static int FirstMentionIndex(string input, IItem item)
+    {
+        var earliest = int.MaxValue;
+        foreach (var noun in item.NounsForMatching)
+        {
+            var index = WholeWordIndex(input, noun);
+            if (index >= 0 && index < earliest)
+                earliest = index;
+        }
+
+        return earliest;
+    }
+
+    private static bool ContainsWholeWord(string text, string word) => WholeWordIndex(text, word) >= 0;
+
+    /// <summary>
+    /// The index of the first whole-word occurrence of <paramref name="word"/> in
+    /// <paramref name="text"/> (case-insensitive), or -1 if not present.
+    /// </summary>
+    private static int WholeWordIndex(string text, string word)
     {
         var index = 0;
         while ((index = text.IndexOf(word, index, StringComparison.OrdinalIgnoreCase)) >= 0)
@@ -133,11 +166,11 @@ public class ConversationHandler(
             var end = index + word.Length;
             var endOk = end == text.Length || !char.IsLetterOrDigit(text[end]);
             if (startOk && endOk)
-                return true;
+                return index;
             index = end;
         }
 
-        return false;
+        return -1;
     }
 
     /// <summary>
@@ -303,22 +336,16 @@ public class ConversationHandler(
     }
 
     /// <summary>
-    /// Finds the target character for conversation based on noun matching in the input.
+    /// Finds the target character for conversation based on noun matching in the input. Matches on a
+    /// whole-word boundary (consistent with the absent-NPC path) so a present NPC is not matched by a
+    /// partial-word hit (e.g. "robot" inside "robotics").
     /// </summary>
     private ICanBeTalkedTo? FindTargetCharacter(string input, List<ICanBeTalkedTo> talkers)
     {
-        var inputLower = input.ToLowerInvariant();
-        logger?.LogDebug($"[CONVERSATION DEBUG] Input lowercased: '{inputLower}'");
-
         var targetCharacter = talkers
             .OfType<IItem>()
-            .FirstOrDefault(item => item.NounsForMatching
-                .Any(noun => {
-                    var nounLower = noun.ToLowerInvariant();
-                    var contains = inputLower.Contains(nounLower);
-                    logger?.LogDebug($"[CONVERSATION DEBUG] Checking noun '{nounLower}' in '{inputLower}': {contains}");
-                    return contains;
-                })) as ICanBeTalkedTo;
+            .FirstOrDefault(item => item.NounsForMatching.Any(noun => ContainsWholeWord(input, noun)))
+            as ICanBeTalkedTo;
 
         if (targetCharacter != null)
         {

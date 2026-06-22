@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Moq;
 using Planetfall.Item.Feinstein;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Feinstein;
 
 namespace Planetfall.Tests;
@@ -274,5 +275,28 @@ public class AbsentTalkableNpcTests : EngineTestsBase
         var response = await target.GetResponse("attack floyd");
 
         response.Should().NotContain("isn't here");
+    }
+
+    // The absent-NPC guard force-instantiates the whole declared roster early (see
+    // ConversationHandler.CollectAllKnownTalkers). This pins the contract that doing so has no
+    // observable side effects: instantiating an NPC must not place it in a location or register it
+    // as an actor. If a future talkable NPC's Init() does either, this test fails loudly.
+    [Test]
+    public void InstantiatingTheTalkableRoster_DoesNotPlaceOrRegisterAnyNpc()
+    {
+        GetTarget();
+        StartHere<DeckNine>();
+
+        var floyd = GetItem<Floyd>();
+        var blather = GetItem<Blather>();
+        var ambassador = GetItem<Ambassador>();
+
+        floyd.CurrentLocation.Should().BeNull();
+        blather.CurrentLocation.Should().BeNull();
+        ambassador.CurrentLocation.Should().BeNull();
+
+        Context.Actors.Should().NotContain(floyd);
+        Context.Actors.Should().NotContain(blather);
+        Context.Actors.Should().NotContain(ambassador);
     }
 }

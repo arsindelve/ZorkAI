@@ -484,6 +484,53 @@ public class ConversationHandlerTests
     }
 
     [Test]
+    public async Task CheckForConversation_TwoAbsentTalkers_ClassifierFallback_AttributesToEarliestNamed()
+    {
+        // Arrange - deterministic check misses for both; the classifier says it's address but not
+        // whom. Attribution must go to the talker NAMED first ("captain"), not roster order (Gizmo).
+        var mockParser = new Mock<IParseConversation>();
+        mockParser.Setup(p => p.ParseAsync(It.IsAny<string>())).ReturnsAsync((true, ""));
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
+            new[] { typeof(GizmoTalker), typeof(CaptainTalker) });
+        var context = new ZorkIContext();
+
+        // Act - "captain" appears before "gizmo", and neither is an explicit (deterministic) address.
+        var result = await handler.CheckForConversation(
+            "could you let captain know that gizmo wandered off", context);
+
+        // Assert
+        result.Should().Be("The captain isn't here. ");
+    }
+
+    [Test]
+    public async Task CheckForConversation_PresentTalker_NotMatchedByPartialWord()
+    {
+        // Arrange - a present NPC named "bob" must not be engaged by a partial-word hit inside
+        // "bobbin"; the present path now uses the same whole-word matching as the absent path.
+        var mockParser = new Mock<IParseConversation>();
+        mockParser.Setup(p => p.ParseAsync(It.IsAny<string>())).ReturnsAsync((true, "hello"));
+
+        var mockTalker = new Mock<ICanBeTalkedTo>();
+        mockTalker.As<IItem>().Setup(i => i.NounsForMatching).Returns(new[] { "bob" });
+        mockTalker.Setup(t => t.OnBeingTalkedTo(It.IsAny<string>(), It.IsAny<IContext>(), It.IsAny<IGenerationClient>()))
+                  .ReturnsAsync("engaged");
+
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>());
+        var context = new ZorkIContext();
+        context.Items.Add((IItem)mockTalker.Object);
+
+        // Act
+        var result = await handler.CheckForConversation("examine the bobbin", context);
+
+        // Assert
+        result.Should().BeNull();
+        mockTalker.Verify(
+            t => t.OnBeingTalkedTo(It.IsAny<string>(), It.IsAny<IContext>(), It.IsAny<IGenerationClient>()),
+            Times.Never);
+        mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
     public async Task CheckForConversation_AbsentKnownTalker_RunsEvenWhenGenerationDisabled()
     {
         // Arrange - the absent-NPC guard is deterministic, so it must fire in NoGeneratedResponses mode.
