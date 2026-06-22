@@ -266,6 +266,9 @@ public static class Repository
                     // Issue #241: only add locations we're missing - never replace the whole
                     // dictionary, or we would discard the live/restored state of an in-progress
                     // session. New instances get Init()'d, mirroring GetLocation<T>().
+                    // Assumes one game per process (the Lambdas are per-game): since we no longer
+                    // reset, loading two different games without a Repository.Reset() between them
+                    // would leave both games' locations loaded.
                     if (_allLocations.ContainsKey(type))
                         continue;
 
@@ -296,6 +299,9 @@ public static class Repository
                     // session. Containers get Init()'d so they start with their contents,
                     // mirroring GetItem<T>(). (A container's Init() may lazily create the items
                     // it holds via GetItem<T>(); those then get skipped here as already-present.)
+                    // Assumes one game per process (the Lambdas are per-game): since we no longer
+                    // reset, loading two different games without a Repository.Reset() between them
+                    // would leave both games' items loaded.
                     if (_allItems.ContainsKey(type))
                         continue;
 
