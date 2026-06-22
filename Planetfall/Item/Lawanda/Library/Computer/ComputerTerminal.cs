@@ -79,6 +79,12 @@ public class ComputerTerminal : ItemBase, ICanBeExamined, ICanBeRead, ITurnOffAn
     /// </summary>
     private InteractionResult ProcessKeyPress(int? keyPress, IContext context)
     {
+        // A dark screen takes no input: gate keypresses on power so the menu can't be blind-navigated
+        // (and Floyd can't comment on "first use") while the terminal is off — matching how
+        // ExaminationDescription and ReadDescription already report "The screen is dark." when off.
+        if (!IsOn)
+            return new PositiveInteractionResult("Nothing happens; the screen is dark. ");
+
         if (!keyPress.HasValue)
             return new PositiveInteractionResult("The keyboard only has the keys 0 through 9");
 
