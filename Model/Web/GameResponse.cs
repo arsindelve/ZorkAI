@@ -29,8 +29,13 @@ public record GameResponse(
         gameEngine.PreviousLocationName,
         gameEngine.LastMovementDirection.ToString(),
         gameEngine.Inventory,
-        gameEngine.Exits,
-        gameEngine.Context?.CurrentLocation.GetAvailableActionsInLocation() ?? new Dictionary<string, List<string>>(),
+        // Issue #238: in the dark the prose hides the room, so the structured payload must not leak
+        // the location's exits or action chips either. Inventory-derived fields stay populated —
+        // the player can still feel what they're carrying.
+        gameEngine.Context?.ItIsDarkHere == true ? new List<Direction>() : gameEngine.Exits,
+        gameEngine.Context is { ItIsDarkHere: false } litContext
+            ? litContext.CurrentLocation.GetAvailableActionsInLocation()
+            : new Dictionary<string, List<string>>(),
         gameEngine.Context?.GetAvailableActionsForInventory() ?? new Dictionary<string, List<string>>())
     {
     }
