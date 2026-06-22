@@ -37,7 +37,11 @@ public class GodModeProcessor : IGlobalCommand
         if (location == null)
             return "Invalid use of God mode. Bad adventurer! ";
 
-        location.Init();
+        // Issue #241: do NOT Init() here. Repository.LoadAllLocations (above) already creates and
+        // Init()s any missing location exactly once - and a previously-loaded one was Init()'d when
+        // it was first created. Re-initializing would run Init() twice, and locations that use
+        // StartWithItem<T> (a bare Items.Add with no dedupe) would end up with their starting items
+        // duplicated in the room.
         context.CurrentLocation = location;
         return $"Welcome to {location.Name}";
     }
