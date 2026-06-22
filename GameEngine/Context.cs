@@ -74,6 +74,24 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public List<string> LastNouns { get; set; } = new();
 
+    public void RememberAntecedentNoun(string? noun)
+    {
+        if (!string.IsNullOrEmpty(noun) && !LastNouns.Contains(noun, StringComparer.OrdinalIgnoreCase))
+            LastNouns.Add(noun);
+    }
+
+    public void RememberAntecedentNouns(IEnumerable<string?> nouns)
+    {
+        var set = nouns
+            .Where(n => !string.IsNullOrEmpty(n))
+            .Select(n => n!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (set.Count > 0)
+            LastNouns = set;
+    }
+
     public int Moves { get; set; }
 
     /// <summary>

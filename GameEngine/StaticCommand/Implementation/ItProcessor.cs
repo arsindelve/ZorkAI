@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Model;
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Item;
@@ -99,14 +100,12 @@ internal class ItProcessor : IStatefulProcessor
         return Resolved(Regex.Replace(input, @"\bit\b", lastNoun, RegexOptions.IgnoreCase));
     }
 
-    // Verbs whose direct object must be in the player's hand. Used to scope "them" so "drop them"
-    // never resolves to an item that is no longer being carried.
-    private static readonly string[] DropVerbs = ["drop"];
-
     private static List<string> ItemsStillInScope(string input, IContext context)
     {
+        // Dropping requires the item in hand, so scope "them" to carried items for a drop. Uses the
+        // shared verb table so it stays in sync with the take/drop processor.
         var verb = input.TrimStart().Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty;
-        var dropping = DropVerbs.Contains(verb, StringComparer.OrdinalIgnoreCase);
+        var dropping = Verbs.DropVerbs.Contains(verb, StringComparer.OrdinalIgnoreCase);
 
         // Dropping needs the item carried; for everything else (take/put/...) it only needs to be
         // reachable — carried, or present in the current room.

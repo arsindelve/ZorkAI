@@ -37,7 +37,7 @@ public class MoveEngine : IIntentEngine
         // item after walking to the next room (issue #248).
         if (!context.HasMatchingNoun(context.LastNoun).HasItem)
             context.LastNoun = "";
-        context.LastNouns = (context.LastNouns ?? [])
+        context.LastNouns = context.LastNouns
             .Where(n => context.HasMatchingNoun(n).HasItem).ToList();
 
         return (null, await Go(context, generationClient, movement));

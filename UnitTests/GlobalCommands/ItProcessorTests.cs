@@ -115,6 +115,25 @@ public class ItProcessorTests : EngineTestsBase
         target.Context.HasItem<Sword>().Should().BeFalse();
     }
 
+    // Issue #248 (review follow-up): "them" must span only a *contiguous* run of take/drop
+    // commands. An unrelated interaction between two takes ends the group, so an item taken before
+    // that interaction is not swept into a later "drop them".
+    [Test]
+    public async Task Them_DoesNotSpanUnrelatedInterveningCommands()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+
+        await target.GetResponse("take lantern");  // group so far: [lantern]
+        await target.GetResponse("examine sword"); // unrelated action ends the group
+        await target.GetResponse("take sword");    // fresh group: [sword]
+
+        await target.GetResponse("drop them");
+
+        target.Context.HasItem<Lantern>().Should().BeTrue(
+            because: "the lantern was taken before an intervening non-take/drop command, so it is not part of \"them\"");
+    }
+
     // Issue #248 (review follow-up): "them" must only resolve to members still relevant to the
     // command. An item dropped between takes is no longer held, so "drop them" should drop only what
     // is still in hand — not drag the already-dropped item back in and trigger a spurious

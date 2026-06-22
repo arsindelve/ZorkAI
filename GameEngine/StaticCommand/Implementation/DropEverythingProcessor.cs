@@ -21,35 +21,20 @@ public class DropEverythingProcessor : IGlobalCommand
     public static string DropAll(IContext context, List<IItem?> items)
     {
         var sb = new StringBuilder();
-        var dropped = new List<string>();
+        var dropped = new List<string?>();
 
         foreach (var nextItem in items.ToList())
             if (nextItem is ICanBeTakenAndDropped)
             {
                 sb.AppendLine(
                     $"{nextItem.Name}: {TakeOrDropInteractionProcessor.DropIt(context, nextItem).InteractionMessage}");
-                RememberDropped(dropped, nextItem);
+                dropped.Add(nextItem.NounsForMatching.FirstOrDefault());
             }
 
-        SetAntecedent(context, dropped);
+        // The items just dropped become the "them" antecedent so a following "take them" can pick
+        // them back up; a batch drop overwrites the set wholesale rather than appending (issue #248).
+        context.RememberAntecedentNouns(dropped);
         return sb.ToString();
-    }
-
-    /// <summary>
-    /// Records the items just dropped as the "them" antecedent so a following "take them" can pick
-    /// them back up. A batch drop overwrites the set wholesale rather than appending (issue #248).
-    /// </summary>
-    private static void RememberDropped(List<string> dropped, IItem item)
-    {
-        var noun = item.NounsForMatching.FirstOrDefault();
-        if (!string.IsNullOrEmpty(noun))
-            dropped.Add(noun);
-    }
-
-    private static void SetAntecedent(IContext context, List<string> nouns)
-    {
-        if (nouns.Count > 0)
-            context.LastNouns = nouns.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
 
     /// <summary>
@@ -62,7 +47,7 @@ public class DropEverythingProcessor : IGlobalCommand
     public static async Task<string> DropAll(IContext context, List<(string noun, IItem? item)> itemsWithNouns, IGenerationClient client)
     {
         var sb = new StringBuilder();
-        var dropped = new List<string>();
+        var dropped = new List<string?>();
 
         foreach (var (noun, item) in itemsWithNouns)
         {
@@ -87,11 +72,11 @@ public class DropEverythingProcessor : IGlobalCommand
             {
                 sb.AppendLine(
                     $"{item.Name}: {TakeOrDropInteractionProcessor.DropIt(context, item).InteractionMessage}");
-                RememberDropped(dropped, item);
+                dropped.Add(item.NounsForMatching.FirstOrDefault());
             }
         }
 
-        SetAntecedent(context, dropped);
+        context.RememberAntecedentNouns(dropped);
         return sb.ToString();
     }
 }

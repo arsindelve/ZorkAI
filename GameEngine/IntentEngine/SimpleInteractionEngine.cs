@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Model;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Interface;
@@ -22,6 +23,13 @@ internal class SimpleInteractionEngine(IItemProcessorFactory itemProcessorFactor
 
         Debug.WriteLine(intent);
         context.LastNoun = simpleInteraction.Noun ?? "";
+
+        // "them" tracks only a contiguous run of take/drop commands; any other interaction (examine,
+        // open, push, ...) ends that group, mirroring how LastNoun is overwritten every turn. Without
+        // this, an item taken long ago would be swept into a later "drop them" (issue #248).
+        var verb = simpleInteraction.Verb?.ToLowerInvariant().Trim() ?? string.Empty;
+        if (!Verbs.TakeVerbs.Contains(verb) && !Verbs.DropVerbs.Contains(verb))
+            context.LastNouns = [];
 
         DisambiguationInteractionResult? requireDisambiguation = CheckDisambiguation(simpleInteraction, context);
         if (requireDisambiguation is not null)

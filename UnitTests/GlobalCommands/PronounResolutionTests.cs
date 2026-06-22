@@ -318,11 +318,7 @@ public class PronounResolutionTests : EngineTestsBase
             target.Context.LastNoun.Should().BeEmpty(
                 because: "An item left behind in the previous room is no longer the antecedent");
         }
-    }
 
-    [TestFixture]
-    public class AntecedentSurvivesMovement : PronounResolutionTests
-    {
         [Test]
         public async Task It_AfterMove_StillResolves_ForCarriedItem()
         {

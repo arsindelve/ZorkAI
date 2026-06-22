@@ -62,6 +62,18 @@ public interface IContext : ICanContainItems
     List<string> LastNouns { get; set; }
 
     /// <summary>
+    ///     Appends a noun to the <see cref="LastNouns" /> antecedent set (case-insensitive, de-duplicated).
+    ///     Used as individual items are taken/dropped so a following "them" spans the whole run.
+    /// </summary>
+    void RememberAntecedentNoun(string? noun);
+
+    /// <summary>
+    ///     Replaces the <see cref="LastNouns" /> antecedent set wholesale (case-insensitive, de-duplicated),
+    ///     ignoring empties. Used by batch take/drop ("take all", "take X and Y").
+    /// </summary>
+    void RememberAntecedentNouns(IEnumerable<string?> nouns);
+
+    /// <summary>
     ///     Tracks the last player input for pronoun resolution.
     /// </summary>
     /// <remarks>

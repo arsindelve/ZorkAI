@@ -28,7 +28,7 @@ public class TakeEverythingProcessor : IGlobalCommand
     public static string TakeAll(IContext context, List<IItem?> items)
     {
         var sb = new StringBuilder();
-        var taken = new List<string>();
+        var taken = new List<string?>();
         foreach (var nextItem in items)
         {
             if(nextItem is null) continue;
@@ -44,27 +44,12 @@ public class TakeEverythingProcessor : IGlobalCommand
 
             sb.AppendLine($"{nextItem.Name}: Taken. ");
             context.ItemPlacedHere(nextItem);
-            RememberTaken(taken, nextItem);
+            taken.Add(nextItem.NounsForMatching.FirstOrDefault());
         }
 
-        SetAntecedent(context, taken);
+        // The items just taken become the "them" antecedent, so "take all. drop them" works (issue #248).
+        context.RememberAntecedentNouns(taken);
         return sb.ToString();
-    }
-
-    /// <summary>
-    /// Records the items just taken as the "them" antecedent, so "take all. drop them" works (issue #248).
-    /// </summary>
-    private static void RememberTaken(List<string> taken, IItem item)
-    {
-        var noun = item.NounsForMatching.FirstOrDefault();
-        if (!string.IsNullOrEmpty(noun))
-            taken.Add(noun);
-    }
-
-    private static void SetAntecedent(IContext context, List<string> nouns)
-    {
-        if (nouns.Count > 0)
-            context.LastNouns = nouns.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
 
     /// <summary>
@@ -77,7 +62,7 @@ public class TakeEverythingProcessor : IGlobalCommand
     public static async Task<string> TakeAll(IContext context, List<(string noun, IItem? item)> itemsWithNouns, IGenerationClient client)
     {
         var sb = new StringBuilder();
-        var taken = new List<string>();
+        var taken = new List<string?>();
         foreach (var (noun, item) in itemsWithNouns)
         {
             if (item is null)
@@ -110,10 +95,10 @@ public class TakeEverythingProcessor : IGlobalCommand
 
             sb.AppendLine($"{item.Name}: Taken. ");
             context.ItemPlacedHere(item);
-            RememberTaken(taken, item);
+            taken.Add(item.NounsForMatching.FirstOrDefault());
         }
 
-        SetAntecedent(context, taken);
+        context.RememberAntecedentNouns(taken);
         return sb.ToString();
     }
 }

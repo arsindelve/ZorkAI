@@ -27,6 +27,9 @@ public class MoveEngineTests
         _mockContext.Setup(c => c.CurrentLocation).Returns(_mockCurrentLocation.Object);
         _mockContext.Setup(c => c.CarryingWeight).Returns(0);
         _mockContext.SetupProperty(c => c.LastNoun);
+        // LastNouns is non-nullable on the real Context (initialized to new()); mirror that here so
+        // the move-time antecedent prune has a list to filter.
+        _mockContext.SetupProperty(c => c.LastNouns, new List<string>());
     }
 
     private MoveEngine _moveEngine;
