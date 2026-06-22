@@ -139,6 +139,13 @@ public class MultiNounEngine : IIntentEngine
         // giving the shared adjective-aware pass priority over the containment fallback below. The
         // existing inventory-first fallback is left untouched so plain, non-adjective nouns behave
         // exactly as before.
+        //
+        // Note the precise pass searches room-before-inventory (matching GetItemInScope), while the
+        // fallback below stays inventory-before-room - intentional, and not a contradiction to
+        // "fix": the two orders can only disagree when one noun is an exact precise-noun match on
+        // two different in-scope items at once, and Process() runs CheckDisambiguation (over the
+        // same scope) before we ever get here, so that collision is already turned into a "do you
+        // mean..." prompt rather than a silent pick.
         var preciseMatch = Repository.GetPreciseMatchInScope(item, context);
         if (preciseMatch is not null)
             return (true, preciseMatch);
