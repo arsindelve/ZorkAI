@@ -100,10 +100,15 @@ public class BioLockStateMachineManager
             return string.Empty; // Give player one turn to close the door
         }
 
-        // Player failed to reopen door after InTheLabThree - Floyd dies
+        // Player failed to reopen door after InTheLabThree - Floyd dies trapped in the lab (the
+        // mini access card is lost with him). Make the sequence terminal and stop the BioLockEast
+        // actor; otherwise the state stays NeedToReopenDoor and this branch re-announces Floyd's
+        // death on every subsequent turn forever.
         if (LabSequenceState == FloydLabSequenceState.NeedToReopenDoor)
         {
             floyd.HasDied = true;
+            LabSequenceState = FloydLabSequenceState.Completed;
+            context.RemoveActor(Repository.GetLocation<BioLockEast>());
             return FloydConstants.FloydDies;
         }
 
