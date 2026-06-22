@@ -394,6 +394,40 @@ public class ShuttleTests : EngineTestsBase
     }
 
     [Test]
+    public async Task Decelerate_ToStop_OnePositionShortOfPlatform_StopsShortDoesNotDock()
+    {
+        // Boundary companion to issue #240: stopping at EndOfTunnel - 1 (position 23, still
+        // strictly mid-tunnel) must behave like any other mid-tunnel stop -- the car halts in
+        // place and does NOT advance into the platform / dock. This pins the exact
+        // "TunnelPosition != EndOfTunnel" boundary the fix hinges on (the off-by-one risk).
+        var target = GetTarget();
+        Take<ShuttleAccessCard>();
+        StartHere<AlfieControlEast>();
+        var controls = GetLocation<AlfieControlEast>();
+
+        await target.GetResponse("slide shuttle access card through slot");
+        await target.GetResponse("push lever"); // speed 5
+        await target.GetResponse("pull lever"); // lever to center, coasting at 5
+
+        // Coast until exactly one position short of the platform (EndOfTunnel is 24).
+        while (controls.TunnelPosition < 23)
+            await target.GetResponse("wait");
+
+        controls.TunnelPosition.Should().Be(23);
+        controls.Speed.Should().Be(5);
+
+        var response = await target.GetResponse("pull lever");
+
+        response.Should().Contain("The shuttle car comes to a stop and the lever pops back to the central position");
+        response.Should().NotContain("continues to move");
+        response.Should().NotContain("glides into the station");
+        controls.Speed.Should().Be(0);
+        controls.LeverPosition.Should().Be(ShuttleLeverPosition.Neutral);
+        controls.TunnelPosition.Should().Be(23);
+        controls.DoorIsClosed.Should().BeTrue();
+    }
+
+    [Test]
     public async Task MiddleOfTrack_CannotLeave()
     {
         var target = GetTarget();
