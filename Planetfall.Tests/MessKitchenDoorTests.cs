@@ -8,9 +8,10 @@ namespace Planetfall.Tests;
 
 /// <summary>
 /// issue #262 / #266: the mess door (Mess Corridor -> Storage West) and the kitchen door (Mess Hall
-/// -> Kitchen) are plain room-to-room doors. "enter door" routes to Direction.In, so each door's
-/// passage is exposed under "in". The kitchen door's card/auto-close mechanic is unaffected — "enter
-/// door" only walks through when the door is already open.
+/// -> Kitchen) are plain doors, each declared as the GatingItem of its passage, so "enter door"
+/// resolves the noun to it and walks its direction. The kitchen door's card/auto-close mechanic is
+/// unaffected — we only walk through when the door is already open. (These doors are one-way gated by
+/// the game's map: the return trips, Kitchen->MessHall and StorageWest->MessCorridor, are ungated.)
 /// </summary>
 public class MessKitchenDoorTests : EngineTestsBase
 {

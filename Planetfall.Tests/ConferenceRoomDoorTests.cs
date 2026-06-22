@@ -6,8 +6,9 @@ using Planetfall.Location.Kalamontee;
 namespace Planetfall.Tests;
 
 /// <summary>
-/// issue #262 / #266: the conference room door is a plain room-to-room door. "enter door" routes to
-/// Direction.In, so the door passage (ConferenceRoom -> RecArea, and back) is exposed under "in".
+/// issue #262 / #266: the conference room door is a plain room-to-room door, declared as the
+/// GatingItem of the passage on each side (ConferenceRoom -> RecArea, and back), so "enter door"
+/// resolves the noun to it and walks its direction.
 /// </summary>
 public class ConferenceRoomDoorTests : EngineTestsBase
 {

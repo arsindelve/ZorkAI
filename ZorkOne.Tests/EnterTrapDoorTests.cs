@@ -6,9 +6,9 @@ using ZorkOne.Location;
 namespace ZorkOne.Tests;
 
 /// <summary>
-/// issue #262: "enter trap door" is grammatically odd but players type it. The trap door gates the
-/// Living Room's "down" passage (and the Cellar's "up"); exposing that passage as "in" too lets the
-/// enter-a-door routing carry the player through it, just like "enter window" / "enter pod".
+/// issue #262: "enter trap door" is grammatically odd but players type it. The trap door is declared
+/// as the GatingItem of the Living Room's "down" passage (and the Cellar's "up"), so enter-a-door
+/// routing resolves the noun to that door and walks its direction, just like "enter window"/"enter pod".
 /// </summary>
 public class EnterTrapDoorTests : EngineTestsBase
 {
@@ -29,10 +29,10 @@ public class EnterTrapDoorTests : EngineTestsBase
     [Test]
     public async Task EnterTrophyCase_FromLivingRoom_DoesNotTeleportThroughTrapDoor()
     {
-        // issue #262 review: the Living Room has TWO non-portable openables - the trap door (the
-        // passage, now exposed under "in") and the trophy case (a container, NOT a passage). "enter
-        // case" must NOT hijack the trap door's "in" exit. A door is an openable that is neither
-        // portable nor a container, so the openable trophy case is excluded.
+        // issue #262 review: the Living Room has two openables - the trap door (which gates the
+        // "down" exit) and the trophy case (which gates nothing). "enter case" must NOT hijack the
+        // trap door's exit. Under the GatingItem model the trophy case is simply nobody's gating
+        // item, so DirectionGatedBy finds no exit for it and it falls through to "You can't enter that."
         var target = GetTarget();
         var livingRoom = Repository.GetLocation<LivingRoom>();
         livingRoom.Init(); // places the trophy case

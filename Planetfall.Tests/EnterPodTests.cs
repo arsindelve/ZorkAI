@@ -11,8 +11,9 @@ namespace Planetfall.Tests;
 /// noun (BulkheadDoor.NounsForMatching includes "pod"), but the bare noun used to fall through
 /// EnterSubLocationEngine to a generic refusal — which the narrator dressed up as a mock of an
 /// imaginary object — instead of the correct "The escape pod bulkhead is closed." The escape pod is
-/// reached by moving through the BulkheadDoor, so "enter &lt;door&gt;" must defer to movement
-/// (Direction.In) exactly as the full phrase "enter escape pod" (already a Move) does.
+/// reached by moving through the BulkheadDoor, which is declared as the GatingItem of Deck Nine's
+/// pod passage, so "enter pod" resolves the noun to the bulkhead and walks its direction - exactly
+/// like the full phrase "enter escape pod" (already a Move) does.
 /// </summary>
 public class EnterPodTests : EngineTestsBase
 {

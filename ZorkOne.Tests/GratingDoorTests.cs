@@ -7,8 +7,8 @@ using ZorkOne.Location.MazeLocation;
 namespace ZorkOne.Tests;
 
 /// <summary>
-/// issue #262 / #266: the grating is a fixed openable that gates the passage up from the Grating Room
-/// to the Clearing. "enter grate" routes to Direction.In, so the passage is exposed under "in" too.
+/// issue #262 / #266: the grating is declared as the GatingItem of the passage up from the Grating
+/// Room to the Clearing, so "enter grate" resolves the noun to the grating and walks its direction.
 /// </summary>
 public class GratingDoorTests : EngineTestsBase
 {

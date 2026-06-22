@@ -362,9 +362,9 @@ public class KitchenWindowTests : EngineTestsBase
 
     /// <summary>
     /// issue #262: "enter window" / "board window" name a real door (the kitchen window), not an
-    /// ISubLocation. They must behave like "go in" — defer to movement so the window's open-check
-    /// and "closed" failure message apply — instead of falling through to a generic refusal that the
-    /// narrator turns into a mock of an imaginary object.
+    /// ISubLocation. The window is declared as the GatingItem of Behind House's passage to the
+    /// Kitchen, so they resolve the noun to it and walk its direction — the window's open-check and
+    /// "closed" failure message apply — instead of a generic refusal the narrator turns into a mock.
     /// </summary>
     [TestFixture]
     public class EnterWindowDefersToMovement : EngineTestsBase
@@ -447,10 +447,9 @@ public class KitchenWindowTests : EngineTestsBase
         public async Task EnterCarriedSack_DoesNotTeleportThroughTheWindow_EvenWhenOpen()
         {
             // issue #262 review follow-up: GetItemInScope also searches inventory, so "enter sack"
-            // while carrying the (openable) brown sack used to resolve the sack, see the Behind House
-            // "in" exit, and silently teleport the player into the Kitchen. A door is a fixture, not
-            // something you carry, so only non-portable openables may defer to movement. Carrying an
-            // openable item must NOT hijack the door's exit.
+            // while carrying the (openable) brown sack used to resolve the sack and hijack the window's
+            // exit. Under the GatingItem model the sack is nobody's gating item, so DirectionGatedBy
+            // finds no exit for it and the player can't teleport through the window with a sack.
             var target = GetTarget();
             target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
             Repository.GetItem<KitchenWindow>().IsOpen = true; // the dangerous case

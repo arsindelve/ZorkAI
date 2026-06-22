@@ -118,10 +118,10 @@ public class EnterSubLocationEngineTests
         public async Task Should_DeferToMovement_When_NounResolvesToAClosedDoor()
         {
             // issue #262: "enter <door>" with a valid door noun (here the kitchen window at Behind
-            // House — a real IOpenAndClose item, NOT an ISubLocation) must defer to movement
-            // (Direction.In) so the location map's door-open check and custom failure message apply,
-            // exactly as "go in" does. Before the fix it fell through to a generic refusal, and the
-            // narrator turned the perfectly valid noun into a mock of an imaginary object.
+            // House — declared as the GatingItem of the room's passage to the Kitchen) resolves the
+            // noun to that door and walks its direction, so the location map's door-open check and
+            // custom failure message apply. Before the fix it fell through to a generic refusal, and
+            // the narrator turned the perfectly valid noun into a mock of an imaginary object.
             var location = Repository.GetLocation<BehindHouse>();
             location.Init(); // places the KitchenWindow in the room
             Repository.GetItem<KitchenWindow>().IsOpen = false;
@@ -141,13 +141,12 @@ public class EnterSubLocationEngineTests
         }
 
         [Test]
-        public async Task Should_ReturnCantEnterThat_When_FixedOpenableDoesNotGateAnInExit()
+        public async Task Should_ReturnCantEnterThat_When_OpenableGatesNoExit()
         {
-            // issue #262 follow-up: deferring "enter <door>" to Direction.In only makes sense when
-            // the current location actually gates an "in" passage. The mailbox is a fixed (non-
-            // portable) IOpenAndClose object that is NOT a passage, and West of House has no "in"
-            // exit. Routing to Move(In) here would fall right back onto the generic "you cannot go
-            // that way" refusal; instead we say plainly that you can't enter it.
+            // issue #262 follow-up: an openable only routes when it is declared as the GatingItem of
+            // one of the room's exits. The mailbox is an openable object that gates no passage (West
+            // of House has no door-exit naming the mailbox), so DirectionGatedBy returns null and we
+            // say plainly you can't enter it rather than emitting a generic refusal.
             var location = Repository.GetLocation<WestOfHouse>();
             location.Init(); // places the Mailbox
 
