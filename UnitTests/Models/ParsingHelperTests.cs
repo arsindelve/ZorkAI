@@ -237,6 +237,58 @@ public class ParsingHelperTests
     }
 
     [Test]
+    public void GetIntent_WithMultipleVerbs_ReturnsMultipleCommandsIntent()
+    {
+        // Repro for #256: the player jammed several commands onto one line with no periods
+        // ("look examine bulkhead open bulkhead"). When "bulkhead" is a real in-scope object,
+        // gpt-4o emits more than one <verb> tag. ParsingHelper used .SingleOrDefault(), which
+        // throws InvalidOperationException ("Sequence contains more than one element") on >1
+        // element, surfacing as an HTTP 500 in the Lambda. The parser must instead recognise
+        // this as a multi-command line and degrade gracefully.
+        var input = "look examine bulkhead open bulkhead";
+        var response = @"<intent>act</intent>
+<verb>examine</verb>
+<verb>open</verb>
+<noun>bulkhead</noun>
+<noun>bulkhead</noun>";
+
+        var act = () => ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        act.Should().NotThrow();
+        ParsingHelper.GetIntent(input, response, _loggerMock?.Object)
+            .Should().BeOfType<MultipleCommandsIntent>();
+    }
+
+    [Test]
+    public void GetIntent_WithMultipleIntents_ReturnsMultipleCommandsIntent()
+    {
+        // Same bug at the other throw site: when the parser duplicates the <intent> tag, the
+        // very first determiner (DetermineTakeIntent) throws on .SingleOrDefault(). Multiple
+        // intents likewise mean multiple commands on one line.
+        var input = "look examine bulkhead open bulkhead";
+        var response = @"<intent>look</intent>
+<intent>act</intent>
+<verb>examine</verb>
+<noun>bulkhead</noun>";
+
+        var act = () => ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        act.Should().NotThrow();
+        ParsingHelper.GetIntent(input, response, _loggerMock?.Object)
+            .Should().BeOfType<MultipleCommandsIntent>();
+    }
+
+    [Test]
+    public void GetIntent_WithSingleVerb_DoesNotReturnMultipleCommandsIntent()
+    {
+        // Guard against false positives: a normal single command (even one with two nouns and a
+        // preposition, like "tie rope to railing") has exactly one verb and must parse as usual.
+        var result = ParsingHelper.GetIntent("tie the rope to the railing", MultiNounResponse, _loggerMock?.Object);
+
+        result.Should().BeOfType<MultiNounIntent>();
+    }
+
+    [Test]
     public void GetIntent_WithNullResponse_ReturnsNullIntent()
     {
         // This test verifies that a null response produces a NullIntent

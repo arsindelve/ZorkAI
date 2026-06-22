@@ -320,6 +320,22 @@ public class RequestTests
     }
 
     [Test]
+    public void MultipleCommandsRequest_AsksToSeparateWithPeriods_AndIsLowTemperature()
+    {
+        // #256: when the player runs several commands together on one line, the narrator should
+        // tell them — in character — to separate commands with periods, at the low deflection
+        // temperature (this is a "stay in room state" deflection, not creative narration).
+        var request = new MultipleCommandsRequest(
+            "Deck Nine. An emergency bulkhead is here.", "look examine bulkhead open bulkhead");
+
+        request.UserMessage.Should().Contain("look examine bulkhead open bulkhead");
+        request.UserMessage.Should().Contain("periods");
+        request.UserMessage.Should().Contain("one thing at a time");
+        request.UserMessage.Should().Contain("Do not invent");
+        request.Temperature.Should().BeLessThan(0.8f);
+    }
+
+    [Test]
     public void CannotGoThatWayRequest_UsesLowDeflectionTemperature()
     {
         // This is the same category of "stay in room state" deflection as the no-effect prompts,
