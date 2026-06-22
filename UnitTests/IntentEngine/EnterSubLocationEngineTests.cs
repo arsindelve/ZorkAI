@@ -92,9 +92,11 @@ public class EnterSubLocationEngineTests
         }
 
         [Test]
-        public async Task Should_ReturnCantGoMessage_When_ItemIsNotSubLocation()
+        public async Task Should_ReturnCantEnterThat_When_ItemIsNotSubLocationAndNotADoor()
         {
-            // Arrange - sword is not a sub-location
+            // Arrange - sword is in scope but is neither a sub-location nor a door. You simply
+            // can't enter it; say so plainly (issue #262) instead of a generic "can't go that way"
+            // that the narrator would dress up as a mock of an imaginary place.
             var location = Repository.GetLocation<LivingRoom>();
             var sword = Repository.GetItem<Sword>();
             location.ItemPlacedHere(sword);
@@ -109,7 +111,33 @@ public class EnterSubLocationEngineTests
 
             // Assert
             result.resultObject.Should().BeNull();
-            result.ResultMessage.Should().Be("You cannot go that way. ");
+            result.ResultMessage.Should().Be("You can't enter that. ");
+        }
+
+        [Test]
+        public async Task Should_DeferToMovement_When_NounResolvesToAClosedDoor()
+        {
+            // issue #262: "enter <door>" with a valid door noun (here the kitchen window at Behind
+            // House — a real IOpenAndClose item, NOT an ISubLocation) must defer to movement
+            // (Direction.In) so the location map's door-open check and custom failure message apply,
+            // exactly as "go in" does. Before the fix it fell through to a generic refusal, and the
+            // narrator turned the perfectly valid noun into a mock of an imaginary object.
+            var location = Repository.GetLocation<BehindHouse>();
+            location.Init(); // places the KitchenWindow in the room
+            Repository.GetItem<KitchenWindow>().IsOpen = false;
+
+            _mockContext.Setup(c => c.CurrentLocation).Returns(location);
+            _mockContext.Setup(c => c.Items).Returns(new List<IItem>());
+
+            var intent = new EnterSubLocationIntent { Noun = "window" };
+
+            // Act
+            var result = await _engine.Process(intent, _mockContext.Object, _mockGenerationClient.Object);
+
+            // Assert - the custom "closed door" failure message, not a generic "you cannot go that way"
+            result.resultObject.Should().BeNull();
+            result.ResultMessage.Should().Contain("The kitchen window is closed.");
+            result.ResultMessage.Should().NotContain("cannot go that way");
         }
 
         [Test]

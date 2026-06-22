@@ -359,4 +359,62 @@ public class KitchenWindowTests : EngineTestsBase
             target.Context.CurrentLocation.Should().BeOfType<BehindHouse>();
         }
     }
+
+    /// <summary>
+    /// issue #262: "enter window" / "board window" name a real door (the kitchen window), not an
+    /// ISubLocation. They must behave like "go in" — defer to movement so the window's open-check
+    /// and "closed" failure message apply — instead of falling through to a generic refusal that the
+    /// narrator turns into a mock of an imaginary object.
+    /// </summary>
+    [TestFixture]
+    public class EnterWindowDefersToMovement : EngineTestsBase
+    {
+        [Test]
+        public async Task EnterWindow_ActuallyEnters_WhenWindowOpen()
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+
+            await target.GetResponse("enter window");
+
+            target.Context.CurrentLocation.Should().BeOfType<Kitchen>();
+        }
+
+        [Test]
+        public async Task BoardWindow_ActuallyEnters_WhenWindowOpen()
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+
+            await target.GetResponse("board window");
+
+            target.Context.CurrentLocation.Should().BeOfType<Kitchen>();
+        }
+
+        [Test]
+        public async Task EnterWindow_Blocked_WhenWindowClosed()
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
+
+            var response = await target.GetResponse("enter window");
+
+            response.Should().Contain("The kitchen window is closed.");
+            target.Context.CurrentLocation.Should().BeOfType<BehindHouse>();
+        }
+
+        [Test]
+        public async Task BoardWindow_Blocked_WhenWindowClosed()
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
+
+            var response = await target.GetResponse("board window");
+
+            response.Should().Contain("The kitchen window is closed.");
+            target.Context.CurrentLocation.Should().BeOfType<BehindHouse>();
+        }
+    }
 }

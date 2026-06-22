@@ -215,7 +215,13 @@
   ],
 
   "enterSubLocationIntents": [
-    { "inputs": ["get in the boat", "enter the boat", "enter boat"], "noun": "boat" }
+    { "inputs": ["get in the boat", "enter the boat", "enter boat"], "noun": "boat" },
+
+    { "inputs": ["enter window", "board window", "enter the window"], "noun": "window" },
+
+    { "inputs": ["enter pod", "board pod", "enter the pod", "board the pod"], "noun": "pod" },
+    { "inputs": ["enter bulkhead", "board bulkhead"], "noun": "bulkhead" },
+    { "inputs": ["enter door", "board door"], "noun": "door" }
   ],
 
   "exitSubLocationIntents": [
