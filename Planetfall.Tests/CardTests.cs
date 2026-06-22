@@ -299,13 +299,18 @@ public class CardTests : EngineTestsBase
     [TestCase(false)] // kitchen carried first
     public void KitchenCard_ResolvesToKitchenNotShuttle_RegardlessOfInventoryOrder(bool shuttleFirst)
     {
-        // Issue #246: the multi-noun path (put/give/slide X in/to Y) resolves each noun through
-        // MultiNounEngine.IsItemHere, which used the raw, adjective-blind containment matcher. The
-        // shuttle card's bare noun "card" is contained in "kitchen card", so when the shuttle card
-        // is first in inventory the raw matcher returned it - ignoring the "kitchen" adjective. Both
-        // the multi-noun resolver (GetPreciseMatchInScope, the pass IsItemHere now runs first) and
-        // the single-noun #244 resolver (GetItemInScope) must land on the KITCHEN card regardless of
-        // inventory order.
+        // Issue #246, resolver-level guard for the card-collision family. The shuttle card's bare
+        // noun "card" is contained in "kitchen card", so an adjective-blind matcher returns the
+        // shuttle card when it is first in inventory. This locks in that the SHARED adjective-aware
+        // resolver - GetPreciseMatchInScope (the pass MultiNounEngine.IsItemHere now runs first) and
+        // GetItemInScope (the single-noun #244 path) - lands on the KITCHEN card regardless of order,
+        // guarding the cards' NounsForPreciseMatching definitions against future drift.
+        //
+        // This asserts the resolver directly, not the engine turn: the end-to-end multi-noun engine
+        // path (IsItemHere) is proven red-before/green-after by the bedistor test
+        // CourseControlTests.PutGoodBedistorInCube_WhenFusedIsFirstInInventory... A card slide/put
+        // cannot stand in for it, because SlotBase resolves cards by type (Match<KitchenAccessCard,
+        // KitchenSlot> + HasItem<KitchenAccessCard>) and returns before IsItemHere is ever reached.
         var engine = GetTarget();
         engine.Context.CurrentLocation = Repository.GetLocation<MessHall>();
 
