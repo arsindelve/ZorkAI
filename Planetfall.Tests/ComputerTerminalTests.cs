@@ -64,6 +64,58 @@ public class ComputerTerminalTests : EngineTestsBase
     }
 
     [Test]
+    public async Task Off_TypeKey_DoesNotNavigateMenu_AndScreenIsDark()
+    {
+        var target = GetTarget();
+        StartHere<LibraryLobby>();
+
+        var terminal = GetItem<ComputerTerminal>();
+        terminal.IsOn.Should().BeFalse();
+
+        var response = await target.GetResponse("type 1");
+
+        // The keypress must not navigate the menu while the terminal is off.
+        terminal.MenuState.CurrentItem.Should().BeOfType<MainMenu>();
+        response.Should().Contain("screen is dark");
+    }
+
+    [Test]
+    public async Task Off_TypeKeyMultiNoun_DoesNotNavigateMenu_AndScreenIsDark()
+    {
+        var target = GetTarget();
+        StartHere<LibraryLobby>();
+
+        var terminal = GetItem<ComputerTerminal>();
+        terminal.IsOn.Should().BeFalse();
+
+        var response = await target.GetResponse("type 1 on the keyboard");
+
+        terminal.MenuState.CurrentItem.Should().BeOfType<MainMenu>();
+        response.Should().Contain("screen is dark");
+    }
+
+    [Test]
+    public async Task Off_TypeKey_FloydDoesNotComment()
+    {
+        var target = GetTarget();
+        var libraryLobby = GetLocation<LibraryLobby>();
+        target.Context.CurrentLocation = libraryLobby;
+
+        // Floyd present and active, but the terminal is off.
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.CurrentLocation = libraryLobby;
+        libraryLobby.ItemPlacedHere(floyd);
+
+        await target.GetResponse("type 1");
+
+        // Floyd must not comment on "first use" while the screen is dark.
+        var pfContext = (PlanetfallContext)target.Context;
+        pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    [Test]
     public async Task On_Examine()
     {
         var target = GetTarget();
