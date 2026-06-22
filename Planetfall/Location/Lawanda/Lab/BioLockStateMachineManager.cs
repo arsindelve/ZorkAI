@@ -111,7 +111,7 @@ public class BioLockStateMachineManager
             floyd.HasDied = true;
             LabSequenceState = FloydLabSequenceState.Completed;
             context.RemoveActor(floyd);
-            context.RemoveActor(Repository.GetLocation<BioLockEast>());
+            context.RemoveActor<BioLockEast>();
             return FloydConstants.FloydDies;
         }
 
