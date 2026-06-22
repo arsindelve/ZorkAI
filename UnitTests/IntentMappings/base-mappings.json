@@ -223,6 +223,7 @@
 
     { "inputs": ["enter trap door", "board trap door", "enter trapdoor"], "noun": "trap door" },
     { "inputs": ["enter mailbox", "board mailbox"], "noun": "mailbox" },
+    { "inputs": ["enter case", "enter trophy case", "board case"], "noun": "case" },
     { "inputs": ["enter grate", "enter grating", "board grate"], "noun": "grate" },
 
     { "inputs": ["enter pod", "board pod", "enter the pod", "board the pod"], "noun": "pod" },
@@ -232,7 +233,8 @@
 
   "exitSubLocationIntents": [
     { "inputs": ["exit window", "leave window", "exit the window"], "nounOne": "window" },
-    { "inputs": ["exit pod", "leave pod", "exit door"], "nounOne": "pod" },
+    { "inputs": ["exit pod", "leave pod"], "nounOne": "pod" },
+    { "inputs": ["exit door"], "nounOne": "door" },
     { "inputs": ["get out of the boat", "leave boat"], "nounOne": "boat" },
     { "inputs": ["get out of bed", "exit bed", "leave bed", "get out", "stand", "stand up", "get up"], "nounOne": "bed" }
   ]

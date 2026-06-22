@@ -44,19 +44,12 @@ internal class ExitSubLocationEngine : IIntentEngine
         {
             // Symmetric to EnterSubLocationEngine (issue #262): "exit <door>" means "go out through
             // it" -> Move(Out), so "exit window" from the Kitchen leaves the same way "enter window"
-            // from Behind House arrives. Same fixed-door guard: a portable openable (a carried sack)
-            // must not hijack the room's "out" exit, and we only reroute when an "out" exit exists.
-            // NOTE: this checks that the noun is *a* fixed door and the room has *an* "out" exit, not
-            // that this specific door gates it. Safe today (no room has two distinct fixed openables
-            // where only one is the passage); a future such room would need the door tied to its
-            // gating direction (tracked in #266).
-            if (subLocation is IOpenAndClose && subLocation is not ICanBeTakenAndDropped
-                && context.CurrentLocation.Navigate(Direction.Out, context) is not null)
-                return await new MoveEngine().Process(
-                    new MoveIntent { Direction = Direction.Out }, context, generationClient);
+            // from Behind House arrives. Same door definition (see DoorReroute).
+            var reroute = await DoorReroute.TryProcess(subLocation, Direction.Out, context, generationClient);
+            if (reroute is not null)
+                return reroute.Value;
 
-            // Not a door either - you simply can't exit it. Say so plainly rather than letting the
-            // narrator mock a valid object (matches "You can't enter that." on the enter side, #262).
+            // Not a door - you simply can't exit it. Say so plainly (matches the enter side, #262).
             return (null, "You can't exit that. ");
         }
 
