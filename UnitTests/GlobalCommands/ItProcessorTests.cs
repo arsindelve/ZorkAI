@@ -134,6 +134,26 @@ public class ItProcessorTests : EngineTestsBase
             because: "the lantern was taken before an intervening non-take/drop command, so it is not part of \"them\"");
     }
 
+    // Issue #248 (review follow-up): a multi-item single command ("take sword and ...") is part of
+    // the same contiguous run as a preceding single take, so "them" must span both. The per-command
+    // multi-item path must append to the group, not replace it wholesale.
+    [Test]
+    public async Task Them_SpansSingleTakeThenMultiItemTake()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+
+        await target.GetResponse("take lantern");           // [lantern]
+        await target.GetResponse("take sword and unicorn"); // sword taken; unicorn doesn't exist
+
+        var result = await target.GetResponse("drop them");
+
+        result.Should().NotContain("What item are you referring to");
+        target.Context.HasItem<Lantern>().Should().BeFalse(
+            because: "the lantern is part of the same contiguous take run and must stay in \"them\"");
+        target.Context.HasItem<Sword>().Should().BeFalse();
+    }
+
     // Issue #248 (review follow-up): "them" must only resolve to members still relevant to the
     // command. An item dropped between takes is no longer held, so "drop them" should drop only what
     // is still in hand — not drag the already-dropped item back in and trigger a spurious
