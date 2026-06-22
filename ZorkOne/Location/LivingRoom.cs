@@ -54,6 +54,21 @@ public class LivingRoom : LocationBase
                         ? "The trap door is closed."
                         : "You can't go that way."
                 }
+            },
+            {
+                // "enter trap door" routes to Direction.In (EnterSubLocationEngine), so the trap door
+                // passage is also exposed as "in" — same as the trap door's "down" exit. (issue #262)
+                Direction.In,
+                new MovementParameters
+                {
+                    Location = GetLocation<Cellar>(),
+                    CanGo = _ =>
+                        Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>() &&
+                        Repository.GetItem<TrapDoor>().IsOpen,
+                    CustomFailureMessage = Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>()
+                        ? "The trap door is closed."
+                        : "You can't go that way."
+                }
             }
         };
     }

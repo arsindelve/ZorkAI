@@ -36,6 +36,17 @@ public class Cellar : DarkLocation
                     CustomFailureMessage = "The trap door is closed. ",
                     Location = GetLocation<LivingRoom>()
                 }
+            },
+            {
+                // "enter trap door" routes to Direction.In (EnterSubLocationEngine); from the cellar
+                // the trap door leads back up, so expose that passage as "in" too. (issue #262)
+                Direction.In,
+                new MovementParameters
+                {
+                    CanGo = _ => GetItem<TrapDoor>().IsOpen,
+                    CustomFailureMessage = "The trap door is closed. ",
+                    Location = GetLocation<LivingRoom>()
+                }
             }
         };
     }

@@ -1,7 +1,10 @@
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
+using Model.Intent;
 using Model.Interface;
+using Model.Item;
 using Model.Location;
+using Model.Movement;
 
 namespace GameEngine.IntentEngine;
 
@@ -38,7 +41,18 @@ internal class ExitSubLocationEngine : IIntentEngine
         }
 
         if (subLocation is not ISubLocation subLocationInstance)
+        {
+            // Symmetric to EnterSubLocationEngine (issue #262): "exit <door>" means "go out through
+            // it" -> Move(Out), so "exit window" from the Kitchen leaves the same way "enter window"
+            // from Behind House arrives. Same fixed-door guard: a portable openable (a carried sack)
+            // must not hijack the room's "out" exit, and we only reroute when an "out" exit exists.
+            if (subLocation is IOpenAndClose && subLocation is not ICanBeTakenAndDropped
+                && context.CurrentLocation.Navigate(Direction.Out, context) is not null)
+                return await new MoveEngine().Process(
+                    new MoveIntent { Direction = Direction.Out }, context, generationClient);
+
             return (null, await GetGeneratedCantGoThatWayResponse(generationClient, context, exit.NounOne));
+        }
 
         // Model 1: Parent location with SubLocation property set (e.g., ZorkOne boat)
         if (context.CurrentLocation.SubLocation == subLocationInstance)

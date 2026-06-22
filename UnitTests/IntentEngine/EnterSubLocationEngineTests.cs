@@ -141,21 +141,20 @@ public class EnterSubLocationEngineTests
         }
 
         [Test]
-        public async Task Should_ReturnCantEnterThat_When_DoorIsNotGatingAnInExitFromHere()
+        public async Task Should_ReturnCantEnterThat_When_FixedOpenableDoesNotGateAnInExit()
         {
             // issue #262 follow-up: deferring "enter <door>" to Direction.In only makes sense when
-            // the current location actually gates an "in" passage. The trap door is an IOpenAndClose
-            // door, but the Living Room reaches it via "down", not "in" (its map has no In entry).
-            // Routing to Move(In) here would fall right back onto the generic "you cannot go that
-            // way" refusal; instead we say plainly that you can't enter it.
-            var location = Repository.GetLocation<LivingRoom>();
-            location.Init();
-            location.ItemPlacedHere(Repository.GetItem<TrapDoor>()); // door is normally hidden under the rug
+            // the current location actually gates an "in" passage. The mailbox is a fixed (non-
+            // portable) IOpenAndClose object that is NOT a passage, and West of House has no "in"
+            // exit. Routing to Move(In) here would fall right back onto the generic "you cannot go
+            // that way" refusal; instead we say plainly that you can't enter it.
+            var location = Repository.GetLocation<WestOfHouse>();
+            location.Init(); // places the Mailbox
 
             _mockContext.Setup(c => c.CurrentLocation).Returns(location);
             _mockContext.Setup(c => c.Items).Returns(new List<IItem>());
 
-            var intent = new EnterSubLocationIntent { Noun = "trap door" };
+            var intent = new EnterSubLocationIntent { Noun = "mailbox" };
 
             // Act
             var result = await _engine.Process(intent, _mockContext.Object, _mockGenerationClient.Object);

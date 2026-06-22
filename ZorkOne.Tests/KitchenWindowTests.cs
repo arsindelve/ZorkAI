@@ -416,5 +416,50 @@ public class KitchenWindowTests : EngineTestsBase
             response.Should().Contain("The kitchen window is closed.");
             target.Context.CurrentLocation.Should().BeOfType<BehindHouse>();
         }
+
+        [Test]
+        public async Task ExitWindow_FromKitchen_GoesToBehindHouse_WhenWindowOpen()
+        {
+            // Symmetric to "enter window": from the Kitchen side, "exit window" means "go out through
+            // it" -> Move(Out). The Kitchen map already exposes the window passage as Direction.Out.
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+
+            await target.GetResponse("exit window");
+
+            target.Context.CurrentLocation.Should().BeOfType<BehindHouse>();
+        }
+
+        [Test]
+        public async Task ExitWindow_FromKitchen_Blocked_WhenWindowClosed()
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
+
+            var response = await target.GetResponse("exit window");
+
+            response.Should().Contain("The kitchen window is closed.");
+            target.Context.CurrentLocation.Should().BeOfType<Kitchen>();
+        }
+
+        [Test]
+        public async Task EnterCarriedSack_DoesNotTeleportThroughTheWindow_EvenWhenOpen()
+        {
+            // issue #262 review follow-up: GetItemInScope also searches inventory, so "enter sack"
+            // while carrying the (openable) brown sack used to resolve the sack, see the Behind House
+            // "in" exit, and silently teleport the player into the Kitchen. A door is a fixture, not
+            // something you carry, so only non-portable openables may defer to movement. Carrying an
+            // openable item must NOT hijack the door's exit.
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
+            Repository.GetItem<KitchenWindow>().IsOpen = true; // the dangerous case
+            target.Context.Take(Repository.GetItem<BrownSack>());
+
+            var response = await target.GetResponse("enter sack");
+
+            target.Context.CurrentLocation.Should().BeOfType<BehindHouse>();
+            response.Should().Contain("You can't enter that.");
+        }
     }
 }

@@ -25,22 +25,25 @@ internal class EnterSubLocationEngine : IIntentEngine
         if (subLocation is not ISubLocation subLocationInstance)
         {
             // The noun resolved to a real, in-scope item that simply isn't a sub-location (issue
-            // #262). If it's a door/openable (the escape pod's BulkheadDoor, Zork's kitchen window)
-            // that gates an "in" passage from here, "enter <door>" means "go through it": defer to
-            // movement (Direction.In) so the location map applies its own open-check and custom
-            // failure message ("The escape pod bulkhead is closed."), and once open actually carries
-            // you through. This makes the bare noun "pod" behave like the full phrase "escape pod"
-            // (already a Move), instead of falling through to a generic refusal the narrator dressed
-            // up as a mock of an imaginary object.
+            // #262). If it's a fixed door/openable (the escape pod's BulkheadDoor, Zork's kitchen
+            // window) that gates an "in" passage from here, "enter <door>" means "go through it":
+            // defer to movement (Direction.In) so the location map applies its own open-check and
+            // custom failure message ("The escape pod bulkhead is closed."), and once open actually
+            // carries you through. This makes the bare noun "pod" behave like the full phrase
+            // "escape pod" (already a Move), instead of falling through to a generic refusal the
+            // narrator dressed up as a mock of an imaginary object.
             //
-            // We require an actual "in" exit before rerouting. A door the current location gates on
-            // a different direction (e.g. an office door reached by going west) has no Direction.In
-            // entry, so Move(In) would land right back on that generic refusal. Resolving "which
-            // direction a given door gates" generically needs a door->direction link the movement
-            // model doesn't expose yet (tracked as a follow-up). Until then, with no "in" exit we
-            // say plainly you can't enter it — and for anything that isn't a door (a machine, a
-            // sword) the same plain message beats a narrator mock.
-            if (subLocation is IOpenAndClose && context.CurrentLocation.Navigate(Direction.In, context) is not null)
+            // Two conditions gate the reroute:
+            //   * The door must NOT be portable. A door is a fixture of the room; GetItemInScope also
+            //     searches inventory, so without this an openable you are CARRYING (brown sack, egg,
+            //     coffin) would resolve here and hijack the room's "in" exit — e.g. "enter sack" at
+            //     Behind House would silently teleport you through the window. You walk through fixed
+            //     doors, not things in your pack.
+            //   * The location must actually have an "in" exit. A door gated on a different direction
+            //     (an office door reached by going west) has no Direction.In entry, so Move(In) would
+            //     land back on the generic refusal; say "You can't enter that." plainly instead.
+            if (subLocation is IOpenAndClose && subLocation is not ICanBeTakenAndDropped
+                && context.CurrentLocation.Navigate(Direction.In, context) is not null)
                 return await new MoveEngine().Process(
                     new MoveIntent { Direction = Direction.In }, context, generationClient);
 
