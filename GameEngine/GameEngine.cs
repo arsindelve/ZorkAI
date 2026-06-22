@@ -101,7 +101,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _openAITakeAndDropListParser = new OpenAITakeAndDropListParser(logger);
         _itemProcessorFactory = new ItemProcessorFactory(_openAITakeAndDropListParser);
         _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
-        _conversationHandler = new ConversationHandler(_logger, parseConversation, GenerationClient);
+        _conversationHandler = new ConversationHandler(_logger, parseConversation, GenerationClient,
+            _gameInstance.TalkableCharacterTypes);
     }
 
     /// <summary>
@@ -134,7 +135,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         _itemProcessorFactory = itemProcessorFactory;
         _turnLogger = turnLogger;
         _openAITakeAndDropListParser = null!;
-        _conversationHandler = new ConversationHandler(null, parseConversation1, GenerationClient);
+        _conversationHandler = new ConversationHandler(null, parseConversation1, GenerationClient,
+            _gameInstance.TalkableCharacterTypes);
     }
 
     public int Score => Context.Score;

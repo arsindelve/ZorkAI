@@ -63,4 +63,14 @@ public interface IInfocomGame
     /// </summary>
     /// <param name="context">The game context to be initialized.</param>
     void Init(IContext context);
+
+    /// <summary>
+    /// The talkable NPCs (<c>ICanBeTalkedTo</c>) this game knows about regardless of where they
+    /// currently are. Used so that directly addressing an absent named character (e.g.
+    /// "Floyd, go up") is recognized and answered with "X isn't here." instead of letting the
+    /// command leak into normal player parsing (which would move the player or drop their items).
+    /// Listing the types here also makes a not-yet-instantiated NPC "known" despite lazy loading.
+    /// Defaults to none.
+    /// </summary>
+    IReadOnlyList<Type> TalkableCharacterTypes => [];
 }
