@@ -215,6 +215,9 @@ public class GameResponseTests
         mockGameEngine.Setup(ge => ge.LastMovementDirection).Returns(expectedDirectionEnum);
         mockGameEngine.Setup(ge => ge.Inventory).Returns(expectedInventory);
         mockGameEngine.Setup(ge => ge.Exits).Returns(expectedExits);
+        // Explicit: this test exercises the lit branch of the issue #238 darkness gating. Without
+        // this, it would rely on Moq's implicit default (false) for the unconfigured bool.
+        mockGameEngine.Setup(ge => ge.Context!.ItIsDarkHere).Returns(false);
         mockGameEngine.Setup(ge => ge.Context!.GetAvailableActionsForInventory())
             .Returns(availablleActionsFromInventory);
         mockGameEngine.Setup(ge => ge.Context!.CurrentLocation.GetAvailableActionsInLocation())
@@ -233,6 +236,64 @@ public class GameResponseTests
         gameResponse.LastMovementDirection.Should().Be(expectedLastMovementDirection);
         gameResponse.Inventory.Should().BeEquivalentTo(expectedInventory);
         gameResponse.Exits.Should().BeEquivalentTo(expectedExits);
+    }
+
+    [Test]
+    public void GameResponse_GameEngineConstructor_WhenDark_ShouldHideLocationExitsAndActions()
+    {
+        // Issue #238: in an unlit dark room the prose hides everything ("It is pitch black..."),
+        // but the structured payload was still leaking the location's exits and action chips.
+        // The location-derived fields must be empty in the dark, mirroring the engine's
+        // existing "too dark to see" prose gating.
+        var populatedExits = new List<Direction> { Direction.S, Direction.N };
+        var locationActions = ApplicableVerbsAttribute.GetAvailableActions([new Lamp()]);
+        var inventoryActions = ApplicableVerbsAttribute.GetAvailableActions([new Lamp()]);
+        List<string> inventory = new() { "lamp" };
+
+        var mockGameEngine = new Mock<IGameEngine>();
+        mockGameEngine.Setup(ge => ge.LocationName).Returns("Cellar");
+        mockGameEngine.Setup(ge => ge.Inventory).Returns(inventory);
+        mockGameEngine.Setup(ge => ge.Exits).Returns(populatedExits);
+        mockGameEngine.Setup(ge => ge.Context!.ItIsDarkHere).Returns(true);
+        mockGameEngine.Setup(ge => ge.Context!.GetAvailableActionsForInventory()).Returns(inventoryActions);
+        mockGameEngine.Setup(ge => ge.Context!.CurrentLocation.GetAvailableActionsInLocation())
+            .Returns(locationActions);
+
+        // Act
+        var gameResponse = new GameResponse(
+            "It is pitch black. You are likely to be eaten by a grue.", mockGameEngine.Object);
+
+        // Assert — location-derived fields are hidden in the dark...
+        gameResponse.Exits.Should().BeEmpty();
+        gameResponse.ActionsAvailableFromLocation.Should().BeEmpty();
+        // ...but inventory-derived fields remain (the player can still feel what they carry).
+        gameResponse.Inventory.Should().BeEquivalentTo(inventory);
+        gameResponse.ActionsAvailableFromInventory.Should().BeEquivalentTo(inventoryActions);
+    }
+
+    [Test]
+    public void GameResponse_GameEngineConstructor_WhenLit_ShouldExposeLocationExitsAndActions()
+    {
+        // Control for issue #238: when the room is lit, the location-derived fields populate normally.
+        var populatedExits = new List<Direction> { Direction.S, Direction.N };
+        var locationActions = ApplicableVerbsAttribute.GetAvailableActions([new Lamp()]);
+        var inventoryActions = ApplicableVerbsAttribute.GetAvailableActions([new Lamp()]);
+
+        var mockGameEngine = new Mock<IGameEngine>();
+        mockGameEngine.Setup(ge => ge.LocationName).Returns("Cellar");
+        mockGameEngine.Setup(ge => ge.Inventory).Returns(new List<string> { "lamp" });
+        mockGameEngine.Setup(ge => ge.Exits).Returns(populatedExits);
+        mockGameEngine.Setup(ge => ge.Context!.ItIsDarkHere).Returns(false);
+        mockGameEngine.Setup(ge => ge.Context!.GetAvailableActionsForInventory()).Returns(inventoryActions);
+        mockGameEngine.Setup(ge => ge.Context!.CurrentLocation.GetAvailableActionsInLocation())
+            .Returns(locationActions);
+
+        // Act
+        var gameResponse = new GameResponse("You are in the cellar.", mockGameEngine.Object);
+
+        // Assert
+        gameResponse.Exits.Should().BeEquivalentTo(populatedExits);
+        gameResponse.ActionsAvailableFromLocation.Should().BeEquivalentTo(locationActions);
     }
 
     [Test]
