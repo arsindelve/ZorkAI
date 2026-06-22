@@ -511,6 +511,31 @@ public class BioLockEastTests : EngineTestsBase
     }
 
     [Test]
+    public async Task Wait_AfterFloydDiesInLab_DeathMessageDoesNotRepeatEveryTurn()
+    {
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.NeedToReopenDoor;
+        target.Context.RegisterActor(bioLockEast);
+
+        // First turn: Floyd dies trapped in the lab and the death is announced.
+        var firstResponse = await target.GetResponse("wait");
+        firstResponse.Should().Contain(FloydConstants.FloydDies);
+
+        // Every subsequent turn must NOT re-announce the death.
+        var secondResponse = await target.GetResponse("wait");
+        secondResponse.Should().NotContain(FloydConstants.FloydDies);
+
+        // The branch is terminal: state advances and the location stops acting.
+        bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.Completed);
+        target.Context.Actors.Should().NotContain(bioLockEast);
+    }
+
+    [Test]
     public async Task SuccessfulSequence_FloydReturnsWithCard_FloydHasDiedFlagSet()
     {
         var target = GetTarget();
