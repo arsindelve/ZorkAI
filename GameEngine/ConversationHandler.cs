@@ -31,25 +31,18 @@ public class ConversationHandler(
 
         if (targetCharacter == null)
         {
-            // The addressed character (if any) is not in scope. If the player nonetheless directly
-            // addressed a KNOWN talkable character by name — the vocative "Name, ..." or imperative
-            // "tell/ask ... Name" form — tell them the character isn't here instead of letting the
-            // leftover command fall through to normal player parsing. Falling through is the #264
-            // bug: it would silently move the player ("floyd, go up"), drop their items ("floyd, drop
-            // diary"), or let the narrator hallucinate the absent NPC acting. The *detection* here is
-            // deterministic (no AI), so it always fires — even when generation is disabled — and is
-            // fully unit-testable; the response itself is narrated (see NarrateAbsence).
-            //
-            // Scan every known talker (not just the first whose name appears) so that when a
-            // sentence mentions more than one of them, the one actually being addressed wins.
-            // IsGenuineDirectAddress is a stricter check than FindTargetCharacter's substring match,
-            // so it both identifies and validates the addressed character on its own.
-            var absentTarget = CollectAllKnownTalkers()
-                .FirstOrDefault(talker => IsGenuineDirectAddress(input, talker));
+            // No talkable NPC is present. If the player nonetheless addressed a KNOWN but absent one,
+            // tell them the character isn't here instead of letting the leftover command fall through
+            // to normal player parsing. Falling through is the #264 bug: it would silently move the
+            // player ("floyd, go up"), drop their items ("floyd, drop diary"), or let the narrator
+            // hallucinate the absent NPC acting. Detection mirrors the present path: a deterministic
+            // fast path catches the common forms (and works offline), and anything else defers to the
+            // same conversation classifier, so any phrasing works. See FindAddressedAbsentCharacter.
+            var absentTarget = await FindAddressedAbsentCharacter(input);
             if (absentTarget != null)
                 return await NarrateAbsence(absentTarget, context);
 
-            logger?.LogDebug("[CONVERSATION DEBUG] No matching character found in input, returning null");
+            logger?.LogDebug("[CONVERSATION DEBUG] No addressed absent talker; returning null");
             return null;
         }
 
@@ -92,10 +85,72 @@ public class ConversationHandler(
     }
 
     /// <summary>
+    /// Decides whether the player addressed a KNOWN but absent talkable character, and returns that
+    /// character if so. Only considers characters whose name or synonym is actually mentioned (so we
+    /// know who is being addressed). A deterministic fast path (<see cref="IsGenuineDirectAddress"/>)
+    /// recognizes the common explicit forms and works even when generation is disabled; for anything
+    /// else, it defers to the same <c>ParseConversation</c> classifier used for present NPCs, so
+    /// arbitrary phrasing ("could you let floyd know to move") is handled too. Real commands that
+    /// merely mention the name ("examine floyd") are rejected by both checks and fall through.
+    /// </summary>
+    private async Task<ICanBeTalkedTo?> FindAddressedAbsentCharacter(string input)
+    {
+        var referenced = CollectAllKnownTalkers()
+            .Where(talker => talker is IItem item && Mentions(input, item))
+            .ToList();
+        if (referenced.Count == 0)
+            return null;
+
+        // Fast, deterministic, offline-safe path. Scanning all referenced talkers means the one
+        // actually addressed wins when a sentence names more than one.
+        var direct = referenced.FirstOrDefault(talker => IsGenuineDirectAddress(input, talker));
+        if (direct != null)
+            return direct;
+
+        // Otherwise let the conversation classifier decide. Skipped when generation is disabled so
+        // the guard stays deterministic in NoGeneratedResponses mode.
+        if (generationClient.IsDisabled)
+            return null;
+
+        var parseResult = await parseConversation.ParseAsync(input);
+        logger?.LogDebug($"[CONVERSATION DEBUG] Absent-talker classifier isConversational: {parseResult.isConversational}");
+        return parseResult.isConversational ? referenced[0] : null;
+    }
+
+    /// <summary>
+    /// True when any of the item's nouns appears in the input as a whole word (so "robot" is a hit
+    /// in "the robot, go" but not in "robotics").
+    /// </summary>
+    private static bool Mentions(string input, IItem item) =>
+        item.NounsForMatching.Any(noun => ContainsWholeWord(input, noun));
+
+    private static bool ContainsWholeWord(string text, string word)
+    {
+        var index = 0;
+        while ((index = text.IndexOf(word, index, StringComparison.OrdinalIgnoreCase)) >= 0)
+        {
+            var startOk = index == 0 || !char.IsLetterOrDigit(text[index - 1]);
+            var end = index + word.Length;
+            var endOk = end == text.Length || !char.IsLetterOrDigit(text[end]);
+            if (startOk && endOk)
+                return true;
+            index = end;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Collects every talkable character the game knows about, regardless of where they currently
     /// are, by resolving the game's declared roster. Lazily instantiates each so an NPC who has not
     /// been touched yet is still "known" — without this, addressing an absent, not-yet-loaded NPC
     /// (e.g. Floyd while still on Deck Nine) would slip through to player parsing.
+    ///
+    /// Note: this runs whenever no talker is present in scope (most turns), so every roster NPC is
+    /// force-instantiated into the <see cref="Repository"/> early — and its <c>Init()</c> runs then.
+    /// That is fine for the current roster (Init only seeds an item inside the not-yet-placed NPC),
+    /// but any future talkable NPC whose Init() has an observable side effect on the context/score
+    /// must not assume "not yet in the Repository" means "not yet introduced by the story".
     /// </summary>
     private List<ICanBeTalkedTo> CollectAllKnownTalkers()
     {
@@ -122,16 +177,25 @@ public class ConversationHandler(
     ];
 
     /// <summary>
+    /// Casual openers that can precede a name in direct address ("hey floyd", "yo robot"). Longest
+    /// first so "hey there" is stripped before "hey".
+    /// </summary>
+    private static readonly string[] InterjectionOpeners =
+    [
+        "hey there ", "hey ", "yo ", "hi ", "hello "
+    ];
+
+    /// <summary>
     /// A conservative, deterministic test for whether the player directly addressed this character.
-    /// Recognizes the character's name at the start of the command — bare ("floyd go up"), vocative
-    /// ("floyd, go up"), or on its own ("floyd") — as well as the imperative forms ("tell/ask/talk
-    /// to ... floyd"). Almost nothing legitimately starts a command with a character's name, so the
-    /// leading-name form is treated as address even without a comma (this is what closes the bare
-    /// "floyd go up" leak). Matching is restricted to the character's actual NAME(s) — its primary
-    /// noun and any title-prefixed variant such as "ensign blather" — and never generic synonyms
-    /// like "robot"/"alien", so a command aimed at some other robot/alien isn't mis-attributed.
-    /// Names must match at a word boundary, so real commands that merely mention the name ("examine
-    /// floyd", "ask about the ambassador") are NOT hijacked and fall through to normal parsing.
+    /// Recognizes the name at the start of the command — bare ("floyd go up"), vocative ("floyd, go
+    /// up"), alone ("floyd"), or behind a casual/article opener ("hey robot", "the ambassador, ...")
+    /// — and the imperative forms ("tell/ask/talk to ... floyd"). Almost nothing legitimately starts
+    /// a command with a character's name, so the leading-name form counts as address even without a
+    /// comma (this closes the bare "floyd go up" leak). Any of the character's nouns count, including
+    /// synonyms like "robot"/"alien" (Floyd IS the robot). Names must match at a word boundary, so
+    /// commands that merely mention the name ("examine floyd", "ask about the ambassador") are NOT
+    /// hijacked here; the classifier in <see cref="FindAddressedAbsentCharacter"/> is the backstop
+    /// for less explicit phrasings.
     /// </summary>
     private static bool IsGenuineDirectAddress(string input, ICanBeTalkedTo target)
     {
@@ -140,11 +204,12 @@ public class ConversationHandler(
 
         var trimmed = input.TrimStart();
 
-        // Longest name first so "ensign blather" wins over "blather".
-        var names = AddressNames(item).OrderByDescending(n => n.Length).ToArray();
+        // Longest noun first so "ensign blather" wins over "blather".
+        var names = item.NounsForMatching.OrderByDescending(n => n.Length).ToArray();
 
-        // Leading address: "Name", "Name, ..." or the bare "Name <rest>" (no comma required).
-        if (names.Any(name => StartsWithWholeWord(trimmed, name)))
+        // Leading address: optional opener ("hey"/"yo"/...) and/or article ("the"), then the name.
+        var leading = StripLeadingAddressPrefix(trimmed);
+        if (names.Any(name => StartsWithWholeWord(leading, name)))
             return true;
 
         // Imperative: "<address verb> [the] Name ...".
@@ -153,9 +218,7 @@ public class ConversationHandler(
             if (!trimmed.StartsWith(lead, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            var rest = trimmed[lead.Length..].TrimStart();
-            if (rest.StartsWith("the ", StringComparison.OrdinalIgnoreCase))
-                rest = rest["the ".Length..].TrimStart();
+            var rest = StripLeadingArticle(trimmed[lead.Length..].TrimStart());
 
             if (names.Any(name => StartsWithWholeWord(rest, name)))
                 return true;
@@ -165,18 +228,31 @@ public class ConversationHandler(
     }
 
     /// <summary>
-    /// The names by which a character can be directly addressed: its primary <see cref="IItem.Name"/>
-    /// and any noun ending in that name (e.g. "ensign blather"). Generic synonyms such as "robot" or
-    /// "alien" are deliberately excluded so that addressing some other robot/alien is not
-    /// mis-attributed to this NPC.
+    /// Strips one leading casual opener ("hey "/"yo "/...) and then one leading article ("the "), so
+    /// "hey the robot" / "the ambassador, ..." are recognized as addressing the character.
     /// </summary>
-    private static IEnumerable<string> AddressNames(IItem item)
+    private static string StripLeadingAddressPrefix(string text)
     {
-        var name = item.Name;
-        return item.NounsForMatching.Where(noun =>
-            string.Equals(noun, name, StringComparison.OrdinalIgnoreCase) ||
-            noun.EndsWith(" " + name, StringComparison.OrdinalIgnoreCase));
+        foreach (var opener in InterjectionOpeners)
+        {
+            if (text.StartsWith(opener, StringComparison.OrdinalIgnoreCase))
+            {
+                text = text[opener.Length..].TrimStart();
+                break;
+            }
+        }
+
+        return StripLeadingArticle(text);
     }
+
+    /// <summary>
+    /// Removes a single leading "the " so "the ambassador, go up" is recognized as addressing the
+    /// ambassador, mirroring how "tell the ambassador ..." is handled.
+    /// </summary>
+    private static string StripLeadingArticle(string text) =>
+        text.StartsWith("the ", StringComparison.OrdinalIgnoreCase)
+            ? text["the ".Length..].TrimStart()
+            : text;
 
     /// <summary>
     /// True when <paramref name="text"/> begins with <paramref name="word"/> at a word boundary, so

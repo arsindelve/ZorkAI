@@ -352,13 +352,31 @@ public class ConversationHandlerTests
         mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
     }
 
+    [TestCase("captain, go north", TestName = "VocativeWithArticle")]
+    [TestCase("the captain, go north", TestName = "VocativeWithLeadingArticle")]
+    [TestCase("the captain go north", TestName = "BareWithLeadingArticle")]
+    public async Task CheckForConversation_AbsentKnownTalker_LeadingArticle_SaysNotHere(string input)
+    {
+        // Arrange - "the <name>, ..." must be caught too, not just the bare/imperative forms.
+        var mockParser = new Mock<IParseConversation>();
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
+            new[] { typeof(CaptainTalker) });
+        var context = new ZorkIContext();
+
+        // Act
+        var result = await handler.CheckForConversation(input, context);
+
+        // Assert
+        result.Should().Be("The captain isn't here. ");
+    }
+
     [TestCase("tell the robot to go up", TestName = "ImperativeWithSynonym")]
     [TestCase("robot, go up", TestName = "VocativeWithSynonym")]
     [TestCase("robot go up", TestName = "BareSynonym")]
-    public async Task CheckForConversation_AbsentKnownTalker_GenericSynonymIsNotDirectAddress(string input)
+    [TestCase("hey robot, go up", TestName = "InterjectionWithSynonym")]
+    public async Task CheckForConversation_AbsentKnownTalker_GenericSynonymIsTreatedAsAddress(string input)
     {
-        // Arrange - "robot" is a generic synonym, not the character's name; addressing "the robot"
-        // must not be attributed to this NPC (some other robot may be meant). Falls through instead.
+        // Arrange - Floyd answers to "robot", so addressing "the robot" reaches him (owner's call).
         var mockParser = new Mock<IParseConversation>();
         var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
             new[] { typeof(RobotTalker) });
@@ -367,8 +385,85 @@ public class ConversationHandlerTests
         // Act
         var result = await handler.CheckForConversation(input, context);
 
+        // Assert - deterministic, so the classifier is not consulted.
+        result.Should().Be("Floyd isn't here. ");
+        mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestCase("hey gizmo, go up", TestName = "Hey")]
+    [TestCase("yo gizmo", TestName = "Yo")]
+    [TestCase("hi gizmo, where are you", TestName = "Hi")]
+    [TestCase("hello gizmo", TestName = "Hello")]
+    public async Task CheckForConversation_AbsentKnownTalker_InterjectionOpener_SaysNotHere(string input)
+    {
+        // Arrange
+        var mockParser = new Mock<IParseConversation>();
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
+            new[] { typeof(GizmoTalker) });
+        var context = new ZorkIContext();
+
+        // Act
+        var result = await handler.CheckForConversation(input, context);
+
+        // Assert - deterministic, no classifier call.
+        result.Should().Be("Gizmo isn't here. ");
+        mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task CheckForConversation_AbsentKnownTalker_DefersToClassifierForUnusualPhrasing()
+    {
+        // Arrange - not one of the explicit forms, but it names Gizmo and the classifier says it's
+        // conversational, so the LLM-backed path recognizes it as address.
+        var mockParser = new Mock<IParseConversation>();
+        mockParser.Setup(p => p.ParseAsync(It.IsAny<string>())).ReturnsAsync((true, "where are you"));
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
+            new[] { typeof(GizmoTalker) });
+        var context = new ZorkIContext();
+
+        // Act
+        var result = await handler.CheckForConversation("could you let gizmo know to wait for me", context);
+
+        // Assert - classifier consulted (deterministic check missed), then narrated absence (fallback).
+        result.Should().Be("Gizmo isn't here. ");
+        mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Once);
+    }
+
+    [Test]
+    public async Task CheckForConversation_AbsentKnownTalker_ClassifierSaysNotConversational_FallsThrough()
+    {
+        // Arrange - names Gizmo but the classifier says it's a command about Gizmo, not address.
+        var mockParser = new Mock<IParseConversation>();
+        mockParser.Setup(p => p.ParseAsync(It.IsAny<string>())).ReturnsAsync((false, string.Empty));
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
+            new[] { typeof(GizmoTalker) });
+        var context = new ZorkIContext();
+
+        // Act
+        var result = await handler.CheckForConversation("the lever near gizmo is stuck", context);
+
         // Assert
         result.Should().BeNull();
+    }
+
+    [Test]
+    public async Task CheckForConversation_AbsentKnownTalker_UnusualPhrasing_NotConsultedWhenGenerationDisabled()
+    {
+        // Arrange - offline (NoGeneratedResponses): the classifier backstop is skipped, so only the
+        // deterministic forms are caught. A non-explicit phrasing falls through rather than calling AI.
+        var mockParser = new Mock<IParseConversation>();
+        var mockClient = new Mock<IGenerationClient>();
+        mockClient.Setup(c => c.IsDisabled).Returns(true);
+        var handler = new ConversationHandler(null, mockParser.Object, mockClient.Object,
+            new[] { typeof(GizmoTalker) });
+        var context = new ZorkIContext();
+
+        // Act
+        var result = await handler.CheckForConversation("could you let gizmo know to wait", context);
+
+        // Assert
+        result.Should().BeNull();
+        mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -449,7 +544,9 @@ public class ConversationHandlerTests
     [TestCase("attack gizmo with sword", TestName = "AttackMention")]
     public async Task CheckForConversation_AbsentKnownTalker_NonAddress_DoesNotHijack(string input)
     {
-        // Arrange - the name is merely mentioned; these are real commands, not direct address.
+        // Arrange - the name is merely mentioned; these are real commands, not direct address. The
+        // deterministic check declines, the classifier is consulted as the backstop and (unconfigured
+        // here) also says "not conversational", so the input falls through to normal parsing.
         var mockParser = new Mock<IParseConversation>();
         var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
             new[] { typeof(GizmoTalker) });
@@ -458,26 +555,9 @@ public class ConversationHandlerTests
         // Act
         var result = await handler.CheckForConversation(input, context);
 
-        // Assert - falls through to normal parsing; the guard does not fire.
+        // Assert
         result.Should().BeNull();
-        mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
-    }
-
-    [Test]
-    public async Task CheckForConversation_AbsentKnownTalker_NonVocativeMention_DoesNotHijack()
-    {
-        // Arrange - "examine gizmo" merely mentions the name; it is a real command, not direct address.
-        var mockParser = new Mock<IParseConversation>();
-        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
-            new[] { typeof(GizmoTalker) });
-        var context = new ZorkIContext();
-
-        // Act
-        var result = await handler.CheckForConversation("examine gizmo", context);
-
-        // Assert - falls through to normal parsing; the guard does not fire.
-        result.Should().BeNull();
-        mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+        mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Once);
     }
 
     [Test]

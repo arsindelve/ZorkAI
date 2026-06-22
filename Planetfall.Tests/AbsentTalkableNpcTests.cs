@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Moq;
 using Planetfall.Item.Feinstein;
 using Planetfall.Location.Feinstein;
 
@@ -102,6 +103,18 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     }
 
     [Test]
+    public async Task AddressingAbsentAmbassadorWithLeadingArticle_SaysNotHere_AndDoesNotMove()
+    {
+        var target = GetTarget();
+        StartHere<DeckNine>();
+
+        var response = await target.GetResponse("the ambassador, go up");
+
+        response.Should().Contain("The ambassador isn't here.");
+        Context.CurrentLocation.Should().BeOfType<DeckNine>();
+    }
+
+    [Test]
     public async Task AddressingAbsentAmbassador_TakeBrush_SaysNotHere()
     {
         var target = GetTarget();
@@ -149,17 +162,48 @@ public class AbsentTalkableNpcTests : EngineTestsBase
         Context.CurrentLocation.Should().BeOfType<DeckNine>();
     }
 
-    // "robot" is a generic synonym for Floyd; addressing "the robot" must not be attributed to the
-    // absent Floyd (other robots exist elsewhere in the game).
+    // Floyd answers to "robot", so addressing "the robot" reaches him (owner's call).
     [Test]
-    public async Task TellingTheRobot_WhileFloydAbsent_IsNotAttributedToFloyd()
+    public async Task TellingTheRobot_WhileFloydAbsent_IsAttributedToFloyd()
     {
         var target = GetTarget();
         StartHere<DeckNine>();
 
         var response = await target.GetResponse("tell the robot to go up");
 
-        response.Should().NotContain("Floyd isn't here");
+        response.Should().Contain("Floyd isn't here.");
+        Context.CurrentLocation.Should().BeOfType<DeckNine>();
+    }
+
+    [TestCase("hey floyd, go up", TestName = "HeyFloyd")]
+    [TestCase("yo robot", TestName = "YoRobot")]
+    [TestCase("the robot, go up", TestName = "TheRobot")]
+    public async Task AddressingAbsentFloydCasually_SaysNotHere(string input)
+    {
+        var target = GetTarget();
+        StartHere<DeckNine>();
+
+        var response = await target.GetResponse(input);
+
+        response.Should().Contain("Floyd isn't here.");
+        Context.CurrentLocation.Should().BeOfType<DeckNine>();
+    }
+
+    // Unusual phrasing the deterministic matcher won't catch: the conversation classifier (stubbed
+    // here to say "conversational") is the backstop that still recognizes it as addressing Floyd.
+    [Test]
+    public async Task AddressingAbsentFloydWithUnusualPhrasing_DefersToClassifier_SaysNotHere()
+    {
+        var target = GetTarget();
+        StartHere<DeckNine>();
+        ParseConversationMock
+            .Setup(p => p.ParseAsync("could you let floyd know to wait for me"))
+            .ReturnsAsync((true, ""));
+
+        var response = await target.GetResponse("could you let floyd know to wait for me");
+
+        response.Should().Contain("Floyd isn't here.");
+        Context.CurrentLocation.Should().BeOfType<DeckNine>();
     }
 
     [Test]
