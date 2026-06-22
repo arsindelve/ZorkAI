@@ -3,6 +3,7 @@ using FluentAssertions;
 using GameEngine;
 using GameEngine.Item;
 using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 using Model.Interface;
 using Model.Item;
 using Model.Location;
@@ -45,6 +46,20 @@ public class ConversationHandlerTests
 
         public Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client) =>
             Task.FromResult("captain talked");
+    }
+
+    /// <summary>
+    /// A known talker named "floyd" that also answers to the generic synonym "robot" — mirrors the
+    /// real Floyd, used to verify the synonym is not treated as a name for direct address.
+    /// </summary>
+    public class RobotTalker : ItemBase, ICanBeTalkedTo
+    {
+        public override string[] NounsForMatching => ["floyd", "robot"];
+
+        public override string GenericDescription(ILocation? currentLocation) => string.Empty;
+
+        public Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client) =>
+            Task.FromResult("floyd talked");
     }
 
     [Test]
@@ -241,7 +256,9 @@ public class ConversationHandlerTests
     [Test]
     public async Task CheckForConversation_AbsentKnownTalker_VocativeAddress_SaysNotHere()
     {
-        // Arrange - Gizmo is a known talker (in the roster) but NOT in the room/inventory.
+        // Arrange - Gizmo is a known talker (in the roster) but NOT in the room/inventory. The
+        // generation client here produces nothing, so we get the static fallback (the genuine
+        // narrator path is exercised by NarratesAbsenceViaGenerationWhenEnabled below).
         var mockParser = new Mock<IParseConversation>();
         var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
             new[] { typeof(GizmoTalker) });
@@ -250,9 +267,125 @@ public class ConversationHandlerTests
         // Act
         var result = await handler.CheckForConversation("gizmo, go up", context);
 
-        // Assert - short-circuits with the deterministic "isn't here" message, no AI rewrite.
+        // Assert - short-circuits with the "isn't here" message, never the AI conversation rewriter.
         result.Should().Be("Gizmo isn't here. ");
         mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task CheckForConversation_AbsentKnownTalker_NarratesAbsenceViaGenerationWhenEnabled()
+    {
+        // Arrange - when generation is available, the narrator tells the player in its own voice.
+        var mockParser = new Mock<IParseConversation>();
+        var mockClient = new Mock<IGenerationClient>();
+        mockClient.Setup(c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()))
+                  .ReturnsAsync("You look around, but Gizmo is nowhere to be seen.");
+        var handler = new ConversationHandler(null, mockParser.Object, mockClient.Object,
+            new[] { typeof(GizmoTalker) });
+        var context = new ZorkIContext();
+
+        // Act
+        var result = await handler.CheckForConversation("gizmo, go up", context);
+
+        // Assert - the generated narration is used, and it is a narration request (not the AI rewriter).
+        result.Should().Be("You look around, but Gizmo is nowhere to be seen.");
+        mockClient.Verify(c => c.GenerateNarration(It.IsAny<TalkingToAbsentCharacterRequest>(), It.IsAny<string>()),
+            Times.Once);
+        mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task CheckForConversation_AbsentKnownTalker_FallsBackToStaticTextWhenGenerationEmpty()
+    {
+        // Arrange - graceful degradation: if generation yields nothing, fall back to the static line
+        // rather than leaking the command back into player parsing.
+        var mockParser = new Mock<IParseConversation>();
+        var mockClient = new Mock<IGenerationClient>();
+        mockClient.Setup(c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()))
+                  .ReturnsAsync(string.Empty);
+        var handler = new ConversationHandler(null, mockParser.Object, mockClient.Object,
+            new[] { typeof(GizmoTalker) });
+        var context = new ZorkIContext();
+
+        // Act
+        var result = await handler.CheckForConversation("gizmo, go up", context);
+
+        // Assert
+        result.Should().Be("Gizmo isn't here. ");
+    }
+
+    [Test]
+    public async Task CheckForConversation_AbsentKnownTalker_DoesNotCallGenerationWhenDisabled()
+    {
+        // Arrange - in NoGeneratedResponses mode the guard must stay deterministic and not call AI.
+        var mockParser = new Mock<IParseConversation>();
+        var mockClient = new Mock<IGenerationClient>();
+        mockClient.Setup(c => c.IsDisabled).Returns(true);
+        var handler = new ConversationHandler(null, mockParser.Object, mockClient.Object,
+            new[] { typeof(GizmoTalker) });
+        var context = new ZorkIContext();
+
+        // Act
+        var result = await handler.CheckForConversation("gizmo, go up", context);
+
+        // Assert
+        result.Should().Be("Gizmo isn't here. ");
+        mockClient.Verify(c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestCase("floyd go up")]
+    [TestCase("floyd drop the diary")]
+    public async Task CheckForConversation_AbsentKnownTalker_BareLeadingNameNoComma_SaysNotHere(string input)
+    {
+        // Arrange - the bare "Name <rest>" form (no comma, no lead-in verb) is the gap reported on
+        // the PR: it used to leak straight to player parsing and move/drop for the player.
+        var mockParser = new Mock<IParseConversation>();
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
+            new[] { typeof(RobotTalker) });
+        var context = new ZorkIContext();
+
+        // Act
+        var result = await handler.CheckForConversation(input, context);
+
+        // Assert
+        result.Should().Be("Floyd isn't here. ");
+        mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestCase("tell the robot to go up", TestName = "ImperativeWithSynonym")]
+    [TestCase("robot, go up", TestName = "VocativeWithSynonym")]
+    [TestCase("robot go up", TestName = "BareSynonym")]
+    public async Task CheckForConversation_AbsentKnownTalker_GenericSynonymIsNotDirectAddress(string input)
+    {
+        // Arrange - "robot" is a generic synonym, not the character's name; addressing "the robot"
+        // must not be attributed to this NPC (some other robot may be meant). Falls through instead.
+        var mockParser = new Mock<IParseConversation>();
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
+            new[] { typeof(RobotTalker) });
+        var context = new ZorkIContext();
+
+        // Act
+        var result = await handler.CheckForConversation(input, context);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Test]
+    public async Task CheckForConversation_TwoKnownTalkers_RecognizesGenuinelyAddressedOne()
+    {
+        // Arrange - both are known and absent. The sentence mentions "gizmo" but genuinely addresses
+        // "captain"; the guard must pick the one actually addressed, not the first name it sees.
+        var mockParser = new Mock<IParseConversation>();
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
+            new[] { typeof(GizmoTalker), typeof(CaptainTalker) });
+        var context = new ZorkIContext();
+
+        // Act
+        var result = await handler.CheckForConversation("captain, give the gizmo to me", context);
+
+        // Assert
+        result.Should().Be("The captain isn't here. ");
     }
 
     [Test]

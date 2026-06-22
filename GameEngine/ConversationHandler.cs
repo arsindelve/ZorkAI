@@ -1,6 +1,7 @@
 using ChatLambda;
 using Microsoft.Extensions.Logging;
 using Model.AIGeneration;
+using Model.AIGeneration.Requests;
 using Model.Interface;
 using Model.Item;
 
@@ -31,19 +32,22 @@ public class ConversationHandler(
         if (targetCharacter == null)
         {
             // The addressed character (if any) is not in scope. If the player nonetheless directly
-            // addressed a KNOWN talkable character by name — the vocative "Name, ..." form — answer
-            // "X isn't here." instead of letting the leftover command fall through to normal player
-            // parsing. Falling through is the #264 bug: it would silently move the player
-            // ("floyd, go up"), drop their items ("floyd, drop diary"), or let the narrator
-            // hallucinate the absent NPC acting. This guard is deterministic (no AI), so it runs
-            // even when generation is disabled and is fully unit-testable.
-            var absentTarget = FindTargetCharacter(input, CollectAllKnownTalkers());
-            if (absentTarget != null && IsGenuineDirectAddress(input, absentTarget))
-            {
-                var notHere = absentTarget.NotHereDescription;
-                logger?.LogDebug($"[CONVERSATION DEBUG] Addressed absent talker; responding: '{notHere}'");
-                return notHere;
-            }
+            // addressed a KNOWN talkable character by name — the vocative "Name, ..." or imperative
+            // "tell/ask ... Name" form — tell them the character isn't here instead of letting the
+            // leftover command fall through to normal player parsing. Falling through is the #264
+            // bug: it would silently move the player ("floyd, go up"), drop their items ("floyd, drop
+            // diary"), or let the narrator hallucinate the absent NPC acting. The *detection* here is
+            // deterministic (no AI), so it always fires — even when generation is disabled — and is
+            // fully unit-testable; the response itself is narrated (see NarrateAbsence).
+            //
+            // Scan every known talker (not just the first whose name appears) so that when a
+            // sentence mentions more than one of them, the one actually being addressed wins.
+            // IsGenuineDirectAddress is a stricter check than FindTargetCharacter's substring match,
+            // so it both identifies and validates the addressed character on its own.
+            var absentTarget = CollectAllKnownTalkers()
+                .FirstOrDefault(talker => IsGenuineDirectAddress(input, talker));
+            if (absentTarget != null)
+                return await NarrateAbsence(absentTarget, context);
 
             logger?.LogDebug("[CONVERSATION DEBUG] No matching character found in input, returning null");
             return null;
@@ -58,6 +62,33 @@ public class ConversationHandler(
         }
 
         return await ProcessConversation(input, targetCharacter, context);
+    }
+
+    /// <summary>
+    /// Produces the response when the player addressed an absent known character. The narrator tells
+    /// them the character isn't here in its own voice (the owner wants this generated, not a fixed
+    /// line). The static <see cref="ICanBeTalkedTo.NotHereDescription"/> is used only as a fallback
+    /// when generation is unavailable (NoGeneratedResponses mode) or returns nothing — so the guard
+    /// is still deterministic in those modes and never leaks back into player parsing.
+    /// </summary>
+    private async Task<string> NarrateAbsence(ICanBeTalkedTo target, IContext context)
+    {
+        var fallback = target.NotHereDescription;
+
+        if (generationClient.IsDisabled)
+        {
+            logger?.LogDebug($"[CONVERSATION DEBUG] Generation disabled; absent talker fallback: '{fallback}'");
+            return fallback;
+        }
+
+        var characterName = (target as IItem)?.Name ?? "that character";
+        var request = new TalkingToAbsentCharacterRequest(
+            context.CurrentLocation.GetDescriptionForGeneration(context), characterName);
+
+        var narration = await generationClient.GenerateNarration(request, context.SystemPromptAddendum);
+        logger?.LogDebug($"[CONVERSATION DEBUG] Narrated absent talker '{characterName}': '{narration}'");
+
+        return string.IsNullOrWhiteSpace(narration) ? fallback : narration;
     }
 
     /// <summary>
@@ -91,22 +122,30 @@ public class ConversationHandler(
     ];
 
     /// <summary>
-    /// A conservative, deterministic test for whether the player genuinely addressed the character.
-    /// Catches the vocative "Name, ..." form and the imperative "tell/ask/talk to ... Name ..."
-    /// forms, but only when the character's name appears immediately after the address verb. Real
-    /// commands that merely mention the name ("examine floyd", "look at the robot", "ask about the
-    /// alien") are NOT hijacked and correctly fall through to normal parsing.
+    /// A conservative, deterministic test for whether the player directly addressed this character.
+    /// Recognizes the character's name at the start of the command — bare ("floyd go up"), vocative
+    /// ("floyd, go up"), or on its own ("floyd") — as well as the imperative forms ("tell/ask/talk
+    /// to ... floyd"). Almost nothing legitimately starts a command with a character's name, so the
+    /// leading-name form is treated as address even without a comma (this is what closes the bare
+    /// "floyd go up" leak). Matching is restricted to the character's actual NAME(s) — its primary
+    /// noun and any title-prefixed variant such as "ensign blather" — and never generic synonyms
+    /// like "robot"/"alien", so a command aimed at some other robot/alien isn't mis-attributed.
+    /// Names must match at a word boundary, so real commands that merely mention the name ("examine
+    /// floyd", "ask about the ambassador") are NOT hijacked and fall through to normal parsing.
     /// </summary>
     private static bool IsGenuineDirectAddress(string input, ICanBeTalkedTo target)
     {
-        // Vocative: "Name, ...".
-        if (TryStripDirectAddress(input, target, out _))
-            return true;
-
         if (target is not IItem item)
             return false;
 
         var trimmed = input.TrimStart();
+
+        // Longest name first so "ensign blather" wins over "blather".
+        var names = AddressNames(item).OrderByDescending(n => n.Length).ToArray();
+
+        // Leading address: "Name", "Name, ..." or the bare "Name <rest>" (no comma required).
+        if (names.Any(name => StartsWithWholeWord(trimmed, name)))
+            return true;
 
         // Imperative: "<address verb> [the] Name ...".
         foreach (var lead in AddressLeadIns)
@@ -118,10 +157,7 @@ public class ConversationHandler(
             if (rest.StartsWith("the ", StringComparison.OrdinalIgnoreCase))
                 rest = rest["the ".Length..].TrimStart();
 
-            // Prefer the longest matching noun so "ensign blather" wins over "blather".
-            if (item.NounsForMatching
-                .OrderByDescending(n => n.Length)
-                .Any(noun => StartsWithWholeWord(rest, noun)))
+            if (names.Any(name => StartsWithWholeWord(rest, name)))
                 return true;
         }
 
@@ -129,8 +165,22 @@ public class ConversationHandler(
     }
 
     /// <summary>
+    /// The names by which a character can be directly addressed: its primary <see cref="IItem.Name"/>
+    /// and any noun ending in that name (e.g. "ensign blather"). Generic synonyms such as "robot" or
+    /// "alien" are deliberately excluded so that addressing some other robot/alien is not
+    /// mis-attributed to this NPC.
+    /// </summary>
+    private static IEnumerable<string> AddressNames(IItem item)
+    {
+        var name = item.Name;
+        return item.NounsForMatching.Where(noun =>
+            string.Equals(noun, name, StringComparison.OrdinalIgnoreCase) ||
+            noun.EndsWith(" " + name, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
     /// True when <paramref name="text"/> begins with <paramref name="word"/> at a word boundary, so
-    /// "robot" matches "robot to go" but not "robotics".
+    /// "floyd" matches "floyd go up" and "floyd, go" but not "floydian".
     /// </summary>
     private static bool StartsWithWholeWord(string text, string word)
     {

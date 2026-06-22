@@ -6,9 +6,14 @@ namespace Planetfall.Tests;
 
 /// <summary>
 /// Regression tests for #264. Addressing a talkable NPC (Floyd / Blather / the Ambassador) by name
-/// while they are NOT present must answer "X isn't here." instead of letting the command leak into
-/// normal player parsing — which would silently move the player, drop their items, or let the
-/// narrator hallucinate the absent NPC acting.
+/// while they are NOT present must tell the player the character isn't here instead of letting the
+/// command leak into normal player parsing — which would silently move the player, drop their items,
+/// or let the narrator hallucinate the absent NPC acting.
+///
+/// In production the narrator phrases the absence dynamically. The test engine stubs generation, so
+/// these tests observe the deterministic static fallback ("X isn't here.") — which is exactly what
+/// matters for this bug class: a non-leaking, side-effect-free response. The critical assertions are
+/// that the player did not move and did not drop anything.
 /// </summary>
 public class AbsentTalkableNpcTests : EngineTestsBase
 {
@@ -105,6 +110,56 @@ public class AbsentTalkableNpcTests : EngineTestsBase
         var response = await target.GetResponse("ambassador, take brush");
 
         response.Should().Contain("The ambassador isn't here.");
+    }
+
+    [Test]
+    public async Task AddressingAbsentFloydWithoutComma_GoUp_SaysNotHere_AndDoesNotMove()
+    {
+        var target = GetTarget();
+        StartHere<DeckNine>();
+
+        var response = await target.GetResponse("floyd go up");
+
+        response.Should().Contain("Floyd isn't here.");
+        Context.CurrentLocation.Should().BeOfType<DeckNine>();
+    }
+
+    [Test]
+    public async Task AddressingAbsentFloydWithoutComma_DropDiary_SaysNotHere_AndKeepsItem()
+    {
+        var target = GetTarget();
+        StartHere<DeckNine>();
+        Take<Diary>();
+
+        var response = await target.GetResponse("floyd drop diary");
+
+        response.Should().Contain("Floyd isn't here.");
+        Context.HasItem<Diary>().Should().BeTrue();
+    }
+
+    [Test]
+    public async Task AddressingAbsentBlatherByNameWithoutComma_SaysNotHere()
+    {
+        var target = GetTarget();
+        StartHere<DeckNine>();
+
+        var response = await target.GetResponse("blather go up");
+
+        response.Should().Contain("Blather isn't here.");
+        Context.CurrentLocation.Should().BeOfType<DeckNine>();
+    }
+
+    // "robot" is a generic synonym for Floyd; addressing "the robot" must not be attributed to the
+    // absent Floyd (other robots exist elsewhere in the game).
+    [Test]
+    public async Task TellingTheRobot_WhileFloydAbsent_IsNotAttributedToFloyd()
+    {
+        var target = GetTarget();
+        StartHere<DeckNine>();
+
+        var response = await target.GetResponse("tell the robot to go up");
+
+        response.Should().NotContain("Floyd isn't here");
     }
 
     [Test]
