@@ -1,3 +1,5 @@
+using Model.AIGeneration;
+using Model.Intent;
 using Model.Interaction;
 using Model.Interface;
 using Model.Location;
@@ -14,14 +16,44 @@ namespace GameEngine.IntentEngine;
 /// </summary>
 internal static class DestinationNavigation
 {
-    // Every direction a Map can define an exit for. We probe each because the only public way to ask
-    // "where does this exit lead?" is ILocation.Navigate(direction) — the Map itself is protected.
+    // Every real direction a Map can define an exit for, derived from the enum so a newly added
+    // Direction is probed automatically. We probe each because the only public way to ask "where does
+    // this exit lead?" is ILocation.Navigate(direction) — the Map itself is protected.
     private static readonly Direction[] AllDirections =
-    [
-        Direction.N, Direction.S, Direction.E, Direction.W,
-        Direction.NE, Direction.NW, Direction.SW, Direction.SE,
-        Direction.In, Direction.Out, Direction.Up, Direction.Down
-    ];
+        Enum.GetValues<Direction>().Where(d => d != Direction.Unknown).ToArray();
+
+    /// <summary>
+    /// Resolve a typed room name against the current room's exits and produce the turn result:
+    /// a single move (one match), a "which one?" disambiguation (two+ matches), or <c>null</c> when no
+    /// adjacent room matches — leaving the caller to decide the context-appropriate refusal. Shared by
+    /// both the "go to &lt;room&gt;" and "enter &lt;room&gt;" entry points so the move/disambiguate flow lives in
+    /// one place.
+    /// </summary>
+    public static async Task<(InteractionResult? resultObject, string ResultMessage)?> TryNavigate(
+        string? destination, IContext context, IGenerationClient generationClient)
+    {
+        var matches = ResolveAllAdjacent(destination, context);
+
+        switch (matches.Count)
+        {
+            case 0:
+                return null;
+
+            case 1:
+                // Single hop: reuse the full movement pipeline so a gated exit yields its own message
+                // ("The kitchen window is closed.") instead of a teleport, and the leave/enter hooks
+                // and turn side-effects all fire normally.
+                return await new MoveEngine().Process(
+                    new MoveIntent { Direction = matches[0].Direction }, context, generationClient);
+
+            default:
+                // Ambiguous → hand the engine's existing disambiguation flow a prompt. The
+                // InteractionMessage must ALSO be the ResultMessage so the player sees the question this
+                // turn (mirrors SimpleInteractionEngine's disambiguation return).
+                var disambiguation = BuildDisambiguation(matches);
+                return (disambiguation, disambiguation.InteractionMessage);
+        }
+    }
 
     /// <summary>
     /// Every exit of the CURRENT room whose destination room matches the typed name, deduped by room
@@ -31,30 +63,32 @@ internal static class DestinationNavigation
     public static IReadOnlyList<(Direction Direction, ILocation Room)> ResolveAllAdjacent(
         string? destination, IContext context)
     {
-        var matches = new List<(Direction Direction, ILocation Room)>();
         if (string.IsNullOrWhiteSpace(destination))
-            return matches;
+            return [];
 
         var target = Normalize(destination);
 
+        // Probe each exit exactly once and capture its passability now, so we never re-Navigate (and
+        // re-build the room's Map) while deduping/ordering below.
+        var matches = new List<(Direction Direction, ILocation Room, bool CanGo)>();
         foreach (var dir in AllDirections)
         {
             // Navigate() returns the MovementParameters for this exit even when CanGo is currently
             // false (e.g. a closed door), so we can match the room name now and still let MoveEngine
             // surface the gated failure later. Location is null for blocked/message-only exits.
-            var room = context.CurrentLocation.Navigate(dir, context)?.Location;
+            var movement = context.CurrentLocation.Navigate(dir, context);
+            var room = movement?.Location;
             if (room is null)
                 continue;
 
             if (room.NounsForMatching.Any(n => Normalize(n).Equals(target)))
-                matches.Add((dir, room));
+                matches.Add((dir, room, movement!.CanGo(context)));
         }
 
         return matches
             .GroupBy(m => m.Room)
-            .Select(g => g
-                .OrderByDescending(m => context.CurrentLocation.Navigate(m.Direction, context)!.CanGo(context))
-                .First())
+            .Select(g => g.OrderByDescending(m => m.CanGo).First())
+            .Select(m => (m.Direction, m.Room))
             .ToList();
     }
 
@@ -67,10 +101,12 @@ internal static class DestinationNavigation
     public static DisambiguationInteractionResult BuildDisambiguation(
         IReadOnlyList<(Direction Direction, ILocation Room)> matches)
     {
-        // Synonyms shared by more than one matched room are the ambiguous ones (e.g. "elevator") and
-        // must never be reply keys, or the answer would be ambiguous all over again.
+        // A synonym is "shared" (and so must never be a reply key) when it belongs to more than one of
+        // the matched ROOMS. We Distinct() each room's nouns first so a synonym a single room happens
+        // to list twice (e.g. "dome" and "the dome" both normalizing to "dome") is not mistaken for
+        // shared and stripped from that room's distinguishing keys.
         var shared = matches
-            .SelectMany(m => m.Room.NounsForMatching.Select(Normalize))
+            .SelectMany(m => m.Room.NounsForMatching.Select(Normalize).Distinct())
             .GroupBy(s => s)
             .Where(g => g.Count() > 1)
             .Select(g => g.Key)

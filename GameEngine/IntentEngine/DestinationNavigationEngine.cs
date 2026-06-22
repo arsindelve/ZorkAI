@@ -20,27 +20,10 @@ internal class DestinationNavigationEngine : IIntentEngine
         if (intent is not GoToDestinationIntent goTo)
             throw new ArgumentException("Cast error");
 
-        var matches = DestinationNavigation.ResolveAllAdjacent(goTo.Destination, context);
-
-        switch (matches.Count)
-        {
-            case 0:
-                return (null, await CantGetThere(generationClient, context, goTo.Destination));
-
-            case 1:
-                // Single hop: reuse the full movement pipeline so a gated exit yields its own message
-                // ("The kitchen window is closed.") instead of a teleport, and the leave/enter hooks
-                // and turn side-effects all fire normally.
-                return await new MoveEngine().Process(
-                    new MoveIntent { Direction = matches[0].Direction }, context, generationClient);
-
-            default:
-                // Ambiguous → hand the engine's existing disambiguation flow a prompt. The
-                // InteractionMessage must ALSO be the ResultMessage so the player sees the question
-                // this turn (mirrors SimpleInteractionEngine's disambiguation return).
-                var disambiguation = DestinationNavigation.BuildDisambiguation(matches);
-                return (disambiguation, disambiguation.InteractionMessage);
-        }
+        // Move (one match) or disambiguate (two+); null means no adjacent room matched, so we give the
+        // "go to"-flavoured refusal.
+        return await DestinationNavigation.TryNavigate(goTo.Destination, context, generationClient)
+               ?? (null, await CantGetThere(generationClient, context, goTo.Destination));
     }
 
     private static async Task<string> CantGetThere(

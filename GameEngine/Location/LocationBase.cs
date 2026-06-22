@@ -364,7 +364,9 @@ public abstract class LocationBase : ILocation, ICanContainItems
     /// </returns>
     public MovementParameters? Navigate(Direction direction, IContext context)
     {
-        return Map(context).ContainsKey(direction) ? Map(context)[direction] : null;
+        // Build the map once: Map(context) allocates a fresh dictionary (and its closures) on every
+        // call, so the old ContainsKey-then-index form built it twice per Navigate.
+        return Map(context).GetValueOrDefault(direction);
     }
 
     public bool HasItem<T>() where T : IItem, new()
