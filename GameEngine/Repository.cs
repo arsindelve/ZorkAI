@@ -60,6 +60,29 @@ public static class Repository
     }
 
     /// <summary>
+    ///     Lazily resolves (instantiating on first request, exactly like <see cref="GetItem{T}" />)
+    ///     the singleton item for a runtime <see cref="Type" />. This is for callers that only have
+    ///     a <see cref="Type" /> rather than a compile-time generic — for example resolving a game's
+    ///     declared roster of talkable characters so an absent NPC who has not been touched yet is
+    ///     still "known".
+    /// </summary>
+    public static IItem GetItem(Type type)
+    {
+        if (!_allItems.ContainsKey(type))
+        {
+            if (Activator.CreateInstance(type) is not IItem item)
+                throw new ArgumentException($"Type {type.Name} does not implement {nameof(IItem)}.", nameof(type));
+
+            if (item is ICanContainItems container)
+                container.Init();
+
+            _allItems.Add(type, item);
+        }
+
+        return _allItems[type];
+    }
+
+    /// <summary>
     /// Searches for an item by noun in the player's inventory only.
     /// This is the preferred method for drop operations since you can only drop what you're carrying.
     /// </summary>
