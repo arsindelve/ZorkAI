@@ -172,6 +172,18 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         return new PositiveInteractionResult(await TakeEverythingProcessor.TakeAll(context, itemsWithFeedback, client));
     }
 
+    /// <summary>
+    /// Records an individually taken or dropped item as part of the "them" antecedent set, so that a
+    /// following plural pronoun command ("drop them" after several takes) refers to all of them (issue #248).
+    /// Batch operations (take all / drop all) overwrite this set wholesale instead.
+    /// </summary>
+    internal static void RememberAsAntecedent(IContext context, IItem item)
+    {
+        var noun = item.NounsForMatching.FirstOrDefault();
+        if (!string.IsNullOrEmpty(noun) && !context.LastNouns.Contains(noun, StringComparer.OrdinalIgnoreCase))
+            context.LastNouns.Add(noun);
+    }
+
     public static InteractionResult DropIt(IContext context, IItem? castItem)
     {
         if (castItem is null) return new NoNounMatchInteractionResult();
@@ -186,6 +198,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             return specialLocation.DropSpecial(castItem, context);
 
         context.Drop(castItem);
+        RememberAsAntecedent(context, castItem);
         return new PositiveInteractionResult("Dropped");
     }
 
@@ -212,9 +225,10 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             return new PositiveInteractionResult("Your load is too heavy. ");
 
         context.Take(castItem);
+        RememberAsAntecedent(context, castItem);
 
         // This happens if you try to take something that is a legit object in the room,
-        // but it has not been marked with this interface because it cannot be taken. Think doors and engravings. 
+        // but it has not been marked with this interface because it cannot be taken. Think doors and engravings.
         if (castItem is not ICanBeTakenAndDropped takeItem)
             return new NoNounMatchInteractionResult();
 

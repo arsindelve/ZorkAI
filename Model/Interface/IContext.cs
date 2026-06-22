@@ -51,6 +51,17 @@ public interface IContext : ICanContainItems
     string LastNoun { get; set; }
 
     /// <summary>
+    ///     The set of nouns the player most recently referred to as a group — populated by "take all",
+    ///     "drop all", "take/drop X and Y", or several consecutive individual takes/drops.
+    /// </summary>
+    /// <remarks>
+    ///     This is the antecedent for the plural pronoun "them", which a single <see cref="LastNoun" />
+    ///     string cannot represent. Without it, a command like "take all. drop them" dead-ends because
+    ///     a collection of distinct singular items has no single plural noun to resolve against (issue #248).
+    /// </remarks>
+    List<string> LastNouns { get; set; }
+
+    /// <summary>
     ///     Tracks the last player input for pronoun resolution.
     /// </summary>
     /// <remarks>

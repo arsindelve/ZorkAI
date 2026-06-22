@@ -31,18 +31,10 @@ public class EngineTestsBase : EngineTestsBaseCommon<ZorkIContext>
 
         TakeAndDropParser = new Mock<IAITakeAndAndDropParser>();
         TakeAndDropParser.Setup(s => s.GetListOfItemsToDrop(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync((string input, string context) =>
-            {
-                var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                return words.Length > 1 ? [words[1]] : [];
-            });
+            .ReturnsAsync((string input, string context) => ParseItemList(input));
 
         TakeAndDropParser.Setup(s => s.GetListOfItemsToTake(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync((string input, string context) =>
-            {
-                var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                return words.Length > 1 ? [words[1]] : [];
-            });
+            .ReturnsAsync((string input, string context) => ParseItemList(input));
 
         // Create a mock ParseConversation that mimics the old pattern behavior
         var mockParseConversation = CreateMockParseConversation();
@@ -59,6 +51,26 @@ public class EngineTestsBase : EngineTestsBaseCommon<ZorkIContext>
         return engine;
     }
     
+    /// <summary>
+    /// Stands in for the real AI take/drop list parser. A multi-item command ("drop lamp and sword")
+    /// is split on "and"/commas into its individual nouns, mirroring what the LLM does; a single-item
+    /// command keeps the original second-word behavior so existing tests are unaffected.
+    /// </summary>
+    private static string[] ParseItemList(string input)
+    {
+        var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length <= 1)
+            return [];
+
+        var afterVerb = string.Join(' ', words.Skip(1));
+        var parts = afterVerb
+            .Split([" and ", " & ", ","], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .ToArray();
+
+        return parts.Length > 1 ? parts : [words[1]];
+    }
+
     private static Mock<IParseConversation> CreateMockParseConversation()
     {
         var mockParseConversation = new Mock<IParseConversation>();

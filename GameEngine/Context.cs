@@ -72,6 +72,8 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public string LastNoun { get; set; } = "";
 
+    public List<string> LastNouns { get; set; } = new();
+
     public int Moves { get; set; }
 
     /// <summary>

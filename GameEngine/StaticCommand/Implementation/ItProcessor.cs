@@ -66,30 +66,45 @@ internal class ItProcessor : IStatefulProcessor
             return (false, input);
         }
 
-        if (
-            string.IsNullOrEmpty(lastNoun)
-            || (PronounUsed == Pronoun.Them && item is not IPluralNoun)
-        )
+        if (PronounUsed == Pronoun.Them)
         {
-            _lastInput = input;
-            Completed = false;
-            ContinueProcessing = false;
-            // This will trigger the "Process" method above to be called on their next input.
-            return (true, "What item are you referring to?\n");
+            // "them" refers to the collection of items the player last handled as a group (e.g.
+            // "take all" or several individual takes). Expand it into a conjoined noun list so the
+            // existing take/drop list handling does the rest — a single noun string can't represent
+            // a set of distinct singular items, which is why this used to dead-end (issue #248).
+            if (context.LastNouns.Count >= 2)
+                return Resolved(Regex.Replace(input, @"\bthem\b",
+                    string.Join(" and ", context.LastNouns), RegexOptions.IgnoreCase));
+
+            // A lone item is only a valid "them" antecedent if it is intrinsically plural (candles,
+            // matches, ...). Otherwise we still have to ask which item they mean.
+            if (string.IsNullOrEmpty(lastNoun) || item is not IPluralNoun)
+                return AskForClarification(input);
+
+            return Resolved(Regex.Replace(input, @"\bthem\b", lastNoun, RegexOptions.IgnoreCase));
         }
 
-        input = PronounUsed switch
-        {
-            Pronoun.It => Regex.Replace(input, @"\bit\b", lastNoun, RegexOptions.IgnoreCase),
-            Pronoun.Them => Regex.Replace(input, @"\bthem\b", lastNoun, RegexOptions.IgnoreCase),
-            _ => input
-        };
+        // Pronoun.It
+        if (string.IsNullOrEmpty(lastNoun))
+            return AskForClarification(input);
 
-        // Reset.
+        return Resolved(Regex.Replace(input, @"\bit\b", lastNoun, RegexOptions.IgnoreCase));
+    }
+
+    private (bool, string) Resolved(string input)
+    {
         Completed = true;
         PronounUsed = Pronoun.Unknown;
-
         return (false, input);
+    }
+
+    private (bool, string) AskForClarification(string input)
+    {
+        _lastInput = input;
+        Completed = false;
+        ContinueProcessing = false;
+        // This will trigger the "Process" method above to be called on their next input.
+        return (true, "What item are you referring to?\n");
     }
 
     private bool DidWeUseItOrThem(string input)
