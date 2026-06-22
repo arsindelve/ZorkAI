@@ -101,15 +101,16 @@ public class BioLockStateMachineManager
         }
 
         // Player failed to reopen door after InTheLabThree - Floyd dies trapped in the lab.
-        // This branch must be terminal: advance the state and unregister the BioLockEast actor
-        // so the death is announced exactly once. Without this the location keeps acting and
-        // re-fires the death message on every subsequent turn forever (see issue #255).
-        // Floyd died trapped, so (unlike the success path's EndSequence) no body, card, or
-        // points are placed - only the success path rewards the player.
+        // This branch must be terminal: advance the state and unregister both actors (BioLockEast
+        // and Floyd, mirroring EndSequence) so the death is announced exactly once. Without this
+        // the location keeps acting and re-fires the death message on every subsequent turn forever
+        // (see issue #255). Floyd died trapped, so (unlike EndSequence) no body, card, or points are
+        // placed - only the success path rewards the player.
         if (LabSequenceState == FloydLabSequenceState.NeedToReopenDoor)
         {
             floyd.HasDied = true;
             LabSequenceState = FloydLabSequenceState.Completed;
+            context.RemoveActor(floyd);
             context.RemoveActor(Repository.GetLocation<BioLockEast>());
             return FloydConstants.FloydDies;
         }
