@@ -215,6 +215,9 @@ public class GameResponseTests
         mockGameEngine.Setup(ge => ge.LastMovementDirection).Returns(expectedDirectionEnum);
         mockGameEngine.Setup(ge => ge.Inventory).Returns(expectedInventory);
         mockGameEngine.Setup(ge => ge.Exits).Returns(expectedExits);
+        // Explicit: this test exercises the lit branch of the issue #238 darkness gating. Without
+        // this, it would rely on Moq's implicit default (false) for the unconfigured bool.
+        mockGameEngine.Setup(ge => ge.Context!.ItIsDarkHere).Returns(false);
         mockGameEngine.Setup(ge => ge.Context!.GetAvailableActionsForInventory())
             .Returns(availablleActionsFromInventory);
         mockGameEngine.Setup(ge => ge.Context!.CurrentLocation.GetAvailableActionsInLocation())
