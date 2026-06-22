@@ -95,6 +95,24 @@ public class ComputerTerminalTests : EngineTestsBase
     }
 
     [Test]
+    public async Task Off_TypeNonNumericKey_DoesNotNavigateMenu_AndScreenIsDark()
+    {
+        var target = GetTarget();
+        StartHere<LibraryLobby>();
+
+        var terminal = GetItem<ComputerTerminal>();
+        terminal.IsOn.Should().BeFalse();
+
+        // Even garbage input reports a dark screen: the IsOn guard sits *before* the
+        // keyPress.HasValue check, so an off terminal can't even complain about a bad keystroke.
+        var response = await target.GetResponse("type dude");
+
+        terminal.MenuState.CurrentItem.Should().BeOfType<MainMenu>();
+        response.Should().Contain("screen is dark");
+        response.Should().NotContain("keys 0 through 9");
+    }
+
+    [Test]
     public async Task Off_TypeKey_FloydDoesNotComment()
     {
         var target = GetTarget();
@@ -110,7 +128,8 @@ public class ComputerTerminalTests : EngineTestsBase
 
         await target.GetResponse("type 1");
 
-        // Floyd must not comment on "first use" while the screen is dark.
+        // Floyd must not comment on "first use" while the screen is dark, and the menu must not move.
+        GetItem<ComputerTerminal>().MenuState.CurrentItem.Should().BeOfType<MainMenu>();
         var pfContext = (PlanetfallContext)target.Context;
         pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
     }
