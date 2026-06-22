@@ -55,6 +55,15 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     public TContext Context { get; private set; }
 
     /// <summary>
+    ///     The single guaranteed static fallback sentence for the engine error safety net (issue #271).
+    ///     This is the one acceptable canned string: it is returned only when the AI narrator itself
+    ///     cannot be reached (generation disabled, or it threw while producing the "oops" narration), so
+    ///     that turn processing still returns a graceful, in-character 200 body instead of a hard failure.
+    /// </summary>
+    public const string EngineErrorFallbackMessage =
+        "Something goes wrong, and for a moment the world seems to flicker. Perhaps try that a different way.";
+
+    /// <summary>
     ///     The flat list of held item names, used by the web clients to render the player's hands.
     ///     Derived live from <see cref="Context" />.Items rather than stored, so the projection can
     ///     never drift from the authoritative game state. A stored copy previously went stale on the
@@ -187,24 +196,122 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     /// <returns>The output which we need to display to the adventurer</returns>
     public async Task<string?> GetResponse(string? playerInput)
     {
-        _currentInput = playerInput;
-
-        // Check for multi-sentence input
-        var sentences = SentenceSplitter.Split(playerInput);
-
-        if (sentences.Count == 0)
+        // Engine-wide safety net (issue #271): no matter what throws deep in turn processing, the
+        // player must never see a raw HTTP 500 / empty body. Every turn entry point funnels through
+        // GetResponse — POST, the GET reconnect "look", and restoreGame — so this single wrap covers
+        // them all across Zork, Planetfall, and EscapeRoom. Specific bugs that throw still get their
+        // own root-cause fixes; this only guarantees the *next* unknown crash degrades into a
+        // graceful, logged, in-character "oops" rather than breaking the transport to the client.
+        try
         {
-            // Empty input (like "...") - treat as empty command
-            return await ProcessSingleSentence(null);
+            _currentInput = playerInput;
+
+            // Check for multi-sentence input
+            var sentences = SentenceSplitter.Split(playerInput);
+
+            if (sentences.Count == 0)
+            {
+                // Empty input (like "...") - treat as empty command
+                return await ProcessSingleSentence(null);
+            }
+
+            if (sentences.Count > 1)
+            {
+                return await ProcessMultipleSentences(sentences);
+            }
+
+            // Single sentence processing
+            return await ProcessSingleSentence(playerInput);
+        }
+        catch (Exception ex)
+        {
+            // Intentionally broad — this deliberately includes OperationCanceledException /
+            // TaskCanceledException, which is also how HttpClient timeouts (e.g. the OpenAI
+            // generation call) surface. Those are genuine "something went wrong deep in the engine"
+            // failures that must degrade gracefully. GetResponse has no CancellationToken to tell a
+            // real client-cancel apart from a timeout, so filtering cancellation out here would let
+            // timeouts regress straight back into the HTTP 500s this net exists to prevent.
+            return await HandleUnexpectedEngineError(ex);
+        }
+    }
+
+    /// <summary>
+    ///     Converts an unhandled turn-processing exception into a graceful, in-character narrator
+    ///     "oops" response (issue #271). The exception is logged loudly — via the engine logger and,
+    ///     best-effort, to CloudWatch with the turn correlation id — so the underlying bug is still
+    ///     discoverable; the safety net must never <em>hide</em> a bug. The player gets a normal-shaped
+    ///     200 turn response and can keep playing.
+    /// </summary>
+    private async Task<string> HandleUnexpectedEngineError(Exception ex)
+    {
+        // Abandon any half-finished stateful interaction (disambiguation, save/quit confirmation,
+        // "it" clarification). A crash can occur *after* _processorInProgress was assigned but before
+        // the turn completed; if we leave it set, the NEXT turn's input is fed into that orphaned
+        // processor instead of being parsed normally — soft-locking the player in a long-lived engine
+        // (e.g. console runtime). Clearing it keeps the "player can keep playing" guarantee (issue #271).
+        _processorInProgress = null;
+
+        _logger?.LogError(ex,
+            "Unhandled exception during turn processing for input '{Input}'. TurnCorrelationId: {TurnCorrelationId}",
+            _currentInput, _turnCorrelationId);
+
+        // Best-effort structured log with the turn correlation id so the swallowed exception stays
+        // discoverable. Logging must never be allowed to defeat the safety net it supports.
+        try
+        {
+            _turnLogger?.WriteLogEvents(new TurnLog
+            {
+                SessionId = _sessionId,
+                Location = Context.CurrentLocation.Name,
+                Score = Context.Score,
+                Moves = Context.Moves,
+                Input = _currentInput ?? string.Empty,
+                Response = $"ENGINE ERROR ({_turnCorrelationId}): {ex}"
+            });
+        }
+        catch (Exception loggingEx)
+        {
+            _logger?.LogError(loggingEx, "Failed to write engine-error turn log.");
         }
 
-        if (sentences.Count > 1)
+        // Prefer an AI-generated, in-character acknowledgement (consistent with the engine's other
+        // deflection narration). Only fall back to the canned sentence when the narrator itself is
+        // unavailable — i.e. generation is disabled, or the AI client is the very thing that failed.
+        if (!NoGeneratedResponses)
         {
-            return await ProcessMultipleSentences(sentences);
+            try
+            {
+                var narration = await GenerationClient.GenerateNarration(
+                    new EngineErrorRequest(), Context.SystemPromptAddendum);
+
+                if (!string.IsNullOrWhiteSpace(narration))
+                    return SafePostProcess(narration);
+            }
+            catch (Exception generationEx)
+            {
+                _logger?.LogError(generationEx,
+                    "Engine-error narration generation itself failed; using static fallback.");
+            }
         }
 
-        // Single sentence processing
-        return await ProcessSingleSentence(playerInput);
+        return SafePostProcess(EngineErrorFallbackMessage);
+    }
+
+    /// <summary>
+    ///     Runs the normal <see cref="PostProcessing" /> pipeline but, as the safety net's last line of
+    ///     defense, guarantees a non-empty 200 body even if post-processing itself throws.
+    /// </summary>
+    private string SafePostProcess(string message)
+    {
+        try
+        {
+            return PostProcessing(message);
+        }
+        catch (Exception postEx)
+        {
+            _logger?.LogError(postEx, "Post-processing failed inside the engine-error safety net.");
+            return message + Environment.NewLine;
+        }
     }
 
     /// <summary>

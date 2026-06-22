@@ -344,4 +344,21 @@ public class RequestTests
 
         request.Temperature.Should().BeLessThan(0.8f);
     }
+
+    // The engine safety net (issue #271) turns any unhandled turn-processing crash into an
+    // in-character "oops" narration via this request. It must read as a deflection (low temperature,
+    // anti-hallucination guard) and must never tell the player a technical error occurred.
+    [Test]
+    public void EngineErrorRequest_HasNonEmptyMessage_AndUsesDeflectionTemperature()
+    {
+        // Act
+        var request = new EngineErrorRequest();
+
+        // Assert
+        request.UserMessage.Should().NotBeNullOrEmpty();
+        request.UserMessage.Should().Contain("could not be completed");
+        request.UserMessage.Should().Contain("Do not mention errors");
+        request.UserMessage.Should().Contain("not already explicitly present");
+        request.Temperature.Should().BeLessThan(0.8f);
+    }
 }
