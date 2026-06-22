@@ -256,7 +256,6 @@ public static class Repository
     {
         lock (_allLocations)
         {
-            _allLocations = new Dictionary<Type, ILocation>();
             var types = Assembly.Load(gameName).GetTypes();
 
             foreach (var type in types)
@@ -264,7 +263,14 @@ public static class Repository
                 if (type is { IsClass: true, IsGenericType: false, IsAbstract: false } &&
                     type.IsSubclassOf(typeof(LocationBase)))
                 {
+                    // Issue #241: only add locations we're missing - never replace the whole
+                    // dictionary, or we would discard the live/restored state of an in-progress
+                    // session. New instances get Init()'d, mirroring GetLocation<T>().
+                    if (_allLocations.ContainsKey(type))
+                        continue;
+
                     var instance = (LocationBase)Activator.CreateInstance(type)!;
+                    instance.Init();
                     _allLocations.Add(type, instance);
                 }
         }
@@ -278,7 +284,6 @@ public static class Repository
     {
         lock (_allItems)
         {
-            _allItems = new Dictionary<Type, IItem>();
             var types = Assembly.Load(gameName).GetTypes();
 
             foreach (var type in types)
@@ -286,7 +291,17 @@ public static class Repository
                 if (type is { IsClass: true, IsGenericType: false, IsAbstract: false } &&
                     type.IsSubclassOf(typeof(ItemBase)))
                 {
+                    // Issue #241: only add items we're missing - never replace the whole
+                    // dictionary, or we would discard the live/restored state of an in-progress
+                    // session. Containers get Init()'d so they start with their contents,
+                    // mirroring GetItem<T>(). (A container's Init() may lazily create the items
+                    // it holds via GetItem<T>(); those then get skipped here as already-present.)
+                    if (_allItems.ContainsKey(type))
+                        continue;
+
                     var instance = (ItemBase)Activator.CreateInstance(type)!;
+                    if (instance is ICanContainItems container)
+                        container.Init();
                     _allItems.Add(type, instance);
                 }
         }

@@ -3,6 +3,7 @@ using Model.Interface;
 using Model.Item;
 using Model.Location;
 using Moq.Language;
+using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Lawanda.Lab;
 using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Lawanda;
@@ -279,8 +280,52 @@ public class RepositoryTests
     {
         // Act
         var containers = Repository.GetContainers("Planetfall");
-    
+
         // Assert
         containers.Should().NotBeNull();
+    }
+
+    // Issue #241: the god-mode bulk loaders (LoadAllItems / LoadAllLocations) used to replace the
+    // whole repository dictionary with fresh, un-Init()-ed instances. That broke god mode two ways:
+    // containers came back empty (Init never ran) and any restored/live session state was discarded.
+    [Test]
+    public void LoadAllItems_InitializesContainers_SoCardboardBoxStartsWithItsContents()
+    {
+        Repository.Reset();
+
+        Repository.LoadAllItems("Planetfall");
+
+        var box = Repository.GetItem<CardboardBox>();
+        box.Items.Should().NotBeEmpty();
+        box.Items.Should().Contain(i => i is GoodBedistor);
+    }
+
+    [Test]
+    public void LoadAllItems_PreservesExistingInstancesAndTheirState()
+    {
+        Repository.Reset();
+
+        // Simulate a restored, in-progress session: an item is already loaded with mutated state.
+        var box = Repository.GetItem<CardboardBox>();
+        var bedistor = Repository.GetItem<GoodBedistor>();
+        box.Items.Clear(); // the player emptied the box during play
+
+        Repository.LoadAllItems("Planetfall");
+
+        Repository.GetItem<CardboardBox>().Should().BeSameAs(box);
+        Repository.GetItem<GoodBedistor>().Should().BeSameAs(bedistor);
+        box.Items.Should().BeEmpty(); // live state preserved, not rebuilt from defaults
+    }
+
+    [Test]
+    public void LoadAllLocations_PreservesExistingInstances()
+    {
+        Repository.Reset();
+
+        var rec = Repository.GetLocation<RecArea>();
+
+        Repository.LoadAllLocations("Planetfall");
+
+        Repository.GetLocation<RecArea>().Should().BeSameAs(rec);
     }
 }
