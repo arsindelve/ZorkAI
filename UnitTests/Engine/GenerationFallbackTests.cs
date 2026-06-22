@@ -1,6 +1,7 @@
 using ChatLambda;
 using GameEngine;
 using GameEngine.Item;
+using GameEngine.StaticCommand;
 using Model.AIGeneration;
 using Model.AIParsing;
 using Model.Intent;
@@ -241,5 +242,62 @@ public class GenerationFallbackTests
         client.Verify(
             c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()),
             Times.Never);
+    }
+
+    // Session-state-not-corrupted criterion (issue #271): a crash that happens AFTER a stateful
+    // processor (disambiguation / save-confirmation / "it" clarification) has been assigned must not
+    // leave it in progress. Otherwise the NEXT turn's input is routed into the orphaned processor
+    // instead of being parsed normally, soft-locking the player in a long-lived engine. We prove the
+    // fix by asserting the stale stateful command is never invoked a second time on the next turn.
+    [Test]
+    public async Task UnhandledException_AfterStatefulProcessorAssigned_ClearsIt_SoNextTurnIsNotSoftLocked()
+    {
+        // A stateful global command that assigns _processorInProgress (Completed == false).
+        var statefulCommand = new Mock<IStatefulProcessor>();
+        statefulCommand
+            .Setup(c => c.Process(It.IsAny<string?>(), It.IsAny<IContext>(),
+                It.IsAny<IGenerationClient>(), It.IsAny<Runtime>()))
+            .ReturnsAsync("A stateful prompt awaiting your answer.");
+        statefulCommand.SetupGet(c => c.Completed).Returns(false);
+        statefulCommand.SetupGet(c => c.ContinueProcessing).Returns(false);
+
+        var parser = new Mock<IIntentParser>();
+        parser.Setup(p => p.DetermineSystemIntentType(It.IsAny<string>())).Returns((IntentBase?)null);
+        // Only the "trigger" command routes to the stateful processor; everything else parses normally.
+        parser.Setup(p => p.DetermineGlobalIntentType("trigger"))
+            .Returns(new GlobalCommandIntent { Command = statefulCommand.Object });
+        parser.Setup(p => p.ResolvePronounsAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()))
+            .ReturnsAsync((string?)null);
+        parser.Setup(p => p.DetermineComplexIntentType(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new NullIntent());
+
+        var client = new Mock<IGenerationClient>();
+        client.SetupAllProperties();
+        client.Object.LastFiveInputOutputs = new List<(string, string, bool)>();
+        client.Setup(c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>())).ReturnsAsync("oops");
+
+        var engine = BuildEngine(client, parser.Object);
+
+        // An actor that throws, so the turn crashes AFTER the stateful processor has been assigned.
+        var throwingActor = new Mock<ITurnBasedActor>();
+        throwingActor.Setup(a => a.Act(It.IsAny<IContext>(), It.IsAny<IGenerationClient>()))
+            .ThrowsAsync(new InvalidOperationException("actor boom"));
+        engine.Context.Actors.Add(throwingActor.Object);
+
+        // Turn 1: assigns the stateful processor, then the actor throws -> safety net catches it.
+        string? turn1 = null;
+        var act1 = async () => turn1 = await engine.GetResponse("trigger");
+        await act1.Should().NotThrowAsync();
+        turn1.Should().NotBeNullOrEmpty();
+
+        // Turn 2: a normal command. If the orphaned processor were still in progress,
+        // RunProcessorInProgress would feed this input into it (a 2nd Process call).
+        var act2 = async () => await engine.GetResponse("look");
+        await act2.Should().NotThrowAsync();
+
+        statefulCommand.Verify(
+            c => c.Process(It.IsAny<string?>(), It.IsAny<IContext>(),
+                It.IsAny<IGenerationClient>(), It.IsAny<Runtime>()),
+            Times.Once);
     }
 }

@@ -244,6 +244,13 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     /// </summary>
     private async Task<string> HandleUnexpectedEngineError(Exception ex)
     {
+        // Abandon any half-finished stateful interaction (disambiguation, save/quit confirmation,
+        // "it" clarification). A crash can occur *after* _processorInProgress was assigned but before
+        // the turn completed; if we leave it set, the NEXT turn's input is fed into that orphaned
+        // processor instead of being parsed normally — soft-locking the player in a long-lived engine
+        // (e.g. console runtime). Clearing it keeps the "player can keep playing" guarantee (issue #271).
+        _processorInProgress = null;
+
         _logger?.LogError(ex,
             "Unhandled exception during turn processing for input '{Input}'. TurnCorrelationId: {TurnCorrelationId}",
             _currentInput, _turnCorrelationId);
