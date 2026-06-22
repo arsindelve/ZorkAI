@@ -28,6 +28,7 @@ public class TakeEverythingProcessor : IGlobalCommand
     public static string TakeAll(IContext context, List<IItem?> items)
     {
         var sb = new StringBuilder();
+        var taken = new List<string?>();
         foreach (var nextItem in items)
         {
             if(nextItem is null) continue;
@@ -43,8 +44,11 @@ public class TakeEverythingProcessor : IGlobalCommand
 
             sb.AppendLine($"{nextItem.Name}: Taken. ");
             context.ItemPlacedHere(nextItem);
+            taken.Add(nextItem.NounsForMatching.FirstOrDefault());
         }
 
+        // The items just taken become the "them" antecedent, so "take all. drop them" works (issue #248).
+        context.RememberAntecedentNouns(taken);
         return sb.ToString();
     }
 
@@ -58,6 +62,7 @@ public class TakeEverythingProcessor : IGlobalCommand
     public static async Task<string> TakeAll(IContext context, List<(string noun, IItem? item)> itemsWithNouns, IGenerationClient client)
     {
         var sb = new StringBuilder();
+        var taken = new List<string?>();
         foreach (var (noun, item) in itemsWithNouns)
         {
             if (item is null)
@@ -90,8 +95,10 @@ public class TakeEverythingProcessor : IGlobalCommand
 
             sb.AppendLine($"{item.Name}: Taken. ");
             context.ItemPlacedHere(item);
+            taken.Add(item.NounsForMatching.FirstOrDefault());
         }
 
+        context.RememberAntecedentNouns(taken);
         return sb.ToString();
     }
 }

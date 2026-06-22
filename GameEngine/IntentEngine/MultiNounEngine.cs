@@ -25,8 +25,10 @@ public class MultiNounEngine : IIntentEngine
         if (context.ItIsDarkHere)
             return (null, "It's too dark to see! ");
 
-        // After a multi-noun interaction, we will lose the ability to understand "it". 
+        // After a multi-noun interaction, we lose the ability to understand "it". It isn't a
+        // take/drop either, so it also ends any "them" group (issue #248).
         context.LastNoun = "";
+        context.LastNouns = [];
 
         var requireDisambiguation = CheckDisambiguation(interaction, context, interaction.MatchNounOne);
         if (requireDisambiguation is not null)

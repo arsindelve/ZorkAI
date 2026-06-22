@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Model;
 using Model.AIGeneration;
 using Model.Interface;
 using Model.Item;
@@ -56,7 +57,6 @@ internal class ItProcessor : IStatefulProcessor
     public (bool, string) Check(string input, IContext context)
     {
         var lastNoun = context.LastNoun;
-        var item = Repository.GetItem(lastNoun);
 
         var usedItOrThem = DidWeUseItOrThem(input);
 
@@ -66,30 +66,69 @@ internal class ItProcessor : IStatefulProcessor
             return (false, input);
         }
 
-        if (
-            string.IsNullOrEmpty(lastNoun)
-            || (PronounUsed == Pronoun.Them && item is not IPluralNoun)
-        )
+        if (PronounUsed == Pronoun.Them)
         {
-            _lastInput = input;
-            Completed = false;
-            ContinueProcessing = false;
-            // This will trigger the "Process" method above to be called on their next input.
-            return (true, "What item are you referring to?\n");
+            // "them" refers to the collection of items the player last handled as a group (e.g.
+            // "take all" or several individual takes). Expand it into a conjoined noun list so the
+            // existing take/drop list handling does the rest — a single noun string can't represent
+            // a set of distinct singular items, which is why this used to dead-end (issue #248).
+            if (context.LastNouns.Count >= 2)
+            {
+                // Resolve only to members still relevant to *this* command — you can only drop what
+                // you're holding — so a remembered item that has since left scope (already dropped,
+                // eaten, left in another room) doesn't drag a spurious "you don't have it" into an
+                // otherwise successful "drop them".
+                var inScope = ItemsStillInScope(input, context);
+                return inScope.Count > 0
+                    ? Resolved(Regex.Replace(input, @"\bthem\b", string.Join(" and ", inScope), RegexOptions.IgnoreCase))
+                    : AskForClarification(input);
+            }
+
+            // A lone item is only a valid "them" antecedent if it is intrinsically plural (candles,
+            // matches, ...). Otherwise we still have to ask which item they mean.
+            var soleNoun = context.LastNouns.Count == 1 ? context.LastNouns[0] : lastNoun;
+            if (string.IsNullOrEmpty(soleNoun) || Repository.GetItem(soleNoun) is not IPluralNoun)
+                return AskForClarification(input);
+
+            return Resolved(Regex.Replace(input, @"\bthem\b", soleNoun, RegexOptions.IgnoreCase));
         }
 
-        input = PronounUsed switch
-        {
-            Pronoun.It => Regex.Replace(input, @"\bit\b", lastNoun, RegexOptions.IgnoreCase),
-            Pronoun.Them => Regex.Replace(input, @"\bthem\b", lastNoun, RegexOptions.IgnoreCase),
-            _ => input
-        };
+        // Pronoun.It
+        if (string.IsNullOrEmpty(lastNoun))
+            return AskForClarification(input);
 
-        // Reset.
+        return Resolved(Regex.Replace(input, @"\bit\b", lastNoun, RegexOptions.IgnoreCase));
+    }
+
+    private static List<string> ItemsStillInScope(string input, IContext context)
+    {
+        // Dropping requires the item in hand, so scope "them" to carried items for a drop. Uses the
+        // shared verb table so it stays in sync with the take/drop processor.
+        var verb = input.TrimStart().Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty;
+        var dropping = Verbs.DropVerbs.Contains(verb, StringComparer.OrdinalIgnoreCase);
+
+        // Dropping needs the item carried; for everything else (take/put/...) it only needs to be
+        // reachable — carried, or present in the current room.
+        return context.LastNouns
+            .Where(noun => context.HasMatchingNoun(noun).HasItem ||
+                           (!dropping && context.CurrentLocation.HasMatchingNoun(noun).HasItem))
+            .ToList();
+    }
+
+    private (bool, string) Resolved(string input)
+    {
         Completed = true;
         PronounUsed = Pronoun.Unknown;
-
         return (false, input);
+    }
+
+    private (bool, string) AskForClarification(string input)
+    {
+        _lastInput = input;
+        Completed = false;
+        ContinueProcessing = false;
+        // This will trigger the "Process" method above to be called on their next input.
+        return (true, "What item are you referring to?\n");
     }
 
     private bool DidWeUseItOrThem(string input)

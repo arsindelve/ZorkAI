@@ -287,8 +287,10 @@ public class PronounResolutionTests : EngineTestsBase
         }
 
         [Test]
-        public async Task LastNoun_ShouldBeClearedAfterSuccessfulMove()
+        public async Task LastNoun_ShouldSurviveMove_WhenItemIsStillCarried()
         {
+            // Issue #248: moving used to clear the antecedent unconditionally, even for an item
+            // the player is still holding. "it" should keep referring to a carried item after a move.
             var target = GetTarget();
             target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
 
@@ -297,8 +299,43 @@ public class PronounResolutionTests : EngineTestsBase
 
             // Move east (to Kitchen) - this is a valid move
             await target.GetResponse("east");
+            target.Context.LastNoun.Should().Be("lantern",
+                because: "Movement keeps the antecedent for items the player is still carrying");
+        }
+
+        [Test]
+        public async Task LastNoun_ShouldBeClearedAfterMove_WhenItemWasLeftBehind()
+        {
+            // Issue #248: the antecedent should only be forgotten for items left behind in the
+            // previous room. The rug stays in the Living Room, so "it" no longer refers to it.
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+
+            await target.GetResponse("examine rug");
+            target.Context.LastNoun.Should().Be("rug");
+
+            await target.GetResponse("east");
             target.Context.LastNoun.Should().BeEmpty(
-                because: "Successful movement should clear LastNoun");
+                because: "An item left behind in the previous room is no longer the antecedent");
+        }
+
+        [Test]
+        public async Task It_AfterMove_StillResolves_ForCarriedItem()
+        {
+            // Issue #248: "take lantern; examine it; <move>; drop it" should drop the lantern,
+            // because it is still in the player's hand after walking to the next room.
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+
+            await target.GetResponse("take lantern");
+            await target.GetResponse("examine it");
+            await target.GetResponse("east");
+
+            var result = await target.GetResponse("drop it");
+
+            result.Should().NotContain("What item are you referring to");
+            result.Should().Contain("Dropped");
+            target.Context.HasItem<Lantern>().Should().BeFalse();
         }
     }
 }
