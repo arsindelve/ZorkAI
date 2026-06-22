@@ -27,6 +27,46 @@ public class BoatTests : EngineTestsBase
     }
 
     [Test]
+    public async Task GetInTheBoat_Stiletto_Punctures()
+    {
+        // ZIL RBOAT-FUNCTION lists STILETTO among the sharp items that puncture the boat
+        // on boarding (zork1/1actions.zil:2787-2799).
+        var target = GetTarget();
+        Take<Stiletto>();
+        target.Context.CurrentLocation = Repository.GetLocation<DamBase>();
+        var boat = Repository.GetItem<PileOfPlastic>();
+        boat.IsInflated = true;
+
+        var response = await target.GetResponse("get in the boat");
+
+        response.Should().Contain("Oops!");
+        response.Should().Contain("hissing");
+        boat.IsPunctured.Should().BeTrue();
+        boat.IsInflated.Should().BeFalse();
+        target.Context.CurrentLocation.SubLocation.Should().BeNull();
+    }
+
+    [Test]
+    public async Task GetInTheBoat_BloodyAxe_Punctures()
+    {
+        // ZIL RBOAT-FUNCTION lists AXE among the sharp items that puncture the boat
+        // on boarding (zork1/1actions.zil:2787-2799).
+        var target = GetTarget();
+        Take<BloodyAxe>();
+        target.Context.CurrentLocation = Repository.GetLocation<DamBase>();
+        var boat = Repository.GetItem<PileOfPlastic>();
+        boat.IsInflated = true;
+
+        var response = await target.GetResponse("get in the boat");
+
+        response.Should().Contain("Oops!");
+        response.Should().Contain("hissing");
+        boat.IsPunctured.Should().BeTrue();
+        boat.IsInflated.Should().BeFalse();
+        target.Context.CurrentLocation.SubLocation.Should().BeNull();
+    }
+
+    [Test]
     public async Task Deflated_OnTheGround()
     {
         var target = GetTarget();
