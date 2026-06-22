@@ -225,6 +225,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         }
         catch (Exception ex)
         {
+            // Intentionally broad — this deliberately includes OperationCanceledException /
+            // TaskCanceledException, which is also how HttpClient timeouts (e.g. the OpenAI
+            // generation call) surface. Those are genuine "something went wrong deep in the engine"
+            // failures that must degrade gracefully. GetResponse has no CancellationToken to tell a
+            // real client-cancel apart from a timeout, so filtering cancellation out here would let
+            // timeouts regress straight back into the HTTP 500s this net exists to prevent.
             return await HandleUnexpectedEngineError(ex);
         }
     }
