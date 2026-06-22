@@ -4,6 +4,11 @@
 name: Deploy To AWS
 
 on:
+  # Deploy automatically whenever a GitHub release is published. The release
+  # tag (e.g. 1.2.3) becomes the deployed version number.
+  release:
+    types: [published]
+  # Still allow a manual deploy (e.g. to re-deploy without cutting a new release).
   workflow_dispatch:
     inputs:
       version:
@@ -12,13 +17,17 @@ on:
         default: '1.0.0'
 
 permissions:
-  contents: write   # This is required to create/push the new git tag
+  contents: read
 
 jobs:
   deployment:
 
     runs-on: ubuntu-latest
     environment: production
+    # On a release trigger this is the release tag; on a manual dispatch it is
+    # the version input. Used everywhere the deployed version number is needed.
+    env:
+      DEPLOY_VERSION: ${{ github.event.release.tag_name || github.event.inputs.version }}
 
     steps:
       - uses: actions/checkout@v5
@@ -58,7 +67,7 @@ jobs:
           cat > /home/runner/work/ZorkAI/ZorkAI/zorkweb.client/config.json <<'EOF'
           {
             "base_url": "https://bxqzfka0hc.execute-api.us-east-1.amazonaws.com/Prod/ZorkOne",
-            "version": "${{ github.event.inputs.version }}"
+            "version": "${{ env.DEPLOY_VERSION }}"
           }
           EOF
 
@@ -67,7 +76,7 @@ jobs:
           cat > /home/runner/work/ZorkAI/ZorkAI/planetfallweb.client/config.json <<'EOF'
           {
             "base_url": "https://6kvs9n5pj4.execute-api.us-east-1.amazonaws.com/Prod/Planetfall",
-            "version": "${{ github.event.inputs.version }}"
+            "version": "${{ env.DEPLOY_VERSION }}"
           }
           EOF
 
@@ -108,12 +117,3 @@ jobs:
         run: |
           aws cloudfront create-invalidation --distribution-id EJYJYZ3BM3O3Z --paths "/*"    
           
-      - name: Create Release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ github.event.inputs.version }}
-          name: Release ${{ github.event.inputs.version }}
-          body: |
-            ${{ steps.Changelog.outputs.changelog }}
-          draft: false
-          prerelease: false
