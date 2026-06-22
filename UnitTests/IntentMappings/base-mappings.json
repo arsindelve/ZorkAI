@@ -231,6 +231,7 @@
 
   "exitSubLocationIntents": [
     { "inputs": ["exit window", "leave window", "exit the window"], "nounOne": "window" },
+    { "inputs": ["exit pod", "leave pod", "exit door"], "nounOne": "pod" },
     { "inputs": ["get out of the boat", "leave boat"], "nounOne": "boat" },
     { "inputs": ["get out of bed", "exit bed", "leave bed", "get out", "stand", "stand up", "get up"], "nounOne": "bed" }
   ]

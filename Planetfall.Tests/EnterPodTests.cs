@@ -2,6 +2,7 @@ using FluentAssertions;
 using GameEngine;
 using Planetfall.Item.Feinstein;
 using Planetfall.Location.Feinstein;
+using Planetfall.Location.Kalamontee;
 
 namespace Planetfall.Tests;
 
@@ -137,6 +138,52 @@ public class EnterPodTests : EngineTestsBase
 
             await target.GetResponse("board pod");
 
+            target.Context.CurrentLocation.Should().BeOfType<EscapePod>();
+        }
+    }
+
+    /// <summary>
+    /// "exit pod" from inside the pod after it has landed in the ocean. The pod's door now leads to
+    /// the Underwater location (WhereDoesTheDoorLead), so "exit pod" -> Move(Out) must carry the
+    /// player out into the water when the bulkhead is open, and report the closed door otherwise -
+    /// exactly like the bare "out" direction, which is the intended escape route.
+    /// </summary>
+    [TestFixture]
+    public class ExitPodUnderwater : EngineTestsBase
+    {
+        private static EscapePod LandedPod()
+        {
+            var pod = Repository.GetLocation<EscapePod>();
+            pod.Init(); // place the BulkheadDoor in the pod's scope so "pod" resolves here
+            pod.LandedSafely = true;
+            pod.WhereDoesTheDoorLead = Repository.GetLocation<Underwater>();
+            return pod;
+        }
+
+        [Test]
+        public async Task ExitPod_WhenBulkheadOpen_CarriesYouOutIntoTheWater()
+        {
+            var target = GetTarget();
+            var pod = LandedPod();
+            Repository.GetItem<BulkheadDoor>().IsOpen = true;
+            target.Context.CurrentLocation = pod;
+
+            await target.GetResponse("exit pod");
+
+            target.Context.CurrentLocation.Should().BeOfType<Underwater>();
+        }
+
+        [Test]
+        public async Task ExitPod_WhenBulkheadClosed_SaysPodDoorIsClosed_AndStaysInPod()
+        {
+            var target = GetTarget();
+            var pod = LandedPod();
+            Repository.GetItem<BulkheadDoor>().IsOpen = false;
+            target.Context.CurrentLocation = pod;
+
+            var response = await target.GetResponse("exit pod");
+
+            response.Should().Contain("The pod door is closed.");
             target.Context.CurrentLocation.Should().BeOfType<EscapePod>();
         }
     }

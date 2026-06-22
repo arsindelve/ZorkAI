@@ -28,6 +28,19 @@ public class LivingRoom : LocationBase
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
+        // The trap door passage. "enter trap door" routes to Direction.In (EnterSubLocationEngine),
+        // so the same passage is exposed under both "down" and "in". (issue #262)
+        var trapDoorPassage = new MovementParameters
+        {
+            Location = GetLocation<Cellar>(),
+            CanGo = _ =>
+                Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>() &&
+                Repository.GetItem<TrapDoor>().IsOpen,
+            CustomFailureMessage = Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>()
+                ? "The trap door is closed."
+                : "You can't go that way."
+        };
+
         return new Dictionary<Direction, MovementParameters>
         {
             {
@@ -42,34 +55,8 @@ public class LivingRoom : LocationBase
                     Location = GetLocation<StrangePassage>()
                 }
             },
-            {
-                Direction.Down,
-                new MovementParameters
-                {
-                    Location = GetLocation<Cellar>(),
-                    CanGo = _ =>
-                        Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>() &&
-                        Repository.GetItem<TrapDoor>().IsOpen,
-                    CustomFailureMessage = Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>()
-                        ? "The trap door is closed."
-                        : "You can't go that way."
-                }
-            },
-            {
-                // "enter trap door" routes to Direction.In (EnterSubLocationEngine), so the trap door
-                // passage is also exposed as "in" — same as the trap door's "down" exit. (issue #262)
-                Direction.In,
-                new MovementParameters
-                {
-                    Location = GetLocation<Cellar>(),
-                    CanGo = _ =>
-                        Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>() &&
-                        Repository.GetItem<TrapDoor>().IsOpen,
-                    CustomFailureMessage = Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>()
-                        ? "The trap door is closed."
-                        : "You can't go that way."
-                }
-            }
+            { Direction.Down, trapDoorPassage },
+            { Direction.In, trapDoorPassage }
         };
     }
 

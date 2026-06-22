@@ -116,9 +116,11 @@ public class ExitSubLocationEngineTests
         }
 
         [Test]
-        public async Task Should_ReturnCantGoMessage_When_ItemIsNotSubLocation()
+        public async Task Should_ReturnCantExitThat_When_ItemIsNotSubLocationAndNotADoor()
         {
-            // Arrange - sword is not a sub-location
+            // Arrange - sword is in scope but is neither a sub-location nor a door. Say plainly you
+            // can't exit it (issue #262), matching "You can't enter that." on the enter side, instead
+            // of a generic refusal the narrator would dress up as a mock.
             var location = Repository.GetLocation<LivingRoom>();
             var sword = Repository.GetItem<Sword>();
             location.ItemPlacedHere(sword);
@@ -133,7 +135,7 @@ public class ExitSubLocationEngineTests
 
             // Assert
             result.resultObject.Should().BeNull();
-            result.ResultMessage.Should().Be("You cannot go that way. ");
+            result.ResultMessage.Should().Be("You can't exit that. ");
         }
 
         [Test]

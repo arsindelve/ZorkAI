@@ -42,6 +42,10 @@ internal class EnterSubLocationEngine : IIntentEngine
             //   * The location must actually have an "in" exit. A door gated on a different direction
             //     (an office door reached by going west) has no Direction.In entry, so Move(In) would
             //     land back on the generic refusal; say "You can't enter that." plainly instead.
+            // NOTE: this checks that the noun is *a* fixed door and the room has *an* "in" exit, not
+            // that this specific door gates it. Safe today (no room has two distinct fixed openables
+            // where only one is the passage); a future such room would need the door tied to its
+            // gating direction (tracked in #266).
             if (subLocation is IOpenAndClose && subLocation is not ICanBeTakenAndDropped
                 && context.CurrentLocation.Navigate(Direction.In, context) is not null)
                 return await new MoveEngine().Process(

@@ -12,6 +12,15 @@ public class Cellar : DarkLocation
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
+        // The trap door leads back up to the living room. "enter trap door" routes to Direction.In
+        // (EnterSubLocationEngine), so expose the same passage under both "up" and "in". (issue #262)
+        var trapDoorPassage = new MovementParameters
+        {
+            CanGo = _ => GetItem<TrapDoor>().IsOpen,
+            CustomFailureMessage = "The trap door is closed. ",
+            Location = GetLocation<LivingRoom>()
+        };
+
         return new Dictionary<Direction, MovementParameters>
         {
             {
@@ -28,26 +37,8 @@ public class Cellar : DarkLocation
                     CustomFailureMessage = "You try to ascend the ramp, but it is impossible, and you slide back down."
                 }
             },
-            {
-                Direction.Up,
-                new MovementParameters
-                {
-                    CanGo = _ => GetItem<TrapDoor>().IsOpen,
-                    CustomFailureMessage = "The trap door is closed. ",
-                    Location = GetLocation<LivingRoom>()
-                }
-            },
-            {
-                // "enter trap door" routes to Direction.In (EnterSubLocationEngine); from the cellar
-                // the trap door leads back up, so expose that passage as "in" too. (issue #262)
-                Direction.In,
-                new MovementParameters
-                {
-                    CanGo = _ => GetItem<TrapDoor>().IsOpen,
-                    CustomFailureMessage = "The trap door is closed. ",
-                    Location = GetLocation<LivingRoom>()
-                }
-            }
+            { Direction.Up, trapDoorPassage },
+            { Direction.In, trapDoorPassage }
         };
     }
 

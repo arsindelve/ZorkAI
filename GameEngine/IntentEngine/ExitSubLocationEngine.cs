@@ -46,12 +46,18 @@ internal class ExitSubLocationEngine : IIntentEngine
             // it" -> Move(Out), so "exit window" from the Kitchen leaves the same way "enter window"
             // from Behind House arrives. Same fixed-door guard: a portable openable (a carried sack)
             // must not hijack the room's "out" exit, and we only reroute when an "out" exit exists.
+            // NOTE: this checks that the noun is *a* fixed door and the room has *an* "out" exit, not
+            // that this specific door gates it. Safe today (no room has two distinct fixed openables
+            // where only one is the passage); a future such room would need the door tied to its
+            // gating direction (tracked in #266).
             if (subLocation is IOpenAndClose && subLocation is not ICanBeTakenAndDropped
                 && context.CurrentLocation.Navigate(Direction.Out, context) is not null)
                 return await new MoveEngine().Process(
                     new MoveIntent { Direction = Direction.Out }, context, generationClient);
 
-            return (null, await GetGeneratedCantGoThatWayResponse(generationClient, context, exit.NounOne));
+            // Not a door either - you simply can't exit it. Say so plainly rather than letting the
+            // narrator mock a valid object (matches "You can't enter that." on the enter side, #262).
+            return (null, "You can't exit that. ");
         }
 
         // Model 1: Parent location with SubLocation property set (e.g., ZorkOne boat)
