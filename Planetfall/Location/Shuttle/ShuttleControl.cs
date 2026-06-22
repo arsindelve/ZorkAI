@@ -271,6 +271,15 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
         if (Speed == 0)
         {
             LeverPosition = ShuttleLeverPosition.Neutral;
+            // Issue #240: decelerating to a full stop mid-tunnel must NOT trigger another
+            // Move() this turn. The "|| SpeedChanged" clause in Act() lets a speed change move
+            // the car even when Speed == 0; without this guard the decel-to-stop case would
+            // advance one extra tunnel position and print a contradictory "continues to move"
+            // line on the same turn the car comes to rest. At the very end of the tunnel we
+            // deliberately keep SpeedChanged set so Move() still runs and the car docks at the
+            // platform (the perfect-landing path, which relies on this extra Move()).
+            if (TunnelPosition != EndOfTunnel)
+                SpeedChanged = false;
             return Task.FromResult("The shuttle car comes to a stop and the lever pops back to the central position. ");
         }
 
