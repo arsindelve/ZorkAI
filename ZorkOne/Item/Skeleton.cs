@@ -15,14 +15,15 @@ public class Skeleton : ItemBase
 
     // The classic skeleton curse fires for any of these verbs applied to the bones
     // (zork1/1actions.zil:931 — SKELETON: <VERB? TAKE RUB MOVE PUSH RAISE LOWER ATTACK KICK KISS>).
-    // We assemble it from the engine's verb thesauruses (plus the literals it has no family for) so
-    // synonyms like "get"/"kill"/"touch" all trigger the ghost.
+    // We map each ZIL verb to the engine's thesaurus where one exists (so synonyms like "get"/"kill"/
+    // "touch" all trigger the ghost), but deliberately NOT to Verbs.PushVerbs — that family folds in
+    // machine-operation synonyms (toggle/flip/switch/activate/click) that read as nonsense on bones.
+    // PUSH/RAISE/LOWER/MOVE/KICK/KISS are spelled out with only their sensible "manhandle" synonyms.
     private static readonly string[] CurseVerbs =
         Verbs.TakeVerbs                       // TAKE
             .Concat(Verbs.TouchVerbs)         // RUB
-            .Concat(Verbs.PushVerbs)          // PUSH
             .Concat(Verbs.KillVerbs)          // ATTACK
-            .Concat(["move", "raise", "lower", "kick", "kiss"])
+            .Concat(["push", "depress", "shove", "move", "raise", "lift", "lower", "kick", "kiss"])
             .ToArray();
 
     private const string CurseMessage =
@@ -47,11 +48,12 @@ public class Skeleton : ItemBase
         var dead = Repository.GetLocation<LandOfTheDead>();
 
         // ROB HERE -> LAND-OF-LIVING-DEAD: banish everything else in the room (knife, key, coins,
-        // burned-out lantern) but leave the bones themselves where they are. ToList() so we don't
-        // mutate the collection while iterating (ItemPlacedHere removes the item from its prior owner).
-        foreach (var item in ((ICanContainItems)context.CurrentLocation!).Items.ToList())
-            if (item is not Skeleton)
-                dead.ItemPlacedHere(item);
+        // burned-out lantern). Only takeable items, matching ZIL ROB (it moves portable objects, not
+        // fixed scenery) — and that filter also excludes the bones themselves, which stay put. ToList()
+        // so we don't mutate the collection while iterating (ItemPlacedHere removes from the prior owner).
+        foreach (var item in ((ICanContainItems)context.CurrentLocation!).Items
+                     .Where(i => i is ICanBeTakenAndDropped).ToList())
+            dead.ItemPlacedHere(item);
 
         // ROB ADVENTURER -> LAND-OF-LIVING-DEAD: empty the player's pack — the lamp goes too, which
         // is exactly why doing this in the dark maze famously strands you.
