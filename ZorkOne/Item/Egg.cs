@@ -111,6 +111,13 @@ public class Egg
         )
             return await base.RespondToMultiNounInteraction(action, context);
 
+        // Already open (e.g. the thief opened it cleanly, canary intact)? The original short-circuits
+        // here — before any tool check — so a second force attempt can't wreck the intact canary
+        // (zork1/1actions.zil:2920-2922: <COND (<FSET? ,PRSO ,OPENBIT> <TELL "The egg is already
+        // open.">) ...>). Note the THROW branch deliberately has no such guard (it re-breaks).
+        if (IsOpen)
+            return new PositiveInteractionResult(AlreadyOpen);
+
         // The original force-opens the egg with ANY weapon or tool: it tests the WEAPONBIT/TOOLBIT
         // flags, not a fixed item list (zork1/1actions.zil:2932:
         //   <OR <FSET? ,PRSI ,WEAPONBIT> <FSET? ,PRSI ,TOOLBIT> ...>).

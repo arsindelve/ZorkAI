@@ -601,4 +601,26 @@ public class EggAndCanaryTests : EngineTestsBase
         Repository.GetItem<Canary>().IsDestroyed.Should().BeTrue();
         Repository.GetItem<Egg>().CurrentLocation.Should().BeOfType<ForestPath>();
     }
+
+    [Test]
+    public async Task ForceOpenAlreadyOpenEgg_DoesNotDamageTheIntactCanary()
+    {
+        // The thief opens the egg cleanly (IsOpen, canary intact). The original short-circuits any
+        // further open/force attempt with "already open" BEFORE the WEAPONBIT/TOOLBIT branch
+        // (zork1/1actions.zil:2920-2922: <COND (<FSET? ,PRSO ,OPENBIT> <TELL "The egg is already
+        // open.">) ...>), protecting the intact canary. Force-opening it must NOT wreck the canary.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
+        Repository.GetItem<Egg>().IsOpen = true; // thief already opened it, undamaged
+        target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
+        target.Context.ItemPlacedHere(Repository.GetItem<Sword>());
+
+        var response = await target.GetResponse("open the egg with the sword");
+        Console.WriteLine(response);
+
+        response.Should().Contain("already open");
+        response.Should().NotContain("seriously compromised");
+        Repository.GetItem<Egg>().IsDestroyed.Should().BeFalse();
+        Repository.GetItem<Canary>().IsDestroyed.Should().BeFalse();
+    }
 }
