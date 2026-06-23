@@ -58,4 +58,25 @@ public class DestinationNavigationTests
         result.PossibleResponses.Should().ContainKey("upper");
         result.PossibleResponses.Should().ContainKey("lower");
     }
+
+    [Test]
+    public void BuildDisambiguation_DoesNotEmitSingleCharacterReplyKeys()
+    {
+        // Rooms whose titles differ by a single character ("Dorm C" vs "Dorm D") would otherwise yield
+        // one-letter reply keys "c"/"d". The DisambiguationProcessor matches replies by SUBSTRING, so
+        // "the second one" (contains 'c') would silently route to Dorm C. Single-character keys are too
+        // collision-prone to be safe; only the full names remain as keys.
+        var dormC = new FakeRoom("Dorm C", []);
+        var dormD = new FakeRoom("Dorm D", []);
+
+        var matches = new List<(Direction, ILocation)> { (Direction.S, dormC), (Direction.N, dormD) };
+
+        var result = DestinationNavigation.BuildDisambiguation(matches);
+
+        result.PossibleResponses.Should().NotContainKey("c");
+        result.PossibleResponses.Should().NotContainKey("d");
+        // The unambiguous full names are still usable answers.
+        result.PossibleResponses.Should().ContainKey("dorm c");
+        result.PossibleResponses.Should().ContainKey("dorm d");
+    }
 }

@@ -161,10 +161,12 @@ public class DestinationNavigationTests : EngineTestsBase
         }
 
         [Test]
-        public async Task GoToTheGalley_FromTheMessHall_WalksToTheKitchen()
+        public async Task GoToTheGalley_AfterAiNormalizesItToKitchen_WalksToTheKitchen()
         {
-            // Colloquial name not in the title: the AI parser normalizes "galley" -> "kitchen" (stubbed
-            // here by the test mapping) and the deterministic word-match then resolves it to the Kitchen.
+            // Documents the CONTRACT, not the AI: the live AI normalizes a non-title colloquialism
+            // ("galley" -> "kitchen") in the prompt (untestable deterministically); the base-mapping
+            // stubs that step, so this asserts only the engine's half — that the normalized destination
+            // then word-matches and walks to the Kitchen.
             var target = GetTarget();
             StartHere<MessHall>();
             GetItem<KitchenDoor>().IsOpen = true;

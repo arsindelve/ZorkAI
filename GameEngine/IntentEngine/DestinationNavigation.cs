@@ -136,9 +136,13 @@ internal static class DestinationNavigation
             var canonical = Normalize(room.Name);
 
             // Reply keys: the room's distinguishing words, plus any of its synonyms that aren't
-            // themselves a shared word, plus its full name.
+            // themselves a shared word, plus its full name. We drop single-character keys ("c"/"d" for
+            // "Dorm C"/"Dorm D"): the DisambiguationProcessor matches replies by SUBSTRING, so a lone
+            // letter would collide with any reply that incidentally contains it ("the se-c-ond one").
+            // The full name always remains a usable, unambiguous answer.
             var keys = words.Where(w => !shared.Contains(w))
                 .Concat(Terms(room).Select(Normalize).Where(t => !shared.Contains(t)))
+                .Where(k => k.Length > 1)
                 .Append(canonical);
 
             foreach (var key in keys)
@@ -167,10 +171,12 @@ internal static class DestinationNavigation
             .SelectMany(t => Normalize(t).Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .ToHashSet();
 
+    private static readonly string[] LeadingArticles = ["the ", "a ", "an "];
+
     private static string Normalize(string s)
     {
         s = s.Trim().ToLowerInvariant();
-        foreach (var article in new[] { "the ", "a ", "an " })
+        foreach (var article in LeadingArticles)
             if (s.StartsWith(article))
                 return s[article.Length..];
         return s;
