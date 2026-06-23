@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Lawanda;
 using Planetfall.Location;
+using Planetfall.Location.Lawanda;
 
 namespace Planetfall.Item.Kalamontee.Mech.FloydPart;
 
@@ -52,6 +53,12 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     [UsedImplicitly] public bool HasEverGoneThroughTheLittleDoor { get; set; }
 
     [UsedImplicitly] public bool HasGottenTheFromitzBoard { get; set; }
+
+    // CARD-REVEALED in the original (compone.zil:2039, comptwo/globals). One-time flag, set by EITHER
+    // path: the player showing Floyd a lower-elevator card ("I've got one just like that!", the SHOW
+    // branch) or Floyd spontaneously revealing his own (FloydInventoryManager.OfferLowerElevatorCard,
+    // #222). Shared so the two paths never double-reveal.
+    [UsedImplicitly] public bool HasRevealedLowerElevatorCard { get; set; }
 
     // When you initially turn on Floyd, nothing happens for 3 turns. This delay never happens
     // again if you turn him on/off another time.
@@ -303,12 +310,91 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         if (!IsOn || HasDied)
             return await base.RespondToMultiNounInteraction(action, context);
 
+        // SHOW is handled before GIVE: in the original, "show <x> to floyd" drives several reactions
+        // (FLOYD-F SHOW branch, compone.zil:2022-2047) that GIVE does not — the printout/computer-concern
+        // gate chief among them. SHOW keeps the object in your hand; GIVE transfers it.
+        var showResult = RespondToShow(action, context);
+        if (showResult is not null)
+            return showResult;
+
         var result = _giveHimSomethingEngine.AreWeGivingSomethingToSomeone(action, this, context);
 
         if (result is not null)
             return result;
 
         return await base.RespondToMultiNounInteraction(action, context);
+    }
+
+    /// <summary>
+    ///     Handles "show &lt;x&gt; to floyd". Ports the reactions from the original FLOYD-F SHOW branch
+    ///     (<c>compone.zil:2022-2047</c>) whose objects exist in this port, in the ZIL's evaluation order.
+    ///     Returns null when this isn't a show-to-Floyd intent (or the item can't be resolved) so the
+    ///     caller falls through to the give engine / base.
+    /// </summary>
+    private InteractionResult? RespondToShow(MultiNounIntent action, IContext context)
+    {
+        if (!action.MatchVerb(Verbs.ShowVerbs))
+            return null;
+
+        // Floyd can be either noun: "show x to floyd" or "show floyd the x".
+        string shownNoun;
+        if (action.MatchNounOne(NounsForMatching))
+            shownNoun = action.NounTwo;
+        else if (action.MatchNounTwo(NounsForMatching))
+            shownNoun = action.NounOne;
+        else
+            return null;
+
+        var shown = Repository.GetItemInScope(shownNoun, context);
+        if (shown is null)
+            return null;
+
+        // ZIL syntax is SHOW OBJECT (HAVE) ... (syntax.zil:450) — the shown item must be held.
+        if (!context.Items.Contains(shown))
+            return new PositiveInteractionResult($"You don't have the {shown.NounsForMatching[0]}! ");
+
+        // Branch order mirrors the ZIL exactly; the printout and lower-card branches are one-shot.
+
+        // 1. Printout, first time -> Floyd's "computer is broken" concern. Sets the SAME flag the
+        //    Computer-Room visit sets (COMPUTER-FLAG / ComputerRoom.FloydHasExpressedConcern), which
+        //    gates the bio-lab card foray. Once concerned, the printout falls through to the default.
+        var computerRoom = Repository.GetLocation<ComputerRoom>();
+        if (shown is ComputerOutput && !computerRoom.FloydHasExpressedConcern)
+        {
+            computerRoom.FloydHasExpressedConcern = true;
+            return new PositiveInteractionResult(FloydConstants.ComputerBrokenFromPrintout);
+        }
+
+        // 2. The four "blue" cards. Enumerate explicitly: IdCard isn't an AccessCard at all, and the
+        //    teleport/mini/lower AccessCards must NOT match here — so `is AccessCard` would be wrong.
+        if (shown is IdCard or ShuttleAccessCard or KitchenAccessCard or UpperElevatorAccessCard)
+            return new PositiveInteractionResult(FloydConstants.CardsUsuallyBlue);
+
+        // 3. Lower-elevator card, first time -> recognition. Shares the revealed flag with the reveal
+        //    daemon (FloydInventoryManager.OfferLowerElevatorCard, #222) so the paths don't double-reveal.
+        if (shown is LowerElevatorAccessCard && !HasRevealedLowerElevatorCard)
+        {
+            HasRevealedLowerElevatorCard = true;
+            return new PositiveInteractionResult(FloydConstants.LowerCardJustLikeThat);
+        }
+
+        // 4. Default — anything else (and the printout/lower-card once their one-shot flags are set).
+        //    The original's fixed "Can you play any games with it?" is replaced by an in-character LLM
+        //    reaction. RespondToMultiNounInteraction has no IGenerationClient to generate inline, so we
+        //    queue it via the standard CommentOnAction path (Floyd's Act() renders it this turn) and
+        //    return an empty body. If the comment can't be queued — Floyd already reacted to this object,
+        //    already spoke this turn, or isn't a turn actor right now — fall back to the canned line so
+        //    the player never gets a blank response.
+        if (context is PlanetfallContext pfc && context.Actors.Contains(this))
+        {
+            var reactionPrompt = FloydPrompts.ShownAnObject(shown.NounsForMatching[0]);
+            CommentOnAction(reactionPrompt, context);
+            if (pfc.PendingFloydActionCommentPrompt == reactionPrompt)
+                return new PositiveInteractionResult("");
+        }
+
+        return new PositiveInteractionResult(string.Format(FloydConstants.ShowDefaultFormat,
+            shown.NounsForMatching[0]));
     }
 
     /// <summary>

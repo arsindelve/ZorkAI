@@ -1763,4 +1763,195 @@ public class FloydTests : EngineTestsBase
     }
 
     #endregion
+
+    #region Show (issue #203 — Floyd's SHOW reactions, ZIL FLOYD-F compone.zil:2022-2047)
+
+    [Test]
+    public async Task Show_Printout_ToFloyd_TriggersComputerConcern()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        // Instantiate the Computer Room first: its Init() homes the printout there, so we must do this
+        // before Take<ComputerOutput>() or the Take would be undone (printout re-homed out of inventory).
+        GetLocation<ComputerRoom>().FloydHasExpressedConcern = false;
+        Take<ComputerOutput>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("show printout to floyd");
+
+        // The "computer is broken" concern, in the printout-variant wording — NOT the Computer-Room
+        // "glowing light" wording (COMPUTER-ACTION branches its text on location, comptwo.zil:1514-1524).
+        response.Should().Contain("Computer is broken");
+        response.Should().Contain("computer printout");
+        response.Should().NotContain("glowing light");
+        // Sets the SAME flag the Computer-Room visit sets — this is what gates the bio-lab card foray.
+        GetLocation<ComputerRoom>().FloydHasExpressedConcern.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task Show_Printout_ToFloyd_WhenAlreadyConcerned_FallsToDefault()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        // Already concerned (e.g. Floyd already visited the Computer Room): the one-shot guard
+        // (<NOT ,COMPUTER-FLAG>) means showing the printout again hits the default branch. Set the flag
+        // before Take<ComputerOutput>() — instantiating the Computer Room homes the printout there.
+        GetLocation<ComputerRoom>().FloydHasExpressedConcern = true;
+        Take<ComputerOutput>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("show printout to floyd");
+
+        response.Should().Contain("Can you play any games with it");
+        response.Should().NotContain("Computer is broken");
+    }
+
+    [Test]
+    public async Task Show_IdCard_ToFloyd_AsksIfTheyAreUsuallyBlue()
+    {
+        // IdCard extends ItemBase directly (NOT AccessCard) — proves the four "blue" cards must be
+        // enumerated explicitly rather than matched via `is AccessCard`.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<IdCard>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("show id card to floyd");
+
+        response.Should().Contain("usually blue");
+    }
+
+    [Test]
+    public async Task Show_KitchenCard_ToFloyd_AsksIfTheyAreUsuallyBlue()
+    {
+        // KitchenAccessCard IS an AccessCard — proves the enumeration spans both type hierarchies.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<KitchenAccessCard>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("show kitchen card to floyd");
+
+        response.Should().Contain("usually blue");
+    }
+
+    [Test]
+    public async Task Show_LowerElevatorCard_ToFloyd_RecognizesItAndMarksRevealed()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<LowerElevatorAccessCard>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().HasRevealedLowerElevatorCard = false;
+
+        var response = await target.GetResponse("show lower elevator card to floyd");
+
+        response.Should().Contain("just like that");
+        // The lower card IS an AccessCard but must NOT get the "blue" line — guards the enumeration trap.
+        response.Should().NotContain("usually blue");
+        // Shares the revealed flag with the #222 reveal daemon.
+        GetItem<Floyd>().HasRevealedLowerElevatorCard.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task Show_LowerElevatorCard_ToFloyd_WhenAlreadyRevealed_FallsToDefault()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<LowerElevatorAccessCard>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().HasRevealedLowerElevatorCard = true;
+
+        var response = await target.GetResponse("show lower elevator card to floyd");
+
+        response.Should().Contain("Can you play any games with it");
+        response.Should().NotContain("just like that");
+    }
+
+    [Test]
+    public async Task Show_OrdinaryObject_ToFloyd_GeneratesLlmReaction()
+    {
+        // Option #6 default is an LLM reaction, not the canned line. Floyd has no IGenerationClient in
+        // RespondToMultiNounInteraction, so the reaction is queued via CommentOnAction and rendered by
+        // Floyd's Act() this turn — which requires Floyd to be a registered turn actor (as he is in real
+        // play once activated; setting IsOn directly in a test does not register him).
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.RegisterActor(floyd);
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd looks it over. \"Ooo, what's this thing do?\"");
+
+        var response = await target.GetResponse("show diary to floyd");
+
+        response.Should().Contain("what's this thing do");
+        response.Should().NotContain("Can you play any games with it"); // no longer the canned line
+    }
+
+    [Test]
+    public async Task Show_OrdinaryObject_ToFloyd_RepeatShow_FallsBackToCannedLine()
+    {
+        // The LLM reaction is queued through CommentOnAction, which fires once per distinct prompt. Showing
+        // Floyd the same object again can't queue a fresh comment, so we fall back to the canned line rather
+        // than returning a blank response.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.RegisterActor(floyd);
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd looks it over. \"Ooo, what's this thing do?\"");
+
+        await target.GetResponse("show diary to floyd");              // first time: LLM reaction
+        var response = await target.GetResponse("show diary to floyd"); // repeat: canned fallback
+
+        response.Should().Contain("Can you play any games with it");
+    }
+
+    [Test]
+    public void Show_LowerCard_RevealedFlag_StopsTheDaemonReReveal()
+    {
+        // Coordination with #222: once the lower card is revealed (here, as if shown to Floyd), the
+        // spontaneous reveal daemon must NOT fire again, even when its roll would otherwise succeed.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(3)).Returns(true); // would reveal
+        floyd.Chooser = mockChooser.Object;
+
+        floyd.HasRevealedLowerElevatorCard = true;
+
+        floyd.OffersLowerElevatorCard(target.Context).Should().BeNull();
+    }
+
+    [Test]
+    public void Daemon_Reveal_SetsTheSharedRevealedFlag()
+    {
+        // The reveal daemon sets the same shared flag, so a later `show lower card to floyd` won't
+        // re-trigger the recognition line.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasRevealedLowerElevatorCard = false;
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(3)).Returns(true);
+        floyd.Chooser = mockChooser.Object;
+
+        var reveal = floyd.OffersLowerElevatorCard(target.Context);
+
+        reveal.Should().NotBeNull();
+        floyd.HasRevealedLowerElevatorCard.Should().BeTrue();
+    }
+
+    #endregion
 }

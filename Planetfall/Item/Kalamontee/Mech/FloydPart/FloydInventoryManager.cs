@@ -40,8 +40,13 @@ public class FloydInventoryManager(Floyd floyd)
         if (!IsFloydInRoom(context) ||
             !floyd.IsOn ||
             !floyd.Items.Any() ||
+            floyd.HasRevealedLowerElevatorCard ||
             !chooser.RollDiceSuccess(3))
             return null;
+
+        // Shared one-time flag (CARD-REVEALED): also set when the player shows Floyd a lower-elevator
+        // card (Floyd.RespondToShow, #203), so that path and this daemon never both reveal the card.
+        floyd.HasRevealedLowerElevatorCard = true;
 
         // Remove it from inside, put it in his hand.
         floyd.Items.Clear();

@@ -176,6 +176,11 @@
     { "inputs": ["give the key to floyd"], "verb": "give", "nounOne": "key", "nounTwo": "floyd", "preposition": "to", "originalInput": "give the key to floyd" },
     { "inputs": ["give the plate to floyd", "give plate to floyd"], "verb": "give", "nounOne": "plate", "nounTwo": "floyd", "preposition": "to", "originalInput": "give the plate to floyd" },
     { "inputs": ["give the breastplate to floyd", "give breastplate to floyd"], "verb": "give", "nounOne": "breastplate", "nounTwo": "floyd", "preposition": "to", "originalInput": "give the breastplate to floyd" },
+    { "inputs": ["show printout to floyd", "show the printout to floyd"], "verb": "show", "nounOne": "printout", "nounTwo": "floyd", "preposition": "to", "originalInput": "show printout to floyd" },
+    { "inputs": ["show id card to floyd", "show the id card to floyd"], "verb": "show", "nounOne": "id card", "nounTwo": "floyd", "preposition": "to", "originalInput": "show id card to floyd" },
+    { "inputs": ["show kitchen card to floyd"], "verb": "show", "nounOne": "kitchen card", "nounTwo": "floyd", "preposition": "to", "originalInput": "show kitchen card to floyd" },
+    { "inputs": ["show lower elevator card to floyd", "show lower card to floyd"], "verb": "show", "nounOne": "lower elevator card", "nounTwo": "floyd", "preposition": "to", "originalInput": "show lower elevator card to floyd" },
+    { "inputs": ["show diary to floyd"], "verb": "show", "nounOne": "diary", "nounTwo": "floyd", "preposition": "to", "originalInput": "show diary to floyd" },
 
     { "inputs": ["kill thief with sword"], "verb": "kill", "nounOne": "thief", "nounTwo": "sword", "preposition": "with", "originalInput": "kill thief with sword" },
     { "inputs": ["kill thief with knife"], "verb": "kill", "nounOne": "thief", "nounTwo": "knife", "preposition": "with", "originalInput": "kill thief with knife" },
