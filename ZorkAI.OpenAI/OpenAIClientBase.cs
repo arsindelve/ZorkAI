@@ -9,6 +9,10 @@ public abstract class OpenAIClientBase
     protected readonly ILogger? Logger;
     protected readonly bool HasApiKey;
 
+    // Exposed so subclasses can spin up an additional client on a different model
+    // (e.g. ChatGPTClient runs Floyd's companion speech on a cheaper, faster model).
+    protected readonly string? ApiKey;
+
     protected OpenAIClientBase(ILogger? logger, bool requireApiKey = true)
     {
         Logger = logger;
@@ -25,6 +29,7 @@ public abstract class OpenAIClientBase
         else
         {
             HasApiKey = true;
+            ApiKey = key;
             Client = new ChatClient(model: ModelName, apiKey: key);
         }
     }
