@@ -604,6 +604,27 @@ public class HungerSystemTests : EngineTestsBase
         response.Should().NotContain("Colored goo flies all over everything");
     }
 
+    [Test]
+    public async Task SurvivalKit_OpenAndClose_StillWorkThroughOverrideFallback()
+    {
+        var target = GetTarget();
+        StartHere<Kitchen>();
+
+        PreventHungerAdvancement(target.Context);
+
+        var kit = GetItem<SurvivalKit>();
+        kit.IsOpen = false;
+        target.Context.ItemPlacedHere(kit);
+
+        // The EMPTY/SHAKE override must not swallow unrelated verbs - open and close
+        // still fall through to OpenAndCloseContainerBase.
+        await target.GetResponse("open kit");
+        kit.IsOpen.Should().BeTrue();
+
+        await target.GetResponse("close kit");
+        kit.IsOpen.Should().BeFalse();
+    }
+
     #endregion
 
     #region Integration Tests
