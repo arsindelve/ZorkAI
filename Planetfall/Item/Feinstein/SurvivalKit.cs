@@ -60,6 +60,23 @@ public class SurvivalKit : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICa
                 : "There's nothing in the survival kit. ");
         }
 
+        // V-SHAKE special-cases the food kit: if any goo is inside, shaking flings it out and
+        // destroys all three blobs - the player's only food source. The original checks only
+        // whether the goo is IN the kit (not OPENBIT), so a closed kit is destroyed just the same.
+        // With no goo left, fall through to the default shake handling. See
+        // planetfall-source/verbs.zil:1167.
+        if (action.Match(["shake"], NounsForMatching))
+        {
+            var goo = Items.OfType<GooBase>().ToList();
+            if (goo.Count > 0)
+            {
+                foreach (var blob in goo)
+                    RemoveItem(blob);
+
+                return new PositiveInteractionResult("Colored goo flies all over everything. Yechh! ");
+            }
+        }
+
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }

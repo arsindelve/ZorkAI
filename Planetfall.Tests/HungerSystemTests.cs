@@ -545,6 +545,67 @@ public class HungerSystemTests : EngineTestsBase
 
     #endregion
 
+    #region Survival Kit SHAKE Tests
+
+    [Test]
+    public async Task ShakeKit_WhenOpenWithGoo_FlingsAndDestroysAllGoo()
+    {
+        var target = GetTarget();
+        StartHere<Kitchen>();
+
+        PreventHungerAdvancement(target.Context);
+
+        var kit = GetItem<SurvivalKit>();
+        kit.IsOpen = true;
+        target.Context.ItemPlacedHere(kit);
+
+        var response = await target.GetResponse("shake kit");
+        response.Should().Contain("Colored goo flies all over everything. Yechh!");
+
+        // All three goo blobs are destroyed - the player's only food source is gone.
+        kit.Items.Should().NotContain(item => item is RedGoo);
+        kit.Items.Should().NotContain(item => item is BrownGoo);
+        kit.Items.Should().NotContain(item => item is GreenGoo);
+    }
+
+    [Test]
+    public async Task ShakeKit_WhenClosedWithGoo_StillDestroysAllGoo()
+    {
+        var target = GetTarget();
+        StartHere<Kitchen>();
+
+        PreventHungerAdvancement(target.Context);
+
+        // The original V-SHAKE only checks whether the goo is IN the kit, not OPENBIT,
+        // so shaking a closed kit destroys the goo just the same.
+        var kit = GetItem<SurvivalKit>();
+        kit.IsOpen = false;
+        target.Context.ItemPlacedHere(kit);
+
+        var response = await target.GetResponse("shake kit");
+        response.Should().Contain("Colored goo flies all over everything. Yechh!");
+        kit.Items.OfType<GooBase>().Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task ShakeKit_WhenAlreadyEmpty_DoesNotShowGooMessage()
+    {
+        var target = GetTarget();
+        StartHere<Kitchen>();
+
+        PreventHungerAdvancement(target.Context);
+
+        var kit = GetItem<SurvivalKit>();
+        kit.IsOpen = true;
+        kit.Items.Clear(); // No goo left to fling
+        target.Context.ItemPlacedHere(kit);
+
+        var response = await target.GetResponse("shake kit");
+        response.Should().NotContain("Colored goo flies all over everything");
+    }
+
+    #endregion
+
     #region Integration Tests
 
     [Test]
