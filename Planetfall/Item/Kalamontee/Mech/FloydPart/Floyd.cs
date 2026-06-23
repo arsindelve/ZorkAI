@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Lawanda;
 using Planetfall.Location;
+using Planetfall.Location.Lawanda;
 
 namespace Planetfall.Item.Kalamontee.Mech.FloydPart;
 
@@ -53,6 +54,12 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     [UsedImplicitly] public bool HasGottenTheFromitzBoard { get; set; }
 
+    // CARD-REVEALED in the original (compone.zil:2039, comptwo/globals). One-time flag, set by EITHER
+    // path: the player showing Floyd a lower-elevator card ("I've got one just like that!", the SHOW
+    // branch) or Floyd spontaneously revealing his own (FloydInventoryManager.OfferLowerElevatorCard,
+    // #222). Shared so the two paths never double-reveal.
+    [UsedImplicitly] public bool HasRevealedLowerElevatorCard { get; set; }
+
     // When you initially turn on Floyd, nothing happens for 3 turns. This delay never happens
     // again if you turn him on/off another time.
     [UsedImplicitly] public int TurnOnCountdown { get; set; } = 3;
@@ -74,26 +81,30 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     /// </summary>
     /// <param name="prompt">The AI prompt describing what Floyd should say</param>
     /// <param name="context">Current game context</param>
-    public void CommentOnAction(string prompt, IContext context)
+    /// <returns>True if the comment was queued; false if it was a no-op (Floyd absent/off, already
+    /// commenting this turn, or this prompt was already used). Callers that need to know whether the
+    /// queue took — e.g. to decide between an empty response and a fallback line — can branch on this.</returns>
+    public bool CommentOnAction(string prompt, IContext context)
     {
         // Must be on and in the same location as player
         if (!IsHereAndIsOn(context))
-            return;
+            return false;
 
         if (context is not PlanetfallContext planetfallContext)
-            return;
+            return false;
 
         // Only one action comment per turn
         if (planetfallContext.PendingFloydActionCommentPrompt != null)
-            return;
+            return false;
 
         // Don't repeat prompts that have already been used
         if (planetfallContext.UsedFloydActionCommentPrompts.Contains(prompt))
-            return;
+            return false;
 
         // Store the prompt for Act() to process and mark as used
         planetfallContext.PendingFloydActionCommentPrompt = prompt;
         planetfallContext.UsedFloydActionCommentPrompts.Add(prompt);
+        return true;
     }
 
     /// <summary>
@@ -284,17 +295,21 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         if (Chooser.RollDice(12) != 1)
             return string.Empty;
 
-        // Pick which prompt (each has 1/72 chance overall, ~1.4%)
-        var promptRoll = Chooser.RollDice(6);
-        return promptRoll switch
+        // Weighted bucket pick. We lean hardest on the canonical static actions (the original 19 -
+        // Floyd's eccentric heart) and keep melancholy a thin slice so he never reads as mopey. Each
+        // AI bucket gets a random seed (see FloydPrompts.Seeds) so identical room+context still varies.
+        return Chooser.RollDice(100) switch
         {
-            1 => await GenerateCompanionSpeech(context, client, FloydPrompts.DoSomethingSmall),
-            2 => await GenerateCompanionSpeech(context, client, FloydPrompts.NonSequiturDialog),
-            3 => await GenerateCompanionSpeech(context, client, FloydPrompts.NonSequiturReflection),
-            4 => await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething),
-            5 => await GenerateCompanionSpeech(context, client, FloydPrompts.MelancholyNonSequitur),
-            _ => Chooser.Choose(FloydConstants.RandomActions.ToList())
+            <= 35 => Chooser.Choose(FloydConstants.RandomActions.ToList()), // 35% canonical static actions
+            <= 53 => await Speak(FloydPrompts.NonSequiturDialog, "non_sequitur_dialog"), // 18%
+            <= 68 => await Speak(FloydPrompts.DoSomethingSmall, "do_something_small"), // 15%
+            <= 80 => await Speak(FloydPrompts.HappySayAndDoSomething, "happy_say_and_do"), // 12%
+            <= 92 => await Speak(FloydPrompts.NonSequiturReflection, "non_sequitur_reflection"), // 12%
+            _ => await Speak(FloydPrompts.MelancholyNonSequitur, "melancholy") // 8%
         };
+
+        Task<string> Speak(string prompt, string seedKey) =>
+            GenerateCompanionSpeech(context, client, prompt, Chooser.Choose(FloydPrompts.Seeds[seedKey].ToList()));
     }
 
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
@@ -303,12 +318,93 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         if (!IsOn || HasDied)
             return await base.RespondToMultiNounInteraction(action, context);
 
+        // SHOW is handled before GIVE: in the original, "show <x> to floyd" drives several reactions
+        // (FLOYD-F SHOW branch, compone.zil:2022-2047) that GIVE does not — the printout/computer-concern
+        // gate chief among them. SHOW keeps the object in your hand; GIVE transfers it.
+        var showResult = RespondToShow(action, context);
+        if (showResult is not null)
+            return showResult;
+
         var result = _giveHimSomethingEngine.AreWeGivingSomethingToSomeone(action, this, context);
 
         if (result is not null)
             return result;
 
         return await base.RespondToMultiNounInteraction(action, context);
+    }
+
+    /// <summary>
+    ///     Handles "show &lt;x&gt; to floyd". Ports the reactions from the original FLOYD-F SHOW branch
+    ///     (<c>compone.zil:2022-2047</c>) whose objects exist in this port, in the ZIL's evaluation order.
+    ///     Returns null when this isn't a show-to-Floyd intent (or the item can't be resolved) so the
+    ///     caller falls through to the give engine / base.
+    /// </summary>
+    private InteractionResult? RespondToShow(MultiNounIntent action, IContext context)
+    {
+        if (!action.MatchVerb(Verbs.ShowVerbs))
+            return null;
+
+        // Floyd can be either noun: "show x to floyd" or "show floyd the x".
+        string shownNoun;
+        if (action.MatchNounOne(NounsForMatching))
+            shownNoun = action.NounTwo;
+        else if (action.MatchNounTwo(NounsForMatching))
+            shownNoun = action.NounOne;
+        else
+            return null;
+
+        var shown = Repository.GetItemInScope(shownNoun, context);
+        if (shown is null)
+            return null;
+
+        // ZIL syntax is SHOW OBJECT (HAVE) ... (syntax.zil:450) — the shown item must be held.
+        if (!context.Items.Contains(shown))
+            return new PositiveInteractionResult($"You don't have the {shown.NounsForMatching[0]}! ");
+
+        // Branch order mirrors the ZIL exactly; the printout and lower-card branches are one-shot.
+
+        // 1. Printout, first time -> Floyd's "computer is broken" concern. Sets the SAME flag the
+        //    Computer-Room visit sets (COMPUTER-FLAG / ComputerRoom.FloydHasExpressedConcern), which
+        //    gates the bio-lab card foray. Once concerned, the printout falls through to the default.
+        if (shown is ComputerOutput)
+        {
+            var computerRoom = Repository.GetLocation<ComputerRoom>();
+            if (!computerRoom.FloydHasExpressedConcern)
+            {
+                computerRoom.FloydHasExpressedConcern = true;
+                return new PositiveInteractionResult(FloydConstants.ComputerBrokenFromPrintout);
+            }
+        }
+
+        // 2. The four "blue" cards. Enumerate explicitly: IdCard isn't an AccessCard at all, and the
+        //    teleport/mini/lower AccessCards must NOT match here — so `is AccessCard` would be wrong.
+        if (shown is IdCard or ShuttleAccessCard or KitchenAccessCard or UpperElevatorAccessCard)
+            return new PositiveInteractionResult(FloydConstants.CardsUsuallyBlue);
+
+        // 3. Lower-elevator card, first time -> recognition. Shares the revealed flag with the reveal
+        //    daemon (FloydInventoryManager.OfferLowerElevatorCard, #222) so the paths don't double-reveal.
+        if (shown is LowerElevatorAccessCard && !HasRevealedLowerElevatorCard)
+        {
+            HasRevealedLowerElevatorCard = true;
+            return new PositiveInteractionResult(FloydConstants.LowerCardJustLikeThat);
+        }
+
+        // 4. Default — anything else (and the printout/lower-card once their one-shot flags are set).
+        //    The original's fixed "Can you play any games with it?" is replaced by an in-character LLM
+        //    reaction. RespondToMultiNounInteraction has no IGenerationClient to generate inline, so we
+        //    queue it via the standard CommentOnAction path (Floyd's Act() renders it this turn) and
+        //    return an empty body. If the comment can't be queued — Floyd already reacted to this object,
+        //    already spoke this turn, or isn't a turn actor right now — fall back to the canned line so
+        //    the player never gets a blank response.
+        // Only queue when Floyd will actually act this turn (he renders the comment in Act()); the bool
+        // result tells us the queue took (vs. one of CommentOnAction's silent no-ops), so we know whether
+        // to return the empty body or fall back to the canned line.
+        if (context.Actors.Contains(this)
+            && CommentOnAction(FloydPrompts.ShownAnObject(shown.NounsForMatching[0]), context))
+            return new PositiveInteractionResult("");
+
+        return new PositiveInteractionResult(string.Format(FloydConstants.ShowDefaultFormat,
+            shown.NounsForMatching[0]));
     }
 
     /// <summary>

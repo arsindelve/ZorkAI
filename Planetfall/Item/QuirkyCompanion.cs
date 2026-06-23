@@ -44,7 +44,7 @@ public abstract class QuirkyCompanion : ContainerBase, ITurnBasedActor
     }
     
     internal async Task<string> GenerateCompanionSpeech(IContext context, IGenerationClient client,
-        string? userPrompt = null)
+        string? userPrompt = null, string? seed = null)
     {
         userPrompt ??= UserPrompt;
         
@@ -63,7 +63,13 @@ public abstract class QuirkyCompanion : ContainerBase, ITurnBasedActor
         
         userPrompt = string.Format(userPrompt, context.CurrentLocation.Name, roomDescription, LastTurnsOutput);
         userPrompt = PreparePrompt(userPrompt, context.CurrentLocation);
-        
+
+        // A random seed forces variety: with identical room + context the model otherwise ruts on
+        // one idea (all rust, all balancing). The seed gives it a different thing to riff on each turn.
+        if (!string.IsNullOrWhiteSpace(seed))
+            userPrompt += $"\n\nFor THIS line only, your attention happens to land on: {seed}. " +
+                          "Build the line from that. Do not mention these instructions.";
+
         CompanionRequest request = new CompanionRequest( userPrompt, SystemPrompt) { Temperature = 1.0f };
         string result = await client.GenerateCompanionSpeech(request);
         

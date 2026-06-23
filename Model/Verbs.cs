@@ -39,6 +39,13 @@ public static class Verbs
     public static readonly string[] OpenVerbs = ["open", "lift", "pry", "unbar", "raise", "uncover", "unlatch", "unseal"];
     public static readonly string[] GiveVerbs =
         ["give", "offer", "transfer", "present", "provide", "hand", "donate", "deliver", "pass", "feed"];
+
+    /// <summary>
+    ///     The "show it to someone" family. Distinct from <see cref="GiveVerbs" /> — showing keeps the
+    ///     object in your hand (the ZIL syntax is <c>SHOW OBJECT (HAVE) TO OBJECT</c>), whereas giving
+    ///     transfers it. Deliberately excludes "present" (a give synonym) so the two verbs don't collide.
+    /// </summary>
+    public static readonly string[] ShowVerbs = ["show", "display"];
     public static readonly string[] ThrowVerbs =
         ["throw", "toss", "launch", "hurl", "fling", "heave", "chuck", "lob", "pitch", "cast", "sling"];
 
