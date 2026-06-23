@@ -326,7 +326,7 @@ public class FloydTests : EngineTestsBase
         Take<KitchenAccessCard>();
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
-        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
+        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDice(100) == 1); // within Day 1's window -> reveals
 
         var response = await target.GetResponse("slide kitchen access card through slot");
 
@@ -342,7 +342,7 @@ public class FloydTests : EngineTestsBase
         Take<KitchenAccessCard>();
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().CurrentLocation = GetLocation<Library>();
-        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
+        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDice(100) == 1); // within Day 1's window -> reveals
 
         var response = await target.GetResponse("slide kitchen access card through slot");
 
@@ -357,7 +357,7 @@ public class FloydTests : EngineTestsBase
         Take<KitchenAccessCard>();
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
-        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == false);
+        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDice(100) == 100); // above Day 1's window -> no reveal
 
         var response = await target.GetResponse("slide kitchen access card through slot");
 
@@ -371,7 +371,7 @@ public class FloydTests : EngineTestsBase
         StartHere<MessHall>();
         Take<KitchenAccessCard>();
         GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
-        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
+        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDice(100) == 1); // within Day 1's window -> reveals
 
         var response = await target.GetResponse("slide kitchen access card through slot");
 
@@ -387,7 +387,7 @@ public class FloydTests : EngineTestsBase
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().Items.Clear();
         GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
-        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
+        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDice(100) == 1); // within Day 1's window -> reveals
 
         var response = await target.GetResponse("slide kitchen access card through slot");
 
@@ -2011,16 +2011,12 @@ public class FloydTests : EngineTestsBase
     public void Show_LowerCard_RevealedFlag_StopsTheDaemonReReveal()
     {
         // Coordination with #222: once the lower card is revealed (here, as if shown to Floyd), the
-        // spontaneous reveal daemon must NOT fire again, even when its roll would otherwise succeed.
+        // spontaneous reveal daemon must NOT fire again, even on Day 4 where the chance is otherwise 100%.
         var target = GetTarget();
         StartHere<RobotShop>();
         var floyd = GetItem<Floyd>();
         floyd.IsOn = true;
-
-        var mockChooser = new Mock<IRandomChooser>();
-        mockChooser.Setup(r => r.RollDiceSuccess(3)).Returns(true); // would reveal
-        floyd.Chooser = mockChooser.Object;
-
+        target.Context.Day = 4; // guaranteed reveal window — so the flag is what stops it
         floyd.HasRevealedLowerElevatorCard = true;
 
         floyd.OffersLowerElevatorCard(target.Context).Should().BeNull();
@@ -2036,15 +2032,102 @@ public class FloydTests : EngineTestsBase
         var floyd = GetItem<Floyd>();
         floyd.IsOn = true;
         floyd.HasRevealedLowerElevatorCard = false;
-
-        var mockChooser = new Mock<IRandomChooser>();
-        mockChooser.Setup(r => r.RollDiceSuccess(3)).Returns(true);
-        floyd.Chooser = mockChooser.Object;
+        target.Context.Day = 4; // Day > 3 => guaranteed reveal
 
         var reveal = floyd.OffersLowerElevatorCard(target.Context);
 
         reveal.Should().NotBeNull();
         floyd.HasRevealedLowerElevatorCard.Should().BeTrue();
+    }
+
+    // --- #222: lower-card reveal uses a day-keyed escalating chance, not a flat per-turn roll
+    // (based on FLOYD-REVEAL-CARD-F, globals.zil:1440-1455). Day 1 keeps a small non-zero chance (a
+    // deliberate divergence from the original's strict 0%) so the card stays obtainable on Day 1;
+    // the chance escalates on Days 2-3 and is guaranteed after Day 3. Windows: Day 1 = 5%, Day 2 = 10%,
+    // Day 3 = 30%, Day > 3 = 100%. ---
+
+    [Test]
+    public void Daemon_Day1_Reveals_OnLowRoll()
+    {
+        // Day 1 is intentionally still gettable (small chance) — a sufficiently low roll reveals.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.Day = 1;
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(100)).Returns(1); // inside Day 1's small window
+        floyd.Chooser = mockChooser.Object;
+
+        floyd.OffersLowerElevatorCard(target.Context).Should().NotBeNull();
+    }
+
+    [Test]
+    public void Daemon_Day1_DoesNotReveal_OnRollAboveItsWindow()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.Day = 1;
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(100)).Returns(8); // above Day 1's window
+        floyd.Chooser = mockChooser.Object;
+
+        floyd.OffersLowerElevatorCard(target.Context).Should().BeNull();
+    }
+
+    [Test]
+    public void Daemon_Day2_Reveals_OnRollThatWouldMissDay1()
+    {
+        // Same roll (8) that misses on Day 1 lands inside Day 2's larger window — the chance escalates.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.Day = 2;
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(100)).Returns(8); // misses Day 1, within Day 2
+        floyd.Chooser = mockChooser.Object;
+
+        floyd.OffersLowerElevatorCard(target.Context).Should().NotBeNull();
+    }
+
+    [Test]
+    public void Daemon_Day3_Reveals_OnRollThatWouldMissDay2()
+    {
+        // A roll (20) above Day 2's window lands inside Day 3's — escalation continues.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.Day = 3;
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(100)).Returns(20); // above Day 2's window, within Day 3's
+        floyd.Chooser = mockChooser.Object;
+
+        floyd.OffersLowerElevatorCard(target.Context).Should().NotBeNull();
+    }
+
+    [Test]
+    public void Daemon_Day4_AlwaysReveals_EvenOnWorstRoll()
+    {
+        // Day > 3 is guaranteed; even the worst possible roll reveals.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.Day = 4;
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(100)).Returns(100); // would miss every sub-100% window
+        floyd.Chooser = mockChooser.Object;
+
+        floyd.OffersLowerElevatorCard(target.Context).Should().NotBeNull();
     }
 
     #endregion
