@@ -378,6 +378,14 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return PostProcessing(globalResult);
         }
 
+        // 3b. ------- Context-level command override. Lets a game-specific context fully handle the
+        // raw command before normal parsing — used by Zork's spirit/DEAD state, which overrides most
+        // verbs with canned ghost responses while letting movement and resurrection fall through by
+        // returning null (issue #17). Does not count as a turn; no actor or end-of-turn processing.
+        var contextOverride = Context.InterceptPlayerCommand(playerInput);
+        if (contextOverride is not null)
+            return PostProcessing(contextOverride);
+
         // Everything below here counts as a turn. Pre-process the turn.
         // See if the context needs to notify us of anything. Are we sleepy? Hungry?
         var contextPrepend = Context.ProcessBeginningOfTurn();
