@@ -358,11 +358,14 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         // 1. Printout, first time -> Floyd's "computer is broken" concern. Sets the SAME flag the
         //    Computer-Room visit sets (COMPUTER-FLAG / ComputerRoom.FloydHasExpressedConcern), which
         //    gates the bio-lab card foray. Once concerned, the printout falls through to the default.
-        var computerRoom = Repository.GetLocation<ComputerRoom>();
-        if (shown is ComputerOutput && !computerRoom.FloydHasExpressedConcern)
+        if (shown is ComputerOutput)
         {
-            computerRoom.FloydHasExpressedConcern = true;
-            return new PositiveInteractionResult(FloydConstants.ComputerBrokenFromPrintout);
+            var computerRoom = Repository.GetLocation<ComputerRoom>();
+            if (!computerRoom.FloydHasExpressedConcern)
+            {
+                computerRoom.FloydHasExpressedConcern = true;
+                return new PositiveInteractionResult(FloydConstants.ComputerBrokenFromPrintout);
+            }
         }
 
         // 2. The four "blue" cards. Enumerate explicitly: IdCard isn't an AccessCard at all, and the

@@ -1914,6 +1914,20 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
+    public void ShownAnObjectPrompt_WithBracesInNoun_SurvivesDownstreamStringFormat()
+    {
+        // GenerateCompanionSpeech runs the prompt through string.Format; a shown noun with literal
+        // braces must not throw there (would be a FormatException at runtime) and must survive intact.
+        var prompt = FloydPrompts.ShownAnObject("gizmo {with} braces");
+
+        Action format = () => string.Format(prompt, "Room Name", "room description", "last outputs");
+
+        format.Should().NotThrow();
+        string.Format(prompt, "Room Name", "room description", "last outputs")
+            .Should().Contain("gizmo {with} braces");
+    }
+
+    [Test]
     public void Show_LowerCard_RevealedFlag_StopsTheDaemonReReveal()
     {
         // Coordination with #222: once the lower card is revealed (here, as if shown to Floyd), the
