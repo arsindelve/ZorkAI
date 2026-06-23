@@ -1292,7 +1292,7 @@ public class FloydTests : EngineTestsBase
         var mockChooser = new Mock<IRandomChooser>();
         mockChooser.Setup(r => r.RollDiceSuccess(20)).Returns(false); // Don't wander
         mockChooser.Setup(r => r.RollDice(12)).Returns(1); // Pass the 1-in-12 chance check
-        mockChooser.Setup(r => r.RollDice(6)).Returns(6); // Pick default case (FloydConstants.RandomActions)
+        mockChooser.Setup(r => r.RollDice(100)).Returns(1); // <= 35 -> canonical static actions (FloydConstants.RandomActions)
         mockChooser.Setup(r => r.Choose(It.IsAny<List<string>>())).Returns((List<string> list) => list[0]);
         floyd.Chooser = mockChooser.Object;
 
@@ -1645,7 +1645,7 @@ public class FloydTests : EngineTestsBase
         var mockChooser = new Mock<IRandomChooser>();
         mockChooser.Setup(r => r.RollDiceSuccess(20)).Returns(false); // Don't wander
         mockChooser.Setup(r => r.RollDice(12)).Returns(1); // Pass chance check
-        mockChooser.Setup(r => r.RollDice(6)).Returns(1); // Would trigger AI speech
+        mockChooser.Setup(r => r.RollDice(100)).Returns(50); // would trigger an AI bucket (not reached: skip flag)
         floyd.Chooser = mockChooser.Object;
 
         // Mock the generation client - this should NOT be called
@@ -1748,7 +1748,7 @@ public class FloydTests : EngineTestsBase
         var mockChooser = new Mock<IRandomChooser>();
         mockChooser.Setup(r => r.RollDiceSuccess(20)).Returns(false); // Don't wander
         mockChooser.Setup(r => r.RollDice(12)).Returns(1); // Pass the 1-in-12 chance check
-        mockChooser.Setup(r => r.RollDice(6)).Returns(6); // Pick default case (FloydConstants.RandomActions)
+        mockChooser.Setup(r => r.RollDice(100)).Returns(1); // <= 35 -> canonical static actions (FloydConstants.RandomActions)
         mockChooser.Setup(r => r.Choose(It.IsAny<List<string>>())).Returns((List<string> list) => list[0]);
         floyd.Chooser = mockChooser.Object;
 

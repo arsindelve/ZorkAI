@@ -120,20 +120,37 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
             Temperature = request.Temperature
         };
 
-        ChatCompletion completion = await (CompanionClient ?? Client)!.CompleteChatAsync(messages, options);
+        // Companion speech runs on a cheaper model. If that model is unavailable or misconfigured,
+        // degrade gracefully to the narrator's model rather than throwing - keeping with the codebase's
+        // "graceful degradation when AI services unavailable" principle.
+        ChatCompletion completion;
+        try
+        {
+            completion = await (CompanionClient ?? Client)!.CompleteChatAsync(messages, options);
+        }
+        catch (Exception ex) when (CompanionClient is not null && Client is not null)
+        {
+            Logger?.LogWarning(ex,
+                "Companion model '{Model}' failed; falling back to the narrator model.", CompanionModelName);
+            completion = await Client.CompleteChatAsync(messages, options);
+        }
+
         var responseContent = completion.Content[0].Text;
 
         if (string.IsNullOrEmpty(responseContent))
             return "Your companion says nothing. ";
 
-        // Some models occasionally emit curly quotes; normalize to straight quotes so downstream
-        // rendering and any quote-based handling are consistent.
-        responseContent = responseContent
-            .Replace('“', '"').Replace('”', '"')
-            .Replace('‘', '\'').Replace('’', '\'');
+        responseContent = NormalizeQuotes(responseContent);
 
         Log(request, responseContent, request.SystemMessage);
 
         return responseContent;
     }
+
+    /// <summary>
+    ///     Some models occasionally emit typographic (curly) quotes; normalize to straight quotes so
+    ///     downstream rendering and any quote-based handling stay consistent. Pure function, unit-tested.
+    /// </summary>
+    public static string NormalizeQuotes(string text) =>
+        text.Replace('“', '"').Replace('”', '"').Replace('‘', '\'').Replace('’', '\'');
 }
