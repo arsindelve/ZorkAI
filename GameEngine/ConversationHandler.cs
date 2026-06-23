@@ -209,18 +209,16 @@ public class ConversationHandler(
     private static bool TryStripQuotedSpeech(string text, out string inner)
     {
         inner = string.Empty;
-        if (text.Length == 0 || !IsDoubleQuote(text[0]))
+        if (text.Length == 0 || !SpeechQuotes.IsDoubleQuote(text[0]))
             return false;
 
         var body = text[1..];
-        if (body.Length > 0 && IsDoubleQuote(body[^1]))
+        if (body.Length > 0 && SpeechQuotes.IsDoubleQuote(body[^1]))
             body = body[..^1];
 
         inner = body.Trim();
         return inner.Length > 0;
     }
-
-    private static bool IsDoubleQuote(char c) => c is '"' or '“' or '”';
 
     /// <summary>
     /// Produces the response when the player addressed an absent known character. The narrator tells

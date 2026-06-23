@@ -2,6 +2,7 @@ using System.Reflection;
 using FluentAssertions;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
+using Model.Intent;
 using Model.Interface;
 using Model.Item;
 using Moq;
@@ -326,7 +327,7 @@ public class FloydTests : EngineTestsBase
         Take<KitchenAccessCard>();
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
-        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
+        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDice(100) == 1); // within Day 1's window -> reveals
 
         var response = await target.GetResponse("slide kitchen access card through slot");
 
@@ -342,7 +343,7 @@ public class FloydTests : EngineTestsBase
         Take<KitchenAccessCard>();
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().CurrentLocation = GetLocation<Library>();
-        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
+        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDice(100) == 1); // within Day 1's window -> reveals
 
         var response = await target.GetResponse("slide kitchen access card through slot");
 
@@ -357,7 +358,7 @@ public class FloydTests : EngineTestsBase
         Take<KitchenAccessCard>();
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
-        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == false);
+        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDice(100) == 100); // above Day 1's window -> no reveal
 
         var response = await target.GetResponse("slide kitchen access card through slot");
 
@@ -371,7 +372,7 @@ public class FloydTests : EngineTestsBase
         StartHere<MessHall>();
         Take<KitchenAccessCard>();
         GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
-        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
+        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDice(100) == 1); // within Day 1's window -> reveals
 
         var response = await target.GetResponse("slide kitchen access card through slot");
 
@@ -387,7 +388,7 @@ public class FloydTests : EngineTestsBase
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().Items.Clear();
         GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
-        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
+        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDice(100) == 1); // within Day 1's window -> reveals
 
         var response = await target.GetResponse("slide kitchen access card through slot");
 
@@ -1832,6 +1833,389 @@ public class FloydTests : EngineTestsBase
             FloydPrompts.Seeds[bucket].Length.Should().BeGreaterThanOrEqualTo(20,
                 $"bucket '{bucket}' needs more seeds than a short run uses, so it does not repeat one");
         }
+    }
+
+    #endregion
+
+    #region Show (issue #203 — Floyd's SHOW reactions, ZIL FLOYD-F compone.zil:2022-2047)
+
+    [Test]
+    public async Task Show_Printout_ToFloyd_TriggersComputerConcern()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        // Instantiate the Computer Room first: its Init() homes the printout there, so we must do this
+        // before Take<ComputerOutput>() or the Take would be undone (printout re-homed out of inventory).
+        GetLocation<ComputerRoom>().FloydHasExpressedConcern = false;
+        Take<ComputerOutput>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("show printout to floyd");
+
+        // The "computer is broken" concern, in the printout-variant wording — NOT the Computer-Room
+        // "glowing light" wording (COMPUTER-ACTION branches its text on location, comptwo.zil:1514-1524).
+        response.Should().Contain("Computer is broken");
+        response.Should().Contain("computer printout");
+        response.Should().NotContain("glowing light");
+        // Sets the SAME flag the Computer-Room visit sets — this is what gates the bio-lab card foray.
+        GetLocation<ComputerRoom>().FloydHasExpressedConcern.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task Show_Printout_ToFloyd_WhenAlreadyConcerned_FallsToLlmDefault()
+    {
+        // Already concerned (e.g. Floyd already visited the Computer Room): the one-shot guard
+        // (<NOT ,COMPUTER-FLAG>) means showing the printout again no longer re-fires the concern.
+        // In real play Floyd is a registered turn actor, so the default goes through the LLM path.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        // Set the flag before Take<ComputerOutput>() — instantiating the Computer Room homes the printout there.
+        GetLocation<ComputerRoom>().FloydHasExpressedConcern = true;
+        Take<ComputerOutput>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.RegisterActor(floyd);
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd looks it over. \"What're all the squiggles?\"");
+
+        var response = await target.GetResponse("show printout to floyd");
+
+        response.Should().Contain("What're all the squiggles"); // LLM default, not the concern line
+        response.Should().NotContain("Computer is broken");
+    }
+
+    [Test]
+    public async Task Show_IdCard_ToFloyd_AsksIfTheyAreUsuallyBlue()
+    {
+        // IdCard extends ItemBase directly (NOT AccessCard) — proves the four "blue" cards must be
+        // enumerated explicitly rather than matched via `is AccessCard`.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<IdCard>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("show id card to floyd");
+
+        response.Should().Contain("usually blue");
+    }
+
+    [Test]
+    public async Task Show_KitchenCard_ToFloyd_AsksIfTheyAreUsuallyBlue()
+    {
+        // KitchenAccessCard IS an AccessCard — proves the enumeration spans both type hierarchies.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<KitchenAccessCard>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("show kitchen card to floyd");
+
+        response.Should().Contain("usually blue");
+    }
+
+    [Test]
+    public async Task Show_ToFloyd_WhenOff_ProducesNoShowReaction()
+    {
+        // The SHOW branches sit behind RespondToMultiNounInteraction's `!IsOn` guard, so showing Floyd
+        // something while he's switched off must not trigger any reaction. (When Floyd isn't in the room
+        // at all, the multi-noun engine never invokes his handler, so that case is covered by routing.)
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<IdCard>();
+        GetItem<Floyd>().IsOn = false;
+
+        var response = await target.GetResponse("show id card to floyd");
+
+        response.Should().NotContain("usually blue");
+    }
+
+    [Test]
+    public async Task Show_ShuttleCard_ToFloyd_AsksIfTheyAreUsuallyBlue()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<ShuttleAccessCard>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("show shuttle card to floyd");
+
+        response.Should().Contain("usually blue");
+    }
+
+    [Test]
+    public async Task Show_UpperElevatorCard_ToFloyd_AsksIfTheyAreUsuallyBlue()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<UpperElevatorAccessCard>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("show upper elevator card to floyd");
+
+        response.Should().Contain("usually blue");
+    }
+
+    [Test]
+    public async Task Show_FloydTheCard_ReverseNounOrder_StillReacts()
+    {
+        // RespondToShow accepts Floyd as either noun ("show x to floyd" / "show floyd the x"). The forward
+        // order is covered by the other tests; this locks in the reverse branch (Floyd as NounOne).
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<IdCard>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+
+        var intent = new MultiNounIntent
+        {
+            Verb = "show",
+            NounOne = "floyd",
+            NounTwo = "id card",
+            Preposition = "",
+            OriginalInput = "show floyd the id card"
+        };
+        var result = await floyd.RespondToMultiNounInteraction(intent, target.Context);
+
+        result.Should().NotBeNull();
+        result!.InteractionMessage.Should().Contain("usually blue");
+    }
+
+    [Test]
+    public async Task Show_ObjectNotHeld_ToFloyd_SaysYouDontHaveIt()
+    {
+        // SHOW requires the item be held (syntax.zil:450 SHOW OBJECT (HAVE) ...). With the object only on
+        // the ground (resolvable but not in inventory), Floyd reports you don't have it — mirroring GIVE.
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        robotShop.ItemPlacedHere(GetItem<Diary>()); // in the room, not the player's inventory
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("show diary to floyd");
+
+        response.Should().Contain("You don't have the");
+    }
+
+    [Test]
+    public async Task Show_LowerElevatorCard_ToFloyd_RecognizesItAndMarksRevealed()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<LowerElevatorAccessCard>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().HasRevealedLowerElevatorCard = false;
+
+        var response = await target.GetResponse("show lower elevator card to floyd");
+
+        response.Should().Contain("just like that");
+        // The lower card IS an AccessCard but must NOT get the "blue" line — guards the enumeration trap.
+        response.Should().NotContain("usually blue");
+        // Shares the revealed flag with the #222 reveal daemon.
+        GetItem<Floyd>().HasRevealedLowerElevatorCard.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task Show_LowerElevatorCard_ToFloyd_WhenAlreadyRevealed_FallsToLlmDefault()
+    {
+        // Already revealed: the one-shot guard means a second show no longer gets the recognition line.
+        // In real play Floyd is a registered turn actor, so the default goes through the LLM path.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<LowerElevatorAccessCard>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasRevealedLowerElevatorCard = true;
+        target.Context.RegisterActor(floyd);
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd peers at it. \"Ooo, shiny card!\"");
+
+        var response = await target.GetResponse("show lower elevator card to floyd");
+
+        response.Should().Contain("Ooo, shiny card"); // LLM default, not the recognition line
+        response.Should().NotContain("just like that");
+    }
+
+    [Test]
+    public async Task Show_OrdinaryObject_ToFloyd_GeneratesLlmReaction()
+    {
+        // Option #6 default is an LLM reaction, not the canned line. Floyd has no IGenerationClient in
+        // RespondToMultiNounInteraction, so the reaction is queued via CommentOnAction and rendered by
+        // Floyd's Act() this turn — which requires Floyd to be a registered turn actor (as he is in real
+        // play once activated; setting IsOn directly in a test does not register him).
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.RegisterActor(floyd);
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd looks it over. \"Ooo, what's this thing do?\"");
+
+        var response = await target.GetResponse("show diary to floyd");
+
+        response.Should().Contain("what's this thing do");
+        response.Should().NotContain("Can you play any games with it"); // no longer the canned line
+    }
+
+    [Test]
+    public async Task Show_OrdinaryObject_ToFloyd_RepeatShow_FallsBackToCannedLine()
+    {
+        // The LLM reaction is queued through CommentOnAction, which fires once per distinct prompt. Showing
+        // Floyd the same object again can't queue a fresh comment, so we fall back to the canned line rather
+        // than returning a blank response.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.RegisterActor(floyd);
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd looks it over. \"Ooo, what's this thing do?\"");
+
+        await target.GetResponse("show diary to floyd");              // first time: LLM reaction
+        var response = await target.GetResponse("show diary to floyd"); // repeat: canned fallback
+
+        response.Should().Contain("Can you play any games with it");
+    }
+
+    [Test]
+    public void ShownAnObjectPrompt_WithBracesInNoun_SurvivesDownstreamStringFormat()
+    {
+        // GenerateCompanionSpeech runs the prompt through string.Format; a shown noun with literal
+        // braces must not throw there (would be a FormatException at runtime) and must survive intact.
+        var prompt = FloydPrompts.ShownAnObject("gizmo {with} braces");
+
+        Action format = () => string.Format(prompt, "Room Name", "room description", "last outputs");
+
+        format.Should().NotThrow();
+        string.Format(prompt, "Room Name", "room description", "last outputs")
+            .Should().Contain("gizmo {with} braces");
+    }
+
+    [Test]
+    public void Show_LowerCard_RevealedFlag_StopsTheDaemonReReveal()
+    {
+        // Coordination with #222: once the lower card is revealed (here, as if shown to Floyd), the
+        // spontaneous reveal daemon must NOT fire again, even on Day 4 where the chance is otherwise 100%.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.Day = 4; // guaranteed reveal window — so the flag is what stops it
+        floyd.HasRevealedLowerElevatorCard = true;
+
+        floyd.OffersLowerElevatorCard(target.Context).Should().BeNull();
+    }
+
+    [Test]
+    public void Daemon_Reveal_SetsTheSharedRevealedFlag()
+    {
+        // The reveal daemon sets the same shared flag, so a later `show lower card to floyd` won't
+        // re-trigger the recognition line.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasRevealedLowerElevatorCard = false;
+        target.Context.Day = 4; // Day > 3 => guaranteed reveal
+
+        var reveal = floyd.OffersLowerElevatorCard(target.Context);
+
+        reveal.Should().NotBeNull();
+        floyd.HasRevealedLowerElevatorCard.Should().BeTrue();
+    }
+
+    // --- #222: lower-card reveal uses a day-keyed escalating chance, not a flat per-turn roll
+    // (based on FLOYD-REVEAL-CARD-F, globals.zil:1440-1455). Day 1 keeps a small non-zero chance (a
+    // deliberate divergence from the original's strict 0%) so the card stays obtainable on Day 1;
+    // the chance escalates on Days 2-3 and is guaranteed after Day 3. Windows: Day 1 = 5%, Day 2 = 10%,
+    // Day 3 = 30%, Day > 3 = 100%. ---
+
+    [Test]
+    public void Daemon_Day1_Reveals_OnLowRoll()
+    {
+        // Day 1 is intentionally still gettable (small chance) — a sufficiently low roll reveals.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.Day = 1;
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(100)).Returns(1); // inside Day 1's small window
+        floyd.Chooser = mockChooser.Object;
+
+        floyd.OffersLowerElevatorCard(target.Context).Should().NotBeNull();
+    }
+
+    [Test]
+    public void Daemon_Day1_DoesNotReveal_OnRollAboveItsWindow()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.Day = 1;
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(100)).Returns(8); // above Day 1's window
+        floyd.Chooser = mockChooser.Object;
+
+        floyd.OffersLowerElevatorCard(target.Context).Should().BeNull();
+    }
+
+    [Test]
+    public void Daemon_Day2_Reveals_OnRollThatWouldMissDay1()
+    {
+        // Same roll (8) that misses on Day 1 lands inside Day 2's larger window — the chance escalates.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.Day = 2;
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(100)).Returns(8); // misses Day 1, within Day 2
+        floyd.Chooser = mockChooser.Object;
+
+        floyd.OffersLowerElevatorCard(target.Context).Should().NotBeNull();
+    }
+
+    [Test]
+    public void Daemon_Day3_Reveals_OnRollThatWouldMissDay2()
+    {
+        // A roll (20) above Day 2's window lands inside Day 3's — escalation continues.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.Day = 3;
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(100)).Returns(20); // above Day 2's window, within Day 3's
+        floyd.Chooser = mockChooser.Object;
+
+        floyd.OffersLowerElevatorCard(target.Context).Should().NotBeNull();
+    }
+
+    [Test]
+    public void Daemon_Day4_AlwaysReveals_EvenOnWorstRoll()
+    {
+        // Day > 3 is guaranteed; even the worst possible roll reveals.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.Day = 4;
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(100)).Returns(100); // would miss every sub-100% window
+        floyd.Chooser = mockChooser.Object;
+
+        floyd.OffersLowerElevatorCard(target.Context).Should().NotBeNull();
     }
 
     #endregion

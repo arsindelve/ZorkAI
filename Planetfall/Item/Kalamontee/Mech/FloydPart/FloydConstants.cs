@@ -82,6 +82,25 @@ public static class FloydConstants
     internal const string ComputerBroken =
         "Floyd examines the glowing light. With a concerned frown, he says, \"Uh oh. Computer is broken. A Doctor-person once told Floyd that Computer is the most important part of the Project.\"";
 
+    // The same concern as ComputerBroken, but the SHOW-printout variant. COMPUTER-ACTION
+    // (comptwo.zil:1514-1524) branches its wording on location: "glowing light" in the Computer Room
+    // (ComputerBroken, used by the room trigger) vs "computer printout" everywhere else — which is where
+    // "show printout to floyd" fires. Reusing ComputerBroken would have Floyd "examine the glowing light"
+    // while you hold a printout in another room, a divergence from the original.
+    internal const string ComputerBrokenFromPrintout =
+        "Floyd examines the computer printout. With a concerned frown, he says, \"Uh oh. Computer is broken. A Doctor-person once told Floyd that Computer is the most important part of the Project.\"";
+
+    internal const string CardsUsuallyBlue =
+        "Floyd scratches his head. \"Aren't those things usually blue?\"";
+
+    internal const string LowerCardJustLikeThat =
+        "\"I've got one just like that!\" says Floyd. He looks through several of his compartments, then glances at you suspiciously.";
+
+    // Default SHOW reaction (FLOYD-F, compone.zil:2044-2047): "Floyd looks over the <x>...". {0} is the
+    // shown item's primary noun, mirroring the give engine's "You don't have the {noun}!" convention.
+    internal const string ShowDefaultFormat =
+        "Floyd looks over the {0}. \"Can you play any games with it?\" he asks.";
+
     internal const string NeedToGetCard =
         """Floyd stands on his tiptoes and peers in the window. "Looks dangerous in there," says Floyd. "I don't think you should go inside." He peers in again. "We'll need card there to fix computer. Hmmm... I know! Floyd will get card. Robots are tough. Nothing can hurt robots. You open the door, then Floyd will rush in. Then you close door. When Floyd knocks, open door again. Okay? Go!" Floyd's voice trembles slightly as he waits for you to open the door.""";
 

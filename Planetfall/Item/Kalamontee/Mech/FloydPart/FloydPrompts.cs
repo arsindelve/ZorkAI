@@ -227,6 +227,23 @@ internal static class FloydPrompts
         "Preface it with 'Floyd takes a step back' or 'Floyd eyes the laser nervously' or something similar, " +
         "and put his comment in quotes. ";
 
+    // Floyd's reaction when the player shows him an ordinary object (the default SHOW branch, replacing
+    // the original's fixed "Can you play any games with it?"). The object name is baked in as plain text;
+    // keep it brace-free so GenerateCompanionSpeech's own string.Format pass is a no-op.
+    public static string ShownAnObject(string objectName)
+    {
+        // GenerateCompanionSpeech runs every prompt through string.Format, so literal braces in the
+        // (runtime) object noun must be doubled or that pass throws FormatException. Every current item
+        // noun is brace-free, but escaping keeps that from being a silent invariant a future noun breaks.
+        var safeName = objectName.Replace("{", "{{").Replace("}", "}}");
+        return $"The player holds up a {safeName} and shows it to you. Give Floyd something short and curious " +
+               "to say about it, in his eager childlike way - he might wonder aloud what it is or what it does, " +
+               "ask whether you can play a game with it, or make an innocent observation. Keep it brief and light, " +
+               "with no effect on the game. " +
+               "Preface it with 'Floyd looks it over' or 'Floyd peers at it' or something similar, " +
+               "and put his comment in quotes. ";
+    }
+
     public static string LibraryComputerFirstUse =>
         "Give Floyd something short and curious to say as you start typing on a library computer terminal. " +
         "Floyd is fascinated by the computer and watches intently as you navigate the menus. " +
