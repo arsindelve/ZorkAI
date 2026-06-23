@@ -57,6 +57,23 @@ internal class AdminCorridor : RiftLocationBase
 
         if (match)
         {
+            // action.Match keys off the player's words, not the ladder's presence/state. Guard on
+            // the ladder's actual state, mirroring the ZIL LADDER-FCN ordering
+            // (planetfall-source/compone.zil:697-712), or we narrate against a ladder that
+            // isn't here (issue #297).
+
+            // Already spans the rift — checked first, as the ZIL does (LADDER-FLAG branch). Don't
+            // re-narrate success or re-add the instance (Divergence B).
+            if (ladder.IsAcrossRift)
+                return new PositiveInteractionResult("The ladder already spans the rift. ");
+
+            // The ladder must actually be in scope to bridge the rift: here in the corridor or
+            // carried. If it plunged into the rift (Divergence A) or was simply left in another
+            // room, the original's parser can't resolve "ladder" to run its action routine at all,
+            // so let normal routing answer instead of narrating against a ladder that isn't here.
+            if (!ladder.IsHereButNotInInventory(context) && !context.HasItem<Ladder>())
+                return await base.RespondToMultiNounInteraction(action, context);
+
             if (!ladder.IsExtended)
             {
                 ladder.CurrentLocation?.Items.Remove(ladder);
@@ -66,7 +83,7 @@ internal class AdminCorridor : RiftLocationBase
             }
 
             ladder.IsAcrossRift = true;
-            // Like the Zork kitchen window, the ladder exists in both places now. 
+            // Like the Zork kitchen window, the ladder exists in both places now.
             GetLocation<AdminCorridorNorth>().Items.Add(ladder);
             return new PositiveInteractionResult(
                 "The ladder swings out across the rift and comes to rest on the far edge, spanning the precipice. ");

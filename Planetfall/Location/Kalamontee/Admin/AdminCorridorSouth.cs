@@ -43,7 +43,8 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
         return
             "This section of hallway seems to have suffered some minor structural damage. The walls are cracked, and " +
             "a jagged crevice crosses the floor. An opening leads east and the corridor heads north and south. " +
-            (HasSeenTheLight ? "Lying at the bottom of a narrow crevice is a shiny object. " : "");
+            // Only show the hint while the key is still in the crevice; suppress once retrieved.
+            (HasSeenTheLight && !HasTakenTheKey ? "Lying at the bottom of a narrow crevice is a shiny object. " : "");
     }
 
     public override void Init()
@@ -144,15 +145,25 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (action.MatchNoun(["floor", "ground"]))
-            return new PositiveInteractionResult("A narrow, jagged crevice runs across the floor. ");
+            return new PositiveInteractionResult("A narrow, jagged crevice crosses the floor. ");
 
         if (action.MatchNoun(["crevice", "crack", "hole", "light"]))
         {
+            if (HasTakenTheKey)
+                return new PositiveInteractionResult("A narrow, jagged crevice crosses the floor. ");
+
             HasSeenTheLight = true;
             return new PositiveInteractionResult(
                 "Lying at the bottom of the narrow crack, partly covered by layers of dust, is a shiny steel key! ");
         }
 
-        return new PositiveInteractionResult("A narrow, jagged crevice runs across the floor. ");
+        // Key is in the room's Items list from Init(), so base would find it and expose it early.
+        // Guard all of Key's synonyms (key/steel key/shiny object/shiny thing) until discovered.
+        if (!HasSeenTheLight && !HasTakenTheKey &&
+            action.MatchNounAndAdjective(Repository.GetItem<Key>().NounsForMatching))
+            return new PositiveInteractionResult("You don't see any key here. ");
+
+        // Not a crevice-specific noun — let normal item/examine routing handle it.
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }
