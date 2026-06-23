@@ -34,6 +34,10 @@ walkthrough tests already use, so states are reproducible without hand-built moc
 
 ## Coverage matrix (target fixtures)
 
+**Section letters are stable handles, shared across both games:** A localization · B blocker ·
+C branch · D laddering · E soft-lock · F grounding · G navigation. Game-specific categories get their
+own letter (here **S** = survival-clock hints, Planetfall-only).
+
 ### A. Localization — "where am I?"
 One fixture per DAG node: drive to that node's state, assert `localizedNode`. ~25 fixtures (one
 per node in [01](01-puzzle-dag.md)). Catches the core failure mode: misplacing the player.
@@ -61,7 +65,7 @@ per node in [01](01-puzzle-dag.md)). Catches the core failure mode: misplacing t
 - Floyd destroyed early + `MINI_CARD` unobtained → `softlock: hard`, hint = "restore."
 - Good bedistor lost → `softlock: best-ending-only`, hint distinguishes "can still win."
 
-### Ev. Survival-clock hints (sleep / eat / sickness)
+### S. Survival-clock hints (Planetfall-specific — sleep / eat / sickness)
 - Player with `Tired` near forced sleep → `category: survival`, hint points at finding a bunk;
   must **not** be derailed into a puzzle hint.
 - Player with `Hunger` escalating → survival hint points at food/water; ladders to where/how.

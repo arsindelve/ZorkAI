@@ -7,7 +7,9 @@ selection), keyword-only on hint text. This doc lists only what's Zork-specific.
 
 ## What changes vs Planetfall
 
-The open treasure-hunt shape means the eval emphasis shifts:
+The open treasure-hunt shape means the eval emphasis shifts. **Section letters match the shared
+scheme** (A localization · B blocker · C branch · D laddering · E soft-lock · F grounding ·
+G navigation) so the same letter means the same thing in both games:
 
 ### A. Localization — "where am I / what have I got?"
 - Per treasure, drive to each of `{unfound, held, deposited}` and assert the engine reports the right
@@ -26,7 +28,14 @@ The open treasure-hunt shape means the eval emphasis shifts:
 - Treasures are independent: a hint toward Treasure A must not imply B is a prerequisite unless it
   genuinely is (shared gate). Assert no false prerequisite coupling between unrelated chains.
 
-### Ev. Soft-lock — Zork's signature cases ([03](03-softlock.md))
+### D. Laddering / progressive disclosure
+Same shared assertions as Planetfall ([../planetfall/04-eval.md](../planetfall/04-eval.md) §D):
+vaguest rung first, `more` advances exactly one rung, never leak the next rung's noun, no re-hinting
+a deposited treasure. **Gated on the Zork hint-content source** (master plan open-decision #3) — until
+an invisiclues-equivalent ladder exists, Zork can only assert the two-level "nudge vs answer" degrade,
+not a full progression.
+
+### E. Soft-lock — Zork's signature cases ([03](03-softlock.md))
 - **Egg about to be force-opened** (player holds egg + issues open/pry) → **preventive** warning
   *before* the action; `softlock: best-score-only`.
 - **Egg already destroyed** (`Egg.IsDestroyed`) → hint acknowledges score is capped, does **not** say
@@ -44,7 +53,7 @@ The open treasure-hunt shape means the eval emphasis shifts:
 
 ## Build order
 
-Author **A (treasure three-state localization)** and **Ev #1 (the egg)** first — they pin the two
+Author **A (treasure three-state localization)** and **E #1 (the egg)** first — they pin the two
 things most particular to Zork: the held-vs-deposited distinction, and the franchise's signature
 soft-lock. Both are confirmable directly from in-repo code (`TrophyCase`, `Egg.IsDestroyed`).
 
