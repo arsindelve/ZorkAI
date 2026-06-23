@@ -132,16 +132,21 @@ internal class SimpleInteractionEngine(IItemProcessorFactory itemProcessorFactor
         if (string.IsNullOrEmpty(noun))
             return string.Empty;
 
+        // We only get here because the noun already matched an object present in scope (that match is
+        // what produced the NoVerbMatch), so we MUST narrate the no-effect interaction rather than
+        // returning a blank line. Re-resolving with GetItemInScope can still come back null for an
+        // object that is present yet whose CurrentLocation points at a different room: the escape-pod
+        // BulkheadDoor is a single shared instance seeded into both Deck Nine and the Escape Pod, and
+        // its CurrentLocation is the pod even while you stand on Deck Nine, so the accessibility check
+        // rejects it. Before, that null short-circuited to "" and "push/kick/shake the bulkhead"
+        // printed a blank line (issue #282). The resolved item is only needed to pick the
+        // person-specific prompt; when it is null we fall back to the generic "verb has no effect"
+        // narration.
         IItem? item = Repository.GetItemInScope(noun, context);
-        if (item is null)
-            return string.Empty;
 
-        Request request;
-
-        if (item is not IAmANamedPerson)
-            request = new VerbHasNoEffectOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), noun, verb);
-        else
-            request = new VerbHasNoEffectOnAPersonOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), noun, verb, item.GenericDescription(context.CurrentLocation));
+        Request request = item is IAmANamedPerson
+            ? new VerbHasNoEffectOnAPersonOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), noun, verb, item.GenericDescription(context.CurrentLocation))
+            : new VerbHasNoEffectOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), noun, verb);
 
         var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum) + Environment.NewLine;
         return result;
