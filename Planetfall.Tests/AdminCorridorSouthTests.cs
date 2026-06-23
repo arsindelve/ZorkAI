@@ -104,9 +104,23 @@ public class AdminCorridorSouthTests : EngineTestsBase
         Context.HasItem<Key>().Should().BeTrue();
     }
 
-    // Issue #291: catch-all at line 120 returned crevice description for every examined noun
+    // Room description must not mention the shiny object once the key is no longer in the crevice.
+    // GetContextBasedDescription must gate on !HasTakenTheKey, not just HasSeenTheLight.
     [Test]
-    public async Task ExamineChronometer_InAdminCorridorSouth_ReturnsChrometerDescription()
+    public async Task Look_AfterKeyTaken_DoesNotShowShinyObjectHint()
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+        GetLocation<AdminCorridorSouth>().HasSeenTheLight = true;
+        GetLocation<AdminCorridorSouth>().HasTakenTheKey = true;
+
+        var response = await target.GetResponse("look");
+
+        response.Should().NotContain("shiny object");
+    }
+
+    [Test]
+    public async Task ExamineChronometer_InAdminCorridorSouth_ReturnsChronometerDescription()
     {
         var target = GetTarget();
         StartHere<AdminCorridorSouth>();

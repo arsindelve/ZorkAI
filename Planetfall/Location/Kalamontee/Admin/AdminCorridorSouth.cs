@@ -43,7 +43,8 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
         return
             "This section of hallway seems to have suffered some minor structural damage. The walls are cracked, and " +
             "a jagged crevice crosses the floor. An opening leads east and the corridor heads north and south. " +
-            (HasSeenTheLight ? "Lying at the bottom of a narrow crevice is a shiny object. " : "");
+            // Only show the hint while the key is still in the crevice; suppress once retrieved.
+            (HasSeenTheLight && !HasTakenTheKey ? "Lying at the bottom of a narrow crevice is a shiny object. " : "");
     }
 
     public override void Init()
@@ -108,7 +109,7 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (action.MatchNoun(["floor", "ground"]))
-            return new PositiveInteractionResult("A narrow, jagged crevice runs across the floor. ");
+            return new PositiveInteractionResult("A narrow, jagged crevice crosses the floor. ");
 
         if (action.MatchNoun(["crevice", "crack", "light"]))
         {
