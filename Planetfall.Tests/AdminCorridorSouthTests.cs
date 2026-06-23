@@ -223,4 +223,66 @@ public class AdminCorridorSouthTests : EngineTestsBase
         response.Should().Contain("steel key");
         Context.HasItem<Key>().Should().BeTrue();
     }
+
+    // "drop" only solves when the magnet goes INTO the crack. Dropping it on the floor is a plain
+    // drop, not a solve — otherwise the handler would swallow the bar and (once the key is taken)
+    // answer "Nothing interesting happens" instead of letting the magnet hit the floor.
+    [Test]
+    public async Task DropMagnetOnFloor_DoesNotSolvePuzzle()
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+        Take<Magnet>();
+
+        var response = await target.GetResponse("drop magnet on floor");
+
+        response.Should().NotContain("steel key");
+        Context.HasItem<Key>().Should().BeFalse();
+        GetLocation<AdminCorridorSouth>().HasTakenTheKey.Should().BeFalse();
+    }
+
+    // Framing A matches the key's own nouns, not the crack/floor synonyms, so a nonsense
+    // "lift floor with magnet" no longer counts as retrieving the key.
+    [Test]
+    public async Task LiftFloorWithMagnet_DoesNotSolvePuzzle()
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+        Take<Magnet>();
+
+        var response = await target.GetResponse("lift floor with magnet");
+
+        response.Should().NotContain("steel key");
+        Context.HasItem<Key>().Should().BeFalse();
+        GetLocation<AdminCorridorSouth>().HasTakenTheKey.Should().BeFalse();
+    }
+
+    // Framing A still accepts the key's synonyms ("shiny object"), not only the literal word "key".
+    [Test]
+    public async Task GetShinyObjectWithMagnet_RetrievesKey()
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+        Take<Magnet>();
+
+        var response = await target.GetResponse("get shiny object with magnet");
+
+        response.Should().Contain("a piece of metal leaps from the crevice");
+        response.Should().Contain("steel key");
+        Context.HasItem<Key>().Should().BeTrue();
+    }
+
+    // "hole" is one of the crevice's ZIL synonyms, so examining it reveals the key just like
+    // "examine crevice" / "examine crack" do.
+    [Test]
+    public async Task ExamineHole_RevealsKey()
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+
+        var response = await target.GetResponse("examine hole");
+
+        response.Should().Contain("steel key");
+        GetLocation<AdminCorridorSouth>().HasSeenTheLight.Should().BeTrue();
+    }
 }

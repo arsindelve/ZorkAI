@@ -64,6 +64,7 @@
     { "inputs": ["turn off lantern"], "verb": "turn", "noun": "lamp", "adverb": "off", "originalInput": "turn the lamp on" },
 
     { "inputs": ["examine crack"], "verb": "examine", "noun": "crack", "originalInput": "examine crack" },
+    { "inputs": ["examine hole"], "verb": "examine", "noun": "hole", "originalInput": "examine hole" },
     { "inputs": ["look through crack"], "verb": "look", "noun": "crack", "originalInput": "look through crack" },
     { "inputs": ["look through window"], "verb": "look", "noun": "window", "originalInput": "look through window" },
     { "inputs": ["examine equipment"], "verb": "examine", "noun": "equipment", "originalInput": "examine equipment" },
@@ -151,6 +152,9 @@
     { "inputs": ["put magnet in hole"], "verb": "put", "nounOne": "magnet", "nounTwo": "hole", "preposition": "in", "originalInput": "put magnet in hole" },
     { "inputs": ["lower magnet into crevice"], "verb": "lower", "nounOne": "magnet", "nounTwo": "crevice", "preposition": "into", "originalInput": "lower magnet into crevice" },
     { "inputs": ["drop magnet in crevice"], "verb": "drop", "nounOne": "magnet", "nounTwo": "crevice", "preposition": "in", "originalInput": "drop magnet in crevice" },
+    { "inputs": ["drop magnet on floor"], "verb": "drop", "nounOne": "magnet", "nounTwo": "floor", "preposition": "on", "originalInput": "drop magnet on floor" },
+    { "inputs": ["lift floor with magnet"], "verb": "lift", "nounOne": "floor", "nounTwo": "magnet", "preposition": "with", "originalInput": "lift floor with magnet" },
+    { "inputs": ["get shiny object with magnet"], "verb": "get", "nounOne": "shiny object", "nounTwo": "magnet", "preposition": "with", "originalInput": "get shiny object with magnet" },
     { "inputs": ["use ladder on rift"], "verb": "use", "nounOne": "ladder", "nounTwo": "rift", "preposition": "on", "originalInput": "use ladder on rift" },
     { "inputs": ["use ladder on chasm"], "verb": "use", "nounOne": "ladder", "nounTwo": "chasm", "preposition": "on", "originalInput": "use ladder on chasm" },
 

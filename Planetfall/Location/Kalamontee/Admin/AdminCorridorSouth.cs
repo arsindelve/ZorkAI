@@ -83,12 +83,17 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
 
         // Framing B — the magnet is the subject, lowered toward or into the crack. The original
         // only accepted put/place/hold + on/over/beside/next to, so the natural "lower it INTO the
-        // crack" phrasings ("put magnet in crevice", "lower magnet into crack", "drop magnet in
-        // hole") all fell through to the AI narrator. Widen the verbs and prepositions (issue #298).
+        // crack" phrasings ("put magnet in crevice", "lower magnet into crack") all fell through to
+        // the AI narrator. Widen the verbs and prepositions (issue #298).
         var match = action.Match(
-            ["put", "place", "hold", "lower", "dangle", "dip", "stick", "insert", "drop"],
+            ["put", "place", "hold", "lower", "dangle", "dip", "stick", "insert"],
             magnetNouns, crackNouns,
             ["on", "over", "beside", "next to", "in", "into", "down", "down into"]);
+
+        // "drop" only solves when the magnet is lowered INTO the crack ("drop magnet in crevice").
+        // A bare "drop magnet on the floor" is a player setting the bar down, not fishing for the
+        // key, so keep it off the on/over/beside list above.
+        match |= action.Match(["drop"], magnetNouns, crackNouns, ["in", "into", "down", "down into"]);
 
         // Also support "use magnet on crevice/key/floor"
         match |= action.Match(["use"], magnetNouns, crackNouns, ["on"]);
@@ -98,7 +103,9 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
         // PRSI = MAGNET). The port never wired it up, so "get key with magnet" fell through to the
         // AI narrator, which improvised a refusal calling the steel key "non-magnetic" — directly
         // contradicting the success text. Route the key-as-object framing to the same solve (#298).
-        string[] keyNouns = [..crackNouns, ..Repository.GetItem<Key>().NounsForMatching];
+        // Match only the key's own nouns here, not the crack/floor synonyms: you retrieve the key
+        // "with" the magnet, you don't "lift the floor with" it.
+        var keyNouns = Repository.GetItem<Key>().NounsForMatching;
         match |= action.Match(
             ["get", "take", "grab", "pick up", "retrieve", "lift", "fish", "pull", "attract",
                 "remove", "snag", "hook", "fetch", "extract"],
@@ -131,7 +138,7 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
         if (action.MatchNoun(["floor", "ground"]))
             return new PositiveInteractionResult("A narrow, jagged crevice runs across the floor. ");
 
-        if (action.MatchNoun(["crevice", "crack", "light"]))
+        if (action.MatchNoun(["crevice", "crack", "hole", "light"]))
         {
             HasSeenTheLight = true;
             return new PositiveInteractionResult(
