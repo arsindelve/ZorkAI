@@ -39,7 +39,9 @@ default failure mode.
 | "Ladder me a vague→specific hint / why does this work / is X a red herring?" | **Invisiclues** — authored as A/B/C progressive hints; covers exploratory & negative questions |
 
 The walkthrough tests (`Planetfall.Tests/Walkthrough/*.cs`, `ZorkOne.Tests/Walkthrough/*.cs`) are
-`(command, item, expected-response)` triples that pass CI against the actual engine — they
+`[TestCase]` rows feeding a helper `Walkthrough(string input, string? setup, params string[]
+expectedResponses)` — i.e. `(input command, optional god-mode setup, one-or-more expected response
+substrings)`, run in order, each asserted against the actual engine — so they
 **cannot be wrong for this port**, unlike the invisiclues (which describe the original 1980s
 games and can diverge from our C# behavior). The walkthrough is the backbone; the **invisiclues
 remain the laddering layer for both games** (and for Planetfall's survival hints — see §5).

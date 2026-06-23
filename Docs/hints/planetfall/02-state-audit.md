@@ -84,9 +84,10 @@ Then:
 
 ## Gaps / things to confirm before Stage 3
 
-1. **A canonical flag per ★ system.** ✅ Located: `SystemsMonitors.{CommunicationsFixed,
-   CourseControlFixed, PlanetaryDefenseFixed}`. Still to name: the **computer-fix / cure** flag
-   (the mandatory spine) — find its readable boolean.
+1. **A canonical flag per ★ system + the cure.** ✅ Located: `SystemsMonitors.{CommunicationsFixed,
+   CourseControlFixed, PlanetaryDefenseFixed}` for the three ★ systems, and the mandatory cure
+   (the `COMPUTER_FIX` spine) is signalled by **`Relay.SpeckDestroyed`** (`Planetfall/Item/Computer/Relay.cs`)
+   — destroying the speck/microbe is the cure. Confirm `SpeckDestroyed` is the right read for "cure done."
 2. **Floyd liveness flag** for soft-lock detection (he must be alive until `BIOLOCK`).
 3. **Card location vs possession** — distinguish "card still in desk" / "held" / "dropped in an
    inaccessible room" (matters for soft-lock and re-hint suppression).
