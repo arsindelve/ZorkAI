@@ -19,7 +19,11 @@ public class InStream : DarkLocation
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            // ZIL IN-STREAM: DOWN and EAST both flow back into the Reservoir.
+            // ZIL IN-STREAM: DOWN and EAST both flow back into the Reservoir. These are deliberately
+            // left unguarded — unlike ReservoirSouth's North exit, which has a "you would drown" check.
+            // The ZIL puts the drown daemon on RESERVOIR alone, and the Stream is only reachable
+            // *through* an already-drained Reservoir (the gate controls live at the Dam, so it can't
+            // refill while the player is up here). Per issue #210: "InStream needs no drowning logic."
             { Direction.Down, new MovementParameters { Location = GetLocation<Reservoir>() } },
             { Direction.E, new MovementParameters { Location = GetLocation<Reservoir>() } },
             {
