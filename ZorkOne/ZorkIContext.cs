@@ -3,6 +3,7 @@ using Model.Interface;
 using Model.Location;
 using Newtonsoft.Json;
 using ZorkOne.Command;
+using ZorkOne.Location;
 
 namespace ZorkOne;
 
@@ -19,6 +20,21 @@ public class ZorkIContext : Context<ZorkI>
     ///     The Death Counter keeps track of the number of times the player character has died.
     /// </remarks>
     public int DeathCounter { get; set; }
+
+    /// <summary>
+    ///     True once the player has died "as a spirit" — i.e. after visiting the altar, death turns them
+    ///     into a ghost at the Entrance to Hades instead of reincarnating them in the forest. While a
+    ///     spirit, most verbs are overridden (see <see cref="SpiritProcessor" />) and the player is
+    ///     always-lit; resurrection comes from praying at the altar. (Original ZIL: the DEAD flag.)
+    /// </summary>
+    public bool IsDead { get; set; }
+
+    /// <summary>
+    ///     Has the player ever entered the altar room (South Temple)? This is the trigger for the
+    ///     spirit-death mechanic. No new flag is needed — every location already tracks how many times
+    ///     it has been visited, so a non-zero visit count means "touched" (issue #17).
+    /// </summary>
+    public bool HasVisitedAltar => Repository.GetLocation<Altar>().VisitCount > 0;
 
     /// <summary>
     ///     Source of randomness for the grue. Mockable so darkness deaths are deterministic in tests.
@@ -111,5 +127,22 @@ public class ZorkIContext : Context<ZorkI>
     public override bool HaveRoomForItem(IItem item)
     {
         return CalculateTotalSize() < 21;
+    }
+
+    /// <summary>
+    ///     While a spirit, the dungeon "seems dimly illuminated" — the player needs no light source.
+    ///     Overriding this keeps a dead player from being eaten by a grue as they wander dark rooms
+    ///     back toward the altar (original ZIL: ALWAYS-LIT is set when DEAD). See issue #17.
+    /// </summary>
+    public override bool ItIsDarkHere => !IsDead && base.ItIsDarkHere;
+
+    /// <summary>
+    ///     While a spirit, route the raw command through the <see cref="SpiritProcessor" /> (the
+    ///     DEAD-FUNCTION equivalent). It overrides most verbs and handles resurrection; it returns null
+    ///     for movement so the player can still walk back to the altar (issue #17).
+    /// </summary>
+    public override string? InterceptPlayerCommand(string? input)
+    {
+        return IsDead ? new SpiritProcessor().Process(input, this) : null;
     }
 }
