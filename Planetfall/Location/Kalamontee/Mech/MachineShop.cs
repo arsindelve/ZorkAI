@@ -9,6 +9,9 @@ internal class MachineShop : LocationWithNoStartingItems
 {
     public override string Name => "Machine Shop";
 
+    // "workshop" lives only here, not on the Tool Room / Robot Shop next door. All three are exits of
+    // Mech Corridor South, so a shared "workshop" alias produced a dead 3-way "which one?" that could
+    // never move (issue #268 review). Keeping it on the actual machine shop resolves to a single hop.
     public override string[] NounsForMatching => ["workshop"];
 
     [UsedImplicitly] public bool FlaskUnderSpout { get; set; }

@@ -7,6 +7,7 @@ using Model.Interface;
 using Moq;
 using ZorkOne.Item;
 using ZorkOne.Location;
+using ZorkOne.Location.MazeLocation;
 
 namespace ZorkOne.Tests;
 
@@ -71,6 +72,45 @@ public class DestinationNavigationTests : EngineTestsBase
             var matches = DestinationNavigation.ResolveAllAdjacent("reactor", target.Context);
 
             matches.Should().BeEmpty();
+        }
+
+        [Test]
+        public void ResolveAllAdjacent_OnTheReservoir_DoesNotForkOnLake()
+        {
+            // Issue #268 review: "lake" was a synonym on all three reservoir rooms, so standing on the
+            // central Reservoir (which forks N->Reservoir North and S->Reservoir South, both aliased
+            // "lake") it asked "which one?". "lake" now lives only on the central Reservoir — the actual
+            // lake bed — so there is nothing left to disambiguate from the bed itself.
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<Reservoir>();
+
+            DestinationNavigation.ResolveAllAdjacent("lake", target.Context).Should().BeEmpty();
+        }
+
+        [Test]
+        public void ResolveAllAdjacent_FromAReservoirShore_StillReachesTheLakeBed()
+        {
+            // Guard the useful direction: from a shore the only "lake" neighbour is the central
+            // Reservoir, so "go to the lake" still resolves to a single hop there.
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<ReservoirNorth>();
+
+            var matches = DestinationNavigation.ResolveAllAdjacent("lake", target.Context);
+
+            matches.Should().ContainSingle();
+            matches[0].Room.Should().BeOfType<Reservoir>();
+        }
+
+        [Test]
+        public void ResolveAllAdjacent_InTheMaze_RefusesToNavigateByName()
+        {
+            // Regression guard on real maze rooms (the synthetic FakeRoom case lives in UnitTests):
+            // every maze room neighbours 2+ rooms all named "Maze", so the name-uniqueness filter drops
+            // them all — the maze stays a place you grope through, not one you can name your way across.
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<MazeFour>();
+
+            DestinationNavigation.ResolveAllAdjacent("maze", target.Context).Should().BeEmpty();
         }
     }
 

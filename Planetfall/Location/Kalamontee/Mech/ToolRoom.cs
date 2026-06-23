@@ -7,7 +7,9 @@ internal class ToolRoom : LocationBase
 {
     public override string Name => "Tool Room";
 
-    public override string[] NounsForMatching => ["toolroom", "workshop"];
+    // No "workshop" alias here: it is shared with two sibling shops off Mech Corridor South and only
+    // created a dead 3-way "which one?" (issue #268 review). "toolroom" stays — it is unique to here.
+    public override string[] NounsForMatching => ["toolroom"];
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {

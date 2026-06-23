@@ -2,11 +2,9 @@ using GameEngine.Location;
 
 namespace Planetfall.Location.Kalamontee.Dorm;
 
-internal class SanfacA : LocationWithNoStartingItems
+internal class SanfacA : SanfacBase
 {
     public override string Name => "Sanfac A";
-
-    public override string[] NounsForMatching => ["bathroom", "restroom", "washroom", "toilet"];
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {

@@ -108,12 +108,12 @@ internal static class DestinationNavigation
         // by name and a "the Maze or the Maze?" prompt would be nonsense — these wander-areas must not
         // be navigable by name. A uniquely-named match (e.g. entering the maze from a named entrance)
         // still resolves. This is what keeps destination navigation from making mazes WORSE.
-        var nameCounts = chosen
-            .GroupBy(m => Normalize(m.Room.Name))
-            .ToDictionary(g => g.Key, g => g.Count());
-
+        // Group by the normalized name once (rather than normalizing each name twice — once to count,
+        // once to filter); keep only the groups holding a single room.
         return chosen
-            .Where(m => nameCounts[Normalize(m.Room.Name)] == 1)
+            .GroupBy(m => Normalize(m.Room.Name))
+            .Where(g => g.Count() == 1)
+            .SelectMany(g => g)
             .Select(m => (m.Direction, m.Room))
             .ToList();
     }

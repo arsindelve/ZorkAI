@@ -2,11 +2,9 @@ using GameEngine.Location;
 
 namespace Planetfall.Location.Lawanda;
 
-internal class SanfacF : LocationWithNoStartingItems
+internal class SanfacF : SanfacBase
 {
     public override string Name => "Sanfac F";
-
-    public override string[] NounsForMatching => ["bathroom", "restroom", "washroom", "toilet"];
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {

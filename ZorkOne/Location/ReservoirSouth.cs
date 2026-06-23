@@ -21,7 +21,9 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
 
     public override string Name => "Reservoir South";
 
-    public override string[] NounsForMatching => ["lake"];
+    // No "lake" alias here: it is shared with the central Reservoir and Reservoir North, and from the
+    // central bed it produced a "which shore?" prompt (issue #268 review). "go to the lake" from this
+    // shore still reaches the central lake bed, which keeps the alias.
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {

@@ -4,6 +4,7 @@ using GameEngine.IntentEngine;
 using NUnit.Framework;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Location.Kalamontee;
+using Planetfall.Location.Kalamontee.Mech;
 using Planetfall.Location.Shuttle;
 
 namespace Planetfall.Tests;
@@ -43,6 +44,21 @@ public class DestinationNavigationTests : EngineTestsBase
             disambiguation.InteractionMessage.Should().Contain("Which do you mean");
             disambiguation.InteractionMessage.Should().Contain("Upper Elevator");
             disambiguation.InteractionMessage.Should().Contain("Lower Elevator");
+        }
+
+        [Test]
+        public void ResolveAllAdjacent_WorkshopFromMechCorridorSouth_ResolvesToTheMachineShopOnly()
+        {
+            // Issue #268 review: "workshop" had been added to all three Mech shops, so from the corridor
+            // that exits to all three it produced a dead 3-way "which one?" that could never move. The
+            // alias now names only the Machine Shop (the actual workshop), resolving to a single hop.
+            var target = GetTarget();
+            StartHere<MechCorridorSouth>();
+
+            var matches = DestinationNavigation.ResolveAllAdjacent("workshop", target.Context);
+
+            matches.Should().ContainSingle();
+            matches[0].Room.Should().BeOfType<MachineShop>();
         }
 
         [Test]
