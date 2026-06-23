@@ -13,6 +13,11 @@ namespace GameEngine.IntentEngine;
 /// pathfind, walk multiple rooms, or index rooms the player hasn't seen — you can only name a
 /// neighbour, which inherently can't leak the map and lets first-time entry (e.g. "enter the kitchen"
 /// from Behind House) work.
+///
+/// Matching is on whole WORDS of the room's name (plus any opt-in synonyms), so the player can use a
+/// natural short form — "enter the shuttle" -> "Shuttle Car Betty", "go to the office" -> "Brig
+/// Office" — rather than the exact room title. A name that resolves to two+ neighbours asks "which
+/// one?".
 /// </summary>
 internal static class DestinationNavigation
 {
@@ -81,46 +86,63 @@ internal static class DestinationNavigation
             if (room is null)
                 continue;
 
-            if (room.NounsForMatching.Any(n => Normalize(n).Equals(target)))
+            if (NameMatches(room, target))
                 matches.Add((dir, room, movement!.CanGo(context)));
         }
 
-        return matches
+        var deduped = matches
             .GroupBy(m => m.Room)
             .Select(g => g.OrderByDescending(m => m.CanGo).First())
+            .ToList();
+
+        // Prefer rooms we can actually reach right now. Only offer a gated match (a closed door, or an
+        // absent shuttle car whose exit is still on the map) when NOTHING currently matching is
+        // passable — that lone gated match then lets MoveEngine surface its specific failure ("The
+        // kitchen window is closed.") instead of pretending the room isn't there, while a present
+        // neighbour is never drowned out by an absent one.
+        var passable = deduped.Where(m => m.CanGo).ToList();
+        return (passable.Count > 0 ? passable : deduped)
             .Select(m => (m.Direction, m.Room))
             .ToList();
     }
 
     /// <summary>
     /// Builds the engine's existing "which one?" disambiguation when a name matches more than one
-    /// adjacent room (e.g. "enter elevator" in the Elevator Lobby). Reply keys are each room's
-    /// DISTINGUISHING synonyms (those not shared across the matched rooms) plus its name; the
-    /// replacement re-issues "go to the &lt;canonical&gt;" so the follow-up resolves to exactly one room.
+    /// adjacent room (e.g. "enter the shuttle" when both cars are at the platform, or "enter elevator"
+    /// in the Elevator Lobby). Reply keys are each room's DISTINGUISHING words ("betty", "upper") plus
+    /// any non-shared synonyms; the replacement re-issues "go to the &lt;full name&gt;" so the follow-up
+    /// resolves to exactly one room.
     /// </summary>
     public static DisambiguationInteractionResult BuildDisambiguation(
         IReadOnlyList<(Direction Direction, ILocation Room)> matches)
     {
-        // A synonym is "shared" (and so must never be a reply key) when it belongs to more than one of
-        // the matched ROOMS. We Distinct() each room's nouns first so a synonym a single room happens
-        // to list twice (e.g. "dome" and "the dome" both normalizing to "dome") is not mistaken for
-        // shared and stripped from that room's distinguishing keys.
-        var shared = matches
-            .SelectMany(m => m.Room.NounsForMatching.Select(Normalize).Distinct())
-            .GroupBy(s => s)
+        var wordsByRoom = matches.Select(m => (m.Room, Words: WordsOf(m.Room))).ToList();
+
+        // A word shared by 2+ matched rooms ("shuttle", "car", "elevator") can't tell them apart, so it
+        // must never be a reply key. Counting DISTINCT rooms (WordsOf is already per-room distinct)
+        // means a word a single room merely repeats isn't mistaken for shared.
+        var shared = wordsByRoom
+            .SelectMany(r => r.Words)
+            .GroupBy(w => w)
             .Where(g => g.Count() > 1)
             .Select(g => g.Key)
             .ToHashSet();
 
         var responses = new Dictionary<string, string>();
-        foreach (var (_, room) in matches)
+        foreach (var (room, words) in wordsByRoom)
         {
-            var distinguishing = room.NounsForMatching.Where(n => !shared.Contains(Normalize(n))).ToList();
-            // The canonical re-resolves to THIS room only (it is a non-shared synonym), so the
-            // re-issued "go to the {canonical}" lands on a single match.
-            var canonical = distinguishing.FirstOrDefault() ?? room.Name;
-            foreach (var key in distinguishing.Append(room.Name))
-                responses[Normalize(key)] = canonical;
+            // Re-issue the FULL, unambiguous room name; "go to the <name>" then resolves to exactly
+            // this room.
+            var canonical = Normalize(room.Name);
+
+            // Reply keys: the room's distinguishing words, plus any of its synonyms that aren't
+            // themselves a shared word, plus its full name.
+            var keys = words.Where(w => !shared.Contains(w))
+                .Concat(Terms(room).Select(Normalize).Where(t => !shared.Contains(t)))
+                .Append(canonical);
+
+            foreach (var key in keys)
+                responses[key] = canonical;
         }
 
         var message = "Which do you mean, " +
@@ -128,6 +150,22 @@ internal static class DestinationNavigation
 
         return new DisambiguationInteractionResult(message, responses, "go to the {0}");
     }
+
+    // Everything a player may call this room: its display name plus any opt-in synonyms. Overrides of
+    // ILocation.NounsForMatching ADD aliases (a colour, "kitchen" for a room titled "Mess Hall"); they
+    // never have to repeat the name, since the name's own words already match.
+    private static IEnumerable<string> Terms(ILocation room) => room.NounsForMatching.Prepend(room.Name);
+
+    // True when `target` appears as a whole-word phrase within one of the room's terms, so "shuttle"
+    // matches "Shuttle Car Betty" and "office" matches "Brig Office". Exact equality is the degenerate
+    // case (the padded form makes " office " contain " office ").
+    private static bool NameMatches(ILocation room, string target) =>
+        Terms(room).Any(t => $" {Normalize(t)} ".Contains($" {target} "));
+
+    private static HashSet<string> WordsOf(ILocation room) =>
+        Terms(room)
+            .SelectMany(t => Normalize(t).Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .ToHashSet();
 
     private static string Normalize(string s)
     {

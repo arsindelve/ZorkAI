@@ -35,7 +35,7 @@ public static class ParsingHelper
 
         1. Tell me in <intent> tags if:
             a) If the player is expressing a desire to move, go, or travel in a cardinal or relative DIRECTION (e.g. north, south, up, down, in, out), put "move"
-            b) If the player wants to travel to a SPECIFIC NAMED place or room rather than a direction (e.g. "go to the kitchen", "walk to the maintenance room", "head to the reactor", "enter the dome room"), put "goto", and wrap the destination's name in <noun> tags
+            b) If the player wants to travel to a SPECIFIC NAMED place or room rather than a direction (e.g. "go to the kitchen", "walk into the shuttle", "head to the reactor", "enter the mess"), put "goto". In the <noun> tags, put the destination, NORMALIZING a colloquial or slang place-name to the common room noun it refers to (e.g. "the galley" -> "kitchen"; "the train" -> "shuttle"; "the cafeteria" -> "mess hall"; "the loo" -> "bathroom"). Keep a plain room name as-is.
             c) If the player wants to enter a vehicle or sub-location, put "board"
             d) If the player wants to exit a vehicle or sub-location, put "disembark"
             e) If the player wants to take or pick up one or more items, put "take" (EXCEPTION: if "take" is used WITH a tool or another object using prepositions like "with" or "using", put "act" instead)
@@ -72,7 +72,9 @@ public static class ParsingHelper
         "prompt": "turn on lamp", "completion": "<intent>act</intent>\n<verb>activate</verb>\n<noun>lamp</noun>"
         "prompt": "exit the boat", "completion": "<intent>disembark</intent>\n<noun>boat</noun>"
         "prompt": "go to the kitchen", "completion": "<intent>goto</intent>\n<noun>kitchen</noun>"
-        "prompt": "walk to the maintenance room", "completion": "<intent>goto</intent>\n<noun>maintenance room</noun>"
+        "prompt": "walk into the shuttle", "completion": "<intent>goto</intent>\n<noun>shuttle</noun>"
+        "prompt": "enter the mess", "completion": "<intent>goto</intent>\n<noun>mess</noun>"
+        "prompt": "go to the galley", "completion": "<intent>goto</intent>\n<noun>kitchen</noun>"
         "prompt": "head to the reactor", "completion": "<intent>goto</intent>\n<noun>reactor</noun>"
         "prompt": "enter the dome room", "completion": "<intent>goto</intent>\n<noun>dome room</noun>"
         "prompt": "take off the jacket", "completion": "<intent>act</intent>\n<verb>doff</verb>\n<noun>jacket</noun>"

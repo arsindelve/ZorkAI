@@ -229,6 +229,11 @@
     { "inputs": ["go to the kitchen", "go to kitchen", "walk to the kitchen"], "destination": "kitchen" },
     { "inputs": ["go to the upper elevator", "go to upper elevator"], "destination": "upper elevator" },
     { "inputs": ["go to the lower elevator", "go to lower elevator"], "destination": "lower elevator" },
-    { "inputs": ["go to the reactor", "walk to the reactor"], "destination": "reactor" }
+    { "inputs": ["go to the reactor", "walk to the reactor"], "destination": "reactor" },
+    { "inputs": ["walk into the shuttle", "go to the shuttle", "enter the shuttle", "walk to the shuttle"], "destination": "shuttle" },
+    { "inputs": ["go to the shuttle car betty", "go to shuttle car betty"], "destination": "shuttle car betty" },
+    { "inputs": ["go to the shuttle car alfie", "go to shuttle car alfie"], "destination": "shuttle car alfie" },
+    { "inputs": ["enter the mess", "enter mess", "go to the mess", "walk to the mess"], "destination": "mess" },
+    { "inputs": ["go to the galley", "walk to the galley"], "destination": "kitchen" }
   ]
 }

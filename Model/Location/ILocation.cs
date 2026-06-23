@@ -16,13 +16,13 @@ public interface ILocation
     string Name { get; }
 
     /// <summary>
-    /// The set of names/synonyms a player can use to refer to THIS location as a travel destination
-    /// (issue #268 destination navigation, e.g. "go to the dome room"). Defaults to the display
-    /// <see cref="Name"/>; rooms override to add colloquial names ("the dome", "blue elevator").
-    /// Unlike an item's nouns, this is only consulted by destination navigation, never by item scope
-    /// resolution.
+    /// Opt-in EXTRA synonyms a player can use to name this location as a travel destination
+    /// (issue #268 destination navigation, e.g. "go to the dome room"). Destination matching already
+    /// includes the display <see cref="Name"/> and matches on whole words of it, so a room only
+    /// overrides this to ADD aliases that are NOT in its title (a colour, "kitchen" for a room titled
+    /// "Mess Hall"). Defaults to none. Only consulted by destination navigation, never item scope.
     /// </summary>
-    string[] NounsForMatching => [Name];
+    string[] NounsForMatching => [];
 
     /// <summary>
     /// This property represents a sub-location inside another location. It can be used to define a location
