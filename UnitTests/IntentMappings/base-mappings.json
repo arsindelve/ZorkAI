@@ -179,6 +179,8 @@
     { "inputs": ["show printout to floyd", "show the printout to floyd"], "verb": "show", "nounOne": "printout", "nounTwo": "floyd", "preposition": "to", "originalInput": "show printout to floyd" },
     { "inputs": ["show id card to floyd", "show the id card to floyd"], "verb": "show", "nounOne": "id card", "nounTwo": "floyd", "preposition": "to", "originalInput": "show id card to floyd" },
     { "inputs": ["show kitchen card to floyd"], "verb": "show", "nounOne": "kitchen card", "nounTwo": "floyd", "preposition": "to", "originalInput": "show kitchen card to floyd" },
+    { "inputs": ["show shuttle card to floyd"], "verb": "show", "nounOne": "shuttle card", "nounTwo": "floyd", "preposition": "to", "originalInput": "show shuttle card to floyd" },
+    { "inputs": ["show upper elevator card to floyd"], "verb": "show", "nounOne": "upper elevator card", "nounTwo": "floyd", "preposition": "to", "originalInput": "show upper elevator card to floyd" },
     { "inputs": ["show lower elevator card to floyd", "show lower card to floyd"], "verb": "show", "nounOne": "lower elevator card", "nounTwo": "floyd", "preposition": "to", "originalInput": "show lower elevator card to floyd" },
     { "inputs": ["show diary to floyd"], "verb": "show", "nounOne": "diary", "nounTwo": "floyd", "preposition": "to", "originalInput": "show diary to floyd" },
 

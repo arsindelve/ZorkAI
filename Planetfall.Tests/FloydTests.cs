@@ -1,6 +1,7 @@
 using System.Reflection;
 using FluentAssertions;
 using Model.AIGeneration.Requests;
+using Model.Intent;
 using Model.Interface;
 using Model.Item;
 using Moq;
@@ -1789,20 +1790,26 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
-    public async Task Show_Printout_ToFloyd_WhenAlreadyConcerned_FallsToDefault()
+    public async Task Show_Printout_ToFloyd_WhenAlreadyConcerned_FallsToLlmDefault()
     {
+        // Already concerned (e.g. Floyd already visited the Computer Room): the one-shot guard
+        // (<NOT ,COMPUTER-FLAG>) means showing the printout again no longer re-fires the concern.
+        // In real play Floyd is a registered turn actor, so the default goes through the LLM path.
         var target = GetTarget();
         StartHere<RobotShop>();
-        // Already concerned (e.g. Floyd already visited the Computer Room): the one-shot guard
-        // (<NOT ,COMPUTER-FLAG>) means showing the printout again hits the default branch. Set the flag
-        // before Take<ComputerOutput>() — instantiating the Computer Room homes the printout there.
+        // Set the flag before Take<ComputerOutput>() — instantiating the Computer Room homes the printout there.
         GetLocation<ComputerRoom>().FloydHasExpressedConcern = true;
         Take<ComputerOutput>();
-        GetItem<Floyd>().IsOn = true;
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        target.Context.RegisterActor(floyd);
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd looks it over. \"What're all the squiggles?\"");
 
         var response = await target.GetResponse("show printout to floyd");
 
-        response.Should().Contain("Can you play any games with it");
+        response.Should().Contain("What're all the squiggles"); // LLM default, not the concern line
         response.Should().NotContain("Computer is broken");
     }
 
@@ -1836,6 +1843,72 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
+    public async Task Show_ShuttleCard_ToFloyd_AsksIfTheyAreUsuallyBlue()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<ShuttleAccessCard>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("show shuttle card to floyd");
+
+        response.Should().Contain("usually blue");
+    }
+
+    [Test]
+    public async Task Show_UpperElevatorCard_ToFloyd_AsksIfTheyAreUsuallyBlue()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<UpperElevatorAccessCard>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("show upper elevator card to floyd");
+
+        response.Should().Contain("usually blue");
+    }
+
+    [Test]
+    public async Task Show_FloydTheCard_ReverseNounOrder_StillReacts()
+    {
+        // RespondToShow accepts Floyd as either noun ("show x to floyd" / "show floyd the x"). The forward
+        // order is covered by the other tests; this locks in the reverse branch (Floyd as NounOne).
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<IdCard>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+
+        var intent = new MultiNounIntent
+        {
+            Verb = "show",
+            NounOne = "floyd",
+            NounTwo = "id card",
+            Preposition = "",
+            OriginalInput = "show floyd the id card"
+        };
+        var result = await floyd.RespondToMultiNounInteraction(intent, target.Context);
+
+        result.Should().NotBeNull();
+        result!.InteractionMessage.Should().Contain("usually blue");
+    }
+
+    [Test]
+    public async Task Show_ObjectNotHeld_ToFloyd_SaysYouDontHaveIt()
+    {
+        // SHOW requires the item be held (syntax.zil:450 SHOW OBJECT (HAVE) ...). With the object only on
+        // the ground (resolvable but not in inventory), Floyd reports you don't have it — mirroring GIVE.
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        robotShop.ItemPlacedHere(GetItem<Diary>()); // in the room, not the player's inventory
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("show diary to floyd");
+
+        response.Should().Contain("You don't have the");
+    }
+
+    [Test]
     public async Task Show_LowerElevatorCard_ToFloyd_RecognizesItAndMarksRevealed()
     {
         var target = GetTarget();
@@ -1854,17 +1927,24 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
-    public async Task Show_LowerElevatorCard_ToFloyd_WhenAlreadyRevealed_FallsToDefault()
+    public async Task Show_LowerElevatorCard_ToFloyd_WhenAlreadyRevealed_FallsToLlmDefault()
     {
+        // Already revealed: the one-shot guard means a second show no longer gets the recognition line.
+        // In real play Floyd is a registered turn actor, so the default goes through the LLM path.
         var target = GetTarget();
         StartHere<RobotShop>();
         Take<LowerElevatorAccessCard>();
-        GetItem<Floyd>().IsOn = true;
-        GetItem<Floyd>().HasRevealedLowerElevatorCard = true;
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasRevealedLowerElevatorCard = true;
+        target.Context.RegisterActor(floyd);
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("Floyd peers at it. \"Ooo, shiny card!\"");
 
         var response = await target.GetResponse("show lower elevator card to floyd");
 
-        response.Should().Contain("Can you play any games with it");
+        response.Should().Contain("Ooo, shiny card"); // LLM default, not the recognition line
         response.Should().NotContain("just like that");
     }
 
