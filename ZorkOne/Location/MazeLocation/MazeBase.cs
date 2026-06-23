@@ -10,7 +10,9 @@ public abstract class MazeBase : DarkLocationWithNoStartingItems, IThiefMayVisit
 {
     public override string Name => "Maze";
 
-    public override string[] NounsForMatching => ["labyrinth"];
+    // No destination-navigation synonyms here on purpose: every maze room is named "Maze", so naming
+    // it could only ever produce an indistinguishable "which Maze?" — the maze must stay a place you
+    // navigate by groping, not by name (issue #268 audit of repeated rooms).
 
     protected override string GetContextBasedDescription(IContext context)
     {

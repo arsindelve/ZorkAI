@@ -101,7 +101,19 @@ internal static class DestinationNavigation
         // kitchen window is closed.") instead of pretending the room isn't there, while a present
         // neighbour is never drowned out by an absent one.
         var passable = deduped.Where(m => m.CanGo).ToList();
-        return (passable.Count > 0 ? passable : deduped)
+        var chosen = passable.Count > 0 ? passable : deduped;
+
+        // Drop indistinguishable repeats: when 2+ matched rooms share the same name (the maze's 15
+        // identical "Maze" rooms, the four "Forest" rooms, the two "Cave"s), the player cannot pick one
+        // by name and a "the Maze or the Maze?" prompt would be nonsense — these wander-areas must not
+        // be navigable by name. A uniquely-named match (e.g. entering the maze from a named entrance)
+        // still resolves. This is what keeps destination navigation from making mazes WORSE.
+        var nameCounts = chosen
+            .GroupBy(m => Normalize(m.Room.Name))
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        return chosen
+            .Where(m => nameCounts[Normalize(m.Room.Name)] == 1)
             .Select(m => (m.Direction, m.Room))
             .ToList();
     }

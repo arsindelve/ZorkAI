@@ -23,6 +23,15 @@ public class DestinationNavigationTests
         protected override string GetContextBasedDescription(IContext context) => string.Empty;
     }
 
+    // A room whose exits we control, so we can place specific neighbours around it for resolver tests.
+    private sealed class HubRoom(Dictionary<Direction, MovementParameters> exits) : LocationBase
+    {
+        public override string Name => "Hub";
+        public override void Init() { }
+        protected override Dictionary<Direction, MovementParameters> Map(IContext context) => exits;
+        protected override string GetContextBasedDescription(IContext context) => string.Empty;
+    }
+
     [Test]
     public void BuildDisambiguation_TreatsIntraRoomDuplicateSynonymAsDistinguishing_NotShared()
     {
@@ -78,5 +87,41 @@ public class DestinationNavigationTests
         // The unambiguous full names are still usable answers.
         result.PossibleResponses.Should().ContainKey("dorm c");
         result.PossibleResponses.Should().ContainKey("dorm d");
+    }
+
+    [Test]
+    public void ResolveAllAdjacent_RefusesIndistinguishableRepeatedRooms()
+    {
+        // The maze/forest/coal-mine trap: when 2+ ADJACENT rooms share the SAME name (the 15 identical
+        // "Maze" rooms, the four "Forest" rooms, the two "Cave"s), the player cannot pick one by name
+        // and a "the Maze or the Maze?" prompt is nonsense that loops. Such repeated rooms must not be
+        // navigable by name at all — resolution returns nothing.
+        var mazeA = new FakeRoom("Maze", []);
+        var mazeB = new FakeRoom("Maze", []);
+        var here = new HubRoom(new Dictionary<Direction, MovementParameters>
+        {
+            { Direction.N, new MovementParameters { Location = mazeA } },
+            { Direction.S, new MovementParameters { Location = mazeB } }
+        });
+        var context = Mock.Of<IContext>(c => c.CurrentLocation == here);
+
+        DestinationNavigation.ResolveAllAdjacent("maze", context).Should().BeEmpty();
+    }
+
+    [Test]
+    public void ResolveAllAdjacent_KeepsDistinctlyNamedAdjacentRooms()
+    {
+        // Guard against over-reach: rooms with DISTINCT names (Upper/Lower Elevator, Dorm C/Dorm D)
+        // are genuinely distinguishable and must still disambiguate normally.
+        var upper = new FakeRoom("Upper Elevator", []);
+        var lower = new FakeRoom("Lower Elevator", []);
+        var here = new HubRoom(new Dictionary<Direction, MovementParameters>
+        {
+            { Direction.N, new MovementParameters { Location = upper } },
+            { Direction.S, new MovementParameters { Location = lower } }
+        });
+        var context = Mock.Of<IContext>(c => c.CurrentLocation == here);
+
+        DestinationNavigation.ResolveAllAdjacent("elevator", context).Should().HaveCount(2);
     }
 }
