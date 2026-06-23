@@ -104,6 +104,21 @@ public class AdminCorridorSouthTests : EngineTestsBase
         Context.HasItem<Key>().Should().BeTrue();
     }
 
+    // Key is hidden in the crevice under dust; examining it pre-discovery must not reveal it.
+    // base.RespondToSimpleInteraction finds Key in room Items, so the location must intercept
+    // the noun before falling through to base.
+    [Test]
+    public async Task ExamineKey_BeforeDiscovery_DoesNotRevealKey()
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+
+        var response = await target.GetResponse("examine key");
+
+        response.Should().NotContain("steel key");
+        response.Should().NotContain("nothing special");
+    }
+
     // Room description must not mention the shiny object once the key is no longer in the crevice.
     // GetContextBasedDescription must gate on !HasTakenTheKey, not just HasSeenTheLight.
     [Test]

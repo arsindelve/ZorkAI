@@ -121,6 +121,11 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
                 "Lying at the bottom of the narrow crack, partly covered by layers of dust, is a shiny steel key! ");
         }
 
+        // Key is in the room's Items list from Init(), so base would find it and expose it early.
+        // Hide it until the crevice has been examined and the key discovered.
+        if (action.MatchNoun(["key"]) && !HasSeenTheLight && !HasTakenTheKey)
+            return new PositiveInteractionResult("You don't see any key here. ");
+
         // Not a crevice-specific noun — let normal item/examine routing handle it.
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
