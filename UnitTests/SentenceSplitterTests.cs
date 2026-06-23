@@ -286,4 +286,79 @@ public class SentenceSplitterTests
         result[0].Should().Be("no");
         result[1].Should().Be("take lamp");
     }
+
+    // --- #292: a period INSIDE quoted speech is dialogue punctuation, not a command delimiter ----
+    // Quoted speech ("…") routes to the present NPC via ConversationHandler.TryStripQuotedSpeech,
+    // but that runs AFTER this splitter. If the splitter breaks "hello. I love you" on the inner
+    // period, only the first fragment keeps its opening quote and reaches the NPC; the rest leaks to
+    // the third-person narrator (re-opening the #284 bug). So periods inside quotes must not split.
+
+    [Test]
+    public void Split_PeriodInsideQuotes_DoesNotSplit()
+    {
+        var result = SentenceSplitter.Split("\"hello. I love you\"");
+
+        result.Should().HaveCount(1);
+        result[0].Should().Be("\"hello. I love you\"");
+    }
+
+    [Test]
+    public void Split_MultiplePeriodsInsideQuotes_DoesNotSplit()
+    {
+        var result = SentenceSplitter.Split("\"stop. drop. roll.\"");
+
+        result.Should().HaveCount(1);
+        result[0].Should().Be("\"stop. drop. roll.\"");
+    }
+
+    [Test]
+    public void Split_UnterminatedQuote_DoesNotSplitOnInnerPeriod()
+    {
+        // TryStripQuotedSpeech accepts an unterminated quote, so the splitter must keep it whole too.
+        var result = SentenceSplitter.Split("\"hello. I love you");
+
+        result.Should().HaveCount(1);
+        result[0].Should().Be("\"hello. I love you");
+    }
+
+    [Test]
+    public void Split_PeriodInsideSmartQuotes_DoesNotSplit()
+    {
+        var result = SentenceSplitter.Split("“hello. I love you”");
+
+        result.Should().HaveCount(1);
+        result[0].Should().Be("“hello. I love you”");
+    }
+
+    [Test]
+    public void Split_QuotedClauseThenChainedCommand_SplitsAtOutsidePeriod()
+    {
+        // The period inside the quotes is protected; the period after the closing quote still splits.
+        var result = SentenceSplitter.Split("say \"hello. there\". north");
+
+        result.Should().HaveCount(2);
+        result[0].Should().Be("say \"hello. there\"");
+        result[1].Should().Be("north");
+    }
+
+    [Test]
+    public void Split_CommandThenQuotedSpeech_SplitsAtOutsidePeriodOnly()
+    {
+        var result = SentenceSplitter.Split("east. \"hello. I love you\"");
+
+        result.Should().HaveCount(2);
+        result[0].Should().Be("east");
+        result[1].Should().Be("\"hello. I love you\"");
+    }
+
+    [Test]
+    public void Split_MixedStraightAndSmartQuotePair_DoesNotSplit()
+    {
+        // The toggle treats any double quote as open-or-close, so a mismatched pair (straight open,
+        // smart close) still brackets the speech and protects the inner period.
+        var result = SentenceSplitter.Split("\"hello. I love you”");
+
+        result.Should().HaveCount(1);
+        result[0].Should().Be("\"hello. I love you”");
+    }
 }
