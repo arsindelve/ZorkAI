@@ -83,33 +83,41 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
 
         // Framing B — the magnet is the subject, lowered toward or into the crack. The original
         // only accepted put/place/hold + on/over/beside/next to, so the natural "lower it INTO the
-        // crack" phrasings ("put magnet in crevice", "lower magnet into crack") all fell through to
-        // the AI narrator. Widen the verbs and prepositions (issue #298).
+        // crack" phrasings fell through to the AI narrator. Accept the full range of natural
+        // "place/lower the bar at the crack" verbs and prepositions (issue #298).
         var match = action.Match(
-            ["put", "place", "hold", "lower", "dangle", "dip", "stick", "insert"],
+            ["put", "place", "hold", "lower", "dangle", "dip", "stick", "insert",
+                "set", "lay", "rest", "slide", "slip", "feed", "thread", "hang", "push", "poke",
+                "move", "wave", "swing"],
             magnetNouns, crackNouns,
-            ["on", "over", "beside", "next to", "in", "into", "down", "down into"]);
+            ["on", "over", "beside", "next to", "in", "into", "down", "down into",
+                "to", "near", "by", "against", "inside", "toward", "towards"]);
 
         // "drop" only solves when the magnet is lowered INTO the crack ("drop magnet in crevice").
         // A bare "drop magnet on the floor" is a player setting the bar down, not fishing for the
         // key, so keep it off the on/over/beside list above.
         match |= action.Match(["drop"], magnetNouns, crackNouns, ["in", "into", "down", "down into"]);
 
-        // Also support "use magnet on crevice/key/floor"
-        match |= action.Match(["use"], magnetNouns, crackNouns, ["on"]);
+        // "use" / "apply" the magnet on/in/against the crack or key.
+        match |= action.Match(["use", "apply"], magnetNouns, crackNouns,
+            ["on", "in", "into", "to", "against", "near"]);
+
+        // Magnetic-attraction framing — aim/point/touch the magnet AT or TO the key in the crack.
+        match |= action.Match(["aim", "point", "touch", "connect", "attach"], magnetNouns, crackNouns,
+            ["at", "to", "toward", "towards", "against", "near"]);
 
         // Framing A — the magnet is the tool and the key is the object retrieved "with" it. This is
         // the original game's canonical solve (compone.zil KEY-F: TAKE/ZATTRACT/MOVE the key with
         // PRSI = MAGNET). The port never wired it up, so "get key with magnet" fell through to the
         // AI narrator, which improvised a refusal calling the steel key "non-magnetic" — directly
-        // contradicting the success text. Route the key-as-object framing to the same solve (#298).
-        // Match only the key's own nouns here, not the crack/floor synonyms: you retrieve the key
-        // "with" the magnet, you don't "lift the floor with" it.
+        // contradicting the success text. Match only the key's own nouns here, not the crack/floor
+        // synonyms: you retrieve the key "with" the magnet, you don't "lift the floor with" it.
         var keyNouns = Repository.GetItem<Key>().NounsForMatching;
         match |= action.Match(
             ["get", "take", "grab", "pick up", "retrieve", "lift", "fish", "pull", "attract",
-                "remove", "snag", "hook", "fetch", "extract"],
-            keyNouns, magnetNouns, ["with", "using"]);
+                "remove", "snag", "hook", "fetch", "extract", "scoop", "catch", "collect", "recover",
+                "yank", "drag", "reel", "pluck", "nab", "haul", "obtain", "draw"],
+            keyNouns, magnetNouns, ["with", "using", "to", "toward", "towards"]);
 
         if (match)
         {

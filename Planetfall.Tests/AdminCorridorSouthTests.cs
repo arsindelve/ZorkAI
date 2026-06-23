@@ -285,4 +285,126 @@ public class AdminCorridorSouthTests : EngineTestsBase
         response.Should().Contain("steel key");
         GetLocation<AdminCorridorSouth>().HasSeenTheLight.Should().BeTrue();
     }
+
+    // ---- Issue #298 follow-up: broaden the accepted vocabulary across all six phrasing groups ----
+
+    // Group 1 (more "retrieve the key WITH the magnet" verbs) + Group 2 (to/toward/towards).
+    [TestCase("scoop key out with magnet")]
+    [TestCase("catch key with magnet")]
+    [TestCase("collect key with magnet")]
+    [TestCase("recover key with magnet")]
+    [TestCase("yank key out with magnet")]
+    [TestCase("drag key out with magnet")]
+    [TestCase("reel key in with magnet")]
+    [TestCase("pluck key with magnet")]
+    [TestCase("nab key with magnet")]
+    [TestCase("haul key up with magnet")]
+    [TestCase("obtain key with magnet")]
+    [TestCase("draw key out with magnet")]
+    [TestCase("pull key to magnet")]
+    [TestCase("draw key toward magnet")]
+    [TestCase("pull key towards magnet")]
+    public async Task FramingA_VariedVerbsAndPrepositions_RetrievesKey(string command)
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+        Take<Magnet>();
+
+        var response = await target.GetResponse(command);
+
+        response.Should().Contain("a piece of metal leaps from the crevice");
+        response.Should().Contain("steel key");
+        Context.HasItem<Key>().Should().BeTrue();
+    }
+
+    // Group 3 — more "place/lower the magnet at the crack" verbs.
+    [TestCase("set magnet on crevice")]
+    [TestCase("lay magnet over crack")]
+    [TestCase("rest magnet on crevice")]
+    [TestCase("slide magnet into crack")]
+    [TestCase("slip magnet into crevice")]
+    [TestCase("feed magnet into crevice")]
+    [TestCase("thread magnet into crack")]
+    [TestCase("hang magnet in crevice")]
+    [TestCase("push magnet into crack")]
+    [TestCase("poke magnet into crack")]
+    [TestCase("move magnet to crevice")]
+    [TestCase("wave magnet over crevice")]
+    [TestCase("swing magnet over crevice")]
+    public async Task FramingB_VariedVerbs_RetrievesKey(string command)
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+        Take<Magnet>();
+
+        var response = await target.GetResponse(command);
+
+        response.Should().Contain("a piece of metal leaps from the crevice");
+        response.Should().Contain("steel key");
+        Context.HasItem<Key>().Should().BeTrue();
+    }
+
+    // Group 4 — more prepositions for lowering the magnet toward the crack.
+    [TestCase("hold magnet near crevice")]
+    [TestCase("put magnet by crevice")]
+    [TestCase("hold magnet against crack")]
+    [TestCase("put magnet inside crevice")]
+    [TestCase("lower magnet to crevice")]
+    [TestCase("lower magnet toward crevice")]
+    [TestCase("lower magnet towards crack")]
+    public async Task FramingB_VariedPrepositions_RetrievesKey(string command)
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+        Take<Magnet>();
+
+        var response = await target.GetResponse(command);
+
+        response.Should().Contain("a piece of metal leaps from the crevice");
+        response.Should().Contain("steel key");
+        Context.HasItem<Key>().Should().BeTrue();
+    }
+
+    // Group 5 — the magnetic-attraction framing: aim/point/touch the magnet at or to the key.
+    [TestCase("aim magnet at key")]
+    [TestCase("point magnet at crevice")]
+    [TestCase("aim magnet at crack")]
+    [TestCase("touch magnet to key")]
+    [TestCase("connect magnet to key")]
+    [TestCase("attach magnet to key")]
+    [TestCase("point magnet toward crevice")]
+    public async Task AimTouchFraming_RetrievesKey(string command)
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+        Take<Magnet>();
+
+        var response = await target.GetResponse(command);
+
+        response.Should().Contain("a piece of metal leaps from the crevice");
+        response.Should().Contain("steel key");
+        Context.HasItem<Key>().Should().BeTrue();
+    }
+
+    // Group 6 — broaden "use" beyond "on", and add "apply".
+    [TestCase("use magnet in crevice")]
+    [TestCase("use bar in crack")]
+    [TestCase("use magnet into crevice")]
+    [TestCase("apply magnet to key")]
+    [TestCase("apply magnet to crevice")]
+    [TestCase("apply magnet on crevice")]
+    [TestCase("use magnet against crack")]
+    [TestCase("use magnet near crevice")]
+    public async Task UseOrApplyMagnet_RetrievesKey(string command)
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+        Take<Magnet>();
+
+        var response = await target.GetResponse(command);
+
+        response.Should().Contain("a piece of metal leaps from the crevice");
+        response.Should().Contain("steel key");
+        Context.HasItem<Key>().Should().BeTrue();
+    }
 }
