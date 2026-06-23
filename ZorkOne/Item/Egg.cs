@@ -85,6 +85,12 @@ public class Egg
         if (!action.Match(Verbs.ThrowVerbs, NounsForMatching))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
+        // You can only throw what you're holding. The dispatch offers this verb to room-resident
+        // items too (ContainerBase walks the room's items), so guard on possession — otherwise
+        // "throw egg" would wreck an egg sitting untouched in the room.
+        if (!context.Items.Contains(this))
+            return new PositiveInteractionResult("You don't have that! ");
+
         BreakEggAndCanary();
 
         // <MOVE ,PRSO ,HERE> — the thrown egg comes to rest in the current room.

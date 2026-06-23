@@ -623,4 +623,25 @@ public class EggAndCanaryTests : EngineTestsBase
         Repository.GetItem<Egg>().IsDestroyed.Should().BeFalse();
         Repository.GetItem<Canary>().IsDestroyed.Should().BeFalse();
     }
+
+    [Test]
+    public async Task ThrowEgg_NotHeld_DoesNothing()
+    {
+        // You can only throw what you're holding. The simple-interaction dispatch offers the verb to
+        // room-resident items too, so the throw handler must verify possession before breaking the
+        // egg — otherwise "throw egg" wrecks an egg sitting untouched in the room.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
+        Repository.GetLocation<ForestPath>().ItemPlacedHere(Repository.GetItem<Egg>()); // in the room, NOT inventory
+
+        var response = await target.GetResponse("throw egg");
+        Console.WriteLine(response);
+
+        response.Should().NotContain("succeeded in opening it");
+        response.Should().Contain("don't have");
+        Repository.GetItem<Egg>().IsDestroyed.Should().BeFalse();
+        Repository.GetItem<Egg>().IsOpen.Should().BeFalse();
+        Repository.GetItem<Canary>().IsDestroyed.Should().BeFalse();
+        Repository.GetItem<Egg>().CurrentLocation.Should().BeOfType<ForestPath>();
+    }
 }
