@@ -486,6 +486,65 @@ public class HungerSystemTests : EngineTestsBase
 
     #endregion
 
+    #region Survival Kit EMPTY Tests
+
+    [Test]
+    public async Task EmptyKit_WhenClosed_SaysKitIsClosed()
+    {
+        var target = GetTarget();
+        StartHere<Kitchen>();
+
+        PreventHungerAdvancement(target.Context);
+
+        var kit = GetItem<SurvivalKit>();
+        kit.IsOpen = false;
+        target.Context.ItemPlacedHere(kit);
+
+        var response = await target.GetResponse("empty kit");
+        response.Should().Contain("The kit is closed!");
+    }
+
+    [Test]
+    public async Task EmptyKit_WhenOpenWithGoo_SaysGooSticksAndKeepsGoo()
+    {
+        var target = GetTarget();
+        StartHere<Kitchen>();
+
+        PreventHungerAdvancement(target.Context);
+
+        var kit = GetItem<SurvivalKit>();
+        kit.IsOpen = true;
+        target.Context.ItemPlacedHere(kit);
+
+        var response = await target.GetResponse("empty kit");
+        response.Should().Contain("sticks to the inside of the kit");
+
+        // EMPTY is a misdirect - it never removes the goo.
+        kit.Items.Should().HaveCount(3);
+        kit.Items.Should().Contain(item => item is RedGoo);
+        kit.Items.Should().Contain(item => item is BrownGoo);
+        kit.Items.Should().Contain(item => item is GreenGoo);
+    }
+
+    [Test]
+    public async Task EmptyKit_WhenOpenAndEmpty_SaysNothingInIt()
+    {
+        var target = GetTarget();
+        StartHere<Kitchen>();
+
+        PreventHungerAdvancement(target.Context);
+
+        var kit = GetItem<SurvivalKit>();
+        kit.IsOpen = true;
+        kit.Items.Clear(); // No goo left in the kit
+        target.Context.ItemPlacedHere(kit);
+
+        var response = await target.GetResponse("empty kit");
+        response.Should().Contain("There's nothing in the survival kit");
+    }
+
+    #endregion
+
     #region Integration Tests
 
     [Test]
