@@ -81,26 +81,30 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     /// </summary>
     /// <param name="prompt">The AI prompt describing what Floyd should say</param>
     /// <param name="context">Current game context</param>
-    public void CommentOnAction(string prompt, IContext context)
+    /// <returns>True if the comment was queued; false if it was a no-op (Floyd absent/off, already
+    /// commenting this turn, or this prompt was already used). Callers that need to know whether the
+    /// queue took — e.g. to decide between an empty response and a fallback line — can branch on this.</returns>
+    public bool CommentOnAction(string prompt, IContext context)
     {
         // Must be on and in the same location as player
         if (!IsHereAndIsOn(context))
-            return;
+            return false;
 
         if (context is not PlanetfallContext planetfallContext)
-            return;
+            return false;
 
         // Only one action comment per turn
         if (planetfallContext.PendingFloydActionCommentPrompt != null)
-            return;
+            return false;
 
         // Don't repeat prompts that have already been used
         if (planetfallContext.UsedFloydActionCommentPrompts.Contains(prompt))
-            return;
+            return false;
 
         // Store the prompt for Act() to process and mark as used
         planetfallContext.PendingFloydActionCommentPrompt = prompt;
         planetfallContext.UsedFloydActionCommentPrompts.Add(prompt);
+        return true;
     }
 
     /// <summary>
@@ -388,13 +392,12 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         //    return an empty body. If the comment can't be queued — Floyd already reacted to this object,
         //    already spoke this turn, or isn't a turn actor right now — fall back to the canned line so
         //    the player never gets a blank response.
-        if (context is PlanetfallContext pfc && context.Actors.Contains(this))
-        {
-            var reactionPrompt = FloydPrompts.ShownAnObject(shown.NounsForMatching[0]);
-            CommentOnAction(reactionPrompt, context);
-            if (pfc.PendingFloydActionCommentPrompt == reactionPrompt)
-                return new PositiveInteractionResult("");
-        }
+        // Only queue when Floyd will actually act this turn (he renders the comment in Act()); the bool
+        // result tells us the queue took (vs. one of CommentOnAction's silent no-ops), so we know whether
+        // to return the empty body or fall back to the canned line.
+        if (context.Actors.Contains(this)
+            && CommentOnAction(FloydPrompts.ShownAnObject(shown.NounsForMatching[0]), context))
+            return new PositiveInteractionResult("");
 
         return new PositiveInteractionResult(string.Format(FloydConstants.ShowDefaultFormat,
             shown.NounsForMatching[0]));
