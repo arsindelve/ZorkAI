@@ -66,6 +66,39 @@ public class SpiritDeathTests : EngineTestsBase
     }
 
     [Test]
+    public async Task ThirdDeath_EndsTheGame_SubsequentCommandsAreBlocked()
+    {
+        var target = GetTarget();
+        target.Context.DeathCounter = 2; // this jump is the third death
+        target.Context.CurrentLocation = Repository.GetLocation<CanyonView>();
+
+        await target.GetResponse("jump");
+
+        // The game is over: no further action is possible, not even moving.
+        (await target.GetResponse("look")).Should().Contain("adventure has come to an end");
+        (await target.GetResponse("north")).Should().Contain("adventure has come to an end");
+        target.Context.HasPermanentlyDied.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task KilledWhileASpirit_EndsTheGame_CannotPrayBackToLife()
+    {
+        var target = GetTarget();
+        target.Context.IsDead = true;
+
+        // A spirit dies again -> permanent game over.
+        new DeathProcessor().Process("You drown. ", target.Context);
+        target.Context.HasPermanentlyDied.Should().BeTrue();
+
+        // Even praying at the altar can no longer bring them back.
+        target.Context.CurrentLocation = Repository.GetLocation<Altar>();
+        var response = await target.GetResponse("pray");
+
+        response.Should().Contain("adventure has come to an end");
+        target.Context.CurrentLocation.Should().BeOfType<Altar>();
+    }
+
+    [Test]
     public async Task Death_CostsTenPoints()
     {
         var target = GetTarget();

@@ -86,6 +86,8 @@ public class SpiritProcessor
 
     private static bool MentionsLamp(string command)
     {
-        return command.Contains("lamp") || command.Contains("lantern") || command.Contains("light");
+        // Deliberately not matching "light": it is also a turn-on verb (handled by the caller's verb
+        // list), so treating it as a lamp noun here would be ambiguous.
+        return command.Contains("lamp") || command.Contains("lantern");
     }
 }

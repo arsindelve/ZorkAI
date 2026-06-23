@@ -30,6 +30,16 @@ public class ZorkIContext : Context<ZorkI>
     public bool IsDead { get; set; }
 
     /// <summary>
+    ///     True once the player has died permanently — killed while already a spirit, or a third death.
+    ///     The original game would FINISH here (offer restart/restore/quit). This engine has no such
+    ///     terminal state, so instead every subsequent command is intercepted with a "the adventure is
+    ///     over" message (see <see cref="InterceptPlayerCommand" />), which is the closest faithful
+    ///     equivalent: the player can no longer act — not even pray their way back — but system commands
+    ///     (save/restore/quit) still work, just as the original's end-of-game prompt allowed (issue #17).
+    /// </summary>
+    public bool HasPermanentlyDied { get; set; }
+
+    /// <summary>
     ///     Has the player ever entered the altar room (South Temple)? This is the trigger for the
     ///     spirit-death mechanic. No new flag is needed — every location already tracks how many times
     ///     it has been visited, so a non-zero visit count means "touched" (issue #17).
@@ -137,12 +147,32 @@ public class ZorkIContext : Context<ZorkI>
     public override bool ItIsDarkHere => !IsDead && base.ItIsDarkHere;
 
     /// <summary>
-    ///     While a spirit, route the raw command through the <see cref="SpiritProcessor" /> (the
-    ///     DEAD-FUNCTION equivalent). It overrides most verbs and handles resurrection; it returns null
-    ///     for movement so the player can still walk back to the altar (issue #17).
+    ///     The in-character "the game is over" line shown for every (non-system) command once the player
+    ///     has died permanently. The original game's FINISH prompt is not expressible here, so this is the
+    ///     stand-in: it ends the player's ability to act while leaving save/restore/quit available.
+    /// </summary>
+    public const string PermanentDeathMessage =
+        "You are dead, and your adventure has come to an end. There is nothing more you can do. ";
+
+    /// <summary>
+    ///     Intercepts the raw command for a player who is no longer playing normally:
+    ///     <list type="bullet">
+    ///         <item>Permanently dead → every command returns the game-over message (no resurrection).</item>
+    ///         <item>
+    ///             A spirit → route through the <see cref="SpiritProcessor" /> (the DEAD-FUNCTION
+    ///             equivalent), which overrides most verbs and handles resurrection but returns null for
+    ///             movement so the player can still walk back to the altar.
+    ///         </item>
+    ///         <item>Otherwise → null, and the engine processes the command normally.</item>
+    ///     </list>
+    ///     System commands (save/restore/quit) run earlier in the engine, so they still work in every
+    ///     case (issue #17).
     /// </summary>
     public override string? InterceptPlayerCommand(string? input)
     {
+        if (HasPermanentlyDied)
+            return PermanentDeathMessage;
+
         return IsDead ? new SpiritProcessor().Process(input, this) : null;
     }
 }

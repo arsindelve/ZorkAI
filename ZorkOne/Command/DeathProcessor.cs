@@ -47,13 +47,18 @@ public class DeathProcessor
     public InteractionResult Process(string death, IContext context)
     {
         if (context is not ZorkIContext zorkContext)
-            throw new ArgumentException();
+            throw new ArgumentException("DeathProcessor requires a ZorkIContext.", nameof(context));
 
         // It takes a talented person to be killed while already dead: a spirit's death is permanent.
+        // HasPermanentlyDied ends the game (the engine has no FINISH), so the spirit can no longer
+        // wander back to the altar and pray its way out.
         if (zorkContext.IsDead)
+        {
+            zorkContext.HasPermanentlyDied = true;
             return new PositiveInteractionResult(death +
                 "\n\nIt takes a talented person to be killed while already dead. I think you deserve a " +
                 "permanent rest.\n\n\t*** You have died ***\n");
+        }
 
         zorkContext.LightWoundCounter = 0;
         zorkContext.AddPoints(-10);
@@ -62,6 +67,7 @@ public class DeathProcessor
         if (zorkContext.DeathCounter >= 2)
         {
             zorkContext.DeathCounter++;
+            zorkContext.HasPermanentlyDied = true;
             return new PositiveInteractionResult(death +
                 "\n\n\t*** You have died ***\n\n" +
                 "You clearly are a suicidal maniac. We don't allow your type around here. You'll be a " +
