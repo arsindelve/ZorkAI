@@ -50,6 +50,11 @@ public class BulkheadForceVerbTests : EngineTestsBase
         return target;
     }
 
+    // push/kick/shake are the force verbs the TestParser resolves to a plain SimpleIntent (verb +
+    // "bulkhead"), which is the routing that reaches GetGeneratedNoMatchingVerbResponse. The bug's
+    // other reported verbs (hit/knock/bang) normalize to the same NoVerbMatch path in prod via the
+    // AI parser, which the deterministic TestParser doesn't model — so they aren't enumerated here,
+    // but the single shared-routing fix covers all of them.
     [TestCase("push the bulkhead")]
     [TestCase("kick the bulkhead")]
     [TestCase("shake the bulkhead")]
@@ -64,18 +69,26 @@ public class BulkheadForceVerbTests : EngineTestsBase
         response.Should().Contain(NoEffectFlavor);
     }
 
+    // The two sanity checks below confirm the fix doesn't disturb the verbs that already worked:
+    // these are handled by dedicated processors and never depended on GetItemInScope.
+
     [Test]
-    public async Task BenignVerbsOnBulkhead_StillWork()
+    public async Task ExamineBulkhead_StillWorks()
     {
-        // Sanity check that the fix doesn't disturb the verbs that already worked: these are handled
-        // by dedicated processors and never depended on GetItemInScope.
         var target = ArrangeDeckNineWithSharedBulkhead();
 
         var examine = await target.GetResponse("examine bulkhead");
-        examine.Should().Contain("nothing special about the narrow emergency bulkhead");
 
-        target = ArrangeDeckNineWithSharedBulkhead();
+        examine.Should().Contain("nothing special about the narrow emergency bulkhead");
+    }
+
+    [Test]
+    public async Task OpenBulkhead_StillWorks()
+    {
+        var target = ArrangeDeckNineWithSharedBulkhead();
+
         var open = await target.GetResponse("open the bulkhead");
+
         open.Should().Contain("Why open the door to the emergency escape pod");
     }
 }

@@ -129,27 +129,34 @@ internal class SimpleInteractionEngine(IItemProcessorFactory itemProcessorFactor
     private static async Task<string> GetGeneratedNoMatchingVerbResponse(string? noun, string verb,
         IGenerationClient generationClient, IContext context)
     {
+        var location = context.CurrentLocation.GetDescriptionForGeneration(context);
+
+        // We only get here because a verb landed on something present but no processor handled it, so
+        // we MUST narrate a no-effect interaction rather than returning a blank line. Two ways the
+        // noun can be unusable here previously short-circuited to "" and printed a blank line (#282):
+        //
+        //   * The noun is empty (a verb-only NoVerbMatch). Fall back to the generic "that command
+        //     does nothing" narration, which needs no noun.
+        //   * GetItemInScope can't resolve the noun even though it matched a present object - e.g. the
+        //     escape-pod BulkheadDoor, one shared instance seeded into both Deck Nine and the Escape
+        //     Pod, whose CurrentLocation is the pod even while you stand on Deck Nine, so the
+        //     accessibility check rejects it. The resolved item is only needed to pick the
+        //     person-specific prompt; when it is null we use the generic "verb has no effect"
+        //     narration.
+        Request request;
         if (string.IsNullOrEmpty(noun))
-            return string.Empty;
+        {
+            request = new CommandHasNoEffectOperationRequest(location, verb);
+        }
+        else
+        {
+            IItem? item = Repository.GetItemInScope(noun, context);
+            request = item is IAmANamedPerson
+                ? new VerbHasNoEffectOnAPersonOperationRequest(location, noun, verb, item.GenericDescription(context.CurrentLocation))
+                : new VerbHasNoEffectOperationRequest(location, noun, verb);
+        }
 
-        // We only get here because the noun already matched an object present in scope (that match is
-        // what produced the NoVerbMatch), so we MUST narrate the no-effect interaction rather than
-        // returning a blank line. Re-resolving with GetItemInScope can still come back null for an
-        // object that is present yet whose CurrentLocation points at a different room: the escape-pod
-        // BulkheadDoor is a single shared instance seeded into both Deck Nine and the Escape Pod, and
-        // its CurrentLocation is the pod even while you stand on Deck Nine, so the accessibility check
-        // rejects it. Before, that null short-circuited to "" and "push/kick/shake the bulkhead"
-        // printed a blank line (issue #282). The resolved item is only needed to pick the
-        // person-specific prompt; when it is null we fall back to the generic "verb has no effect"
-        // narration.
-        IItem? item = Repository.GetItemInScope(noun, context);
-
-        Request request = item is IAmANamedPerson
-            ? new VerbHasNoEffectOnAPersonOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), noun, verb, item.GenericDescription(context.CurrentLocation))
-            : new VerbHasNoEffectOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), noun, verb);
-
-        var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum) + Environment.NewLine;
-        return result;
+        return await generationClient.GenerateNarration(request, context.SystemPromptAddendum) + Environment.NewLine;
     }
 
     private static async Task<string> GetGeneratedNounNotPresentResponse(string? noun,
