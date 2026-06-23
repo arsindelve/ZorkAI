@@ -1,6 +1,8 @@
-# Master Plan — AI-Generated Hints (Planetfall)
+# Master Plan — AI-Generated Hints
 
-Tracks GitHub issue #144. This is the design of record for the rebuilt hint system.
+Tracks GitHub issue #144. This is the design of record for the rebuilt hint system, covering
+**both Planetfall and Zork I**. The architecture below is shared; per-game content lives in
+[`planetfall/`](planetfall/) and [`zorkone/`](zorkone/).
 
 ---
 
@@ -33,14 +35,14 @@ default failure mode.
 | Question type | Best source |
 |---|---|
 | "What's the correct next move, valid in *this* engine?" | **Walkthrough tests** — verified against the real engine, ordered, so prerequisites/timing are encoded for free |
-| "Where am I in the solution right now? / what's blocking me?" | **Live `Context` + Repository state** — full world state (see [02](02-state-availability-audit.md)) |
+| "Where am I in the solution right now? / what's blocking me?" | **Live `Context` + Repository state** — full world state (see state audits: [Planetfall](planetfall/02-state-audit.md) · [Zork I](zorkone/02-state-audit.md)) |
 | "Ladder me a vague→specific hint / why does this work / is X a red herring?" | **Invisiclues** — authored as A/B/C progressive hints; covers exploratory & negative questions |
 
-The walkthrough tests (`Planetfall.Tests/Walkthrough/*.cs`) are
+The walkthrough tests (`Planetfall.Tests/Walkthrough/*.cs`, `ZorkOne.Tests/Walkthrough/*.cs`) are
 `(command, item, expected-response)` triples that pass CI against the actual engine — they
-**cannot be wrong for this port**, unlike the invisiclues (which describe the original 1982
-game and can diverge from our C# behavior). The walkthrough is the backbone; the invisiclues
-are the laddering layer.
+**cannot be wrong for this port**, unlike the invisiclues (which describe the original 1980s
+games and can diverge from our C# behavior). The walkthrough is the backbone; the **invisiclues
+remain the laddering layer for both games** (and for Planetfall's survival hints — see §5).
 
 ---
 
@@ -79,8 +81,10 @@ player asks for a hint
 - **Deterministic-first.** Steps 2–5 are code, not the model. The LLM only phrases/ladders.
 - **Grounding guarantee.** Every hint traces to a walkthrough step or invisiclue entry, or the
   system declines. The model never invents content. (This is the architectural fix for failure #2.)
-- **DAG, not a line.** The solution has optional branches (see [01](01-planetfall-puzzle-dag.md));
-  model puzzles as a prerequisite graph so "what can I do now / what's blocking me" is answerable.
+- **DAG, not a line.** The solution has optional branches (Planetfall) or many parallel independent
+  chains (Zork I) — see the per-game DAGs ([Planetfall](planetfall/01-puzzle-dag.md) ·
+  [Zork I](zorkone/01-structure-dag.md)); model puzzles as a prerequisite graph so "what can I do
+  now / what's blocking me" is answerable.
 - **Eval-driven.** Build the regression harness first (failure #2 was invisible because there
   was no eval); measure each stage.
 
@@ -88,18 +92,22 @@ player asks for a hint
 
 ## 4. Staged build plan
 
-Planetfall-first; prove it, then generalize. Each stage is independently shippable.
+Both games are in scope. **Build Planetfall first** (it has the worked-out DAG and the survival-clock
+category), proving the shared pipeline, then apply the same engine to Zork's per-game data. Each
+stage is independently shippable. The shared **engine** (localization, DAG query, retrieval,
+laddering, soft-lock framework) is written once; each game supplies its own **data** (DAG, state map,
+soft-locks, fixtures, invisiclues content).
 
-| Stage | Deliverable | Depends on |
+| Stage | Deliverable | Per-game artifact |
 |---|---|---|
 | **0** | Pre-planning artifacts (this folder) | — |
-| **1** | Eval harness: deterministic `(state, question) → expected hint direction` fixtures, red | [04](04-eval-fixture-design.md) |
-| **2** | Puzzle DAG as data + the "what's open / what's blocking" query engine | [01](01-planetfall-puzzle-dag.md) |
-| **3** | Localization: full-state → progress vector → DAG position | [02](02-state-availability-audit.md) |
-| **4** | Grounded retrieval + laddering over walkthrough + invisiclues | 2, 3 |
-| **5** | Unwinnable-state detection (known traps first) | [03](03-softlock-candidates.md) |
-| **6** | Navigation hints (reuse BFS pathfinding); coverage logging | 4 |
-| **7** | Generalize to Zork I; feedback loop (did the hint unstick the player?) | 1–6 |
+| **1** | Eval harness: deterministic `(state, question) → expected hint` fixtures, red | [PF 04](planetfall/04-eval.md) · [Z1 04](zorkone/04-eval.md) |
+| **2** | DAG as data + the "what's open / what's blocking" query engine (shared engine, per-game graph) | [PF 01](planetfall/01-puzzle-dag.md) · [Z1 01](zorkone/01-structure-dag.md) |
+| **3** | Localization: full-state → progress vector → DAG position | [PF 02](planetfall/02-state-audit.md) · [Z1 02](zorkone/02-state-audit.md) |
+| **4** | Grounded retrieval + laddering over walkthrough + invisiclues (incl. PF survival hints) | both |
+| **5** | Unwinnable-state detection (known traps first) | [PF 03](planetfall/03-softlock.md) · [Z1 03](zorkone/03-softlock.md) |
+| **6** | Navigation hints (reuse BFS pathfinding); coverage logging | both |
+| **7** | Second game on the same engine; feedback loop (did the hint unstick the player?) | both |
 
 ---
 
@@ -120,6 +128,13 @@ What a *complete, satisfying* hint system needs, beyond the happy path. Ordered 
 - [ ] **Eval / regression harness** — deterministic fixtures; the thing that turns "felt fine" into "known-good."
 - [ ] **Coverage hierarchy + uncovered-question logging** — graceful fallback order; log every miss.
 
+**Game-specific categories**
+- [ ] **Survival-clock hints (Planetfall)** — sleep / eat / sickness are a first-class hint category,
+      triggered by clock state, not map position. Proactive nudges + on-demand "how do I handle being
+      tired/hungry/sick?", laddered from the invisiclues. See [PF 01 § Survival-clock hints](planetfall/01-puzzle-dag.md).
+- [ ] **Treasure three-state tracking (Zork I)** — every treasure is `unfound | held | deposited`;
+      don't re-hint "find X" when it's in the player's pack. See [Z1 01](zorkone/01-structure-dag.md).
+
 **Finished feel**
 - [ ] **Navigation hints** — "the thing you need is in a room you haven't visited" (reuse BFS pathfinding).
 - [ ] **Progressive-disclosure contract** — one rung at a time; never over-reveal; don't re-hint done work.
@@ -135,16 +150,24 @@ The three that most determine success: **full-state blocker inference**, **unwin
 
 These gate the build; capture answers here.
 
-1. **Prerequisite edges** — verify the DAG draft in [01](01-planetfall-puzzle-dag.md):
-   true dependency vs incidental walkthrough order. (Claude proposes from ZIL; you confirm.)
-2. **Soft-lock list** — confirm/extend the candidates in [03](03-softlock-candidates.md).
-3. **Product contracts:**
+1. **Prerequisite edges** — verify the DAG drafts: [Planetfall](planetfall/01-puzzle-dag.md) and
+   [Zork I](zorkone/01-structure-dag.md) — true dependency vs incidental order. (Claude proposes from
+   ZIL; you confirm.)
+2. **Soft-lock lists** — confirm/extend the candidates: [Planetfall](planetfall/03-softlock.md) and
+   [Zork I](zorkone/03-softlock.md). (Zork's egg/canary trap is already confirmed in code.)
+3. **Hint-content source** — the **invisiclues are central and stay** (laddering for both games + PF
+   survival hints). Two tasks: (a) bring the Planetfall invisiclues in-repo (currently only in the
+   external Python repo); (b) **identify/obtain a Zork I hint-content source** — the walkthrough gives
+   the answer rung, but the laddering layer needs invisiclues-style content that isn't in either repo
+   yet. Decide source + licensing.
+4. **Product contracts:**
    - Disclosure: how stuck before revealing how much? Fixed ladder vs frustration-sensing?
-   - Voice: hints delivered by Floyd (in-world) or as an out-of-world guide?
+   - Voice: in-world (Floyd in Planetfall) vs out-of-world guide? (Zork has no companion narrator.)
    - Fallback order when nothing is grounded: decline silently, or offer a generic nudge?
-4. **Architecture sign-off** — server-side-in-ZorkAI, deterministic-first, Planetfall-first. Confirm.
-5. **Scope of unwinnable detection** — known-trap list only (tractable) vs general proof (hard).
-   Recommend: known-trap list for v1.
+5. **Architecture sign-off** — server-side-in-ZorkAI, deterministic-first, shared-engine/per-game-data,
+   Planetfall-first. Confirm.
+6. **Scope of unwinnable detection** — known-trap list only (tractable) vs general proof (hard).
+   Recommend: known-trap list for v1 (especially important for Zork, which is full of them).
 
 ---
 

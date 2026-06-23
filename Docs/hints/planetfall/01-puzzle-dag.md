@@ -101,6 +101,29 @@ Score is a *coarse* index — useful only as a tiebreaker when item flags are am
 23–24 KITCHEN/LOWER_CARD · 28 TOWER_UP · 34 COMM_FIX · 38 LOWER_ELEVATOR · 42 SHUTTLE ·
 48 DEFENSE_FIX · 54 COURSE_FIX · 56–57 BIOLOCK/MINI_CARD · 61–75 COMPUTER_FIX · 80 MUTANT_CHASE`
 
+## Survival-clock hints (a parallel, non-DAG hint category)
+
+Planetfall is not just a puzzle graph — it runs three **survival clocks** the player must manage,
+and players get stuck or die on these as often as on puzzles. Hints must cover them as a
+**separate category** that runs *alongside* DAG progression, keyed on the clock state in
+`PlanetfallContext` (`Hunger`, `Tired`, `Day`/sickness — see [02](02-state-audit.md)), not on map position.
+
+| Clock | State source | Hint trigger | Hint content |
+|---|---|---|---|
+| **Hunger / thirst** | `Hunger` enum | Level escalates toward `Dead` | "You're getting hungry/thirsty — find food and water." Then progressively: where to find rations (kitchen, canteen, dispensers), how to use them. |
+| **Sleep / fatigue** | `Tired` enum | Level escalates toward forced sleep | "You're getting tired — find somewhere safe to sleep." Then: where the bunks/dorm are, that sleeping in the wrong place is risky. |
+| **The Disease** | `Day`, sickness level | Day advances; symptoms worsen | "You're getting sick and time matters — head for the lab and the cure." Ties into the `COMPUTER_FIX` urgency. See soft-lock [#1](03-softlock.md). |
+
+Design notes:
+- These are **time/level-triggered**, not "I'm stuck" triggered — the engine can surface them
+  proactively (a gentle nudge as a clock crosses a threshold) *and* answer "how do I deal with
+  being tired/hungry/sick?" on demand.
+- They ladder like puzzle hints: vague warning → where to find the resource → exact action.
+- The **invisiclues already cover these** (e.g. eating the stew, the survival kit, sleeping) — so
+  they remain the laddering source here too, exactly as for puzzle hints.
+- Distinguish *warning* (recoverable: eat/sleep now) from *terminal* (the clock has reached death
+  → handled by the death/restart system, not hints). See [03](03-softlock.md) #1 and #6.
+
 ## Open questions for edge verification
 
 1. **`COMM_FIX` ↔ COMM-FIXED** — confirm the tower fluid/"message is now being sent" sequence is
@@ -108,7 +131,7 @@ Score is a *coarse* index — useful only as a tiebreaker when item flags are am
 2. **`SHUTTLE` as a hard gate** — confirm nothing in the Lawanda half is reachable before the
    shuttle ride (it appears to be a true cut-point).
 3. **`FLOYD` → `BIOLOCK`** — confirm Floyd *must* be alive and present to obtain `MINI_CARD`
-   (the sacrifice is scripted) — this also drives soft-lock detection (see [03](03-softlock-candidates.md)).
+   (the sacrifice is scripted) — this also drives soft-lock detection (see [03](03-softlock.md)).
 4. **Good-bedistor provenance for `COURSE_FIX`** — where does the *good* bedistor come from, and
    can it be destroyed? (teleport-booth station logic.) **[verify]**
 5. **`LASER` battery** — confirm the laser needs the *fresh* battery from Lab Storage and the

@@ -36,7 +36,7 @@ walkthrough tests already use, so states are reproducible without hand-built moc
 
 ### A. Localization — "where am I?"
 One fixture per DAG node: drive to that node's state, assert `localizedNode`. ~25 fixtures (one
-per node in [01](01-planetfall-puzzle-dag.md)). Catches the core failure mode: misplacing the player.
+per node in [01](01-puzzle-dag.md)). Catches the core failure mode: misplacing the player.
 
 ### B. Blocker inference — "what's blocking me?"
 - Player at `CROSS_RIFT` with no ladder → blocker `LADDER`.
@@ -56,10 +56,18 @@ per node in [01](01-planetfall-puzzle-dag.md)). Catches the core failure mode: m
 - Re-ask after completing the step → must **not** re-hint the done puzzle (uses progress vector).
 - Never-leak: a hint for an early node must not mention any later-node noun.
 
-### E. Soft-lock / unwinnable (High-confidence traps from [03](03-softlock-candidates.md))
+### E. Soft-lock / unwinnable (High-confidence traps from [03](03-softlock.md))
 - The Disease near the day limit → warning hint, `softlock: timed`, escalating.
 - Floyd destroyed early + `MINI_CARD` unobtained → `softlock: hard`, hint = "restore."
 - Good bedistor lost → `softlock: best-ending-only`, hint distinguishes "can still win."
+
+### Ev. Survival-clock hints (sleep / eat / sickness)
+- Player with `Tired` near forced sleep → `category: survival`, hint points at finding a bunk;
+  must **not** be derailed into a puzzle hint.
+- Player with `Hunger` escalating → survival hint points at food/water; ladders to where/how.
+- Player sick and several days in → survival/time hint points at the lab (`COMPUTER_FIX` urgency).
+- Well-rested, well-fed player → **no** survival nudge fires (no false positives).
+- Confirms these route to the **invisiclues** survival entries (stew, survival kit, sleeping).
 
 ### F. Grounding guarantee (negative cases)
 - A question with no grounded answer (lore, off-corpus) → `grounded: false`, hint declines
