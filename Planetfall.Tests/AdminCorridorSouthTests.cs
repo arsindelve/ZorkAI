@@ -119,6 +119,18 @@ public class AdminCorridorSouthTests : EngineTestsBase
         response.Should().NotContain("nothing special");
     }
 
+    [Test]
+    public async Task ExamineSteelKey_BeforeDiscovery_DoesNotRevealKey()
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+
+        var response = await target.GetResponse("examine steel key");
+
+        response.Should().NotContain("steel key");
+        response.Should().NotContain("nothing special");
+    }
+
     // Room description must not mention the shiny object once the key is no longer in the crevice.
     // GetContextBasedDescription must gate on !HasTakenTheKey, not just HasSeenTheLight.
     [Test]

@@ -122,8 +122,9 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
         }
 
         // Key is in the room's Items list from Init(), so base would find it and expose it early.
-        // Hide it until the crevice has been examined and the key discovered.
-        if (action.MatchNoun(["key"]) && !HasSeenTheLight && !HasTakenTheKey)
+        // Guard all of Key's synonyms (key/steel key/shiny object/shiny thing) until discovered.
+        if (!HasSeenTheLight && !HasTakenTheKey &&
+            action.MatchNounAndAdjective(Repository.GetItem<Key>().NounsForMatching))
             return new PositiveInteractionResult("You don't see any key here. ");
 
         // Not a crevice-specific noun — let normal item/examine routing handle it.
