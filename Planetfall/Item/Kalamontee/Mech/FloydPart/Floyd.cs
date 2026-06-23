@@ -284,17 +284,21 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         if (Chooser.RollDice(12) != 1)
             return string.Empty;
 
-        // Pick which prompt (each has 1/72 chance overall, ~1.4%)
-        var promptRoll = Chooser.RollDice(6);
-        return promptRoll switch
+        // Weighted bucket pick. We lean hardest on the canonical static actions (the original 19 -
+        // Floyd's eccentric heart) and keep melancholy a thin slice so he never reads as mopey. Each
+        // AI bucket gets a random seed (see FloydPrompts.Seeds) so identical room+context still varies.
+        return Chooser.RollDice(100) switch
         {
-            1 => await GenerateCompanionSpeech(context, client, FloydPrompts.DoSomethingSmall),
-            2 => await GenerateCompanionSpeech(context, client, FloydPrompts.NonSequiturDialog),
-            3 => await GenerateCompanionSpeech(context, client, FloydPrompts.NonSequiturReflection),
-            4 => await GenerateCompanionSpeech(context, client, FloydPrompts.HappySayAndDoSomething),
-            5 => await GenerateCompanionSpeech(context, client, FloydPrompts.MelancholyNonSequitur),
-            _ => Chooser.Choose(FloydConstants.RandomActions.ToList())
+            <= 35 => Chooser.Choose(FloydConstants.RandomActions.ToList()), // 35% canonical static actions
+            <= 53 => await Speak(FloydPrompts.NonSequiturDialog, "non_sequitur_dialog"), // 18%
+            <= 68 => await Speak(FloydPrompts.DoSomethingSmall, "do_something_small"), // 15%
+            <= 80 => await Speak(FloydPrompts.HappySayAndDoSomething, "happy_say_and_do"), // 12%
+            <= 92 => await Speak(FloydPrompts.NonSequiturReflection, "non_sequitur_reflection"), // 12%
+            _ => await Speak(FloydPrompts.MelancholyNonSequitur, "melancholy") // 8%
         };
+
+        Task<string> Speak(string prompt, string seedKey) =>
+            GenerateCompanionSpeech(context, client, prompt, Chooser.Choose(FloydPrompts.Seeds[seedKey].ToList()));
     }
 
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,

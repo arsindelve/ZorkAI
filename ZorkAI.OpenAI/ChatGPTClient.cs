@@ -15,6 +15,17 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
 {
     protected override string ModelName => "gpt-4o";
 
+    // Companion speech (Floyd's chatter) runs on a cheaper, equally-fast model. It is a short,
+    // throwaway, in-character one-liner that does not need the narrator's model - and at ~1,130
+    // input tokens vs ~25 output, this is ~7x cheaper per call with equal latency and quality.
+    // NOTE: confirm this id is enabled on the account before deploying.
+    private const string CompanionModelName = "gpt-5.4-mini";
+
+    private ChatClient? _companionClient;
+
+    private ChatClient? CompanionClient =>
+        _companionClient ??= ApiKey is null ? null : new ChatClient(model: CompanionModelName, apiKey: ApiKey);
+
     public Action? OnGenerate { get; set; }
 
     public bool IsDisabled { get; set; }
@@ -109,11 +120,17 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
             Temperature = request.Temperature
         };
 
-        ChatCompletion completion = await Client!.CompleteChatAsync(messages, options);
+        ChatCompletion completion = await (CompanionClient ?? Client)!.CompleteChatAsync(messages, options);
         var responseContent = completion.Content[0].Text;
 
         if (string.IsNullOrEmpty(responseContent))
             return "Your companion says nothing. ";
+
+        // Some models occasionally emit curly quotes; normalize to straight quotes so downstream
+        // rendering and any quote-based handling are consistent.
+        responseContent = responseContent
+            .Replace('“', '"').Replace('”', '"')
+            .Replace('‘', '\'').Replace('’', '\'');
 
         Log(request, responseContent, request.SystemMessage);
 

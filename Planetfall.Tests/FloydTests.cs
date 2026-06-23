@@ -1,5 +1,6 @@
 using System.Reflection;
 using FluentAssertions;
+using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Interface;
 using Model.Item;
@@ -426,7 +427,7 @@ public class FloydTests : EngineTestsBase
 
         methodInfo!.Should().NotBeNull();
 
-        await (Task<string>)methodInfo.Invoke(floyd, [target.Context, target.GenerationClient, null!])!;
+        await (Task<string>)methodInfo.Invoke(floyd, [target.Context, target.GenerationClient, null!, null!])!;
 
         // Verify the mock was called
         mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Once);
@@ -1760,6 +1761,77 @@ public class FloydTests : EngineTestsBase
         var result2 = await floyd.Act(target.Context, target.GenerationClient);
         result2.Should().NotBeEmpty();
         result2.Should().StartWith("Floyd");
+    }
+
+    #endregion
+
+    #region Random idle comments: seed injection + bucket weighting
+
+    [Test]
+    public async Task RandomComment_AppendsTheChosenSeedToThePrompt()
+    {
+        GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+
+        CompanionRequest? captured = null;
+        var client = new Mock<IGenerationClient>();
+        client.Setup(c => c.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .Callback<CompanionRequest>(r => captured = r)
+            .ReturnsAsync("Floyd does a small thing.");
+
+        // A seed is what forces variety - it must reach the prompt the model actually sees.
+        await floyd.GenerateCompanionSpeech(Context, client.Object, FloydPrompts.NonSequiturDialog,
+            "a fan that has stopped spinning");
+
+        captured.Should().NotBeNull();
+        captured!.UserMessage.Should().Contain("a fan that has stopped spinning");
+        captured.UserMessage.Should().Contain("Robot Shop"); // current room is injected too
+    }
+
+    [Test]
+    public async Task PerformRandomAction_ChoosesASeededBucket_AndThreadsTheSeedIntoThePrompt()
+    {
+        GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+
+        var chooser = new Mock<IRandomChooser>();
+        chooser.Setup(c => c.RollDice(12)).Returns(1); // fire an idle comment
+        chooser.Setup(c => c.RollDice(100)).Returns(50); // <= 53 -> the dialog bucket (a seeded AI bucket)
+        chooser.Setup(c => c.Choose(It.IsAny<List<string>>())).Returns("SEED_MARKER_123");
+        floyd.Chooser = chooser.Object;
+
+        CompanionRequest? captured = null;
+        var client = new Mock<IGenerationClient>();
+        client.Setup(c => c.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .Callback<CompanionRequest>(r => captured = r)
+            .ReturnsAsync("Floyd says something.");
+
+        var method = typeof(Floyd).GetMethod("PerformRandomAction",
+            BindingFlags.NonPublic | BindingFlags.Instance)!;
+        await (Task<string>)method.Invoke(floyd, [Context, client.Object])!;
+
+        captured.Should().NotBeNull("a seeded AI bucket should have been chosen");
+        captured!.UserMessage.Should().Contain("SEED_MARKER_123");
+    }
+
+    [Test]
+    public void SeedBanks_ExistForEveryAiBucket_WithRoomToRotate()
+    {
+        string[] buckets =
+        [
+            "do_something_small", "non_sequitur_dialog", "non_sequitur_reflection",
+            "happy_say_and_do", "melancholy"
+        ];
+
+        foreach (var bucket in buckets)
+        {
+            FloydPrompts.Seeds.Should().ContainKey(bucket);
+            FloydPrompts.Seeds[bucket].Length.Should().BeGreaterThanOrEqualTo(20,
+                $"bucket '{bucket}' needs more seeds than a short run uses, so it does not repeat one");
+        }
     }
 
     #endregion
