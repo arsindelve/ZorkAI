@@ -53,6 +53,12 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     [UsedImplicitly] public bool HasGottenTheFromitzBoard { get; set; }
 
+    /// <summary>
+    /// Set when Floyd has shown the player his lower-elevator card (CARD-REVEALED in ZIL).
+    /// Also set by the SHOW handler (issue #203) so both paths share a single revealed flag.
+    /// </summary>
+    [UsedImplicitly] public bool LowerElevatorCardRevealed { get; set; }
+
     // When you initially turn on Floyd, nothing happens for 3 turns. This delay never happens
     // again if you turn him on/off another time.
     [UsedImplicitly] public int TurnOnCountdown { get; set; } = 3;

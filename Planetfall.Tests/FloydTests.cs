@@ -325,7 +325,7 @@ public class FloydTests : EngineTestsBase
         Take<KitchenAccessCard>();
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
-        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
+        target.Context.Day = 4; // Day > 3 guarantees reveal without dice
 
         var response = await target.GetResponse("slide kitchen access card through slot");
 
@@ -341,7 +341,6 @@ public class FloydTests : EngineTestsBase
         Take<KitchenAccessCard>();
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().CurrentLocation = GetLocation<Library>();
-        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
 
         var response = await target.GetResponse("slide kitchen access card through slot");
 
@@ -356,7 +355,10 @@ public class FloydTests : EngineTestsBase
         Take<KitchenAccessCard>();
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
-        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == false);
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(100)).Returns(100); // > 8 threshold, fails on Day 2
+        GetItem<Floyd>().Chooser = mockChooser.Object;
+        target.Context.Day = 2;
 
         var response = await target.GetResponse("slide kitchen access card through slot");
 
@@ -370,7 +372,6 @@ public class FloydTests : EngineTestsBase
         StartHere<MessHall>();
         Take<KitchenAccessCard>();
         GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
-        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
 
         var response = await target.GetResponse("slide kitchen access card through slot");
 
@@ -386,11 +387,105 @@ public class FloydTests : EngineTestsBase
         GetItem<Floyd>().IsOn = true;
         GetItem<Floyd>().Items.Clear();
         GetItem<Floyd>().CurrentLocation = GetLocation<MessHall>();
-        GetItem<Floyd>().Chooser = Mock.Of<IRandomChooser>(r => r.RollDiceSuccess(3) == true);
+        target.Context.Day = 4; // Would guarantee reveal if Floyd still had the card
 
         var response = await target.GetResponse("slide kitchen access card through slot");
 
         response.Should().NotContain("Floyd claps his hands with excitement");
+    }
+
+    [Test]
+    public async Task DoesFloydOfferCard_Day1_NeverReveals()
+    {
+        var target = GetTarget();
+        StartHere<MessHall>();
+        Take<KitchenAccessCard>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.CurrentLocation = GetLocation<MessHall>();
+        // Force dice to always "succeed" so only the Day 1 gate can block the reveal
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(3)).Returns(true);
+        mockChooser.Setup(r => r.RollDice(100)).Returns(1);
+        floyd.Chooser = mockChooser.Object;
+        target.Context.Day = 1;
+
+        var response = await target.GetResponse("slide kitchen access card through slot");
+
+        response.Should().NotContain("Floyd claps his hands with excitement");
+    }
+
+    [Test]
+    public async Task DoesFloydOfferCard_Day2_RevealsWhenRollSucceeds()
+    {
+        var target = GetTarget();
+        StartHere<MessHall>();
+        Take<KitchenAccessCard>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.CurrentLocation = GetLocation<MessHall>();
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(100)).Returns(8); // <= 8 threshold, succeeds on Day 2
+        floyd.Chooser = mockChooser.Object;
+        target.Context.Day = 2;
+
+        var response = await target.GetResponse("slide kitchen access card through slot");
+
+        response.Should().Contain("Floyd claps his hands with excitement");
+    }
+
+    [Test]
+    public async Task DoesFloydOfferCard_Day4_AlwaysReveals()
+    {
+        var target = GetTarget();
+        StartHere<MessHall>();
+        Take<KitchenAccessCard>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.CurrentLocation = GetLocation<MessHall>();
+        // Mock would fail on Day 2/3, but Day 4 is unconditional
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(100)).Returns(100);
+        floyd.Chooser = mockChooser.Object;
+        target.Context.Day = 4;
+
+        var response = await target.GetResponse("slide kitchen access card through slot");
+
+        response.Should().Contain("Floyd claps his hands with excitement");
+        GetItem<Floyd>().ItemBeingHeld.Should().BeOfType<LowerElevatorAccessCard>();
+    }
+
+    [Test]
+    public async Task DoesFloydOfferCard_AlreadyRevealed_NoDoubleReveal()
+    {
+        var target = GetTarget();
+        StartHere<MessHall>();
+        Take<KitchenAccessCard>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.CurrentLocation = GetLocation<MessHall>();
+        floyd.LowerElevatorCardRevealed = true; // Card was already shown once
+        target.Context.Day = 4; // Would guarantee reveal if not already revealed
+
+        var response = await target.GetResponse("slide kitchen access card through slot");
+
+        response.Should().NotContain("Floyd claps his hands with excitement");
+    }
+
+    [Test]
+    public async Task DoesFloydOfferCard_RevealSetsFlag()
+    {
+        var target = GetTarget();
+        StartHere<MessHall>();
+        Take<KitchenAccessCard>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.CurrentLocation = GetLocation<MessHall>();
+        target.Context.Day = 4;
+
+        await target.GetResponse("slide kitchen access card through slot");
+
+        GetItem<Floyd>().LowerElevatorCardRevealed.Should().BeTrue();
     }
 
     [Test]
