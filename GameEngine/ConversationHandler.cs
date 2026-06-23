@@ -31,19 +31,26 @@ public class ConversationHandler(
 
         if (targetCharacter == null)
         {
-            // No talkable NPC is present. If the player nonetheless addressed a KNOWN but absent one,
-            // tell them the character isn't here instead of letting the leftover command fall through
-            // to normal player parsing. Falling through is the #264 bug: it would silently move the
-            // player ("floyd, go up"), drop their items ("floyd, drop diary"), or let the narrator
-            // hallucinate the absent NPC acting. Detection mirrors the present path: a deterministic
-            // fast path catches the common forms (and works offline), and anything else defers to the
-            // same conversation classifier, so any phrasing works. See FindAddressedAbsentCharacter.
+            // No talkable NPC is present BY NAME. If the player nonetheless addressed a KNOWN but
+            // absent one, tell them the character isn't here instead of letting the leftover command
+            // fall through to normal player parsing. Falling through is the #264 bug: it would
+            // silently move the player ("floyd, go up"), drop their items ("floyd, drop diary"), or
+            // let the narrator hallucinate the absent NPC acting. Detection mirrors the present path:
+            // a deterministic fast path catches the common forms (and works offline), and anything
+            // else defers to the same conversation classifier, so any phrasing works. See
+            // FindAddressedAbsentCharacter.
             var absentTarget = await FindAddressedAbsentCharacter(input);
             if (absentTarget != null)
                 return await NarrateAbsence(absentTarget, context);
 
-            logger?.LogDebug("[CONVERSATION DEBUG] No addressed absent talker; returning null");
-            return null;
+            // #284: the player named no one, but if the utterance is plainly conversational speech
+            // (bare quoted "…", or an untargeted "say …"/greeting) and EXACTLY ONE talkable NPC is
+            // present, route it to them — the same outcome "blather, …" already produces. Requiring a
+            // single present talker means we never have to guess WHOM a nameless line addresses;
+            // requiring unambiguous speech (never a real command) means we never hijack puzzle input
+            // like Zork's "say treasure" (Zork has no talkable NPCs, so this branch can't fire there
+            // anyway). See TryRouteNamelessSpeech.
+            return await TryRouteNamelessSpeech(input, present, context);
         }
 
         // A talkable character is present. Routing the player's utterance to them relies on the AI
@@ -56,6 +63,164 @@ public class ConversationHandler(
 
         return await ProcessConversation(input, targetCharacter, context);
     }
+
+    /// <summary>
+    /// Routes plainly-conversational speech that names no one to the sole present talkable NPC
+    /// (#284). Two forms were falling through to the narrator instead of reaching the NPC in the
+    /// room: bare quoted speech (<c>"you are a fool"</c>) and an untargeted speak-aloud verb
+    /// (<c>say hello</c>). Both contain no name, so neither the present-name nor the absent-name
+    /// lookup matches them, and the input used to leak to the third-person narrator.
+    ///
+    /// The guards are deliberately conservative:
+    /// <list type="bullet">
+    /// <item>EXACTLY ONE talker must be present. With no name to disambiguate, a single present
+    /// talker is the only case where we know who is being addressed (Feinstein can hold Blather AND
+    /// the Ambassador at once; that ambiguous case falls through, as the issue allows).</item>
+    /// <item>The input must read as unambiguous speech, never a real command — so puzzle input such
+    /// as Zork's "say treasure" is never hijacked. Zork has no talkable NPCs, so the single-talker
+    /// gate already keeps this branch dormant there; the speech test is a second line of defense.</item>
+    /// <item>Routing relies on the NPC's AI conversation backend, so it honors the generation
+    /// kill-switch exactly like the present-name path, staying deterministic in NoGeneratedResponses
+    /// mode.</item>
+    /// </list>
+    /// Returns the NPC's reply, or null to fall through to normal parsing.
+    /// </summary>
+    private async Task<string?> TryRouteNamelessSpeech(string input, List<ICanBeTalkedTo> present, IContext context)
+    {
+        if (present.Count != 1)
+        {
+            logger?.LogDebug($"[CONVERSATION DEBUG] Nameless speech: {present.Count} present talker(s), not routing");
+            return null;
+        }
+
+        if (!TryExtractNamelessSpeech(input, out var speech))
+        {
+            logger?.LogDebug("[CONVERSATION DEBUG] Input is not nameless conversational speech; returning null");
+            return null;
+        }
+
+        if (generationClient.IsDisabled)
+        {
+            logger?.LogDebug("[CONVERSATION DEBUG] Conversations disabled via NoGeneratedResponses flag");
+            return null;
+        }
+
+        var target = present[0];
+        logger?.LogDebug($"[CONVERSATION DEBUG] Routing nameless speech '{speech}' to the sole present talker");
+        return await target.OnBeingTalkedTo(speech, context, generationClient);
+    }
+
+    /// <summary>
+    /// The "speak aloud" verbs that introduce untargeted speech ("say hello", "shout hi"). Derived
+    /// from the central <see cref="Verbs.SayVerbs" /> list minus "tell", which is a *named*-address
+    /// lead-in ("tell floyd …") handled by the name-based paths rather than untargeted speech.
+    /// </summary>
+    private static readonly string[] NamelessSpeechVerbs =
+        Verbs.SayVerbs.Where(verb => verb != "tell").ToArray();
+
+    /// <summary>
+    /// Casual one-shot greetings that count as conversation when addressed to no one in particular.
+    /// A bare greeting with a single present talker is routed to them ("hi" -> the NPC). Kept tight
+    /// to unambiguous greetings so an ordinary command is never mistaken for one.
+    /// </summary>
+    private static readonly string[] BareGreetings =
+        ["hello", "hi", "hey", "yo", "greetings", "howdy", "hiya", "hey there", "hello there", "hi there"];
+
+    /// <summary>
+    /// Prepositions that, right after a speak-aloud verb, name a *recipient* ("say TO guard …",
+    /// "whisper TO ghost …", "yell AT them", "speak WITH her"). That is directed address to a
+    /// specific (here, unknown or absent) party, not untargeted speech, so it must not be put into
+    /// the present NPC's mouth. When the recipient is the present NPC, the name-based path already
+    /// handled it and we never reach the nameless route.
+    ///
+    /// Deliberately broad: it also rejects the rare untargeted phrasing that happens to begin with
+    /// one of these words ("say with feeling"). That only costs a harmless fall-through to normal
+    /// parsing, which is the safe failure for an ambiguous line — better than risking a directed
+    /// address being spoken at the wrong NPC.
+    /// </summary>
+    private static readonly string[] DirectedAddressPrepositions = ["to", "at", "with"];
+
+    /// <summary>
+    /// Recognizes the nameless conversational forms and yields the words to hand to the NPC: bare
+    /// quoted speech ("…"), an untargeted speak-aloud verb ("say …"), or a bare greeting ("hi").
+    /// Anything else (a real command) yields false so the input falls through to normal parsing.
+    /// </summary>
+    private static bool TryExtractNamelessSpeech(string input, out string speech)
+    {
+        speech = string.Empty;
+        var trimmed = input.Trim();
+        if (trimmed.Length == 0)
+            return false;
+
+        // 1. Bare quoted speech: "you are a fool" -> you are a fool. The surrounding double quotes
+        //    are a deterministic, collision-free signal — no game command is written inside quotes.
+        if (TryStripQuotedSpeech(trimmed, out var quoted))
+        {
+            speech = quoted;
+            return true;
+        }
+
+        // 2. Untargeted speak-aloud verb: "say hello" -> hello. ("say to floyd …" names a target and
+        //    is handled by the name paths, so by the time we get here no name was found.) Quotes
+        //    around the remainder are stripped too, so 'say "hello"' reaches the NPC as hello.
+        foreach (var verb in NamelessSpeechVerbs)
+        {
+            if (!StartsWithWholeWord(trimmed, verb))
+                continue;
+
+            // Strip a leading comma/punctuation after the verb ("say, hello" -> hello), mirroring
+            // TryStripDirectAddress. This also lets the directed-address guard below see the real
+            // first word, so "say, to guard …" is recognized as directed and not routed.
+            var rest = trimmed[verb.Length..].TrimStart(' ', ',', '.', '!', '?').Trim();
+
+            // "say to guard …" / "whisper to ghost …" / "yell at X" name a recipient — directed
+            // address to someone else, not untargeted speech — so leave it for normal parsing
+            // instead of routing it to the present NPC.
+            if (DirectedAddressPrepositions.Any(prep => StartsWithWholeWord(rest, prep)))
+                return false;
+
+            if (TryStripQuotedSpeech(rest, out var innerQuoted))
+                rest = innerQuoted;
+
+            if (rest.Length > 0)
+            {
+                speech = rest;
+                return true;
+            }
+        }
+
+        // 3. A bare greeting on its own ("hello", "hey there").
+        if (BareGreetings.Any(greeting => trimmed.Equals(greeting, StringComparison.OrdinalIgnoreCase)))
+        {
+            speech = trimmed;
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// If <paramref name="text" /> begins with a double quote, returns the text inside the quotes (a
+    /// trailing quote is optional, so an unterminated <c>"hello</c> reaches the NPC too). Only double
+    /// quotes — straight or smart — count; an apostrophe is too common in ordinary words to treat as
+    /// the start of speech. Returns false (with an empty result) when there is no opening quote or
+    /// nothing inside.
+    /// </summary>
+    private static bool TryStripQuotedSpeech(string text, out string inner)
+    {
+        inner = string.Empty;
+        if (text.Length == 0 || !IsDoubleQuote(text[0]))
+            return false;
+
+        var body = text[1..];
+        if (body.Length > 0 && IsDoubleQuote(body[^1]))
+            body = body[..^1];
+
+        inner = body.Trim();
+        return inner.Length > 0;
+    }
+
+    private static bool IsDoubleQuote(char c) => c is '"' or '“' or '”';
 
     /// <summary>
     /// Produces the response when the player addressed an absent known character. The narrator tells
