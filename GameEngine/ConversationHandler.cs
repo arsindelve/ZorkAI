@@ -394,10 +394,21 @@ public class ConversationHandler(
     }
 
     /// <summary>
-    /// Detects the vocative "Name, ..." direct-address pattern (e.g. "blather, you clean the
-    /// floor") and returns the text that follows the name. This is a strong, deterministic
-    /// signal that the player is speaking to the character, independent of the AI rewriter,
-    /// which only reliably recognizes imperative commands.
+    /// Detects whether the player directly addressed the present character by name and, if so, returns
+    /// the text that follows the name to route to <see cref="ICanBeTalkedTo.OnBeingTalkedTo"/>. This is
+    /// a strong, deterministic signal independent of the AI rewriter, which only reliably recognizes
+    /// imperative commands. Recognizes the name at the start of the utterance — bare ("blather you are
+    /// a fool"), vocative ("blather, ..."), the name alone ("blather"), or behind a casual/article
+    /// opener ("hey blather", "the ambassador ...") — mirroring the absent-NPC check in
+    /// <see cref="IsGenuineDirectAddress"/>.
+    ///
+    /// A comma is deliberately NOT required. Requiring one was the #286 gap: the bare no-comma form had
+    /// no deterministic backstop, so detection fell entirely to the nondeterministic classifier and
+    /// intermittently (~3-5%) deflected to the narrator. Almost nothing legitimately starts a command
+    /// with a character's name, so the leading-name form is genuine address. Names match at a word
+    /// boundary, so a mere mention ("examine blather") is not hijacked (it never starts with the name
+    /// anyway). Imperative lead-ins ("ask blather ...") are left to the classifier, which handles
+    /// commands reliably; only the leading-name form needs the deterministic guard.
     /// </summary>
     private static bool TryStripDirectAddress(string input, ICanBeTalkedTo targetCharacter, out string remainder)
     {
@@ -406,22 +417,17 @@ public class ConversationHandler(
         if (targetCharacter is not IItem item)
             return false;
 
-        var trimmed = input.TrimStart();
+        // Strip one leading casual opener ("hey "/"yo "/...) and/or article ("the ") so "hey blather,
+        // ..." and "the ambassador ..." are recognized, exactly as the absent-NPC path does.
+        var leading = StripLeadingAddressPrefix(input.TrimStart());
 
         // Prefer the longest matching noun so "ensign blather" wins over "blather".
         foreach (var noun in item.NounsForMatching.OrderByDescending(n => n.Length))
         {
-            if (!trimmed.StartsWith(noun, StringComparison.OrdinalIgnoreCase))
+            if (!StartsWithWholeWord(leading, noun))
                 continue;
 
-            var rest = trimmed[noun.Length..];
-
-            // Require the name to be followed by a comma (or to be the whole input) so we
-            // only catch genuine direct address and never hijack a real command.
-            if (!rest.StartsWith(',') && rest.Trim().Length != 0)
-                continue;
-
-            remainder = rest.TrimStart(',', ' ', '.', '!', '?').Trim();
+            remainder = leading[noun.Length..].TrimStart(',', ' ', '.', '!', '?').Trim();
 
             // "blather" / "blather," on its own: pass the whole utterance through.
             if (string.IsNullOrWhiteSpace(remainder))
