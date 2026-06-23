@@ -13,7 +13,7 @@ change.** This doc notes only what's Zork-specific. See
 | `Score` (of 350) | Coarse progress; `GameOver` flag set at 350 |
 | `Moves` | Pacing |
 | `Items` (inventory) | Tools/treasures currently held |
-| `GameOver` | Endgame reached |
+| `GameOver` | Endgame reached. **Sticky** — set once `Score` first hits 350 and **never cleared**, even though `Score` can drop afterward (e.g. taking a treasure back out of the case). So **do not treat `GameOver` as `Score == 350`** — they diverge once a deposited treasure is removed (`ZorkIContext.cs`, field comment). |
 | (death/lamp/grue state) | Light-source survival (see below) |
 
 ## Tier 2 — the real localization key: treasure + gate state
