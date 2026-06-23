@@ -63,18 +63,18 @@ depends on. These are the load-bearing edges:
 
 ```mermaid
 graph TD
-  HOUSE[Enter house: window→kitchen→living room] --> TRAPDOOR[Move rug, open trap door]
-  HOUSE --> LAMP[Get lamp - light source]
+  HOUSE["Enter house: window → kitchen → living room"] --> TRAPDOOR["Move rug, open trap door"]
+  HOUSE --> LAMP["Get lamp (light source)"]
   HOUSE --> SWORD[Get sword]
   TRAPDOOR --> CELLAR[Cellar / underground]
   LAMP --> CELLAR
   CELLAR --> TROLL[Defeat troll]
   TROLL --> MAZE & DAM & TEMPLE & ROUND[Round Room hub]
   ROUND --> LOUD[Loud Room] & DAM
-  MAZE --> CYCLOPS[Cyclops: say Ulysses] --> THIEF[Thief's lair / Treasure Room]
+  MAZE --> CYCLOPS["Cyclops: say Ulysses"] --> THIEF["Thief's lair / Treasure Room"]
   DAM --> RESERVOIR[Drain reservoir] --> TRIDENT & TRUNK[Trunk of Jewels]
   TEMPLE --> HADES[Exorcism] --> CROWNROOM
-  CELLAR --> MINE_ACCESS[Coal mine] --> GASROOM[Gas room - NO FLAME] --> SHAFT[Basket/shaft] --> DIAMOND_MACHINE[Coal->Diamond]
+  CELLAR --> MINE_ACCESS[Coal mine] --> GASROOM["Gas room — NO FLAME"] --> SHAFT["Basket / shaft"] --> DIAMOND_MACHINE["Coal-to-Diamond machine"]
   TEMPLE --> RAINBOW[Wave sceptre at falls] --> POTOFGOLD
   RESERVOIR --> RIVER[Inflatable boat] --> EMERALD & SCARAB
   ALL[All 19 in Trophy Case = 350] --> ENDGAME[Map to stone barrow]

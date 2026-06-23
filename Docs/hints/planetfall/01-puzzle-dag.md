@@ -45,7 +45,7 @@ checkpoint asserted in the walkthrough at/after that node.
 | `LASER` | `take laser`, `remove`/replace battery | Tool Room / Lab Storage | — | Needs fresh battery (Lab Storage) |
 | `BIOLOCK` | Floyd sacrifice: `open door`/`close door` sequence → Floyd retrieves the miniaturization card and dies | Bio Lock | 56 | Needs `FLOYD` present; **Floyd dies here (required)** |
 | `MINI_CARD` | `take miniaturization card` | Bio Lock East | 57 | Needs `BIOLOCK` |
-| **`COMPUTER_FIX`** ◆ | Miniaturize (`slide mini card`, `type 384`), `shoot speck with laser` ×2, exit to Auxiliary Booth | Miniaturization Booth → Microbe strip | 63→75 | **MANDATORY.** Needs `MINI_CARD` + charged `LASER`. Fixes the computer / cures The Disease |
+| **`COMPUTER_FIX`** ◆ | Miniaturize (`slide mini card`, `type 384`), `shoot speck with laser` ×2, exit to Auxiliary Booth | Miniaturization Booth → Microbe strip | 61→75 | **MANDATORY.** Needs `MINI_CARD` + charged `LASER`. Fixes the computer / cures The Disease. (Confirmed checkpoints: 61 miniaturize · 63 first hit · 71 vaporize · 75 exit.) |
 | `GAS_MASK` | `read memo`, `take mask`, `wear gas mask`, `press red button`, open door | Lab Office | — | Needs `COMPUTER_FIX` (auxiliary booth exit) |
 | `MUTANT_CHASE` | Flee the mutants back to the Cryo-Elevator, `press button` | Lab → Cryo-Elevator | 80 | Needs `GAS_MASK`; time/chase pressure |
 | `ENDING` | wait → Veldina wakes; ending varies by which ★ systems are fixed | Cryo-Anteroom | — | Needs `MUTANT_CHASE` (i.e. `COMPUTER_FIX`) |

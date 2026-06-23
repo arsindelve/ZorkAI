@@ -152,9 +152,12 @@ The three that most determine success: **full-state blocker inference**, **unwin
 
 These gate the build; capture answers here.
 
-1. **Prerequisite edges** — verify the DAG drafts: [Planetfall](planetfall/01-puzzle-dag.md) and
-   [Zork I](zorkone/01-structure-dag.md) — true dependency vs incidental order. (Claude proposes from
-   ZIL; you confirm.)
+1. **Prerequisite edges + Zork treasure→chain mapping** — verify the DAG drafts:
+   [Planetfall](planetfall/01-puzzle-dag.md) and [Zork I](zorkone/01-structure-dag.md) — true
+   dependency vs incidental order. For Zork specifically, the **treasure→chain mapping** in the
+   structure doc is still placeholder-grade (e.g. the Maze row) and the access-gate set is provisional;
+   both need an owner walk-through before the eval-fixture sizing derived from them is trusted.
+   (Claude proposes from ZIL; you confirm.)
 2. **Soft-lock lists** — confirm/extend the candidates: [Planetfall](planetfall/03-softlock.md) and
    [Zork I](zorkone/03-softlock.md). (Zork's egg/canary trap is already confirmed in code.)
 3. **Hint-content source** — the **invisiclues are central and stay** (laddering for both games + PF
