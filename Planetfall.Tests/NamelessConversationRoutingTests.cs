@@ -57,21 +57,23 @@ public class NamelessConversationRoutingTests : EngineTestsBase
     }
 
     [Test]
-    public async Task RealCommand_WithFloydPresent_IsNotHijacked()
+    public async Task NamelessNonSpeechCommand_WithSolePresentFloyd_IsNotRoutedToHim()
     {
-        // A real command that names no talker and is not speech must still be parsed normally even
-        // with Floyd present — the nameless route must not swallow ordinary play.
+        // A real command that names no talker and is not speech reaches the nameless-speech branch
+        // and must fall through to normal parsing — it must NOT be routed to the present NPC. Any
+        // routed input would surface this sentinel; ordinary parsing of an unrecognized noun won't.
         var target = GetTarget();
         StartHere<RobotShop>();
         var floyd = GetItem<Floyd>();
         floyd.IsOn = true;
-        // If routing fired, AskFloydAsync would be invoked; we never set it up, so any call would be
-        // an obvious mismatch. The assertion below is the real guard.
-        floyd.ChatWithFloyd = new Mock<IChatWithFloyd>(MockBehavior.Strict).Object;
+        var chat = new Mock<IChatWithFloyd>();
+        chat.Setup(s => s.AskFloydAsync(It.IsAny<string>()))
+            .ReturnsAsync(new CompanionResponse("FLOYD-WAS-WRONGLY-ENGAGED", null));
+        floyd.ChatWithFloyd = chat.Object;
 
-        var response = await target.GetResponse("examine floyd");
+        var response = await target.GetResponse("examine the workbench");
 
-        // Examining Floyd describes him; it does not produce a routed conversation reply.
-        response.Should().Contain("robot");
+        response.Should().NotContain("FLOYD-WAS-WRONGLY-ENGAGED");
+        chat.Verify(s => s.AskFloydAsync(It.IsAny<string>()), Times.Never);
     }
 }

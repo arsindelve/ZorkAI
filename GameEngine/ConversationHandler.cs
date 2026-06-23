@@ -132,6 +132,11 @@ public class ConversationHandler(
     /// specific (here, unknown or absent) party, not untargeted speech, so it must not be put into
     /// the present NPC's mouth. When the recipient is the present NPC, the name-based path already
     /// handled it and we never reach the nameless route.
+    ///
+    /// Deliberately broad: it also rejects the rare untargeted phrasing that happens to begin with
+    /// one of these words ("say with feeling"). That only costs a harmless fall-through to normal
+    /// parsing, which is the safe failure for an ambiguous line — better than risking a directed
+    /// address being spoken at the wrong NPC.
     /// </summary>
     private static readonly string[] DirectedAddressPrepositions = ["to", "at", "with"];
 
@@ -163,7 +168,10 @@ public class ConversationHandler(
             if (!StartsWithWholeWord(trimmed, verb))
                 continue;
 
-            var rest = trimmed[verb.Length..].Trim();
+            // Strip a leading comma/punctuation after the verb ("say, hello" -> hello), mirroring
+            // TryStripDirectAddress. This also lets the directed-address guard below see the real
+            // first word, so "say, to guard …" is recognized as directed and not routed.
+            var rest = trimmed[verb.Length..].TrimStart(' ', ',', '.', '!', '?').Trim();
 
             // "say to guard …" / "whisper to ghost …" / "yell at X" name a recipient — directed
             // address to someone else, not untargeted speech — so leave it for normal parsing

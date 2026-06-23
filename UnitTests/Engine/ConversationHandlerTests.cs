@@ -669,6 +669,7 @@ public class ConversationHandlerTests
     [TestCase("“you are a fool”", "you are a fool", TestName = "SmartQuotedSpeech")]
     [TestCase("\"you are a fool", "you are a fool", TestName = "UnterminatedQuotedSpeech")]
     [TestCase("say hello", "hello", TestName = "UntargetedSay")]
+    [TestCase("say, hello", "hello", TestName = "UntargetedSayWithComma")]
     [TestCase("shout get out", "get out", TestName = "UntargetedShout")]
     [TestCase("say \"hello\"", "hello", TestName = "UntargetedSayQuoted")]
     [TestCase("hello", "hello", TestName = "BareGreeting")]
@@ -737,6 +738,7 @@ public class ConversationHandlerTests
     }
 
     [TestCase("say to guard let me pass", TestName = "SayToOtherParty")]
+    [TestCase("say, to guard let me pass", TestName = "SayCommaToOtherParty")]
     [TestCase("whisper to ghost that we should leave", TestName = "WhisperToOtherParty")]
     [TestCase("yell at the guard to halt", TestName = "YellAtOtherParty")]
     [TestCase("speak with the wizard", TestName = "SpeakWithOtherParty")]
