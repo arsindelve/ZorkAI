@@ -23,10 +23,10 @@ public class StreamTests : EngineTestsBase
         return target;
     }
 
-    // Put the reservoir into its drained state — the only state in which the Reservoir room (and so the
-    // stream above it) is reachable in normal play, and the only state in which standing in the
-    // Reservoir is survivable. A full/filling reservoir drowns the player via Reservoir.Act(), which
-    // fires during end-of-turn processing the moment we move into the Reservoir.
+    // Put the reservoir into its drained, survivable state. MUST be called AFTER GetLitTargetAt — that
+    // helper runs GetTarget(), which calls Repository.Reset() and rebuilds every location singleton
+    // fresh (ReservoirSouth.Init() sets IsFull = true). Calling it earlier would be silently undone by
+    // that reset, leaving the reservoir full so the player drowns the moment they enter it.
     private static void DrainReservoir()
     {
         var south = Repository.GetLocation<ReservoirSouth>();
@@ -72,8 +72,8 @@ public class StreamTests : EngineTestsBase
     [Test]
     public async Task Reservoir_Up_ReachesStream_WhenDrained()
     {
-        DrainReservoir();
         var target = GetLitTargetAt<Reservoir>();
+        DrainReservoir();
 
         var response = await target.GetResponse("up");
 
@@ -83,8 +83,8 @@ public class StreamTests : EngineTestsBase
     [Test]
     public async Task Reservoir_West_ReachesStream_WhenDrained()
     {
-        DrainReservoir();
         var target = GetLitTargetAt<Reservoir>();
+        DrainReservoir();
 
         var response = await target.GetResponse("west");
 
@@ -114,23 +114,45 @@ public class StreamTests : EngineTestsBase
     [Test]
     public async Task Stream_Down_ReachesReservoir()
     {
-        DrainReservoir();
         var target = GetLitTargetAt<InStream>();
+        DrainReservoir();
 
         var response = await target.GetResponse("down");
 
         response.Should().Contain("mud");
+        response.Should().NotContain("rising river"); // a drained reservoir is survivable — no drowning
     }
 
     [Test]
     public async Task Stream_East_ReachesReservoir()
     {
-        DrainReservoir();
         var target = GetLitTargetAt<InStream>();
+        DrainReservoir();
 
         var response = await target.GetResponse("east");
 
         response.Should().Contain("mud");
+        response.Should().NotContain("rising river"); // a drained reservoir is survivable — no drowning
+    }
+
+    [Test]
+    public async Task Stream_Down_IntoFullReservoir_Drowns()
+    {
+        // InStream's DOWN/EAST exits carry no "you would drown" pre-check (unlike ReservoirSouth's
+        // North). The kill is enforced one layer down by Reservoir.Act() when the reservoir is full, so
+        // re-entering a full reservoir from the stream is fatal. This is the load-bearing safety net
+        // that lets InStream itself carry no drowning logic (issue #210). Set the full state AFTER
+        // GetLitTargetAt so it survives the Reset() inside GetTarget().
+        var target = GetLitTargetAt<InStream>();
+        var south = Repository.GetLocation<ReservoirSouth>();
+        south.IsFull = true;
+        south.IsDrained = false;
+        south.IsFilling = false;
+        south.IsDraining = false;
+
+        var response = await target.GetResponse("down");
+
+        response.Should().Contain("rising river");
     }
 
     [Test]

@@ -8,6 +8,12 @@ namespace ZorkOne.Location;
 
 public class InStream : DarkLocation
 {
+    // The original LAND verb plus natural synonyms that disembark to the beach at Stream View. Static
+    // so it isn't rebuilt on every command typed in this room.
+    private static readonly string[] LandCommands =
+        ["land", "disembark", "shore", "beach", "ashore", "go to shore", "go ashore"];
+
+
     // The ZIL room IN-STREAM is a NONLANDBIT (water) room reached by boat, but this port already
     // models the adjacent Reservoir as a drained mud flat the player crosses on foot — no boat (see
     // Reservoir.cs / ReservoirSouth.cs). For consistency, and because the port never brings the boat
@@ -20,10 +26,13 @@ public class InStream : DarkLocation
         return new Dictionary<Direction, MovementParameters>
         {
             // ZIL IN-STREAM: DOWN and EAST both flow back into the Reservoir. These are deliberately
-            // left unguarded — unlike ReservoirSouth's North exit, which has a "you would drown" check.
-            // The ZIL puts the drown daemon on RESERVOIR alone, and the Stream is only reachable
-            // *through* an already-drained Reservoir (the gate controls live at the Dam, so it can't
-            // refill while the player is up here). Per issue #210: "InStream needs no drowning logic."
+            // left unguarded — unlike ReservoirSouth's North exit, which pre-checks with "you would
+            // drown." Per issue #210, InStream carries no drowning logic of its own; the drown daemon
+            // lives on RESERVOIR. The refill is timer-driven (the ReservoirSouth actor) and keeps
+            // ticking regardless of the player's location, so the reservoir CAN fill while the player is
+            // up the stream. That's safe because the kill is enforced one layer down: re-entering a full
+            // Reservoir re-registers its actor and Reservoir.Act() drowns the player at end of turn, no
+            // matter which neighbor they came from (see StreamTests.Stream_Down_IntoFullReservoir_Drowns).
             { Direction.Down, new MovementParameters { Location = GetLocation<Reservoir>() } },
             { Direction.E, new MovementParameters { Location = GetLocation<Reservoir>() } },
             {
@@ -57,8 +66,7 @@ public class InStream : DarkLocation
 
         var preppedInput = input.ToLowerInvariant().Trim();
 
-        string[] landCommands = ["land", "disembark", "shore", "beach", "ashore", "go to shore", "go ashore"];
-        if (landCommands.Contains(preppedInput))
+        if (LandCommands.Contains(preppedInput))
             return new PositiveInteractionResult(
                 await MoveEngine.Go(context, client, new MovementParameters { Location = GetLocation<StreamView>() }));
 
