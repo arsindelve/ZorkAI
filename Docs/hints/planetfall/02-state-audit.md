@@ -6,12 +6,14 @@ entire world, so localization needs no engine changes.
 
 ## How state is persisted
 
-`GameEngine.SaveGame()` (`GameEngine/GameEngine.cs:579`) does:
+`GameEngine.SaveGame()` (in `GameEngine/GameEngine.cs`) does:
 
 ```csharp
 JsonConvert.SerializeObject(savedGame, JsonSettings());   // SavedGame<TContext>
-// JsonSettings(): TypeNameHandling = TypeNameHandling.All   (GameEngine.cs:895)
+// JsonSettings(): TypeNameHandling = TypeNameHandling.All
 ```
+
+(Symbols cited by name rather than line number — line numbers drift across branches.)
 
 `SavedGame<TContext>` (`GameEngine/SavedGame.cs`) holds three fields: `Context`, and
 `AllItems` / `AllLocations` — `Dictionary<Type, IItem>` / `Dictionary<Type, ILocation>` **extracted

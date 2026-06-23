@@ -159,7 +159,9 @@ These gate the build; capture answers here.
    survival hints). Two tasks: (a) bring the Planetfall invisiclues in-repo (currently only in the
    external Python repo); (b) **identify/obtain a Zork I hint-content source** — the walkthrough gives
    the answer rung, but the laddering layer needs invisiclues-style content that isn't in either repo
-   yet. Decide source + licensing.
+   yet. Decide source + licensing. **(b) is a HARD BLOCKER for Zork I Stage 4** (laddering) — without
+   a hint corpus, Zork can do localization/blocker-inference/soft-locks but cannot ladder hints. Not
+   an estimation footnote; resolve before committing to the Zork Stage 4 timeline.
 4. **Product contracts:**
    - Disclosure: how stuck before revealing how much? Fixed ladder vs frustration-sensing?
    - Voice: in-world (Floyd in Planetfall) vs out-of-world guide? (Zork has no companion narrator.)
