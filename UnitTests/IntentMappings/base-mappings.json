@@ -124,6 +124,10 @@
     { "inputs": ["open the egg with the screwdriver"], "verb": "open", "nounOne": "egg", "nounTwo": "screwdriver", "preposition": "with", "originalInput": "open the egg with the screwdriver" },
     { "inputs": ["open the egg with the knife"], "verb": "open", "nounOne": "egg", "nounTwo": "knife", "preposition": "with", "originalInput": "open the egg with the knife" },
     { "inputs": ["open the egg with the sword"], "verb": "open", "nounOne": "egg", "nounTwo": "sword", "preposition": "with", "originalInput": "open the egg with the sword" },
+    { "inputs": ["open the egg with the stiletto"], "verb": "open", "nounOne": "egg", "nounTwo": "stiletto", "preposition": "with", "originalInput": "open the egg with the stiletto" },
+    { "inputs": ["open the egg with the wrench"], "verb": "open", "nounOne": "egg", "nounTwo": "wrench", "preposition": "with", "originalInput": "open the egg with the wrench" },
+    { "inputs": ["open the egg with the lamp"], "verb": "open", "nounOne": "egg", "nounTwo": "lamp", "preposition": "with", "originalInput": "open the egg with the lamp" },
+    { "inputs": ["open the egg with the sceptre"], "verb": "open", "nounOne": "egg", "nounTwo": "sceptre", "preposition": "with", "originalInput": "open the egg with the sceptre" },
 
     { "inputs": ["light candles with match"], "verb": "light", "nounOne": "candles", "nounTwo": "match", "preposition": "with", "originalInput": "light candles with match" },
     { "inputs": ["put magnet on crevice"], "verb": "put", "nounOne": "magnet", "nounTwo": "crevice", "preposition": "on", "originalInput": "put magnet on crevice" },

@@ -2,7 +2,7 @@ using GameEngine.Item;
 
 namespace ZorkOne.Item;
 
-public class AirPump : ItemBase, ICanBeTakenAndDropped
+public class AirPump : ItemBase, ICanBeTakenAndDropped, IAmATool
 {
     public override string[] NounsForMatching => ["pump", "air pump", "hand-held air pump"];
 

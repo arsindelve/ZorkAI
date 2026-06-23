@@ -2,7 +2,7 @@ using GameEngine.Item;
 
 namespace ZorkOne.Item;
 
-public class SkeletonKey : ItemBase, ICanBeTakenAndDropped
+public class SkeletonKey : ItemBase, ICanBeTakenAndDropped, IAmATool
 {
     public override string[] NounsForMatching => ["key", "skeleton", "skeleton key"];
 

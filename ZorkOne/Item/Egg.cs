@@ -1,5 +1,6 @@
 using GameEngine;
 using GameEngine.Item;
+using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
 
@@ -76,6 +77,25 @@ public class Egg
         return "You have neither the tools nor the expertise. ";
     }
 
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action,
+        IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
+    {
+        // Throwing the egg opens it — but clumsily. It lands on the floor of the room, damaged
+        // (zork1/1actions.zil:2950: <VERB? THROW> -> <MOVE ,PRSO ,HERE> then BAD-EGG).
+        if (!action.Match(Verbs.ThrowVerbs, NounsForMatching))
+            return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+
+        BreakEggAndCanary();
+
+        // <MOVE ,PRSO ,HERE> — the thrown egg comes to rest in the current room.
+        context.Drop(this);
+
+        return new PositiveInteractionResult(
+            "Your rather indelicate handling of the egg has caused it some damage, although you "
+            + "have succeeded in opening it. "
+        );
+    }
+
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(
         MultiNounIntent action,
         IContext context
@@ -91,33 +111,36 @@ public class Egg
         )
             return await base.RespondToMultiNounInteraction(action, context);
 
-        if (action.MatchNounTwo<Sword>())
-            return PryOpen<Sword>(context);
+        // The original force-opens the egg with ANY weapon or tool: it tests the WEAPONBIT/TOOLBIT
+        // flags, not a fixed item list (zork1/1actions.zil:2932:
+        //   <OR <FSET? ,PRSI ,WEAPONBIT> <FSET? ,PRSI ,TOOLBIT> ...>).
+        // IWeapon is our WEAPONBIT analog; IAmATool is our TOOLBIT analog. Resolving the second
+        // noun to its item (rather than matching fixed types) keeps this faithful as items grow.
+        var tool = action.ItemTwo ?? Repository.GetItem(action.NounTwo);
+        if (tool is not (IWeapon or IAmATool))
+            return await base.RespondToMultiNounInteraction(action, context);
 
-        if (action.MatchNounTwo<NastyKnife>())
-            return PryOpen<NastyKnife>(context);
-
-        if (action.MatchNounTwo<Screwdriver>())
-            return PryOpen<Screwdriver>(context);
-
-        return await base.RespondToMultiNounInteraction(action, context);
-    }
-
-    private InteractionResult PryOpen<T>(IContext context)
-        where T : IItem, new()
-    {
-        if (!context.HasItem<T>())
+        if (!context.Items.Contains(tool))
             return new PositiveInteractionResult("You don't have that! ");
 
-        IsDestroyed = true;
-        IsOpen = true;
-        Repository.GetItem<Canary>().IsDestroyed = true;
+        BreakEggAndCanary();
 
         return new PositiveInteractionResult(
             "The egg is now open, but the clumsiness of your attempt has seriously compromised "
             + "its esthetic appeal. There is a golden clockwork canary nestled in the egg. "
             + Canary.DestroyedMessage
         );
+    }
+
+    /// <summary>
+    ///     The shared BAD-EGG effect (zork1/1actions.zil:2960): the egg is forced open but ruined,
+    ///     and the clockwork canary nestled inside is wrecked along with it.
+    /// </summary>
+    private void BreakEggAndCanary()
+    {
+        IsDestroyed = true;
+        IsOpen = true;
+        Repository.GetItem<Canary>().IsDestroyed = true;
     }
 
     public override string ItemListDescription(string name, ILocation? location)

@@ -2,7 +2,7 @@ using GameEngine.Item;
 
 namespace ZorkOne.Item;
 
-public class Wrench : ItemBase, ICanBeTakenAndDropped
+public class Wrench : ItemBase, ICanBeTakenAndDropped, IAmATool
 {
     public override string[] NounsForMatching => ["wrench"];
 
