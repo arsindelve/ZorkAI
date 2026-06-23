@@ -350,4 +350,15 @@ public class SentenceSplitterTests
         result[0].Should().Be("east");
         result[1].Should().Be("\"hello. I love you\"");
     }
+
+    [Test]
+    public void Split_MixedStraightAndSmartQuotePair_DoesNotSplit()
+    {
+        // The toggle treats any double quote as open-or-close, so a mismatched pair (straight open,
+        // smart close) still brackets the speech and protects the inner period.
+        var result = SentenceSplitter.Split("\"hello. I love you”");
+
+        result.Should().HaveCount(1);
+        result[0].Should().Be("\"hello. I love you”");
+    }
 }

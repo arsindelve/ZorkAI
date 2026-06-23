@@ -123,5 +123,6 @@ public static class SentenceSplitter
     }
 
     // Mirrors ConversationHandler.IsDoubleQuote so the two stages agree on what counts as speech.
+    // Keep the recognized quote characters in sync with that copy.
     private static bool IsDoubleQuote(char c) => c is '"' or '“' or '”';
 }

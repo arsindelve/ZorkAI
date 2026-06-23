@@ -220,6 +220,9 @@ public class ConversationHandler(
         return inner.Length > 0;
     }
 
+    // SentenceSplitter.IsDoubleQuote is a deliberate copy of this set so the two stages agree on what
+    // counts as quoted speech (the splitter must not break a line inside the quotes this method strips).
+    // Keep the recognized quote characters in sync across both.
     private static bool IsDoubleQuote(char c) => c is '"' or '“' or '”';
 
     /// <summary>
