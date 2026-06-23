@@ -33,7 +33,9 @@ public abstract class WalkthroughTestBase : EngineTestsBase
             .ReturnsAsync((true, "go north")); // (true, "go north") means it IS conversational, rewritten to "go north"
 
         _floydChooser = new Mock<IRandomChooser>();
-        _floydChooser.Setup(s => s.RollDiceSuccess(3)).Returns(true);
+        // Force Floyd's lower-elevator-card reveal: the daemon now rolls RollDice(100) against a day-keyed
+        // chance (#222), so a roll of 1 lands inside every day's window (including Day 1's small chance).
+        _floydChooser.Setup(s => s.RollDice(100)).Returns(1);
 
         // Prevent Floyd from wandering during walkthrough tests
         _floydChooser.Setup(s => s.RollDiceSuccess(5)).Returns(false);  // Don't stop following when player moves
