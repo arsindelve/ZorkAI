@@ -119,13 +119,15 @@ public class DeathProcessor
     /// </summary>
     private static void ScatterInventory(ZorkIContext context)
     {
+        var aboveGroundRooms = AboveGroundRooms;
+
         foreach (var item in context.Items.ToList())
         {
             var destination = item switch
             {
                 Lantern => Repository.GetLocation<LivingRoom>(),
                 Coffin => Repository.GetLocation<EgyptianRoom>(),
-                _ => context.Chooser.Choose(AboveGroundRooms)
+                _ => context.Chooser.Choose(aboveGroundRooms)
             };
 
             // Take it out of the player's hands explicitly before placing it. ItemPlacedHere removes

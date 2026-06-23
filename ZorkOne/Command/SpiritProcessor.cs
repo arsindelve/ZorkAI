@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using GameEngine;
 using Model;
 using Model.Interface;
@@ -46,9 +47,10 @@ public class SpiritProcessor
         if (Matches(command, "pray"))
             return Pray(context);
 
-        // LAMP-ON: "turn on lamp" / "light lamp". Resolved before the generic TURN bucket below, just as
-        // the ZIL parser distinguishes the LAMP-ON verb from a bare TURN (zork1/1actions.zil:3130).
-        if (Matches(command, "turn on", "light", "activate") && MentionsLamp(command))
+        // LAMP-ON: "turn on lamp" / "light lamp" / "turn lamp on". Resolved before the generic TURN
+        // bucket below, just as the ZIL parser distinguishes the LAMP-ON verb from a bare TURN
+        // (zork1/1actions.zil:3130).
+        if (IsTurnOnLamp(command))
             return "You need no light to guide you. ";
 
         // ATTACK, MUNG, ALARM, SWING.
@@ -130,10 +132,27 @@ public class SpiritProcessor
         return verbs.Any(v => command == v || command.StartsWith(v + " ", StringComparison.Ordinal));
     }
 
+    /// <summary>
+    ///     Recognizes the various ways a player asks to light the lamp: the particle can lead
+    ///     ("turn on lamp", "light lamp") or trail the object ("turn lamp on"). Mirrors how the ZIL
+    ///     parser collapses all of these to the single LAMP-ON verb before DEAD-FUNCTION sees them.
+    /// </summary>
+    private static bool IsTurnOnLamp(string command)
+    {
+        if (!MentionsLamp(command))
+            return false;
+
+        return Matches(command, "light", "activate")
+               || command.StartsWith("turn on ", StringComparison.Ordinal)
+               || (command.StartsWith("turn ", StringComparison.Ordinal) &&
+                   (command.EndsWith(" on", StringComparison.Ordinal) || command.Contains(" on ")));
+    }
+
     private static bool MentionsLamp(string command)
     {
-        // Deliberately not matching "light": it is also a turn-on verb (handled by the caller's verb
-        // list), so treating it as a lamp noun here would be ambiguous.
-        return command.Contains("lamp") || command.Contains("lantern");
+        // Whole-word match (not a bare Contains) so a future noun like "lampshade" can't be mistaken for
+        // the lamp. Deliberately not matching "light": it is also a turn-on verb, so treating it as a
+        // lamp noun here would be ambiguous.
+        return Regex.IsMatch(command, @"\b(lamp|lantern)\b");
     }
 }

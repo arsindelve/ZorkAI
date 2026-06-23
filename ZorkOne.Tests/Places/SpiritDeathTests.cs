@@ -81,6 +81,19 @@ public class SpiritDeathTests : EngineTestsBase
     }
 
     [Test]
+    public async Task PermanentlyDead_SystemCommandsStillWork()
+    {
+        var target = GetTarget();
+        target.Context.HasPermanentlyDied = true;
+
+        // System commands (here, a verbosity change) are handled before the spirit interceptor, so the
+        // end-of-game block must not swallow them — the player can still save/restore/quit.
+        var response = await target.GetResponse("verbose");
+
+        response.Should().NotContain("adventure has come to an end");
+    }
+
+    [Test]
     public async Task KilledWhileASpirit_EndsTheGame_CannotPrayBackToLife()
     {
         var target = GetTarget();
@@ -156,6 +169,8 @@ public class SpiritDeathTests : EngineTestsBase
         (await target.GetResponse("open door")).Should().Contain("beyond your capabilities");
         (await target.GetResponse("attack spirits")).Should().Contain("vain in your condition");
         (await target.GetResponse("turn on lamp")).Should().Contain("no light to guide you");
+        // The object can also trail the particle ("turn lamp on"), as the ZIL parser would resolve.
+        (await target.GetResponse("turn lamp on")).Should().Contain("no light to guide you");
         // Verbs DEAD-FUNCTION never names (e.g. examine) fall through to the catch-all.
         (await target.GetResponse("examine bell")).Should().Contain("can't even do that");
     }
