@@ -1,6 +1,7 @@
 using GameEngine;
 using Model;
 using Model.Interface;
+using Model.Location;
 using Model.Movement;
 using ZorkOne.Location;
 using ZorkOne.Location.ForestLocation;
@@ -104,15 +105,23 @@ public class SpiritProcessor
     }
 
     /// <summary>
-    ///     The spirit's LOOK. Matches the ZIL DEAD-FUNCTION LOOK branch (zork1/1actions.zil:3141): the
-    ///     "objects appear indistinct" clause is only added when the room actually contains something.
+    ///     The spirit's LOOK, mirroring the ZIL DEAD-FUNCTION LOOK branch (zork1/1actions.zil:3141):
+    ///     the "objects appear indistinct" clause is only added when the room actually contains
+    ///     something, and the "dimly illuminated" clause is only added for a room that is not naturally
+    ///     lit (the ZIL <c>&lt;NOT &lt;FSET? ,HERE ,ONBIT&gt;&gt;</c> check) — i.e. a dark location the
+    ///     spirit's always-lit state is currently illuminating.
     /// </summary>
     private static string LookWhileDead(ZorkIContext context)
     {
         var roomHasItems = ((ICanContainItems)context.CurrentLocation).Items.Any();
-        return roomHasItems
+        var result = roomHasItems
             ? "The room looks strange and unearthly, and objects appear indistinct. "
             : "The room looks strange and unearthly. ";
+
+        if (context.CurrentLocation is IDarkLocation { IsNoLongerDark: false })
+            result += "Although there is no light, the room seems dimly illuminated. ";
+
+        return result;
     }
 
     private static bool Matches(string command, params string[] verbs)

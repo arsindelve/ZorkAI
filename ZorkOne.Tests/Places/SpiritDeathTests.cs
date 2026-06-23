@@ -161,6 +161,38 @@ public class SpiritDeathTests : EngineTestsBase
     }
 
     [Test]
+    public async Task AsSpirit_LookInADarkRoom_NotesTheDimIllumination()
+    {
+        var target = GetTarget();
+        target.Context.IsDead = true;
+        target.Context.CurrentLocation = Repository.GetLocation<EntranceToHades>();
+
+        // The ZIL DEAD-FUNCTION LOOK adds this clause for any room that isn't naturally lit.
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("strange and unearthly");
+        response.Should().Contain("dimly illuminated");
+    }
+
+    [Test]
+    public async Task ThirdDeath_DeductsTenPoints_ButDoesNotScatterInventory()
+    {
+        var target = GetTarget();
+        target.Context.AddPoints(50);
+        target.Context.DeathCounter = 2; // this jump is the third (permanent) death
+        var lantern = Repository.GetItem<Lantern>();
+        target.Context.Take(lantern);
+        target.Context.CurrentLocation = Repository.GetLocation<CanyonView>();
+
+        await target.GetResponse("jump");
+
+        // JIGS-UP applies SCORE-UPD -10 before the third-death FINISH, but FINISHes before
+        // RANDOMIZE-OBJECTS — so the point loss still happens, the scatter does not.
+        target.Context.Score.Should().Be(40);
+        target.Context.HasItem<Lantern>().Should().BeTrue();
+    }
+
+    [Test]
     public async Task AsSpirit_PrayingAtAltar_Resurrects()
     {
         var target = GetTarget();
