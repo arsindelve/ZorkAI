@@ -6,7 +6,7 @@ using Model.Interface;
 namespace ZorkOne.Item;
 
 public class Sceptre : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase,
-    IGivePointsWhenFirstPickedUp, IAmPointyAndPunctureThings
+    IGivePointsWhenFirstPickedUp, IAmPointyAndPunctureThings, IWeapon
 {
     // The original Zork I source accepts both spellings: (SYNONYM SCEPTRE SCEPTER TREASURE).
     // Keep the American "scepter" so players can refer to the item either way.
