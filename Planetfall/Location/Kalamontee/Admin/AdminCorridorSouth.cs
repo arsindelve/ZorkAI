@@ -112,11 +112,15 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
 
         if (action.MatchNoun(["crevice", "crack", "light"]))
         {
+            if (HasTakenTheKey)
+                return new PositiveInteractionResult("A narrow, jagged crevice crosses the floor. ");
+
             HasSeenTheLight = true;
             return new PositiveInteractionResult(
                 "Lying at the bottom of the narrow crack, partly covered by layers of dust, is a shiny steel key! ");
         }
 
-        return new PositiveInteractionResult("A narrow, jagged crevice runs across the floor. ");
+        // Not a crevice-specific noun — let normal item/examine routing handle it.
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }
