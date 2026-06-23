@@ -45,4 +45,4 @@ Both reuse the same engine pipeline; only the per-game data differs.
 - **You must rule on:** the prerequisite edges (true dependency vs incidental order), the soft-lock
   lists, the product contracts (voice, disclosure thresholds), the architecture sign-off, and the
   **hint-content source** (the invisiclues content needs to come in-repo for both games — see
-  [00 § Open decisions](00-master-plan.md#open-decisions-yours-to-make)).
+  [00 § Open decisions](00-master-plan.md#6-open-decisions-yours-to-make)).

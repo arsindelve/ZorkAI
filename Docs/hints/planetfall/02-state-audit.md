@@ -55,7 +55,7 @@ or location object. Examples already visible in the codebase:
 - `Chronometer.BeingWorn`, `Chronometer.CurrentTime`
 - The Comm/Defense/Course "fixed" booleans — `CommunicationsFixed` / `CourseControlFixed` /
   `PlanetaryDefenseFixed` on `SystemsMonitors` (`Planetfall/Location/Kalamontee/Admin/SystemsMonitors.cs:65-69`),
-  each backed by a `Fixed` string set. Ending selection reads them in `CryoAnteroomLocation.cs`.
+  each computed as `Fixed.Contains(...)` over a `List<string> Fixed`. Ending selection reads them in `CryoAnteroomLocation.cs`.
   (The endings table in `PlanetfallContext.cs` is a reference **comment block**, not executable
   logic — don't start Stage 3 there.)
 
