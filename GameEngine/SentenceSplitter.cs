@@ -101,7 +101,7 @@ public static class SentenceSplitter
 
         foreach (var c in input)
         {
-            if (IsDoubleQuote(c))
+            if (SpeechQuotes.IsDoubleQuote(c))
             {
                 // Any double quote (straight or smart) toggles whether we are inside speech.
                 inQuotes = !inQuotes;
@@ -121,8 +121,4 @@ public static class SentenceSplitter
         parts.Add(current.ToString());
         return parts.ToArray();
     }
-
-    // Mirrors ConversationHandler.IsDoubleQuote so the two stages agree on what counts as speech.
-    // Keep the recognized quote characters in sync with that copy.
-    private static bool IsDoubleQuote(char c) => c is '"' or '“' or '”';
 }
