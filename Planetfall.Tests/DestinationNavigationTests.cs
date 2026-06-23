@@ -206,6 +206,34 @@ public class DestinationNavigationTests : EngineTestsBase
         }
 
         [Test]
+        public async Task EnterTheTrain_ResolvesViaTheNonTitleSynonym()
+        {
+            // "train"/"transport" aren't in the title "Shuttle Car Alfie" — they're curated synonyms on
+            // ShuttleCabin. Default: only Alfie is at the Kalamontee platform.
+            var target = GetTarget();
+            StartHere<KalamonteePlatform>();
+            GetLocation<AlfieControlEast>().TunnelPosition = 0;
+            GetLocation<BettyControlEast>().TunnelPosition = 24;
+
+            await target.GetResponse("enter the train");
+
+            target.Context.CurrentLocation.Should().BeOfType<ShuttleCarAlfie>();
+        }
+
+        [Test]
+        public async Task GoToAlfie_ByName_EntersAlfiesCar()
+        {
+            var target = GetTarget();
+            StartHere<KalamonteePlatform>();
+            GetLocation<AlfieControlEast>().TunnelPosition = 0;
+            GetLocation<BettyControlEast>().TunnelPosition = 24;
+
+            await target.GetResponse("go to alfie");
+
+            target.Context.CurrentLocation.Should().BeOfType<ShuttleCarAlfie>();
+        }
+
+        [Test]
         public async Task EnterTheShuttle_WhenBothCarsPresent_AsksWhichOne()
         {
             var target = GetTarget();

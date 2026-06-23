@@ -7,6 +7,8 @@ internal class LargeOffice : FloydSpecialInteractionLocation
 {
     public override string Name => "Large Office";
 
+    public override string[] NounsForMatching => ["study"];
+
     public override string FloydPrompt => FloydPrompts.LargeOfficeWindow;
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)

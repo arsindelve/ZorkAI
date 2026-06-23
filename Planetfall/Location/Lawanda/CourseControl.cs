@@ -7,7 +7,9 @@ namespace Planetfall.Location.Lawanda;
 internal class CourseControl : LocationBase
 {
     public override string Name => "Course Control";
-    
+
+    public override string[] NounsForMatching => ["navigation"];
+
     [UsedImplicitly]
     public bool Fixed { get; set; }
 

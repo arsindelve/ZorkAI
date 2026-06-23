@@ -7,6 +7,8 @@ internal class ToolRoom : LocationBase
 {
     public override string Name => "Tool Room";
 
+    public override string[] NounsForMatching => ["toolroom", "workshop"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

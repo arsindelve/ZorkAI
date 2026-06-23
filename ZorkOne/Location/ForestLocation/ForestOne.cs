@@ -8,6 +8,8 @@ public class ForestOne : LocationWithNoStartingItems
 {
     public override string Name => "Forest";
 
+    public override string[] NounsForMatching => ["woods"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

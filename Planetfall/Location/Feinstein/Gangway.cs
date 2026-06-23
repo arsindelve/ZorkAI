@@ -6,6 +6,8 @@ public class Gangway : LocationWithNoStartingItems
 {
     public override string Name => "Gangway";
 
+    public override string[] NounsForMatching => ["stairway", "stairs", "stairwell"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

@@ -9,6 +9,8 @@ internal class MessHall : LocationBase
 {
     public override string Name => "Mess Hall";
 
+    public override string[] NounsForMatching => ["cafeteria", "canteen", "dining hall"];
+
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {

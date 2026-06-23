@@ -10,6 +10,8 @@ public class Cellar : DarkLocation
 {
     public override string Name => "Cellar";
 
+    public override string[] NounsForMatching => ["basement"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

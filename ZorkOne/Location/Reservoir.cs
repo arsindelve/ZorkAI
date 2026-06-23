@@ -10,6 +10,8 @@ public class Reservoir : DarkLocation, ITurnBasedActor
 {
     public override string Name => "Reservoir";
 
+    public override string[] NounsForMatching => ["lake"];
+
     public Task<string> Act(IContext context, IGenerationClient client)
     {
         var south = GetLocation<ReservoirSouth>();

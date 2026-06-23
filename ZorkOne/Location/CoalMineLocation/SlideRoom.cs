@@ -8,6 +8,8 @@ public class SlideRoom : LocationWithNoStartingItems, IThiefMayVisit
 {
     public override string Name => "Slide Room";
 
+    public override string[] NounsForMatching => ["granite wall"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

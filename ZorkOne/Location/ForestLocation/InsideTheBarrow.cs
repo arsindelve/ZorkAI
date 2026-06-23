@@ -10,6 +10,8 @@ public class InsideTheBarrow : LocationWithNoStartingItems
 {
     public override string Name => "Inside the Barrow";
 
+    public override string[] NounsForMatching => ["burial mound"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>();

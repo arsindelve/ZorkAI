@@ -7,6 +7,8 @@ internal class PlanRoom : LocationWithNoStartingItems
 {
     public override string Name => "Plan Room";
 
+    public override string[] NounsForMatching => ["map room", "blueprint room"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

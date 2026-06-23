@@ -9,6 +9,8 @@ internal class MachineShop : LocationWithNoStartingItems
 {
     public override string Name => "Machine Shop";
 
+    public override string[] NounsForMatching => ["workshop"];
+
     [UsedImplicitly] public bool FlaskUnderSpout { get; set; }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)

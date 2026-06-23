@@ -10,6 +10,8 @@ public class Studio : LocationBase
 {
     public override string Name => "Studio";
 
+    public override string[] NounsForMatching => ["art studio"];
+
     protected override string GetContextBasedDescription(IContext context)
     {
         return

@@ -14,6 +14,8 @@ public class LivingRoom : LocationBase
 
     public override string Name => "Living Room";
 
+    public override string[] NounsForMatching => ["parlor", "lounge"];
+
     protected override string GetContextBasedDescription(IContext context)
     {
         return "You are in the living room.  " +

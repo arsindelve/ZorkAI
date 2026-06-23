@@ -8,6 +8,8 @@ public class SystemsMonitors : LocationWithNoStartingItems
 {
     public override string Name => "Systems Monitors";
 
+    public override string[] NounsForMatching => ["control room"];
+
     [UsedImplicitly]
     public List<string> Fixed { get; set; } = [];
 

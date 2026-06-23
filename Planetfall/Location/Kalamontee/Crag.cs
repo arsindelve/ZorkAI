@@ -8,6 +8,8 @@ public class Crag : LocationWithNoStartingItems
 {
     public override string Name => "Crag";
 
+    public override string[] NounsForMatching => ["ledge", "cleft", "cliff"];
+
     public string DeathDescription =>
         "Suddenly, in the middle of the night, a wave of water washes over you. Before you can quite get your bearings, you drown. ";
 

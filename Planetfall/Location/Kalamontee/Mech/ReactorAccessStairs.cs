@@ -6,6 +6,8 @@ internal class ReactorAccessStairs : DarkLocationWithNoStartingItems
 {
     public override string Name => "Reactor Access Stairs";
 
+    public override string[] NounsForMatching => ["stairway", "staircase"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

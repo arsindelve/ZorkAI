@@ -23,6 +23,8 @@ internal class RobotShop : LocationBase
 
     public override string Name => "Robot Shop";
 
+    public override string[] NounsForMatching => ["workshop"];
+
     public override void Init()
     {
         StartWithItem<Floyd>();

@@ -10,6 +10,8 @@ public abstract class MazeBase : DarkLocationWithNoStartingItems, IThiefMayVisit
 {
     public override string Name => "Maze";
 
+    public override string[] NounsForMatching => ["labyrinth"];
+
     protected override string GetContextBasedDescription(IContext context)
     {
         return "This is part of a maze of twisty little passages, all alike. ";

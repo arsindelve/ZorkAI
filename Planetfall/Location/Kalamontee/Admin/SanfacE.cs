@@ -6,6 +6,8 @@ public class SanfacE : LocationWithNoStartingItems
 {
     public override string Name => "SanFac E";
 
+    public override string[] NounsForMatching => ["bathroom", "restroom", "washroom", "toilet"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

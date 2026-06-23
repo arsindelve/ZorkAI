@@ -12,6 +12,8 @@ internal class MiniaturizationBooth : LocationBase
 {
     public override string Name => "Miniaturization Booth";
 
+    public override string[] NounsForMatching => ["shrink booth", "miniaturizer"];
+
     public bool IsEnabled { get; set; }
 
     public override void Init()

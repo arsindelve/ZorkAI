@@ -6,6 +6,8 @@ internal class TransportationSupply : DarkLocationWithNoStartingItems
 {
     public override string Name => "Transportation Supply";
 
+    public override string[] NounsForMatching => ["storeroom", "storage", "closet"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

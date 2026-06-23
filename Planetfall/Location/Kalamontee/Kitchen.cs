@@ -8,6 +8,8 @@ internal class Kitchen : LocationBase
 {
     public override string Name => "Kitchen";
 
+    public override string[] NounsForMatching => ["galley"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

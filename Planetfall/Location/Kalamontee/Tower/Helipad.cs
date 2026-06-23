@@ -6,6 +6,8 @@ public class Helipad : LocationWithNoStartingItems
 {
     public override string Name => "Helipad";
 
+    public override string[] NounsForMatching => ["landing pad", "helicopter pad"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

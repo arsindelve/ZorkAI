@@ -11,6 +11,8 @@ public class BehindHouse : LocationBase
 {
     public override string Name => "Behind House";
 
+    public override string[] NounsForMatching => ["backyard", "back yard"];
+
     protected override string GetContextBasedDescription(IContext context)
     {
         return $"You are behind the white house. A path leads into the forest to the east. In one corner " +

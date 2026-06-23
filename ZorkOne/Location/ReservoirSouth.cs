@@ -21,6 +21,8 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
 
     public override string Name => "Reservoir South";
 
+    public override string[] NounsForMatching => ["lake"];
+
     public Task<string> Act(IContext context, IGenerationClient client)
     {
         if (IsDraining)

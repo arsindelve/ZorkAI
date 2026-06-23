@@ -234,6 +234,9 @@
     { "inputs": ["go to the shuttle car betty", "go to shuttle car betty"], "destination": "shuttle car betty" },
     { "inputs": ["go to the shuttle car alfie", "go to shuttle car alfie"], "destination": "shuttle car alfie" },
     { "inputs": ["enter the mess", "enter mess", "go to the mess", "walk to the mess"], "destination": "mess" },
-    { "inputs": ["go to the galley", "walk to the galley"], "destination": "kitchen" }
+    { "inputs": ["go to the galley", "walk to the galley"], "destination": "kitchen" },
+    { "inputs": ["enter the train", "go to the train", "walk into the train", "walk to the train"], "destination": "train" },
+    { "inputs": ["go to alfie", "enter alfie", "walk to alfie"], "destination": "alfie" },
+    { "inputs": ["go to betty", "enter betty", "walk to betty"], "destination": "betty" }
   ]
 }
