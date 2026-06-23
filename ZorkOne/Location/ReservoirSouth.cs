@@ -67,6 +67,10 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
             { Direction.SW, new MovementParameters { Location = GetLocation<Chasm>() } },
             { Direction.SE, new MovementParameters { Location = GetLocation<DeepCanyon>() } },
             { Direction.E, new MovementParameters { Location = GetLocation<Dam>() } },
+            // ZIL RESERVOIR-SOUTH: WEST follows the stream to Stream View (unconditional). This also
+            // makes good on the "path along the stream to the east or west" promised in the room's
+            // own description below, which was previously a dead pointer (issue #210).
+            { Direction.W, new MovementParameters { Location = GetLocation<StreamView>() } },
             {
                 Direction.N,
                 new MovementParameters
