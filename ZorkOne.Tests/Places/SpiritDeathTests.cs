@@ -143,6 +143,24 @@ public class SpiritDeathTests : EngineTestsBase
     }
 
     [Test]
+    public async Task AsSpirit_VerbBucketsMatchTheZilDeadFunctionOrder()
+    {
+        var target = GetTarget();
+        target.Context.IsDead = true;
+        target.Context.CurrentLocation = Repository.GetLocation<EntranceToHades>();
+
+        // In DEAD-FUNCTION the OPEN/CLOSE/... bucket precedes the TAKE/RUB bucket, so rub/touch land in
+        // "beyond your capabilities" rather than "your hand passes through" (zork1/1actions.zil:3122).
+        (await target.GetResponse("rub bell")).Should().Contain("beyond your capabilities");
+        (await target.GetResponse("touch candles")).Should().Contain("beyond your capabilities");
+        (await target.GetResponse("open door")).Should().Contain("beyond your capabilities");
+        (await target.GetResponse("attack spirits")).Should().Contain("vain in your condition");
+        (await target.GetResponse("turn on lamp")).Should().Contain("no light to guide you");
+        // Verbs DEAD-FUNCTION never names (e.g. examine) fall through to the catch-all.
+        (await target.GetResponse("examine bell")).Should().Contain("can't even do that");
+    }
+
+    [Test]
     public async Task AsSpirit_PrayingAtAltar_Resurrects()
     {
         var target = GetTarget();

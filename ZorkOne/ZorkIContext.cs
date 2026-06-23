@@ -142,8 +142,14 @@ public class ZorkIContext : Context<ZorkI>
     /// <summary>
     ///     While a spirit, the dungeon "seems dimly illuminated" — the player needs no light source.
     ///     Overriding this keeps a dead player from being eaten by a grue as they wander dark rooms
-    ///     back toward the altar (original ZIL: ALWAYS-LIT is set when DEAD). See issue #17.
+    ///     back toward the altar.
     /// </summary>
+    /// <remarks>
+    ///     Verified against the ZIL: becoming a spirit sets the global ALWAYS-LIT flag
+    ///     (<c>&lt;SETG ALWAYS-LIT T&gt;</c>, zork1/1actions.zil:4086), the DEAD-FUNCTION LOOK branch
+    ///     prints "Although there is no light, the room seems dimly illuminated." (:3157), and
+    ///     resurrection clears the flag again (<c>&lt;SETG ALWAYS-LIT &lt;&gt;&gt;</c>, :3159). See issue #17.
+    /// </remarks>
     public override bool ItIsDarkHere => !IsDead && base.ItIsDarkHere;
 
     /// <summary>
