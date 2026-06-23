@@ -1843,6 +1843,22 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
+    public async Task Show_ToFloyd_WhenOff_ProducesNoShowReaction()
+    {
+        // The SHOW branches sit behind RespondToMultiNounInteraction's `!IsOn` guard, so showing Floyd
+        // something while he's switched off must not trigger any reaction. (When Floyd isn't in the room
+        // at all, the multi-noun engine never invokes his handler, so that case is covered by routing.)
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<IdCard>();
+        GetItem<Floyd>().IsOn = false;
+
+        var response = await target.GetResponse("show id card to floyd");
+
+        response.Should().NotContain("usually blue");
+    }
+
+    [Test]
     public async Task Show_ShuttleCard_ToFloyd_AsksIfTheyAreUsuallyBlue()
     {
         var target = GetTarget();
