@@ -173,6 +173,12 @@ public class ZorkIContext : Context<ZorkI>
     ///     </list>
     ///     System commands (save/restore/quit) run earlier in the engine, so they still work in every
     ///     case (issue #17).
+    ///
+    ///     Note: an intercepted command short-circuits the turn, so NPC actors/daemons do not advance on
+    ///     it — a spirit that merely waits/looks is in no danger. This is intentional: the dungeon is
+    ///     "frozen and unreal" to a spirit, and the player only re-engages the live world by moving
+    ///     (which falls through to normal turn processing). Movement is also the only way a spirit can be
+    ///     killed again, which is exactly when the permanent-death path matters.
     /// </summary>
     public override string? InterceptPlayerCommand(string? input)
     {

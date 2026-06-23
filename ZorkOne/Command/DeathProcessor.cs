@@ -23,17 +23,25 @@ namespace ZorkOne.Command;
 public class DeathProcessor
 {
     /// <summary>
-    ///     The above-ground rooms across which a dead player's possessions are scattered (the
-    ///     ZIL RANDOMIZE-OBJECTS behavior). The lamp and coffin go to fixed homes; everything else
-    ///     lands in a random one of these.
+    ///     The above-ground rooms across which a dead player's possessions are scattered. This mirrors
+    ///     the ZIL ABOVE-GROUND table exactly (zork1/1dungeon.zil:2630) — the eleven rooms RANDOMIZE-OBJECTS
+    ///     uses for everything that isn't the lamp or the coffin. Note the C# names: BehindHouse is the
+    ///     ZIL EAST-OF-HOUSE ("Behind House"); Clearing is GRATING-CLEARING (the one with the grating) and
+    ///     ClearingBehindHouse is the plain CLEARING. ForestFour is deliberately absent — it is not in the
+    ///     original table.
     /// </summary>
+    /// <remarks>
+    ///     Simplification: the original scatters non-lamp/coffin <em>treasures</em> to random dark land
+    ///     rooms and only non-treasures to ABOVE-GROUND (zork1/1actions.zil:4109). We send every remaining
+    ///     item to ABOVE-GROUND, which keeps the player's stuff recoverable without a treasure-value model.
+    /// </remarks>
     private static List<ILocation> AboveGroundRooms =>
     [
         Repository.GetLocation<WestOfHouse>(), Repository.GetLocation<NorthOfHouse>(),
-        Repository.GetLocation<SouthOfHouse>(), Repository.GetLocation<BehindHouse>(),
+        Repository.GetLocation<BehindHouse>(), Repository.GetLocation<SouthOfHouse>(),
         Repository.GetLocation<ForestOne>(), Repository.GetLocation<ForestTwo>(),
-        Repository.GetLocation<ForestThree>(), Repository.GetLocation<ForestFour>(),
-        Repository.GetLocation<ForestPath>(), Repository.GetLocation<Clearing>(),
+        Repository.GetLocation<ForestThree>(), Repository.GetLocation<ForestPath>(),
+        Repository.GetLocation<ClearingBehindHouse>(), Repository.GetLocation<Clearing>(),
         Repository.GetLocation<CanyonView>()
     ];
 
