@@ -29,8 +29,11 @@ public static class SentenceSplitter
         if (string.IsNullOrWhiteSpace(input))
             return new List<string>();
 
-        // First, split on periods
-        var parts = input.Split('.');
+        // First, split on periods — but NOT on periods inside quoted speech. A period inside "…" is
+        // dialogue punctuation (`"hello. I love you"`), not a command delimiter; splitting there would
+        // tear one utterance into two turns and strip the opening quote off the remainder, which then
+        // leaks to the narrator instead of reaching the present NPC (issue #292, re-opening #284).
+        var parts = SplitOnUnquotedPeriods(input);
         var sentences = new List<string>();
 
         for (var i = 0; i < parts.Length; i++)
@@ -81,4 +84,44 @@ public static class SentenceSplitter
         // If no sentences were created, return empty list (not the original input)
         return sentences;
     }
+
+    /// <summary>
+    ///     Splits on top-level periods only — periods that are NOT inside a double-quote span are
+    ///     treated as command delimiters; periods inside <c>"…"</c> are kept as part of the segment.
+    ///     The returned segments mirror what <c>input.Split('.')</c> would produce (including empty
+    ///     segments for leading/trailing/consecutive periods), so the abbreviation and single-letter
+    ///     handling downstream is unchanged. An unterminated quote keeps the rest of the input in one
+    ///     segment, matching how ConversationHandler.TryStripQuotedSpeech tolerates a missing close.
+    /// </summary>
+    private static string[] SplitOnUnquotedPeriods(string input)
+    {
+        var parts = new List<string>();
+        var current = new StringBuilder();
+        var inQuotes = false;
+
+        foreach (var c in input)
+        {
+            if (IsDoubleQuote(c))
+            {
+                // Any double quote (straight or smart) toggles whether we are inside speech.
+                inQuotes = !inQuotes;
+                current.Append(c);
+            }
+            else if (c == '.' && !inQuotes)
+            {
+                parts.Add(current.ToString());
+                current.Clear();
+            }
+            else
+            {
+                current.Append(c);
+            }
+        }
+
+        parts.Add(current.ToString());
+        return parts.ToArray();
+    }
+
+    // Mirrors ConversationHandler.IsDoubleQuote so the two stages agree on what counts as speech.
+    private static bool IsDoubleQuote(char c) => c is '"' or '“' or '”';
 }
