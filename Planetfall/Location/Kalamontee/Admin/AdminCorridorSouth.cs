@@ -75,13 +75,34 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
             return new NoNounMatchInteractionResult();
         }
 
-        string[] targetNouns = ["ground", "crack", "crevice", "key", "floor"];
+        var magnetNouns = Repository.GetItem<Magnet>().NounsForMatching;
 
-        var match = action.Match(["put", "place", "hold"], Repository.GetItem<Magnet>().NounsForMatching,
-            targetNouns, ["on", "over", "beside", "next to"]);
+        // The crevice and its neighbours. "hole" is one of the crevice's ZIL synonyms
+        // (compone.zil: SYNONYM CREVICE CRACK HOLE).
+        string[] crackNouns = ["ground", "crack", "crevice", "key", "floor", "hole"];
+
+        // Framing B — the magnet is the subject, lowered toward or into the crack. The original
+        // only accepted put/place/hold + on/over/beside/next to, so the natural "lower it INTO the
+        // crack" phrasings ("put magnet in crevice", "lower magnet into crack", "drop magnet in
+        // hole") all fell through to the AI narrator. Widen the verbs and prepositions (issue #298).
+        var match = action.Match(
+            ["put", "place", "hold", "lower", "dangle", "dip", "stick", "insert", "drop"],
+            magnetNouns, crackNouns,
+            ["on", "over", "beside", "next to", "in", "into", "down", "down into"]);
 
         // Also support "use magnet on crevice/key/floor"
-        match |= action.Match(["use"], Repository.GetItem<Magnet>().NounsForMatching, targetNouns, ["on"]);
+        match |= action.Match(["use"], magnetNouns, crackNouns, ["on"]);
+
+        // Framing A — the magnet is the tool and the key is the object retrieved "with" it. This is
+        // the original game's canonical solve (compone.zil KEY-F: TAKE/ZATTRACT/MOVE the key with
+        // PRSI = MAGNET). The port never wired it up, so "get key with magnet" fell through to the
+        // AI narrator, which improvised a refusal calling the steel key "non-magnetic" — directly
+        // contradicting the success text. Route the key-as-object framing to the same solve (#298).
+        string[] keyNouns = [..crackNouns, ..Repository.GetItem<Key>().NounsForMatching];
+        match |= action.Match(
+            ["get", "take", "grab", "pick up", "retrieve", "lift", "fish", "pull", "attract",
+                "remove", "snag", "hook", "fetch", "extract"],
+            keyNouns, magnetNouns, ["with", "using"]);
 
         if (match)
         {
