@@ -394,7 +394,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // single-word nouns, re-describing the room instead of the object (issues #312 / #283). Rewrite
         // it to the canonical "examine <noun>" here so it routes through the examine-with-noun path,
         // while leaving the bare forms ("look", "look around") and other "look <prep>" phrases
-        // ("look under the rug", "look in the box") untouched.
+        // ("look under the rug", "look in the box") untouched. Note: because this runs before pronoun
+        // resolution and the LastInput capture below, a subsequent "again"/"g" replays "look at X" as
+        // "examine X" — harmless, since both produce the same examination output.
         playerInput = NormalizeLookAt(playerInput);
         _currentInput = playerInput;
 
