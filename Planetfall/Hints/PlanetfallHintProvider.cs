@@ -128,6 +128,26 @@ public sealed class PlanetfallHintProvider : IHintProvider
         ["mutant"] = MutantAnswer,
         ["monster"] = MutantAnswer,
         ["creature"] = MutantAnswer,
+        // --- death traps: warn honestly when asked, but the tight AND-keys mean a vague progress
+        //     question ("how do I cross the rift") still ladders normally; only the dangerous phrasing
+        //     ("jump the rift", "drink the flask") trips the warning. ---
+        ["flask&drink"] = FlaskDrinkAnswer,
+        ["drink&fluid"] = FlaskDrinkAnswer,
+        ["bedistor&cube"] = BedistorCubeAnswer,
+        ["rift&jump"] = RiftJumpAnswer,
+        ["radiation&lab"] = RadiationAnswer,
+        ["wrong sector"] = SectorAnswer,
+        ["another sector"] = SectorAnswer,
+        ["swim"] = SwimAnswer,
+        ["dive"] = SwimAnswer,
+        ["shuttle&crash"] = ShuttleCrashAnswer,
+        ["shuttle&fast"] = ShuttleCrashAnswer,
+        ["shuttle&speed"] = ShuttleCrashAnswer,
+        // The cryo-elevator re-press: reactive only (keys require 'cryo' or 'again'+'elevator', so the
+        // blue/red/up progress buttons never trip it). Preserves the Easter egg for anyone who doesn't ask.
+        ["button&cryo"] = CryoButtonAnswer,
+        ["button&again&elevator"] = CryoButtonAnswer,
+
         // --- misconceptions about the goal ---
         ["off this planet"] = LeaveAnswer,
         ["off the planet"] = LeaveAnswer,
@@ -149,6 +169,37 @@ public sealed class PlanetfallHintProvider : IHintProvider
     private const string ExplosionAnswer =
         "You can't save the ship — the explosion is scripted and unavoidable. Stop fighting it: your only " +
         "job in those opening moments is to reach the escape pod and get off.";
+
+    private const string FlaskDrinkAnswer =
+        "Don't drink the fluid in the flask — it's poisonous chemicals and it kills you. The flask is a " +
+        "carrying tool, not a canteen.";
+
+    private const string BedistorCubeAnswer =
+        "Don't grab the good bedistor out of the cube with your bare hands — the cube is live and it " +
+        "electrocutes you ('Kerzap!!'). Pull it with the pliers instead.";
+
+    private const string RiftJumpAnswer =
+        "Don't jump the rift — it's a fatal drop onto sharp rocks far below. Cross it with the extended ladder.";
+
+    private const string RadiationAnswer =
+        "Don't linger in the Radiation Lab — the radiation is lethal; you sicken within a few turns and die. " +
+        "Grab nothing and leave immediately.";
+
+    private const string SectorAnswer =
+        "Only sector 384 is safe to enter. Miniaturizing into any other active sector electrocutes you — type 384.";
+
+    private const string SwimAnswer =
+        "Don't swim or linger in the water — an undertow drags you onto the rocks and you drown. Drop down only " +
+        "to grab the survival kit, then climb straight back up.";
+
+    private const string ShuttleCrashAnswer =
+        "Don't run the shuttle too fast — it slams into the far wall and kills you. Ease off the lever and watch " +
+        "your speed.";
+
+    private const string CryoButtonAnswer =
+        "Ah — once the cryo-elevator doors close and you've escaped the mutants, pressing that button again sends " +
+        "you right back up into them, one move from winning. A classic Meretzky trap. Once you're safely down, " +
+        "leave the button alone.";
 
     private const string InfirmaryBedAnswer =
         "Stay out of the bed in the infirmary — a rusty diagnostic robot straps you in and kills you. It's a " +
