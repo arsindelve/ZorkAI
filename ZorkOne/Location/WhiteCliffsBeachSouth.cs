@@ -21,4 +21,11 @@ public class WhiteCliffsBeachSouth : LocationWithNoStartingItems
         return
             "You are on a rocky, narrow strip of beach beside the Cliffs. A narrow path leads north along the shore. ";
     }
+
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["cliffs", "white cliffs", "cliff"],
+            "The White Cliffs rise sheer and pale above the rocky beach. ",
+            "You can't take the cliffs. ")
+    ];
 }

@@ -32,6 +32,13 @@ public class AragainFalls : LocationWithNoStartingItems
                 : "A beautiful rainbow can be seen over the falls and to the west. ");
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["waterfall", "falls", "aragain falls"],
+            "An enormous waterfall, a good four hundred and fifty feet from lip to river. The spray hangs in the air as a rainbow. ",
+            "You can't take the waterfall. ")
+    ];
+
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {

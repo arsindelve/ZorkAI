@@ -30,6 +30,13 @@ public class OnTheRainbow : LocationWithNoStartingItems
                "with a magnificent view of the Falls. The rainbow travels east-west here.";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["falls", "waterfall", "aragain falls"],
+            "The Falls thunder far below — a magnificent sight from atop the rainbow. ",
+            "The Falls are rather beyond your grasp. ")
+    ];
+
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
