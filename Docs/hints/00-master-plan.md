@@ -50,6 +50,11 @@ remain the laddering layer for both games** (and for Planetfall's survival hints
 
 ## 3. Target architecture
 
+> **The concrete plug-in design is its own doc: [07 — Common architecture](07-common-architecture.md)**
+> (shared engine + the `IHintProvider` interface each game implements). This section is the high-level
+> sketch; 07 has the interfaces, the engine pipeline, and how Zork/Planetfall plug in without forking
+> the engine.
+
 Rebuild **server-side inside ZorkAI**, where live `Context` exists — this is the structural
 fix that made the external RAG necessary in the first place.
 
