@@ -192,8 +192,37 @@ These gate the build; capture answers here.
 
 ---
 
-## 7. Status
+## 7. Locked build decisions (v1)
+
+Owner decisions, captured to drive the build. These **supersede the recommendations** in §6.
+
+1. **LLM / provider: all OpenAI.** Hint phrasing, the intent router, and lore answering all go through
+   OpenAI (consistent with the existing Floyd assistants and `ZorkLore`) — **not** the engine's Claude/
+   Bedrock generation path. The Planetfall provider follows the existing C#→OpenAI-assistant pattern that
+   Floyd already uses. (Updates [07 architecture](07-common-architecture.md), which had sketched Claude.)
+2. **Voice: always the snarky narrator — both games, never Floyd.** A single sarcastic, incorporeal-
+   narrator persona (the `ZorkLore` style) is the `HintPersona` for Planetfall too. Floyd is never the
+   hint voice.
+3. **Disclosure: frustration-sensing.** Escalate the rung based on state signals — death count, turns
+   since progress, repeated failed/`can't` commands — rather than a fixed ladder. **Deterministic-
+   testable** because the signals are read from state, so eval fixtures set them explicitly.
+4. **v1 scope: all three modes, Planetfall only, API only.**
+   - **All three answer modes** in v1 — progress (puzzle hints), lore (world Q&A), mechanic (why am I
+     sick/stuck). The intent router + `ILoreSource` + mechanic path are real in v1, not stubbed.
+   - **Planetfall provider only** — no Zork provider yet (architecture stays generic; only Planetfall is
+     registered).
+   - **API only** — the `POST /hint` endpoint is the front door; **no web UI panel yet** (the eval
+     harness and the endpoint exercise the engine).
+
+**What v1 therefore is:** the shared `GameEngine.Hints` engine (all three modes, frustration-sensing
+disclosure, persistent `HintMemory`) + `PlanetfallHintProvider` + the `/hint` API, all phrased/routed via
+OpenAI in the snarky-narrator voice. Zork and the web UI are deferred behind the same interfaces.
+
+---
+
+## 8. Status
 
 - [x] Stage 0 — pre-planning artifacts drafted (this folder)
-- [ ] Open decisions answered
-- [ ] Stage 1 — eval harness
+- [x] Build decisions locked (§7)
+- [ ] Stage 1 — eval harness (Planetfall; all three modes; frustration signals set per-fixture)
+- [ ] Stage 2 — engine + `PlanetfallHintProvider` + `/hint` API

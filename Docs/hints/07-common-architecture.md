@@ -10,6 +10,13 @@ per-game content we've already drafted (the `01`–`06` docs for [Planetfall](pl
 > engine change.** Both games reduce to the same abstraction: *node statuses over a DAG, plus
 > grounded rung-ladders and lore.*
 
+> **Provider note (locked build decision — [00 §7](00-master-plan.md#7-locked-build-decisions-v1)):**
+> the LLM bits (phrasing, intent router, lore answering) run on **OpenAI**, following the C#→OpenAI-
+> assistant pattern Floyd already uses — *not* the engine's Claude `IGenerationClient`. Read the
+> `IGenerationClient` references below as "the configured LLM client (OpenAI for v1)." The `HintPersona`
+> is the single snarky-narrator voice for both games. Disclosure is **frustration-sensing** (rung chosen
+> from death count / turns-stuck / failed commands), not the fixed ladder shown in §6.
+
 ---
 
 ## 1. Component map
