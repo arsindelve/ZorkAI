@@ -99,6 +99,26 @@ public class CyclopsTests : EngineTestsBase
                 "flees the room by knocking down the wall on the east of the room");
     }
 
+    [TestCase("speak Ulysses")]
+    [TestCase("utter Ulysses")]
+    [TestCase("shout Ulysses")]
+    [TestCase("whisper Odysseus")]
+    [TestCase("recite \"Ulysses\"")]
+    public async Task SayVerbSynonyms_DismissTheCyclops(string command)
+    {
+        // Issue #316: any Verbs.SayVerbs synonym (not just "say") should prefix the name.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
+
+        var response = await target.GetResponse(command);
+
+        response.Should()
+            .Contain(
+                "The cyclops, hearing the name of his father's deadly nemesis, " +
+                "flees the room by knocking down the wall on the east of the room");
+    }
+
     [Test]
     public async Task UlyssesInQuotes_Response()
     {
