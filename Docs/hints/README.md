@@ -25,7 +25,7 @@ eval fixtures differ). So:
 | Scope | Document |
 |---|---|
 | **Shared** | [00 — Master plan](00-master-plan.md): post-mortem, architecture, staged build plan, completeness checklist, open decisions |
-| **Planetfall** | [01 puzzle DAG](planetfall/01-puzzle-dag.md) · [02 state audit](planetfall/02-state-audit.md) · [03 soft-locks](planetfall/03-softlock.md) · [04 eval](planetfall/04-eval.md) |
+| **Planetfall** | [01 puzzle DAG](planetfall/01-puzzle-dag.md) · [02 state audit](planetfall/02-state-audit.md) · [03 soft-locks](planetfall/03-softlock.md) · [04 eval](planetfall/04-eval.md) · [05 lore source](planetfall/05-lore.md) |
 | **Zork I** | [01 structure & DAG](zorkone/01-structure-dag.md) · [02 state audit](zorkone/02-state-audit.md) · [03 soft-locks](zorkone/03-softlock.md) · [04 eval](zorkone/04-eval.md) |
 
 ## The two games are different shapes

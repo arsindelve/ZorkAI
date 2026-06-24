@@ -167,6 +167,11 @@ These gate the build; capture answers here.
    yet. Decide source + licensing. **(b) is a HARD BLOCKER for Zork I Stage 4** (laddering) — without
    a hint corpus, Zork can do localization/blocker-inference/soft-locks but cannot ladder hints. Not
    an estimation footnote; resolve before committing to the Zork Stage 4 timeline.
+   - **Lore content (in-world-guide direction):** for Planetfall this is **demonstrably buildable
+     from the port's own descriptive text** — see [05 lore source](planetfall/05-lore.md), a
+     proof-of-concept corpus extracted from the library terminal, diary, and item descriptions, with
+     spoiler tiers. So the Planetfall *lore* gap is effectively closeable in-repo; the open call is
+     curated-doc vs live-retrieval-from-descriptions. (Zork lore is again a separate problem.)
 4. **Product contracts:**
    - Disclosure: how stuck before revealing how much? Fixed ladder vs frustration-sensing?
    - Voice: in-world (Floyd in Planetfall) vs out-of-world guide? (Zork has no companion narrator.)
