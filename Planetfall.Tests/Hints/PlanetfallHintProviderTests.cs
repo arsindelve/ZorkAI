@@ -10,129 +10,82 @@ using Planetfall.Location.Kalamontee.Admin;
 namespace Planetfall.Tests.Hints;
 
 /// <summary>
-///     Drives the real <see cref="PlanetfallHintProvider" /> through the engine against live Planetfall
-///     state (real Repository + Context, the repo's standard test pattern). A deterministic stub LLM
-///     stands in for OpenAI so the localization / mapping / routing is asserted without network.
+///     Tests the Planetfall provider against real game state: the DAG-localized player-context (what we
+///     hand LLM 1) and the docs/proactive wiring. No OpenAI — these assert the deterministic localizer.
 /// </summary>
 [TestFixture]
 public class PlanetfallHintProviderTests : EngineTestsBase
 {
     [SetUp]
-    public void SetUp() => GetTarget(); // Repository.Reset() + engine + a real PlanetfallContext (Context)
+    public void SetUp() => GetTarget(); // Repository.Reset() + a real PlanetfallContext (Context)
 
-    private static HintService NewService() =>
-        new(new PlanetfallHintProvider(), new InMemoryHintMemoryStore(), new TestStubLlm());
+    private static PlanetfallHintProvider Provider() => new();
 
     [Test]
-    public async Task FreshGame_BlocksOnTheOpeningPuzzle()
+    public void FreshGame_ContextNamesTheOpeningAsTheActiveBlocker()
     {
-        var result = await NewService().GetHint(new HintRequest("s", Context, null, false, null));
-
-        result.Kind.Should().Be(HintKind.Progress);
-        result.Topic.Should().Be("ESCAPE_POD");
-        result.Rung.Should().Be(0); // the vaguest rung — "the ship is coming apart", not the solution
-        result.Text.Should().Contain("ship");
+        var context = Provider().DescribePlayerContext(Context);
+        context.Should().Contain("survive the explosion");
+        context.Should().Contain("Score: 0/80");
     }
 
     [Test]
-    public async Task FloydActivated_BackfillsOpeningAndBlocksOnNextStep()
+    public void FloydActivated_ThenItsReflectedAndTheBlockerAdvances()
     {
         Repository.GetItem<Floyd>().HasEverBeenOn = true;
-
-        var result = await NewService().GetHint(new HintRequest("s", Context, null, false, null));
-
-        // ESCAPE_POD/LAND back-fill from the verified FLOYD flag; the next mandatory open step is MAGNET.
-        result.Topic.Should().Be("MAGNET");
+        var context = Provider().DescribePlayerContext(Context);
+        context.Should().Contain("alive and with you");
     }
 
     [Test]
-    public void CommunicationsFixed_BackfillsTheEntireTowerChain()
+    public void FloydDead_ContextSaysSo_SoLateHintsDontRelyOnHim()
+    {
+        Repository.GetItem<Floyd>().HasDied = true;
+        Provider().DescribePlayerContext(Context).Should().Contain("DEAD");
+    }
+
+    [Test]
+    public void CommunicationsFixed_BackfillsAndShowsAsAccomplished()
     {
         Repository.GetLocation<SystemsMonitors>().Fixed.Add("KUMUUNIKAASHUNZ");
-
-        var progress = new PlanetfallHintProvider().ProgressMapper.Map(Context);
-
-        progress.Nodes["COMM_FIX"].Should().Be(NodeStatus.Done);
-        progress.Nodes["TOWER_UP"].Should().Be(NodeStatus.Done);   // back-filled prerequisite
-        progress.Nodes["CROSS_RIFT"].Should().Be(NodeStatus.Done); // back-filled prerequisite
-        progress.Nodes["ESCAPE_POD"].Should().Be(NodeStatus.Done); // back-filled to the root
+        var context = Provider().DescribePlayerContext(Context);
+        // back-filled: comms done implies the whole tower chain is done, so it's no longer the blocker.
+        context.Should().Contain("communications");
+        context.Should().NotContain("The next required step blocking them: reach the tower");
     }
 
     [Test]
-    public async Task DiseaseLateInTheGame_AttachesAWarningCaveat()
+    public void CureDone_ShownAsAccomplished()
     {
-        Context.Day = 7; // past the threshold, cure not done
-
-        var result = await NewService().GetHint(new HintRequest("s", Context, null, false, null));
-
-        result.SoftLock.Should().Be(SoftLockKind.Warning);
-        result.Text.Should().Contain("Disease");
+        Repository.GetItem<Relay>().SpeckDestroyed = true;
+        Provider().DescribePlayerContext(Context).Should().Contain("cure the Disease");
     }
 
     [Test]
-    public void TiredPlayer_GetsAProactiveSleepNudge()
+    public void Docs_AreSubstantial_AndCoverSolutionLoreAndDeadEnds()
+    {
+        var docs = Provider().Docs;
+        docs.Should().Contain("SOLUTION WALKTHROUGH");
+        docs.Should().Contain("The Disease");      // lore
+        docs.Should().Contain("reactor");           // dead end
+        docs.Should().Contain("infirmary bed");     // death trap
+    }
+
+    [Test]
+    public void TiredPlayer_ProducesASleepNudge()
     {
         Context.Tired = TiredLevel.Tired;
-
-        var nudges = NewService().ProactiveNudges(Context);
-
-        nudges.Should().Contain(n => n.Category == "sleep");
-    }
-
-    [Test]
-    public async Task WhyAmISick_RoutesToMechanicAndGroundsInTheDiseaseClock()
-    {
-        Context.Day = 3;
-
-        var result = await NewService().GetHint(
-            new HintRequest("s", Context, "why am I getting sick?", false, null));
-
-        result.Kind.Should().Be(HintKind.Mechanic);
-        result.Text.Should().Contain("Disease");
-    }
-
-    [Test]
-    public async Task MutantHint_IsContextAware_DropsTheDeadCompanionLateGame()
-    {
-        // Stub LLM echoes the grounded source, so we assert on the state-selected answer text.
-        // Early — Floyd is alive — the answer leans on him.
-        var early = await NewService().GetHint(new HintRequest("s", Context, "how do I get past the mutants?", false, null));
-        early.Kind.Should().Be(HintKind.RedHerring);
-        early.Text.Should().Contain("Floyd");
-
-        // After Floyd dies at the bio lock, the answer must NOT tell the player to rely on him.
-        Repository.GetItem<Floyd>().HasDied = true;
-        var late = await NewService().GetHint(new HintRequest("s2", Context, "how do I get past the mutants?", false, null));
-        late.Text.Should().NotContain("Floyd");
-        late.Text.Should().Contain("cryo-elevator");
-    }
-
-    [Test]
-    public async Task WhyIsEverythingDeserted_RoutesToLore()
-    {
-        var result = await NewService().GetHint(
-            new HintRequest("s", Context, "why is everything deserted?", false, null));
-
-        result.Kind.Should().Be(HintKind.Lore);
-        result.Text.Should().Contain("automated");
+        var service = new HintService(Provider(), new InMemoryHintMemoryStore(), new NullLlm());
+        service.ProactiveNudges(Context).Should().Contain(n => n.Category == "sleep");
     }
 }
 
-/// <summary>Deterministic stub LLM: keyword-routes intent and echoes content, so no OpenAI is needed.</summary>
-internal sealed class TestStubLlm : IHintLanguageModel
+/// <summary>No-op LLM for the proactive test (which never calls the model).</summary>
+internal sealed class NullLlm : IHintLanguageModel
 {
-    public Task<HintIntent> ClassifyIntent(string question)
-    {
-        var q = question.ToLowerInvariant();
-        if (q.Contains("sick") || q.Contains("tired") || q.Contains("hungry"))
-            return Task.FromResult(HintIntent.Mechanic);
-        if (q.Contains("deserted") || q.Contains("who ") || q.Contains("what is") || q.Contains("history"))
-            return Task.FromResult(HintIntent.Lore);
-        return Task.FromResult(HintIntent.Progress);
-    }
+    public Task<string> Solve(string docs, string playerContext, string question, HintPersona persona) =>
+        Task.FromResult("");
 
-    public Task<string> PhraseRung(string rung, HintPersona persona) => Task.FromResult(rung);
-
-    public Task<string> PhraseLore(string question, string groundedSource, HintPersona persona) =>
-        Task.FromResult(groundedSource);
+    public Task<string> Reveal(string playerContext, string solution, IReadOnlyList<HintExchange> history,
+        string question, HintPersona persona) => Task.FromResult("");
 }

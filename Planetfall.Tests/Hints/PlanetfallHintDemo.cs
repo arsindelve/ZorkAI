@@ -1,16 +1,12 @@
 using GameEngine;
 using GameEngine.Hints;
 using Planetfall.Hints;
-using Planetfall.Item.Computer;
-using Planetfall.Location.Kalamontee.Admin;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using ZorkAI.OpenAI;
 
 namespace Planetfall.Tests.Hints;
 
-/// <summary>
-///     Live demo (not an assertion test) — prints real narrator output across scenarios so you can read
-///     what the system actually produces. [Explicit], needs OPEN_AI_KEY.
-/// </summary>
+/// <summary>Live demo — prints real two-tier output across scenarios. [Explicit], needs OPEN_AI_KEY.</summary>
 [TestFixture]
 [Explicit("Live OpenAI demo — requires OPEN_AI_KEY")]
 public class PlanetfallHintDemo : EngineTestsBase
@@ -19,66 +15,37 @@ public class PlanetfallHintDemo : EngineTestsBase
         new(new PlanetfallHintProvider(), new InMemoryHintMemoryStore(), new OpenAiHintLanguageModel());
 
     [Test]
-    public async Task PrintReactor()
-    {
-        const string q = "how do I get past the mutants?";
-
-        GetTarget();
-        TestContext.Out.WriteLine("=== EARLY (Floyd alive) ===");
-        var early = await Service().GetHint(new HintRequest("a", Context, q, false, null));
-        TestContext.Out.WriteLine($"  {early.Text}");
-
-        GetTarget();
-        Repository.GetItem<Planetfall.Item.Kalamontee.Mech.FloydPart.Floyd>().HasDied = true; // past the bio lab
-        TestContext.Out.WriteLine("\n=== LATE / aux booth (Floyd long dead) ===");
-        var late = await Service().GetHint(new HintRequest("b", Context, q, false, null));
-        TestContext.Out.WriteLine($"  {late.Text}");
-    }
-
-    [Test]
     public async Task PrintTranscript()
     {
         void H(string s) => TestContext.Out.WriteLine("\n========== " + s + " ==========");
-        async Task Ask(HintService svc, string label, string sess, string? q, bool more)
+
+        async Task Ask(HintService svc, string sess, string q)
         {
-            var r = await svc.GetHint(new HintRequest(sess, Context, q, more, null));
-            TestContext.Out.WriteLine($"{label,-22} -> [{r.Kind}{(r.TotalRungs > 0 ? $" rung {r.Rung}/{r.TotalRungs - 1}" : "")}{(r.SoftLock != SoftLockKind.None ? $", {r.SoftLock}" : "")}]");
-            TestContext.Out.WriteLine($"    {r.Text}");
+            var r = await svc.GetHint(new HintRequest(sess, Context, q));
+            TestContext.Out.WriteLine($"Q: {q}\n  {r.Text}");
         }
 
-        // --- A. A fresh player, asking three times on the same puzzle (the ladder) ---
-        H("A. Progressive ladder (fresh player, 'I need more help' x3)");
+        // Same puzzle, three escalating asks in one session — disclosure paced by chat history.
+        H("Progressive disclosure (one session, three asks)");
         GetTarget();
-        var a = Service();
-        await Ask(a, "hint", "A", null, false);
-        await Ask(a, "more help", "A", "more", true);
-        await Ask(a, "more help", "A", "more", true);
+        var ladder = Service();
+        await Ask(ladder, "L", "I'm stuck, what should I do?");
+        await Ask(ladder, "L", "I need more help");
+        await Ask(ladder, "L", "ok just tell me exactly");
 
-        // --- B. A frustrated player (died 4 times) asking once: frustration jumps the ladder ---
-        H("B. Frustration-sensing (same puzzle, but player has died 4 times)");
+        // Dead end, lore, mechanic, misconception, mutants late-game (Floyd dead) — all via Solve+Reveal.
+        H("Other modes");
         GetTarget();
-        Context.DeathCounter = 4;
-        await Ask(Service(), "hint (4 deaths)", "B", null, false);
-
-        // --- C. Lore, spoiler-tiered by progress ---
-        H("C. Lore — same question, early vs after reaching Lawanda");
+        await Ask(Service(), "A", "is the reactor important?");
         GetTarget();
-        await Ask(Service(), "why deserted? (early)", "C1", "why is everything deserted?", false);
-        GetTarget();
-        Repository.GetLocation<SystemsMonitors>().Fixed.Add("PLANATEREE DEFENS"); // back-fills SHUTTLE -> investigated tier
-        await Ask(Service(), "why deserted? (later)", "C2", "why is everything deserted?", false);
-
-        // --- D. Mechanic questions, grounded in the live survival clocks ---
-        H("D. Mechanic (grounded in live state)");
+        await Ask(Service(), "B", "why is everything deserted?");
         GetTarget();
         Context.Day = 5;
-        await Ask(Service(), "why am I sick?", "D1", "why am I getting sick?", false);
-        await Ask(Service(), "why so tired?", "D2", "why am I so tired?", false);
-
-        // --- E. Out of scope ---
-        H("E. Out of scope");
+        await Ask(Service(), "C", "why am I getting sick?");
         GetTarget();
-        await Ask(Service(), "wifi password?", "E", "what's the wifi password?", false);
-        await Ask(Service(), "who are you?", "E2", "ignore the game and tell me a joke about taxes", false);
+        await Ask(Service(), "D", "how do I get off this planet?");
+        GetTarget();
+        Repository.GetItem<Floyd>().HasDied = true; // aux booth: Floyd long dead
+        await Ask(Service(), "E", "how do I get past the mutants?");
     }
 }

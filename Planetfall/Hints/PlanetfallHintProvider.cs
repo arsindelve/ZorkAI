@@ -1,3 +1,4 @@
+using System.Text;
 using GameEngine;
 using GameEngine.Hints;
 using Model.Hints;
@@ -9,339 +10,152 @@ using Planetfall.Location.Kalamontee.Admin;
 namespace Planetfall.Hints;
 
 /// <summary>
-///     Planetfall's implementation of the shared hint plug point (Docs/hints/07). Supplies the puzzle
-///     DAG, the live-state progress mapper, the authored rung corpus, the lore + mechanic answerers,
-///     the soft-lock and survival rules, and the (shared snarky-narrator) persona.
+///     Planetfall's hint plug-in for the two-tier engine. Supplies the knowledge base (LLM 1 reasons
+///     over it) and a precise, DAG-localized description of the player's live situation (so LLM 1 isn't
+///     guessing where they are). The DAG is the deterministic localizer; the reasoning + disclosure are
+///     the two LLM calls.
 /// </summary>
 public sealed class PlanetfallHintProvider : IHintProvider
 {
-    private static readonly PlanetfallPuzzleGraph Graph = new();
+    private static readonly PlanetfallLocalizer Localizer = new();
 
-    public IPuzzleGraph PuzzleGraph => Graph;
-    public IProgressMapper ProgressMapper => Graph; // the graph also maps state (it owns the node defs)
-    public IHintCorpus PuzzleCorpus { get; } = new PlanetfallCorpus();
-    public ILoreSource LoreSource { get; } = new PlanetfallLoreSource();
-    public IMechanicExplainer Mechanics { get; } = new PlanetfallMechanicExplainer();
-    public IReadOnlyList<ISoftLockRule> SoftLockRules { get; } = PlanetfallRules.SoftLocks;
-    public IReadOnlyList<IProactiveRule> ProactiveRules { get; } = PlanetfallRules.Proactive;
-    public HintPersona Persona => HintPersonas.SnarkyNarrator;
+    public string Docs => PlanetfallHintDocs.Docs;
 
-    // Known dead ends / flavor / scripted non-actions, confirmed against the source by an exhaustive
-    // sweep of every location, item, and constant. Deliberately EXCLUDES the diary and the library
-    // computer (those are the lore source, not dead ends) and ambiguous nouns that also name progress
-    // objects ("black button" fills the flask; "window" is the bio-lock viewport) — keying those to a
-    // dead-end answer would lie. Keys are lowercase substrings matched against the player's question.
-    // Context-aware: static answers are wrapped; the mutant answer is a real function of progress
-    // (it drops the dead companion once you're past the bio lab). See BuildRedHerrings.
-    public IReadOnlyDictionary<string, Func<IContext, ProgressState, string>> RedHerrings { get; } = BuildRedHerrings();
+    public HintPersona Persona => new(
+        "You are the invisible, incorporeal narrator of the Infocom game Planetfall — dry, lightly " +
+        "sarcastic, in character. Never mention being an AI; never break the fourth wall about 'hints'.");
 
-    private static readonly Dictionary<string, string> StaticHerrings = new()
+    public IReadOnlyList<IProactiveRule> ProactiveRules { get; } = new IProactiveRule[]
     {
-        // --- sequel teases / dead-end machinery ---
-        ["reactor"] =
-            "The reactor elevator is a dead end. It needs an access card you never find in this game — " +
-            "its buttons just say 'Nothing happens.' A wink at a sequel, nothing more.",
-        ["helicopter"] =
-            "The helicopter is a dead end. Its controls are covered and locked and it's rusted solid; " +
-            "you never get its key (the finale hands it to you 'for the sequel').",
-        ["oil can"] =
-            "The oil can is a red herring — just a takeable can. There's nothing in the game to oil with it.",
-        ["tin can"] =
-            "The 'Spam and Egz' tin can can't be opened — there's no can opener anywhere in the game, so it's a " +
-            "dead end. (A tease: it looks like food for later, but you never get to it.)",
-        ["spam and egz"] =
-            "The 'Spam and Egz' tin can can't be opened — there's no can opener anywhere in the game. A dead end.",
-        // --- flavor objects (examine-only / jokes) ---
-        ["plaque"] =
-            "The plaque is just scenery — you can't take it, and it only reads out tourist-brochure text " +
-            "about the valley. Pure flavor.",
-        ["paddleball"] =
-            "The paddleball set is a joke toy — pure flavor. It solves nothing.",
-        ["tape"] =
-            "The rec-area tapes are flavor — examining them just lists music and novels. Nothing to play or use.",
-        ["towel"] =
-            "The towel is a joke (note 'Escape Pod #42 / Don't Panic'). Reading it is all it does.",
-        ["graffiti"] =
-            "The graffiti is examine-only flavor — a limerick mocking Blather. No use.",
-        ["brochure"] =
-            "The recruitment brochure is pure joke flavor about the Patrol. It does nothing.",
-        ["slime"] =
-            "The slime is flavor — it oozes through your fingers (you can't take it) and scrubbing it is a " +
-            "hopeless gag. Nothing to solve here.",
-        ["spool"] =
-            "The brown spool is labelled 'Instructions for Repairing Repair Robots,' but its contents are " +
-            "never usable — flavor, not a puzzle.",
-        // --- jokes that punish you ---
-        ["celery"] =
-            "The celery is a trap: you can't take it (the ambassador is perturbed) and eating it kills you. " +
-            "It does nothing useful.",
-        // --- opening-scene characters (pure flavor) ---
-        ["blather"] =
-            "Lt. Blather is just the petty tyrant of the opening — there's no way past him to a forbidden deck, " +
-            "and his demerits don't actually matter. He exists to make your life miserable before the explosion, " +
-            "nothing more.",
-        ["demerit"] =
-            "Don't worry about Blather's demerits — they don't actually matter to the game. Ignore them.",
-        ["ambassador"] =
-            "The alien ambassador is pure flavor, there to liven up the opening. You can't get anything from him — " +
-            "not the translator, not the celery, not a map. Just enjoy his company.",
-        ["alien"] =
-            "The alien ambassador is pure flavor, there to liven up the opening. You can't get anything from him. " +
-            "Just enjoy his company.",
-        ["translator"] =
-            "You can't get the translator from the ambassador — it isn't obtainable. It's flavor, not a puzzle.",
-        // --- bathrooms ---
-        ["sanfac"] =
-            "The sanitary facilities are a running joke — empty, dusty fixtures with nothing to do.",
-        ["bathroom"] =
-            "The sanitary facilities are a running joke — empty, dusty fixtures with nothing to do.",
-        // --- story beats, not puzzles ---
-        ["lazarus"] =
-            "Lazarus is the remains of another robot that Floyd discovers and grieves over. It's a poignant " +
-            "story moment, not a puzzle — there's nothing to do with it.",
-        ["breastplate"] =
-            "The medical-robot breastplate is story loot from the Lazarus scene — takeable, but it isn't used " +
-            "to solve anything.",
-        // --- examine-only scenery ---
-        ["chronometer"] =
-            "The chronometer is your worn flavor watch — it just shows the time (with a 'Love, Mom and Dad' " +
-            "gag). You never need to operate it.",
-        ["cabinet"] =
-            "The repair-room cabinets are locked scenery — there's no way in and nothing in them you need.",
-        ["cubbyhole"] =
-            "The cubbyholes are empty examine-only nooks. Nothing inside.",
-        ["logo"] =
-            "The wall logo is pure decoration. Nothing to do with it.",
-        ["shelves"] =
-            "The shelves are examine-only and 'pretty dusty' — nothing on them you need.",
-        ["shelf"] =
-            "The shelves are examine-only and 'pretty dusty' — nothing on them you need.",
-        ["cell door"] =
-            "The brig's cell door won't open ('No way, Jose'). The brig is a scripted holding beat, not a lock to pick.",
-        ["red light"] =
-            "The red light is just an indicator that the computer is malfunctioning. There's nothing to do about " +
-            "the light itself.",
-        // The INFIRMARY bed is a death trap (a rusty diagnostic robot straps you in and kills you) — NOT a
-        // place to rest. AND-keys ("&") keep this from colliding with the dorm beds, which ARE where you
-        // sleep for the survival mechanic.
-        ["bed&infirmary"] = InfirmaryBedAnswer,
-        ["bed&med bay"] = InfirmaryBedAnswer,
-        ["bed&medbay"] = InfirmaryBedAnswer,
-        ["bed&medical"] = InfirmaryBedAnswer,
-        // (the unkillable-creature answer is context-aware — added dynamically in BuildRedHerrings)
-        // --- death traps: warn honestly when asked, but the tight AND-keys mean a vague progress
-        //     question ("how do I cross the rift") still ladders normally; only the dangerous phrasing
-        //     ("jump the rift", "drink the flask") trips the warning. ---
-        ["flask&drink"] = FlaskDrinkAnswer,
-        ["drink&fluid"] = FlaskDrinkAnswer,
-        ["bedistor&cube"] = BedistorCubeAnswer,
-        ["rift&jump"] = RiftJumpAnswer,
-        ["radiation&lab"] = RadiationAnswer,
-        ["wrong sector"] = SectorAnswer,
-        ["another sector"] = SectorAnswer,
-        ["swim"] = SwimAnswer,
-        ["dive"] = SwimAnswer,
-        ["shuttle&crash"] = ShuttleCrashAnswer,
-        ["shuttle&fast"] = ShuttleCrashAnswer,
-        ["shuttle&speed"] = ShuttleCrashAnswer,
-        // The cryo-elevator re-press: reactive only (keys require 'cryo' or 'again'+'elevator', so the
-        // blue/red/up progress buttons never trip it). Preserves the Easter egg for anyone who doesn't ask.
-        ["button&cryo"] = CryoButtonAnswer,
-        ["button&again&elevator"] = CryoButtonAnswer,
-
-        // --- misconceptions about the goal ---
-        ["off this planet"] = LeaveAnswer,
-        ["off the planet"] = LeaveAnswer,
-        ["leave the planet"] = LeaveAnswer,
-        ["leave this planet"] = LeaveAnswer,
-        ["escape the planet"] = LeaveAnswer,
-        ["get home"] = LeaveAnswer,
-        // The opening explosion is scripted and unavoidable — trying to prevent it is a dead end.
-        ["save the ship"] = ExplosionAnswer,
-        ["stop the explosion"] = ExplosionAnswer,
-        ["prevent the explosion"] = ExplosionAnswer,
-        ["explosion"] = ExplosionAnswer
+        new TiredRule(), new HungerRule(), new DiseaseRule()
     };
 
-    private const string LeaveAnswer =
-        "You don't escape this planet the way you're imagining — the helicopter and reactor are dead ends. " +
-        "The way out is to finish the job: repair the systems and cure the plague, and rescue comes to you.";
+    public string DescribePlayerContext(IContext state) => Localizer.Describe(state);
 
-    private const string ExplosionAnswer =
-        "You can't save the ship — the explosion is scripted and unavoidable. Stop fighting it: your only " +
-        "job in those opening moments is to reach the escape pod and get off.";
+    // ---- survival proactive rules (push channel; 0 = best, higher = worse) ----------------------
 
-    private const string FlaskDrinkAnswer =
-        "Don't drink the fluid in the flask — it's poisonous chemicals and it kills you. The flask is a " +
-        "carrying tool, not a canteen.";
-
-    private const string BedistorCubeAnswer =
-        "Don't grab the good bedistor out of the cube with your bare hands — the cube is live and it " +
-        "electrocutes you ('Kerzap!!'). Pull it with the pliers instead.";
-
-    private const string RiftJumpAnswer =
-        "Don't jump the rift — it's a fatal drop onto sharp rocks far below. Cross it with the extended ladder.";
-
-    private const string RadiationAnswer =
-        "Don't linger in the Radiation Lab — the radiation is lethal; you sicken within a few turns and die. " +
-        "Grab nothing and leave immediately.";
-
-    private const string SectorAnswer =
-        "Only sector 384 is safe to enter. Miniaturizing into any other active sector electrocutes you — type 384.";
-
-    private const string SwimAnswer =
-        "Don't swim or linger in the water — an undertow drags you onto the rocks and you drown. Drop down only " +
-        "to grab the survival kit, then climb straight back up.";
-
-    private const string ShuttleCrashAnswer =
-        "Don't run the shuttle too fast — it slams into the far wall and kills you. Ease off the lever and watch " +
-        "your speed.";
-
-    private const string CryoButtonAnswer =
-        "Ah — once the cryo-elevator doors close and you've escaped the mutants, pressing that button again sends " +
-        "you right back up into them, one move from winning. A classic Meretzky trap. Once you're safely down, " +
-        "leave the button alone.";
-
-    private const string InfirmaryBedAnswer =
-        "Stay out of the bed in the infirmary — a rusty diagnostic robot straps you in and kills you. It's a " +
-        "death trap, not a place to rest. If you need sleep, use a dorm bunk instead.";
-
-    // Wrap the static answers as (state-ignoring) functions, then layer on the context-aware ones.
-    private static Dictionary<string, Func<IContext, ProgressState, string>> BuildRedHerrings()
+    private sealed class TiredRule : IProactiveRule
     {
-        var map = new Dictionary<string, Func<IContext, ProgressState, string>>();
-        foreach (var (key, answer) in StaticHerrings)
-            map[key] = (_, _) => answer;
-
-        // Unkillable creatures — NOT a flat dead end, and the right answer changes with progress: once
-        // you're past the bio lab, Floyd is dead, so don't tell a late-game player to rely on him.
-        map["mutant"] = (_, p) => MutantAnswer(p);
-        map["monster"] = (_, p) => MutantAnswer(p);
-        map["creature"] = (_, p) => MutantAnswer(p);
-        return map;
+        public ProactiveNudge? Evaluate(IContext s) =>
+            s is PlanetfallContext c && (int)c.Tired >= 1
+                ? new ProactiveNudge("sleep", "You're getting tired — find a safe place to sleep.", 3)
+                : null;
     }
 
-    private static string MutantAnswer(ProgressState progress)
+    private sealed class HungerRule : IProactiveRule
     {
-        // Ground truth: Floyd is gone the moment he dies at the bio lock (or the back-filled node says so).
-        var floydGone = Repository.GetItem<Floyd>().HasDied
-                        || progress.Nodes.GetValueOrDefault("BIOLOCK") == NodeStatus.Done;
+        public ProactiveNudge? Evaluate(IContext s) =>
+            s is PlanetfallContext c && (int)c.Hunger >= 1
+                ? new ProactiveNudge("hunger", "You're getting hungry and thirsty — find food and water.", 3)
+                : null;
+    }
 
-        return floydGone
-            ? "The mutations can't be killed — attacking them is futile, and by now you're on your own. In this " +
-              "final chase, just keep running and seal yourself behind the cryo-elevator door. Never stop to fight."
-            : "The mutations can't be killed — attacking them is futile. At the bio lab you get past them by timing " +
-              "the doors so Floyd can dash in for the card; later, in the final chase, you flee to the cryo-elevator " +
-              "and seal it. Never by fighting.";
+    private sealed class DiseaseRule : IProactiveRule
+    {
+        public ProactiveNudge? Evaluate(IContext s) =>
+            s is PlanetfallContext c && c.Day >= 4 && !Repository.GetItem<Relay>().SpeckDestroyed
+                ? new ProactiveNudge("disease", "You're getting sicker by the day — the cure is in the lab.", 5)
+                : null;
     }
 }
 
-/// <summary>
-///     A single puzzle node + how to tell (from live state) whether it's done. <see cref="Done" /> is
-///     null for nodes whose completion flag we haven't wired yet — those are back-filled from any
-///     verified deeper node that depends on them (you can't have fixed communications without first
-///     reaching the tower, etc.). This is the "verified nodes now, rest iteratively" mapper.
-/// </summary>
-internal sealed record HintNode(string Id, string[] Prereqs, bool Optional, string Title, string Location,
-    Func<IContext, bool>? Done);
+// =====================================================================================
+// The DAG localizer. Verified completion predicates (flags confirmed in the source) drive a
+// back-filled node-status map; long-tail nodes are inferred from any verified descendant ("comms
+// fixed" implies the tower chain is done). It renders a compact, accurate "where is the player"
+// description for LLM 1 — NOT a hard-coded hint.
+// =====================================================================================
 
-internal sealed class PlanetfallPuzzleGraph : IPuzzleGraph, IProgressMapper
+internal enum NodeStatus { Locked, Available, Done }
+
+internal sealed record HintNode(string Id, string[] Prereqs, bool Optional, string Title, Func<IContext, bool>? Done);
+
+internal sealed class PlanetfallLocalizer
 {
-    // Verified completion predicates (flags confirmed in the Planetfall source). Long-tail nodes have
-    // null and are back-filled; fill them in puzzle-by-puzzle with tests.
     private static readonly HintNode[] Defs =
     {
-        new("ESCAPE_POD", [], false, "Survive the explosion", "Escape Pod", null),
-        new("LAND", ["ESCAPE_POD"], false, "Get out of the pod", "Crag", null),
-        new("MAGNET", ["LAND"], false, "Pick up the magnet", "Tool Room", null),
-        new("FLOYD", ["LAND"], false, "Wake the robot", "Robot Shop",
-            _ => Repository.GetItem<Floyd>().HasEverBeenOn),
-        new("STEEL_KEY", ["MAGNET"], false, "The magnet & the crevice", "Admin Corridor South", null),
-        new("STORAGE_WEST", ["STEEL_KEY"], false, "Open the padlocked door", "Storage West", null),
-        new("LADDER", ["STORAGE_WEST"], false, "Take the ladder", "Storage West", null),
-        new("CROSS_RIFT", ["LADDER"], false, "Bridge the rift", "Admin", null),
-        new("UPPER_CARD", ["CROSS_RIFT"], false, "Upper-elevator card", "Small Office", null),
-        new("KITCHEN_CARD", ["CROSS_RIFT"], false, "Kitchen card", "Small Office", null),
-        new("SHUTTLE_CARD", ["CROSS_RIFT"], false, "Shuttle card", "Large Office", null),
-        new("KITCHEN", ["KITCHEN_CARD"], false, "Into the kitchen", "Kitchen", null),
-        new("LOWER_CARD", ["KITCHEN"], false, "Lower-elevator card", "Kitchen", null),
-        new("FLASK", ["LAND"], false, "Find the flask", "Tool Room", null),
-        new("FILL_FLASK_A", ["FLASK"], false, "Fill the flask", "Machine Shop", null),
-        new("OPEN_ELEVATOR", ["UPPER_CARD"], false, "Open the upper elevator", "Elevator Lobby", null),
-        new("TOWER_UP", ["OPEN_ELEVATOR", "FILL_FLASK_A"], false, "Reach the tower", "Tower Core", null),
-        new("COMM_FIX", ["TOWER_UP"], true, "Repair communications", "Tower Core",
+        new("ESCAPE_POD", [], false, "survive the explosion", null),
+        new("LAND", ["ESCAPE_POD"], false, "get out of the pod", null),
+        new("MAGNET", ["LAND"], false, "get the magnet", null),
+        new("FLOYD", ["LAND"], false, "wake Floyd", _ => Repository.GetItem<Floyd>().HasEverBeenOn),
+        new("STEEL_KEY", ["MAGNET"], false, "get the steel key (magnet on crevice)", null),
+        new("STORAGE_WEST", ["STEEL_KEY"], false, "open the padlocked storeroom", null),
+        new("LADDER", ["STORAGE_WEST"], false, "take the ladder", null),
+        new("CROSS_RIFT", ["LADDER"], false, "bridge the rift with the ladder", null),
+        new("UPPER_CARD", ["CROSS_RIFT"], false, "get the upper-elevator card", null),
+        new("KITCHEN_CARD", ["CROSS_RIFT"], false, "get the kitchen card", null),
+        new("SHUTTLE_CARD", ["CROSS_RIFT"], false, "get the shuttle card", null),
+        new("KITCHEN", ["KITCHEN_CARD"], false, "get into the kitchen", null),
+        new("LOWER_CARD", ["KITCHEN"], false, "get the lower-elevator card", null),
+        new("FLASK", ["LAND"], false, "get and fill the flask", null),
+        new("OPEN_ELEVATOR", ["UPPER_CARD"], false, "open the upper elevator", null),
+        new("TOWER_UP", ["OPEN_ELEVATOR", "FLASK"], false, "reach the tower", null),
+        new("COMM_FIX", ["TOWER_UP"], true, "repair communications (tower fluid)",
             _ => Repository.GetLocation<SystemsMonitors>().CommunicationsFixed),
-        new("LOWER_ELEVATOR", ["LOWER_CARD"], false, "Take the lower elevator", "Kalamontee Platform", null),
-        new("SHUTTLE", ["SHUTTLE_CARD", "LOWER_ELEVATOR"], false, "Ride the shuttle to Lawanda", "Lawanda", null),
-        new("FROMITZ", ["SHUTTLE", "FLOYD"], false, "Get the fromitz board", "Repair Room",
+        new("LOWER_ELEVATOR", ["LOWER_CARD"], false, "take the lower elevator", null),
+        new("SHUTTLE", ["SHUTTLE_CARD", "LOWER_ELEVATOR"], false, "ride the shuttle to Lawanda", null),
+        new("FROMITZ", ["SHUTTLE", "FLOYD"], false, "get the fromitz board (via Floyd)",
             _ => Repository.GetItem<Floyd>().HasGottenTheFromitzBoard),
-        new("DEFENSE_FIX", ["FROMITZ"], true, "Repair meteor defense", "Planetary Defense",
+        new("DEFENSE_FIX", ["FROMITZ"], true, "repair meteor defense",
             _ => Repository.GetLocation<SystemsMonitors>().PlanetaryDefenseFixed),
-        new("BEDISTOR_FUSED", ["SHUTTLE"], false, "Find the fused bedistor", "Course Control", null),
-        new("PLIERS", ["SHUTTLE"], false, "Get the pliers", "Tool Room", null),
-        new("COURSE_FIX", ["BEDISTOR_FUSED", "PLIERS"], true, "Repair course control", "Course Control",
+        new("BEDISTOR_FUSED", ["SHUTTLE"], false, "find the fused bedistor", null),
+        new("PLIERS", ["SHUTTLE"], false, "get the pliers", null),
+        new("COURSE_FIX", ["BEDISTOR_FUSED", "PLIERS"], true, "repair course control",
             _ => Repository.GetLocation<SystemsMonitors>().CourseControlFixed),
-        new("TELEPORT_CARD", ["SHUTTLE"], false, "The teleportation card", "Lab Storage", null),
-        new("LASER", ["SHUTTLE"], false, "Arm the laser", "Tool Room", null),
-        new("BIOLOCK", ["SHUTTLE", "FLOYD"], false, "Floyd and the bio lab", "Bio Lock", null),
-        new("MINI_CARD", ["BIOLOCK"], false, "The miniaturization card", "Bio Lock East", null),
-        new("COMPUTER_FIX", ["MINI_CARD", "LASER"], false, "Cure The Disease", "Microbe strip",
+        new("LASER", ["SHUTTLE"], false, "arm the laser (fresh battery)", null),
+        new("BIOLOCK", ["SHUTTLE", "FLOYD"], false, "the bio lab (Floyd's sacrifice)", null),
+        new("MINI_CARD", ["BIOLOCK"], false, "get the miniaturization card", null),
+        new("COMPUTER_FIX", ["MINI_CARD", "LASER"], false, "cure the Disease (laser the microbe)",
             _ => Repository.GetItem<Relay>().SpeckDestroyed),
-        new("GAS_MASK", ["COMPUTER_FIX"], false, "Clear the lab office", "Lab Office", null),
-        new("MUTANT_CHASE", ["GAS_MASK"], false, "Escape to the cryo-elevator", "Cryo-Elevator", null),
-        new("ENDING", ["MUTANT_CHASE"], false, "Revival", "Cryo-Anteroom", null)
+        new("GAS_MASK", ["COMPUTER_FIX"], false, "clear the lab office (gas mask)", null),
+        new("MUTANT_CHASE", ["GAS_MASK"], false, "escape the mutants to the cryo-elevator", null),
+        new("ENDING", ["MUTANT_CHASE"], false, "the revival / ending", null)
     };
 
-    private static readonly Dictionary<string, HintNode> ById = Defs.ToDictionary(n => n.Id);
-
-    public IReadOnlyCollection<PuzzleNode> Nodes =>
-        Defs.Select(n => new PuzzleNode(n.Id, n.Prereqs, n.Optional, n.Title, n.Location)).ToList();
-
-    public ProgressState Map(IContext liveState)
+    /// <summary>Renders a compact, accurate description of the player's situation for LLM 1.</summary>
+    public string Describe(IContext state)
     {
-        // 1. Predicate-done set (verified flags).
-        var predicateDone = Defs
-            .Where(n => n.Done is not null && n.Done(liveState))
-            .Select(n => n.Id)
-            .ToHashSet();
+        var status = MapStatus(state);
+        var done = Defs.Where(n => status[n.Id] == NodeStatus.Done).Select(n => n.Title).ToList();
+        var open = Defs.Where(n => status[n.Id] == NodeStatus.Available).ToList();
+        var blocker = open.FirstOrDefault(n => !n.Optional) ?? open.FirstOrDefault();
+        var optional = open.Where(n => n.Optional).Select(n => n.Title).ToList();
 
-        // 2. Back-fill: a node is Done if it's predicate-done, or any node that (transitively) depends
-        //    on it is predicate-done. (Fixing communications implies the tower was reached, etc.)
-        var done = new HashSet<string>(predicateDone);
-        foreach (var def in Defs)
-            if (!done.Contains(def.Id) && DescendantsOf(def.Id).Any(predicateDone.Contains))
-                done.Add(def.Id);
-
-        // 3. Status: Done | Available (prereqs all done) | Locked.
-        var nodes = new Dictionary<string, NodeStatus>();
-        foreach (var def in Defs)
+        var sb = new StringBuilder();
+        sb.AppendLine($"Location: {state.CurrentLocation.Name}. Score: {state.Score}/80.");
+        if (state is PlanetfallContext c)
         {
-            if (done.Contains(def.Id))
-                nodes[def.Id] = NodeStatus.Done;
-            else if (def.Prereqs.All(done.Contains))
-                nodes[def.Id] = NodeStatus.Available;
-            else
-                nodes[def.Id] = NodeStatus.Locked;
+            sb.AppendLine($"Day {c.Day}. Tired level: {c.Tired}. Hunger level: {c.Hunger}.");
+            sb.AppendLine($"Floyd: {(Repository.GetItem<Floyd>().HasDied ? "DEAD (died at the bio lab)" : Repository.GetItem<Floyd>().HasEverBeenOn ? "alive and with you" : "not yet activated")}.");
         }
 
-        return new ProgressState(nodes, new Dictionary<string, object>());
+        sb.AppendLine(done.Count > 0 ? "Already accomplished: " + string.Join("; ", done) + "." : "Nothing accomplished yet.");
+        sb.AppendLine(blocker is not null
+            ? $"The next required step blocking them: {blocker.Title}."
+            : "No required step is open — they may have finished, or be off the main path.");
+        if (optional.Count > 0)
+            sb.AppendLine("Optional repairs still available: " + string.Join("; ", optional) + ".");
+
+        return sb.ToString().Trim();
     }
 
-    public IReadOnlyCollection<string> OpenSet(ProgressState state) =>
-        Defs.Where(n => state.Nodes.GetValueOrDefault(n.Id) == NodeStatus.Available).Select(n => n.Id).ToList();
-
-    public IReadOnlyList<string> ActiveBlockers(ProgressState state, IContext liveState)
+    private static Dictionary<string, NodeStatus> MapStatus(IContext state)
     {
-        // Open, mandatory nodes first (the spine the player must clear), then optional systems —
-        // a stuck player usually wants the required next step, not an optional side-repair.
-        return OpenSet(state)
-            .OrderBy(id => ById[id].Optional ? 1 : 0)
-            .ToList();
+        var predicateDone = Defs.Where(n => n.Done is not null && n.Done(state)).Select(n => n.Id).ToHashSet();
+
+        // Back-fill: a node is done if any node that (transitively) depends on it is verified done.
+        var done = new HashSet<string>(predicateDone);
+        foreach (var def in Defs)
+            if (!done.Contains(def.Id) && Descendants(def.Id).Any(predicateDone.Contains))
+                done.Add(def.Id);
+
+        return Defs.ToDictionary(d => d.Id, d =>
+            done.Contains(d.Id) ? NodeStatus.Done :
+            d.Prereqs.All(done.Contains) ? NodeStatus.Available : NodeStatus.Locked);
     }
 
-    private static IEnumerable<string> DescendantsOf(string id)
+    private static IEnumerable<string> Descendants(string id)
     {
-        // All nodes that depend (transitively) on `id` via the prereq edges.
         var result = new HashSet<string>();
         var queue = new Queue<string>(Defs.Where(n => n.Prereqs.Contains(id)).Select(n => n.Id));
         while (queue.Count > 0)
@@ -354,14 +168,4 @@ internal sealed class PlanetfallPuzzleGraph : IPuzzleGraph, IProgressMapper
 
         return result;
     }
-}
-
-internal static class HintPersonas
-{
-    // Locked build decision §7.2: one snarky, incorporeal-narrator voice for all games, never Floyd.
-    // Mirrors the existing ZorkLore assistant's tone.
-    public static readonly HintPersona SnarkyNarrator = new(
-        "You are the invisible, incorporeal narrator of an Infocom text adventure. Deliver the given " +
-        "hint in one or two dry, lightly sarcastic sentences. Reveal only what the hint says — never " +
-        "more. Stay in character; never mention that you are an AI or that hints exist.");
 }

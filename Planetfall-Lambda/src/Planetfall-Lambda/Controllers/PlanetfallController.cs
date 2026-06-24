@@ -41,13 +41,10 @@ public class PlanetfallController(
             throw new InvalidOperationException("No game state found for this session.");
 
         var service = new HintService(new PlanetfallHintProvider(), hintMemory, hintLlm);
-        var result = await service.GetHint(
-            new HintRequest(request.SessionId, engine.Context, request.Question, request.More, request.Topic));
+        var result = await service.GetHint(new HintRequest(request.SessionId, engine.Context, request.Question));
 
-        logger.LogInformation($"Hint [{result.Kind}] topic={result.Topic} rung={result.Rung}");
         // Deliberately no WriteSession(): hints are read-only and consume no turn.
-        return new HintApiResponse(result.Kind.ToString(), result.Text, result.Topic,
-            result.Rung, result.TotalRungs, result.SoftLock.ToString());
+        return new HintApiResponse(result.Text);
     }
 
     [HttpPost]

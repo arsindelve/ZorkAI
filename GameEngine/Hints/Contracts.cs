@@ -4,119 +4,36 @@ using Model.Interface;
 namespace GameEngine.Hints;
 
 // =====================================================================================
-// Common (game-agnostic) hint engine contracts.
-// See Docs/hints/07-common-architecture.md for the design. A game contributes one
-// IHintProvider; the engine (HintService) is written once and never forks per game.
+// Two-tier hint architecture (Docs/hints/07). The engine is game-agnostic; a game supplies
+// an IHintProvider. The intelligence lives in two LLM calls, not hard-coded tables:
+//   LLM 1 (solver)   : all docs + live player context  -> the COMPLETE solution to the situation.
+//   LLM 2 (revealer) : player context + solution + chat history -> what to reveal NEXT (paced).
+// Grounding is by provision (LLM 1 reasons over the supplied docs, never its own memory);
+// progressive disclosure is the chat history, not a counter.
 // =====================================================================================
 
-/// <summary>Status of a single puzzle node, computed from live game state.</summary>
-public enum NodeStatus
+/// <summary>The single per-game plug point. All of it is data the two LLM calls reason over.</summary>
+public interface IHintProvider
 {
-    /// <summary>Prerequisites are not yet met.</summary>
-    Locked,
-
-    /// <summary>Prerequisites met, but the player hasn't done it yet — a candidate "next move".</summary>
-    Available,
-
-    /// <summary>Completed.</summary>
-    Done
-}
-
-/// <summary>
-///     The game-agnostic reduction of live state: a status per puzzle-DAG node, plus a bag of
-///     game-specific extras (e.g. survival-clock levels). Both Zork and Planetfall reduce to this.
-/// </summary>
-public sealed record ProgressState(
-    IReadOnlyDictionary<string, NodeStatus> Nodes,
-    IReadOnlyDictionary<string, object> Extras);
-
-/// <summary>A node in the puzzle dependency graph (DAG).</summary>
-public sealed record PuzzleNode(
-    string Id,
-    string[] Prerequisites,
-    bool Optional,
-    string Title,
-    string Location);
-
-/// <summary>The game's puzzle graph: nodes + prerequisite edges, reasoned over generically.</summary>
-public interface IPuzzleGraph
-{
-    IReadOnlyCollection<PuzzleNode> Nodes { get; }
-
-    /// <summary>Nodes that are Available (prereqs met) but not Done — the open set.</summary>
-    IReadOnlyCollection<string> OpenSet(ProgressState state);
+    /// <summary>
+    ///     Everything the solver may need, as text: the verified solution walkthrough, the lore, the
+    ///     known dead ends / red herrings, the death traps, the goal. Fed to LLM 1 wholesale (the
+    ///     Planetfall corpus is small enough to sit in context — no retrieval needed).
+    /// </summary>
+    string Docs { get; }
 
     /// <summary>
-    ///     The node(s) most likely gating the player right now, ordered best-first. Uses the live
-    ///     state for location proximity / recent trajectory.
+    ///     A readable snapshot of the player's live situation (location, inventory, key flags such as
+    ///     Floyd alive/dead and which systems are fixed, day, survival levels, score). Built fresh and
+    ///     read-only from <see cref="IContext" /> each request — this is what keeps answers context-aware.
     /// </summary>
-    IReadOnlyList<string> ActiveBlockers(ProgressState state, IContext liveState);
-}
+    string DescribePlayerContext(IContext state);
 
-/// <summary>Maps live game state (read-only) to the game-agnostic ProgressState.</summary>
-public interface IProgressMapper
-{
-    ProgressState Map(IContext liveState);
-}
+    /// <summary>Voice for both LLM calls (v1: one snarky incorporeal narrator).</summary>
+    HintPersona Persona { get; }
 
-/// <summary>An ordered set of progressively-more-specific hint rungs for one puzzle node.</summary>
-public sealed record RungLadder(string NodeId, IReadOnlyList<string> Rungs);
-
-/// <summary>The authored puzzle-hint corpus (the planetfall/06 &amp; zorkone/06 ladders, as data).</summary>
-public interface IHintCorpus
-{
-    bool TryGetLadder(string nodeId, out RungLadder ladder);
-}
-
-/// <summary>Spoiler tiers — lore answers are gated to what the player has discovered.</summary>
-public enum SpoilerTier
-{
-    Observable = 0,    // T0 — visible immediately
-    Environmental = 1, // T1 — read the diary / examined nearby items
-    Investigated = 2,  // T2 — used the library terminal etc.
-    Endgame = 3        // T3 — completed / reached the finale
-}
-
-/// <summary>A lore/world answer; Grounded=false means "decline / not yet discovered" rather than confabulate.</summary>
-public sealed record LoreAnswer(bool Grounded, string Text);
-
-/// <summary>
-///     The lore/world-knowledge source (in-context digest, or RAG over a corpus). The game-specific
-///     implementation derives its own spoiler tier from the live state / progress, so the engine stays
-///     game-agnostic. Returns Grounded=false to decline (e.g. "you haven't discovered that yet").
-/// </summary>
-public interface ILoreSource
-{
-    Task<LoreAnswer> Answer(string question, IContext liveState, ProgressState progress, IHintLanguageModel llm);
-}
-
-/// <summary>
-///     Answers "mechanic" questions — "why am I sick?", "why can't I carry this?" — grounded in the
-///     live state + the game's own rules (not the puzzle corpus, not lore). Returns Grounded=false to
-///     defer when it doesn't recognise the question.
-/// </summary>
-public interface IMechanicExplainer
-{
-    Task<LoreAnswer> Explain(string question, IContext liveState, IHintLanguageModel llm);
-}
-
-public enum SoftLockKind
-{
-    None,
-    Warning,        // recoverable; surface as a caution
-    BestEndingOnly, // can still finish, but the best ending/score is foreclosed
-    Hard            // victory now impossible — advise restore
-}
-
-public sealed record SoftLockVerdict(SoftLockKind Kind, string? Message)
-{
-    public static readonly SoftLockVerdict None = new(SoftLockKind.None, null);
-}
-
-/// <summary>A per-game predicate detecting one unwinnable/soft-locked situation.</summary>
-public interface ISoftLockRule
-{
-    SoftLockVerdict Evaluate(IContext liveState, ProgressState progress);
+    /// <summary>Proactive (push) nudges — survival clocks etc. Evaluated read-only; surfaced by the UI.</summary>
+    IReadOnlyList<IProactiveRule> ProactiveRules { get; }
 }
 
 /// <summary>A proactive (push) nudge — survival clocks, "you seem stuck", etc.</summary>
@@ -128,59 +45,12 @@ public interface IProactiveRule
     ProactiveNudge? Evaluate(IContext liveState);
 }
 
-/// <summary>
-///     The single per-game plug point. A game supplies data + a few small implementations; the
-///     engine consumes only this. Registered via <see cref="IInfocomGame" />.
-/// </summary>
-public interface IHintProvider
-{
-    IPuzzleGraph PuzzleGraph { get; }
-    IProgressMapper ProgressMapper { get; }
-    IHintCorpus PuzzleCorpus { get; }
-    ILoreSource LoreSource { get; }
-    IMechanicExplainer Mechanics { get; }
-    IReadOnlyList<ISoftLockRule> SoftLockRules { get; }
-    IReadOnlyList<IProactiveRule> ProactiveRules { get; }
-    HintPersona Persona { get; }
-
-    /// <summary>
-    ///     Known red herrings / dead ends / death traps / goal misconceptions, keyed by a lowercase noun
-    ///     (or "&amp;"-joined terms that must all appear) that may appear in the player's question. The
-    ///     value is a function of live state, so the answer stays **context-aware** — e.g. the mutant
-    ///     answer drops the (dead) companion once you're past the bio lab. Checked before intent routing
-    ///     so a dead-end question gets the truth instead of a confabulated puzzle hint. Empty if none.
-    /// </summary>
-    IReadOnlyDictionary<string, Func<IContext, ProgressState, string>> RedHerrings { get; }
-}
-
 // ---- request / response -------------------------------------------------------------
 
-public enum HintKind
-{
-    Progress,
-    Mechanic,
-    Lore,
-    RedHerring, // honest answer about a dead end / flavor item / death trap / goal misconception
-    SoftLock,
-    Proactive,
-    Decline
-}
-
 /// <summary>
-///     A hint request. The engine treats <see cref="StateSnapshot" /> as read-only — it never
-///     consumes a turn or mutates game state.
+///     A hint request. The engine treats <see cref="StateSnapshot" /> as read-only — asking for a
+///     hint consumes no turn and mutates no game state.
 /// </summary>
-public sealed record HintRequest(
-    string SessionId,
-    IContext StateSnapshot,
-    string? Question,
-    bool More,
-    string? Topic);
+public sealed record HintRequest(string SessionId, IContext StateSnapshot, string Question);
 
-public sealed record HintResponse(
-    HintKind Kind,
-    string Text,
-    string? Topic,
-    int Rung,
-    int TotalRungs,
-    SoftLockKind SoftLock);
+public sealed record HintResponse(string Text);
