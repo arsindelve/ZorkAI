@@ -38,7 +38,7 @@ public class EndOfRainbow : LocationWithNoStartingItems
     protected override IReadOnlyList<SceneryItem> Scenery =>
     [
         new(["river", "frigid river"], "The Frigid River flows on beneath the rainbow, swift and cold. ",
-            "You can't take the river. ")
+            "Taking an entire river is beyond even your considerable talents. ")
     ];
 
 
