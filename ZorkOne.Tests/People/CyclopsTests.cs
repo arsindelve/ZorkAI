@@ -51,6 +51,39 @@ public class CyclopsTests : EngineTestsBase
     }
 
     [Test]
+    public async Task SayUlysses_Response()
+    {
+        // Issue #316: the canonical walkthrough phrasing "say Ulysses" must also dismiss the
+        // cyclops, not just the bare name "Ulysses".
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
+
+        var response = await target.GetResponse("say Ulysses");
+
+        response.Should()
+            .Contain(
+                "The cyclops, hearing the name of his father's deadly nemesis, " +
+                "flees the room by knocking down the wall on the east of the room");
+    }
+
+    [Test]
+    public async Task SayOdysseus_Response()
+    {
+        // Issue #316: "say Odysseus" must also dismiss the cyclops.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
+
+        var response = await target.GetResponse("say Odysseus");
+
+        response.Should()
+            .Contain(
+                "The cyclops, hearing the name of his father's deadly nemesis, " +
+                "flees the room by knocking down the wall on the east of the room");
+    }
+
+    [Test]
     public async Task Asleep_Odysseus_Response()
     {
         var target = GetTarget();

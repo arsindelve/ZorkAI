@@ -73,7 +73,13 @@ internal class CyclopsRoom : DarkLocation
         if (string.IsNullOrEmpty(input))
             return await base.RespondToSpecificLocationInteraction(input, context, client);
 
-        if (!new List<string> { "ulysses", "odysseus" }.Contains(input.ToLower().Trim())
+        // Issue #316: accept the canonical walkthrough phrasing "say Ulysses" as well as the bare
+        // name. Strip a leading "say " verb prefix before matching so both forms trigger the flee.
+        var normalized = input.ToLower().Trim();
+        if (normalized.StartsWith("say "))
+            normalized = normalized[4..].Trim();
+
+        if (!new List<string> { "ulysses", "odysseus" }.Contains(normalized)
             || !HasItem<Cyclops>()
             || GetItem<Cyclops>().IsSleeping)
             return await base.RespondToSpecificLocationInteraction(input, context, client);
