@@ -39,7 +39,7 @@ public sealed class HintService
         // important). This is the grounding guarantee for negative/exploratory questions.
         if (!request.More && !string.IsNullOrWhiteSpace(request.Question))
         {
-            var dead = MatchRedHerring(request.Question!);
+            var dead = MatchRedHerring(request.Question!, request.StateSnapshot, progress);
             if (dead is not null)
             {
                 var honest = await _llm.PhraseLore(request.Question!, dead, _provider.Persona);
@@ -179,7 +179,7 @@ public sealed class HintService
             .ToList();
     }
 
-    private string? MatchRedHerring(string question)
+    private string? MatchRedHerring(string question, IContext state, ProgressState progress)
     {
         var q = question.ToLowerInvariant();
 
@@ -193,7 +193,7 @@ public sealed class HintService
                 ? key.Split('&').All(term => q.Contains(term.Trim()))
                 : q.Contains(key);
             if (matched)
-                return answer;
+                return answer(state, progress); // answer is a function of live state — stays context-aware
         }
 
         return null;

@@ -92,6 +92,22 @@ public class PlanetfallHintProviderTests : EngineTestsBase
     }
 
     [Test]
+    public async Task MutantHint_IsContextAware_DropsTheDeadCompanionLateGame()
+    {
+        // Stub LLM echoes the grounded source, so we assert on the state-selected answer text.
+        // Early — Floyd is alive — the answer leans on him.
+        var early = await NewService().GetHint(new HintRequest("s", Context, "how do I get past the mutants?", false, null));
+        early.Kind.Should().Be(HintKind.RedHerring);
+        early.Text.Should().Contain("Floyd");
+
+        // After Floyd dies at the bio lock, the answer must NOT tell the player to rely on him.
+        Repository.GetItem<Floyd>().HasDied = true;
+        var late = await NewService().GetHint(new HintRequest("s2", Context, "how do I get past the mutants?", false, null));
+        late.Text.Should().NotContain("Floyd");
+        late.Text.Should().Contain("cryo-elevator");
+    }
+
+    [Test]
     public async Task WhyIsEverythingDeserted_RoutesToLore()
     {
         var result = await NewService().GetHint(

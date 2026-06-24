@@ -174,7 +174,7 @@ public class HintServiceTests
     public async Task RedHerringQuestion_AnsweredHonestly_BeforeIntentRouting()
     {
         var provider = FakeProvider.WithOpenPuzzle("RIFT", "A", "B", "C");
-        provider.Herrings["reactor"] = "The reactor is a dead end — don't waste your time.";
+        provider.Herrings["reactor"] = (_, _) => "The reactor is a dead end — don't waste your time.";
         // The LLM would classify this as Progress and we'd hint the rift — but the red-herring guard
         // must intercept it first and answer the truth.
         var llm = new StubLlm { Intent = HintIntent.Progress };
@@ -191,7 +191,7 @@ public class HintServiceTests
     public async Task RedHerringAndKey_MatchesOnlyWhenAllTermsPresent()
     {
         var provider = FakeProvider.WithOpenPuzzle("SLEEP", "A", "B", "C");
-        provider.Herrings["bed&infirmary"] = "The infirmary bed kills you — sleep in a dorm bunk.";
+        provider.Herrings["bed&infirmary"] = (_, _) => "The infirmary bed kills you — sleep in a dorm bunk.";
         var service = Service(provider, new StubLlm { Intent = HintIntent.Progress });
 
         // Both terms present -> the context-specific dead-end answer.

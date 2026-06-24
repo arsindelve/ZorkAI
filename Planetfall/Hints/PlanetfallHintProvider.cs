@@ -31,7 +31,11 @@ public sealed class PlanetfallHintProvider : IHintProvider
     // computer (those are the lore source, not dead ends) and ambiguous nouns that also name progress
     // objects ("black button" fills the flask; "window" is the bio-lock viewport) — keying those to a
     // dead-end answer would lie. Keys are lowercase substrings matched against the player's question.
-    public IReadOnlyDictionary<string, string> RedHerrings { get; } = new Dictionary<string, string>
+    // Context-aware: static answers are wrapped; the mutant answer is a real function of progress
+    // (it drops the dead companion once you're past the bio lab). See BuildRedHerrings.
+    public IReadOnlyDictionary<string, Func<IContext, ProgressState, string>> RedHerrings { get; } = BuildRedHerrings();
+
+    private static readonly Dictionary<string, string> StaticHerrings = new()
     {
         // --- sequel teases / dead-end machinery ---
         ["reactor"] =
@@ -124,10 +128,7 @@ public sealed class PlanetfallHintProvider : IHintProvider
         ["bed&med bay"] = InfirmaryBedAnswer,
         ["bed&medbay"] = InfirmaryBedAnswer,
         ["bed&medical"] = InfirmaryBedAnswer,
-        // --- unkillable creatures (NOT a flat dead end — the encounter is won by NOT fighting) ---
-        ["mutant"] = MutantAnswer,
-        ["monster"] = MutantAnswer,
-        ["creature"] = MutantAnswer,
+        // (the unkillable-creature answer is context-aware — added dynamically in BuildRedHerrings)
         // --- death traps: warn honestly when asked, but the tight AND-keys mean a vague progress
         //     question ("how do I cross the rift") still ladders normally; only the dangerous phrasing
         //     ("jump the rift", "drink the flask") trips the warning. ---
@@ -205,10 +206,34 @@ public sealed class PlanetfallHintProvider : IHintProvider
         "Stay out of the bed in the infirmary — a rusty diagnostic robot straps you in and kills you. It's a " +
         "death trap, not a place to rest. If you need sleep, use a dorm bunk instead.";
 
-    private const string MutantAnswer =
-        "Don't try to fight the mutations — they can't be killed, and attacking them is futile. You get past " +
-        "them by outsmarting the doors (let your companion grab what's behind them) and, in the final chase, by " +
-        "running for the cryo-elevator and sealing it behind you — never by fighting.";
+    // Wrap the static answers as (state-ignoring) functions, then layer on the context-aware ones.
+    private static Dictionary<string, Func<IContext, ProgressState, string>> BuildRedHerrings()
+    {
+        var map = new Dictionary<string, Func<IContext, ProgressState, string>>();
+        foreach (var (key, answer) in StaticHerrings)
+            map[key] = (_, _) => answer;
+
+        // Unkillable creatures — NOT a flat dead end, and the right answer changes with progress: once
+        // you're past the bio lab, Floyd is dead, so don't tell a late-game player to rely on him.
+        map["mutant"] = (_, p) => MutantAnswer(p);
+        map["monster"] = (_, p) => MutantAnswer(p);
+        map["creature"] = (_, p) => MutantAnswer(p);
+        return map;
+    }
+
+    private static string MutantAnswer(ProgressState progress)
+    {
+        // Ground truth: Floyd is gone the moment he dies at the bio lock (or the back-filled node says so).
+        var floydGone = Repository.GetItem<Floyd>().HasDied
+                        || progress.Nodes.GetValueOrDefault("BIOLOCK") == NodeStatus.Done;
+
+        return floydGone
+            ? "The mutations can't be killed — attacking them is futile, and by now you're on your own. In this " +
+              "final chase, just keep running and seal yourself behind the cryo-elevator door. Never stop to fight."
+            : "The mutations can't be killed — attacking them is futile. At the bio lab you get past them by timing " +
+              "the doors so Floyd can dash in for the card; later, in the final chase, you flee to the cryo-elevator " +
+              "and seal it. Never by fighting.";
+    }
 }
 
 /// <summary>

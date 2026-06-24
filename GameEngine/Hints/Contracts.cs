@@ -144,12 +144,13 @@ public interface IHintProvider
     HintPersona Persona { get; }
 
     /// <summary>
-    ///     Known red herrings / dead ends, keyed by a lowercase noun that may appear in the player's
-    ///     question, mapping to a grounded honest answer ("you can't / it does nothing"). Checked before
-    ///     intent routing so a question about a dead end gets the truth instead of a confabulated puzzle
-    ///     hint — the negative answers the invisiclues are famous for. Empty if the game has none wired.
+    ///     Known red herrings / dead ends / death traps / goal misconceptions, keyed by a lowercase noun
+    ///     (or "&amp;"-joined terms that must all appear) that may appear in the player's question. The
+    ///     value is a function of live state, so the answer stays **context-aware** — e.g. the mutant
+    ///     answer drops the (dead) companion once you're past the bio lab. Checked before intent routing
+    ///     so a dead-end question gets the truth instead of a confabulated puzzle hint. Empty if none.
     /// </summary>
-    IReadOnlyDictionary<string, string> RedHerrings { get; }
+    IReadOnlyDictionary<string, Func<IContext, ProgressState, string>> RedHerrings { get; }
 }
 
 // ---- request / response -------------------------------------------------------------

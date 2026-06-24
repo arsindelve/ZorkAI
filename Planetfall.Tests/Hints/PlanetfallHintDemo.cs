@@ -21,17 +21,18 @@ public class PlanetfallHintDemo : EngineTestsBase
     [Test]
     public async Task PrintReactor()
     {
+        const string q = "how do I get past the mutants?";
+
         GetTarget();
-        var svc = Service();
-        foreach (var q in new[]
-                 {
-                     "I'm at the auxiliary booth and the mutants are after me - how do I get past them?",
-                     "how do I kill the mutants?"
-                 })
-        {
-            var r = await svc.GetHint(new HintRequest("rx", Context, q, false, null));
-            TestContext.Out.WriteLine($"\nQ: {q}\n  -> [{r.Kind}{(r.Topic != null ? $" topic={r.Topic}" : "")}]\n  {r.Text}");
-        }
+        TestContext.Out.WriteLine("=== EARLY (Floyd alive) ===");
+        var early = await Service().GetHint(new HintRequest("a", Context, q, false, null));
+        TestContext.Out.WriteLine($"  {early.Text}");
+
+        GetTarget();
+        Repository.GetItem<Planetfall.Item.Kalamontee.Mech.FloydPart.Floyd>().HasDied = true; // past the bio lab
+        TestContext.Out.WriteLine("\n=== LATE / aux booth (Floyd long dead) ===");
+        var late = await Service().GetHint(new HintRequest("b", Context, q, false, null));
+        TestContext.Out.WriteLine($"  {late.Text}");
     }
 
     [Test]
