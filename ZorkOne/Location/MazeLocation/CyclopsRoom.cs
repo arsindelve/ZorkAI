@@ -1,5 +1,6 @@
 using GameEngine.IntentEngine;
 using GameEngine.Location;
+using Model;
 using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
@@ -75,10 +76,15 @@ internal class CyclopsRoom : DarkLocation
 
         // Issue #316: accept the canonical walkthrough phrasing "say Ulysses" as well as the bare
         // name, with or without surrounding quotes (e.g. say "Ulysses"). Strip a leading "say "
-        // verb prefix and any wrapping quotes before matching so every form triggers the flee.
+        // verb prefix (any Verbs.SayVerbs synonym) and any wrapping quotes before matching so every
+        // form triggers the flee.
         var normalized = input.ToLower().Trim();
-        if (normalized.StartsWith("say "))
-            normalized = normalized[4..].Trim();
+        foreach (var sayVerb in Verbs.SayVerbs)
+            if (normalized.StartsWith(sayVerb + " "))
+            {
+                normalized = normalized[(sayVerb.Length + 1)..].Trim();
+                break;
+            }
         normalized = normalized.Trim('"', '\'', '“', '”', '‘', '’').Trim();
 
         if (!new List<string> { "ulysses", "odysseus" }.Contains(normalized)
