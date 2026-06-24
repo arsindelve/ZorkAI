@@ -34,6 +34,19 @@ public sealed class HintService
     {
         var progress = _provider.ProgressMapper.Map(request.StateSnapshot);
 
+        // 0. Red-herring guard: if the question is about a known dead end, answer honestly *before*
+        // routing — otherwise the model confabulates a puzzle hint (or worse, claims the dead end is
+        // important). This is the grounding guarantee for negative/exploratory questions.
+        if (!request.More && !string.IsNullOrWhiteSpace(request.Question))
+        {
+            var dead = MatchRedHerring(request.Question!);
+            if (dead is not null)
+            {
+                var honest = await _llm.PhraseLore(request.Question!, dead, _provider.Persona);
+                return new HintResponse(HintKind.Lore, honest, null, 0, 0, SoftLockKind.None);
+            }
+        }
+
         // 1. Route intent. An explicit "more" (or a bare hint request) is always a progress hint;
         // otherwise classify the free-text question.
         var intent = request.More || string.IsNullOrWhiteSpace(request.Question)
@@ -164,6 +177,15 @@ public sealed class HintService
             .Select(n => n!)
             .OrderByDescending(n => n.Priority)
             .ToList();
+    }
+
+    private string? MatchRedHerring(string question)
+    {
+        var q = question.ToLowerInvariant();
+        foreach (var (noun, answer) in _provider.RedHerrings)
+            if (q.Contains(noun))
+                return answer;
+        return null;
     }
 
     private static HintResponse Decline(string message)

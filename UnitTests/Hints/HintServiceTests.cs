@@ -171,6 +171,23 @@ public class HintServiceTests
     }
 
     [Test]
+    public async Task RedHerringQuestion_AnsweredHonestly_BeforeIntentRouting()
+    {
+        var provider = FakeProvider.WithOpenPuzzle("RIFT", "A", "B", "C");
+        provider.Herrings["reactor"] = "The reactor is a dead end — don't waste your time.";
+        // The LLM would classify this as Progress and we'd hint the rift — but the red-herring guard
+        // must intercept it first and answer the truth.
+        var llm = new StubLlm { Intent = HintIntent.Progress };
+
+        var result = await Service(provider, llm).GetHint(
+            new HintRequest(Session, State(), "how do I use the reactor?", false, null));
+
+        result.Kind.Should().Be(HintKind.Lore);
+        result.Text.Should().Contain("dead end");
+        result.Topic.Should().BeNull(); // not routed to a puzzle
+    }
+
+    [Test]
     public async Task OutOfScopeQuestion_Declines()
     {
         var provider = FakeProvider.WithOpenPuzzle("RIFT", "A", "B", "C");

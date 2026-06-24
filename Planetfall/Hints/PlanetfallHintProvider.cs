@@ -25,6 +25,26 @@ public sealed class PlanetfallHintProvider : IHintProvider
     public IReadOnlyList<ISoftLockRule> SoftLockRules { get; } = PlanetfallRules.SoftLocks;
     public IReadOnlyList<IProactiveRule> ProactiveRules { get; } = PlanetfallRules.Proactive;
     public HintPersona Persona => HintPersonas.SnarkyNarrator;
+
+    // Known dead ends (confirmed against the source). Several are sequel-teases the finale literally
+    // hands you (reactor card, helicopter key, paddleball "for the sequel").
+    public IReadOnlyDictionary<string, string> RedHerrings { get; } = new Dictionary<string, string>
+    {
+        ["reactor"] =
+            "The reactor elevator is a dead end. It needs an access card you never find in this game — " +
+            "it's a wink at a sequel, nothing more. Don't waste your time on it.",
+        ["helicopter"] =
+            "The helicopter is a dead end. You never find its key in this game (the finale hands it to " +
+            "you 'for the sequel') — there's nothing here to solve.",
+        ["lazarus"] =
+            "Lazarus is the remains of another robot, which Floyd discovers and grieves over. It's a " +
+            "poignant story moment, not a puzzle — there's nothing to do with it.",
+        ["spool"] =
+            "The brown spool is labelled 'Instructions for Repairing Repair Robots,' but its contents " +
+            "are never actually usable — it's flavor, not a puzzle.",
+        ["paddleball"] =
+            "The paddleball set is a toy and a joke item — pure flavor. It solves nothing."
+    };
 }
 
 /// <summary>

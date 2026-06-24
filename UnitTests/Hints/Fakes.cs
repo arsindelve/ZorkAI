@@ -37,6 +37,8 @@ internal sealed class FakeProvider : IHintProvider
     public IReadOnlyList<ISoftLockRule> SoftLockRules => SoftLocks;
     public IReadOnlyList<IProactiveRule> ProactiveRules => Proactive;
     public HintPersona Persona => new("test narrator");
+    public Dictionary<string, string> Herrings { get; } = new();
+    public IReadOnlyDictionary<string, string> RedHerrings => Herrings;
 
     private void Add(string id, NodeStatus status, string[] rungs)
     {

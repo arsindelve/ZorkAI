@@ -142,6 +142,14 @@ public interface IHintProvider
     IReadOnlyList<ISoftLockRule> SoftLockRules { get; }
     IReadOnlyList<IProactiveRule> ProactiveRules { get; }
     HintPersona Persona { get; }
+
+    /// <summary>
+    ///     Known red herrings / dead ends, keyed by a lowercase noun that may appear in the player's
+    ///     question, mapping to a grounded honest answer ("you can't / it does nothing"). Checked before
+    ///     intent routing so a question about a dead end gets the truth instead of a confabulated puzzle
+    ///     hint — the negative answers the invisiclues are famous for. Empty if the game has none wired.
+    /// </summary>
+    IReadOnlyDictionary<string, string> RedHerrings { get; }
 }
 
 // ---- request / response -------------------------------------------------------------
