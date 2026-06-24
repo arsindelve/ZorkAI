@@ -74,6 +74,22 @@ public class HintServiceTests
     }
 
     [Test]
+    public async Task EmptyReveal_FailsVisibly_AndDoesNotPoisonHistory()
+    {
+        var store = new InMemoryHintMemoryStore();
+        var llm = new RecordingLlm { ForceReveal = "   " }; // model degraded to whitespace
+        var service = new HintService(new FakeProvider(), store, llm);
+
+        var result = await service.GetHint(new HintRequest(Session, State(), "I'm stuck"));
+
+        // The player gets a clear message, not a blank hint...
+        result.Text.Should().Contain("unavailable");
+        // ...and the empty exchange must NOT be recorded, or it would pollute later disclosure pacing.
+        var memory = await store.Load(Session);
+        memory.History.Should().BeEmpty();
+    }
+
+    [Test]
     public void ProactiveNudges_AreSurfacedByPriority()
     {
         var provider = new FakeProvider();

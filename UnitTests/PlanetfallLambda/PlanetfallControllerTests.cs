@@ -390,4 +390,38 @@ public class PlanetfallControllerTests
             result.Response.Should().Be("You are in the shuttle bay.");
         }
     }
+
+    [TestFixture]
+    public class HintPostMethod : PlanetfallControllerTests
+    {
+        [Test]
+        public async Task Should_ReturnNoGameMessage_When_SessionMissing()
+        {
+            // A stale/typo/never-played session id has no saved state.
+            _mockSessionRepository.Setup(r => r.GetSessionState("ghost-session", "planetfall_session"))
+                .ReturnsAsync((string?)null);
+
+            var result = await _controller.Hint(new HintApiRequest("ghost-session", "what do I do?"));
+
+            // Not an opening-scene hint and not a 500 — a clear "no game yet" message...
+            result.Text.Should().Contain("can't find a game");
+            // ...and nothing was persisted.
+            _mockSessionRepository.Verify(
+                r => r.WriteSessionState(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        public async Task Should_NotWriteSession_When_HintRequested()
+        {
+            _mockSessionRepository.Setup(r => r.GetSessionState("live-session", "planetfall_session"))
+                .ReturnsAsync("c2F2ZWQ="); // a (mock) saved game blob
+            _mockEngine.Setup(e => e.Context).Returns(new Mock<IContext>().Object);
+
+            await _controller.Hint(new HintApiRequest("live-session", "what do I do?"));
+
+            // The endpoint's headline guarantee: asking for a hint consumes no turn and persists nothing.
+            _mockSessionRepository.Verify(
+                r => r.WriteSessionState(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        }
+    }
 }

@@ -13,6 +13,9 @@ internal sealed class RecordingLlm : IHintLanguageModel
     public IReadOnlyList<HintExchange> LastHistory = new List<HintExchange>();
     public string SolveResult = "THE COMPLETE SOLUTION";
 
+    /// <summary>When set, Reveal returns this instead of the default — e.g. "" to simulate a degraded model.</summary>
+    public string? ForceReveal;
+
     public Task<string> Solve(string docs, string playerContext, IReadOnlyList<HintExchange> history,
         string question, HintPersona persona)
     {
@@ -30,6 +33,7 @@ internal sealed class RecordingLlm : IHintLanguageModel
         LastSolution = solution;
         LastHistory = history.ToList();
         LastRevealQuestion = question;
+        if (ForceReveal is not null) return Task.FromResult(ForceReveal);
         // The "revealed" amount scales with how many times they've already asked — proves history drives pacing.
         return Task.FromResult($"reveal#{history.Count}");
     }
