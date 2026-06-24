@@ -33,21 +33,18 @@ public interface IHintMemoryStore
     Task Save(string sessionId, HintMemory memory);
 }
 
-/// <summary>Simple in-memory store for tests and local play.</summary>
+/// <summary>
+///     In-memory store for tests and local/warm-process play. Thread-safe: it is registered as a DI
+///     singleton and ASP.NET serves requests concurrently. (Concurrent hint requests for the *same*
+///     session are last-write-wins, which is fine for hints; the production DynamoDB store is the
+///     cross-cold-start follow-up.)
+/// </summary>
 public sealed class InMemoryHintMemoryStore : IHintMemoryStore
 {
-    private readonly Dictionary<string, HintMemory> _store = new();
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<string, HintMemory> _store = new();
 
-    public Task<HintMemory> Load(string sessionId)
-    {
-        if (!_store.TryGetValue(sessionId, out var memory))
-        {
-            memory = new HintMemory();
-            _store[sessionId] = memory;
-        }
-
-        return Task.FromResult(memory);
-    }
+    public Task<HintMemory> Load(string sessionId) =>
+        Task.FromResult(_store.GetOrAdd(sessionId, _ => new HintMemory()));
 
     public Task Save(string sessionId, HintMemory memory)
     {
