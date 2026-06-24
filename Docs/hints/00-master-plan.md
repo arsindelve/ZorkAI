@@ -164,14 +164,18 @@ These gate the build; capture answers here.
    survival hints). Two tasks: (a) bring the Planetfall invisiclues in-repo (currently only in the
    external Python repo); (b) **identify/obtain a Zork I hint-content source** — the walkthrough gives
    the answer rung, but the laddering layer needs invisiclues-style content that isn't in either repo
-   yet. Decide source + licensing. **(b) is a HARD BLOCKER for Zork I Stage 4** (laddering) — without
-   a hint corpus, Zork can do localization/blocker-inference/soft-locks but cannot ladder hints. Not
-   an estimation footnote; resolve before committing to the Zork Stage 4 timeline.
-   - **Lore content (in-world-guide direction):** for Planetfall this is **demonstrably buildable
-     from the port's own descriptive text** — see [05 lore source](planetfall/05-lore.md), a
-     proof-of-concept corpus extracted from the library terminal, diary, and item descriptions, with
-     spoiler tiers. So the Planetfall *lore* gap is effectively closeable in-repo; the open call is
-     curated-doc vs live-retrieval-from-descriptions. (Zork lore is again a separate problem.)
+   yet. Decide source + licensing. **(b) is a HARD BLOCKER for Zork I Stage 4 *puzzle-hint laddering***
+   — without a hint corpus Zork can do localization/blocker-inference/soft-locks but cannot ladder
+   puzzle hints (LLM-1-from-walkthrough is the fallback). Note this is the **puzzle-hint** source; the
+   **lore** source for Zork is now solved (see below).
+   - **Lore content (in-world-guide direction) — both games now sourced:**
+     - *Planetfall:* **buildable from the port's own descriptive text** — see [05 lore source](planetfall/05-lore.md),
+       a proof-of-concept corpus extracted from the library terminal, diary, and item descriptions,
+       with spoiler tiers. Open call: curated-doc vs live-retrieval-from-descriptions.
+     - *Zork I:* **already exists** — two lore PDFs (`Encyclopedia Frobozzica`, `The History of Zork`)
+       and a working RAG assistant (`ZorkLore`, file_search) — see [zorkone 05 lore source](zorkone/05-lore.md).
+       The Zork *lore* gap is **closed**; open calls are integration (lift corpus in-engine vs call the
+       assistant) and PDF **licensing**. The Zork *puzzle-hint* source above remains separate.
 4. **Product contracts:**
    - Disclosure: how stuck before revealing how much? Fixed ladder vs frustration-sensing?
    - Voice: in-world (Floyd in Planetfall) vs out-of-world guide? (Zork has no companion narrator.)
