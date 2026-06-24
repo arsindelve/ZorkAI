@@ -164,10 +164,13 @@ These gate the build; capture answers here.
    survival hints). Two tasks: (a) bring the Planetfall invisiclues in-repo (currently only in the
    external Python repo); (b) **identify/obtain a Zork I hint-content source** — the walkthrough gives
    the answer rung, but the laddering layer needs invisiclues-style content that isn't in either repo
-   yet. Decide source + licensing. **(b) is a HARD BLOCKER for Zork I Stage 4 *puzzle-hint laddering***
-   — without a hint corpus Zork can do localization/blocker-inference/soft-locks but cannot ladder
-   puzzle hints (LLM-1-from-walkthrough is the fallback). Note this is the **puzzle-hint** source; the
-   **lore** source for Zork is now solved (see below).
+   yet. Decide source + licensing.
+   - **Zork I puzzle-hint source — now built.** ✅ The Zork progress-hint corpus exists: a 3-rung
+     (nudge → approach → solution) ladder per puzzle, authored from the verified 350-point walkthrough —
+     see [zorkone 06 puzzle/solution corpus](zorkone/06-puzzle-solution-corpus.md). This is the
+     invisiclues-equivalent that was the last open Zork content item; it's derived from in-repo test
+     content (no external corpus, no licensing question). What remains for *Planetfall* puzzle hints is
+     to bring its invisiclues in-repo (a)/(b) above.
    - **Lore content (in-world-guide direction) — both games now sourced:**
      - *Planetfall:* **buildable from the port's own descriptive text** — see [05 lore source](planetfall/05-lore.md),
        a proof-of-concept corpus extracted from the library terminal, diary, and item descriptions,
