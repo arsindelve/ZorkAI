@@ -18,63 +18,15 @@
     </ItemGroup>
 
     <!--
-      Hint knowledge base. The hint system's "knowledge" is the game itself, so at build time we
-      concatenate the entire game source + the verified walkthrough tests into one text file and embed
-      it (the deployed Lambda has no .cs files on disk). PlanetfallHintProvider reads this resource.
+      Hint knowledge base. The hint system's "knowledge" IS the game source, so we embed the game's own
+      .cs files plus the single complete walkthrough as resources (the deployed Lambda has no source on
+      disk). PlanetfallHintProvider reads these resources and assembles the bundle at runtime — the
+      concatenation logic lives in C#, not here. An explicit include means a missing/renamed walkthrough
+      fails the build loudly rather than silently degrading the hints.
     -->
-    <UsingTask TaskName="GenerateHintBundle" TaskFactory="RoslynCodeTaskFactory"
-               AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
-        <ParameterGroup>
-            <GameDir ParameterType="System.String" Required="true" />
-            <WalkDir ParameterType="System.String" Required="true" />
-            <OutFile ParameterType="System.String" Required="true" />
-            <WalkCount ParameterType="System.Int32" Output="true" />
-        </ParameterGroup>
-        <Task>
-            <Code Type="Fragment" Language="cs"><![CDATA[
-// Normalize separators so the manually-built WalkDir resolves on Linux (CI/Lambda) too, not just Windows.
-var game = GameDir.Replace('\\', System.IO.Path.DirectorySeparatorChar);
-var walk = System.IO.Path.GetFullPath(WalkDir.Replace('\\', System.IO.Path.DirectorySeparatorChar));
-
-var sb = new System.Text.StringBuilder();
-sb.AppendLine("Part 1 - GAME SOURCE (mechanics, objects, rooms, exact verbs):\n");
-foreach (var f in System.IO.Directory.GetFiles(game, "*.cs", System.IO.SearchOption.AllDirectories)) {
-    var rel = f.Substring(game.Length).TrimStart('\\', '/');
-    if (rel.StartsWith("obj") || rel.StartsWith("bin")) continue;
-    sb.AppendLine("// ===== " + rel + " =====");
-    sb.AppendLine(System.IO.File.ReadAllText(f));
-    sb.AppendLine();
-}
-sb.AppendLine("\nPart 2 - VERIFIED WALKTHROUGHS (the proven solution path):\n");
-WalkCount = 0;
-if (System.IO.Directory.Exists(walk))
-    foreach (var f in System.IO.Directory.GetFiles(walk, "*.cs")) {
-        sb.AppendLine("// ===== " + System.IO.Path.GetFileName(f) + " =====");
-        sb.AppendLine(System.IO.File.ReadAllText(f));
-        sb.AppendLine();
-        WalkCount++;
-    }
-System.IO.File.WriteAllText(OutFile, sb.ToString());
-            ]]></Code>
-        </Task>
-    </UsingTask>
-
-    <Target Name="GenerateHintKnowledge" BeforeTargets="BeforeCompile;CoreCompile">
-        <PropertyGroup>
-            <HintBundleFile>$(IntermediateOutputPath)HintKnowledge.g.txt</HintBundleFile>
-        </PropertyGroup>
-        <MakeDir Directories="$(IntermediateOutputPath)" />
-        <GenerateHintBundle GameDir="$(MSBuildProjectDirectory)"
-                            WalkDir="$(MSBuildProjectDirectory)/../Planetfall.Tests/Walkthrough"
-                            OutFile="$(HintBundleFile)">
-            <Output TaskParameter="WalkCount" PropertyName="HintWalkCount" />
-        </GenerateHintBundle>
-        <!-- Loud failure beats a silently degraded hint base: warn if the walkthroughs didn't make it in. -->
-        <Warning Condition="'$(HintWalkCount)' == '0'"
-                 Text="Hint knowledge bundle: NO walkthrough files were found at the expected path. The hint system will run without the verified solution paths." />
-        <ItemGroup>
-            <EmbeddedResource Include="$(HintBundleFile)" LogicalName="Planetfall.Hints.HintKnowledge.g.txt" />
-        </ItemGroup>
-    </Target>
+    <ItemGroup>
+        <EmbeddedResource Include="**/*.cs" Exclude="obj/**;bin/**" />
+        <EmbeddedResource Include="../Planetfall.Tests/Walkthrough/WalkthroughTestOne.cs" />
+    </ItemGroup>
 
 </Project>

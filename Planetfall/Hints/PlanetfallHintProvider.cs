@@ -87,41 +87,33 @@ public sealed class PlanetfallHintProvider : IHintProvider
 
     private static string BuildKnowledge()
     {
-        // Production: a single text bundle is embedded at build time (Lambda has no .cs on disk).
+        // The game's own .cs files + the one complete walkthrough are embedded as resources at build time
+        // (see Planetfall.csproj). We assemble the bundle from them here, in C#.
         var asm = typeof(PlanetfallHintProvider).Assembly;
-        var resource = asm.GetManifestResourceNames().FirstOrDefault(n => n.EndsWith("HintKnowledge.g.txt"));
-        if (resource is not null)
+        var sources = asm.GetManifestResourceNames()
+            .Where(n => n.EndsWith(".cs", StringComparison.Ordinal))
+            .OrderBy(n => n, StringComparer.Ordinal)
+            .ToList();
+
+        string Read(string name)
         {
-            using var stream = asm.GetManifestResourceStream(resource)!;
+            using var stream = asm.GetManifestResourceStream(name)!;
             using var reader = new StreamReader(stream);
-            return Preamble + reader.ReadToEnd();
+            return reader.ReadToEnd();
         }
 
-        // Dev/test fallback: read straight from the repo working tree.
-        return Preamble + BuildFromDisk();
-    }
+        void Append(StringBuilder sb, IEnumerable<string> names)
+        {
+            foreach (var n in names)
+                sb.Append("// ===== ").Append(n).Append(" =====\n").Append(Read(n)).Append("\n\n");
+        }
 
-    private static string BuildFromDisk()
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Zork.sln"))) dir = dir.Parent;
-        if (dir is null) return "(source not found)";
-
-        var game = Path.Combine(dir.FullName, "Planetfall");
-        var walk = Path.Combine(dir.FullName, "Planetfall.Tests", "Walkthrough");
-
-        var sb = new StringBuilder();
-        sb.AppendLine("Part 1 — GAME SOURCE (mechanics, objects, rooms, exact verbs):\n");
-        foreach (var f in Directory.GetFiles(game, "*.cs", SearchOption.AllDirectories))
-            sb.Append("// ===== ").Append(Path.GetRelativePath(game, f)).Append(" =====\n")
-              .Append(File.ReadAllText(f)).Append("\n\n");
-
-        sb.AppendLine("\nPart 2 — VERIFIED WALKTHROUGHS (the proven solution path):\n");
-        if (Directory.Exists(walk))
-            foreach (var f in Directory.GetFiles(walk, "*.cs"))
-                sb.Append("// ===== ").Append(Path.GetFileName(f)).Append(" =====\n")
-                  .Append(File.ReadAllText(f)).Append("\n\n");
-
+        const string walkthrough = "WalkthroughTestOne.cs";
+        var sb = new StringBuilder(Preamble);
+        sb.AppendLine("Part 1 - GAME SOURCE (mechanics, objects, rooms, exact verbs):\n");
+        Append(sb, sources.Where(n => !n.EndsWith(walkthrough, StringComparison.Ordinal)));
+        sb.AppendLine("\nPart 2 - THE COMPLETE VERIFIED WALKTHROUGH (the proven solution path, start to finish):\n");
+        Append(sb, sources.Where(n => n.EndsWith(walkthrough, StringComparison.Ordinal)));
         return sb.ToString();
     }
 

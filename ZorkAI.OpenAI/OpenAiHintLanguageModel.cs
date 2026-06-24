@@ -11,18 +11,15 @@ namespace ZorkAI.OpenAI;
 /// </summary>
 public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageModel
 {
-    protected override string ModelName => "gpt-4o-mini";
+    // The default; the actual model is the constructor arg, passed to the base as modelOverride so the
+    // base Client is built with it directly (no second, unused client).
+    protected override string ModelName => "gpt-5.4-mini";
 
-    // Own client so the model is selectable (e.g. gpt-4.1-mini for the 1M-token whole-source context).
-    // Built in the body, after the base has resolved ApiKey — avoids the virtual-call-before-init trap.
-    private readonly ChatClient? _client;
-
-    // gpt-5.4-mini: 1M-token context so the whole game source + walkthroughs fit, and a strong reasoner
+    // gpt-5.4-mini: 1M-token context so the whole game source + walkthrough fit, and a strong reasoner
     // for working a solution out of raw code.
     public OpenAiHintLanguageModel(ILogger? logger = null, string model = "gpt-5.4-mini")
-        : base(logger, requireApiKey: false)
+        : base(logger, requireApiKey: false, modelOverride: model)
     {
-        if (HasApiKey) _client = new ChatClient(model: model, apiKey: ApiKey);
     }
 
     public async Task<string> Solve(string docs, string playerContext, IReadOnlyList<HintExchange> history,
@@ -95,7 +92,7 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
         var messages = new List<ChatMessage> { new SystemChatMessage(system), new UserChatMessage(user) };
         try
         {
-            ChatCompletion completion = await _client!.CompleteChatAsync(messages,
+            ChatCompletion completion = await Client!.CompleteChatAsync(messages,
                 new ChatCompletionOptions { Temperature = temperature });
             return completion.Content[0].Text;
         }

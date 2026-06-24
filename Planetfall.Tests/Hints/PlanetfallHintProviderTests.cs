@@ -23,11 +23,15 @@ public class PlanetfallHintProviderTests : EngineTestsBase
     {
         var docs = Provider().Docs;
         docs.Should().Contain("GAME SOURCE");
-        docs.Should().Contain("VERIFIED WALKTHROUGHS");
+        docs.Should().Contain("VERIFIED WALKTHROUGH");
         // a real class only present in the actual source:
         docs.Should().Contain("class AdminCorridor");
-        // a real walkthrough TestCase line:
+        // a real walkthrough TestCase line, from the one complete walkthrough:
         docs.Should().Contain("[TestCase(");
+        docs.Should().Contain("WalkthroughTestOne");
+        // the partial/situation-specific walkthroughs must NOT be bundled:
+        docs.Should().NotContain("WalkthroughMutantChase");
+        docs.Should().NotContain("WalkthroughBioLock");
         // the lore + dialect pointer is in the preamble:
         docs.Should().Contain("library computer");
     }
