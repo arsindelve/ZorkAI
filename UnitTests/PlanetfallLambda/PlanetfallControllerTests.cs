@@ -29,7 +29,9 @@ public class PlanetfallControllerTests
             _mockLogger.Object,
             _mockEngine.Object,
             _mockSessionRepository.Object,
-            _mockSavedGameRepository.Object);
+            _mockSavedGameRepository.Object,
+            new GameEngine.Hints.InMemoryHintMemoryStore(),
+            new Mock<Model.Hints.IHintLanguageModel>().Object);
     }
 
     private Mock<ILogger<PlanetfallController>> _mockLogger;

@@ -1,7 +1,10 @@
 ﻿using GameEngine;
+using GameEngine.Hints;
 using GameEngine.Web;
+using Model.Hints;
 using Model.Interface;
 using Planetfall;
+using ZorkAI.OpenAI;
 
 namespace Planetfall_Lambda;
 
@@ -22,6 +25,13 @@ public class Startup
         services.AddEndpointsApiExplorer();
 
         services.AddScoped<IGameEngine, GameEngine<PlanetfallGame, PlanetfallContext>>();
+
+        // Hint subsystem (v1: Planetfall, all-OpenAI). Memory is a process singleton for now — a
+        // DynamoDB-backed store (persisting across cold starts) is the production follow-up.
+        services.AddSingleton<IHintMemoryStore, InMemoryHintMemoryStore>();
+        services.AddScoped<IHintLanguageModel>(sp =>
+            new OpenAiHintLanguageModel(sp.GetService<ILogger<OpenAiHintLanguageModel>>()));
+
         // Register the hosted service that will initialize GameEngine asynchronously
         services.AddHostedService<GameEngineInitializer>();
         ServicesHelper.ConfigureCommonServices(services);

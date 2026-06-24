@@ -1,8 +1,11 @@
 ﻿using System.Text;
+using GameEngine.Hints;
 using Microsoft.AspNetCore.Mvc;
 using Model.AIGeneration.Requests;
+using Model.Hints;
 using Model.Interface;
 using Model.Web;
+using Planetfall.Hints;
 
 namespace Lambda.Controllers;
 
@@ -12,12 +15,40 @@ public class PlanetfallController(
     ILogger<PlanetfallController> logger,
     IGameEngine engine,
     ISessionRepository sessionRepository,
-    ISavedGameRepository savedGameRepository
+    ISavedGameRepository savedGameRepository,
+    IHintMemoryStore hintMemory,
+    IHintLanguageModel hintLlm
 )
     : ControllerBase
 {
     private const string SaveGameTableName = "planetfall_savegame";
     private const string SessionTableName = "planetfall_session";
+
+    /// <summary>
+    ///     Read-only hint endpoint. Loads the session's game state, runs the hint engine, and returns a
+    ///     hint — WITHOUT consuming a turn or writing the session back (asking for help is free).
+    /// </summary>
+    [HttpPost]
+    [Route("hint")]
+    public async Task<HintApiResponse> Hint([FromBody] HintApiRequest request)
+    {
+        await engine.InitializeEngine();
+
+        var savedSession = await GetSavedSession(request.SessionId);
+        if (!string.IsNullOrEmpty(savedSession)) RestoreSession(savedSession);
+
+        if (engine.Context is null)
+            throw new InvalidOperationException("No game state found for this session.");
+
+        var service = new HintService(new PlanetfallHintProvider(), hintMemory, hintLlm);
+        var result = await service.GetHint(
+            new HintRequest(request.SessionId, engine.Context, request.Question, request.More, request.Topic));
+
+        logger.LogInformation($"Hint [{result.Kind}] topic={result.Topic} rung={result.Rung}");
+        // Deliberately no WriteSession(): hints are read-only and consume no turn.
+        return new HintApiResponse(result.Kind.ToString(), result.Text, result.Topic,
+            result.Rung, result.TotalRungs, result.SoftLock.ToString());
+    }
 
     [HttpPost]
     public async Task<GameResponse> Index([FromBody] GameRequest request)
