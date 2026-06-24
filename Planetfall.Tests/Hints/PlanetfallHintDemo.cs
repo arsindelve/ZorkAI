@@ -25,8 +25,7 @@ public class PlanetfallHintDemo : EngineTestsBase
         var svc = Service();
         foreach (var q in new[]
                  {
-                     "how do I get past Blather?", "what should I do with the ambassador?",
-                     "how do I get the translator?", "how do I open the tin can?"
+                     "should I get in the bed in the med bay?", "where can I sleep?"
                  })
         {
             var r = await svc.GetHint(new HintRequest("rx", Context, q, false, null));

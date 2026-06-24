@@ -117,6 +117,13 @@ public sealed class PlanetfallHintProvider : IHintProvider
         ["red light"] =
             "The red light is just an indicator that the computer is malfunctioning. There's nothing to do about " +
             "the light itself.",
+        // The INFIRMARY bed is a death trap (a rusty diagnostic robot straps you in and kills you) — NOT a
+        // place to rest. AND-keys ("&") keep this from colliding with the dorm beds, which ARE where you
+        // sleep for the survival mechanic.
+        ["bed&infirmary"] = InfirmaryBedAnswer,
+        ["bed&med bay"] = InfirmaryBedAnswer,
+        ["bed&medbay"] = InfirmaryBedAnswer,
+        ["bed&medical"] = InfirmaryBedAnswer,
         // --- unkillable creatures (NOT a flat dead end — the encounter is won by NOT fighting) ---
         ["mutant"] = MutantAnswer,
         ["monster"] = MutantAnswer,
@@ -142,6 +149,10 @@ public sealed class PlanetfallHintProvider : IHintProvider
     private const string ExplosionAnswer =
         "You can't save the ship — the explosion is scripted and unavoidable. Stop fighting it: your only " +
         "job in those opening moments is to reach the escape pod and get off.";
+
+    private const string InfirmaryBedAnswer =
+        "Stay out of the bed in the infirmary — a rusty diagnostic robot straps you in and kills you. It's a " +
+        "death trap, not a place to rest. If you need sleep, use a dorm bunk instead.";
 
     private const string MutantAnswer =
         "Don't try to fight the mutations — they can't be killed, and attacking them is futile. You get past " +

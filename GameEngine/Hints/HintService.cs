@@ -182,9 +182,18 @@ public sealed class HintService
     private string? MatchRedHerring(string question)
     {
         var q = question.ToLowerInvariant();
-        foreach (var (noun, answer) in _provider.RedHerrings)
-            if (q.Contains(noun))
+        foreach (var (key, answer) in _provider.RedHerrings)
+        {
+            // A key may require several terms (e.g. "bed&infirmary") — all must appear. This keeps a
+            // context-specific dead end (the deadly infirmary bed) from colliding with the safe,
+            // progress version (the dorm bed you sleep in).
+            var matched = key.Contains('&')
+                ? key.Split('&').All(term => q.Contains(term.Trim()))
+                : q.Contains(key);
+            if (matched)
                 return answer;
+        }
+
         return null;
     }
 

@@ -188,6 +188,23 @@ public class HintServiceTests
     }
 
     [Test]
+    public async Task RedHerringAndKey_MatchesOnlyWhenAllTermsPresent()
+    {
+        var provider = FakeProvider.WithOpenPuzzle("SLEEP", "A", "B", "C");
+        provider.Herrings["bed&infirmary"] = "The infirmary bed kills you — sleep in a dorm bunk.";
+        var service = Service(provider, new StubLlm { Intent = HintIntent.Progress });
+
+        // Both terms present -> the context-specific dead-end answer.
+        var deadly = await service.GetHint(new HintRequest(Session, State(), "is the infirmary bed safe?", false, null));
+        deadly.Kind.Should().Be(HintKind.Lore);
+        deadly.Text.Should().Contain("kills you");
+
+        // "bed" alone (the safe dorm bed) must NOT trigger it — it routes to a normal hint.
+        var safe = await service.GetHint(new HintRequest(Session, State(), "where is a bed to sleep in?", false, null));
+        safe.Kind.Should().Be(HintKind.Progress);
+    }
+
+    [Test]
     public async Task OutOfScopeQuestion_Declines()
     {
         var provider = FakeProvider.WithOpenPuzzle("RIFT", "A", "B", "C");
