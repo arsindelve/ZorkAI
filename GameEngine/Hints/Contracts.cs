@@ -16,18 +16,24 @@ namespace GameEngine.Hints;
 public interface IHintProvider
 {
     /// <summary>
-    ///     Everything the solver may need, as text: the verified solution walkthrough, the lore, the
-    ///     known dead ends / red herrings, the death traps, the goal. Fed to LLM 1 wholesale (the
-    ///     Planetfall corpus is small enough to sit in context — no retrieval needed).
+    ///     Everything the solver may need, as text. For Planetfall this is the complete game source plus
+    ///     the verified walkthrough tests plus a lore pointer — fed to LLM 1 wholesale.
     /// </summary>
     string Docs { get; }
 
     /// <summary>
-    ///     A readable snapshot of the player's live situation (location, inventory, key flags such as
-    ///     Floyd alive/dead and which systems are fixed, day, survival levels, score). Built fresh and
-    ///     read-only from <see cref="IContext" /> each request — this is what keeps answers context-aware.
+    ///     The FULL player situation for the solver (LLM 1): a salient key-state highlight followed by the
+    ///     complete serialized save game. Built fresh and read-only from <see cref="IContext" /> each
+    ///     request — this is what keeps answers context-aware.
     /// </summary>
     string DescribePlayerContext(IContext state);
+
+    /// <summary>
+    ///     The salient key-state highlight ONLY (location, Floyd alive/dead, systems fixed, cure done,
+    ///     day/health) — no full save-game dump. Fed to the revealer (LLM 2), which must stay consistent
+    ///     with where the player is but does not need the whole JSON, saving tokens on every hint.
+    /// </summary>
+    string DescribeKeyState(IContext state);
 
     /// <summary>Voice for both LLM calls (v1: one snarky incorporeal narrator).</summary>
     HintPersona Persona { get; }

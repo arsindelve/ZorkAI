@@ -41,7 +41,9 @@ internal sealed class FakeProvider : IHintProvider
     public string PlayerContext { get; set; } = "CONTEXT";
     public List<IProactiveRule> Proactive { get; } = new();
 
+    public string KeyState { get; set; } = "KEYSTATE";
     public string DescribePlayerContext(IContext state) => PlayerContext;
+    public string DescribeKeyState(IContext state) => KeyState;
     public HintPersona Persona => new("test narrator");
     public IReadOnlyList<IProactiveRule> ProactiveRules => Proactive;
 }

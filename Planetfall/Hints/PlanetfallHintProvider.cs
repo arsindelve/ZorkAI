@@ -40,16 +40,20 @@ public sealed class PlanetfallHintProvider : IHintProvider
     ///     summary that can drift), then attach the full JSON behind it for completeness.
     /// </summary>
     public string DescribePlayerContext(IContext state) =>
-        KeyState(state) + "\n\nFULL SERIALIZED SAVE GAME (complete state, authoritative for anything not above):\n" +
+        DescribeKeyState(state) +
+        "\n\nFULL SERIALIZED SAVE GAME (complete state, authoritative for anything not above):\n" +
         (state.Engine?.SaveGame() ?? "(unavailable)");
 
-    private static string KeyState(IContext state)
+    public string DescribeKeyState(IContext state)
     {
+        // Reads the global Repository singletons. This mirrors the engine's existing model of one game
+        // context per process; the hint path is read-only and adds no new concurrency assumption beyond
+        // what the rest of the engine already relies on.
         var floyd = Repository.GetItem<Floyd>();
         var sys = Repository.GetLocation<SystemsMonitors>();
         var sb = new StringBuilder();
         sb.AppendLine("KEY STATE (read this FIRST — it governs your answer):");
-        sb.AppendLine($"- Current location: {state.CurrentLocation.Name}");
+        sb.AppendLine($"- Current location: {state.CurrentLocation?.Name ?? "unknown"}");
         sb.AppendLine($"- Floyd: {(floyd.HasDied
             ? "DEAD — he died at the bio lab. He is GONE and can no longer help with anything; never tell the player to use Floyd."
             : floyd.HasEverBeenOn ? "alive and accompanying the player"

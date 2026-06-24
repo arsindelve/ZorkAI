@@ -29,14 +29,21 @@ public sealed class HintService
     public async Task<HintResponse> GetHint(HintRequest request)
     {
         var memory = await _memory.Load(request.SessionId);
-        var context = _provider.DescribePlayerContext(request.StateSnapshot);
 
-        // LLM 1: work out the complete solution to the player's current situation from the docs + state.
-        // History is passed so it can resolve follow-ups ("it", "more") to the subject still in play.
-        var solution = await _llm.Solve(_provider.Docs, context, memory.History, request.Question, _provider.Persona);
+        // LLM 1 (solve) gets the FULL situation (key state + complete save game); LLM 2 (reveal) gets only
+        // the salient key state — it must not contradict where the player is, but doesn't need the whole
+        // JSON, which would just inflate tokens on every hint.
+        var fullState = _provider.DescribePlayerContext(request.StateSnapshot);
+        var keyState = _provider.DescribeKeyState(request.StateSnapshot);
 
-        // LLM 2: decide what to reveal next, paced from the conversation so far.
-        var revealed = await _llm.Reveal(context, solution, memory.History, request.Question, _provider.Persona);
+        // History is passed to both so they can resolve follow-ups ("it", "more") to the subject in play.
+        var solution = await _llm.Solve(_provider.Docs, fullState, memory.History, request.Question, _provider.Persona);
+        var revealed = await _llm.Reveal(keyState, solution, memory.History, request.Question, _provider.Persona);
+
+        // Fail visibly, not silently: if the model degraded to nothing, tell the player rather than
+        // returning a blank hint (and don't poison the history with an empty exchange).
+        if (string.IsNullOrWhiteSpace(revealed))
+            return new HintResponse("The hint system is unavailable right now. Try again in a moment.");
 
         memory.History.Add(new HintExchange(request.Question, revealed));
         await _memory.Save(request.SessionId, memory);
