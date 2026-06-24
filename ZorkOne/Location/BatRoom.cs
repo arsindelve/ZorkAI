@@ -97,13 +97,11 @@ internal class BatRoom : DarkLocation
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
         IGenerationClient generationClient)
     {
-        var response = "";
-
-        if (IsSafeFromBat(context))
-            response +=
-                "\nIn the corner of the room on the ceiling is a large vampire bat who is obviously deranged and holding his nose. ";
-
-        response += LocationHelper.CheckSwordGlowingBrightly<Bat, BatRoom>(context);
+        // Don't describe the bat here - the room's static item listing already renders the bat via
+        // Bat.NeverPickedUpDescription. Appending it again printed the bat twice on room entry (#311).
+        // The player only ever sees this room when safe from the bat; otherwise BeforeEnterLocation
+        // carries them off before the room is described.
+        var response = LocationHelper.CheckSwordGlowingBrightly<Bat, BatRoom>(context);
 
         if (!string.IsNullOrEmpty(response))
             return Task.FromResult(response);

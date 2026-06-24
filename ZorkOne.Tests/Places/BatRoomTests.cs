@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using FluentAssertions;
 using GameEngine;
 using Model.Interface;
@@ -101,6 +102,27 @@ public class BatRoomTests : EngineTestsBase
         response.Should().NotContain("Fweep!");
         response.Should().Contain("deranged and holding his nose");
         target.Context.CurrentLocation.Should().Be(Repository.GetLocation<BatRoom>());
+    }
+
+    [Test]
+    public async Task EnterFromTheSouthWithGarlic_DescribesBatExactlyOnce()
+    {
+        var target = GetTarget();
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
+        target.Context.Take(Repository.GetItem<Garlic>());
+        target.Context.CurrentLocation = Repository.GetLocation<SqueakyRoom>();
+
+        // Act - enter the Bat Room from the south (the Squeaky Room)
+        var response = await target.GetResponse("north");
+        Console.WriteLine(response);
+
+        response.Should().NotContain("Fweep!");
+        target.Context.CurrentLocation.Should().Be(Repository.GetLocation<BatRoom>());
+
+        // The bat must be described once, not twice. The room's static item listing already
+        // includes the bat, so AfterEnterLocation must not append it again.
+        Regex.Matches(response, "vampire bat").Count.Should().Be(1);
     }
 
     [Test]
