@@ -1,4 +1,6 @@
 using FluentAssertions;
+using Model.Interface;
+using Moq;
 using Planetfall;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
@@ -141,6 +143,11 @@ public class ConferenceRoomTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<RecArea>();
+
+        // Pin the unlock code to 999 so that dialing 12 can never accidentally open the door.
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(999)).Returns(999);
+        GetItem<ConferenceRoomDoor>().Chooser = mockChooser.Object;
 
         string? response = await target.GetResponse("set dial to 12");
         response.Should().Contain("The dial is now set to 12");
