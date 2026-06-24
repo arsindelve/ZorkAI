@@ -13,8 +13,16 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
 {
     protected override string ModelName => "gpt-4o-mini";
 
-    public OpenAiHintLanguageModel(ILogger? logger = null) : base(logger, requireApiKey: false)
+    // Own client so the model is selectable (e.g. gpt-4.1-mini for the 1M-token whole-source context).
+    // Built in the body, after the base has resolved ApiKey — avoids the virtual-call-before-init trap.
+    private readonly ChatClient? _client;
+
+    // gpt-5.4-mini: 1M-token context so the whole game source + walkthroughs fit, and a strong reasoner
+    // for working a solution out of raw code.
+    public OpenAiHintLanguageModel(ILogger? logger = null, string model = "gpt-5.4-mini")
+        : base(logger, requireApiKey: false)
     {
+        if (HasApiKey) _client = new ChatClient(model: model, apiKey: ApiKey);
     }
 
     public async Task<string> Solve(string docs, string playerContext, IReadOnlyList<HintExchange> history,
@@ -48,7 +56,9 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
             $"KNOWLEDGE BASE:\n{docs}\n\nPLAYER'S CURRENT SITUATION:\n{playerContext}\n\n" +
             $"CONVERSATION SO FAR:\n{historyText}\n\nPLAYER NOW ASKS:\n{question}\n\nWork out the complete answer.";
 
-        return await Complete(system, user, fallback: string.Empty);
+        // Low temperature: this is the grounding step. We want it pinned to the provided knowledge,
+        // not freelancing from training memory. The voice/snark happens in Reveal at higher temp.
+        return await Complete(system, user, fallback: string.Empty, temperature: 0.1f);
     }
 
     public async Task<string> Reveal(string playerContext, string solution, IReadOnlyList<HintExchange> history,
@@ -63,7 +73,11 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
             "orients them without giving it away; if they keep asking for more, escalate gradually toward " +
             "specifics; only give the exact steps if they have clearly, repeatedly pushed for the answer. Keep " +
             "it to one or two sentences. Never dump the whole solution at once. If the situation is a dead end / " +
-            "death trap / misconception, tell them the honest truth directly (don't make them drag it out).";
+            "death trap / misconception, tell them the honest truth directly (don't make them drag it out).\n" +
+            "CRITICAL: however gentle or snarky you are, ALWAYS include the concrete next move — a real place, " +
+            "object, or action from the solution. Never let the joke replace the hint. Never promise an item, " +
+            "exit, or option that the solution/state does not actually contain (e.g. don't say 'find another X' " +
+            "if there is only one X).";
 
         var historyText = history.Count == 0
             ? "(no prior hint conversation on anything)"
@@ -73,16 +87,16 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
             $"PLAYER'S CURRENT SITUATION:\n{playerContext}\n\nCOMPLETE SOLUTION (do NOT reveal all of this):\n{solution}\n\n" +
             $"HINT CONVERSATION SO FAR:\n{historyText}\n\nPLAYER NOW ASKS:\n{question}\n\nReveal only the next appropriate amount.";
 
-        return await Complete(system, user, fallback: solution);
+        return await Complete(system, user, fallback: solution, temperature: 0.7f);
     }
 
-    private async Task<string> Complete(string system, string user, string fallback)
+    private async Task<string> Complete(string system, string user, string fallback, float temperature)
     {
         var messages = new List<ChatMessage> { new SystemChatMessage(system), new UserChatMessage(user) };
         try
         {
-            ChatCompletion completion = await Client!.CompleteChatAsync(messages,
-                new ChatCompletionOptions { Temperature = 0.7f });
+            ChatCompletion completion = await _client!.CompleteChatAsync(messages,
+                new ChatCompletionOptions { Temperature = temperature });
             return completion.Content[0].Text;
         }
         catch (Exception e)

@@ -1,5 +1,6 @@
 using GameEngine;
 using GameEngine.Hints;
+using Model.Hints;
 using Planetfall.Hints;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Kalamontee.Admin;
@@ -125,6 +126,172 @@ public class PlanetfallHintDemo : EngineTestsBase
         await Ask(Service(), "late-next", "what do I do now?");
         await Ask(Service(), "late-mutant", "how do I get past the mutants?");
         await Ask(Service(), "late-floyd", "can Floyd help me here?");
+    }
+
+    [Test]
+    public async Task GameSpanLoop()
+    {
+        int n = 0;
+        async Task Ask(string area, string q, Action<PlanetfallContext>? state = null)
+        {
+            GetTarget();
+            state?.Invoke(Context);
+            var r = await Service().GetHint(new HintRequest($"s{++n}", Context, q));
+            TestContext.Out.WriteLine($"#{n} [{area}] Q: {q}\n   -> {r.Text}\n");
+        }
+
+        void Floyd(PlanetfallContext c) => Repository.GetItem<Floyd>().HasEverBeenOn = true;
+        void Lawanda(PlanetfallContext c) { Floyd(c); Repository.GetItem<Floyd>().HasGottenTheFromitzBoard = true; }
+        void FloydDead(PlanetfallContext c) { Floyd(c); Repository.GetItem<Floyd>().HasDied = true; }
+
+        await Ask("OPENING", "the ship is exploding, what do I do?");
+        await Ask("LANDING", "I'm in the escape pod on the ground, now what?");
+        await Ask("FLOYD", "how do I wake up the robot?");
+        await Ask("CREVICE", "I see a crevice in the wall, what now?", Floyd);
+        await Ask("PADLOCK", "how do I open the padlocked door?", Floyd);
+        await Ask("RIFT", "there's a deep rift blocking me, how do I cross?", Floyd);
+        await Ask("OFFICES", "where do I find the access cards?", Floyd);
+        await Ask("KITCHEN", "how do I get into the kitchen?", Floyd);
+        await Ask("SURVIVAL-EAT", "I'm starving, where's food?", c => { Floyd(c); c.Hunger = HungerLevel.Hungry; });
+        await Ask("SURVIVAL-SLEEP", "I'm exhausted, where can I sleep?", c => { Floyd(c); c.Tired = TiredLevel.Tired; });
+        await Ask("TOWER", "how do I get up the tower / upper elevator?", Floyd);
+        await Ask("COMMS", "how do I fix the communications?", c => { Floyd(c); c.Day = 2; });
+        await Ask("SHUTTLE", "how do I take the shuttle to the other complex?", c => { Floyd(c); c.Day = 3; });
+        await Ask("DEFENSE", "how do I fix the planetary defense?", Lawanda);
+        await Ask("COURSE", "how do I fix the course / the cube and bedistor?", Lawanda);
+        await Ask("LASER", "what do I do with the laser?", Lawanda);
+        await Ask("BIOLAB", "how do I get the card past the mutations in the bio lab?", Lawanda);
+        await Ask("CURE", "I have the mini card and laser, how do I cure the disease?", c => { Lawanda(c); c.Day = 5; });
+        await Ask("MUTANTS", "the mutants are chasing me, what do I do?", c => { FloydDead(c); c.Day = 6; });
+        await Ask("WON?", "the cryo doors just closed, did I win? what now?", c => { FloydDead(c); c.Day = 6; });
+    }
+
+    [Test]
+    public async Task SourceVsProse_RiftPuzzle()
+    {
+        // Find the repo root (walk up to Zork.sln), then read the ACTUAL source for the rift closure.
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Zork.sln"))) dir = dir.Parent;
+        var root = dir!.FullName;
+
+        // Full dependency closure for "cross the rift from scratch": the crossing, the ladder, the
+        // storeroom + padlock that hold it, and the crevice -> steel key -> magnet chain that unlocks it.
+        string[] files =
+        {
+            "Planetfall/Location/Kalamontee/Admin/AdminCorridor.cs",
+            "Planetfall/Location/Kalamontee/Admin/RiftLocationBase.cs",
+            "Planetfall/Item/Kalamontee/Ladder.cs",
+            "Planetfall/Location/Kalamontee/StorageWest.cs",
+            "Planetfall/Item/Kalamontee/Padlock.cs",
+            "Planetfall/Location/Kalamontee/Admin/AdminCorridorSouth.cs",
+            "Planetfall/Item/Kalamontee/Admin/Key.cs",
+            "Planetfall/Item/Kalamontee/Mech/Magnet.cs"
+        };
+        var sourceBundle = "You are looking at the ACTUAL C# source of this game. Reason over it as ground truth.\n\n" +
+            string.Join("\n\n", files.Select(f => $"// ===== {f} =====\n{File.ReadAllText(Path.Combine(root, f.Replace('/', Path.DirectorySeparatorChar)))}"));
+
+        var llm = new OpenAiHintLanguageModel();
+        var provider = new PlanetfallHintProvider();
+        var persona = provider.Persona;
+
+        string[] questions =
+        {
+            "how do I cross the rift?",
+            "I tried to put the ladder across the rift but it fell in and is gone. what did I do wrong?",
+            "how do I get the ladder out of the storeroom?"
+        };
+
+        foreach (var q in questions)
+        {
+            GetTarget();
+            Repository.GetItem<Floyd>().HasEverBeenOn = true;
+            var context = provider.DescribePlayerContext(Context);
+
+            // SOURCE: feed the real code as the knowledge base, same two-tier flow.
+            var solution = await llm.Solve(sourceBundle, context, new List<HintExchange>(), q, persona);
+            var srcHint = await llm.Reveal(context, solution, new List<HintExchange>(), q, persona);
+
+            // PROSE: the current PlanetfallHintDocs-based path.
+            var prose = await new HintService(provider, new InMemoryHintMemoryStore(), llm)
+                .GetHint(new HintRequest("prose", Context, q));
+
+            TestContext.Out.WriteLine($"Q: {q}\n  [SOURCE] {srcHint}\n  [PROSE ] {prose.Text}\n");
+        }
+    }
+
+    [Test]
+    public async Task WholeSource_NoScoping()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Zork.sln"))) dir = dir.Parent;
+        var planetfall = Path.Combine(dir!.FullName, "Planetfall");
+
+        // Load the ENTIRE Planetfall game source. No scoping, no DAG->files map, no curation.
+        var allFiles = Directory.GetFiles(planetfall, "*.cs", SearchOption.AllDirectories);
+        var sourcePart = string.Join("\n\n", allFiles.Select(f =>
+            $"// ===== {Path.GetRelativePath(planetfall, f)} =====\n{File.ReadAllText(f)}"));
+
+        // The walkthrough TESTS are part of the source too — and they ARE the verified solution:
+        // each [TestCase("command", _, "expected response")] is one exact, correct move in order.
+        var walkDir = Path.Combine(dir.FullName, "Planetfall.Tests", "Walkthrough");
+        var walkFiles = Directory.GetFiles(walkDir, "*.cs");
+        var walkPart = string.Join("\n\n", walkFiles.Select(f =>
+            $"// ===== {Path.GetFileName(f)} =====\n{File.ReadAllText(f)}"));
+
+        var bundle =
+            "You are reading the COMPLETE C# source of the game Planetfall, plus its end-to-end WALKTHROUGH " +
+            "TESTS. This is the only ground truth — reason over it; never use outside knowledge of the game.\n\n" +
+            "LORE: the game's canonical backstory — the planet's history, the Disease, the cryogenic Project, " +
+            "the culture and technology — lives in the Lawanda LIBRARY COMPUTER menus " +
+            "(Item/Lawanda/Library/Computer/: HistoryMenu, ProjectMenu, CultureMenu, GeographyMenu, " +
+            "TechnologyMenu, MainMenu), the spools (Red/Green/BrownSpool), and the Feinstein Diary. For ANY " +
+            "'why/what/who/history/backstory' question, draw your answer from THOSE files. IMPORTANT: that " +
+            "in-game text is written in Planetfall's deliberately corrupted far-future phonetic English (e.g. " +
+            "\"Foor moor deetaald infoormaashun\" = \"For more detailed information\"). INTERPRET its meaning " +
+            "and answer in normal modern English — never quote the garbled spelling back to the player.\n\n" +
+            "Part 1 — GAME SOURCE (the mechanics, objects, rooms, exact verbs):\n\n" + sourcePart +
+            "\n\n========================================================================\n" +
+            "Part 2 — VERIFIED WALKTHROUGHS. These NUnit tests play the game start to finish and are run on " +
+            "every build, so they are the canonical, proven-correct solution path. Each line of the form " +
+            "[TestCase(\"<command>\", _, \"<expected response substring>\")] is ONE exact game command, in " +
+            "order, with a snippet of its expected output. When you work out steps, prefer the EXACT commands " +
+            "shown here and keep them in this order.\n\n" + walkPart;
+
+        TestContext.Out.WriteLine($"[loaded {allFiles.Length} source + {walkFiles.Length} walkthrough files, {bundle.Length:N0} chars (~{bundle.Length / 4000}k tokens)]\n");
+
+        var llm = new OpenAiHintLanguageModel(model: "gpt-5.4-mini");
+        var provider = new PlanetfallHintProvider();
+        var persona = provider.Persona;
+        var empty = new List<HintExchange>();
+
+        // The puzzles that kept breaking: rift mechanics + the two-elevator / shuttle confusion.
+        string[] questions =
+        {
+            "I put the ladder across the rift but it fell in and is gone. what did I do wrong?",
+            "how do I get up the tower to fix communications?",
+            "how do I take the shuttle to the other complex?",
+            "what's the difference between the upper and lower elevators?",
+            "is the reactor important?",
+            "what actually happened to all the people who lived here?",
+            "what was the Project, and did it work?"
+        };
+
+        foreach (var q in questions)
+        {
+            GetTarget();
+            Repository.GetItem<Floyd>().HasEverBeenOn = true;
+            var context = provider.DescribePlayerContext(Context);
+            var solution = await llm.Solve(bundle, context, empty, q, persona);
+            if (string.IsNullOrWhiteSpace(solution))
+            {
+                TestContext.Out.WriteLine($"########## Q: {q}\n!!! SOLVE EMPTY — model id likely rejected by the API\n");
+                continue;
+            }
+            var hint = await llm.Reveal(context, solution, empty, q, persona);
+            TestContext.Out.WriteLine($"########## Q: {q}");
+            TestContext.Out.WriteLine($"=== LLM1 SOLVE (full internal solution) ===\n{solution}");
+            TestContext.Out.WriteLine($"=== LLM2 REVEAL (what the player sees) ===\n{hint}\n");
+        }
     }
 
     [Test]

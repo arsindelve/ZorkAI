@@ -17,4 +17,52 @@
         <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
     </ItemGroup>
 
+    <!--
+      Hint knowledge base. The hint system's "knowledge" is the game itself, so at build time we
+      concatenate the entire game source + the verified walkthrough tests into one text file and embed
+      it (the deployed Lambda has no .cs files on disk). PlanetfallHintProvider reads this resource.
+    -->
+    <UsingTask TaskName="GenerateHintBundle" TaskFactory="RoslynCodeTaskFactory"
+               AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <GameDir ParameterType="System.String" Required="true" />
+            <WalkDir ParameterType="System.String" Required="true" />
+            <OutFile ParameterType="System.String" Required="true" />
+        </ParameterGroup>
+        <Task>
+            <Code Type="Fragment" Language="cs"><![CDATA[
+var sb = new System.Text.StringBuilder();
+sb.AppendLine("Part 1 - GAME SOURCE (mechanics, objects, rooms, exact verbs):\n");
+foreach (var f in System.IO.Directory.GetFiles(GameDir, "*.cs", System.IO.SearchOption.AllDirectories)) {
+    var rel = f.Substring(GameDir.Length).TrimStart('\\', '/');
+    if (rel.StartsWith("obj") || rel.StartsWith("bin")) continue;
+    sb.AppendLine("// ===== " + rel + " =====");
+    sb.AppendLine(System.IO.File.ReadAllText(f));
+    sb.AppendLine();
+}
+sb.AppendLine("\nPart 2 - VERIFIED WALKTHROUGHS (the proven solution path):\n");
+if (System.IO.Directory.Exists(WalkDir))
+    foreach (var f in System.IO.Directory.GetFiles(WalkDir, "*.cs")) {
+        sb.AppendLine("// ===== " + System.IO.Path.GetFileName(f) + " =====");
+        sb.AppendLine(System.IO.File.ReadAllText(f));
+        sb.AppendLine();
+    }
+System.IO.File.WriteAllText(OutFile, sb.ToString());
+            ]]></Code>
+        </Task>
+    </UsingTask>
+
+    <Target Name="GenerateHintKnowledge" BeforeTargets="BeforeCompile;CoreCompile">
+        <PropertyGroup>
+            <HintBundleFile>$(IntermediateOutputPath)HintKnowledge.g.txt</HintBundleFile>
+        </PropertyGroup>
+        <MakeDir Directories="$(IntermediateOutputPath)" />
+        <GenerateHintBundle GameDir="$(MSBuildProjectDirectory)"
+                            WalkDir="$(MSBuildProjectDirectory)\..\Planetfall.Tests\Walkthrough"
+                            OutFile="$(HintBundleFile)" />
+        <ItemGroup>
+            <EmbeddedResource Include="$(HintBundleFile)" LogicalName="Planetfall.Hints.HintKnowledge.g.txt" />
+        </ItemGroup>
+    </Target>
+
 </Project>

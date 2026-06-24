@@ -1,6 +1,8 @@
 using FluentAssertions;
+using GameEngine;
 using GameEngine.Hints;
 using Planetfall.Hints;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using ZorkAI.OpenAI;
 
 namespace Planetfall.Tests.Hints;
@@ -52,5 +54,33 @@ public class PlanetfallHintLiveTests : EngineTestsBase
         var r = await _service.GetHint(new HintRequest("live-lore", Context, "why is everything deserted?"));
         TestContext.Out.WriteLine($"[lore] {r.Text}");
         r.Text.Should().NotBeNullOrWhiteSpace();
+    }
+
+    /// <summary>
+    ///     End-to-end on the REAL production wiring: embedded whole-source knowledge + serialized save-game
+    ///     state + gpt-5.4-mini. Prints answers for the puzzles that historically broke, plus a state-aware
+    ///     question (Floyd dead) to confirm the save-game state actually reaches the model.
+    /// </summary>
+    [Test]
+    public async Task ProductionPath_Sweep()
+    {
+        async Task Ask(string label, string q)
+        {
+            var r = await _service.GetHint(new HintRequest(label, Context, q));
+            TestContext.Out.WriteLine($"[{label}] {q}\n   -> {r.Text}\n");
+            r.Text.Should().NotBeNullOrWhiteSpace();
+        }
+
+        await Ask("ladder", "I put the ladder across the rift but it fell in and is gone. what did I do wrong?");
+        await Ask("elevators", "what's the difference between the upper and lower elevators?");
+        await Ask("shuttle", "how do I take the shuttle to the other complex?");
+        await Ask("reactor", "is the reactor important?");
+        await Ask("lore", "what was the Project, and did it work?");
+
+        // State-aware: a COHERENT late game — Floyd was woken, then died at the bio lab, cure is done.
+        Repository.GetItem<Floyd>().HasEverBeenOn = true;
+        Repository.GetItem<Floyd>().HasDied = true;
+        Repository.GetItem<Planetfall.Item.Computer.Relay>().SpeckDestroyed = true;
+        await Ask("floyd-dead", "can Floyd help me get past the mutants?");
     }
 }

@@ -3,72 +3,62 @@ using GameEngine;
 using GameEngine.Hints;
 using Model.Hints;
 using Planetfall.Hints;
-using Planetfall.Item.Computer;
-using Planetfall.Item.Kalamontee.Mech.FloydPart;
-using Planetfall.Location.Kalamontee.Admin;
 
 namespace Planetfall.Tests.Hints;
 
 /// <summary>
-///     Tests the Planetfall provider against real game state: the DAG-localized player-context (what we
-///     hand LLM 1) and the docs/proactive wiring. No OpenAI — these assert the deterministic localizer.
+///     Tests the Planetfall provider's wiring: the knowledge bundle is the real game source + walkthroughs,
+///     the player-context is the real serialized save game, and the survival nudges fire. No OpenAI.
 /// </summary>
 [TestFixture]
 public class PlanetfallHintProviderTests : EngineTestsBase
 {
     [SetUp]
-    public void SetUp() => GetTarget(); // Repository.Reset() + a real PlanetfallContext (Context)
+    public void SetUp() => GetTarget(); // Repository.Reset() + a real engine/context (Context, GetTarget)
 
     private static PlanetfallHintProvider Provider() => new();
 
     [Test]
-    public void FreshGame_ContextNamesTheOpeningAsTheActiveBlocker()
-    {
-        var context = Provider().DescribePlayerContext(Context);
-        context.Should().Contain("survive the explosion");
-        context.Should().Contain("Score: 0/80");
-    }
-
-    [Test]
-    public void FloydActivated_ThenItsReflectedAndTheBlockerAdvances()
-    {
-        Repository.GetItem<Floyd>().HasEverBeenOn = true;
-        var context = Provider().DescribePlayerContext(Context);
-        context.Should().Contain("alive and with you");
-    }
-
-    [Test]
-    public void FloydDead_ContextSaysSo_SoLateHintsDontRelyOnHim()
-    {
-        Repository.GetItem<Floyd>().HasDied = true;
-        Provider().DescribePlayerContext(Context).Should().Contain("DEAD");
-    }
-
-    [Test]
-    public void CommunicationsFixed_BackfillsAndShowsAsAccomplished()
-    {
-        Repository.GetLocation<SystemsMonitors>().Fixed.Add("KUMUUNIKAASHUNZ");
-        var context = Provider().DescribePlayerContext(Context);
-        // back-filled: comms done implies the whole tower chain is done, so it's no longer the blocker.
-        context.Should().Contain("communications");
-        context.Should().NotContain("The next required step blocking them: reach the tower");
-    }
-
-    [Test]
-    public void CureDone_ShownAsAccomplished()
-    {
-        Repository.GetItem<Relay>().SpeckDestroyed = true;
-        Provider().DescribePlayerContext(Context).Should().Contain("cure the Disease");
-    }
-
-    [Test]
-    public void Docs_AreSubstantial_AndCoverSolutionLoreAndDeadEnds()
+    public void Docs_AreTheRealSourceAndWalkthroughs()
     {
         var docs = Provider().Docs;
-        docs.Should().Contain("SOLUTION WALKTHROUGH");
-        docs.Should().Contain("The Disease");      // lore
-        docs.Should().Contain("reactor");           // dead end
-        docs.Should().Contain("infirmary bed");     // death trap
+        docs.Should().Contain("GAME SOURCE");
+        docs.Should().Contain("VERIFIED WALKTHROUGHS");
+        // a real class only present in the actual source:
+        docs.Should().Contain("class AdminCorridor");
+        // a real walkthrough TestCase line:
+        docs.Should().Contain("[TestCase(");
+        // the lore + dialect pointer is in the preamble:
+        docs.Should().Contain("library computer");
+    }
+
+    [Test]
+    public void DescribePlayerContext_LeadsWithKeyState_ThenFullSaveGame()
+    {
+        var context = Provider().DescribePlayerContext(Context);
+        // Salient highlight up top so the model can't miss decision-critical flags...
+        context.Should().StartWith("KEY STATE");
+        context.Should().Contain("Floyd:");
+        // ...then the complete save-game JSON behind it.
+        context.Should().Contain("AllItems");
+        context.Should().Contain("AllLocations");
+    }
+
+    [Test]
+    public void KeyState_ReflectsFloydDeath()
+    {
+        Repository.GetItem<Planetfall.Item.Kalamontee.Mech.FloydPart.Floyd>().HasDied = true;
+        Provider().DescribePlayerContext(Context).Should().Contain("Floyd: DEAD");
+    }
+
+    [Test]
+    public void DescribePlayerContext_ReflectsLiveState()
+    {
+        // Move the player and assert the serialized context actually changes — proving it's live state.
+        var before = Provider().DescribePlayerContext(Context);
+        Context.CurrentLocation = Repository.GetLocation<Planetfall.Location.Kalamontee.StorageWest>();
+        var after = Provider().DescribePlayerContext(Context);
+        after.Should().NotBe(before);
     }
 
     [Test]
