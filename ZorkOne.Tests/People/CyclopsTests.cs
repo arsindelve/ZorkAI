@@ -120,6 +120,22 @@ public class CyclopsTests : EngineTestsBase
     }
 
     [Test]
+    public async Task Tell_IsNotTreatedAsASpeakVerb()
+    {
+        // Issue #316 review: "tell" is a named-address lead-in ("tell floyd ..."), not untargeted
+        // speech, so it is excluded from the speak-verb prefix (matching ConversationHandler).
+        // "tell ulysses" must therefore NOT dismiss the cyclops.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
+
+        var response = await target.GetResponse("tell ulysses");
+
+        response.Should().NotContain("flees the room by knocking down the wall");
+        Repository.GetItem<Cyclops>().CurrentLocation.Should().Be(Repository.GetLocation<CyclopsRoom>());
+    }
+
+    [Test]
     public async Task UlyssesInQuotes_Response()
     {
         // Issue #316: a bare quoted name "Ulysses" must work too.

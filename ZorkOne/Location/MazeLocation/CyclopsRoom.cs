@@ -75,16 +75,14 @@ internal class CyclopsRoom : DarkLocation
             return await base.RespondToSpecificLocationInteraction(input, context, client);
 
         // Issue #316: accept the canonical walkthrough phrasing "say Ulysses" as well as the bare
-        // name, with or without surrounding quotes (e.g. say "Ulysses"). Strip a leading "say "
-        // verb prefix (any Verbs.SayVerbs synonym) and any wrapping quotes before matching so every
-        // form triggers the flee.
+        // name, with or without surrounding quotes (e.g. say "Ulysses"). Strip a leading speak-aloud
+        // verb prefix and any wrapping quotes before matching so every form triggers the flee. We
+        // exclude "tell" from Verbs.SayVerbs because it is a *named*-address lead-in ("tell floyd …"),
+        // not untargeted speech — matching the precedent in ConversationHandler.NamelessSpeechVerbs.
         var normalized = input.ToLower().Trim();
-        foreach (var sayVerb in Verbs.SayVerbs)
-            if (normalized.StartsWith(sayVerb + " "))
-            {
-                normalized = normalized[(sayVerb.Length + 1)..].Trim();
-                break;
-            }
+        var matchedVerb = Verbs.SayVerbs.FirstOrDefault(v => v != "tell" && normalized.StartsWith(v + " "));
+        if (matchedVerb != null)
+            normalized = normalized[(matchedVerb.Length + 1)..].Trim();
         normalized = normalized.Trim('"', '\'', '“', '”', '‘', '’').Trim();
 
         if (!new List<string> { "ulysses", "odysseus" }.Contains(normalized)
