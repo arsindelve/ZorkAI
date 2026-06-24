@@ -159,6 +159,7 @@ public enum HintKind
     Progress,
     Mechanic,
     Lore,
+    RedHerring, // honest answer about a dead end / flavor item / death trap / goal misconception
     SoftLock,
     Proactive,
     Decline

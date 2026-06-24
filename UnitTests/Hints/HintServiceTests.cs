@@ -182,7 +182,7 @@ public class HintServiceTests
         var result = await Service(provider, llm).GetHint(
             new HintRequest(Session, State(), "how do I use the reactor?", false, null));
 
-        result.Kind.Should().Be(HintKind.Lore);
+        result.Kind.Should().Be(HintKind.RedHerring);
         result.Text.Should().Contain("dead end");
         result.Topic.Should().BeNull(); // not routed to a puzzle
     }
@@ -196,7 +196,7 @@ public class HintServiceTests
 
         // Both terms present -> the context-specific dead-end answer.
         var deadly = await service.GetHint(new HintRequest(Session, State(), "is the infirmary bed safe?", false, null));
-        deadly.Kind.Should().Be(HintKind.Lore);
+        deadly.Kind.Should().Be(HintKind.RedHerring);
         deadly.Text.Should().Contain("kills you");
 
         // "bed" alone (the safe dorm bed) must NOT trigger it — it routes to a normal hint.

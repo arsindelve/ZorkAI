@@ -43,7 +43,7 @@ public sealed class HintService
             if (dead is not null)
             {
                 var honest = await _llm.PhraseLore(request.Question!, dead, _provider.Persona);
-                return new HintResponse(HintKind.Lore, honest, null, 0, 0, SoftLockKind.None);
+                return new HintResponse(HintKind.RedHerring, honest, null, 0, 0, SoftLockKind.None);
             }
         }
 
@@ -182,11 +182,13 @@ public sealed class HintService
     private string? MatchRedHerring(string question)
     {
         var q = question.ToLowerInvariant();
-        foreach (var (key, answer) in _provider.RedHerrings)
+
+        // Check the most specific keys first — multi-term ("bed&infirmary") before single-term — so a
+        // specific context deterministically wins over a generic one regardless of dictionary order.
+        foreach (var (key, answer) in _provider.RedHerrings.OrderByDescending(kv => kv.Key.Count(c => c == '&')))
         {
-            // A key may require several terms (e.g. "bed&infirmary") — all must appear. This keeps a
-            // context-specific dead end (the deadly infirmary bed) from colliding with the safe,
-            // progress version (the dorm bed you sleep in).
+            // A multi-term key requires ALL terms present (keeps a context-specific dead end like the
+            // deadly infirmary bed from colliding with the safe dorm bed you sleep in).
             var matched = key.Contains('&')
                 ? key.Split('&').All(term => q.Contains(term.Trim()))
                 : q.Contains(key);

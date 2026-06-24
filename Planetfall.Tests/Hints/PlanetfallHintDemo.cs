@@ -25,9 +25,8 @@ public class PlanetfallHintDemo : EngineTestsBase
         var svc = Service();
         foreach (var q in new[]
                  {
-                     "can I drink the flask?", "should I jump the rift?",
-                     "how do I cross the rift?", // must still ladder (NOT a death-trap warning)
-                     "why did I die pressing the elevator button again after escaping?"
+                     "I'm at the auxiliary booth and the mutants are after me - how do I get past them?",
+                     "how do I kill the mutants?"
                  })
         {
             var r = await svc.GetHint(new HintRequest("rx", Context, q, false, null));
