@@ -79,14 +79,14 @@ internal sealed class PlanetfallLoreSource : ILoreSource
         "Lawanda complexes were built to watch over the sleepers and search for a cure, but the automation has " +
         "broken down. The planetary systems (Course Control, Defense, Project Control) keep the world habitable.";
 
-    public Task<LoreAnswer> Answer(string question, IContext liveState, ProgressState progress, IHintLanguageModel llm)
+    public async Task<LoreAnswer> Answer(string question, IContext liveState, ProgressState progress, IHintLanguageModel llm)
     {
         // Tier: once anything in the Lawanda half is reachable (SHUTTLE done), the player has had access
         // to the library — reveal the full backstory; otherwise keep it to what's observable.
         var investigated = progress.Nodes.GetValueOrDefault("SHUTTLE") == NodeStatus.Done;
         var grounded = investigated ? Investigated : Observable;
-        return llm.PhraseLore(question, grounded, HintPersonas.SnarkyNarrator)
-            .ContinueWith(t => new LoreAnswer(true, t.Result));
+        var text = await llm.PhraseLore(question, grounded, HintPersonas.SnarkyNarrator);
+        return new LoreAnswer(true, text);
     }
 }
 
@@ -96,11 +96,11 @@ internal sealed class PlanetfallLoreSource : ILoreSource
 /// </summary>
 internal sealed class PlanetfallMechanicExplainer : IMechanicExplainer
 {
-    public Task<LoreAnswer> Explain(string question, IContext liveState, IHintLanguageModel llm)
+    public async Task<LoreAnswer> Explain(string question, IContext liveState, IHintLanguageModel llm)
     {
         var q = question.ToLowerInvariant();
         if (liveState is not PlanetfallContext ctx)
-            return Task.FromResult(new LoreAnswer(false, ""));
+            return new LoreAnswer(false, "");
 
         string? source = null;
         if (q.Contains("sick") || q.Contains("disease") || q.Contains("ill") || q.Contains("fever"))
@@ -111,9 +111,11 @@ internal sealed class PlanetfallMechanicExplainer : IMechanicExplainer
         else if (q.Contains("hungry") || q.Contains("thirst") || q.Contains("eat") || q.Contains("food"))
             source = "You're getting hungry and thirsty. There are rations to eat and water for the canteen — see to it.";
 
-        return source is null
-            ? Task.FromResult(new LoreAnswer(false, ""))
-            : llm.PhraseLore(question, source, HintPersonas.SnarkyNarrator).ContinueWith(t => new LoreAnswer(true, t.Result));
+        if (source is null)
+            return new LoreAnswer(false, "");
+
+        var text = await llm.PhraseLore(question, source, HintPersonas.SnarkyNarrator);
+        return new LoreAnswer(true, text);
     }
 }
 

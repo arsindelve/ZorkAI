@@ -30,7 +30,8 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
             "LORE (a question about the game's world, history, characters, or backstory), or " +
             "OUTOFSCOPE (not about the game at all). Reply with only that one word.";
 
-        var text = await Complete(system, question);
+        // On any failure, default to PROGRESS (the safe, most-common intent).
+        var text = await Complete(system, question, fallback: "PROGRESS");
         return text.Trim().ToUpperInvariant() switch
         {
             var t when t.StartsWith("MECHANIC") => HintIntent.Mechanic,
@@ -48,7 +49,8 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
             "Deliver this single hint in your voice, in one or two sentences. Reveal ONLY what it says — " +
             "do not add any further steps, items, or specifics beyond it:\n\n" + rung;
 
-        return await Complete(persona.SystemPrompt, user);
+        // Fail safe: the raw rung is already a usable hint — never leak the meta-instruction.
+        return await Complete(persona.SystemPrompt, user, fallback: rung);
     }
 
     public async Task<string> PhraseLore(string question, string groundedSource, HintPersona persona)
@@ -60,10 +62,11 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
                      "does not cover the question, say so in character rather than inventing anything.";
         var user = $"Question: {question}\n\nSource:\n{groundedSource}";
 
-        return await Complete(system, user);
+        // Fail safe: the grounded source is already correct, just unphrased.
+        return await Complete(system, user, fallback: groundedSource);
     }
 
-    private async Task<string> Complete(string system, string user)
+    private async Task<string> Complete(string system, string user, string fallback)
     {
         var messages = new List<ChatMessage>
         {
@@ -79,10 +82,8 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
         }
         catch (Exception e)
         {
-            Logger?.LogWarning(e, "Hint LLM call failed; returning raw source.");
-            // Fail safe: return the user payload's source rather than throwing — the grounded text is
-            // still useful even unphrased.
-            return user;
+            Logger?.LogWarning(e, "Hint LLM call failed; returning the unphrased fallback.");
+            return fallback;
         }
     }
 }

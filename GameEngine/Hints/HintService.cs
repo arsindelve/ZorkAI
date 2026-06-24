@@ -16,6 +16,9 @@ public sealed class HintService
     internal const string DeclineNoHint =
         "The narrator searches the void for wisdom on that, and comes up empty.";
 
+    internal const string DeclineOutOfScope =
+        "That is hardly a matter for a humble game narrator. Perhaps ask about the game you're in.";
+
     private readonly IHintLanguageModel _llm;
     private readonly IHintMemoryStore _memory;
     private readonly IHintProvider _provider;
@@ -39,7 +42,7 @@ public sealed class HintService
 
         return intent switch
         {
-            HintIntent.OutOfScope => Decline(request.StateSnapshot, progress, HintKind.Decline),
+            HintIntent.OutOfScope => Decline(DeclineOutOfScope),
             HintIntent.Lore => await AnswerLore(request, progress),
             HintIntent.Mechanic => await AnswerMechanic(request, progress),
             _ => await AnswerProgress(request, progress)
@@ -147,7 +150,7 @@ public sealed class HintService
         var lore = await _provider.LoreSource.Answer(request.Question!, request.StateSnapshot, progress, _llm);
         return lore.Grounded
             ? new HintResponse(HintKind.Lore, lore.Text, null, 0, 0, SoftLockKind.None)
-            : Decline(request.StateSnapshot, progress, HintKind.Decline);
+            : Decline(DeclineNoHint);
     }
 
     // ---- helpers -----------------------------------------------------------------------
@@ -163,9 +166,9 @@ public sealed class HintService
             .ToList();
     }
 
-    private HintResponse Decline(IContext state, ProgressState progress, HintKind kind)
+    private static HintResponse Decline(string message)
     {
-        return new HintResponse(kind, DeclineNoHint, null, 0, 0, SoftLockKind.None);
+        return new HintResponse(HintKind.Decline, message, null, 0, 0, SoftLockKind.None);
     }
 
     private Task<string> Phrase(string rung)
