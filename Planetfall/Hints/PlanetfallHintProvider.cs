@@ -117,24 +117,25 @@ internal sealed class PlanetfallLocalizer
     {
         var status = MapStatus(state);
         var done = Defs.Where(n => status[n.Id] == NodeStatus.Done).Select(n => n.Title).ToList();
-        var open = Defs.Where(n => status[n.Id] == NodeStatus.Available).ToList();
-        var blocker = open.FirstOrDefault(n => !n.Optional) ?? open.FirstOrDefault();
-        var optional = open.Where(n => n.Optional).Select(n => n.Title).ToList();
+        var optional = Defs.Where(n => status[n.Id] == NodeStatus.Available && n.Optional).Select(n => n.Title).ToList();
 
         var sb = new StringBuilder();
         sb.AppendLine($"Location: {state.CurrentLocation.Name}. Score: {state.Score}/80.");
         if (state is PlanetfallContext c)
         {
-            sb.AppendLine($"Day {c.Day}. Tired level: {c.Tired}. Hunger level: {c.Hunger}.");
+            sb.AppendLine($"Day {c.Day}. Health: {c.SicknessDescription} Tired: {c.Tired}. Hunger: {c.Hunger}.");
             sb.AppendLine($"Floyd: {(Repository.GetItem<Floyd>().HasDied ? "DEAD (died at the bio lab)" : Repository.GetItem<Floyd>().HasEverBeenOn ? "alive and with you" : "not yet activated")}.");
         }
 
+        // Describe STATE only (what's done / not done) — deliberately NOT "their next step is X", which
+        // poisons unrelated answers (the solver grabs it for every question). The solver derives the
+        // next step from the walkthrough + this done-list only when actually asked "what do I do next".
         sb.AppendLine(done.Count > 0 ? "Already accomplished: " + string.Join("; ", done) + "." : "Nothing accomplished yet.");
-        sb.AppendLine(blocker is not null
-            ? $"The next required step blocking them: {blocker.Title}."
-            : "No required step is open — they may have finished, or be off the main path.");
+        var notDone = Defs.Where(n => status[n.Id] != NodeStatus.Done && !n.Optional).Select(n => n.Title).ToList();
+        if (notDone.Count > 0)
+            sb.AppendLine("Still to do on the main path (in order): " + string.Join("; ", notDone) + ".");
         if (optional.Count > 0)
-            sb.AppendLine("Optional repairs still available: " + string.Join("; ", optional) + ".");
+            sb.AppendLine("Optional repairs not yet done: " + string.Join("; ", optional) + ".");
 
         return sb.ToString().Trim();
     }

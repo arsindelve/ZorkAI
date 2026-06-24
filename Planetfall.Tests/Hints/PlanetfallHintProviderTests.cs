@@ -83,8 +83,8 @@ public class PlanetfallHintProviderTests : EngineTestsBase
 /// <summary>No-op LLM for the proactive test (which never calls the model).</summary>
 internal sealed class NullLlm : IHintLanguageModel
 {
-    public Task<string> Solve(string docs, string playerContext, string question, HintPersona persona) =>
-        Task.FromResult("");
+    public Task<string> Solve(string docs, string playerContext, IReadOnlyList<HintExchange> history,
+        string question, HintPersona persona) => Task.FromResult("");
 
     public Task<string> Reveal(string playerContext, string solution, IReadOnlyList<HintExchange> history,
         string question, HintPersona persona) => Task.FromResult("");

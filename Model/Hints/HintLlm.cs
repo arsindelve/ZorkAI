@@ -16,11 +16,13 @@ public sealed record HintExchange(string Question, string Revealed);
 public interface IHintLanguageModel
 {
     /// <summary>
-    ///     LLM 1 — the solver. Given the full game docs and the player's live context, work out the
-    ///     COMPLETE solution to whatever the player is currently facing (or the honest truth, e.g. "that's
-    ///     a dead end"). Reason only over the provided docs/context — never invent facts.
+    ///     LLM 1 — the solver. Given the full game docs, the player's live context, and the conversation
+    ///     so far (so it can resolve follow-ups like "it" / "more"), work out the COMPLETE solution to
+    ///     whatever the player is currently facing (or the honest truth, e.g. "that's a dead end"). Reason
+    ///     only over the provided docs/context — never invent facts.
     /// </summary>
-    Task<string> Solve(string docs, string playerContext, string question, HintPersona persona);
+    Task<string> Solve(string docs, string playerContext, IReadOnlyList<HintExchange> history, string question,
+        HintPersona persona);
 
     /// <summary>
     ///     LLM 2 — the revealer. Given the player's context, the complete solution from <see cref="Solve" />,

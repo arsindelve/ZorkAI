@@ -15,6 +15,38 @@ public class PlanetfallHintDemo : EngineTestsBase
         new(new PlanetfallHintProvider(), new InMemoryHintMemoryStore(), new OpenAiHintLanguageModel());
 
     [Test]
+    public async Task PrintProgressions()
+    {
+        GetTarget();
+        Repository.GetItem<Floyd>().HasEverBeenOn = true; // underway, not stuck at the opening
+
+        Context.Day = 6; // the player is well into the Disease clock
+
+        var topics = new (string label, string[] asks)[]
+        {
+            ("OPEN-ENDED (must still give the next step)", new[]
+                { "what should I do now?", "more help", "just tell me exactly" }),
+            ("WHY AM I SICK (cure is the lab, NOT the Tool Room)", new[]
+                { "why am I sick?", "what do I do about it?" }),
+            ("TIN CAN (must say dead end)", new[]
+                { "what about the tin can?", "no really, how do I open it?" })
+        };
+
+        foreach (var (label, asks) in topics)
+        {
+            TestContext.Out.WriteLine($"\n========== {label} ==========");
+            var svc = Service();
+            var sess = label;
+            var i = 1;
+            foreach (var q in asks)
+            {
+                var r = await svc.GetHint(new HintRequest(sess, Context, q));
+                TestContext.Out.WriteLine($"[ask {i++}] Q: {q}\n        {r.Text}");
+            }
+        }
+    }
+
+    [Test]
     public async Task PrintTranscript()
     {
         void H(string s) => TestContext.Out.WriteLine("\n========== " + s + " ==========");

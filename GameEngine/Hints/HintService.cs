@@ -32,7 +32,8 @@ public sealed class HintService
         var context = _provider.DescribePlayerContext(request.StateSnapshot);
 
         // LLM 1: work out the complete solution to the player's current situation from the docs + state.
-        var solution = await _llm.Solve(_provider.Docs, context, request.Question, _provider.Persona);
+        // History is passed so it can resolve follow-ups ("it", "more") to the subject still in play.
+        var solution = await _llm.Solve(_provider.Docs, context, memory.History, request.Question, _provider.Persona);
 
         // LLM 2: decide what to reveal next, paced from the conversation so far.
         var revealed = await _llm.Reveal(context, solution, memory.History, request.Question, _provider.Persona);

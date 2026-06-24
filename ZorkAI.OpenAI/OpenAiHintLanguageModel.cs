@@ -17,21 +17,36 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
     {
     }
 
-    public async Task<string> Solve(string docs, string playerContext, string question, HintPersona persona)
+    public async Task<string> Solve(string docs, string playerContext, IReadOnlyList<HintExchange> history,
+        string question, HintPersona persona)
     {
         if (!HasApiKey) return string.Empty;
 
         const string system =
-            "You are the SOLVER stage of a hint system for the text-adventure game Planetfall. Using ONLY " +
-            "the knowledge base and the player's current situation below, work out the COMPLETE, correct " +
-            "answer to what the player is asking about or stuck on. If it's a dead end, red herring, death " +
-            "trap, or a misconception about the goal, say so plainly and explain why. This output is internal " +
-            "reasoning handed to a second stage — be specific and complete; it is NOT shown to the player. " +
-            "Never invent facts beyond the knowledge base; if it isn't covered, say so.";
+            "You are the SOLVER stage of a hint system for the text-adventure game Planetfall. Work out the " +
+            "COMPLETE, correct answer to the player's question, using ONLY the knowledge base and their situation.\n" +
+            "RESOLVE FOLLOW-UPS: the player may be continuing a thread. If their new question is elliptical " +
+            "('how do I open it?', 'more', 'is it serious?'), use the conversation so far to figure out what " +
+            "they're still asking about, and keep answering THAT same subject.\n" +
+            "ANSWER THE SPECIFIC THING THEY ASKED:\n" +
+            "- If they name (or are continuing about) an object, place, puzzle, character, or topic, explain THAT — " +
+            "how to solve/use it, OR, if it appears in the DEAD ENDS / RED HERRINGS, DEATH TRAPS, or MISCONCEPTIONS " +
+            "sections, state that honestly (it's a dead end / you can't / it's a misconception) and why. Do NOT " +
+            "redirect them to a different task or item.\n" +
+            "- Only if they ask an open-ended question ('what do I do?', 'I'm stuck', 'where next?') should you use " +
+            "their current next step from the situation.\n" +
+            "Use the player's situation (what's done, Floyd alive/dead, their health) as grounding/background — to " +
+            "make the answer accurate, NEVER as an excuse to dodge the question. This output is internal reasoning " +
+            "for a second stage (not shown to the player) — be specific and complete. Never invent facts beyond the " +
+            "knowledge base; if it isn't covered, say so.";
+
+        var historyText = history.Count == 0
+            ? "(this is their first question)"
+            : string.Join("\n\n", history.Select(h => $"Player asked: {h.Question}\nWe answered: {h.Revealed}"));
 
         var user =
             $"KNOWLEDGE BASE:\n{docs}\n\nPLAYER'S CURRENT SITUATION:\n{playerContext}\n\n" +
-            $"PLAYER ASKED:\n{question}\n\nWork out the complete answer.";
+            $"CONVERSATION SO FAR:\n{historyText}\n\nPLAYER NOW ASKS:\n{question}\n\nWork out the complete answer.";
 
         return await Complete(system, user, fallback: string.Empty);
     }

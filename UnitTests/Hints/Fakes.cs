@@ -9,13 +9,16 @@ internal sealed class RecordingLlm : IHintLanguageModel
 {
     public string? LastDocs, LastSolveContext, LastSolveQuestion;
     public string? LastRevealContext, LastSolution, LastRevealQuestion;
+    public IReadOnlyList<HintExchange> LastSolveHistory = new List<HintExchange>();
     public IReadOnlyList<HintExchange> LastHistory = new List<HintExchange>();
     public string SolveResult = "THE COMPLETE SOLUTION";
 
-    public Task<string> Solve(string docs, string playerContext, string question, HintPersona persona)
+    public Task<string> Solve(string docs, string playerContext, IReadOnlyList<HintExchange> history,
+        string question, HintPersona persona)
     {
         LastDocs = docs;
         LastSolveContext = playerContext;
+        LastSolveHistory = history.ToList();
         LastSolveQuestion = question;
         return Task.FromResult(SolveResult);
     }
