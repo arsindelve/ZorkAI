@@ -16,7 +16,12 @@ internal class DraftyRoom : DarkLocation, IThiefMayVisit
         return new Dictionary<Direction, MovementParameters>
         {
             {
-                Direction.E, new MovementParameters { Location = GetLocation<TimberRoom>(), WeightLimit = 2 }
+                Direction.E, new MovementParameters
+                {
+                    Location = GetLocation<TimberRoom>(),
+                    WeightLimit = 2,
+                    WeightLimitFailureMessage = "You are carrying too much to squeeze through the narrow passage. "
+                }
             },
             {
                 Direction.S, new MovementParameters { Location = GetLocation<MachineRoom>() }
