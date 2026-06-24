@@ -320,12 +320,45 @@ public class RequestTests
     }
 
     [Test]
+    public void MultipleCommandsRequest_AsksToSeparateWithPeriods_AndIsLowTemperature()
+    {
+        // #256: when the player runs several commands together on one line, the narrator should
+        // tell them — in character — to separate commands with periods, at the low deflection
+        // temperature (this is a "stay in room state" deflection, not creative narration).
+        var request = new MultipleCommandsRequest(
+            "Deck Nine. An emergency bulkhead is here.", "look examine bulkhead open bulkhead");
+
+        request.UserMessage.Should().Contain("look examine bulkhead open bulkhead");
+        request.UserMessage.Should().Contain("periods");
+        request.UserMessage.Should().Contain("one thing at a time");
+        request.UserMessage.Should().Contain("Do not invent");
+        request.Temperature.Should().BeLessThan(0.8f);
+    }
+
+    [Test]
     public void CannotGoThatWayRequest_UsesLowDeflectionTemperature()
     {
         // This is the same category of "stay in room state" deflection as the no-effect prompts,
         // so it should not run at the embellishment-prone 0.8 default either.
         var request = new CannotGoThatWayRequest("Forest", "north");
 
+        request.Temperature.Should().BeLessThan(0.8f);
+    }
+
+    // The engine safety net (issue #271) turns any unhandled turn-processing crash into an
+    // in-character "oops" narration via this request. It must read as a deflection (low temperature,
+    // anti-hallucination guard) and must never tell the player a technical error occurred.
+    [Test]
+    public void EngineErrorRequest_HasNonEmptyMessage_AndUsesDeflectionTemperature()
+    {
+        // Act
+        var request = new EngineErrorRequest();
+
+        // Assert
+        request.UserMessage.Should().NotBeNullOrEmpty();
+        request.UserMessage.Should().Contain("could not be completed");
+        request.UserMessage.Should().Contain("Do not mention errors");
+        request.UserMessage.Should().Contain("not already explicitly present");
         request.Temperature.Should().BeLessThan(0.8f);
     }
 }

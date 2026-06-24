@@ -32,9 +32,14 @@ public class MoveEngine : IIntentEngine
                 ? movement.CustomFailureMessage + Environment.NewLine
                 : await GetGeneratedCantGoThatWayResponse(generationClient, moveTo.Direction.ToString(), context));
 
-        // Let's reset the noun context, so we don't get confused with "it" between locations
-        context.LastNoun = "";
-        
+        // Forget pronoun antecedents for items we left behind in the previous room, but keep them
+        // for items the player is still carrying — "it"/"them" should still resolve to a carried
+        // item after walking to the next room (issue #248).
+        if (!context.HasMatchingNoun(context.LastNoun).HasItem)
+            context.LastNoun = "";
+        context.LastNouns = context.LastNouns
+            .Where(n => context.HasMatchingNoun(n).HasItem).ToList();
+
         return (null, await Go(context, generationClient, movement));
     }
 

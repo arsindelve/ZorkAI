@@ -40,8 +40,13 @@ public class FloydInventoryManager(Floyd floyd)
         if (!IsFloydInRoom(context) ||
             !floyd.IsOn ||
             !floyd.Items.Any() ||
-            !chooser.RollDiceSuccess(3))
+            floyd.HasRevealedLowerElevatorCard ||
+            !RevealChanceSucceeds(context, chooser))
             return null;
+
+        // Shared one-time flag (CARD-REVEALED): also set when the player shows Floyd a lower-elevator
+        // card (Floyd.RespondToShow, #203), so that path and this daemon never both reveal the card.
+        floyd.HasRevealedLowerElevatorCard = true;
 
         // Remove it from inside, put it in his hand.
         floyd.Items.Clear();
@@ -63,5 +68,29 @@ public class FloydInventoryManager(Floyd floyd)
     private bool IsFloydInRoom(IContext context)
     {
         return floyd.CurrentLocation == context.CurrentLocation;
+    }
+
+    // Based on FLOYD-REVEAL-CARD-F (globals.zil:1440-1455): the chance Floyd reveals his lower-elevator
+    // card escalates by day and is guaranteed after Day 3 (the divergence #222 fixes — the old code used a
+    // flat ~33% every turn). The original gives Day 1 a 0% chance and splits Days 2-3 by an absolute
+    // INTERNAL-MOVES boundary (5%/10% on Day 2, 20%/40% on Day 3); that move counter has no clean C# analog
+    // (the chronometer resets to a morning base each day with no fixed day length), so we use one
+    // representative chance per day. We deliberately keep a small NON-ZERO Day-1 chance rather than the
+    // original's strict 0%, so the card stays obtainable on Day 1 to match the engine's existing early-game
+    // flow. The day escalation and the post-Day-3 guarantee are the load-bearing behavior.
+    private static bool RevealChanceSucceeds(IContext context, IRandomChooser chooser)
+    {
+        var day = (context as PlanetfallContext)?.Day ?? 1;
+        var percent = day switch
+        {
+            <= 1 => 5,   // Day 1: small but non-zero (pragmatic divergence from the original's 0%)
+            2 => 10,     // Day 2: ~5-10% in the original
+            3 => 30,     // Day 3: ~20-40% in the original
+            _ => 100     // Day > 3: guaranteed
+        };
+
+        // RollDice(100) returns 1-100; succeed when the roll lands in the percent window. Short-circuit the
+        // guaranteed (>=100%) case so the roll is only consulted when it actually matters.
+        return percent >= 100 || chooser.RollDice(100) <= percent;
     }
 }

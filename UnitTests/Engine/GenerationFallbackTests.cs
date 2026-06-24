@@ -1,6 +1,7 @@
 using ChatLambda;
 using GameEngine;
 using GameEngine.Item;
+using GameEngine.StaticCommand;
 using Model.AIGeneration;
 using Model.AIParsing;
 using Model.Intent;
@@ -14,7 +15,8 @@ public class GenerationFallbackTests
 {
     private static GameEngine<ZorkI, ZorkIContext> BuildEngine(
         Mock<IGenerationClient> client,
-        IIntentParser parser)
+        IIntentParser parser,
+        CloudWatch.ICloudWatchLogger<CloudWatch.Model.TurnLog>? turnLogger = null)
     {
         var takeAndDropParser = new Mock<IAITakeAndAndDropParser>();
         takeAndDropParser
@@ -40,7 +42,7 @@ public class GenerationFallbackTests
             parser,
             client.Object,
             secrets,
-            Mock.Of<CloudWatch.ICloudWatchLogger<CloudWatch.Model.TurnLog>>(), 
+            turnLogger ?? Mock.Of<CloudWatch.ICloudWatchLogger<CloudWatch.Model.TurnLog>>(),
             Mock.Of<IParseConversation>()
         );
 
@@ -109,5 +111,193 @@ public class GenerationFallbackTests
         var last = client.Object.LastFiveInputOutputs.Last();
         // In DI constructor path, OnGenerate hook is not wired; flag may be false. Assert presence only.
         last.Item2.Should().NotBeNullOrEmpty();
+    }
+
+    // Engine safety net (issue #271): an unhandled exception thrown anywhere during turn processing
+    // must never reach the player as an HTTP 500 / empty body. It is caught at the GetResponse
+    // chokepoint, logged, and converted into a graceful, AI-generated, in-character narrator "oops"
+    // returned with the normal turn shape (a non-empty 200 body).
+    [Test]
+    public async Task UnhandledException_DuringTurn_ReturnsGeneratedNarration_WithoutThrowing()
+    {
+        // Arrange: the parser seam throws while determining the intent for this input.
+        var parser = new Mock<IIntentParser>();
+        parser.Setup(p => p.DetermineSystemIntentType(It.IsAny<string>()))
+            .Throws(new InvalidOperationException("boom — simulated deep engine crash"));
+
+        var client = new Mock<IGenerationClient>();
+        client.SetupAllProperties();
+        client.Object.LastFiveInputOutputs = new List<(string, string, bool)>();
+        client
+            .Setup(c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()))
+            .ReturnsAsync("The world flickers for a moment.");
+
+        var engine = BuildEngine(client, parser.Object);
+
+        // Act
+        string? result = null;
+        var act = async () => result = await engine.GetResponse("do something that explodes");
+        await act.Should().NotThrowAsync();
+
+        // Assert: graceful, non-empty 200-style response, generated via an EngineErrorRequest.
+        result.Should().NotBeNullOrEmpty();
+        result.Should().Contain("The world flickers for a moment.");
+        client.Verify(
+            c => c.GenerateNarration(It.IsAny<EngineErrorRequest>(), It.IsAny<string>()),
+            Times.Once);
+    }
+
+    // If the narrator itself is the thing that failed (generation throws), the net must still return
+    // the single guaranteed static fallback sentence rather than rethrowing.
+    [Test]
+    public async Task UnhandledException_WhenGenerationAlsoThrows_ReturnsStaticFallback()
+    {
+        // Arrange: turn processing throws, AND the error-narration generation throws too.
+        var parser = new Mock<IIntentParser>();
+        parser.Setup(p => p.DetermineSystemIntentType(It.IsAny<string>()))
+            .Throws(new InvalidOperationException("boom — simulated deep engine crash"));
+
+        var client = new Mock<IGenerationClient>();
+        client.SetupAllProperties();
+        client.Object.LastFiveInputOutputs = new List<(string, string, bool)>();
+        client
+            .Setup(c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()))
+            .ThrowsAsync(new HttpRequestException("AI service unavailable"));
+
+        var engine = BuildEngine(client, parser.Object);
+
+        // Act
+        string? result = null;
+        var act = async () => result = await engine.GetResponse("do something that explodes");
+        await act.Should().NotThrowAsync();
+
+        // Assert: still a graceful 200 body, this time the guaranteed canned sentence.
+        result.Should().NotBeNullOrEmpty();
+        result.Should().Contain(GameEngine<ZorkI, ZorkIContext>.EngineErrorFallbackMessage);
+    }
+
+    // The "exception stays discoverable" acceptance criterion: a failed turn must leave a CloudWatch
+    // TurnLog carrying the raw exception and the turn correlation id, so the swallowed bug can still
+    // be found. Verify the diagnostic TurnLog content directly, not just that generation happened.
+    [Test]
+    public async Task UnhandledException_WritesDiagnosticTurnLog_WithEngineErrorAndCorrelationId()
+    {
+        // Arrange: capture every TurnLog the engine writes during the failed turn.
+        var parser = new Mock<IIntentParser>();
+        parser.Setup(p => p.DetermineSystemIntentType(It.IsAny<string>()))
+            .Throws(new InvalidOperationException("boom — simulated deep engine crash"));
+
+        var loggedTurns = new List<CloudWatch.Model.TurnLog>();
+        var turnLogger = new Mock<CloudWatch.ICloudWatchLogger<CloudWatch.Model.TurnLog>>();
+        turnLogger.Setup(l => l.WriteLogEvents(It.IsAny<CloudWatch.Model.TurnLog>()))
+            .Callback<CloudWatch.Model.TurnLog>(loggedTurns.Add)
+            .Returns(Task.CompletedTask);
+
+        var client = new Mock<IGenerationClient>();
+        client.SetupAllProperties();
+        client.Object.LastFiveInputOutputs = new List<(string, string, bool)>();
+        client
+            .Setup(c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()))
+            .ReturnsAsync("The world flickers for a moment.");
+
+        var engine = BuildEngine(client, parser.Object, turnLogger.Object);
+
+        // Act
+        await engine.GetResponse("do something that explodes");
+
+        // Assert: a diagnostic row exists carrying the raw exception and a correlation-id GUID.
+        loggedTurns.Should().Contain(t =>
+            t.Response.Contains("ENGINE ERROR") && t.Response.Contains("boom"));
+        loggedTurns.Should().Contain(t =>
+            System.Text.RegularExpressions.Regex.IsMatch(
+                t.Response, @"ENGINE ERROR \([0-9a-fA-F-]{36}\)"));
+    }
+
+    // The third branch of HandleUnexpectedEngineError: when generation is disabled
+    // (NoGeneratedResponses), the net must skip the AI call entirely and return the guaranteed
+    // static fallback. Covered only implicitly by the "generation throws" test otherwise.
+    [Test]
+    public async Task UnhandledException_WhenGenerationDisabled_ReturnsStaticFallback_WithoutCallingGeneration()
+    {
+        // Arrange
+        var parser = new Mock<IIntentParser>();
+        parser.Setup(p => p.DetermineSystemIntentType(It.IsAny<string>()))
+            .Throws(new InvalidOperationException("boom — simulated deep engine crash"));
+
+        var client = new Mock<IGenerationClient>();
+        client.SetupAllProperties();
+        client.Object.LastFiveInputOutputs = new List<(string, string, bool)>();
+
+        var engine = BuildEngine(client, parser.Object);
+        engine.NoGeneratedResponses = true;
+
+        // Act
+        string? result = null;
+        var act = async () => result = await engine.GetResponse("do something that explodes");
+        await act.Should().NotThrowAsync();
+
+        // Assert: static fallback returned, and no AI generation was attempted on the error path.
+        result.Should().NotBeNullOrEmpty();
+        result.Should().Contain(GameEngine<ZorkI, ZorkIContext>.EngineErrorFallbackMessage);
+        client.Verify(
+            c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    // Session-state-not-corrupted criterion (issue #271): a crash that happens AFTER a stateful
+    // processor (disambiguation / save-confirmation / "it" clarification) has been assigned must not
+    // leave it in progress. Otherwise the NEXT turn's input is routed into the orphaned processor
+    // instead of being parsed normally, soft-locking the player in a long-lived engine. We prove the
+    // fix by asserting the stale stateful command is never invoked a second time on the next turn.
+    [Test]
+    public async Task UnhandledException_AfterStatefulProcessorAssigned_ClearsIt_SoNextTurnIsNotSoftLocked()
+    {
+        // A stateful global command that assigns _processorInProgress (Completed == false).
+        var statefulCommand = new Mock<IStatefulProcessor>();
+        statefulCommand
+            .Setup(c => c.Process(It.IsAny<string?>(), It.IsAny<IContext>(),
+                It.IsAny<IGenerationClient>(), It.IsAny<Runtime>()))
+            .ReturnsAsync("A stateful prompt awaiting your answer.");
+        statefulCommand.SetupGet(c => c.Completed).Returns(false);
+        statefulCommand.SetupGet(c => c.ContinueProcessing).Returns(false);
+
+        var parser = new Mock<IIntentParser>();
+        parser.Setup(p => p.DetermineSystemIntentType(It.IsAny<string>())).Returns((IntentBase?)null);
+        // Only the "trigger" command routes to the stateful processor; everything else parses normally.
+        parser.Setup(p => p.DetermineGlobalIntentType("trigger"))
+            .Returns(new GlobalCommandIntent { Command = statefulCommand.Object });
+        parser.Setup(p => p.ResolvePronounsAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()))
+            .ReturnsAsync((string?)null);
+        parser.Setup(p => p.DetermineComplexIntentType(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new NullIntent());
+
+        var client = new Mock<IGenerationClient>();
+        client.SetupAllProperties();
+        client.Object.LastFiveInputOutputs = new List<(string, string, bool)>();
+        client.Setup(c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>())).ReturnsAsync("oops");
+
+        var engine = BuildEngine(client, parser.Object);
+
+        // An actor that throws, so the turn crashes AFTER the stateful processor has been assigned.
+        var throwingActor = new Mock<ITurnBasedActor>();
+        throwingActor.Setup(a => a.Act(It.IsAny<IContext>(), It.IsAny<IGenerationClient>()))
+            .ThrowsAsync(new InvalidOperationException("actor boom"));
+        engine.Context.Actors.Add(throwingActor.Object);
+
+        // Turn 1: assigns the stateful processor, then the actor throws -> safety net catches it.
+        string? turn1 = null;
+        var act1 = async () => turn1 = await engine.GetResponse("trigger");
+        await act1.Should().NotThrowAsync();
+        turn1.Should().NotBeNullOrEmpty();
+
+        // Turn 2: a normal command. If the orphaned processor were still in progress,
+        // RunProcessorInProgress would feed this input into it (a 2nd Process call).
+        var act2 = async () => await engine.GetResponse("look");
+        await act2.Should().NotThrowAsync();
+
+        statefulCommand.Verify(
+            c => c.Process(It.IsAny<string?>(), It.IsAny<IContext>(),
+                It.IsAny<IGenerationClient>(), It.IsAny<Runtime>()),
+            Times.Once);
     }
 }

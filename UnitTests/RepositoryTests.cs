@@ -185,7 +185,7 @@ public class RepositoryTests
     public void GetItem_StringMethod_WithNullOrEmpty_ReturnsNull()
     {
         // Act
-        var resultNull = Repository.GetItem(null);
+        var resultNull = Repository.GetItem((string?)null);
         var resultEmpty = Repository.GetItem("");
         var resultWhitespace = Repository.GetItem("   ");
     

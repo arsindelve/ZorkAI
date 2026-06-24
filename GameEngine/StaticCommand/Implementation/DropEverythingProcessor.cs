@@ -21,12 +21,19 @@ public class DropEverythingProcessor : IGlobalCommand
     public static string DropAll(IContext context, List<IItem?> items)
     {
         var sb = new StringBuilder();
+        var dropped = new List<string?>();
 
         foreach (var nextItem in items.ToList())
             if (nextItem is ICanBeTakenAndDropped)
+            {
                 sb.AppendLine(
                     $"{nextItem.Name}: {TakeOrDropInteractionProcessor.DropIt(context, nextItem).InteractionMessage}");
+                dropped.Add(nextItem.NounsForMatching.FirstOrDefault());
+            }
 
+        // The items just dropped become the "them" antecedent so a following "take them" can pick
+        // them back up; a batch drop overwrites the set wholesale rather than appending (issue #248).
+        context.RememberAntecedentNouns(dropped);
         return sb.ToString();
     }
 
@@ -61,6 +68,8 @@ public class DropEverythingProcessor : IGlobalCommand
             }
 
             if (item is ICanBeTakenAndDropped)
+                // DropIt records each item in the "them" group (append), so a "drop X and Y" command
+                // extends the player's contiguous drop run rather than replacing it (issue #248).
                 sb.AppendLine(
                     $"{item.Name}: {TakeOrDropInteractionProcessor.DropIt(context, item).InteractionMessage}");
         }

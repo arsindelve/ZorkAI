@@ -5,6 +5,18 @@
 /// </summary>
 public static class Verbs
 {
+    /// <summary>
+    ///     The "pick it up" family. Kept here as the single source of truth so the take/drop processor,
+    ///     the pronoun resolver, and the "them" antecedent tracking all agree on what counts as taking.
+    /// </summary>
+    public static readonly string[] TakeVerbs = ["take", "get", "grab", "pick up", "hold", "acquire", "snatch"];
+
+    /// <summary>
+    ///     The "put it down" family. A short list today (the engine only acts on "drop"), but centralized
+    ///     so adding a synonym updates the processor and pronoun scoping together rather than drifting.
+    /// </summary>
+    public static readonly string[] DropVerbs = ["drop"];
+
     public static readonly string[] DrinkVerbs = ["swallow", "sip", "drink", "consume", "gulp", "guzzle", "slurp"];
     public static readonly string[] FixVerbs = ["fix", "repair", "seal", "patch", "stop", "block", "mend", "plug"];
     public static readonly string[] ApplyVerbs = ["use", "apply", "stick", "put", "place", "spread", "smear", "press"];
@@ -27,6 +39,13 @@ public static class Verbs
     public static readonly string[] OpenVerbs = ["open", "lift", "pry", "unbar", "raise", "uncover", "unlatch", "unseal"];
     public static readonly string[] GiveVerbs =
         ["give", "offer", "transfer", "present", "provide", "hand", "donate", "deliver", "pass", "feed"];
+
+    /// <summary>
+    ///     The "show it to someone" family. Distinct from <see cref="GiveVerbs" /> — showing keeps the
+    ///     object in your hand (the ZIL syntax is <c>SHOW OBJECT (HAVE) TO OBJECT</c>), whereas giving
+    ///     transfers it. Deliberately excludes "present" (a give synonym) so the two verbs don't collide.
+    /// </summary>
+    public static readonly string[] ShowVerbs = ["show", "display"];
     public static readonly string[] ThrowVerbs =
         ["throw", "toss", "launch", "hurl", "fling", "heave", "chuck", "lob", "pitch", "cast", "sling"];
 

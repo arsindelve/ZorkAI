@@ -22,6 +22,10 @@ internal class Ambassador : QuirkyCompanion, ICanBeExamined, ICanBeTalkedTo
         "are retracted. Green slime oozes from multiple orifices in his scaly skin. He speaks through a " +
         "mechanical translator slung around his neck. ";
 
+    // "ambassador" is a title rather than a name, so the default "Ambassador isn't here." reads
+    // oddly; use the article form instead (see #264).
+    public string NotHereDescription => "The ambassador isn't here. ";
+
     public override Task<string> Act(IContext context, IGenerationClient client)
     {
         // Ship begins to explode 

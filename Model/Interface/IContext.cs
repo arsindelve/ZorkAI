@@ -51,6 +51,29 @@ public interface IContext : ICanContainItems
     string LastNoun { get; set; }
 
     /// <summary>
+    ///     The set of nouns the player most recently referred to as a group — populated by "take all",
+    ///     "drop all", "take/drop X and Y", or several consecutive individual takes/drops.
+    /// </summary>
+    /// <remarks>
+    ///     This is the antecedent for the plural pronoun "them", which a single <see cref="LastNoun" />
+    ///     string cannot represent. Without it, a command like "take all. drop them" dead-ends because
+    ///     a collection of distinct singular items has no single plural noun to resolve against (issue #248).
+    /// </remarks>
+    List<string> LastNouns { get; set; }
+
+    /// <summary>
+    ///     Appends a noun to the <see cref="LastNouns" /> antecedent set (case-insensitive, de-duplicated).
+    ///     Used as individual items are taken/dropped so a following "them" spans the whole run.
+    /// </summary>
+    void RememberAntecedentNoun(string? noun);
+
+    /// <summary>
+    ///     Replaces the <see cref="LastNouns" /> antecedent set wholesale (case-insensitive, de-duplicated),
+    ///     ignoring empties. Used by batch take/drop ("take all", "take X and Y").
+    /// </summary>
+    void RememberAntecedentNouns(IEnumerable<string?> nouns);
+
+    /// <summary>
     ///     Tracks the last player input for pronoun resolution.
     /// </summary>
     /// <remarks>
@@ -188,6 +211,19 @@ public interface IContext : ICanContainItems
     /// <param name="location">The location object representing the area where the items are to be described. Can be null if no specific location is provided.</param>
     /// <returns>A string containing a detailed description of the items in the specified location.</returns>
     string ItemListDescription(string locationName, ILocation? location);
+
+    /// <summary>
+    ///     Gives a game-specific context the chance to fully handle the player's raw command before
+    ///     normal parsing and turn processing. Return the response string to short-circuit the turn,
+    ///     or null to let the engine process the command normally.
+    /// </summary>
+    /// <remarks>
+    ///     Used by Zork's spirit (DEAD) state, which overrides most verbs with canned "you are a
+    ///     ghost" responses while still letting movement and resurrection fall through (issue #17).
+    /// </remarks>
+    /// <param name="input">The raw, unparsed player input.</param>
+    /// <returns>A response that fully handles the turn, or null to continue normal processing.</returns>
+    string? InterceptPlayerCommand(string? input);
 
     /// <summary>
     ///     Does the context need to do any processing at the beginning of the turn?

@@ -522,19 +522,17 @@ public class BioLockEastTests : EngineTestsBase
         bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.NeedToReopenDoor;
         target.Context.RegisterActor(bioLockEast);
 
-        // Turn 1: the player never reopened the door, so Floyd dies trapped in the lab.
-        var first = await target.GetResponse("wait");
-        first.Should().Contain(FloydConstants.FloydDies);
-        floyd.HasDied.Should().BeTrue();
+        // First turn: Floyd dies trapped in the lab and the death is announced.
+        var firstResponse = await target.GetResponse("wait");
+        firstResponse.Should().Contain(FloydConstants.FloydDies);
 
-        // The death must be announced exactly once. Previously the state stayed NeedToReopenDoor
-        // and BioLockEast remained a registered actor, so "...Floyd is dead." re-fired on every
-        // subsequent turn forever.
-        var second = await target.GetResponse("wait");
-        second.Should().NotContain(FloydConstants.FloydDies);
+        // Every subsequent turn must NOT re-announce the death.
+        var secondResponse = await target.GetResponse("wait");
+        secondResponse.Should().NotContain(FloydConstants.FloydDies);
 
-        var third = await target.GetResponse("wait");
-        third.Should().NotContain(FloydConstants.FloydDies);
+        // The branch is terminal: state advances and the location stops acting.
+        bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.Completed);
+        target.Context.Actors.Should().NotContain(bioLockEast);
     }
 
     [Test]

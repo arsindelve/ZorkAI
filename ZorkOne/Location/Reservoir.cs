@@ -38,7 +38,10 @@ public class Reservoir : DarkLocation, ITurnBasedActor
         return new Dictionary<Direction, MovementParameters>
         {
             { Direction.S, new MovementParameters { Location = GetLocation<ReservoirSouth>() } },
-            { Direction.N, new MovementParameters { Location = GetLocation<ReservoirNorth>() } }
+            { Direction.N, new MovementParameters { Location = GetLocation<ReservoirNorth>() } },
+            // ZIL RESERVOIR: UP and WEST both lead up the stream into the optional Stream branch.
+            { Direction.Up, new MovementParameters { Location = GetLocation<InStream>() } },
+            { Direction.W, new MovementParameters { Location = GetLocation<InStream>() } }
         };
     }
 

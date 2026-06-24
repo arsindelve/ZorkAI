@@ -361,6 +361,15 @@ public abstract class LocationBase : ILocation, ICanContainItems
         return Map(context).ContainsKey(direction) ? Map(context)[direction] : null;
     }
 
+    public Direction? DirectionGatedBy(IItem item, IContext context)
+    {
+        foreach (var (direction, movement) in Map(context))
+            if (ReferenceEquals(movement.GatingItem, item))
+                return direction;
+
+        return null;
+    }
+
     public bool HasItem<T>() where T : IItem, new()
     {
         return Items.Contains(Repository.GetItem<T>());

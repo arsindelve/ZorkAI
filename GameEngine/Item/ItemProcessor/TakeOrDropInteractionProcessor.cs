@@ -1,4 +1,5 @@
 using GameEngine.StaticCommand.Implementation;
+using Model;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.AIParsing;
@@ -44,20 +45,13 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (item is not ICanBeTakenAndDropped)
             throw new Exception();
 
-        switch (action.Verb.ToLowerInvariant().Trim())
-        {
-            case "hold":
-            case "take":
-            case "pick up":
-            case "grab":
-            case "get":
-            case "acquire":
-            case "snatch":
-                return await GetItemsToTake(context, action, client);
+        var verb = action.Verb.ToLowerInvariant().Trim();
 
-            case "drop":
-                return await GetItemsToDrop(context, action, client);
-        }
+        if (Verbs.TakeVerbs.Contains(verb))
+            return await GetItemsToTake(context, action, client);
+
+        if (Verbs.DropVerbs.Contains(verb))
+            return await GetItemsToDrop(context, action, client);
 
         return null;
     }
@@ -186,6 +180,9 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             return specialLocation.DropSpecial(castItem, context);
 
         context.Drop(castItem);
+        // Record this item as part of the "them" antecedent so a following "drop/take them" spans
+        // a contiguous run of individual takes/drops (issue #248).
+        context.RememberAntecedentNoun(castItem.NounsForMatching.FirstOrDefault());
         return new PositiveInteractionResult("Dropped");
     }
 
@@ -212,9 +209,10 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             return new PositiveInteractionResult("Your load is too heavy. ");
 
         context.Take(castItem);
+        context.RememberAntecedentNoun(castItem.NounsForMatching.FirstOrDefault());
 
         // This happens if you try to take something that is a legit object in the room,
-        // but it has not been marked with this interface because it cannot be taken. Think doors and engravings. 
+        // but it has not been marked with this interface because it cannot be taken. Think doors and engravings.
         if (castItem is not ICanBeTakenAndDropped takeItem)
             return new NoNounMatchInteractionResult();
 

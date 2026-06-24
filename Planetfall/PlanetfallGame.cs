@@ -1,10 +1,19 @@
 using Planetfall.GlobalCommand;
+using Planetfall.Item.Feinstein;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 namespace Planetfall;
 
 public class PlanetfallGame : IInfocomGame
 {
     public Type StartingLocation => typeof(DeckNine);
+
+    // The named characters the player can address by name. Declaring them here lets the engine
+    // recognize "Floyd, ..." / "Blather, ..." / "ambassador, ..." even when that NPC is not in the
+    // room (and even before they have been lazily instantiated), so it can reply "X isn't here."
+    // instead of leaking the command into player parsing (see #264).
+    public IReadOnlyList<Type> TalkableCharacterTypes =>
+        [typeof(Floyd), typeof(Blather), typeof(Ambassador)];
 
     public string GameName => "Planetfall";
 

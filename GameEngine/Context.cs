@@ -72,6 +72,26 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public string LastNoun { get; set; } = "";
 
+    public List<string> LastNouns { get; set; } = new();
+
+    public void RememberAntecedentNoun(string? noun)
+    {
+        if (!string.IsNullOrEmpty(noun) && !LastNouns.Contains(noun, StringComparer.OrdinalIgnoreCase))
+            LastNouns.Add(noun);
+    }
+
+    public void RememberAntecedentNouns(IEnumerable<string?> nouns)
+    {
+        var set = nouns
+            .Where(n => !string.IsNullOrEmpty(n))
+            .Select(n => n!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (set.Count > 0)
+            LastNouns = set;
+    }
+
     public int Moves { get; set; }
 
     /// <summary>
@@ -388,8 +408,14 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         return null;
     }
 
-    public bool ItIsDarkHere =>
+    public virtual bool ItIsDarkHere =>
         CurrentLocation is IDarkLocation { IsNoLongerDark: false } && !HasLightSource;
+
+    /// <summary>
+    ///     By default the context does not intercept raw player commands. Game-specific contexts
+    ///     (e.g. Zork's spirit/DEAD state) override this to take over the turn (issue #17).
+    /// </summary>
+    public virtual string? InterceptPlayerCommand(string? input) => null;
 
     public void RegisterActor(ITurnBasedActor actor)
     {

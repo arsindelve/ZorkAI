@@ -4,7 +4,9 @@ using Model.Interface;
 
 namespace ZorkOne.Item;
 
-public class BloodyAxe : ItemBase, ICanBeTakenAndDropped, IWeapon
+// IAmPointyAndPunctureThings: the axe is one of the sharp items that punctures the
+// inflatable boat on boarding (ZIL RBOAT-FUNCTION, zork1/1actions.zil:2787-2799).
+public class BloodyAxe : ItemBase, ICanBeTakenAndDropped, IWeapon, IAmPointyAndPunctureThings
 {
     public override string[] NounsForMatching => ["axe", "bloody axe"];
 
