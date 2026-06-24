@@ -25,8 +25,8 @@ public class PlanetfallHintDemo : EngineTestsBase
         var svc = Service();
         foreach (var q in new[]
                  {
-                     "how do I save the ship?", "can I stop the explosion?",
-                     "how do I get off this planet?", "what is Floyd's purpose?"
+                     "how do I kill the mutants?", "what's the breastplate for?",
+                     "what's in the cabinets?", "what is the chronometer for?"
                  })
         {
             var r = await svc.GetHint(new HintRequest("rx", Context, q, false, null));

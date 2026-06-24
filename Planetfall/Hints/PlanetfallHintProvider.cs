@@ -75,6 +75,32 @@ public sealed class PlanetfallHintProvider : IHintProvider
         ["lazarus"] =
             "Lazarus is the remains of another robot that Floyd discovers and grieves over. It's a poignant " +
             "story moment, not a puzzle — there's nothing to do with it.",
+        ["breastplate"] =
+            "The medical-robot breastplate is story loot from the Lazarus scene — takeable, but it isn't used " +
+            "to solve anything.",
+        // --- examine-only scenery ---
+        ["chronometer"] =
+            "The chronometer is your worn flavor watch — it just shows the time (with a 'Love, Mom and Dad' " +
+            "gag). You never need to operate it.",
+        ["cabinet"] =
+            "The repair-room cabinets are locked scenery — there's no way in and nothing in them you need.",
+        ["cubbyhole"] =
+            "The cubbyholes are empty examine-only nooks. Nothing inside.",
+        ["logo"] =
+            "The wall logo is pure decoration. Nothing to do with it.",
+        ["shelves"] =
+            "The shelves are examine-only and 'pretty dusty' — nothing on them you need.",
+        ["shelf"] =
+            "The shelves are examine-only and 'pretty dusty' — nothing on them you need.",
+        ["cell door"] =
+            "The brig's cell door won't open ('No way, Jose'). The brig is a scripted holding beat, not a lock to pick.",
+        ["red light"] =
+            "The red light is just an indicator that the computer is malfunctioning. There's nothing to do about " +
+            "the light itself.",
+        // --- unkillable creatures (NOT a flat dead end — the encounter is won by NOT fighting) ---
+        ["mutant"] = MutantAnswer,
+        ["monster"] = MutantAnswer,
+        ["creature"] = MutantAnswer,
         // --- misconceptions about the goal ---
         ["off this planet"] = LeaveAnswer,
         ["off the planet"] = LeaveAnswer,
@@ -96,6 +122,11 @@ public sealed class PlanetfallHintProvider : IHintProvider
     private const string ExplosionAnswer =
         "You can't save the ship — the explosion is scripted and unavoidable. Stop fighting it: your only " +
         "job in those opening moments is to reach the escape pod and get off.";
+
+    private const string MutantAnswer =
+        "Don't try to fight the mutations — they can't be killed, and attacking them is futile. You get past " +
+        "them by outsmarting the doors (let your companion grab what's behind them) and, in the final chase, by " +
+        "running for the cryo-elevator and sealing it behind you — never by fighting.";
 }
 
 /// <summary>
