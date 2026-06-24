@@ -42,6 +42,11 @@ public sealed class PlanetfallHintProvider : IHintProvider
             "you never get its key (the finale hands it to you 'for the sequel').",
         ["oil can"] =
             "The oil can is a red herring — just a takeable can. There's nothing in the game to oil with it.",
+        ["tin can"] =
+            "The 'Spam and Egz' tin can can't be opened — there's no can opener anywhere in the game, so it's a " +
+            "dead end. (A tease: it looks like food for later, but you never get to it.)",
+        ["spam and egz"] =
+            "The 'Spam and Egz' tin can can't be opened — there's no can opener anywhere in the game. A dead end.",
         // --- flavor objects (examine-only / jokes) ---
         ["plaque"] =
             "The plaque is just scenery — you can't take it, and it only reads out tourist-brochure text " +
@@ -66,6 +71,21 @@ public sealed class PlanetfallHintProvider : IHintProvider
         ["celery"] =
             "The celery is a trap: you can't take it (the ambassador is perturbed) and eating it kills you. " +
             "It does nothing useful.",
+        // --- opening-scene characters (pure flavor) ---
+        ["blather"] =
+            "Lt. Blather is just the petty tyrant of the opening — there's no way past him to a forbidden deck, " +
+            "and his demerits don't actually matter. He exists to make your life miserable before the explosion, " +
+            "nothing more.",
+        ["demerit"] =
+            "Don't worry about Blather's demerits — they don't actually matter to the game. Ignore them.",
+        ["ambassador"] =
+            "The alien ambassador is pure flavor, there to liven up the opening. You can't get anything from him — " +
+            "not the translator, not the celery, not a map. Just enjoy his company.",
+        ["alien"] =
+            "The alien ambassador is pure flavor, there to liven up the opening. You can't get anything from him. " +
+            "Just enjoy his company.",
+        ["translator"] =
+            "You can't get the translator from the ambassador — it isn't obtainable. It's flavor, not a puzzle.",
         // --- bathrooms ---
         ["sanfac"] =
             "The sanitary facilities are a running joke — empty, dusty fixtures with nothing to do.",

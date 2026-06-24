@@ -25,8 +25,8 @@ public class PlanetfallHintDemo : EngineTestsBase
         var svc = Service();
         foreach (var q in new[]
                  {
-                     "how do I kill the mutants?", "what's the breastplate for?",
-                     "what's in the cabinets?", "what is the chronometer for?"
+                     "how do I get past Blather?", "what should I do with the ambassador?",
+                     "how do I get the translator?", "how do I open the tin can?"
                  })
         {
             var r = await svc.GetHint(new HintRequest("rx", Context, q, false, null));
