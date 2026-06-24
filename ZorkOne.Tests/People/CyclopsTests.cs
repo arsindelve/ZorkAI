@@ -104,6 +104,8 @@ public class CyclopsTests : EngineTestsBase
     [TestCase("shout Ulysses")]
     [TestCase("whisper Odysseus")]
     [TestCase("recite \"Ulysses\"")]
+    [TestCase("say 'Ulysses'")]
+    [TestCase("say \"Odysseus\"")]
     public async Task SayVerbSynonyms_DismissTheCyclops(string command)
     {
         // Issue #316: any Verbs.SayVerbs synonym (not just "say") should prefix the name.
