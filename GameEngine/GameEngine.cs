@@ -345,6 +345,27 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     }
 
     /// <summary>
+    ///     Rewrites a leading "look at &lt;noun&gt;" into the canonical "examine &lt;noun&gt;" so it routes
+    ///     through the examine-with-noun path instead of collapsing to the bare-room LOOK command
+    ///     (issues #312 / #283). Only the exact "look at " prefix followed by a noun is rewritten — bare
+    ///     "look"/"look around" and other "look &lt;preposition&gt;" phrases (e.g. "look under the rug",
+    ///     "look in the box") are intentionally left alone.
+    /// </summary>
+    internal static string? NormalizeLookAt(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return input;
+
+        const string prefix = "look at ";
+        var trimmed = input.TrimStart();
+        if (!trimmed.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            return input;
+
+        var noun = trimmed[prefix.Length..].Trim();
+        return string.IsNullOrEmpty(noun) ? input : "examine " + noun;
+    }
+
+    /// <summary>
     ///     Processes a single sentence/command through the game engine.
     /// </summary>
     private async Task<string?> ProcessSingleSentence(string? playerInput)
@@ -367,6 +388,15 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // 2. -------  Empty command. Does not count as a turn. No actor or turn processing.
         if (string.IsNullOrEmpty(playerInput))
             return PostProcessing(await GetGeneratedNoCommandResponse());
+
+        // 2b. ------- "look at <noun>" is an examine synonym, not the bare-room LOOK command. The AI
+        // parser (rule (f) in the system prompt) collapses "look at X" to a noun-less look intent for
+        // single-word nouns, re-describing the room instead of the object (issues #312 / #283). Rewrite
+        // it to the canonical "examine <noun>" here so it routes through the examine-with-noun path,
+        // while leaving the bare forms ("look", "look around") and other "look <prep>" phrases
+        // ("look under the rug", "look in the box") untouched.
+        playerInput = NormalizeLookAt(playerInput);
+        _currentInput = playerInput;
 
         Context.PreviousLocationName = LocationName;
 
