@@ -7,6 +7,9 @@ namespace ZorkOne.Tests.Places;
 
 public class TimberRoomTests : EngineTestsBase
 {
+    [SetUp]
+    public void SetUp() => Repository.Reset();
+
     [Test]
     public async Task WestExit_WithItems_ReturnsNarrowPassageMessage()
     {
