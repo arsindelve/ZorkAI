@@ -103,7 +103,10 @@ internal sealed class PlanetfallLocalizer
         new("COURSE_FIX", ["BEDISTOR_FUSED", "PLIERS"], true, "repair course control",
             _ => Repository.GetLocation<SystemsMonitors>().CourseControlFixed),
         new("LASER", ["SHUTTLE"], false, "arm the laser (fresh battery)", null),
-        new("BIOLOCK", ["SHUTTLE", "FLOYD"], false, "the bio lab (Floyd's sacrifice)", null),
+        // Floyd can only die at the bio lab, so his death implies this node (and, via back-fill, the
+        // whole chain up to it) is done — keeps late-game state coherent even from sparse flags.
+        new("BIOLOCK", ["SHUTTLE", "FLOYD"], false, "the bio lab (Floyd's sacrifice)",
+            _ => Repository.GetItem<Floyd>().HasDied),
         new("MINI_CARD", ["BIOLOCK"], false, "get the miniaturization card", null),
         new("COMPUTER_FIX", ["MINI_CARD", "LASER"], false, "cure the Disease (laser the microbe)",
             _ => Repository.GetItem<Relay>().SpeckDestroyed),

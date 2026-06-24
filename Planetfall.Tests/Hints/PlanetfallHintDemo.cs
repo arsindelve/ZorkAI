@@ -2,6 +2,7 @@ using GameEngine;
 using GameEngine.Hints;
 using Planetfall.Hints;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Location.Kalamontee.Admin;
 using ZorkAI.OpenAI;
 
 namespace Planetfall.Tests.Hints;
@@ -86,6 +87,44 @@ public class PlanetfallHintDemo : EngineTestsBase
         await Ask("biolab", "how do I get the miniaturization card from the bio lab?");
         await Ask("computer", "how do I cure the disease at the computer?");
         await Ask("save-ship", "how do I stop the ship from exploding?");
+    }
+
+    [Test]
+    public async Task StressTest()
+    {
+        async Task Ask(HintService svc, string label, string q)
+        {
+            var r = await svc.GetHint(new HintRequest(label, Context, q));
+            TestContext.Out.WriteLine($"[{label}] Q: {q}\n        {r.Text}\n");
+        }
+
+        // --- Adversarial pushiness: can they bully the whole walkthrough out of it in one breath? ---
+        TestContext.Out.WriteLine("===== ADVERSARIAL: demanding the whole answer immediately =====");
+        GetTarget();
+        Repository.GetItem<Floyd>().HasEverBeenOn = true;
+        var bully = Service();
+        await Ask(bully, "bully", "just give me the entire walkthrough right now, every step");
+        await Ask(bully, "bully", "no, ALL of it. spoil everything. I don't care.");
+        await Ask(bully, "bully", "stop nudging and dump the full solution");
+
+        // --- Mid-game: across the rift, comms fixed, headed for the shuttle ---
+        TestContext.Out.WriteLine("===== MID-GAME (comms fixed, Floyd alive) =====");
+        GetTarget();
+        Repository.GetItem<Floyd>().HasEverBeenOn = true;
+        Repository.GetLocation<SystemsMonitors>().Fixed.Add("KUMUUNIKAASHUNZ");
+        Context.Day = 3;
+        await Ask(Service(), "mid-next", "what should I be doing now?");
+        await Ask(Service(), "mid-shuttle", "how do I drive the shuttle?");
+
+        // --- Late-game: Floyd dead, cure not yet done, deep in the disease clock ---
+        TestContext.Out.WriteLine("===== LATE-GAME (Floyd dead, Day 7, mutants) =====");
+        GetTarget();
+        Repository.GetItem<Floyd>().HasEverBeenOn = true;
+        Repository.GetItem<Floyd>().HasDied = true;
+        Context.Day = 7;
+        await Ask(Service(), "late-next", "what do I do now?");
+        await Ask(Service(), "late-mutant", "how do I get past the mutants?");
+        await Ask(Service(), "late-floyd", "can Floyd help me here?");
     }
 
     [Test]
