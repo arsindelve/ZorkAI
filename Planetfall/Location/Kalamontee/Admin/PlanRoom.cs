@@ -25,6 +25,13 @@ internal class PlanRoom : LocationWithNoStartingItems
             "buried deep underground. ";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["map", "maps", "kalamontee kompleks", "lawanda kompleks"],
+            "You study the maps, but glean nothing new from them. ",
+            "The maps are fixed to the walls. ")
+    ];
+
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {

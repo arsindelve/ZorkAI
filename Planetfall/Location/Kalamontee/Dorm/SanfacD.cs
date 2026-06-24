@@ -20,4 +20,10 @@ internal class SanfacD : LocationWithNoStartingItems
                "The fixtures are dry and dusty, the room dead and deserted. You marvel at how " +
                "little the millenia and cultural gulfs have changed toilet bowl design. The only exit is south. ";
     }
+
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["fixtures", "fixture"], "The fixtures are bone dry and thick with dust. ",
+            "The fixtures are plumbed into the wall. ")
+    ];
 }

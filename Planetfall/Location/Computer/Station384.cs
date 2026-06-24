@@ -72,4 +72,11 @@ internal class Station384 : LocationWithNoStartingItems
             "You are standing on a square plate of heavy metal. Above your head, parallel to the plate beneath you, " +
             "is an identical metal plate. To the east is a wide, metallic strip. ";
     }
+
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["plate", "plates", "metal plate", "metal plates"],
+            "The metal plates above and below you are blank, featureless squares. ",
+            "The plate is far too massive to budge. ")
+    ];
 }
