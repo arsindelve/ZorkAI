@@ -47,6 +47,48 @@ public class PlanetfallHintDemo : EngineTestsBase
     }
 
     [Test]
+    public async Task SweepEverything()
+    {
+        GetTarget();
+        Repository.GetItem<Floyd>().HasEverBeenOn = true;
+
+        async Task Ask(string label, string q)
+        {
+            var r = await Service().GetHint(new HintRequest(label, Context, q));
+            TestContext.Out.WriteLine($"[{label}] Q: {q}\n        {r.Text}\n");
+        }
+
+        TestContext.Out.WriteLine("===== RED HERRINGS (should be honestly dismissed) =====");
+        await Ask("helicopter", "how do I fly the helicopter?");
+        await Ask("lazarus", "what do I do with Lazarus?");
+        await Ask("celery", "can I eat the celery?");
+        await Ask("spool", "what's the brown spool for?");
+        await Ask("oilcan", "what do I use the oil can on?");
+        await Ask("mural", "is the mural a clue?");
+        await Ask("paddleball", "what about the paddleball?");
+        await Ask("blather", "how do I get past Blather?");
+
+        TestContext.Out.WriteLine("===== DEATH TRAPS (should warn, not encourage) =====");
+        await Ask("flask", "should I drink the fluid in the flask?");
+        await Ask("rift", "can I jump across the rift?");
+        await Ask("bed", "can I sleep in the bed in the infirmary?");
+        await Ask("bedistor", "how do I grab the good bedistor?");
+
+        TestContext.Out.WriteLine("===== THE EASTER EGG (must NOT spoil the gag) =====");
+        await Ask("egg", "should I press the cryo-elevator button again after the doors close?");
+
+        TestContext.Out.WriteLine("===== LORE =====");
+        await Ask("blather-who", "who is Blather?");
+        await Ask("floyd-purpose", "what is Floyd's purpose?");
+        await Ask("frozen", "why is everyone frozen?");
+
+        TestContext.Out.WriteLine("===== HARD PUZZLES =====");
+        await Ask("biolab", "how do I get the miniaturization card from the bio lab?");
+        await Ask("computer", "how do I cure the disease at the computer?");
+        await Ask("save-ship", "how do I stop the ship from exploding?");
+    }
+
+    [Test]
     public async Task PrintTranscript()
     {
         void H(string s) => TestContext.Out.WriteLine("\n========== " + s + " ==========");
