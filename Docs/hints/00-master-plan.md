@@ -160,17 +160,14 @@ These gate the build; capture answers here.
    (Claude proposes from ZIL; you confirm.)
 2. **Soft-lock lists** — confirm/extend the candidates: [Planetfall](planetfall/03-softlock.md) and
    [Zork I](zorkone/03-softlock.md). (Zork's egg/canary trap is already confirmed in code.)
-3. **Hint-content source** — the **invisiclues are central and stay** (laddering for both games + PF
-   survival hints). Two tasks: (a) bring the Planetfall invisiclues in-repo (currently only in the
-   external Python repo); (b) **identify/obtain a Zork I hint-content source** — the walkthrough gives
-   the answer rung, but the laddering layer needs invisiclues-style content that isn't in either repo
-   yet. Decide source + licensing.
-   - **Zork I puzzle-hint source — now built.** ✅ The Zork progress-hint corpus exists: a 3-rung
-     (nudge → approach → solution) ladder per puzzle, authored from the verified 350-point walkthrough —
-     see [zorkone 06 puzzle/solution corpus](zorkone/06-puzzle-solution-corpus.md). This is the
-     invisiclues-equivalent that was the last open Zork content item; it's derived from in-repo test
-     content (no external corpus, no licensing question). What remains for *Planetfall* puzzle hints is
-     to bring its invisiclues in-repo (a)/(b) above.
+3. **Hint-content source — now built for both games (in-repo, walkthrough-derived).** ✅ The
+   progress-hint corpora exist: 3-rung (nudge → approach → solution) ladders per puzzle, authored from
+   the verified walkthroughs — [Planetfall 06](planetfall/06-puzzle-solution-corpus.md) (80-pt path) and
+   [Zork I 06](zorkone/06-puzzle-solution-corpus.md) (350-pt path). Both are derived from in-repo test
+   content, so they're correct-by-construction for this port with no external-corpus or licensing
+   question — they are the invisiclues-equivalent. **Remaining (optional, not blocking):** the external
+   Planetfall invisiclues can be folded in later as supplementary phrasing/coverage, but are no longer
+   required to ship progress hints. Lore sources are also both sourced (see below).
    - **Lore content (in-world-guide direction) — both games now sourced:**
      - *Planetfall:* **buildable from the port's own descriptive text** — see [05 lore source](planetfall/05-lore.md),
        a proof-of-concept corpus extracted from the library terminal, diary, and item descriptions,
