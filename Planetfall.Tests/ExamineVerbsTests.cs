@@ -56,4 +56,31 @@ public class ExamineVerbsTests : EngineTestsBase
 
         response.Should().Contain("Double Fannucci");
     }
+
+    /// <summary>
+    ///     Issue #283: "look at &lt;single-word noun&gt;" was collapsing to the bare-room LOOK command,
+    ///     re-describing the room instead of examining the named object. "look at" must route to the
+    ///     same examine-with-noun path as "examine" / "inspect", including the single-word-noun case.
+    /// </summary>
+    [Test]
+    public async Task LookAt_Light_AtComputerRoom_RoutesLikeExamine()
+    {
+        var target = GetTarget();
+        StartHere<ComputerRoom>();
+
+        var response = await target.GetResponse("look at light");
+
+        response.Should().Contain("malfunction in the computer");
+    }
+
+    [Test]
+    public async Task LookAt_Controls_AtHelicopter_RoutesLikeExamine()
+    {
+        var target = GetTarget();
+        StartHere<Helicopter>();
+
+        var response = await target.GetResponse("look at controls");
+
+        response.Should().Contain("covered and locked");
+    }
 }

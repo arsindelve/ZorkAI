@@ -60,4 +60,43 @@ public class ExamineVerbsTests : EngineTestsBase
 
         response.Should().Contain("ugly person staring back at you");
     }
+
+    /// <summary>
+    ///     Issue #312: "look at &lt;single-word noun&gt;" was collapsing to the bare-room LOOK command,
+    ///     re-describing the room instead of examining the named object. "look at" must route to the
+    ///     same examine-with-noun path as "examine" / "inspect", including the single-word-noun case.
+    /// </summary>
+    [Test]
+    public async Task LookAt_Mailbox_AtWestOfHouse_RoutesLikeExamine()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<WestOfHouse>();
+
+        var response = await target.GetResponse("look at mailbox");
+
+        response.Should().Contain("The small mailbox is closed.");
+        response.Should().NotContain("open field");
+    }
+
+    [Test]
+    public async Task LookAt_Door_AtWestOfHouse_RoutesLikeExamine()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<WestOfHouse>();
+
+        var response = await target.GetResponse("look at door");
+
+        response.Should().Contain("The door is closed.");
+    }
+
+    [Test]
+    public async Task LookAt_House_AtWestOfHouse_RoutesLikeExamine()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<WestOfHouse>();
+
+        var response = await target.GetResponse("look at house");
+
+        response.Should().Contain("beautiful colonial house");
+    }
 }
