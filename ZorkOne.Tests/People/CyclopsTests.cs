@@ -84,6 +84,38 @@ public class CyclopsTests : EngineTestsBase
     }
 
     [Test]
+    public async Task SayUlyssesInQuotes_Response()
+    {
+        // Issue #316: the name may also be quoted, e.g. say "Ulysses".
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
+
+        var response = await target.GetResponse("say \"Ulysses\"");
+
+        response.Should()
+            .Contain(
+                "The cyclops, hearing the name of his father's deadly nemesis, " +
+                "flees the room by knocking down the wall on the east of the room");
+    }
+
+    [Test]
+    public async Task UlyssesInQuotes_Response()
+    {
+        // Issue #316: a bare quoted name "Ulysses" must work too.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
+
+        var response = await target.GetResponse("\"Ulysses\"");
+
+        response.Should()
+            .Contain(
+                "The cyclops, hearing the name of his father's deadly nemesis, " +
+                "flees the room by knocking down the wall on the east of the room");
+    }
+
+    [Test]
     public async Task Asleep_Odysseus_Response()
     {
         var target = GetTarget();

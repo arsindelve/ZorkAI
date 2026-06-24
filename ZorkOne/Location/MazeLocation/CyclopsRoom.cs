@@ -74,10 +74,12 @@ internal class CyclopsRoom : DarkLocation
             return await base.RespondToSpecificLocationInteraction(input, context, client);
 
         // Issue #316: accept the canonical walkthrough phrasing "say Ulysses" as well as the bare
-        // name. Strip a leading "say " verb prefix before matching so both forms trigger the flee.
+        // name, with or without surrounding quotes (e.g. say "Ulysses"). Strip a leading "say "
+        // verb prefix and any wrapping quotes before matching so every form triggers the flee.
         var normalized = input.ToLower().Trim();
         if (normalized.StartsWith("say "))
             normalized = normalized[4..].Trim();
+        normalized = normalized.Trim('"', '\'', '“', '”', '‘', '’').Trim();
 
         if (!new List<string> { "ulysses", "odysseus" }.Contains(normalized)
             || !HasItem<Cyclops>()
