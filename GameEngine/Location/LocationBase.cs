@@ -315,6 +315,14 @@ public abstract class LocationBase : ILocation, ICanContainItems
     /// <param name="client"></param>
     /// <param name="itemProcessorFactory"></param>
     /// <returns>InteractionResult that describes if and how the interaction took place.</returns>
+    /// <summary>
+    ///     Inert, prose-only scenery for this room (issue #315): nouns the description mentions but
+    ///     which have no backing game object. Override to declare a room's examinable-but-static
+    ///     features so examining them describes the thing instead of the narrator falsely claiming it
+    ///     isn't here. See <see cref="SceneryItem" />.
+    /// </summary>
+    protected virtual IReadOnlyList<SceneryItem> Scenery => [];
+
     public virtual async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
@@ -325,6 +333,22 @@ public abstract class LocationBase : ILocation, ICanContainItems
             result = await item.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
             if (result is PositiveInteractionResult or NoVerbMatchInteractionResult)
                 return result;
+        }
+
+        // Inert scenery (issue #315). Checked AFTER real items so a genuine object that shares a noun
+        // always wins. Matching the noun makes the thing "present", so an unsupported verb yields a
+        // NoVerbMatch ("you can't do that to it") — never the narrator's false "no such thing is here".
+        var scenery = Scenery.FirstOrDefault(s => action.MatchNounAndAdjective(s.Nouns));
+        if (scenery is not null)
+        {
+            if (action.MatchVerb(Verbs.ExamineVerbs))
+                return new PositiveInteractionResult(scenery.ExaminationDescription);
+
+            if (action.MatchVerb(Verbs.TakeVerbs))
+                return new PositiveInteractionResult(
+                    scenery.CannotBeTakenReason ?? "That's not something you can take. ");
+
+            return new NoVerbMatchInteractionResult { Verb = action.Verb, Noun = action.Noun };
         }
 
         return result ?? new NoNounMatchInteractionResult();

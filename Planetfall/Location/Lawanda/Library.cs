@@ -22,6 +22,12 @@ public class Library : LocationBase
             "This is a large carpeted room with a desk and many small tables. The sole exit is down a few steps to the east. ";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["carpet", "carpeting", "rug"], "The carpet is thick with dust. ",
+            "The carpet is fitted wall to wall. ")
+    ];
+
     public override void Init()
     {
         StartWithItem<GreenSpool>();

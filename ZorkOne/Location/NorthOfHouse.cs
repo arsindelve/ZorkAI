@@ -15,6 +15,15 @@ public class NorthOfHouse : LocationWithNoStartingItems
                "and all the windows are boarded up. To the north a narrow path winds through the trees. ";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["house", "white house", "colonial", "colonial house"],
+            "A handsome white colonial house. Its former owners were plainly people of considerable means. ",
+            "You can't take a house with you. "),
+        new(["board", "boards"], "The boards over the windows are nailed down tight. ",
+            "The boards won't budge. ")
+    ];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

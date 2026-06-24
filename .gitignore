@@ -23,3 +23,4 @@ node_modules/
 # (planetfall-source is named to avoid a case-insensitive clash with the C# Planetfall/ project.)
 zork1/
 planetfall-source/
+.scenery-work/
