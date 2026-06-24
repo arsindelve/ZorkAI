@@ -25,8 +25,8 @@ public class PlanetfallHintDemo : EngineTestsBase
         var svc = Service();
         foreach (var q in new[]
                  {
-                     "is the reactor important?", "how do I use the helicopter?",
-                     "what should I do about Lazarus?", "what's on the brown spool?"
+                     "how do I save the ship?", "can I stop the explosion?",
+                     "how do I get off this planet?", "what is Floyd's purpose?"
                  })
         {
             var r = await svc.GetHint(new HintRequest("rx", Context, q, false, null));

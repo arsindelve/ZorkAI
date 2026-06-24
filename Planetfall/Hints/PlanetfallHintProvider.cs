@@ -26,25 +26,76 @@ public sealed class PlanetfallHintProvider : IHintProvider
     public IReadOnlyList<IProactiveRule> ProactiveRules { get; } = PlanetfallRules.Proactive;
     public HintPersona Persona => HintPersonas.SnarkyNarrator;
 
-    // Known dead ends (confirmed against the source). Several are sequel-teases the finale literally
-    // hands you (reactor card, helicopter key, paddleball "for the sequel").
+    // Known dead ends / flavor / scripted non-actions, confirmed against the source by an exhaustive
+    // sweep of every location, item, and constant. Deliberately EXCLUDES the diary and the library
+    // computer (those are the lore source, not dead ends) and ambiguous nouns that also name progress
+    // objects ("black button" fills the flask; "window" is the bio-lock viewport) — keying those to a
+    // dead-end answer would lie. Keys are lowercase substrings matched against the player's question.
     public IReadOnlyDictionary<string, string> RedHerrings { get; } = new Dictionary<string, string>
     {
+        // --- sequel teases / dead-end machinery ---
         ["reactor"] =
             "The reactor elevator is a dead end. It needs an access card you never find in this game — " +
-            "it's a wink at a sequel, nothing more. Don't waste your time on it.",
+            "its buttons just say 'Nothing happens.' A wink at a sequel, nothing more.",
         ["helicopter"] =
-            "The helicopter is a dead end. You never find its key in this game (the finale hands it to " +
-            "you 'for the sequel') — there's nothing here to solve.",
-        ["lazarus"] =
-            "Lazarus is the remains of another robot, which Floyd discovers and grieves over. It's a " +
-            "poignant story moment, not a puzzle — there's nothing to do with it.",
-        ["spool"] =
-            "The brown spool is labelled 'Instructions for Repairing Repair Robots,' but its contents " +
-            "are never actually usable — it's flavor, not a puzzle.",
+            "The helicopter is a dead end. Its controls are covered and locked and it's rusted solid; " +
+            "you never get its key (the finale hands it to you 'for the sequel').",
+        ["oil can"] =
+            "The oil can is a red herring — just a takeable can. There's nothing in the game to oil with it.",
+        // --- flavor objects (examine-only / jokes) ---
+        ["plaque"] =
+            "The plaque is just scenery — you can't take it, and it only reads out tourist-brochure text " +
+            "about the valley. Pure flavor.",
         ["paddleball"] =
-            "The paddleball set is a toy and a joke item — pure flavor. It solves nothing."
+            "The paddleball set is a joke toy — pure flavor. It solves nothing.",
+        ["tape"] =
+            "The rec-area tapes are flavor — examining them just lists music and novels. Nothing to play or use.",
+        ["towel"] =
+            "The towel is a joke (note 'Escape Pod #42 / Don't Panic'). Reading it is all it does.",
+        ["graffiti"] =
+            "The graffiti is examine-only flavor — a limerick mocking Blather. No use.",
+        ["brochure"] =
+            "The recruitment brochure is pure joke flavor about the Patrol. It does nothing.",
+        ["slime"] =
+            "The slime is flavor — it oozes through your fingers (you can't take it) and scrubbing it is a " +
+            "hopeless gag. Nothing to solve here.",
+        ["spool"] =
+            "The brown spool is labelled 'Instructions for Repairing Repair Robots,' but its contents are " +
+            "never usable — flavor, not a puzzle.",
+        // --- jokes that punish you ---
+        ["celery"] =
+            "The celery is a trap: you can't take it (the ambassador is perturbed) and eating it kills you. " +
+            "It does nothing useful.",
+        // --- bathrooms ---
+        ["sanfac"] =
+            "The sanitary facilities are a running joke — empty, dusty fixtures with nothing to do.",
+        ["bathroom"] =
+            "The sanitary facilities are a running joke — empty, dusty fixtures with nothing to do.",
+        // --- story beats, not puzzles ---
+        ["lazarus"] =
+            "Lazarus is the remains of another robot that Floyd discovers and grieves over. It's a poignant " +
+            "story moment, not a puzzle — there's nothing to do with it.",
+        // --- misconceptions about the goal ---
+        ["off this planet"] = LeaveAnswer,
+        ["off the planet"] = LeaveAnswer,
+        ["leave the planet"] = LeaveAnswer,
+        ["leave this planet"] = LeaveAnswer,
+        ["escape the planet"] = LeaveAnswer,
+        ["get home"] = LeaveAnswer,
+        // The opening explosion is scripted and unavoidable — trying to prevent it is a dead end.
+        ["save the ship"] = ExplosionAnswer,
+        ["stop the explosion"] = ExplosionAnswer,
+        ["prevent the explosion"] = ExplosionAnswer,
+        ["explosion"] = ExplosionAnswer
     };
+
+    private const string LeaveAnswer =
+        "You don't escape this planet the way you're imagining — the helicopter and reactor are dead ends. " +
+        "The way out is to finish the job: repair the systems and cure the plague, and rescue comes to you.";
+
+    private const string ExplosionAnswer =
+        "You can't save the ship — the explosion is scripted and unavoidable. Stop fighting it: your only " +
+        "job in those opening moments is to reach the escape pod and get off.";
 }
 
 /// <summary>

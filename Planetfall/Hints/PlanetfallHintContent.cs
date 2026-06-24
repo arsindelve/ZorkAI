@@ -69,9 +69,16 @@ internal sealed class PlanetfallCorpus : IHintCorpus
 /// </summary>
 internal sealed class PlanetfallLoreSource : ILoreSource
 {
+    // Characters known from the moment you meet them (spoiler-safe — no plot turns).
+    private const string Characters =
+        " Floyd is a childlike, enthusiastic multipurpose B-19-series robot you can reactivate to be your " +
+        "companion; he is loyal and genuinely helpful. Lt. Blather was your petty, tyrannical commander " +
+        "aboard the Feinstein.";
+
     private const string Observable =
         "You are a lowly Ensign Seventh Class of the Stellar Patrol, shipwrecked after the S.P.S. Feinstein " +
-        "exploded. You've landed on a planet whose vast complex is fully automated and utterly deserted.";
+        "exploded. You've landed on a planet whose vast complex is fully automated and utterly deserted." +
+        Characters;
 
     private const string Investigated =
         Observable + " The planet is Resida. Its entire population was cryogenically frozen to wait out a " +
