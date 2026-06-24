@@ -1,3 +1,4 @@
+using Model.Hints;
 using Model.Interface;
 
 namespace GameEngine.Hints;

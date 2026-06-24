@@ -1,3 +1,4 @@
+using Model.Hints;
 using Model.Interface;
 
 namespace GameEngine.Hints;
@@ -127,9 +128,6 @@ public interface IProactiveRule
     ProactiveNudge? Evaluate(IContext liveState);
 }
 
-/// <summary>The voice the phrasing model speaks in. v1: a single snarky-narrator persona for all games.</summary>
-public sealed record HintPersona(string SystemPrompt);
-
 /// <summary>
 ///     The single per-game plug point. A game supplies data + a few small implementations; the
 ///     engine consumes only this. Registered via <see cref="IInfocomGame" />.
@@ -144,32 +142,6 @@ public interface IHintProvider
     IReadOnlyList<ISoftLockRule> SoftLockRules { get; }
     IReadOnlyList<IProactiveRule> ProactiveRules { get; }
     HintPersona Persona { get; }
-}
-
-// ---- engine-side LLM seam (OpenAI in v1; stubbed in tests) -------------------------
-
-/// <summary>
-///     Minimal language-model seam the hint engine uses. Implemented over OpenAI for v1 (per the
-///     locked build decision); stubbed deterministically in the eval harness.
-/// </summary>
-public interface IHintLanguageModel
-{
-    /// <summary>Classify a free-text player question into a hint intent.</summary>
-    Task<HintIntent> ClassifyIntent(string question);
-
-    /// <summary>Render a single hint rung in the given persona's voice (must not exceed the rung's content).</summary>
-    Task<string> PhraseRung(string rung, HintPersona persona);
-
-    /// <summary>Render a grounded lore answer in the persona's voice from retrieved source text.</summary>
-    Task<string> PhraseLore(string question, string groundedSource, HintPersona persona);
-}
-
-public enum HintIntent
-{
-    Progress,   // "what do I do?" — puzzle hint
-    Mechanic,   // "why am I sick / why can't I carry this?"
-    Lore,       // "why is everything deserted / who was X?"
-    OutOfScope  // not a game question
 }
 
 // ---- request / response -------------------------------------------------------------

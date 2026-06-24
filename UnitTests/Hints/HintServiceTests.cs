@@ -1,5 +1,6 @@
 using FluentAssertions;
 using GameEngine.Hints;
+using Model.Hints;
 using Model.Interface;
 using Moq;
 using NUnit.Framework;

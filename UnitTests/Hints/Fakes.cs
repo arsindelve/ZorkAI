@@ -1,4 +1,5 @@
 using GameEngine.Hints;
+using Model.Hints;
 using Model.Interface;
 
 namespace UnitTests.Hints;

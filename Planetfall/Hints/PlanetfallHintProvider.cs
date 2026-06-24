@@ -1,5 +1,6 @@
 using GameEngine;
 using GameEngine.Hints;
+using Model.Hints;
 using Model.Interface;
 using Planetfall.Item.Computer;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;

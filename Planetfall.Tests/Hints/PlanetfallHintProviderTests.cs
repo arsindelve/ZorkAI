@@ -1,6 +1,7 @@
 using FluentAssertions;
 using GameEngine;
 using GameEngine.Hints;
+using Model.Hints;
 using Planetfall.Hints;
 using Planetfall.Item.Computer;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
