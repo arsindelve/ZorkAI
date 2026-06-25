@@ -65,4 +65,11 @@ internal class LawandaPlatform : FloydSpecialInteractionLocation
             "A wide escalator, not currently operating, beckons upward at the east end of the platform. A faded sign " +
             "reads \"Shutul Platform -- Lawanda Staashun.\"";
     }
+
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["sign", "faded sign"],
+            "The faded sign reads \"Shutul Platform -- Lawanda Staashun.\" ",
+            "The sign is fixed to the wall. ")
+    ];
 }

@@ -39,4 +39,11 @@ public class Helicopter : FloydSpecialInteractionLocation
             "the vehicle you can see a wide Helipad, and beyond that, endless ocean far below. " +
             "Several doors lead out to the Helipad. ";
     }
+
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["rust", "layer of rust"],
+            "A thick layer of rust coats every surface. This vehicle has not flown in a very long time. ",
+            "The rust flakes off at a touch, but is hardly worth taking. ")
+    ];
 }

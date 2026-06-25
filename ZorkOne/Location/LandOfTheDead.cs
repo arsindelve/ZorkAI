@@ -23,6 +23,16 @@ internal class LandOfTheDead : DarkLocation
                "yourself. A passage exits to the north.";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["souls", "lost souls", "voices", "dead"],
+            "The wails of countless lost souls echo from every direction, though none of them can be seen. ",
+            "The souls are quite beyond your reach — mercifully. "),
+        new(["remains", "adventurers", "bones"],
+            "Stacked in the corner are the remains of dozens of adventurers who fared worse than you. ",
+            "Best to leave the dead what little dignity they have left. ")
+    ];
+
     public override void Init()
     {
         StartWithItem<CrystalSkull>();
