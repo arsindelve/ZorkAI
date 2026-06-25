@@ -468,4 +468,38 @@ public class ComputerTerminalTests : EngineTestsBase
         await target.GetResponse("type 2");
         pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
     }
+
+    [Test]
+    public async Task PressZero_FromLeafNode_AfterSaveAndRestoreRoundTrip_ReturnsSubmenuText()
+    {
+        // Prove issue #323: after an HTTP round-trip (save→restore), pressing 0 from a leaf node
+        // must navigate back to the parent submenu. Before the fix, MenuItem.Parent was internal
+        // so Newtonsoft.Json skipped it; the deserialized CurrentItem had Parent=null and GoUp()
+        // returned NoEffect instead of the submenu text.
+        var target = GetTarget();
+        StartHere<LibraryLobby>();
+        GetItem<ComputerTerminal>().IsOn = true;
+
+        await target.GetResponse("type one"); // → History submenu
+        await target.GetResponse("type 1");   // → leaf: "Raashul Orijinz" text entry
+
+        var saved = target.SaveGame();
+
+        // GetTarget() calls Repository.Reset(), then RestoreGame re-populates from the JSON,
+        // mirroring the real HTTP round-trip that loses the Parent back-reference.
+        var restored = GetTarget();
+        restored.RestoreGame(saved);
+
+        // Pin the serialization contract: Path must survive the round-trip intact.
+        // History is representative: all six submenus share the same path mechanism,
+        // so one serialization round-trip test covers them all.
+        GetItem<ComputerTerminal>().MenuState.Path.Should().Equal(new List<int> { 1, 1 },
+            "Path [submenu=1, entry=1] must survive JSON serialization");
+
+        var response = await restored.GetResponse("press 0");
+
+        response.Should().Contain(HistoryMenu.MainMenu,
+            "pressing 0 from a leaf should navigate up to the parent submenu, not feep");
+        response.Should().NotContain(MenuState.NoEffect);
+    }
 }
