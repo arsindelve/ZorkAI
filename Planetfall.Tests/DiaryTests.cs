@@ -26,6 +26,7 @@ public class DiaryTests : EngineTestsBase
         StartHere<DeckNine>();
         Take<Diary>();
 
+        // Index 13 = the Septem 5 entry.
         var response = await AdvanceToEntry(target, 13);
 
         response.Should().Contain("when I was cleaning");
@@ -43,10 +44,39 @@ public class DiaryTests : EngineTestsBase
         StartHere<DeckNine>();
         Take<Diary>();
 
+        // Index 14 = the final "END OF DIARY" entry.
         var response = await AdvanceToEntry(target, 14);
 
         response.Should().Contain("the little button flickers off");
         response.Should().NotContain("the little button flashes");
+    }
+
+    [Test]
+    public async Task Examine_BeforeReading_ButtonIsFlashing()
+    {
+        var target = GetTarget();
+        StartHere<DeckNine>();
+        Take<Diary>();
+
+        var response = await target.GetResponse("examine diary");
+
+        response.Should().Contain("which is flashing");
+    }
+
+    [Test]
+    public async Task Examine_AfterEndOfDiary_ButtonIsNotFlashing()
+    {
+        var target = GetTarget();
+        StartHere<DeckNine>();
+        Take<Diary>();
+
+        // Index 14 = the final "END OF DIARY" entry, whose text says the button flickers off.
+        await AdvanceToEntry(target, 14);
+
+        var response = await target.GetResponse("examine diary");
+
+        // The button just flickered off -- examining it must not claim it is still flashing.
+        response.Should().NotContain("which is flashing");
     }
 
     [Test]

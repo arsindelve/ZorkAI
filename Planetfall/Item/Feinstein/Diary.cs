@@ -30,7 +30,12 @@ public class Diary : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
     public override string[] NounsForMatching => ["diary"];
 
     public string ExaminationDescription =>
-        "You've used this battered old recording machine as a diary for years. It includes a little button, which is flashing, and a microphone/speaker. To read its screen, type READ DIARY. ";
+        // While sitting on the final "END OF DIARY" entry the button has flickered off, so don't
+        // describe it as flashing -- that would contradict the entry the player just read. Pressing
+        // the button again resets the diary, after which it flashes once more.
+        MessageNumber == _messages.Length - 1
+            ? "You've used this battered old recording machine as a diary for years. It includes a little button, which is dark, and a microphone/speaker. To read its screen, type READ DIARY. "
+            : "You've used this battered old recording machine as a diary for years. It includes a little button, which is flashing, and a microphone/speaker. To read its screen, type READ DIARY. ";
 
     public string ReadDescription => Read();
 
