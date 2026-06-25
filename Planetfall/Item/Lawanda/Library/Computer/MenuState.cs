@@ -11,42 +11,68 @@ public class MenuState
     internal const string ReachedLowestLevel =
         "\"Yuu hav reect xe loowist levul uv xe liibreree indeks. Pleez tiip zeeroo tuu goo tuu aa hiiyur levul. If yuu reekwiir asistins, kawl xe liibrereein.\"";
 
-    [UsedImplicitly] public MenuItem CurrentItem { get; set; } = new MainMenu();
+    // Breadcrumb path: 1-based child indices from the root. Empty = at MainMenu.
+    // Storing the path (not the MenuItem object) is what survives JSON serialization —
+    // MenuItem.Parent is internal so Newtonsoft.Json skips it, making CurrentItem.Parent
+    // null after a round-trip and breaking GoUp() (issue #323).
+    [UsedImplicitly] public List<int> Path { get; set; } = [];
+
+    // Cached result of walking Path from the root. Invalidated whenever Path mutates.
+    [Newtonsoft.Json.JsonIgnore] private MenuItem? _current;
+
+    // Computed from Path; cached so repeated accesses within one method call don't
+    // re-allocate a fresh child list at every level.
+    [Newtonsoft.Json.JsonIgnore]
+    public MenuItem CurrentItem => _current ??= BuildCurrentItem();
+
+    private MenuItem BuildCurrentItem()
+    {
+        MenuItem current = new MainMenu();
+        foreach (var index in Path)
+        {
+            var children = current.Children;
+            if (children is null || index < 1 || index > children.Count)
+                return current;
+            current = children[index - 1];
+        }
+        return current;
+    }
 
     /// <summary>
     /// Navigates to the parent menu item if it exists, otherwise indicates that the action is invalid.
     /// </summary>
-    /// <returns>Returns a message indicating the result of the navigation or invalid action.</returns>
     internal string GoUp()
     {
-        if (CurrentItem.Parent is null)
-            return
-                NoEffect;
+        if (Path.Count == 0)
+            return NoEffect;
 
-        CurrentItem = CurrentItem.Parent;
+        Path.RemoveAt(Path.Count - 1);
+        _current = null;
         return $"The screen clears and a different menu appears:\n\n{CurrentItem.Text}";
     }
 
     /// <summary>
     /// Navigates to a child menu item based on the provided index, if valid, or indicates the action is invalid.
     /// </summary>
-    /// <param name="menuItem">The index of the desired child menu item.</param>
-    /// <returns>Returns a message indicating the result of the navigation or invalid action.</returns>
     internal string GoDown(int menuItem)
     {
-        if (CurrentItem.Children is null)
-            return
-                ReachedLowestLevel;
+        var children = CurrentItem.Children;
 
-        if (menuItem > CurrentItem.Children.Count)
-            return
-                NoEffect;
+        if (children is null)
+            return ReachedLowestLevel;
 
-        CurrentItem = CurrentItem.Children[menuItem - 1];
+        // menuItem < 1 is currently unreachable (ProcessKeyPress routes 0 → GoUp),
+        // but guards against unexpected future call sites.
+        if (menuItem < 1 || menuItem > children.Count)
+            return NoEffect;
 
-        if (CurrentItem.Children != null)
-            return $"The screen clears and a different menu appears:\n\n{CurrentItem.Text}";
+        Path.Add(menuItem);
+        _current = null;
+        var current = CurrentItem;
 
-        return $"The screen clears and some text appears:\n\n{CurrentItem.Text}";
+        if (current.Children != null)
+            return $"The screen clears and a different menu appears:\n\n{current.Text}";
+
+        return $"The screen clears and some text appears:\n\n{current.Text}";
     }
 }
