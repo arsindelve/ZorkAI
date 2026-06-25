@@ -35,6 +35,12 @@ public class EndOfRainbow : LocationWithNoStartingItems
             "A rainbow crosses over the falls to the east and a narrow path continues to the southwest. ";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["river", "frigid river"], "The Frigid River flows on beneath the rainbow, swift and cold. ",
+            "You can't take the river. ")
+    ];
+
 
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)

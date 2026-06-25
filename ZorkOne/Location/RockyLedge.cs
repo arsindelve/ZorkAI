@@ -17,6 +17,13 @@ public class RockyLedge : LocationWithNoStartingItems
                "Below you is the canyon bottom. Above you is more cliff, which appears climbable.";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["falls", "waterfall", "aragain falls"],
+            "The main flow from Aragain Falls twists away along a passage far too narrow for you to follow. ",
+            "The falls are well out of your reach. ")
+    ];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

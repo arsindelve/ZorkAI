@@ -20,4 +20,11 @@ internal class ReactorLobby : BlatherLocation
             "The corridor widens here as it nears the main drive area. To starboard is the Ion Reactor that powers " +
             "the vessel, and aft of here is the Auxiliary Control Room. The corridor continues to port. ";
     }
+
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["reactor", "ion reactor"],
+            "The Ion Reactor hums away to starboard, powering the entire vessel. You'd best not meddle with it. ",
+            "The reactor is, mercifully, not something you can pick up. ")
+    ];
 }

@@ -23,6 +23,14 @@ internal abstract class DormBase : LocationWithNoStartingItems
                "seems quite deserted now. There are openings at the north and south ends of the room.";
     }
 
+    // Shared by all four dormitories (they inherit this base's prose). The partitions are scenery.
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["partition", "partitions", "flimsy partition", "flimsy partitions"],
+            "The flimsy partitions are plain dividers, put up to break the long room into smaller spaces. ",
+            "The partitions are fixed between the bunks. ")
+    ];
+
     public override Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
         IGenerationClient client)
     {

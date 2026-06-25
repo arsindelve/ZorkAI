@@ -29,5 +29,12 @@ internal class PhysicalPlant : FloydSpecialInteractionLocation
             "any of the equipment is still operating.";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["equipment", "heavy equipment"],
+            "The heavy equipment is so intricate you wouldn't know where to begin operating it. ",
+            "The equipment is bolted firmly in place. ")
+    ];
+
     public override string FloydPrompt => FloydPrompts.PhysicalPlant;
 }

@@ -250,6 +250,19 @@ public class BoothTests : EngineTestsBase
     }
     
     [Test]
+    public async Task ExamineKeyboard_DescribesTheKeypad_RatherThanDenyingItExists()
+    {
+        var target = GetTarget();
+        StartHere<MiniaturizationBooth>();
+
+        // The booth's room description places "a keyboard with numeric keys" here. Examining it must
+        // describe the keypad as scenery, not fall through to the narrator that falsely claims the
+        // keyboard isn't here (issue #315).
+        var response = await target.GetResponse("examine keyboard");
+        response.Should().Contain("zero through nine");
+    }
+
+    [Test]
     public async Task FloydComes()
     {
         var target = GetTarget();

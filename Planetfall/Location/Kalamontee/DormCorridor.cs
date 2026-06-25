@@ -33,4 +33,11 @@ internal class DormCorridor : LocationWithNoStartingItems
                "stretches off into the distance. That section of the hallway is lined with a motorized walkway " +
                "(no longer running) that was probably intended to transport people or cargo down that tremendously long hall. ";
     }
+
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["walkway", "motorized walkway", "moving walkway"],
+            "The motorized walkway that once carried people and cargo down the long hall is no longer running. ",
+            "It's built into the floor. ")
+    ];
 }
