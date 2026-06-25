@@ -51,6 +51,109 @@ public class CyclopsTests : EngineTestsBase
     }
 
     [Test]
+    public async Task SayUlysses_Response()
+    {
+        // Issue #316: the canonical walkthrough phrasing "say Ulysses" must also dismiss the
+        // cyclops, not just the bare name "Ulysses".
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
+
+        var response = await target.GetResponse("say Ulysses");
+
+        response.Should()
+            .Contain(
+                "The cyclops, hearing the name of his father's deadly nemesis, " +
+                "flees the room by knocking down the wall on the east of the room");
+    }
+
+    [Test]
+    public async Task SayOdysseus_Response()
+    {
+        // Issue #316: "say Odysseus" must also dismiss the cyclops.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
+
+        var response = await target.GetResponse("say Odysseus");
+
+        response.Should()
+            .Contain(
+                "The cyclops, hearing the name of his father's deadly nemesis, " +
+                "flees the room by knocking down the wall on the east of the room");
+    }
+
+    [Test]
+    public async Task SayUlyssesInQuotes_Response()
+    {
+        // Issue #316: the name may also be quoted, e.g. say "Ulysses".
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
+
+        var response = await target.GetResponse("say \"Ulysses\"");
+
+        response.Should()
+            .Contain(
+                "The cyclops, hearing the name of his father's deadly nemesis, " +
+                "flees the room by knocking down the wall on the east of the room");
+    }
+
+    [TestCase("speak Ulysses")]
+    [TestCase("utter Ulysses")]
+    [TestCase("shout Ulysses")]
+    [TestCase("whisper Odysseus")]
+    [TestCase("recite \"Ulysses\"")]
+    [TestCase("say 'Ulysses'")]
+    [TestCase("say \"Odysseus\"")]
+    public async Task SayVerbSynonyms_DismissTheCyclops(string command)
+    {
+        // Issue #316: any Verbs.SayVerbs synonym (not just "say") should prefix the name.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
+
+        var response = await target.GetResponse(command);
+
+        response.Should()
+            .Contain(
+                "The cyclops, hearing the name of his father's deadly nemesis, " +
+                "flees the room by knocking down the wall on the east of the room");
+    }
+
+    [Test]
+    public async Task Tell_IsNotTreatedAsASpeakVerb()
+    {
+        // Issue #316 review: "tell" is a named-address lead-in ("tell floyd ..."), not untargeted
+        // speech, so it is excluded from the speak-verb prefix (matching ConversationHandler).
+        // "tell ulysses" must therefore NOT dismiss the cyclops.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
+
+        var response = await target.GetResponse("tell ulysses");
+
+        response.Should().NotContain("flees the room by knocking down the wall");
+        Repository.GetItem<Cyclops>().CurrentLocation.Should().Be(Repository.GetLocation<CyclopsRoom>());
+    }
+
+    [Test]
+    public async Task UlyssesInQuotes_Response()
+    {
+        // Issue #316: a bare quoted name "Ulysses" must work too.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<CyclopsRoom>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Torch>());
+
+        var response = await target.GetResponse("\"Ulysses\"");
+
+        response.Should()
+            .Contain(
+                "The cyclops, hearing the name of his father's deadly nemesis, " +
+                "flees the room by knocking down the wall on the east of the room");
+    }
+
+    [Test]
     public async Task Asleep_Odysseus_Response()
     {
         var target = GetTarget();

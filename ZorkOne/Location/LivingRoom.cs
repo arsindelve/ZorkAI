@@ -63,7 +63,12 @@ public class LivingRoom : LocationBase
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        string[] nouns = ["lettering", "engraving", "engravings", "door"];
+        // The room description calls this "strange gothic lettering". The AI parser often folds the
+        // adjective(s) into the noun (Noun = "gothic lettering"), so the bare "lettering" entry never
+        // matched and a player echoing the room's own wording got no response (issue #317). List the
+        // adjective forms explicitly so the natural command works.
+        string[] nouns =
+            ["lettering", "gothic lettering", "strange gothic lettering", "engraving", "engravings", "door"];
         string[] verbs = ["read", "examine"];
 
         if (action.Match(verbs, nouns))
