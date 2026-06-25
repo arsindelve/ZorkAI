@@ -305,6 +305,14 @@ public abstract class LocationBase : ILocation, ICanContainItems
     }
 
     /// <summary>
+    ///     Inert, prose-only scenery for this room (issue #315): nouns the description mentions but
+    ///     which have no backing game object. Override to declare a room's examinable-but-static
+    ///     features so examining them describes the thing instead of the narrator falsely claiming it
+    ///     isn't here. See <see cref="SceneryItem" />.
+    /// </summary>
+    protected virtual IReadOnlyList<SceneryItem> Scenery => [];
+
+    /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="SimpleIntent" /> corresponding
     ///     of a verb and a noun. Does that combination do anything in this location? The default implementation
     ///     of the base class checks each item in these locations and asks them if they provide any interaction. This
@@ -315,14 +323,6 @@ public abstract class LocationBase : ILocation, ICanContainItems
     /// <param name="client"></param>
     /// <param name="itemProcessorFactory"></param>
     /// <returns>InteractionResult that describes if and how the interaction took place.</returns>
-    /// <summary>
-    ///     Inert, prose-only scenery for this room (issue #315): nouns the description mentions but
-    ///     which have no backing game object. Override to declare a room's examinable-but-static
-    ///     features so examining them describes the thing instead of the narrator falsely claiming it
-    ///     isn't here. See <see cref="SceneryItem" />.
-    /// </summary>
-    protected virtual IReadOnlyList<SceneryItem> Scenery => [];
-
     public virtual async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
