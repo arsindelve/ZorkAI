@@ -19,7 +19,7 @@ public class Diary : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
         "11,344 August 7 -- Went to the mandatory Patrol Informational Tri-vision Triple Feature last night. We saw 'Treatment For Space Lice Infestation,''Shoreleave Shirley: How to Guard Against Contracting Alien Diseases,' and 'The Oxygen Tank: Your Galvanized Buddy in the Vacuum.' Blather confined half the ensigns to quarters for hooting during the second feature. (The other half had fallen asleep during the first feature.)",
         "11,344 August 24 -- TROT THAT TROTTING KRIP!! I applied for astrophysics training for the next quarter, but Blather says my work for the special\nassignment task force hasn\'t been good enough, so not only did he reject my astrophysics application, but he says I\'ll have to take remedial scrubbing\nnext quarter. WHAT A TROTTING KRIP!\n\nYou know, for the first time I\'m beginning to have doubts about whether I\'m really cut out for the patrol. When I was growing up on Gallium, it was\nalways taken for granted that I would join up when I came of age. My family has served in the patrol for five generations. In fact, my great-great-\ngrandfather was a high admiral and one of the founding fathers of the Patrol! But I seem to be permanently stuck at Ensign 7th, and Blather is making\nmy life miserable...",
         "11,344 Septem 4 -- We left hyperspace today at about 7600; weren't scheduled to for about another two weeks. The grapevine says we have special orders to investigate a planetary system here. Apparently, some of the archaeologists back on Varshon think it might have been part of the Second Union. I can't imagine why anyone would settle out here in this remote corner of the galaxy.",
-        "11,344 Septem 5 -- That krip has done it again! I missed two little pellets of trot when I was when I was cleaning out the grotch cages yesterday, and Blather gave me 100 demerits andassigned me two extra shifts of deck scrubbing -- including Deck Nine, the filthiest deck on the ship! I'm considering asking for a transfer -- or if things get worse, I might evenabandon ship!",
+        "11,344 Septem 5 -- That krip has done it again! I missed two little pellets of trot when I was cleaning out the grotch cages yesterday, and Blather gave me 100 demerits and assigned me two extra shifts of deck scrubbing -- including Deck Nine, the filthiest deck on the ship! I'm considering asking for a transfer -- or if things get worse, I might even abandon ship!",
         "\"END OF DIARY -- REWINDING\" flashes across the screen; the machine whirrs, stops, and the little button flickers off."
     ];
 
@@ -76,11 +76,17 @@ public class Diary : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
         var message = _messages[MessageNumber];
 
         // Oddly, reading the first message allows us to advance. We can keep advancing
-        // until we hit the end, and then we need to read again to advance. 
+        // until we hit the end, and then we need to read again to advance.
         CanAdvance = true;
 
-        return "Words start to scroll across the screen:\n\n" +
-               message +
-               "\n\nThe single word, \"More,\" appears at the bottom of the diary screen, and the little button flashes.\n";
+        // The final "END OF DIARY" entry says the button flickers off, so don't append the
+        // button-flash footer to it -- otherwise the text claims the button is off and flashing
+        // at the same time.
+        var isLast = MessageNumber == _messages.Length - 1;
+        var footer = isLast
+            ? string.Empty
+            : "\n\nThe single word, \"More,\" appears at the bottom of the diary screen, and the little button flashes.\n";
+
+        return "Words start to scroll across the screen:\n\n" + message + footer;
     }
 }
