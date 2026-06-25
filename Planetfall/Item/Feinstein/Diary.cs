@@ -29,11 +29,15 @@ public class Diary : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
 
     public override string[] NounsForMatching => ["diary"];
 
+    // True when we're sitting on the final "END OF DIARY" entry. Pressing the button from here
+    // resets the diary back to the start. Several behaviors key off this, so keep it in one place.
+    private bool IsAtLastMessage => MessageNumber == _messages.Length - 1;
+
     public string ExaminationDescription =>
         // While sitting on the final "END OF DIARY" entry the button has flickered off, so don't
         // describe it as flashing -- that would contradict the entry the player just read. Pressing
         // the button again resets the diary, after which it flashes once more.
-        MessageNumber == _messages.Length - 1
+        IsAtLastMessage
             ? "You've used this battered old recording machine as a diary for years. It includes a little button, which is dark, and a microphone/speaker. To read its screen, type READ DIARY. "
             : "You've used this battered old recording machine as a diary for years. It includes a little button, which is flashing, and a microphone/speaker. To read its screen, type READ DIARY. ";
 
@@ -54,7 +58,7 @@ public class Diary : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
     {
         if (action.Match(["press", "push", "use"], ["button", "more", "more button"]))
         {
-            if (MessageNumber == _messages.Length - 1)
+            if (IsAtLastMessage)
             {
                 MessageNumber = 0;
                 CanAdvance = false;
@@ -87,8 +91,7 @@ public class Diary : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
         // The final "END OF DIARY" entry says the button flickers off, so don't append the
         // button-flash footer to it -- otherwise the text claims the button is off and flashing
         // at the same time.
-        var isLast = MessageNumber == _messages.Length - 1;
-        var footer = isLast
+        var footer = IsAtLastMessage
             ? string.Empty
             : "\n\nThe single word, \"More,\" appears at the bottom of the diary screen, and the little button flashes.\n";
 
