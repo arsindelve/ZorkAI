@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace Planetfall.Item.Lawanda.Library.Computer;
 
 /// <summary>
@@ -11,18 +13,27 @@ public class MenuState
     internal const string ReachedLowestLevel =
         "\"Yuu hav reect xe loowist levul uv xe liibreree indeks. Pleez tiip zeeroo tuu goo tuu aa hiiyur levul. If yuu reekwiir asistins, kawl xe liibrereein.\"";
 
+    private List<int> _path = [];
+
     // Breadcrumb path: 1-based child indices from the root. Empty = at MainMenu.
     // Storing the path (not the MenuItem object) is what survives JSON serialization —
-    // MenuItem.Parent is internal so Newtonsoft.Json skips it, making CurrentItem.Parent
+    // MenuItem.Parent was internal so Newtonsoft.Json skipped it, making CurrentItem.Parent
     // null after a round-trip and breaking GoUp() (issue #323).
-    [UsedImplicitly] public List<int> Path { get; set; } = [];
+    // The setter invalidates _current so the cache never returns a stale result if Path
+    // is reassigned (e.g. by the JSON deserializer on a new instance).
+    [UsedImplicitly]
+    public List<int> Path
+    {
+        get => _path;
+        set { _path = value; _current = null; }
+    }
 
     // Cached result of walking Path from the root. Invalidated whenever Path mutates.
-    [Newtonsoft.Json.JsonIgnore] private MenuItem? _current;
+    [JsonIgnore] private MenuItem? _current;
 
     // Computed from Path; cached so repeated accesses within one method call don't
     // re-allocate a fresh child list at every level.
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     public MenuItem CurrentItem => _current ??= BuildCurrentItem();
 
     private MenuItem BuildCurrentItem()
