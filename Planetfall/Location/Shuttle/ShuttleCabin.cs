@@ -17,7 +17,7 @@ public abstract class ShuttleCabin : LocationWithNoStartingItems
     protected override IReadOnlyList<SceneryItem> Scenery =>
     [
         new(["seating", "seat", "seats", "freight", "cargo"],
-            "Rows of seating for a couple of dozen passengers, with open space at the back for freight. ",
+            "There is seating for a couple of dozen passengers, with open space at the back for freight. ",
             "The seats are bolted to the cabin floor. ")
     ];
 }

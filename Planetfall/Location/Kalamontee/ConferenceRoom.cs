@@ -38,7 +38,7 @@ internal class ConferenceRoom : LocationBase
     protected override IReadOnlyList<SceneryItem> Scenery =>
     [
         new(["conference table", "round conference table", "table"],
-            "A large round conference table dominates the room. Whatever meetings it once hosted are long over. ",
+            "It's a large, round conference table. ",
             "The conference table is far too large to take. ")
     ];
 

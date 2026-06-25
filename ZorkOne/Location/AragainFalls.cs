@@ -35,7 +35,7 @@ public class AragainFalls : LocationWithNoStartingItems
     protected override IReadOnlyList<SceneryItem> Scenery =>
     [
         new(["waterfall", "falls", "aragain falls"],
-            "An enormous waterfall, a good four hundred and fifty feet from lip to river. The spray hangs in the air as a rainbow. ",
+            "The waterfall drops a good four hundred and fifty feet to the river below, its spray hanging in the air as a rainbow. ",
             "You can't take the waterfall. ")
     ];
 

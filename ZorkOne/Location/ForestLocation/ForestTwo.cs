@@ -4,7 +4,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location.ForestLocation;
 
-public class ForestTwo : LocationWithNoStartingItems
+public class ForestTwo : ForestBase
 {
     public override string Name => "Forest";
 
@@ -33,11 +33,4 @@ public class ForestTwo : LocationWithNoStartingItems
     {
         return "This is a dimly lit forest, with trees all around";
     }
-
-    protected override IReadOnlyList<SceneryItem> Scenery =>
-    [
-        new(["trees", "tree", "forest"],
-            "Tall forest trees crowd close on every side, dimming the light. ",
-            "The trees are far too firmly rooted to take. ")
-    ];
 }
