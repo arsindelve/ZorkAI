@@ -502,4 +502,19 @@ public class ComputerTerminalTests : EngineTestsBase
             "pressing 0 from a leaf should navigate up to the parent submenu, not feep");
         response.Should().NotContain(MenuState.NoEffect);
     }
+
+    [Test]
+    public void MenuState_Should_InvalidateCurrentItemCache_When_PathIsDirectlyReassigned()
+    {
+        // Prove that assigning Path directly (as the JSON deserializer does) invalidates
+        // the cached CurrentItem so the new path is reflected on next access.
+        var state = new MenuState();
+        state.GoDown(1); // navigate into History submenu; warms the cache
+        var before = state.CurrentItem;
+
+        state.Path = [2]; // direct reassignment — simulates JSON deserializer
+
+        state.CurrentItem.Should().NotBeSameAs(before,
+            "reassigning Path must invalidate the cache so CurrentItem reflects the new path");
+    }
 }
