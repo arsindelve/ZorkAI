@@ -324,6 +324,9 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         // grammar is OIL OBJECT WITH OBJECT (HAVE) — the (HAVE) flag requires the can be HELD, so
         // gate on context.HasItem<OilCan>() (matching the single-noun branch), not merely
         // GetItemInScope, which would also resolve a can sitting in the room.
+        // Both checks are needed and not redundant: GetItemInScope(NounTwo) is OilCan verifies the
+        // *named* indirect object is the can (so "oil floyd with sword" is rejected even while a can
+        // is held), and HasItem<OilCan>() enforces the (HAVE) flag (the can must be in inventory).
         if (action.MatchVerb(Verbs.OilVerbs) && action.MatchNounOne(NounsForMatching) &&
             Repository.GetItemInScope(action.NounTwo, context) is OilCan && context.HasItem<OilCan>())
             return new PositiveInteractionResult(FloydConstants.Oil);

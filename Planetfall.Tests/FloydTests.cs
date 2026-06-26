@@ -220,6 +220,10 @@ public class FloydTests : EngineTestsBase
         var floyd = GetItem<Floyd>();
         floyd.HasDied = true;
         floyd.HasEverBeenOn = true;
+        // IsOn = true so the only thing blocking the thank-you is the HasDied gate in
+        // Floyd.RespondToSimpleInteraction (which returns to base before social handling).
+        // Without this, the !IsOn early-return in HandleSocialInteraction would mask the HasDied path.
+        floyd.IsOn = true;
         Take<OilCan>();
 
         var response = await target.GetResponse("oil floyd");
