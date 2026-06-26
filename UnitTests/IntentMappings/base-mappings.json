@@ -47,6 +47,8 @@
     { "inputs": ["open trap door"], "verb": "open", "noun": "trap door", "adverb": "" },
 
     { "inputs": ["play with floyd"], "verb": "play", "noun": "floyd" },
+    { "inputs": ["oil floyd"], "verb": "oil", "noun": "floyd" },
+    { "inputs": ["lubricate floyd"], "verb": "lubricate", "noun": "floyd" },
     { "inputs": ["cross the rainbow"], "verb": "cross", "noun": "rainbow" },
     { "inputs": ["drop the access card"], "verb": "drop", "noun": "access card" },
 
@@ -116,6 +118,8 @@
 
     { "inputs": ["put upper elevator access card in slot"], "verb": "put", "nounOne": "upper elevator access card", "nounTwo": "slot", "preposition": "in", "originalInput": "put upper elevator access card in slot" },
     { "inputs": ["put lower elevator access card in slot"], "verb": "put", "nounOne": "lower elevator access card", "nounTwo": "slot", "preposition": "in", "originalInput": "put lower elevator access card in slot" },
+
+    { "inputs": ["oil floyd with oil can"], "verb": "oil", "nounOne": "floyd", "nounTwo": "oil can", "preposition": "with", "originalInput": "oil floyd with oil can" },
 
     { "inputs": ["inflate plastic with pump"], "verb": "inflate", "nounOne": "boat", "nounTwo": "pump", "preposition": "with", "originalInput": "inflate plastic with pump" },
     { "inputs": ["unlock grate with the key"], "verb": "unlock", "nounOne": "grate", "nounTwo": "key", "preposition": "with", "originalInput": "unlock grate with the key" },

@@ -76,4 +76,10 @@ public static class Verbs
     ///     ones (e.g. Up A Tree). Centralized here so every location recognizes the same synonyms.
     /// </summary>
     public static readonly string[] JumpVerbs = ["jump", "leap"];
+
+    /// <summary>
+    ///     The "oil it" family — applying oil from the oil can. Centralized so Floyd's V-OIL flavor
+    ///     interaction (oiling a living Floyd thanks you) recognizes the same synonyms.
+    /// </summary>
+    public static readonly string[] OilVerbs = ["oil", "lubricate"];
 }

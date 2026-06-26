@@ -9,6 +9,7 @@ using Moq;
 using Planetfall.Item;
 using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Admin;
+using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Mech;
@@ -142,6 +143,72 @@ public class FloydTests : EngineTestsBase
         var response = await target.GetResponse("rub floyd");
 
         response.Should().Contain("contented sigh");
+    }
+
+    [Test]
+    public async Task OilFloyd()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        GetItem<Floyd>().IsOn = true;
+        Take<OilCan>();
+
+        var response = await target.GetResponse("oil floyd");
+
+        response.Should().Contain("thoughtfulness");
+    }
+
+    [Test]
+    public async Task LubricateFloyd()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        GetItem<Floyd>().IsOn = true;
+        Take<OilCan>();
+
+        var response = await target.GetResponse("lubricate floyd");
+
+        response.Should().Contain("thoughtfulness");
+    }
+
+    [Test]
+    public async Task OilFloyd_WithOilCan()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        GetItem<Floyd>().IsOn = true;
+        Take<OilCan>();
+
+        var response = await target.GetResponse("oil floyd with oil can");
+
+        response.Should().Contain("thoughtfulness");
+    }
+
+    [Test]
+    public async Task OilFloyd_WithoutOilCan()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("oil floyd");
+
+        response.Should().Contain("Oil it with what?");
+    }
+
+    [Test]
+    public async Task OilFloyd_Dead_DoesNotThank()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        Take<OilCan>();
+
+        var response = await target.GetResponse("oil floyd");
+
+        response.Should().NotContain("thoughtfulness");
     }
 
     [Test]

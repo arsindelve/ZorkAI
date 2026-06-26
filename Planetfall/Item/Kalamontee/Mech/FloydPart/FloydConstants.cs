@@ -22,6 +22,15 @@ public static class FloydConstants
     internal const string Rub =
         "Floyd gives a contented sigh. ";
 
+    // V-OIL (verbs.zil:1738-1757): oiling a living Floyd is a flavor thank-you.
+    internal const string Oil =
+        "Floyd thanks you for your thoughtfulness. ";
+
+    // V-OIL with no indirect object and no oil can in hand (verbs.zil:1738-1757):
+    // the original prompts for the instrument rather than oiling.
+    internal const string OilWithWhat =
+        "Oil it with what? ";
+
     internal const string MadAfterTurnOffAndBackOn =
         "Floyd jumps to his feet, hopping mad. \"Why you turn Floyd off?\" he asks accusingly.";
 
