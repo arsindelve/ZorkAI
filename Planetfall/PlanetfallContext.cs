@@ -55,7 +55,37 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
 
     [UsedImplicitly] public TiredLevel Tired { get; set; } = TiredLevel.WellRested;
 
-    [UsedImplicitly] public bool HasTakenExperimentalMedicine { get; set; }
+    /// <summary>
+    ///     Issue #116: the disease is a real death clock, not a cosmetic day-derived value. This mutable
+    ///     counter advances one level per day (in <see cref="SleepEngine"/> on waking), reaching 9 = death.
+    ///     The experimental medicine vial rolls it back two levels. It starts at 1 (== the opening Day), so
+    ///     an untreated player's level tracks the day and they still die on the original day-9 schedule;
+    ///     treating the disease decouples the two and pushes death back. Mirrors the original's
+    ///     SICKNESS-LEVEL (globals.zil:2330-2369).
+    /// </summary>
+    [UsedImplicitly] public int SicknessCounter { get; set; } = 1;
+
+    /// <summary>
+    ///     Base carrying capacity before any disease penalty. Mirrors the original's LOAD-ALLOWED default.
+    /// </summary>
+    private const int BaseLoadAllowed = 100;
+
+    /// <summary>
+    ///     Issue #116: each sick level above the first shaves 10 off the carrying capacity, mirroring the
+    ///     original daemon's `LOAD-ALLOWED -= 10` per sick day (globals.zil:2330). Drinking the medicine
+    ///     drops the sickness level by two, which restores 20 - exactly the original's `LOAD-ALLOWED += 20`
+    ///     (comptwo.zil:170-185).
+    /// </summary>
+    public int EffectiveLoadAllowed => BaseLoadAllowed - 10 * Math.Max(0, SicknessCounter - 1);
+
+    /// <summary>
+    ///     Issue #116: enforce the disease's carrying-capacity squeeze. Planetfall previously had no weight
+    ///     limit at all; now the effective limit shrinks as the player gets sicker.
+    /// </summary>
+    public override bool HaveRoomForItem(IItem item)
+    {
+        return CalculateTotalSize() + item.Size <= EffectiveLoadAllowed;
+    }
 
     /// <summary>
     /// Flag indicating that sleep was just processed this turn.
@@ -85,7 +115,9 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
     [UsedImplicitly]
     public HashSet<string> UsedFloydActionCommentPrompts { get; set; } = [];
 
-    public string SicknessDescription => ((SicknessLevel)Day).GetDescription();
+    // Issue #116: derive the health description from the mutable sickness counter, not the calendar day,
+    // so treating the disease actually changes how the player feels. Clamp into the enum's 1-8 range.
+    public string SicknessDescription => ((SicknessLevel)Math.Clamp(SicknessCounter, 1, 8)).GetDescription();
     
     [UsedImplicitly]
     public int CurrentTime => Repository.GetItem<Chronometer>().CurrentTime;
