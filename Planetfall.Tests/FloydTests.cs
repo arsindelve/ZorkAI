@@ -185,6 +185,22 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
+    public async Task OilFloyd_WithOilCan_NotHeld_DoesNotThank()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        GetItem<Floyd>().IsOn = true;
+        // The oil can is in the room but never picked up. The ZIL grammar is
+        // OIL OBJECT WITH OBJECT (HAVE) — the (HAVE) flag requires the can be held, so this
+        // must NOT give the thank-you even though the can resolves in scope.
+        GetLocation<RobotShop>().ItemPlacedHere(GetItem<OilCan>());
+
+        var response = await target.GetResponse("oil floyd with oil can");
+
+        response.Should().NotContain("thoughtfulness");
+    }
+
+    [Test]
     public async Task OilFloyd_WithoutOilCan()
     {
         var target = GetTarget();
