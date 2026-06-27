@@ -43,6 +43,12 @@ public class Balcony : LocationBase
         };
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["ocean", "ocean waters", "waters"], "The ocean stretches away to the horizon, far below. ",
+            "The ocean is well out of your reach. ")
+    ];
+
     public override void Init()
     {
         StartWithItem<Plaque>();

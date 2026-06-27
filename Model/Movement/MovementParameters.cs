@@ -1,4 +1,5 @@
 using Model.Interface;
+using Model.Item;
 using Model.Location;
 
 namespace Model.Movement;
@@ -51,7 +52,16 @@ public record MovementParameters
     public string WeightLimitFailureMessage { get; init; } = string.Empty;
 
     /// <summary>
-    /// An optional message to display as we transition to this location. 
+    /// An optional message to display as we transition to this location.
     /// </summary>
     public string? TransitionMessage { get; init; } = string.Empty;
+
+    /// <summary>
+    ///     The item — a door, window, grating, bulkhead — whose state gates this passage, if any.
+    ///     Declaring it lets "enter/exit &lt;door&gt;" resolve a noun to the direction that walks through
+    ///     it (see <c>DoorReroute</c> / <see cref="ILocation.DirectionGatedBy" />), instead of the
+    ///     engine guessing doorness from the item's type. Null for ungated passages or passages gated
+    ///     by something that isn't a nameable item (a weight limit, a room flag). (issue #262)
+    /// </summary>
+    public IItem? GatingItem { get; init; }
 }

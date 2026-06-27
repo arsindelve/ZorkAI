@@ -6,10 +6,26 @@ using Utilities;
 
 namespace Planetfall;
 
-public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
+public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISurvivalClockContext
 {
     [UsedImplicitly]
     public int Day { get; set; } = 1;
+
+    /// <summary>
+    ///     Issue #277: god-mode test affordance. When true, the sleep/fatigue clock is suspended -
+    ///     no tiredness escalation, warnings, or forced sleep - and the player is kept well-rested.
+    ///     Plain auto-property so it round-trips through the save/restore JSON like the rest of context state.
+    /// </summary>
+    [UsedImplicitly]
+    public bool SleepClockDisabled { get; set; }
+
+    /// <summary>
+    ///     Issue #277: god-mode test affordance. When true, the hunger/thirst clock is suspended -
+    ///     no hunger escalation, warnings, or starvation death - and the player is kept well-fed.
+    ///     Plain auto-property so it round-trips through the save/restore JSON like the rest of context state.
+    /// </summary>
+    [UsedImplicitly]
+    public bool HungerClockDisabled { get; set; }
 
     /// <summary>
     ///     Number of times the player has died. Preserved across death restarts.
@@ -39,7 +55,37 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
 
     [UsedImplicitly] public TiredLevel Tired { get; set; } = TiredLevel.WellRested;
 
-    [UsedImplicitly] public bool HasTakenExperimentalMedicine { get; set; }
+    /// <summary>
+    ///     Issue #116: the disease is a real death clock, not a cosmetic day-derived value. This mutable
+    ///     counter advances one level per day (in <see cref="SleepEngine"/> on waking), reaching 9 = death.
+    ///     The experimental medicine vial rolls it back two levels. It starts at 1 (== the opening Day), so
+    ///     an untreated player's level tracks the day and they still die on the original day-9 schedule;
+    ///     treating the disease decouples the two and pushes death back. Mirrors the original's
+    ///     SICKNESS-LEVEL (globals.zil:2330-2369).
+    /// </summary>
+    [UsedImplicitly] public int SicknessCounter { get; set; } = 1;
+
+    /// <summary>
+    ///     Base carrying capacity before any disease penalty. Mirrors the original's LOAD-ALLOWED default.
+    /// </summary>
+    private const int BaseLoadAllowed = 100;
+
+    /// <summary>
+    ///     Issue #116: each sick level above the first shaves 10 off the carrying capacity, mirroring the
+    ///     original daemon's `LOAD-ALLOWED -= 10` per sick day (globals.zil:2330). Drinking the medicine
+    ///     drops the sickness level by two, which restores 20 - exactly the original's `LOAD-ALLOWED += 20`
+    ///     (comptwo.zil:170-185).
+    /// </summary>
+    public int EffectiveLoadAllowed => BaseLoadAllowed - 10 * Math.Max(0, SicknessCounter - 1);
+
+    /// <summary>
+    ///     Issue #116: enforce the disease's carrying-capacity squeeze. Planetfall previously had no weight
+    ///     limit at all; now the effective limit shrinks as the player gets sicker.
+    /// </summary>
+    public override bool HaveRoomForItem(IItem item)
+    {
+        return CalculateTotalSize() + item.Size <= EffectiveLoadAllowed;
+    }
 
     /// <summary>
     /// Flag indicating that sleep was just processed this turn.
@@ -69,7 +115,9 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
     [UsedImplicitly]
     public HashSet<string> UsedFloydActionCommentPrompts { get; set; } = [];
 
-    public string SicknessDescription => ((SicknessLevel)Day).GetDescription();
+    // Issue #116: derive the health description from the mutable sickness counter, not the calendar day,
+    // so treating the disease actually changes how the player feels. Clamp into the enum's 1-8 range.
+    public string SicknessDescription => ((SicknessLevel)Math.Clamp(SicknessCounter, 1, 8)).GetDescription();
     
     [UsedImplicitly]
     public int CurrentTime => Repository.GetItem<Chronometer>().CurrentTime;
@@ -101,12 +149,24 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
 
         var messages = string.Empty;
 
-        // Check for sleep events (voluntary or forced)
-        var sleepMessage = SleepEngine.CheckForSleep(this);
-        if (!string.IsNullOrEmpty(sleepMessage))
+        // Issue #277: when the sleep clock is disabled (god-mode test affordance) we never check for
+        // voluntary/forced sleep, and we keep the player well-rested so an already-tired session is
+        // immediately relieved. We also cancel any pending fall-asleep so the player can't get stuck
+        // in a bed they entered before flipping the toggle.
+        if (SleepClockDisabled)
         {
-            SleepJustOccurred = true;
-            return sleepMessage + base.ProcessBeginningOfTurn();
+            Tired = TiredLevel.WellRested;
+            SleepNotifications.CancelFallAsleep();
+        }
+        else
+        {
+            // Check for sleep events (voluntary or forced)
+            var sleepMessage = SleepEngine.CheckForSleep(this);
+            if (!string.IsNullOrEmpty(sleepMessage))
+            {
+                SleepJustOccurred = true;
+                return sleepMessage + base.ProcessBeginningOfTurn();
+            }
         }
 
         // Check for sickness notifications
@@ -116,47 +176,60 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext
             messages += sicknessNotification;
         }
 
-        // Check if sleep level should advance
-        var nextTiredLevel = SleepNotifications.GetNextTiredLevel(CurrentTime, Tired);
-        if (nextTiredLevel.HasValue)
+        // Check if sleep level should advance (skipped entirely when the sleep clock is disabled - issue #277)
+        if (!SleepClockDisabled)
         {
-            // Get notification BEFORE advancing level
-            var sleepNotification = SleepNotifications.GetNotification(CurrentTime, Tired);
-
-            Tired = nextTiredLevel.Value;
-
-            // Add notification message (with newline separator if sickness notification also fired)
-            if (!string.IsNullOrEmpty(sleepNotification))
+            var nextTiredLevel = SleepNotifications.GetNextTiredLevel(CurrentTime, Tired);
+            if (nextTiredLevel.HasValue)
             {
-                if (!string.IsNullOrEmpty(messages))
-                    messages += "\n";
-                messages += sleepNotification;
+                // Get notification BEFORE advancing level
+                var sleepNotification = SleepNotifications.GetNotification(CurrentTime, Tired);
+
+                Tired = nextTiredLevel.Value;
+
+                // Add notification message (with newline separator if sickness notification also fired)
+                if (!string.IsNullOrEmpty(sleepNotification))
+                {
+                    if (!string.IsNullOrEmpty(messages))
+                        messages += "\n";
+                    messages += sleepNotification;
+                }
             }
         }
 
-        // Check if hunger level should advance
-        var nextHungerLevel = HungerNotifications.GetNextHungerLevel(CurrentTime, Hunger);
-        if (nextHungerLevel.HasValue)
+        // Issue #277: when the hunger clock is disabled (god-mode test affordance) we skip all hunger
+        // escalation and the starvation death, and keep the player well-fed so an already-hungry
+        // session is immediately relieved.
+        if (HungerClockDisabled)
         {
-            // Get notification BEFORE advancing level (so it returns notification for the new level)
-            var hungerNotification = HungerNotifications.GetNotification(CurrentTime, Hunger);
-
-            Hunger = nextHungerLevel.Value;
-
-            // Check for death
-            if (Hunger == HungerLevel.Dead)
+            Hunger = HungerLevel.WellFed;
+        }
+        else
+        {
+            // Check if hunger level should advance
+            var nextHungerLevel = HungerNotifications.GetNextHungerLevel(CurrentTime, Hunger);
+            if (nextHungerLevel.HasValue)
             {
-                var deathResult = new DeathProcessor().Process(
-                    "You collapse from extreme thirst and hunger.", this);
-                return messages + "\n" + deathResult.InteractionMessage;
-            }
+                // Get notification BEFORE advancing level (so it returns notification for the new level)
+                var hungerNotification = HungerNotifications.GetNotification(CurrentTime, Hunger);
 
-            // Add notification message (with newline separator if sickness notification also fired)
-            if (!string.IsNullOrEmpty(hungerNotification))
-            {
-                if (!string.IsNullOrEmpty(messages))
-                    messages += "\n";
-                messages += hungerNotification;
+                Hunger = nextHungerLevel.Value;
+
+                // Check for death
+                if (Hunger == HungerLevel.Dead)
+                {
+                    var deathResult = new DeathProcessor().Process(
+                        "You collapse from extreme thirst and hunger.", this);
+                    return messages + "\n" + deathResult.InteractionMessage;
+                }
+
+                // Add notification message (with newline separator if sickness notification also fired)
+                if (!string.IsNullOrEmpty(hungerNotification))
+                {
+                    if (!string.IsNullOrEmpty(messages))
+                        messages += "\n";
+                    messages += hungerNotification;
+                }
             }
         }
 

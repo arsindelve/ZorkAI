@@ -1,5 +1,6 @@
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
+using Model.Intent;
 using Model.Interface;
 using Model.Item;
 using Model.Location;
@@ -28,11 +29,22 @@ internal class EnterSubLocationEngine : IIntentEngine
         }
 
         if (subLocation is not ISubLocation subLocationInstance)
-            return (null, await GetGeneratedCantGoThatWayResponse(generationClient, context, enter.Noun));
+        {
+            // The noun resolved to a real, in-scope item that isn't a sub-location (issue #262). If
+            // it's the door gating one of this room's exits, "enter <door>" means "go through it" -
+            // so the bare noun "pod" behaves like the full phrase "escape pod" (a Move), instead of a
+            // generic refusal the narrator dresses up as a mock. See DoorReroute.
+            var reroute = await DoorReroute.TryTraverse(subLocation, context, generationClient);
+            if (reroute is not null)
+                return reroute.Value;
+
+            // Not a door - you simply can't enter it. Say so plainly rather than mocking a valid noun.
+            return (null, "You can't enter that. ");
+        }
 
         if (context.CurrentLocation.SubLocation == subLocationInstance)
             return (null, $"You're already in the {enter.Noun}. ");
-        
+
         return (null, subLocationInstance.GetIn(context));
     }
 

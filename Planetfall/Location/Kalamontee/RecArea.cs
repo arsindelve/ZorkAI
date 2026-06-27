@@ -14,18 +14,21 @@ internal class RecArea : LocationBase
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
+        // The conference room door gates the passage north back to the Conference Room. Declaring it
+        // as the GatingItem lets "enter/exit door" resolve to this exit (DoorReroute). (issue #262)
+        var doorPassage = new MovementParameters
+        {
+            GatingItem = Door,
+            CanGo = _ => Door.IsOpen,
+            Location = GetLocation<ConferenceRoom>(),
+            CustomFailureMessage = "The door is closed. "
+        };
+
         return new Dictionary<Direction, MovementParameters>
         {
             { Direction.S, Go<PlainHall>() },
             { Direction.E, Go<RecCorridor>() },
-            {
-                Direction.N, new MovementParameters
-                {
-                    CanGo = _ => Door.IsOpen,
-                    Location = GetLocation<ConferenceRoom>(),
-                    CustomFailureMessage = "The door is closed. "
-                }
-            }
+            { Direction.N, doorPassage }
         };
     }
 

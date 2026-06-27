@@ -14,6 +14,16 @@ public class Cellar : DarkLocation
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
+        // The trap door gates the passage up to the living room. Declaring it as the GatingItem lets
+        // "enter/exit trap door" resolve to this exit (DoorReroute), no In alias needed. (issue #262)
+        var trapDoorPassage = new MovementParameters
+        {
+            GatingItem = GetItem<TrapDoor>(),
+            CanGo = _ => GetItem<TrapDoor>().IsOpen,
+            CustomFailureMessage = "The trap door is closed. ",
+            Location = GetLocation<LivingRoom>()
+        };
+
         return new Dictionary<Direction, MovementParameters>
         {
             {
@@ -30,15 +40,7 @@ public class Cellar : DarkLocation
                     CustomFailureMessage = "You try to ascend the ramp, but it is impossible, and you slide back down."
                 }
             },
-            {
-                Direction.Up,
-                new MovementParameters
-                {
-                    CanGo = _ => GetItem<TrapDoor>().IsOpen,
-                    CustomFailureMessage = "The trap door is closed. ",
-                    Location = GetLocation<LivingRoom>()
-                }
-            }
+            { Direction.Up, trapDoorPassage }
         };
     }
 

@@ -435,12 +435,15 @@ public class SleepEngineTests : EngineTestsBase
         var pfContext = target.Context;
         StartHere<BedLocation>();
 
+        // Issue #116: death is now driven by the sickness counter reaching 9, not the calendar day.
+        // Untreated, the counter tracks the day, so the ninth night still kills the player.
         pfContext.Day = 8;
+        pfContext.SicknessCounter = 8;
         pfContext.SleepNotifications.QueueFallAsleep(pfContext.CurrentTime);
 
         var result = SleepEngine.ProcessFallAsleep(pfContext);
 
-        result.Should().Contain("don't seem to have survived the night");
+        result.Should().Contain("You finally succumb to the ravages of your illness and collapse.");
         result.Should().Contain("You have died");
     }
 

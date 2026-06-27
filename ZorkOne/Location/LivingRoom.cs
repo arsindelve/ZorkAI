@@ -30,6 +30,20 @@ public class LivingRoom : LocationBase
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
+        // The trap door gates the passage down to the Cellar. Declaring it as the GatingItem lets
+        // "enter/exit trap door" resolve to this exit (DoorReroute), no In alias needed. (issue #262)
+        var trapDoorPassage = new MovementParameters
+        {
+            GatingItem = Repository.GetItem<TrapDoor>(),
+            Location = GetLocation<Cellar>(),
+            CanGo = _ =>
+                Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>() &&
+                Repository.GetItem<TrapDoor>().IsOpen,
+            CustomFailureMessage = Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>()
+                ? "The trap door is closed."
+                : "You can't go that way."
+        };
+
         return new Dictionary<Direction, MovementParameters>
         {
             {
@@ -44,26 +58,19 @@ public class LivingRoom : LocationBase
                     Location = GetLocation<StrangePassage>()
                 }
             },
-            {
-                Direction.Down,
-                new MovementParameters
-                {
-                    Location = GetLocation<Cellar>(),
-                    CanGo = _ =>
-                        Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>() &&
-                        Repository.GetItem<TrapDoor>().IsOpen,
-                    CustomFailureMessage = Repository.GetLocation<LivingRoom>().HasItem<TrapDoor>()
-                        ? "The trap door is closed."
-                        : "You can't go that way."
-                }
-            }
+            { Direction.Down, trapDoorPassage }
         };
     }
 
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        string[] nouns = ["lettering", "engraving", "engravings", "door"];
+        // The room description calls this "strange gothic lettering". The AI parser often folds the
+        // adjective(s) into the noun (Noun = "gothic lettering"), so the bare "lettering" entry never
+        // matched and a player echoing the room's own wording got no response (issue #317). List the
+        // adjective forms explicitly so the natural command works.
+        string[] nouns =
+            ["lettering", "gothic lettering", "strange gothic lettering", "engraving", "engravings", "door"];
         string[] verbs = ["read", "examine"];
 
         if (action.Match(verbs, nouns))

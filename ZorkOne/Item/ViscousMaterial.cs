@@ -2,7 +2,7 @@ using GameEngine.Item;
 
 namespace ZorkOne.Item;
 
-public class ViscousMaterial : ItemBase, ICanBeTakenAndDropped
+public class ViscousMaterial : ItemBase, ICanBeTakenAndDropped, IAmATool
 {
     public override string[] NounsForMatching => ["viscous material", "viscous", "material", "gunk"];
 

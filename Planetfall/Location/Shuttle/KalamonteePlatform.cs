@@ -73,4 +73,11 @@ internal class KalamonteePlatform : FloydSpecialInteractionLocation
                 : "") +
             "A faded sign on the wall reads \"Shutul Platform -- Kalamontee Staashun.\"";
     }
+
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["sign", "faded sign"],
+            "The faded sign on the wall reads \"Shutul Platform -- Kalamontee Staashun.\" ",
+            "The sign is fixed to the wall. ")
+    ];
 }

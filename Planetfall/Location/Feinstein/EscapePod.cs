@@ -118,6 +118,8 @@ internal class EscapePod : LocationBase, ITurnBasedActor
                 Direction.Out,
                 new MovementParameters
                 {
+                    // "exit pod"/"exit door" resolves the bulkhead to this exit (DoorReroute). (#262)
+                    GatingItem = Repository.GetItem<BulkheadDoor>(),
                     Location = WhereDoesTheDoorLead,
                     CanGo = _ => Repository.GetItem<BulkheadDoor>().IsOpen,
                     CustomFailureMessage = "The pod door is closed. "

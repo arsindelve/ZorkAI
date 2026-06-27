@@ -33,6 +33,12 @@ public class Temple : LocationBase, IThiefMayVisit
                "The west wall is solid granite. The exit to the north end of the room is through huge marble pillars. ";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["granite wall", "granite"], "The west wall is solid granite — it isn't going anywhere. ",
+            "It's solid granite; good luck moving it. ")
+    ];
+
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client,
         IItemProcessorFactory itemProcessorFactory)
     {

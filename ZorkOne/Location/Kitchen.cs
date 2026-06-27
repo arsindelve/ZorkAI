@@ -19,10 +19,19 @@ public class Kitchen : LocationBase
                $"and to the east is a small window which is {(GetItem<KitchenWindow>().IsOpen ? "open" : "closed")}. ";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["table", "kitchen table"],
+            "An ordinary wooden table, recently used — by the look of it — to prepare a meal. ",
+            "The table is far too large and cumbersome to carry off. ")
+    ];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         var exit = new MovementParameters
         {
+            // "exit window" resolves the window to this exit (DoorReroute). (issue #262)
+            GatingItem = GetItem<KitchenWindow>(),
             CanGo = _ => GetItem<KitchenWindow>().IsOpen,
             CustomFailureMessage = "The kitchen window is closed.",
             Location = Repository.GetLocation<BehindHouse>()

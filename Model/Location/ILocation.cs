@@ -107,6 +107,14 @@ public interface ILocation
     MovementParameters? Navigate(Direction direction, IContext context);
 
     /// <summary>
+    ///     Returns the direction whose exit from here is gated by <paramref name="item" /> (its
+    ///     <see cref="MovementParameters.GatingItem" />), or null if no exit is gated by that item.
+    ///     This is how "enter/exit &lt;door&gt;" finds which way to walk: resolve the noun to an item,
+    ///     then ask which direction that item is the door for. (issue #262)
+    /// </summary>
+    Direction? DirectionGatedBy(IItem item, IContext context);
+
+    /// <summary>
     ///     Checks if the specified item type is present in the current location.
     /// </summary>
     /// <typeparam name="T">The type of item to check for.</typeparam>

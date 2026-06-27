@@ -408,8 +408,14 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         return null;
     }
 
-    public bool ItIsDarkHere =>
+    public virtual bool ItIsDarkHere =>
         CurrentLocation is IDarkLocation { IsNoLongerDark: false } && !HasLightSource;
+
+    /// <summary>
+    ///     By default the context does not intercept raw player commands. Game-specific contexts
+    ///     (e.g. Zork's spirit/DEAD state) override this to take over the turn (issue #17).
+    /// </summary>
+    public virtual string? InterceptPlayerCommand(string? input) => null;
 
     public void RegisterActor(ITurnBasedActor actor)
     {

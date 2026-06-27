@@ -22,7 +22,8 @@ internal class MedicineBottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped
                    : "");
     }
 
-    // TODO: The medicine bottle is now empty.
+    // Issue #116: drinking the medicine is one-shot - the engine destroys the Medicine on consumption,
+    // so Items.Any() goes false and the descriptions above stop mentioning the contents (empty bottle).
 
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {

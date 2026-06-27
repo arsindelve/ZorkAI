@@ -41,6 +41,13 @@ internal class RepairRoom : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHere
             "stairway leads upward. On the north wall of the room is a very small doorway. ";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["machines", "machine", "strange machines"],
+            "The machines are strange and silent, their purpose well beyond your guessing. ",
+            "The machines are bolted to the floor. ")
+    ];
+
     public override void Init()
     {
         StartWithItem<BrokenRobot>();

@@ -16,8 +16,6 @@ internal class MainMenu : MenuItem
                                              6. Inturlajik Gaamz
                                          """;
 
-    internal override MenuItem? Parent => null;
-
     internal override List<MenuItem> Children =>
     [
         new HistoryMenu(),

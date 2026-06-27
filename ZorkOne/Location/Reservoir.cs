@@ -43,7 +43,10 @@ public class Reservoir : DarkLocation, ITurnBasedActor
         return new Dictionary<Direction, MovementParameters>
         {
             { Direction.S, new MovementParameters { Location = GetLocation<ReservoirSouth>() } },
-            { Direction.N, new MovementParameters { Location = GetLocation<ReservoirNorth>() } }
+            { Direction.N, new MovementParameters { Location = GetLocation<ReservoirNorth>() } },
+            // ZIL RESERVOIR: UP and WEST both lead up the stream into the optional Stream branch.
+            { Direction.Up, new MovementParameters { Location = GetLocation<InStream>() } },
+            { Direction.W, new MovementParameters { Location = GetLocation<InStream>() } }
         };
     }
 
@@ -52,6 +55,13 @@ public class Reservoir : DarkLocation, ITurnBasedActor
         return
             "You are on what used to be a large lake, but which is now a large mud pile. There are \"shores\" to the north and south.";
     }
+
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["mud", "mud pile"],
+            "What was once a lake is now a vast expanse of drying mud. ",
+            "You could scoop up a handful, but to what end? ")
+    ];
 
     public override void Init()
     {

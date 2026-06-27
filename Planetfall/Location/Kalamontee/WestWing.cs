@@ -19,4 +19,13 @@ public class WestWing : LocationWithNoStartingItems
         return "This was once the west wing of the castle, but the walls are now mostly rubble, " +
                "allowing a view of the cliff and ocean below. Rubble blocks all exits save one, eastward to the courtyard. ";
     }
+
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["castle", "castle wing", "west wing", "wing"],
+            "What remains of the old castle wing has decayed into rubble and ruin. ",
+            "It's a ruined wall, not something you can carry off. "),
+        new(["ocean", "cliff"], "Beyond the broken wall, the cliff drops away to the ocean far below. ",
+            "It's well beyond your reach. ")
+    ];
 }

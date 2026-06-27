@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.RegularExpressions;
 using ChatLambda;
 using CloudWatch;
 using CloudWatch.Model;
@@ -344,6 +345,27 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     }
 
     /// <summary>
+    ///     Rewrites a leading "look at &lt;noun&gt;" into the canonical "examine &lt;noun&gt;" so it routes
+    ///     through the examine-with-noun path instead of collapsing to the bare-room LOOK command
+    ///     (issues #312 / #283). Only the exact "look at " prefix followed by a noun is rewritten — bare
+    ///     "look"/"look around" and other "look &lt;preposition&gt;" phrases (e.g. "look under the rug",
+    ///     "look in the box") are intentionally left alone.
+    /// </summary>
+    internal static string? NormalizeLookAt(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return input;
+
+        const string prefix = "look at ";
+        var trimmed = input.TrimStart();
+        if (!trimmed.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            return input;
+
+        var noun = trimmed[prefix.Length..].Trim();
+        return string.IsNullOrEmpty(noun) ? input : "examine " + noun;
+    }
+
+    /// <summary>
     ///     Processes a single sentence/command through the game engine.
     /// </summary>
     private async Task<string?> ProcessSingleSentence(string? playerInput)
@@ -367,6 +389,17 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (string.IsNullOrEmpty(playerInput))
             return PostProcessing(await GetGeneratedNoCommandResponse());
 
+        // 2b. ------- "look at <noun>" is an examine synonym, not the bare-room LOOK command. The AI
+        // parser (rule (f) in the system prompt) collapses "look at X" to a noun-less look intent for
+        // single-word nouns, re-describing the room instead of the object (issues #312 / #283). Rewrite
+        // it to the canonical "examine <noun>" here so it routes through the examine-with-noun path,
+        // while leaving the bare forms ("look", "look around") and other "look <prep>" phrases
+        // ("look under the rug", "look in the box") untouched. Note: because this runs before pronoun
+        // resolution and the LastInput capture below, a subsequent "again"/"g" replays "look at X" as
+        // "examine X" — harmless, since both produce the same examination output.
+        playerInput = NormalizeLookAt(playerInput);
+        _currentInput = playerInput;
+
         Context.PreviousLocationName = LocationName;
 
         // 3. ------- System, or "meta" commands - like save, restore, quit, verbose etc. Does not count as a turn. No actor or turn processing.
@@ -376,6 +409,14 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             var globalResult = await ProcessGlobalCommandIntent(global);
             return PostProcessing(globalResult);
         }
+
+        // 3b. ------- Context-level command override. Lets a game-specific context fully handle the
+        // raw command before normal parsing — used by Zork's spirit/DEAD state, which overrides most
+        // verbs with canned ghost responses while letting movement and resurrection fall through by
+        // returning null (issue #17). Does not count as a turn; no actor or end-of-turn processing.
+        var contextOverride = Context.InterceptPlayerCommand(playerInput);
+        if (contextOverride is not null)
+            return PostProcessing(contextOverride);
 
         // Everything below here counts as a turn. Pre-process the turn.
         // See if the context needs to notify us of anything. Are we sleepy? Hungry?
@@ -399,8 +440,15 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (returnResponseFromAgainProcessor)
             return PostProcessing(_currentInput);
 
-        // Resolve pronouns from recent player input and game response (BEFORE ItProcessor)
-        if (!string.IsNullOrEmpty(Context.LastInput) || !string.IsNullOrEmpty(Context.LastResponse))
+        // Resolve pronouns from recent player input and game response (BEFORE ItProcessor), UNLESS a
+        // just-completed move left the deterministic engine holding a still-carried antecedent for
+        // this pronoun. After a move, LastInput is the movement command ("north") and LastResponse is
+        // the destination room's description, so the AI resolver would re-bind "it"/"them" to a noun
+        // in the NEW room and lose the carried-item antecedent that MoveEngine deliberately preserved
+        // across the move (issues #248 / #275). In that case we defer to the deterministic ItProcessor
+        // below, which resolves the pronoun from the preserved LastNoun/LastNouns.
+        if (!MoveJustClobberedPronounContext(_currentInput!, Context)
+            && (!string.IsNullOrEmpty(Context.LastInput) || !string.IsNullOrEmpty(Context.LastResponse)))
         {
             var resolved = await _parser.ResolvePronounsAsync(_currentInput!, Context.LastInput, Context.LastResponse);
             if (resolved != null && !resolved.Equals(_currentInput, StringComparison.OrdinalIgnoreCase))
@@ -477,6 +525,39 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         // Put it all together for return.
         return await ProcessActorsAndContextEndOfTurn(contextPrepend, complexIntentResult.ResultMessage);
+    }
+
+    /// <summary>
+    ///     True when the immediately preceding command was a movement and the player's current command
+    ///     uses "it"/"them" with a still-carried antecedent that <see cref="MoveEngine" /> preserved
+    ///     across that move (issue #248). When this holds we must NOT run the AI pronoun resolver: right
+    ///     after a move its only context is the movement command (LastInput) and the destination room's
+    ///     description (LastResponse), so it re-binds the pronoun to a noun in the NEW room and the
+    ///     carried-item antecedent is lost (issue #275 — "the invisible gangway"). The deterministic
+    ///     <see cref="ItProcessor" /> downstream resolves the pronoun from LastNoun/LastNouns instead.
+    ///
+    ///     The check is deliberately scoped to the post-move case so the AI resolver keeps its value for
+    ///     every other turn — semantic rewrites like "put it on" -> "wear X", resolving from response
+    ///     narration, the other pronouns (him/her/that/...), and so on.
+    /// </summary>
+    private static bool MoveJustClobberedPronounContext(string input, IContext context)
+    {
+        // "the move is the trigger": only defer to the preserved antecedent when the previous command
+        // (now sitting in LastInput) was itself a movement. Any non-move command refreshes LastInput
+        // with a real noun phrase, which is exactly what the AI resolver needs to work correctly.
+        if (!DirectionParser.IsDirection(context.LastInput, out _))
+            return false;
+
+        // Only "it"/"them" are resolved deterministically from LastNoun/LastNouns; for any other
+        // pronoun (him, her, that, ...) the AI resolver is the only thing that can help, so let it run.
+        if (Regex.IsMatch(input, @"\bit\b", RegexOptions.IgnoreCase))
+            return !string.IsNullOrEmpty(context.LastNoun) &&
+                   context.HasMatchingNoun(context.LastNoun).HasItem;
+
+        if (Regex.IsMatch(input, @"\bthem\b", RegexOptions.IgnoreCase))
+            return context.LastNouns.Any(noun => context.HasMatchingNoun(noun).HasItem);
+
+        return false;
     }
 
     public IContext RestoreGame(string data)

@@ -9,19 +9,22 @@ internal class MessCorridor : LocationBase
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
+        // The mess door gates the passage north to Storage West. Declaring it as the GatingItem lets
+        // "enter/exit door" resolve to this exit (DoorReroute). (issue #262)
+        var doorPassage = new MovementParameters
+        {
+            GatingItem = Repository.GetItem<MessDoor>(),
+            Location = Repository.GetLocation<StorageWest>(),
+            CanGo = _ => Repository.GetItem<MessDoor>().IsOpen,
+            CustomFailureMessage = Repository.GetItem<MessDoor>().IsOpen ? "" : "The door is closed. "
+        };
+
         return new Dictionary<Direction, MovementParameters>
         {
             { Direction.E, Go<DormCorridor>() },
             { Direction.S, Go<MessHall>() },
             { Direction.W, Go<RecCorridor>() },
-            {
-                Direction.N, new MovementParameters
-                {
-                    Location = Repository.GetLocation<StorageWest>(),
-                    CanGo = _ => Repository.GetItem<MessDoor>().IsOpen,
-                    CustomFailureMessage = Repository.GetItem<MessDoor>().IsOpen ? "" : "The door is closed. "
-                }
-            }
+            { Direction.N, doorPassage }
         };
     }
 

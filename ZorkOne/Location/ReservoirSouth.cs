@@ -19,6 +19,13 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
 
     public int FillingCountDown { get; set; }
 
+    /// <summary>
+    /// Whether the reservoir is currently low enough to walk across to the opposite shore — the ZIL
+    /// LOW-TIDE gate (zork1/1dungeon.zil). Owned here because this room holds the fill state; both shores
+    /// read it so their "you would drown" barriers stay symmetric (issue #87).
+    /// </summary>
+    public bool CanCross => IsDrained || (IsFilling && !IsFull);
+
     public override string Name => "Reservoir South";
 
     // No "lake" alias here: it is shared with the central Reservoir and Reservoir North, and from the
@@ -71,11 +78,15 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
             { Direction.SW, new MovementParameters { Location = GetLocation<Chasm>() } },
             { Direction.SE, new MovementParameters { Location = GetLocation<DeepCanyon>() } },
             { Direction.E, new MovementParameters { Location = GetLocation<Dam>() } },
+            // ZIL RESERVOIR-SOUTH: WEST follows the stream to Stream View (unconditional). This also
+            // makes good on the "path along the stream to the east or west" promised in the room's
+            // own description below, which was previously a dead pointer (issue #210).
+            { Direction.W, new MovementParameters { Location = GetLocation<StreamView>() } },
             {
                 Direction.N,
                 new MovementParameters
                 {
-                    CanGo = _ => IsDrained || (IsFilling && !IsFull), CustomFailureMessage = "You would drown.",
+                    CanGo = _ => CanCross, CustomFailureMessage = "You would drown.",
                     Location = GetLocation<Reservoir>()
                 }
             }
@@ -84,20 +95,25 @@ public class ReservoirSouth : DarkLocation, ITurnBasedActor
 
     protected override string GetContextBasedDescription(IContext context)
     {
-        return (IsFull && !IsFilling && !IsDraining
-                   ? "You are in a long room on the south shore of a large lake, far too deep and wide for crossing. "
-                   : "") +
-               (IsDrained && !IsDraining && !IsFilling
-                   ? "You are in a long room, to the north of which was formerly a lake. However, with the water level lowered, there is merely a wide stream running through the center of the room. "
-                   : "") +
-               (IsDraining
-                   ? "You are in a long room. To the north is a large lake, too deep to cross. You notice, however, that the water level appears to be dropping at a rapid rate. Before long, it might be possible to cross to the other side from here. "
-                   : "") +
-               (IsFilling
-                   ? "You are in a long room, to the north of which is a wide area which was formerly a reservoir, but now is merely a stream. You notice, however, that the level of the stream is rising quickly and that before long it will be impossible to cross here. "
-                   : "") +
-               "There is a path along the stream to the east or west, a steep pathway climbing southwest along the edge " +
-               "of a chasm, and a path leading into a canyon to the southeast.";
+        // A switch picks exactly one body, so the fill states can never double up. Order matters: during a
+        // refill the reservoir stays low-tide (IsDrained) until full (issue #233), so IsFilling must be
+        // checked before IsDrained. The default arm (full / indeterminate) describes deep, uncrossable
+        // water, matching the blocked CanCross gate so it can never contradict it. This mirrors the
+        // identical structure on ReservoirNorth (issue #87). The path exits are fixed, always appended.
+        var body = this switch
+        {
+            { IsFilling: true } =>
+                "You are in a long room, to the north of which is a wide area which was formerly a reservoir, but now is merely a stream. You notice, however, that the level of the stream is rising quickly and that before long it will be impossible to cross here.",
+            { IsDraining: true } =>
+                "You are in a long room. To the north is a large lake, too deep to cross. You notice, however, that the water level appears to be dropping at a rapid rate. Before long, it might be possible to cross to the other side from here.",
+            { IsDrained: true } =>
+                "You are in a long room, to the north of which was formerly a lake. However, with the water level lowered, there is merely a wide stream running through the center of the room.",
+            _ =>
+                "You are in a long room on the south shore of a large lake, far too deep and wide for crossing."
+        };
+
+        return body + " There is a path along the stream to the east or west, a steep pathway climbing " +
+               "southwest along the edge of a chasm, and a path leading into a canyon to the southeast.";
     }
 
     public override void Init()

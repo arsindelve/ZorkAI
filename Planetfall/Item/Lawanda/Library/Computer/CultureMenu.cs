@@ -29,13 +29,11 @@ internal class CultureMenu : MenuItem
                                       "Foor moor deetaald infoormaashun on xis tapik, konsult xe liibrereein foor xe aproopreeit spuulz. Tiip zeeroo tuu goo tuu aa hiiyur levul."
                                       """;
 
-    internal override MenuItem Parent => new MainMenu();
-
     internal override List<MenuItem> Children =>
     [
-        new() { Children = null, Parent = this, Text = MenuOne },
-        new() { Children = null, Parent = this, Text = MenuTwo },
-        new() { Children = null, Parent = this, Text = MenuThree }
+        new() { Children = null, Text = MenuOne },
+        new() { Children = null, Text = MenuTwo },
+        new() { Children = null, Text = MenuThree }
     ];
 
     internal override string Text => MainMenu;

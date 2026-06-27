@@ -492,4 +492,156 @@ public class EggAndCanaryTests : EngineTestsBase
 
         response.Should().Contain("It seems to have recently had a bad");
     }
+
+    [Test]
+    public async Task OpenEggWithStiletto()
+    {
+        // The stiletto is a WEAPONBIT item in the original (zork1/1dungeon.zil:895) and so should
+        // force the egg open, but the old code only accepted a hard-coded Sword/NastyKnife/Screwdriver trio.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
+        target.Context.ItemPlacedHere(Repository.GetItem<Stiletto>());
+
+        var response = await target.GetResponse("open the egg with the stiletto");
+        Console.WriteLine(response);
+
+        response
+            .Should()
+            .Contain(
+                "The egg is now open, but the clumsiness of your attempt has seriously compromised"
+            );
+        Repository.GetItem<Canary>().IsDestroyed.Should().BeTrue();
+        Repository.GetItem<Egg>().IsDestroyed.Should().BeTrue();
+        Repository.GetItem<Egg>().IsOpen.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task OpenEggWithWrench()
+    {
+        // The wrench is a TOOLBIT item in the original (zork1/1dungeon.zil:1135) and so should
+        // force the egg open. It is neither a weapon nor a previously-whitelisted tool, so this
+        // exercises the new IAmATool generalization.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
+        target.Context.ItemPlacedHere(Repository.GetItem<Wrench>());
+
+        var response = await target.GetResponse("open the egg with the wrench");
+        Console.WriteLine(response);
+
+        response
+            .Should()
+            .Contain(
+                "The egg is now open, but the clumsiness of your attempt has seriously compromised"
+            );
+        Repository.GetItem<Canary>().IsDestroyed.Should().BeTrue();
+        Repository.GetItem<Egg>().IsDestroyed.Should().BeTrue();
+        Repository.GetItem<Egg>().IsOpen.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task OpenEggWithLamp_DoesNotForceItOpen()
+    {
+        // The brass lantern has neither WEAPONBIT nor TOOLBIT in the original
+        // (zork1/1dungeon.zil LAMP: TAKEBIT LIGHTBIT only), so it must NOT force the egg open.
+        // Guards against the generalization becoming "any held item opens the egg".
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
+        target.Context.ItemPlacedHere(Repository.GetItem<Lantern>());
+
+        var response = await target.GetResponse("open the egg with the lamp");
+        Console.WriteLine(response);
+
+        response.Should().NotContain("seriously compromised");
+        Repository.GetItem<Egg>().IsDestroyed.Should().BeFalse();
+        Repository.GetItem<Egg>().IsOpen.Should().BeFalse();
+        Repository.GetItem<Canary>().IsDestroyed.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task OpenEggWithSceptre()
+    {
+        // The sceptre is a WEAPONBIT item in the original (zork1/1dungeon.zil:244), so it should
+        // force the egg open like any other weapon.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
+        target.Context.ItemPlacedHere(Repository.GetItem<Sceptre>());
+
+        var response = await target.GetResponse("open the egg with the sceptre");
+        Console.WriteLine(response);
+
+        response
+            .Should()
+            .Contain(
+                "The egg is now open, but the clumsiness of your attempt has seriously compromised"
+            );
+        Repository.GetItem<Canary>().IsDestroyed.Should().BeTrue();
+        Repository.GetItem<Egg>().IsDestroyed.Should().BeTrue();
+        Repository.GetItem<Egg>().IsOpen.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task ThrowEgg()
+    {
+        // The original THROW branch (zork1/1actions.zil:2950) opens the egg with damage and drops
+        // it into the room: "...succeeded in opening it." + BAD-EGG.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
+        target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
+
+        var response = await target.GetResponse("throw egg");
+        Console.WriteLine(response);
+
+        response.Should().Contain("succeeded in opening it");
+        Repository.GetItem<Egg>().IsDestroyed.Should().BeTrue();
+        Repository.GetItem<Egg>().IsOpen.Should().BeTrue();
+        Repository.GetItem<Canary>().IsDestroyed.Should().BeTrue();
+        Repository.GetItem<Egg>().CurrentLocation.Should().BeOfType<ForestPath>();
+    }
+
+    [Test]
+    public async Task ForceOpenAlreadyOpenEgg_DoesNotDamageTheIntactCanary()
+    {
+        // The thief opens the egg cleanly (IsOpen, canary intact). The original short-circuits any
+        // further open/force attempt with "already open" BEFORE the WEAPONBIT/TOOLBIT branch
+        // (zork1/1actions.zil:2920-2922: <COND (<FSET? ,PRSO ,OPENBIT> <TELL "The egg is already
+        // open.">) ...>), protecting the intact canary. Force-opening it must NOT wreck the canary.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
+        Repository.GetItem<Egg>().IsOpen = true; // thief already opened it, undamaged
+        target.Context.ItemPlacedHere(Repository.GetItem<Egg>());
+        target.Context.ItemPlacedHere(Repository.GetItem<Sword>());
+
+        var response = await target.GetResponse("open the egg with the sword");
+        Console.WriteLine(response);
+
+        response.Should().Contain("already open");
+        response.Should().NotContain("seriously compromised");
+        Repository.GetItem<Egg>().IsDestroyed.Should().BeFalse();
+        Repository.GetItem<Canary>().IsDestroyed.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task ThrowEgg_NotHeld_DoesNothing()
+    {
+        // You can only throw what you're holding. The simple-interaction dispatch offers the verb to
+        // room-resident items too, so the throw handler must verify possession before breaking the
+        // egg — otherwise "throw egg" wrecks an egg sitting untouched in the room.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestPath>();
+        Repository.GetLocation<ForestPath>().ItemPlacedHere(Repository.GetItem<Egg>()); // in the room, NOT inventory
+
+        var response = await target.GetResponse("throw egg");
+        Console.WriteLine(response);
+
+        response.Should().NotContain("succeeded in opening it");
+        response.Should().Contain("don't have");
+        Repository.GetItem<Egg>().IsDestroyed.Should().BeFalse();
+        Repository.GetItem<Egg>().IsOpen.Should().BeFalse();
+        Repository.GetItem<Canary>().IsDestroyed.Should().BeFalse();
+        Repository.GetItem<Egg>().CurrentLocation.Should().BeOfType<ForestPath>();
+    }
 }

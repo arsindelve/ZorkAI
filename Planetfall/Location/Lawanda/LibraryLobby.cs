@@ -28,6 +28,12 @@ internal class LibraryLobby : LocationBase
             "up a few steps, is a wide doorway. A small booth lies to the east. ";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["carpet", "carpeting", "rug"], "The carpet is thick with dust. ",
+            "The carpet is fitted to the floor. ")
+    ];
+
     public override void Init()
     {
         StartWithItem<ComputerTerminal>();

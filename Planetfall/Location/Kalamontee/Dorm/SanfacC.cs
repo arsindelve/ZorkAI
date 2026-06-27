@@ -1,5 +1,3 @@
-using GameEngine.Location;
-
 namespace Planetfall.Location.Kalamontee.Dorm;
 
 internal class SanfacC : SanfacBase

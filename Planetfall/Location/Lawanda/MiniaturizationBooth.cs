@@ -36,6 +36,16 @@ internal class MiniaturizationBooth : LocationBase
             "and next to it a keyboard with numeric keys. The exit is to the north. ";
     }
 
+    // The keyboard is described in the room prose but is not a discrete game object (it's scenery the
+    // booth handles via the type/press verbs above). Without this, "examine keyboard" fell through to
+    // the narrator, which falsely told the player the keyboard wasn't here (issue #315).
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["keyboard", "numeric keyboard", "keypad", "keys", "numeric keys"],
+            "It's a simple numeric keypad, its ten keys numbered zero through nine. ",
+            "The keyboard is mounted firmly to the wall. ")
+    ];
+
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {

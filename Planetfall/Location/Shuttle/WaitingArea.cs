@@ -22,4 +22,10 @@ public class WaitingArea : LocationWithNoStartingItems
             "This is a concrete platform sparsely furnished with benches. The platform continues to the east, " +
             "and to the south is a metal door. ";
     }
+
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["bench", "benches"], "The benches look distinctly uncomfortable. ",
+            "The benches are bolted to the platform. ")
+    ];
 }

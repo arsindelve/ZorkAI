@@ -35,4 +35,11 @@ public class Courtyard : LocationWithNoStartingItems
             _ => ""
         };
     }
+
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["castle", "edifice", "stone edifice", "ancient stone edifice", "ruin"],
+            "The old stonework is crumbling with age — more ruin than building now. ",
+            "It's a building, not something you can pick up. ")
+    ];
 }

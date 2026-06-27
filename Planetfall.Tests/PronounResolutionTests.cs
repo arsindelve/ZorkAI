@@ -1,6 +1,11 @@
+using System.Text.RegularExpressions;
 using FluentAssertions;
+using Planetfall.GlobalCommand;
+using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Lawanda.LabOffice;
+using Planetfall.Location.Kalamontee.Mech;
 using Planetfall.Location.Lawanda.LabOffice;
+using UnitTests;
 
 namespace Planetfall.Tests;
 
@@ -139,6 +144,80 @@ public class PronounResolutionTests : EngineTestsBase
 
             Context.HasItem<Memo>().Should().BeFalse(
                 because: "Memo should be dropped after 'drop it'");
+        }
+    }
+
+    /// <summary>
+    /// Issue #275: in production, "it" lost its antecedent across movement for an item the player
+    /// was still carrying. The deterministic engine seam (MoveEngine preserves LastNoun, ItProcessor
+    /// resolves it) was already fixed by #248 and its unit test passes — but a production turn ALSO
+    /// runs the AI pronoun resolver first, and after a move that resolver only sees the movement
+    /// command (LastInput) and the destination room's description (LastResponse). It therefore
+    /// re-bound "it" to a noun in the NEW room and the carried-item antecedent was lost.
+    ///
+    /// The stock <see cref="TestParser"/> can't reproduce this (its heuristic returns null for the
+    /// post-move case, so the deterministic path always wins in tests). These tests drive the same
+    /// path prod uses with a resolver that deliberately mimics the production failure mode.
+    /// </summary>
+    [TestFixture]
+    public class ItAcrossMovementWithAiResolver : PronounResolutionTests
+    {
+        /// <summary>
+        /// Models the production gpt-4o-mini pronoun resolver after a move: it re-binds "it" to a
+        /// noun from the new room (here a fixed decoy, echoing the issue's "invisible gangway")
+        /// instead of honoring the carried-item antecedent that #248 preserved. Subclasses the real
+        /// <see cref="TestParser"/> so every non-post-move turn still parses exactly as normal.
+        /// </summary>
+        private sealed class RebindsItToNewRoomAfterMoveParser(string decoyNoun)
+            : TestParser(new PlanetfallGlobalCommandFactory(), "Planetfall")
+        {
+            private static readonly HashSet<string> Directions = new(StringComparer.OrdinalIgnoreCase)
+            {
+                "north", "south", "east", "west", "up", "down", "in", "out",
+                "ne", "nw", "se", "sw", "n", "s", "e", "w", "u", "d",
+                "northeast", "northwest", "southeast", "southwest"
+            };
+
+            public override Task<string?> ResolvePronounsAsync(string input, string? lastInput, string? lastResponse)
+            {
+                // When the previous turn was a bare movement, the real resolver no longer has the
+                // carried item in its context and grabs a noun from the destination room instead.
+                if (Regex.IsMatch(input, @"\bit\b", RegexOptions.IgnoreCase)
+                    && Directions.Contains((lastInput ?? string.Empty).Trim()))
+                {
+                    return Task.FromResult<string?>(
+                        Regex.Replace(input, @"\bit\b", decoyNoun, RegexOptions.IgnoreCase));
+                }
+
+                return base.ResolvePronounsAsync(input, lastInput, lastResponse);
+            }
+        }
+
+        [Test]
+        public async Task DropIt_AfterMovingWithCarriedBar_StillDropsTheCarriedItem()
+        {
+            // Reproduces AB-020: take bar; examine it; <move>; drop it. The bar is carried the whole
+            // time, so "drop it" must still drop it after walking to the next room — even though the
+            // production AI resolver would otherwise re-bind "it" to the destination room.
+            var parser = new RebindsItToNewRoomAfterMoveParser("gangway");
+            var target = GetTarget(parser);
+
+            var toolRoom = StartHere<ToolRoom>();
+            var magnet = GetItem<Magnet>();
+            toolRoom.ItemPlacedHere(magnet);
+
+            await target.GetResponse("take bar");
+            Context.HasItem<Magnet>().Should().BeTrue("the player just picked up the bar");
+
+            await target.GetResponse("examine it"); // sets LastNoun = "bar"
+            await target.GetResponse("east");        // a real parsed move to the Machine Shop
+
+            var response = await target.GetResponse("drop it");
+
+            response.Should().Contain("Dropped",
+                "'it' still refers to the carried bar after a move (issues #248 / #275)");
+            Context.HasItem<Magnet>().Should().BeFalse(
+                "the carried bar should be dropped, not re-bound to a noun in the destination room");
         }
     }
 }

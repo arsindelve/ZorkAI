@@ -1,5 +1,6 @@
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
+using Model.Intent;
 using Model.Interface;
 using Model.Location;
 
@@ -38,7 +39,18 @@ internal class ExitSubLocationEngine : IIntentEngine
         }
 
         if (subLocation is not ISubLocation subLocationInstance)
-            return (null, await GetGeneratedCantGoThatWayResponse(generationClient, context, exit.NounOne));
+        {
+            // Symmetric to EnterSubLocationEngine (issue #262): "exit <door>" means "go through it",
+            // so "exit window" from the Kitchen leaves the same way "enter window" from Behind House
+            // arrives. From a given room a door gates one passage, so enter/exit traverse it
+            // identically - the map says which way. See DoorReroute.
+            var reroute = await DoorReroute.TryTraverse(subLocation, context, generationClient);
+            if (reroute is not null)
+                return reroute.Value;
+
+            // Not a door - you simply can't exit it. Say so plainly (matches the enter side, #262).
+            return (null, "You can't exit that. ");
+        }
 
         // Model 1: Parent location with SubLocation property set (e.g., ZorkOne boat)
         if (context.CurrentLocation.SubLocation == subLocationInstance)

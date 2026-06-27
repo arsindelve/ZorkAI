@@ -142,6 +142,107 @@ public class ConversationHandlerTests
         mockParser.Verify(p => p.ParseAsync("floyd, go north"), Times.Once);
     }
 
+    [TestCase("blather you are a fool", "you are a fool", TestName = "NoComma_Statement")]
+    [TestCase("blather, you are a fool", "you are a fool", TestName = "Comma_Statement")]
+    [TestCase("blather what should i do now", "what should i do now", TestName = "NoComma_Question")]
+    [TestCase("hey blather you fool", "you fool", TestName = "Opener_NoComma")]
+    [TestCase("ensign blather you fool", "you fool", TestName = "MultiWordName_NoComma")]
+    public async Task CheckForConversation_PresentTalker_NamedDirectAddress_RoutesEvenWhenClassifierSaysNo(
+        string input, string expectedRemainder)
+    {
+        // #286: addressing a PRESENT talkable NPC by name must engage them even when the
+        // nondeterministic classifier misfires and reports "not conversational". The deterministic
+        // backstop used to require a comma after the name, so the bare "blather you are a fool" form
+        // had no fallback and ~3-5% of the time deflected to a generic third-person narrator quip. It
+        // now mirrors the absent-NPC path and recognizes the leading-name form (bare, vocative, or
+        // behind a casual opener) without a comma, routing the text after the name to the character.
+        var mockParser = new Mock<IParseConversation>();
+        mockParser.Setup(p => p.ParseAsync(It.IsAny<string>())).ReturnsAsync((false, string.Empty));
+
+        var mockTalker = new Mock<ICanBeTalkedTo>();
+        mockTalker.As<IItem>().Setup(i => i.NounsForMatching).Returns(new[] { "blather", "ensign blather" });
+        mockTalker.Setup(t => t.OnBeingTalkedTo(It.IsAny<string>(), It.IsAny<IContext>(), It.IsAny<IGenerationClient>()))
+                  .ReturnsAsync("Blather sneers.");
+
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>());
+        var context = new ZorkIContext();
+        context.Items.Add((IItem)mockTalker.Object);
+
+        // Act
+        var result = await handler.CheckForConversation(input, context);
+
+        // Assert - engaged with the text after the leading name, not dropped to the narrator.
+        result.Should().Be("Blather sneers.");
+        mockTalker.Verify(
+            t => t.OnBeingTalkedTo(expectedRemainder, context, It.IsAny<IGenerationClient>()),
+            Times.Once);
+    }
+
+    [TestCase("robot you are broken", "you are broken", TestName = "Synonym_NoComma")]
+    [TestCase("the robot is broken", "is broken", TestName = "Synonym_WithLeadingArticle")]
+    public async Task CheckForConversation_PresentTalker_AddressedBySynonym_RoutesEvenWhenClassifierSaysNo(
+        string input, string expectedRemainder)
+    {
+        // #286: a present NPC answers to its synonyms too (Floyd IS the "robot", the Ambassador the
+        // "alien"). Leading with a synonym is direct address just like leading with the name, mirroring
+        // the absent path (see CheckForConversation_AbsentKnownTalker_GenericSynonymIsTreatedAsAddress).
+        // This is the one deliberate behavior change: such input used to fall through when the
+        // classifier said "no"; now it deterministically reaches the present NPC.
+        var mockParser = new Mock<IParseConversation>();
+        mockParser.Setup(p => p.ParseAsync(It.IsAny<string>())).ReturnsAsync((false, string.Empty));
+
+        var mockTalker = new Mock<ICanBeTalkedTo>();
+        mockTalker.As<IItem>().Setup(i => i.NounsForMatching).Returns(new[] { "floyd", "robot" });
+        mockTalker.Setup(t => t.OnBeingTalkedTo(It.IsAny<string>(), It.IsAny<IContext>(), It.IsAny<IGenerationClient>()))
+                  .ReturnsAsync("Floyd beeps.");
+
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>());
+        var context = new ZorkIContext();
+        context.Items.Add((IItem)mockTalker.Object);
+
+        // Act
+        var result = await handler.CheckForConversation(input, context);
+
+        // Assert
+        result.Should().Be("Floyd beeps.");
+        mockTalker.Verify(
+            t => t.OnBeingTalkedTo(expectedRemainder, context, It.IsAny<IGenerationClient>()),
+            Times.Once);
+    }
+
+    [TestCase("examine blather", TestName = "BareMention")]
+    [TestCase("look at blather", TestName = "LookAtMention")]
+    [TestCase("attack blather with the brush", TestName = "AttackMention")]
+    [TestCase("the lever near blather is stuck", TestName = "NameMidSentence")]
+    public async Task CheckForConversation_PresentTalker_NonAddress_DoesNotHijack(string input)
+    {
+        // #286 guard: the name is merely mentioned, not used to address the NPC. With the comma
+        // requirement relaxed, the leading-name check (after stripping an opener/article) must still
+        // decline these so a real command is not hijacked into the conversation handler. The classifier
+        // is consulted and (unconfigured) also says "not conversational", so the input falls through to
+        // normal parsing and the character is never engaged.
+        var mockParser = new Mock<IParseConversation>();
+        mockParser.Setup(p => p.ParseAsync(It.IsAny<string>())).ReturnsAsync((false, string.Empty));
+
+        var mockTalker = new Mock<ICanBeTalkedTo>();
+        mockTalker.As<IItem>().Setup(i => i.NounsForMatching).Returns(new[] { "blather" });
+        mockTalker.Setup(t => t.OnBeingTalkedTo(It.IsAny<string>(), It.IsAny<IContext>(), It.IsAny<IGenerationClient>()))
+                  .ReturnsAsync("should not be called");
+
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>());
+        var context = new ZorkIContext();
+        context.Items.Add((IItem)mockTalker.Object);
+
+        // Act
+        var result = await handler.CheckForConversation(input, context);
+
+        // Assert - not hijacked: the character is never engaged and the input falls through.
+        result.Should().BeNull();
+        mockTalker.Verify(
+            t => t.OnBeingTalkedTo(It.IsAny<string>(), It.IsAny<IContext>(), It.IsAny<IGenerationClient>()),
+            Times.Never);
+    }
+
     [Test]
     public async Task CheckForConversation_ReturnsResponse_WhenConversationDetected()
     {
@@ -642,5 +743,181 @@ public class ConversationHandlerTests
         // Assert
         result.Should().Be("gizmo talked");
         result.Should().NotContain("isn't here");
+    }
+
+    // --- #284: nameless conversational forms route to the SOLE present talker ------------------
+    // Bare quoted speech ("you are a fool") and an untargeted "say …"/greeting name no one, so the
+    // present-name and absent-name lookups both miss them. When exactly one talkable NPC is in the
+    // room they should reach that NPC anyway, the same outcome "blather, …" already produces.
+
+    /// <summary>Builds a handler with a single present mock talker that echoes a sentinel reply.</summary>
+    private static (ConversationHandler handler, ZorkIContext context, Mock<ICanBeTalkedTo> talker)
+        SinglePresentTalker(Mock<IParseConversation> mockParser, IGenerationClient client, string noun = "floyd")
+    {
+        var talker = new Mock<ICanBeTalkedTo>();
+        talker.As<IItem>().Setup(i => i.NounsForMatching).Returns(new[] { noun });
+        talker.Setup(t => t.OnBeingTalkedTo(It.IsAny<string>(), It.IsAny<IContext>(), It.IsAny<IGenerationClient>()))
+              .ReturnsAsync("npc replied");
+
+        var handler = new ConversationHandler(null, mockParser.Object, client);
+        var context = new ZorkIContext();
+        context.Items.Add((IItem)talker.Object);
+        return (handler, context, talker);
+    }
+
+    [TestCase("\"you are a fool\"", "you are a fool", TestName = "QuotedSpeech")]
+    [TestCase("  \"you are a fool\"  ", "you are a fool", TestName = "QuotedSpeechWithSurroundingWhitespace")]
+    [TestCase("“you are a fool”", "you are a fool", TestName = "SmartQuotedSpeech")]
+    [TestCase("\"you are a fool", "you are a fool", TestName = "UnterminatedQuotedSpeech")]
+    [TestCase("say hello", "hello", TestName = "UntargetedSay")]
+    [TestCase("say, hello", "hello", TestName = "UntargetedSayWithComma")]
+    [TestCase("shout get out", "get out", TestName = "UntargetedShout")]
+    [TestCase("say \"hello\"", "hello", TestName = "UntargetedSayQuoted")]
+    [TestCase("hello", "hello", TestName = "BareGreeting")]
+    public async Task CheckForConversation_NamelessSpeech_SinglePresentTalker_Routes(string input, string expectedSpoken)
+    {
+        // Arrange - the classifier is never consulted for the nameless path, so leaving it unset is
+        // deliberate (a call would throw on the strict-by-default mock).
+        var mockParser = new Mock<IParseConversation>();
+        var (handler, context, talker) = SinglePresentTalker(mockParser, Mock.Of<IGenerationClient>());
+
+        // Act
+        var result = await handler.CheckForConversation(input, context);
+
+        // Assert - the words inside the quotes / after the verb are what reaches the NPC.
+        result.Should().Be("npc replied");
+        talker.Verify(t => t.OnBeingTalkedTo(expectedSpoken, context, It.IsAny<IGenerationClient>()), Times.Once);
+        mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task CheckForConversation_NamelessSpeech_NoPresentTalker_ReturnsNull()
+    {
+        // Arrange - quoted speech but nobody is here and the roster is empty: must fall through.
+        var mockParser = new Mock<IParseConversation>();
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>());
+        var context = new ZorkIContext();
+
+        // Act
+        var result = await handler.CheckForConversation("\"you are a fool\"", context);
+
+        // Assert
+        result.Should().BeNull();
+        mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task CheckForConversation_NamelessSpeech_MultiplePresentTalkers_DoesNotRoute()
+    {
+        // Arrange - two talkers present and no name in the input: we cannot know who is addressed,
+        // so the ambiguous case falls through rather than guessing (issue allows this).
+        var mockParser = new Mock<IParseConversation>();
+
+        var floyd = new Mock<ICanBeTalkedTo>();
+        floyd.As<IItem>().Setup(i => i.NounsForMatching).Returns(new[] { "floyd" });
+        floyd.Setup(t => t.OnBeingTalkedTo(It.IsAny<string>(), It.IsAny<IContext>(), It.IsAny<IGenerationClient>()))
+             .ReturnsAsync("floyd replied");
+        var captain = new Mock<ICanBeTalkedTo>();
+        captain.As<IItem>().Setup(i => i.NounsForMatching).Returns(new[] { "captain" });
+        captain.Setup(t => t.OnBeingTalkedTo(It.IsAny<string>(), It.IsAny<IContext>(), It.IsAny<IGenerationClient>()))
+               .ReturnsAsync("captain replied");
+
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>());
+        var context = new ZorkIContext();
+        context.Items.Add((IItem)floyd.Object);
+        context.Items.Add((IItem)captain.Object);
+
+        // Act
+        var result = await handler.CheckForConversation("\"you are a fool\"", context);
+
+        // Assert - neither was engaged.
+        result.Should().BeNull();
+        floyd.Verify(t => t.OnBeingTalkedTo(It.IsAny<string>(), It.IsAny<IContext>(), It.IsAny<IGenerationClient>()),
+            Times.Never);
+        captain.Verify(t => t.OnBeingTalkedTo(It.IsAny<string>(), It.IsAny<IContext>(), It.IsAny<IGenerationClient>()),
+            Times.Never);
+    }
+
+    [TestCase("say to guard let me pass", TestName = "SayToOtherParty")]
+    [TestCase("say, to guard let me pass", TestName = "SayCommaToOtherParty")]
+    [TestCase("whisper to ghost that we should leave", TestName = "WhisperToOtherParty")]
+    [TestCase("yell at the guard to halt", TestName = "YellAtOtherParty")]
+    [TestCase("speak with the wizard", TestName = "SpeakWithOtherParty")]
+    public async Task CheckForConversation_DirectedAtAnotherParty_SinglePresentTalker_DoesNotHijack(string input)
+    {
+        // Arrange - "<speak verb> to/at/with <someone>" names a recipient (here unknown/absent), so
+        // it must not be put in the present NPC's mouth — it falls through to normal parsing.
+        var mockParser = new Mock<IParseConversation>();
+        var (handler, context, talker) = SinglePresentTalker(mockParser, Mock.Of<IGenerationClient>());
+
+        // Act
+        var result = await handler.CheckForConversation(input, context);
+
+        // Assert
+        result.Should().BeNull();
+        talker.Verify(
+            t => t.OnBeingTalkedTo(It.IsAny<string>(), It.IsAny<IContext>(), It.IsAny<IGenerationClient>()),
+            Times.Never);
+    }
+
+    [TestCase("examine the wall", TestName = "Examine")]
+    [TestCase("go north", TestName = "Move")]
+    [TestCase("take the lamp", TestName = "Take")]
+    [TestCase("open door", TestName = "Open")]
+    public async Task CheckForConversation_RealCommand_SinglePresentTalker_DoesNotHijack(string input)
+    {
+        // Arrange - a real command that names no talker and is not speech must NOT be swallowed by
+        // the present NPC; it has to fall through to normal parsing.
+        var mockParser = new Mock<IParseConversation>();
+        var (handler, context, talker) = SinglePresentTalker(mockParser, Mock.Of<IGenerationClient>());
+
+        // Act
+        var result = await handler.CheckForConversation(input, context);
+
+        // Assert
+        result.Should().BeNull();
+        talker.Verify(
+            t => t.OnBeingTalkedTo(It.IsAny<string>(), It.IsAny<IContext>(), It.IsAny<IGenerationClient>()),
+            Times.Never);
+        mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task CheckForConversation_NamelessSpeech_SinglePresentTalker_NotRoutedWhenDisabled()
+    {
+        // Arrange - routing relies on the NPC's AI backend, so the kill-switch must suppress it just
+        // like the present-name path, keeping NoGeneratedResponses mode deterministic.
+        var mockParser = new Mock<IParseConversation>();
+        var mockClient = new Mock<IGenerationClient>();
+        mockClient.Setup(c => c.IsDisabled).Returns(true);
+        var (handler, context, talker) = SinglePresentTalker(mockParser, mockClient.Object);
+
+        // Act
+        var result = await handler.CheckForConversation("\"you are a fool\"", context);
+
+        // Assert
+        result.Should().BeNull();
+        talker.Verify(
+            t => t.OnBeingTalkedTo(It.IsAny<string>(), It.IsAny<IContext>(), It.IsAny<IGenerationClient>()),
+            Times.Never);
+    }
+
+    [Test]
+    public async Task CheckForConversation_NamedAddressToPresentTalker_StillUsesNamedPath()
+    {
+        // Arrange - guard against the nameless branch shadowing the existing named path: when the
+        // talker IS named, the classifier-driven named path runs (and the name is stripped), exactly
+        // as before #284.
+        var mockParser = new Mock<IParseConversation>();
+        mockParser.Setup(p => p.ParseAsync(It.IsAny<string>())).ReturnsAsync((true, "you are a fool"));
+        var (handler, context, talker) = SinglePresentTalker(mockParser, Mock.Of<IGenerationClient>());
+
+        // Act
+        var result = await handler.CheckForConversation("floyd, you are a fool", context);
+
+        // Assert
+        result.Should().Be("npc replied");
+        talker.Verify(t => t.OnBeingTalkedTo("you are a fool", context, It.IsAny<IGenerationClient>()), Times.Once);
+        mockParser.Verify(p => p.ParseAsync("floyd, you are a fool"), Times.Once);
     }
 }

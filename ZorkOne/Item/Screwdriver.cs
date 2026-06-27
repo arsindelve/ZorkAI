@@ -2,7 +2,7 @@
 
 namespace ZorkOne.Item;
 
-public class Screwdriver : ItemBase, ICanBeTakenAndDropped
+public class Screwdriver : ItemBase, ICanBeTakenAndDropped, IAmATool
 {
     public override string[] NounsForMatching => ["screwdriver"];
 
