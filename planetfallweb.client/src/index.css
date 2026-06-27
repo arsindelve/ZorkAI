@@ -64,6 +64,33 @@
   }
 }
 
+/* Blinking terminal prompt caret */
+@keyframes blink {
+  0%, 45% {
+    opacity: 1;
+  }
+  50%, 95% {
+    opacity: 0.15;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Pulsing/strobing highlight for available compass exits */
+@keyframes compassPulse {
+  0%, 100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-blink {
+  animation: blink 1.1s steps(1, end) infinite;
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.4s ease-out forwards;
 }
@@ -100,9 +127,13 @@
   background: rgba(255, 149, 0, 0.6);
 }
 
-/* Highlight clickable words on hover */
+/* Highlight clickable words on hover. The whole transcript is word-clickable,
+   so reveal a dotted underline + glow on hover as a discoverability affordance
+   (kept off by default so the prose stays clean). */
 .clickable p:hover {
   text-shadow: 0 0 8px rgba(255, 149, 0, 0.6);
+  text-decoration: underline dotted color-mix(in srgb, var(--planetfall-primary) 50%, transparent);
+  text-underline-offset: 3px;
 }
 
 /* Sci-fi scanline effect */

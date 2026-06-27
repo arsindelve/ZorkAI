@@ -25,6 +25,18 @@ describe('Compass Component', () => {
     expect(findPolygonById('SouthWest')).toBeInTheDocument();
   });
 
+  test('renders a framing ring and cardinal labels', () => {
+    render(<Compass />);
+
+    const svg = document.querySelector('svg');
+    expect(svg?.querySelector('.compass-ring')).toBeInTheDocument();
+
+    const labels = Array.from(svg?.querySelectorAll('.compass-label') ?? []).map(
+      (el) => el.textContent
+    );
+    expect(labels).toEqual(expect.arrayContaining(['N', 'E', 'S', 'W']));
+  });
+
   test('highlights available exits', () => {
     // Map direction indices to Direction enum values
     const exits = ['0', '2']; // North and East

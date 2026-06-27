@@ -19,6 +19,7 @@ function Game() {
     const restartResponse = "<Restart>";
 
     const [playerInput, setInput] = useState<string>("");
+    const [commandHistory, setCommandHistory] = useState<string[]>([]);
     const [gameText, setGameText] = useState<string[]>(["Your game is loading...."]);
     const [score, setScore] = useState<string>("0");
     const [time, setTime] = useState<string>("0");
@@ -199,6 +200,11 @@ function Game() {
     function submitInput(inputValue?: string) {
         const [id] = sessionId.getSessionId();
         const valueToSubmit = (inputValue ?? playerInput).trim(); // Use parameter if provided, else fallback to state
+        // Record non-empty commands for Up/Down recall, collapsing immediate repeats.
+        if (valueToSubmit) {
+            setCommandHistory((prev) =>
+                prev[prev.length - 1] === valueToSubmit ? prev : [...prev, valueToSubmit]);
+        }
         mutation.mutate(new GameRequest(valueToSubmit, id));
         focusOnPlayerInput();
     }
@@ -287,25 +293,25 @@ function Game() {
 
             <Header locationName={locationName} time={time} score={score}/>
 
-            <Compass 
-            onCompassClick={handleCommandClick} 
+            <Compass
+            onCompassClick={handleCommandClick}
             exits={exits}
             className="
             hidden
-            cursor: pointer
+            cursor-pointer
             md:block
-            absolute 
+            absolute
             top-24
             right-5
-            w-[10%] 
+            w-[12%]
             h-auto
-            opacity-75
+            opacity-90
             z-20
             pointer-events-auto
             "/>
 
             <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word) => handleWordClicked(word)}
-                           className="relative p-6 sm:p-12 h-[65vh] overflow-auto font-mono rounded-lg border-2 shadow-lg clickable z-10"
+                           className="relative flex flex-col p-6 sm:p-12 h-[65vh] overflow-auto font-mono rounded-lg border-2 shadow-lg clickable z-10"
                            style={{
                                background: 'linear-gradient(135deg, var(--planetfall-bg-dark) 0%, #020617 100%)',
                                borderColor: 'color-mix(in srgb, var(--planetfall-primary) 20%, transparent)',
@@ -325,33 +331,39 @@ function Game() {
                         style={{background: 'color-mix(in srgb, var(--planetfall-secondary) 8%, transparent)'}}></div>
                 </div>
 
-                {gameText.map((item: string, index: number) => (
-                    <p
-                        dangerouslySetInnerHTML={{__html: item}}
-                        className={`mb-4 relative z-10 ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
-                        key={index}
-                        data-testid="game-response"
-                    >
-                    </p>
-                ))}
+                {/* mt-auto pins the transcript to the bottom of the panel (terminal feel)
+                    while still scrolling normally once the content overflows. */}
+                <div className="mt-auto relative z-10 w-full">
+                    {gameText.map((item: string, index: number) => (
+                        <p
+                            dangerouslySetInnerHTML={{__html: item}}
+                            className={`mb-4 relative z-10 ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
+                            key={index}
+                            data-testid="game-response"
+                        >
+                        </p>
+                    ))}
+                </div>
             </ClickableText>
 
             <div
-                className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 py-2 min-h-[90px] rounded-b-lg border-t shadow-inner"
+                className="flex flex-col items-stretch gap-2 px-3 sm:px-5 py-3 min-h-[90px] rounded-b-lg border-t shadow-inner"
                 style={{
                     background: 'linear-gradient(135deg, var(--planetfall-bg-medium) 0%, var(--planetfall-bg-dark) 100%)',
                     borderColor: 'color-mix(in srgb, var(--planetfall-primary) 15%, transparent)'
                 }}>
+                {/* The command line is the primary interaction — give it its own full-width row. */}
                 <GameInput
                     playerInputElement={playerInputElement}
                     isPending={mutation.isPending}
                     playerInput={playerInput}
                     setInput={setInput}
                     handleKeyDown={handleKeyDown}
+                    commandHistory={commandHistory}
                 />
 
                 {mutation.isPending && (
-                    <div className="mr-4 p-2 flex items-center justify-center">
+                    <div className="p-2 flex items-center justify-center min-h-[44px]">
                         <CircularProgress size={28} sx={{
                             color: 'var(--planetfall-accent)',
                             boxShadow: '0 0 15px 5px color-mix(in srgb, var(--planetfall-accent) 30%, transparent)',
@@ -368,10 +380,8 @@ function Game() {
                         justify-center
                         items-center
                         flex-wrap
-                        sm:ml-2
-                        sm:mr-4
                         gap-3 sm:gap-4
-                        p-3
+                        min-h-[44px]
                         ">
                         <VerbsButton onVerbClick={handleVerbClick}/>
                         {inventory.length > 0 && (
