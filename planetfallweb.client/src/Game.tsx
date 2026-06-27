@@ -298,13 +298,10 @@ function Game() {
             exits={exits}
             className="
             hidden
-            cursor-pointer
             md:block
             absolute
             top-24
             right-5
-            w-[15%]
-            h-auto
             opacity-90
             z-20
             pointer-events-auto
