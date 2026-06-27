@@ -14,7 +14,7 @@ namespace Planetfall.Tests.Hints;
 public class PlanetfallHintDemo : EngineTestsBase
 {
     private HintService Service() =>
-        new(new PlanetfallHintProvider(), new InMemoryHintMemoryStore(), new OpenAiHintLanguageModel());
+        new(new PlanetfallHintProvider(), new OpenAiHintLanguageModel());
 
     [Test]
     public async Task PrintProgressions()
@@ -42,7 +42,7 @@ public class PlanetfallHintDemo : EngineTestsBase
             var i = 1;
             foreach (var q in asks)
             {
-                var r = await svc.GetHint(new HintRequest(sess, Context, q));
+                var r = await svc.GetHint(new HintRequest(sess, Context, q, []));
                 TestContext.Out.WriteLine($"[ask {i++}] Q: {q}\n        {r.Text}");
             }
         }
@@ -56,7 +56,7 @@ public class PlanetfallHintDemo : EngineTestsBase
 
         async Task Ask(string label, string q)
         {
-            var r = await Service().GetHint(new HintRequest(label, Context, q));
+            var r = await Service().GetHint(new HintRequest(label, Context, q, []));
             TestContext.Out.WriteLine($"[{label}] Q: {q}\n        {r.Text}\n");
         }
 
@@ -95,7 +95,7 @@ public class PlanetfallHintDemo : EngineTestsBase
     {
         async Task Ask(HintService svc, string label, string q)
         {
-            var r = await svc.GetHint(new HintRequest(label, Context, q));
+            var r = await svc.GetHint(new HintRequest(label, Context, q, []));
             TestContext.Out.WriteLine($"[{label}] Q: {q}\n        {r.Text}\n");
         }
 
@@ -136,7 +136,7 @@ public class PlanetfallHintDemo : EngineTestsBase
         {
             GetTarget();
             state?.Invoke(Context);
-            var r = await Service().GetHint(new HintRequest($"s{++n}", Context, q));
+            var r = await Service().GetHint(new HintRequest($"s{++n}", Context, q, []));
             TestContext.Out.WriteLine($"#{n} [{area}] Q: {q}\n   -> {r.Text}\n");
         }
 
@@ -212,8 +212,8 @@ public class PlanetfallHintDemo : EngineTestsBase
             var srcHint = await llm.Reveal(context, solution, new List<HintExchange>(), q, persona);
 
             // PROSE: the current PlanetfallHintDocs-based path.
-            var prose = await new HintService(provider, new InMemoryHintMemoryStore(), llm)
-                .GetHint(new HintRequest("prose", Context, q));
+            var prose = await new HintService(provider, llm)
+                .GetHint(new HintRequest("prose", Context, q, []));
 
             TestContext.Out.WriteLine($"Q: {q}\n  [SOURCE] {srcHint}\n  [PROSE ] {prose.Text}\n");
         }
@@ -301,7 +301,7 @@ public class PlanetfallHintDemo : EngineTestsBase
 
         async Task Ask(HintService svc, string sess, string q)
         {
-            var r = await svc.GetHint(new HintRequest(sess, Context, q));
+            var r = await svc.GetHint(new HintRequest(sess, Context, q, []));
             TestContext.Out.WriteLine($"Q: {q}\n  {r.Text}");
         }
 

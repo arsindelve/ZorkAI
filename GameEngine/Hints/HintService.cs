@@ -16,19 +16,19 @@ namespace GameEngine.Hints;
 public sealed class HintService
 {
     private readonly IHintLanguageModel _llm;
-    private readonly IHintMemoryStore _memory;
     private readonly IHintProvider _provider;
 
-    public HintService(IHintProvider provider, IHintMemoryStore memory, IHintLanguageModel llm)
+    public HintService(IHintProvider provider, IHintLanguageModel llm)
     {
         _provider = provider;
-        _memory = memory;
         _llm = llm;
     }
 
     public async Task<HintResponse> GetHint(HintRequest request)
     {
-        var memory = await _memory.Load(request.SessionId);
+        // The prior conversation comes from the caller (the client replays it), so the service is fully
+        // stateless — no server-side memory, works no matter which container answers.
+        var history = request.History;
 
         // LLM 1 (solve) gets the FULL situation (key state + complete save game); LLM 2 (reveal) gets only
         // the salient key state — it must not contradict where the player is, but doesn't need the whole
@@ -37,16 +37,13 @@ public sealed class HintService
         var keyState = _provider.DescribeKeyState(request.StateSnapshot);
 
         // History is passed to both so they can resolve follow-ups ("it", "more") to the subject in play.
-        var solution = await _llm.Solve(_provider.Docs, fullState, memory.History, request.Question, _provider.Persona);
-        var revealed = await _llm.Reveal(keyState, solution, memory.History, request.Question, _provider.Persona);
+        var solution = await _llm.Solve(_provider.Docs, fullState, history, request.Question, _provider.Persona);
+        var revealed = await _llm.Reveal(keyState, solution, history, request.Question, _provider.Persona);
 
         // Fail visibly, not silently: if the model degraded to nothing, tell the player rather than
-        // returning a blank hint (and don't poison the history with an empty exchange).
+        // returning a blank hint. (The client should not append an "unavailable" reply to its history.)
         if (string.IsNullOrWhiteSpace(revealed))
             return new HintResponse("The hint system is unavailable right now. Try again in a moment.");
-
-        memory.History.Add(new HintExchange(request.Question, revealed));
-        await _memory.Save(request.SessionId, memory);
 
         return new HintResponse(revealed);
     }

@@ -1,5 +1,6 @@
 using FluentAssertions;
 using GameEngine.Hints;
+using Model.Hints;
 using Model.Interface;
 using Moq;
 using NUnit.Framework;
@@ -7,9 +8,9 @@ using NUnit.Framework;
 namespace UnitTests.Hints;
 
 /// <summary>
-///     Eval harness for the two-tier hint engine (Docs/hints/07). Drives <see cref="HintService" /> with
-///     a recording stub LLM — no OpenAI, no network. Asserts the orchestration: solve-then-reveal, the
-///     right inputs flow to each tier, and the chat history accumulates so the revealer can pace itself.
+///     Eval harness for the two-tier hint engine. Drives <see cref="HintService" /> with a recording stub
+///     LLM — no OpenAI, no network. Asserts the orchestration: solve-then-reveal, the right inputs flow to
+///     each tier, and the client-supplied history reaches both tiers. The service is stateless.
 /// </summary>
 [TestFixture]
 public class HintServiceTests
@@ -23,8 +24,10 @@ public class HintServiceTests
         return ctx.Object;
     }
 
-    private static HintService Service(FakeProvider provider, RecordingLlm llm) =>
-        new(provider, new InMemoryHintMemoryStore(), llm);
+    private static HintRequest Req(string question, IReadOnlyList<HintExchange>? history = null) =>
+        new(Session, State(), question, history ?? new List<HintExchange>());
+
+    private static HintService Service(FakeProvider provider, RecordingLlm llm) => new(provider, llm);
 
     [Test]
     public async Task SolvesFirst_ThenRevealsTheSolverOutput()
@@ -32,7 +35,7 @@ public class HintServiceTests
         var provider = new FakeProvider { Docs = "KB", PlayerContext = "at the rift" };
         var llm = new RecordingLlm { SolveResult = "extend the ladder across the rift" };
 
-        var result = await Service(provider, llm).GetHint(new HintRequest(Session, State(), "how do I cross the rift?"));
+        var result = await Service(provider, llm).GetHint(Req("how do I cross the rift?"));
 
         // LLM 1 got the docs + context + question.
         llm.LastDocs.Should().Be("KB");
@@ -44,49 +47,38 @@ public class HintServiceTests
     }
 
     [Test]
-    public async Task ChatHistoryAccumulates_SoTheRevealerCanPace()
+    public async Task ClientSuppliedHistory_ReachesBothTiers()
     {
+        // The client replays the prior conversation; both tiers receive it (the solver to resolve
+        // follow-ups like "more", the revealer to pace disclosure). No server-side accumulation.
+        var history = new List<HintExchange> { new("I'm stuck", "a vague nudge") };
         var llm = new RecordingLlm();
-        var service = Service(new FakeProvider(), llm);
 
-        await service.GetHint(new HintRequest(Session, State(), "I'm stuck"));
-        // First reveal saw an empty history.
-        llm.LastHistory.Should().BeEmpty();
+        await Service(new FakeProvider(), llm).GetHint(Req("more help", history));
 
-        await service.GetHint(new HintRequest(Session, State(), "more help"));
-        // Second reveal saw the first exchange — this is how disclosure escalates (no rung counter).
+        llm.LastSolveHistory.Should().HaveCount(1);
         llm.LastHistory.Should().HaveCount(1);
         llm.LastHistory[0].Question.Should().Be("I'm stuck");
-        llm.LastHistory[0].Revealed.Should().Be("reveal#0");
+        llm.LastHistory[0].Revealed.Should().Be("a vague nudge");
     }
 
     [Test]
-    public async Task HistoryIsPerSession()
+    public async Task FirstAsk_NoHistory_SeesEmpty()
     {
         var llm = new RecordingLlm();
-        var service = Service(new FakeProvider(), llm);
-
-        await service.GetHint(new HintRequest("session-A", State(), "q"));
-        await service.GetHint(new HintRequest("session-B", State(), "q"));
-
-        // Session B starts fresh — it must not see session A's history.
+        await Service(new FakeProvider(), llm).GetHint(Req("I'm stuck"));
         llm.LastHistory.Should().BeEmpty();
     }
 
     [Test]
-    public async Task EmptyReveal_FailsVisibly_AndDoesNotPoisonHistory()
+    public async Task EmptyReveal_FailsVisibly()
     {
-        var store = new InMemoryHintMemoryStore();
         var llm = new RecordingLlm { ForceReveal = "   " }; // model degraded to whitespace
-        var service = new HintService(new FakeProvider(), store, llm);
 
-        var result = await service.GetHint(new HintRequest(Session, State(), "I'm stuck"));
+        var result = await Service(new FakeProvider(), llm).GetHint(Req("I'm stuck"));
 
-        // The player gets a clear message, not a blank hint...
+        // The player gets a clear message, not a blank hint.
         result.Text.Should().Contain("unavailable");
-        // ...and the empty exchange must NOT be recorded, or it would pollute later disclosure pacing.
-        var memory = await store.Load(Session);
-        memory.History.Should().BeEmpty();
     }
 
     [Test]

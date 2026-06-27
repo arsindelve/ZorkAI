@@ -1,6 +1,7 @@
 using FluentAssertions;
 using GameEngine;
 using GameEngine.Hints;
+using Model.Hints;
 using Planetfall.Hints;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using ZorkAI.OpenAI;
@@ -21,29 +22,38 @@ public class PlanetfallHintLiveTests : EngineTestsBase
     public void SetUp()
     {
         GetTarget();
-        _service = new HintService(new PlanetfallHintProvider(), new InMemoryHintMemoryStore(),
-            new OpenAiHintLanguageModel());
+        _service = new HintService(new PlanetfallHintProvider(), new OpenAiHintLanguageModel());
     }
 
     [Test]
     public async Task RepeatedAsks_EscalateViaChatHistory()
     {
+        // The client owns the conversation now: it threads the running history into each request.
         const string session = "live-ladder";
-        var r1 = await _service.GetHint(new HintRequest(session, Context, "I'm stuck, what do I do?"));
-        var r2 = await _service.GetHint(new HintRequest(session, Context, "I need more help"));
-        var r3 = await _service.GetHint(new HintRequest(session, Context, "just tell me exactly what to do"));
+        var history = new List<HintExchange>();
 
-        TestContext.Out.WriteLine($"[ask 1] {r1.Text}");
-        TestContext.Out.WriteLine($"[ask 2] {r2.Text}");
-        TestContext.Out.WriteLine($"[ask 3] {r3.Text}");
+        async Task<string> Ask(string q)
+        {
+            var r = await _service.GetHint(new HintRequest(session, Context, q, history));
+            history.Add(new HintExchange(q, r.Text));
+            return r.Text;
+        }
 
-        new[] { r1.Text, r2.Text, r3.Text }.Should().OnlyContain(t => !string.IsNullOrWhiteSpace(t));
+        var r1 = await Ask("I'm stuck, what do I do?");
+        var r2 = await Ask("I need more help");
+        var r3 = await Ask("just tell me exactly what to do");
+
+        TestContext.Out.WriteLine($"[ask 1] {r1}");
+        TestContext.Out.WriteLine($"[ask 2] {r2}");
+        TestContext.Out.WriteLine($"[ask 3] {r3}");
+
+        new[] { r1, r2, r3 }.Should().OnlyContain(t => !string.IsNullOrWhiteSpace(t));
     }
 
     [Test]
     public async Task DeadEnd_TheTruthIsToldDirectly()
     {
-        var r = await _service.GetHint(new HintRequest("live-rx", Context, "is the reactor important?"));
+        var r = await _service.GetHint(new HintRequest("live-rx", Context, "is the reactor important?", []));
         TestContext.Out.WriteLine($"[reactor] {r.Text}");
         r.Text.Should().NotBeNullOrWhiteSpace();
     }
@@ -51,7 +61,7 @@ public class PlanetfallHintLiveTests : EngineTestsBase
     [Test]
     public async Task Lore_AnswersInVoice()
     {
-        var r = await _service.GetHint(new HintRequest("live-lore", Context, "why is everything deserted?"));
+        var r = await _service.GetHint(new HintRequest("live-lore", Context, "why is everything deserted?", []));
         TestContext.Out.WriteLine($"[lore] {r.Text}");
         r.Text.Should().NotBeNullOrWhiteSpace();
     }
@@ -66,7 +76,7 @@ public class PlanetfallHintLiveTests : EngineTestsBase
     {
         async Task Ask(string label, string q)
         {
-            var r = await _service.GetHint(new HintRequest(label, Context, q));
+            var r = await _service.GetHint(new HintRequest(label, Context, q, []));
             TestContext.Out.WriteLine($"[{label}] {q}\n   -> {r.Text}\n");
             r.Text.Should().NotBeNullOrWhiteSpace();
         }

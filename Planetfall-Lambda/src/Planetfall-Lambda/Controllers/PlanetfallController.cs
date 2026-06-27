@@ -16,7 +16,6 @@ public class PlanetfallController(
     IGameEngine engine,
     ISessionRepository sessionRepository,
     ISavedGameRepository savedGameRepository,
-    IHintMemoryStore hintMemory,
     IHintLanguageModel hintLlm
 )
     : ControllerBase
@@ -46,8 +45,9 @@ public class PlanetfallController(
 
         RestoreSession(savedSession);
 
-        var service = new HintService(new PlanetfallHintProvider(), hintMemory, hintLlm);
-        var result = await service.GetHint(new HintRequest(request.SessionId, engine.Context!, request.Question));
+        var service = new HintService(new PlanetfallHintProvider(), hintLlm);
+        var result = await service.GetHint(new HintRequest(
+            request.SessionId, engine.Context!, request.Question, request.History ?? []));
 
         // Deliberately no WriteSession(): hints are read-only and consume no turn.
         return new HintApiResponse(result.Text);

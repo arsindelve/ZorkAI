@@ -69,7 +69,7 @@ public class PlanetfallHintProviderTests : EngineTestsBase
     public void TiredPlayer_ProducesASleepNudge()
     {
         Context.Tired = TiredLevel.Tired;
-        var service = new HintService(Provider(), new InMemoryHintMemoryStore(), new NullLlm());
+        var service = new HintService(Provider(), new NullLlm());
         service.ProactiveNudges(Context).Should().Contain(n => n.Category == "sleep");
     }
 }

@@ -26,9 +26,8 @@ public class Startup
 
         services.AddScoped<IGameEngine, GameEngine<PlanetfallGame, PlanetfallContext>>();
 
-        // Hint subsystem (v1: Planetfall, all-OpenAI). Memory is a process singleton for now — a
-        // DynamoDB-backed store (persisting across cold starts) is the production follow-up.
-        services.AddSingleton<IHintMemoryStore, InMemoryHintMemoryStore>();
+        // Hint subsystem (v1: Planetfall, all-OpenAI). Stateless: the hint conversation is supplied by
+        // the client on each request, so there's no server-side memory to register.
         services.AddScoped<IHintLanguageModel>(sp =>
             new OpenAiHintLanguageModel(sp.GetService<ILogger<OpenAiHintLanguageModel>>()));
 

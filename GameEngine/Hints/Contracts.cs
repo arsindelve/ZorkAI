@@ -54,9 +54,11 @@ public interface IProactiveRule
 // ---- request / response -------------------------------------------------------------
 
 /// <summary>
-///     A hint request. The engine treats <see cref="StateSnapshot" /> as read-only — asking for a
-///     hint consumes no turn and mutates no game state.
+///     A hint request. The engine treats <see cref="StateSnapshot" /> as read-only — asking for a hint
+///     consumes no turn and mutates no game state. <see cref="History" /> is the prior hint conversation
+///     supplied by the caller; the service is otherwise stateless (no server-side memory).
 /// </summary>
-public sealed record HintRequest(string SessionId, IContext StateSnapshot, string Question);
+public sealed record HintRequest(
+    string SessionId, IContext StateSnapshot, string Question, IReadOnlyList<HintExchange> History);
 
 public sealed record HintResponse(string Text);
