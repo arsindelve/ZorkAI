@@ -185,12 +185,30 @@ internal static class DestinationNavigation
 
     private static readonly string[] LeadingArticles = ["the ", "a ", "an "];
 
+    // Spelled-out numbers -> digits. Rooms whose NAME carries a number word ("Deck Nine", "Deck Eight")
+    // are the only ones that break on this, and the AI parser habitually renders "nine" as "9" — so a
+    // direct neighbour like Deck Nine was refused when named "deck 9". Canonicalizing both the room's
+    // terms and the typed target to digits makes "deck nine", "deck 9", "nine" and "9" all match (#268).
+    private static readonly Dictionary<string, string> NumberWords = new()
+    {
+        ["one"] = "1", ["two"] = "2", ["three"] = "3", ["four"] = "4", ["five"] = "5",
+        ["six"] = "6", ["seven"] = "7", ["eight"] = "8", ["nine"] = "9", ["ten"] = "10",
+        ["eleven"] = "11", ["twelve"] = "12", ["thirteen"] = "13", ["fourteen"] = "14",
+        ["fifteen"] = "15", ["sixteen"] = "16", ["seventeen"] = "17", ["eighteen"] = "18",
+        ["nineteen"] = "19", ["twenty"] = "20"
+    };
+
     private static string Normalize(string s)
     {
         s = s.Trim().ToLowerInvariant();
         foreach (var article in LeadingArticles)
             if (s.StartsWith(article))
-                return s[article.Length..];
-        return s;
+            {
+                s = s[article.Length..];
+                break;
+            }
+
+        return string.Join(' ', s.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Select(w => NumberWords.GetValueOrDefault(w, w)));
     }
 }

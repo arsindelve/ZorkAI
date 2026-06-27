@@ -1,8 +1,12 @@
 using FluentAssertions;
 using GameEngine;
 using GameEngine.IntentEngine;
+using Model.AIGeneration;
+using Model.Intent;
+using Moq;
 using NUnit.Framework;
 using Planetfall.Item.Kalamontee.Admin;
+using Planetfall.Location.Feinstein;
 using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Mech;
 using Planetfall.Location.Shuttle;
@@ -278,6 +282,58 @@ public class DestinationNavigationTests : EngineTestsBase
             await target.GetResponse("betty");
 
             target.Context.CurrentLocation.Should().BeOfType<ShuttleCarBetty>();
+        }
+    }
+
+    /// <summary>
+    /// Reproduction for the playtest report: standing in the Reactor Lobby (whose west exit leads to
+    /// Deck Nine), "go to deck nine" was refused with "you can't get there from here" even though Deck
+    /// Nine is a direct exit. (Issue #268 follow-up.)
+    /// </summary>
+    [TestFixture]
+    public class GoToAnAdjacentRoomOnTheFeinstein : EngineTestsBase
+    {
+        [Test]
+        public void ResolveAllAdjacent_FromReactorLobby_FindsDeckNine_SpelledOut()
+        {
+            var target = GetTarget();
+            StartHere<ReactorLobby>();
+
+            var matches = DestinationNavigation.ResolveAllAdjacent("deck nine", target.Context);
+
+            matches.Should().ContainSingle();
+            matches[0].Room.Should().BeOfType<DeckNine>();
+        }
+
+        [Test]
+        public void ResolveAllAdjacent_FromReactorLobby_FindsDeckNine_WrittenWithADigit()
+        {
+            // The playtest bug: the AI parser rendered "deck nine" as "deck 9" (its usual habit for
+            // spelled-out numbers), which whole-word matching could not reconcile with the room titled
+            // "Deck Nine" — so an adjacent room was refused with "you can't get there from here".
+            var target = GetTarget();
+            StartHere<ReactorLobby>();
+
+            var matches = DestinationNavigation.ResolveAllAdjacent("deck 9", target.Context);
+
+            matches.Should().ContainSingle();
+            matches[0].Room.Should().BeOfType<DeckNine>();
+        }
+
+        [Test]
+        public async Task GoToDeck9_FromReactorLobby_WalksThere()
+        {
+            var target = GetTarget();
+            StartHere<ReactorLobby>();
+            var disabledClient = new Mock<IGenerationClient>();
+            disabledClient.Setup(c => c.IsDisabled).Returns(true);
+
+            var engine = new DestinationNavigationEngine();
+            var result = await engine.Process(
+                new GoToDestinationIntent { Destination = "deck 9" }, target.Context, disabledClient.Object);
+
+            result.ResultMessage.Should().NotContain("can't get there");
+            target.Context.CurrentLocation.Should().BeOfType<DeckNine>();
         }
     }
 }
