@@ -155,7 +155,7 @@ function App() {
                 </QueryClientProvider>
             </div>
 
-            <footer className="relative footer-gradient backdrop-blur-md border-t-2 py-2 z-10">
+            <footer className="hidden sm:block relative footer-gradient backdrop-blur-md border-t-2 py-2 z-10">
                 <p className="text-center">
                     <a
                         target="_blank"
