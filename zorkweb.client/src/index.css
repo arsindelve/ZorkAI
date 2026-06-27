@@ -77,11 +77,11 @@
   background: rgba(120, 120, 120, 0.8);
 }
 
-/* Highlight clickable words on hover. The whole transcript is word-clickable,
-   so reveal a dotted underline + glow on hover as a discoverability affordance
-   (kept off by default so the prose stays clean). */
-.clickable p:hover {
-  text-shadow: 0 0 1px rgba(163, 230, 53, 0.5);
-  text-decoration: underline dotted rgba(163, 230, 53, 0.5);
-  text-underline-offset: 3px;
+/* Highlight ONLY the single word under the cursor (via the CSS Custom Highlight
+   API, driven by ClickableText) so it's clear individual words are clickable
+   without lighting up the whole line. */
+::highlight(word-hover) {
+  background-color: rgba(132, 204, 22, 0.3);
+  color: #ecfccb;
+  text-shadow: 0 0 2px rgba(163, 230, 53, 0.6);
 }

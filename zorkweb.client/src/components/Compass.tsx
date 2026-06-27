@@ -119,7 +119,7 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
             version="1.1"
             id="Layer_1"
             data-name="Layer 1"
-            viewBox="0 0 50.4 50.4"
+            viewBox="-10 -10 70.4 70.4"
             className={className}
             onClick={handleClick}
             {...rest}
@@ -131,15 +131,15 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
       .cls-1.available { fill: #84cc16; animation: compassPulse 1.4s ease-in-out infinite; }
       .cls-1.available:hover { animation: none; opacity: 1; fill: #a3e635; }
       .compass-ring { fill: none; stroke: rgba(132, 204, 22, 0.4); stroke-width: 0.8; }
-      .compass-label { fill: rgba(214, 211, 209, 0.6); font-size: 6px; font-family: monospace; text-anchor: middle; dominant-baseline: middle; }
+      .compass-label { fill: rgba(214, 211, 209, 0.7); font-size: 7px; font-weight: bold; font-family: monospace; text-anchor: middle; dominant-baseline: central; }
     `}</style>
             </defs>
 
-            {/* Background rectangle to catch all clicks */}
-            <rect x="0" y="0" width="50.4" height="50.4" fill="transparent" style={{ pointerEvents: 'all' }} />
+            {/* Background rectangle to catch all clicks (covers the padded viewBox) */}
+            <rect x="-10" y="-10" width="70.4" height="70.4" fill="transparent" style={{ pointerEvents: 'all' }} />
 
-            {/* Framing ring so the dial reads as a compass */}
-            <circle className="compass-ring" cx="25.2" cy="25.2" r="24.4" style={{ pointerEvents: 'none' }} />
+            {/* Framing ring just outside the wedge tips so the dial reads as a compass */}
+            <circle className="compass-ring" cx="25.2" cy="25.2" r="27" style={{ pointerEvents: 'none' }} />
 
             {/* compass wedges */}
             <polygon
@@ -183,12 +183,13 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
                 points="14.35 36.06 20.96 32.64 25.2 25.2 17.76 29.44 14.35 36.06"
             />
 
-            {/* Cardinal labels for legibility (decorative; clicks fall through) */}
+            {/* Cardinal labels in the padded margin outside the dial
+                (decorative; clicks fall through) */}
             <g style={{ pointerEvents: 'none' }}>
-                <text className="compass-label" x="25.2" y="3.6">N</text>
-                <text className="compass-label" x="46.8" y="25.2">E</text>
-                <text className="compass-label" x="25.2" y="47.4">S</text>
-                <text className="compass-label" x="3.6" y="25.2">W</text>
+                <text className="compass-label" x="25.2" y="-5.8">N</text>
+                <text className="compass-label" x="56.2" y="25.2">E</text>
+                <text className="compass-label" x="25.2" y="56.2">S</text>
+                <text className="compass-label" x="-5.8" y="25.2">W</text>
             </g>
         </svg>
 

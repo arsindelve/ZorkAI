@@ -303,7 +303,7 @@ function Game() {
             absolute
             top-24
             right-5
-            w-[12%]
+            w-[15%]
             h-auto
             opacity-90
             z-20

@@ -127,13 +127,13 @@
   background: rgba(255, 149, 0, 0.6);
 }
 
-/* Highlight clickable words on hover. The whole transcript is word-clickable,
-   so reveal a dotted underline + glow on hover as a discoverability affordance
-   (kept off by default so the prose stays clean). */
-.clickable p:hover {
+/* Highlight ONLY the single word under the cursor (via the CSS Custom Highlight
+   API, driven by ClickableText) so it's clear individual words are clickable
+   without lighting up the whole line. */
+::highlight(word-hover) {
+  background-color: color-mix(in srgb, var(--planetfall-primary) 30%, transparent);
+  color: #ffffff;
   text-shadow: 0 0 8px rgba(255, 149, 0, 0.6);
-  text-decoration: underline dotted color-mix(in srgb, var(--planetfall-primary) 50%, transparent);
-  text-underline-offset: 3px;
 }
 
 /* Sci-fi scanline effect */
