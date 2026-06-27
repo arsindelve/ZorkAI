@@ -234,7 +234,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
                 return result;
         }
 
-        var socialResult = _socialResponses.HandleSocialInteraction(action);
+        var socialResult = _socialResponses.HandleSocialInteraction(action, context);
         if (socialResult is not null)
             return socialResult;
 
@@ -317,6 +317,22 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     {
         if (!IsOn || HasDied)
             return await base.RespondToMultiNounInteraction(action, context);
+
+        // V-OIL with an explicit indirect object (syntax.zil:446-448, verbs.zil:1738-1757):
+        // "oil floyd with oil can". Only the oil can counts as the oiling instrument; oiling a
+        // living Floyd with it gives the same thank-you as the no-indirect-object form. The ZIL
+        // grammar is OIL OBJECT WITH OBJECT (HAVE) — the (HAVE) flag requires the can be HELD, so
+        // gate on context.HasItem<OilCan>() (matching the single-noun branch), not merely
+        // GetItemInScope, which would also resolve a can sitting in the room.
+        // Both checks are needed and not redundant: GetItemInScope(NounTwo) is OilCan verifies the
+        // *named* indirect object is the can (so "oil floyd with sword" is rejected even while a can
+        // is held), and HasItem<OilCan>() enforces the (HAVE) flag (the can must be in inventory).
+        // MatchPreposition(["with"]) keeps us faithful to the WITH grammar — the parser passes through
+        // whatever connector it extracts, so this rejects e.g. "oil floyd using/near oil can".
+        if (action.MatchVerb(FloydSocialResponses.OilVerbs) && action.MatchNounOne(NounsForMatching) &&
+            action.MatchPreposition(["with"]) &&
+            Repository.GetItemInScope(action.NounTwo, context) is OilCan && context.HasItem<OilCan>())
+            return new PositiveInteractionResult(FloydConstants.Oil);
 
         // SHOW is handled before GIVE: in the original, "show <x> to floyd" drives several reactions
         // (FLOYD-F SHOW branch, compone.zil:2022-2047) that GIVE does not — the printout/computer-concern
