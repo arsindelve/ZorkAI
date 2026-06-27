@@ -309,8 +309,9 @@ public class DestinationNavigationTests : EngineTestsBase
         public void ResolveAllAdjacent_FromReactorLobby_FindsDeckNine_WrittenWithADigit()
         {
             // The playtest bug: the AI parser rendered "deck nine" as "deck 9" (its usual habit for
-            // spelled-out numbers), which whole-word matching could not reconcile with the room titled
-            // "Deck Nine" — so an adjacent room was refused with "you can't get there from here".
+            // spelled-out numbers), which the room titled "Deck Nine" did not match — so an adjacent
+            // room was refused with "you can't get there from here". Fixed by giving Deck Nine an
+            // explicit "deck 9" alias (DeckNine.cs).
             var target = GetTarget();
             StartHere<ReactorLobby>();
 
@@ -318,6 +319,24 @@ public class DestinationNavigationTests : EngineTestsBase
 
             matches.Should().ContainSingle();
             matches[0].Room.Should().BeOfType<DeckNine>();
+        }
+
+        [Test]
+        public void ResolveAllAdjacent_FromGangway_TellsTheTwoDecksApartByDigit()
+        {
+            // The Gangway connects Deck Eight (up) and Deck Nine (down), so it is adjacent to both. The
+            // explicit "deck 8"/"deck 9" aliases must each resolve to their OWN deck — a digit alias on
+            // one must not bleed onto the other.
+            var target = GetTarget();
+            StartHere<Gangway>();
+
+            var nine = DestinationNavigation.ResolveAllAdjacent("deck 9", target.Context);
+            nine.Should().ContainSingle();
+            nine[0].Room.Should().BeOfType<DeckNine>();
+
+            var eight = DestinationNavigation.ResolveAllAdjacent("deck 8", target.Context);
+            eight.Should().ContainSingle();
+            eight[0].Room.Should().BeOfType<DeckEight>();
         }
 
         [Test]
