@@ -26,6 +26,13 @@ internal class CorridorJunction : LocationWithNoStartingItems
             "you can see; a nonworking walkway from that direction ends here. To the east, the corridor widens into a well-lit area. ";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["walkway", "nonworking walkway", "moving walkway"],
+            "The walkway that once sped travelers along the corridor sits dead and still. ",
+            "It's built into the floor. ")
+    ];
+
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
         if (previousLocation is DormCorridor)

@@ -32,6 +32,13 @@ internal class AdminCorridorNorth : RiftLocationBase
             $"{(GetItem<Ladder>().IsAcrossRift ? "spanned by a metal ladder, " : "")}separating this area from the rest of the building. ";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["sign", "signs"],
+            "The signs over the three portals read \"Administraativ Awfisiz,\" \"Tranzportaashun Suplii,\" and \"Plan Ruum.\" ",
+            "The signs are mounted above the portals, out of reach. ")
+    ];
+
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
         string prepend = "";

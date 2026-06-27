@@ -32,6 +32,13 @@ internal class AdminCorridor : RiftLocationBase
                "A wide doorway, labelled \"Sistumz Moniturz,\" leads west. ";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["roof", "severed roof", "sky"],
+            "Through the torn-open roof above, you can see open sky. ",
+            "The roof is well out of reach. ")
+    ];
+
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
         if (previousLocation is AdminCorridorNorth)

@@ -16,7 +16,12 @@ internal class TimberRoom : DarkLocation, IThiefMayVisit
                 Direction.E, new MovementParameters { Location = GetLocation<LadderBottom>() }
             },
             {
-                Direction.W, new MovementParameters { Location = GetLocation<DraftyRoom>(), WeightLimit = 2 }
+                Direction.W, new MovementParameters
+                {
+                    Location = GetLocation<DraftyRoom>(),
+                    WeightLimit = 2,
+                    WeightLimitFailureMessage = "You are carrying too much to squeeze through the narrow passage. "
+                }
             }
         };
     }

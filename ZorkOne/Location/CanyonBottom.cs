@@ -27,4 +27,11 @@ public class CanyonBottom : LocationWithNoStartingItems
             "You are beneath the walls of the river canyon which may be climbable here. The lesser part of the runoff " +
             "of Aragain Falls flows by below. To the north is a narrow path. ";
     }
+
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["river", "frigid river", "runoff"],
+            "The lesser runoff of Aragain Falls flows past below. ",
+            "You can't take the river. ")
+    ];
 }

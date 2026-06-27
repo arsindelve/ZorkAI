@@ -21,6 +21,13 @@ internal class RobotShop : LocationBase
             "description, all in various states of disassembly. ";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["device", "devices", "robot-like devices", "robotlike devices", "disassembled robots"],
+            "They're the remains of disassembled robots, far beyond any repair. ",
+            "It's a heap of broken robot parts, not worth carrying off. ")
+    ];
+
     public override string Name => "Robot Shop";
 
     public override void Init()

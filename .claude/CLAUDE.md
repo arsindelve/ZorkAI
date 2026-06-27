@@ -154,6 +154,13 @@ The solution is organized into logical groups:
 - **Multi-character support** - Automatically finds the target character based on noun matching
 - **Context-aware responses** - Characters like Floyd use AI to respond naturally while maintaining personality
 - **Dual-mode parsing** - ChatLambda determines if input is conversational or command-based
+- **Floyd reaction faithful-divergence pattern**: `RespondToMultiNounInteraction(MultiNounIntent, IContext)`
+  has **no `IGenerationClient`**, so a Floyd reaction triggered there can't call the LLM directly. The
+  established pattern is to **queue it via `Floyd.CommentOnAction`**, which Floyd's `Act()` renders that
+  turn with an object-aware prompt (a deliberate divergence from the original's single canned line, to keep
+  Floyd's idle voice AI-generated). When a canned constant would place Floyd in the wrong context, author a
+  context-specific constant (e.g. `ComputerBrokenFromPrintout` alongside `ComputerBroken` in
+  `FloydConstants`) rather than reusing the original — reusing it would itself be a divergence.
 
 ### Multi-Sentence Command Support
 - **Period-separated commands** - Players can chain actions: "take lamp. turn it on. go north"
@@ -180,6 +187,35 @@ The solution is organized into logical groups:
 - **Singleton Repository**: Central game state management
 - **Factory Pattern**: Item and location creation
 - **Template Method**: Base classes for items/locations with game-specific overrides
+
+## Engine Port Anti-Patterns (recurring port divergences — probe for these)
+
+Recurring ways the C# port unintentionally diverges from the original ZIL. Each is provable against the
+original source (read-only — never copy/port ZIL; see the ZIL reference section). Watch for them when
+adding/reviewing room and item handlers:
+
+1. **Examine catch-all.** A room/item `RespondToSimpleInteraction` that ends in an *unconditional*
+   `return new PositiveInteractionResult("<scenery>")` makes `examine <anything>` (an unrelated inventory
+   item, an NPC) yield the room's scenery text. Highest-yield probe: in any room with an override, examine
+   an unrelated held item or NPC — wrong output means an unconditional final return.
+2. **Matching on command text instead of object state.** A multi-noun handler that fires on
+   verb+noun+indirect+preposition without checking the object's *state* will re-run its success/failure
+   branch when the object is absent or the action is already done (e.g. "lost the ladder forever" narrated
+   with no ladder in scope, or re-placing a ladder duplicating it). Gate on state, not phrasing.
+3. **One-shot flag coordination.** A daemon/per-turn path and an explicit-action path must share the
+   *same* one-shot flag (e.g. `FloydHasExpressedConcern`), or they double-fire.
+4. **Shared-instance scope corruption.** One object seeded into two locations gets its `CurrentLocation`
+   overwritten by the later `Init()`, so scope checks reject it in the first room (see the Repository
+   "shared-instance pitfall"). A force verb (`push`/`kick`/`shake`) on such an object hits
+   `GetGeneratedNoMatchingVerbResponse`, which re-resolves via `Repository.GetItemInScope`; on a
+   scope-rejected noun it short-circuits to `string.Empty` (a blank line) instead of the narrator. Fix:
+   unhandled force verbs should fall through to the narrator in shared routing, not per-object.
+
+**God-mode setup trap (white-box):** `god mode take <item>` / `go <place>`
+(`GameEngine/StaticCommand/Implementation/GodModeProcessor.cs`) route through `Repository.LoadAllLocations`
+/`LoadAllItems`, which **deliberately rebuild the Repository without `Init()`** (per issue #241). A side
+effect is that Planetfall **Floyd resets to deactivated** and containers empty. After a god-mode grab,
+re-check state and re-`activate floyd` before testing show/give/conversation behavior.
 
 ## Performance Considerations
 - **AI calls are expensive** - cache when possible, use sparingly
@@ -299,6 +335,12 @@ This Lambda integration demonstrates how the core game engine's excellent archit
 - Use `Repository.GetItem<T>()` and `Repository.GetLocation<T>()` to access game objects
 - **Critical**: Always call `Repository.Reset()` in test `[SetUp]` to ensure clean state between tests
 - **Item lookups**: `Repository.GetItem(string noun)` searches all loaded items by their `NounsForMatching` property
+- **Shared-instance pitfall — re-seeding overwrites `CurrentLocation`**: a single item instance placed
+  into two locations has its `CurrentLocation` overwritten by whichever location's `Init()` runs **last**
+  (e.g. `BulkheadDoor` lives in both `DeckNine` and `EscapePod`; the pod loads after Deck Nine, so the
+  door's `CurrentLocation` becomes the pod). Scope checks (`Repository.GetItemInScope`) then reject the
+  object in the *earlier* room. Watch `Init()` order when wiring a shared door/object across rooms; if a
+  force verb on such an object yields a blank line, this scope rejection is the usual cause.
 
 ### Randomness Pattern (IRandomChooser)
 - **Never use `Random` directly** in game code - always use `IRandomChooser` interface
@@ -321,6 +363,11 @@ This Lambda integration demonstrates how the core game engine's excellent archit
   GetItem<MyItem>().Chooser = mockChooser.Object;
   ```
 - **Examples**: See `Laser.cs`, `Floyd.cs`, `SleepEngine.cs` for usage patterns
+- **Known violations to fix when touched**: a few classes still `new Random()` directly instead of the
+  injected `Chooser` — `Planetfall/Location/Feinstein/BlatherLocation.cs` (`RandomBlatherBlock()`),
+  `ZorkOne/Location/ForestLocation/ForestPath.cs`, `ZorkOne/Location/UpATree.cs`,
+  `Planetfall/Item/Feinstein/Ambassador.cs`. These make their randomness untestable; refactor to
+  `Chooser` (and mock it) when modifying them.
 
 ### AI Integration Guidelines  
 - **Hierarchical parsing**: Try simple pattern matching first, then fall back to expensive AI calls

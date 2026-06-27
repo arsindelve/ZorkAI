@@ -305,6 +305,14 @@ public abstract class LocationBase : ILocation, ICanContainItems
     }
 
     /// <summary>
+    ///     Inert, prose-only scenery for this room (issue #315): nouns the description mentions but
+    ///     which have no backing game object. Override to declare a room's examinable-but-static
+    ///     features so examining them describes the thing instead of the narrator falsely claiming it
+    ///     isn't here. See <see cref="SceneryItem" />.
+    /// </summary>
+    protected virtual IReadOnlyList<SceneryItem> Scenery => [];
+
+    /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="SimpleIntent" /> corresponding
     ///     of a verb and a noun. Does that combination do anything in this location? The default implementation
     ///     of the base class checks each item in these locations and asks them if they provide any interaction. This
@@ -325,6 +333,22 @@ public abstract class LocationBase : ILocation, ICanContainItems
             result = await item.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
             if (result is PositiveInteractionResult or NoVerbMatchInteractionResult)
                 return result;
+        }
+
+        // Inert scenery (issue #315). Checked AFTER real items so a genuine object that shares a noun
+        // always wins. Matching the noun makes the thing "present", so an unsupported verb yields a
+        // NoVerbMatch ("you can't do that to it") — never the narrator's false "no such thing is here".
+        var scenery = Scenery.FirstOrDefault(s => action.MatchNounAndAdjective(s.Nouns));
+        if (scenery is not null)
+        {
+            if (action.MatchVerb(Verbs.ExamineVerbs))
+                return new PositiveInteractionResult(scenery.ExaminationDescription);
+
+            if (action.MatchVerb(Verbs.TakeVerbs))
+                return new PositiveInteractionResult(
+                    scenery.CannotBeTakenReason ?? "That's not something you can take. ");
+
+            return new NoVerbMatchInteractionResult { Verb = action.Verb, Noun = action.Noun };
         }
 
         return result ?? new NoNounMatchInteractionResult();

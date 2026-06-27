@@ -51,6 +51,13 @@ public class Reservoir : DarkLocation, ITurnBasedActor
             "You are on what used to be a large lake, but which is now a large mud pile. There are \"shores\" to the north and south.";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["mud", "mud pile"],
+            "What was once a lake is now a vast expanse of drying mud. ",
+            "You could scoop up a handful, but to what end? ")
+    ];
+
     public override void Init()
     {
         StartWithItem<TrunkOfJewels>();

@@ -65,15 +65,13 @@ internal class TechnologyMenu : MenuItem
                                      hiiyur levul."
                                      """;
 
-    internal override MenuItem? Parent => new MainMenu();
-
     internal override List<MenuItem> Children =>
     [
-        new() { Children = null, Parent = this, Text = MenuOne },
-        new() { Children = null, Parent = this, Text = MenuTwo },
-        new() { Children = null, Parent = this, Text = MenuThree },
-        new() { Children = null, Parent = this, Text = MenuFour },
-        new() { Children = null, Parent = this, Text = MenuFive }
+        new() { Children = null, Text = MenuOne },
+        new() { Children = null, Text = MenuTwo },
+        new() { Children = null, Text = MenuThree },
+        new() { Children = null, Text = MenuFour },
+        new() { Children = null, Text = MenuFive }
     ];
 
     internal override string Text => MainMenu;

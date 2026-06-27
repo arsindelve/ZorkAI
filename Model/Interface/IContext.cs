@@ -213,6 +213,19 @@ public interface IContext : ICanContainItems
     string ItemListDescription(string locationName, ILocation? location);
 
     /// <summary>
+    ///     Gives a game-specific context the chance to fully handle the player's raw command before
+    ///     normal parsing and turn processing. Return the response string to short-circuit the turn,
+    ///     or null to let the engine process the command normally.
+    /// </summary>
+    /// <remarks>
+    ///     Used by Zork's spirit (DEAD) state, which overrides most verbs with canned "you are a
+    ///     ghost" responses while still letting movement and resurrection fall through (issue #17).
+    /// </remarks>
+    /// <param name="input">The raw, unparsed player input.</param>
+    /// <returns>A response that fully handles the turn, or null to continue normal processing.</returns>
+    string? InterceptPlayerCommand(string? input);
+
+    /// <summary>
     ///     Does the context need to do any processing at the beginning of the turn?
     /// </summary>
     /// <returns>Text to prepend to the response, if any. </returns>

@@ -1,8 +1,6 @@
-using GameEngine.Location;
-
 namespace Planetfall.Location.Kalamontee.Dorm;
 
-internal class SanfacD : LocationWithNoStartingItems
+internal class SanfacD : SanfacBase
 {
     public override string Name => "Sanfac D";
 

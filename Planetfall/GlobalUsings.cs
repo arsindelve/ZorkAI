@@ -3,6 +3,7 @@
 global using GameEngine;
 global using GameEngine.Item;
 global using GameEngine.Item.ItemProcessor;
+global using GameEngine.Location;
 global using JetBrains.Annotations;
 global using Model;
 global using Model.Intent;

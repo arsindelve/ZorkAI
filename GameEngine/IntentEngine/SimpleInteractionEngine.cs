@@ -129,22 +129,34 @@ internal class SimpleInteractionEngine(IItemProcessorFactory itemProcessorFactor
     private static async Task<string> GetGeneratedNoMatchingVerbResponse(string? noun, string verb,
         IGenerationClient generationClient, IContext context)
     {
-        if (string.IsNullOrEmpty(noun))
-            return string.Empty;
+        var location = context.CurrentLocation.GetDescriptionForGeneration(context);
 
-        IItem? item = Repository.GetItemInScope(noun, context);
-        if (item is null)
-            return string.Empty;
-
+        // We only get here because a verb landed on something present but no processor handled it, so
+        // we MUST narrate a no-effect interaction rather than returning a blank line. Two ways the
+        // noun can be unusable here previously short-circuited to "" and printed a blank line (#282):
+        //
+        //   * The noun is empty (a verb-only NoVerbMatch). Fall back to the generic "that command
+        //     does nothing" narration, which needs no noun.
+        //   * GetItemInScope can't resolve the noun even though it matched a present object - e.g. the
+        //     escape-pod BulkheadDoor, one shared instance seeded into both Deck Nine and the Escape
+        //     Pod, whose CurrentLocation is the pod even while you stand on Deck Nine, so the
+        //     accessibility check rejects it. The resolved item is only needed to pick the
+        //     person-specific prompt; when it is null we use the generic "verb has no effect"
+        //     narration.
         Request request;
-
-        if (item is not IAmANamedPerson)
-            request = new VerbHasNoEffectOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), noun, verb);
+        if (string.IsNullOrEmpty(noun))
+        {
+            request = new CommandHasNoEffectOperationRequest(location, verb);
+        }
         else
-            request = new VerbHasNoEffectOnAPersonOperationRequest(context.CurrentLocation.GetDescriptionForGeneration(context), noun, verb, item.GenericDescription(context.CurrentLocation));
+        {
+            IItem? item = Repository.GetItemInScope(noun, context);
+            request = item is IAmANamedPerson
+                ? new VerbHasNoEffectOnAPersonOperationRequest(location, noun, verb, item.GenericDescription(context.CurrentLocation))
+                : new VerbHasNoEffectOperationRequest(location, noun, verb);
+        }
 
-        var result = await generationClient.GenerateNarration(request, context.SystemPromptAddendum) + Environment.NewLine;
-        return result;
+        return await generationClient.GenerateNarration(request, context.SystemPromptAddendum) + Environment.NewLine;
     }
 
     private static async Task<string> GetGeneratedNounNotPresentResponse(string? noun,

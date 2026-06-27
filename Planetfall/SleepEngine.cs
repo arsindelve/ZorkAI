@@ -136,10 +136,14 @@ public class SleepEngine
         // Advance day
         context.Day++;
 
-        // Check for day 9 death
-        if (context.Day >= 9)
+        // Issue #116: advance the disease one level per day (mirrors the I-SICKNESS-WARNINGS daemon's
+        // once-per-day SICKNESS-LEVEL increment, globals.zil:2330). Death is tied to the sickness counter,
+        // not the calendar - so treating the illness (which lowers the counter) actually postpones death.
+        // Untreated, the counter tracks the day and the player still dies on the original day-9 schedule.
+        context.SicknessCounter++;
+        if (context.SicknessCounter >= 9)
             return new DeathProcessor().Process(
-                "Unfortunately, you don't seem to have survived the night.",
+                "You finally succumb to the ravages of your illness and collapse.",
                 context).InteractionMessage;
 
         // Reset chronometer to morning time for the new day
@@ -192,8 +196,9 @@ public class SleepEngine
         }
         else
         {
-            // Health-based message (sickness gets worse each day)
-            var sicknessLevel = (SicknessLevel)context.Day;
+            // Health-based message (sickness gets worse each day). Issue #116: read the mutable sickness
+            // counter, not the calendar day, so a treated player wakes feeling better.
+            var sicknessLevel = (SicknessLevel)Math.Clamp(context.SicknessCounter, 1, 8);
             if (sicknessLevel < SicknessLevel.Meh)
                 message += "You wake up feeling refreshed and ready to face the challenges of this mysterious world. ";
             else if (sicknessLevel < SicknessLevel.ReallySick)

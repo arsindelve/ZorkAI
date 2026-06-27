@@ -35,6 +35,13 @@ internal class ConferenceRoom : LocationBase
             $"is {(Door.IsOpen ? "open" : "closed")}. To the north is a small room about the size of a phone booth. ";
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["conference table", "round conference table", "table"],
+            "It's a large, round conference table. ",
+            "The conference table is far too large to take. ")
+    ];
+
     public override void Init()
     {
         StartWithItem<ConferenceRoomDoor>();

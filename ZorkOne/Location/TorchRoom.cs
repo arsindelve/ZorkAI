@@ -37,6 +37,13 @@ public class TorchRoom : DarkLocation
         return desc;
     }
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["railing", "wooden railing"],
+            "A wooden railing rings the edge of the dome high overhead — the only thing between a careless step and a long drop. ",
+            "The railing is twenty feet up, well out of reach. ")
+    ];
+
     public override void Init()
     {
         StartWithItem<Torch>();

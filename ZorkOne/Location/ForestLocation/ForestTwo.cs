@@ -4,7 +4,7 @@ using Model.Movement;
 
 namespace ZorkOne.Location.ForestLocation;
 
-public class ForestTwo : LocationWithNoStartingItems
+public class ForestTwo : ForestBase
 {
     public override string Name => "Forest";
 
