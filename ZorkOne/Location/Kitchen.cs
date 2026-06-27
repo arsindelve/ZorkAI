@@ -9,6 +9,8 @@ public class Kitchen : LocationBase
 {
     public override string Name => "Kitchen";
 
+    public override string[] NounsForMatching => ["galley"];
+
     protected override string GetContextBasedDescription(IContext context)
     {
         return $"You are in the kitchen of the white house. A table seems to have been " +

@@ -10,6 +10,11 @@ public class Reservoir : DarkLocation, ITurnBasedActor
 {
     public override string Name => "Reservoir";
 
+    // "lake" lives only on the central lake bed, not the two shores (Reservoir North/South). The bed
+    // forks to both shores, so a shared "lake" alias produced a "which shore?" prompt (issue #268
+    // review). From a shore, this central room is the sole "lake" neighbour, so it resolves cleanly.
+    public override string[] NounsForMatching => ["lake"];
+
     public Task<string> Act(IContext context, IGenerationClient client)
     {
         var south = GetLocation<ReservoirSouth>();

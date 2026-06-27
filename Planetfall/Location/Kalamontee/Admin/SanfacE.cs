@@ -2,7 +2,7 @@ using GameEngine.Location;
 
 namespace Planetfall.Location.Kalamontee.Admin;
 
-public class SanfacE : LocationWithNoStartingItems
+public class SanfacE : SanfacBase
 {
     public override string Name => "SanFac E";
 

@@ -8,6 +8,8 @@ public class Gallery : LocationBase
 {
     public override string Name => "Gallery";
 
+    public override string[] NounsForMatching => ["art gallery"];
+
     protected override string GetContextBasedDescription(IContext context)
     {
         return "This is an art gallery. Most of the paintings have been stolen by vandals with exceptional taste. " +

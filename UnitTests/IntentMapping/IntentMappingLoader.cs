@@ -138,6 +138,16 @@ public static class IntentMappingLoader
                 exitByInput[input] = intent;
         merged.ExitSubLocationIntents = exitByInput.Values.Distinct().ToList();
 
+        // Merge go-to destination intents (issue #268)
+        var goToByInput = new Dictionary<string, GoToDestinationMapping>(StringComparer.OrdinalIgnoreCase);
+        foreach (var intent in baseConfig.GoToDestinationIntents)
+            foreach (var input in intent.Inputs)
+                goToByInput[input] = intent;
+        foreach (var intent in derivedConfig.GoToDestinationIntents)
+            foreach (var input in intent.Inputs)
+                goToByInput[input] = intent;
+        merged.GoToDestinationIntents = goToByInput.Values.Distinct().ToList();
+
         return merged;
     }
 }

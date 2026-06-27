@@ -8,6 +8,8 @@ internal class LandOfTheDead : DarkLocation
 {
     public override string Name => "Land of the Dead";
 
+    public override string[] NounsForMatching => ["underworld"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

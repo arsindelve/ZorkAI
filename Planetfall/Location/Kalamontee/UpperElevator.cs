@@ -7,6 +7,11 @@ internal class UpperElevator : ElevatorBase<UpperElevatorDoor, UpperElevatorAcce
 {
     public override string Name => "Upper Elevator";
 
+    // Issue #268: destination matching already derives "upper"/"elevator" from the Name, so we only add
+    // the colour alias that isn't in the title. "elevator" stays the shared term (both cars answer to
+    // it -> "which one?"); "blue"/"upper" are the distinguishing reply keys.
+    public override string[] NounsForMatching => ["blue"];
+
     protected override string Color => "blue";
 
     protected override string Size => "tiny";

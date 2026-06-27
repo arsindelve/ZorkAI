@@ -8,6 +8,8 @@ public class Helicopter : FloydSpecialInteractionLocation
 {
     public override string Name => "Helicopter";
 
+    public override string[] NounsForMatching => ["chopper", "copter"];
+
     public override string FloydPrompt => FloydPrompts.Helicopter;
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)

@@ -34,14 +34,15 @@ public static class ParsingHelper
         I need to know the player's intent. Given the sentence "{1}":
 
         1. Tell me in <intent> tags if:
-            a) If the player is expressing a desire to move, enter, exit, go in, or travel somewhere, put "move"
-            b) If the player wants to enter a vehicle or sub-location, put "board"
-            c) If the player wants to exit a vehicle or sub-location, put "disembark"
-            d) If the player wants to take or pick up one or more items, put "take" (EXCEPTION: if "take" is used WITH a tool or another object using prepositions like "with" or "using", put "act" instead)
-            e) If the player wants to drop one or more items, put "drop"
-            f) If the players want to "look" or "look around" or asks "where am I?", put "look"
-            g) If the player wants to know what they are carrying, what is in their inventory or what items they have, put "inventory"
-            h) Something else, put "Act"
+            a) If the player is expressing a desire to move, go, or travel in a cardinal or relative DIRECTION (e.g. north, south, up, down, in, out), put "move"
+            b) If the player wants to travel to a SPECIFIC NAMED place or room rather than a direction (e.g. "go to the kitchen", "walk into the shuttle", "head to the reactor", "enter the mess"), put "goto". In the <noun> tags, put the destination, NORMALIZING a colloquial or slang place-name to the common room noun it refers to (e.g. "the galley" -> "kitchen"; "the train" -> "shuttle"; "the cafeteria" -> "mess hall"; "the loo" -> "bathroom"). Keep a plain room name as-is.
+            c) If the player wants to enter a vehicle or sub-location, put "board"
+            d) If the player wants to exit a vehicle or sub-location, put "disembark"
+            e) If the player wants to take or pick up one or more items, put "take" (EXCEPTION: if "take" is used WITH a tool or another object using prepositions like "with" or "using", put "act" instead)
+            f) If the player wants to drop one or more items, put "drop"
+            g) If the players want to "look" or "look around" or asks "where am I?", put "look"
+            h) If the player wants to know what they are carrying, what is in their inventory or what items they have, put "inventory"
+            i) Something else, put "Act"
              
         2. In <verb> tags, put the single most important verb I need to know, which best expresses the player's intention. If there is a simpler, more common synonym for the verb, use that instead.
            To avoid confusion, if the player wants to turn something on, or turn on something like a light, use the verb "activate". if the player wants to turn something off, or turn off something light a lamp, use the verb "deactivate"
@@ -70,6 +71,12 @@ public static class ParsingHelper
         "prompt": "put on the jacket", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>jacket</noun>"
         "prompt": "turn on lamp", "completion": "<intent>act</intent>\n<verb>activate</verb>\n<noun>lamp</noun>"
         "prompt": "exit the boat", "completion": "<intent>disembark</intent>\n<noun>boat</noun>"
+        "prompt": "go to the kitchen", "completion": "<intent>goto</intent>\n<noun>kitchen</noun>"
+        "prompt": "walk into the shuttle", "completion": "<intent>goto</intent>\n<noun>shuttle</noun>"
+        "prompt": "enter the mess", "completion": "<intent>goto</intent>\n<noun>mess</noun>"
+        "prompt": "go to the galley", "completion": "<intent>goto</intent>\n<noun>kitchen</noun>"
+        "prompt": "head to the reactor", "completion": "<intent>goto</intent>\n<noun>reactor</noun>"
+        "prompt": "enter the dome room", "completion": "<intent>goto</intent>\n<noun>dome room</noun>"
         "prompt": "take off the jacket", "completion": "<intent>act</intent>\n<verb>doff</verb>\n<noun>jacket</noun>"
         "prompt": "tie the rope to the railing", "completion": "<intent>act</intent>\n<verb>tie</verb>\n<noun>rope</noun>\n<noun>railing</noun>\n<preposition>to</preposition>"
         "prompt": "take the bedistor with pliers", "completion": "<intent>act</intent>\n<verb>take</verb>\n<noun>bedistor</noun>\n<noun>pliers</noun>\n<preposition>with</preposition>"
@@ -217,7 +224,23 @@ public static class ParsingHelper
         return null;
     }
 
-    private static MoveIntent? DetermineMoveIntent(string? response)
+    private static GoToDestinationIntent? DetermineGoToIntent(string? response)
+    {
+        // Issue #268: the player named a place/room to travel to ("go to the kitchen"). The AI tags
+        // this "goto" with the destination in <noun> tags. The engine resolves it against the current
+        // room's exits — see DestinationNavigationEngine.
+        var intentTag = ExtractElementsByTag(response, "intent").SingleOrDefault();
+        if (intentTag != "goto")
+            return null;
+
+        var nouns = ExtractElementsByTag(response, "noun");
+        if (!nouns.Any())
+            return null;
+
+        return new GoToDestinationIntent { Destination = nouns.First(), Message = response };
+    }
+
+    private static IntentBase? DetermineMoveIntent(string? response)
     {
         var intentTag = ExtractElementsByTag(response, "intent").SingleOrDefault();
         if (string.IsNullOrEmpty(intentTag))
@@ -229,11 +252,18 @@ public static class ParsingHelper
         var directionTag = ExtractElementsByTag(response, "direction").SingleOrDefault();
         if (string.IsNullOrEmpty(directionTag))
             directionTag = ExtractElementsByTag(response, "verb").SingleOrDefault();
-        if (string.IsNullOrEmpty(directionTag))
-            return null;
 
-        var direction = DirectionParser.ParseDirection(directionTag);
-        return direction == Direction.Unknown ? null : new MoveIntent { Direction = direction, Message = response };
+        var direction = DirectionParser.ParseDirection(directionTag ?? string.Empty);
+        if (direction != Direction.Unknown)
+            return new MoveIntent { Direction = direction, Message = response };
+
+        // Issue #268 deterministic safety net: the model tagged this "move" but the direction did not
+        // resolve to a real direction (typically "other"). If it also named a place, the player wants
+        // destination navigation ("move to the dome room") — emit that rather than dropping the command.
+        var noun = ExtractElementsByTag(response, "noun").FirstOrDefault();
+        return string.IsNullOrEmpty(noun)
+            ? null
+            : new GoToDestinationIntent { Destination = noun, Message = response };
     }
     
     private static T? DetermineSimpleIntent<T>(string? response) where T : IntentBase, new()
@@ -295,6 +325,10 @@ public static class ParsingHelper
         var disembarkIntent = DetermineDisembarkIntent(response?.ToLower());
         if (disembarkIntent != null)
             return disembarkIntent;
+
+        var goToIntent = DetermineGoToIntent(response?.ToLowerInvariant());
+        if (goToIntent != null)
+            return goToIntent;
 
         var moveIntent = DetermineMoveIntent(response?.ToLowerInvariant());
         if (moveIntent != null)

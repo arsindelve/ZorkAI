@@ -603,6 +603,81 @@ public class ParsingHelperTests
     }
 
     [Test]
+    public void GetIntent_WithGoToResponse_ReturnsGoToDestinationIntent()
+    {
+        // Issue #268: the AI classifies "go to the kitchen" as a destination ("goto") with the
+        // room name in <noun> tags. That must become a GoToDestinationIntent, not a NullIntent.
+        var input = "go to the kitchen";
+        var response = @"<intent>goto</intent>
+<noun>kitchen</noun>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<GoToDestinationIntent>();
+        (result as GoToDestinationIntent)?.Destination.Should().Be("kitchen");
+        result.Message.Should().Be(response);
+    }
+
+    [Test]
+    public void GetIntent_WithGoToResponse_AndMultiWordRoom_KeepsTheWholeName()
+    {
+        // The destination can be a multi-word room name like "maintenance room".
+        var input = "walk to the maintenance room";
+        var response = @"<intent>goto</intent>
+<noun>maintenance room</noun>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<GoToDestinationIntent>();
+        (result as GoToDestinationIntent)?.Destination.Should().Be("maintenance room");
+    }
+
+    [Test]
+    public void GetIntent_WithGoTo_ButNoNoun_ReturnsNullIntent()
+    {
+        // "goto" with no destination noun is meaningless — fall through, don't crash.
+        var input = "go to";
+        var response = "<intent>goto</intent>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<NullIntent>();
+    }
+
+    [Test]
+    public void GetIntent_WithMoveIntent_ButNamedPlaceInsteadOfDirection_ReturnsGoToDestinationIntent()
+    {
+        // Issue #268 deterministic safety net: even when the model still tags a named-place move as
+        // "move" with an unresolvable direction ("other"), a <noun> means the player named a place,
+        // so we emit destination navigation rather than dropping the command.
+        var input = "move to the dome room";
+        var response = @"<intent>move</intent>
+<direction>other</direction>
+<noun>dome room</noun>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<GoToDestinationIntent>();
+        (result as GoToDestinationIntent)?.Destination.Should().Be("dome room");
+    }
+
+    [Test]
+    public void GetIntent_WithMoveIntent_AndRealDirection_StillReturnsMoveIntent_EvenWhenNounPresent()
+    {
+        // Guard: the safety net must only fire when the direction does NOT resolve. A real direction
+        // wins, even if a stray noun is also present.
+        var input = "go north";
+        var response = @"<intent>move</intent>
+<direction>north</direction>
+<noun>kitchen</noun>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<MoveIntent>();
+        (result as MoveIntent)?.Direction.Should().Be(Direction.N);
+    }
+
+    [Test]
     public void GetIntent_TakeIntentPriorityOverDropIntent()
     {
         // Arrange - take should match before other intents

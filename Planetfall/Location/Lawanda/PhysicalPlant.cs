@@ -5,6 +5,8 @@ namespace Planetfall.Location.Lawanda;
 internal class PhysicalPlant : LocationWithNoStartingItems
 {
     public override string Name => "Physical Plant";
+
+    public override string[] NounsForMatching => ["hvac", "boiler room", "environmental control"];
     
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {

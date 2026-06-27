@@ -11,6 +11,11 @@ namespace Planetfall.Location.Kalamontee.Dorm;
 /// </summary>
 internal abstract class DormBase : LocationWithNoStartingItems
 {
+    // Shared destination-navigation synonyms for the dormitories (issue #268 review: de-duplicated
+    // from three byte-identical arrays on Dorm B/C/D). Dorm A overrides with its own list — it has a
+    // "bunkroom" alias and lacks "bedroom"/"quarters".
+    public override string[] NounsForMatching => ["dormitory", "bedroom", "barracks", "quarters"];
+
     public override void Init()
     {
         StartWithItem<Bed>();

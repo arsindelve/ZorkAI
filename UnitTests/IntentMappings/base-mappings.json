@@ -306,7 +306,10 @@
 
     { "inputs": ["enter pod", "board pod", "enter the pod", "board the pod"], "noun": "pod" },
     { "inputs": ["enter bulkhead", "board bulkhead"], "noun": "bulkhead" },
-    { "inputs": ["enter door", "board door"], "noun": "door" }
+    { "inputs": ["enter door", "board door"], "noun": "door" },
+
+    { "inputs": ["enter elevator", "enter the elevator"], "noun": "elevator" },
+    { "inputs": ["enter the kitchen", "enter kitchen"], "noun": "kitchen" }
   ],
 
   "exitSubLocationIntents": [
@@ -315,5 +318,20 @@
     { "inputs": ["exit door"], "nounOne": "door" },
     { "inputs": ["get out of the boat", "leave boat"], "nounOne": "boat" },
     { "inputs": ["get out of bed", "exit bed", "leave bed", "get out", "stand", "stand up", "get up"], "nounOne": "bed" }
+  ],
+
+  "goToDestinationIntents": [
+    { "inputs": ["go to the kitchen", "go to kitchen", "walk to the kitchen"], "destination": "kitchen" },
+    { "inputs": ["go to the upper elevator", "go to upper elevator"], "destination": "upper elevator" },
+    { "inputs": ["go to the lower elevator", "go to lower elevator"], "destination": "lower elevator" },
+    { "inputs": ["go to the reactor", "walk to the reactor"], "destination": "reactor" },
+    { "inputs": ["walk into the shuttle", "go to the shuttle", "enter the shuttle", "walk to the shuttle"], "destination": "shuttle" },
+    { "inputs": ["go to the shuttle car betty", "go to shuttle car betty"], "destination": "shuttle car betty" },
+    { "inputs": ["go to the shuttle car alfie", "go to shuttle car alfie"], "destination": "shuttle car alfie" },
+    { "inputs": ["enter the mess", "enter mess", "go to the mess", "walk to the mess"], "destination": "mess" },
+    { "inputs": ["go to the galley", "walk to the galley"], "destination": "kitchen" },
+    { "inputs": ["enter the train", "go to the train", "walk into the train", "walk to the train"], "destination": "train" },
+    { "inputs": ["go to alfie", "enter alfie", "walk to alfie"], "destination": "alfie" },
+    { "inputs": ["go to betty", "enter betty", "walk to betty"], "destination": "betty" }
   ]
 }

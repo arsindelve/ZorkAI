@@ -7,6 +7,8 @@ internal class ConferenceRoom : LocationBase
 {
     public override string Name => "Conference Room";
 
+    public override string[] NounsForMatching => ["meeting room", "boardroom"];
+
     private ConferenceRoomDoor Door => Repository.GetItem<ConferenceRoomDoor>();
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)

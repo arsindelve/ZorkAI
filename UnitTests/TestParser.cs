@@ -59,6 +59,21 @@ public class TestParser : IntentParser
         if (resolved != null)
             return Task.FromResult(resolved);
 
+        // 1b. Destination navigation (issue #268). The live AI tags "go to <room>" / "walk to <room>"
+        // as a "goto" whose destination is the named room; stub that deterministically so a walkthrough
+        // can travel by a room's NAME OR ANY OF ITS SYNONYMS. Mapped inputs are resolved above, so the
+        // colloquialism-normalizing mappings (e.g. "go to the galley" -> kitchen) still win over this.
+        string[] travelPrefixes = ["go to ", "walk to ", "head to ", "travel to ", "go into ", "walk into "];
+        foreach (var prefix in travelPrefixes)
+        {
+            if (input?.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) != true)
+                continue;
+
+            var destination = input[prefix.Length..].Trim();
+            if (!string.IsNullOrWhiteSpace(destination))
+                return Task.FromResult<IntentBase>(new GoToDestinationIntent { Destination = destination });
+        }
+
         // 2. Dynamic pattern: "put X in Y" with runtime noun lookup
         if (input?.StartsWith("put") ?? false)
         {

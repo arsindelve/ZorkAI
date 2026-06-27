@@ -11,6 +11,8 @@ public class Altar : LocationBase, IThiefMayVisit
 {
     public override string Name => "Altar";
 
+    public override string[] NounsForMatching => ["shrine"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

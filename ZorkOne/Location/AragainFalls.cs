@@ -10,6 +10,8 @@ public class AragainFalls : LocationWithNoStartingItems
 {
     public override string Name => "Aragain Falls";
 
+    public override string[] NounsForMatching => ["waterfall"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

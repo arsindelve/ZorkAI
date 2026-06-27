@@ -7,6 +7,8 @@ internal class Escalator : LocationWithNoStartingItems
 {
     public override string Name => "Escalator";
 
+    public override string[] NounsForMatching => ["stairs", "stairway"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

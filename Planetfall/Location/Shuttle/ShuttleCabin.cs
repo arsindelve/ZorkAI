@@ -4,6 +4,10 @@ namespace Planetfall.Location.Shuttle;
 
 public abstract class ShuttleCabin : LocationWithNoStartingItems
 {
+    // Issue #268: both shuttle cars ("Shuttle Car Betty"/"Alfie") are large transports; their titles
+    // already match "shuttle"/"car"/"betty"/"alfie", so we add only the non-title aliases here.
+    public override string[] NounsForMatching => ["train", "transport"];
+
     protected abstract string Exit { get; }
     
     protected override string GetContextBasedDescription(IContext context)

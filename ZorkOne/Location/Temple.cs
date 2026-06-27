@@ -13,6 +13,8 @@ public class Temple : LocationBase, IThiefMayVisit
 {
     public override string Name => "Temple";
 
+    public override string[] NounsForMatching => ["shrine"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

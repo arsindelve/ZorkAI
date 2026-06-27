@@ -8,6 +8,8 @@ public class Attic : DarkLocation
 {
     public override string Name => "Attic";
 
+    public override string[] NounsForMatching => ["loft"];
+
     protected override string GetContextBasedDescription(IContext context)
     {
         return "This is the attic. The only exit is a stairway leading down. ";

@@ -8,6 +8,8 @@ public class StoneBarrow : LocationWithNoStartingItems
 {
     public override string Name => "Stone Barrow";
 
+    public override string[] NounsForMatching => ["tomb"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

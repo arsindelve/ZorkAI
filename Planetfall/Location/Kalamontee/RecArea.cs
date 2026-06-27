@@ -8,6 +8,8 @@ internal class RecArea : LocationBase
 {
     public override string Name => "Rec Area";
 
+    public override string[] NounsForMatching => ["recreation", "lounge", "game room"];
+
     private ConferenceRoomDoor Door => Repository.GetItem<ConferenceRoomDoor>();
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)

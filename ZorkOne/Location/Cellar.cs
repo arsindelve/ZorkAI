@@ -10,6 +10,8 @@ public class Cellar : DarkLocation
 {
     public override string Name => "Cellar";
 
+    public override string[] NounsForMatching => ["basement"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         // The trap door gates the passage up to the living room. Declaring it as the GatingItem lets

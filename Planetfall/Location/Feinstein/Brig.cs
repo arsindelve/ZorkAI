@@ -6,6 +6,8 @@ internal class Brig : LocationBase
 {
     public override string Name => "Brig";
 
+    public override string[] NounsForMatching => ["jail", "prison", "cell"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

@@ -8,6 +8,8 @@ public class DeepCanyon : DarkLocation
 {
     public override string Name => "Deep Canyon";
 
+    public override string[] NounsForMatching => ["ravine", "gorge"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

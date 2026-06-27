@@ -175,6 +175,13 @@ public abstract class LocationBase : ILocation, ICanContainItems
     public abstract string Name { get; }
 
     /// <summary>
+    /// Opt-in EXTRA synonyms for naming this room as a travel destination (issue #268). Destination
+    /// matching already includes the <see cref="Name"/> (matched on whole words), so override this only
+    /// to ADD aliases not in the title — e.g. ["kitchen"] for a room titled "Mess Hall". Defaults to none.
+    /// </summary>
+    public virtual string[] NounsForMatching => [];
+
+    /// <summary>
     /// Determines if there is an item within the location that matches the specified noun.
     /// </summary>
     /// <param name="noun">The noun to search for that identifies the item.</param>
@@ -382,7 +389,9 @@ public abstract class LocationBase : ILocation, ICanContainItems
     /// </returns>
     public MovementParameters? Navigate(Direction direction, IContext context)
     {
-        return Map(context).ContainsKey(direction) ? Map(context)[direction] : null;
+        // Build the map once: Map(context) allocates a fresh dictionary (and its closures) on every
+        // call, so the old ContainsKey-then-index form built it twice per Navigate.
+        return Map(context).GetValueOrDefault(direction);
     }
 
     public Direction? DirectionGatedBy(IItem item, IContext context)

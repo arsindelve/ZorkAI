@@ -7,6 +7,8 @@ internal class LibraryLobby : LocationBase
 {
     public override string Name => "Library Lobby";
 
+    public override string[] NounsForMatching => ["foyer"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

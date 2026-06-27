@@ -4,6 +4,8 @@ public class AlfieControlWest : ShuttleControl<ShuttleCarAlfie, AlfieControlWest
 {
     public override string Name => "Alfie Control West";
 
+    public override string[] NounsForMatching => ["alfie cockpit"];
+
     public override int TunnelPosition { get; set; } = EndOfTunnel;
     
     protected override Direction LeaveControlsDirection => Direction.E;

@@ -14,6 +14,8 @@ internal class CommRoom : LocationWithNoStartingItems, IFloydDoesNotTalkHere
 
     public override string Name => "Comm Room";
 
+    public override string[] NounsForMatching => ["communications", "radio room"];
+
     [UsedImplicitly] public bool SystemIsCritical { get; set; }
 
     [UsedImplicitly] public bool IsFixed { get; set; }

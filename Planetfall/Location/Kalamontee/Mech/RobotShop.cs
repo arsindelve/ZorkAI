@@ -30,6 +30,9 @@ internal class RobotShop : LocationBase
 
     public override string Name => "Robot Shop";
 
+    // No "workshop" alias here: it is shared with two sibling shops off Mech Corridor South and only
+    // created a dead 3-way "which one?" (issue #268 review). Reach this room as the "robot shop".
+
     public override void Init()
     {
         StartWithItem<Floyd>();

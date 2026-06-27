@@ -7,6 +7,10 @@ internal class DeckNine : LocationBase, ITurnBasedActor
 {
     public override string Name => "Deck Nine";
 
+    // "deck 9" so naming the deck works whether the player (or the AI parser) writes the number out or
+    // as a digit — the room title spells it, but "go to deck 9" is at least as common (issue #268).
+    public override string[] NounsForMatching => ["deck 9"];
+
     public Task<string> Act(IContext context, IGenerationClient client)
     {
         // Deck nine is special. This location is the epicenter of the explosion (from a code perspective)
