@@ -13,7 +13,7 @@ public abstract class OpenAIClientBase
     // (e.g. ChatGPTClient runs Floyd's companion speech on a cheaper, faster model).
     protected readonly string? ApiKey;
 
-    protected OpenAIClientBase(ILogger? logger, bool requireApiKey = true)
+    protected OpenAIClientBase(ILogger? logger, bool requireApiKey = true, string? modelOverride = null)
     {
         Logger = logger;
         var key = Environment.GetEnvironmentVariable("OPEN_AI_KEY");
@@ -30,7 +30,10 @@ public abstract class OpenAIClientBase
         {
             HasApiKey = true;
             ApiKey = key;
-            Client = new ChatClient(model: ModelName, apiKey: key);
+            // modelOverride lets a subclass whose model is constructor-selectable build the base Client
+            // with the right model directly, avoiding a virtual ModelName call before the subclass's
+            // fields are initialized (and avoiding a second, unused client).
+            Client = new ChatClient(model: modelOverride ?? ModelName, apiKey: key);
         }
     }
 
