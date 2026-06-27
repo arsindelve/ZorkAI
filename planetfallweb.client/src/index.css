@@ -2,11 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Planetfall Sci-Fi Color Palette - Warm Amber & Deep Blue */
+/* Planetfall Sci-Fi Color Palette - Gold & Deep Blue.
+   Warm tones are anchored to the logo gold (#e0ac45) so the UI matches the
+   wordmark; accent is a lighter tint of the same gold for highlights. */
 :root {
-  --planetfall-primary: #ff9500;
+  --planetfall-primary: #e0ac45;
   --planetfall-secondary: #0ea5e9;
-  --planetfall-accent: #fbbf24;
+  --planetfall-accent: #f3c863;
   --planetfall-compass: #0095ff;
   --planetfall-bg-dark: #0a1929;
   --planetfall-bg-medium: #1e293b;
@@ -28,10 +30,10 @@
 
 @keyframes glowPulse {
   0%, 100% {
-    box-shadow: 0 0 10px rgba(255, 149, 0, 0.3);
+    box-shadow: 0 0 10px rgba(224, 172, 69, 0.3);
   }
   50% {
-    box-shadow: 0 0 20px rgba(255, 149, 0, 0.6);
+    box-shadow: 0 0 20px rgba(224, 172, 69, 0.6);
   }
 }
 
@@ -118,13 +120,13 @@
 }
 
 .clickable::-webkit-scrollbar-thumb {
-  background: rgba(255, 149, 0, 0.3);
+  background: rgba(224, 172, 69, 0.3);
   border-radius: 4px;
   transition: background 0.3s;
 }
 
 .clickable::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 149, 0, 0.6);
+  background: rgba(224, 172, 69, 0.6);
 }
 
 /* Highlight ONLY the single word under the cursor (via the CSS Custom Highlight
@@ -133,7 +135,7 @@
 ::highlight(word-hover) {
   background-color: color-mix(in srgb, var(--planetfall-primary) 30%, transparent);
   color: #ffffff;
-  text-shadow: 0 0 8px rgba(255, 149, 0, 0.6);
+  text-shadow: 0 0 8px rgba(224, 172, 69, 0.6);
 }
 
 /* Sci-fi scanline effect */
@@ -145,8 +147,8 @@
     0deg,
     transparent,
     transparent 2px,
-    rgba(255, 149, 0, 0.03) 2px,
-    rgba(255, 149, 0, 0.03) 4px
+    rgba(224, 172, 69, 0.03) 2px,
+    rgba(224, 172, 69, 0.03) 4px
   );
   pointer-events: none;
   animation: scanline 8s linear infinite;
@@ -155,24 +157,24 @@
 /* Glowing text effect */
 .text-glow {
   text-shadow:
-    0 0 10px rgba(255, 149, 0, 0.5),
-    0 0 20px rgba(255, 149, 0, 0.3),
-    0 0 30px rgba(255, 149, 0, 0.2);
+    0 0 10px rgba(224, 172, 69, 0.5),
+    0 0 20px rgba(224, 172, 69, 0.3),
+    0 0 30px rgba(224, 172, 69, 0.2);
 }
 
 /* Neon border effect */
 .neon-border {
-  border: 2px solid rgba(255, 149, 0, 0.3);
+  border: 2px solid rgba(224, 172, 69, 0.3);
   box-shadow:
-    0 0 10px rgba(255, 149, 0, 0.2),
-    inset 0 0 10px rgba(255, 149, 0, 0.1);
+    0 0 10px rgba(224, 172, 69, 0.2),
+    inset 0 0 10px rgba(224, 172, 69, 0.1);
 }
 
 /* Glass morphism effect */
 .glass-morphism {
   background: rgba(10, 25, 41, 0.7);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 149, 0, 0.2);
+  border: 1px solid rgba(224, 172, 69, 0.2);
 }
 
 /* Footer styling */
