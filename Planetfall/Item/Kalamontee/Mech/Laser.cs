@@ -190,6 +190,9 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
                 "The laser beam strikes the microbe, but passes harmlessly through its red skin. ");
 
         microbe.HitThisTurn = true;
+        // Capture the warmth NOW — before this shot's increment lands in Act — so the microbe's
+        // lash-out reaction is independent of whether the laser actor runs before or after it.
+        microbe.WarmthAtHit = WarmthLevel;
         return new PositiveInteractionResult(
             "The laser beam strikes the microbe. " + Chooser.Choose(MicrobeStrikes) + " ");
     }

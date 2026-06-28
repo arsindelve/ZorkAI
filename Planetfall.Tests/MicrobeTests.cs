@@ -210,6 +210,53 @@ public class MicrobeTests : EngineTestsBase
     }
 
     [Test]
+    public async Task GiveLaserToMicrobe_WhenNotHolding_DoesNotConsumeIt()
+    {
+        var (target, microbe) = await ArriveOnStripWithMicrobe();
+
+        // Set the laser down — the player is now empty-handed (the possession guard fires before any
+        // warmth check, so the laser's heat is irrelevant here).
+        await target.GetResponse("drop laser");
+
+        var response = await target.GetResponse("give laser to microbe");
+
+        response.Should().Contain("not holding the laser");
+        // The laser must not be teleported out of the room and destroyed, and the microbe survives.
+        microbe.Dispatched.Should().BeFalse();
+        microbe.IsActive.Should().BeTrue();
+        GetItem<Laser>().CurrentLocation.Should().Be(target.Context.CurrentLocation);
+    }
+
+    [Test]
+    public async Task LashOutWarning_KeysOffWarmthAtShot_NotActorOrder()
+    {
+        var (target, microbe) = await ArriveOnStripWithMicrobe();
+        await target.GetResponse("set laser to 3");
+
+        // First shot registers the laser as an actor (after the microbe).
+        await target.GetResponse("shoot microbe with laser");
+
+        // Force the adversarial ordering: laser BEFORE the microbe in the actor list, so Laser.Act
+        // would apply this turn's warmth increment before Microbe.Act if the microbe read it live.
+        var actors = target.Context.Actors;
+        var laser = GetItem<Laser>();
+        actors.Remove(laser);
+        actors.Remove(microbe);
+        actors.Insert(0, microbe);
+        actors.Insert(0, laser);
+
+        // Fire up to the 8th total shot: warmth-at-shot is 7 there, which must NOT yet snatch.
+        string response = string.Empty;
+        for (var i = 0; i < 7; i++)
+            response = await target.GetResponse("shoot microbe with laser");
+        response.Should().NotContain("snatch it away from the monster's grasp");
+
+        // The 9th shot has warmth-at-shot 8, crossing the threshold regardless of actor order.
+        response = await target.GetResponse("shoot microbe with laser");
+        response.Should().Contain("snatch it away from the monster's grasp");
+    }
+
+    [Test]
     public async Task GiveColdLaserToMicrobe_IsIgnored_AndMicrobeRemains()
     {
         var (target, microbe) = await ArriveOnStripWithMicrobe();

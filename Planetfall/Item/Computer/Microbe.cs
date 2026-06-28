@@ -56,6 +56,15 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
     public bool HitThisTurn { get; set; }
 
     /// <summary>
+    /// The laser's warmth captured at the moment of the strike, BEFORE that shot's own increment.
+    /// The microbe's lash-out reaction (snatch / lunge) keys off this rather than reading
+    /// <c>laser.WarmthLevel</c> live in <see cref="Act" />, so the thresholds don't depend on whether
+    /// the laser actor happens to run before or after the microbe within the turn.
+    /// </summary>
+    [UsedImplicitly]
+    public int WarmthAtHit { get; set; }
+
+    /// <summary>
     /// True on the turn the microbe spawns, so its closing daemon doesn't also fire that same turn —
     /// the spawn text is the turn-zero beat; the microbe begins advancing the following turn.
     /// </summary>
@@ -106,23 +115,21 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
 
         var laser = Repository.GetItem<Laser>();
         var holdingLaser = laser.CurrentLocation == context;
-        // The microbe is registered as an actor before the laser, so this reads the warmth at the
-        // START of the turn — the current shot's increment lands later in Laser.Act. The thresholds
-        // below are therefore "warmth coming into this turn."
-        var warmth = laser.WarmthLevel;
 
         if (HitThisTurn)
         {
             HitThisTurn = false;
             var message = Chooser.Choose(_microbeLashesOut);
 
+            // Key off the warmth captured at strike time (WarmthAtHit), not the live WarmthLevel,
+            // so the outcome doesn't depend on actor-registration order within the turn.
             // At blistering heat, holding the laser when it lashes out is fatal — it lunges at the
             // pulsing weapon and drags you both off the strip (I-MICROBE, WARMTH-FLAG > 13).
-            if (warmth > MicrobeFightHelper.LethalLungeWarmth && holdingLaser)
+            if (WarmthAtHit > MicrobeFightHelper.LethalLungeWarmth && holdingLaser)
                 return Task.FromResult(Die(LungeDeath, context));
 
             // Warm-but-not-deadly: a pseudopod grabs for the laser and you snatch it away.
-            if (warmth > MicrobeFightHelper.RepelWarmth && holdingLaser)
+            if (WarmthAtHit > MicrobeFightHelper.RepelWarmth && holdingLaser)
                 message +=
                     " Another pseudopod, perhaps attracted by the warmth of the laser, tries to envelop " +
                     "the weapon. You snatch it away from the monster's grasp.";
@@ -165,6 +172,11 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
     private InteractionResult GiveLaser(IContext context)
     {
         var laser = Repository.GetItem<Laser>();
+
+        // You can only give what you're holding — don't consume the singleton laser from wherever it
+        // actually sits if the player walked up empty-handed (mirrors Laser.ThrowOffStrip's guard).
+        if (laser.CurrentLocation != context)
+            return new PositiveInteractionResult("You're not holding the laser. ");
 
         // The microbe only bothers with the laser once it's been heated up.
         if (laser.WarmthLevel <= MicrobeFightHelper.RepelWarmth)
