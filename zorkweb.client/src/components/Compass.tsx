@@ -127,21 +127,23 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
         onCompassClick(direction);
     };
 
-    // Unavailable controls stay in the DOM but `visibility: hidden` so the rose
-    // never shifts when an exit appears or disappears.
+    // Both controls are always rendered (disabled + dimmed when not an exit) so the
+    // dial stays balanced/centered and the up/down affordance is always discoverable.
     const verticalButtonStyle = (available: boolean): React.CSSProperties => ({
-        visibility: available ? 'visible' : 'hidden',
-        borderColor: available ? '#84cc16' : 'transparent',
-        color: available ? '#ecfccb' : 'transparent',
+        borderColor: available ? '#84cc16' : 'rgba(214, 211, 209, 0.18)',
+        color: available ? '#ecfccb' : 'rgba(214, 211, 209, 0.28)',
         background: available ? 'rgba(132, 204, 22, 0.18)' : 'transparent',
-        animation: available ? 'compassPulse 1.4s ease-in-out infinite' : undefined,
+        opacity: available ? 'var(--compass-pulse)' : undefined,
+        cursor: available ? 'pointer' : 'default',
     });
 
     return (
         <div className={className} {...rest}>
             {/* The rose stays pinned to the right edge; the Up/Down lift grows to its
-                left so appearing/disappearing controls never shift the rose. */}
-            <div className="flex items-center gap-1.5">
+                left so appearing/disappearing controls never shift the rose.
+                compass-pulse-driver runs the single animation that all available
+                wedges/controls read via --compass-pulse, keeping them in sync. */}
+            <div className="flex items-center gap-1.5 compass-pulse-driver">
                 <div className="flex flex-col gap-1.5">
                     <button
                         type="button"
@@ -181,8 +183,8 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
                         <style>{`
       .cls-1 { fill: #4d4d4d; transition: fill 0.2s; }
       .cls-1.highlight { fill: rgba(255, 99, 71, 0.5); }
-      .cls-1.available { fill: #84cc16; animation: compassPulse 1.4s ease-in-out infinite; }
-      .cls-1.available:hover { animation: none; opacity: 1; fill: #a3e635; }
+      .cls-1.available { fill: #84cc16; opacity: var(--compass-pulse); }
+      .cls-1.available:hover { opacity: 1; fill: #a3e635; }
       .compass-ring { fill: none; stroke: rgba(132, 204, 22, 0.4); stroke-width: 0.8; }
       .compass-label { fill: rgba(214, 211, 209, 0.7); font-size: 7px; font-weight: bold; font-family: monospace; text-anchor: middle; dominant-baseline: central; }
     `}</style>

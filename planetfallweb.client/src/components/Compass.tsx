@@ -127,21 +127,25 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
         onCompassClick(direction);
     };
 
-    // Unavailable controls stay in the DOM but `visibility: hidden` so the rose
-    // never shifts when an exit appears or disappears.
+    // Both controls are always rendered (disabled + dimmed when not an exit) so the
+    // dial stays balanced/centered and the up/down affordance is always discoverable.
     const verticalButtonStyle = (available: boolean): React.CSSProperties => ({
-        visibility: available ? 'visible' : 'hidden',
-        borderColor: available ? 'var(--planetfall-compass)' : 'transparent',
-        color: available ? '#cfeaff' : 'transparent',
+        borderColor: available
+            ? 'var(--planetfall-compass)'
+            : 'color-mix(in srgb, var(--planetfall-text) 18%, transparent)',
+        color: available ? '#cfeaff' : 'color-mix(in srgb, var(--planetfall-text) 28%, transparent)',
         background: available ? 'color-mix(in srgb, var(--planetfall-compass) 18%, transparent)' : 'transparent',
-        animation: available ? 'compassPulse 1.4s ease-in-out infinite' : undefined,
+        opacity: available ? 'var(--compass-pulse)' : undefined,
+        cursor: available ? 'pointer' : 'default',
     });
 
     return (
         <div className={className} {...rest}>
             {/* The rose stays pinned to the right edge; the Up/Down lift grows to its
-                left so appearing/disappearing controls never shift the rose. */}
-            <div className="flex items-center gap-1.5">
+                left so appearing/disappearing controls never shift the rose.
+                compass-pulse-driver runs the single animation that all available
+                wedges/controls read via --compass-pulse, keeping them in sync. */}
+            <div className="flex items-center gap-1.5 compass-pulse-driver">
                 <div className="flex flex-col gap-1.5">
                     <button
                         type="button"
@@ -181,8 +185,8 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
                         <style>{`
       .cls-1 { fill: var(--planetfall-bg-medium); transition: fill 0.2s; opacity: 0.4; }
       .cls-1.highlight { fill: color-mix(in srgb, var(--planetfall-compass) 60%, transparent); }
-      .cls-1.available { fill: var(--planetfall-compass); animation: compassPulse 1.4s ease-in-out infinite; }
-      .cls-1.available:hover { animation: none; opacity: 1; fill: color-mix(in srgb, var(--planetfall-compass) 80%, white); }
+      .cls-1.available { fill: var(--planetfall-compass); opacity: var(--compass-pulse); }
+      .cls-1.available:hover { opacity: 1; fill: color-mix(in srgb, var(--planetfall-compass) 80%, white); }
       .compass-ring { fill: none; stroke: color-mix(in srgb, var(--planetfall-compass) 35%, transparent); stroke-width: 0.8; }
       .compass-label { fill: color-mix(in srgb, var(--planetfall-text) 65%, transparent); font-size: 7px; font-weight: bold; font-family: monospace; text-anchor: middle; dominant-baseline: central; }
     `}</style>

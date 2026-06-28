@@ -79,14 +79,20 @@
   }
 }
 
-/* Pulsing/strobing highlight for available compass exits */
+/* One animation drives the shared --compass-pulse value so every available wedge
+   and the up/down controls pulse on a single synchronized timeline (rather than
+   each element starting its own animation when its room makes it available). */
+@property --compass-pulse {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
 @keyframes compassPulse {
-  0%, 100% {
-    opacity: 0.45;
-  }
-  50% {
-    opacity: 1;
-  }
+  0%, 100% { --compass-pulse: 0.45; }
+  50% { --compass-pulse: 1; }
+}
+.compass-pulse-driver {
+  animation: compassPulse 1.4s ease-in-out infinite;
 }
 
 .animate-blink {

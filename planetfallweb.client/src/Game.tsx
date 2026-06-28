@@ -302,10 +302,18 @@ function Game() {
             absolute
             top-24
             right-5
-            opacity-90
             z-20
             pointer-events-auto
-            "/>
+            rounded-xl
+            p-4
+            "
+            style={{
+                background: 'linear-gradient(135deg, color-mix(in srgb, var(--planetfall-bg-medium) 38%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 38%, transparent) 100%)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: '1px solid color-mix(in srgb, var(--planetfall-primary) 30%, transparent)',
+                boxShadow: '0 4px 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent), 0 2px 10px rgba(0, 0, 0, 0.5)'
+            }}/>
 
             <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word) => handleWordClicked(word)}
                            className="relative flex flex-col p-6 sm:p-12 h-[65vh] overflow-auto font-mono rounded-lg border-2 shadow-lg clickable z-10"

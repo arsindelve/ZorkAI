@@ -144,24 +144,24 @@ describe('Compass Component', () => {
   });
 
   describe('up/down lift controls', () => {
-    // Index 10 = Up, 11 = Down in the Direction map. Query by test id because
-    // unavailable controls are visibility:hidden (excluded from the a11y tree).
-    test('shows the up control only when Up is an available exit', () => {
+    // Index 10 = Up, 11 = Down in the Direction map. Both controls always render;
+    // they are enabled only when that exit is available (disabled + dimmed otherwise).
+    test('enables the up control only when Up is an available exit', () => {
       render(<Compass exits={['10']} />);
-      expect(screen.getByTestId('compass-up')).toBeVisible();
-      expect(screen.getByTestId('compass-down')).not.toBeVisible();
+      expect(screen.getByTestId('compass-up')).toBeEnabled();
+      expect(screen.getByTestId('compass-down')).toBeDisabled();
     });
 
-    test('shows the down control when Down is an available exit', () => {
+    test('enables the down control when Down is an available exit', () => {
       render(<Compass exits={['11']} />);
-      expect(screen.getByTestId('compass-down')).toBeVisible();
-      expect(screen.getByTestId('compass-up')).not.toBeVisible();
+      expect(screen.getByTestId('compass-down')).toBeEnabled();
+      expect(screen.getByTestId('compass-up')).toBeDisabled();
     });
 
-    test('hides both controls when neither is an exit', () => {
+    test('disables both controls when neither is an exit', () => {
       render(<Compass exits={['0', '2']} />);
-      expect(screen.getByTestId('compass-up')).not.toBeVisible();
-      expect(screen.getByTestId('compass-down')).not.toBeVisible();
+      expect(screen.getByTestId('compass-up')).toBeDisabled();
+      expect(screen.getByTestId('compass-down')).toBeDisabled();
     });
 
     test('clicking the up control calls onCompassClick with "up"', () => {
