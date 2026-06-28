@@ -12,6 +12,59 @@ import Compass from "./components/Compass.tsx";
 import {useGameContext} from "@zork-ai/shared-types";
 import GameInput from "./components/GameInput.tsx";
 
+// --- Per-word hover highlight (CSS Custom Highlight API) ---------------------
+// Lives in the client (passed to ClickableText as onMouseMove/onMouseLeave) rather
+// than inside the shared ClickableText, so it loads reliably regardless of how the
+// shared package resolves. Highlights only the single word under the cursor to
+// signal that individual words are clickable.
+const WORD_HOVER_HIGHLIGHT = "word-hover";
+
+const supportsHighlightApi = (): boolean =>
+    typeof CSS !== "undefined" &&
+    !!CSS.highlights &&
+    typeof (globalThis as { Highlight?: unknown }).Highlight !== "undefined";
+
+const expandToWordRange = (node: Node | null, offset: number): Range | null => {
+    if (!node || node.nodeType !== Node.TEXT_NODE) return null;
+    const text = node.textContent ?? "";
+    if (!text) return null;
+    let start = offset;
+    let end = offset;
+    while (start > 0 && !/\s/.test(text[start - 1])) start--;
+    while (end < text.length && !/\s/.test(text[end])) end++;
+    if (start === end) return null;
+    const range = document.createRange();
+    range.setStart(node, start);
+    range.setEnd(node, end);
+    return range;
+};
+
+const clearWordHighlight = (): void => {
+    if (!supportsHighlightApi()) return;
+    CSS.highlights.delete(WORD_HOVER_HIGHLIGHT);
+};
+
+const highlightWordAtPointer = (event: React.MouseEvent<HTMLDivElement>): void => {
+    if (!supportsHighlightApi()) return;
+    let node: Node | null = null;
+    let offset = 0;
+    const doc = document as Document & {
+        caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node; offset: number } | null;
+    };
+    if (typeof doc.caretRangeFromPoint === "function") {
+        const range = doc.caretRangeFromPoint(event.clientX, event.clientY);
+        if (range) { node = range.startContainer; offset = range.startOffset; }
+    } else if (typeof doc.caretPositionFromPoint === "function") {
+        const pos = doc.caretPositionFromPoint(event.clientX, event.clientY);
+        if (pos) { node = pos.offsetNode; offset = pos.offset; }
+    }
+    const wordRange = expandToWordRange(node, offset);
+    if (!wordRange || !wordRange.toString().trim()) { clearWordHighlight(); return; }
+    const HighlightCtor = (globalThis as { Highlight?: new (range: Range) => unknown }).Highlight!;
+    // @ts-expect-error - highlights is not in older TS lib.dom typings
+    CSS.highlights.set(WORD_HOVER_HIGHLIGHT, new HighlightCtor(wordRange));
+};
+
 function Game() {
 
     const restoreResponse = "<Restore>";
@@ -308,6 +361,8 @@ function Game() {
             "/>
 
             <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word: string) => handleWordClicked(word)}
+                           onMouseMove={highlightWordAtPointer}
+                           onMouseLeave={clearWordHighlight}
                            className={"flex flex-col p-6 sm:p-12 bg-opacity-80 h-[65vh] overflow-auto " +
                                "bg-stone-900 font-mono rounded-lg border-2 " +
                                "border-stone-700/50 shadow-lg z-10"}

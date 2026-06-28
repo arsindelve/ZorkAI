@@ -6,36 +6,6 @@ interface ClickableTextProps extends React.HTMLAttributes<HTMLDivElement> {
     onWordClick?: (word: string) => void; // Callback to pass clicked word to parent
 }
 
-// Highlight registry name shared with the `::highlight(word-hover)` CSS rule.
-const WORD_HOVER_HIGHLIGHT = "word-hover";
-
-// Feature-detect the CSS Custom Highlight API. Absent in jsdom (tests) and older
-// browsers, in which case hover highlighting is simply skipped.
-const supportsHighlightApi = (): boolean =>
-    typeof CSS !== "undefined" &&
-    // @ts-expect-error - highlights is not in older TS lib.dom typings
-    !!CSS.highlights &&
-    typeof (globalThis as { Highlight?: unknown }).Highlight !== "undefined";
-
-// Grow a collapsed (node, offset) position out to the whitespace-delimited word
-// that contains it. Returns null when the position isn't inside a word.
-const expandToWordRange = (node: Node | null, offset: number): Range | null => {
-    if (!node || node.nodeType !== Node.TEXT_NODE) return null;
-    const text = node.textContent ?? "";
-    if (!text) return null;
-
-    let start = offset;
-    let end = offset;
-    while (start > 0 && !/\s/.test(text[start - 1])) start--;
-    while (end < text.length && !/\s/.test(text[end])) end++;
-    if (start === end) return null;
-
-    const range = document.createRange();
-    range.setStart(node, start);
-    range.setEnd(node, end);
-    return range;
-};
-
 // Define the ref handle type
 export interface ClickableTextHandle {
     copyToClipboardAsRTF: () => Promise<boolean>;
@@ -178,55 +148,11 @@ const ClickableText = forwardRef<HTMLDivElement & ClickableTextHandle, Clickable
             }
         };
 
-        const clearWordHighlight = () => {
-            if (!supportsHighlightApi()) return;
-            // @ts-expect-error - highlights is not in older TS lib.dom typings
-            CSS.highlights.delete(WORD_HOVER_HIGHLIGHT);
-        };
-
-        // Highlight only the single word under the cursor (not the whole line),
-        // signalling that individual words are clickable.
-        const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-            if (!supportsHighlightApi()) return;
-
-            let node: Node | null = null;
-            let offset = 0;
-
-            const doc = document as Document & {
-                caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node; offset: number } | null;
-            };
-            if (typeof doc.caretRangeFromPoint === "function") {
-                const range = doc.caretRangeFromPoint(event.clientX, event.clientY);
-                if (range) {
-                    node = range.startContainer;
-                    offset = range.startOffset;
-                }
-            } else if (typeof doc.caretPositionFromPoint === "function") {
-                const pos = doc.caretPositionFromPoint(event.clientX, event.clientY);
-                if (pos) {
-                    node = pos.offsetNode;
-                    offset = pos.offset;
-                }
-            }
-
-            const wordRange = expandToWordRange(node, offset);
-            if (!wordRange || !wordRange.toString().trim()) {
-                clearWordHighlight();
-                return;
-            }
-
-            const HighlightCtor = (globalThis as { Highlight?: new (range: Range) => unknown }).Highlight!;
-            // @ts-expect-error - highlights is not in older TS lib.dom typings
-            CSS.highlights.set(WORD_HOVER_HIGHLIGHT, new HighlightCtor(wordRange));
-        };
-
         return (
             <div
                 ref={divRef}
                 className="clickable"
                 onClick={handleClick}
-                onMouseMove={handleMouseMove}
-                onMouseLeave={clearWordHighlight}
                 style={{cursor: "pointer"}}
                 {...props}
             >
