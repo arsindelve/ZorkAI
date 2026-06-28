@@ -41,7 +41,10 @@ internal class MiddleOfStrip : LocationWithNoStartingItems
         IGenerationClient generationClient)
     {
         // The microbe attacks the moment you set foot on the strip with the computer fixed
-        // (MIDDLE-OF-STRIP-F M-ENTER, comptwo.zil:2478).
+        // (MIDDLE-OF-STRIP-F M-ENTER, comptwo.zil:2478). There's deliberately no "follows you"
+        // branch here: once the microbe is active you can only ever move *north* (the southbound
+        // exits are gated on Microbe.IsActive), so you can never re-enter this room while it chases
+        // you. The only follow case is northbound, handled in StripNearRelay.
         var relay = Repository.GetItem<Relay>();
         var microbe = Repository.GetItem<Microbe>();
 
@@ -50,14 +53,6 @@ internal class MiddleOfStrip : LocationWithNoStartingItems
             var spawnText = microbe.SpawnOnStrip(context, this);
             if (spawnText is not null)
                 return Task.FromResult(spawnText);
-        }
-
-        // The microbe trails you back into this room if it was chasing you elsewhere on the strip.
-        if (microbe.IsActive && microbe.CurrentLocation != this)
-        {
-            var followText = microbe.FollowInto(this);
-            if (followText is not null)
-                return Task.FromResult(followText);
         }
 
         return base.AfterEnterLocation(context, previousLocation, generationClient);

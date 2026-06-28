@@ -209,6 +209,86 @@ public class MicrobeTests : EngineTestsBase
     }
 
     [Test]
+    public async Task GiveColdLaserToMicrobe_IsIgnored_AndMicrobeRemains()
+    {
+        var (target, microbe) = await ArriveOnStripWithMicrobe();
+        await target.GetResponse("set laser to 3");
+
+        // Warmth <= 7: the microbe won't bother with the laser.
+        for (var i = 0; i < 4; i++)
+            await target.GetResponse("shoot microbe with laser");
+
+        GetItem<Laser>().WarmthLevel.Should().BeLessThanOrEqualTo(7);
+
+        var response = await target.GetResponse("give laser to microbe");
+
+        response.Should().Contain("ignores the laser");
+        microbe.IsActive.Should().BeTrue();
+        microbe.Dispatched.Should().BeFalse();
+        // The laser was not consumed, so the player still has it.
+        target.Context.HasItem<Laser>().Should().BeTrue();
+    }
+
+    [Test]
+    public async Task GiveWarmButNotHotLaserToMicrobe_IsDevoured_ButMicrobeSurvives()
+    {
+        var (target, microbe) = await ArriveOnStripWithMicrobe();
+        await target.GetResponse("set laser to 3");
+
+        // Warmth in the (7, 10] band: the microbe eats the laser but isn't killed by the heat.
+        for (var i = 0; i < 9; i++)
+            await target.GetResponse("shoot microbe with laser");
+
+        GetItem<Laser>().WarmthLevel.Should().BeInRange(8, 10);
+
+        var response = await target.GetResponse("give laser to microbe");
+
+        response.Should().Contain("devours the laser");
+        response.Should().Contain("turns toward you");
+        microbe.IsActive.Should().BeTrue();
+        microbe.Dispatched.Should().BeFalse();
+        // The laser is gone (eaten), even though the microbe survived.
+        target.Context.HasItem<Laser>().Should().BeFalse();
+    }
+
+    [Test]
+    public async Task ShootMicrobe_WhileHoldingHotLaser_TriesToSnatchTheWeapon()
+    {
+        var (target, _) = await ArriveOnStripWithMicrobe();
+        await target.GetResponse("set laser to 3");
+
+        // Drive warmth above 7 (but below the deadly 13) while still holding the laser.
+        string response = string.Empty;
+        for (var i = 0; i < 9; i++)
+            response = await target.GetResponse("shoot microbe with laser");
+
+        GetItem<Laser>().WarmthLevel.Should().BeInRange(8, 13);
+        response.Should().Contain("snatch it away from the monster's grasp");
+    }
+
+    [Test]
+    public async Task ShootMicrobe_WhileHoldingScaldingLaser_LungesAndKillsPlayer()
+    {
+        var (target, _) = await ArriveOnStripWithMicrobe();
+        await target.GetResponse("set laser to 3");
+
+        // Keep firing while holding the laser; once warmth passes 13 the next hit is fatal.
+        string death = string.Empty;
+        for (var i = 0; i < 20; i++)
+        {
+            var response = await target.GetResponse("shoot microbe with laser");
+            if (response.Contains("You have died"))
+            {
+                death = response;
+                break;
+            }
+        }
+
+        death.Should().Contain("losing your balance, fall over the edge of the strip");
+        death.Should().Contain("You have died");
+    }
+
+    [Test]
     public async Task SectorReactivation_KillsPlayer_WhileOnStrip()
     {
         var (target, _) = await ArriveOnStripWithMicrobe();

@@ -436,36 +436,3 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
         return Task.FromResult(message);
     }
 }
-
-
-/*
- 
- Shooting the Laser at the Microbe
-
-   The microbe is a hungry monster that blocks your path on the silicon strip (inside the computer). Here's how the laser interaction works:
-
-   Direct Laser Hits
-
-   - Setting 1 (red): The beam "passes harmlessly through its red skin" — the microbe's skin is red, so red light doesn't affect it
-   - Settings 2-6 (orange through violet): The beam hits and the microbe recoils momentarily, but quickly recovers. You get random flavor text like:
-     - "The microbe's outer membrane sizzles a bit, and some protoplasm oozes out"
-     - "The beam slices through the microbe's skin! A tremendous shudder passes..."
-     - "The monster rears back for a moment, but almost as soon as the beam goes off, it advances again"
-
-   You cannot kill the microbe by shooting it directly — it always regenerates.
-
-   The Heat Mechanic (How to Actually Defeat It)
-
-   Each time you fire the laser, WARMTH-FLAG increases. The laser heats up progressively: "slightly warm" → "somewhat warm" → "very warm" → "quite hot"
-
-   Once the laser is hot enough (WARMTH-FLAG > 7), you have options:
-
-   1. Throw the hot laser off the strip: The microbe, attracted to the heat, lunges after it and both plummet into the void (comptwo.zil:3019-3029)
-   2. Give/throw the hot laser to the microbe:
-     - If WARMTH-FLAG > 10: The microbe eats the laser, writhes in pain from the heat, and rolls off the strip
-     - If WARMTH-FLAG ≤ 10: The microbe eats the laser and turns toward you (bad outcome)
-   3. Danger: If WARMTH-FLAG > 13 and you're still holding the laser when the microbe attacks, it lunges at the pulsing heat, you lose your balance, and both of you fall into the void (death)
-
-   The solution is to heat up the laser by firing it several times, then sacrifice it to lure the microbe to its doom.
- 
- */

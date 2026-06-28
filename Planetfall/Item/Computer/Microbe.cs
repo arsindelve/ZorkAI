@@ -58,7 +58,7 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
     public string ExaminationDescription =>
         "A hungry microbe blocks your way, its cilia waving and its pseudopods towering over you. ";
 
-    private readonly List<string> _winnerAttacked =
+    private readonly List<string> _microbeLashesOut =
     [
         "A pseudopod extends toward you. You jump back just in time to avoid being engulfed.",
         "A slimy pseudopod brushes against your shoulder. You twist away in the nick of time.",
@@ -104,7 +104,7 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
         if (HitThisTurn)
         {
             HitThisTurn = false;
-            var message = Chooser.Choose(_winnerAttacked);
+            var message = Chooser.Choose(_microbeLashesOut);
 
             // At blistering heat, holding the laser when it lashes out is fatal — it lunges at the
             // pulsing weapon and drags you both off the strip (I-MICROBE, WARMTH-FLAG > 13).
@@ -208,8 +208,9 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
     }
 
     /// <summary>
-    /// Moves the already-present microbe into the room the player just entered, resetting the closing
-    /// counter (STRIP-NEAR-RELAY-F M-ENTER: "The microbe ... follows you northward.").
+    /// Moves the already-present microbe northward into the room the player just entered, resetting
+    /// the closing counter (STRIP-NEAR-RELAY-F M-ENTER: "The microbe ... follows you northward.").
+    /// Only ever invoked for the northbound chase, so the hardcoded "northward" is always accurate.
     /// </summary>
     public string? FollowInto(ILocation here)
     {
