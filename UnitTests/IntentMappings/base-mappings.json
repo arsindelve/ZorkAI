@@ -289,6 +289,11 @@
     { "inputs": ["shoot laser at relay", "shoot laser at speck"], "verb": "shoot", "nounOne": "laser", "nounTwo": "relay", "preposition": "at", "originalInput": "shoot laser at relay" },
     { "inputs": ["fire laser at relay"], "verb": "fire", "nounOne": "laser", "nounTwo": "relay", "preposition": "at", "originalInput": "fire laser at relay" },
 
+    { "inputs": ["shoot microbe with laser"], "verb": "shoot", "nounOne": "microbe", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot microbe with laser" },
+    { "inputs": ["shoot laser at microbe"], "verb": "shoot", "nounOne": "laser", "nounTwo": "microbe", "preposition": "at", "originalInput": "shoot laser at microbe" },
+    { "inputs": ["throw laser off strip", "drop laser off strip", "throw laser into void", "throw laser off edge"], "verb": "throw", "nounOne": "laser", "nounTwo": "strip", "preposition": "off", "originalInput": "throw laser off strip" },
+    { "inputs": ["give laser to microbe", "throw laser to microbe", "feed laser to microbe"], "verb": "give", "nounOne": "laser", "nounTwo": "microbe", "preposition": "to", "originalInput": "give laser to microbe" },
+
     { "inputs": ["put good in cube"], "verb": "put", "nounOne": "good bedistor", "nounTwo": "cube", "preposition": "in", "originalInput": "put good in cube" }
   ],
 

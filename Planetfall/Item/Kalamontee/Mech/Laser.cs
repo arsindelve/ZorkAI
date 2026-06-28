@@ -157,6 +157,12 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
             return LaserSpeckHelper.ShootRelay(relay, context, BeamDescription, Setting, Chooser);
         }
 
+        // Special response for shooting the Microbe (SHOOT-MICROBE, comptwo.zil:2991)
+        if (target is Microbe microbe)
+        {
+            return ShootMicrobe(microbe);
+        }
+
         var targetName = target.NounsForMatching.FirstOrDefault() ?? targetNoun;
 
         return new PositiveInteractionResult(
@@ -164,8 +170,66 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
             $"The {targetName} grows a bit warm, but nothing else happens. ");
     }
 
+    private static readonly List<string> MicrobeStrikes =
+    [
+        "The microbe's outer membrane sizzles a bit, and some protoplasm oozes out. The microbe recoils momentarily, but quickly recovers.",
+        "The beam slices through the microbe's skin! A tremendous shudder passes through the microbe, but the wound quickly seals itself.",
+        "The monster rears back for a moment, but almost as soon as the beam goes off, it advances again."
+    ];
+
+    /// <summary>
+    /// Fires the (already-charged) laser at the microbe. A red beam (setting 1) passes harmlessly
+    /// through its red skin; any other setting strikes it, momentarily repelling it (which suppresses
+    /// the closing counter for that turn) but never kills it — it always regenerates.
+    /// </summary>
+    private InteractionResult ShootMicrobe(Microbe microbe)
+    {
+        if (Setting == 1)
+            return new PositiveInteractionResult(
+                "The laser beam strikes the microbe, but passes harmlessly through its red skin. ");
+
+        microbe.HitThisTurn = true;
+        return new PositiveInteractionResult(
+            "The laser beam strikes the microbe. " + Chooser.Choose(MicrobeStrikes) + " ");
+    }
+
+    /// <summary>
+    /// Handles throwing or dropping the laser over the edge of the strip. If the microbe is present
+    /// and the laser is hot enough (WARMTH-FLAG > 7), the monster lunges after it and both plunge into
+    /// the void (STRIP-F, comptwo.zil:3013). Otherwise the laser is simply lost.
+    /// </summary>
+    private InteractionResult ThrowOffStrip(IContext context)
+    {
+        if (CurrentLocation != context)
+            return new PositiveInteractionResult("You're not holding the laser. ");
+
+        var microbe = Repository.GetItem<Microbe>();
+        var microbeHere = microbe.IsActive && microbe.CurrentLocation == context.CurrentLocation;
+
+        MicrobeFightHelper.RemoveLaserFromGame(this, context);
+
+        if (microbeHere && WarmthLevel > 7)
+        {
+            MicrobeFightHelper.Dispatch(microbe, context);
+            return new PositiveInteractionResult(
+                "As the laser flies over the edge of the strip, the hungry microbe lunges after it. " +
+                "Both the laser and the microbe plummet into the void. (Whew!) ");
+        }
+
+        return new PositiveInteractionResult(
+            "The laser flies over the edge of the strip and disappears into the void. ");
+    }
+
+    private static readonly string[] StripNouns = ["strip", "void", "edge", "side", "silicon strip"];
+
     public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
+        // Handle "throw/drop laser off the strip / into the void"
+        if (action.MatchVerb(["throw", "drop"]) &&
+            action.MatchNounOne(NounsForMatching) &&
+            action.MatchNounTwo(StripNouns))
+            return Task.FromResult<InteractionResult?>(ThrowOffStrip(context));
+
         // Handle "shoot X with laser" - laser is NounTwo, target is NounOne
         if (action.MatchVerb(["shoot", "fire"]) &&
             action.MatchPreposition(["with"]) &&

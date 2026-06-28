@@ -1,10 +1,14 @@
 using GameEngine.Location;
+using Model.AIGeneration;
 using Planetfall.Item.Computer;
 
 namespace Planetfall.Location.Computer;
 
 internal class StripNearRelay : LocationBase
 {
+    private const string MicrobeBlocksMessage =
+        "Not a chance -- unless, of course, you don't mind walking into the gullet of a hungry microbe. ";
+
     public override void Init()
     {
         StartWithItem<Relay>();
@@ -23,8 +27,28 @@ internal class StripNearRelay : LocationBase
         {
             { Direction.W, new MovementParameters{ CanGo = _ => false, CustomFailureMessage = "Do you have a penchant for bottomless voids? " }  },
             { Direction.E, new MovementParameters{ CanGo = _ => false, CustomFailureMessage = eastMessage }  },
-            { Direction.S, Go<MiddleOfStrip>() }
+            {
+                Direction.S,
+                Repository.GetItem<Microbe>().IsActive
+                    ? new MovementParameters { CanGo = _ => false, CustomFailureMessage = MicrobeBlocksMessage }
+                    : Go<MiddleOfStrip>()
+            }
         };
+    }
+
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient generationClient)
+    {
+        // The microbe, writhing angrily, follows you northward (STRIP-NEAR-RELAY-F M-ENTER, comptwo.zil:2524).
+        var microbe = Repository.GetItem<Microbe>();
+        if (microbe.IsActive && microbe.CurrentLocation != this)
+        {
+            var followText = microbe.FollowInto(this);
+            if (followText is not null)
+                return Task.FromResult(followText);
+        }
+
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
     }
 
     protected override string GetContextBasedDescription(IContext context)
