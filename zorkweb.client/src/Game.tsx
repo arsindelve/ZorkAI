@@ -222,6 +222,18 @@ function Game() {
             return;
         }
 
+        // Style the room-name line (the line equal to the current location) as a header
+        // so the transcript is scannable. Consume any blank lines hugging it so spacing
+        // is controlled purely by the .room-header CSS margins.
+        const roomName = (data.locationName ?? '').trim();
+        if (roomName) {
+            const escaped = roomName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            data.response = data.response.replace(
+                new RegExp(`\\n*^[ \\t]*${escaped}[ \\t]*$\\n*`, 'm'),
+                `<span class="room-header">${roomName}</span>`
+            );
+        }
+
         // Replace newline chars with HTML line breaks and preserve leading whitespace (spaces and tabs)
         data.response = data.response
             .replace(/\t/g, '    ')  // Convert tabs to 4 spaces
@@ -229,9 +241,20 @@ function Game() {
             .replace(/^( +)/gm, (match) => '&nbsp;'.repeat(match.length))
             .replace(/<br \/>( +)/g, (_, spaces) => '<br />' + '&nbsp;'.repeat(spaces.length));
 
-        const textToAppend = `<p class="text-lime-600 font-extrabold mt-3 mb-3">`
-            + (!playerInput ? "" : `> ${playerInput}`) + `</p>`
-            + data.response;
+        // The room header is block-level, so it already breaks the line. Strip any
+        // <br>/whitespace that immediately follows it so the description sits directly
+        // beneath it (otherwise the gap below the room name dwarfs the gap above it).
+        data.response = data.response.replace(
+            /(<span class="room-header">[^<]*<\/span>)(?:\s|&nbsp;|<br\s*\/?>)+/i,
+            '$1'
+        );
+
+        // Only render the command-echo paragraph when there's actually a command —
+        // an empty <p> still carries margins and threw off the spacing above room names.
+        const echo = playerInput
+            ? `<p class="text-lime-600 font-extrabold mt-3 mb-1">> ${playerInput}</p>`
+            : '';
+        const textToAppend = echo + data.response;
 
         setGameText((prevGameText) => [...prevGameText, textToAppend]);
         setInput("");
@@ -360,10 +383,18 @@ function Game() {
             absolute
             top-24
             right-5
-            opacity-90
             z-20
             pointer-events-auto
-            "/>
+            rounded-xl
+            p-4
+            "
+            style={{
+                background: 'linear-gradient(135deg, rgba(41, 37, 36, 0.38) 0%, rgba(12, 10, 9, 0.38) 100%)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: '1px solid rgba(132, 204, 22, 0.3)',
+                boxShadow: '0 4px 20px rgba(132, 204, 22, 0.18), 0 2px 10px rgba(0, 0, 0, 0.5)'
+            }}/>
 
             <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word: string) => handleWordClicked(word)}
                            onMouseMove={highlightWordAtPointer}

@@ -83,6 +83,26 @@
   background: rgba(120, 120, 120, 0.8);
 }
 
+/* Room-name header inside the transcript — a refined section label so the log is
+   scannable: small uppercase lime caption with a fading rule trailing off right. */
+.room-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0.9rem 0;
+  font-weight: 600;
+  font-size: 1.05em;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #a3e635;
+}
+.room-header::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(132, 204, 22, 0.4), transparent);
+}
+
 /* Highlight ONLY the single word under the cursor (via the CSS Custom Highlight
    API, driven by ClickableText) so it's clear individual words are clickable
    without lighting up the whole line. */
