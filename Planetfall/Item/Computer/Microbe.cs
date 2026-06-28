@@ -155,6 +155,11 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
 
     public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
+        // This handler beats the laser's own multi-noun handler for "give laser to microbe" only
+        // because MultiNounEngine consults current-location items (the microbe) before inventory items
+        // (the laser). If that search order ever changes, "give laser to microbe" could silently route
+        // to the laser instead — keep the two in sync.
+        //
         // "give/throw laser to/at microbe" (either noun ordering). Match the laser's full synonym set
         // (e.g. "laazur") rather than the literal "laser", since the AI parser may pass a synonym.
         var laserNouns = Repository.GetItem<Laser>().NounsForMatching;

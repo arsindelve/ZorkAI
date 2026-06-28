@@ -185,6 +185,9 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
     /// </summary>
     private InteractionResult ShootMicrobe(Microbe microbe)
     {
+        // Note: by the time we get here TryFireLaser has already spent a battery charge and primed the
+        // warmth daemon (in ShootLaserAt). A setting-1 "harmless" shot therefore still costs a charge
+        // and heats the laser — deliberate, matching the original where every successful zap counts.
         if (Setting == 1)
             return new PositiveInteractionResult(
                 "The laser beam strikes the microbe, but passes harmlessly through its red skin. ");
