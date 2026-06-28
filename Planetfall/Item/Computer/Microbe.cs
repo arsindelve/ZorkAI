@@ -119,7 +119,6 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
         if (HitThisTurn)
         {
             HitThisTurn = false;
-            var message = Chooser.Choose(_microbeLashesOut);
 
             // Key off the warmth captured at strike time (WarmthAtHit), not the live WarmthLevel,
             // so the outcome doesn't depend on actor-registration order within the turn.
@@ -127,6 +126,8 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
             // pulsing weapon and drags you both off the strip (I-MICROBE, WARMTH-FLAG > 13).
             if (WarmthAtHit > MicrobeFightHelper.LethalLungeWarmth && holdingLaser)
                 return Task.FromResult(Die(LungeDeath, context));
+
+            var message = Chooser.Choose(_microbeLashesOut);
 
             // Warm-but-not-deadly: a pseudopod grabs for the laser and you snatch it away.
             if (WarmthAtHit > MicrobeFightHelper.RepelWarmth && holdingLaser)
@@ -158,7 +159,7 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
         // (e.g. "laazur") rather than the literal "laser", since the AI parser may pass a synonym.
         var laserNouns = Repository.GetItem<Laser>().NounsForMatching;
         var givingToMicrobe =
-            action.MatchVerb(["give", "throw", "feed"]) &&
+            action.MatchVerb([..Verbs.GiveVerbs, ..Verbs.ThrowVerbs]) &&
             action.MatchPreposition(["to", "at"]) &&
             ((action.MatchNounOne(laserNouns) && action.MatchNounTwo(NounsForMatching)) ||
              (action.MatchNounOne(NounsForMatching) && action.MatchNounTwo(laserNouns)));

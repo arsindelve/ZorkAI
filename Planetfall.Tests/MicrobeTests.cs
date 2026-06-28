@@ -362,6 +362,36 @@ public class MicrobeTests : EngineTestsBase
     }
 
     [Test]
+    public async Task GiveLaser_AcceptsVerbSynonyms_LikeOffer()
+    {
+        var (target, microbe) = await ArriveOnStripWithMicrobe();
+        await target.GetResponse("set laser to 3");
+        for (var i = 0; i < 12; i++)
+            await target.GetResponse("shoot microbe with laser");
+
+        // "offer" is a GiveVerbs synonym — the handler should treat it like "give".
+        var response = await target.GetResponse("offer laser to microbe");
+
+        response.Should().Contain("rolls off the edge of the strip");
+        microbe.Dispatched.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task ThrowOffStrip_AcceptsVerbSynonyms_LikeToss()
+    {
+        var (target, microbe) = await ArriveOnStripWithMicrobe();
+        await target.GetResponse("set laser to 3");
+        for (var i = 0; i < 9; i++)
+            await target.GetResponse("shoot microbe with laser");
+
+        // "toss" is a ThrowVerbs synonym — the off-strip handler should treat it like "throw".
+        var response = await target.GetResponse("toss laser off strip");
+
+        response.Should().Contain("Both the laser and the microbe plummet into the void");
+        microbe.Dispatched.Should().BeTrue();
+    }
+
+    [Test]
     public async Task SectorReactivation_KillsPlayer_WhileOnStrip()
     {
         var (target, _) = await ArriveOnStripWithMicrobe();
