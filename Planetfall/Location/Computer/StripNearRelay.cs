@@ -6,9 +6,6 @@ namespace Planetfall.Location.Computer;
 
 internal class StripNearRelay : LocationBase
 {
-    private const string MicrobeBlocksMessage =
-        "Not a chance -- unless, of course, you don't mind walking into the gullet of a hungry microbe. ";
-
     public override void Init()
     {
         StartWithItem<Relay>();
@@ -30,7 +27,7 @@ internal class StripNearRelay : LocationBase
             {
                 Direction.S,
                 Repository.GetItem<Microbe>().IsActive
-                    ? new MovementParameters { CanGo = _ => false, CustomFailureMessage = MicrobeBlocksMessage }
+                    ? new MovementParameters { CanGo = _ => false, CustomFailureMessage = Microbe.BlocksExitMessage }
                     : Go<MiddleOfStrip>()
             }
         };

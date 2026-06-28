@@ -23,6 +23,13 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
     public override string[] NounsForMatching => ["microbe", "monster", "bug", "hungry microbe"];
 
     /// <summary>
+    /// Shown when the microbe blocks a strip exit. Shared by the strip rooms that gate their
+    /// southbound exit on <see cref="IsActive" />.
+    /// </summary>
+    public const string BlocksExitMessage =
+        "Not a chance -- unless, of course, you don't mind walking into the gullet of a hungry microbe. ";
+
+    /// <summary>
     /// True while the microbe is present and blocking the player on the strip (NO-MICROBE = false).
     /// </summary>
     [UsedImplicitly]
@@ -99,6 +106,9 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
 
         var laser = Repository.GetItem<Laser>();
         var holdingLaser = laser.CurrentLocation == context;
+        // The microbe is registered as an actor before the laser, so this reads the warmth at the
+        // START of the turn — the current shot's increment lands later in Laser.Act. The thresholds
+        // below (>7, >13) are therefore "warmth coming into this turn."
         var warmth = laser.WarmthLevel;
 
         if (HitThisTurn)
@@ -146,11 +156,13 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
 
     public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-        // "give/throw laser to/at microbe" (either noun ordering)
+        // "give/throw laser to/at microbe" (either noun ordering). Match the laser's full synonym set
+        // (e.g. "laazur") rather than the literal "laser", since the AI parser may pass a synonym.
+        var laserNouns = Repository.GetItem<Laser>().NounsForMatching;
         var givingToMicrobe =
             action.MatchVerb(["give", "throw", "feed"]) &&
-            ((action.MatchNounOne(["laser"]) && action.MatchNounTwo(NounsForMatching)) ||
-             (action.MatchNounOne(NounsForMatching) && action.MatchNounTwo(["laser"])));
+            ((action.MatchNounOne(laserNouns) && action.MatchNounTwo(NounsForMatching)) ||
+             (action.MatchNounOne(NounsForMatching) && action.MatchNounTwo(laserNouns)));
 
         if (givingToMicrobe && IsActive)
             return Task.FromResult<InteractionResult?>(GiveLaser(context));

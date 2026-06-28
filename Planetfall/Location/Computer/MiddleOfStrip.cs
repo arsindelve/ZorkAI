@@ -8,9 +8,6 @@ internal class MiddleOfStrip : LocationWithNoStartingItems
 {
     public override string Name => "Middle of Strip";
 
-    private const string MicrobeBlocksMessage =
-        "Not a chance -- unless, of course, you don't mind walking into the gullet of a hungry microbe. ";
-
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>
@@ -18,7 +15,7 @@ internal class MiddleOfStrip : LocationWithNoStartingItems
             {
                 Direction.S,
                 Repository.GetItem<Microbe>().IsActive
-                    ? new MovementParameters { CanGo = _ => false, CustomFailureMessage = MicrobeBlocksMessage }
+                    ? new MovementParameters { CanGo = _ => false, CustomFailureMessage = Microbe.BlocksExitMessage }
                     : Go<StripNearStation>()
             },
             { Direction.N, Go<StripNearRelay>() },

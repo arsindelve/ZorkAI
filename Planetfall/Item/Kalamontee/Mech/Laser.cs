@@ -205,10 +205,12 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
 
         var microbe = Repository.GetItem<Microbe>();
         var microbeHere = microbe.IsActive && microbe.CurrentLocation == context.CurrentLocation;
+        // Capture the heat before removing the laser — RemoveLaserFromGame clears WarmthLevel.
+        var laserWasHot = WarmthLevel > 7;
 
         MicrobeFightHelper.RemoveLaserFromGame(this, context);
 
-        if (microbeHere && WarmthLevel > 7)
+        if (microbeHere && laserWasHot)
         {
             MicrobeFightHelper.Dispatch(microbe, context);
             return new PositiveInteractionResult(

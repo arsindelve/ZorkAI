@@ -17,6 +17,10 @@ public static class MicrobeFightHelper
         var holder = laser.CurrentLocation;
         holder?.RemoveItem(laser);
         laser.CurrentLocation = null;
+        // Clear the warmth state so a stale value can't linger on the singleton if the game restarts
+        // (e.g. after a digest/lunge death) without a full Repository reset.
+        laser.WarmthLevel = 0;
+        laser.JustShot = false;
         context.RemoveActor(laser);
     }
 
