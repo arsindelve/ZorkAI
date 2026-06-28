@@ -237,6 +237,7 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
     {
         // Handle "throw/drop laser off the strip / into the void" — only while on the strip itself.
         if (action.MatchVerb(["throw", "drop"]) &&
+            action.MatchPreposition(["off", "over", "into", "in", "down"]) &&
             action.MatchNounOne(NounsForMatching) &&
             action.MatchNounTwo(StripNouns) &&
             OnTheStrip(context))

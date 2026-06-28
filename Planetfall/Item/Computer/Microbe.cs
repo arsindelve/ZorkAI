@@ -152,6 +152,7 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
         var laserNouns = Repository.GetItem<Laser>().NounsForMatching;
         var givingToMicrobe =
             action.MatchVerb(["give", "throw", "feed"]) &&
+            action.MatchPreposition(["to", "at"]) &&
             ((action.MatchNounOne(laserNouns) && action.MatchNounTwo(NounsForMatching)) ||
              (action.MatchNounOne(NounsForMatching) && action.MatchNounTwo(laserNouns)));
 

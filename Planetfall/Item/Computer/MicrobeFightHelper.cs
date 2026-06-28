@@ -8,6 +8,13 @@ namespace Planetfall.Item.Computer;
 /// </summary>
 public static class MicrobeFightHelper
 {
+    // Warmth-timing note: Microbe.Act reads laser.WarmthLevel to evaluate these thresholds, but the
+    // microbe is registered as an actor (on spawn) before the laser (on its first shot), so within a
+    // turn the microbe reads the warmth BEFORE Laser.Act applies that turn's increment — i.e. it sees
+    // "warmth coming into the turn." The effective thresholds are therefore one shot higher than the
+    // bare numbers suggest, and this is coupled to actor-registration order. The MicrobeTests cases
+    // are written against this actual behavior; if registration order ever changes, revisit them.
+
     /// <summary>
     /// Laser warmth (WARMTH-FLAG) above which the microbe is drawn to the heat: it lunges after a
     /// laser thrown off the strip, devours one fed to it, and grabs for one you're still holding.
