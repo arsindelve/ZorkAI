@@ -108,7 +108,7 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
         var holdingLaser = laser.CurrentLocation == context;
         // The microbe is registered as an actor before the laser, so this reads the warmth at the
         // START of the turn — the current shot's increment lands later in Laser.Act. The thresholds
-        // below (>7, >13) are therefore "warmth coming into this turn."
+        // below are therefore "warmth coming into this turn."
         var warmth = laser.WarmthLevel;
 
         if (HitThisTurn)
@@ -118,11 +118,11 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
 
             // At blistering heat, holding the laser when it lashes out is fatal — it lunges at the
             // pulsing weapon and drags you both off the strip (I-MICROBE, WARMTH-FLAG > 13).
-            if (warmth > 13 && holdingLaser)
+            if (warmth > MicrobeFightHelper.LethalLungeWarmth && holdingLaser)
                 return Task.FromResult(Die(LungeDeath, context));
 
             // Warm-but-not-deadly: a pseudopod grabs for the laser and you snatch it away.
-            if (warmth > 7 && holdingLaser)
+            if (warmth > MicrobeFightHelper.RepelWarmth && holdingLaser)
                 message +=
                     " Another pseudopod, perhaps attracted by the warmth of the laser, tries to envelop " +
                     "the weapon. You snatch it away from the monster's grasp.";
@@ -145,15 +145,6 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
         return new DeathProcessor().Process(message, context).InteractionMessage;
     }
 
-    public override Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
-        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
-    {
-        if (action.Match(Verbs.ExamineVerbs, NounsForMatching))
-            return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(ExaminationDescription));
-
-        return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
-    }
-
     public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
         // "give/throw laser to/at microbe" (either noun ordering). Match the laser's full synonym set
@@ -174,13 +165,13 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
     {
         var laser = Repository.GetItem<Laser>();
 
-        // The microbe only bothers with the laser once it's been heated up (WARMTH-FLAG > 7).
-        if (laser.WarmthLevel <= 7)
+        // The microbe only bothers with the laser once it's been heated up.
+        if (laser.WarmthLevel <= MicrobeFightHelper.RepelWarmth)
             return new PositiveInteractionResult(
                 "The microbe ignores the laser, but does attempt to digest your arm. ");
 
-        // It devours the laser either way; only a truly hot laser (WARMTH-FLAG > 10) does it in.
-        var hotEnoughToKill = laser.WarmthLevel > 10;
+        // It devours the laser either way; only a truly hot laser does it in.
+        var hotEnoughToKill = laser.WarmthLevel > MicrobeFightHelper.FeedKillWarmth;
         MicrobeFightHelper.RemoveLaserFromGame(laser, context);
 
         if (!hotEnoughToKill)

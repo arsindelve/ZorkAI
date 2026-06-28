@@ -2,6 +2,7 @@ using Model.AIGeneration;
 using Newtonsoft.Json;
 using Planetfall.Item.Computer;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Location.Computer;
 using Utilities;
 
 namespace Planetfall.Item.Kalamontee.Mech;
@@ -195,8 +196,8 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
 
     /// <summary>
     /// Handles throwing or dropping the laser over the edge of the strip. If the microbe is present
-    /// and the laser is hot enough (WARMTH-FLAG > 7), the monster lunges after it and both plunge into
-    /// the void (STRIP-F, comptwo.zil:3013). Otherwise the laser is simply lost.
+    /// and the laser is hot enough, the monster lunges after it and both plunge into the void
+    /// (STRIP-F, comptwo.zil:3013). Otherwise the laser is simply lost.
     /// </summary>
     private InteractionResult ThrowOffStrip(IContext context)
     {
@@ -206,7 +207,7 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
         var microbe = Repository.GetItem<Microbe>();
         var microbeHere = microbe.IsActive && microbe.CurrentLocation == context.CurrentLocation;
         // Capture the heat before removing the laser — RemoveLaserFromGame clears WarmthLevel.
-        var laserWasHot = WarmthLevel > 7;
+        var laserWasHot = WarmthLevel > MicrobeFightHelper.RepelWarmth;
 
         MicrobeFightHelper.RemoveLaserFromGame(this, context);
 
@@ -224,12 +225,21 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
 
     private static readonly string[] StripNouns = ["strip", "void", "edge", "side", "silicon strip"];
 
+    /// <summary>
+    /// "Throwing the laser off the strip" only makes sense while you're actually miniaturized on the
+    /// silicon strip. Gating here prevents a softlock: the laser is the only thing that can defeat the
+    /// microbe, so it must not be destroyable by typing "throw laser off edge" anywhere else.
+    /// </summary>
+    private static bool OnTheStrip(IContext context) =>
+        context.CurrentLocation is MiddleOfStrip or StripNearStation or StripNearRelay;
+
     public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
-        // Handle "throw/drop laser off the strip / into the void"
+        // Handle "throw/drop laser off the strip / into the void" — only while on the strip itself.
         if (action.MatchVerb(["throw", "drop"]) &&
             action.MatchNounOne(NounsForMatching) &&
-            action.MatchNounTwo(StripNouns))
+            action.MatchNounTwo(StripNouns) &&
+            OnTheStrip(context))
             return Task.FromResult<InteractionResult?>(ThrowOffStrip(context));
 
         // Handle "shoot X with laser" - laser is NounTwo, target is NounOne

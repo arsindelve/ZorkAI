@@ -5,6 +5,7 @@ using Planetfall.Item.Computer;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Lawanda.Lab;
 using Planetfall.Location.Computer;
+using Planetfall.Location.Lawanda;
 
 namespace Planetfall.Tests;
 
@@ -286,6 +287,31 @@ public class MicrobeTests : EngineTestsBase
 
         death.Should().Contain("losing your balance, fall over the edge of the strip");
         death.Should().Contain("You have died");
+    }
+
+    [Test]
+    public async Task Microbe_CanBeExamined_WhilePresent()
+    {
+        var (target, _) = await ArriveOnStripWithMicrobe();
+
+        var response = await target.GetResponse("examine microbe");
+
+        response.Should().Contain("A hungry microbe blocks your way");
+    }
+
+    [Test]
+    public async Task ThrowLaserOffStrip_AwayFromTheStrip_DoesNotDestroyTheLaser()
+    {
+        var target = GetTarget();
+        Take<Laser>();
+        StartHere<MiniaturizationBooth>();
+
+        var response = await target.GetResponse("throw laser off strip");
+
+        // "off the strip" is meaningless off the silicon strip — the laser (the only tool that can
+        // defeat the microbe) must not be destroyable here, or the puzzle becomes unsolvable.
+        response.Should().NotContain("disappears into the void");
+        target.Context.HasItem<Laser>().Should().BeTrue();
     }
 
     [Test]
