@@ -31,6 +31,8 @@ function Game() {
 
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
     const [snackBarMessage, setSnackBarMessage] = useState<string>("");
+    const [showJumpToLatest, setShowJumpToLatest] = useState<boolean>(false);
+    const atBottomRef = React.useRef<boolean>(true);
 
     const sessionId = new SessionHandler();
     const server = new Server();
@@ -108,12 +110,28 @@ function Game() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [deleteGameRequest]);
 
-    // Scroll to the bottom of the container after we add text. 
+    // Auto-scroll only when the player is already at the bottom; otherwise flag the
+    // new content so they can jump down without losing their place in the history.
     useEffect(() => {
-        if (gameContentElement.current) {
-            gameContentElement.current.scrollToBottom();
+        if (atBottomRef.current) {
+            gameContentElement.current?.scrollToBottom();
+        } else {
+            setShowJumpToLatest(true);
         }
     }, [gameText]);
+
+    function handleTranscriptScroll(event: React.UIEvent<HTMLDivElement>) {
+        const el = event.currentTarget;
+        const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 48;
+        atBottomRef.current = atBottom;
+        if (atBottom) setShowJumpToLatest(false);
+    }
+
+    function jumpToLatest() {
+        gameContentElement.current?.scrollToBottom();
+        atBottomRef.current = true;
+        setShowJumpToLatest(false);
+    }
 
     // Restart the game. 
     useEffect(() => {
@@ -164,6 +182,22 @@ function Game() {
             return;
         }
 
+        // Style the room-name line (the line equal to the current location) as a
+        // header so the transcript is scannable. Also consume any blank lines hugging
+        // it so the spacing is controlled purely by the .room-header CSS margins
+        // (stray <br/>s were making the gap above each header uneven).
+        const roomName = (data.locationName ?? '').trim();
+        if (roomName) {
+            const escaped = roomName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            // The header is a block element, so it breaks the line on its own — no
+            // <br/> needed around it. Consuming the surrounding newlines lets the CSS
+            // margins fully control (and even out) the spacing.
+            data.response = data.response.replace(
+                new RegExp(`\\n*^[ \\t]*${escaped}[ \\t]*$\\n*`, 'm'),
+                `<span class="room-header">${roomName}</span>`
+            );
+        }
+
         // Replace newline chars with HTML line breaks and preserve leading whitespace (spaces and tabs)
         data.response = data.response
             .replace(/\t/g, '    ')  // Convert tabs to 4 spaces
@@ -171,9 +205,21 @@ function Game() {
             .replace(/^( +)/gm, (match) => '&nbsp;'.repeat(match.length))
             .replace(/<br \/>( +)/g, (_, spaces) => '<br />' + '&nbsp;'.repeat(spaces.length));
 
-        const textToAppend = `<p class="font-extrabold mt-3 mb-3 text-glow" style="color: var(--planetfall-primary);">`
-            + (!playerInput ? "" : `> ${playerInput}`) + `</p>`
-            + data.response;
+        // The room header is block-level, so it already breaks the line. Strip any
+        // <br>/whitespace that immediately follows it — otherwise the description is
+        // pushed down a full extra line, making the gap below the room name far
+        // bigger than the gap above it.
+        data.response = data.response.replace(
+            /(<span class="room-header">[^<]*<\/span>)(?:\s|&nbsp;|<br\s*\/?>)+/i,
+            '$1'
+        );
+
+        // Only render the command-echo paragraph when there's actually a command —
+        // an empty <p> still carries margins and threw off the spacing above room names.
+        const echo = playerInput
+            ? `<p class="font-extrabold mt-3 mb-1 text-glow" style="color: var(--planetfall-primary);">> ${playerInput}</p>`
+            : '';
+        const textToAppend = echo + data.response;
 
         setGameText((prevGameText) => [...prevGameText, textToAppend]);
         setInput("");
@@ -279,7 +325,7 @@ function Game() {
 
     return (
 
-        <div className={"m-10 mt-20 relative"}>
+        <div className={"relative flex flex-col flex-1 min-h-0 mx-10 mt-20 mb-4"}>
 
             <div>
                 <Snackbar
@@ -315,8 +361,10 @@ function Game() {
                 boxShadow: '0 4px 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent), 0 2px 10px rgba(0, 0, 0, 0.5)'
             }}/>
 
+            <div className="relative flex-1 min-h-0 max-h-[55vh]">
             <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word) => handleWordClicked(word)}
-                           className="relative flex flex-col p-6 sm:p-12 h-[65vh] overflow-auto font-mono rounded-lg border-2 shadow-lg clickable z-10"
+                           onScroll={handleTranscriptScroll}
+                           className="relative flex flex-col p-6 sm:p-12 h-full overflow-auto font-mono rounded-lg border-2 shadow-lg clickable scanline-effect z-10"
                            style={{
                                background: 'linear-gradient(135deg, var(--planetfall-bg-dark) 0%, #020617 100%)',
                                borderColor: 'color-mix(in srgb, var(--planetfall-primary) 20%, transparent)',
@@ -350,6 +398,25 @@ function Game() {
                     ))}
                 </div>
             </ClickableText>
+
+            {showJumpToLatest && (
+                <button
+                    type="button"
+                    onClick={jumpToLatest}
+                    data-testid="jump-to-latest"
+                    className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-mono pointer-events-auto transition-transform hover:scale-105 animate-fadeIn"
+                    style={{
+                        background: 'color-mix(in srgb, var(--planetfall-bg-medium) 92%, transparent)',
+                        border: '1px solid color-mix(in srgb, var(--planetfall-primary) 45%, transparent)',
+                        color: 'var(--planetfall-primary)',
+                        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.5)',
+                        backdropFilter: 'blur(4px)'
+                    }}
+                >
+                    &darr;&nbsp;New messages
+                </button>
+            )}
+            </div>
 
             <div
                 className="flex flex-col items-stretch gap-2 px-3 sm:px-5 py-3 min-h-[90px] rounded-b-lg border-t shadow-inner"

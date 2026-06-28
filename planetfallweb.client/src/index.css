@@ -160,6 +160,26 @@
   animation: scanline 8s linear infinite;
 }
 
+/* Room-name header inside the transcript — a refined section label so the log is
+   scannable: small uppercase gold caption with a fading rule trailing off to the right. */
+.room-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0.9rem 0;
+  font-weight: 600;
+  font-size: 0.82em;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--planetfall-accent);
+}
+.room-header::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, color-mix(in srgb, var(--planetfall-primary) 40%, transparent), transparent);
+}
+
 /* Glowing text effect */
 .text-glow {
   text-shadow:

@@ -100,7 +100,7 @@ function App() {
     return (
 
         <div
-            className="relative bg-[url('https://planetfallai-assets.s3.amazonaws.com/Blue+Nebula+2+-+1024x1024.png')] bg-cover bg-center bg-fixed min-h-screen flex flex-col justify-between"
+            className="relative bg-[url('https://planetfallai-assets.s3.amazonaws.com/Blue+Nebula+2+-+1024x1024.png')] bg-cover bg-center bg-fixed h-screen overflow-hidden flex flex-col"
             style={{
                 backgroundSize: 'cover',
                 backgroundAttachment: 'fixed'
