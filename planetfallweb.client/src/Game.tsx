@@ -7,7 +7,7 @@ import Header from "./components/Header.tsx";
 
 import Server from './Server';
 import {ClickableText, ClickableTextHandle} from "@zork-ai/shared-types";
-import Compass from "./components/Compass.tsx";
+import Compass, {parseMoveDirection} from "./components/Compass.tsx";
 
 import {useGameContext} from "@zork-ai/shared-types";
 import GameInput from "./components/GameInput.tsx";
@@ -86,6 +86,7 @@ function Game() {
     const [locationActions, setLocationActions] = useState<Record<string, string[]>>({});
     const [exits, setExits] = useState<string[]>([]);
     const [locationName, setLocationName] = useState<string>("");
+    const [pingMove, setPingMove] = useState<{id: string; nonce: number}>({id: "", nonce: 0});
 
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
     const [snackBarMessage, setSnackBarMessage] = useState<string>("");
@@ -309,6 +310,11 @@ function Game() {
             setCommandHistory((prev) =>
                 prev[prev.length - 1] === valueToSubmit ? prev : [...prev, valueToSubmit]);
         }
+        // Flash the compass control for the direction just moved.
+        const moveDir = parseMoveDirection(valueToSubmit);
+        if (moveDir) {
+            setPingMove((prev) => ({id: moveDir, nonce: prev.nonce + 1}));
+        }
         mutation.mutate(new GameRequest(valueToSubmit, id));
         focusOnPlayerInput();
     }
@@ -400,6 +406,7 @@ function Game() {
             <Compass
             onCompassClick={handleCommandClick}
             exits={exits}
+            pingMove={pingMove}
             className="
             hidden
             md:block

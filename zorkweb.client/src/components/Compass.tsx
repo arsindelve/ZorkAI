@@ -1,14 +1,45 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {Mixpanel, Direction} from "@zork-ai/shared-types";
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
+// Maps a typed/clicked command to the SVG wedge id ("North".."SouthWest") or the
+// vertical control id ("up"/"down"), so the matching control can flash when the
+// player moves. Returns null for non-movement commands.
+export const parseMoveDirection = (input: string): string | null => {
+    const c = (input ?? "").trim().toLowerCase().replace(/^go\s+/, "");
+    const map: Record<string, string> = {
+        n: "North", north: "North",
+        s: "South", south: "South",
+        e: "East", east: "East",
+        w: "West", west: "West",
+        ne: "NorthEast", northeast: "NorthEast",
+        nw: "NorthWest", northwest: "NorthWest",
+        se: "SouthEast", southeast: "SouthEast",
+        sw: "SouthWest", southwest: "SouthWest",
+        u: "up", up: "up",
+        d: "down", down: "down"
+    };
+    return map[c] ?? null;
+};
+
 interface CompassProps extends React.HTMLAttributes<HTMLDivElement> {
     onCompassClick?: (direction: string) => void; // Callback with the chosen direction
     exits?: string[]; // Available exits (string indices into the Direction map)
+    pingMove?: { id: string; nonce: number }; // Direction the player just moved (flashes that control)
 }
 
-const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className, ...rest }) => {
+const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className, pingMove, ...rest }) => {
+
+    // Briefly flash the control for the direction just moved.
+    const [pinging, setPinging] = useState<string | null>(null);
+    useEffect(() => {
+        if (!pingMove || !pingMove.id) return;
+        setPinging(pingMove.id);
+        const timer = window.setTimeout(() => setPinging(null), 600);
+        return () => window.clearTimeout(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pingMove?.nonce]);
 
     // Function to check if a direction is available
     const isDirectionAvailable = (directionId: string): boolean => {
@@ -151,7 +182,7 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
                         data-testid="compass-up"
                         disabled={!upAvailable}
                         onClick={(e) => handleVerticalClick(e, "up")}
-                        className="flex items-center justify-center w-9 h-9 rounded-md border-2 cursor-pointer transition-all"
+                        className={`flex items-center justify-center w-9 h-9 rounded-md border-2 cursor-pointer transition-all ${pinging === "up" ? "vbtn-ping" : ""}`}
                         style={verticalButtonStyle(upAvailable)}
                     >
                         <KeyboardArrowUpIcon fontSize="small"/>
@@ -162,7 +193,7 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
                         data-testid="compass-down"
                         disabled={!downAvailable}
                         onClick={(e) => handleVerticalClick(e, "down")}
-                        className="flex items-center justify-center w-9 h-9 rounded-md border-2 cursor-pointer transition-all"
+                        className={`flex items-center justify-center w-9 h-9 rounded-md border-2 cursor-pointer transition-all ${pinging === "down" ? "vbtn-ping" : ""}`}
                         style={verticalButtonStyle(downAvailable)}
                     >
                         <KeyboardArrowDownIcon fontSize="small"/>
@@ -175,6 +206,7 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
                     id="Layer_1"
                     data-name="Layer 1"
                     data-testid="compass-rose"
+                    data-ping={pinging && pinging !== "up" && pinging !== "down" ? pinging : undefined}
                     viewBox="-10 -10 70.4 70.4"
                     className="cursor-pointer w-36 lg:w-44 h-auto"
                     onClick={handleClick}
@@ -185,6 +217,7 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
       .cls-1.highlight { fill: rgba(255, 99, 71, 0.5); }
       .cls-1.available { fill: #84cc16; opacity: var(--compass-pulse); }
       .cls-1.available:hover { opacity: 1; fill: #a3e635; }
+      [data-ping="North"] #North, [data-ping="South"] #South, [data-ping="East"] #East, [data-ping="West"] #West, [data-ping="NorthEast"] #NorthEast, [data-ping="NorthWest"] #NorthWest, [data-ping="SouthEast"] #SouthEast, [data-ping="SouthWest"] #SouthWest { animation: compassPing 0.6s ease-out; }
       .compass-ring { fill: none; stroke: rgba(132, 204, 22, 0.4); stroke-width: 0.8; }
       .compass-label { fill: rgba(214, 211, 209, 0.7); font-size: 7px; font-weight: bold; font-family: monospace; text-anchor: middle; dominant-baseline: central; }
     `}</style>

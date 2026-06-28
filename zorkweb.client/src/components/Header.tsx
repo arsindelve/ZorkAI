@@ -2,6 +2,7 @@ import React from 'react';
 import ExploreIcon from '@mui/icons-material/Explore';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
+import CountUp from './CountUp';
 
 interface HeaderComponentProps {
     locationName: string;
@@ -46,7 +47,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, moves, s
             >
                 <DirectionsRunIcon className="mr-2" style={{color: '#84cc16'}} fontSize="small"/>
                 <span className="mr-2 uppercase tracking-widest text-stone-400" style={{fontSize: '0.65rem'}}>Moves</span>
-                <span className="font-bold text-lg" style={{color: '#a3e635', textShadow: '0 0 10px rgba(132, 204, 22, 0.45)'}}>{moves}</span>
+                <CountUp value={moves} className="font-bold text-lg" style={{color: '#a3e635', textShadow: '0 0 10px rgba(132, 204, 22, 0.45)'}}/>
             </div>
             <div
                 className="hidden sm:flex items-center px-3 py-1.5 rounded-lg transition-colors duration-200 hover:border-lime-500"
@@ -55,7 +56,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, moves, s
             >
                 <ScoreboardIcon className="mr-2" style={{color: '#84cc16'}} fontSize="small"/>
                 <span className="mr-2 uppercase tracking-widest text-stone-400" style={{fontSize: '0.65rem'}}>Score</span>
-                <span className="font-bold text-lg" style={{color: '#a3e635', textShadow: '0 0 10px rgba(132, 204, 22, 0.45)'}}>{score}</span>
+                <CountUp value={score} className="font-bold text-lg" style={{color: '#a3e635', textShadow: '0 0 10px rgba(132, 204, 22, 0.45)'}}/>
             </div>
         </div>
     </div>

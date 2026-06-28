@@ -51,6 +51,40 @@
   animation: compassPulse 1.4s ease-in-out infinite;
 }
 
+/* Brief "ping" flash on the wedge/control for the direction the player just moved. */
+@keyframes compassPing {
+  0% { filter: brightness(1); }
+  35% { filter: brightness(2.5); }
+  100% { filter: brightness(1); }
+}
+@keyframes compassBtnPing {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  35% { transform: scale(1.18); filter: brightness(1.7); }
+}
+.vbtn-ping {
+  animation: compassBtnPing 0.6s ease-out;
+}
+
+/* Subtle CRT scanline texture over the transcript */
+@keyframes scanline {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+.scanline-effect::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(132, 204, 22, 0.03) 2px,
+    rgba(132, 204, 22, 0.03) 4px
+  );
+  pointer-events: none;
+  animation: scanline 8s linear infinite;
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.4s ease-out forwards;
 }

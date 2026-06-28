@@ -7,7 +7,7 @@ import Header from "./components/Header.tsx";
 
 import Server from './Server';
 import {ClickableText, ClickableTextHandle} from "@zork-ai/shared-types";
-import Compass from "./components/Compass.tsx";
+import Compass, {parseMoveDirection} from "./components/Compass.tsx";
 
 import {useGameContext} from "@zork-ai/shared-types";
 import GameInput from "./components/GameInput.tsx";
@@ -86,6 +86,9 @@ function Game() {
     const [locationActions, setLocationActions] = useState<Record<string, string[]>>({});
     const [exits, setExits] = useState<string[]>([]);
     const [locationName, setLocationName] = useState<string>("");
+    const [pingMove, setPingMove] = useState<{id: string; nonce: number}>({id: "", nonce: 0});
+    const [showJumpToLatest, setShowJumpToLatest] = useState<boolean>(false);
+    const atBottomRef = React.useRef<boolean>(true);
 
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
     const [snackBarMessage, setSnackBarMessage] = useState<string>("");
@@ -166,12 +169,28 @@ function Game() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [deleteGameRequest]);
 
-    // Scroll to the bottom of the container after we add text. 
+    // Auto-scroll only when the player is already at the bottom; otherwise flag the
+    // new content so they can jump down without losing their place in the history.
     useEffect(() => {
-        if (gameContentElement.current) {
-            gameContentElement.current.scrollToBottom();
+        if (atBottomRef.current) {
+            gameContentElement.current?.scrollToBottom();
+        } else {
+            setShowJumpToLatest(true);
         }
     }, [gameText]);
+
+    function handleTranscriptScroll(event: React.UIEvent<HTMLDivElement>) {
+        const el = event.currentTarget;
+        const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 48;
+        atBottomRef.current = atBottom;
+        if (atBottom) setShowJumpToLatest(false);
+    }
+
+    function jumpToLatest() {
+        gameContentElement.current?.scrollToBottom();
+        atBottomRef.current = true;
+        setShowJumpToLatest(false);
+    }
 
     // Restart the game. 
     useEffect(() => {
@@ -286,6 +305,11 @@ function Game() {
             setCommandHistory((prev) =>
                 prev[prev.length - 1] === valueToSubmit ? prev : [...prev, valueToSubmit]);
         }
+        // Flash the compass control for the direction just moved.
+        const moveDir = parseMoveDirection(valueToSubmit);
+        if (moveDir) {
+            setPingMove((prev) => ({id: moveDir, nonce: prev.nonce + 1}));
+        }
         mutation.mutate(new GameRequest(valueToSubmit, id));
         focusOnPlayerInput();
     }
@@ -360,7 +384,7 @@ function Game() {
 
     return (
 
-        <div className={"m-10 mt-20 relative"}>
+        <div className={"relative flex flex-col flex-1 min-h-0 mx-10 mt-20 mb-4"}>
 
             <div>
                 <Snackbar
@@ -377,6 +401,7 @@ function Game() {
             <Compass
             onCompassClick={handleCommandClick}
             exits={exits}
+            pingMove={pingMove}
             className="
             hidden
             md:block
@@ -396,12 +421,14 @@ function Game() {
                 boxShadow: '0 4px 20px rgba(132, 204, 22, 0.18), 0 2px 10px rgba(0, 0, 0, 0.5)'
             }}/>
 
+            <div className="relative flex-1 min-h-0 max-h-[55vh]">
             <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word: string) => handleWordClicked(word)}
                            onMouseMove={highlightWordAtPointer}
                            onMouseLeave={clearWordHighlight}
-                           className={"flex flex-col p-6 sm:p-12 bg-opacity-80 h-[65vh] overflow-auto " +
+                           onScroll={handleTranscriptScroll}
+                           className={"relative flex flex-col p-6 sm:p-12 bg-opacity-80 h-full overflow-auto " +
                                "bg-stone-900 font-mono rounded-lg border-2 " +
-                               "border-stone-700/50 shadow-lg z-10"}
+                               "border-stone-700/50 shadow-lg clickable scanline-effect z-10"}
                            data-testid="game-responses-container">
                 <div className="relative z-0">
                     {/* Background styling elements */}
@@ -427,6 +454,25 @@ function Game() {
                     ))}
                 </div>
             </ClickableText>
+
+            {showJumpToLatest && (
+                <button
+                    type="button"
+                    onClick={jumpToLatest}
+                    data-testid="jump-to-latest"
+                    className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-mono pointer-events-auto transition-transform hover:scale-105 animate-fadeIn"
+                    style={{
+                        background: 'rgba(28, 25, 23, 0.92)',
+                        border: '1px solid rgba(132, 204, 22, 0.45)',
+                        color: '#a3e635',
+                        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.5)',
+                        backdropFilter: 'blur(4px)'
+                    }}
+                >
+                    &darr;&nbsp;New messages
+                </button>
+            )}
+            </div>
 
             <div
                 className="flex flex-col items-stretch gap-2 bg-gradient-to-r from-stone-800 to-stone-700 px-3 sm:px-5 py-3 min-h-[90px] rounded-b-lg border-t border-stone-600/30 shadow-inner">
