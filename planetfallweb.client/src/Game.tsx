@@ -45,7 +45,6 @@ const clearWordHighlight = (): void => {
 };
 
 const highlightWordAtPointer = (event: React.MouseEvent<HTMLDivElement>): void => {
-    if (!supportsHighlightApi()) return;
     let node: Node | null = null;
     let offset = 0;
     const doc = document as Document & {
@@ -59,10 +58,16 @@ const highlightWordAtPointer = (event: React.MouseEvent<HTMLDivElement>): void =
         if (pos) { node = pos.offsetNode; offset = pos.offset; }
     }
     const wordRange = expandToWordRange(node, offset);
-    if (!wordRange || !wordRange.toString().trim()) { clearWordHighlight(); return; }
+    const overWord = !!wordRange && wordRange.toString().trim().length > 0;
+
+    // Pointer cursor only while hovering an actual (clickable) word, not whitespace.
+    event.currentTarget.style.cursor = overWord ? "pointer" : "";
+
+    if (!supportsHighlightApi()) return;
+    if (!overWord) { clearWordHighlight(); return; }
     const HighlightCtor = (globalThis as { Highlight?: new (range: Range) => unknown }).Highlight!;
     // @ts-expect-error - highlights is not in older TS lib.dom typings
-    CSS.highlights.set(WORD_HOVER_HIGHLIGHT, new HighlightCtor(wordRange));
+    CSS.highlights.set(WORD_HOVER_HIGHLIGHT, new HighlightCtor(wordRange!));
 };
 
 function Game() {
