@@ -6,8 +6,10 @@ using Utilities;
 
 namespace Planetfall;
 
-public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISurvivalClockContext
+public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISurvivalClockContext, IResettableClockContext
 {
+    private const int TurnTimeIncrement = 54;
+
     [UsedImplicitly]
     public int Day { get; set; } = 1;
 
@@ -238,9 +240,15 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
 
     public override string? ProcessEndOfTurn()
     {
-        Repository.GetItem<Chronometer>().CurrentTime += 54;
+        Repository.GetItem<Chronometer>().CurrentTime += TurnTimeIncrement;
         SleepJustOccurred = false;
         return base.ProcessEndOfTurn();
+    }
+
+    public void ResetClockForGodMode(int targetTime)
+    {
+        // God-mode commands still take a Planetfall turn, so compensate for the end-of-turn tick.
+        Repository.GetItem<Chronometer>().CurrentTime = targetTime - TurnTimeIncrement;
     }
 
     /// <summary>
