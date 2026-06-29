@@ -28,7 +28,7 @@ public class TestParser : IntentParser
             "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate", "search",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind", "kick", "deflate",
             "lower", "raise", "get", "inflate", "leave", "unlock", "lock", "climb", "extend", "lift", "shake",
-            "oil", "lubricate", "cross", "through", "look under"
+            "oil", "lubricate", "cross", "through", "go"
         ];
 
         _allNouns = Repository.GetNouns(gameName);
@@ -148,8 +148,9 @@ public class TestParser : IntentParser
             if (_allNouns.Contains(noun))
                 return Task.FromResult<IntentBase>(new SimpleIntent
                 {
-                    Verb = "look under",
+                    Verb = "look",
                     Noun = noun,
+                    Adverb = "under",
                     OriginalInput = input
                 });
         }
@@ -160,8 +161,9 @@ public class TestParser : IntentParser
             if (_allNouns.Contains(noun))
                 return Task.FromResult<IntentBase>(new SimpleIntent
                 {
-                    Verb = "go through",
+                    Verb = "go",
                     Noun = noun,
+                    Adverb = "through",
                     OriginalInput = input
                 });
         }
