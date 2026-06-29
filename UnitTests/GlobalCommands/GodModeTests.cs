@@ -19,4 +19,14 @@ public class GodModeTests : EngineTestsBase
         var kitchen = Repository.GetLocation<Kitchen>();
         kitchen.Items.Should().OnlyHaveUniqueItems();
     }
+
+    [Test]
+    public async Task GodModeResetTime_IsInvalidOutsidePlanetfall()
+    {
+        var engine = GetTarget();
+
+        var response = await engine.GetResponse("god mode reset time");
+
+        response.Should().Contain("Invalid use of God mode. Bad adventurer!");
+    }
 }
