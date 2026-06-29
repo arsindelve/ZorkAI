@@ -210,4 +210,16 @@ public class GameSpecificTests : EngineTestsBase
         Repository.GetItem<Leaflet>().CurrentLocation.Should().BeNull();
         target.Context.HasItem<Leaflet>().Should().BeFalse();
     }
+
+    [Test]
+    public async Task AragainFalls_Down_ReturnsFallsSpecificWarning()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<AragainFalls>();
+
+        var response = await target.GetResponse("down");
+
+        response.Should().Contain("It's a long way...");
+        target.Context.CurrentLocation.Should().BeOfType<AragainFalls>();
+    }
 }
