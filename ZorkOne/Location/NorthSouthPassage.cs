@@ -6,7 +6,8 @@ namespace ZorkOne.Location;
 
 public class NorthSouthPassage : DarkLocation
 {
-    public override string Name => "North-South Passage\n";
+    // Room names are serialized as area keys, so keep formatting whitespace out of the name.
+    public override string Name => "North-South Passage";
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
