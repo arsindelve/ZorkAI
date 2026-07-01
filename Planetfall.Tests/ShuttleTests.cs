@@ -704,6 +704,26 @@ public class ShuttleTests : EngineTestsBase
         GetLocation<AlfieControlEast>().Activated.Should().BeFalse();
     }
 
+    [TestCase("god mode reset time")]
+    [TestCase("god mode reset clock")]
+    public async Task GodModeResetTime_AllowsAlfieActivationAfterEveningCutoff(string resetCommand)
+    {
+        var target = GetTarget();
+        Take<ShuttleAccessCard>();
+        StartHere<AlfieControlEast>();
+
+        Repository.GetItem<Chronometer>().CurrentTime = 6500;
+
+        var resetResponse = await target.GetResponse(resetCommand);
+        resetResponse.Should().Contain("God mode: chronometer reset to 2000.");
+        Repository.GetItem<Chronometer>().CurrentTime.Should().Be(2000);
+
+        var activationResponse = await target.GetResponse("slide shuttle access card through slot");
+
+        activationResponse.Should().Contain("A recording of a deep male voice says \"Shuttle controls activated.\"");
+        GetLocation<AlfieControlEast>().Activated.Should().BeTrue();
+    }
+
     [Test]
     public async Task PushLever_FloydCommentsWhenPresent()
     {

@@ -7,6 +7,8 @@ internal class StorageWest : LocationBase
 {
     public override string Name => "Storage West";
 
+    public override string[] NounsForMatching => ["storeroom", "supply room"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

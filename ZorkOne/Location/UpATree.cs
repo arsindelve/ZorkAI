@@ -11,6 +11,8 @@ public class UpATree : LocationBase, IDropSpecialLocation, ITurnBasedActor
 {
     public override string Name => "Up A Tree";
 
+    public override string[] NounsForMatching => ["treetop"];
+
 
     // Being up a tree, whatever we drop from here will end up on the ground below. 
     public InteractionResult DropSpecial(IItem item, IContext context)

@@ -11,6 +11,8 @@ internal class EntranceToHades : DarkLocation
 {
     public override string Name => "Entrance to Hades";
 
+    public override string[] NounsForMatching => ["hell", "underworld"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

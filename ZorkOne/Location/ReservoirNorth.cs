@@ -8,6 +8,10 @@ public class ReservoirNorth : DarkLocation
 {
     public override string Name => "Reservoir North";
 
+    // No "lake" alias here: it is shared with the central Reservoir and Reservoir South, and from the
+    // central bed it produced a "which shore?" prompt (issue #268 review). "go to the lake" from this
+    // shore still reaches the central lake bed, which keeps the alias.
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         // Issue #87: both shores must gate the crossing identically. In the original game RESERVOIR-NORTH's

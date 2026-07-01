@@ -2,7 +2,7 @@ using GameEngine.Location;
 
 namespace Planetfall.Location.Lawanda;
 
-internal class SanfacF : LocationWithNoStartingItems
+internal class SanfacF : SanfacBase
 {
     public override string Name => "Sanfac F";
 

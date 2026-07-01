@@ -8,6 +8,8 @@ public class DamLobby : LocationBase
 {
     public override string Name => "Dam Lobby";
 
+    public override string[] NounsForMatching => ["lobby", "waiting room"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

@@ -11,6 +11,8 @@ public class TreasureRoom : LocationBase, IThiefMayVisit
 {
     public override string Name => "Treasure Room";
 
+    public override string[] NounsForMatching => ["vault"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

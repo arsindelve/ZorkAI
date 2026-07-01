@@ -13,6 +13,8 @@ internal class RepairRoom : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHere
 {
     public override string Name => "Repair Room";
 
+    public override string[] NounsForMatching => ["workshop", "machine shop"];
+
     [UsedImplicitly] public bool HasToldMeAboutAchilles { get; set; }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)

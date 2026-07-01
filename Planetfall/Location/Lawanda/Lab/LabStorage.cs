@@ -7,6 +7,8 @@ internal class LabStorage : LocationBase
 {
     public override string Name => "Lab Storage";
 
+    public override string[] NounsForMatching => ["storeroom", "supply room"];
+
     public override void Init()
     {
         StartWithItem<FreshBattery>();

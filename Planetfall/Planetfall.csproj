@@ -17,4 +17,16 @@
         <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
     </ItemGroup>
 
+    <!--
+      Hint knowledge base. The hint system's "knowledge" IS the game source, so we embed the game's own
+      .cs files plus the single complete walkthrough as resources (the deployed Lambda has no source on
+      disk). PlanetfallHintProvider reads these resources and assembles the bundle at runtime — the
+      concatenation logic lives in C#, not here. An explicit include means a missing/renamed walkthrough
+      fails the build loudly rather than silently degrading the hints.
+    -->
+    <ItemGroup>
+        <EmbeddedResource Include="**/*.cs" Exclude="obj/**;bin/**" />
+        <EmbeddedResource Include="../Planetfall.Tests/Walkthrough/WalkthroughTestOne.cs" />
+    </ItemGroup>
+
 </Project>

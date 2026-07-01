@@ -6,6 +6,8 @@ public class WindingStair : LocationWithNoStartingItems
 {
     public override string Name => "Winding Stair";
 
+    public override string[] NounsForMatching => ["staircase", "stairway", "stairs"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

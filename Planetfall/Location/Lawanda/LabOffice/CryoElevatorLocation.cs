@@ -8,6 +8,8 @@ internal class CryoElevatorLocation : LocationBase
 {
     public override string Name => "Cryo-Elevator";
 
+    public override string[] NounsForMatching => ["lift"];
+
     protected override string GetContextBasedDescription(IContext context)
     {
         var button = Repository.GetItem<CryoElevatorButton>();

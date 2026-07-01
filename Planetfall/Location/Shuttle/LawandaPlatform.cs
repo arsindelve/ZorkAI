@@ -14,6 +14,8 @@ internal class LawandaPlatform : FloydSpecialInteractionLocation
 {
     public override string Name => "Lawanda Platform";
 
+    public override string[] NounsForMatching => ["lawanda station"];
+
     public override string FloydPrompt => FloydPrompts.LawandaPlatform;
 
     private bool AlfieIsHere => Repository.GetLocation<AlfieControlWest>().TunnelPosition == 0;

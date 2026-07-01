@@ -9,6 +9,8 @@ internal class CryoAnteroomLocation : LocationBase
 {
     public override string Name => "Cryogenic Anteroom";
 
+    public override string[] NounsForMatching => ["cryo chamber", "cryogenics"];
+
     #region Ending Text
 
     // Common opening for all endings

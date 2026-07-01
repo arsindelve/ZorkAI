@@ -30,6 +30,9 @@ public class IntentMappingConfiguration
 
     [JsonPropertyName("exitSubLocationIntents")]
     public List<ExitSubLocationMapping> ExitSubLocationIntents { get; set; } = [];
+
+    [JsonPropertyName("goToDestinationIntents")]
+    public List<GoToDestinationMapping> GoToDestinationIntents { get; set; } = [];
 }
 
 /// <summary>
@@ -117,4 +120,16 @@ public class ExitSubLocationMapping
 
     [JsonPropertyName("nounTwo")]
     public string? NounTwo { get; set; }
+}
+
+/// <summary>
+/// Mapping for destination navigation (issue #268): "go to the kitchen", "walk to the dome room".
+/// </summary>
+public class GoToDestinationMapping
+{
+    [JsonPropertyName("inputs")]
+    public List<string> Inputs { get; set; } = [];
+
+    [JsonPropertyName("destination")]
+    public string Destination { get; set; } = string.Empty;
 }

@@ -6,6 +6,8 @@ public class Courtyard : LocationWithNoStartingItems
 {
     public override string Name => "Courtyard";
 
+    public override string[] NounsForMatching => ["ruins", "plaza"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

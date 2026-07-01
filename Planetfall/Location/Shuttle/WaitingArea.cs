@@ -5,6 +5,8 @@ namespace Planetfall.Location.Shuttle;
 public class WaitingArea : LocationWithNoStartingItems
 {
     public override string Name => "Waiting Area";
+
+    public override string[] NounsForMatching => ["waiting room", "lounge"];
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

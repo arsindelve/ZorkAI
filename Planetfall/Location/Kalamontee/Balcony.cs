@@ -9,6 +9,8 @@ public class Balcony : LocationBase
 {
     public override string Name => "Balcony";
 
+    public override string[] NounsForMatching => ["terrace"];
+
     public string DeathDescription =>
         "Suddenly, in the middle of the night, a wave of water washes over you. Before you can quite get your bearings, you drown. ";
 

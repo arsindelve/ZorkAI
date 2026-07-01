@@ -8,6 +8,8 @@ public class Chasm : DarkLocationWithNoStartingItems, IDropSpecialLocation
 {
     public override string Name => "Chasm";
 
+    public override string[] NounsForMatching => ["abyss", "crevasse"];
+
     public InteractionResult DropSpecial(IItem item, IContext context)
     {
         context.Items.Remove(item);

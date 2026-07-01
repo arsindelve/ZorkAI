@@ -4,6 +4,8 @@ namespace Planetfall.Location.Shuttle;
 public class AlfieControlEast : ShuttleControl<ShuttleCarAlfie, AlfieControlEast>
 {
     public override string Name => "Alfie Control East";
+
+    public override string[] NounsForMatching => ["alfie cockpit"];
     
     protected override Direction LeaveControlsDirection => Direction.W;
     

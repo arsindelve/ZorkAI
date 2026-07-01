@@ -6,6 +6,8 @@ public class ObservationDeck : FloydSpecialInteractionLocation
 {
     public override string Name => "Observation Deck";
 
+    public override string[] NounsForMatching => ["balcony", "lookout"];
+
     public override string FloydPrompt => FloydPrompts.ObservationDeck;
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)

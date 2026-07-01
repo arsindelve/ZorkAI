@@ -9,6 +9,8 @@ namespace Planetfall.Location.Lawanda;
 internal class ProjConOffice : FloydSpecialInteractionLocation
 {
     public override string Name => "ProjCon Office";
+
+    public override string[] NounsForMatching => ["project control", "headquarters"];
     
     [UsedImplicitly]
     public bool AnnouncmentHasBeenMade { get; set; }

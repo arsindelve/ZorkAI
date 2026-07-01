@@ -8,6 +8,8 @@ public class EgyptianRoom : DarkLocation, IThiefMayVisit
 {
     public override string Name => "Egyptian Room";
 
+    public override string[] NounsForMatching => ["tomb"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

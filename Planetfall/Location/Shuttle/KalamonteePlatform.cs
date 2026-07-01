@@ -13,6 +13,8 @@ internal class KalamonteePlatform : FloydSpecialInteractionLocation
 {
     public override string Name => "Kalamontee Platform";
 
+    public override string[] NounsForMatching => ["kalamontee station"];
+
     public override string FloydPrompt => FloydPrompts.KalamonteePlatform;
 
     private bool AlfieIsHere => Repository.GetLocation<AlfieControlEast>().TunnelPosition == 0;

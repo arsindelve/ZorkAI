@@ -1,8 +1,11 @@
 ﻿using System.Text;
+using GameEngine.Hints;
 using Microsoft.AspNetCore.Mvc;
 using Model.AIGeneration.Requests;
+using Model.Hints;
 using Model.Interface;
 using Model.Web;
+using Planetfall.Hints;
 
 namespace Lambda.Controllers;
 
@@ -12,12 +15,43 @@ public class PlanetfallController(
     ILogger<PlanetfallController> logger,
     IGameEngine engine,
     ISessionRepository sessionRepository,
-    ISavedGameRepository savedGameRepository
+    ISavedGameRepository savedGameRepository,
+    IHintLanguageModel hintLlm
 )
     : ControllerBase
 {
     private const string SaveGameTableName = "planetfall_savegame";
     private const string SessionTableName = "planetfall_session";
+
+    /// <summary>
+    ///     Read-only hint endpoint. Loads the session's game state, runs the hint engine, and returns a
+    ///     hint — WITHOUT consuming a turn or writing the session back (asking for help is free).
+    /// </summary>
+    [HttpPost]
+    [Route("hint")]
+    public async Task<HintApiResponse> Hint([FromBody] HintApiRequest request)
+    {
+        await engine.InitializeEngine();
+
+        // A stale/typo/never-played session id has no saved state. Without this guard we'd silently
+        // RestoreSession(nothing) and hand the hint engine a brand-new, just-initialized Context — i.e.
+        // give a hint for the opening scene as if that were the player's situation. (The old
+        // `engine.Context is null` check could never catch this: InitializeEngine always sets a Context.)
+        var savedSession = await GetSavedSession(request.SessionId);
+        if (string.IsNullOrEmpty(savedSession))
+            return new HintApiResponse(
+                "I can't find a game in progress for this session, so there's nothing to hint about yet. " +
+                "Start or restore a game first.");
+
+        RestoreSession(savedSession);
+
+        var service = new HintService(new PlanetfallHintProvider(), hintLlm);
+        var result = await service.GetHint(new HintRequest(
+            request.SessionId, engine.Context!, request.Question, request.History ?? []));
+
+        // Deliberately no WriteSession(): hints are read-only and consume no turn.
+        return new HintApiResponse(result.Text);
+    }
 
     [HttpPost]
     public async Task<GameResponse> Index([FromBody] GameRequest request)

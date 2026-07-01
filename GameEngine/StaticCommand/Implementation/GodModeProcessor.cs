@@ -19,6 +19,10 @@ public class GodModeProcessor : IGlobalCommand
         if (input.Contains(" go ")) return Task.FromResult(Go(input, context));
         if (input.Contains(" where ")) return Task.FromResult(Where(input));
 
+        if (context is IResettableClockContext clockContext &&
+            ResetClock(input, clockContext) is { } clockResetResult)
+            return Task.FromResult(clockResetResult);
+
         // Issue #277: toggle the survival clocks (sleep/hunger) for deterministic playtesting. Only
         // games whose context tracks those clocks (Planetfall) implement ISurvivalClockContext.
         if (context is ISurvivalClockContext survivalContext &&
@@ -26,6 +30,17 @@ public class GodModeProcessor : IGlobalCommand
             return Task.FromResult(survivalResult);
 
         return Task.FromResult("Invalid use of God mode. Bad adventurer! ");
+    }
+
+    private static string? ResetClock(string input, IResettableClockContext context)
+    {
+        var words = input.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (!words.Contains("reset") || (!words.Contains("time") && !words.Contains("clock")))
+            return null;
+
+        const int walkthroughResetTime = 2000;
+        context.ResetClockForGodMode(walkthroughResetTime);
+        return $"God mode: chronometer reset to {walkthroughResetTime}.";
     }
 
     /// <summary>

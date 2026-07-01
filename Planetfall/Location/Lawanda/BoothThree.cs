@@ -5,6 +5,8 @@ namespace Planetfall.Location.Lawanda;
 internal class BoothThree : BoothBase
 {
     public override string Name => "Booth 3";
+
+    public override string[] NounsForMatching => ["booth three"];
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

@@ -11,7 +11,10 @@ public class Mailbox : OpenAndCloseContainerBase, ICanBeExamined
     public override string Name => "mailbox";
 
     public string ExaminationDescription =>
-        ((IOpenAndClose)this).IsOpen ? "It's open. " : "The small mailbox is closed. ";
+        ((IOpenAndClose)this).IsOpen
+            // Open containers must keep their contents visible on re-examination.
+            ? Items.Any() ? ItemListDescription("mailbox", null) : "The small mailbox is open and empty. "
+            : "The small mailbox is closed. ";
 
     public override string GenericDescription(ILocation? currentLocation)
     {

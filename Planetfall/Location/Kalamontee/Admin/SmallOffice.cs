@@ -7,6 +7,8 @@ internal class SmallOffice : LocationBase
 {
     public override string Name => "Small Office";
 
+    public override string[] NounsForMatching => ["study"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

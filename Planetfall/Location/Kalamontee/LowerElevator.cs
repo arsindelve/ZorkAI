@@ -7,6 +7,9 @@ internal class LowerElevator : ElevatorBase<LowerElevatorDoor, LowerElevatorAcce
 {
     public override string Name => "Lower Elevator";
 
+    // Issue #268: only the colour alias is non-title ("lower"/"elevator" come from the Name).
+    public override string[] NounsForMatching => ["red"];
+
     protected override string Color => "red";
 
     protected override string Size => "medium-sized";

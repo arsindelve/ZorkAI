@@ -12,6 +12,8 @@ public class Dam : LocationBase
 
     public override string Name => "Dam";
 
+    public override string[] NounsForMatching => ["flood control dam"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

@@ -16,6 +16,8 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
 
     public override string Name => "Maintenance Room";
 
+    public override string[] NounsForMatching => ["control room"];
+
     [UsedImplicitly] public int CurrentWaterLevel { get; set; }
 
     public bool RoomFlooded { get; private set; }
