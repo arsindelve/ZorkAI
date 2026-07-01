@@ -451,7 +451,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             && (!string.IsNullOrEmpty(Context.LastInput) || !string.IsNullOrEmpty(Context.LastResponse)))
         {
             var resolved = await _parser.ResolvePronounsAsync(_currentInput!, Context.LastInput, Context.LastResponse);
-            if (resolved != null && !resolved.Equals(_currentInput, StringComparison.OrdinalIgnoreCase))
+            if (resolved != null && !resolved.Equals(_currentInput, StringComparison.OrdinalIgnoreCase)
+                && !ResolverConflatedSingularItWithASet(_currentInput!, resolved))
             {
                 _currentInput = resolved;
             }
@@ -558,6 +559,27 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return context.LastNouns.Any(noun => context.HasMatchingNoun(noun).HasItem);
 
         return false;
+    }
+
+    /// <summary>
+    ///     True when the AI pronoun resolver rewrote a SINGULAR "it" into a multi-object noun phrase,
+    ///     e.g. "drop it" -&gt; "drop rope and knife" (issue #341). This happens after a multi-object
+    ///     action like "take all": the resolver's only context is the previous command/response naming
+    ///     every object that was handled, so it conflates "it" with the whole set instead of the one
+    ///     object the player actually meant. "them" is the collection pronoun (issue #248) and is not
+    ///     affected - this guard only fires when the ORIGINAL command used singular "it". When it fires,
+    ///     the rewrite is discarded and the deterministic <see cref="ItProcessor" /> downstream resolves
+    ///     "it" from the single last-handled antecedent instead.
+    /// </summary>
+    private static bool ResolverConflatedSingularItWithASet(string original, string resolved)
+    {
+        if (!Regex.IsMatch(original, @"\bit\b", RegexOptions.IgnoreCase))
+            return false;
+
+        // A correct singular rewrite swaps "it" for exactly one noun phrase. A rewrite that introduces
+        // a conjunction the original didn't already have means the resolver named more than one object.
+        return Regex.IsMatch(resolved, @"\band\b", RegexOptions.IgnoreCase)
+               && !Regex.IsMatch(original, @"\band\b", RegexOptions.IgnoreCase);
     }
 
     public IContext RestoreGame(string data)

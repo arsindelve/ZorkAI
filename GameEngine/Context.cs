@@ -76,7 +76,15 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public void RememberAntecedentNoun(string? noun)
     {
-        if (!string.IsNullOrEmpty(noun) && !LastNouns.Contains(noun, StringComparer.OrdinalIgnoreCase))
+        if (string.IsNullOrEmpty(noun))
+            return;
+
+        // The singular "it" antecedent always tracks the most recently handled object, even during a
+        // multi-object action like "take rope and knife" - mirroring the original's PERFORM updating
+        // P-IT-OBJECT to the current PRSO on every object it processes (issue #341).
+        LastNoun = noun;
+
+        if (!LastNouns.Contains(noun, StringComparer.OrdinalIgnoreCase))
             LastNouns.Add(noun);
     }
 
@@ -89,7 +97,13 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
             .ToList();
 
         if (set.Count > 0)
+        {
             LastNouns = set;
+            // "it" resolves to the LAST object this batch action handled (e.g. the last item a
+            // bare "take all" picked up), not the whole set - "them" is the collection pronoun
+            // covered by LastNouns above (issue #341).
+            LastNoun = set[^1];
+        }
     }
 
     public int Moves { get; set; }
