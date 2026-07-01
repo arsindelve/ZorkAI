@@ -18,6 +18,12 @@ public static class Verbs
     public static readonly string[] DropVerbs = ["drop"];
 
     public static readonly string[] DrinkVerbs = ["swallow", "sip", "drink", "consume", "gulp", "guzzle", "slurp"];
+
+    /// <summary>
+    ///     The "go for a swim" family (ZIL: <c>SYNONYM SWIM BATHE WADE</c>). Used by the river-bank
+    ///     locations (Shore, Sandy Beach) that expose the local-global river/water objects.
+    /// </summary>
+    public static readonly string[] SwimVerbs = ["swim", "bathe", "wade"];
     public static readonly string[] FixVerbs = ["fix", "repair", "seal", "patch", "stop", "block", "mend", "plug"];
     public static readonly string[] ApplyVerbs = ["use", "apply", "stick", "put", "place", "spread", "smear", "press"];
     public static readonly string[] PushVerbs = ["push", "press", "activate", "toggle", "click", "flip", "switch", "depress"];
