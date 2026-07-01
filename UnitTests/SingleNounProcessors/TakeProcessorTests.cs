@@ -120,6 +120,48 @@ public class TakeProcessorTests : EngineTestsBase
     }
 
     [Test]
+    public async Task TakeItem_InDarkRoom_ViaTakeIntent_SaysTooDarkAndDoesNotTakeIt()
+    {
+        // Issue #342: production's real AI parser tags a bare "take rope" as a TakeIntent, which
+        // GameEngine dispatches straight to TakeOrDropInteractionProcessor.Process(TakeIntent, ...),
+        // bypassing the darkness guard that SimpleIntent goes through in SimpleInteractionEngine.
+        // TestParser (used by every other test in this file via GetResponse) always resolves "take X"
+        // to a SimpleIntent, so it can't reproduce this - the TakeIntent-facing overload has to be
+        // invoked directly, exactly as GameEngine.cs does for a live AI-tagged "take" intent.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Attic>();
+
+        target.Context.ItIsDarkHere.Should().BeTrue();
+
+        var processor = new TakeOrDropInteractionProcessor(TakeAndDropParser.Object);
+        var (_, message) = await processor.Process(
+            new TakeIntent { Noun = "rope", OriginalInput = "take rope" }, target.Context, Client.Object);
+
+        message.Should().Contain("too dark");
+        target.Context.HasItem<Rope>().Should().BeFalse();
+    }
+
+    [Test]
+    public async Task TakeItem_ViaTakeIntent_SucceedsAfterRelightingLantern()
+    {
+        // Control for the test above: once there's light again, the same TakeIntent path should
+        // still let the player take the rope.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Attic>();
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
+
+        target.Context.ItIsDarkHere.Should().BeFalse();
+
+        var processor = new TakeOrDropInteractionProcessor(TakeAndDropParser.Object);
+        var (_, message) = await processor.Process(
+            new TakeIntent { Noun = "rope", OriginalInput = "take rope" }, target.Context, Client.Object);
+
+        message.Should().Contain("Taken");
+        target.Context.HasItem<Rope>().Should().BeTrue();
+    }
+
+    [Test]
     public async Task TakeItem_Disambiguation()
     {
         var target = GetTarget();
