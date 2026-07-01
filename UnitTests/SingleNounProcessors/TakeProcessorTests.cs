@@ -162,6 +162,28 @@ public class TakeProcessorTests : EngineTestsBase
     }
 
     [Test]
+    public async Task TakeMultipleItems_InDarkRoom_ViaTakeIntent_DoesNotTakeAnyOfThem()
+    {
+        // PR review follow-up to issue #342: a live AI TakeIntent can resolve more than one noun for
+        // a single command (e.g. "take rope and knife"), which GetItemsToTake routes to
+        // TakeEverythingProcessor.TakeAll instead of TakeIt - a separate branch that had its own,
+        // still-unguarded darkness gap even after the single-item TakeIt fix above.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Attic>();
+
+        target.Context.ItIsDarkHere.Should().BeTrue();
+
+        var processor = new TakeOrDropInteractionProcessor(TakeAndDropParser.Object);
+        var (_, message) = await processor.Process(
+            new TakeIntent { Noun = "rope", OriginalInput = "take rope and knife" }, target.Context, Client.Object);
+
+        message.Should().NotContain("Taken");
+        message.Should().Contain("too dark");
+        target.Context.HasItem<Rope>().Should().BeFalse();
+        target.Context.HasItem<NastyKnife>().Should().BeFalse();
+    }
+
+    [Test]
     public async Task TakeItem_Disambiguation()
     {
         var target = GetTarget();

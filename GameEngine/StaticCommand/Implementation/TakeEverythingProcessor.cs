@@ -72,6 +72,15 @@ public class TakeEverythingProcessor : IGlobalCommand
                 continue;
             }
 
+            // Issue #342 follow-up: a live AI TakeIntent that resolves multiple nouns (e.g. "take rope
+            // and knife") reaches this method directly instead of TakeIt, so it needs the same darkness
+            // guard - an item not already in inventory must not be resolvable while the room is dark.
+            if (context.ItIsDarkHere && !context.Items.Contains(item))
+            {
+                sb.AppendLine($"{noun}: It's too dark to see! ");
+                continue;
+            }
+
             // Check if the item is actually available in scope (room or inventory containers)
             var itemsInLocation = ((ICanContainItems)context.CurrentLocation).GetAllItemsRecursively;
             var itemsInInventory = context.GetAllItemsRecursively;
