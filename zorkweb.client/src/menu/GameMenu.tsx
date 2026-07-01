@@ -11,22 +11,28 @@ export default function GameMenu({ latestVersion }: { latestVersion: string }) {
     }, []);
 
     return (
-        <div 
+        <div
             data-testid="game-menu-container"
-            className={`p-2 grid grid-cols-10 bg-gradient-to-r from-gray-800 to-gray-900 gap-2 w-full fixed top-0 z-10 shadow-lg transition-transform duration-500 ${isLoaded ? 'translate-y-0' : '-translate-y-full'}`}
+            className={`p-2 grid grid-cols-10 gap-2 w-full fixed top-0 z-10 transition-transform duration-500 ${isLoaded ? 'translate-y-0' : '-translate-y-full'}`}
+            style={{
+                background: 'linear-gradient(90deg, #161310 0%, #2b2723 50%, #161310 100%)',
+                borderBottom: '2px solid rgba(132, 204, 22, 0.4)',
+                boxShadow: '0 4px 22px rgba(132, 204, 22, 0.18)'
+            }}
         >
             <div className="col-span-7 flex items-center">
                 <img
                     src="https://zorkai-assets.s3.amazonaws.com/Zork.webp"
                     className="w-[100px] m-[3px] hover:scale-105 transition-all duration-300 hover:rotate-3"
                     alt="Logo"
+                    style={{ filter: 'drop-shadow(0 0 9px rgba(132, 204, 22, 0.4))' }}
                 />
 
-                <h1 
-                    className={`hidden lg:block text-xl text-white m-3 ml-10 font-['Lato'] tracking-wider transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-                    style={{ transitionDelay: '300ms' }}
+                <h1
+                    className={`hidden lg:block text-2xl m-3 ml-10 font-['Lato'] font-semibold tracking-wider transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    style={{ transitionDelay: '300ms', color: '#e7efd8', textShadow: '0 0 16px rgba(132, 204, 22, 0.3)' }}
                 >
-                    Generative AI-Enhanced Zork I
+                    Generative AI-Enhanced <span style={{ color: '#a3e635' }}>Zork I</span>
                 </h1>
             </div>
             <div className="col-span-3 flex justify-end items-center space-x-2">

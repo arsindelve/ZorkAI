@@ -32,7 +32,9 @@ describe('GameMenu Component', () => {
   test('renders the title', () => {
     render(<GameMenu />);
 
-    const title = screen.getByText('Generative AI-Enhanced Zork I');
+    // "Zork I" is wrapped in its own span for accent styling, so match the
+    // heading by its combined text content rather than a single text node.
+    const title = screen.getByRole('heading', { name: 'Generative AI-Enhanced Zork I' });
     expect(title).toBeInTheDocument();
   });
 

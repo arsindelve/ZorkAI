@@ -2,11 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Planetfall Sci-Fi Color Palette - Warm Amber & Deep Blue */
+/* Planetfall Sci-Fi Color Palette - Gold & Deep Blue.
+   Warm tones are anchored to the logo gold (#e0ac45) so the UI matches the
+   wordmark; accent is a lighter tint of the same gold for highlights. */
 :root {
-  --planetfall-primary: #ff9500;
+  --planetfall-primary: #e0ac45;
   --planetfall-secondary: #0ea5e9;
-  --planetfall-accent: #fbbf24;
+  --planetfall-accent: #f3c863;
   --planetfall-compass: #0095ff;
   --planetfall-bg-dark: #0a1929;
   --planetfall-bg-medium: #1e293b;
@@ -28,10 +30,10 @@
 
 @keyframes glowPulse {
   0%, 100% {
-    box-shadow: 0 0 10px rgba(255, 149, 0, 0.3);
+    box-shadow: 0 0 10px rgba(224, 172, 69, 0.3);
   }
   50% {
-    box-shadow: 0 0 20px rgba(255, 149, 0, 0.6);
+    box-shadow: 0 0 20px rgba(224, 172, 69, 0.6);
   }
 }
 
@@ -64,6 +66,53 @@
   }
 }
 
+/* Blinking terminal prompt caret */
+@keyframes blink {
+  0%, 45% {
+    opacity: 1;
+  }
+  50%, 95% {
+    opacity: 0.15;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* One animation drives the shared --compass-pulse value so every available wedge
+   and the up/down controls pulse on a single synchronized timeline (rather than
+   each element starting its own animation when its room makes it available). */
+@property --compass-pulse {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@keyframes compassPulse {
+  0%, 100% { --compass-pulse: 0.45; }
+  50% { --compass-pulse: 1; }
+}
+.compass-pulse-driver {
+  animation: compassPulse 1.4s ease-in-out infinite;
+}
+
+/* Brief "ping" flash on the wedge/control for the direction the player just moved. */
+@keyframes compassPing {
+  0% { filter: brightness(1); }
+  35% { filter: brightness(2.5); }
+  100% { filter: brightness(1); }
+}
+@keyframes compassBtnPing {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  35% { transform: scale(1.18); filter: brightness(1.7); }
+}
+.vbtn-ping {
+  animation: compassBtnPing 0.6s ease-out;
+}
+
+.animate-blink {
+  animation: blink 1.1s steps(1, end) infinite;
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.4s ease-out forwards;
 }
@@ -91,18 +140,22 @@
 }
 
 .clickable::-webkit-scrollbar-thumb {
-  background: rgba(255, 149, 0, 0.3);
+  background: rgba(224, 172, 69, 0.3);
   border-radius: 4px;
   transition: background 0.3s;
 }
 
 .clickable::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 149, 0, 0.6);
+  background: rgba(224, 172, 69, 0.6);
 }
 
-/* Highlight clickable words on hover */
-.clickable p:hover {
-  text-shadow: 0 0 8px rgba(255, 149, 0, 0.6);
+/* Highlight ONLY the single word under the cursor (via the CSS Custom Highlight
+   API, driven by ClickableText) so it's clear individual words are clickable
+   without lighting up the whole line. */
+::highlight(word-hover) {
+  background-color: color-mix(in srgb, var(--planetfall-primary) 30%, transparent);
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(224, 172, 69, 0.6);
 }
 
 /* Sci-fi scanline effect */
@@ -114,34 +167,54 @@
     0deg,
     transparent,
     transparent 2px,
-    rgba(255, 149, 0, 0.03) 2px,
-    rgba(255, 149, 0, 0.03) 4px
+    rgba(224, 172, 69, 0.03) 2px,
+    rgba(224, 172, 69, 0.03) 4px
   );
   pointer-events: none;
   animation: scanline 8s linear infinite;
 }
 
+/* Room-name header inside the transcript — a refined section label so the log is
+   scannable: small uppercase gold caption with a fading rule trailing off to the right. */
+.room-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0.9rem 0;
+  font-weight: 600;
+  font-size: 1.05em;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--planetfall-accent);
+}
+.room-header::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, color-mix(in srgb, var(--planetfall-primary) 40%, transparent), transparent);
+}
+
 /* Glowing text effect */
 .text-glow {
   text-shadow:
-    0 0 10px rgba(255, 149, 0, 0.5),
-    0 0 20px rgba(255, 149, 0, 0.3),
-    0 0 30px rgba(255, 149, 0, 0.2);
+    0 0 10px rgba(224, 172, 69, 0.5),
+    0 0 20px rgba(224, 172, 69, 0.3),
+    0 0 30px rgba(224, 172, 69, 0.2);
 }
 
 /* Neon border effect */
 .neon-border {
-  border: 2px solid rgba(255, 149, 0, 0.3);
+  border: 2px solid rgba(224, 172, 69, 0.3);
   box-shadow:
-    0 0 10px rgba(255, 149, 0, 0.2),
-    inset 0 0 10px rgba(255, 149, 0, 0.1);
+    0 0 10px rgba(224, 172, 69, 0.2),
+    inset 0 0 10px rgba(224, 172, 69, 0.1);
 }
 
 /* Glass morphism effect */
 .glass-morphism {
   background: rgba(10, 25, 41, 0.7);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 149, 0, 0.2);
+  border: 1px solid rgba(224, 172, 69, 0.2);
 }
 
 /* Footer styling */
