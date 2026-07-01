@@ -191,6 +191,14 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (castItem is null)
             return new NoNounMatchInteractionResult();
 
+        // Issue #342: TakeIntent (a live AI "take" tag) is dispatched here directly from GameEngine,
+        // bypassing the darkness guard that SimpleIntent goes through in SimpleInteractionEngine. Mirror
+        // the original parser, which only resolves room-visible objects when lit - an item already in
+        // inventory stays takeable (falls through to the "already have that" case below) since the player
+        // can always feel what they're carrying regardless of light.
+        if (context.ItIsDarkHere && !context.Items.Contains(castItem))
+            return new PositiveInteractionResult("It's too dark to see! ");
+
         if (!string.IsNullOrEmpty(castItem.CannotBeTakenDescription))
         {
             ((ItemBase)castItem).OnFailingToBeTaken(context);

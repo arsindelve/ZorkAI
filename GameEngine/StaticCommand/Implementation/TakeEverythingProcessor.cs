@@ -17,6 +17,12 @@ public class TakeEverythingProcessor : IGlobalCommand
         Runtime runtime
         )
     {
+        // Issue #342 follow-up: "take all" is a global command matched before the AI parser ever
+        // runs, so none of the TakeIntent/SimpleIntent darkness guards apply to it. Gate here too,
+        // matching the established per-global-command convention (see LookProcessor.LookAround).
+        if (context.ItIsDarkHere)
+            return "It's too dark to see! ";
+
         var items = ((ICanContainItems)context.CurrentLocation).GetAllItemsRecursively;
 
         if (!items.Any(s => s is ICanBeTakenAndDropped || !string.IsNullOrEmpty(s.CannotBeTakenDescription)))
@@ -69,6 +75,15 @@ public class TakeEverythingProcessor : IGlobalCommand
                 var message = await client.GenerateNarration(
                     new TakeSomethingThatIsNotPortable(noun), context.SystemPromptAddendum);
                 sb.AppendLine($"{noun}: {message}");
+                continue;
+            }
+
+            // Issue #342 follow-up: a live AI TakeIntent that resolves multiple nouns (e.g. "take rope
+            // and knife") reaches this method directly instead of TakeIt, so it needs the same darkness
+            // guard - an item not already in inventory must not be resolvable while the room is dark.
+            if (context.ItIsDarkHere && !context.Items.Contains(item))
+            {
+                sb.AppendLine($"{noun}: It's too dark to see! ");
                 continue;
             }
 

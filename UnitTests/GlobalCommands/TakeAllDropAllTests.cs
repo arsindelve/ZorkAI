@@ -11,6 +11,10 @@ public class TakeAllDropAllTests : EngineTestsBase
     {
         var target = GetTarget();
         Client.Setup(s => s.GenerateNarration(It.IsAny<TakeAllNothingHere>(), It.IsAny<string>())).ReturnsAsync("nothing here buddy");
+        // Cellar is a DarkLocation; bring a lit lantern so this exercises the empty-room narration
+        // rather than the (correct, see issue #342) darkness guard added to TakeEverythingProcessor.
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
         target.Context.CurrentLocation = Repository.GetLocation<Cellar>();
         var response = await target.GetResponse("take all");
         response.Should().Contain("nothing here buddy");
@@ -21,6 +25,10 @@ public class TakeAllDropAllTests : EngineTestsBase
     {
         var target = GetTarget();
         Client.Setup(s => s.GenerateNarration(It.IsAny<TakeAllNothingHere>(), It.IsAny<string>())).ReturnsAsync("nothing here buddy");
+        // MazeFour is a DarkLocation; bring a lit lantern so this exercises the empty-room narration
+        // rather than the (correct, see issue #342) darkness guard added to TakeEverythingProcessor.
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
         target.Context.CurrentLocation = Repository.GetLocation<MazeFour>();
         var response = await target.GetResponse("take all");
         response.Should().Contain("nothing here buddy");
