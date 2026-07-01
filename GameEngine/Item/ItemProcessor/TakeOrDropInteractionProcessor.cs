@@ -208,13 +208,15 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (!context.HaveRoomForItem(castItem))
             return new PositiveInteractionResult("Your load is too heavy. ");
 
-        context.Take(castItem);
-        context.RememberAntecedentNoun(castItem.NounsForMatching.FirstOrDefault());
-
         // This happens if you try to take something that is a legit object in the room,
         // but it has not been marked with this interface because it cannot be taken. Think doors and engravings.
+        // Check this *before* mutating inventory - otherwise a failed take (issue #345) still leaves
+        // the item sitting in context.Items even though the player-facing response is a no-op.
         if (castItem is not ICanBeTakenAndDropped takeItem)
             return new NoNounMatchInteractionResult();
+
+        context.Take(castItem);
+        context.RememberAntecedentNoun(castItem.NounsForMatching.FirstOrDefault());
 
         var onTakenText = takeItem.OnBeingTaken(context, container);
         container?.OnItemRemovedFromHere(castItem, context);

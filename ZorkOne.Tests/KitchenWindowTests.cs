@@ -1,5 +1,8 @@
 using FluentAssertions;
 using GameEngine;
+using GameEngine.Item.ItemProcessor;
+using Model.Intent;
+using Model.Interaction;
 using ZorkOne.Item;
 using ZorkOne.Location;
 
@@ -357,6 +360,26 @@ public class KitchenWindowTests : EngineTestsBase
 
             response.Should().Contain("The kitchen window is closed.");
             target.Context.CurrentLocation.Should().BeOfType<BehindHouse>();
+        }
+
+        /// <summary>
+        /// issue #345: in production the AI parser classifies "take window" as a TakeIntent, routed to
+        /// TakeOrDropInteractionProcessor.Process(TakeIntent, ...) -> TakeIt. The window is scenery (not
+        /// ICanBeTakenAndDropped), so this must not mutate the structured inventory even though the
+        /// player-facing response is a no-op ("no effect on the game").
+        /// </summary>
+        [Test]
+        public async Task TakeWindow_ViaTakeIntent_DoesNotAddWindowToInventory()
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
+
+            var processor = new TakeOrDropInteractionProcessor(TakeAndDropParser.Object);
+            var (result, _) = await processor.Process(
+                new TakeIntent { OriginalInput = "take window", Noun = "window" }, target.Context, Client.Object);
+
+            result.Should().BeOfType<PositiveInteractionResult>();
+            target.Context.Items.Should().NotContain(Repository.GetItem<KitchenWindow>());
         }
     }
 
