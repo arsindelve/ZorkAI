@@ -162,6 +162,26 @@ public class TakeProcessorTests : EngineTestsBase
     }
 
     [Test]
+    public async Task TakeAll_InDarkRoom_SaysTooDarkAndDoesNotTakeAnything()
+    {
+        // PR review follow-up to issue #342: the plain "take all"/"take everything" global command
+        // (GlobalCommandFactory -> TakeEverythingProcessor.Process) is matched before the AI parser
+        // ever runs, so none of the TakeIntent/SimpleIntent darkness guards apply to it. TestParser
+        // doesn't override global-command matching, so GetResponse("take all") exercises the exact
+        // same real dispatch path production uses here.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Attic>();
+
+        target.Context.ItIsDarkHere.Should().BeTrue();
+
+        var result = await target.GetResponse("take all");
+
+        result.Should().Contain("too dark");
+        target.Context.HasItem<Rope>().Should().BeFalse();
+        target.Context.HasItem<NastyKnife>().Should().BeFalse();
+    }
+
+    [Test]
     public async Task TakeMultipleItems_InDarkRoom_ViaTakeIntent_DoesNotTakeAnyOfThem()
     {
         // PR review follow-up to issue #342: a live AI TakeIntent can resolve more than one noun for

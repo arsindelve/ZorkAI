@@ -17,6 +17,12 @@ public class TakeEverythingProcessor : IGlobalCommand
         Runtime runtime
         )
     {
+        // Issue #342 follow-up: "take all" is a global command matched before the AI parser ever
+        // runs, so none of the TakeIntent/SimpleIntent darkness guards apply to it. Gate here too,
+        // matching the established per-global-command convention (see LookProcessor.LookAround).
+        if (context.ItIsDarkHere)
+            return "It's too dark to see! ";
+
         var items = ((ICanContainItems)context.CurrentLocation).GetAllItemsRecursively;
 
         if (!items.Any(s => s is ICanBeTakenAndDropped || !string.IsNullOrEmpty(s.CannotBeTakenDescription)))
