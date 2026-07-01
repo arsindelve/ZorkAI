@@ -2,6 +2,7 @@ using Model.AIGeneration;
 using Newtonsoft.Json;
 using Planetfall.Item.Computer;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Location.Computer;
 using Utilities;
 
 namespace Planetfall.Item.Kalamontee.Mech;
@@ -157,6 +158,12 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
             return LaserSpeckHelper.ShootRelay(relay, context, BeamDescription, Setting, Chooser);
         }
 
+        // Special response for shooting the Microbe (SHOOT-MICROBE, comptwo.zil:2991)
+        if (target is Microbe microbe)
+        {
+            return ShootMicrobe(microbe);
+        }
+
         var targetName = target.NounsForMatching.FirstOrDefault() ?? targetNoun;
 
         return new PositiveInteractionResult(
@@ -164,8 +171,84 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
             $"The {targetName} grows a bit warm, but nothing else happens. ");
     }
 
+    private static readonly List<string> MicrobeStrikes =
+    [
+        "The microbe's outer membrane sizzles a bit, and some protoplasm oozes out. The microbe recoils momentarily, but quickly recovers.",
+        "The beam slices through the microbe's skin! A tremendous shudder passes through the microbe, but the wound quickly seals itself.",
+        "The monster rears back for a moment, but almost as soon as the beam goes off, it advances again."
+    ];
+
+    /// <summary>
+    /// Fires the (already-charged) laser at the microbe. A red beam (setting 1) passes harmlessly
+    /// through its red skin; any other setting strikes it, momentarily repelling it (which suppresses
+    /// the closing counter for that turn) but never kills it — it always regenerates.
+    /// </summary>
+    private InteractionResult ShootMicrobe(Microbe microbe)
+    {
+        // Note: by the time we get here TryFireLaser has already spent a battery charge and primed the
+        // warmth daemon (in ShootLaserAt). A setting-1 "harmless" shot therefore still costs a charge
+        // and heats the laser — deliberate, matching the original where every successful zap counts.
+        if (Setting == 1)
+            return new PositiveInteractionResult(
+                "The laser beam strikes the microbe, but passes harmlessly through its red skin. ");
+
+        microbe.HitThisTurn = true;
+        // Capture the warmth NOW — before this shot's increment lands in Act — so the microbe's
+        // lash-out reaction is independent of whether the laser actor runs before or after it.
+        microbe.WarmthAtHit = WarmthLevel;
+        return new PositiveInteractionResult(
+            "The laser beam strikes the microbe. " + Chooser.Choose(MicrobeStrikes) + " ");
+    }
+
+    /// <summary>
+    /// Handles throwing or dropping the laser over the edge of the strip. If the microbe is present
+    /// and the laser is hot enough, the monster lunges after it and both plunge into the void
+    /// (STRIP-F, comptwo.zil:3013). Otherwise the laser is simply lost.
+    /// </summary>
+    private InteractionResult ThrowOffStrip(IContext context)
+    {
+        if (CurrentLocation != context)
+            return new PositiveInteractionResult("You're not holding the laser. ");
+
+        var microbe = Repository.GetItem<Microbe>();
+        var microbeHere = microbe.IsActive && microbe.CurrentLocation == context.CurrentLocation;
+        // Capture the heat before removing the laser — RemoveLaserFromGame clears WarmthLevel.
+        var laserWasHot = WarmthLevel > MicrobeFightHelper.RepelWarmth;
+
+        MicrobeFightHelper.RemoveLaserFromGame(this, context);
+
+        if (microbeHere && laserWasHot)
+        {
+            MicrobeFightHelper.Dispatch(microbe, context);
+            return new PositiveInteractionResult(
+                "As the laser flies over the edge of the strip, the hungry microbe lunges after it. " +
+                "Both the laser and the microbe plummet into the void. (Whew!) ");
+        }
+
+        return new PositiveInteractionResult(
+            "The laser flies over the edge of the strip and disappears into the void. ");
+    }
+
+    private static readonly string[] StripNouns = ["strip", "void", "edge", "side", "silicon strip"];
+
+    /// <summary>
+    /// "Throwing the laser off the strip" only makes sense while you're actually miniaturized on the
+    /// silicon strip. Gating here prevents a softlock: the laser is the only thing that can defeat the
+    /// microbe, so it must not be destroyable by typing "throw laser off edge" anywhere else.
+    /// </summary>
+    private static bool OnTheStrip(IContext context) =>
+        context.CurrentLocation is MiddleOfStrip or StripNearStation or StripNearRelay;
+
     public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
+        // Handle "throw/drop laser off the strip / into the void" — only while on the strip itself.
+        if (action.MatchVerb([..Verbs.ThrowVerbs, ..Verbs.DropVerbs]) &&
+            action.MatchPreposition(["off", "over", "into", "in", "down"]) &&
+            action.MatchNounOne(NounsForMatching) &&
+            action.MatchNounTwo(StripNouns) &&
+            OnTheStrip(context))
+            return Task.FromResult<InteractionResult?>(ThrowOffStrip(context));
+
         // Handle "shoot X with laser" - laser is NounTwo, target is NounOne
         if (action.MatchVerb(["shoot", "fire"]) &&
             action.MatchPreposition(["with"]) &&
@@ -372,36 +455,3 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
         return Task.FromResult(message);
     }
 }
-
-
-/*
- 
- Shooting the Laser at the Microbe
-
-   The microbe is a hungry monster that blocks your path on the silicon strip (inside the computer). Here's how the laser interaction works:
-
-   Direct Laser Hits
-
-   - Setting 1 (red): The beam "passes harmlessly through its red skin" — the microbe's skin is red, so red light doesn't affect it
-   - Settings 2-6 (orange through violet): The beam hits and the microbe recoils momentarily, but quickly recovers. You get random flavor text like:
-     - "The microbe's outer membrane sizzles a bit, and some protoplasm oozes out"
-     - "The beam slices through the microbe's skin! A tremendous shudder passes..."
-     - "The monster rears back for a moment, but almost as soon as the beam goes off, it advances again"
-
-   You cannot kill the microbe by shooting it directly — it always regenerates.
-
-   The Heat Mechanic (How to Actually Defeat It)
-
-   Each time you fire the laser, WARMTH-FLAG increases. The laser heats up progressively: "slightly warm" → "somewhat warm" → "very warm" → "quite hot"
-
-   Once the laser is hot enough (WARMTH-FLAG > 7), you have options:
-
-   1. Throw the hot laser off the strip: The microbe, attracted to the heat, lunges after it and both plummet into the void (comptwo.zil:3019-3029)
-   2. Give/throw the hot laser to the microbe:
-     - If WARMTH-FLAG > 10: The microbe eats the laser, writhes in pain from the heat, and rolls off the strip
-     - If WARMTH-FLAG ≤ 10: The microbe eats the laser and turns toward you (bad outcome)
-   3. Danger: If WARMTH-FLAG > 13 and you're still holding the laser when the microbe attacks, it lunges at the pulsing heat, you lose your balance, and both of you fall into the void (death)
-
-   The solution is to heat up the laser by firing it several times, then sacrifice it to lure the microbe to its doom.
- 
- */
