@@ -3,6 +3,7 @@ using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Location.Kalamontee.Admin;
+using Planetfall.Location.Kalamontee.Mech;
 
 namespace Planetfall.Tests;
 
@@ -475,5 +476,71 @@ public class AdminCorridorSouthTests : EngineTestsBase
         var response = await target.GetResponse("examine crevice");
 
         response.Should().NotContain("steel key");
+    }
+
+    // Issue #211 - I-MAGNET (compone.zil:1595-1612): carrying the magnet scrambles carried access
+    // cards' magnetic stripes, one per turn (in acquisition order, not the original's fixed type
+    // priority - see Magnet.Act for why).
+    [Test]
+    public async Task TakeMagnet_WhileHoldingAccessCard_ScramblesTheCard()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<KitchenAccessCard>();
+
+        await target.GetResponse("take bar");
+
+        GetItem<KitchenAccessCard>().Scrambled.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task NotCarryingTheMagnet_DoesNotScrambleAccessCard()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<KitchenAccessCard>();
+
+        // The magnet is left behind in the tool room - never taken.
+        await target.GetResponse("look");
+
+        GetItem<KitchenAccessCard>().Scrambled.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task HoldingMagnet_ScramblesOneCardPerTurn_InAcquisitionOrder()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<ShuttleAccessCard>();
+        Take<KitchenAccessCard>();
+
+        await target.GetResponse("take bar");
+
+        // Scrambles whichever unscrambled AccessCard comes first among the player's held items -
+        // Shuttle was picked up first, so it's scrambled first.
+        GetItem<ShuttleAccessCard>().Scrambled.Should().BeTrue();
+        GetItem<KitchenAccessCard>().Scrambled.Should().BeFalse();
+
+        await target.GetResponse("look");
+
+        GetItem<KitchenAccessCard>().Scrambled.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task DroppingTheMagnet_StopsFurtherScrambling()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<ShuttleAccessCard>();
+        Take<KitchenAccessCard>();
+
+        await target.GetResponse("take bar");
+        GetItem<ShuttleAccessCard>().Scrambled.Should().BeTrue();
+
+        await target.GetResponse("drop bar");
+        await target.GetResponse("look");
+        await target.GetResponse("look");
+
+        GetItem<KitchenAccessCard>().Scrambled.Should().BeFalse();
     }
 }
