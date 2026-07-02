@@ -58,6 +58,13 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
 
     public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
     {
+        // Issue #365 follow-up: if the player abandons the Bio Lab sequence mid-flight (walks away
+        // instead of closing the door), this actor stops running and never gets another turn to progress
+        // the state machine. Without releasing Floyd here, IsAwayOnScriptedSequence would stay true
+        // forever with no other code path to clear it, permanently blocking his normal following behavior.
+        if (StateMachine.IsFloydInLabFighting)
+            Repository.GetItem<Floyd>().IsAwayOnScriptedSequence = false;
+
         context.RemoveActor(this);
     }
 
