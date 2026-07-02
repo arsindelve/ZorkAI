@@ -108,6 +108,14 @@ public class GodModeProcessor : IGlobalCommand
         // StartWithItem<T> (a bare Items.Add with no dedupe) would end up with their starting items
         // duplicated in the room.
         context.CurrentLocation = location;
+
+        // Issue #356 follow-up: this is a raw location swap, not a real move - it skips
+        // OnLeaveLocation/AfterEnterLocation, so a game-specific location-blind death clock (e.g.
+        // Planetfall's Feinstein explosion) never gets the chance to disarm itself. Let the context
+        // do that explicitly for a god-mode teleport.
+        if (context is IGodModeTeleportAware teleportAware)
+            teleportAware.OnGodModeTeleport();
+
         return $"Welcome to {location.Name}";
     }
 
