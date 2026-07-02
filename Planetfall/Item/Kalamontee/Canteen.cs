@@ -30,7 +30,10 @@ public class Canteen : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAnd
 
     public override string NowOpen(ILocation currentLocation)
     {
-        return string.Empty;
+        // Empty must fall back to the base "Opened." - OnOpening only supplies text when
+        // there's protein liquid to describe, so returning empty here for both would leave
+        // the player with a blank response (issue #370).
+        return Items.Any() ? string.Empty : base.NowOpen(currentLocation);
     }
 
     public override string OnOpening(IContext context)
