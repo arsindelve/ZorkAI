@@ -80,6 +80,28 @@ public class ExplosionTests : EngineTestsBase
         target.Context.DeathCounter.Should().Be(1);
     }
 
+    // Review follow-up on this PR: the previous fix left ExplosionCoordinator armed whenever the
+    // teleport destination was EscapePod, mirroring the DeckNine exception. But unlike DeckNine,
+    // EscapePod's move-14 case in ExplosionCoordinator has NO location check at all - under normal
+    // play that's safe because actually boarding the pod always disarms the coordinator first (via
+    // EscapePod.AfterEnterLocation), so the "still armed while genuinely inside the pod" state never
+    // occurs. "god mode go escape pod" skipped that hook and the old fix deliberately kept the clock
+    // armed for this destination, so a tester who teleported into the pod and waited out the clock
+    // was killed by their own ship's explosion while standing in the one place meant to be safe.
+    [Test]
+    public async Task GodModeGo_IntoEscapePod_DoesNotGetKilledByExplosionClock()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MessHall>();
+
+        await target.GetResponse("god mode go escape pod");
+
+        for (var i = 0; i < 13; i++)
+            await target.GetResponse("wait");
+
+        target.Context.DeathCounter.Should().Be(0);
+    }
+
     [Test]
     [Explicit("Requires ZorkAI.OpenAI API key - tests pronoun resolution fix")]
     public async Task PronounResolution_OpenIt_ResolvesToBulkhead()

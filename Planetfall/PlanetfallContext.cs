@@ -259,13 +259,20 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
     ///     the player stands out of the safety web) stay armed even after a tester teleports away.
     ///     Both only check CurrentLocation, not how the player got there, so either would otherwise
     ///     unconditionally kill the tester once their move count rolls into its death window, wherever
-    ///     they happened to be testing. Disarm each - unless the teleport destination is the location
-    ///     it actually governs, so "god mode go deck nine" (or "... escape pod") still lets a tester
-    ///     observe the sequence instead of always defusing it on arrival.
+    ///     they happened to be testing.
+    ///     ExplosionCoordinator is disarmed unless the destination is DeckNine specifically - staying
+    ///     armed there is intentional (mirrors normal play: staying put without reaching the pod is
+    ///     still fatal at move 14). EscapePod does NOT get the same exception: its move-14 case in
+    ///     ExplosionCoordinator has no location check at all, relying on EscapePod.AfterEnterLocation
+    ///     always disarming the coordinator before a real player is ever standing in the pod at that
+    ///     point - a god-mode teleport straight into the pod must disarm it the same way, or the
+    ///     tester gets killed by their own ship's explosion in the one place meant to be safe.
+    ///     EscapePod's own sinking timer is disarmed unless the destination is EscapePod itself, so a
+    ///     tester can still teleport in to observe that sequence.
     /// </summary>
     public void OnGodModeTeleport()
     {
-        if (CurrentLocation is not DeckNine && CurrentLocation is not EscapePod)
+        if (CurrentLocation is not DeckNine)
             RemoveActor<ExplosionCoordinator>();
 
         if (CurrentLocation is not EscapePod)
