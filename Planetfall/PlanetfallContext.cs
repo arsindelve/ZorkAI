@@ -6,7 +6,8 @@ using Utilities;
 
 namespace Planetfall;
 
-public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISurvivalClockContext, IResettableClockContext
+public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISurvivalClockContext,
+    IResettableClockContext, IGodModeTeleportAware
 {
     private const int TurnTimeIncrement = 54;
 
@@ -249,6 +250,20 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
     {
         // God-mode commands still take a Planetfall turn, so compensate for the end-of-turn tick.
         Repository.GetItem<Chronometer>().CurrentTime = targetTime - TurnTimeIncrement;
+    }
+
+    /// <summary>
+    ///     Issue #356 follow-up: "god mode go &lt;place&gt;" is a raw CurrentLocation swap - it never runs
+    ///     DeckNine.OnLeaveLocation or EscapePod.AfterEnterLocation, so ExplosionCoordinator (registered
+    ///     unconditionally from game start) stays armed even after a tester teleports away from the
+    ///     ship. It only checks CurrentLocation, not how the player got there, so it would otherwise
+    ///     unconditionally kill the tester once Moves rolls into its 10-14 death window, wherever they
+    ///     happened to be testing. Disarm it here; it's only meaningful while actually navigating the
+    ///     Deck Nine escape sequence.
+    /// </summary>
+    public void OnGodModeTeleport()
+    {
+        RemoveActor<ExplosionCoordinator>();
     }
 
     /// <summary>

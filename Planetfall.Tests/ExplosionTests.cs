@@ -6,11 +6,38 @@ using Moq;
 using OpenAI;
 using Planetfall.Item.Feinstein;
 using Planetfall.Location.Feinstein;
+using Planetfall.Location.Kalamontee;
 
 namespace Planetfall.Tests;
 
 public class ExplosionTests : EngineTestsBase
 {
+    // Issue #356 follow-up: "god mode go <place>" is a raw CurrentLocation swap for testing - it
+    // doesn't run DeckNine.OnLeaveLocation or EscapePod.AfterEnterLocation, so a tester who teleports
+    // away from Deck Nine to check on later content never unregisters ExplosionCoordinator. It keeps
+    // counting turns in the background and can unconditionally kill the tester (wiping their god-mode
+    // session via RestartAfterDeath) once Moves rolls into the 10-14 death window, nowhere near the
+    // ship. The clock is only meaningful while actually navigating the Deck Nine escape sequence, so
+    // a god-mode teleport should disarm it.
+    [Test]
+    public async Task GodModeGo_DisarmsExplosionClock_SoTeleportedTesterSurvives()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<DeckNine>();
+
+        // A tester jumps straight to later content, unrelated to the Deck Nine escape sequence.
+        await target.GetResponse("god mode go mess hall");
+
+        // Wait through the Feinstein-explosion window (moves 10-14), far from the ship.
+        for (var i = 0; i < 14; i++)
+            await target.GetResponse("wait");
+
+        // If the explosion clock had still fired, death would reset the game via
+        // RestartAfterDeath - snapping the player back to Deck Nine and bumping DeathCounter.
+        target.Context.DeathCounter.Should().Be(0);
+        target.Context.CurrentLocation.Should().BeOfType<MessHall>();
+    }
+
     [Test]
     [Explicit("Requires ZorkAI.OpenAI API key - tests pronoun resolution fix")]
     public async Task PronounResolution_OpenIt_ResolvesToBulkhead()
