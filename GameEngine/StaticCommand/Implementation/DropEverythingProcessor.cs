@@ -58,10 +58,10 @@ public class DropEverythingProcessor : IGlobalCommand
                 continue;
             }
 
-            // Issue #362: use the canonical possession check (walks the containment hierarchy) rather
-            // than a flat context.Items.Contains, which misses an item nested inside a worn/open
-            // container - the same class of bug fixed for the single-item drop/give/show call sites.
-            if (!Repository.IsItemPossessedBy(item, context))
+            // Deliberately flat, matching DropIt (see its comment): DROP only ever acts on a
+            // top-level held item, even if the resolver upstream found this item nested inside an
+            // open container.
+            if (!context.Items.Contains(item))
             {
                 var message = await client.GenerateNarration(
                     new DropSomethingTheyDoNotHave(noun), context.SystemPromptAddendum);

@@ -181,6 +181,11 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
     {
         if (castItem is null) return new NoNounMatchInteractionResult();
 
+        // Deliberately flat, unlike Repository.IsItemPossessedBy used by GIVE/SHOW: DROP only ever
+        // acts on a top-level held item, even when the resolver above found it nested inside an open
+        // container. Proven by WalkthroughTestTwo's "put leaflet in sack" then "drop leaflet" step,
+        // which expects "You don't have that!" - the original game requires taking a nested item out
+        // before it can be dropped, unlike the (HAVE)-flag reach GIVE/SHOW get into worn containers.
         if (!context.Items.Contains(castItem))
             return new PositiveInteractionResult("You don't have that!");
 
