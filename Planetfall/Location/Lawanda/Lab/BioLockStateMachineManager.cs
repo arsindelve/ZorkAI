@@ -168,6 +168,7 @@ public class BioLockStateMachineManager
             // Remove Floyd from the room - he's now in the lab fighting!
             bioLockEast.RemoveItem(floyd);
             floyd.CurrentLocation = null; // Floyd has no location while in the lab
+            floyd.IsAwayOnScriptedSequence = true; // Stop his own Act() from following him back in early
             floyd.SkipActingThisTurn(context);
 
             return FloydConstants.InTheLabOne;
@@ -178,6 +179,12 @@ public class BioLockStateMachineManager
         {
             LabSequenceState = FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
             TurnsAfterDoorReopened = 0; // Reset the turn counter
+            bioLockEast.ItemPlacedHere(floyd); // He's stumbled back into the room, clutching the card
+
+            // IsAwayOnScriptedSequence is deliberately left true here, unlike the abandon path in
+            // BioLockEast.OnLeaveLocation - every exit from here still ends in floyd.HasDied = true
+            // (EndSequence or the trapped-death branch), which already short-circuits Floyd.Act() before
+            // HandleFollowingPlayer would ever read the flag again.
             floyd.SkipActingThisTurn(context);
             return FloydConstants.FloydReturnsWithCard;
         }
