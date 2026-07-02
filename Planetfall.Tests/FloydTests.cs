@@ -1,4 +1,5 @@
 using System.Reflection;
+using ChatLambda;
 using FluentAssertions;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
@@ -11,6 +12,7 @@ using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Item.Lawanda.PlanetaryDefense;
 using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Mech;
 using Planetfall.Location.Lawanda;
@@ -2366,6 +2368,81 @@ public class FloydTests : EngineTestsBase
         floyd.Chooser = mockChooser.Object;
 
         floyd.OffersLowerElevatorCard(target.Context).Should().NotBeNull();
+    }
+
+    #endregion
+
+    #region Fromitz Board Retrieval Tests (issue #360)
+
+    private static Mock<IChatWithFloyd> FloydAnsweringPickUpBoard()
+    {
+        var mock = new Mock<IChatWithFloyd>();
+        mock.Setup(s => s.AskFloydAsync("take board")).ReturnsAsync(new CompanionResponse(
+            "Floyd's response",
+            new CompanionMetadata("PickUp", new Dictionary<string, object> { { "object", "board" } })));
+        return mock;
+    }
+
+    [Test]
+    public async Task FromitzBoardRetrieval_AlreadyRetrieved_DroppedElsewhere_DoesNotReacquire()
+    {
+        var target = GetTarget();
+        StartHere<RepairRoom>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasGottenTheFromitzBoard = true;
+        floyd.ChatWithFloyd = FloydAnsweringPickUpBoard().Object;
+        GetLocation<RepairRoom>().ItemPlacedHere(floyd);
+
+        // The board was retrieved once already and dropped in a different room - not carried by the
+        // player and not installed anywhere.
+        var otherRoom = GetLocation<SystemsCorridorWest>();
+        otherRoom.ItemPlacedHere(GetItem<ShinyFromitzBoard>());
+
+        var response = await target.GetResponse("floyd, take board");
+
+        response.Should().Contain("already did that");
+        target.Context.Items.Should().NotContain(GetItem<ShinyFromitzBoard>());
+        GetItem<ShinyFromitzBoard>().CurrentLocation.Should().Be(otherRoom);
+    }
+
+    [Test]
+    public async Task FromitzBoardRetrieval_AlreadyInstalledInPanel_DoesNotUninstall()
+    {
+        var target = GetTarget();
+        StartHere<RepairRoom>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasGottenTheFromitzBoard = true;
+        floyd.ChatWithFloyd = FloydAnsweringPickUpBoard().Object;
+        GetLocation<RepairRoom>().ItemPlacedHere(floyd);
+
+        // The board has already been installed in the panel, solving the planetary-defense puzzle.
+        var panel = GetItem<FromitzAccessPanel>();
+        panel.ItemPlacedHere(GetItem<ShinyFromitzBoard>());
+
+        var response = await target.GetResponse("floyd, take board");
+
+        response.Should().Contain("already did that");
+        target.Context.Items.Should().NotContain(GetItem<ShinyFromitzBoard>());
+        GetItem<ShinyFromitzBoard>().CurrentLocation.Should().Be(panel);
+    }
+
+    [Test]
+    public async Task FromitzBoardRetrieval_FirstTime_StillGivesBoard()
+    {
+        var target = GetTarget();
+        StartHere<RepairRoom>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.ChatWithFloyd = FloydAnsweringPickUpBoard().Object;
+        GetLocation<RepairRoom>().ItemPlacedHere(floyd);
+
+        var response = await target.GetResponse("floyd, take board");
+
+        response.Should().Contain("If you say so");
+        target.Context.Items.Should().Contain(GetItem<ShinyFromitzBoard>());
+        floyd.HasGottenTheFromitzBoard.Should().BeTrue();
     }
 
     #endregion
