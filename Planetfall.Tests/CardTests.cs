@@ -281,6 +281,39 @@ public class CardTests : EngineTestsBase
         response.Should().Contain("Inkorekt awtharazaashun kard");
     }
 
+    // Issue #211 - a card scrambled by the magnet (WRONG-CARD, globals.zil:1438) is rejected by its
+    // own slot even though it's the correct card type.
+    [Test]
+    public async Task SlideScrambledCard_ThroughItsOwnSlot_IsRejected()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        var card = Repository.GetItem<KitchenAccessCard>();
+        card.Scrambled = true;
+        engine.Context.ItemPlacedHere(card);
+        engine.Context.CurrentLocation = room;
+
+        var response = await engine.GetResponse("slide kitchen access card through slot");
+
+        response.Should().Contain("Inkorekt awtharazaashun kard...akses deeniid.");
+        Repository.GetItem<KitchenDoor>().IsOpen.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task SlideUnscrambledCard_ThroughItsOwnSlot_StillOpensDoor()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        var card = Repository.GetItem<KitchenAccessCard>();
+        engine.Context.ItemPlacedHere(card);
+        engine.Context.CurrentLocation = room;
+
+        var response = await engine.GetResponse("slide kitchen access card through slot");
+
+        response.Should().Contain("The kitchen door quietly slides open");
+        card.Scrambled.Should().BeFalse();
+    }
+
     [Test]
     public async Task SlideCardThroughSlot_StillWorks()
     {

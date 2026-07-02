@@ -45,8 +45,14 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot> : ItemBase, ICanBeExa
             if (!context.HasItem<TAccessCard>())
                 return new NoNounMatchInteractionResult();
 
+            // A magnet-scrambled card (see Magnet.Act) is the right card type but still rejected -
+            // WRONG-CARD (globals.zil:1438) doesn't distinguish "wrong card" from "corrupted card".
+            if (Repository.GetItem<TAccessCard>().Scrambled)
+                return new PositiveInteractionResult(
+                    "A sign flashes \"Inkorekt awtharazaashun kard...akses deeniid.\"");
+
             string? afterMessage = Repository.GetItem<Floyd>().OffersLowerElevatorCard(context);
-            
+
             return OnSuccessfulSlide(context, afterMessage);
         }
 

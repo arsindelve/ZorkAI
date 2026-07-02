@@ -3,6 +3,7 @@ using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Location.Kalamontee.Admin;
+using Planetfall.Location.Kalamontee.Mech;
 
 namespace Planetfall.Tests;
 
@@ -475,5 +476,69 @@ public class AdminCorridorSouthTests : EngineTestsBase
         var response = await target.GetResponse("examine crevice");
 
         response.Should().NotContain("steel key");
+    }
+
+    // Issue #211 - I-MAGNET (compone.zil:1595-1612): carrying the magnet scrambles carried access
+    // cards' magnetic stripes, one per turn, in the original's priority order.
+    [Test]
+    public async Task TakeMagnet_WhileHoldingAccessCard_ScramblesTheCard()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<KitchenAccessCard>();
+
+        await target.GetResponse("take bar");
+
+        GetItem<KitchenAccessCard>().Scrambled.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task NotCarryingTheMagnet_DoesNotScrambleAccessCard()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<KitchenAccessCard>();
+
+        // The magnet is left behind in the tool room - never taken.
+        await target.GetResponse("look");
+
+        GetItem<KitchenAccessCard>().Scrambled.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task HoldingMagnet_ScramblesOneCardPerTurn_InPriorityOrder()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<ShuttleAccessCard>();
+        Take<KitchenAccessCard>();
+
+        await target.GetResponse("take bar");
+
+        // Kitchen outranks Shuttle in the original's priority order, so it's scrambled first.
+        GetItem<KitchenAccessCard>().Scrambled.Should().BeTrue();
+        GetItem<ShuttleAccessCard>().Scrambled.Should().BeFalse();
+
+        await target.GetResponse("look");
+
+        GetItem<ShuttleAccessCard>().Scrambled.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task DroppingTheMagnet_StopsFurtherScrambling()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<ShuttleAccessCard>();
+        Take<KitchenAccessCard>();
+
+        await target.GetResponse("take bar");
+        GetItem<KitchenAccessCard>().Scrambled.Should().BeTrue();
+
+        await target.GetResponse("drop bar");
+        await target.GetResponse("look");
+        await target.GetResponse("look");
+
+        GetItem<ShuttleAccessCard>().Scrambled.Should().BeFalse();
     }
 }
