@@ -235,7 +235,18 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public void RemoveItem(IItem item)
     {
-        Items.Remove(item);
+        // Try the flat list first, regardless of what item.CurrentLocation currently claims: a
+        // top-level inventory item's CurrentLocation can be stale (e.g. a not-yet-visited room's
+        // lazily-run Init() re-seeding its own starting item singleton overwrites CurrentLocation
+        // without touching this Items list - see LivingRoom's Sword/Lantern). Removing by list
+        // membership first is robust to that and matches this method's original behavior.
+        if (Items.Remove(item))
+            return;
+
+        // Not directly here - it may be nested inside something we hold (e.g. a card in a worn
+        // uniform pocket). Detach it from its actual container so it isn't left duplicated there.
+        if (item.CurrentLocation != this)
+            item.CurrentLocation?.RemoveItem(item);
     }
 
     public void ItemPlacedHere(IItem item)
@@ -400,7 +411,9 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         if (CurrentLocation is not ICanContainItems newLocation)
             throw new Exception("Current location can't hold item");
 
-        Items.Remove(item);
+        // Detach via RemoveItem's flat-list-first logic (robust to a stale CurrentLocation) before
+        // ItemPlacedHere reassigns it - see RemoveItem's comment.
+        RemoveItem(item);
         item.CurrentLocation = newLocation;
         newLocation.ItemPlacedHere(item);
     }

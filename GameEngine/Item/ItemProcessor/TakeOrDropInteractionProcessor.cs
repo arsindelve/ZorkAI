@@ -130,9 +130,12 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             return DropIt(context, item);
         }
 
-        // When dropping multiple items, we need to provide feedback for items that don't exist
+        // When dropping multiple items, we need to provide feedback for items that don't exist.
+        // Issue #362: same scoped-first fallback as the single-item branch above - an unscoped
+        // Repository.GetItem(noun) here could resolve "board" to a same-named instance the player
+        // isn't holding, even in a compound "drop board and X" command.
         var itemsWithFeedback = items
-            .Select(itemNoun => (itemNoun, Repository.GetItem(itemNoun)))
+            .Select(itemNoun => (itemNoun, Repository.GetItemInInventory(itemNoun, context) ?? Repository.GetItem(itemNoun)))
             .ToList();
 
         return new PositiveInteractionResult(await DropEverythingProcessor.DropAll(context, itemsWithFeedback, client));

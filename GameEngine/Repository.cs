@@ -222,13 +222,15 @@ public static class Repository
 
     /// <summary>
     /// Determines whether the player actually possesses the given item - i.e. it is either directly
-    /// in inventory, or nested inside something the player is carrying (a worn/held container's
-    /// contents, or what an <see cref="ICanHoldItems"/> companion is holding for them). This is the
+    /// in inventory, or nested inside a container the player is carrying (worn or held). This is the
     /// canonical possession check: unlike a flat <c>context.Items.Contains(item)</c>, it walks the
     /// containment hierarchy the same way <see cref="IsItemAccessible"/> does, so an item nested
     /// inside a worn container (e.g. an ID card in a uniform pocket) is correctly recognized as held.
     /// Unlike <see cref="IsItemAccessible"/> (which also accepts room-visible items), the chain must
     /// terminate at the player's own inventory (<paramref name="context"/>), not the current room.
+    /// Deliberately does NOT count an item an <see cref="ICanHoldItems"/> companion (e.g. Floyd) is
+    /// holding for the player - such a holder is a room-level actor, never itself in inventory, and
+    /// the player must take an item back before it counts as possessed again.
     /// </summary>
     public static bool IsItemPossessedBy(IItem item, IContext context)
     {
@@ -241,10 +243,6 @@ public static class Repository
         {
             if (holderItem.CurrentLocation == context)
             {
-                // For ICanHoldItems (like Floyd), held items are always considered possessed by the player
-                if (holderItem is ICanHoldItems)
-                    return true;
-
                 // For ICanContainItems (like a worn uniform's pocket), the nested item must actually
                 // be reachable - open or transparent - to count as possessed.
                 if (holderItem is ICanContainItems container)

@@ -1,5 +1,13 @@
 ﻿using FluentAssertions;
 using GameEngine;
+using GameEngine.Item;
+using GameEngine.Item.ItemProcessor;
+using Model.AIGeneration;
+using Model.AIParsing;
+using Model.Intent;
+using Model.Interface;
+using Model.Item;
+using Moq;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Lawanda.PlanetaryDefense;
@@ -292,6 +300,30 @@ public class PlanetaryDefenseTests : EngineTestsBase
         var response = await target.GetResponse("drop board");
 
         response.Should().Contain("Dropped");
+        target.Context.Items.Should().NotContain(GetItem<CrackedFromitzBoard>());
+        GetLocation<PlanetaryDefense>().HasItem<CrackedFromitzBoard>().Should().BeTrue();
+    }
+
+    [Test]
+    public async Task Drop_MultiItemCommand_HeldBoard_DoesNotResolveToDifferentBoardInstance()
+    {
+        // Issue #362: GetItemsToDrop's items.Length > 1 branch (a compound "drop X and Y") still
+        // resolved every noun through the global, unscoped Repository.GetItem - the same bug the
+        // single-item branch was fixed for. Drive it directly with a mocked multi-item parser result,
+        // since the shared test parser mock only ever echoes a single noun.
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>(); // instantiates the (closed) panel and its four starting boards
+        var held = Take<CrackedFromitzBoard>();
+
+        var parserMock = new Mock<IAITakeAndAndDropParser>();
+        parserMock.Setup(p => p.GetListOfItemsToDrop(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(["board", "diary"]);
+        var processor = new TakeOrDropInteractionProcessor(parserMock.Object);
+        var action = new SimpleIntent { Verb = "drop", Noun = "board", OriginalInput = "drop board and diary" };
+
+        var result = await ((IVerbProcessor)processor).Process(action, target.Context, held, Mock.Of<IGenerationClient>());
+
+        result!.InteractionMessage.Should().Contain("board: Dropped");
         target.Context.Items.Should().NotContain(GetItem<CrackedFromitzBoard>());
         GetLocation<PlanetaryDefense>().HasItem<CrackedFromitzBoard>().Should().BeTrue();
     }
