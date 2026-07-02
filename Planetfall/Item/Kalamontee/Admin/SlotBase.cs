@@ -45,8 +45,19 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot> : ItemBase, ICanBeExa
             if (!context.HasItem<TAccessCard>())
                 return new NoNounMatchInteractionResult();
 
+            // Deliberate deviation from the original (issue #211 follow-up): the ZIL's WRONG-CARD
+            // (globals.zil:1438) doesn't distinguish "wrong card" from "corrupted card" - a scrambled
+            // card gets the exact same "incorrect authorization" message as a card that was never
+            // valid here at all. Since scrambling is silent and permanent, that leaves the player no
+            // way to tell "wrong card" (try a different one) apart from "your card is ruined" (the
+            // magnet did this - stop carrying it with your cards). We judged that ambiguity unfair and
+            // gave the scrambled case its own message instead of matching the original verbatim.
+            if (Repository.GetItem<TAccessCard>().Scrambled)
+                return new PositiveInteractionResult(
+                    "A sign flashes \"Damejd kard...akses deeniid.\"");
+
             string? afterMessage = Repository.GetItem<Floyd>().OffersLowerElevatorCard(context);
-            
+
             return OnSuccessfulSlide(context, afterMessage);
         }
 

@@ -1,5 +1,13 @@
 ﻿using FluentAssertions;
 using GameEngine;
+using GameEngine.Item;
+using GameEngine.Item.ItemProcessor;
+using Model.AIGeneration;
+using Model.AIParsing;
+using Model.Intent;
+using Model.Interface;
+using Model.Item;
+using Moq;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Lawanda.PlanetaryDefense;
@@ -223,6 +231,24 @@ public class PlanetaryDefenseTests : EngineTestsBase
     }
     
     [Test]
+    [TestCase("board")]
+    [TestCase("fromitz board")]
+    public void GetPreciseMatchInScope_GenericBoardNoun_DoesNotResolve_LeavingDisambiguationToHappen(string noun)
+    {
+        // Issue #362: FromitzBoardBase.NounsForPreciseMatching's Except(["card", "access card"]) is a
+        // copy/paste from AccessCard's version and is a no-op here - neither string appears in any
+        // board's NounsForMatching - so "board"/"fromitz board" (the boards' actual generic/ambiguous
+        // nouns, per the property's own doc comment) never actually get excluded. That lets a precise
+        // match on the bare "board" noun arbitrarily resolve to whichever board is first in scope
+        // instead of returning null and leaving the ambiguity to Take_Ambiguous's disambiguation flow.
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        GetItem<FromitzAccessPanel>().IsOpen = true; // First, Fried, Third, Fourth boards all accessible
+
+        Repository.GetPreciseMatchInScope(noun, target.Context).Should().BeNull();
+    }
+
+    [Test]
     public async Task CompleteSolution_CannotPullBoardBackOut()
     {
         var target = GetTarget();
@@ -260,6 +286,46 @@ public class PlanetaryDefenseTests : EngineTestsBase
 
         string? response = await target.GetResponse("put fried in panel");
         response.Should().Contain("no room");
+    }
+
+    [Test]
+    public async Task Drop_HeldBoard_DoesNotResolveToDifferentBoardInstance()
+    {
+        var target = GetTarget();
+        // Instantiates the (closed) panel and its four starting boards - First, Fried, Third, Fourth -
+        // none of which are held or accessible, but all share the generic "board"/"fromitz board" nouns.
+        StartHere<PlanetaryDefense>();
+        Take<CrackedFromitzBoard>();
+
+        var response = await target.GetResponse("drop board");
+
+        response.Should().Contain("Dropped");
+        target.Context.Items.Should().NotContain(GetItem<CrackedFromitzBoard>());
+        GetLocation<PlanetaryDefense>().HasItem<CrackedFromitzBoard>().Should().BeTrue();
+    }
+
+    [Test]
+    public async Task Drop_MultiItemCommand_HeldBoard_DoesNotResolveToDifferentBoardInstance()
+    {
+        // Issue #362: GetItemsToDrop's items.Length > 1 branch (a compound "drop X and Y") still
+        // resolved every noun through the global, unscoped Repository.GetItem - the same bug the
+        // single-item branch was fixed for. Drive it directly with a mocked multi-item parser result,
+        // since the shared test parser mock only ever echoes a single noun.
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>(); // instantiates the (closed) panel and its four starting boards
+        var held = Take<CrackedFromitzBoard>();
+
+        var parserMock = new Mock<IAITakeAndAndDropParser>();
+        parserMock.Setup(p => p.GetListOfItemsToDrop(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(["board", "diary"]);
+        var processor = new TakeOrDropInteractionProcessor(parserMock.Object);
+        var action = new SimpleIntent { Verb = "drop", Noun = "board", OriginalInput = "drop board and diary" };
+
+        var result = await ((IVerbProcessor)processor).Process(action, target.Context, held, Mock.Of<IGenerationClient>());
+
+        result!.InteractionMessage.Should().Contain("board: Dropped");
+        target.Context.Items.Should().NotContain(GetItem<CrackedFromitzBoard>());
+        GetLocation<PlanetaryDefense>().HasItem<CrackedFromitzBoard>().Should().BeTrue();
     }
 
     [Test]

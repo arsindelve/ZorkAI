@@ -93,7 +93,7 @@ public class ExploringZorkViaAPI
         var response = await Do("look");
         response.LocationName.Should().Be("West Of House");
         response.Score.Should().Be(0);
-        response.Moves.Should().Be(1); // "look" counts as a move
+        response.Moves.Should().Be(0); // "look" is a free meta command and does not count as a move (issue #354)
         response.Inventory.Should().BeEmpty();
 
         // Open the mailbox using natural language

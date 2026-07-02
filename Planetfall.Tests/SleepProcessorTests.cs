@@ -135,8 +135,9 @@ public class SleepProcessorTests : EngineTestsBase
         // Manually set the flag
         pfContext.SleepJustOccurred = true;
 
-        // Process a turn (this should reset the flag at end of turn)
-        await target.GetResponse("look");
+        // Process a turn (this should reset the flag at end of turn). "wait" is a real turn; "look" is
+        // a free meta command (issue #354) and would not run end-of-turn processing.
+        await target.GetResponse("wait");
 
         pfContext.SleepJustOccurred.Should().BeFalse();
     }

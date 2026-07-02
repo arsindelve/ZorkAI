@@ -58,7 +58,9 @@ public class DropEverythingProcessor : IGlobalCommand
                 continue;
             }
 
-            // Check if the item is actually in the inventory
+            // Deliberately flat, matching DropIt (see its comment): DROP only ever acts on a
+            // top-level held item, even if the resolver upstream found this item nested inside an
+            // open container.
             if (!context.Items.Contains(item))
             {
                 var message = await client.GenerateNarration(

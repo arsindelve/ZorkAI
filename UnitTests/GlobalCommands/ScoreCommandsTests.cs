@@ -30,4 +30,17 @@ public class ScoreCommandsTests : EngineTestsBase
         // Assert
         response.Should().Contain("Wizard");
     }
+
+    [Test]
+    public async Task Score_IsFreeAction_DoesNotAdvanceMoves()
+    {
+        // Issue #354: "score" is a meta/informational verb and must not consume a turn.
+        var engine = GetTarget(new IntentParser(Mock.Of<IAIParser>(), new ZorkOneGlobalCommandFactory()));
+
+        // Act
+        await engine.GetResponse("score");
+
+        // Assert
+        engine.Moves.Should().Be(0);
+    }
 }

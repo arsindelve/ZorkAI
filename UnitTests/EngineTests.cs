@@ -536,4 +536,60 @@ public class EngineTests : EngineTestsBase
         guts.Should().Contain("\"TiedToRailing\":true,");
         guts.Should().Contain("\"IsOn\":true,");
     }
+
+    [Test]
+    public async Task TurnSequence_IncrementsOnceRegardlessOfMoves()
+    {
+        // Issue #354 follow-up: the Lambda session-history table used Context.Moves as its DynamoDB
+        // sort key, relying on every request advancing it. Free commands (look/score/inventory/time)
+        // no longer do, so a free command right after a real turn would overwrite that turn's history
+        // row. TurnSequence exists purely so persistence layers have a value guaranteed to advance by
+        // exactly 1 on every GetResponse() call, whether or not the command was free.
+        var target = GetTarget();
+
+        await target.GetResponse("look"); // free - Moves unchanged
+        target.Moves.Should().Be(0);
+        target.TurnSequence.Should().Be(1);
+
+        await target.GetResponse("north"); // real - Moves advances
+        target.Moves.Should().Be(1);
+        target.TurnSequence.Should().Be(2);
+
+        await target.GetResponse("score"); // free again
+        target.Moves.Should().Be(1);
+        target.TurnSequence.Should().Be(3);
+    }
+
+    [Test]
+    public void TurnSequence_SurvivesSaveAndRestore()
+    {
+        var target = GetTarget();
+        target.Context.RequestSequence = 7;
+
+        var saved = target.SaveGame();
+
+        var restoredTarget = GetTarget();
+        restoredTarget.RestoreGame(saved);
+
+        restoredTarget.TurnSequence.Should().Be(7);
+    }
+
+    [Test]
+    public void TurnSequence_BackfillsFromMoves_WhenRestoringASaveThatPredatesIt()
+    {
+        // Issue #354 review follow-up: a session saved before RequestSequence existed deserializes
+        // it as the default 0 (indistinguishable here from a fresh Context whose Moves was advanced
+        // without ever going through GetResponse). Left alone, the next WriteSessionStep call (a
+        // DynamoDB sort key in ZorkOneController) would restart numbering at 1 and silently
+        // overwrite that session's own early history rows.
+        var target = GetTarget();
+        target.Context.Moves = 5;
+
+        var saved = target.SaveGame();
+
+        var restoredTarget = GetTarget();
+        restoredTarget.RestoreGame(saved);
+
+        restoredTarget.TurnSequence.Should().Be(5);
+    }
 }

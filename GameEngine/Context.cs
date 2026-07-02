@@ -76,7 +76,15 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public void RememberAntecedentNoun(string? noun)
     {
-        if (!string.IsNullOrEmpty(noun) && !LastNouns.Contains(noun, StringComparer.OrdinalIgnoreCase))
+        if (string.IsNullOrEmpty(noun))
+            return;
+
+        // The singular "it" antecedent always tracks the most recently handled object, even during a
+        // multi-object action like "take rope and knife" - mirroring the original's PERFORM updating
+        // P-IT-OBJECT to the current PRSO on every object it processes (issue #341).
+        LastNoun = noun;
+
+        if (!LastNouns.Contains(noun, StringComparer.OrdinalIgnoreCase))
             LastNouns.Add(noun);
     }
 
@@ -89,10 +97,27 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
             .ToList();
 
         if (set.Count > 0)
+        {
             LastNouns = set;
+            // "it" resolves to the LAST object this batch action handled (e.g. the last item a
+            // bare "take all" picked up), not the whole set - "them" is the collection pronoun
+            // covered by LastNouns above (issue #341).
+            LastNoun = set[^1];
+        }
     }
 
     public int Moves { get; set; }
+
+    /// <summary>
+    ///     Monotonically increasing counter, incremented once per top-level GameEngine.GetResponse()
+    ///     call regardless of whether the command was a "free" command that leaves Moves unchanged
+    ///     (issue #354). Unlike Moves, a narrative/scoring concept, this exists purely so persistence
+    ///     layers that need a value guaranteed unique per turn (e.g. a DynamoDB sort key for session
+    ///     history) have one - using Moves for that purpose silently overwrites history rows once free
+    ///     commands can repeat a Moves value. Must round-trip through save/restore, so it's a plain
+    ///     writable property, not [JsonIgnore].
+    /// </summary>
+    public long RequestSequence { get; set; }
 
     /// <summary>
     ///     When set, signals that the player has died and the game should restart.
@@ -100,6 +125,14 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     /// </summary>
     [JsonIgnore]
     public DeathInteractionResult? PendingDeath { get; set; }
+
+    /// <summary>
+    ///     When set, signals that a scheduled event consumed this turn during
+    ///     ProcessBeginningOfTurn, before the player's own command could run. See
+    ///     <see cref="IContext.TurnConsumedByForcedEvent"/>.
+    /// </summary>
+    [JsonIgnore]
+    public bool TurnConsumedByForcedEvent { get; set; }
 
     public List<TItem> GetItems<TItem>()
     {
@@ -213,7 +246,18 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
 
     public void RemoveItem(IItem item)
     {
-        Items.Remove(item);
+        // Try the flat list first, regardless of what item.CurrentLocation currently claims: a
+        // top-level inventory item's CurrentLocation can be stale (e.g. a not-yet-visited room's
+        // lazily-run Init() re-seeding its own starting item singleton overwrites CurrentLocation
+        // without touching this Items list - see LivingRoom's Sword/Lantern). Removing by list
+        // membership first is robust to that and matches this method's original behavior.
+        if (Items.Remove(item))
+            return;
+
+        // Not directly here - it may be nested inside something we hold (e.g. a card in a worn
+        // uniform pocket). Detach it from its actual container so it isn't left duplicated there.
+        if (item.CurrentLocation != this)
+            item.CurrentLocation?.RemoveItem(item);
     }
 
     public void ItemPlacedHere(IItem item)
@@ -378,7 +422,9 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         if (CurrentLocation is not ICanContainItems newLocation)
             throw new Exception("Current location can't hold item");
 
-        Items.Remove(item);
+        // Detach via RemoveItem's flat-list-first logic (robust to a stale CurrentLocation) before
+        // ItemPlacedHere reassigns it - see RemoveItem's comment.
+        RemoveItem(item);
         item.CurrentLocation = newLocation;
         newLocation.ItemPlacedHere(item);
     }
@@ -406,6 +452,14 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     {
         Moves++;
         return null;
+    }
+
+    /// <summary>
+    ///     No one-shot actor-suppression flags at this level; game-specific contexts override this
+    ///     (e.g. Planetfall's Floyd flags).
+    /// </summary>
+    public virtual void ResetPerTurnActorFlags()
+    {
     }
 
     public virtual bool ItIsDarkHere =>

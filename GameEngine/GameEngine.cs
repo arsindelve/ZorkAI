@@ -184,6 +184,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public int Moves => Context.Moves;
 
+    public long TurnSequence => Context.RequestSequence;
+
     public int CurrentTime => Context is ITimeBasedContext tc ? tc.CurrentTime : 0;
 
     public List<Direction> Exits => Context.CurrentLocation.Exits(Context);
@@ -205,6 +207,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // graceful, logged, in-character "oops" rather than breaking the transport to the client.
         try
         {
+            // Once per top-level call, regardless of how many sub-sentences this input splits into
+            // or whether any of them turn out to be "free" commands (issue #354) - see TurnSequence.
+            Context.RequestSequence++;
+
             _currentInput = playerInput;
 
             // Check for multi-sentence input
@@ -418,9 +424,32 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (contextOverride is not null)
             return PostProcessing(contextOverride);
 
-        // Everything below here counts as a turn. Pre-process the turn.
+        // Determine up front whether this input resolves to a "free" global command - a
+        // meta/informational verb (look, inventory, score, current time) that must never advance
+        // Context.Moves or a time-based game's survival clock (issue #354). This has to be known
+        // BEFORE Context.ProcessBeginningOfTurn() runs (which does exactly that), so it's computed
+        // here rather than at its usual step-5 spot below - the result is reused there instead of
+        // being recomputed. Actor processing (chase scenes, countdown timers, Floyd, ...) still runs
+        // for free commands further down - the world keeps moving even while the player just glances
+        // at their status; only the player's own turn/survival-clock bookkeeping is skipped.
+        //
+        // "again"/"g" replays the previous command - AgainProcessor.Process (below, at its usual
+        // spot) resolves that later, but we need to know what it WILL resolve to now, so a replayed
+        // free command (e.g. "look" then "g") classifies correctly too. Peeking is side-effect-free;
+        // Process() still runs normally afterward for its real side effects.
+        var replayTarget = _againProcessor.PeekReplayTarget(playerInput!, Context);
+        var earlyGlobalIntent = _parser.DetermineGlobalIntentType(replayTarget ?? playerInput);
+        var isFreeCommand = earlyGlobalIntent is GlobalCommandIntent { Command: IFreeGlobalCommand };
+
+        // One-shot actor-suppression flags (e.g. Planetfall's FloydShouldNotActThisTurn) must reset
+        // every turn regardless of isFreeCommand: actor processing below always runs, even for free
+        // commands, so a flag it consumes must always get its one-shot reset too - otherwise it leaks
+        // across consecutive free commands and suppresses an actor for longer than intended.
+        Context.ResetPerTurnActorFlags();
+
+        // Everything below here counts as a turn, unless it's a free command. Pre-process the turn.
         // See if the context needs to notify us of anything. Are we sleepy? Hungry?
-        var contextPrepend = Context.ProcessBeginningOfTurn();
+        var contextPrepend = isFreeCommand ? null : Context.ProcessBeginningOfTurn();
 
         // Check if player died during beginning-of-turn processing (e.g., hunger death)
         if (Context.PendingDeath is not null)
@@ -429,6 +458,22 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             var deathMessage = deathResult.InteractionMessage;
             RestartAfterDeath(deathResult.DeathCount);
             return PostProcessing(deathMessage + Context.CurrentLocation.GetDescription(Context));
+        }
+
+        // Issue #355: a scheduled event (e.g. Planetfall's forced sleep) consumed this turn during
+        // ProcessBeginningOfTurn, mutating state (dropping carried items, changing location) against
+        // wherever the player was BEFORE their own command ran. Executing that command now - most
+        // dangerously a movement command - would change CurrentLocation again, leaving the narration
+        // and any side effects of the event stranded against a location the response never mentions
+        // again. Short-circuit here, mirroring the PendingDeath check above: report wherever the
+        // player actually is instead of running their command, which is deferred to next turn. Still
+        // routed through ProcessActorsAndContextEndOfTurn so the clock ticks and actors act, exactly
+        // as they would for any other turn.
+        if (Context.TurnConsumedByForcedEvent)
+        {
+            Context.TurnConsumedByForcedEvent = false;
+            return await ProcessActorsAndContextEndOfTurn(
+                contextPrepend, Context.CurrentLocation.GetDescription(Context));
         }
 
         // See if the user typed "again" or some variation.
@@ -451,7 +496,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             && (!string.IsNullOrEmpty(Context.LastInput) || !string.IsNullOrEmpty(Context.LastResponse)))
         {
             var resolved = await _parser.ResolvePronounsAsync(_currentInput!, Context.LastInput, Context.LastResponse);
-            if (resolved != null && !resolved.Equals(_currentInput, StringComparison.OrdinalIgnoreCase))
+            if (resolved != null && !resolved.Equals(_currentInput, StringComparison.OrdinalIgnoreCase)
+                && !ResolverConflatedSingularItWithASet(_currentInput!, resolved))
             {
                 _currentInput = resolved;
             }
@@ -473,12 +519,44 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             Context,
             GenerationClient
         );
+        // isFreeCommand was classified from raw input TEXT before we knew whether a location would
+        // intercept it here - a location's raw interaction is never actually the free processor, so
+        // an interaction that fires here is always a real turn, regardless of what the input text
+        // happened to look like (e.g. LoudRoom's echo catch-all firing for the literal word "score").
+        // If we skipped Context.ProcessBeginningOfTurn() based on that wrong early guess, run it now
+        // - late beats never - before treating this as the real turn it actually is.
+        //
+        // Known ordering trade-off: RespondToSpecificLocationInteraction above has ALREADY run (and
+        // any state it mutates has already happened) by the time this catches up, whereas on every
+        // other path in this method ProcessBeginningOfTurn() runs first. In practice this is inert -
+        // the only unconditional-catch-all locations today (LoudRoom, InsideTheBarrow,
+        // CryoAnteroomLocation) have no stateful side effects beyond their message - but a future
+        // catch-all location with one would apply it before this turn's hazard check instead of
+        // after. The visible outcome, a death here, is still handled correctly either way (see
+        // FreeMetaCommandTests.PendingDeath_FromLateBeginningOfTurn_StillOverridesACatchAllLocationInteraction) -
+        // the interaction's TEXT is discarded in favor of the death message - only a stateful side
+        // effect could land "early".
         if (singleVerbResult.InteractionHappened)
-            return await ProcessActorsAndContextEndOfTurn(contextPrepend, singleVerbResult.InteractionMessage);
+        {
+            if (isFreeCommand)
+            {
+                contextPrepend = Context.ProcessBeginningOfTurn();
 
-        // 5. ------- Global commands - these work always, everywhere: like look, inventory, wait and cardinal directions. These DO count as a turn,
-        // We must process actors afterwards
-        var simpleIntent = _parser.DetermineGlobalIntentType(playerInput);
+                if (Context.PendingDeath is not null)
+                {
+                    var deathResult = Context.PendingDeath;
+                    var deathMessage = deathResult.InteractionMessage;
+                    RestartAfterDeath(deathResult.DeathCount);
+                    return PostProcessing(deathMessage + Context.CurrentLocation.GetDescription(Context));
+                }
+            }
+
+            return await ProcessActorsAndContextEndOfTurn(contextPrepend, singleVerbResult.InteractionMessage);
+        }
+
+        // 5. ------- Global commands - these work always, everywhere: like look, inventory, wait and cardinal directions. These DO count as a turn
+        // (except free commands - see isFreeCommand above). We must process actors afterwards regardless.
+        var simpleIntent = earlyGlobalIntent;
         if (simpleIntent is not null)
         {
             var resultMessage = simpleIntent switch
@@ -489,7 +567,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
                 _ => null
             };
 
-            return await ProcessActorsAndContextEndOfTurn(contextPrepend, resultMessage);
+            return await ProcessActorsAndContextEndOfTurn(contextPrepend, resultMessage, isFreeCommand);
         }
 
         // Is the player talking to someone?
@@ -523,8 +601,20 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         var complexIntentResult = await ProcessComplexIntent(parsedResult);
 
+        // A look/inventory phrasing the AI parser recognizes but GlobalCommandFactory's static list
+        // doesn't (e.g. "what is this place?") reaches LookProcessor/InventoryProcessor here instead
+        // of the fast static path above, so isFreeCommand was (necessarily) false when contextPrepend
+        // was computed - Context.ProcessBeginningOfTurn() already ran as a real turn, and that can't
+        // be undone without calling the AI parser before every turn, defeating the "cheap first, AI
+        // fallback second" design this engine otherwise follows. What we CAN still do is skip the
+        // end-of-turn survival-clock tick, which is what actually risks a hunger/sleep death from
+        // checking your status - issue #354's core complaint - even though Context.Moves still
+        // advances for this narrow AI-only-recognized case.
+        var aiRecognizedFreeIntent = parsedResult is LookIntent or InventoryIntent;
+
         // Put it all together for return.
-        return await ProcessActorsAndContextEndOfTurn(contextPrepend, complexIntentResult.ResultMessage);
+        return await ProcessActorsAndContextEndOfTurn(contextPrepend, complexIntentResult.ResultMessage,
+            aiRecognizedFreeIntent);
     }
 
     /// <summary>
@@ -560,6 +650,27 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         return false;
     }
 
+    /// <summary>
+    ///     True when the AI pronoun resolver rewrote a SINGULAR "it" into a multi-object noun phrase,
+    ///     e.g. "drop it" -&gt; "drop rope and knife" (issue #341). This happens after a multi-object
+    ///     action like "take all": the resolver's only context is the previous command/response naming
+    ///     every object that was handled, so it conflates "it" with the whole set instead of the one
+    ///     object the player actually meant. "them" is the collection pronoun (issue #248) and is not
+    ///     affected - this guard only fires when the ORIGINAL command used singular "it". When it fires,
+    ///     the rewrite is discarded and the deterministic <see cref="ItProcessor" /> downstream resolves
+    ///     "it" from the single last-handled antecedent instead.
+    /// </summary>
+    private static bool ResolverConflatedSingularItWithASet(string original, string resolved)
+    {
+        if (!Regex.IsMatch(original, @"\bit\b", RegexOptions.IgnoreCase))
+            return false;
+
+        // A correct singular rewrite swaps "it" for exactly one noun phrase. A rewrite that introduces
+        // a conjunction the original didn't already have means the resolver named more than one object.
+        return Regex.IsMatch(resolved, @"\band\b", RegexOptions.IgnoreCase)
+               && !Regex.IsMatch(original, @"\band\b", RegexOptions.IgnoreCase);
+    }
+
     public IContext RestoreGame(string data)
     {
         var deserializeObject = JsonConvert.DeserializeObject<SavedGame<TContext>>(
@@ -574,6 +685,17 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         Context = deserializeObject.Context ?? throw new ArgumentException();
         Context.Engine = this;
         Context.Game = new TInfocomGame();
+
+        // Migration safety net (issue #354 follow-up): a session saved before RequestSequence
+        // existed deserializes it as the default 0. Left alone, the next WriteSessionStep call (a
+        // DynamoDB sort key in ZorkOneController) would restart numbering from 1 and silently
+        // overwrite that session's own early history rows. Seeding from Moves is a best-effort
+        // heuristic, not a perfect migration (Moves never counted free/system commands, even before
+        // this fix, so it can undercount slightly) - but it's always at least close, and Moves == 0
+        // only for a session that never wrote a row in the first place, so there's nothing to collide
+        // with yet.
+        if (Context.RequestSequence == 0 && Context.Moves > 0)
+            Context.RequestSequence = Context.Moves;
 
         return Context;
     }
@@ -754,7 +876,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         return complexIntentResult;
     }
 
-    private async Task<string> ProcessActorsAndContextEndOfTurn(string? contextPrepend, string? turnResult)
+    private async Task<string> ProcessActorsAndContextEndOfTurn(string? contextPrepend, string? turnResult,
+        bool isFreeCommand = false)
     {
         // Check if player died during the turn (e.g., from location hazards, items, etc.)
         if (Context.PendingDeath is not null)
@@ -785,7 +908,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return PostProcessing(preDeathOutput + "\n" + Context.CurrentLocation.GetDescription(Context));
         }
 
-        var contextAppend = Context.ProcessEndOfTurn();
+        // Free commands (issue #354) skip end-of-turn survival-clock processing (e.g. Planetfall's
+        // Chronometer tick) - actors above still ran, so the world keeps moving, but the player's own
+        // status check doesn't itself consume survival-clock time.
+        var contextAppend = isFreeCommand ? null : Context.ProcessEndOfTurn();
         return PostProcessing(FormatResult(contextPrepend, turnResult, actors, contextAppend));
     }
 

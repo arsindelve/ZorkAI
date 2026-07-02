@@ -11,8 +11,21 @@ internal class ExplosionCoordinator : ITurnBasedActor
 {
     public const byte TurnWhenFeinsteinBlowsUp = 10;
 
+    /// <summary>
+    ///     The last Context.Moves value this coordinator already narrated. Free commands (issue
+    ///     #354) run actors without advancing Moves, so without this guard the same Moves-gated
+    ///     narration beat below would re-fire on every consecutive free command instead of exactly
+    ///     once when that Moves value is first reached.
+    /// </summary>
+    [UsedImplicitly]
+    public int? LastProcessedMoves { get; set; }
+
     public Task<string> Act(IContext context, IGenerationClient client)
     {
+        if (context.Moves == LastProcessedMoves)
+            return Task.FromResult(string.Empty);
+
+        LastProcessedMoves = context.Moves;
         return Task.FromResult(HandleExplosion(context));
     }
 

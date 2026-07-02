@@ -271,4 +271,26 @@ public class UniformTests : EngineTestsBase
         item.Should().NotBeNull();
         item.Should().BeOfType<IdCard>();
     }
+
+    [Test]
+    public async Task PatrolUniform_DropCard_StillInPocket_DoesNotDrop()
+    {
+        // Issue #362 regression guard: GetItemsToDrop's single-item branch resolves the nested ID
+        // card via Repository.GetItemInInventory (which, like GetItemInScope, walks into containers),
+        // but DropIt's own possession check is deliberately kept flat (context.Items.Contains) rather
+        // than the canonical Repository.IsItemPossessedBy used by GIVE/SHOW - proven by
+        // WalkthroughTestTwo's "put leaflet in sack" then "drop leaflet" step, which expects "You
+        // don't have that!" even though the sack is open. DROP requires taking a nested item out
+        // first; only GIVE/SHOW reach into a worn/held container via the ZIL (HAVE) flag.
+        var target = GetTarget();
+        StartHere<DeckNine>();
+        Take<PatrolUniform>(); // Add uniform to inventory; the ID card stays in its pocket
+
+        var response = await target.GetResponse("drop card");
+
+        response.Should().Contain("You don't have that!");
+        var pocket = Repository.GetItem<PatrolUniformPocket>();
+        var idCard = Repository.GetItem<IdCard>();
+        pocket.Items.Should().Contain(idCard);
+    }
 }

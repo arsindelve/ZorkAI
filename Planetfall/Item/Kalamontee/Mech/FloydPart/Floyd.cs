@@ -42,6 +42,13 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     [UsedImplicitly] public int WanderingTurnsRemaining { get; set; }
 
+    // Set by a scripted sequence (e.g. the Bio Lab fight in BioLockStateMachineManager) that has
+    // deliberately given Floyd CurrentLocation = null to represent him being absent/busy elsewhere.
+    // Without this, FloydMovementManager.HandleFollowingPlayer sees the location mismatch on Floyd's
+    // very next Act() and "helpfully" teleports him straight back into the player's room, undoing the
+    // sequence's own bookkeeping (issue #365).
+    [UsedImplicitly] public bool IsAwayOnScriptedSequence { get; set; }
+
     [UsedImplicitly] public bool HasEverBeenOn { get; set; }
 
     // Tracks whether the one-time +2 award for turning Floyd on has already been granted. We can't
@@ -230,7 +237,11 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         if (ItemBeingHeld is not null)
         {
             var result = await ItemBeingHeld.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
-            if (result is not null)
+            // A non-null result isn't necessarily a handled one: ItemBase.RespondToSimpleInteraction
+            // returns a non-null NoNounMatchInteractionResult ("this noun isn't me") when the noun
+            // doesn't match the held item, which must fall through to Floyd's own responses rather
+            // than being treated as final (issue #362).
+            if (result is not null && result.InteractionHappened)
                 return result;
         }
 
@@ -374,7 +385,10 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
             return null;
 
         // ZIL syntax is SHOW OBJECT (HAVE) ... (syntax.zil:450) — the shown item must be held.
-        if (!context.Items.Contains(shown))
+        // Issue #362: GetItemInScope already proved the item is reachable by walking the containment
+        // hierarchy, so re-verify possession the same way rather than with a flat context.Items.Contains
+        // check, which misses items nested inside a worn/open container (e.g. a card in a uniform pocket).
+        if (!Repository.IsItemPossessedBy(shown, context))
             return new PositiveInteractionResult($"You don't have the {shown.NounsForMatching[0]}! ");
 
         // Branch order mirrors the ZIL exactly; the printout and lower-card branches are one-shot.
