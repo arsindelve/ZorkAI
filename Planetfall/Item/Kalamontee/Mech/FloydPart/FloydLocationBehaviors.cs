@@ -32,7 +32,7 @@ public class FloydLocationBehaviors(Floyd floyd)
         if (floyd.HasGottenTheFromitzBoard)
         {
             floyd.SkipActingThisTurn(context);
-            return "Floyd looks half-bored and half-annoyed. Floyd already did that. How about some leap-frogger?\"";
+            return FloydConstants.AlreadyGotTheFromitzBoard;
         }
 
         context.ItemPlacedHere<ShinyFromitzBoard>();

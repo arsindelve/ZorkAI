@@ -74,6 +74,9 @@ public static class FloydConstants
         "Floyd shrugs. \"If you say so.\" He vanishes for a few minutes, and returns holding the fromitz board. " +
         "It seems to be in good shape. He tosses it toward you, and you just manage to catch it before it smashes.";
 
+    internal const string AlreadyGotTheFromitzBoard =
+        "Floyd looks half-bored and half-annoyed. Floyd already did that. How about some leap-frogger?\"";
+
     internal const string GoNorth =
         "Floyd squeezes through the opening and is gone for quite a while. You hear thudding noises and squeals " +
         "of enjoyment. After a while the noise stops, and Floyd emerges, looking downcast. \"Floyd found a rubber " +
