@@ -398,6 +398,41 @@ public class BioLockEastTests : EngineTestsBase
     }
 
     [Test]
+    public async Task AbandoningSequence_ByWalkingAway_ShouldNotPermanentlySoftlockFloyd()
+    {
+        // Issue #365 follow-up: IsAwayOnScriptedSequence is only ever set true (never cleared) by the
+        // Bio Lab sequence. If the player walks away instead of closing the door, BioLockEast unregisters
+        // itself as an actor (OnLeaveLocation) and the state machine freezes forever - so without an
+        // explicit recovery, Floyd would stay CurrentLocation=null and IsAwayOnScriptedSequence=true for
+        // the rest of the game, with no in-game way to get him back. BioLockEast.OnLeaveLocation must
+        // release the flag when the sequence is abandoned mid-flight, letting Floyd's normal following
+        // behavior resume.
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.HasEverBeenOn = true;
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(5)).Returns(false); // deterministic: always the "follow" branch
+        floyd.Chooser = mockChooser.Object;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true;
+        bioLockEast.StateMachine.FloydHasSaidNeedToGetCard = true;
+        target.Context.RegisterActor(floyd);
+        target.Context.RegisterActor(bioLockEast);
+
+        await target.GetResponse("open door"); // Floyd rushes in: CurrentLocation=null, IsAwayOnScriptedSequence=true
+        floyd.IsAwayOnScriptedSequence.Should().BeTrue();
+
+        var response = await target.GetResponse("west"); // Abandon the sequence instead of closing the door
+
+        floyd.IsAwayOnScriptedSequence.Should().BeFalse("leaving mid-sequence must release Floyd, not strand him forever");
+        response.Should().Contain("Floyd follows you");
+        floyd.CurrentLocation.Should().NotBeNull("Floyd must be recoverable, not permanently stuck with no location");
+    }
+
+    [Test]
     public async Task FloydFighting_Turn1_ShouldShowInTheLabTwo()
     {
         var target = GetTarget();
@@ -467,6 +502,28 @@ public class BioLockEastTests : EngineTestsBase
         await target.GetResponse("open door");
 
         bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.DoorReopenedNeedToCloseAgain);
+    }
+
+    [Test]
+    public async Task ReopenDoor_AfterInTheLabFour_FloydShouldActuallyBeBackInTheRoom()
+    {
+        // The narration ("Floyd stumbles out of the Bio Lab, clutching the mini-booth card") says he's
+        // back, but earlier in the sequence he was correctly given CurrentLocation = null while fighting
+        // (unlike sibling tests here, which pre-seed ItemPlacedHere and so never exercise this transition
+        // starting from the real null-location state). Reopening the door must actually restore his
+        // presence, not just narrate it.
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.CurrentLocation = null;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.NeedToReopenDoor;
+        target.Context.RegisterActor(bioLockEast);
+
+        await target.GetResponse("open door");
+
+        floyd.CurrentLocation.Should().Be(bioLockEast);
+        bioLockEast.Items.Should().Contain(floyd);
     }
 
     [Test]

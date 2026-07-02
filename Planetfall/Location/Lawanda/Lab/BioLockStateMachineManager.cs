@@ -179,6 +179,7 @@ public class BioLockStateMachineManager
         {
             LabSequenceState = FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
             TurnsAfterDoorReopened = 0; // Reset the turn counter
+            bioLockEast.ItemPlacedHere(floyd); // He's stumbled back into the room, clutching the card
             floyd.SkipActingThisTurn(context);
             return FloydConstants.FloydReturnsWithCard;
         }
