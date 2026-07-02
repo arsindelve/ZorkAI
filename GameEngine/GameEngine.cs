@@ -418,9 +418,20 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (contextOverride is not null)
             return PostProcessing(contextOverride);
 
-        // Everything below here counts as a turn. Pre-process the turn.
+        // Determine up front whether this input resolves to a "free" global command - a
+        // meta/informational verb (look, inventory, score, current time) that must never advance
+        // Context.Moves or a time-based game's survival clock (issue #354). This has to be known
+        // BEFORE Context.ProcessBeginningOfTurn() runs (which does exactly that), so it's computed
+        // here rather than at its usual step-5 spot below - the result is reused there instead of
+        // being recomputed. Actor processing (chase scenes, countdown timers, Floyd, ...) still runs
+        // for free commands further down - the world keeps moving even while the player just glances
+        // at their status; only the player's own turn/survival-clock bookkeeping is skipped.
+        var earlyGlobalIntent = _parser.DetermineGlobalIntentType(playerInput);
+        var isFreeCommand = earlyGlobalIntent is GlobalCommandIntent { Command: IFreeGlobalCommand };
+
+        // Everything below here counts as a turn, unless it's a free command. Pre-process the turn.
         // See if the context needs to notify us of anything. Are we sleepy? Hungry?
-        var contextPrepend = Context.ProcessBeginningOfTurn();
+        var contextPrepend = isFreeCommand ? null : Context.ProcessBeginningOfTurn();
 
         // Check if player died during beginning-of-turn processing (e.g., hunger death)
         if (Context.PendingDeath is not null)
@@ -475,11 +486,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             GenerationClient
         );
         if (singleVerbResult.InteractionHappened)
-            return await ProcessActorsAndContextEndOfTurn(contextPrepend, singleVerbResult.InteractionMessage);
+            return await ProcessActorsAndContextEndOfTurn(contextPrepend, singleVerbResult.InteractionMessage,
+                isFreeCommand);
 
-        // 5. ------- Global commands - these work always, everywhere: like look, inventory, wait and cardinal directions. These DO count as a turn,
-        // We must process actors afterwards
-        var simpleIntent = _parser.DetermineGlobalIntentType(playerInput);
+        // 5. ------- Global commands - these work always, everywhere: like look, inventory, wait and cardinal directions. These DO count as a turn
+        // (except free commands - see isFreeCommand above). We must process actors afterwards regardless.
+        var simpleIntent = earlyGlobalIntent;
         if (simpleIntent is not null)
         {
             var resultMessage = simpleIntent switch
@@ -490,7 +502,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
                 _ => null
             };
 
-            return await ProcessActorsAndContextEndOfTurn(contextPrepend, resultMessage);
+            return await ProcessActorsAndContextEndOfTurn(contextPrepend, resultMessage, isFreeCommand);
         }
 
         // Is the player talking to someone?
@@ -776,7 +788,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         return complexIntentResult;
     }
 
-    private async Task<string> ProcessActorsAndContextEndOfTurn(string? contextPrepend, string? turnResult)
+    private async Task<string> ProcessActorsAndContextEndOfTurn(string? contextPrepend, string? turnResult,
+        bool isFreeCommand = false)
     {
         // Check if player died during the turn (e.g., from location hazards, items, etc.)
         if (Context.PendingDeath is not null)
@@ -807,7 +820,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return PostProcessing(preDeathOutput + "\n" + Context.CurrentLocation.GetDescription(Context));
         }
 
-        var contextAppend = Context.ProcessEndOfTurn();
+        // Free commands (issue #354) skip end-of-turn survival-clock processing (e.g. Planetfall's
+        // Chronometer tick) - actors above still ran, so the world keeps moving, but the player's own
+        // status check doesn't itself consume survival-clock time.
+        var contextAppend = isFreeCommand ? null : Context.ProcessEndOfTurn();
         return PostProcessing(FormatResult(contextPrepend, turnResult, actors, contextAppend));
     }
 

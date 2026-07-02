@@ -148,8 +148,8 @@ public class MultiSentenceEngineTests : EngineTestsBase
 
         await target.GetResponse("s. e. look");
 
-        // s and e are moves, look is also a turn
-        target.Moves.Should().Be(initialMoves + 3);
+        // s and e are moves; look is a free meta command and does not consume a turn (issue #354)
+        target.Moves.Should().Be(initialMoves + 2);
     }
 
     [Test]

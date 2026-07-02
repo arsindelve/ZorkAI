@@ -57,4 +57,17 @@ public class InventoryCommandTests : EngineTestsBase
         // Assert
         result.Should().Contain("You are standing in an open field");
     }
+
+    [Test]
+    public async Task Inventory_IsFreeAction_DoesNotAdvanceMoves()
+    {
+        // Issue #354: "inventory" is a meta/informational verb and must not consume a turn.
+        var engine = GetTarget(new IntentParser(Mock.Of<IAIParser>(), new ZorkOneGlobalCommandFactory()));
+
+        // Act
+        await engine.GetResponse("i");
+
+        // Assert
+        engine.Moves.Should().Be(0);
+    }
 }

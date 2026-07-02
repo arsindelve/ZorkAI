@@ -7,7 +7,7 @@ namespace GameEngine.StaticCommand.Implementation;
 /// <summary>
 ///     Represents a global command for looking around the current location.
 /// </summary>
-public class LookProcessor : IGlobalCommand
+public class LookProcessor : IFreeGlobalCommand
 {
     public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {

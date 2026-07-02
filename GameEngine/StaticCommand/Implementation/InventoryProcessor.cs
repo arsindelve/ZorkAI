@@ -6,7 +6,7 @@ namespace GameEngine.StaticCommand.Implementation;
 /// <summary>
 ///     Represents a processor for the "Inventory" global command.
 /// </summary>
-internal class InventoryProcessor : IGlobalCommand
+internal class InventoryProcessor : IFreeGlobalCommand
 {
     public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {

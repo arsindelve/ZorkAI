@@ -3,7 +3,7 @@ using Model.Interface;
 
 namespace GameEngine.StaticCommand.Implementation;
 
-internal class ScoreProcessor : IGlobalCommand
+internal class ScoreProcessor : IFreeGlobalCommand
 {
     public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {
