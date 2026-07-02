@@ -26,15 +26,20 @@ public class FloydLocationBehaviors(Floyd floyd)
 
     private string HandleFromitzBoardRetrieval(IContext context)
     {
-        var returnString = floyd.HasGottenTheFromitzBoard
-            ? "Floyd looks half-bored and half-annoyed. Floyd already did that. How about some leap-frogger?\""
-            : FloydConstants.GetTheFromitzBoard;
+        // Only actually (re-)grant the board the first time. On repeat visits, the board may already
+        // be in another room, or - worse - installed and doing puzzle duty in the FromitzAccessPanel;
+        // context.ItemPlacedHere() would silently rip it out of wherever it currently is (issue #360).
+        if (floyd.HasGottenTheFromitzBoard)
+        {
+            floyd.SkipActingThisTurn(context);
+            return "Floyd looks half-bored and half-annoyed. Floyd already did that. How about some leap-frogger?\"";
+        }
 
         context.ItemPlacedHere<ShinyFromitzBoard>();
 
         floyd.HasGottenTheFromitzBoard = true;
         floyd.SkipActingThisTurn(context);
-        return returnString;
+        return FloydConstants.GetTheFromitzBoard;
     }
 
     private string HandleSmallDoorExploration(IContext context)
