@@ -26,4 +26,10 @@ public class BrokenRobot : ItemBase, ICanBeExamined
     public void OnBeingExamined(IContext context)
     {
     }
+
+    // BrokenRobot never implemented ICanBeTakenAndDropped, so "take robot" fell through to
+    // an AI-generated, non-deterministic refusal. Giving it a fixed CannotBeTakenDescription
+    // routes through CannotBeTakenProcessor instead, matching the solemnity of Floyd's eulogy.
+    public override string? CannotBeTakenDescription =>
+        "Whatever happened to Achilles, it doesn't seem right to carry him off like scrap. You leave him as Floyd found him. ";
 }
