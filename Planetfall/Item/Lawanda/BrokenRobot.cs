@@ -23,7 +23,7 @@ public class BrokenRobot : ItemBase, ICanBeExamined
     string ICanBeExamined.ExaminationDescription =>
         "It's Achilles, lying face down just as Floyd said. One foot is twisted at an odd angle -- the same foot he always had trouble with. ";
 
-    public void OnBeingExamined(IContext context)
+    public override void OnBeingExamined(IContext context)
     {
     }
 

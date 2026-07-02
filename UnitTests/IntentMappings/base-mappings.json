@@ -81,7 +81,12 @@
     { "inputs": ["wear gas mask"], "verb": "wear", "noun": "gas mask", "originalInput": "wear gas mask" },
     { "inputs": ["take gas mask"], "verb": "take", "noun": "gas mask", "originalInput": "take gas mask" },
     { "inputs": ["drop gas mask"], "verb": "drop", "noun": "gas mask", "originalInput": "drop gas mask" },
-    { "inputs": ["examine gas mask"], "verb": "examine", "noun": "gas mask", "originalInput": "examine gas mask" }
+    { "inputs": ["examine gas mask"], "verb": "examine", "noun": "gas mask", "originalInput": "examine gas mask" },
+
+    { "inputs": ["examine damaged robot"], "verb": "examine", "noun": "damaged robot", "originalInput": "examine damaged robot" },
+    { "inputs": ["examine broken robot"], "verb": "examine", "noun": "broken robot", "originalInput": "examine broken robot" },
+    { "inputs": ["take damaged robot"], "verb": "take", "noun": "damaged robot", "originalInput": "take damaged robot" },
+    { "inputs": ["take broken robot"], "verb": "take", "noun": "broken robot", "originalInput": "take broken robot" }
   ],
 
   "multiNounIntents": [
