@@ -110,7 +110,12 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             // smart enough to match the noun to the item description. An example of this is the "magnet" which is
             // (deliberately, as a puzzle) described as "a metal bar, curved into a U-shape" which the parser does not
             // understand is a magnet. So as a final attempt, let's see if there is a direct noun match.
-            var specificItem = Repository.GetItem(action.Noun);
+            // Issue #362: prefer the scoped inventory match (GetItemInInventory) over the global, unscoped
+            // Repository.GetItem(noun) - the latter can resolve to a same-named item elsewhere in the game
+            // (e.g. a second Fromitz board) instead of the one actually held. Only fall back to the global
+            // lookup when nothing in inventory matches, purely so DropIt can still produce its "you don't
+            // have that" message for a real-but-unheld item instead of a silent no-match.
+            var specificItem = Repository.GetItemInInventory(action.Noun, context) ?? Repository.GetItem(action.Noun);
             return specificItem is not null ? DropIt(context, specificItem) : new NoNounMatchInteractionResult();
         }
 
@@ -118,7 +123,10 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         {
             // The AI may return a compound phrase (e.g. "brass lantern") that doesn't resolve;
             // fall back to the noun the IntentParser already extracted from the player's input.
-            var item = Repository.GetItem(items[0]) ?? Repository.GetItem(action.Noun);
+            var item = Repository.GetItemInInventory(items[0], context)
+                       ?? Repository.GetItemInInventory(action.Noun, context)
+                       ?? Repository.GetItem(items[0])
+                       ?? Repository.GetItem(action.Noun);
             return DropIt(context, item);
         }
 

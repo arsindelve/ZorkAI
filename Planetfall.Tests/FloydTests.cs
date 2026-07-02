@@ -336,6 +336,52 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
+    public async Task ExamineFloyd_On_WhileHoldingUnrelatedItem()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().HasEverBeenOn = true;
+        await target.GetResponse("give the diary to floyd");
+
+        var response = await target.GetResponse("examine floyd");
+
+        response.Should().Contain("From its design, the robot seems to be of the multi-purpose sort");
+    }
+
+    [Test]
+    public async Task OilFloyd_WhileHoldingUnrelatedItem()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().HasEverBeenOn = true;
+        await target.GetResponse("give the diary to floyd");
+        Take<OilCan>();
+
+        var response = await target.GetResponse("oil floyd");
+
+        response.Should().Contain("thoughtfulness");
+    }
+
+    [Test]
+    public async Task ReadDiary_WhileFloydHoldsIt_StillRoutesToDiary()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().HasEverBeenOn = true;
+        await target.GetResponse("give the diary to floyd");
+
+        var response = await target.GetResponse("read diary");
+
+        response.Should().Contain("Words start to scroll across the screen");
+    }
+
+    [Test]
     public async Task LookAtRoom_FloydIsDead()
     {
         var target = GetTarget();
@@ -1980,6 +2026,23 @@ public class FloydTests : EngineTestsBase
         var target = GetTarget();
         StartHere<RobotShop>();
         Take<IdCard>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("show id card to floyd");
+
+        response.Should().Contain("usually blue");
+    }
+
+    [Test]
+    public async Task Show_IdCard_ToFloyd_StillInUniformPocket_AsksIfTheyAreUsuallyBlue()
+    {
+        // Issue #362: the ID card is never manually taken out of the worn Patrol uniform's pocket -
+        // Repository.GetItemInScope already finds it there (it's an open/transparent pocket), but the
+        // old context.Items.Contains(thing) check only looked at the flat top-level inventory list and
+        // falsely denied possession.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<PatrolUniform>();
         GetItem<Floyd>().IsOn = true;
 
         var response = await target.GetResponse("show id card to floyd");

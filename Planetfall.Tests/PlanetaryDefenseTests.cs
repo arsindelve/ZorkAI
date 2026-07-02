@@ -223,6 +223,24 @@ public class PlanetaryDefenseTests : EngineTestsBase
     }
     
     [Test]
+    [TestCase("board")]
+    [TestCase("fromitz board")]
+    public void GetPreciseMatchInScope_GenericBoardNoun_DoesNotResolve_LeavingDisambiguationToHappen(string noun)
+    {
+        // Issue #362: FromitzBoardBase.NounsForPreciseMatching's Except(["card", "access card"]) is a
+        // copy/paste from AccessCard's version and is a no-op here - neither string appears in any
+        // board's NounsForMatching - so "board"/"fromitz board" (the boards' actual generic/ambiguous
+        // nouns, per the property's own doc comment) never actually get excluded. That lets a precise
+        // match on the bare "board" noun arbitrarily resolve to whichever board is first in scope
+        // instead of returning null and leaving the ambiguity to Take_Ambiguous's disambiguation flow.
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        GetItem<FromitzAccessPanel>().IsOpen = true; // First, Fried, Third, Fourth boards all accessible
+
+        Repository.GetPreciseMatchInScope(noun, target.Context).Should().BeNull();
+    }
+
+    [Test]
     public async Task CompleteSolution_CannotPullBoardBackOut()
     {
         var target = GetTarget();
@@ -260,6 +278,22 @@ public class PlanetaryDefenseTests : EngineTestsBase
 
         string? response = await target.GetResponse("put fried in panel");
         response.Should().Contain("no room");
+    }
+
+    [Test]
+    public async Task Drop_HeldBoard_DoesNotResolveToDifferentBoardInstance()
+    {
+        var target = GetTarget();
+        // Instantiates the (closed) panel and its four starting boards - First, Fried, Third, Fourth -
+        // none of which are held or accessible, but all share the generic "board"/"fromitz board" nouns.
+        StartHere<PlanetaryDefense>();
+        Take<CrackedFromitzBoard>();
+
+        var response = await target.GetResponse("drop board");
+
+        response.Should().Contain("Dropped");
+        target.Context.Items.Should().NotContain(GetItem<CrackedFromitzBoard>());
+        GetLocation<PlanetaryDefense>().HasItem<CrackedFromitzBoard>().Should().BeTrue();
     }
 
     [Test]
