@@ -1,4 +1,6 @@
 using GameEngine;
+using ZorkOne.Item;
+using ZorkOne.Location;
 
 namespace UnitTests.GlobalCommands;
 
@@ -26,6 +28,34 @@ public class GodModeTests : EngineTestsBase
         var engine = GetTarget();
 
         var response = await engine.GetResponse("god mode reset time");
+
+        response.Should().Contain("Invalid use of God mode. Bad adventurer!");
+    }
+
+    // Issue #374: "god mode kill troll" lets playtesting skip the Troll Room's randomized combat
+    // gate deterministically. It should leave the troll in exactly the state a real fatal blow
+    // would: dead, gone from the room, axe dropped for the player to find.
+    [Test]
+    public async Task GodModeKill_Troll_KillsHimAndDropsTheAxe()
+    {
+        var engine = GetTarget();
+
+        var response = await engine.GetResponse("god mode kill troll");
+
+        var troll = Repository.GetItem<Troll>();
+        troll.IsDead.Should().BeTrue();
+        troll.CurrentLocation.Should().BeNull();
+        troll.ItemBeingHeld.Should().BeNull();
+        Repository.GetLocation<TrollRoom>().Items.Should().Contain(Repository.GetItem<BloodyAxe>());
+        response.Should().Contain("is dead");
+    }
+
+    [Test]
+    public async Task GodModeKill_UnrecognizedTarget_IsInvalid()
+    {
+        var engine = GetTarget();
+
+        var response = await engine.GetResponse("god mode kill sword");
 
         response.Should().Contain("Invalid use of God mode. Bad adventurer!");
     }

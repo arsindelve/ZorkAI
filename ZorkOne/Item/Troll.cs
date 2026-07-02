@@ -108,6 +108,24 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 
         return await base.RespondToMultiNounInteraction(action, context);
     }
+
+    /// <summary>
+    /// Issue #374: mirrors AdventurerVersusTrollCombatEngine.DeathBlow so "god mode kill troll"
+    /// leaves the room/troll in the exact state a real fatal blow would (axe dropped, troll gone).
+    /// </summary>
+    public bool GodModeKill()
+    {
+        IsDead = true;
+
+        if (ItemBeingHeld is not null)
+        {
+            CurrentLocation?.ItemPlacedHere(ItemBeingHeld);
+            ItemBeingHeld = null;
+        }
+
+        CurrentLocation = null;
+        return true;
+    }
 }
 
 // https://github.com/PDP-10/zork/blob/134871aea9cab2cf91982efad038091d416dddf8/dung.mud#L904
