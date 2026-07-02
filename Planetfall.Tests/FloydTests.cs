@@ -1829,6 +1829,25 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
+    public void ProcessBeginningOfTurn_Alone_StillResetsSkipFlag()
+    {
+        // Review follow-up: ResetPerTurnActorFlags() and ProcessBeginningOfTurn() must always be
+        // called together in production, but that pairing was only enforced by comments, not the
+        // API shape - any caller of ProcessBeginningOfTurn() alone (the more discoverable of the
+        // two methods) would silently see stale Floyd flags. ProcessBeginningOfTurn() must remain
+        // self-sufficient for any direct caller, exactly as it was before the two-method split.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+
+        var pfContext = target.Context;
+        pfContext.FloydShouldNotActThisTurn = true;
+
+        pfContext.ProcessBeginningOfTurn();
+
+        pfContext.FloydShouldNotActThisTurn.Should().BeFalse();
+    }
+
+    [Test]
     public async Task FloydShouldNotActThisTurn_StillResets_AfterAFreeCommand()
     {
         // Issue #354 follow-up: "look"/"score"/"inventory"/"time" are free commands that skip

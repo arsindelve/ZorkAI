@@ -184,6 +184,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public int Moves => Context.Moves;
 
+    public long TurnSequence => Context.RequestSequence;
+
     public int CurrentTime => Context is ITimeBasedContext tc ? tc.CurrentTime : 0;
 
     public List<Direction> Exits => Context.CurrentLocation.Exits(Context);
@@ -205,6 +207,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // graceful, logged, in-character "oops" rather than breaking the transport to the client.
         try
         {
+            // Once per top-level call, regardless of how many sub-sentences this input splits into
+            // or whether any of them turn out to be "free" commands (issue #354) - see TurnSequence.
+            Context.RequestSequence++;
+
             _currentInput = playerInput;
 
             // Check for multi-sentence input
@@ -426,7 +432,13 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // being recomputed. Actor processing (chase scenes, countdown timers, Floyd, ...) still runs
         // for free commands further down - the world keeps moving even while the player just glances
         // at their status; only the player's own turn/survival-clock bookkeeping is skipped.
-        var earlyGlobalIntent = _parser.DetermineGlobalIntentType(playerInput);
+        //
+        // "again"/"g" replays the previous command - AgainProcessor.Process (below, at its usual
+        // spot) resolves that later, but we need to know what it WILL resolve to now, so a replayed
+        // free command (e.g. "look" then "g") classifies correctly too. Peeking is side-effect-free;
+        // Process() still runs normally afterward for its real side effects.
+        var replayTarget = _againProcessor.PeekReplayTarget(playerInput!, Context);
+        var earlyGlobalIntent = _parser.DetermineGlobalIntentType(replayTarget ?? playerInput);
         var isFreeCommand = earlyGlobalIntent is GlobalCommandIntent { Command: IFreeGlobalCommand };
 
         // One-shot actor-suppression flags (e.g. Planetfall's FloydShouldNotActThisTurn) must reset
@@ -491,9 +503,29 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             Context,
             GenerationClient
         );
+        // isFreeCommand was classified from raw input TEXT before we knew whether a location would
+        // intercept it here - a location's raw interaction is never actually the free processor, so
+        // an interaction that fires here is always a real turn, regardless of what the input text
+        // happened to look like (e.g. LoudRoom's echo catch-all firing for the literal word "score").
+        // If we skipped Context.ProcessBeginningOfTurn() based on that wrong early guess, run it now
+        // - late beats never - before treating this as the real turn it actually is.
         if (singleVerbResult.InteractionHappened)
-            return await ProcessActorsAndContextEndOfTurn(contextPrepend, singleVerbResult.InteractionMessage,
-                isFreeCommand);
+        {
+            if (isFreeCommand)
+            {
+                contextPrepend = Context.ProcessBeginningOfTurn();
+
+                if (Context.PendingDeath is not null)
+                {
+                    var deathResult = Context.PendingDeath;
+                    var deathMessage = deathResult.InteractionMessage;
+                    RestartAfterDeath(deathResult.DeathCount);
+                    return PostProcessing(deathMessage + Context.CurrentLocation.GetDescription(Context));
+                }
+            }
+
+            return await ProcessActorsAndContextEndOfTurn(contextPrepend, singleVerbResult.InteractionMessage);
+        }
 
         // 5. ------- Global commands - these work always, everywhere: like look, inventory, wait and cardinal directions. These DO count as a turn
         // (except free commands - see isFreeCommand above). We must process actors afterwards regardless.
@@ -542,8 +574,20 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         var complexIntentResult = await ProcessComplexIntent(parsedResult);
 
+        // A look/inventory phrasing the AI parser recognizes but GlobalCommandFactory's static list
+        // doesn't (e.g. "what is this place?") reaches LookProcessor/InventoryProcessor here instead
+        // of the fast static path above, so isFreeCommand was (necessarily) false when contextPrepend
+        // was computed - Context.ProcessBeginningOfTurn() already ran as a real turn, and that can't
+        // be undone without calling the AI parser before every turn, defeating the "cheap first, AI
+        // fallback second" design this engine otherwise follows. What we CAN still do is skip the
+        // end-of-turn survival-clock tick, which is what actually risks a hunger/sleep death from
+        // checking your status - issue #354's core complaint - even though Context.Moves still
+        // advances for this narrow AI-only-recognized case.
+        var aiRecognizedFreeIntent = parsedResult is LookIntent or InventoryIntent;
+
         // Put it all together for return.
-        return await ProcessActorsAndContextEndOfTurn(contextPrepend, complexIntentResult.ResultMessage);
+        return await ProcessActorsAndContextEndOfTurn(contextPrepend, complexIntentResult.ResultMessage,
+            aiRecognizedFreeIntent);
     }
 
     /// <summary>

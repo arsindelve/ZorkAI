@@ -157,6 +157,13 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
 
     public override string ProcessBeginningOfTurn()
     {
+        // Idempotent safety net: GameEngine.cs already calls ResetPerTurnActorFlags() unconditionally
+        // before this (including for free commands that skip the rest of this method), but any other
+        // caller of ProcessBeginningOfTurn() directly must still get Floyd's one-shot flags reset
+        // without needing to know about that split - calling it twice on a normal turn is harmless,
+        // since it only sets two fields to null/false.
+        ResetPerTurnActorFlags();
+
         var messages = string.Empty;
 
         // Issue #277: when the sleep clock is disabled (god-mode test affordance) we never check for

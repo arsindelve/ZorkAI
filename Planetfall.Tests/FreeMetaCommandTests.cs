@@ -1,4 +1,9 @@
 using FluentAssertions;
+using GameEngine;
+using Model.AIParsing;
+using Model.Intent;
+using Moq;
+using Planetfall.GlobalCommand;
 using Planetfall.Location.Kalamontee.Dorm;
 
 namespace Planetfall.Tests;
@@ -17,6 +22,7 @@ public class FreeMetaCommandTests : EngineTestsBase
     [TestCase("inventory")]
     [TestCase("i")]
     [TestCase("time")]
+    [TestCase("diagnose")]
     public async Task MetaCommand_DoesNotAdvanceMovesOrSurvivalClock(string command)
     {
         var engine = GetTarget();
@@ -66,5 +72,54 @@ public class FreeMetaCommandTests : EngineTestsBase
 
         engine.Moves.Should().Be(movesBefore + 1);
         engine.Context.CurrentTime.Should().BeGreaterThan(timeBefore);
+    }
+
+    [TestCase("g")]
+    [TestCase("again")]
+    public async Task MetaCommand_ReplayedViaAgain_StillDoesNotAdvanceMovesOrSurvivalClock(string again)
+    {
+        // Follow-up to issue #354: "g"/"again" replays the previous command. Replaying a free
+        // command must stay free too - the literal text "g" doesn't match any free-command pattern,
+        // so without resolving the replay target first, the engine was treating the replay as a
+        // real turn even though it repeats an informational check.
+        var engine = GetTarget();
+        StartHere<DormA>();
+
+        var movesBefore = engine.Moves;
+        var timeBefore = engine.Context.CurrentTime;
+
+        await engine.GetResponse("look");
+        engine.Moves.Should().Be(movesBefore, "the first 'look' should not consume a turn");
+
+        await engine.GetResponse(again);
+
+        engine.Moves.Should().Be(movesBefore, "replaying 'look' via '{0}' should also not consume a turn", again);
+        engine.Context.CurrentTime.Should().Be(timeBefore);
+    }
+
+    [Test]
+    public async Task AiRecognizedLookPhrasing_NotInStaticList_StillDoesNotTickSurvivalClock()
+    {
+        // Follow-up to issue #354: a look/inventory phrasing the AI parser recognizes but
+        // GlobalCommandFactory's static switch doesn't (e.g. "what is this place?") reaches
+        // LookProcessor via the AI-fallback path (ProcessComplexIntent), not the fast static path.
+        // Context.Moves has already advanced by the time that classification is known (it can't be
+        // un-done), but the survival-clock tick - the actual death risk issue #354 is about - can
+        // and must still be skipped for it.
+        var mockAiParser = new Mock<IAIParser>();
+        mockAiParser
+            .Setup(p => p.AskTheAIParser("what is this place?", It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new LookIntent());
+        var parser = new IntentParser(mockAiParser.Object, new PlanetfallGlobalCommandFactory());
+
+        var engine = GetTarget(parser);
+        StartHere<DormA>();
+
+        var timeBefore = engine.Context.CurrentTime;
+
+        var response = await engine.GetResponse("what is this place?");
+
+        response.Should().Contain("Dorm");
+        engine.Context.CurrentTime.Should().Be(timeBefore);
     }
 }

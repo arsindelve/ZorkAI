@@ -116,6 +116,14 @@ public interface IContext : ICanContainItems
     int Moves { get; set; }
 
     /// <summary>
+    ///     Monotonically increasing counter, incremented once per top-level GameEngine.GetResponse()
+    ///     call regardless of whether the command was a "free" command that leaves Moves unchanged
+    ///     (issue #354). See <see cref="Moves" /> - persistence layers needing a per-turn-unique value
+    ///     should use this instead of Moves.
+    /// </summary>
+    long RequestSequence { get; set; }
+
+    /// <summary>
     ///     A reference to the "game", which can tell us constant, game specific
     ///     things like how to calculate score, starting location, etc.
     /// </summary>

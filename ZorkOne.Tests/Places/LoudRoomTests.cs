@@ -39,6 +39,23 @@ public class LoudRoomTests : EngineTestsBase
     }
 
     [Test]
+    public async Task EchoingAFreeCommandWord_StillCountsAsATurn()
+    {
+        // Issue #354 follow-up: the room's echo catch-all fires for ANY non-direction word,
+        // including ones that happen to be global free-command names ("score"). Since the room -
+        // not ScoreProcessor - actually produced the response, it must still count as a real turn
+        // (Moves increments), exactly like the "hi" control case above.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<LoudRoom>();
+
+        var response = await target.GetResponse("score");
+        Console.WriteLine(response);
+
+        response.Should().Contain("score score ...");
+        target.Moves.Should().Be(1);
+    }
+
+    [Test]
     public async Task CanStillQuit()
     {
         var target = GetTarget();

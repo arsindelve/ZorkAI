@@ -109,6 +109,17 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     public int Moves { get; set; }
 
     /// <summary>
+    ///     Monotonically increasing counter, incremented once per top-level GameEngine.GetResponse()
+    ///     call regardless of whether the command was a "free" command that leaves Moves unchanged
+    ///     (issue #354). Unlike Moves, a narrative/scoring concept, this exists purely so persistence
+    ///     layers that need a value guaranteed unique per turn (e.g. a DynamoDB sort key for session
+    ///     history) have one - using Moves for that purpose silently overwrites history rows once free
+    ///     commands can repeat a Moves value. Must round-trip through save/restore, so it's a plain
+    ///     writable property, not [JsonIgnore].
+    /// </summary>
+    public long RequestSequence { get; set; }
+
+    /// <summary>
     ///     When set, signals that the player has died and the game should restart.
     ///     The GameEngine checks this after ProcessBeginningOfTurn and handles the restart.
     /// </summary>

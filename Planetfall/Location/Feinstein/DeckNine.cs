@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.AIGeneration;
+using Newtonsoft.Json;
 
 namespace Planetfall.Location.Feinstein;
 
@@ -11,28 +12,42 @@ internal class DeckNine : LocationBase, ITurnBasedActor
     // as a digit — the room title spells it, but "go to deck 9" is at least as common (issue #268).
     public override string[] NounsForMatching => ["deck 9"];
 
+    [UsedImplicitly] [JsonIgnore]
+    public IRandomChooser Chooser { get; set; } = new RandomChooser();
+
+    /// <summary>
+    ///     The last Context.Moves value this location already rolled the ambassador/Blather encounter
+    ///     chance for. Free commands (issue #354) run actors without advancing Moves, so without this
+    ///     guard the same roll would repeat on every consecutive free command instead of exactly once
+    ///     per distinct Moves value in the trigger range.
+    /// </summary>
+    [UsedImplicitly]
+    public int? LastRolledAtMoves { get; set; }
+
     public Task<string> Act(IContext context, IGenerationClient client)
     {
         // Deck nine is special. This location is the epicenter of the explosion (from a code perspective)
         // so this "act" function will fire every move, no matter where we are, until we safely
         // make it to the escape pod (or die). So below, it's important thay we always confirm
-        // where we are, and whether or not we want an action to happen in this location. 
+        // where we are, and whether or not we want an action to happen in this location.
 
         var ambassador = Repository.GetItem<Ambassador>();
         var blather = Repository.GetItem<Blather>();
 
-        // Let's see if the ambassador or Blather will join us. 
+        // Let's see if the ambassador or Blather will join us.
         if (context.Moves is > 1 and < 7 &&
             context.CurrentLocation is DeckNine &&
             !Items.Contains(ambassador) &&
-            !Items.Contains(blather))
+            !Items.Contains(blather) &&
+            context.Moves != LastRolledAtMoves)
         {
-            var chance = Random.Shared.Next(6);
+            LastRolledAtMoves = context.Moves;
+            var chance = Chooser.RollDice(6);
             switch (chance)
             {
-                case 0:
-                    return Task.FromResult(ambassador.JoinsTheScene(context, this));
                 case 1:
+                    return Task.FromResult(ambassador.JoinsTheScene(context, this));
+                case 2:
                     return Task.FromResult(blather.JoinsTheScene(context, this));
             }
         }
