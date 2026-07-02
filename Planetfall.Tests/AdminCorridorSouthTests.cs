@@ -479,7 +479,8 @@ public class AdminCorridorSouthTests : EngineTestsBase
     }
 
     // Issue #211 - I-MAGNET (compone.zil:1595-1612): carrying the magnet scrambles carried access
-    // cards' magnetic stripes, one per turn, in the original's priority order.
+    // cards' magnetic stripes, one per turn (in acquisition order, not the original's fixed type
+    // priority - see Magnet.Act for why).
     [Test]
     public async Task TakeMagnet_WhileHoldingAccessCard_ScramblesTheCard()
     {
@@ -506,7 +507,7 @@ public class AdminCorridorSouthTests : EngineTestsBase
     }
 
     [Test]
-    public async Task HoldingMagnet_ScramblesOneCardPerTurn_InPriorityOrder()
+    public async Task HoldingMagnet_ScramblesOneCardPerTurn_InAcquisitionOrder()
     {
         var target = GetTarget();
         StartHere<ToolRoom>();
@@ -515,13 +516,14 @@ public class AdminCorridorSouthTests : EngineTestsBase
 
         await target.GetResponse("take bar");
 
-        // Kitchen outranks Shuttle in the original's priority order, so it's scrambled first.
-        GetItem<KitchenAccessCard>().Scrambled.Should().BeTrue();
-        GetItem<ShuttleAccessCard>().Scrambled.Should().BeFalse();
+        // Scrambles whichever unscrambled AccessCard comes first among the player's held items -
+        // Shuttle was picked up first, so it's scrambled first.
+        GetItem<ShuttleAccessCard>().Scrambled.Should().BeTrue();
+        GetItem<KitchenAccessCard>().Scrambled.Should().BeFalse();
 
         await target.GetResponse("look");
 
-        GetItem<ShuttleAccessCard>().Scrambled.Should().BeTrue();
+        GetItem<KitchenAccessCard>().Scrambled.Should().BeTrue();
     }
 
     [Test]
@@ -533,12 +535,12 @@ public class AdminCorridorSouthTests : EngineTestsBase
         Take<KitchenAccessCard>();
 
         await target.GetResponse("take bar");
-        GetItem<KitchenAccessCard>().Scrambled.Should().BeTrue();
+        GetItem<ShuttleAccessCard>().Scrambled.Should().BeTrue();
 
         await target.GetResponse("drop bar");
         await target.GetResponse("look");
         await target.GetResponse("look");
 
-        GetItem<ShuttleAccessCard>().Scrambled.Should().BeFalse();
+        GetItem<KitchenAccessCard>().Scrambled.Should().BeFalse();
     }
 }
