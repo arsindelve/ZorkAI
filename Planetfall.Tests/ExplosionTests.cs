@@ -38,6 +38,48 @@ public class ExplosionTests : EngineTestsBase
         target.Context.CurrentLocation.Should().BeOfType<MessHall>();
     }
 
+    // Code review follow-up on #356: OnGodModeTeleport only disarmed ExplosionCoordinator, leaving
+    // EscapePod's own post-landing sinking timer (YerSinking/TurnsAfterStanding) armed - it has the
+    // exact same location-blind death bug (no CurrentLocation check) that ExplosionCoordinator had.
+    // A tester who stands out of the safety web then teleports away to check something else could
+    // still be silently killed by the sinking pod several turns later, far from the pod.
+    [Test]
+    public async Task GodModeGo_DisarmsEscapePodSinkingClock_SoTeleportedTesterSurvives()
+    {
+        var target = GetTarget();
+        var pod = Repository.GetLocation<EscapePod>();
+        target.Context.CurrentLocation = pod;
+        pod.TurnsAfterStanding = 1; // already standing - sinking countdown underway
+        target.Context.RegisterActor(pod);
+
+        // A tester jumps straight to later content, unrelated to the sinking pod.
+        await target.GetResponse("god mode go mess hall");
+
+        for (var i = 0; i < 5; i++)
+            await target.GetResponse("wait");
+
+        target.Context.DeathCounter.Should().Be(0);
+        target.Context.CurrentLocation.Should().BeOfType<MessHall>();
+    }
+
+    // Code review follow-up on #356: OnGodModeTeleport originally disarmed ExplosionCoordinator
+    // unconditionally, even when the god-mode destination was Deck Nine itself - meaning a developer
+    // who teleported in specifically to test the Feinstein-explosion sequence found it permanently
+    // defused on arrival, with no way to observe it short of restarting the whole engine.
+    [Test]
+    public async Task GodModeGo_IntoDeckNine_DoesNotDisarmExplosionClock()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MessHall>();
+
+        await target.GetResponse("god mode go deck nine");
+
+        for (var i = 0; i < 13; i++)
+            await target.GetResponse("wait");
+
+        target.Context.DeathCounter.Should().Be(1);
+    }
+
     [Test]
     [Explicit("Requires ZorkAI.OpenAI API key - tests pronoun resolution fix")]
     public async Task PronounResolution_OpenIt_ResolvesToBulkhead()

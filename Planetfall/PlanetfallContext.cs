@@ -255,15 +255,21 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
     /// <summary>
     ///     Issue #356 follow-up: "god mode go &lt;place&gt;" is a raw CurrentLocation swap - it never runs
     ///     DeckNine.OnLeaveLocation or EscapePod.AfterEnterLocation, so ExplosionCoordinator (registered
-    ///     unconditionally from game start) stays armed even after a tester teleports away from the
-    ///     ship. It only checks CurrentLocation, not how the player got there, so it would otherwise
-    ///     unconditionally kill the tester once Moves rolls into its 10-14 death window, wherever they
-    ///     happened to be testing. Disarm it here; it's only meaningful while actually navigating the
-    ///     Deck Nine escape sequence.
+    ///     unconditionally from game start) and EscapePod's own post-landing sinking timer (armed once
+    ///     the player stands out of the safety web) stay armed even after a tester teleports away.
+    ///     Both only check CurrentLocation, not how the player got there, so either would otherwise
+    ///     unconditionally kill the tester once their move count rolls into its death window, wherever
+    ///     they happened to be testing. Disarm each - unless the teleport destination is the location
+    ///     it actually governs, so "god mode go deck nine" (or "... escape pod") still lets a tester
+    ///     observe the sequence instead of always defusing it on arrival.
     /// </summary>
     public void OnGodModeTeleport()
     {
-        RemoveActor<ExplosionCoordinator>();
+        if (CurrentLocation is not DeckNine && CurrentLocation is not EscapePod)
+            RemoveActor<ExplosionCoordinator>();
+
+        if (CurrentLocation is not EscapePod)
+            RemoveActor<EscapePod>();
     }
 
     /// <summary>
