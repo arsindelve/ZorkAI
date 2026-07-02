@@ -281,8 +281,11 @@ public class CardTests : EngineTestsBase
         response.Should().Contain("Inkorekt awtharazaashun kard");
     }
 
-    // Issue #211 - a card scrambled by the magnet (WRONG-CARD, globals.zil:1438) is rejected by its
-    // own slot even though it's the correct card type.
+    // Issue #211 - a card scrambled by the magnet is rejected by its own slot even though it's the
+    // correct card type. Deliberate deviation from the original: the ZIL's WRONG-CARD (globals.zil:1438)
+    // gives this the same message as an actual wrong card, which leaves the player no way to tell
+    // "wrong card" from "your card got ruined by the magnet" - so this port gives the scrambled case
+    // its own distinct message instead (see SlotBase.cs).
     [Test]
     public async Task SlideScrambledCard_ThroughItsOwnSlot_IsRejected()
     {
@@ -295,8 +298,34 @@ public class CardTests : EngineTestsBase
 
         var response = await engine.GetResponse("slide kitchen access card through slot");
 
-        response.Should().Contain("Inkorekt awtharazaashun kard...akses deeniid.");
+        response.Should().Contain("Damejd kard...akses deeniid.");
         Repository.GetItem<KitchenDoor>().IsOpen.Should().BeFalse();
+    }
+
+    // A scrambled card's rejection must read differently from an actual wrong-card-type rejection,
+    // so the player can tell "you damaged this card" apart from "this was never the right card".
+    [Test]
+    public async Task SlideScrambledCard_MessageDiffersFromWrongCardTypeMessage()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        var scrambledCard = Repository.GetItem<KitchenAccessCard>();
+        scrambledCard.Scrambled = true;
+        engine.Context.ItemPlacedHere(scrambledCard);
+        engine.Context.CurrentLocation = room;
+
+        var scrambledResponse = await engine.GetResponse("slide kitchen access card through slot");
+
+        Repository.Reset();
+        engine = GetTarget();
+        room = Repository.GetLocation<MessHall>();
+        engine.Context.ItemPlacedHere(Repository.GetItem<ShuttleAccessCard>());
+        engine.Context.CurrentLocation = room;
+
+        var wrongCardResponse = await engine.GetResponse("slide shuttle access card through slot");
+
+        scrambledResponse.Should().NotBe(wrongCardResponse);
+        wrongCardResponse.Should().Contain("Inkorekt awtharazaashun kard...akses deeniid.");
     }
 
     [Test]
