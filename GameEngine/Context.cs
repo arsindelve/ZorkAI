@@ -422,6 +422,14 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         return null;
     }
 
+    /// <summary>
+    ///     No one-shot actor-suppression flags at this level; game-specific contexts override this
+    ///     (e.g. Planetfall's Floyd flags).
+    /// </summary>
+    public virtual void ResetPerTurnActorFlags()
+    {
+    }
+
     public virtual bool ItIsDarkHere =>
         CurrentLocation is IDarkLocation { IsNoLongerDark: false } && !HasLightSource;
 

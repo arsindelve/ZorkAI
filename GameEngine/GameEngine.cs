@@ -429,6 +429,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var earlyGlobalIntent = _parser.DetermineGlobalIntentType(playerInput);
         var isFreeCommand = earlyGlobalIntent is GlobalCommandIntent { Command: IFreeGlobalCommand };
 
+        // One-shot actor-suppression flags (e.g. Planetfall's FloydShouldNotActThisTurn) must reset
+        // every turn regardless of isFreeCommand: actor processing below always runs, even for free
+        // commands, so a flag it consumes must always get its one-shot reset too - otherwise it leaks
+        // across consecutive free commands and suppresses an actor for longer than intended.
+        Context.ResetPerTurnActorFlags();
+
         // Everything below here counts as a turn, unless it's a free command. Pre-process the turn.
         // See if the context needs to notify us of anything. Are we sleepy? Hungry?
         var contextPrepend = isFreeCommand ? null : Context.ProcessBeginningOfTurn();

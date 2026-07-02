@@ -232,6 +232,16 @@ public interface IContext : ICanContainItems
     string? ProcessBeginningOfTurn();
 
     /// <summary>
+    ///     Resets one-shot, per-turn actor-suppression flags (e.g. Planetfall's
+    ///     <c>FloydShouldNotActThisTurn</c>) that must be cleared at the start of every turn, including
+    ///     "free" global commands (issue #354) that skip the rest of <see cref="ProcessBeginningOfTurn" />.
+    ///     Actor processing always runs, even for free commands, so any one-shot flag it consumes must
+    ///     always get reset too, or it leaks across consecutive free commands and suppresses an actor for
+    ///     longer than intended.
+    /// </summary>
+    void ResetPerTurnActorFlags();
+
+    /// <summary>
     ///     Registers an actor with the game engine. Until the actor
     ///     is removed, it will act every turn.
     /// </summary>
