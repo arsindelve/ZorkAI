@@ -7,7 +7,7 @@ public abstract class FromitzBoardBase : ItemBase, ICanBeExamined, ICanBeTakenAn
     /// <summary>
     /// Remove "board" and "fromitz board" from the list of disambiguation nouns. The adventurer will have to be more specific. 
     /// </summary>
-    public override string[] NounsForPreciseMatching => NounsForMatching.Except(["card", "access card"]).ToArray();
+    public override string[] NounsForPreciseMatching => NounsForMatching.Except(["board", "fromitz board"]).ToArray();
 
     public override int Size => 1;
 
