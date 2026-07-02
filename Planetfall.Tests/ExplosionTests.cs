@@ -529,4 +529,44 @@ public class ExplosionTests : EngineTestsBase
         // The web is unharmed, but the pod still stabilizes and looks for a destination.
         response.Should().Contain("autopilot searches for a reasonable destination");
     }
+
+    // Issue #376: "get in web" / "enter web" resolve to an EnterSubLocationIntent whose noun is
+    // looked up via Repository.GetItemInScope - but SafetyWeb was never actually seeded into the
+    // pod's Items list by EscapePod.Init() (only BulkheadDoor was), so the scope lookup always
+    // failed even though the room's own description talks about the webbing. The exact-phrase
+    // shortcuts in EscapePod.RespondToSpecificLocationInteraction ("sit", "get in", "enter webbing")
+    // masked this for those specific strings, but any phrasing that reaches normal noun resolution
+    // - like the bare noun "web" - fell through to a generic "can't go that way" refusal instead of
+    // actually sitting the player down in the webbing.
+    [TestFixture]
+    public class EnterWebTests : EngineTestsBase
+    {
+        [Test]
+        public async Task EnterWeb_PutsPlayerInTheSafetyWeb()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            pod.Init(); // place BulkheadDoor and SafetyWeb in the pod's scope
+            target.Context.CurrentLocation = pod;
+
+            var response = await target.GetResponse("enter web");
+
+            response.Should().Contain("You are now safely cushioned within the web.");
+            pod.SubLocation.Should().BeOfType<SafetyWeb>();
+        }
+
+        [Test]
+        public async Task GetInWeb_PutsPlayerInTheSafetyWeb()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            pod.Init();
+            target.Context.CurrentLocation = pod;
+
+            var response = await target.GetResponse("get in web");
+
+            response.Should().Contain("You are now safely cushioned within the web.");
+            pod.SubLocation.Should().BeOfType<SafetyWeb>();
+        }
+    }
 }
