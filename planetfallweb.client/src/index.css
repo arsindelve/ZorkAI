@@ -159,9 +159,9 @@
   display: flex;
   align-items: center;
   gap: 0.7rem;
-  margin: 0.9rem 0;
+  margin: 1.5rem 0 0.9rem;
   font-weight: 600;
-  font-size: 1.05em;
+  font-size: 1em;
   text-transform: uppercase;
   letter-spacing: 0.16em;
   color: var(--planetfall-accent);

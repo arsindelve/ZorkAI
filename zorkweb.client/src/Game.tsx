@@ -271,7 +271,7 @@ function Game() {
         // Only render the command-echo paragraph when there's actually a command —
         // an empty <p> still carries margins and threw off the spacing above room names.
         const echo = playerInput
-            ? `<p class="text-lime-600 font-extrabold mt-3 mb-1">> ${playerInput}</p>`
+            ? `<p class="text-[#c49a4c] font-extrabold mt-3 mb-1">> ${playerInput}</p>`
             : '';
         const textToAppend = echo + data.response;
 
@@ -384,7 +384,7 @@ function Game() {
 
     return (
 
-        <div className={"relative flex flex-col flex-1 min-h-0 mx-10 mt-20 mb-4"}>
+        <div className={"relative flex flex-col flex-1 min-h-0 mx-10 mt-[44px] mb-4"}>
 
             <div>
                 <Snackbar
@@ -411,14 +411,14 @@ function Game() {
             z-20
             pointer-events-auto
             rounded-xl
-            p-6
+            p-7
             "
             style={{
-                background: 'linear-gradient(135deg, rgba(41, 37, 36, 0.20) 0%, rgba(12, 10, 9, 0.20) 100%)',
+                background: 'linear-gradient(135deg, rgba(41, 37, 36, 0.14) 0%, rgba(12, 10, 9, 0.14) 100%)',
                 backdropFilter: 'blur(8px)',
                 WebkitBackdropFilter: 'blur(8px)',
-                border: '1px solid rgba(132, 204, 22, 0.3)',
-                boxShadow: '0 4px 20px rgba(132, 204, 22, 0.18), 0 2px 10px rgba(0, 0, 0, 0.5)'
+                border: '1px solid rgba(196, 154, 76, 0.3)',
+                boxShadow: '0 4px 20px rgba(196, 154, 76, 0.18), 0 2px 10px rgba(0, 0, 0, 0.5)'
             }}/>
 
             <div className="relative flex-1 min-h-0 max-h-[55vh]">
@@ -435,9 +435,9 @@ function Game() {
                     <div
                         className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMjEyMTIxIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=')] opacity-5 pointer-events-none"></div>
                     <div
-                        className="absolute top-2 left-2 w-20 h-20 rounded-full bg-lime-500/10 blur-3xl pointer-events-none"></div>
+                        className="absolute top-2 left-2 w-20 h-20 rounded-full bg-[#c49a4c]/10 blur-3xl pointer-events-none"></div>
                     <div
-                        className="absolute bottom-10 right-5 w-32 h-32 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none"></div>
+                        className="absolute bottom-10 right-5 w-32 h-32 rounded-full bg-[#c49a4c]/5 blur-3xl pointer-events-none"></div>
                 </div>
 
                 {/* mt-auto pins the transcript to the bottom of the panel (terminal feel)
@@ -463,8 +463,8 @@ function Game() {
                     className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-mono pointer-events-auto transition-transform hover:scale-105 animate-fadeIn"
                     style={{
                         background: 'rgba(28, 25, 23, 0.92)',
-                        border: '1px solid rgba(132, 204, 22, 0.45)',
-                        color: '#a3e635',
+                        border: '1px solid rgba(196, 154, 76, 0.45)',
+                        color: '#e3c179',
                         boxShadow: '0 4px 14px rgba(0, 0, 0, 0.5)',
                         backdropFilter: 'blur(4px)'
                     }}
@@ -489,8 +489,8 @@ function Game() {
                 {mutation.isPending && (
                     <div className="p-2 flex items-center justify-center min-h-[44px]">
                         <CircularProgress size={28} sx={{
-                            color: '#84cc16',
-                            boxShadow: '0 0 15px 5px rgba(132, 204, 22, 0.2)',
+                            color: '#c49a4c',
+                            boxShadow: '0 0 15px 5px rgba(196, 154, 76, 0.2)',
                             borderRadius: '50%'
                         }}/>
                     </div>
@@ -538,7 +538,7 @@ function Game() {
                                 fontWeight: 'bold',
                                 minWidth: '80px',
                                 padding: '4px 10px',
-                                backgroundColor: '#84cc16',
+                                backgroundColor: '#c49a4c',
                                 borderRadius: '8px',
                                 transition: 'all 0.3s ease',
 

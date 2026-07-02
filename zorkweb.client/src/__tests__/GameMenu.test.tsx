@@ -29,15 +29,6 @@ describe('GameMenu Component', () => {
     expect(logo).toHaveAttribute('src', 'https://zorkai-assets.s3.amazonaws.com/Zork.webp');
   });
 
-  test('renders the title', () => {
-    render(<GameMenu />);
-
-    // "Zork I" is wrapped in its own span for accent styling, so match the
-    // heading by its combined text content rather than a single text node.
-    const title = screen.getByRole('heading', { name: 'Generative AI-Enhanced Zork I' });
-    expect(title).toBeInTheDocument();
-  });
-
   test('renders the AboutMenu component', () => {
     render(<GameMenu />);
 

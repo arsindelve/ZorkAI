@@ -66,7 +66,7 @@ const GameInput: React.FC<GameInputProps> = ({
             <div
                 className={`
                     absolute top-0 left-0 w-full h-full
-                    bg-gradient-to-r from-lime-900/30 to-stone-700
+                    bg-gradient-to-r from-yellow-900/30 to-stone-700
                     transform ${isFocused ? 'scale-105 opacity-100' : 'scale-100 opacity-50'}
                     transition-all duration-300 rounded-md -z-10
                 `}
@@ -74,7 +74,7 @@ const GameInput: React.FC<GameInputProps> = ({
 
             <div className="flex items-center w-full relative">
                 <span
-                    className="absolute left-3 sm:left-4 font-mono text-base sm:text-lg font-bold select-none pointer-events-none animate-blink text-lime-500"
+                    className="absolute left-3 sm:left-4 font-mono text-base sm:text-lg font-bold select-none pointer-events-none animate-blink text-[#c49a4c]"
                     aria-hidden="true"
                 >
                     &gt;
@@ -86,11 +86,11 @@ const GameInput: React.FC<GameInputProps> = ({
                         w-full
                         pl-8 sm:pl-10 pr-4 sm:pr-5 py-2 sm:py-2.5
                         font-mono text-sm sm:text-base
-                        text-lime-100
+                        text-[#f5e7c4]
                         bg-stone-800
-                        border-2 ${isFocused ? 'border-lime-600/70' : 'border-stone-600'}
+                        border-2 ${isFocused ? 'border-yellow-700/70' : 'border-stone-600'}
                         rounded-md
-                        shadow-md ${isFocused ? 'shadow-lime-900/30' : ''}
+                        shadow-md ${isFocused ? 'shadow-yellow-900/30' : ''}
                         focus:outline-none
                         placeholder-stone-500
                         transition-all duration-300

@@ -416,10 +416,10 @@ function Game() {
             z-20
             pointer-events-auto
             rounded-xl
-            p-6
+            p-7
             "
             style={{
-                background: 'linear-gradient(135deg, color-mix(in srgb, var(--planetfall-bg-medium) 20%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 20%, transparent) 100%)',
+                background: 'linear-gradient(135deg, color-mix(in srgb, var(--planetfall-bg-medium) 14%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 14%, transparent) 100%)',
                 backdropFilter: 'blur(8px)',
                 WebkitBackdropFilter: 'blur(8px)',
                 border: '1px solid color-mix(in srgb, var(--planetfall-primary) 30%, transparent)',

@@ -7,9 +7,37 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 // Shared compass rose used by every web client. It is fully theme-agnostic: all
 // colors are read from --compass-* CSS custom properties (with sane fallbacks) that
 // each client defines in its own :root, so the same component can wear each game's
-// palette. All compass animation CSS (@property/@keyframes/driver/ping) is colocated
-// in the inline <style> below rather than the client index.css, so the component is
-// self-contained and portable — a client only has to supply the palette variables.
+// palette. All compass CSS — including the @property/@keyframes/pulse-driver/ping
+// animations — ships with the component (see COMPASS_STYLES) so it is self-contained
+// and portable; a client only supplies the palette variables.
+//
+// The <style> is rendered in the component BODY (a plain HTML <style>), not inside
+// the SVG's <defs>. Several rules target elements OUTSIDE the SVG — the
+// .compass-pulse-driver wrapper and the .vbtn-ping buttons — and one registers a
+// custom property (@property --compass-pulse). A <style> nested in inline SVG can't
+// reliably match outside elements or register properties document-wide; a body-level
+// <style> applies to the whole document, so the synchronized pulse actually runs.
+
+const COMPASS_STYLES = `
+.cls-1 { fill: var(--compass-idle-fill, #4d4d4d); transition: fill 0.2s; opacity: var(--compass-idle-opacity, 1); }
+.cls-1.highlight { fill: color-mix(in srgb, var(--compass-accent, #84cc16) 60%, transparent); }
+.cls-1.available { fill: var(--compass-accent, #84cc16); opacity: var(--compass-pulse); }
+.cls-1.available:hover { opacity: 1; fill: var(--compass-accent-hover, #a3e635); }
+[data-ping="North"] #North, [data-ping="South"] #South, [data-ping="East"] #East, [data-ping="West"] #West, [data-ping="NorthEast"] #NorthEast, [data-ping="NorthWest"] #NorthWest, [data-ping="SouthEast"] #SouthEast, [data-ping="SouthWest"] #SouthWest { animation: compassPing 0.6s ease-out; }
+.compass-ring { fill: none; stroke: color-mix(in srgb, var(--compass-accent, #84cc16) 38%, transparent); stroke-width: 0.8; }
+.compass-label { fill: var(--compass-label-color, rgba(214, 211, 209, 0.7)); font-size: 7px; font-weight: bold; font-family: monospace; text-anchor: middle; dominant-baseline: central; }
+
+/* One driver animates the shared --compass-pulse so every available wedge and the
+   up/down controls pulse on a single synchronized timeline. */
+@property --compass-pulse { syntax: '<number>'; inherits: true; initial-value: 1; }
+@keyframes compassPulse { 0%, 100% { --compass-pulse: 0.45; } 50% { --compass-pulse: 1; } }
+.compass-pulse-driver { animation: compassPulse 1.4s ease-in-out infinite; }
+
+/* Brief "ping" flash on the wedge/control for the direction the player just moved. */
+@keyframes compassPing { 0% { filter: brightness(1); } 35% { filter: brightness(2.5); } 100% { filter: brightness(1); } }
+@keyframes compassBtnPing { 0%, 100% { transform: scale(1); filter: brightness(1); } 35% { transform: scale(1.18); filter: brightness(1.7); } }
+.vbtn-ping { animation: compassBtnPing 0.6s ease-out; }
+`;
 
 // Maps a typed/clicked command to the SVG wedge id ("North".."SouthWest") or the
 // vertical control id ("up"/"down"), so the matching control can flash when the
@@ -183,6 +211,9 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
 
     return (
         <div className={className} {...rest}>
+            {/* Body-level <style> (see COMPASS_STYLES) so its rules reach elements
+                outside the SVG — the pulse driver and the up/down buttons. */}
+            <style>{COMPASS_STYLES}</style>
             {/* The rose stays pinned to the right edge; the Up/Down lift grows to its
                 left so appearing/disappearing controls never shift the rose.
                 compass-pulse-driver runs the single animation that all available
@@ -224,28 +255,6 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
                     className="cursor-pointer w-36 lg:w-44 h-auto"
                     onClick={handleClick}
                 >
-                    <defs>
-                        <style>{`
-      .cls-1 { fill: var(--compass-idle-fill, #4d4d4d); transition: fill 0.2s; opacity: var(--compass-idle-opacity, 1); }
-      .cls-1.highlight { fill: color-mix(in srgb, var(--compass-accent, #84cc16) 60%, transparent); }
-      .cls-1.available { fill: var(--compass-accent, #84cc16); opacity: var(--compass-pulse); }
-      .cls-1.available:hover { opacity: 1; fill: var(--compass-accent-hover, #a3e635); }
-      [data-ping="North"] #North, [data-ping="South"] #South, [data-ping="East"] #East, [data-ping="West"] #West, [data-ping="NorthEast"] #NorthEast, [data-ping="NorthWest"] #NorthWest, [data-ping="SouthEast"] #SouthEast, [data-ping="SouthWest"] #SouthWest { animation: compassPing 0.6s ease-out; }
-      .compass-ring { fill: none; stroke: color-mix(in srgb, var(--compass-accent, #84cc16) 38%, transparent); stroke-width: 0.8; }
-      .compass-label { fill: var(--compass-label-color, rgba(214, 211, 209, 0.7)); font-size: 7px; font-weight: bold; font-family: monospace; text-anchor: middle; dominant-baseline: central; }
-
-      /* Compass animations, colocated here so the component carries its own motion
-         and clients only supply the --compass-* palette. One driver animates the
-         shared --compass-pulse so every available wedge/control pulses in sync. */
-      @property --compass-pulse { syntax: '<number>'; inherits: true; initial-value: 1; }
-      @keyframes compassPulse { 0%, 100% { --compass-pulse: 0.45; } 50% { --compass-pulse: 1; } }
-      .compass-pulse-driver { animation: compassPulse 1.4s ease-in-out infinite; }
-      @keyframes compassPing { 0% { filter: brightness(1); } 35% { filter: brightness(2.5); } 100% { filter: brightness(1); } }
-      @keyframes compassBtnPing { 0%, 100% { transform: scale(1); filter: brightness(1); } 35% { transform: scale(1.18); filter: brightness(1.7); } }
-      .vbtn-ping { animation: compassBtnPing 0.6s ease-out; }
-    `}</style>
-                    </defs>
-
                     {/* Background rectangle to catch all clicks (covers the padded viewBox) */}
                     <rect x="-10" y="-10" width="70.4" height="70.4" fill="transparent" style={{ pointerEvents: 'all' }} />
 
