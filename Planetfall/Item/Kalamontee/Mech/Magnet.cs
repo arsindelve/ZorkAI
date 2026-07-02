@@ -44,15 +44,26 @@ public class Magnet : ItemBase, ICanBeTakenAndDropped, ITurnBasedActor
             return Task.FromResult(string.Empty);
         }
 
-        _ = TryScramble<KitchenAccessCard>(context)
-            || TryScramble<ShuttleAccessCard>(context)
-            || TryScramble<TeleportationAccessCard>(context)
-            || TryScramble<UpperElevatorAccessCard>(context)
-            || TryScramble<LowerElevatorAccessCard>(context)
-            || TryScramble<MiniaturizationAccessCard>(context);
+        foreach (var tryScramble in ScramblePriorityOrder)
+            if (tryScramble(context))
+                break;
 
         return Task.FromResult(string.Empty);
     }
+
+    /// <summary>
+    /// I-MAGNET's priority order (compone.zil:1595-1612): checked in this order each turn, the first
+    /// not-yet-scrambled carried card is the one that gets corrupted.
+    /// </summary>
+    private static readonly Func<IContext, bool>[] ScramblePriorityOrder =
+    [
+        TryScramble<KitchenAccessCard>,
+        TryScramble<ShuttleAccessCard>,
+        TryScramble<TeleportationAccessCard>,
+        TryScramble<UpperElevatorAccessCard>,
+        TryScramble<LowerElevatorAccessCard>,
+        TryScramble<MiniaturizationAccessCard>
+    ];
 
     private static bool TryScramble<TCard>(IContext context) where TCard : AccessCard, new()
     {
