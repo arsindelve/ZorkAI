@@ -167,6 +167,14 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
             if (!string.IsNullOrEmpty(sleepMessage))
             {
                 SleepJustOccurred = true;
+
+                // Issue #355: sleep (voluntary or forced) may fire on a turn where the player's
+                // command was something else entirely (e.g. a movement command issued while
+                // exhausted). Sleep already mutated state - dropped carried items, possibly moved
+                // the player into a bed - against CurrentLocation as of THIS turn. Tell the engine
+                // to short-circuit and defer that command rather than run it against a location
+                // this event has already left stale.
+                TurnConsumedByForcedEvent = true;
                 return sleepMessage + base.ProcessBeginningOfTurn();
             }
         }
