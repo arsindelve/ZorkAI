@@ -460,6 +460,22 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return PostProcessing(deathMessage + Context.CurrentLocation.GetDescription(Context));
         }
 
+        // Issue #355: a scheduled event (e.g. Planetfall's forced sleep) consumed this turn during
+        // ProcessBeginningOfTurn, mutating state (dropping carried items, changing location) against
+        // wherever the player was BEFORE their own command ran. Executing that command now - most
+        // dangerously a movement command - would change CurrentLocation again, leaving the narration
+        // and any side effects of the event stranded against a location the response never mentions
+        // again. Short-circuit here, mirroring the PendingDeath check above: report wherever the
+        // player actually is instead of running their command, which is deferred to next turn. Still
+        // routed through ProcessActorsAndContextEndOfTurn so the clock ticks and actors act, exactly
+        // as they would for any other turn.
+        if (Context.TurnConsumedByForcedEvent)
+        {
+            Context.TurnConsumedByForcedEvent = false;
+            return await ProcessActorsAndContextEndOfTurn(
+                contextPrepend, Context.CurrentLocation.GetDescription(Context));
+        }
+
         // See if the user typed "again" or some variation.
         // if so, we'll replace the input with their previous input.
         (_currentInput, var returnResponseFromAgainProcessor) = _againProcessor.Process(

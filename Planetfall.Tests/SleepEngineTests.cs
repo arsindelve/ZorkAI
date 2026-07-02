@@ -5,6 +5,7 @@ using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Kalamontee;
+using Planetfall.Location.Kalamontee.Admin;
 using Planetfall.Location.Kalamontee.Dorm;
 using Utilities;
 
@@ -728,6 +729,54 @@ public class SleepEngineTests : EngineTestsBase
 
         // Day advanced to 3, so day 3 should be removed from blocked list
         pfContext.SicknessNotifications.DaysNotified.Should().NotContain(3);
+    }
+
+    #endregion
+
+    #region Forced Sleep Mid-Movement (Issue #355)
+
+    [Test]
+    public async Task ForcedSleepDuringMovementCommand_DoesNotStrandItemsInAnUnreportedRoom()
+    {
+        var target = GetTarget();
+        var pfContext = target.Context;
+        var smallOffice = StartHere<SmallOffice>();
+
+        var brush = Take<Brush>();
+
+        pfContext.Tired = TiredLevel.AboutToDrop;
+        pfContext.Day = 2; // Avoid day-specific drowning at Crag/Balcony/WindingStair
+        pfContext.SleepNotifications.NextWarningAt = pfContext.CurrentTime; // Forced sleep is due now
+
+        // Force survival of the ground-sleep roll and skip the random dream branch entirely
+        // (anything > 60 fails both the beast-attack (<=30) and dream (<=60) checks).
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(c => c.RollDice(100)).Returns(90);
+        SleepEngine.Chooser = mockChooser.Object;
+
+        try
+        {
+            // Player issues a movement command ("W", toward Large Office) but is too exhausted
+            // to take it - forced sleep must consume this turn instead.
+            var response = await target.GetResponse("W");
+
+            response.Should().Contain("SEPTEM");
+
+            // The item drop must land wherever the player actually is when the turn ends - not a
+            // stale pre-move room the response never mentions again.
+            pfContext.CurrentLocation.Should().BeOfType<SmallOffice>();
+            smallOffice.Items.Should().Contain(brush);
+            pfContext.Items.Should().NotContain(brush);
+
+            // The interrupted "W" must not be silently swallowed - repeating it on the next turn
+            // should still carry out the move.
+            await target.GetResponse("W");
+            pfContext.CurrentLocation.Should().BeOfType<LargeOffice>();
+        }
+        finally
+        {
+            SleepEngine.Chooser = new GameEngine.RandomChooser();
+        }
     }
 
     #endregion

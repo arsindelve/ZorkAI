@@ -46,7 +46,10 @@ public class GiveSomethingToSomeoneDecisionEngine<TRecipient> where TRecipient :
         if (thing is null)
             return null;
 
-        if (!context.Items.Contains(thing))
+        // Issue #362: GetItemInScope already proved the item is reachable (walking the containment
+        // hierarchy), so re-verify possession the same way rather than with a flat context.Items.Contains
+        // check, which misses items nested inside a worn/open container (e.g. a card in a uniform pocket).
+        if (!Repository.IsItemPossessedBy(thing, context))
             return new PositiveInteractionResult($"You don't have the {thing.NounsForMatching[0]}! ");
 
         return recipient.OfferThisThing(thing, context);

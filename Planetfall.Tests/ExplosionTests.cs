@@ -6,11 +6,102 @@ using Moq;
 using OpenAI;
 using Planetfall.Item.Feinstein;
 using Planetfall.Location.Feinstein;
+using Planetfall.Location.Kalamontee;
 
 namespace Planetfall.Tests;
 
 public class ExplosionTests : EngineTestsBase
 {
+    // Issue #356 follow-up: "god mode go <place>" is a raw CurrentLocation swap for testing - it
+    // doesn't run DeckNine.OnLeaveLocation or EscapePod.AfterEnterLocation, so a tester who teleports
+    // away from Deck Nine to check on later content never unregisters ExplosionCoordinator. It keeps
+    // counting turns in the background and can unconditionally kill the tester (wiping their god-mode
+    // session via RestartAfterDeath) once Moves rolls into the 10-14 death window, nowhere near the
+    // ship. The clock is only meaningful while actually navigating the Deck Nine escape sequence, so
+    // a god-mode teleport should disarm it.
+    [Test]
+    public async Task GodModeGo_DisarmsExplosionClock_SoTeleportedTesterSurvives()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<DeckNine>();
+
+        // A tester jumps straight to later content, unrelated to the Deck Nine escape sequence.
+        await target.GetResponse("god mode go mess hall");
+
+        // Wait through the Feinstein-explosion window (moves 10-14), far from the ship.
+        for (var i = 0; i < 14; i++)
+            await target.GetResponse("wait");
+
+        // If the explosion clock had still fired, death would reset the game via
+        // RestartAfterDeath - snapping the player back to Deck Nine and bumping DeathCounter.
+        target.Context.DeathCounter.Should().Be(0);
+        target.Context.CurrentLocation.Should().BeOfType<MessHall>();
+    }
+
+    // Code review follow-up on #356: OnGodModeTeleport only disarmed ExplosionCoordinator, leaving
+    // EscapePod's own post-landing sinking timer (YerSinking/TurnsAfterStanding) armed - it has the
+    // exact same location-blind death bug (no CurrentLocation check) that ExplosionCoordinator had.
+    // A tester who stands out of the safety web then teleports away to check something else could
+    // still be silently killed by the sinking pod several turns later, far from the pod.
+    [Test]
+    public async Task GodModeGo_DisarmsEscapePodSinkingClock_SoTeleportedTesterSurvives()
+    {
+        var target = GetTarget();
+        var pod = Repository.GetLocation<EscapePod>();
+        target.Context.CurrentLocation = pod;
+        pod.TurnsAfterStanding = 1; // already standing - sinking countdown underway
+        target.Context.RegisterActor(pod);
+
+        // A tester jumps straight to later content, unrelated to the sinking pod.
+        await target.GetResponse("god mode go mess hall");
+
+        for (var i = 0; i < 5; i++)
+            await target.GetResponse("wait");
+
+        target.Context.DeathCounter.Should().Be(0);
+        target.Context.CurrentLocation.Should().BeOfType<MessHall>();
+    }
+
+    // Code review follow-up on #356: OnGodModeTeleport originally disarmed ExplosionCoordinator
+    // unconditionally, even when the god-mode destination was Deck Nine itself - meaning a developer
+    // who teleported in specifically to test the Feinstein-explosion sequence found it permanently
+    // defused on arrival, with no way to observe it short of restarting the whole engine.
+    [Test]
+    public async Task GodModeGo_IntoDeckNine_DoesNotDisarmExplosionClock()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MessHall>();
+
+        await target.GetResponse("god mode go deck nine");
+
+        for (var i = 0; i < 13; i++)
+            await target.GetResponse("wait");
+
+        target.Context.DeathCounter.Should().Be(1);
+    }
+
+    // Review follow-up on this PR: the previous fix left ExplosionCoordinator armed whenever the
+    // teleport destination was EscapePod, mirroring the DeckNine exception. But unlike DeckNine,
+    // EscapePod's move-14 case in ExplosionCoordinator has NO location check at all - under normal
+    // play that's safe because actually boarding the pod always disarms the coordinator first (via
+    // EscapePod.AfterEnterLocation), so the "still armed while genuinely inside the pod" state never
+    // occurs. "god mode go escape pod" skipped that hook and the old fix deliberately kept the clock
+    // armed for this destination, so a tester who teleported into the pod and waited out the clock
+    // was killed by their own ship's explosion while standing in the one place meant to be safe.
+    [Test]
+    public async Task GodModeGo_IntoEscapePod_DoesNotGetKilledByExplosionClock()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MessHall>();
+
+        await target.GetResponse("god mode go escape pod");
+
+        for (var i = 0; i < 13; i++)
+            await target.GetResponse("wait");
+
+        target.Context.DeathCounter.Should().Be(0);
+    }
+
     [Test]
     [Explicit("Requires ZorkAI.OpenAI API key - tests pronoun resolution fix")]
     public async Task PronounResolution_OpenIt_ResolvesToBulkhead()

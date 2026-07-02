@@ -5,6 +5,7 @@ using Model.Interface;
 using Model.Interaction;
 using Model.Item;
 using Model.Location;
+using ZorkOne;
 
 namespace UnitTests.IntentEngine;
 
@@ -69,6 +70,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([lunch]);
             mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((true, lunch));
+            lunch.CurrentLocation = mockContext.Object;
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -96,6 +98,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([lunch]);
             mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((true, lunch));
+            lunch.CurrentLocation = mockContext.Object;
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -123,6 +126,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([lunch]);
             mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((true, lunch));
+            lunch.CurrentLocation = mockContext.Object;
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -150,6 +154,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([lunch]);
             mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((true, lunch));
+            lunch.CurrentLocation = mockContext.Object;
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -263,6 +268,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([lunch]);
             mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((true, lunch));
+            lunch.CurrentLocation = mockContext.Object;
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -358,6 +364,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([lunch]);
             mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((true, lunch));
+            lunch.CurrentLocation = mockContext.Object;
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -366,6 +373,51 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             result.Should().NotBeNull();
             // Troll should throw back the lunch (not axe)
             result.InteractionMessage.Should().Contain("The troll");
+        }
+
+        [Test]
+        public void Should_CallOfferThisThing_When_ItemNestedInsideHeldOpenContainer()
+        {
+            // Issue #362: Repository.GetItemInScope already walks the containment hierarchy and
+            // correctly finds an item nested inside a container the player is holding (e.g. the
+            // garlic inside the open brown sack). The flat context.Items.Contains(thing) check that
+            // used to run afterward doesn't see into the sack, and falsely denied possession.
+            Repository.Reset();
+            // Trap: ZorkIContext's parameterless (test) constructor resolves the starting location via
+            // Repository.GetStartingLocation<T>(), which itself calls Repository.Reset() - so the
+            // context must be constructed FIRST. Any item fetched before this point is silently
+            // orphaned from the Repository's tracking dictionary once the context is created.
+            var context = new ZorkIContext();
+            var troll = Repository.GetItem<Troll>();
+            var sack = Repository.GetItem<BrownSack>(); // Init() places a Lunch and Garlic inside
+            var garlic = Repository.GetItem<Garlic>();
+            context.CurrentLocation = Repository.GetLocation<WestOfHouse>();
+            context.Take(sack);
+            sack.IsOpen = true;
+
+            var engine = new GiveSomethingToSomeoneDecisionEngine<Troll>();
+            var intent = new MultiNounIntent
+            {
+                Verb = "give",
+                NounOne = "garlic",
+                NounTwo = "troll",
+                Preposition = "to",
+                OriginalInput = "give garlic to troll"
+            };
+
+            // Act
+            var result = engine.AreWeGivingSomethingToSomeone(intent, troll, context);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.InteractionMessage.Should().NotContain("You don't have");
+            // The troll throws back non-axe items - proves we reached OfferThisThing, not the denial branch.
+            result.InteractionMessage.Should().Contain("The troll");
+            // Trap: OfferOtherItem hands the garlic to context.Drop(), which (before this fix) only
+            // removed it from the flat top-level Items list. A nested item was never in that list, so
+            // the sack kept its own reference while Drop *also* placed the item in the room - a
+            // duplicate. The sack must be fully vacated once the garlic leaves it.
+            sack.Items.Should().NotContain(garlic);
         }
 
         [Test]
@@ -419,6 +471,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([lunch]);
             mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((true, lunch));
+            lunch.CurrentLocation = mockContext.Object;
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, cyclops, mockContext.Object);
@@ -485,6 +538,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([sword]);
             mockContext.Setup(c => c.HasMatchingNoun("sword", true)).Returns((true, sword));
+            sword.CurrentLocation = mockContext.Object;
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, troll, mockContext.Object);
@@ -515,6 +569,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([lunch]);
             mockContext.Setup(c => c.HasMatchingNoun("lunch", true)).Returns((true, lunch));
+            lunch.CurrentLocation = mockContext.Object;
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, cyclops, mockContext.Object);
@@ -544,6 +599,7 @@ public class GiveSomethingToSomeoneDecisionEngineTests
             var mockContext = new Mock<IContext>();
             mockContext.Setup(c => c.Items).Returns([garlic]);
             mockContext.Setup(c => c.HasMatchingNoun("garlic", true)).Returns((true, garlic));
+            garlic.CurrentLocation = mockContext.Object;
 
             // Act
             var result = engine.AreWeGivingSomethingToSomeone(intent, cyclops, mockContext.Object);

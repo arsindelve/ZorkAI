@@ -12,7 +12,13 @@ public abstract class AccessCard : ItemBase
 {
     /// <summary>
     /// Remove "card" and "access card" from the list of disambiguation nouns. There are too many items in the game
-    /// with these nouns. The adventurer will have to be more specific. 
+    /// with these nouns. The adventurer will have to be more specific.
     /// </summary>
     public override string[] NounsForPreciseMatching => NounsForMatching.Except(["card", "access card"]).ToArray();
+
+    /// <summary>
+    /// Set when the magnet has corrupted this card's magnetic stripe (see <see cref="Kalamontee.Mech.Magnet"/>).
+    /// Permanent, matching the original - there is no un-scramble.
+    /// </summary>
+    public bool Scrambled { get; set; }
 }

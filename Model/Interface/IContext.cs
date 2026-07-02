@@ -290,6 +290,17 @@ public interface IContext : ICanContainItems
     DeathInteractionResult? PendingDeath { get; set; }
 
     /// <summary>
+    ///     When set, signals that a scheduled event (e.g. Planetfall's forced sleep) consumed this
+    ///     turn during <see cref="ProcessBeginningOfTurn"/>, before the player's own command could
+    ///     run against current state. The GameEngine checks this immediately after
+    ///     ProcessBeginningOfTurn and, if set, short-circuits the turn - returning just the
+    ///     ProcessBeginningOfTurn narration plus the (unchanged) current location description -
+    ///     instead of executing the player's original command against state that event already
+    ///     mutated. The player's command is not queued; it must be retried next turn.
+    /// </summary>
+    bool TurnConsumedByForcedEvent { get; set; }
+
+    /// <summary>
     ///     Gets the current death count. Override in game-specific contexts that track deaths.
     /// </summary>
     int GetDeathCount();
