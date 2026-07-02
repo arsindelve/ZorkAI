@@ -94,17 +94,7 @@ internal class AdventurerVersusTrollCombatEngine : ICombatEngine
 
     private PositiveInteractionResult DeathBlow(IContext context, string attackText)
     {
-        _troll!.IsDead = true;
-        
-        // Dead troll drops the axe. 
-        if (_troll.ItemBeingHeld is not null)
-        {
-            _trollRoom!.ItemPlacedHere(_axe!);
-            _troll.ItemBeingHeld = null;
-        }
-
-        // And he vanishes. Poof. 
-        _troll.CurrentLocation = null;
+        _troll!.Die();
 
         return new PositiveInteractionResult($"{attackText}\nAlmost as soon as the troll breathes his last breath, a " +
                                              $"cloud of sinister black fog envelops him, and when the fog lifts, " +

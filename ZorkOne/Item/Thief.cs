@@ -248,4 +248,35 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
     {
         StartWithItemInside<Stiletto>();
     }
+
+    /// <summary>
+    /// Issue #374: shared death-state transition used by both a real fatal combat blow
+    /// (AdventurerVersusThiefCombatEngine.DeathBlow) and "god mode kill thief", so the two can never
+    /// drift out of sync. Treasures reappear wherever the kill happens - context.CurrentLocation -
+    /// exactly like a real DeathBlow, since the thief could have been fought (or god-mode-killed)
+    /// anywhere he roams.
+    /// </summary>
+    internal void Die(IContext context)
+    {
+        if (IsDead)
+            return;
+
+        IsDead = true;
+        IsUnconscious = false;
+        TreasureStash.Add(Repository.GetItem<Stiletto>());
+
+        context.RemoveActor(this);
+
+        // And he vanishes. Poof.
+        Repository.DestroyItem<Thief>();
+
+        foreach (var item in TreasureStash)
+            context.Drop(item);
+    }
+
+    public bool GodModeKill(IContext context)
+    {
+        Die(context);
+        return true;
+    }
 }

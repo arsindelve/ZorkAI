@@ -146,4 +146,27 @@ public class Cyclops : ItemBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked
     {
         return NeverPickedUpDescription(currentLocation);
     }
+
+    /// <summary>
+    /// Issue #374: shared removal logic used by both "say Ulysses" (CyclopsRoom's flee handler) and
+    /// "god mode kill cyclops". The cyclops has no combat-death path in this engine - the only way
+    /// he ever leaves is fleeing the room - so "kill" reuses that same removal rather than inventing
+    /// a separate, divergent mechanism.
+    /// </summary>
+    internal void Die(IContext context)
+    {
+        if (IsDead)
+            return;
+
+        IsDead = true;
+        IsAgitated = false;
+        context.RemoveActor(this);
+        Repository.DestroyItem(this);
+    }
+
+    public bool GodModeKill(IContext context)
+    {
+        Die(context);
+        return true;
+    }
 }

@@ -134,10 +134,11 @@ public class GodModeProcessor : IGlobalCommand
     }
 
     /// <summary>
-    /// Issue #374: deterministically kills a combat-gate creature (e.g. the Zork I troll) so
-    /// playtesting can proceed past it without relying on randomized combat. Only creatures that
-    /// implement <see cref="ICanBeAttacked"/> and opt into <see cref="ICanBeAttacked.GodModeKill"/>
-    /// support this; everything else falls through to the generic god-mode error.
+    /// Issue #374: deterministically kills a combat-gate creature (e.g. the Zork I troll, thief, or
+    /// cyclops) so playtesting can proceed past it without relying on randomized combat. Only
+    /// creatures that implement <see cref="ICanBeAttacked"/> and opt into
+    /// <see cref="ICanBeAttacked.GodModeKill"/> support this; everything else falls through to the
+    /// generic god-mode error.
     /// </summary>
     private string Kill(string input, IContext context)
     {
@@ -145,7 +146,7 @@ public class GodModeProcessor : IGlobalCommand
         var lastWord = GetWordsAfterTarget(input, "kill");
         var item = Repository.GetItem(lastWord);
 
-        if (item is not ICanBeAttacked attackable || !attackable.GodModeKill())
+        if (item is not ICanBeAttacked attackable || !attackable.GodModeKill(context))
             return "Invalid use of God mode. Bad adventurer! ";
 
         return $"God mode: {item.Name} is dead. ";

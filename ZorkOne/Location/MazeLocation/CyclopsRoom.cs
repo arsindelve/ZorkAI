@@ -97,10 +97,7 @@ internal class CyclopsRoom : DarkLocation
         if (context.HasItem<Sword>())
             message += "\nYour sword is no longer glowing. ";
 
-        var loser = GetItem<Cyclops>();
-        RemoveItem(loser);
-        loser.CurrentLocation = null;
-        context.RemoveActor(loser);
+        GetItem<Cyclops>().Die(context);
 
         return new PositiveInteractionResult(message);
     }
