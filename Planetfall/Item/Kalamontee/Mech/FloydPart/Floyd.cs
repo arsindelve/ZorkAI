@@ -42,6 +42,13 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     [UsedImplicitly] public int WanderingTurnsRemaining { get; set; }
 
+    // Set by a scripted sequence (e.g. the Bio Lab fight in BioLockStateMachineManager) that has
+    // deliberately given Floyd CurrentLocation = null to represent him being absent/busy elsewhere.
+    // Without this, FloydMovementManager.HandleFollowingPlayer sees the location mismatch on Floyd's
+    // very next Act() and "helpfully" teleports him straight back into the player's room, undoing the
+    // sequence's own bookkeeping (issue #365).
+    [UsedImplicitly] public bool IsAwayOnScriptedSequence { get; set; }
+
     [UsedImplicitly] public bool HasEverBeenOn { get; set; }
 
     // Tracks whether the one-time +2 award for turning Floyd on has already been granted. We can't

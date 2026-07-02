@@ -168,6 +168,7 @@ public class BioLockStateMachineManager
             // Remove Floyd from the room - he's now in the lab fighting!
             bioLockEast.RemoveItem(floyd);
             floyd.CurrentLocation = null; // Floyd has no location while in the lab
+            floyd.IsAwayOnScriptedSequence = true; // Stop his own Act() from following him back in early
             floyd.SkipActingThisTurn(context);
 
             return FloydConstants.InTheLabOne;

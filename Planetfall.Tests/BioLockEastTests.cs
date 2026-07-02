@@ -1,4 +1,6 @@
 ﻿using FluentAssertions;
+using Model.Interface;
+using Moq;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.Lab;
 using Planetfall.Location.Lawanda;
@@ -356,6 +358,43 @@ public class BioLockEastTests : EngineTestsBase
 
         response.Should().Contain("And not a moment too soon!");
         bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.DoorClosedFloydFighting);
+    }
+
+    [Test]
+    public async Task CloseDoor_WithFloydRegisteredAsRealActor_FloydShouldRemainAbsentWhileFighting()
+    {
+        // Issue #365: in real gameplay, Floyd is registered as an actor via FloydPowerManager.Activate()
+        // long before the player reaches BioLockEast, so both Floyd and BioLockEast act every turn. Every
+        // other test in this file only registers BioLockEast, so Floyd's own Act() never runs here and this
+        // gap was never exercised. Floyd is always added to Context.Actors before BioLockEast (he's
+        // activated earlier in the game), so his Act() always runs first in ProcessActors()'s loop - which
+        // means BioLockEast's floyd.SkipActingThisTurn(context) calls (meant to keep Floyd quiet while he's
+        // "in the lab") always arrive one actor-turn too late to stop this same turn's Floyd.Act(). Once
+        // HandleDoorOpening sets floyd.CurrentLocation = null to represent Floyd being absent (fighting
+        // in the lab), Floyd's own FloydMovementManager.HandleFollowingPlayer sees a location mismatch and
+        // "helpfully" teleports him straight back into the room, announcing "Floyd follows you." while the
+        // narration simultaneously says he's trapped behind the door fighting mutants.
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.TurnOnCountdown = 0; // He's been on for a while by the time he reaches BioLockEast, same as real play
+        floyd.HasEverBeenOn = true;
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(5)).Returns(false); // deterministic: always the "follow" branch
+        floyd.Chooser = mockChooser.Object;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true; // Skip the one-turn delay
+        bioLockEast.StateMachine.FloydHasSaidNeedToGetCard = true;
+        target.Context.RegisterActor(floyd);
+        target.Context.RegisterActor(bioLockEast);
+
+        await target.GetResponse("open door");
+        var response = await target.GetResponse("close door");
+
+        response.Should().NotContain("Floyd follows you");
+        floyd.CurrentLocation.Should().BeNull("Floyd is trapped in the Bio Lab fighting mutants, not following the player");
+        bioLockEast.Items.Should().NotContain(floyd);
     }
 
     [Test]
