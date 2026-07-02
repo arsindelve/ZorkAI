@@ -75,7 +75,7 @@ public static class FloydConstants
         "It seems to be in good shape. He tosses it toward you, and you just manage to catch it before it smashes.";
 
     internal const string AlreadyGotTheFromitzBoard =
-        "Floyd looks half-bored and half-annoyed. Floyd already did that. How about some leap-frogger?\"";
+        "Floyd looks half-bored and half-annoyed. \"Floyd already did that. How about some leap-frogger?\"";
 
     internal const string GoNorth =
         "Floyd squeezes through the opening and is gone for quite a while. You hear thudding noises and squeals " +
