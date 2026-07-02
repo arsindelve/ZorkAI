@@ -1,10 +1,13 @@
 using FluentAssertions;
 using GameEngine;
+using Model.AIGeneration.Requests;
 using Model.AIParsing;
 using Model.Intent;
 using Moq;
 using Planetfall.GlobalCommand;
+using Planetfall.Item.Feinstein;
 using Planetfall.Location.Kalamontee.Dorm;
+using Planetfall.Location.Lawanda.LabOffice;
 
 namespace Planetfall.Tests;
 
@@ -121,5 +124,31 @@ public class FreeMetaCommandTests : EngineTestsBase
 
         response.Should().Contain("Dorm");
         engine.Context.CurrentTime.Should().Be(timeBefore);
+    }
+
+    [Test]
+    public async Task PendingDeath_FromLateBeginningOfTurn_StillOverridesACatchAllLocationInteraction()
+    {
+        // Review follow-up: when a location's raw-input catch-all (e.g. CryoAnteroomLocation, which
+        // answers ANY input) intercepts text that looks like a free command, GameEngine runs
+        // Context.ProcessBeginningOfTurn() late - after the interaction already produced its message
+        // - to correct the wrong early guess. If that late call kills the player (e.g. hunger death),
+        // the death must still win: the interaction's text is discarded and the death message shown,
+        // exactly as it would if ProcessBeginningOfTurn() had run first as usual.
+        var engine = GetTarget();
+        StartHere<CryoAnteroomLocation>();
+        engine.Context.Actors.Clear();
+
+        Mock.Get(engine.GenerationClient)
+            .Setup(c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()))
+            .ReturnsAsync("You won the game! ");
+
+        engine.Context.Hunger = HungerLevel.AboutToPassOut;
+        engine.Context.HungerNotifications.NextWarningAt = engine.Context.CurrentTime;
+
+        var response = await engine.GetResponse("score");
+
+        response.Should().Contain("You have died");
+        response.Should().NotContain("You won the game!");
     }
 }

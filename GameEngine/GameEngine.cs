@@ -509,6 +509,17 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // happened to look like (e.g. LoudRoom's echo catch-all firing for the literal word "score").
         // If we skipped Context.ProcessBeginningOfTurn() based on that wrong early guess, run it now
         // - late beats never - before treating this as the real turn it actually is.
+        //
+        // Known ordering trade-off: RespondToSpecificLocationInteraction above has ALREADY run (and
+        // any state it mutates has already happened) by the time this catches up, whereas on every
+        // other path in this method ProcessBeginningOfTurn() runs first. In practice this is inert -
+        // the only unconditional-catch-all locations today (LoudRoom, InsideTheBarrow,
+        // CryoAnteroomLocation) have no stateful side effects beyond their message - but a future
+        // catch-all location with one would apply it before this turn's hazard check instead of
+        // after. The visible outcome, a death here, is still handled correctly either way (see
+        // FreeMetaCommandTests.PendingDeath_FromLateBeginningOfTurn_StillOverridesACatchAllLocationInteraction) -
+        // the interaction's TEXT is discarded in favor of the death message - only a stateful side
+        // effect could land "early".
         if (singleVerbResult.InteractionHappened)
         {
             if (isFreeCommand)
@@ -658,6 +669,25 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         Context = deserializeObject.Context ?? throw new ArgumentException();
         Context.Engine = this;
         Context.Game = new TInfocomGame();
+
+        // Migration safety net (issue #354 follow-up): a session saved before RequestSequence
+        // existed deserializes it as the default 0. Left alone, the next WriteSessionStep call (a
+        // DynamoDB sort key in ZorkOneController) would restart numbering from 1 and silently
+        // overwrite that session's own early history rows. Seeding from Moves is a best-effort
+        // heuristic, not a perfect migration (Moves never counted free/system commands, even before
+        // this fix, so it can undercount slightly) - but it's always at least close, and Moves == 0
+        // only for a session that never wrote a row in the first place, so there's nothing to collide
+        // with yet.
+        // Migration safety net (issue #354 follow-up): a session saved before RequestSequence
+        // existed deserializes it as the default 0. Left alone, the next WriteSessionStep call (a
+        // DynamoDB sort key in ZorkOneController) would restart numbering from 1 and silently
+        // overwrite that session's own early history rows. Seeding from Moves is a best-effort
+        // heuristic, not a perfect migration (Moves never counted free/system commands, even before
+        // this fix, so it can undercount slightly) - but it's always at least close, and Moves == 0
+        // only for a session that never wrote a row in the first place, so there's nothing to collide
+        // with yet.
+        if (Context.RequestSequence == 0 && Context.Moves > 0)
+            Context.RequestSequence = Context.Moves;
 
         return Context;
     }

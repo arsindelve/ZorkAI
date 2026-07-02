@@ -573,4 +573,23 @@ public class EngineTests : EngineTestsBase
 
         restoredTarget.TurnSequence.Should().Be(7);
     }
+
+    [Test]
+    public void TurnSequence_BackfillsFromMoves_WhenRestoringASaveThatPredatesIt()
+    {
+        // Issue #354 review follow-up: a session saved before RequestSequence existed deserializes
+        // it as the default 0 (indistinguishable here from a fresh Context whose Moves was advanced
+        // without ever going through GetResponse). Left alone, the next WriteSessionStep call (a
+        // DynamoDB sort key in ZorkOneController) would restart numbering at 1 and silently
+        // overwrite that session's own early history rows.
+        var target = GetTarget();
+        target.Context.Moves = 5;
+
+        var saved = target.SaveGame();
+
+        var restoredTarget = GetTarget();
+        restoredTarget.RestoreGame(saved);
+
+        restoredTarget.TurnSequence.Should().Be(5);
+    }
 }
