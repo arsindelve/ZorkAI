@@ -678,14 +678,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // this fix, so it can undercount slightly) - but it's always at least close, and Moves == 0
         // only for a session that never wrote a row in the first place, so there's nothing to collide
         // with yet.
-        // Migration safety net (issue #354 follow-up): a session saved before RequestSequence
-        // existed deserializes it as the default 0. Left alone, the next WriteSessionStep call (a
-        // DynamoDB sort key in ZorkOneController) would restart numbering from 1 and silently
-        // overwrite that session's own early history rows. Seeding from Moves is a best-effort
-        // heuristic, not a perfect migration (Moves never counted free/system commands, even before
-        // this fix, so it can undercount slightly) - but it's always at least close, and Moves == 0
-        // only for a session that never wrote a row in the first place, so there's nothing to collide
-        // with yet.
         if (Context.RequestSequence == 0 && Context.Moves > 0)
             Context.RequestSequence = Context.Moves;
 
