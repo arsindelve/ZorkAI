@@ -3,7 +3,7 @@ using Model.Location;
 
 namespace Planetfall.Item.Lawanda;
 
-public class BrokenRobot : ItemBase
+public class BrokenRobot : ItemBase, ICanBeExamined
 {
     public override string[] NounsForMatching => ["broken robot", "robot", "damaged robot"];
 
@@ -15,5 +15,15 @@ public class BrokenRobot : ItemBase
     public override string GenericDescription(ILocation? currentLocation)
     {
         return NeverPickedUpDescription(currentLocation!);
+    }
+
+    // Issue #367: without this, "examine robot" fell through to the engine's generic
+    // "nothing special" fallback right after Floyd's Achilles eulogy (FloydConstants.Achilles),
+    // which is jarring since Floyd just named the fall and the bad foot specifically.
+    string ICanBeExamined.ExaminationDescription =>
+        "It's Achilles, lying face down just as Floyd said. One foot is twisted at an odd angle -- the same foot he always had trouble with. ";
+
+    public void OnBeingExamined(IContext context)
+    {
     }
 }
