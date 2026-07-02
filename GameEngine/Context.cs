@@ -115,6 +115,14 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     [JsonIgnore]
     public DeathInteractionResult? PendingDeath { get; set; }
 
+    /// <summary>
+    ///     When set, signals that a scheduled event consumed this turn during
+    ///     ProcessBeginningOfTurn, before the player's own command could run. See
+    ///     <see cref="IContext.TurnConsumedByForcedEvent"/>.
+    /// </summary>
+    [JsonIgnore]
+    public bool TurnConsumedByForcedEvent { get; set; }
+
     public List<TItem> GetItems<TItem>()
     {
         return Items.OfType<TItem>().ToList();
