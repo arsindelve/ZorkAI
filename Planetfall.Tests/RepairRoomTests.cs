@@ -93,4 +93,33 @@ public class RepairRoomTests : EngineTestsBase
 
         GetItem<BrokenRobot>().CurrentLocation.Should().Be(repairRoom);
     }
+
+    // "achilles" is a ZIL-faithful synonym (SYNONYM ROBOT ACHILLES) that doesn't collide with
+    // Floyd's noun list, so it's the unambiguous way to refer to the body once the player
+    // knows his name - sidestepping the "robot" disambiguation excluded from the tests above.
+    [Test]
+    public async Task ExamineAchilles_AfterEulogy_ResolvesUnambiguously()
+    {
+        var target = GetTarget();
+        var repairRoom = StartHere<RepairRoom>();
+        await TriggerAchillesEulogy(target, repairRoom);
+
+        var response = await target.GetResponse("examine achilles");
+
+        response.Should().Contain("Achilles");
+        response.Should().NotContain("Do you mean");
+    }
+
+    [Test]
+    public async Task TakeAchilles_AfterEulogy_ResolvesUnambiguously()
+    {
+        var target = GetTarget();
+        var repairRoom = StartHere<RepairRoom>();
+        await TriggerAchillesEulogy(target, repairRoom);
+
+        var response = await target.GetResponse("take achilles");
+
+        response.Should().Contain("You leave him as Floyd found him");
+        response.Should().NotContain("Do you mean");
+    }
 }

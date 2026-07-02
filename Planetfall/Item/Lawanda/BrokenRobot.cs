@@ -6,7 +6,11 @@ namespace Planetfall.Item.Lawanda;
 
 public class BrokenRobot : ItemBase, ICanBeExamined
 {
-    public override string[] NounsForMatching => ["broken robot", "robot", "damaged robot"];
+    // "achilles" restores the original ZIL's SYNONYM ROBOT ACHILLES - the designed,
+    // unambiguous way to refer to him once Floyd names him, since he otherwise shares
+    // "robot" with Floyd's own noun list (see PR #367 review: examine/take robot can
+    // disambiguate against Floyd when both are in the Repair Room).
+    public override string[] NounsForMatching => ["broken robot", "robot", "damaged robot", "achilles"];
 
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {
