@@ -1,6 +1,8 @@
 using GameEngine;
+using GameEngine.IntentEngine;
 using GameEngine.Location;
 using Model.AIGeneration;
+using Model.Intent;
 using Model.Interface;
 using Model.Item;
 using Model.Movement;
@@ -22,18 +24,35 @@ public class BehindHouse : LocationBase
     public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
         IGenerationClient client)
     {
-        // Handle any "through window" command
-        if (input != null && input.ToLowerInvariant().Contains("through") &&
-            input.ToLowerInvariant().Contains("window"))
+        if (input != null)
         {
-            var window = Repository.GetItem<KitchenWindow>();
-            if (window.IsOpen)
+            // Issue #344: object-based phrasing for going through the window ("enter window",
+            // "board window", "through window", "go through window") means the same thing as the bare
+            // "in" / "west" commands here, so walk through it via the same gated movement edge instead
+            // of a generic refusal or no-op. This runs on the RAW input, before AI intent
+            // classification, since the AI parser does not reliably tag these short phrasings as a
+            // "board"/movement intent (unlike, say, "go to the kitchen through the window").
+            var normalized = input.ToLowerInvariant().Trim().Replace("the ", "");
+            if (normalized is "enter window" or "board window" or "through window" or "go through window")
             {
-                return new PositiveInteractionResult("The window is open. If you want to enter the house, just say so. ");
+                var (resultObject, resultMessage) =
+                    await new MoveEngine().Process(new MoveIntent { Direction = Direction.In }, context, client);
+                return resultObject ?? new PositiveInteractionResult(resultMessage);
             }
-            else
+
+            // Handle any other "through window" command (e.g. "look/peer/climb/crawl/squeeze/walk/move
+            // through window") - these are exploratory phrasing, not a request to actually go through.
+            if (normalized.Contains("through") && normalized.Contains("window"))
             {
-                return new PositiveInteractionResult("The window is slightly ajar, but not enough to permit entry. ");
+                var window = Repository.GetItem<KitchenWindow>();
+                if (window.IsOpen)
+                {
+                    return new PositiveInteractionResult("The window is open. If you want to enter the house, just say so. ");
+                }
+                else
+                {
+                    return new PositiveInteractionResult("The window is slightly ajar, but not enough to permit entry. ");
+                }
             }
         }
 

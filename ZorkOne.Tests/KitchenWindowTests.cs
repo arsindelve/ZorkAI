@@ -47,17 +47,6 @@ public class KitchenWindowTests : EngineTestsBase
         }
 
         [Test]
-        public async Task GoThroughWindow()
-        {
-            var target = GetTarget();
-            target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
-
-            var response = await target.GetResponse("go through window");
-
-            response.Should().Contain("The window is slightly ajar, but not enough to permit entry.");
-        }
-
-        [Test]
         public async Task JumpThroughWindow()
         {
             var target = GetTarget();
@@ -146,18 +135,6 @@ public class KitchenWindowTests : EngineTestsBase
             Repository.GetItem<KitchenWindow>().IsOpen = true;
 
             var response = await target.GetResponse("look through window");
-
-            response.Should().Contain("The window is open. If you want to enter the house, just say so.");
-        }
-
-        [Test]
-        public async Task GoThroughWindow()
-        {
-            var target = GetTarget();
-            target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
-            Repository.GetItem<KitchenWindow>().IsOpen = true;
-
-            var response = await target.GetResponse("go through window");
 
             response.Should().Contain("The window is open. If you want to enter the house, just say so.");
         }
@@ -440,6 +417,59 @@ public class KitchenWindowTests : EngineTestsBase
             target.Context.CurrentLocation.Should().BeOfType<BehindHouse>();
         }
 
+        /// <summary>
+        /// issue #344: bare "through window" (no leading verb) was intercepted by BehindHouse's raw
+        /// input check and given only advisory text ("...just say so"), never actually moving the
+        /// player, even though the window was open. It must move like "in"/"west" do.
+        /// </summary>
+        [Test]
+        public async Task ThroughWindow_ActuallyEnters_WhenWindowOpen()
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+
+            await target.GetResponse("through window");
+
+            target.Context.CurrentLocation.Should().BeOfType<Kitchen>();
+        }
+
+        [Test]
+        public async Task ThroughWindow_Blocked_WhenWindowClosed()
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
+
+            var response = await target.GetResponse("through window");
+
+            response.Should().Contain("The kitchen window is closed.");
+            target.Context.CurrentLocation.Should().BeOfType<BehindHouse>();
+        }
+
+        [Test]
+        public async Task GoThroughWindow_ActuallyEnters_WhenWindowOpen()
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+
+            await target.GetResponse("go through window");
+
+            target.Context.CurrentLocation.Should().BeOfType<Kitchen>();
+        }
+
+        [Test]
+        public async Task GoThroughWindow_Blocked_WhenWindowClosed()
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
+
+            var response = await target.GetResponse("go through window");
+
+            response.Should().Contain("The kitchen window is closed.");
+            target.Context.CurrentLocation.Should().BeOfType<BehindHouse>();
+        }
+
         [Test]
         public async Task ExitWindow_FromKitchen_GoesToBehindHouse_WhenWindowOpen()
         {
@@ -464,6 +494,47 @@ public class KitchenWindowTests : EngineTestsBase
 
             response.Should().Contain("The kitchen window is closed.");
             target.Context.CurrentLocation.Should().BeOfType<Kitchen>();
+        }
+
+        /// <summary>
+        /// issue #344: the same object-based ambiguity that broke entry from Behind House applies
+        /// symmetrically to the outward trip from the Kitchen, so "board window" and "through window"
+        /// must also walk back out when said from inside.
+        /// </summary>
+        [Test]
+        public async Task BoardWindow_FromKitchen_GoesToBehindHouse_WhenWindowOpen()
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+
+            await target.GetResponse("board window");
+
+            target.Context.CurrentLocation.Should().BeOfType<BehindHouse>();
+        }
+
+        [Test]
+        public async Task ThroughWindow_FromKitchen_GoesToBehindHouse_WhenWindowOpen()
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+
+            await target.GetResponse("through window");
+
+            target.Context.CurrentLocation.Should().BeOfType<BehindHouse>();
+        }
+
+        [Test]
+        public async Task GoThroughWindow_FromKitchen_GoesToBehindHouse_WhenWindowOpen()
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<Kitchen>();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+
+            await target.GetResponse("go through window");
+
+            target.Context.CurrentLocation.Should().BeOfType<BehindHouse>();
         }
 
         [Test]
