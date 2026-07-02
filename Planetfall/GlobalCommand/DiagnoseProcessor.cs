@@ -3,7 +3,7 @@ using Utilities;
 
 namespace Planetfall.GlobalCommand;
 
-public class DiagnoseProcessor : IGlobalCommand
+public class DiagnoseProcessor : IFreeGlobalCommand
 {
     public Task<string> Process(string? input, IContext context, IGenerationClient client, Runtime runtime)
     {

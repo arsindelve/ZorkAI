@@ -23,6 +23,10 @@ public class ZorkOneControllerTests
         _mockEngine.Setup(e => e.LocationDescription).Returns("Test Location");
         _mockEngine.Setup(e => e.IntroText).Returns("Welcome to Zork!");
         _mockEngine.Setup(e => e.Moves).Returns(1);
+        // TurnSequence (issue #354 follow-up), not Moves, is what WriteSession keys session-history
+        // rows on now - Moves no longer advances on every request, since free commands (look/score/
+        // inventory/time) leave it unchanged.
+        _mockEngine.Setup(e => e.TurnSequence).Returns(1);
         _mockEngine.Setup(e => e.SaveGame()).Returns("serialized game state");
 
         _controller = new ZorkOneController(

@@ -116,6 +116,14 @@ public interface IContext : ICanContainItems
     int Moves { get; set; }
 
     /// <summary>
+    ///     Monotonically increasing counter, incremented once per top-level GameEngine.GetResponse()
+    ///     call regardless of whether the command was a "free" command that leaves Moves unchanged
+    ///     (issue #354). See <see cref="Moves" /> - persistence layers needing a per-turn-unique value
+    ///     should use this instead of Moves.
+    /// </summary>
+    long RequestSequence { get; set; }
+
+    /// <summary>
     ///     A reference to the "game", which can tell us constant, game specific
     ///     things like how to calculate score, starting location, etc.
     /// </summary>
@@ -230,6 +238,16 @@ public interface IContext : ICanContainItems
     /// </summary>
     /// <returns>Text to prepend to the response, if any. </returns>
     string? ProcessBeginningOfTurn();
+
+    /// <summary>
+    ///     Resets one-shot, per-turn actor-suppression flags (e.g. Planetfall's
+    ///     <c>FloydShouldNotActThisTurn</c>) that must be cleared at the start of every turn, including
+    ///     "free" global commands (issue #354) that skip the rest of <see cref="ProcessBeginningOfTurn" />.
+    ///     Actor processing always runs, even for free commands, so any one-shot flag it consumes must
+    ///     always get reset too, or it leaks across consecutive free commands and suppresses an actor for
+    ///     longer than intended.
+    /// </summary>
+    void ResetPerTurnActorFlags();
 
     /// <summary>
     ///     Registers an actor with the game engine. Until the actor

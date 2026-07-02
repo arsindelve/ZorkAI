@@ -144,11 +144,26 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
         SleepNotifications.Initialize(CurrentTime);
     }
 
-    public override string ProcessBeginningOfTurn()
+    /// <summary>
+    ///     Floyd's one-shot per-turn flags must reset every turn - including free commands (issue
+    ///     #354) that skip the rest of <see cref="ProcessBeginningOfTurn" /> - since actor processing
+    ///     (which drives <c>Floyd.Act()</c>) always runs regardless. The engine calls this
+    ///     unconditionally before conditionally calling ProcessBeginningOfTurn.
+    /// </summary>
+    public override void ResetPerTurnActorFlags()
     {
-        // Reset Floyd's turn flags for the new turn
         PendingFloydActionCommentPrompt = null;
         FloydShouldNotActThisTurn = false;
+    }
+
+    public override string ProcessBeginningOfTurn()
+    {
+        // Idempotent safety net: GameEngine.cs already calls ResetPerTurnActorFlags() unconditionally
+        // before this (including for free commands that skip the rest of this method), but any other
+        // caller of ProcessBeginningOfTurn() directly must still get Floyd's one-shot flags reset
+        // without needing to know about that split - calling it twice on a normal turn is harmless,
+        // since it only sets two fields to null/false.
+        ResetPerTurnActorFlags();
 
         var messages = string.Empty;
 

@@ -15,6 +15,14 @@ public interface IGameEngine
     /// </remarks>
     int Moves { get; }
 
+    /// <summary>
+    ///     Monotonically increasing counter, incremented once per top-level GetResponse() call,
+    ///     regardless of whether the command was a "free" command that leaves Moves unchanged
+    ///     (issue #354). Persistence layers needing a value guaranteed unique per turn (e.g. a
+    ///     DynamoDB sort key for session history) should use this instead of Moves.
+    /// </summary>
+    long TurnSequence { get; }
+
     string SessionTableName { get; }
 
     /// <summary>

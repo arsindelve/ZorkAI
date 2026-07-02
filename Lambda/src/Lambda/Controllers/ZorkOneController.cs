@@ -117,7 +117,11 @@ public class ZorkOneController(
     private async Task WriteSession(string sessionId, string input, string response)
     {
         await sessionRepository.WriteSessionState(sessionId, GetGameData(), SessionTableName);
-        await sessionRepository.WriteSessionStep(sessionId, engine.Moves, input, response, SessionStepsTableName);
+        // TurnSequence, not Moves: Moves no longer advances on "free" commands like look/score/
+        // inventory (issue #354), so it's no longer guaranteed unique per request. Using it as the
+        // DynamoDB sort key here would silently overwrite the previous turn's history row whenever a
+        // free command follows a real one at the same Moves count.
+        await sessionRepository.WriteSessionStep(sessionId, engine.TurnSequence, input, response, SessionStepsTableName);
     }
 
     private string GetGameData()

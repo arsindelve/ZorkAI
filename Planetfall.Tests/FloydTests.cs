@@ -1480,7 +1480,10 @@ public class FloydTests : EngineTestsBase
         // Set prompt to a non-null value
         pfContext.PendingFloydActionCommentPrompt = "Some prompt";
 
-        // Call ProcessBeginningOfTurn
+        // Simulate a turn boundary. The engine always calls these together (issue #354 follow-up
+        // split the one-shot actor-flag reset out of ProcessBeginningOfTurn so it also runs for free
+        // commands, which skip the rest of ProcessBeginningOfTurn).
+        target.Context.ResetPerTurnActorFlags();
         target.Context.ProcessBeginningOfTurn();
 
         // Prompt should be reset
@@ -1567,7 +1570,8 @@ public class FloydTests : EngineTestsBase
         floyd.CommentOnAction("Some prompt", target.Context);
         pfContext.PendingFloydActionCommentPrompt.Should().NotBeNull();
 
-        // Simulate new turn
+        // Simulate new turn (the engine always calls these together)
+        pfContext.ResetPerTurnActorFlags();
         pfContext.ProcessBeginningOfTurn();
 
         // Prompt should be reset, allowing Floyd to comment again
@@ -1596,7 +1600,8 @@ public class FloydTests : EngineTestsBase
         pfContext.PendingFloydActionCommentPrompt.Should().Be("Unique prompt");
         pfContext.UsedFloydActionCommentPrompts.Should().Contain("Unique prompt");
 
-        // Simulate turn processing (clears pending prompt)
+        // Simulate turn processing (clears pending prompt; the engine always calls these together)
+        pfContext.ResetPerTurnActorFlags();
         pfContext.ProcessBeginningOfTurn();
         pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
 
@@ -1618,12 +1623,14 @@ public class FloydTests : EngineTestsBase
 
         var pfContext = target.Context;
 
-        // Use first prompt
+        // Use first prompt (the engine always calls these together)
         floyd.CommentOnAction("First prompt", target.Context);
+        pfContext.ResetPerTurnActorFlags();
         pfContext.ProcessBeginningOfTurn();
 
         // Use second prompt
         floyd.CommentOnAction("Second prompt", target.Context);
+        pfContext.ResetPerTurnActorFlags();
         pfContext.ProcessBeginningOfTurn();
 
         // Use third prompt
@@ -1669,8 +1676,9 @@ public class FloydTests : EngineTestsBase
 
         var pfContext = target.Context;
 
-        // Use first prompt
+        // Use first prompt (the engine always calls these together)
         floyd.CommentOnAction("First prompt", target.Context);
+        pfContext.ResetPerTurnActorFlags();
         pfContext.ProcessBeginningOfTurn();
 
         // Different prompt should still work
@@ -1888,7 +1896,54 @@ public class FloydTests : EngineTestsBase
         var pfContext = target.Context;
         pfContext.FloydShouldNotActThisTurn = true;
 
+        // The engine always calls these together (issue #354 follow-up split the one-shot
+        // actor-flag reset out of ProcessBeginningOfTurn so it also runs for free commands).
+        pfContext.ResetPerTurnActorFlags();
         pfContext.ProcessBeginningOfTurn();
+
+        pfContext.FloydShouldNotActThisTurn.Should().BeFalse();
+    }
+
+    [Test]
+    public void ProcessBeginningOfTurn_Alone_StillResetsSkipFlag()
+    {
+        // Review follow-up: ResetPerTurnActorFlags() and ProcessBeginningOfTurn() must always be
+        // called together in production, but that pairing was only enforced by comments, not the
+        // API shape - any caller of ProcessBeginningOfTurn() alone (the more discoverable of the
+        // two methods) would silently see stale Floyd flags. ProcessBeginningOfTurn() must remain
+        // self-sufficient for any direct caller, exactly as it was before the two-method split.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+
+        var pfContext = target.Context;
+        pfContext.FloydShouldNotActThisTurn = true;
+
+        pfContext.ProcessBeginningOfTurn();
+
+        pfContext.FloydShouldNotActThisTurn.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task FloydShouldNotActThisTurn_StillResets_AfterAFreeCommand()
+    {
+        // Issue #354 follow-up: "look"/"score"/"inventory"/"time" are free commands that skip
+        // Context.ProcessBeginningOfTurn() (where this one-shot flag used to be reset), but actor
+        // processing (which drives Floyd.Act()) still runs for free commands. Without a dedicated
+        // reset path, the flag would leak across any number of consecutive free commands and mute
+        // Floyd for longer than the single turn it was meant to suppress.
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        var pfContext = target.Context;
+        pfContext.FloydShouldNotActThisTurn = true;
+
+        await target.GetResponse("look");
 
         pfContext.FloydShouldNotActThisTurn.Should().BeFalse();
     }
@@ -1920,7 +1975,8 @@ public class FloydTests : EngineTestsBase
         var result1 = await floyd.Act(target.Context, target.GenerationClient);
         result1.Should().BeEmpty();
 
-        // Turn 2: Flag reset, Floyd acts normally
+        // Turn 2: Flag reset, Floyd acts normally (the engine always calls these together)
+        pfContext.ResetPerTurnActorFlags();
         pfContext.ProcessBeginningOfTurn();
         var result2 = await floyd.Act(target.Context, target.GenerationClient);
         result2.Should().NotBeEmpty();

@@ -60,4 +60,17 @@ public class LookCommandTests : EngineTestsBase
         // Assert
         result.Should().Contain("There is a brown sack here.");
     }
+
+    [Test]
+    public async Task Look_IsFreeAction_DoesNotAdvanceMoves()
+    {
+        // Issue #354: "look" is a meta/informational verb and must not consume a turn.
+        var target = GetTarget();
+
+        // Act
+        await target.GetResponse("look");
+
+        // Assert
+        target.Moves.Should().Be(0);
+    }
 }
