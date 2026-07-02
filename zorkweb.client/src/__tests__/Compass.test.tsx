@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import Compass from '../components/Compass';
+import { Compass } from '@zork-ai/shared-types';
 
 
 

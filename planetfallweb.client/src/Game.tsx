@@ -7,7 +7,7 @@ import Header from "./components/Header.tsx";
 
 import Server from './Server';
 import {ClickableText, ClickableTextHandle} from "@zork-ai/shared-types";
-import Compass, {parseMoveDirection} from "./components/Compass.tsx";
+import {Compass, parseMoveDirection} from "@zork-ai/shared-types";
 
 import {useGameContext} from "@zork-ai/shared-types";
 import GameInput from "./components/GameInput.tsx";
@@ -416,10 +416,10 @@ function Game() {
             z-20
             pointer-events-auto
             rounded-xl
-            p-4
+            p-6
             "
             style={{
-                background: 'linear-gradient(135deg, color-mix(in srgb, var(--planetfall-bg-medium) 38%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 38%, transparent) 100%)',
+                background: 'linear-gradient(135deg, color-mix(in srgb, var(--planetfall-bg-medium) 20%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 20%, transparent) 100%)',
                 backdropFilter: 'blur(8px)',
                 WebkitBackdropFilter: 'blur(8px)',
                 border: '1px solid color-mix(in srgb, var(--planetfall-primary) 30%, transparent)',

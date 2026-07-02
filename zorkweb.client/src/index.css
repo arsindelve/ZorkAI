@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Compass palette — consumed by the shared <Compass> component */
+  --compass-accent: #84cc16;
+  --compass-accent-hover: #a3e635;
+  --compass-idle-fill: #4d4d4d;
+  --compass-idle-opacity: 1;
+  --compass-label-color: rgba(214, 211, 209, 0.7);
+  --compass-btn-text: #ecfccb;
+  --compass-btn-idle: rgb(214, 211, 209);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -33,36 +44,6 @@
   100% {
     opacity: 1;
   }
-}
-
-/* One animation drives the shared --compass-pulse value so every available wedge
-   and the up/down controls pulse on a single synchronized timeline (rather than
-   each element starting its own animation when its room makes it available). */
-@property --compass-pulse {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
-@keyframes compassPulse {
-  0%, 100% { --compass-pulse: 0.45; }
-  50% { --compass-pulse: 1; }
-}
-.compass-pulse-driver {
-  animation: compassPulse 1.4s ease-in-out infinite;
-}
-
-/* Brief "ping" flash on the wedge/control for the direction the player just moved. */
-@keyframes compassPing {
-  0% { filter: brightness(1); }
-  35% { filter: brightness(2.5); }
-  100% { filter: brightness(1); }
-}
-@keyframes compassBtnPing {
-  0%, 100% { transform: scale(1); filter: brightness(1); }
-  35% { transform: scale(1.18); filter: brightness(1.7); }
-}
-.vbtn-ping {
-  animation: compassBtnPing 0.6s ease-out;
 }
 
 /* Subtle CRT scanline texture over the transcript */

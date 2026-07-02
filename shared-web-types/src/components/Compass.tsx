@@ -1,7 +1,15 @@
 import React, {useEffect, useState} from "react";
-import {Mixpanel, Direction} from "@zork-ai/shared-types";
+import {Mixpanel} from "../utils/Mixpanel";
+import {Direction} from "../Directions";
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+
+// Shared compass rose used by every web client. It is fully theme-agnostic: all
+// colors are read from --compass-* CSS custom properties (with sane fallbacks) that
+// each client defines in its own :root, so the same component can wear each game's
+// palette. All compass animation CSS (@property/@keyframes/driver/ping) is colocated
+// in the inline <style> below rather than the client index.css, so the component is
+// self-contained and portable — a client only has to supply the palette variables.
 
 // Maps a typed/clicked command to the SVG wedge id ("North".."SouthWest") or the
 // vertical control id ("up"/"down"), so the matching control can flash when the
@@ -160,12 +168,15 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
 
     // Both controls are always rendered (disabled + dimmed when not an exit) so the
     // dial stays balanced/centered and the up/down affordance is always discoverable.
+    // Colors come from the client-supplied --compass-* palette (fallbacks are neutral).
     const verticalButtonStyle = (available: boolean): React.CSSProperties => ({
         borderColor: available
-            ? 'var(--planetfall-compass)'
-            : 'color-mix(in srgb, var(--planetfall-text) 18%, transparent)',
-        color: available ? '#cfeaff' : 'color-mix(in srgb, var(--planetfall-text) 28%, transparent)',
-        background: available ? 'color-mix(in srgb, var(--planetfall-compass) 18%, transparent)' : 'transparent',
+            ? 'var(--compass-accent, #84cc16)'
+            : 'color-mix(in srgb, var(--compass-btn-idle, #d6d3d1) 18%, transparent)',
+        color: available
+            ? 'var(--compass-btn-text, #ecfccb)'
+            : 'color-mix(in srgb, var(--compass-btn-idle, #d6d3d1) 28%, transparent)',
+        background: available ? 'color-mix(in srgb, var(--compass-accent, #84cc16) 18%, transparent)' : 'transparent',
         opacity: available ? 'var(--compass-pulse)' : undefined,
         cursor: available ? 'pointer' : 'default',
     });
@@ -215,13 +226,23 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
                 >
                     <defs>
                         <style>{`
-      .cls-1 { fill: var(--planetfall-bg-medium); transition: fill 0.2s; opacity: 0.4; }
-      .cls-1.highlight { fill: color-mix(in srgb, var(--planetfall-compass) 60%, transparent); }
-      .cls-1.available { fill: var(--planetfall-compass); opacity: var(--compass-pulse); }
-      .cls-1.available:hover { opacity: 1; fill: color-mix(in srgb, var(--planetfall-compass) 80%, white); }
+      .cls-1 { fill: var(--compass-idle-fill, #4d4d4d); transition: fill 0.2s; opacity: var(--compass-idle-opacity, 1); }
+      .cls-1.highlight { fill: color-mix(in srgb, var(--compass-accent, #84cc16) 60%, transparent); }
+      .cls-1.available { fill: var(--compass-accent, #84cc16); opacity: var(--compass-pulse); }
+      .cls-1.available:hover { opacity: 1; fill: var(--compass-accent-hover, #a3e635); }
       [data-ping="North"] #North, [data-ping="South"] #South, [data-ping="East"] #East, [data-ping="West"] #West, [data-ping="NorthEast"] #NorthEast, [data-ping="NorthWest"] #NorthWest, [data-ping="SouthEast"] #SouthEast, [data-ping="SouthWest"] #SouthWest { animation: compassPing 0.6s ease-out; }
-      .compass-ring { fill: none; stroke: color-mix(in srgb, var(--planetfall-compass) 35%, transparent); stroke-width: 0.8; }
-      .compass-label { fill: color-mix(in srgb, var(--planetfall-text) 65%, transparent); font-size: 7px; font-weight: bold; font-family: monospace; text-anchor: middle; dominant-baseline: central; }
+      .compass-ring { fill: none; stroke: color-mix(in srgb, var(--compass-accent, #84cc16) 38%, transparent); stroke-width: 0.8; }
+      .compass-label { fill: var(--compass-label-color, rgba(214, 211, 209, 0.7)); font-size: 7px; font-weight: bold; font-family: monospace; text-anchor: middle; dominant-baseline: central; }
+
+      /* Compass animations, colocated here so the component carries its own motion
+         and clients only supply the --compass-* palette. One driver animates the
+         shared --compass-pulse so every available wedge/control pulses in sync. */
+      @property --compass-pulse { syntax: '<number>'; inherits: true; initial-value: 1; }
+      @keyframes compassPulse { 0%, 100% { --compass-pulse: 0.45; } 50% { --compass-pulse: 1; } }
+      .compass-pulse-driver { animation: compassPulse 1.4s ease-in-out infinite; }
+      @keyframes compassPing { 0% { filter: brightness(1); } 35% { filter: brightness(2.5); } 100% { filter: brightness(1); } }
+      @keyframes compassBtnPing { 0%, 100% { transform: scale(1); filter: brightness(1); } 35% { transform: scale(1.18); filter: brightness(1.7); } }
+      .vbtn-ping { animation: compassBtnPing 0.6s ease-out; }
     `}</style>
                     </defs>
 
