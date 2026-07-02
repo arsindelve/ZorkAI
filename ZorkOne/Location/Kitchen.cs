@@ -1,5 +1,8 @@
 using GameEngine;
+using GameEngine.IntentEngine;
 using GameEngine.Location;
+using Model.AIGeneration;
+using Model.Intent;
 using Model.Interface;
 using Model.Movement;
 
@@ -17,6 +20,27 @@ public class Kitchen : LocationBase
                $"used recently for the preparation of food. A passage leads to the west " +
                $"and a dark staircase can be seen leading upward. A dark chimney leads down " +
                $"and to the east is a small window which is {(GetItem<KitchenWindow>().IsOpen ? "open" : "closed")}. ";
+    }
+
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
+        IGenerationClient client)
+    {
+        if (input != null)
+        {
+            // Issue #344: symmetric to BehindHouse - object-based phrasing for going back out through
+            // the window ("exit window", "board window", "through window", "go through window") means
+            // the same thing as bare "out" / "east" here. See BehindHouse.RespondToSpecificLocationInteraction
+            // for why this is handled on the raw input rather than relying on AI intent classification.
+            var normalized = input.ToLowerInvariant().Trim().Replace("the ", "");
+            if (normalized is "exit window" or "board window" or "through window" or "go through window")
+            {
+                var (resultObject, resultMessage) =
+                    await new MoveEngine().Process(new MoveIntent { Direction = Direction.Out }, context, client);
+                return resultObject ?? new PositiveInteractionResult(resultMessage);
+            }
+        }
+
+        return await base.RespondToSpecificLocationInteraction(input, context, client);
     }
 
     protected override IReadOnlyList<SceneryItem> Scenery =>
