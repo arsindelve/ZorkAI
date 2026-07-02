@@ -31,10 +31,6 @@ public class BrokenRobot : ItemBase, ICanBeExamined
             ? "It's Achilles, lying face down just as Floyd said. One foot is twisted at an odd angle -- the same foot he always had trouble with. "
             : "It's a damaged robot, lying face down at the bottom of the stairs. One of its feet is twisted at an odd angle. ";
 
-    public override void OnBeingExamined(IContext context)
-    {
-    }
-
     // BrokenRobot never implemented ICanBeTakenAndDropped, so "take robot" fell through to
     // an AI-generated, non-deterministic refusal. Giving it a fixed CannotBeTakenDescription
     // routes through CannotBeTakenProcessor instead, matching the solemnity of Floyd's eulogy -
