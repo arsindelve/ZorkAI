@@ -1,13 +1,14 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import Compass from '../components/Compass';
+import { Compass } from '@zork-ai/shared-types';
 
 
 
 describe('Compass Component', () => {
-  // Helper function to find a polygon by its ID
+  // Helper function to find a polygon by its ID (scoped to the rose svg, since
+  // the up/down controls render their own MUI icon <svg> elements too)
   const findPolygonById = (id: string) => {
-    const svg = document.querySelector('svg');
+    const svg = document.querySelector('[data-testid="compass-rose"]');
     return svg?.querySelector(`#${id}`);
   };
 
@@ -23,6 +24,18 @@ describe('Compass Component', () => {
     expect(findPolygonById('NorthWest')).toBeInTheDocument();
     expect(findPolygonById('SouthEast')).toBeInTheDocument();
     expect(findPolygonById('SouthWest')).toBeInTheDocument();
+  });
+
+  test('renders a framing ring and cardinal labels', () => {
+    render(<Compass />);
+
+    const svg = document.querySelector('[data-testid="compass-rose"]');
+    expect(svg?.querySelector('.compass-ring')).toBeInTheDocument();
+
+    const labels = Array.from(svg?.querySelectorAll('.compass-label') ?? []).map(
+      (el) => el.textContent
+    );
+    expect(labels).toEqual(expect.arrayContaining(['N', 'E', 'S', 'W']));
   });
 
   test('highlights available exits', () => {
@@ -45,7 +58,7 @@ describe('Compass Component', () => {
     
     render(<Compass onCompassClick={mockOnCompassClick} />);
     
-    const svg = document.querySelector('svg');
+    const svg = document.querySelector('[data-testid="compass-rose"]');
     if (!svg) throw new Error('SVG not found');
     
     // Mock getBoundingClientRect to return a fixed size
@@ -96,7 +109,7 @@ describe('Compass Component', () => {
   test('does not call onCompassClick when not provided', () => {
     render(<Compass />);
     
-    const svg = document.querySelector('svg');
+    const svg = document.querySelector('[data-testid="compass-rose"]');
     if (!svg) throw new Error('SVG not found');
     
     // Mock getBoundingClientRect
@@ -126,8 +139,44 @@ describe('Compass Component', () => {
     const testId = 'test-compass';
     
     render(<Compass className={testClass} data-testid={testId} />);
-    
+
     const svg = screen.getByTestId(testId);
     expect(svg).toHaveClass(testClass);
+  });
+
+  describe('up/down lift controls', () => {
+    // Index 10 = Up, 11 = Down in the Direction map. Both controls always render;
+    // they are enabled only when that exit is available (disabled + dimmed otherwise).
+    test('enables the up control only when Up is an available exit', () => {
+      render(<Compass exits={['10']} />);
+      expect(screen.getByTestId('compass-up')).toBeEnabled();
+      expect(screen.getByTestId('compass-down')).toBeDisabled();
+    });
+
+    test('enables the down control when Down is an available exit', () => {
+      render(<Compass exits={['11']} />);
+      expect(screen.getByTestId('compass-down')).toBeEnabled();
+      expect(screen.getByTestId('compass-up')).toBeDisabled();
+    });
+
+    test('disables both controls when neither is an exit', () => {
+      render(<Compass exits={['0', '2']} />);
+      expect(screen.getByTestId('compass-up')).toBeDisabled();
+      expect(screen.getByTestId('compass-down')).toBeDisabled();
+    });
+
+    test('clicking the up control calls onCompassClick with "up"', () => {
+      const mockOnCompassClick = jest.fn();
+      render(<Compass exits={['10']} onCompassClick={mockOnCompassClick} />);
+      fireEvent.click(screen.getByTestId('compass-up'));
+      expect(mockOnCompassClick).toHaveBeenCalledWith('up');
+    });
+
+    test('clicking the down control calls onCompassClick with "down"', () => {
+      const mockOnCompassClick = jest.fn();
+      render(<Compass exits={['11']} onCompassClick={mockOnCompassClick} />);
+      fireEvent.click(screen.getByTestId('compass-down'));
+      expect(mockOnCompassClick).toHaveBeenCalledWith('down');
+    });
   });
 });

@@ -104,7 +104,7 @@ function App() {
     return (
 
         <div
-            className="bg-[url('./back2.png')] bg-repeat bg-[size:500px_500px] min-h-screen flex flex-col justify-between">
+            className="bg-[url('./back2.png')] bg-repeat bg-[size:500px_500px] h-screen overflow-hidden flex flex-col">
             <div className="flex-grow flex flex-col min-h-0 mt">
                 <GameMenu latestVersion={latestVersion} />
 
