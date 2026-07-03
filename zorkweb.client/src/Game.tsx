@@ -384,7 +384,7 @@ function Game() {
 
     return (
 
-        <div className={"relative flex flex-col flex-1 min-h-0 mx-10 mt-[39px] mb-4"}>
+        <div className={"relative flex flex-col flex-1 min-h-0 mx-10 mt-[39px] mb-8"}>
 
             <div>
                 <Snackbar
@@ -421,13 +421,13 @@ function Game() {
                 boxShadow: '0 4px 20px rgba(196, 154, 76, 0.18), 0 2px 10px rgba(0, 0, 0, 0.5)'
             }}/>
 
-            <div className="relative flex-1 min-h-0 max-h-[55vh] mt-2">
+            <div className="relative flex-1 min-h-0 mt-2">
             <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word: string) => handleWordClicked(word)}
                            onMouseMove={highlightWordAtPointer}
                            onMouseLeave={clearWordHighlight}
                            onScroll={handleTranscriptScroll}
                            className={"relative flex flex-col p-6 sm:p-12 bg-opacity-80 h-full overflow-auto " +
-                               "bg-stone-900 font-mono rounded-lg border-2 " +
+                               "bg-stone-900 font-mono rounded-t-lg border-t-2 border-x-2 " +
                                "border-stone-700/50 shadow-lg clickable scanline-effect z-10"}
                            data-testid="game-responses-container">
                 <div className="relative z-0">
@@ -475,7 +475,7 @@ function Game() {
             </div>
 
             <div
-                className="flex flex-col items-stretch gap-2 bg-gradient-to-r from-stone-800 to-stone-700 px-3 sm:px-5 py-3 min-h-[90px] rounded-b-lg border-t border-stone-600/30 shadow-inner">
+                className="flex flex-col items-stretch gap-2 bg-gradient-to-r from-stone-800 to-stone-700 px-3 sm:px-5 py-3 min-h-[90px] rounded-b-lg border-x-2 border-b-2 border-t border-stone-700/50 shadow-inner">
                 {/* The command line is the primary interaction — give it its own full-width row. */}
                 <GameInput
                     playerInputElement={playerInputElement}
