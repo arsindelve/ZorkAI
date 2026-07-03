@@ -101,6 +101,12 @@ public class GodModeTests : EngineTestsBase
     // Issue #374: "god mode kill cyclops" reuses the same removal CyclopsRoom's "say Ulysses" flee
     // handler uses (the cyclops has no combat-death path in this engine), so it opens the same gate:
     // the room's east and up passages, which are blocked while HasItem<Cyclops>() is true.
+    //
+    // TreasureRoom (the "up" destination) has its own guardian: the Thief. Walking in on him alive
+    // triggers his (unmocked, genuinely random) defensive attack, which can occasionally kill the
+    // player and force a respawn elsewhere - flaky in CI even though it has nothing to do with the
+    // cyclops. "god mode kill thief" first neutralizes that unrelated randomness so this test only
+    // exercises the cyclops-gated passage, deterministically.
     [Test]
     public async Task GodModeKill_Cyclops_RemovesHimAndUnblocksThePassage()
     {
@@ -114,6 +120,8 @@ public class GodModeTests : EngineTestsBase
         cyclops.CurrentLocation.Should().BeNull();
         Repository.GetLocation<CyclopsRoom>().Items.Should().NotContain(cyclops);
         response.Should().Contain("is dead");
+
+        await engine.GetResponse("god mode kill thief");
 
         await engine.GetResponse("up");
         engine.Context.CurrentLocation.Should().Be(Repository.GetLocation<TreasureRoom>());
