@@ -271,7 +271,7 @@ function Game() {
         // Only render the command-echo paragraph when there's actually a command —
         // an empty <p> still carries margins and threw off the spacing above room names.
         const echo = playerInput
-            ? `<p class="text-[#c49a4c] font-extrabold mt-3 mb-1">> ${playerInput}</p>`
+            ? `<p data-testid="command-echo" class="text-[#c49a4c] font-extrabold mt-3 mb-1">> ${playerInput}</p>`
             : '';
         const textToAppend = echo + data.response;
 
