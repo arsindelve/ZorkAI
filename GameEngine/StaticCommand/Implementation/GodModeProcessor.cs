@@ -1,5 +1,6 @@
 using Model.AIGeneration;
 using Model.Interface;
+using Model.Item;
 
 namespace GameEngine.StaticCommand.Implementation;
 
@@ -18,6 +19,7 @@ public class GodModeProcessor : IGlobalCommand
         if (input.Contains(" take ")) return Task.FromResult(Take(input, context));
         if (input.Contains(" go ")) return Task.FromResult(Go(input, context));
         if (input.Contains(" where ")) return Task.FromResult(Where(input));
+        if (input.Contains(" kill ")) return Task.FromResult(Kill(input, context));
 
         if (context is IResettableClockContext clockContext &&
             ResetClock(input, clockContext) is { } clockResetResult)
@@ -129,6 +131,25 @@ public class GodModeProcessor : IGlobalCommand
 
         context.ItemPlacedHere(item);
         return $"I hope you enjoy your {item.Name}";
+    }
+
+    /// <summary>
+    /// Issue #374: deterministically kills a combat-gate creature (e.g. the Zork I troll, thief, or
+    /// cyclops) so playtesting can proceed past it without relying on randomized combat. Only
+    /// creatures that implement <see cref="ICanBeAttacked"/> and opt into
+    /// <see cref="ICanBeAttacked.GodModeKill"/> support this; everything else falls through to the
+    /// generic god-mode error.
+    /// </summary>
+    private string Kill(string input, IContext context)
+    {
+        Repository.LoadAllItems(context.Game.GameName);
+        var lastWord = GetWordsAfterTarget(input, "kill");
+        var item = Repository.GetItem(lastWord);
+
+        if (item is not ICanBeAttacked attackable || !attackable.GodModeKill(context))
+            return "Invalid use of God mode. Bad adventurer! ";
+
+        return $"God mode: {item.Name} is dead. ";
     }
 
     private static string GetWordsAfterTarget(string input, string targetWord)
