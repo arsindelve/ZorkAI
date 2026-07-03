@@ -10,7 +10,7 @@ using ZorkOne.Location.MazeLocation;
 
 namespace ZorkOne.Item;
 
-public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked, ICanBeGivenThings
+public class Thief : CombatGateCreatureBase, ICanBeExamined, ITurnBasedActor, ICanBeGivenThings
 {
     private readonly GiveSomethingToSomeoneDecisionEngine<Thief> _giveHimSomethingEngine = new();
 
@@ -49,16 +49,6 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
     /// Once disarmed, the thief may attempt to recover their weapon or otherwise adapt to their disadvantage.
     /// </remarks>
     public bool IsDisarmed { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the thief is dead.
-    /// </summary>
-    /// <remarks>
-    /// When the thief is dead, he no longer engage in combat, can no longer defend his location,
-    /// and their belongings may become accessible to the player. This property is typically set as a
-    /// result of combat or other fatal interactions with the thief.
-    /// </remarks>
-    public bool IsDead { get; set; }
 
     /// <summary>
     /// Gets or sets the number of turns the thief remains unconscious.
@@ -250,18 +240,12 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
     }
 
     /// <summary>
-    /// Issue #374: shared death-state transition used by both a real fatal combat blow
-    /// (AdventurerVersusThiefCombatEngine.DeathBlow) and "god mode kill thief", so the two can never
-    /// drift out of sync. Treasures reappear wherever the kill happens - context.CurrentLocation -
-    /// exactly like a real DeathBlow, since the thief could have been fought (or god-mode-killed)
-    /// anywhere he roams.
+    /// Issue #374: treasures reappear wherever the kill happens - context.CurrentLocation - exactly
+    /// like a real DeathBlow, since the thief could have been fought (or god-mode-killed) anywhere he
+    /// roams.
     /// </summary>
-    internal void Die(IContext context)
+    protected override void OnDeath(IContext context)
     {
-        if (IsDead)
-            return;
-
-        IsDead = true;
         IsUnconscious = false;
         TreasureStash.Add(Repository.GetItem<Stiletto>());
 
@@ -272,11 +256,5 @@ public class Thief : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
 
         foreach (var item in TreasureStash)
             context.Drop(item);
-    }
-
-    public bool GodModeKill(IContext context)
-    {
-        Die(context);
-        return true;
     }
 }

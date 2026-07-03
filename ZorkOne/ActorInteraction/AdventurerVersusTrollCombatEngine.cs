@@ -94,7 +94,7 @@ internal class AdventurerVersusTrollCombatEngine : ICombatEngine
 
     private PositiveInteractionResult DeathBlow(IContext context, string attackText)
     {
-        _troll!.Die();
+        _troll!.Die(context);
 
         return new PositiveInteractionResult($"{attackText}\nAlmost as soon as the troll breathes his last breath, a " +
                                              $"cloud of sinister black fog envelops him, and when the fog lifts, " +
