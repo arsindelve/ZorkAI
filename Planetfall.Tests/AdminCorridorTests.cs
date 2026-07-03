@@ -97,6 +97,81 @@ public class AdminCorridorTests : EngineTestsBase
         Context.CurrentLocation.Should().BeOfType<AdminCorridor>();
     }
 
+    // Issue #369: "jump rift"/"jump into rift"/"jump over rift" were being misrouted to the
+    // Direction.N movement failure ("too wide to jump across") instead of reaching the deliberate
+    // death scene already written in RiftLocationBase.RespondToSimpleInteraction. A bare "jump" with
+    // no rift noun must still fall through to normal (non-fatal) handling.
+    [TestFixture]
+    public class JumpIntoRift : AdminCorridorTests
+    {
+        [Test]
+        public async Task JumpRift_TheBareNoun_DiesInTheRift()
+        {
+            var target = GetTarget();
+            StartHere<AdminCorridor>();
+
+            var response = await target.GetResponse("jump rift");
+
+            response.Should().Contain("You have died");
+            response.Should().Contain("sharp and nasty rocks");
+        }
+
+        [Test]
+        public async Task JumpIntoRift_DiesInTheRift()
+        {
+            var target = GetTarget();
+            StartHere<AdminCorridor>();
+
+            var response = await target.GetResponse("jump into rift");
+
+            response.Should().Contain("You have died");
+        }
+
+        [Test]
+        public async Task JumpOverRift_DiesInTheRift()
+        {
+            var target = GetTarget();
+            StartHere<AdminCorridor>();
+
+            var response = await target.GetResponse("jump over rift");
+
+            response.Should().Contain("You have died");
+        }
+
+        [Test]
+        public async Task JumpIntoTheChasm_SynonymNounDiesInTheRift()
+        {
+            var target = GetTarget();
+            StartHere<AdminCorridor>();
+
+            var response = await target.GetResponse("jump into the chasm");
+
+            response.Should().Contain("You have died");
+        }
+
+        [Test]
+        public async Task JumpFromAdminCorridorNorth_DiesInTheRift()
+        {
+            var target = GetTarget();
+            StartHere<AdminCorridorNorth>();
+
+            var response = await target.GetResponse("jump into rift");
+
+            response.Should().Contain("You have died");
+        }
+
+        [Test]
+        public async Task BareJump_NoRiftNoun_DoesNotDie()
+        {
+            var target = GetTarget();
+            StartHere<AdminCorridor>();
+
+            var response = await target.GetResponse("jump");
+
+            response.Should().NotContain("You have died");
+        }
+    }
+
     // Issue #297, Divergence A: once the ladder has plunged into the rift it is out of scope
     // entirely (not carried, not in any room, not spanning). The handler used to match on the
     // command text alone and still narrate destroying a ladder that no longer exists.
