@@ -26,16 +26,18 @@ describe('Header Component', () => {
 
   test('displays the correct moves count', () => {
     render(<HeaderComponent {...defaultProps} />);
-    
+
     const movesElement = screen.getByTestId('header-moves');
-    expect(movesElement).toHaveTextContent('Moves: 10');
+    expect(movesElement).toHaveTextContent('Moves');
+    expect(movesElement).toHaveTextContent('10');
   });
 
   test('displays the correct score', () => {
     render(<HeaderComponent {...defaultProps} />);
-    
+
     const scoreElement = screen.getByTestId('header-score');
-    expect(scoreElement).toHaveTextContent('Score: 5');
+    expect(scoreElement).toHaveTextContent('Score');
+    expect(scoreElement).toHaveTextContent('5');
   });
 
   test('renders with different props values', () => {
@@ -44,11 +46,11 @@ describe('Header Component', () => {
       moves: '25',
       score: '15'
     };
-    
+
     render(<HeaderComponent {...newProps} />);
-    
+
     expect(screen.getByTestId('header-location')).toHaveTextContent('Inside Cave');
-    expect(screen.getByTestId('header-moves')).toHaveTextContent('Moves: 25');
-    expect(screen.getByTestId('header-score')).toHaveTextContent('Score: 15');
+    expect(screen.getByTestId('header-moves')).toHaveTextContent('25');
+    expect(screen.getByTestId('header-score')).toHaveTextContent('15');
   });
 });

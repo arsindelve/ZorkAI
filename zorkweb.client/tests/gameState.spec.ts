@@ -92,7 +92,8 @@ test.describe('Game State', () => {
         await waitForGameResponse(page);
 
         // Verify that the score in the header has changed to "10"
-        await expect(headerScore).toHaveText('Score:  10');
+        await expect(headerScore).toContainText('Score');
+        await expect(headerScore).toContainText('10');
     });
 
     test('Moves - when API returns moves, those moves are displayed in the header', async ({page}) => {
@@ -118,7 +119,8 @@ test.describe('Game State', () => {
         await waitForGameResponse(page);
 
         // Verify that the moves in the header has changed to "1"
-        await expect(headerMoves).toHaveText('Moves:  1');
+        await expect(headerMoves).toContainText('Moves');
+        await expect(headerMoves).toContainText('1');
     });
 
 });

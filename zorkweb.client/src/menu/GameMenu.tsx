@@ -11,28 +11,19 @@ export default function GameMenu({ latestVersion }: { latestVersion: string }) {
     }, []);
 
     return (
-        <div 
+        <div
             data-testid="game-menu-container"
-            className={`p-2 grid grid-cols-10 bg-gradient-to-r from-gray-800 to-gray-900 gap-2 w-full fixed top-0 z-10 shadow-lg transition-transform duration-500 ${isLoaded ? 'translate-y-0' : '-translate-y-full'}`}
+            className={`gue-masthead flex items-center gap-4 px-3 sm:px-5 py-2 w-full fixed top-0 z-10 transition-transform duration-500 ${isLoaded ? 'translate-y-0' : '-translate-y-full'}`}
         >
-            <div className="col-span-7 flex items-center">
+            <div className="flex items-center flex-grow min-w-0">
                 <img
                     src="https://zorkai-assets.s3.amazonaws.com/Zork.webp"
-                    className="w-[100px] m-[3px] hover:scale-105 transition-all duration-300 hover:rotate-3"
+                    className="gue-emblem w-[74px] sm:w-[92px] shrink-0 hover:scale-105 transition-transform duration-300"
                     alt="Logo"
                 />
-
-                <h1 
-                    className={`hidden lg:block text-xl text-white m-3 ml-10 font-['Lato'] tracking-wider transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-                    style={{ transitionDelay: '300ms' }}
-                >
-                    Generative AI-Enhanced Zork I
-                </h1>
             </div>
-            <div className="col-span-3 flex justify-end items-center space-x-2">
-                <div>
-                    <FunctionsMenu />
-                </div>
+            <div className="flex justify-end items-center gap-2 shrink-0">
+                <FunctionsMenu />
                 <AboutMenu latestVersion={latestVersion} />
             </div>
         </div>
