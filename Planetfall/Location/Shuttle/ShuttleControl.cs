@@ -89,6 +89,16 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
 
     public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
     {
+        // Issue #373: the car reaches the platform (TunnelPosition == EndOfTunnel) and the door
+        // opens a full turn before the speed-based arrival consequence (Arrived()) is computed -
+        // that computation is deferred to this turn's end-of-turn actor processing. If we
+        // deregister here unconditionally, a player who leaves on that exact turn escapes the
+        // pending crash/death consequence entirely. Skip the deregistration in that case so
+        // Act() still runs after the player exits, letting Move() -> Arrived() apply the
+        // consequence; Arrived() itself deregisters and resets state once it runs.
+        if (Activated && TunnelPosition == EndOfTunnel)
+            return;
+
         context.RemoveActor(this);
         Activated = false;
         TurnsSinceActivated = 0;

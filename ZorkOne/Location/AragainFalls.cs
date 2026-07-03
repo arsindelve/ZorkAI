@@ -21,6 +21,12 @@ public class AragainFalls : LocationWithNoStartingItems
                 Direction.W,
                 new MovementParameters
                     { CanGo = _ => GetLocation<EndOfRainbow>().RainbowIsSolid, Location = GetLocation<OnTheRainbow>() }
+            },
+            {
+                // Original Zork gives Aragain Falls a room-specific warning here instead of
+                // falling through to the generic blocked-movement response.
+                Direction.Down,
+                new MovementParameters { CanGo = _ => false, CustomFailureMessage = "It's a long way..." }
             }
         };
     }
@@ -44,14 +50,9 @@ public class AragainFalls : LocationWithNoStartingItems
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["cross"], ["rainbow"]))
-        {
-            if (!GetLocation<EndOfRainbow>().RainbowIsSolid)
-                return new PositiveInteractionResult("Can you walk on water vapor? ");
-
-            context.CurrentLocation = GetLocation<EndOfRainbow>();
-            return new PositiveInteractionResult(context.CurrentLocation.GetDescription(context));
-        }
+        var rainbowResult = RainbowInteraction.TryHandle(action, context, () => GetLocation<EndOfRainbow>());
+        if (rainbowResult is not null)
+            return rainbowResult;
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }

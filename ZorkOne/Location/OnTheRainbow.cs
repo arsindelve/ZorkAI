@@ -40,6 +40,10 @@ public class OnTheRainbow : LocationWithNoStartingItems
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
+        var rainbowResult = RainbowInteraction.TryHandle(action, context, () => null);
+        if (rainbowResult is not null)
+            return rainbowResult;
+
         if (action.Match(["wave", "swing", "twirl"], GetItem<Sceptre>().NounsForMatching))
         {
             if (!context.HasItem<Sceptre>() && GetItem<Sceptre>().CurrentLocation == GetLocation<EndOfRainbow>())

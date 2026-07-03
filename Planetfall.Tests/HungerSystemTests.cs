@@ -644,7 +644,8 @@ public class HungerSystemTests : EngineTestsBase
         Repository.GetItem<Chronometer>().CurrentTime = 4000;
         pfContext.HungerNotifications.NextWarningAt = 4000;
 
-        await target.GetResponse("look");
+        // "wait" is a real turn; "look" is a free meta command (issue #354) and would not advance the clock.
+        await target.GetResponse("wait");
 
         // After processing turn, hunger should advance
         pfContext.Hunger.Should().Be(HungerLevel.Hungry);
@@ -663,7 +664,8 @@ public class HungerSystemTests : EngineTestsBase
         Repository.GetItem<Chronometer>().CurrentTime = 5500;
         pfContext.HungerNotifications.NextWarningAt = 5500;
 
-        var response = await target.GetResponse("look");
+        // "wait" is a real turn; "look" is a free meta command (issue #354) and would not advance the clock.
+        var response = await target.GetResponse("wait");
 
         response.Should().Contain("collapse");
         response.Should().Contain("thirst and hunger");

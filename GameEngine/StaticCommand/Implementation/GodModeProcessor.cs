@@ -1,5 +1,6 @@
 using Model.AIGeneration;
 using Model.Interface;
+using Model.Item;
 
 namespace GameEngine.StaticCommand.Implementation;
 
@@ -18,6 +19,11 @@ public class GodModeProcessor : IGlobalCommand
         if (input.Contains(" take ")) return Task.FromResult(Take(input, context));
         if (input.Contains(" go ")) return Task.FromResult(Go(input, context));
         if (input.Contains(" where ")) return Task.FromResult(Where(input));
+        if (input.Contains(" kill ")) return Task.FromResult(Kill(input, context));
+
+        if (context is IResettableClockContext clockContext &&
+            ResetClock(input, clockContext) is { } clockResetResult)
+            return Task.FromResult(clockResetResult);
 
         // Issue #277: toggle the survival clocks (sleep/hunger) for deterministic playtesting. Only
         // games whose context tracks those clocks (Planetfall) implement ISurvivalClockContext.
@@ -26,6 +32,17 @@ public class GodModeProcessor : IGlobalCommand
             return Task.FromResult(survivalResult);
 
         return Task.FromResult("Invalid use of God mode. Bad adventurer! ");
+    }
+
+    private static string? ResetClock(string input, IResettableClockContext context)
+    {
+        var words = input.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (!words.Contains("reset") || (!words.Contains("time") && !words.Contains("clock")))
+            return null;
+
+        const int walkthroughResetTime = 2000;
+        context.ResetClockForGodMode(walkthroughResetTime);
+        return $"God mode: chronometer reset to {walkthroughResetTime}.";
     }
 
     /// <summary>
@@ -93,6 +110,14 @@ public class GodModeProcessor : IGlobalCommand
         // StartWithItem<T> (a bare Items.Add with no dedupe) would end up with their starting items
         // duplicated in the room.
         context.CurrentLocation = location;
+
+        // Issue #356 follow-up: this is a raw location swap, not a real move - it skips
+        // OnLeaveLocation/AfterEnterLocation, so a game-specific location-blind death clock (e.g.
+        // Planetfall's Feinstein explosion) never gets the chance to disarm itself. Let the context
+        // do that explicitly for a god-mode teleport.
+        if (context is IGodModeTeleportAware teleportAware)
+            teleportAware.OnGodModeTeleport();
+
         return $"Welcome to {location.Name}";
     }
 
@@ -106,6 +131,25 @@ public class GodModeProcessor : IGlobalCommand
 
         context.ItemPlacedHere(item);
         return $"I hope you enjoy your {item.Name}";
+    }
+
+    /// <summary>
+    /// Issue #374: deterministically kills a combat-gate creature (e.g. the Zork I troll, thief, or
+    /// cyclops) so playtesting can proceed past it without relying on randomized combat. Only
+    /// creatures that implement <see cref="ICanBeAttacked"/> and opt into
+    /// <see cref="ICanBeAttacked.GodModeKill"/> support this; everything else falls through to the
+    /// generic god-mode error.
+    /// </summary>
+    private string Kill(string input, IContext context)
+    {
+        Repository.LoadAllItems(context.Game.GameName);
+        var lastWord = GetWordsAfterTarget(input, "kill");
+        var item = Repository.GetItem(lastWord);
+
+        if (item is not ICanBeAttacked attackable || !attackable.GodModeKill(context))
+            return "Invalid use of God mode. Bad adventurer! ";
+
+        return $"God mode: {item.Name} is dead. ";
     }
 
     private static string GetWordsAfterTarget(string input, string targetWord)

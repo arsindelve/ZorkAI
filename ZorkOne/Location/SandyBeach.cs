@@ -1,13 +1,14 @@
 using GameEngine;
 using GameEngine.Location;
 using Model.AIGeneration;
+using Model.Intent;
 using Model.Interface;
 using Model.Movement;
 using ZorkOne.Location.RiverLocation;
 
 namespace ZorkOne.Location;
 
-public class SandyBeach : DarkLocation // Explain to me how a beach can be a dark location? Well, it is. 
+public class SandyBeach : DarkLocation // Explain to me how a beach can be a dark location? Well, it is.
 {
     public override string Name => "Sandy Beach";
 
@@ -25,12 +26,17 @@ public class SandyBeach : DarkLocation // Explain to me how a beach can be a dar
         return "You are on a large sandy beach on the east shore of the river, which is flowing quickly by. " +
                "A path runs beside the river to the south here, and a passage is partially buried in sand to the northeast. ";
     }
-    
+
+    protected override IReadOnlyList<SceneryItem> Scenery => [RiverBankGlobalObjects.River];
+
     public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
         IGenerationClient client)
     {
         if (string.IsNullOrEmpty(input))
             return await base.RespondToSpecificLocationInteraction(input, context, client);
+
+        if (RiverBankGlobalObjects.IsSwimAttempt(input))
+            return new PositiveInteractionResult(RiverBankGlobalObjects.SwimmingMessage);
 
         var preppedInput = input.ToLowerInvariant().Trim();
 
@@ -39,7 +45,7 @@ public class SandyBeach : DarkLocation // Explain to me how a beach can be a dar
 
         if (preppedInput.StartsWith("launch"))
         {
-            // TODO: move some of this logic to the move engine, but only after tests are passing. 
+            // TODO: move some of this logic to the move engine, but only after tests are passing.
             context.CurrentLocation.SubLocation = null;
             context.CurrentLocation = Repository.GetLocation<FrigidRiverThree>();
             await context.CurrentLocation.AfterEnterLocation(context, this, null!);
@@ -50,6 +56,16 @@ public class SandyBeach : DarkLocation // Explain to me how a beach can be a dar
         }
 
         return await base.RespondToSpecificLocationInteraction(input, context, client);
+    }
+
+    public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
+    {
+        var waterResult = await RiverBankGlobalObjects.RespondToWater(action, context, client, itemProcessorFactory);
+        if (waterResult is not null)
+            return waterResult;
+
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override void Init()

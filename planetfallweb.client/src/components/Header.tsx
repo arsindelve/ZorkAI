@@ -2,6 +2,7 @@ import React from 'react';
 import ExploreIcon from '@mui/icons-material/Explore';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CountUp from './CountUp';
 
 interface HeaderComponentProps {
     locationName: string;
@@ -41,7 +42,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, time, sc
             >
                 <AccessTimeIcon className="mr-2 text-sm" fontSize="small" style={{color: 'var(--planetfall-accent)'}}/>
                 <span className="mr-2 text-sm" style={{color: 'var(--planetfall-text)'}}>Time: </span>
-                <span className="font-medium" style={{color: 'var(--planetfall-primary)'}}>{time}</span>
+                <CountUp value={time} className="font-medium" style={{color: 'var(--planetfall-primary)'}}/>
             </div>
             <div
                 className="hidden sm:flex items-center px-3 py-2 rounded-lg border transition-colors duration-200"
@@ -53,7 +54,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, time, sc
             >
                 <ScoreboardIcon className="mr-2 text-sm" fontSize="small" style={{color: 'var(--planetfall-accent)'}}/>
                 <span className="mr-2 text-sm" style={{color: 'var(--planetfall-text)'}}>Score: </span>
-                <span className="font-medium" style={{color: 'var(--planetfall-primary)'}}>{score}</span>
+                <CountUp value={score} className="font-medium" style={{color: 'var(--planetfall-primary)'}}/>
             </div>
         </div>
     </div>

@@ -8,7 +8,7 @@ namespace GameEngine.StaticCommand.Implementation;
 /// Processes the current time request and returns the appropriate response.
 /// </summary>
 /// <returns>A task that represents the asynchronous operation. The task result contains the response string.</returns>
-public class CurrentTimeProcessor : IGlobalCommand
+public class CurrentTimeProcessor : IFreeGlobalCommand
 {
     /// <summary>
     /// Processes the current time-related command by checking the context or fetching a generated response.

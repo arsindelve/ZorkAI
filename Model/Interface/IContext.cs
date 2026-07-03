@@ -116,6 +116,14 @@ public interface IContext : ICanContainItems
     int Moves { get; set; }
 
     /// <summary>
+    ///     Monotonically increasing counter, incremented once per top-level GameEngine.GetResponse()
+    ///     call regardless of whether the command was a "free" command that leaves Moves unchanged
+    ///     (issue #354). See <see cref="Moves" /> - persistence layers needing a per-turn-unique value
+    ///     should use this instead of Moves.
+    /// </summary>
+    long RequestSequence { get; set; }
+
+    /// <summary>
     ///     A reference to the "game", which can tell us constant, game specific
     ///     things like how to calculate score, starting location, etc.
     /// </summary>
@@ -232,6 +240,16 @@ public interface IContext : ICanContainItems
     string? ProcessBeginningOfTurn();
 
     /// <summary>
+    ///     Resets one-shot, per-turn actor-suppression flags (e.g. Planetfall's
+    ///     <c>FloydShouldNotActThisTurn</c>) that must be cleared at the start of every turn, including
+    ///     "free" global commands (issue #354) that skip the rest of <see cref="ProcessBeginningOfTurn" />.
+    ///     Actor processing always runs, even for free commands, so any one-shot flag it consumes must
+    ///     always get reset too, or it leaks across consecutive free commands and suppresses an actor for
+    ///     longer than intended.
+    /// </summary>
+    void ResetPerTurnActorFlags();
+
+    /// <summary>
     ///     Registers an actor with the game engine. Until the actor
     ///     is removed, it will act every turn.
     /// </summary>
@@ -270,6 +288,17 @@ public interface IContext : ICanContainItems
     ///     The GameEngine checks this after ProcessBeginningOfTurn and handles the restart.
     /// </summary>
     DeathInteractionResult? PendingDeath { get; set; }
+
+    /// <summary>
+    ///     When set, signals that a scheduled event (e.g. Planetfall's forced sleep) consumed this
+    ///     turn during <see cref="ProcessBeginningOfTurn"/>, before the player's own command could
+    ///     run against current state. The GameEngine checks this immediately after
+    ///     ProcessBeginningOfTurn and, if set, short-circuits the turn - returning just the
+    ///     ProcessBeginningOfTurn narration plus the (unchanged) current location description -
+    ///     instead of executing the player's original command against state that event already
+    ///     mutated. The player's command is not queued; it must be retried next turn.
+    /// </summary>
+    bool TurnConsumedByForcedEvent { get; set; }
 
     /// <summary>
     ///     Gets the current death count. Override in game-specific contexts that track deaths.

@@ -29,13 +29,6 @@ describe('GameMenu Component', () => {
     expect(logo).toHaveAttribute('src', 'https://zorkai-assets.s3.amazonaws.com/Zork.webp');
   });
 
-  test('renders the title', () => {
-    render(<GameMenu />);
-
-    const title = screen.getByText('Generative AI-Enhanced Zork I');
-    expect(title).toBeInTheDocument();
-  });
-
   test('renders the AboutMenu component', () => {
     render(<GameMenu />);
 

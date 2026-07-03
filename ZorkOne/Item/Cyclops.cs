@@ -9,7 +9,7 @@ using ZorkOne.Location.MazeLocation;
 
 namespace ZorkOne.Item;
 
-public class Cyclops : ItemBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked, ICanBeGivenThings
+public class Cyclops : CombatGateCreatureBase, ICanBeExamined, ITurnBasedActor, ICanBeGivenThings
 {
     private readonly GiveSomethingToSomeoneDecisionEngine<Cyclops> _giveHimSomethingEngine = new();
     public override string Name => "Cyclops";
@@ -27,8 +27,6 @@ public class Cyclops : ItemBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked
     public override string[] NounsForMatching => ["cyclops", "giant", "monster", "beast"];
 
     public override string CannotBeTakenDescription => "The cyclops doesn't take kindly to being grabbed. ";
-
-    public bool IsDead { get; set; }
 
     public string ExaminationDescription => IsSleeping
         ? "The cyclops is sleeping like a baby, albeit a very ugly one. "
@@ -145,5 +143,22 @@ public class Cyclops : ItemBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked
     public override string GenericDescription(ILocation? currentLocation)
     {
         return NeverPickedUpDescription(currentLocation);
+    }
+
+    public override void Init()
+    {
+    }
+
+    /// <summary>
+    /// Issue #374: shared removal logic used by both "say Ulysses" (CyclopsRoom's flee handler) and
+    /// "god mode kill cyclops". The cyclops has no combat-death path in this engine - the only way
+    /// he ever leaves is fleeing the room - so "kill" reuses that same removal rather than inventing
+    /// a separate, divergent mechanism.
+    /// </summary>
+    protected override void OnDeath(IContext context)
+    {
+        IsAgitated = false;
+        context.RemoveActor(this);
+        Repository.DestroyItem(this);
     }
 }

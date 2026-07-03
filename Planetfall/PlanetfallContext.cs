@@ -6,8 +6,11 @@ using Utilities;
 
 namespace Planetfall;
 
-public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISurvivalClockContext
+public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISurvivalClockContext,
+    IResettableClockContext, IGodModeTeleportAware
 {
+    private const int TurnTimeIncrement = 54;
+
     [UsedImplicitly]
     public int Day { get; set; } = 1;
 
@@ -141,11 +144,26 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
         SleepNotifications.Initialize(CurrentTime);
     }
 
-    public override string ProcessBeginningOfTurn()
+    /// <summary>
+    ///     Floyd's one-shot per-turn flags must reset every turn - including free commands (issue
+    ///     #354) that skip the rest of <see cref="ProcessBeginningOfTurn" /> - since actor processing
+    ///     (which drives <c>Floyd.Act()</c>) always runs regardless. The engine calls this
+    ///     unconditionally before conditionally calling ProcessBeginningOfTurn.
+    /// </summary>
+    public override void ResetPerTurnActorFlags()
     {
-        // Reset Floyd's turn flags for the new turn
         PendingFloydActionCommentPrompt = null;
         FloydShouldNotActThisTurn = false;
+    }
+
+    public override string ProcessBeginningOfTurn()
+    {
+        // Idempotent safety net: GameEngine.cs already calls ResetPerTurnActorFlags() unconditionally
+        // before this (including for free commands that skip the rest of this method), but any other
+        // caller of ProcessBeginningOfTurn() directly must still get Floyd's one-shot flags reset
+        // without needing to know about that split - calling it twice on a normal turn is harmless,
+        // since it only sets two fields to null/false.
+        ResetPerTurnActorFlags();
 
         var messages = string.Empty;
 
@@ -165,6 +183,14 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
             if (!string.IsNullOrEmpty(sleepMessage))
             {
                 SleepJustOccurred = true;
+
+                // Issue #355: sleep (voluntary or forced) may fire on a turn where the player's
+                // command was something else entirely (e.g. a movement command issued while
+                // exhausted). Sleep already mutated state - dropped carried items, possibly moved
+                // the player into a bed - against CurrentLocation as of THIS turn. Tell the engine
+                // to short-circuit and defer that command rather than run it against a location
+                // this event has already left stale.
+                TurnConsumedByForcedEvent = true;
                 return sleepMessage + base.ProcessBeginningOfTurn();
             }
         }
@@ -238,9 +264,42 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
 
     public override string? ProcessEndOfTurn()
     {
-        Repository.GetItem<Chronometer>().CurrentTime += 54;
+        Repository.GetItem<Chronometer>().CurrentTime += TurnTimeIncrement;
         SleepJustOccurred = false;
         return base.ProcessEndOfTurn();
+    }
+
+    public void ResetClockForGodMode(int targetTime)
+    {
+        // God-mode commands still take a Planetfall turn, so compensate for the end-of-turn tick.
+        Repository.GetItem<Chronometer>().CurrentTime = targetTime - TurnTimeIncrement;
+    }
+
+    /// <summary>
+    ///     Issue #356 follow-up: "god mode go &lt;place&gt;" is a raw CurrentLocation swap - it never runs
+    ///     DeckNine.OnLeaveLocation or EscapePod.AfterEnterLocation, so ExplosionCoordinator (registered
+    ///     unconditionally from game start) and EscapePod's own post-landing sinking timer (armed once
+    ///     the player stands out of the safety web) stay armed even after a tester teleports away.
+    ///     Both only check CurrentLocation, not how the player got there, so either would otherwise
+    ///     unconditionally kill the tester once their move count rolls into its death window, wherever
+    ///     they happened to be testing.
+    ///     ExplosionCoordinator is disarmed unless the destination is DeckNine specifically - staying
+    ///     armed there is intentional (mirrors normal play: staying put without reaching the pod is
+    ///     still fatal at move 14). EscapePod does NOT get the same exception: its move-14 case in
+    ///     ExplosionCoordinator has no location check at all, relying on EscapePod.AfterEnterLocation
+    ///     always disarming the coordinator before a real player is ever standing in the pod at that
+    ///     point - a god-mode teleport straight into the pod must disarm it the same way, or the
+    ///     tester gets killed by their own ship's explosion in the one place meant to be safe.
+    ///     EscapePod's own sinking timer is disarmed unless the destination is EscapePod itself, so a
+    ///     tester can still teleport in to observe that sequence.
+    /// </summary>
+    public void OnGodModeTeleport()
+    {
+        if (CurrentLocation is not DeckNine)
+            RemoveActor<ExplosionCoordinator>();
+
+        if (CurrentLocation is not EscapePod)
+            RemoveActor<EscapePod>();
     }
 
     /// <summary>

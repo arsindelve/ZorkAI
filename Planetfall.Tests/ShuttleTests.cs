@@ -551,6 +551,39 @@ public class ShuttleTests : EngineTestsBase
     }
 
     [Test]
+    public async Task LeaveImmediatelyAfterArrivalLandmark_SpeedConsequenceStillApplies()
+    {
+        // Regression test for issue #373: a player who never decelerates (pushes the lever
+        // once and never touches it again) and then leaves the control cabin on the very turn
+        // the arrival landmark text appears must still suffer the speed-based consequence.
+        // Previously, OnLeaveLocation deregistered the shuttle control as an actor before the
+        // deferred Arrived() computation could run on the next Act() cycle, letting the player
+        // dodge the crash/death penalty just by choosing "leave" as their next command.
+        var target = GetTarget();
+        Take<ShuttleAccessCard>();
+        StartHere<AlfieControlEast>();
+        var controls = GetLocation<AlfieControlEast>();
+
+        await target.GetResponse("slide shuttle access card through slot");
+
+        var response = await target.GetResponse("push lever"); // never touch the lever again
+
+        for (var i = 0; i < 23; i++)
+            response = await target.GetResponse("wait");
+
+        response.Should().Contain(
+            "The shuttle car is approaching a brightly lit area. As you near it, you make out the concrete platforms of a shuttle station");
+        controls.TunnelPosition.Should().Be(24);
+        controls.Activated.Should().BeTrue();
+        controls.DoorIsClosed.Should().BeFalse();
+
+        var leaveResponse = await target.GetResponse("W");
+
+        leaveResponse.Should().Contain("You have died");
+        controls.Activated.Should().BeFalse();
+    }
+
+    [Test]
     public async Task FullTrip_ConstantSpeed_PerfectLanding()
     {
         var target = GetTarget();
@@ -702,6 +735,26 @@ public class ShuttleTests : EngineTestsBase
         response.Should().Contain("A recorded voice explains that using the shuttle car during the evening hours requires special authorization.");
 
         GetLocation<AlfieControlEast>().Activated.Should().BeFalse();
+    }
+
+    [TestCase("god mode reset time")]
+    [TestCase("god mode reset clock")]
+    public async Task GodModeResetTime_AllowsAlfieActivationAfterEveningCutoff(string resetCommand)
+    {
+        var target = GetTarget();
+        Take<ShuttleAccessCard>();
+        StartHere<AlfieControlEast>();
+
+        Repository.GetItem<Chronometer>().CurrentTime = 6500;
+
+        var resetResponse = await target.GetResponse(resetCommand);
+        resetResponse.Should().Contain("God mode: chronometer reset to 2000.");
+        Repository.GetItem<Chronometer>().CurrentTime.Should().Be(2000);
+
+        var activationResponse = await target.GetResponse("slide shuttle access card through slot");
+
+        activationResponse.Should().Contain("A recording of a deep male voice says \"Shuttle controls activated.\"");
+        GetLocation<AlfieControlEast>().Activated.Should().BeTrue();
     }
 
     [Test]

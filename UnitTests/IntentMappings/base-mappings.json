@@ -81,7 +81,12 @@
     { "inputs": ["wear gas mask"], "verb": "wear", "noun": "gas mask", "originalInput": "wear gas mask" },
     { "inputs": ["take gas mask"], "verb": "take", "noun": "gas mask", "originalInput": "take gas mask" },
     { "inputs": ["drop gas mask"], "verb": "drop", "noun": "gas mask", "originalInput": "drop gas mask" },
-    { "inputs": ["examine gas mask"], "verb": "examine", "noun": "gas mask", "originalInput": "examine gas mask" }
+    { "inputs": ["examine gas mask"], "verb": "examine", "noun": "gas mask", "originalInput": "examine gas mask" },
+
+    { "inputs": ["examine damaged robot"], "verb": "examine", "noun": "damaged robot", "originalInput": "examine damaged robot" },
+    { "inputs": ["examine broken robot"], "verb": "examine", "noun": "broken robot", "originalInput": "examine broken robot" },
+    { "inputs": ["take damaged robot"], "verb": "take", "noun": "damaged robot", "originalInput": "take damaged robot" },
+    { "inputs": ["take broken robot"], "verb": "take", "noun": "broken robot", "originalInput": "take broken robot" }
   ],
 
   "multiNounIntents": [
@@ -247,6 +252,7 @@
     { "inputs": ["give the key to floyd"], "verb": "give", "nounOne": "key", "nounTwo": "floyd", "preposition": "to", "originalInput": "give the key to floyd" },
     { "inputs": ["give the plate to floyd", "give plate to floyd"], "verb": "give", "nounOne": "plate", "nounTwo": "floyd", "preposition": "to", "originalInput": "give the plate to floyd" },
     { "inputs": ["give the breastplate to floyd", "give breastplate to floyd"], "verb": "give", "nounOne": "breastplate", "nounTwo": "floyd", "preposition": "to", "originalInput": "give the breastplate to floyd" },
+    { "inputs": ["give id card to floyd", "give the id card to floyd"], "verb": "give", "nounOne": "id card", "nounTwo": "floyd", "preposition": "to", "originalInput": "give id card to floyd" },
     { "inputs": ["show printout to floyd", "show the printout to floyd"], "verb": "show", "nounOne": "printout", "nounTwo": "floyd", "preposition": "to", "originalInput": "show printout to floyd" },
     { "inputs": ["show id card to floyd", "show the id card to floyd"], "verb": "show", "nounOne": "id card", "nounTwo": "floyd", "preposition": "to", "originalInput": "show id card to floyd" },
     { "inputs": ["show kitchen card to floyd"], "verb": "show", "nounOne": "kitchen card", "nounTwo": "floyd", "preposition": "to", "originalInput": "show kitchen card to floyd" },
@@ -316,7 +322,9 @@
     { "inputs": ["enter door", "board door"], "noun": "door" },
 
     { "inputs": ["enter elevator", "enter the elevator"], "noun": "elevator" },
-    { "inputs": ["enter the kitchen", "enter kitchen"], "noun": "kitchen" }
+    { "inputs": ["enter the kitchen", "enter kitchen"], "noun": "kitchen" },
+
+    { "inputs": ["enter web", "enter the web", "enter webbing", "enter the webbing", "get in web", "get in the web", "get in webbing", "get in the webbing", "board web", "board webbing"], "noun": "web" }
   ],
 
   "exitSubLocationIntents": [

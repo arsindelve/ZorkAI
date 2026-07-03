@@ -148,6 +148,28 @@ public class KitchenAndCanteenTests : EngineTestsBase
         Repository.GetItem<Canteen>().Items.Should().NotBeEmpty();
     }
 
+    [Test]
+    public async Task OpenCanteen_Empty()
+    {
+        var target = GetTarget();
+        StartHere<MessCorridor>();
+        Take<Canteen>();
+
+        var response = await target.GetResponse("open canteen");
+        response.Should().Contain("Opened");
+    }
+
+    [Test]
+    public async Task OpenCanteen_WithProteinLiquid()
+    {
+        var target = GetTarget();
+        StartHere<MessCorridor>();
+        Take<Canteen>();
+        GetItem<Canteen>().Items.Add(GetItem<ProteinLiquid>());
+
+        var response = await target.GetResponse("open canteen");
+        response.Should().Contain("Opening the canteen reveals a quantity of protein-rich liquid.");
+    }
 
     // TODO: drink dont have it
     // TODO: put something in canteen

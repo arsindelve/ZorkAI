@@ -1,4 +1,6 @@
+using System.Text.RegularExpressions;
 using GameEngine;
+using ZorkOne.GlobalCommand;
 
 namespace UnitTests.GlobalCommands;
 
@@ -336,6 +338,79 @@ public class PronounResolutionTests : EngineTestsBase
             result.Should().NotContain("What item are you referring to");
             result.Should().Contain("Dropped");
             target.Context.HasItem<Lantern>().Should().BeFalse();
+        }
+    }
+
+    /// <summary>
+    /// Issue #341 (AB-044): in production, after a multi-object "take all", the AI pronoun resolver's
+    /// only context is the "take all" command and a response naming every item taken - so it conflates
+    /// singular "it" with the whole object set, and "drop it" ends up dropping everything. Singular
+    /// "it" must resolve to just the last object the multi-object action handled; "them" (issue #248)
+    /// remains the collection pronoun.
+    /// </summary>
+    [TestFixture]
+    public class TakeAllThenSingularIt : PronounResolutionTests
+    {
+        /// <summary>
+        /// Mimics the production gpt-4o-mini pronoun resolver's failure mode: after "take all", it
+        /// rewrites singular "it" into a conjunction of every item named in the previous response,
+        /// exactly like its own "take them" -&gt; "take sword and shield" example would for a plural
+        /// pronoun (see the resolver's prompt examples) - except here the player used singular "it".
+        /// </summary>
+        private sealed class ConflatesSingularItWithTakenSetParser()
+            : TestParser(new ZorkOneGlobalCommandFactory())
+        {
+            public override Task<string?> ResolvePronounsAsync(string input, string? lastInput, string? lastResponse)
+            {
+                if (Regex.IsMatch(input, @"\bit\b", RegexOptions.IgnoreCase)
+                    && (lastInput ?? string.Empty).Trim().Equals("take all", StringComparison.OrdinalIgnoreCase))
+                    return Task.FromResult<string?>(
+                        Regex.Replace(input, @"\bit\b", "rope and knife", RegexOptions.IgnoreCase));
+
+                return base.ResolvePronounsAsync(input, lastInput, lastResponse);
+            }
+        }
+
+        [Test]
+        public async Task DropIt_AfterTakeAll_DropsOnlyTheLastItemTaken()
+        {
+            var parser = new ConflatesSingularItWithTakenSetParser();
+            var target = GetTarget(parser);
+            // The Attic is a DarkLocation; a lit lamp is needed to see well enough to drop things there.
+            var lantern = GetItem<Lantern>();
+            lantern.IsOn = true;
+            target.Context.ItemPlacedHere(lantern);
+            target.Context.CurrentLocation = Repository.GetLocation<Attic>();
+
+            await target.GetResponse("take all");
+            target.Context.HasItem<Rope>().Should().BeTrue();
+            target.Context.HasItem<NastyKnife>().Should().BeTrue();
+
+            var result = await target.GetResponse("drop it");
+
+            target.Context.HasItem<NastyKnife>().Should().BeFalse(
+                because: "singular 'it' should resolve to the last item handled by 'take all'");
+            target.Context.HasItem<Rope>().Should().BeTrue(
+                because: "'it' is singular and must not drop the whole object set taken by 'take all'");
+            result.Should().Contain("Dropped");
+        }
+
+        [Test]
+        public async Task DropThem_AfterTakeAll_StillDropsTheWholeSet()
+        {
+            // Guards against over-correcting: plural "them" (issue #248) must still resolve to
+            // everything "take all" picked up.
+            var target = GetTarget();
+            var lantern = GetItem<Lantern>();
+            lantern.IsOn = true;
+            target.Context.ItemPlacedHere(lantern);
+            target.Context.CurrentLocation = Repository.GetLocation<Attic>();
+
+            await target.GetResponse("take all");
+            await target.GetResponse("drop them");
+
+            target.Context.HasItem<Rope>().Should().BeFalse();
+            target.Context.HasItem<NastyKnife>().Should().BeFalse();
         }
     }
 }

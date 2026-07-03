@@ -13,8 +13,12 @@ public class FloydInventoryManager(Floyd floyd)
             return new PositiveInteractionResult($"Floyd examines the {item.Name}, shrugs, and drops it.");
         }
 
-        item.CurrentLocation = floyd;
+        // Trap: RemoveItem must run before CurrentLocation is reassigned - it needs the item's
+        // *current* location to detach it from its real container (e.g. a card nested inside a worn
+        // uniform pocket), not from wherever it's about to be reassigned to. Swapping this order once
+        // orphaned the item in its original container while Floyd also appeared to hold it.
         context.RemoveItem(item);
+        item.CurrentLocation = floyd;
         floyd.ItemBeingHeld = item;
         floyd.ItemBeingHeld.OnBeingTakenCallback = "Floyd,BeingTakenCallback";
 

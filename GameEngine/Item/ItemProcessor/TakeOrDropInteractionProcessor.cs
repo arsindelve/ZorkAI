@@ -110,7 +110,12 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             // smart enough to match the noun to the item description. An example of this is the "magnet" which is
             // (deliberately, as a puzzle) described as "a metal bar, curved into a U-shape" which the parser does not
             // understand is a magnet. So as a final attempt, let's see if there is a direct noun match.
-            var specificItem = Repository.GetItem(action.Noun);
+            // Issue #362: prefer the scoped inventory match (GetItemInInventory) over the global, unscoped
+            // Repository.GetItem(noun) - the latter can resolve to a same-named item elsewhere in the game
+            // (e.g. a second Fromitz board) instead of the one actually held. Only fall back to the global
+            // lookup when nothing in inventory matches, purely so DropIt can still produce its "you don't
+            // have that" message for a real-but-unheld item instead of a silent no-match.
+            var specificItem = Repository.GetItemInInventory(action.Noun, context) ?? Repository.GetItem(action.Noun);
             return specificItem is not null ? DropIt(context, specificItem) : new NoNounMatchInteractionResult();
         }
 
@@ -118,13 +123,19 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         {
             // The AI may return a compound phrase (e.g. "brass lantern") that doesn't resolve;
             // fall back to the noun the IntentParser already extracted from the player's input.
-            var item = Repository.GetItem(items[0]) ?? Repository.GetItem(action.Noun);
+            var item = Repository.GetItemInInventory(items[0], context)
+                       ?? Repository.GetItemInInventory(action.Noun, context)
+                       ?? Repository.GetItem(items[0])
+                       ?? Repository.GetItem(action.Noun);
             return DropIt(context, item);
         }
 
-        // When dropping multiple items, we need to provide feedback for items that don't exist
+        // When dropping multiple items, we need to provide feedback for items that don't exist.
+        // Issue #362: same scoped-first fallback as the single-item branch above - an unscoped
+        // Repository.GetItem(noun) here could resolve "board" to a same-named instance the player
+        // isn't holding, even in a compound "drop board and X" command.
         var itemsWithFeedback = items
-            .Select(itemNoun => (itemNoun, Repository.GetItem(itemNoun)))
+            .Select(itemNoun => (itemNoun, Repository.GetItemInInventory(itemNoun, context) ?? Repository.GetItem(itemNoun)))
             .ToList();
 
         return new PositiveInteractionResult(await DropEverythingProcessor.DropAll(context, itemsWithFeedback, client));
@@ -170,6 +181,11 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
     {
         if (castItem is null) return new NoNounMatchInteractionResult();
 
+        // Deliberately flat, unlike Repository.IsItemPossessedBy used by GIVE/SHOW: DROP only ever
+        // acts on a top-level held item, even when the resolver above found it nested inside an open
+        // container. Proven by WalkthroughTestTwo's "put leaflet in sack" then "drop leaflet" step,
+        // which expects "You don't have that!" - the original game requires taking a nested item out
+        // before it can be dropped, unlike the (HAVE)-flag reach GIVE/SHOW get into worn containers.
         if (!context.Items.Contains(castItem))
             return new PositiveInteractionResult("You don't have that!");
 
@@ -191,6 +207,14 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (castItem is null)
             return new NoNounMatchInteractionResult();
 
+        // Issue #342: TakeIntent (a live AI "take" tag) is dispatched here directly from GameEngine,
+        // bypassing the darkness guard that SimpleIntent goes through in SimpleInteractionEngine. Mirror
+        // the original parser, which only resolves room-visible objects when lit - an item already in
+        // inventory stays takeable (falls through to the "already have that" case below) since the player
+        // can always feel what they're carrying regardless of light.
+        if (context.ItIsDarkHere && !context.Items.Contains(castItem))
+            return new PositiveInteractionResult("It's too dark to see! ");
+
         if (!string.IsNullOrEmpty(castItem.CannotBeTakenDescription))
         {
             ((ItemBase)castItem).OnFailingToBeTaken(context);
@@ -208,13 +232,15 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (!context.HaveRoomForItem(castItem))
             return new PositiveInteractionResult("Your load is too heavy. ");
 
-        context.Take(castItem);
-        context.RememberAntecedentNoun(castItem.NounsForMatching.FirstOrDefault());
-
         // This happens if you try to take something that is a legit object in the room,
         // but it has not been marked with this interface because it cannot be taken. Think doors and engravings.
+        // Check this *before* mutating inventory - otherwise a failed take (issue #345) still leaves
+        // the item sitting in context.Items even though the player-facing response is a no-op.
         if (castItem is not ICanBeTakenAndDropped takeItem)
             return new NoNounMatchInteractionResult();
+
+        context.Take(castItem);
+        context.RememberAntecedentNoun(castItem.NounsForMatching.FirstOrDefault());
 
         var onTakenText = takeItem.OnBeingTaken(context, container);
         container?.OnItemRemovedFromHere(castItem, context);

@@ -1,4 +1,5 @@
 using System.Reflection;
+using ChatLambda;
 using FluentAssertions;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
@@ -11,6 +12,8 @@ using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Item.Lawanda;
+using Planetfall.Item.Lawanda.PlanetaryDefense;
 using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Mech;
 using Planetfall.Location.Lawanda;
@@ -333,6 +336,79 @@ public class FloydTests : EngineTestsBase
 
         response.Should()
             .Contain("You turn to look at Floyd, but a tremendous sense of loss overcomes you, and you turn away");
+    }
+
+    [Test]
+    public async Task ExamineFloyd_On_WhileHoldingUnrelatedItem()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().HasEverBeenOn = true;
+        await target.GetResponse("give the diary to floyd");
+
+        var response = await target.GetResponse("examine floyd");
+
+        response.Should().Contain("From its design, the robot seems to be of the multi-purpose sort");
+    }
+
+    [Test]
+    public async Task OilFloyd_WhileHoldingUnrelatedItem()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().HasEverBeenOn = true;
+        await target.GetResponse("give the diary to floyd");
+        Take<OilCan>();
+
+        var response = await target.GetResponse("oil floyd");
+
+        response.Should().Contain("thoughtfulness");
+    }
+
+    [Test]
+    public async Task ReadDiary_WhileFloydHoldsIt_StillRoutesToDiary()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().HasEverBeenOn = true;
+        await target.GetResponse("give the diary to floyd");
+
+        var response = await target.GetResponse("read diary");
+
+        response.Should().Contain("Words start to scroll across the screen");
+    }
+
+    [Test]
+    public async Task PushDiary_WhileFloydHoldsIt_ReportsVerbHasNoEffect_NotNounMissing()
+    {
+        // Issue #362 regression guard: RespondToSimpleInteraction's InteractionHappened gate falls
+        // through on NoVerbMatchInteractionResult too (not just the targeted NoNounMatch), which looks
+        // over-broad in isolation - but base.RespondToSimpleInteraction (ContainerBase) independently
+        // re-checks ItemBeingHeld with the correct non-null-and-not-NoNounMatch fallback, recovering
+        // the diary's own "verb has no effect" narration. Locks that safety net in.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        GetItem<Floyd>().IsOn = true;
+        GetItem<Floyd>().HasEverBeenOn = true;
+        await target.GetResponse("give the diary to floyd");
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateNarration(It.IsAny<VerbHasNoEffectOperationRequest>(), It.IsAny<string>()))
+            .ReturnsAsync("VERB_HAS_NO_EFFECT_MARKER");
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateNarration(It.Is<Request>(r => !(r is VerbHasNoEffectOperationRequest)), It.IsAny<string>()))
+            .ReturnsAsync("WRONG_PATH_MARKER");
+
+        var response = await target.GetResponse("push diary");
+
+        response.Should().Contain("VERB_HAS_NO_EFFECT_MARKER");
+        response.Should().NotContain("WRONG_PATH_MARKER");
     }
 
     [Test]
@@ -1404,7 +1480,10 @@ public class FloydTests : EngineTestsBase
         // Set prompt to a non-null value
         pfContext.PendingFloydActionCommentPrompt = "Some prompt";
 
-        // Call ProcessBeginningOfTurn
+        // Simulate a turn boundary. The engine always calls these together (issue #354 follow-up
+        // split the one-shot actor-flag reset out of ProcessBeginningOfTurn so it also runs for free
+        // commands, which skip the rest of ProcessBeginningOfTurn).
+        target.Context.ResetPerTurnActorFlags();
         target.Context.ProcessBeginningOfTurn();
 
         // Prompt should be reset
@@ -1491,7 +1570,8 @@ public class FloydTests : EngineTestsBase
         floyd.CommentOnAction("Some prompt", target.Context);
         pfContext.PendingFloydActionCommentPrompt.Should().NotBeNull();
 
-        // Simulate new turn
+        // Simulate new turn (the engine always calls these together)
+        pfContext.ResetPerTurnActorFlags();
         pfContext.ProcessBeginningOfTurn();
 
         // Prompt should be reset, allowing Floyd to comment again
@@ -1520,7 +1600,8 @@ public class FloydTests : EngineTestsBase
         pfContext.PendingFloydActionCommentPrompt.Should().Be("Unique prompt");
         pfContext.UsedFloydActionCommentPrompts.Should().Contain("Unique prompt");
 
-        // Simulate turn processing (clears pending prompt)
+        // Simulate turn processing (clears pending prompt; the engine always calls these together)
+        pfContext.ResetPerTurnActorFlags();
         pfContext.ProcessBeginningOfTurn();
         pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
 
@@ -1542,12 +1623,14 @@ public class FloydTests : EngineTestsBase
 
         var pfContext = target.Context;
 
-        // Use first prompt
+        // Use first prompt (the engine always calls these together)
         floyd.CommentOnAction("First prompt", target.Context);
+        pfContext.ResetPerTurnActorFlags();
         pfContext.ProcessBeginningOfTurn();
 
         // Use second prompt
         floyd.CommentOnAction("Second prompt", target.Context);
+        pfContext.ResetPerTurnActorFlags();
         pfContext.ProcessBeginningOfTurn();
 
         // Use third prompt
@@ -1593,8 +1676,9 @@ public class FloydTests : EngineTestsBase
 
         var pfContext = target.Context;
 
-        // Use first prompt
+        // Use first prompt (the engine always calls these together)
         floyd.CommentOnAction("First prompt", target.Context);
+        pfContext.ResetPerTurnActorFlags();
         pfContext.ProcessBeginningOfTurn();
 
         // Different prompt should still work
@@ -1812,7 +1896,54 @@ public class FloydTests : EngineTestsBase
         var pfContext = target.Context;
         pfContext.FloydShouldNotActThisTurn = true;
 
+        // The engine always calls these together (issue #354 follow-up split the one-shot
+        // actor-flag reset out of ProcessBeginningOfTurn so it also runs for free commands).
+        pfContext.ResetPerTurnActorFlags();
         pfContext.ProcessBeginningOfTurn();
+
+        pfContext.FloydShouldNotActThisTurn.Should().BeFalse();
+    }
+
+    [Test]
+    public void ProcessBeginningOfTurn_Alone_StillResetsSkipFlag()
+    {
+        // Review follow-up: ResetPerTurnActorFlags() and ProcessBeginningOfTurn() must always be
+        // called together in production, but that pairing was only enforced by comments, not the
+        // API shape - any caller of ProcessBeginningOfTurn() alone (the more discoverable of the
+        // two methods) would silently see stale Floyd flags. ProcessBeginningOfTurn() must remain
+        // self-sufficient for any direct caller, exactly as it was before the two-method split.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+
+        var pfContext = target.Context;
+        pfContext.FloydShouldNotActThisTurn = true;
+
+        pfContext.ProcessBeginningOfTurn();
+
+        pfContext.FloydShouldNotActThisTurn.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task FloydShouldNotActThisTurn_StillResets_AfterAFreeCommand()
+    {
+        // Issue #354 follow-up: "look"/"score"/"inventory"/"time" are free commands that skip
+        // Context.ProcessBeginningOfTurn() (where this one-shot flag used to be reset), but actor
+        // processing (which drives Floyd.Act()) still runs for free commands. Without a dedicated
+        // reset path, the flag would leak across any number of consecutive free commands and mute
+        // Floyd for longer than the single turn it was meant to suppress.
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        var pfContext = target.Context;
+        pfContext.FloydShouldNotActThisTurn = true;
+
+        await target.GetResponse("look");
 
         pfContext.FloydShouldNotActThisTurn.Should().BeFalse();
     }
@@ -1844,7 +1975,8 @@ public class FloydTests : EngineTestsBase
         var result1 = await floyd.Act(target.Context, target.GenerationClient);
         result1.Should().BeEmpty();
 
-        // Turn 2: Flag reset, Floyd acts normally
+        // Turn 2: Flag reset, Floyd acts normally (the engine always calls these together)
+        pfContext.ResetPerTurnActorFlags();
         pfContext.ProcessBeginningOfTurn();
         var result2 = await floyd.Act(target.Context, target.GenerationClient);
         result2.Should().NotBeEmpty();
@@ -1985,6 +2117,64 @@ public class FloydTests : EngineTestsBase
         var response = await target.GetResponse("show id card to floyd");
 
         response.Should().Contain("usually blue");
+    }
+
+    [Test]
+    public async Task Show_IdCard_ToFloyd_StillInUniformPocket_AsksIfTheyAreUsuallyBlue()
+    {
+        // Issue #362: the ID card is never manually taken out of the worn Patrol uniform's pocket -
+        // Repository.GetItemInScope already finds it there (it's an open/transparent pocket), but the
+        // old context.Items.Contains(thing) check only looked at the flat top-level inventory list and
+        // falsely denied possession.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<PatrolUniform>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("show id card to floyd");
+
+        response.Should().Contain("usually blue");
+    }
+
+    [Test]
+    public async Task Give_IdCard_ToFloyd_StillInUniformPocket_RemovesFromPocket()
+    {
+        // Issue #362: the possession fix lets GIVE reach an item nested inside a worn container, but
+        // the recipient's own removal logic must actually detach it from that container - not just
+        // reassign CurrentLocation - or the card ends up both in the pocket and in Floyd's hand.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<PatrolUniform>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("give id card to floyd");
+
+        response.Should().Contain("Neat");
+        GetItem<IdCard>().CurrentLocation.Should().BeOfType<Floyd>();
+        GetItem<PatrolUniformPocket>().Items.Should().NotContain(GetItem<IdCard>());
+    }
+
+    [Test]
+    public async Task Give_Breastplate_NestedInOpenContainer_ToFloyd_RemovesFromContainer()
+    {
+        // Issue #362 regression guard: unlike the general OfferItem flow, this branch calls
+        // context.CurrentLocation.ItemPlacedHere(item) directly, whose own detach-then-attach logic
+        // (reading item.CurrentLocation before reassigning it) already correctly vacates a nested
+        // container - the preceding context.RemoveItem(item) call is a harmless no-op either way.
+        // Locks that in so a future refactor of this branch can't reintroduce the duplication bug.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<PatrolUniform>();
+        var pocket = GetItem<PatrolUniformPocket>();
+        var breastplate = GetItem<MedicalRobotBreastPlate>();
+        pocket.Items.Add(breastplate);
+        breastplate.CurrentLocation = pocket;
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse("give breastplate to floyd");
+
+        response.Should().Contain("weeping");
+        pocket.Items.Should().NotContain(breastplate);
     }
 
     [Test]
@@ -2303,6 +2493,81 @@ public class FloydTests : EngineTestsBase
         floyd.Chooser = mockChooser.Object;
 
         floyd.OffersLowerElevatorCard(target.Context).Should().NotBeNull();
+    }
+
+    #endregion
+
+    #region Fromitz Board Retrieval Tests (issue #360)
+
+    private static Mock<IChatWithFloyd> FloydAnsweringPickUpBoard()
+    {
+        var mock = new Mock<IChatWithFloyd>();
+        mock.Setup(s => s.AskFloydAsync("take board")).ReturnsAsync(new CompanionResponse(
+            "Floyd's response",
+            new CompanionMetadata("PickUp", new Dictionary<string, object> { { "object", "board" } })));
+        return mock;
+    }
+
+    [Test]
+    public async Task FromitzBoardRetrieval_AlreadyRetrieved_DroppedElsewhere_DoesNotReacquire()
+    {
+        var target = GetTarget();
+        StartHere<RepairRoom>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasGottenTheFromitzBoard = true;
+        floyd.ChatWithFloyd = FloydAnsweringPickUpBoard().Object;
+        GetLocation<RepairRoom>().ItemPlacedHere(floyd);
+
+        // The board was retrieved once already and dropped in a different room - not carried by the
+        // player and not installed anywhere.
+        var otherRoom = GetLocation<SystemsCorridorWest>();
+        otherRoom.ItemPlacedHere(GetItem<ShinyFromitzBoard>());
+
+        var response = await target.GetResponse("floyd, take board");
+
+        response.Should().Contain("already did that");
+        target.Context.Items.Should().NotContain(GetItem<ShinyFromitzBoard>());
+        GetItem<ShinyFromitzBoard>().CurrentLocation.Should().Be(otherRoom);
+    }
+
+    [Test]
+    public async Task FromitzBoardRetrieval_AlreadyInstalledInPanel_DoesNotUninstall()
+    {
+        var target = GetTarget();
+        StartHere<RepairRoom>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasGottenTheFromitzBoard = true;
+        floyd.ChatWithFloyd = FloydAnsweringPickUpBoard().Object;
+        GetLocation<RepairRoom>().ItemPlacedHere(floyd);
+
+        // The board has already been installed in the panel, solving the planetary-defense puzzle.
+        var panel = GetItem<FromitzAccessPanel>();
+        panel.ItemPlacedHere(GetItem<ShinyFromitzBoard>());
+
+        var response = await target.GetResponse("floyd, take board");
+
+        response.Should().Contain("already did that");
+        target.Context.Items.Should().NotContain(GetItem<ShinyFromitzBoard>());
+        GetItem<ShinyFromitzBoard>().CurrentLocation.Should().Be(panel);
+    }
+
+    [Test]
+    public async Task FromitzBoardRetrieval_FirstTime_StillGivesBoard()
+    {
+        var target = GetTarget();
+        StartHere<RepairRoom>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.ChatWithFloyd = FloydAnsweringPickUpBoard().Object;
+        GetLocation<RepairRoom>().ItemPlacedHere(floyd);
+
+        var response = await target.GetResponse("floyd, take board");
+
+        response.Should().Contain("If you say so");
+        target.Context.Items.Should().Contain(GetItem<ShinyFromitzBoard>());
+        floyd.HasGottenTheFromitzBoard.Should().BeTrue();
     }
 
     #endregion

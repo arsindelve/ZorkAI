@@ -32,8 +32,9 @@ public class FloydMovementManager(Floyd floyd)
     /// </summary>
     public async Task<string> HandleFollowingPlayer(IContext context, IGenerationClient client)
     {
-        // Don't follow if already wandering
-        if (floyd.IsOffWandering)
+        // Don't follow if already wandering, or deliberately parked elsewhere by a scripted sequence
+        // (e.g. the Bio Lab fight, which sets CurrentLocation = null to represent Floyd being absent).
+        if (floyd.IsOffWandering || floyd.IsAwayOnScriptedSequence)
             return string.Empty;
 
         bool isInTheRoom = floyd.CurrentLocation == context.CurrentLocation;

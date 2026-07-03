@@ -28,7 +28,7 @@ public class TestParser : IntentParser
             "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate", "search",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind", "kick", "deflate",
             "lower", "raise", "get", "inflate", "leave", "unlock", "lock", "climb", "extend", "lift", "shake",
-            "oil", "lubricate"
+            "oil", "lubricate", "cross", "through", "go"
         ];
 
         _allNouns = Repository.GetNouns(gameName);
@@ -38,11 +38,11 @@ public class TestParser : IntentParser
         [
             "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "zero", "dial", "shelves", "pocket",
             "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "dude", "hello", "17", "seventeen", "slot", "lever", "label",
-            "tree", "branches", "house", "lettering", "mirror", "match", "yellow button", "red button", "button", "medicine",
+            "tree", "branches", "house", "lettering", "mirror", "match", "river", "yellow button", "red button", "button", "medicine",
             "blue button", "brown button", "bolt", "bubble", "bodies", "gate", "lid", "switch", "slag", "engravings",
             "fromitz board", "board", "fromitz", "second fromitz board", "second board", "second",
             "second board", "second fromitz board", "second fromitz", "384",
-            "games", "tapes", "controls", "control panel", "light", "red light", "equipment"
+            "games", "tapes", "controls", "control panel", "light", "red light", "equipment", "rainbow"
         ];
 
         _allNouns = _allNouns.Union(specialNouns).ToArray();
@@ -141,6 +141,33 @@ public class TestParser : IntentParser
 
         // 4. Fallback: verb+noun matching after removing "the"
         input = input?.Replace("the ", "").Trim();
+
+        if (input?.StartsWith("look under ", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            var noun = input["look under ".Length..].Trim();
+            if (_allNouns.Contains(noun))
+                return Task.FromResult<IntentBase>(new SimpleIntent
+                {
+                    Verb = "look",
+                    Noun = noun,
+                    Adverb = "under",
+                    OriginalInput = input
+                });
+        }
+
+        if (input?.StartsWith("go through ", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            var noun = input["go through ".Length..].Trim();
+            if (_allNouns.Contains(noun))
+                return Task.FromResult<IntentBase>(new SimpleIntent
+                {
+                    Verb = "go",
+                    Noun = noun,
+                    Adverb = "through",
+                    OriginalInput = input
+                });
+        }
+
         var words = input?.Split(" ");
 
         if (words?.Length >= 2 && _verbs.Contains(words[0]) && _allNouns.Contains(words[1]))

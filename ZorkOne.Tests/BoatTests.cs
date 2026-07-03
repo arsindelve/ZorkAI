@@ -520,4 +520,113 @@ public class BoatTests : EngineTestsBase
         response.Should().Contain("You are now in the magic boat.");
         target.Context.CurrentLocation.SubLocation.Should().NotBeNull();
     }
+
+    [Test]
+    public async Task WhiteCliffsNorth_InInflatedBoat_PathTooNarrow_South()
+    {
+        var target = GetTarget();
+        var boat = Repository.GetItem<PileOfPlastic>();
+        boat.IsInflated = true;
+        target.Context.CurrentLocation = Repository.GetLocation<WhiteCliffsBeachNorth>();
+        target.Context.CurrentLocation.SubLocation = boat;
+
+        var response = await target.GetResponse("south");
+
+        response.Should().Contain("The path is too narrow");
+        target.Context.CurrentLocation.Should().BeOfType<WhiteCliffsBeachNorth>();
+    }
+
+    [Test]
+    public async Task WhiteCliffsNorth_InInflatedBoat_PathTooNarrow_West()
+    {
+        var target = GetTarget();
+        var boat = Repository.GetItem<PileOfPlastic>();
+        boat.IsInflated = true;
+        target.Context.CurrentLocation = Repository.GetLocation<WhiteCliffsBeachNorth>();
+        target.Context.CurrentLocation.SubLocation = boat;
+
+        var response = await target.GetResponse("west");
+
+        response.Should().Contain("The path is too narrow");
+        target.Context.CurrentLocation.Should().BeOfType<WhiteCliffsBeachNorth>();
+    }
+
+    [Test]
+    public async Task WhiteCliffsSouth_InInflatedBoat_PathTooNarrow_North()
+    {
+        var target = GetTarget();
+        var boat = Repository.GetItem<PileOfPlastic>();
+        boat.IsInflated = true;
+        target.Context.CurrentLocation = Repository.GetLocation<WhiteCliffsBeachSouth>();
+        target.Context.CurrentLocation.SubLocation = boat;
+
+        var response = await target.GetResponse("north");
+
+        response.Should().Contain("The path is too narrow");
+        target.Context.CurrentLocation.Should().BeOfType<WhiteCliffsBeachSouth>();
+    }
+
+    [Test]
+    public async Task WhiteCliffsNorth_BoatNotWithPlayer_CanGoSouth()
+    {
+        var target = GetTarget();
+        var boat = Repository.GetItem<PileOfPlastic>();
+        boat.IsInflated = true;
+        target.Context.CurrentLocation = Repository.GetLocation<WhiteCliffsBeachNorth>();
+        target.Context.CurrentLocation.SubLocation = null;
+
+        var response = await target.GetResponse("south");
+
+        response.Should().Contain("White Cliffs Beach");
+        target.Context.CurrentLocation.Should().BeOfType<WhiteCliffsBeachSouth>();
+    }
+
+    [Test]
+    public async Task WhiteCliffsNorth_BoatNotWithPlayer_CanGoWest()
+    {
+        var target = GetTarget();
+        var boat = Repository.GetItem<PileOfPlastic>();
+        boat.IsInflated = true;
+        target.Context.CurrentLocation = Repository.GetLocation<WhiteCliffsBeachNorth>();
+        target.Context.CurrentLocation.SubLocation = null;
+        var lamp = Repository.GetItem<Lantern>();
+        lamp.IsOn = true;
+        target.Context.Take(lamp);
+
+        var response = await target.GetResponse("west");
+
+        response.Should().Contain("Damp Cave");
+        target.Context.CurrentLocation.Should().BeOfType<DampCave>();
+    }
+
+    [Test]
+    public async Task WhiteCliffsSouth_BoatNotWithPlayer_CanGoNorth()
+    {
+        var target = GetTarget();
+        var boat = Repository.GetItem<PileOfPlastic>();
+        boat.IsInflated = true;
+        target.Context.CurrentLocation = Repository.GetLocation<WhiteCliffsBeachSouth>();
+        target.Context.CurrentLocation.SubLocation = null;
+
+        var response = await target.GetResponse("north");
+
+        response.Should().Contain("White Cliffs Beach");
+        target.Context.CurrentLocation.Should().BeOfType<WhiteCliffsBeachNorth>();
+    }
+
+    [Test]
+    public async Task WhiteCliffsNorth_CarryingInflatedBoat_PathTooNarrow()
+    {
+        var target = GetTarget();
+        var boat = Repository.GetItem<PileOfPlastic>();
+        boat.IsInflated = true;
+        target.Context.CurrentLocation = Repository.GetLocation<WhiteCliffsBeachNorth>();
+        target.Context.CurrentLocation.SubLocation = null;
+        target.Context.Items.Add(boat);
+
+        var response = await target.GetResponse("south");
+
+        response.Should().Contain("The path is too narrow");
+        target.Context.CurrentLocation.Should().BeOfType<WhiteCliffsBeachNorth>();
+    }
 }

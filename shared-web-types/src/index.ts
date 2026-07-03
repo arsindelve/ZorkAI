@@ -16,6 +16,7 @@ export { SessionHandler } from './utils/SessionHandler';
 export { GameProvider, useGameContext } from './context/GameContext';
 export { default as ClickableText } from './components/ClickableText';
 export type { ClickableTextHandle } from './components/ClickableText';
+export { default as Compass, parseMoveDirection } from './components/Compass';
 export { ReleaseNotesServer } from './utils/ReleaseNotesServer';
 export { default as ConfirmationDialog } from './modal/ConfirmationDialog';
 export { default as RestartConfirmDialog } from './modal/RestartConfirmDialog';
