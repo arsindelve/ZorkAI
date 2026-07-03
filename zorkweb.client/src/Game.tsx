@@ -384,7 +384,7 @@ function Game() {
 
     return (
 
-        <div className={"relative flex flex-col flex-1 min-h-0 mx-10 mt-[44px] mb-4"}>
+        <div className={"relative flex flex-col flex-1 min-h-0 mx-10 mt-[39px] mb-4"}>
 
             <div>
                 <Snackbar
@@ -421,7 +421,7 @@ function Game() {
                 boxShadow: '0 4px 20px rgba(196, 154, 76, 0.18), 0 2px 10px rgba(0, 0, 0, 0.5)'
             }}/>
 
-            <div className="relative flex-1 min-h-0 max-h-[55vh]">
+            <div className="relative flex-1 min-h-0 max-h-[55vh] mt-2">
             <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word: string) => handleWordClicked(word)}
                            onMouseMove={highlightWordAtPointer}
                            onMouseLeave={clearWordHighlight}

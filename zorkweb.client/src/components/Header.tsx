@@ -33,15 +33,15 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, moves, s
                 style={{color: '#c49a4c', fontSize: '1.7rem'}}
             />
             <span
-                className="text-white text-2xl font-bold tracking-wide truncate"
+                className="text-white text-lg font-bold tracking-wide truncate"
                 style={{textShadow: '0 0 14px rgba(196, 154, 76, 0.3)'}}
             >
                 {locationName}
             </span>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 w-[242px] lg:w-[274px] mr-1">{/* width + mr-1 align this cluster's edges with the compass box below */}
             <div
-                className="hidden sm:flex items-center px-3 py-1.5 rounded-lg transition-colors duration-200 hover:border-[#c49a4c]"
+                className="hidden sm:flex flex-1 items-center justify-center px-3 py-2 rounded-lg transition-colors duration-200 hover:border-[#c49a4c]"
                 data-testid="header-moves"
                 style={statChip}
             >
@@ -50,7 +50,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, moves, s
                 <CountUp value={moves} className="font-bold text-lg" style={{color: '#e3c179', textShadow: '0 0 10px rgba(196, 154, 76, 0.45)'}}/>
             </div>
             <div
-                className="hidden sm:flex items-center px-3 py-1.5 rounded-lg transition-colors duration-200 hover:border-[#c49a4c]"
+                className="hidden sm:flex flex-1 items-center justify-center px-3 py-2 rounded-lg transition-colors duration-200 hover:border-[#c49a4c]"
                 data-testid="header-score"
                 style={statChip}
             >
