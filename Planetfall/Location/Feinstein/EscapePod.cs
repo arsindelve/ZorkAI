@@ -346,5 +346,13 @@ internal class EscapePod : LocationBase, ITurnBasedActor
     public override void Init()
     {
         StartWithItem<BulkheadDoor>();
+
+        // Issue #376: SafetyWeb was never actually seeded here, so "enter web"/"get in web" - which
+        // resolve to an EnterSubLocationIntent whose noun is looked up via
+        // Repository.GetItemInScope - could never find it, even though the room's own description
+        // talks about the webbing filling the pod. The raw-text shortcuts in
+        // RespondToSpecificLocationInteraction ("sit", "get in", "enter webbing") masked this for
+        // those exact phrasings only.
+        StartWithItem<SafetyWeb>();
     }
 }
