@@ -8,7 +8,7 @@ using ZorkOne.ActorInteraction;
 
 namespace ZorkOne.Item;
 
-public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttacked, ICanBeGivenThings, ICanHoldItems
+public class Troll : CombatGateCreatureBase, ICanBeExamined, ITurnBasedActor, ICanBeGivenThings, ICanHoldItems
 {
     private readonly GiveSomethingToSomeoneDecisionEngine<Troll> _giveHimSomethingEngine = new();
 
@@ -17,8 +17,6 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
     public bool IsUnconscious { get; set; }
 
     public bool IsStunned { get; set; }
-
-    public bool IsDead { get; set; }
 
     public IItem? ItemBeingHeld { get; set; }
 
@@ -107,6 +105,25 @@ public class Troll : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeAttac
             return result;
 
         return await base.RespondToMultiNounInteraction(action, context);
+    }
+
+    /// <summary>
+    /// Issue #374: the axe always ends up in TrollRoom specifically - not wherever the troll's own
+    /// CurrentLocation happens to point - because a prior "god mode take troll" can move that mutable
+    /// state and would otherwise misdirect the drop.
+    /// </summary>
+    protected override void OnDeath(IContext context)
+    {
+        if (ItemBeingHeld is not null)
+        {
+            Repository.GetLocation<TrollRoom>().ItemPlacedHere(ItemBeingHeld);
+            ItemBeingHeld = null;
+        }
+
+        // Repository.DestroyItem removes the troll from wherever he currently is - the room in the
+        // normal case, but also correctly handles the (god-mode-only) edge case where he was
+        // previously moved into the player's inventory via "god mode take troll".
+        Repository.DestroyItem(this);
     }
 }
 

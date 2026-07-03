@@ -123,14 +123,7 @@ internal class AdventurerVersusThiefCombatEngine(IRandomChooser chooser) : IComb
         if (_thief is null)
             throw new ArgumentNullException();
 
-        _thief.IsDead = true;
-        _thief.IsUnconscious = false;
-        _thief.TreasureStash.Add(Repository.GetItem<Stiletto>());
-
-        context.RemoveActor(_thief);
-
-        // And he vanishes. Poof. 
-        Repository.DestroyItem<Thief>();
+        _thief.Die(context);
 
         var result = $"{attackText}\nAlmost as soon as the thief breathes his last breath, a " +
                      $"cloud of sinister black fog envelops him, and when the fog lifts, " +
@@ -140,6 +133,8 @@ internal class AdventurerVersusThiefCombatEngine(IRandomChooser chooser) : IComb
 
         var sb = new StringBuilder(result);
 
+        // Die() unconditionally adds the stiletto to the stash before dropping it, so this is
+        // always true after a real death blow - matching the original inline behavior exactly.
         if (_thief.TreasureStash.Any())
         {
             sb.AppendLine("\nAs the thief dies, the power of his magic decreases, and his treasures reappear:");
@@ -149,8 +144,6 @@ internal class AdventurerVersusThiefCombatEngine(IRandomChooser chooser) : IComb
                     sb.AppendLine("\tA jewel-encrusted egg, with a golden clockwork canary");
                 else
                     sb.AppendLine($"\t{item.GenericDescription(context.CurrentLocation)}");
-
-                context.Drop(item);
             }
         }
 
