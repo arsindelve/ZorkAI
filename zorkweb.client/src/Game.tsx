@@ -541,7 +541,10 @@ function Game() {
                                 backgroundColor: '#c49a4c',
                                 borderRadius: '8px',
                                 transition: 'all 0.3s ease',
-
+                                '&:hover': {
+                                    // MUI's default primary-dark hover is blue; use lit brass instead.
+                                    backgroundColor: '#d8b872',
+                                },
                             }}
                             data-testid="go-button">
                             Go
