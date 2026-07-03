@@ -315,7 +315,9 @@
     { "inputs": ["enter door", "board door"], "noun": "door" },
 
     { "inputs": ["enter elevator", "enter the elevator"], "noun": "elevator" },
-    { "inputs": ["enter the kitchen", "enter kitchen"], "noun": "kitchen" }
+    { "inputs": ["enter the kitchen", "enter kitchen"], "noun": "kitchen" },
+
+    { "inputs": ["enter web", "enter the web", "enter webbing", "enter the webbing", "get in web", "get in the web", "get in webbing", "get in the webbing", "board web", "board webbing"], "noun": "web" }
   ],
 
   "exitSubLocationIntents": [
