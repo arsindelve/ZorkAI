@@ -7,10 +7,68 @@ import Header from "./components/Header.tsx";
 
 import Server from './Server';
 import {ClickableText, ClickableTextHandle} from "@zork-ai/shared-types";
-import Compass from "./components/Compass.tsx";
+import {Compass, parseMoveDirection} from "@zork-ai/shared-types";
 
 import {useGameContext} from "@zork-ai/shared-types";
 import GameInput from "./components/GameInput.tsx";
+
+// --- Per-word hover highlight (CSS Custom Highlight API) ---------------------
+// Lives in the client (passed to ClickableText as onMouseMove/onMouseLeave) rather
+// than inside the shared ClickableText, so it loads reliably regardless of how the
+// shared package resolves. Highlights only the single word under the cursor to
+// signal that individual words are clickable.
+const WORD_HOVER_HIGHLIGHT = "word-hover";
+
+const supportsHighlightApi = (): boolean =>
+    typeof CSS !== "undefined" &&
+    !!CSS.highlights &&
+    typeof (globalThis as { Highlight?: unknown }).Highlight !== "undefined";
+
+const expandToWordRange = (node: Node | null, offset: number): Range | null => {
+    if (!node || node.nodeType !== Node.TEXT_NODE) return null;
+    const text = node.textContent ?? "";
+    if (!text) return null;
+    let start = offset;
+    let end = offset;
+    while (start > 0 && !/\s/.test(text[start - 1])) start--;
+    while (end < text.length && !/\s/.test(text[end])) end++;
+    if (start === end) return null;
+    const range = document.createRange();
+    range.setStart(node, start);
+    range.setEnd(node, end);
+    return range;
+};
+
+const clearWordHighlight = (): void => {
+    if (!supportsHighlightApi()) return;
+    CSS.highlights.delete(WORD_HOVER_HIGHLIGHT);
+};
+
+const highlightWordAtPointer = (event: React.MouseEvent<HTMLDivElement>): void => {
+    let node: Node | null = null;
+    let offset = 0;
+    const doc = document as Document & {
+        caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node; offset: number } | null;
+    };
+    if (typeof doc.caretRangeFromPoint === "function") {
+        const range = doc.caretRangeFromPoint(event.clientX, event.clientY);
+        if (range) { node = range.startContainer; offset = range.startOffset; }
+    } else if (typeof doc.caretPositionFromPoint === "function") {
+        const pos = doc.caretPositionFromPoint(event.clientX, event.clientY);
+        if (pos) { node = pos.offsetNode; offset = pos.offset; }
+    }
+    const wordRange = expandToWordRange(node, offset);
+    const overWord = !!wordRange && wordRange.toString().trim().length > 0;
+
+    // Pointer cursor only while hovering an actual (clickable) word, not whitespace.
+    event.currentTarget.style.cursor = overWord ? "pointer" : "";
+
+    if (!supportsHighlightApi()) return;
+    if (!overWord) { clearWordHighlight(); return; }
+    const HighlightCtor = (globalThis as { Highlight?: new (range: Range) => unknown }).Highlight!;
+    // @ts-expect-error - highlights is not in older TS lib.dom typings
+    CSS.highlights.set(WORD_HOVER_HIGHLIGHT, new HighlightCtor(wordRange!));
+};
 
 function Game() {
 
@@ -19,6 +77,7 @@ function Game() {
     const restartResponse = "<Restart>";
 
     const [playerInput, setInput] = useState<string>("");
+    const [commandHistory, setCommandHistory] = useState<string[]>([]);
     const [gameText, setGameText] = useState<string[]>(["Your game is loading...."]);
     const [score, setScore] = useState<string>("0");
     const [moves, setMoves] = useState<string>("0");
@@ -27,6 +86,9 @@ function Game() {
     const [locationActions, setLocationActions] = useState<Record<string, string[]>>({});
     const [exits, setExits] = useState<string[]>([]);
     const [locationName, setLocationName] = useState<string>("");
+    const [pingMove, setPingMove] = useState<{id: string; nonce: number}>({id: "", nonce: 0});
+    const [showJumpToLatest, setShowJumpToLatest] = useState<boolean>(false);
+    const atBottomRef = React.useRef<boolean>(true);
 
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
     const [snackBarMessage, setSnackBarMessage] = useState<string>("");
@@ -107,12 +169,28 @@ function Game() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [deleteGameRequest]);
 
-    // Scroll to the bottom of the container after we add text. 
+    // Auto-scroll only when the player is already at the bottom; otherwise flag the
+    // new content so they can jump down without losing their place in the history.
     useEffect(() => {
-        if (gameContentElement.current) {
-            gameContentElement.current.scrollToBottom();
+        if (atBottomRef.current) {
+            gameContentElement.current?.scrollToBottom();
+        } else {
+            setShowJumpToLatest(true);
         }
     }, [gameText]);
+
+    function handleTranscriptScroll(event: React.UIEvent<HTMLDivElement>) {
+        const el = event.currentTarget;
+        const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 48;
+        atBottomRef.current = atBottom;
+        if (atBottom) setShowJumpToLatest(false);
+    }
+
+    function jumpToLatest() {
+        gameContentElement.current?.scrollToBottom();
+        atBottomRef.current = true;
+        setShowJumpToLatest(false);
+    }
 
     // Restart the game. 
     useEffect(() => {
@@ -163,6 +241,18 @@ function Game() {
             return;
         }
 
+        // Style the room-name line (the line equal to the current location) as a header
+        // so the transcript is scannable. Consume any blank lines hugging it so spacing
+        // is controlled purely by the .room-header CSS margins.
+        const roomName = (data.locationName ?? '').trim();
+        if (roomName) {
+            const escaped = roomName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            data.response = data.response.replace(
+                new RegExp(`\\n*^[ \\t]*${escaped}[ \\t]*$\\n*`, 'm'),
+                `<span class="room-header">${roomName}</span>`
+            );
+        }
+
         // Replace newline chars with HTML line breaks and preserve leading whitespace (spaces and tabs)
         data.response = data.response
             .replace(/\t/g, '    ')  // Convert tabs to 4 spaces
@@ -170,9 +260,20 @@ function Game() {
             .replace(/^( +)/gm, (match) => '&nbsp;'.repeat(match.length))
             .replace(/<br \/>( +)/g, (_, spaces) => '<br />' + '&nbsp;'.repeat(spaces.length));
 
-        const textToAppend = `<p class="text-lime-600 font-extrabold mt-3 mb-3">`
-            + (!playerInput ? "" : `> ${playerInput}`) + `</p>`
-            + data.response;
+        // The room header is block-level, so it already breaks the line. Strip any
+        // <br>/whitespace that immediately follows it so the description sits directly
+        // beneath it (otherwise the gap below the room name dwarfs the gap above it).
+        data.response = data.response.replace(
+            /(<span class="room-header">[^<]*<\/span>)(?:\s|&nbsp;|<br\s*\/?>)+/i,
+            '$1'
+        );
+
+        // Only render the command-echo paragraph when there's actually a command —
+        // an empty <p> still carries margins and threw off the spacing above room names.
+        const echo = playerInput
+            ? `<p data-testid="command-echo" class="text-[#c49a4c] font-extrabold mt-3 mb-1">> ${playerInput}</p>`
+            : '';
+        const textToAppend = echo + data.response;
 
         setGameText((prevGameText) => [...prevGameText, textToAppend]);
         setInput("");
@@ -199,6 +300,16 @@ function Game() {
     function submitInput(inputValue?: string) {
         const [id] = sessionId.getSessionId();
         const valueToSubmit = (inputValue ?? playerInput).trim(); // Use parameter if provided, else fallback to state
+        // Record non-empty commands for Up/Down recall, collapsing immediate repeats.
+        if (valueToSubmit) {
+            setCommandHistory((prev) =>
+                prev[prev.length - 1] === valueToSubmit ? prev : [...prev, valueToSubmit]);
+        }
+        // Flash the compass control for the direction just moved.
+        const moveDir = parseMoveDirection(valueToSubmit);
+        if (moveDir) {
+            setPingMove((prev) => ({id: moveDir, nonce: prev.nonce + 1}));
+        }
         mutation.mutate(new GameRequest(valueToSubmit, id));
         focusOnPlayerInput();
     }
@@ -273,7 +384,7 @@ function Game() {
 
     return (
 
-        <div className={"m-10 mt-20 relative"}>
+        <div className={"relative flex flex-col flex-1 min-h-0 mx-10 mt-[39px] mb-8"}>
 
             <div>
                 <Snackbar
@@ -287,64 +398,99 @@ function Game() {
 
             <Header locationName={locationName} moves={moves} score={score}/>
 
-            <Compass 
-            onCompassClick={handleCommandClick} 
+            <Compass
+            onCompassClick={handleCommandClick}
             exits={exits}
+            pingMove={pingMove}
             className="
             hidden
-            cursor: pointer
             md:block
-            absolute 
+            absolute
             top-24
             right-5
-            w-[10%] 
-            h-auto
-            opacity-75
             z-20
             pointer-events-auto
-            "/>
+            rounded-xl
+            p-7
+            "
+            style={{
+                background: 'linear-gradient(135deg, rgba(41, 37, 36, 0.14) 0%, rgba(12, 10, 9, 0.14) 100%)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: '1px solid rgba(196, 154, 76, 0.3)',
+                boxShadow: '0 4px 20px rgba(196, 154, 76, 0.18), 0 2px 10px rgba(0, 0, 0, 0.5)'
+            }}/>
 
+            <div className="relative flex-1 min-h-0 mt-2">
             <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word: string) => handleWordClicked(word)}
-                           className={"p-6 sm:p-12 bg-opacity-80 h-[65vh] overflow-auto " +
-                               "bg-stone-900 font-mono rounded-lg border-2 " +
-                               "border-stone-700/50 shadow-lg z-10"}
+                           onMouseMove={highlightWordAtPointer}
+                           onMouseLeave={clearWordHighlight}
+                           onScroll={handleTranscriptScroll}
+                           className={"relative flex flex-col p-6 sm:p-12 bg-opacity-80 h-full overflow-auto " +
+                               "bg-stone-900 font-mono rounded-t-lg border-t-2 border-x-2 " +
+                               "border-stone-700/50 shadow-lg clickable scanline-effect z-10"}
                            data-testid="game-responses-container">
                 <div className="relative z-0">
                     {/* Background styling elements */}
                     <div
                         className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMjEyMTIxIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=')] opacity-5 pointer-events-none"></div>
                     <div
-                        className="absolute top-2 left-2 w-20 h-20 rounded-full bg-lime-500/10 blur-3xl pointer-events-none"></div>
+                        className="absolute top-2 left-2 w-20 h-20 rounded-full bg-[#c49a4c]/10 blur-3xl pointer-events-none"></div>
                     <div
-                        className="absolute bottom-10 right-5 w-32 h-32 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none"></div>
+                        className="absolute bottom-10 right-5 w-32 h-32 rounded-full bg-[#c49a4c]/5 blur-3xl pointer-events-none"></div>
                 </div>
 
-                {gameText.map((item: string, index: number) => (
-                    <p
-                        dangerouslySetInnerHTML={{__html: item}}
-                        className={`mb-4 relative z-10 ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
-                        key={index}
-                        data-testid="game-response"
-                    >
-                    </p>
-                ))}
+                {/* mt-auto pins the transcript to the bottom of the panel (terminal feel)
+                    while still scrolling normally once the content overflows. */}
+                <div className="mt-auto relative z-10 w-full">
+                    {gameText.map((item: string, index: number) => (
+                        <p
+                            dangerouslySetInnerHTML={{__html: item}}
+                            className={`mb-4 relative z-10 ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
+                            key={index}
+                            data-testid="game-response"
+                        >
+                        </p>
+                    ))}
+                </div>
             </ClickableText>
 
+            {showJumpToLatest && (
+                <button
+                    type="button"
+                    onClick={jumpToLatest}
+                    data-testid="jump-to-latest"
+                    className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-mono pointer-events-auto transition-transform hover:scale-105 animate-fadeIn"
+                    style={{
+                        background: 'rgba(28, 25, 23, 0.92)',
+                        border: '1px solid rgba(196, 154, 76, 0.45)',
+                        color: '#e3c179',
+                        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.5)',
+                        backdropFilter: 'blur(4px)'
+                    }}
+                >
+                    &darr;&nbsp;New messages
+                </button>
+            )}
+            </div>
+
             <div
-                className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-1 sm:gap-2 bg-gradient-to-r from-stone-800 to-stone-700 py-2 min-h-[90px] rounded-b-lg border-t border-stone-600/30 shadow-inner">
+                className="flex flex-col items-stretch gap-2 bg-gradient-to-r from-stone-800 to-stone-700 px-3 sm:px-5 py-3 min-h-[90px] rounded-b-lg border-x-2 border-b-2 border-t border-stone-700/50 shadow-inner">
+                {/* The command line is the primary interaction — give it its own full-width row. */}
                 <GameInput
                     playerInputElement={playerInputElement}
                     isPending={mutation.isPending}
                     playerInput={playerInput}
                     setInput={setInput}
                     handleKeyDown={handleKeyDown}
+                    commandHistory={commandHistory}
                 />
 
                 {mutation.isPending && (
-                    <div className="mr-4 p-2 flex items-center justify-center">
+                    <div className="p-2 flex items-center justify-center min-h-[44px]">
                         <CircularProgress size={28} sx={{
-                            color: '#84cc16',
-                            boxShadow: '0 0 15px 5px rgba(132, 204, 22, 0.2)',
+                            color: '#c49a4c',
+                            boxShadow: '0 0 15px 5px rgba(196, 154, 76, 0.2)',
                             borderRadius: '50%'
                         }}/>
                     </div>
@@ -358,10 +504,8 @@ function Game() {
                         justify-center
                         items-center
                         flex-wrap
-                        sm:ml-2
-                        sm:mr-4
                         gap-3 sm:gap-4
-                        p-3
+                        min-h-[44px]
                         ">
                         <VerbsButton onVerbClick={handleVerbClick}/>
                         {inventory.length > 0 && (
@@ -394,10 +538,13 @@ function Game() {
                                 fontWeight: 'bold',
                                 minWidth: '80px',
                                 padding: '4px 10px',
-                                backgroundColor: '#84cc16',
+                                backgroundColor: '#c49a4c',
                                 borderRadius: '8px',
                                 transition: 'all 0.3s ease',
-
+                                '&:hover': {
+                                    // MUI's default primary-dark hover is blue; use lit brass instead.
+                                    backgroundColor: '#d8b872',
+                                },
                             }}
                             data-testid="go-button">
                             Go

@@ -119,4 +119,51 @@ describe('GameInput Component', () => {
     fireEvent.blur(inputElement);
     expect(container?.className).toContain('opacity-50');
   });
+
+  describe('command history', () => {
+    const renderWithHistory = (commandHistory: string[]) =>
+      render(
+        <GameInput
+          playerInputElement={mockRef}
+          isPending={false}
+          playerInput=""
+          setInput={mockSetInput}
+          handleKeyDown={mockHandleKeyDown}
+          commandHistory={commandHistory}
+        />
+      );
+
+    test('ArrowUp recalls the most recent command', () => {
+      renderWithHistory(['look', 'go north']);
+      fireEvent.keyDown(screen.getByTestId('game-input'), { key: 'ArrowUp' });
+      expect(mockSetInput).toHaveBeenLastCalledWith('go north');
+    });
+
+    test('ArrowUp/ArrowDown walk back and forward through history', () => {
+      renderWithHistory(['look', 'go north']);
+      const input = screen.getByTestId('game-input');
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });   // -> 'go north'
+      fireEvent.keyDown(input, { key: 'ArrowUp' });   // -> 'look'
+      fireEvent.keyDown(input, { key: 'ArrowDown' }); // -> 'go north'
+      fireEvent.keyDown(input, { key: 'ArrowDown' }); // -> '' (live line)
+
+      expect(mockSetInput).toHaveBeenNthCalledWith(1, 'go north');
+      expect(mockSetInput).toHaveBeenNthCalledWith(2, 'look');
+      expect(mockSetInput).toHaveBeenNthCalledWith(3, 'go north');
+      expect(mockSetInput).toHaveBeenNthCalledWith(4, '');
+    });
+
+    test('ArrowUp does nothing when history is empty', () => {
+      renderWithHistory([]);
+      fireEvent.keyDown(screen.getByTestId('game-input'), { key: 'ArrowUp' });
+      expect(mockSetInput).not.toHaveBeenCalled();
+    });
+
+    test('non-arrow keys still delegate to handleKeyDown', () => {
+      renderWithHistory(['look']);
+      fireEvent.keyDown(screen.getByTestId('game-input'), { key: 'Enter' });
+      expect(mockHandleKeyDown).toHaveBeenCalledTimes(1);
+    });
+  });
 });
