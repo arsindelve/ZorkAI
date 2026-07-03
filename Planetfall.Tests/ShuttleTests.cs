@@ -551,6 +551,39 @@ public class ShuttleTests : EngineTestsBase
     }
 
     [Test]
+    public async Task LeaveImmediatelyAfterArrivalLandmark_SpeedConsequenceStillApplies()
+    {
+        // Regression test for issue #373: a player who never decelerates (pushes the lever
+        // once and never touches it again) and then leaves the control cabin on the very turn
+        // the arrival landmark text appears must still suffer the speed-based consequence.
+        // Previously, OnLeaveLocation deregistered the shuttle control as an actor before the
+        // deferred Arrived() computation could run on the next Act() cycle, letting the player
+        // dodge the crash/death penalty just by choosing "leave" as their next command.
+        var target = GetTarget();
+        Take<ShuttleAccessCard>();
+        StartHere<AlfieControlEast>();
+        var controls = GetLocation<AlfieControlEast>();
+
+        await target.GetResponse("slide shuttle access card through slot");
+
+        var response = await target.GetResponse("push lever"); // never touch the lever again
+
+        for (var i = 0; i < 23; i++)
+            response = await target.GetResponse("wait");
+
+        response.Should().Contain(
+            "The shuttle car is approaching a brightly lit area. As you near it, you make out the concrete platforms of a shuttle station");
+        controls.TunnelPosition.Should().Be(24);
+        controls.Activated.Should().BeTrue();
+        controls.DoorIsClosed.Should().BeFalse();
+
+        var leaveResponse = await target.GetResponse("W");
+
+        leaveResponse.Should().Contain("You have died");
+        controls.Activated.Should().BeFalse();
+    }
+
+    [Test]
     public async Task FullTrip_ConstantSpeed_PerfectLanding()
     {
         var target = GetTarget();
