@@ -31,6 +31,13 @@ public class GodModeProcessor : IGlobalCommand
             ToggleSurvivalClocks(input, survivalContext) is { } survivalResult)
             return Task.FromResult(survivalResult);
 
+        // Toggle Floyd's random wandering for deterministic playtesting (the walkthrough tests do the
+        // same thing by mocking IRandomChooser). Only games with a wandering companion (Planetfall)
+        // implement IFloydWanderingContext.
+        if (context is IFloydWanderingContext floydWanderingContext &&
+            ToggleFloydWandering(input, floydWanderingContext) is { } floydWanderingResult)
+            return Task.FromResult(floydWanderingResult);
+
         return Task.FromResult("Invalid use of God mode. Bad adventurer! ");
     }
 
@@ -87,6 +94,28 @@ public class GodModeProcessor : IGlobalCommand
         return disable
             ? $"God mode: {clocks} {noun} disabled. You will no longer get {string.Join(" or ", effects)}. "
             : $"God mode: {clocks} {noun} enabled. ";
+    }
+
+    /// <summary>
+    /// Recognizes "god mode [no] wander|wandering" (with optional "on"/"off") and flips the
+    /// wandering-disabled flag on the context - the same effect the walkthrough tests get by mocking
+    /// IRandomChooser to always fail Floyd's wandering rolls, but available as a live command. Returns
+    /// the confirmation message, or null if the input doesn't mention wandering (so the caller falls
+    /// through to the generic god-mode error).
+    /// </summary>
+    private static string? ToggleFloydWandering(string input, IFloydWanderingContext context)
+    {
+        var words = input.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (!words.Contains("wander") && !words.Contains("wandering"))
+            return null;
+
+        // "no" / "off" disables wandering; a bare verb (or explicit "on") re-enables it.
+        var disable = words.Contains("no") || words.Contains("off");
+        context.FloydWanderingDisabled = disable;
+
+        return disable
+            ? "God mode: Floyd's wandering disabled. He will no longer randomly wander off. "
+            : "God mode: Floyd's wandering enabled. ";
     }
 
     private string Where(string input)

@@ -7,7 +7,7 @@ using Utilities;
 namespace Planetfall;
 
 public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISurvivalClockContext,
-    IResettableClockContext, IGodModeTeleportAware
+    IResettableClockContext, IGodModeTeleportAware, IFloydWanderingContext
 {
     private const int TurnTimeIncrement = 54;
 
@@ -29,6 +29,15 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
     /// </summary>
     [UsedImplicitly]
     public bool HungerClockDisabled { get; set; }
+
+    /// <summary>
+    ///     God-mode test affordance. When true, Floyd's two random wandering triggers (failing to
+    ///     follow the player, and spontaneously wandering off) are suppressed, for deterministic
+    ///     playtesting/walkthroughs. Plain auto-property so it round-trips through the save/restore
+    ///     JSON like the rest of context state.
+    /// </summary>
+    [UsedImplicitly]
+    public bool FloydWanderingDisabled { get; set; }
 
     /// <summary>
     ///     Number of times the player has died. Preserved across death restarts.
