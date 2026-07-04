@@ -33,17 +33,21 @@ public class PlanetfallController(
     {
         await engine.InitializeEngine();
 
-        // A stale/typo/never-played session id has no saved state. Without this guard we'd silently
-        // RestoreSession(nothing) and hand the hint engine a brand-new, just-initialized Context — i.e.
-        // give a hint for the opening scene as if that were the player's situation. (The old
-        // `engine.Context is null` check could never catch this: InitializeEngine always sets a Context.)
+        // Sessions are only persisted after the FIRST PLAYED TURN, so "no saved session" is ambiguous:
+        // it's either a brand-new player at turn zero (the game intro is on their screen right now) or a
+        // genuinely stale/lost session mid-game. The client-supplied hint history disambiguates:
+        //  - no session + no hint conversation  -> new player; hint the fresh opening state (which is
+        //    exactly what engine.Context holds after InitializeEngine).
+        //  - no session + an existing conversation -> stale (they were clearly mid-game); refuse honestly
+        //    rather than silently giving opening-scene hints for a late-game situation.
         var savedSession = await GetSavedSession(request.SessionId);
-        if (string.IsNullOrEmpty(savedSession))
+        if (string.IsNullOrEmpty(savedSession) && request.History is {Count: > 0})
             return new HintApiResponse(
                 "I can't find a game in progress for this session, so there's nothing to hint about yet. " +
                 "Start or restore a game first.");
 
-        RestoreSession(savedSession);
+        if (!string.IsNullOrEmpty(savedSession))
+            RestoreSession(savedSession);
 
         var service = new HintService(new PlanetfallHintProvider(), hintLlm);
         var result = await service.GetHint(new HintRequest(
