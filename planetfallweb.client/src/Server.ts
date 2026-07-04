@@ -1,5 +1,5 @@
 import axios, {AxiosResponse, RawAxiosRequestHeaders} from 'axios';
-import {askForHint, GameRequest, GameResponse, HintExchange, ISaveGameRequest, ISavedGame, RestoreGameRequest, Mixpanel, SessionHandler} from "@zork-ai/shared-types";
+import {askForHint, GameRequest, GameResponse, HintAnswer, HintExchange, ISaveGameRequest, ISavedGame, RestoreGameRequest, Mixpanel, SessionHandler} from "@zork-ai/shared-types";
 import config from '../config.json';
 
 export default class Server {
@@ -11,7 +11,7 @@ export default class Server {
      * Ask the narrator for a hint. Read-only — consumes no game turn. The hint conversation is
      * client-owned (the endpoint is stateless), so the running history is passed with every ask.
      */
-    hint = async (question: string, history: HintExchange[]): Promise<string> => {
+    hint = async (question: string, history: HintExchange[]): Promise<HintAnswer> => {
         return askForHint(this.baseUrl, this.sessionId.getSessionId()[0], question, history);
     };
 

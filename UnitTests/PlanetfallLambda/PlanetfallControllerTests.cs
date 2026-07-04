@@ -404,8 +404,10 @@ public class PlanetfallControllerTests
             var result = await _controller.Hint(new HintApiRequest("ghost-session", "what do I do?",
                 new List<Model.Hints.HintExchange> {new("earlier q", "earlier a")}));
 
-            // Not an opening-scene hint and not a 500 — a clear "no game yet" message...
+            // Not an opening-scene hint and not a 500 — a clear "no game yet" message, flagged as a
+            // non-hint so the client shows it without recording it into the conversation...
             result.Text.Should().Contain("can't find a game");
+            result.IsHint.Should().BeFalse();
             // ...and nothing was persisted.
             _mockSessionRepository.Verify(
                 r => r.WriteSessionState(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);

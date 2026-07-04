@@ -11,12 +11,18 @@ import {Mixpanel} from "./Mixpanel";
  * Only the most recent exchanges are sent: disclosure pacing needs the recent thread, not the
  * whole transcript, and this bounds the token cost of long hint sessions.
  */
+/** A reply from the hint endpoint. isHint=false marks a refusal/system message: show it, never record it. */
+export interface HintAnswer {
+    text: string;
+    isHint?: boolean;
+}
+
 export async function askForHint(
     baseUrl: string,
     sessionId: string,
     question: string,
     history: HintExchange[]
-): Promise<string> {
+): Promise<HintAnswer> {
     const started = Date.now();
 
     const response = await fetch(`${baseUrl}/hint`, {
@@ -35,13 +41,14 @@ export async function askForHint(
     if (!response.ok)
         throw new Error(`Hint request failed: ${response.status}`);
 
-    const data: { text: string } = await response.json();
+    const data: HintAnswer = await response.json();
 
     Mixpanel.track("Asked For Hint", {
         question,
         historyLength: history.length,
-        latencyMs: Date.now() - started
+        latencyMs: Date.now() - started,
+        isHint: data.isHint !== false
     });
 
-    return data.text;
+    return data;
 }

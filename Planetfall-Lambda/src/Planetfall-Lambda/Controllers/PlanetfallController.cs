@@ -44,7 +44,7 @@ public class PlanetfallController(
         if (string.IsNullOrEmpty(savedSession) && request.History is {Count: > 0})
             return new HintApiResponse(
                 "I can't find a game in progress for this session, so there's nothing to hint about yet. " +
-                "Start or restore a game first.");
+                "Start or restore a game first.", IsHint: false);
 
         if (!string.IsNullOrEmpty(savedSession))
             RestoreSession(savedSession);
@@ -54,7 +54,7 @@ public class PlanetfallController(
             request.SessionId, engine.Context!, request.Question, request.History ?? []));
 
         // Deliberately no WriteSession(): hints are read-only and consume no turn.
-        return new HintApiResponse(result.Text);
+        return new HintApiResponse(result.Text, result.IsHint);
     }
 
     [HttpPost]

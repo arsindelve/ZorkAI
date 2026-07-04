@@ -3,6 +3,7 @@ import TipsAndUpdatesOutlinedIcon from "@mui/icons-material/TipsAndUpdatesOutlin
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import {HintExchange} from "../HintExchange";
+import {HintAnswer} from "../utils/HintServer";
 
 /**
  * The hint side panel: a chat-style conversation with the game's snarky, incorporeal narrator.
@@ -31,7 +32,7 @@ type HintPanelProps = {
     onClose: () => void;
     sessionId: string;
     /** Sends a question (with the running history) to the game's hint endpoint. */
-    ask: (question: string, history: HintExchange[]) => Promise<string>;
+    ask: (question: string, history: HintExchange[]) => Promise<HintAnswer>;
     /** Layout sizing/positioning from the host (width, height, responsive visibility). */
     className?: string;
     /** Quick-ask chips. Defaults suit any game. */
@@ -98,8 +99,15 @@ export default function HintPanel({
         setPendingQuestion(q);
 
         try {
-            const revealed = await ask(q, history);
-            setHistory(prev => [...prev, {question: q, revealed}]);
+            const answer = await ask(q, history);
+            if (answer.isHint === false) {
+                // A refusal/system message: show it, but keep it OUT of the recorded conversation —
+                // replaying it to the narrator would pollute the disclosure pacing.
+                setError(answer.text);
+                setQuestion(q);
+            } else {
+                setHistory(prev => [...prev, {question: q, revealed: answer.text}]);
+            }
         } catch {
             // Show the failure in-voice, keep it OUT of the history, and let the player resend.
             setError("The hint system appears to be off sulking somewhere. Try again in a moment.");

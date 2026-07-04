@@ -27,7 +27,7 @@ describe('HintPanel Component', () => {
     });
 
     test('sending a question calls ask and renders the exchange', async () => {
-        const ask = jest.fn().mockResolvedValue('Try waiting. The ship has plans.');
+        const ask = jest.fn().mockResolvedValue({text: 'Try waiting. The ship has plans.'});
         renderPanel(ask);
 
         fireEvent.change(screen.getByTestId('hint-input'), {target: {value: 'what do I do?'}});
@@ -45,7 +45,7 @@ describe('HintPanel Component', () => {
 
     test('a follow-up passes the prior history to ask', async () => {
         localStorage.setItem(storageKey, JSON.stringify([{question: 'q1', revealed: 'a1'}]));
-        const ask = jest.fn().mockResolvedValue('a2');
+        const ask = jest.fn().mockResolvedValue({text: 'a2'});
         renderPanel(ask);
 
         fireEvent.change(screen.getByTestId('hint-input'), {target: {value: 'more'}});
@@ -77,8 +77,24 @@ describe('HintPanel Component', () => {
         expect(screen.getByTestId('hint-answer')).toHaveTextContent('old a');
     });
 
+    test('a refusal (isHint: false) is shown but never recorded', async () => {
+        // e.g. the stale-session message: the server answers 200 with a system message, not a hint.
+        const ask = jest.fn().mockResolvedValue({text: "I can't find a game in progress.", isHint: false});
+        renderPanel(ask);
+
+        fireEvent.change(screen.getByTestId('hint-input'), {target: {value: 'help'}});
+        fireEvent.click(screen.getByTestId('hint-send'));
+
+        await waitFor(() => expect(screen.getByTestId('hint-error')).toBeInTheDocument());
+        expect(screen.getByTestId('hint-error')).toHaveTextContent("can't find a game");
+        // Never persisted — replaying a refusal to the narrator would pollute the pacing...
+        expect(JSON.parse(localStorage.getItem(storageKey) ?? '[]')).toEqual([]);
+        // ...and the question is restored for a clean retry.
+        expect(screen.getByTestId('hint-input')).toHaveValue('help');
+    });
+
     test('quick-ask chips send immediately', async () => {
-        const ask = jest.fn().mockResolvedValue('an answer');
+        const ask = jest.fn().mockResolvedValue({text: 'an answer'});
         renderPanel(ask);
 
         fireEvent.click(screen.getAllByTestId('hint-chip')[0]);
