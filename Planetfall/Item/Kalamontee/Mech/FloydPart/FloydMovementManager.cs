@@ -40,8 +40,10 @@ public class FloydMovementManager(Floyd floyd)
         bool isInTheRoom = floyd.CurrentLocation == context.CurrentLocation;
         if (!isInTheRoom)
         {
-            // Random chance to no longer follow (1 in 5 chance)
-            if (floyd.Chooser.RollDiceSuccess(5))
+            // Random chance to no longer follow (1 in 5 chance) - skipped when god mode has disabled
+            // Floyd's random wandering for deterministic playtesting.
+            var wanderingDisabled = context is PlanetfallContext { FloydWanderingDisabled: true };
+            if (!wanderingDisabled && floyd.Chooser.RollDiceSuccess(5))
             {
                 floyd.IsOffWandering = true;
                 floyd.WanderingTurnsRemaining = floyd.Chooser.RollDice(5); // 1-5 turns
@@ -88,6 +90,9 @@ public class FloydMovementManager(Floyd floyd)
         bool isInTheRoom = floyd.CurrentLocation == context.CurrentLocation;
         if (floyd.IsOffWandering || !isInTheRoom || context.CurrentLocation is IFloydDoesNotTalkHere)
             return null;
+
+        // God mode may have disabled Floyd's random wandering for deterministic playtesting.
+        if (context is PlanetfallContext { FloydWanderingDisabled: true }) return null;
 
         if (!floyd.Chooser.RollDiceSuccess(20)) return null;
         

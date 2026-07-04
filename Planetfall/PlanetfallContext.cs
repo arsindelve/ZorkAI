@@ -6,10 +6,10 @@ using Utilities;
 
 namespace Planetfall;
 
-public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISurvivalClockContext,
-    IResettableClockContext, IGodModeTeleportAware
+public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, IGodModeTeleportAware,
+    IGodModeCommandHandler
 {
-    private const int TurnTimeIncrement = 54;
+    internal const int TurnTimeIncrement = 54;
 
     [UsedImplicitly]
     public int Day { get; set; } = 1;
@@ -29,6 +29,27 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
     /// </summary>
     [UsedImplicitly]
     public bool HungerClockDisabled { get; set; }
+
+    /// <summary>
+    ///     God-mode test affordance ("god mode no wander"). When true, Floyd's two random wandering
+    ///     triggers (failing to follow the player, and spontaneously wandering off) are suppressed,
+    ///     for deterministic playtesting/walkthroughs. Plain auto-property so it round-trips through
+    ///     the save/restore JSON like the rest of context state.
+    /// </summary>
+    [UsedImplicitly]
+    public bool FloydWanderingDisabled { get; set; }
+
+    /// <summary>
+    ///     Planetfall's game-specific god-mode subcommands (chronometer reset, survival-clock and
+    ///     Floyd-wandering toggles). The engine's processor delegates here via
+    ///     <see cref="IGodModeCommandHandler" /> so Planetfall concepts never leak into engine code;
+    ///     the parsing itself lives in <see cref="PlanetfallGodModeCommands" /> to keep this context
+    ///     focused on game state.
+    /// </summary>
+    public string? HandleGodModeCommand(string input)
+    {
+        return PlanetfallGodModeCommands.Handle(this, input);
+    }
 
     /// <summary>
     ///     Number of times the player has died. Preserved across death restarts.
@@ -267,12 +288,6 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
         Repository.GetItem<Chronometer>().CurrentTime += TurnTimeIncrement;
         SleepJustOccurred = false;
         return base.ProcessEndOfTurn();
-    }
-
-    public void ResetClockForGodMode(int targetTime)
-    {
-        // God-mode commands still take a Planetfall turn, so compensate for the end-of-turn tick.
-        Repository.GetItem<Chronometer>().CurrentTime = targetTime - TurnTimeIncrement;
     }
 
     /// <summary>
