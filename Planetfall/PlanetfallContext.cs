@@ -7,7 +7,7 @@ using Utilities;
 namespace Planetfall;
 
 public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISurvivalClockContext,
-    IResettableClockContext, IGodModeTeleportAware, IFloydWanderingContext
+    IResettableClockContext, IGodModeTeleportAware, IGodModeCommandHandler
 {
     private const int TurnTimeIncrement = 54;
 
@@ -31,13 +31,36 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
     public bool HungerClockDisabled { get; set; }
 
     /// <summary>
-    ///     God-mode test affordance. When true, Floyd's two random wandering triggers (failing to
-    ///     follow the player, and spontaneously wandering off) are suppressed, for deterministic
-    ///     playtesting/walkthroughs. Plain auto-property so it round-trips through the save/restore
-    ///     JSON like the rest of context state.
+    ///     God-mode test affordance ("god mode no wander"). When true, Floyd's two random wandering
+    ///     triggers (failing to follow the player, and spontaneously wandering off) are suppressed,
+    ///     for deterministic playtesting/walkthroughs. Plain auto-property so it round-trips through
+    ///     the save/restore JSON like the rest of context state.
     /// </summary>
     [UsedImplicitly]
     public bool FloydWanderingDisabled { get; set; }
+
+    /// <summary>
+    ///     Planetfall's game-specific god-mode subcommands (see <see cref="IGodModeCommandHandler" /> -
+    ///     the engine's processor delegates here so Floyd never leaks into engine code). Recognizes
+    ///     "god mode [no] wander|wandering" (with optional "on"/"off") and flips
+    ///     <see cref="FloydWanderingDisabled" /> - the same effect the walkthrough tests get by mocking
+    ///     IRandomChooser to always fail Floyd's wandering rolls, but available as a live command.
+    ///     Returns null for anything unrecognized so the engine emits its generic god-mode error.
+    /// </summary>
+    public string? HandleGodModeCommand(string input)
+    {
+        var words = input.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (!words.Contains("wander") && !words.Contains("wandering"))
+            return null;
+
+        // "no" / "off" disables wandering; a bare verb (or explicit "on") re-enables it.
+        var disable = words.Contains("no") || words.Contains("off");
+        FloydWanderingDisabled = disable;
+
+        return disable
+            ? "God mode: Floyd's wandering disabled. He will no longer randomly wander off. "
+            : "God mode: Floyd's wandering enabled. ";
+    }
 
     /// <summary>
     ///     Number of times the player has died. Preserved across death restarts.
