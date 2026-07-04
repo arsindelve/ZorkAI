@@ -23,6 +23,19 @@
   --compass-label-color: color-mix(in srgb, var(--planetfall-text) 65%, transparent);
   --compass-btn-text: #cfeaff;
   --compass-btn-idle: var(--planetfall-text);
+
+  /* Hint panel palette — consumed by the shared <HintPanel> component */
+  --hint-accent: var(--planetfall-primary);
+  --hint-user-accent: var(--planetfall-secondary);
+  --hint-badge: var(--planetfall-accent);
+  --hint-warning: var(--planetfall-warning);
+  --hint-bg: #0c1f33;
+  --hint-bg-deep: #04101f;
+  --hint-bubble: #10243a;
+  --hint-text: var(--planetfall-text);
+  --hint-muted: #7fb3d4;
+  --hint-narrator-font: 'Roboto Mono', monospace;
+  --hint-heading-font: 'Platypi', serif;
 }
 
 /* Animations */
