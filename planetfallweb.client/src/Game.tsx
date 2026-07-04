@@ -404,7 +404,9 @@ function Game() {
 
             <Header locationName={locationName} time={time} score={score}/>
 
-            <Compass
+            {/* The compass floats over the transcript's top-right — the same spot the hint panel
+                docks into — so hide it while hints are open and bring it back on close. */}
+            {!hintsOpen && <Compass
             onCompassClick={handleCommandClick}
             exits={exits}
             pingMove={pingMove}
@@ -425,7 +427,7 @@ function Game() {
                 WebkitBackdropFilter: 'blur(8px)',
                 border: '1px solid color-mix(in srgb, var(--planetfall-primary) 30%, transparent)',
                 boxShadow: '0 4px 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent), 0 2px 10px rgba(0, 0, 0, 0.5)'
-            }}/>
+            }}/>}
 
             <div className="relative flex-1 min-h-0 max-h-[55vh] flex flex-row gap-3">
             {/* Transcript (and its jump-to-latest overlay) — shares the row with the hint panel. */}

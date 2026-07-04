@@ -37,9 +37,13 @@ test.describe('Hint Panel', () => {
         await expect(page.getByTestId('hint-panel')).toBeVisible();
         await expect(page.getByText('Costs no turn')).toBeVisible();
         await expect(page.getByText(/I won't judge/)).toBeVisible();
+        // The compass floats where the panel docks — it must yield while hints are open.
+        await expect(page.locator('.compass-ring')).toHaveCount(0);
 
         await page.click('[data-testid="hint-close"]');
         await expect(page.getByTestId('hint-panel')).not.toBeVisible();
+        // ...and return when the panel closes.
+        await expect(page.locator('.compass-ring').first()).toBeVisible();
     });
 
     test('asking a question shows the narrator answer and replays history on the follow-up', async ({page}) => {
