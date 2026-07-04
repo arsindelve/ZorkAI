@@ -9,7 +9,9 @@ namespace Model.Interface;
 public interface IGodModeCommandHandler
 {
     /// <summary>
-    ///     Attempts to handle a god-mode command the engine itself didn't recognize. Returns the
+    ///     Attempts to handle a god-mode command the engine itself didn't recognize. The input is the
+    ///     player's full raw command, INCLUDING the "god mode" prefix (e.g. "god mode no wander") -
+    ///     implementations should match on their trigger words, not positionally. Returns the
     ///     confirmation message if this game handled the command, or null to fall through to the
     ///     engine's generic "Invalid use of God mode" error.
     /// </summary>

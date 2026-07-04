@@ -35,9 +35,10 @@ public class FloydWanderingGodModeTests : EngineTestsBase
         StartHere<RobotShop>();
         engine.Context.FloydWanderingDisabled = true;
 
-        await engine.GetResponse("god mode wander");
+        var response = await engine.GetResponse("god mode wander");
 
         engine.Context.FloydWanderingDisabled.Should().BeFalse();
+        response.Should().Contain("wandering enabled");
     }
 
     [Test]

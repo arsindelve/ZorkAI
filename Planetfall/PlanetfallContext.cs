@@ -9,7 +9,7 @@ namespace Planetfall;
 public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, IGodModeTeleportAware,
     IGodModeCommandHandler
 {
-    private const int TurnTimeIncrement = 54;
+    internal const int TurnTimeIncrement = 54;
 
     [UsedImplicitly]
     public int Day { get; set; } = 1;
@@ -40,89 +40,15 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, IGo
     public bool FloydWanderingDisabled { get; set; }
 
     /// <summary>
-    ///     Planetfall's game-specific god-mode subcommands (see <see cref="IGodModeCommandHandler" /> -
-    ///     the engine's processor delegates here so Planetfall concepts like Floyd and the chronometer
-    ///     never leak into engine code). Each sub-handler returns null when the input isn't for it;
-    ///     returning null from all of them lets the engine emit its generic god-mode error.
+    ///     Planetfall's game-specific god-mode subcommands (chronometer reset, survival-clock and
+    ///     Floyd-wandering toggles). The engine's processor delegates here via
+    ///     <see cref="IGodModeCommandHandler" /> so Planetfall concepts never leak into engine code;
+    ///     the parsing itself lives in <see cref="PlanetfallGodModeCommands" /> to keep this context
+    ///     focused on game state.
     /// </summary>
     public string? HandleGodModeCommand(string input)
     {
-        var words = input.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        return ResetClock(words) ?? ToggleSurvivalClocks(words) ?? ToggleFloydWandering(words);
-    }
-
-    /// <summary>
-    ///     Recognizes "god mode reset time|clock" and resets the chronometer to the walkthrough
-    ///     start-of-day time, so playtesting can dodge time-gated blockers (e.g. Alfie's evening
-    ///     shuttle cutoff) deterministically.
-    /// </summary>
-    private string? ResetClock(string[] words)
-    {
-        if (!words.Contains("reset") || (!words.Contains("time") && !words.Contains("clock")))
-            return null;
-
-        const int walkthroughResetTime = 2000;
-        // God-mode commands still take a Planetfall turn, so compensate for the end-of-turn tick.
-        Repository.GetItem<Chronometer>().CurrentTime = walkthroughResetTime - TurnTimeIncrement;
-        return $"God mode: chronometer reset to {walkthroughResetTime}.";
-    }
-
-    /// <summary>
-    ///     Issue #277: recognizes "god mode [no] sleep|hunger|survival" (with optional "on"/"off") and
-    ///     flips the corresponding survival-clock flag. "no"/"off" disables a clock; anything else
-    ///     re-enables it. "survival" affects both clocks at once.
-    /// </summary>
-    private string? ToggleSurvivalClocks(string[] words)
-    {
-        var affectsSleep = words.Contains("sleep") || words.Contains("survival");
-        var affectsHunger = words.Contains("hunger") || words.Contains("survival");
-
-        if (!affectsSleep && !affectsHunger)
-            return null;
-
-        // "no" / "off" disables the clock; a bare verb (or explicit "on") re-enables it.
-        var disable = words.Contains("no") || words.Contains("off");
-
-        var affected = new List<string>();
-        var effects = new List<string>();
-        if (affectsSleep)
-        {
-            SleepClockDisabled = disable;
-            affected.Add("sleep");
-            effects.Add("tired");
-        }
-
-        if (affectsHunger)
-        {
-            HungerClockDisabled = disable;
-            affected.Add("hunger");
-            effects.Add("hungry");
-        }
-
-        var clocks = string.Join(" and ", affected);
-        var noun = affected.Count > 1 ? "clocks" : "clock";
-        return disable
-            ? $"God mode: {clocks} {noun} disabled. You will no longer get {string.Join(" or ", effects)}. "
-            : $"God mode: {clocks} {noun} enabled. ";
-    }
-
-    /// <summary>
-    ///     Recognizes "god mode [no] wander|wandering" (with optional "on"/"off") and flips
-    ///     <see cref="FloydWanderingDisabled" /> - the same effect the walkthrough tests get by mocking
-    ///     IRandomChooser to always fail Floyd's wandering rolls, but available as a live command.
-    /// </summary>
-    private string? ToggleFloydWandering(string[] words)
-    {
-        if (!words.Contains("wander") && !words.Contains("wandering"))
-            return null;
-
-        // "no" / "off" disables wandering; a bare verb (or explicit "on") re-enables it.
-        var disable = words.Contains("no") || words.Contains("off");
-        FloydWanderingDisabled = disable;
-
-        return disable
-            ? "God mode: Floyd's wandering disabled. He will no longer randomly wander off. "
-            : "God mode: Floyd's wandering enabled. ";
+        return PlanetfallGodModeCommands.Handle(this, input);
     }
 
     /// <summary>
