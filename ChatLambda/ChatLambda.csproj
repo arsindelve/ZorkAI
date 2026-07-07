@@ -13,4 +13,8 @@
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.3" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\ZorkAI.OpenAI\ZorkAI.OpenAI.csproj" />
+    </ItemGroup>
+
 </Project>

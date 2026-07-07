@@ -34,7 +34,9 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     
     [UsedImplicitly] [JsonIgnore] public IRandomChooser Chooser { get; set; } = new RandomChooser();
 
-    [UsedImplicitly] [JsonIgnore] public IChatWithFloyd ChatWithFloyd { get; set; } = new ChatWithFloyd(null);
+    // Factory-resolved: cloud Lambda normally, local model in self-hosted mode (issue #383).
+    [UsedImplicitly] [JsonIgnore] public IChatWithFloyd ChatWithFloyd { get; set; } =
+        CompanionChatFactory.Floyd(FloydPrompts.SystemPrompt);
 
     [UsedImplicitly] public bool IsOn { get; set; }
 

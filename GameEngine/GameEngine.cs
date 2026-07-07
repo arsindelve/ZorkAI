@@ -759,17 +759,25 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     {
         try
         {
-            _turnLogger = await CloudWatchLoggerFactory.Get<TurnLog>(_gameInstance.GameName, "Turns", _turnCorrelationId);
+            // In self-hosted mode (issue #383) there is no AWS: skip CloudWatch logger creation
+            // entirely rather than letting the SDK spin through credential/network retries. The
+            // system prompt still comes from the injected ISecretsManager, whose local
+            // implementation needs no cloud.
+            if (!OpenAIEndpointSettings.FromEnvironment().IsSelfHosted)
+            {
+                _turnLogger =
+                    await CloudWatchLoggerFactory.Get<TurnLog>(_gameInstance.GameName, "Turns", _turnCorrelationId);
 
-            GenerationClient.TurnCorrelationId = _turnCorrelationId;
-            GenerationClient.CloudWatchLogger =
-                await CloudWatchLoggerFactory.Get<GenerationLog>(_gameInstance.GameName, "ResponseGeneration",
-                    _turnCorrelationId);
+                GenerationClient.TurnCorrelationId = _turnCorrelationId;
+                GenerationClient.CloudWatchLogger =
+                    await CloudWatchLoggerFactory.Get<GenerationLog>(_gameInstance.GameName, "ResponseGeneration",
+                        _turnCorrelationId);
 
-            _parser.TurnCorrelationId = _turnCorrelationId;
-            _parser.Logger =
-                await CloudWatchLoggerFactory.Get<GenerationLog>(_gameInstance.GameName, "InputParsing",
-                    _turnCorrelationId);
+                _parser.TurnCorrelationId = _turnCorrelationId;
+                _parser.Logger =
+                    await CloudWatchLoggerFactory.Get<GenerationLog>(_gameInstance.GameName, "InputParsing",
+                        _turnCorrelationId);
+            }
 
             GenerationClient.SystemPrompt = await _secretsManager.GetSecret(
                 _gameInstance.SystemPromptSecretKey
