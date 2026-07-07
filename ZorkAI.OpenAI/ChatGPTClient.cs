@@ -24,7 +24,7 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
     private ChatClient? _companionClient;
 
     private ChatClient? CompanionClient =>
-        _companionClient ??= ApiKey is null ? null : new ChatClient(model: CompanionModelName, apiKey: ApiKey);
+        _companionClient ??= CreateAdditionalClient(CompanionModelName);
 
     public Action? OnGenerate { get; set; }
 
