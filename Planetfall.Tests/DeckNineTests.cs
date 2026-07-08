@@ -135,6 +135,44 @@ public class DeckNineTests : EngineTestsBase
         }
 
         [Test]
+        public async Task TakeAll_WhileAmbassadorIsPresent_ReportsTheCeleryRefusalAndDoesNotTakeIt()
+        {
+            // Pins the "take all" behavior for the now-room-level celery: the engine's convention
+            // is to report non-takeable items with their CannotBeTakenDescription (a deliberate,
+            // player-friendly divergence from the original's TAKE ALL, which skips non-TAKEBIT
+            // objects entirely).
+            var engine = GetTarget();
+            var deckNine = StartHere<DeckNine>();
+            GetItem<Ambassador>().JoinsTheScene(engine.Context, deckNine);
+
+            var response = await engine.GetResponse("take all");
+
+            response.Should().Contain("The ambassador seems perturbed by your lack of normal protocol.");
+            engine.Context.Items.Should().NotContain(GetItem<Celery>());
+        }
+
+        [Test]
+        public async Task AmbassadorRandomDeparture_TakesTheCeleryWithHim()
+        {
+            // The random-departure branch of Ambassador.Act, forced deterministically via the
+            // injected IRandomChooser (RollDice(10): <=2 idle, <=4 leave, else quirky speech).
+            var engine = GetTarget();
+            var deckNine = StartHere<DeckNine>();
+            var ambassador = GetItem<Ambassador>();
+            ambassador.JoinsTheScene(engine.Context, deckNine);
+
+            var mockChooser = new Mock<IRandomChooser>();
+            mockChooser.Setup(c => c.RollDice(10)).Returns(3); // force the "leaves" branch
+            ambassador.Chooser = mockChooser.Object;
+
+            var response = await engine.GetResponse("wait");
+
+            response.Should().Contain("grunts a polite farewell");
+            deckNine.Items.Should().NotContain(ambassador);
+            deckNine.Items.Should().NotContain(GetItem<Celery>());
+        }
+
+        [Test]
         public void Celery_ArrivesAndLeavesWithTheAmbassador()
         {
             // Mirrors the original: MOVE CELERY,HERE on arrival (globals.zil:825) and
@@ -154,6 +192,10 @@ public class DeckNineTests : EngineTestsBase
         public async Task Celery_IsNotListedInTheRoomDescription()
         {
             // NDESCBIT in the original: the celery is present and interactable but never listed.
+            // The word-level assertion is deliberately strict: neither the item list nor any
+            // authored description currently mentions celery outside the arrival text. If a future
+            // change adds "celery" to the ambassador's or slime's LOOK-visible description on
+            // purpose, scope this assertion to the item list (e.g. "There is a celery") instead.
             var engine = GetTarget();
             var deckNine = StartHere<DeckNine>();
             GetItem<Ambassador>().JoinsTheScene(engine.Context, deckNine);
