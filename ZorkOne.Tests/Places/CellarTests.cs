@@ -60,6 +60,34 @@ public class CellarTests : EngineTestsBase
     }
 
     [Test]
+    public async Task ClimbSlide_InCellar_GivesRampMessage_NotTrapDoor()
+    {
+        // The ZIL slide object's synonyms are chute/ramp/slide (zork1/1dungeon.zil:265), so a climb
+        // of the "slide" must reroute to West just like "ramp" does.
+        var target = ArriveInLitCellar();
+
+        var response = await target.GetResponse("climb slide");
+
+        response.Should().Contain("ramp");
+        response.Should().NotContain("trap door");
+        target.Context.CurrentLocation.Should().BeOfType<Cellar>();
+    }
+
+    [Test]
+    public async Task AscendMetalRamp_InCellar_GivesRampMessage_NotTrapDoor()
+    {
+        // Exercises the "ascend" verb and a ZIL adjective ("metal") - substring matching should
+        // handle "ascend the steep metal ramp" without enumerating every phrasing.
+        var target = ArriveInLitCellar();
+
+        var response = await target.GetResponse("ascend the metal ramp");
+
+        response.Should().Contain("ramp");
+        response.Should().NotContain("trap door");
+        target.Context.CurrentLocation.Should().BeOfType<Cellar>();
+    }
+
+    [Test]
     public async Task PlainClimbUp_InCellar_StillReferencesTrapDoor()
     {
         // Regression guard: only ramp/slide/chute commands reroute to West. A bare "climb"/"climb up"

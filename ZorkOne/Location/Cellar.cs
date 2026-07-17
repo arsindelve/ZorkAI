@@ -54,6 +54,10 @@ public class Cellar : DarkLocation
         // trap door is closed." for a completely different feature. The original SLIDE-FUNCTION
         // (zork1/1actions.zil:3086) routes any climb of the slide/ramp/chute in the Cellar to the West
         // exit, so reroute those here to Direction.W, giving the same result as "go west".
+        //
+        // Substring Contains (rather than exact-phrase matching like Kitchen's window handling) is
+        // intentional: it tolerates the ZIL synonyms/adjectives ("steep metal ramp", "twisting slide")
+        // without enumerating them, and is safe because the Cellar has no other noun containing these.
         var normalized = input?.ToLowerInvariant().Trim().Replace("the ", "") ?? "";
         var mentionsRamp = normalized.Contains("ramp") || normalized.Contains("slide") ||
                            normalized.Contains("chute");
