@@ -1,6 +1,8 @@
 using GameEngine;
+using GameEngine.IntentEngine;
 using GameEngine.Location;
 using Model.AIGeneration;
+using Model.Intent;
 using Model.Interface;
 using Model.Movement;
 
@@ -42,6 +44,29 @@ public class Cellar : DarkLocation
             },
             { Direction.Up, trapDoorPassage }
         };
+    }
+
+    public override async Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
+        IGenerationClient client)
+    {
+        // Issue #386: the ramp is the (unclimbable) West exit, but the parser maps the verb "climb"
+        // (and "go up") to Direction.Up - the trap door - so "climb ramp" / "go up ramp" returned "The
+        // trap door is closed." for a completely different feature. The original SLIDE-FUNCTION
+        // (zork1/1actions.zil:3086) routes any climb of the slide/ramp/chute in the Cellar to the West
+        // exit, so reroute those here to Direction.W, giving the same result as "go west".
+        var normalized = input?.ToLowerInvariant().Trim().Replace("the ", "") ?? "";
+        var mentionsRamp = normalized.Contains("ramp") || normalized.Contains("slide") ||
+                           normalized.Contains("chute");
+        var isClimbOrGoUp = normalized.StartsWith("climb") || normalized.StartsWith("ascend") ||
+                            normalized.StartsWith("go up") || normalized.StartsWith("up ");
+        if (mentionsRamp && isClimbOrGoUp)
+        {
+            var (resultObject, resultMessage) =
+                await new MoveEngine().Process(new MoveIntent { Direction = Direction.W }, context, client);
+            return resultObject ?? new PositiveInteractionResult(resultMessage);
+        }
+
+        return await base.RespondToSpecificLocationInteraction(input, context, client);
     }
 
     protected override string GetContextBasedDescription(IContext context)
