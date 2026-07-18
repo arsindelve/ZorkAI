@@ -1,13 +1,17 @@
 ﻿using ChatLambda;
 using Model.AIGeneration;
 using Model.Item;
+using Newtonsoft.Json;
 
 namespace Planetfall.Item.Feinstein;
 
 internal class Ambassador : QuirkyCompanion, ICanBeExamined, ICanBeTalkedTo
 {
     private readonly ChatWithAmbassador _chatWithAmbassador = new(null);
-    
+
+    [UsedImplicitly] [JsonIgnore]
+    public IRandomChooser Chooser { get; set; } = new RandomChooser();
+
     public override string[] NounsForMatching => ["ambassador", "alien"];
 
     public override string GenericDescription(ILocation? currentLocation)
@@ -33,7 +37,7 @@ internal class Ambassador : QuirkyCompanion, ICanBeExamined, ICanBeTalkedTo
             return Task.FromResult(LeavesTheScene(context,
                 "The ambassador squawks frantically, evacuates a massive load of gooey slime, and rushes away. "));
 
-        Func<Task<string>> action = new Random().Next(1, 10) switch
+        Func<Task<string>> action = Chooser.RollDice(10) switch
         {
             // 20% chance the Ambassador does nothing at all.
             <= 2 => (Func<Task<string>>)(async () => await Task.FromResult(String.Empty)),
@@ -75,6 +79,10 @@ internal class Ambassador : QuirkyCompanion, ICanBeExamined, ICanBeTalkedTo
     {
         location.ItemPlacedHere(this);
         location.ItemPlacedHere<Slime>();
+        // The celery goes in the ROOM alongside the ambassador (globals.zil:825), not inside him:
+        // a closed, opaque container puts its contents out of GetItemInScope's reach, which sent a
+        // live AI-tagged "take the celery" to the narrator instead of its authored refusal.
+        location.ItemPlacedHere<Celery>();
         context.ItemPlacedHere<Brochure>();
 
         context.RegisterActor(this);
@@ -89,6 +97,14 @@ internal class Ambassador : QuirkyCompanion, ICanBeExamined, ICanBeTalkedTo
 
     internal string LeavesTheScene(IContext context, string? partingText = null)
     {
+        // Called unconditionally from DeckNine.OnLeaveLocation even when the ambassador never
+        // joined; everything below is a safe no-op in that case (the celery lookup lazily creates
+        // an unplaced singleton, and the removals are null-guarded).
+        // The celery travels with him (REMOVE CELERY, globals.zil:806).
+        var celery = Repository.GetItem<Celery>();
+        celery.CurrentLocation?.RemoveItem(celery);
+        celery.CurrentLocation = null;
+
         CurrentLocation?.RemoveItem(this);
         CurrentLocation = null;
         context.RemoveActor(this);
@@ -99,7 +115,8 @@ internal class Ambassador : QuirkyCompanion, ICanBeExamined, ICanBeTalkedTo
 
     public override void Init()
     {
-        StartWithItemInside<Celery>();
+        // Deliberately empty: the celery is placed in the room when the ambassador arrives
+        // (JoinsTheScene) and removed when he goes (LeavesTheScene) - never inside him.
     }
 
     public async Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)

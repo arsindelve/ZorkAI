@@ -2,14 +2,15 @@ using Model.AIGeneration.Requests;
 using Newtonsoft.Json;
 using Planetfall.Command;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Location.Kalamontee;
 using Utilities;
 
 namespace Planetfall;
 
-public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISurvivalClockContext,
-    IResettableClockContext, IGodModeTeleportAware
+public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, IGodModeTeleportAware,
+    IGodModeCommandHandler
 {
-    private const int TurnTimeIncrement = 54;
+    internal const int TurnTimeIncrement = 54;
 
     [UsedImplicitly]
     public int Day { get; set; } = 1;
@@ -29,6 +30,27 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
     /// </summary>
     [UsedImplicitly]
     public bool HungerClockDisabled { get; set; }
+
+    /// <summary>
+    ///     God-mode test affordance ("god mode no wander"). When true, Floyd's two random wandering
+    ///     triggers (failing to follow the player, and spontaneously wandering off) are suppressed,
+    ///     for deterministic playtesting/walkthroughs. Plain auto-property so it round-trips through
+    ///     the save/restore JSON like the rest of context state.
+    /// </summary>
+    [UsedImplicitly]
+    public bool FloydWanderingDisabled { get; set; }
+
+    /// <summary>
+    ///     Planetfall's game-specific god-mode subcommands (chronometer reset, survival-clock and
+    ///     Floyd-wandering toggles). The engine's processor delegates here via
+    ///     <see cref="IGodModeCommandHandler" /> so Planetfall concepts never leak into engine code;
+    ///     the parsing itself lives in <see cref="PlanetfallGodModeCommands" /> to keep this context
+    ///     focused on game state.
+    /// </summary>
+    public string? HandleGodModeCommand(string input)
+    {
+        return PlanetfallGodModeCommands.Handle(this, input);
+    }
 
     /// <summary>
     ///     Number of times the player has died. Preserved across death restarts.
@@ -208,9 +230,22 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
             var nextTiredLevel = SleepNotifications.GetNextTiredLevel(CurrentTime, Tired);
             if (nextTiredLevel.HasValue)
             {
-                // Get notification BEFORE advancing level
-                var sleepNotification = SleepNotifications.GetNotification(CurrentTime, Tired);
+                // Issue #392: the original I-SLEEP-WARNINGS routine has an "already in bed" branch - a
+                // fatigue warning firing while the player lies in a bunk must NOT nag them to "find a nice
+                // safe place to sleep" (they're in one), which also left `sleep` refusing with "Civilized
+                // members of society usually sleep in beds." while the room said "You are lying in one of
+                // the bunk beds." Instead we settle them in and queue the fall-asleep interrupt so they
+                // drift off naturally next turn; otherwise we emit the normal escalation warning. Compute
+                // the message BEFORE advancing the level, since GetNotification reads the current Tired
+                // level (and reschedules the next warning) - the settle path deliberately does neither.
+                var settleMessage = SleepNotifications.TrySettleIntoBed(CurrentTime, CurrentLocation is BedLocation);
+                var sleepNotification = settleMessage ?? SleepNotifications.GetNotification(CurrentTime, Tired);
 
+                // Advance the tired level in BOTH cases. The original increments SLEEPY_LEVEL before its
+                // "already in bed" check, and - critically - leaving Tired at WellRested while
+                // FallAsleepQueued is set would break the invariant SleepProcessor relies on: its
+                // "You're not tired!" guard (Tired == WellRested) runs before its FallAsleepQueued guard,
+                // so a same-turn `sleep` would contradict the settling-in message we just printed.
                 Tired = nextTiredLevel.Value;
 
                 // Add notification message (with newline separator if sickness notification also fired)
@@ -267,12 +302,6 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, ISu
         Repository.GetItem<Chronometer>().CurrentTime += TurnTimeIncrement;
         SleepJustOccurred = false;
         return base.ProcessEndOfTurn();
-    }
-
-    public void ResetClockForGodMode(int targetTime)
-    {
-        // God-mode commands still take a Planetfall turn, so compensate for the end-of-turn tick.
-        Repository.GetItem<Chronometer>().CurrentTime = targetTime - TurnTimeIncrement;
     }
 
     /// <summary>
