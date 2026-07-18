@@ -54,10 +54,17 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
             var location = Repository.GetLocation<EntranceToHades>();
             var spirits = Repository.GetItem<Spirits>();
             var hasSword = context.HasItem<Sword>();
+            var candles = Repository.GetItem<Candles>();
 
+            // The exorcism is a two-phase ceremony (ZIL 1actions.zil:1102-1125). Stunning the spirits
+            // with the bell (XB) is NOT enough on its own: the book only banishes them once the candles
+            // are both carried and lit (XC). Ringing the bell drops the candles and puts them out, so the
+            // player must re-take and re-light them before reading. Without this precondition, "ring bell"
+            // + "read book" would trivialize the puzzle by skipping the candle-lighting step entirely.
             if (context.CurrentLocation == location &&
                 spirits.CurrentLocation == location &&
-                spirits.Stunned)
+                spirits.Stunned &&
+                context.HasItem<Candles>() && candles.IsOn)
             {
                 // * POOF *
                 Repository.DestroyItem<Spirits>();
