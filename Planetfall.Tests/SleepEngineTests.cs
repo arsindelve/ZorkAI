@@ -93,6 +93,9 @@ public class SleepEngineTests : EngineTestsBase
         response.Should().Contain("You suddenly realize how tired you were and how comfortable the bed is");
         response.Should().NotContain("finding a nice safe place to sleep");
         pfContext.SleepNotifications.FallAsleepQueued.Should().BeTrue();
+        // The level advances on the settle turn too (WellRested -> Tired), keeping the invariant
+        // "FallAsleepQueued implies Tired > WellRested" that SleepProcessor relies on.
+        pfContext.Tired.Should().Be(TiredLevel.Tired);
     }
 
     [Test]
@@ -129,21 +132,67 @@ public class SleepEngineTests : EngineTestsBase
         pfContext.Tired = TiredLevel.WellRested;
         var initialDay = pfContext.Day;
 
+        // The second turn runs a real ProcessFallAsleep, which rolls Dreams.GetDream on the static
+        // SleepEngine.Chooser. Pin it to a mock (RollDice(100) > 60 skips the dream) so the turn is
+        // deterministic, and restore the real chooser afterward - per CLAUDE.md's mock-IRandomChooser rule.
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(c => c.RollDice(100)).Returns(90);
+        SleepEngine.Chooser = mockChooser.Object;
+        try
+        {
+            await target.GetResponse("get in bed");
+
+            // A fatigue warning comes due while lying in the bunk: settles in and queues the fall-asleep.
+            pfContext.SleepNotifications.NextWarningAt = pfContext.CurrentTime;
+            await target.GetResponse("wait");
+            pfContext.SleepNotifications.FallAsleepQueued.Should().BeTrue();
+
+            // One more turn: the queued interrupt fires (54 ticks/turn > the 16-tick delay) and the player
+            // drifts off, sleeps through the night, and wakes the next day.
+            var sleepTurn = await target.GetResponse("wait");
+
+            sleepTurn.Should().Contain("SEPTEM"); // wake-up banner
+            pfContext.Day.Should().Be(initialDay + 1);
+            pfContext.Tired.Should().Be(TiredLevel.WellRested);
+            pfContext.CurrentLocation.Should().BeOfType<BedLocation>();
+        }
+        finally
+        {
+            SleepEngine.Chooser = new GameEngine.RandomChooser();
+        }
+    }
+
+    [Test]
+    public async Task FatigueWarning_WhilePlayerAlreadyInBed_AdvancesTiredSoSleepVerbDoesNotContradict()
+    {
+        // Issue #392 (review follow-up): the settle branch must ALSO advance the tired level, exactly as
+        // the original I-SLEEP-WARNINGS increments SLEEPY_LEVEL before its "already in bed" check. Leaving
+        // the player at WellRested while FallAsleepQueued is set breaks the invariant SleepProcessor relies
+        // on - its "You're not tired!" guard (Tired == WellRested) runs BEFORE its FallAsleepQueued guard,
+        // so a same-turn `sleep` would flatly contradict the settling-in message we just printed.
+        var target = GetTarget();
+        StartHere<DormD>();
+        var pfContext = target.Context;
+        pfContext.Tired = TiredLevel.WellRested;
+
+        // Lie down while well-rested: no auto-sleep queued, Tired still WellRested.
         await target.GetResponse("get in bed");
 
-        // A fatigue warning comes due while lying in the bunk: settles in and queues the fall-asleep.
+        // The first fatigue warning comes due on THIS turn, and the turn's command is `sleep`. The settle
+        // branch fires in ProcessBeginningOfTurn (queuing the fall-asleep), then the sleep verb runs -
+        // CheckForSleep hasn't queued anything yet at the top of the turn, so the fall-asleep only fires
+        // next turn and the sleep verb genuinely reaches SleepProcessor this turn.
         pfContext.SleepNotifications.NextWarningAt = pfContext.CurrentTime;
-        await target.GetResponse("wait");
+
+        var response = await target.GetResponse("sleep");
+
+        // The settle message and the sleep-verb acknowledgement must agree.
+        response.Should().Contain("You suddenly realize how tired you were");
+        response.Should().Contain("asleep before you know it");
+        response.Should().NotContain("not tired");
+        // The level was advanced, restoring "FallAsleepQueued implies Tired > WellRested".
+        pfContext.Tired.Should().NotBe(TiredLevel.WellRested);
         pfContext.SleepNotifications.FallAsleepQueued.Should().BeTrue();
-
-        // One more turn: the queued interrupt fires (54 ticks/turn > the 16-tick delay) and the player
-        // drifts off, sleeps through the night, and wakes the next day.
-        var sleepTurn = await target.GetResponse("wait");
-
-        sleepTurn.Should().Contain("SEPTEM"); // wake-up banner
-        pfContext.Day.Should().Be(initialDay + 1);
-        pfContext.Tired.Should().Be(TiredLevel.WellRested);
-        pfContext.CurrentLocation.Should().BeOfType<BedLocation>();
     }
 
     #endregion

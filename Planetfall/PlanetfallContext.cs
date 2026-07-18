@@ -235,29 +235,25 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, IGo
                 // safe place to sleep" (they're in one), which also left `sleep` refusing with "Civilized
                 // members of society usually sleep in beds." while the room said "You are lying in one of
                 // the bunk beds." Instead we settle them in and queue the fall-asleep interrupt so they
-                // drift off naturally next turn. This takes precedence over - and suppresses - the normal
-                // warning + level advance.
+                // drift off naturally next turn; otherwise we emit the normal escalation warning. Compute
+                // the message BEFORE advancing the level, since GetNotification reads the current Tired
+                // level (and reschedules the next warning) - the settle path deliberately does neither.
                 var settleMessage = SleepNotifications.TrySettleIntoBed(CurrentTime, CurrentLocation is BedLocation);
-                if (settleMessage is not null)
+                var sleepNotification = settleMessage ?? SleepNotifications.GetNotification(CurrentTime, Tired);
+
+                // Advance the tired level in BOTH cases. The original increments SLEEPY_LEVEL before its
+                // "already in bed" check, and - critically - leaving Tired at WellRested while
+                // FallAsleepQueued is set would break the invariant SleepProcessor relies on: its
+                // "You're not tired!" guard (Tired == WellRested) runs before its FallAsleepQueued guard,
+                // so a same-turn `sleep` would contradict the settling-in message we just printed.
+                Tired = nextTiredLevel.Value;
+
+                // Add notification message (with newline separator if sickness notification also fired)
+                if (!string.IsNullOrEmpty(sleepNotification))
                 {
                     if (!string.IsNullOrEmpty(messages))
                         messages += "\n";
-                    messages += settleMessage;
-                }
-                else
-                {
-                    // Get notification BEFORE advancing level
-                    var sleepNotification = SleepNotifications.GetNotification(CurrentTime, Tired);
-
-                    Tired = nextTiredLevel.Value;
-
-                    // Add notification message (with newline separator if sickness notification also fired)
-                    if (!string.IsNullOrEmpty(sleepNotification))
-                    {
-                        if (!string.IsNullOrEmpty(messages))
-                            messages += "\n";
-                        messages += sleepNotification;
-                    }
+                    messages += sleepNotification;
                 }
             }
         }
