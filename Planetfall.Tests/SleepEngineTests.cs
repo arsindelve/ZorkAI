@@ -65,6 +65,89 @@ public class SleepEngineTests : EngineTestsBase
 
     #endregion
 
+    #region Already-In-Bed Fatigue Warning (Issue #392)
+
+    [Test]
+    public async Task FatigueWarning_WhilePlayerAlreadyInBed_SettlesInAndQueuesSleepInsteadOfNagging()
+    {
+        // Issue #392: a player who lies down in a bunk BEFORE getting tired, then becomes tired while
+        // lying there, must drift off naturally - not be nagged to "find a nice safe place to sleep"
+        // while already lying in one (which also left `sleep` refusing with "Civilized members of
+        // society usually sleep in beds." while the room said "You are lying in one of the bunk beds.").
+        var target = GetTarget();
+        StartHere<DormD>();
+        var pfContext = target.Context;
+        pfContext.Tired = TiredLevel.WellRested;
+
+        // Lie down while well-rested: entering the bunk does NOT queue auto-sleep (the buggy precondition).
+        var lieDown = await target.GetResponse("get in bed");
+        lieDown.Should().Contain("now in bed");
+        pfContext.CurrentLocation.Should().BeOfType<BedLocation>();
+        pfContext.SleepNotifications.FallAsleepQueued.Should().BeFalse();
+
+        // A fatigue warning is now due while the player is still lying in the bunk.
+        pfContext.SleepNotifications.NextWarningAt = pfContext.CurrentTime;
+
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain("You suddenly realize how tired you were and how comfortable the bed is");
+        response.Should().NotContain("finding a nice safe place to sleep");
+        pfContext.SleepNotifications.FallAsleepQueued.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task FatigueWarning_WhilePlayerStandingInDorm_StillGetsNormalWarning()
+    {
+        // Regression guard for #392: the "already in bed" branch must NOT leak to a player who is merely
+        // standing in the dormitory - they still get the normal escalation warning, advance a tired
+        // level, and have nothing queued.
+        var target = GetTarget();
+        StartHere<DormD>();
+        var pfContext = target.Context;
+        pfContext.Tired = TiredLevel.WellRested;
+
+        pfContext.SleepNotifications.NextWarningAt = pfContext.CurrentTime;
+
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain("You begin to feel weary");
+        response.Should().Contain("finding a nice safe place to sleep");
+        pfContext.SleepNotifications.FallAsleepQueued.Should().BeFalse();
+        pfContext.Tired.Should().Be(TiredLevel.Tired);
+    }
+
+    [Test]
+    public async Task FatigueWarning_WhilePlayerAlreadyInBed_ActuallyDriftsOffToSleepByWaiting()
+    {
+        // Issue #392 end-to-end: the core symptom was that a player who lay down before getting tired
+        // could NEVER fall asleep by waiting in the bunk. Prove the fixed flow: after the settling-in
+        // warning queues the interrupt, one more turn of waiting drifts them off - day advances, fatigue
+        // resets, and they wake still in the bunk.
+        var target = GetTarget();
+        StartHere<DormD>();
+        var pfContext = target.Context;
+        pfContext.Tired = TiredLevel.WellRested;
+        var initialDay = pfContext.Day;
+
+        await target.GetResponse("get in bed");
+
+        // A fatigue warning comes due while lying in the bunk: settles in and queues the fall-asleep.
+        pfContext.SleepNotifications.NextWarningAt = pfContext.CurrentTime;
+        await target.GetResponse("wait");
+        pfContext.SleepNotifications.FallAsleepQueued.Should().BeTrue();
+
+        // One more turn: the queued interrupt fires (54 ticks/turn > the 16-tick delay) and the player
+        // drifts off, sleeps through the night, and wakes the next day.
+        var sleepTurn = await target.GetResponse("wait");
+
+        sleepTurn.Should().Contain("SEPTEM"); // wake-up banner
+        pfContext.Day.Should().Be(initialDay + 1);
+        pfContext.Tired.Should().Be(TiredLevel.WellRested);
+        pfContext.CurrentLocation.Should().BeOfType<BedLocation>();
+    }
+
+    #endregion
+
     #region ProcessFallAsleep Tests
 
     [Test]

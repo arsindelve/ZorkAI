@@ -119,6 +119,29 @@ public class SleepNotifications
     }
 
     /// <summary>
+    /// Issue #392: restores the original I-SLEEP-WARNINGS "already in bed" special case
+    /// (globals.zil:2026-2087). When a fatigue warning comes due while the player is lying in a bunk, the
+    /// original does NOT print the generic "find a nice safe place to sleep" nag - the player is already
+    /// in a bed. Instead it settles them in and queues the fall-asleep interrupt so they drift off
+    /// naturally ~16 ticks later. Returns that settling-in message (and queues the interrupt) when the
+    /// special case applies; returns null - changing nothing - when it does not, so the caller runs the
+    /// normal warning/level escalation.
+    /// </summary>
+    /// <param name="currentTime">Current game time in ticks.</param>
+    /// <param name="isInBed">True when the player is currently lying in the bunk (BedLocation).</param>
+    internal string? TrySettleIntoBed(int currentTime, bool isInBed)
+    {
+        // Only fire when a warning is actually due, the player is lying in a bunk, and we haven't
+        // already started them drifting off (so we neither re-queue the interrupt nor double-report).
+        if (currentTime < NextWarningAt || !isInBed || FallAsleepQueued)
+            return null;
+
+        QueueFallAsleep(currentTime);
+        return "You suddenly realize how tired you were and how comfortable the bed is. " +
+               "You should be asleep in no time. ";
+    }
+
+    /// <summary>
     /// Queues the fall asleep interrupt (16 ticks after entering bed while tired).
     /// </summary>
     internal void QueueFallAsleep(int currentTime)

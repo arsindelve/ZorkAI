@@ -2,6 +2,7 @@ using Model.AIGeneration.Requests;
 using Newtonsoft.Json;
 using Planetfall.Command;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Location.Kalamontee;
 using Utilities;
 
 namespace Planetfall;
@@ -229,17 +230,34 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, IGo
             var nextTiredLevel = SleepNotifications.GetNextTiredLevel(CurrentTime, Tired);
             if (nextTiredLevel.HasValue)
             {
-                // Get notification BEFORE advancing level
-                var sleepNotification = SleepNotifications.GetNotification(CurrentTime, Tired);
-
-                Tired = nextTiredLevel.Value;
-
-                // Add notification message (with newline separator if sickness notification also fired)
-                if (!string.IsNullOrEmpty(sleepNotification))
+                // Issue #392: the original I-SLEEP-WARNINGS routine has an "already in bed" branch - a
+                // fatigue warning firing while the player lies in a bunk must NOT nag them to "find a nice
+                // safe place to sleep" (they're in one), which also left `sleep` refusing with "Civilized
+                // members of society usually sleep in beds." while the room said "You are lying in one of
+                // the bunk beds." Instead we settle them in and queue the fall-asleep interrupt so they
+                // drift off naturally next turn. This takes precedence over - and suppresses - the normal
+                // warning + level advance.
+                var settleMessage = SleepNotifications.TrySettleIntoBed(CurrentTime, CurrentLocation is BedLocation);
+                if (settleMessage is not null)
                 {
                     if (!string.IsNullOrEmpty(messages))
                         messages += "\n";
-                    messages += sleepNotification;
+                    messages += settleMessage;
+                }
+                else
+                {
+                    // Get notification BEFORE advancing level
+                    var sleepNotification = SleepNotifications.GetNotification(CurrentTime, Tired);
+
+                    Tired = nextTiredLevel.Value;
+
+                    // Add notification message (with newline separator if sickness notification also fired)
+                    if (!string.IsNullOrEmpty(sleepNotification))
+                    {
+                        if (!string.IsNullOrEmpty(messages))
+                            messages += "\n";
+                        messages += sleepNotification;
+                    }
                 }
             }
         }
