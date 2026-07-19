@@ -1,3 +1,4 @@
+using System.Text;
 using FluentAssertions;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
@@ -176,5 +177,59 @@ public class MiniaturizationBoothTests : EngineTestsBase
         response.Should().Contain("Ooops! You seem to have transported yourself into an active sector of the computer");
         response.Should().Contain("fried by powerful electric currents");
         response.Should().Contain("You have died");
+    }
+
+    // Issue #399: sliding the card activates the booth for only 30 turns in the original
+    // (<ENABLE <QUEUE I-TURNOFF-MINI 30>>, globals.zil:1424). The port used to leave it activated
+    // forever. After the window lapses, keying the sector number must report the booth is not
+    // activated and must NOT teleport.
+    [Test]
+    public async Task Activation_Expires_AfterThirtyTurns()
+    {
+        var target = GetTarget();
+        StartHere<MiniaturizationBooth>();
+        Take<MiniaturizationAccessCard>();
+
+        await target.GetResponse("slide miniaturization card through slot");
+        for (var i = 0; i < 31; i++)
+            await target.GetResponse("wait");
+
+        var response = await target.GetResponse("type 384");
+        response.Should().Contain("Internal computer repair booth not activated");
+        target.Context.CurrentLocation.Should().BeOfType<MiniaturizationBooth>();
+    }
+
+    [Test]
+    public async Task Activation_StillLive_WithinThirtyTurns()
+    {
+        var target = GetTarget();
+        StartHere<MiniaturizationBooth>();
+        Take<MiniaturizationAccessCard>();
+
+        await target.GetResponse("slide miniaturization card through slot");
+        for (var i = 0; i < 5; i++)
+            await target.GetResponse("wait");
+
+        var response = await target.GetResponse("type 384");
+        response.Should().Contain("walls of the booth sliding away in all directions");
+        target.Context.CurrentLocation.Should().BeOfType<Station384>();
+    }
+
+    // When the timer lapses while the player is standing in the booth, the original announces it
+    // ("...Miniaturization booth de-activated.", I-TURNOFF-MINI, comptwo.zil:2390-2394).
+    [Test]
+    public async Task Activation_AnnouncesExpiry_WhenPlayerInBooth()
+    {
+        var target = GetTarget();
+        StartHere<MiniaturizationBooth>();
+        Take<MiniaturizationAccessCard>();
+
+        await target.GetResponse("slide miniaturization card through slot");
+
+        var everything = new StringBuilder();
+        for (var i = 0; i < 32; i++)
+            everything.Append(await target.GetResponse("wait"));
+
+        everything.ToString().Should().Contain("Miniaturization booth de-activated");
     }
 }
