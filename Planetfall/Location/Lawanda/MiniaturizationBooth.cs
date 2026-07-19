@@ -8,13 +8,27 @@ using Utilities;
 
 namespace Planetfall.Location.Lawanda;
 
-internal class MiniaturizationBooth : LocationBase
+internal class MiniaturizationBooth : LocationBase, ICardActivatedDevice
 {
     public override string Name => "Miniaturization Booth";
 
     public override string[] NounsForMatching => ["shrink booth", "miniaturizer"];
 
     public bool IsEnabled { get; set; }
+
+    // Issue #399: sliding the miniaturization card activates the booth for only 30 turns in the original
+    // (<QUEUE I-TURNOFF-MINI 30>, globals.zil:1424). CardActivationTimer counts this down and clears
+    // IsEnabled; without it the booth stayed activated forever.
+    [UsedImplicitly] public int ActivationTurnsRemaining { get; set; }
+
+    // Shown when the window lapses while the player is in the booth (I-TURNOFF-MINI,
+    // comptwo.zil:2390-2394); silent otherwise.
+    public string DeactivationAnnouncement => "A recorded voice says \"Miniaturization booth de-activated.\" ";
+
+    public Task<string> Act(IContext context, IGenerationClient client)
+    {
+        return Task.FromResult(CardActivationTimer.Tick(this, context));
+    }
 
     public override void Init()
     {
@@ -60,8 +74,9 @@ internal class MiniaturizationBooth : LocationBase
             {
                 if (keyPress.Value == 384)
                 {
-                    // Teleport to Station 384
-                    IsEnabled = false;
+                    // Teleport to Station 384. Using the booth consumes the activation and cancels its
+                    // expiry countdown (mirrors the original disabling I-TURNOFF-MINI once used).
+                    CardActivationTimer.Cancel(this, context);
                     context.CurrentLocation = Repository.GetLocation<Station384>();
 
                     var message = "You notice the walls of the booth sliding away in all directions, followed by a momentary queasiness in the pit of your stomach...\n\n" +

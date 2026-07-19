@@ -160,7 +160,7 @@ public class CourseControlTests : EngineTestsBase
     }
 
     [Test]
-    public async Task ExamineCube_WhenOpen()
+    public async Task ExamineCube_WhenOpen_ListsContents()
     {
         var target = GetTarget();
         StartHere<CourseControl>();
@@ -168,7 +168,10 @@ public class CourseControlTests : EngineTestsBase
 
         var response = await target.GetResponse("examine cube");
 
-        response.Should().Contain("The large metal cube is open");
+        // Issue #398: examining an OPEN container must list its contents (the fused bedistor
+        // central to the Course Control puzzle), not just report "is open" and hide them.
+        response.Should().Contain("bedistor");
+        response.Should().NotContain("The large metal cube is open");
     }
 
     [Test]
