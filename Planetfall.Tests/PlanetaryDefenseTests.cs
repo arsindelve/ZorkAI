@@ -57,6 +57,24 @@ public class PlanetaryDefenseTests : EngineTestsBase
     }
 
     [Test]
+    public async Task LookInPanel_Open_ListsContents()
+    {
+        // Issue #396: "look in <container>" — the exact prod repro — must list the panel's contents,
+        // exactly like "examine panel" (ZIL syntax.zil:201: LOOK IN OBJECT -> V-LOOK-INSIDE). Before
+        // the fix it was mis-parsed as an "in" movement / bare-room LOOK and never showed the boards.
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        GetItem<FromitzAccessPanel>().IsOpen = true;
+
+        var response = await target.GetResponse("look in panel");
+
+        response.Should().Contain("The access panel contains:");
+        response.Should().Contain("  A first seventeen-centimeter fromitz board");
+        response.Should().Contain("  A second seventeen-centimeter fromitz board");
+        response.Should().NotContain("cannot go that way");
+    }
+
+    [Test]
     [TestCase("first")]
     [TestCase("third")]
     [TestCase("fourth")]
