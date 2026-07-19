@@ -351,24 +351,57 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     }
 
     /// <summary>
-    ///     Rewrites a leading "look at &lt;noun&gt;" into the canonical "examine &lt;noun&gt;" so it routes
-    ///     through the examine-with-noun path instead of collapsing to the bare-room LOOK command
-    ///     (issues #312 / #283). Only the exact "look at " prefix followed by a noun is rewritten — bare
-    ///     "look"/"look around" and other "look &lt;preposition&gt;" phrases (e.g. "look under the rug",
-    ///     "look in the box") are intentionally left alone.
+    ///     Rewrites a leading "look at &lt;noun&gt;" — and the container-inspection phrasings
+    ///     "look in &lt;noun&gt;" / "look inside &lt;noun&gt;" (issue #396) — into the canonical
+    ///     "examine &lt;noun&gt;" so they route through the examine-with-noun path (which lists an open
+    ///     container's contents) instead of collapsing to the bare-room LOOK command or being handed to
+    ///     the AI parser, which mis-tags the "in" as a movement ("You cannot go that way."). This mirrors
+    ///     the original ZIL, where LOOK IN &lt;object&gt; maps to V-LOOK-INSIDE (issues #312 / #283 for
+    ///     "look at"; issue #396 for "look in"/"look inside"). Left untouched: bare "look"/"look around",
+    ///     genuinely different prepositions ("look under the rug", "look behind the painting", "look
+    ///     through the crack", and "look into ..." — not an original syntax, and it reads as
+    ///     "investigate"), and the "look in inventory" / "look in my inventory" phrasing owned by
+    ///     GlobalCommandFactory's InventoryProcessor (which runs on the literal text after this —
+    ///     rewriting it to "examine inventory" would break the inventory listing).
     /// </summary>
     internal static string? NormalizeLookAt(string? input)
     {
         if (string.IsNullOrWhiteSpace(input))
             return input;
 
-        const string prefix = "look at ";
         var trimmed = input.TrimStart();
-        if (!trimmed.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-            return input;
 
-        var noun = trimmed[prefix.Length..].Trim();
-        return string.IsNullOrEmpty(noun) ? input : "examine " + noun;
+        // "look at <noun>" -> "examine <noun>" (issues #312 / #283).
+        const string lookAtPrefix = "look at ";
+        if (trimmed.StartsWith(lookAtPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            var atNoun = trimmed[lookAtPrefix.Length..].Trim();
+            return string.IsNullOrEmpty(atNoun) ? input : "examine " + atNoun;
+        }
+
+        // "look in <noun>" / "look inside <noun>" -> "examine <noun>" (issue #396). The trailing space in
+        // "look in " keeps the two prefixes mutually exclusive ("look inside X" never matches "look in "),
+        // so the match order is not load-bearing; longest-first is just a defensive habit.
+        string[] lookInPrefixes = ["look inside ", "look in "];
+        foreach (var lookInPrefix in lookInPrefixes)
+        {
+            if (!trimmed.StartsWith(lookInPrefix, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            var noun = trimmed[lookInPrefix.Length..].Trim();
+            if (string.IsNullOrEmpty(noun))
+                return input;
+
+            // Preserve the "look in inventory" / "look in my inventory" special-case owned by
+            // GlobalCommandFactory (InventoryProcessor); rewriting it to "examine inventory" breaks it.
+            if (noun.Equals("inventory", StringComparison.OrdinalIgnoreCase)
+                || noun.Equals("my inventory", StringComparison.OrdinalIgnoreCase))
+                return input;
+
+            return "examine " + noun;
+        }
+
+        return input;
     }
 
     /// <summary>
@@ -395,12 +428,13 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (string.IsNullOrEmpty(playerInput))
             return PostProcessing(await GetGeneratedNoCommandResponse());
 
-        // 2b. ------- "look at <noun>" is an examine synonym, not the bare-room LOOK command. The AI
-        // parser (rule (f) in the system prompt) collapses "look at X" to a noun-less look intent for
-        // single-word nouns, re-describing the room instead of the object (issues #312 / #283). Rewrite
-        // it to the canonical "examine <noun>" here so it routes through the examine-with-noun path,
-        // while leaving the bare forms ("look", "look around") and other "look <prep>" phrases
-        // ("look under the rug", "look in the box") untouched. Note: because this runs before pronoun
+        // 2b. ------- "look at <noun>" — and the "look in/inside <noun>" container-inspection phrasings
+        // (issue #396) — are examine synonyms, not the bare-room LOOK command. The AI parser collapses
+        // "look at X" to a noun-less look intent (issues #312 / #283) and mis-tags "look in X" as an "in"
+        // movement ("You cannot go that way."). Rewrite them to the canonical "examine <noun>" here so
+        // they route through the examine-with-noun path (which lists an open container's contents), while
+        // leaving the bare forms ("look", "look around") and genuinely different prepositions ("look
+        // under the rug", "look behind the painting") untouched. Note: because this runs before pronoun
         // resolution and the LastInput capture below, a subsequent "again"/"g" replays "look at X" as
         // "examine X" — harmless, since both produce the same examination output.
         playerInput = NormalizeLookAt(playerInput);
