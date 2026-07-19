@@ -8,9 +8,25 @@ namespace GameEngine.Item;
 /// <summary>
 ///     Represents a base class for containers that can be opened and closed.
 /// </summary>
-public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose
+public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose, ICanBeExamined
 {
     public bool HasEverBeenOpened { get; set; }
+
+    /// <summary>
+    ///     Default examine behavior for an open/close container: when closed, report it is closed;
+    ///     when open, list the contents (or that it is empty). This closes the recurring gap
+    ///     (issue #398) where a subclass hand-wrote an <c>ExaminationDescription</c> that reported
+    ///     only "is open" and hid what was inside.
+    ///     <para>
+    ///     Implemented as an <b>explicit</b> interface member on purpose: subclasses that need
+    ///     special examine text simply re-list <see cref="ICanBeExamined" /> and declare their own
+    ///     public <c>ExaminationDescription</c> - that re-implementation wins for their type with no
+    ///     member-hiding warning. Subclasses that want the correct default just leave it off and
+    ///     inherit this.
+    ///     </para>
+    /// </summary>
+    string ICanBeExamined.ExaminationDescription =>
+        IsOpen ? ItemListDescription(Name, null) : $"The {Name} is closed. ";
 
     public virtual string? CannotBeOpenedDescription(IContext context)
     {
