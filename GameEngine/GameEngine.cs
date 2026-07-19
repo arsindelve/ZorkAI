@@ -379,8 +379,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             return string.IsNullOrEmpty(atNoun) ? input : "examine " + atNoun;
         }
 
-        // "look in <noun>" / "look inside <noun>" -> "examine <noun>" (issue #396). "look inside " is
-        // matched before "look in " so it is never misread as "look in" + "side ...".
+        // "look in <noun>" / "look inside <noun>" -> "examine <noun>" (issue #396). The trailing space in
+        // "look in " keeps the two prefixes mutually exclusive ("look inside X" never matches "look in "),
+        // so the match order is not load-bearing; longest-first is just a defensive habit.
         string[] lookInPrefixes = ["look inside ", "look in "];
         foreach (var lookInPrefix in lookInPrefixes)
         {
