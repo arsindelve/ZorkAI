@@ -28,7 +28,7 @@ public class TestParser : IntentParser
             "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate", "search",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind", "kick", "deflate",
             "lower", "raise", "get", "inflate", "leave", "unlock", "lock", "climb", "extend", "lift", "shake",
-            "oil", "lubricate", "cross", "through", "go", "break", "smash"
+            "oil", "lubricate", "cross", "through", "go", "break", "smash", "squeeze"
         ];
 
         _allNouns = Repository.GetNouns(gameName);

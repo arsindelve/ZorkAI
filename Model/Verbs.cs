@@ -61,6 +61,13 @@ public static class Verbs
         ["touch", "rub", "feel", "press", "stroke", "pat", "tap", "poke", "brush", "caress", "prod", "nudge"];
 
     /// <summary>
+    ///     The "squeeze" family. Used by the toothpaste Tube to extract its viscous material, mirroring
+    ///     the original's SQUEEZE handling in TUBE-FUNCTION (zork1/1actions.zil). Deliberately excludes
+    ///     "press" (a push/button synonym) so squeezing the tube never collides with pressing a button.
+    /// </summary>
+    public static readonly string[] SqueezeVerbs = ["squeeze", "squish", "compress"];
+
+    /// <summary>
     ///     The "look at / examine" family. Distinct from <see cref="LookVerbs" /> (which is about
     ///     glancing/observing and is used for things like "look through the crack"). These are the
     ///     synonyms a player reaches for when they want to inspect a specific object. Always pair this

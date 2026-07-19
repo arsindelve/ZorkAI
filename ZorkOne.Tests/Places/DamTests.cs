@@ -340,8 +340,57 @@ public class DamTests : EngineTestsBase
         await target.GetResponse("take material");
         var response = await target.GetResponse("i");
 
-        // Unbelievably, we can take and hold the gunk. 
+        // Unbelievably, we can take and hold the gunk.
         response.Should().Contain("viscous material");
+    }
+
+    // Issue #390: squeezing an open, full tube of toothpaste is the natural way to extract the
+    // viscous material, and the original handles it in TUBE-FUNCTION (zork1/1actions.zil:1386-1398).
+    // The material should ooze into the player's hand.
+    [Test]
+    public async Task SqueezeOpenTube_MovesMaterialToHand()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        StartHere<MaintenanceRoom>();
+
+        await target.GetResponse("open tube");
+        var response = await target.GetResponse("squeeze tube");
+
+        response.Should().Contain("oozes into your hand");
+        target.Context.HasItem<ViscousMaterial>().Should().BeTrue();
+    }
+
+    // Issue #390: squeezing an open but empty tube reports that it is empty (TUBE-FUNCTION's
+    // "The tube is apparently empty." branch), and must not conjure a second blob of material.
+    [Test]
+    public async Task SqueezeOpenEmptyTube_SaysEmpty()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        StartHere<MaintenanceRoom>();
+
+        await target.GetResponse("open tube");
+        await target.GetResponse("take material"); // empty the tube
+
+        var response = await target.GetResponse("squeeze tube");
+
+        response.Should().Contain("apparently empty");
+    }
+
+    // Issue #390: squeezing a closed tube reports that it is closed (TUBE-FUNCTION's
+    // "The tube is closed." branch) rather than extracting anything.
+    [Test]
+    public async Task SqueezeClosedTube_SaysClosed()
+    {
+        var target = GetTarget();
+        Take<Torch>();
+        StartHere<MaintenanceRoom>();
+
+        var response = await target.GetResponse("squeeze tube");
+
+        response.Should().Contain("The tube is closed");
+        target.Context.HasItem<ViscousMaterial>().Should().BeFalse();
     }
 
     [Test]
