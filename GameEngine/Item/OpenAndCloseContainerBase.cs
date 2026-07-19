@@ -13,10 +13,12 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose, 
     public bool HasEverBeenOpened { get; set; }
 
     /// <summary>
-    ///     Default examine behavior for an open/close container: when closed, report it is closed;
-    ///     when open, list the contents (or that it is empty). This closes the recurring gap
-    ///     (issue #398) where a subclass hand-wrote an <c>ExaminationDescription</c> that reported
-    ///     only "is open" and hid what was inside.
+    ///     Default examine behavior for an open/close container: report it is closed only when it is
+    ///     actually closed AND opaque; otherwise (open, or transparent) list the contents (or that it
+    ///     is empty). This closes the recurring gap (issue #398) where a subclass hand-wrote an
+    ///     <c>ExaminationDescription</c> that reported only "is open" and hid what was inside. The
+    ///     transparency check keeps this consistent with <see cref="ContainerBase.ItemListDescription" />,
+    ///     which shows the contents of a transparent container even while it is closed.
     ///     <para>
     ///     Implemented as an <b>explicit</b> interface member on purpose: subclasses that need
     ///     special examine text simply re-list <see cref="ICanBeExamined" /> and declare their own
@@ -26,7 +28,7 @@ public abstract class OpenAndCloseContainerBase : ContainerBase, IOpenAndClose, 
     ///     </para>
     /// </summary>
     string ICanBeExamined.ExaminationDescription =>
-        IsOpen ? ItemListDescription(Name, null) : $"The {Name} is closed. ";
+        !IsOpen && !IsTransparent ? $"The {Name} is closed. " : ItemListDescription(Name, null);
 
     public virtual string? CannotBeOpenedDescription(IContext context)
     {
