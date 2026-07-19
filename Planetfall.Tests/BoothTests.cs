@@ -335,6 +335,36 @@ public class BoothTests : EngineTestsBase
         everything.ToString().Should().Contain("The ready light goes dark");
     }
 
+    // The flip side of the announcement: when the window lapses while the player has wandered off, the
+    // original stays silent (I-TURNOFF-TELEPORTATION only tells if HERE is a booth, globals.zil:1540) -
+    // no phantom "ready light goes dark" should leak into an unrelated room. The booth still deactivates.
+    [Test]
+    public async Task Activation_ExpiresSilently_WhenPlayerHasLeftTheBooth()
+    {
+        var target = GetTarget();
+        StartHere<BoothThree>();
+        Take<TeleportationAccessCard>();
+
+        await target.GetResponse("slide teleportation access card through slot");
+        await target.GetResponse("west");
+        target.Context.CurrentLocation.Should().BeOfType<LibraryLobby>();
+
+        var everything = new StringBuilder();
+        for (var i = 0; i < 32; i++)
+            everything.Append(await target.GetResponse("wait"));
+
+        // Fired silently: no announcement while the player is elsewhere...
+        everything.ToString().Should().NotContain("ready light goes dark");
+        // ...but the activation still lapsed.
+        GetLocation<BoothThree>().IsEnabled.Should().BeFalse();
+
+        // And it is genuinely off: returning to the booth and pressing a button is rebuffed.
+        await target.GetResponse("east");
+        var response = await target.GetResponse("press 1");
+        response.Should().Contain("not aktivaatid");
+        target.Context.CurrentLocation.Should().BeOfType<BoothThree>();
+    }
+
     // Re-sliding the card restarts the countdown (the original re-QUEUEs the turn-off daemon).
     [Test]
     public async Task Activation_ReslidingCard_RestartsCountdown()
