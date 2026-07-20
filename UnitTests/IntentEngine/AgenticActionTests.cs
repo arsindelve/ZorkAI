@@ -287,4 +287,70 @@ public class AgenticActionTests : EngineTestsBase
         seenInventory.Should().ContainEquivalentOf("leaflet");
         seenLocation.Should().ContainEquivalentOf("white house");
     }
+
+    /// <summary>
+    /// The seam is an optional enhancement. When the parser itself throws (an OpenAI timeout or
+    /// outage), the turn must degrade to the pre-#136 narration-only fall-through - never abort the
+    /// whole turn into the engine-error response. The unavailable-seam contract on
+    /// IItemProcessorFactory.AgenticActionParser promises exactly this degradation.
+    /// </summary>
+    [Test]
+    public async Task SeamThrows_FallsBackToNarrationOnlyPath()
+    {
+        var target = GetTarget(Mock.Of<IIntentParser>());
+        var leaflet = Repository.GetItem<Leaflet>();
+        target.Context.Take(leaflet);
+
+        Mock.Get(Parser)
+            .Setup(s => s.DetermineComplexIntentType("tear up the leaflet", It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new SimpleIntent { Verb = "tear", Noun = "leaflet", OriginalInput = "tear up the leaflet" });
+
+        AgenticActionParser
+            .Setup(s => s.Resolve(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ThrowsAsync(new InvalidOperationException("OpenAI is down"));
+
+        Client.Setup(s => s.GenerateNarration(It.IsAny<VerbHasNoEffectOperationRequest>(), It.IsAny<string>()))
+            .ReturnsAsync("Nothing happens.");
+
+        var response = await target.GetResponse("tear up the leaflet");
+
+        response.Should().Contain("Nothing happens.");
+        target.Context.Items.Should().Contain(leaflet);
+    }
+
+    /// <summary>
+    /// In an IDropSpecialLocation the drop mechanic rewrites the outcome (the chasm eats whatever is
+    /// dropped; a treetop drop lands a room below). The mechanic's message describes what actually
+    /// happened, so it must win over the AI narration, which was written blind to that behavior and
+    /// would describe the item landing at the player's feet.
+    /// </summary>
+    [Test]
+    public async Task DropTool_InDropSpecialLocation_MechanicMessageWins()
+    {
+        var target = GetTarget(Mock.Of<IIntentParser>());
+        var leaflet = Repository.GetItem<Leaflet>();
+        target.Context.Take(leaflet);
+        var lantern = Repository.GetItem<Lantern>();
+        target.Context.Take(lantern);
+        lantern.IsOn = true;
+        target.Context.CurrentLocation = Repository.GetLocation<Chasm>();
+
+        Mock.Get(Parser)
+            .Setup(s => s.DetermineComplexIntentType("throw the leaflet in the air", It.IsAny<string>(),
+                It.IsAny<string>()))
+            .ReturnsAsync(new SimpleIntent
+                { Verb = "throw", Noun = "leaflet", OriginalInput = "throw the leaflet in the air" });
+
+        AgenticActionParser
+            .Setup(s => s.Resolve(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new AgenticActionResult("It flutters back down to the ground at your feet.",
+                [new AgenticToolCall(AgenticTool.Drop, "leaflet")]));
+
+        var response = await target.GetResponse("throw the leaflet in the air");
+
+        response.Should().Contain("drops out of sight and into the chasm");
+        response.Should().NotContain("flutters back down");
+        target.Context.Items.Should().NotContain(leaflet);
+        Repository.GetItem<Leaflet>().CurrentLocation.Should().BeNull();
+    }
 }

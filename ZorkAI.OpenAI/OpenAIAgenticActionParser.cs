@@ -2,7 +2,6 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Model.AIParsing;
 using Newtonsoft.Json;
-using OpenAI.Chat;
 
 namespace ZorkAI.OpenAI;
 
@@ -22,21 +21,9 @@ public class OpenAIAgenticActionParser(ILogger? logger) : OpenAIClientBase(logge
         var prompt = string.Format(ParsingHelper.AgenticActionUserPrompt, locationDescription,
             inventoryDescription, playerInput);
 
-        var messages = new List<ChatMessage>
-        {
-            new SystemChatMessage(prompt)
-        };
-
-        var options = new ChatCompletionOptions
-        {
-            // Deflection-narrator discipline (see Request.DeflectionTemperature): low creativity so
-            // the narrator can't embellish its way into an ungrounded tool call.
-            Temperature = 0.4f,
-            ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat()
-        };
-
-        ChatCompletion completion = await Client!.CompleteChatAsync(messages, options);
-        var response = JsonConvert.DeserializeObject<AgenticResponse>(completion.Content[0].Text);
+        // Deflection-narrator discipline (see Request.DeflectionTemperature): low creativity so
+        // the narrator can't embellish its way into an ungrounded tool call.
+        var response = await CompleteJsonChatAsync<AgenticResponse>(prompt, 0.4f);
 
         if (response is null)
             return new AgenticActionResult(string.Empty, []);

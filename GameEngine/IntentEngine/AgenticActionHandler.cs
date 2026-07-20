@@ -1,6 +1,9 @@
+using System.Diagnostics;
 using GameEngine.Item.ItemProcessor;
 using Model.AIParsing;
 using Model.Interface;
+using Model.Item;
+using Model.Location;
 
 namespace GameEngine.IntentEngine;
 
@@ -50,7 +53,20 @@ internal static class AgenticActionHandler
         var locationDescription = context.CurrentLocation.GetDescriptionForGeneration(context);
         var inventoryDescription = context.ItemListDescription(string.Empty, null);
 
-        var result = await parser.Resolve(playerInput, inventoryDescription, locationDescription);
+        AgenticActionResult? result;
+        try
+        {
+            result = await parser.Resolve(playerInput, inventoryDescription, locationDescription);
+        }
+        catch (Exception ex)
+        {
+            // The seam is an optional enhancement, and the unavailable-seam contract
+            // (IItemProcessorFactory.AgenticActionParser) promises narration-only degradation. A
+            // parser that throws (an OpenAI timeout or outage) must degrade the same way - never
+            // abort the whole turn into the issue-#271 engine-error response.
+            Debug.WriteLine($"Agentic narrator failed; keeping the narration-only fall-through. {ex}");
+            result = null;
+        }
 
         // Defensive: an absent reply means the narrator has nothing to add - keep today's behavior.
         if (result is null)
@@ -67,6 +83,7 @@ internal static class AgenticActionHandler
 
         var anythingChanged = false;
         string? refusalMessage = null;
+        List<string> specialDropMessages = [];
 
         foreach (var toolCall in result.ToolCalls)
         {
@@ -83,14 +100,34 @@ internal static class AgenticActionHandler
                     // guards still apply; the AI narration replaces its plain "Dropped" message.
                     var dropResult = TakeOrDropInteractionProcessor.DropIt(context, item);
                     if (context.Items.Contains(item))
+                    {
                         // A guard refused the drop (e.g. worn clothing). Remember its message so we
                         // don't narrate a disposal that never happened.
                         refusalMessage ??= dropResult.InteractionMessage;
+                    }
                     else
+                    {
                         anythingChanged = true;
+
+                        // A special drop location (the chasm, a treetop) rewrote the outcome. Its
+                        // message describes what actually happened to the item; the AI narration was
+                        // written blind to that and would claim the item simply landed here.
+                        if (context.CurrentLocation is IDropSpecialLocation &&
+                            !string.IsNullOrWhiteSpace(dropResult.InteractionMessage))
+                            specialDropMessages.Add(dropResult.InteractionMessage);
+                    }
+
                     break;
 
                 case AgenticTool.Destroy:
+                    // Mirror DropIt's worn-clothing guard: vaporizing something still being worn
+                    // would leave BeingWorn set on a destroyed instance.
+                    if (item is IAmClothing { BeingWorn: true })
+                    {
+                        refusalMessage ??= TakeOrDropInteractionProcessor.TakeItOffFirstMessage;
+                        break;
+                    }
+
                     Repository.DestroyItem(item);
                     anythingChanged = true;
                     break;
@@ -106,8 +143,18 @@ internal static class AgenticActionHandler
 
         // State changed, so we must say SOMETHING - a blank line here is the classic force-verb
         // bug (engine anti-pattern: silent responses). The narrator essentially never omits its
-        // narration, but guard it anyway.
-        var narration = string.IsNullOrWhiteSpace(result.Narration) ? "Done. " : result.Narration;
+        // narration, but guard it anyway. A special drop location's message wins outright - it is
+        // the truth of what happened - and a partially-refused tool list must still surface the
+        // refusal, or the reply claims a disposal that never happened.
+        var narration = specialDropMessages.Count > 0
+            ? string.Join(" ", specialDropMessages)
+            : string.IsNullOrWhiteSpace(result.Narration)
+                ? "Done. "
+                : result.Narration;
+
+        if (refusalMessage is not null)
+            narration = narration.TrimEnd() + " " + refusalMessage;
+
         return (new PositiveInteractionResult(narration), narration + Environment.NewLine);
     }
 }

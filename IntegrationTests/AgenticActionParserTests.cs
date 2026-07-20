@@ -1,5 +1,4 @@
 using Model.AIParsing;
-using OpenAI;
 using ZorkAI.OpenAI;
 
 namespace IntegrationTests;
@@ -9,38 +8,14 @@ namespace IntegrationTests;
 /// engine tests (UnitTests/IntentEngine/AgenticActionTests.cs) prove the engine honors whatever the
 /// seam returns; these prove the REAL prompt is conservative and grounded: tools only for plausible
 /// actions on present things, empty tool list + snark for everything else. Cloud-gated, so they are
-/// [Explicit] per the repo's TDD rules.
+/// [Explicit] per the repo's TDD rules. Secrets come from the assembly-wide
+/// <see cref="IntegrationTestSetup" /> fixture - no per-fixture loading.
 /// </summary>
 [TestFixture]
 [Explicit("Requires OPEN_AI_KEY environment variable - Integration test")]
 [Parallelizable(ParallelScope.Children)]
 public class AgenticActionParserTests
 {
-    [SetUp]
-    public void Setup()
-    {
-        // Navigate up from the test assembly to find the solution root
-        var assemblyLocation = Path.GetDirectoryName(typeof(AgenticActionParserTests).Assembly.Location)!;
-        var directory = new DirectoryInfo(assemblyLocation);
-
-        // Walk up until we find the .env file or reach the root
-        while (directory != null && !File.Exists(Path.Combine(directory.FullName, ".env")))
-        {
-            directory = directory.Parent;
-        }
-
-        if (directory != null)
-        {
-            var resolvedPath = Path.Combine(directory.FullName, ".env");
-            Console.WriteLine($"Loading .env from: {resolvedPath}");
-            Env.Load(resolvedPath, new LoadOptions());
-        }
-        else
-        {
-            Console.WriteLine("Warning: .env file not found in solution hierarchy");
-        }
-    }
-
     private const string RoomWithRiver = """
                                          Canyon Bottom
                                          You are beneath the walls of the river canyon, which may be climbable here.
