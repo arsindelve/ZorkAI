@@ -65,11 +65,24 @@ internal class SimpleInteractionEngine(IItemProcessorFactory itemProcessorFactor
                 await GetGeneratedNoMatchingVerbResponse(noVerb.Noun, noVerb.Verb, generationClient, context));
 
         // The noun was present in INVENTORY but the verb applied to
-        // it has no meaning in the story. I.E: push the sword...that will accomplish nothing. 
+        // it has no meaning in the story. I.E: push the sword...that will accomplish nothing.
         if (contextInteraction is NoVerbMatchInteractionResult noVerbContext)
-            return (contextInteraction, await GetGeneratedNoMatchingVerbResponse(noVerbContext.Noun, noVerbContext.Verb,
+        {
+            // Issue #136 Hook A: before settling for flavor text, give the agentic narrator a chance
+            // to resolve an unhandled action on a HELD item into a real DROP/DESTROY state change
+            // ("throw the leaflet in the air", "tear up the leaflet"). Room items (the location
+            // branch above) deliberately stay narration-only.
+            var agentic = await AgenticActionHandler.TryResolveAgenticAction(
+                simpleInteraction.OriginalInput ?? $"{simpleInteraction.Verb} {simpleInteraction.Noun}",
+                noVerbContext.Noun, context, itemProcessorFactory, contextInteraction);
+            if (agentic is not null)
+                return agentic.Value;
+
+            return (contextInteraction, await GetGeneratedNoMatchingVerbResponse(noVerbContext.Noun,
+                noVerbContext.Verb,
                 generationClient,
                 context));
+        }
 
         // The noun exists in the game, but is not currently present. It might be in another location
         // or is hidden inside something else (like the leaflet in the mailbox) 

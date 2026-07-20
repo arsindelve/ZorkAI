@@ -109,7 +109,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         GenerationClient.OnGenerate += () => _lastResponseWasGenerated = true;
 
         _openAITakeAndDropListParser = new OpenAITakeAndDropListParser(logger);
-        _itemProcessorFactory = new ItemProcessorFactory(_openAITakeAndDropListParser);
+        _itemProcessorFactory = new ItemProcessorFactory(_openAITakeAndDropListParser,
+            new OpenAIAgenticActionParser(logger));
         _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
         _conversationHandler = new ConversationHandler(_logger, parseConversation, GenerationClient,
             _gameInstance.TalkableCharacterTypes);
@@ -895,7 +896,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
                 GenerationClient
             ),
 
-            MultiNounIntent multiInteraction => await new MultiNounEngine().Process(
+            MultiNounIntent multiInteraction => await new MultiNounEngine(_itemProcessorFactory).Process(
                 multiInteraction,
                 Context,
                 GenerationClient

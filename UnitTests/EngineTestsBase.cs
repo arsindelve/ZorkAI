@@ -14,6 +14,7 @@ namespace UnitTests;
 
 public class EngineTestsBase : EngineTestsBaseCommon<ZorkIContext>
 {
+    protected Mock<IAgenticActionParser> AgenticActionParser = new();
     protected Mock<IAITakeAndAndDropParser> TakeAndDropParser = new();
 
     /// <summary>
@@ -36,10 +37,17 @@ public class EngineTestsBase : EngineTestsBaseCommon<ZorkIContext>
         TakeAndDropParser.Setup(s => s.GetListOfItemsToTake(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync((string input, string context) => ParseItemList(input));
 
+        // Inert agentic-narrator default (issue #136): no narration, no tool calls, so the engines
+        // keep the plain fall-through behavior unless a test stubs a real decision.
+        AgenticActionParser = new Mock<IAgenticActionParser>();
+        AgenticActionParser.Setup(s => s.Resolve(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new AgenticActionResult(string.Empty, []));
+
         // Create a mock ParseConversation that mimics the old pattern behavior
         var mockParseConversation = CreateMockParseConversation();
 
-        var engine = new GameEngine<ZorkI, ZorkIContext>(new ItemProcessorFactory(TakeAndDropParser.Object),
+        var engine = new GameEngine<ZorkI, ZorkIContext>(
+            new ItemProcessorFactory(TakeAndDropParser.Object, AgenticActionParser.Object),
             Parser, Client.Object, Mock.Of<ISecretsManager>(),
             Mock.Of<ICloudWatchLogger<TurnLog>>(), mockParseConversation.Object);
         
