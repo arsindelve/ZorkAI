@@ -35,6 +35,12 @@
     { "inputs": ["press the blue button"], "verb": "press", "noun": "blue button", "adverb": "the" },
     { "inputs": ["press the red button"], "verb": "press", "noun": "red button", "adverb": "the" },
 
+    { "inputs": ["press mesij plaabak"], "verb": "press", "noun": "mesij plaabak" },
+    { "inputs": ["push mesij plaabak"], "verb": "push", "noun": "mesij plaabak" },
+    { "inputs": ["press playback button"], "verb": "press", "noun": "playback button" },
+    { "inputs": ["press message playback button"], "verb": "press", "noun": "message playback button" },
+    { "inputs": ["press glowing button"], "verb": "press", "noun": "glowing button" },
+
     { "inputs": ["open red door"], "verb": "open", "noun": "red door" },
     { "inputs": ["close red door"], "verb": "close", "noun": "red door" },
     { "inputs": ["examine red door"], "verb": "examine", "noun": "red door" },

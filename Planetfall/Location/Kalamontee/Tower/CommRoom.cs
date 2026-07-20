@@ -106,7 +106,19 @@ internal class CommRoom : LocationWithNoStartingItems, IFloydDoesNotTalkHere
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(Verbs.PushVerbs, ["button"]))
+        // Issue #412: the room describes a "glowing button marked \"Mesij Plaabak\"", so accept the printed
+        // label and the descriptors the player is shown — not just the bare noun "button". Matching only
+        // "button" let every natural/labelled phrasing ("mesij plaabak", "playback button", "message
+        // playback button", "glowing button") fall through to the narrator, which never played the
+        // transmission and sometimes falsely claimed it had. Mirrors the rich synonym sets used by the
+        // coolant-pour handler above. (Bare "message"/"console" stay with the read/examine handler below.)
+        string[] buttonNouns =
+        [
+            "button", "glowing button", "playback button", "message playback button",
+            "playback", "message playback", "mesij plaabak", "mesij", "plaabak"
+        ];
+
+        if (action.Match(Verbs.PushVerbs, buttonNouns))
             return new PositiveInteractionResult(
                 "A voice fills the room ... the voice of the Feinstein's communications officer! \"Stellar Patrol " +
                 "Ship Feinstein to planetside ... Please respond on frequency 48.5 ... SPS Feinstein to planetside ... " +
