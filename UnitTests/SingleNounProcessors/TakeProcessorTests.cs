@@ -2,6 +2,7 @@ using GameEngine;
 using GameEngine.Item.ItemProcessor;
 using Model.AIGeneration;
 using Model.Intent;
+using Model.Interaction;
 using Model.Interface;
 
 namespace UnitTests.SingleNounProcessors;
@@ -52,6 +53,40 @@ public class TakeProcessorTests : EngineTestsBase
 
         result.Should().Contain("securely");
     }
+
+    [Test]
+    public async Task CannotBeTaken_GetVerb_PositiveInteraction()
+    {
+        // Issue #406: "get" must behave exactly like "take" on a non-takeable item. It used to fall
+        // through to the improvised "verb has no effect" narration instead of the authored refusal.
+        var target = GetTarget();
+
+        var result = await target.GetResponse("get mailbox");
+
+        result.Should().Contain("securely");
+    }
+
+    [TestCaseSource(nameof(AllTakeVerbs))]
+    public async Task CannotBeTaken_CoversTheWholeTakeVerbFamily(string verb)
+    {
+        // Issue #406: CannotBeTakenProcessor kept its own hardcoded copy of the take verbs, which
+        // had drifted from Verbs.TakeVerbs ("get" and "grab" were missing). Every verb the engine
+        // treats as a take must surface the item's authored CannotBeTakenDescription, just as
+        // TakeOrDropInteractionProcessor does for takeable items. Sourcing the cases from
+        // Verbs.TakeVerbs keeps this contract from drifting again when a synonym is added.
+        var target = GetTarget();
+
+        IVerbProcessor processor = new CannotBeTakenProcessor();
+        var result = await processor.Process(
+            new SimpleIntent { Verb = verb, Noun = "mailbox", OriginalInput = $"{verb} mailbox" },
+            target.Context, Repository.GetItem<Mailbox>(), Client.Object);
+
+        result.Should().BeOfType<PositiveInteractionResult>(
+            $"'{verb}' is in Verbs.TakeVerbs, so it must trigger the authored refusal");
+        result!.InteractionMessage.Should().Contain("securely anchored");
+    }
+
+    private static IEnumerable<string> AllTakeVerbs => Verbs.TakeVerbs;
 
     [Test]
     public async Task TakeSecondItemFromContainer()

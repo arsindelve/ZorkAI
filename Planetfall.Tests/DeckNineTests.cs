@@ -122,6 +122,25 @@ public class DeckNineTests : EngineTestsBase
         }
 
         [Test]
+        public async Task GetCelery_WhileAmbassadorIsPresent_YieldsProtocolRefusal()
+        {
+            // Issue #406: "get" is a TAKE synonym in the original (syntax.zil:334
+            // <SYNONYM TAKE GET HOLD CARRY>), and the engine already treats it as one for takeable
+            // items (Verbs.TakeVerbs). CannotBeTakenProcessor, however, kept its own hardcoded copy
+            // of the take-verb family that had drifted ("get"/"grab" missing), so "get celery"
+            // skipped the ambassador's authored refusal and fell through to the improvised
+            // "verb has no effect" AI narration.
+            var engine = GetTarget();
+            var deckNine = StartHere<DeckNine>();
+            GetItem<Ambassador>().JoinsTheScene(engine.Context, deckNine);
+
+            var response = await engine.GetResponse("get celery");
+
+            response.Should().Contain("The ambassador seems perturbed by your lack of normal protocol.");
+            engine.Context.Items.Should().NotContain(GetItem<Celery>());
+        }
+
+        [Test]
         public async Task EatCelery_WhileAmbassadorIsPresent_KillsThePlayer()
         {
             var engine = GetTarget();
