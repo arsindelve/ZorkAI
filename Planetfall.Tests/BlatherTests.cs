@@ -1,5 +1,6 @@
 using FluentAssertions;
 using GameEngine;
+using Planetfall.Item.Feinstein;
 using Planetfall.Location.Feinstein;
 
 namespace Planetfall.Tests;
@@ -78,5 +79,51 @@ public class BlatherTests : EngineTestsBase
         // Assert
         response.Should().Contain("brig");
         target.Context.CurrentLocation.Should().BeOfType<Brig>();
+    }
+
+    // Issue #407: Blather's single-noun interactions from the original (BLATHER-F,
+    // globals.zil:742-772). Attacking or kicking him is fatal; saluting and trying to
+    // take him have authored flavor responses.
+
+    // All of ATTACK's synonyms (Verbs.KillVerbs, from ZIL syntax.zil:76) plus the separate KICK
+    // verb (syntax.zil:175) are fatal, so parameterize rather than duplicate the arrange/assert.
+    [TestCase("attack blather")]
+    [TestCase("kick blather")]
+    [TestCase("kill blather")]
+    public async Task AttackingBlather_KillsThePlayer(string command)
+    {
+        var target = GetTarget();
+        var deckNine = StartHere<DeckNine>();
+        GetItem<Blather>().JoinsTheScene(target.Context, deckNine);
+
+        var response = await target.GetResponse(command);
+
+        response.Should().Contain("Blather removes several of your appendages and internal organs");
+        response.Should().Contain("*** You have died ***");
+    }
+
+    [Test]
+    public async Task SaluteBlather_EarnsOnlyFiveDemerits()
+    {
+        var target = GetTarget();
+        var deckNine = StartHere<DeckNine>();
+        GetItem<Blather>().JoinsTheScene(target.Context, deckNine);
+
+        var response = await target.GetResponse("salute blather");
+
+        response.Should().Contain("Blather's sneer softens a bit");
+        response.Should().Contain("First right thing you've done today. Only five demerits.");
+    }
+
+    [Test]
+    public async Task TakeBlather_HeBrushesYouAway()
+    {
+        var target = GetTarget();
+        var deckNine = StartHere<DeckNine>();
+        GetItem<Blather>().JoinsTheScene(target.Context, deckNine);
+
+        var response = await target.GetResponse("take blather");
+
+        response.Should().Contain("Blather brushes you away, muttering about suspended shore leave.");
     }
 }
