@@ -17,10 +17,15 @@ public class CannotBeTakenProcessor : IVerbProcessor
         // drifted from Verbs.TakeVerbs (it was missing "get"/"grab"), so those phrasings skipped the
         // item's authored CannotBeTakenDescription and fell through to the improvised "verb has no
         // effect" narration (issue #406).
-        if (Verbs.TakeVerbs.Contains(action.Verb.ToLowerInvariant().Trim()))
-            return !string.IsNullOrEmpty(castItem.CannotBeTakenDescription)
-                ? Task.FromResult<InteractionResult?>(new PositiveInteractionResult(castItem.CannotBeTakenDescription))
-                : Task.FromResult<InteractionResult?>(null);
+        var verb = action.Verb.ToLowerInvariant().Trim();
+        if (Verbs.TakeVerbs.Contains(verb) && !string.IsNullOrEmpty(castItem.CannotBeTakenDescription))
+        {
+            // Mirror TakeOrDropInteractionProcessor.TakeIt's refusal branch: fire the same
+            // OnFailingToBeTaken hook, or a failed take's side effects (the destroy-on-failed-take
+            // seam Slag/ToolChests use) would depend on which parse path delivered the verb.
+            ((ItemBase)castItem).OnFailingToBeTaken(context);
+            return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(castItem.CannotBeTakenDescription));
+        }
 
         return Task.FromResult<InteractionResult?>(null);
     }

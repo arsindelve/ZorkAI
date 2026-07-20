@@ -114,6 +114,7 @@ public class DeckNineTests : EngineTestsBase
             var engine = GetTarget();
             var deckNine = StartHere<DeckNine>();
             GetItem<Ambassador>().JoinsTheScene(engine.Context, deckNine);
+            ForceAmbassadorIdle();
 
             var response = await engine.GetResponse("take celery");
 
@@ -121,20 +122,22 @@ public class DeckNineTests : EngineTestsBase
             engine.Context.Items.Should().NotContain(GetItem<Celery>());
         }
 
-        [Test]
-        public async Task GetCelery_WhileAmbassadorIsPresent_YieldsProtocolRefusal()
+        [TestCase("get celery")]
+        [TestCase("carry celery")]
+        public async Task TakeSynonymCelery_WhileAmbassadorIsPresent_YieldsProtocolRefusal(string input)
         {
-            // Issue #406: "get" is a TAKE synonym in the original (syntax.zil:334
-            // <SYNONYM TAKE GET HOLD CARRY>), and the engine already treats it as one for takeable
-            // items (Verbs.TakeVerbs). CannotBeTakenProcessor, however, kept its own hardcoded copy
-            // of the take-verb family that had drifted ("get"/"grab" missing), so "get celery"
-            // skipped the ambassador's authored refusal and fell through to the improvised
-            // "verb has no effect" AI narration.
+            // Issue #406: "get" and "carry" are TAKE synonyms in the original (syntax.zil:334
+            // <SYNONYM TAKE GET HOLD CARRY>), and the engine treats the whole Verbs.TakeVerbs
+            // family as takes for takeable items. CannotBeTakenProcessor, however, kept its own
+            // hardcoded copy of the family that had drifted ("get"/"grab" missing, "carry" absent
+            // from Verbs.TakeVerbs entirely), so these phrasings skipped the ambassador's authored
+            // refusal and fell through to the improvised "verb has no effect" AI narration.
             var engine = GetTarget();
             var deckNine = StartHere<DeckNine>();
             GetItem<Ambassador>().JoinsTheScene(engine.Context, deckNine);
+            ForceAmbassadorIdle();
 
-            var response = await engine.GetResponse("get celery");
+            var response = await engine.GetResponse(input);
 
             response.Should().Contain("The ambassador seems perturbed by your lack of normal protocol.");
             engine.Context.Items.Should().NotContain(GetItem<Celery>());
@@ -146,11 +149,24 @@ public class DeckNineTests : EngineTestsBase
             var engine = GetTarget();
             var deckNine = StartHere<DeckNine>();
             GetItem<Ambassador>().JoinsTheScene(engine.Context, deckNine);
+            ForceAmbassadorIdle();
 
             var response = await engine.GetResponse("eat celery");
 
             response.Should().Contain("Blow'k-Bibben-Gordoan metabolism is not compatible with our own");
             response.Should().Contain("You die of all sorts of convulsions");
+        }
+
+        /// <summary>
+        /// The ambassador is a registered actor once he joins, and his Act() rolls RollDice(10) on
+        /// the production RandomChooser (idle / leave / quirky speech). Force the idle branch so
+        /// these tests never execute live randomness (CLAUDE.md: always mock IRandomChooser).
+        /// </summary>
+        private void ForceAmbassadorIdle()
+        {
+            var mockChooser = new Mock<IRandomChooser>();
+            mockChooser.Setup(c => c.RollDice(10)).Returns(1);
+            GetItem<Ambassador>().Chooser = mockChooser.Object;
         }
 
         [Test]
@@ -163,6 +179,7 @@ public class DeckNineTests : EngineTestsBase
             var engine = GetTarget();
             var deckNine = StartHere<DeckNine>();
             GetItem<Ambassador>().JoinsTheScene(engine.Context, deckNine);
+            ForceAmbassadorIdle();
 
             var response = await engine.GetResponse("take all");
 

@@ -1,4 +1,5 @@
 using GameEngine;
+using GameEngine.Item;
 using GameEngine.Item.ItemProcessor;
 using Model.AIGeneration;
 using Model.Intent;
@@ -44,36 +45,37 @@ public class TakeProcessorTests : EngineTestsBase
             Mock.Of<IGenerationClient>()));
     }
 
-    [Test]
-    public async Task CannotBeTaken_PositiveInteraction()
-    {
-        var target = GetTarget();
-
-        var result = await target.GetResponse("take mailbox");
-
-        result.Should().Contain("securely");
-    }
-
-    [Test]
-    public async Task CannotBeTaken_GetVerb_PositiveInteraction()
+    [TestCase("take mailbox")]
+    [TestCase("get mailbox")]
+    public async Task CannotBeTaken_PositiveInteraction(string input)
     {
         // Issue #406: "get" must behave exactly like "take" on a non-takeable item. It used to fall
         // through to the improvised "verb has no effect" narration instead of the authored refusal.
         var target = GetTarget();
 
-        var result = await target.GetResponse("get mailbox");
+        var result = await target.GetResponse(input);
 
         result.Should().Contain("securely");
     }
 
-    [TestCaseSource(nameof(AllTakeVerbs))]
+    [TestCase("take")]
+    [TestCase("get")]
+    [TestCase("grab")]
+    [TestCase("pick up")]
+    [TestCase("hold")]
+    [TestCase("acquire")]
+    [TestCase("snatch")]
+    [TestCase("carry")]
     public async Task CannotBeTaken_CoversTheWholeTakeVerbFamily(string verb)
     {
         // Issue #406: CannotBeTakenProcessor kept its own hardcoded copy of the take verbs, which
         // had drifted from Verbs.TakeVerbs ("get" and "grab" were missing). Every verb the engine
         // treats as a take must surface the item's authored CannotBeTakenDescription, just as
-        // TakeOrDropInteractionProcessor does for takeable items. Sourcing the cases from
-        // Verbs.TakeVerbs keeps this contract from drifting again when a synonym is added.
+        // TakeOrDropInteractionProcessor does for takeable items. The cases are deliberately
+        // literal, not sourced from Verbs.TakeVerbs: a self-referential source would shrink in
+        // lockstep if a synonym were ever removed from the family, hiding the regression. "carry"
+        // is a canonical original synonym (planetfall-source syntax.zil:334
+        // <SYNONYM TAKE GET HOLD CARRY>).
         var target = GetTarget();
 
         IVerbProcessor processor = new CannotBeTakenProcessor();
@@ -86,7 +88,42 @@ public class TakeProcessorTests : EngineTestsBase
         result!.InteractionMessage.Should().Contain("securely anchored");
     }
 
-    private static IEnumerable<string> AllTakeVerbs => Verbs.TakeVerbs;
+    [Test]
+    public async Task CannotBeTaken_FiresTheOnFailingToBeTakenHook()
+    {
+        // The TakeIntent refusal branch (TakeOrDropInteractionProcessor.TakeIt) invokes
+        // OnFailingToBeTaken before returning CannotBeTakenDescription. This SimpleIntent branch
+        // must do the same, or a failed take's side effects (the Slag/ToolChests
+        // destroy-on-failed-take seam) would depend on which parse path delivered the verb.
+        var target = GetTarget();
+        var relic = new AnchoredRelic();
+
+        IVerbProcessor processor = new CannotBeTakenProcessor();
+        var result = await processor.Process(
+            new SimpleIntent { Verb = "take", Noun = "relic", OriginalInput = "take relic" },
+            target.Context, relic, Client.Object);
+
+        result!.InteractionMessage.Should().Contain("fused to its pedestal");
+        relic.FailedTakeCount.Should().Be(1, "the refusal must fire the same hook the TakeIntent path fires");
+    }
+
+    private class AnchoredRelic : ItemBase
+    {
+        public int FailedTakeCount { get; private set; }
+
+        public override string[] NounsForMatching => ["relic"];
+
+        public override string? CannotBeTakenDescription
+        {
+            get => "The relic is fused to its pedestal. ";
+            set { }
+        }
+
+        public override void OnFailingToBeTaken(IContext context)
+        {
+            FailedTakeCount++;
+        }
+    }
 
     [Test]
     public async Task TakeSecondItemFromContainer()
