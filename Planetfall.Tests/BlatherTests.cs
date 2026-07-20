@@ -85,40 +85,18 @@ public class BlatherTests : EngineTestsBase
     // globals.zil:742-772). Attacking or kicking him is fatal; saluting and trying to
     // take him have authored flavor responses.
 
-    [Test]
-    public async Task AttackBlather_KillsThePlayer()
+    // All of ATTACK's synonyms (Verbs.KillVerbs, from ZIL syntax.zil:76) plus the separate KICK
+    // verb (syntax.zil:175) are fatal, so parameterize rather than duplicate the arrange/assert.
+    [TestCase("attack blather")]
+    [TestCase("kick blather")]
+    [TestCase("kill blather")]
+    public async Task AttackingBlather_KillsThePlayer(string command)
     {
         var target = GetTarget();
         var deckNine = StartHere<DeckNine>();
         GetItem<Blather>().JoinsTheScene(target.Context, deckNine);
 
-        var response = await target.GetResponse("attack blather");
-
-        response.Should().Contain("Blather removes several of your appendages and internal organs");
-        response.Should().Contain("*** You have died ***");
-    }
-
-    [Test]
-    public async Task KickBlather_KillsThePlayer()
-    {
-        var target = GetTarget();
-        var deckNine = StartHere<DeckNine>();
-        GetItem<Blather>().JoinsTheScene(target.Context, deckNine);
-
-        var response = await target.GetResponse("kick blather");
-
-        response.Should().Contain("Blather removes several of your appendages and internal organs");
-        response.Should().Contain("*** You have died ***");
-    }
-
-    [Test]
-    public async Task KillBlather_KillsThePlayer()
-    {
-        var target = GetTarget();
-        var deckNine = StartHere<DeckNine>();
-        GetItem<Blather>().JoinsTheScene(target.Context, deckNine);
-
-        var response = await target.GetResponse("kill blather");
+        var response = await target.GetResponse(command);
 
         response.Should().Contain("Blather removes several of your appendages and internal organs");
         response.Should().Contain("*** You have died ***");
