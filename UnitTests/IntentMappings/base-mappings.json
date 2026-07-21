@@ -113,6 +113,8 @@
     { "inputs": ["throw garlic at mirror"], "verb": "throw", "nounOne": "garlic", "nounTwo": "mirror", "preposition": "at", "originalInput": "throw garlic at mirror" },
     { "inputs": ["place ladder across rift"], "verb": "place", "nounOne": "ladder", "nounTwo": "rift", "preposition": "across", "originalInput": "place ladder across rift" },
     { "inputs": ["put ladder across rift"], "verb": "put", "nounOne": "ladder", "nounTwo": "rift", "preposition": "across", "originalInput": "put ladder across rift" },
+    { "inputs": ["throw diary into rift"], "verb": "throw", "nounOne": "diary", "nounTwo": "rift", "preposition": "into", "originalInput": "throw diary into rift" },
+    { "inputs": ["throw laser into rift"], "verb": "throw", "nounOne": "laser", "nounTwo": "rift", "preposition": "into", "originalInput": "throw laser into rift" },
     { "inputs": ["put flask under spout"], "verb": "put", "nounOne": "flask", "nounTwo": "spout", "preposition": "under", "originalInput": "put flask under spout" },
     { "inputs": ["put trident in boat"], "verb": "put", "nounOne": "trident", "nounTwo": "boat", "preposition": "in", "originalInput": "put trident in boat" },
     { "inputs": ["put bar in boat"], "verb": "put", "nounOne": "bar", "nounTwo": "boat", "preposition": "in", "originalInput": "put bar in boat" },
