@@ -58,18 +58,11 @@ public class Candles
     {
         context.RegisterActor(this);
 
-        var location = Repository.GetLocation<EntranceToHades>();
-        var spirits = Repository.GetItem<Spirits>();
-
-        if (
-            context.CurrentLocation == location
-            && spirits.CurrentLocation == location
-            && spirits.Stunned
-        )
-            return "\nThe flames flicker wildly and appear to dance. The earth beneath your feet trembles, "
-                   + "and your legs nearly buckle beneath you. The spirits cower at your unearthly power. \n ";
-
-        return string.Empty;
+        // Lighting the candles is phase two of the exorcism, but only when they are being held up
+        // in front of the stunned spirits. The spirits own that state machine, so that the message
+        // announcing the ceremony has advanced cannot get out of step with the black book, which
+        // decides whether to banish them from the very same latch.
+        return Repository.GetItem<Spirits>().RaiseTheCandles(context);
     }
 
     public void OnBeingTurnedOff(IContext context)
