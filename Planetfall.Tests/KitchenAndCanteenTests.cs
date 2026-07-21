@@ -172,5 +172,22 @@ public class KitchenAndCanteenTests : EngineTestsBase
     }
 
     // TODO: drink dont have it
-    // TODO: put something in canteen
+
+    [Test]
+    public async Task PutBrushInCanteen_TypeRefusal_NamesTheItem_AndIsNotBlank()
+    {
+        var target = GetTarget();
+        StartHere<MessCorridor>();
+        Take<Canteen>().IsOpen = true;
+        Take<Brush>();
+
+        var response = await target.GetResponse("put brush in canteen");
+
+        // Issue #422: the canteen only holds protein liquid, so a brush is refused on type. That
+        // refusal must be a deterministic message that names the item - not a fall-through to the
+        // AI narrator, which (with a stubbed generation client) leaves a blank line.
+        response.Should().NotBeNullOrWhiteSpace();
+        response.Should().Contain("brush");
+        GetItem<Canteen>().Items.Should().BeEmpty();
+    }
 }

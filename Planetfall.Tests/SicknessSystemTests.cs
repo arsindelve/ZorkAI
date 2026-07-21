@@ -225,4 +225,27 @@ public class SicknessSystemTests : EngineTestsBase
         await target.GetResponse("drink medicine");
         context.SicknessCounter.Should().Be(3);
     }
+
+    [Test]
+    public async Task PutBrushInMedicineBottle_TypeRefusal_NamesTheItem_AndIsNotBlank()
+    {
+        var target = GetTarget();
+        var context = target.Context;
+        StartHere<MessCorridor>();
+
+        // Hold the open bottle (with its medicine inside) plus a brush to try to stuff into it.
+        var bottle = GetItem<MedicineBottle>();
+        bottle.IsOpen = true;
+        context.ItemPlacedHere(bottle);
+        context.ItemPlacedHere(GetItem<Brush>());
+
+        var response = await target.GetResponse("put brush in bottle");
+
+        // Issue #422: the bottle only holds medicine, so a brush is refused on type. That refusal
+        // must be a deterministic message that names the item - not a fall-through to the AI
+        // narrator, which (with a stubbed generation client) leaves a blank line.
+        response.Should().NotBeNullOrWhiteSpace();
+        response.Should().Contain("brush");
+        bottle.Items.Should().NotContain(GetItem<Brush>());
+    }
 }
