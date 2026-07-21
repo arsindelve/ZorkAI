@@ -285,6 +285,26 @@ public class CommRoomAndMachineRoomTests : EngineTestsBase
         GetItem<Flask>().LiquidColor.Should().BeNull();
     }
 
+    // Issue #419: the room calls these buttons white *and* round/square, so "press round white button" is
+    // a phrasing its own text invites — and the parser hands that back as the noun "button" with the
+    // multi-word adjective "round white". Matching a fixed list of phrases missed every such permutation
+    // and dropped it on the narrator, so the match is on the distinguishing word, in any order.
+    [TestCase("press round white button")]
+    [TestCase("press square white button")]
+    [TestCase("press white round button")]
+    [Test]
+    public async Task PressWhiteButton_ByShapeAndColorTogether_DispensesClearFluid(string command)
+    {
+        var target = GetTarget();
+        GetItem<Flask>().CurrentLocation = GetLocation<MachineShop>();
+        GetLocation<MachineShop>().FlaskUnderSpout = true;
+        StartHere<MachineShop>();
+
+        var response = await target.GetResponse(command);
+
+        response.Should().Contain("The flask fills with some clear chemical fluid");
+    }
+
     [Test]
     public async Task PressButton_FlaskUnderneath_AlreadyFull()
     {
