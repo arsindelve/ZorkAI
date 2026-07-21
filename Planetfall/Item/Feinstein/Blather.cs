@@ -1,12 +1,13 @@
 ﻿using ChatLambda;
 using Model.AIGeneration;
+using Planetfall.Command;
 
 namespace Planetfall.Item.Feinstein;
 
 internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICanBeTalkedTo
 {
     private readonly ChatWithBlather _chatWithBlather = new(null);
-    
+
     [UsedImplicitly]
     public int TurnsOnDeckNine { get; set; }
 
@@ -17,9 +18,32 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICan
 
     public override string[] NounsForMatching => ["blather", "ensign blather"];
 
+    // BLATHER-F's TAKE branch. Routed through CannotBeTakenDescription (not a verb match) so both
+    // the SimpleIntent path and the live AI parser's TakeIntent path get the authored line.
+    public override string? CannotBeTakenDescription =>
+        "Blather brushes you away, muttering about suspended shore leave. ";
+
     public string ExaminationDescription =>
         "Ensign Blather is a tall, beefy officer with a tremendous, misshapen nose. His uniform is perfect in " +
         "every respect, and the crease in his trousers could probably slice diamonds in half. ";
+
+    // BLATHER-F (planetfall-source/globals.zil:742-772): besides examine/throw (handled elsewhere),
+    // the original answers ATTACK/KICK with an authored death and SALUTE with a demerit reprieve.
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
+    {
+        // The original's <VERB? ATTACK KICK> — "kick" is matched locally because it is not a
+        // KillVerbs synonym (it is ordinarily a harmless flavor verb, e.g. kicking Floyd).
+        if (action.Match(Verbs.KillVerbs, NounsForMatching) || action.Match(["kick"], NounsForMatching))
+            return new DeathProcessor().Process(
+                "Blather removes several of your appendages and internal organs.", context);
+
+        if (action.Match(["salute"], NounsForMatching))
+            return new PositiveInteractionResult(
+                "Blather's sneer softens a bit. \"First right thing you've done today. Only five demerits.\" ");
+
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+    }
 
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
