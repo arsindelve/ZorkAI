@@ -60,10 +60,12 @@ public class PutProcessor : IMultiNounVerbProcessor
         if (itemReceiver is IOpenAndClose { IsOpen: false })
             return new PositiveInteractionResult("It's closed. ");
 
-        if (!itemReceiver.HaveRoomForItem(item))
-            return new PositiveInteractionResult(itemReceiver.NoRoomMessage);
-
-        if (itemReceiver.CanOnlyHoldTheseTypes.Any() && 
+        // Issue #417: type before room. HaveRoomForItem is size-based, so a container with a small
+        // SpaceForItems (the spool reader has 1) rejects any oversized item even when it is empty -
+        // and its NoRoomMessage can then assert an occupancy that isn't true ("There's already a
+        // spool in the reader."). An item the container can never hold deserves the type refusal
+        // whatever its size; NoRoomMessage is reserved for items that really are the right type.
+        if (itemReceiver.CanOnlyHoldTheseTypes.Any() &&
             !itemReceiver.CanOnlyHoldTheseTypes.Any(allowedType => allowedType.IsInstanceOfType(item)))
         {
             string? itemMismatchError = itemReceiver.CanOnlyHoldTheseTypesErrorMessage(item.Name);
@@ -72,6 +74,9 @@ public class PutProcessor : IMultiNounVerbProcessor
 
             return new NoNounMatchInteractionResult();
         }
+
+        if (!itemReceiver.HaveRoomForItem(item))
+            return new PositiveInteractionResult(itemReceiver.NoRoomMessage);
 
         item.CurrentLocation?.RemoveItem(item);
         item.CurrentLocation = itemReceiver;
