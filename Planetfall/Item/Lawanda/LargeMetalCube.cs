@@ -3,12 +3,13 @@ using Planetfall.Location.Lawanda;
 
 namespace Planetfall.Item.Lawanda;
 
-public class LargeMetalCube : OpenAndCloseContainerBase, ICanBeExamined
+public class LargeMetalCube : OpenAndCloseContainerBase
 {
     public override string[] NounsForMatching => ["large metal cube", "metal cube", "cube", "lid"];
 
-    public string ExaminationDescription => $"The large metal cube is {(IsOpen ? "open" : "closed")}. ";
-    
+    // Examine is inherited from OpenAndCloseContainerBase (issue #398): open -> lists the fused
+    // bedistor inside; closed -> "The large metal cube is closed." The old override reported only
+    // "is open" and hid the contents.
     public override Type[] CanOnlyHoldTheseTypes => [typeof(BedistorBase)];
 
     public override int Size => 1;

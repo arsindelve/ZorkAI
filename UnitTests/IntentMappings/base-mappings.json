@@ -35,6 +35,12 @@
     { "inputs": ["press the blue button"], "verb": "press", "noun": "blue button", "adverb": "the" },
     { "inputs": ["press the red button"], "verb": "press", "noun": "red button", "adverb": "the" },
 
+    { "inputs": ["press mesij plaabak"], "verb": "press", "noun": "mesij plaabak" },
+    { "inputs": ["push mesij plaabak"], "verb": "push", "noun": "mesij plaabak" },
+    { "inputs": ["press playback button"], "verb": "press", "noun": "playback button" },
+    { "inputs": ["press message playback button"], "verb": "press", "noun": "message playback button" },
+    { "inputs": ["press glowing button"], "verb": "press", "noun": "glowing button" },
+
     { "inputs": ["open red door"], "verb": "open", "noun": "red door" },
     { "inputs": ["close red door"], "verb": "close", "noun": "red door" },
     { "inputs": ["examine red door"], "verb": "examine", "noun": "red door" },
@@ -156,6 +162,7 @@
     { "inputs": ["use bar on crevice"], "verb": "use", "nounOne": "bar", "nounTwo": "crevice", "preposition": "on", "originalInput": "use bar on crevice" },
     { "inputs": ["get key with magnet"], "verb": "get", "nounOne": "key", "nounTwo": "magnet", "preposition": "with", "originalInput": "get key with magnet" },
     { "inputs": ["take key with magnet"], "verb": "take", "nounOne": "key", "nounTwo": "magnet", "preposition": "with", "originalInput": "take key with magnet" },
+    { "inputs": ["snatch key with magnet"], "verb": "snatch", "nounOne": "key", "nounTwo": "magnet", "preposition": "with", "originalInput": "snatch key with magnet" },
     { "inputs": ["attract key with magnet"], "verb": "attract", "nounOne": "key", "nounTwo": "magnet", "preposition": "with", "originalInput": "attract key with magnet" },
     { "inputs": ["fish key out with magnet"], "verb": "fish", "nounOne": "key", "nounTwo": "magnet", "preposition": "with", "originalInput": "fish key out with magnet" },
     { "inputs": ["put magnet in crevice"], "verb": "put", "nounOne": "magnet", "nounTwo": "crevice", "preposition": "in", "originalInput": "put magnet in crevice" },

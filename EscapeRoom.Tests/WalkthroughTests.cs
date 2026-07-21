@@ -87,6 +87,23 @@ public class WalkthroughTests : EscapeRoomEngineTestsBase
         engine.Context.Score.Should().Be(100);
     }
 
+    [TestCase("look in desk")]
+    [TestCase("look inside desk")]
+    public async Task LookInDesk_Open_ShowsContents(string command)
+    {
+        // Issue #396 regression guard for a third game: "look in <container>" must list contents in
+        // EscapeRoom too. The fix rewrites the verb to "examine" before parsing, so this exercises the
+        // WelcomeDesk via the base examine processor rather than its ["search","look in","look inside"]
+        // handler — both return the same ExaminationDescription; this locks that equivalence.
+        var engine = GetTarget();
+
+        await engine.GetResponse("open desk");
+        var response = await engine.GetResponse(command);
+
+        response.Should().Contain("leaflet");
+        response.Should().NotContain("cannot go that way");
+    }
+
     [Test]
     public async Task CannotOpenDoor_WhenLocked()
     {

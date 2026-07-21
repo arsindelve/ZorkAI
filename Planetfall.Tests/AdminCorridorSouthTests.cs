@@ -125,6 +125,25 @@ public class AdminCorridorSouthTests : EngineTestsBase
     }
 
     [Test]
+    public async Task SnatchKeyWithMagnet_RetrievesKey()
+    {
+        // Review follow-up to issue #406: the retrieval framing's verb list is now built on
+        // Verbs.TakeVerbs instead of a partial hand-rolled copy that omitted "snatch", "acquire",
+        // "hold", and "carry" - those phrasings fell through to the AI narrator, which improvised
+        // a refusal contradicting the authored success text.
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+        Take<Magnet>();
+
+        var response = await target.GetResponse("snatch key with magnet");
+
+        response.Should().Contain("a piece of metal leaps from the crevice");
+        response.Should().Contain("steel key");
+        Context.HasItem<Key>().Should().BeTrue();
+        GetLocation<AdminCorridorSouth>().HasTakenTheKey.Should().BeTrue();
+    }
+
+    [Test]
     public async Task TakeKeyWithMagnet_RetrievesKey()
     {
         var target = GetTarget();

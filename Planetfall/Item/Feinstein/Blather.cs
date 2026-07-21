@@ -1,6 +1,7 @@
 ﻿using ChatLambda;
 using Model.AIGeneration;
 using Newtonsoft.Json;
+using Planetfall.Command;
 
 namespace Planetfall.Item.Feinstein;
 
@@ -24,6 +25,32 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICan
     public string ExaminationDescription =>
         "Ensign Blather is a tall, beefy officer with a tremendous, misshapen nose. His uniform is perfect in " +
         "every respect, and the crease in his trousers could probably slice diamonds in half. ";
+
+    // ATTACK/KICK are fatal (BLATHER-F, globals.zil:751-753). Built once, not per call (mirroring
+    // ZorkOne/Location/MirrorRoom.cs): the location forwards every simple command to every present
+    // item, so composing this inline would re-allocate on each dispatch before the noun check runs.
+    private static readonly string[] FatalVerbs = [..Verbs.KillVerbs, "kick"];
+
+    // TAKE (BLATHER-F, globals.zil:770-772). Expressed as CannotBeTakenDescription so both the
+    // simple-intent path (CannotBeTakenProcessor) and the AI-tagged TakeIntent path (TakeIt) respond.
+    public override string? CannotBeTakenDescription =>
+        "Blather brushes you away, muttering about suspended shore leave. ";
+
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
+        IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
+    {
+        // Blather is not a combatant you can fight - any attempt is an instant, authored death.
+        if (action.Match(FatalVerbs, NounsForMatching))
+            return new DeathProcessor().Process(
+                "Blather removes several of your appendages and internal organs.", context);
+
+        // SALUTE (BLATHER-F, globals.zil:754-757).
+        if (action.Match(["salute"], NounsForMatching))
+            return new PositiveInteractionResult(
+                "Blather's sneer softens a bit. \"First right thing you've done today. Only five demerits.\" ");
+
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+    }
 
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
