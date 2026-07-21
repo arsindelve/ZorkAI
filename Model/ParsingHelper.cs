@@ -7,6 +7,17 @@ namespace Model;
 
 public static class ParsingHelper
 {
+    // Issue #423: whole-scene nouns that mean "the room itself", not a specific object. When gpt-4o tags a
+    // non-exact room-look ("look at the room", "look around the area") as intent=look with one of these as
+    // the noun, it is still a bare room-look and must render the room — NOT be redirected to a targeted
+    // examine of a non-object noun. (The common exact forms — "look", "look around", "examine
+    // surroundings" — never reach the parser; they are global commands. See GlobalCommandFactory.)
+    private static readonly HashSet<string> WholeSceneNouns = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "room", "area", "surroundings", "surrounding", "here", "everything", "around", "place", "vicinity",
+        "scene"
+    };
+
     public static readonly string TakeUserPrompt = """
                                                          The player is in this location:
                                                          -------------------------
@@ -344,15 +355,16 @@ public static class ParsingHelper
         if (inventoryIntent != null)
             return inventoryIntent;
         
-        // Issue #423: a "look" intent that ALSO names a noun is a *targeted* look ("look through the
-        // window", "peer through the crack") that gpt-4o mis-bucketed into the bare look-around intent.
-        // Returning a bare LookIntent there drops the noun and re-renders the whole ROOM (LookProcessor),
-        // so a room handler's look-verb gate — e.g. Bio Lock East's window / the Radiation Lab crack —
-        // never sees the object and the view "through" it silently degrades to the room description.
-        // Only a truly object-less look ("look", "look around", "where am I?") stays a LookIntent; when a
-        // noun is present, fall through to the action path so it becomes an examine of that object.
+        // Issue #423: a "look" intent that ALSO names a specific object is a *targeted* look ("look
+        // through the window", "peer through the crack") that gpt-4o mis-bucketed into the bare look-around
+        // intent. Returning a bare LookIntent there drops the noun and re-renders the whole ROOM
+        // (LookProcessor), so a room handler's look-verb gate — e.g. Bio Lock East's window / the Radiation
+        // Lab crack — never sees the object and the view "through" it silently degrades to the room
+        // description. Only an object-less look ("look", "where am I?") OR a look whose noun is the whole
+        // scene ("look at the room", "look around the area") stays a LookIntent; when a real object is
+        // named, fall through to the action path so it becomes an examine of that object.
         var lookIntent = DetermineSimpleIntent<LookIntent>(response?.ToLowerInvariant());
-        if (lookIntent != null && !ExtractElementsByTag(response?.ToLowerInvariant(), "noun").Any())
+        if (lookIntent != null && ExtractElementsByTag(lowered, "noun").All(WholeSceneNouns.Contains))
             return lookIntent;
 
         var actionIntent = DetermineActionIntent(response?.ToLowerInvariant(), input, logger);

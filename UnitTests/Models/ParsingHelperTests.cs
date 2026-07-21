@@ -430,6 +430,33 @@ public class ParsingHelperTests
         result.Should().BeOfType<LookIntent>();
     }
 
+    [TestCase("room")]
+    [TestCase("area")]
+    [TestCase("surroundings")]
+    [TestCase("surrounding")]
+    [TestCase("here")]
+    [TestCase("everything")]
+    [TestCase("around")]
+    [TestCase("place")]
+    [TestCase("vicinity")]
+    [TestCase("scene")]
+    public void GetIntent_LookIntentWithWholeSceneNoun_StaysBareLookIntent(string noun)
+    {
+        // #423 hardening: the common bare-look phrasings ("look", "look around", ...) are exact-match
+        // global commands resolved before the parser, but a NON-exact room-look ("look at the room",
+        // "look around the area", "look at everything") reaches the AI parser, and gpt-4o tags it
+        // intent=look with a whole-scene noun (room/area/surroundings/...). That is still a room-look and
+        // must render the room, NOT degrade to a no-op examine of a non-object noun. Only a look that
+        // names a REAL object is redirected to a targeted examine (SimpleIntent).
+        var response = $@"<intent>look</intent>
+<verb>look</verb>
+<noun>{noun}</noun>";
+
+        var result = ParsingHelper.GetIntent($"look at the {noun}", response, _loggerMock?.Object);
+
+        result.Should().BeOfType<LookIntent>();
+    }
+
     [Test]
     public void GetIntent_WithMoveResponse_UsesVerbAsFallback_When_DirectionTagMissing()
     {
