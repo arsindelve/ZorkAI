@@ -213,8 +213,9 @@ public class PlanetaryDefenseTests : EngineTestsBase
         StartHere<PlanetaryDefense>();
         GetItem<FromitzAccessPanel>().IsOpen = true;
         Take<Canteen>();
-        Take<FriedFromitzBoard>();
 
+        // Issue #417: no need to free a socket first. The wrong type is refused on type alone, so
+        // this now proves the type rejection whether the panel is full or not.
         var response = await target.GetResponse("put canteen in panel");
 
         response.Should().Contain("The canteen doesn't fit.");

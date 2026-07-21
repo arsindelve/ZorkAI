@@ -1,5 +1,6 @@
 using FluentAssertions;
 using GameEngine;
+using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Lawanda;
 using Planetfall.Location.Kalamontee.Admin;
@@ -434,5 +435,21 @@ public class CourseControlTests : EngineTestsBase
 
         target.Context.HasItem<FusedBedistor>().Should().BeFalse();
         GetItem<LargeMetalCube>().HasItem<FusedBedistor>().Should().BeTrue();
+    }
+
+    [Test]
+    public async Task PutWrongItemInCube_GetsAuthoredRefusal()
+    {
+        // The original cube ends its "put" handler with a refusal naming the item (CUBE-F,
+        // comptwo.zil:583). The port declared CanOnlyHoldTheseTypes but no message for it, so the
+        // refusal fell through to the AI narrator instead of a crisp, deterministic reply.
+        var target = GetTarget();
+        StartHere<CourseControl>();
+        GetItem<LargeMetalCube>().IsOpen = true;
+        Take<Brush>();
+
+        var response = await target.GetResponse("put brush in cube");
+
+        response.Should().Contain("The brush doesn't fit");
     }
 }
