@@ -125,7 +125,10 @@ async Task<GameEngine<TGame, TContext>> CreateEngine<TGame, TContext>()
     var gameEngine = new GameEngine<TGame, TContext>(logger, secretsManager, parseConversation)
     {
         Runtime = Runtime.Console,
-        NoGeneratedResponses = false
+        NoGeneratedResponses = false,
+        // This is the only place that knows self-hosted play means "no AWS at all"; the engine never
+        // infers it from the environment. Everything else keeps CloudWatch telemetry on by default.
+        CloudLoggingEnabled = !settings.IsSelfHosted
     };
     await gameEngine.InitializeEngine();
     return gameEngine;
