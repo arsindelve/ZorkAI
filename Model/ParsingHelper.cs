@@ -168,7 +168,13 @@ public static class ParsingHelper
             return null;
         }
 
-        if (intentTag != "act")
+        // Issue #423: "act" is the normal action bucket, but gpt-4o also drops a *targeted* look
+        // ("look through the window", "peer through the crack") into intent=look — the bare "look around"
+        // bucket — while still emitting the <verb>/<noun> tags. GetIntent only reaches here for a "look"
+        // intent once it has confirmed a noun is present (an object-less look already returned a
+        // LookIntent), so treat that noun-bearing look as an action too, rather than a bare room-look
+        // that silently swallows the noun.
+        if (intentTag != "act" && intentTag != "look")
         {
             logger?.LogDebug("The intent tag was not 'act' trying to make an act intent");
             return null;
@@ -338,8 +344,15 @@ public static class ParsingHelper
         if (inventoryIntent != null)
             return inventoryIntent;
         
+        // Issue #423: a "look" intent that ALSO names a noun is a *targeted* look ("look through the
+        // window", "peer through the crack") that gpt-4o mis-bucketed into the bare look-around intent.
+        // Returning a bare LookIntent there drops the noun and re-renders the whole ROOM (LookProcessor),
+        // so a room handler's look-verb gate — e.g. Bio Lock East's window / the Radiation Lab crack —
+        // never sees the object and the view "through" it silently degrades to the room description.
+        // Only a truly object-less look ("look", "look around", "where am I?") stays a LookIntent; when a
+        // noun is present, fall through to the action path so it becomes an examine of that object.
         var lookIntent = DetermineSimpleIntent<LookIntent>(response?.ToLowerInvariant());
-        if (lookIntent != null)
+        if (lookIntent != null && !ExtractElementsByTag(response?.ToLowerInvariant(), "noun").Any())
             return lookIntent;
 
         var actionIntent = DetermineActionIntent(response?.ToLowerInvariant(), input, logger);
