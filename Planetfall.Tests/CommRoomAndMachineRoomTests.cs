@@ -274,4 +274,28 @@ public class CommRoomAndMachineRoomTests : EngineTestsBase
         target.Context.Score.Should().Be(6);
         Console.WriteLine(GetLocation<SystemsMonitors>().GetDescriptionForGeneration(target.Context));
     }
+
+    // Issue #412: the Comm Room shows the player a "glowing button marked 'Mesij Plaabak'", and pressing
+    // it plays back the Feinstein's cut-off transmission (a real story beat). Every phrasing below is
+    // something the room's own text invites the player to type, so each must reach the playback handler.
+    // Before the fix only the bare noun "button" matched; the label and descriptors fell through to the
+    // AI narrator and the transmission was never delivered (worse, the narrator sometimes falsely
+    // claimed success). "press button" is the regression guard for the phrasing that already worked.
+    [TestCase("press button")]
+    [TestCase("press mesij plaabak")]
+    [TestCase("push mesij plaabak")]
+    [TestCase("press playback button")]
+    [TestCase("press message playback button")]
+    [TestCase("press glowing button")]
+    [Test]
+    public async Task PressPlaybackButton_PlaysFeinsteinTransmission(string command)
+    {
+        var target = GetTarget();
+        StartHere<CommRoom>();
+
+        var response = await target.GetResponse(command);
+
+        response.Should().Contain("communications officer");
+        response.Should().Contain("burst of static");
+    }
 }

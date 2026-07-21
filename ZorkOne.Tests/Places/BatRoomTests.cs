@@ -48,6 +48,30 @@ public class BatRoomTests : EngineTestsBase
         target.Context.CurrentLocation.Should().Be(expectedRoom);
     }
 
+    [TestCase("take bat")]
+    [TestCase("carry bat")]
+    public async Task ProvokeBatWithTakeSynonym_WithoutGarlic_CarriesPlayerOff(string input)
+    {
+        // Review follow-up to issue #406: Bat.ProvokingVerbs now concatenates Verbs.TakeVerbs
+        // instead of a hand-inlined copy, so every take synonym provokes the bat identically.
+        // "carry" is the original's fourth TAKE synonym (<SYNONYM TAKE GET HOLD CARRY>) and was
+        // covered by neither the old copy nor Verbs.TakeVerbs.
+        var target = GetTarget();
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
+        target.Context.CurrentLocation = Repository.GetLocation<BatRoom>();
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.Choose(It.IsAny<List<ILocation>>()))
+            .Returns(Repository.GetLocation<MineEntrance>());
+        Repository.GetLocation<BatRoom>().Chooser = mockChooser.Object;
+
+        var response = await target.GetResponse(input);
+
+        response.Should().Contain("Fweep!");
+        target.Context.CurrentLocation.Should().Be(Repository.GetLocation<MineEntrance>());
+    }
+
     [Test]
     public async Task EnterFromTheSouthWithoutGarlic_CarriesPlayerOff()
     {
