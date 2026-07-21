@@ -8,8 +8,10 @@ public static class Verbs
     /// <summary>
     ///     The "pick it up" family. Kept here as the single source of truth so the take/drop processor,
     ///     the pronoun resolver, and the "them" antecedent tracking all agree on what counts as taking.
+    ///     "carry" is a canonical original synonym (Planetfall syntax.zil:334
+    ///     &lt;SYNONYM TAKE GET HOLD CARRY&gt;).
     /// </summary>
-    public static readonly string[] TakeVerbs = ["take", "get", "grab", "pick up", "hold", "acquire", "snatch"];
+    public static readonly string[] TakeVerbs = ["take", "get", "grab", "pick up", "hold", "acquire", "snatch", "carry"];
 
     /// <summary>
     ///     The "put it down" family. A short list today (the engine only acts on "drop"), but centralized

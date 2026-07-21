@@ -114,10 +114,14 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
         // contradicting the success text. Match only the key's own nouns here, not the crack/floor
         // synonyms: you retrieve the key "with" the magnet, you don't "lift the floor with" it.
         var keyNouns = Repository.GetItem<Key>().NounsForMatching;
+        // The take family comes from Verbs.TakeVerbs rather than a partial hand-rolled copy - the
+        // old inline list omitted "snatch"/"acquire"/"hold" (issue #406's drift class), so those
+        // phrasings fell to the narrator's contradictory "non-magnetic" improvisation.
         match |= action.Match(
-            ["get", "take", "grab", "pick up", "retrieve", "lift", "fish", "pull", "attract",
-                "remove", "snag", "hook", "fetch", "extract", "scoop", "catch", "collect", "recover",
-                "yank", "drag", "reel", "pluck", "nab", "haul", "obtain", "draw"],
+            Verbs.TakeVerbs.Concat(
+                ["retrieve", "lift", "fish", "pull", "attract",
+                    "remove", "snag", "hook", "fetch", "extract", "scoop", "catch", "collect", "recover",
+                    "yank", "drag", "reel", "pluck", "nab", "haul", "obtain", "draw"]).ToArray(),
             keyNouns, magnetNouns, ["with", "using", "to", "toward", "towards"]);
 
         if (match)
