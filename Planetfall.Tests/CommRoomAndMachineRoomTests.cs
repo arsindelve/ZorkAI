@@ -157,6 +157,134 @@ public class CommRoomAndMachineRoomTests : EngineTestsBase
             .Contain($"The flask fills with some {fluidColor} chemical fluid. The fluid gradually turns milky white");
     }
    
+    // Issue #419: the room shows the player two white buttons — a square one that says "BAAS" and a round
+    // one that says "ASID" — but the handler matched only the shapes. Every label the room printed fell
+    // through to the AI narrator, which cheerfully narrated a dispense that never happened. In the original
+    // both white buttons dispense the same fluid: COLOR-LTBL entries 8 and 9 are both "clear"
+    // (planetfall-source/compone.zil:1773-1785), so the labels must land on the same result as the shapes.
+    // "round"/"square" are the regression guards for the phrasings that already worked.
+    [TestCase("press round button")]
+    [TestCase("press square button")]
+    [TestCase("press asid button")]
+    [TestCase("press acid button")]
+    [TestCase("press baas button")]
+    [TestCase("press base button")]
+    [TestCase("press the acid button")]
+    [TestCase("press the base button")]
+    [Test]
+    public async Task PressWhiteButton_ByPrintedLabel_DispensesClearFluid(string command)
+    {
+        var target = GetTarget();
+        GetItem<Flask>().CurrentLocation = GetLocation<MachineShop>();
+        GetLocation<MachineShop>().FlaskUnderSpout = true;
+        StartHere<MachineShop>();
+
+        var response = await target.GetResponse(command);
+
+        response.Should().Contain("The flask fills with some clear chemical fluid");
+        GetItem<Flask>().LiquidColor.Should().Be("clear");
+    }
+
+    // Issue #419: "white" had been pasted onto the BROWN case, so "press white button" dispensed brown
+    // fluid. In the original the two white buttons carry ADJECTIVE WHITE and the brown button carries only
+    // ADJECTIVE BROWN (compone.zil:1738-1771), so "white" is ambiguous between the square and the round
+    // white button and must never reach the brown chemical.
+    [TestCase("press white button")]
+    [TestCase("press the white button")]
+    [Test]
+    public async Task PressWhiteButton_IsAmbiguous_AndNeverDispensesBrown(string command)
+    {
+        var target = GetTarget();
+        GetItem<Flask>().CurrentLocation = GetLocation<MachineShop>();
+        GetLocation<MachineShop>().FlaskUnderSpout = true;
+        StartHere<MachineShop>();
+
+        var response = await target.GetResponse(command);
+
+        response.Should().Contain("Which white button do you mean");
+        response.Should().Contain("square white button");
+        response.Should().Contain("round white button");
+        response.Should().NotContain("brown");
+        GetItem<Flask>().LiquidColor.Should().BeNull();
+    }
+
+    [TestCase("square")]
+    [TestCase("round")]
+    [TestCase("baas")]
+    [TestCase("asid")]
+    [TestCase("acid")]
+    [TestCase("base")]
+    [Test]
+    public async Task PressWhiteButton_Disambiguation_AnswerDispensesClearFluid(string answer)
+    {
+        var target = GetTarget();
+        GetItem<Flask>().CurrentLocation = GetLocation<MachineShop>();
+        GetLocation<MachineShop>().FlaskUnderSpout = true;
+        StartHere<MachineShop>();
+
+        await target.GetResponse("press white button");
+        var response = await target.GetResponse(answer);
+
+        response.Should().Contain("The flask fills with some clear chemical fluid");
+        GetItem<Flask>().LiquidColor.Should().Be("clear");
+    }
+
+    // Issue #419: bare "brown" — what the parser yields for "press brown button" — lost its case when
+    // "white" was pasted over it, so the brown KATALIST could only be reached by the one phrasing that
+    // happened to parse as "brown button". Everything else reached the narrator.
+    [TestCase("press brown button")]
+    [TestCase("press the brown button")]
+    [Test]
+    public async Task PressBrownButton_DispensesBrownFluid(string command)
+    {
+        var target = GetTarget();
+        GetItem<Flask>().CurrentLocation = GetLocation<MachineShop>();
+        GetLocation<MachineShop>().FlaskUnderSpout = true;
+        StartHere<MachineShop>();
+
+        var response = await target.GetResponse(command);
+
+        response.Should().Contain("The flask fills with some brown chemical fluid");
+        GetItem<Flask>().LiquidColor.Should().Be("brown");
+    }
+
+    // Issue #419: the "press button" prompt lists shapes and colors, so a player who answers with a label
+    // ("asid") or the color the room actually used for those two buttons ("white") must still be understood.
+    [TestCase("acid", "clear")]
+    [TestCase("asid", "clear")]
+    [TestCase("base", "clear")]
+    [TestCase("baas", "clear")]
+    [TestCase("brown", "brown")]
+    [Test]
+    public async Task PressButton_Disambiguation_AnswerWithALabel(string answer, string fluidColor)
+    {
+        var target = GetTarget();
+        GetItem<Flask>().CurrentLocation = GetLocation<MachineShop>();
+        GetLocation<MachineShop>().FlaskUnderSpout = true;
+        StartHere<MachineShop>();
+
+        await target.GetResponse("press button");
+        var response = await target.GetResponse(answer);
+
+        response.Should().Contain($"The flask fills with some {fluidColor} chemical fluid");
+        GetItem<Flask>().LiquidColor.Should().Be(fluidColor);
+    }
+
+    [Test]
+    public async Task PressButton_Disambiguation_AnswerWhite_AsksWhichWhiteButton()
+    {
+        var target = GetTarget();
+        GetItem<Flask>().CurrentLocation = GetLocation<MachineShop>();
+        GetLocation<MachineShop>().FlaskUnderSpout = true;
+        StartHere<MachineShop>();
+
+        await target.GetResponse("press button");
+        var response = await target.GetResponse("white");
+
+        response.Should().Contain("Which white button do you mean");
+        GetItem<Flask>().LiquidColor.Should().BeNull();
+    }
+
     [Test]
     public async Task PressButton_FlaskUnderneath_AlreadyFull()
     {

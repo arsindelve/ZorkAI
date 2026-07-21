@@ -88,25 +88,65 @@ internal class MachineShop : LocationWithNoStartingItems
                         { "gray", "gray button" },
                         { "black", "black button" },
                         { "square", "square button" },
-                        { "round", "round button" }
+                        { "round", "round button" },
+                        // The room names the last two buttons by color and by label, so a player answering
+                        // this prompt is as likely to say "white" or "asid" as "round" (issue #419).
+                        { "white", "white button" },
+                        { "baas", "square button" },
+                        { "base", "square button" },
+                        { "asid", "round button" },
+                        { "acid", "round button" }
                     },
                     "press {0}"
                 );
         }
 
+        // Issue #419: the description tells the player the last two buttons are white and prints their
+        // labels ("BAAS" on the square one, "ASID" on the round one), but only the shapes were matched.
+        // Every label the room itself printed fell through to the AI narrator, which cheerfully narrated
+        // a dispense that never happened while the flask stayed empty — the same trap as #412. Worse,
+        // "white" had been pasted onto the *brown* case, so "press white button" dispensed the brown
+        // KATALIST and bare "brown" matched nothing at all.
+        //
+        // Both white buttons still dispense the same "clear" fluid: in the original, COLOR-LTBL entries 8
+        // and 9 are both "clear" (planetfall-source/compone.zil:1773-1785) and the one place the game
+        // reads the two apart treats them identically, so acid and base are deliberately indistinguishable
+        // here — that is not the bug.
         return noun switch
         {
             "blue button" or "blue" => Click("blue"),
             "red button" or "red" => Click("red"),
             "yellow button" or "yellow" => Click("yellow"),
             "green button" or "green" => Click("green"),
-            "brown button" or "white" => Click("brown"),
+            "brown button" or "brown" => Click("brown"),
             "gray button" or "gray" => Click("gray"),
             "black button" or "black" => Click("black"),
-            "square button" or "square" => Click("clear"),
-            "round button" or "round" => Click("clear"),
+            "square button" or "square" or "square white button"
+                or "baas button" or "baas" or "base button" or "base" => Click("clear"),
+            "round button" or "round" or "round white button"
+                or "asid button" or "asid" or "acid button" or "acid" => Click("clear"),
+            // "white" describes both of them, so ask which one rather than silently picking (or, as
+            // before, reaching for the brown button).
+            "white button" or "white" => WhichWhiteButton(),
             _ => await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory)
         };
+    }
+
+    private static InteractionResult WhichWhiteButton()
+    {
+        return new DisambiguationInteractionResult(
+            "Which white button do you mean, the square white button or the round white button?",
+            new Dictionary<string, string>
+            {
+                { "square", "square button" },
+                { "baas", "square button" },
+                { "base", "square button" },
+                { "round", "round button" },
+                { "asid", "round button" },
+                { "acid", "round button" }
+            },
+            "press {0}"
+        );
     }
 
     private InteractionResult Click(string color)
