@@ -270,8 +270,14 @@ public class CommRoomAndMachineRoomTests : EngineTestsBase
         GetItem<Flask>().LiquidColor.Should().Be(fluidColor);
     }
 
+    // The prompt's answers are matched by substring, so "the round white button" hits both the "round"
+    // and the "white" choice at equal length. It has to resolve to the button the player named, not to a
+    // second "which white button?" prompt -- and it must not depend on the order the choices happen to be
+    // declared in, which is exactly what re-sorting them for reuse would have disturbed.
+    [TestCase("round white button", "clear")]
+    [TestCase("the square white one", "clear")]
     [Test]
-    public async Task PressButton_Disambiguation_AnswerWhite_AsksWhichWhiteButton()
+    public async Task PressButton_Disambiguation_AnswerNamesShapeAndColor(string answer, string fluidColor)
     {
         var target = GetTarget();
         GetItem<Flask>().CurrentLocation = GetLocation<MachineShop>();
@@ -279,10 +285,37 @@ public class CommRoomAndMachineRoomTests : EngineTestsBase
         StartHere<MachineShop>();
 
         await target.GetResponse("press button");
-        var response = await target.GetResponse("white");
+        var response = await target.GetResponse(answer);
+
+        response.Should().Contain($"The flask fills with some {fluidColor} chemical fluid");
+        GetItem<Flask>().LiquidColor.Should().Be(fluidColor);
+    }
+
+    // An answer that names only the color has to narrow rather than guess. "white round button" lands here
+    // too: answers are matched by substring and ties go to whichever choice the player named first, so
+    // leading with the color asks again instead of resolving. English puts shape before color anyway
+    // ("round white button", covered above, resolves outright) -- what matters is that the unusual word
+    // order still reaches the button on the next turn rather than dead-ending.
+    [TestCase("white")]
+    [TestCase("white round button")]
+    [Test]
+    public async Task PressButton_Disambiguation_AnswerWhite_AsksWhichWhiteButton(string answer)
+    {
+        var target = GetTarget();
+        GetItem<Flask>().CurrentLocation = GetLocation<MachineShop>();
+        GetLocation<MachineShop>().FlaskUnderSpout = true;
+        StartHere<MachineShop>();
+
+        await target.GetResponse("press button");
+        var response = await target.GetResponse(answer);
 
         response.Should().Contain("Which white button do you mean");
         GetItem<Flask>().LiquidColor.Should().BeNull();
+
+        response = await target.GetResponse("round");
+
+        response.Should().Contain("The flask fills with some clear chemical fluid");
+        GetItem<Flask>().LiquidColor.Should().Be("clear");
     }
 
     // Issue #419: the room calls these buttons white *and* round/square, so "press round white button" is

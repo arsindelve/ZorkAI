@@ -78,7 +78,7 @@ internal class MachineShop : LocationWithNoStartingItems
                         "square button",
                         "round button"
                     }.SingleLineListWithOr()}?",
-                    new Dictionary<string, string>
+                    new Dictionary<string, string>(WhiteButtonAnswers)
                     {
                         { "green", "green button" },
                         { "yellow", "yellow button" },
@@ -87,15 +87,8 @@ internal class MachineShop : LocationWithNoStartingItems
                         { "brown", "brown button" },
                         { "gray", "gray button" },
                         { "black", "black button" },
-                        { "square", "square button" },
-                        { "round", "round button" },
-                        // The room names the last two buttons by color and by label, so a player answering
-                        // this prompt is as likely to say "white" or "asid" as "round" (issue #419).
-                        { "white", "white button" },
-                        { "baas", "square button" },
-                        { "base", "square button" },
-                        { "asid", "round button" },
-                        { "acid", "round button" }
+                        // "white" describes both of the last two, so it re-asks rather than resolving.
+                        { "white", "white button" }
                     },
                     "press {0}"
                 );
@@ -139,19 +132,27 @@ internal class MachineShop : LocationWithNoStartingItems
             : await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
+    /// <summary>
+    ///     How a player can name one of the two white buttons when answering a "which button?" prompt: by
+    ///     its shape, or by the label printed on it ("BAAS" on the square one, "ASID" on the round one).
+    ///     Shared by the all-buttons prompt and the white-only prompt so the two cannot drift apart. A new
+    ///     dictionary each time, since each prompt owns the one it is handed.
+    /// </summary>
+    private static Dictionary<string, string> WhiteButtonAnswers => new()
+    {
+        { "square", "square button" },
+        { "baas", "square button" },
+        { "base", "square button" },
+        { "round", "round button" },
+        { "asid", "round button" },
+        { "acid", "round button" }
+    };
+
     private static InteractionResult WhichWhiteButton()
     {
         return new DisambiguationInteractionResult(
             "Which white button do you mean, the square white button or the round white button?",
-            new Dictionary<string, string>
-            {
-                { "square", "square button" },
-                { "baas", "square button" },
-                { "base", "square button" },
-                { "round", "round button" },
-                { "asid", "round button" },
-                { "acid", "round button" }
-            },
+            WhiteButtonAnswers,
             "press {0}"
         );
     }
