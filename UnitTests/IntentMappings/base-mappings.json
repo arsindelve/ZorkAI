@@ -35,6 +35,18 @@
     { "inputs": ["press the blue button"], "verb": "press", "noun": "blue button", "adverb": "the" },
     { "inputs": ["press the red button"], "verb": "press", "noun": "red button", "adverb": "the" },
 
+    { "inputs": ["press white button"], "verb": "press", "noun": "white button" },
+    { "inputs": ["press asid button"], "verb": "press", "noun": "asid button" },
+    { "inputs": ["press acid button"], "verb": "press", "noun": "acid button" },
+    { "inputs": ["press baas button"], "verb": "press", "noun": "baas button" },
+    { "inputs": ["press base button"], "verb": "press", "noun": "base button" },
+    { "inputs": ["press the white button"], "verb": "press", "noun": "button", "adjective": "white" },
+    { "inputs": ["press the acid button"], "verb": "press", "noun": "button", "adjective": "acid" },
+    { "inputs": ["press the base button"], "verb": "press", "noun": "button", "adjective": "base" },
+    { "inputs": ["press round white button"], "verb": "press", "noun": "button", "adjective": "round white" },
+    { "inputs": ["press square white button"], "verb": "press", "noun": "button", "adjective": "square white" },
+    { "inputs": ["press white round button"], "verb": "press", "noun": "button", "adjective": "white round" },
+
     { "inputs": ["press mesij plaabak"], "verb": "press", "noun": "mesij plaabak" },
     { "inputs": ["push mesij plaabak"], "verb": "push", "noun": "mesij plaabak" },
     { "inputs": ["press playback button"], "verb": "press", "noun": "playback button" },

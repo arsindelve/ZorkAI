@@ -78,7 +78,7 @@ internal class MachineShop : LocationWithNoStartingItems
                         "square button",
                         "round button"
                     }.SingleLineListWithOr()}?",
-                    new Dictionary<string, string>
+                    new Dictionary<string, string>(WhiteButtonAnswers)
                     {
                         { "green", "green button" },
                         { "yellow", "yellow button" },
@@ -87,26 +87,74 @@ internal class MachineShop : LocationWithNoStartingItems
                         { "brown", "brown button" },
                         { "gray", "gray button" },
                         { "black", "black button" },
-                        { "square", "square button" },
-                        { "round", "round button" }
+                        // "white" describes both of the last two, so it re-asks rather than resolving.
+                        { "white", "white button" }
                     },
                     "press {0}"
                 );
         }
 
-        return noun switch
-        {
-            "blue button" or "blue" => Click("blue"),
-            "red button" or "red" => Click("red"),
-            "yellow button" or "yellow" => Click("yellow"),
-            "green button" or "green" => Click("green"),
-            "brown button" or "white" => Click("brown"),
-            "gray button" or "gray" => Click("gray"),
-            "black button" or "black" => Click("black"),
-            "square button" or "square" => Click("clear"),
-            "round button" or "round" => Click("clear"),
-            _ => await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory)
-        };
+        // Issue #419: the description tells the player the last two buttons are white and prints their
+        // labels ("BAAS" on the square one, "ASID" on the round one), but only the shapes used to be
+        // matched. Every label the room itself printed fell through to the AI narrator, which cheerfully
+        // narrated a dispense that never happened while the flask stayed empty — the same trap as #412.
+        // Worse, "white" had been pasted onto the *brown* case, so "press white button" dispensed the
+        // brown KATALIST and bare "brown" matched nothing at all.
+        //
+        // The parser hands the same button back in several shapes: a whole noun ("round white button"),
+        // a bare adjective ("round"), or a multi-word adjective phrase ("round white", "white round").
+        // Enumerating those permutations is whack-a-mole and is how the labels got missed in the first
+        // place, so match on the distinguishing *word* instead — any phrasing the room's own text invites
+        // then lands on the right button, in any word order.
+        var words = noun?.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Where(word => word != "button")
+            .ToArray() ?? [];
+
+        // ASID (round) and BAAS (square) both dispense the same "clear" fluid: in the original, COLOR-LTBL
+        // entries 8 and 9 are both "clear" (planetfall-source/compone.zil:1773-1785) and the one place the
+        // game reads the two apart treats them identically. Acid and base are deliberately
+        // indistinguishable here — that is not the bug.
+        string[] whiteButtons = ["round", "asid", "acid", "square", "baas", "base"];
+
+        if (words.Any(whiteButtons.Contains))
+            return Click("clear");
+
+        // A shape or a label picks out one of the two white buttons; bare "white" describes both, so ask
+        // which one rather than silently picking (or, as before, reaching for the brown button).
+        if (words.Contains("white"))
+            return WhichWhiteButton();
+
+        string[] coloredButtons = ["blue", "red", "yellow", "green", "brown", "gray", "black"];
+        var color = coloredButtons.FirstOrDefault(words.Contains);
+
+        return color is not null
+            ? Click(color)
+            : await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+    }
+
+    /// <summary>
+    ///     How a player can name one of the two white buttons when answering a "which button?" prompt: by
+    ///     its shape, or by the label printed on it ("BAAS" on the square one, "ASID" on the round one).
+    ///     Shared by the all-buttons prompt and the white-only prompt so the two cannot drift apart. A new
+    ///     dictionary each time, since each prompt owns the one it is handed.
+    /// </summary>
+    private static Dictionary<string, string> WhiteButtonAnswers => new()
+    {
+        { "square", "square button" },
+        { "baas", "square button" },
+        { "base", "square button" },
+        { "round", "round button" },
+        { "asid", "round button" },
+        { "acid", "round button" }
+    };
+
+    private static InteractionResult WhichWhiteButton()
+    {
+        return new DisambiguationInteractionResult(
+            "Which white button do you mean, the square white button or the round white button?",
+            WhiteButtonAnswers,
+            "press {0}"
+        );
     }
 
     private InteractionResult Click(string color)
