@@ -37,6 +37,13 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
 
     public override Type[] CanOnlyHoldTheseTypes => [typeof(BatteryBase)];
 
+    // The original refuses a non-battery by naming the item and the depression it won't go into
+    // (LASER-F, comptwo.zil:2686). Without this the type rejection has no message and falls through
+    // to the AI narrator, which answers a deterministic refusal with a generated one (and a blank
+    // line if generation fails).
+    public override string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlace) =>
+        $"The {nameOfItemWeTriedToPlace} won't fit in the laser's depression. ";
+
     public override int Size => 1;
 
     public override string ItemPlacedHereResult(IItem item, IContext context)

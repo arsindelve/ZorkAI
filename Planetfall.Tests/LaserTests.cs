@@ -3,6 +3,7 @@ using GameEngine;
 using Model.Interface;
 using Moq;
 using Planetfall;
+using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.Lab;
@@ -1393,6 +1394,26 @@ public class LaserTests : EngineTestsBase
         // Verify Floyd's pending comment was NOT set
         var pfContext = (PlanetfallContext)target.Context;
         pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    #endregion
+
+    #region Wrong Item Tests
+
+    [Test]
+    public async Task PutWrongItemInLaser_GetsAuthoredRefusal()
+    {
+        // The original laser refuses a non-battery by naming the item and the depression it won't go
+        // into (LASER-F, comptwo.zil:2686). The port declared CanOnlyHoldTheseTypes but no message for
+        // it, so the refusal fell through to the AI narrator instead of a crisp, deterministic reply.
+        var target = GetTarget();
+        StartHere<MachineShop>();
+        Take<Laser>();
+        Take<Brush>();
+
+        var response = await target.GetResponse("put brush in laser");
+
+        response.Should().Contain("The brush won't fit in the laser's depression");
     }
 
     #endregion

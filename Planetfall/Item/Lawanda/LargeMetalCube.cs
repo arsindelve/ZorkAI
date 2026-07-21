@@ -12,6 +12,12 @@ public class LargeMetalCube : OpenAndCloseContainerBase
     // "is open" and hid the contents.
     public override Type[] CanOnlyHoldTheseTypes => [typeof(BedistorBase)];
 
+    // The original's "put" handler ends with a refusal naming the item (CUBE-F, comptwo.zil:583).
+    // Without this the type rejection has no message and falls through to the AI narrator, which
+    // answers a deterministic refusal with a generated one (and a blank line if generation fails).
+    public override string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlace) =>
+        $"The {nameOfItemWeTriedToPlace} doesn't fit. ";
+
     public override int Size => 1;
 
     public override string NeverPickedUpDescription(ILocation currentLocation)

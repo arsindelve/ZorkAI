@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Lawanda.Library;
 using Planetfall.Location.Lawanda;
@@ -54,6 +55,24 @@ public class SpoolReaderTests : EngineTestsBase
         response.Should().Contain("It doesn't fit in the circular opening");
     }
     
+    [Test]
+    public async Task PutIn_OversizedNonSpool_EmptyReader()
+    {
+        // Issue #417: the reader's NoRoomMessage asserts a spool is already loaded, so it must never
+        // fire for a wrong-type item. The brush is Size 2 and the reader has SpaceForItems 1, so a
+        // room-before-type check in PutProcessor made an EMPTY reader claim "There's already a spool
+        // in the reader." Type rejection has to win, whatever the item's size.
+        var target = GetTarget();
+        StartHere<Library>();
+        Take<Brush>();
+
+        var response = await target.GetResponse("put brush in reader");
+
+        response.Should().Contain("It doesn't fit in the circular opening");
+        response.Should().NotContain("There's already a spool in the reader");
+        Context.HasItem<Brush>().Should().BeTrue();
+    }
+
     [Test]
     public async Task PutIn_GreenSpool_Look()
     {
