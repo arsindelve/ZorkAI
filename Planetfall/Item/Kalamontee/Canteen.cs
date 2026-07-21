@@ -6,6 +6,13 @@ public class Canteen : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAnd
 
     public override Type[] CanOnlyHoldTheseTypes => [typeof(ProteinLiquid)];
 
+    // Issue #422: the canteen-holds-only-protein-liquid restriction is a port addition (the original
+    // CANTEEN has no ACTION routine guarding PUT). It is kept deliberately, but a bare type rejection
+    // returns no message and falls through to the AI narrator in MultiNounEngine - a blank line when
+    // generation returns nothing. Naming the item keeps the refusal deterministic.
+    public override string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlace) =>
+        $"The {nameOfItemWeTriedToPlace} won't fit through the mouth of the canteen. ";
+
     public override int Size => 1;
 
     public override bool IsTransparent => false;
