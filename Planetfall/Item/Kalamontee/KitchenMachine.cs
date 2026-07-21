@@ -58,7 +58,31 @@ internal class KitchenMachine : ContainerBase, ICanBeExamined
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
-    // TODO: put canteen under spout. 
+    public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
+        IContext context)
+    {
+        // Issue #424: the machine describes its niche as "beneath a spout" and the sibling Machine Shop
+        // dispenser accepts "put flask under spout", but here "spout" was never a matching noun and
+        // PutProcessor only understands in/into/onto - never "under" - so "put canteen under spout"
+        // silently no-oped to the narrator. Mirror the Machine Shop and route the "under spout" phrasing
+        // to the same niche placement as "put canteen in niche".
+        var canteen = Repository.GetItem<Canteen>();
+        string[] verbs = ["put", "place", "move", "shove", "jam", "push"];
+        string[] receiverNouns = [.. NounsForMatching, "spout"];
+
+        if (action.Match(verbs, canteen.NounsForMatching, receiverNouns, ["under", "underneath"]))
+        {
+            // Mirror PutProcessor's "you don't have it" guard - and if it is already in the niche its
+            // CurrentLocation is this machine, not the player, so this also blocks re-placing it.
+            if (canteen.CurrentLocation is not IContext)
+                return new PositiveInteractionResult($"You don't have the {canteen.NounsForMatching.First()}. ");
+
+            ItemPlacedHere(canteen);
+            return new PositiveInteractionResult(ItemPlacedHereResult(canteen, context));
+        }
+
+        return await base.RespondToMultiNounInteraction(action, context);
+    }
 
     public override string ItemPlacedHereResult(IItem item, IContext context)
     {

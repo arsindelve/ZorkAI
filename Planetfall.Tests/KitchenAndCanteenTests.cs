@@ -80,6 +80,54 @@ public class KitchenAndCanteenTests : EngineTestsBase
     }
 
     [Test]
+    public async Task PutCanteenInNiche()
+    {
+        // Regression guard for issue #424: the "in niche" phrasing must keep working.
+        var target = GetTarget();
+        StartHere<Kitchen>();
+        target.Context.ItemPlacedHere<Canteen>();
+
+        var response = await target.GetResponse("put canteen in niche");
+        response.Should()
+            .Contain(
+                "The canteen fits snugly into the octagonal niche, its mouth resting just below the spout of the machine");
+        Repository.GetItem<KitchenMachine>().Items.Should().Contain(Repository.GetItem<Canteen>());
+    }
+
+    [Test]
+    public async Task PutCanteenUnderSpout()
+    {
+        // Issue #424: the machine's own description calls the niche "beneath a spout" and the sibling
+        // Machine Shop dispenser accepts "put flask under spout", but this dispenser used to no-op on the
+        // equally-natural "put canteen under spout". It should land the canteen in the niche just like
+        // "put canteen in niche".
+        var target = GetTarget();
+        StartHere<Kitchen>();
+        target.Context.ItemPlacedHere<Canteen>();
+
+        var response = await target.GetResponse("put canteen under spout");
+        response.Should()
+            .Contain(
+                "The canteen fits snugly into the octagonal niche, its mouth resting just below the spout of the machine");
+        Repository.GetItem<KitchenMachine>().Items.Should().Contain(Repository.GetItem<Canteen>());
+    }
+
+    [Test]
+    public async Task PutCanteenUnderneathSpout()
+    {
+        // Issue #424: "underneath" is an equally-natural synonym for the same placement.
+        var target = GetTarget();
+        StartHere<Kitchen>();
+        target.Context.ItemPlacedHere<Canteen>();
+
+        var response = await target.GetResponse("put canteen underneath spout");
+        response.Should()
+            .Contain(
+                "The canteen fits snugly into the octagonal niche, its mouth resting just below the spout of the machine");
+        Repository.GetItem<KitchenMachine>().Items.Should().Contain(Repository.GetItem<Canteen>());
+    }
+
+    [Test]
     public async Task PressButton_MachineEmpty()
     {
         var target = GetTarget();
