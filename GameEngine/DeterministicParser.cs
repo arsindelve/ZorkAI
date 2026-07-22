@@ -39,7 +39,8 @@ public class DeterministicParser
         "read", "tie", "untie", "fill", "pour", "dig", "type", "key", "punch", "set", "count", "use", "wave",
         "ring", "smell", "light", "wind", "kick", "deflate", "inflate", "lower", "raise", "extend", "lift",
         "oil", "lubricate", "salute", "eat", "play", "shoot", "empty", "remove", "spin", "spray", "water",
-        "pump", "knock", "poke", "prod", "wear", "unlock", "lock", "flip", "board", "enter"
+        "pump", "knock", "poke", "prod", "wear", "unlock", "lock", "flip", "board", "enter",
+        "turn", "twist", "rotate", "swing"
     ];
 
     // Every single-word verb the engine knows, harvested from the Verbs thesaurus (single source of truth)
