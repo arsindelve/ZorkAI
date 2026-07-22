@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace Planetfall.Item.Feinstein;
 
 public class Chronometer : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRead, IAmClothing
@@ -20,8 +22,29 @@ public class Chronometer : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICan
         { 8, 3200 }   // Day 8: ~3200-3280
     };
 
-    // Start time of the game (random between 4500-4700)
+    /// <summary>
+    /// Spread of the wake-up time past the day's base morning time, so no two mornings land on exactly
+    /// the same tick.
+    /// </summary>
+    public const int MorningJitterTicks = 80;
+
+    /// <summary>
+    /// The last day the morning-time table defines. The playable calendar can't outrun this: waking on
+    /// a day with no entry would leave the chronometer on the previous day's time.
+    /// </summary>
+    public static int LastDefinedDay => MorningTimesByDay.Keys.Max();
+
+    // Start time of the game (random between 4500-4700). This one stays on the raw Random: it's a
+    // property initializer, so it runs before anything could inject a chooser - and no test can pin a
+    // value that is chosen at construction time.
     public int CurrentTime { get; set; } = Random.Next(4500, 4700);
+
+    /// <summary>
+    /// Injectable randomness for the morning jitter, so tests can pin the wake-up time.
+    /// </summary>
+    [UsedImplicitly]
+    [JsonIgnore]
+    public IRandomChooser Chooser { get; set; } = new RandomChooser();
 
     public override string[] NounsForMatching => ["chronometer", "watch", "wrist-watch"];
 
@@ -33,7 +56,7 @@ public class Chronometer : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICan
     {
         if (MorningTimesByDay.TryGetValue(day, out var baseTime))
         {
-            CurrentTime = baseTime + Random.Next(80);
+            CurrentTime = baseTime + Chooser.RollDice(MorningJitterTicks);
         }
     }
 
