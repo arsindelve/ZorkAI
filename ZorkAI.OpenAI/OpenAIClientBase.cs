@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using OpenAI.Chat;
 
 namespace ZorkAI.OpenAI;
@@ -38,4 +39,29 @@ public abstract class OpenAIClientBase
     }
 
     protected abstract string ModelName { get; }
+
+    /// <summary>
+    ///     Shared plumbing for the JSON-mode parser calls: send a single system prompt, force a JSON
+    ///     object reply, deserialize it. Returns null when the model reply has no content or does not
+    ///     deserialize - callers treat that as "no answer" and fall back.
+    /// </summary>
+    protected async Task<T?> CompleteJsonChatAsync<T>(string prompt, float temperature = 0f) where T : class
+    {
+        var messages = new List<ChatMessage>
+        {
+            new SystemChatMessage(prompt)
+        };
+
+        var options = new ChatCompletionOptions
+        {
+            Temperature = temperature,
+            ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat()
+        };
+
+        ChatCompletion completion = await Client!.CompleteChatAsync(messages, options);
+        if (completion.Content.Count == 0)
+            return null;
+
+        return JsonConvert.DeserializeObject<T>(completion.Content[0].Text);
+    }
 }

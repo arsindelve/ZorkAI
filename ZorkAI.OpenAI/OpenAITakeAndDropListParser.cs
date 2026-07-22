@@ -2,7 +2,6 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Model.AIParsing;
 using Newtonsoft.Json;
-using OpenAI.Chat;
 
 namespace ZorkAI.OpenAI;
 
@@ -23,20 +22,7 @@ public class OpenAITakeAndDropListParser(ILogger? logger) : OpenAIClientBase(log
     private async Task<string[]> Go(string formatStringOne, string formatStringTwo, string promptName)
     {
         var prompt = string.Format(promptName, formatStringOne, formatStringTwo);
-
-        var messages = new List<ChatMessage>
-        {
-            new SystemChatMessage(prompt)
-        };
-
-        var options = new ChatCompletionOptions
-        {
-            Temperature = 0f,
-            ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat()
-        };
-
-        ChatCompletion completion = await Client!.CompleteChatAsync(messages, options);
-        var result = JsonConvert.DeserializeObject<ItemsResponse>(completion.Content[0].Text);
+        var result = await CompleteJsonChatAsync<ItemsResponse>(prompt);
         return result?.Items ?? [];
     }
 

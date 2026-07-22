@@ -30,6 +30,12 @@ public class EngineTestsBase
 
     protected Mock<IParseConversation> ParseConversationMock { get; private set; } = null!;
 
+    /// <summary>
+    ///     The agentic fall-through narrator seam (issue #136). Defaults to an inert reply (no
+    ///     narration, no tool calls) so every existing test keeps the plain fall-through behavior.
+    /// </summary>
+    protected Mock<IAgenticActionParser> AgenticActionParser { get; private set; } = new();
+
     protected T StartHere<T>() where T : class, ILocation, new()
     {
         // Since the test wants to drop us into a specific location, remove any
@@ -75,12 +81,17 @@ public class EngineTestsBase
                 return words.Length > 1 ? [words[1]] : [];
             });
 
+        AgenticActionParser = new Mock<IAgenticActionParser>();
+        AgenticActionParser.Setup(s => s.Resolve(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new AgenticActionResult(string.Empty, []));
+
         // Create a simple mock ParseConversation that returns "no conversation" for all inputs
         ParseConversationMock = new Mock<IParseConversation>();
         ParseConversationMock.Setup(x => x.ParseAsync(It.IsAny<string>()))
             .ReturnsAsync((false, "")); // Always return "not conversational" so tests behave like before
 
-        var engine = new GameEngine<PlanetfallGame, PlanetfallContext>(new ItemProcessorFactory(takeAndDropParser.Object), _parser, _client.Object,
+        var engine = new GameEngine<PlanetfallGame, PlanetfallContext>(
+            new ItemProcessorFactory(takeAndDropParser.Object, AgenticActionParser.Object), _parser, _client.Object,
             Mock.Of<ISecretsManager>(), Mock.Of<ICloudWatchLogger<TurnLog>>(), ParseConversationMock.Object);
         engine.Context.Verbosity = Verbosity.Verbose;
         Repository.GetLocation<DeckNine>().Init();

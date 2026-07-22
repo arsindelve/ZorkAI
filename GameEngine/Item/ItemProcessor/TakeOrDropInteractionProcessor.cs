@@ -19,6 +19,12 @@ namespace GameEngine.Item.ItemProcessor;
 /// </summary>
 public class TakeOrDropInteractionProcessor : IVerbProcessor
 {
+    /// <summary>
+    ///     Shared refusal for disposing of clothing that is still being worn - used by the drop
+    ///     mechanic here and mirrored by the agentic DESTROY tool (issue #136).
+    /// </summary>
+    public const string TakeItOffFirstMessage = "You'll have to take it off, first. ";
+
     private readonly IAITakeAndAndDropParser _itemParser;
 
     /// <summary>
@@ -190,7 +196,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             return new PositiveInteractionResult("You don't have that!");
 
         if (castItem is IAmClothing { BeingWorn: true })
-            return new PositiveInteractionResult("You'll have to take it off, first. ");
+            return new PositiveInteractionResult(TakeItOffFirstMessage);
 
         if (context.CurrentLocation is IDropSpecialLocation specialLocation)
             return specialLocation.DropSpecial(castItem, context);
