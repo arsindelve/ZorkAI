@@ -37,6 +37,21 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
 
     public override Type[] CanOnlyHoldTheseTypes => [typeof(BatteryBase)];
 
+    // Issue #437: the depression is a SINGLE slot. ContainerBase.SpaceForItems defaults to 2 and each
+    // battery is Size 1, so without this override the laser silently admitted a second battery
+    // (1 + 1 <= 2). A player who inserts the fresh battery without first removing the dead one then
+    // ends up with both in the slot, and TryFireLaser keeps drawing from Items.FirstOrDefault() - the
+    // first-inserted (dead) battery - so firing yields "Click." as if the fresh battery were dead too.
+    // One slot forces the correct swap (remove the old battery, then insert the fresh one).
+    protected override int SpaceForItems => 1;
+
+    // With the depression full, refuse the extra battery by asserting the occupancy (mirrors the spool
+    // reader, issue #417). This is safe here because a battery is always Size 1: HaveRoomForItem can
+    // only fail for a battery when one is already resting in the slot. The type check runs before the
+    // room check (PutProcessor, issue #417), so a non-battery still gets the "won't fit" message below.
+    public override string NoRoomMessage =>
+        "There's already a battery resting in the laser's depression. ";
+
     // The original refuses a non-battery by naming the item and the depression it won't go into
     // (LASER-F, comptwo.zil:2686). Without this the type rejection has no message and falls through
     // to the AI narrator, which answers a deterministic refusal with a generated one (and a blank
