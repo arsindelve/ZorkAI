@@ -107,6 +107,14 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
             if (!IsEnabled)
                 return new PositiveInteractionResult("Nothing happens. ");
 
+            // The original gates every travel branch on the car being idle as well as enabled
+            // (compone.zil, ELEVATOR-BUTTON-F: each success arm requires ELEVATOR-IN-TRANSIT to be
+            // false, otherwise it falls through to "Nothing happens."). Without this, a second press
+            // mid-flight re-runs Move(), reprinting the departure message and resetting the trip
+            // timer - the player could stall the elevator indefinitely.
+            if (TurnsSinceMoving > 0)
+                return new PositiveInteractionResult("Nothing happens. ");
+
             if (action.MatchNoun(["up button", "up"]))
                 return GoUp(context);
 
@@ -121,9 +129,11 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
     {
         TurnsSinceMoving = 1;
         context.RegisterActor(this);
-        GetItem<TDoor>().IsOpen = false;
-        return new PositiveInteractionResult(
-            "The elevator door slides shut. After a moment, you feel a sensation of vertical movement. ");
+        var door = GetItem<TDoor>();
+        door.IsOpen = false;
+        // Let the door own its own message, as the arrival path already does with NowOpen. The
+        // literal used to be duplicated here, so editing ElevatorDoorBase.NowClosed changed nothing.
+        return new PositiveInteractionResult(door.NowClosed(this));
     }
 
     protected abstract InteractionResult GoDown(IContext context);
