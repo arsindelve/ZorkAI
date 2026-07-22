@@ -537,4 +537,73 @@ public class OpenAIParserTests
         var simpleIntent = intent as SimpleIntent;
         simpleIntent!.Noun.Should().Be("rug");
     }
+
+    // ===== Structured-Outputs reliability guarantees =====
+    // These exercise the three constraints added to the AI parser (guaranteed-valid JSON structure, a valid
+    // intent from the closed set, and run-to-run determinism). They call the live model, hence [Explicit]
+    // like the rest of this fixture. They complement the deterministic StructuredIntentParsingTests, which
+    // cover the JSON->intent mapping without the network.
+
+    private static readonly Type[] KnownIntentTypes =
+    {
+        typeof(SimpleIntent), typeof(MultiNounIntent), typeof(TakeIntent), typeof(DropIntent),
+        typeof(MoveIntent), typeof(GoToDestinationIntent), typeof(EnterSubLocationIntent),
+        typeof(ExitSubLocationIntent), typeof(LookIntent), typeof(InventoryIntent),
+        typeof(MultipleCommandsIntent), typeof(NullIntent)
+    };
+
+    [Test]
+    // Well-formed commands, awkward phrasings, and outright gibberish must all come back as a valid intent
+    // and never throw — the structured schema makes malformed/duplicate-tag output (the old NullIntent /
+    // HTTP-500 failure modes) impossible.
+    [TestCase("examine the mailbox")]
+    [TestCase("put the sword in the trophy case")]
+    [TestCase("wave the sceptre around wildly like a lunatic and then dance")]
+    [TestCase("go north south then maybe up who knows")]
+    [TestCase("asdf qwer zxcv")]
+    public async Task StructuredOutput_AlwaysReturnsAValidIntent_AndNeverThrows(string sentence)
+    {
+        string desc;
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+            desc = locationObject.GetDescription(Mock.Of<IContext>());
+        }
+
+        var target = new OpenAIParser(null);
+
+        var act = async () => await target.AskTheAIParser(sentence, desc, string.Empty);
+
+        var intent = await act.Should().NotThrowAsync();
+        intent.Subject.Should().NotBeNull();
+        KnownIntentTypes.Should().Contain(intent.Subject!.GetType());
+    }
+
+    [Test]
+    // The same command parsed repeatedly should yield the same parse (seed + temperature 0 + a constrained
+    // schema). If this ever fails it is a direct, measurable signal of residual non-determinism.
+    [TestCase("open the mailbox")]
+    [TestCase("put the sword in the trophy case")]
+    [TestCase("take the lamp")]
+    public async Task StructuredOutput_IsDeterministic_AcrossRepeatedCalls(string sentence)
+    {
+        string desc;
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+            desc = locationObject.GetDescription(Mock.Of<IContext>());
+        }
+
+        var target = new OpenAIParser(null);
+
+        var first = await target.AskTheAIParser(sentence, desc, string.Empty);
+        for (var i = 0; i < 4; i++)
+        {
+            var again = await target.AskTheAIParser(sentence, desc, string.Empty);
+            again.GetType().Should().Be(first.GetType());
+            again.Message.Should().Be(first.Message, "the structured parse should be reproducible");
+        }
+    }
 }
