@@ -78,6 +78,44 @@ public class AdminCorridorSouthTests : EngineTestsBase
         GetLocation<AdminCorridorSouth>().HasTakenTheKey.Should().BeFalse();
     }
 
+    // Issue #436 — the multi-noun analog of the examine catch-all fixed in #291. While the magnet
+    // is set down in this room (not held), the "you don't have the curved metal bar" hint must fire
+    // ONLY for genuine magnet/key-fishing attempts, not for every two-noun command. A magnet-unrelated
+    // command like "put brush in uniform" must fall through to normal handling.
+    [Test]
+    public async Task MagnetUnrelatedTwoNounCommand_WithMagnetOnFloorHere_DoesNotClaimMissingBar()
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+
+        // Magnet is in this room but NOT in the player's inventory.
+        GetLocation<AdminCorridorSouth>().ItemPlacedHere(GetItem<Magnet>());
+        Context.HasItem<Magnet>().Should().BeFalse();
+        GetItem<Magnet>().CurrentLocation.Should().Be(GetLocation<AdminCorridorSouth>());
+
+        var response = await target.GetResponse("put brush in uniform");
+
+        response.Should().NotContain("You don't have the curved metal bar");
+    }
+
+    // Issue #436 — the flip side: a real fishing attempt while the magnet is on the floor here must
+    // still get the "you don't have the bar" hint (and must not silently retrieve the key).
+    [Test]
+    public async Task FishingAttempt_WithMagnetOnFloorHere_StillGivesBarHint()
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+
+        GetLocation<AdminCorridorSouth>().ItemPlacedHere(GetItem<Magnet>());
+        Context.HasItem<Magnet>().Should().BeFalse();
+
+        var response = await target.GetResponse("get key with magnet");
+
+        response.Should().Contain("You don't have the curved metal bar");
+        Context.HasItem<Key>().Should().BeFalse();
+        GetLocation<AdminCorridorSouth>().HasTakenTheKey.Should().BeFalse();
+    }
+
     [Test]
     public async Task UseMagnetOnCrevice_AlreadyHasKey_NothingHappens()
     {
