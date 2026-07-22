@@ -260,6 +260,53 @@ public class DayGodModeTests : EngineTestsBase
     }
 
     [Test]
+    public async Task GodMode_Day_EvacuationRunsTheDestinationsEntryHooks()
+    {
+        // A raw CurrentLocation assignment would leave the destination "never visited", so its
+        // first-visit text and OnFirstTimeEnterLocation side effects would fire later, once the player
+        // walked in normally from somewhere else - after they had already been standing there.
+        var engine = GetTarget();
+        StartHere<Crag>();
+
+        var response = await engine.GetResponse("god mode day 5");
+
+        GetLocation<WindingStair>().VisitCount.Should().Be(1);
+        // Only the room they end up in counts as entered - they were never really on the Balcony the
+        // water swept them through.
+        GetLocation<Balcony>().VisitCount.Should().Be(0);
+        // And they can see where they've been put.
+        response.Should().Contain("steep stairway");
+    }
+
+    [Test]
+    public async Task GodMode_Go_WarnsButObeysWhenTheDestinationIsAlreadyDrowned()
+    {
+        // "god mode go" is an explicit request to be somewhere, and reaching otherwise-unreachable
+        // states is the whole point of god mode - so it is honoured rather than bounced. The calendar
+        // advance evacuates because there the player never asked to move; the ground went out from
+        // under them. What both owe the tester is not being silently left in an impossible state.
+        var engine = GetTarget();
+        StartHere<DormA>();
+        await engine.GetResponse("god mode day 5");
+
+        var response = await engine.GetResponse("god mode go crag");
+
+        Context.CurrentLocation.Should().BeOfType<Crag>();
+        response.Should().Contain("under water");
+    }
+
+    [Test]
+    public async Task GodMode_Go_DoesNotWarnAboutARoomTheWaterHasNotReached()
+    {
+        var engine = GetTarget();
+        StartHere<DormA>();
+
+        var response = await engine.GetResponse("god mode go crag"); // Day 1: the Crag is still dry
+
+        response.Should().NotContain("under water");
+    }
+
+    [Test]
     public async Task GodMode_Day_LeavesThePlayerAloneInARoomTheCalendarDoesNotTouch()
     {
         var engine = GetTarget();

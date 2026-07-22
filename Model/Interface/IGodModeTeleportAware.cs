@@ -13,5 +13,10 @@ namespace Model.Interface;
 /// </summary>
 public interface IGodModeTeleportAware
 {
-    void OnGodModeTeleport();
+    /// <summary>
+    ///     Returns a note to append to the teleport confirmation, or null when there is nothing to say.
+    ///     A game may want to warn that the raw swap has landed the player somewhere its own rules would
+    ///     never allow - god mode still obeys the request, but says so rather than leaving it silent.
+    /// </summary>
+    string? OnGodModeTeleport();
 }

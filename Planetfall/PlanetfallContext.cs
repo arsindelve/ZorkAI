@@ -323,13 +323,31 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, IGo
     ///     EscapePod's own sinking timer is disarmed unless the destination is EscapePod itself, so a
     ///     tester can still teleport in to observe that sequence.
     /// </summary>
-    public void OnGodModeTeleport()
+    public string? OnGodModeTeleport()
     {
         if (CurrentLocation is not DeckNine)
             RemoveActor<ExplosionCoordinator>();
 
         if (CurrentLocation is not EscapePod)
             RemoveActor<EscapePod>();
+
+        // Unlike a calendar advance, this is an explicit request to be somewhere, and reaching states
+        // the game's own rules make unreachable is the entire point of god mode - so we obey it and
+        // only warn. See OnGodModeCalendarJump for the case where the player never asked to move.
+        return DrownedRoomWarning();
+    }
+
+    /// <summary>
+    ///     Warns when the player is standing in a room the rising ocean has already taken on the current
+    ///     day - a state normal play cannot produce, since the only way to cross a day is to sleep and
+    ///     sleeping down there drowns you.
+    /// </summary>
+    private string? DrownedRoomWarning()
+    {
+        return CurrentLocation is IFloodedOnLaterDays flooded && flooded.HigherGroundOn(Day) is not null
+            ? $"Note that the {CurrentLocation.Name} is under water on Day {Day} - god mode has put you " +
+              "somewhere the game itself can no longer reach. "
+            : null;
     }
 
     /// <summary>
@@ -347,19 +365,31 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, IGo
     {
         var startedAt = CurrentLocation;
 
-        // Guard against a mis-implemented HigherGroundOn pointing back at a room we already left; the
-        // interface requires strictly higher ground, but a cycle here would hang the game.
-        var visited = new HashSet<ILocation> { CurrentLocation };
+        // Walk the chain to the final destination BEFORE moving anyone. The player is swept straight to
+        // dry ground - they were never really in the rooms the water carried them through, so those must
+        // not count as visited (which would spend their first-visit text and points on a room they never
+        // saw). Guard against a mis-implemented HigherGroundOn cycling back: the interface requires
+        // strictly higher ground, but a cycle here would hang the game.
+        var destination = startedAt;
+        var visited = new HashSet<ILocation> { destination };
 
-        while (CurrentLocation is IFloodedOnLaterDays flooded &&
+        while (destination is IFloodedOnLaterDays flooded &&
                flooded.HigherGroundOn(Day) is { } higherGround &&
                visited.Add(higherGround))
-            CurrentLocation = higherGround;
+            destination = higherGround;
 
-        return ReferenceEquals(startedAt, CurrentLocation)
-            ? null
-            : $"The rising water has taken the {startedAt.Name}; you've been moved up to " +
-              $"the {CurrentLocation.Name}. ";
+        if (ReferenceEquals(destination, startedAt))
+            return null;
+
+        // Move them the way the game moves anyone, so the destination's entry hooks run and they can
+        // see where they've been put. AfterEnterLocation is the one part we can't run - it's async and
+        // needs a generation client this hook has no access to - and it's narrative flavour, not state.
+        startedAt.OnLeaveLocation(this, destination, startedAt);
+        CurrentLocation = destination;
+        var enteringText = destination.BeforeEnterLocation(this, startedAt);
+
+        return $"The rising water has taken the {startedAt.Name}; you've been moved up to " +
+               $"the {destination.Name}.\n\n" + enteringText + destination.GetDescription(this);
     }
 
     /// <summary>
