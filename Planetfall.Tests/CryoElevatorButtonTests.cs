@@ -95,4 +95,46 @@ public class CryoElevatorButtonTests : EngineTestsBase
         result.Should().NotBeNull();
         result!.InteractionMessage.Should().Contain("Nothing happens");
     }
+
+    [Test]
+    public void PushWall_DoesNotOperateElevator()
+    {
+        // The button must gate on its own noun. "push wall" (an unrelated noun) should NOT
+        // operate the elevator — it should fall through to the narrator via NoNounMatchInteractionResult.
+        _button.CountdownActive.Should().BeFalse();
+
+        var action = new SimpleIntent { Verb = "push", Noun = "wall" };
+        var result = _button.RespondToSimpleInteraction(action, _context, null!, null!).Result;
+
+        result.Should().BeOfType<NoNounMatchInteractionResult>();
+        _button.CountdownActive.Should().BeFalse("pushing the wall must not start the elevator countdown");
+    }
+
+    [Test]
+    public void PushButton_StartsCountdown()
+    {
+        // Pushing the button itself must still work (behavior preserved).
+        _button.CountdownActive.Should().BeFalse();
+
+        var action = new SimpleIntent { Verb = "push", Noun = "button" };
+        var result = _button.RespondToSimpleInteraction(action, _context, null!, null!).Result;
+
+        result.Should().BeOfType<PositiveInteractionResult>();
+        result!.InteractionMessage.Should().Contain("elevator begins to move downward");
+        _button.CountdownActive.Should().BeTrue();
+    }
+
+    [Test]
+    public void PushWall_AfterArrival_DoesNotKillPlayer()
+    {
+        // After arrival, only "push button" triggers the hilarious death. "push wall" must not.
+        _button.AlreadyArrived = true;
+        _button.CountdownActive = false;
+
+        var action = new SimpleIntent { Verb = "push", Noun = "wall" };
+        var result = _button.RespondToSimpleInteraction(action, _context, null!, null!).Result;
+
+        result.Should().BeOfType<NoNounMatchInteractionResult>();
+        result.Should().NotBeOfType<DeathInteractionResult>();
+    }
 }
