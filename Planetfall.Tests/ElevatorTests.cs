@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Location.Kalamontee;
+using Planetfall.Location.Shuttle;
 
 namespace Planetfall.Tests;
 
@@ -138,6 +139,71 @@ public class ElevatorTests : EngineTestsBase
 
         var response = await target.GetResponse("n");
         response.Should().Contain("is closed");
+    }
+
+    [Test]
+    public async Task Enter_FromWaitingArea_DoorClosed()
+    {
+        var target = GetTarget();
+        StartHere<WaitingArea>();
+        GetLocation<LowerElevator>().InLobby = false;
+        GetItem<LowerElevatorDoor>().IsOpen = false;
+
+        var response = await target.GetResponse("s");
+        response.Should().Contain("The door is closed");
+        response.Should().NotContain("Lower Elevator");
+    }
+
+    [Test]
+    public async Task Enter_FromWaitingArea_CarIsUpAtTheLobby()
+    {
+        var target = GetTarget();
+        StartHere<WaitingArea>();
+        // The car is up at the lobby with its door open at that end - there is nothing to step into here.
+        GetLocation<LowerElevator>().InLobby = true;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+
+        var response = await target.GetResponse("s");
+        response.Should().Contain("The door is closed");
+        response.Should().NotContain("Lower Elevator");
+    }
+
+    [Test]
+    public async Task Enter_FromWaitingArea_CarIsHere()
+    {
+        var target = GetTarget();
+        StartHere<WaitingArea>();
+        GetLocation<LowerElevator>().InLobby = false;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+
+        var response = await target.GetResponse("s");
+        response.Should().Contain("Lower Elevator");
+    }
+
+    [Test]
+    public async Task Enter_FromLobby_Upper_CarIsAwayAtTheTower()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetLocation<UpperElevator>().InLobby = false;
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+
+        var response = await target.GetResponse("n");
+        response.Should().Contain("The door is closed");
+        response.Should().NotContain("Upper Elevator");
+    }
+
+    [Test]
+    public async Task Enter_FromLobby_Lower_CarIsAwayAtTheWaitingArea()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetLocation<LowerElevator>().InLobby = false;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+
+        var response = await target.GetResponse("s");
+        response.Should().Contain("The door is closed");
+        response.Should().NotContain("Lower Elevator");
     }
 
     [Test]
@@ -607,6 +673,44 @@ public class ElevatorTests : EngineTestsBase
         response.Should().Contain("The elevator door slides shut. After a moment, you feel a sensation of vertical movement");
         GetLocation<LowerElevator>().TurnsSinceMoving.Should().Be(2);
         GetItem<LowerElevatorDoor>().IsOpen.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task LowerElevator_RoundTripToTheWaitingArea()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        Take<LowerElevatorAccessCard>();
+
+        await target.GetResponse("press red button");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        var response = await target.GetResponse("south");
+        response.Should().Contain("Lower Elevator");
+
+        await target.GetResponse("slide lower access card through slot");
+        await target.GetResponse("press down button");
+        await target.GetResponse("wait");
+        response = await target.GetResponse("wait");
+        response.Should().Contain("The elevator door slides open");
+
+        response = await target.GetResponse("north");
+        response.Should().Contain("Waiting Area");
+        GetLocation<LowerElevator>().InLobby.Should().BeFalse();
+
+        // The car is standing right here, so the gated entrance lets us back in.
+        response = await target.GetResponse("south");
+        response.Should().Contain("Lower Elevator");
+
+        await target.GetResponse("slide lower access card through slot");
+        await target.GetResponse("press up button");
+        await target.GetResponse("wait");
+        response = await target.GetResponse("wait");
+        response.Should().Contain("The elevator door slides open");
+
+        response = await target.GetResponse("north");
+        response.Should().Contain("Elevator Lobby");
     }
 
     [Test]
