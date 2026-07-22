@@ -66,7 +66,7 @@ internal class ProjConOffice : FloydSpecialInteractionLocation
             ? "This office looks like a headquarters of some kind. Exits lead north and east. " +
               "The west wall displays a logo. The mural that previously adorned the south " +
               "wall has slid away, revealing an open doorway to a large elevator!"
-            : "TThis office looks like a headquarters of some kind. Exits lead north and east. The west wall displays a " +
+            : "This office looks like a headquarters of some kind. Exits lead north and east. The west wall displays a " +
               "logo. The south wall is completely covered by a garish mural which clashes with the other decor of the room. ";
     }
 }

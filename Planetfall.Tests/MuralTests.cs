@@ -53,6 +53,19 @@ public class MuralTests : EngineTestsBase
     }
 
     [Test]
+    public async Task ProjConOffice_DescriptionShouldNotStartWithDoubledLetter()
+    {
+        // Regression for #435: the pre-announcement description had a typo ("TThis office...").
+        var target = GetTarget();
+        StartHere<ProjConOffice>();
+
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("This office looks like a headquarters");
+        response.Should().NotContain("TThis");
+    }
+
+    [Test]
     public void ProjConOffice_MuralShouldBePresent()
     {
         GetTarget();
