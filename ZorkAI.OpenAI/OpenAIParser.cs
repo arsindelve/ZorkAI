@@ -2,7 +2,6 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Model.AIParsing;
 using Model.Intent;
-using Newtonsoft.Json;
 using OpenAI.Chat;
 
 namespace ZorkAI.OpenAI;
@@ -47,30 +46,10 @@ public class OpenAIParser(ILogger? logger) : OpenAIClientBase(logger), IAIParser
         ChatCompletion completion = await Client!.CompleteChatAsync(messages, options);
         var responseContent = completion.Content[0].Text;
 
-        // Render the validated JSON to the canonical tag form and reuse the existing, battle-tested
-        // intent-construction pipeline unchanged. A strict schema makes valid JSON overwhelmingly likely,
-        // but a refusal or a max-tokens truncation could still hand back non-JSON — degrade to NullIntent
-        // rather than throw, matching the graceful behavior of the tag-based path we replaced.
-        ParsedIntent? parsed;
-        try
-        {
-            parsed = JsonConvert.DeserializeObject<ParsedIntent>(responseContent);
-        }
-        catch (JsonException ex)
-        {
-            Logger?.LogWarning("Structured parse returned invalid JSON for input '{Input}': {Message}", input,
-                ex.Message);
-            return new NullIntent();
-        }
-
-        if (parsed is null)
-        {
-            Logger?.LogWarning("Structured parse returned null JSON for input '{Input}'", input);
-            return new NullIntent();
-        }
-
-        var tags = StructuredIntentParsing.ToTagString(parsed);
-        return ParsingHelper.GetIntent(input, tags, Logger);
+        // Deserialize the validated JSON, render it to the canonical tag form, and reuse the existing,
+        // battle-tested intent-construction pipeline. Invalid/truncated JSON degrades to NullIntent rather
+        // than throwing. All of this lives in ParseResponse so it is unit-testable without the network.
+        return StructuredIntentParsing.ParseResponse(responseContent, input, Logger);
     }
 
     public string LanguageModel => ModelName;

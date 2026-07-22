@@ -1,4 +1,6 @@
 using System.Text;
+using Microsoft.Extensions.Logging;
+using Model.Intent;
 using Newtonsoft.Json;
 
 namespace Model;
@@ -171,6 +173,36 @@ public static class StructuredIntentParsing
             sb.Append($"<direction>{parsed.Direction.Trim().ToLowerInvariant()}</direction>\n");
 
         return sb.ToString().TrimEnd();
+    }
+
+    /// <summary>
+    /// Turns a raw structured-output response body into an <see cref="IntentBase" />: deserialize the JSON,
+    /// render it to the canonical tag form, and run it through <see cref="ParsingHelper.GetIntent" />.
+    /// Invalid or empty JSON — a refusal, or a truncated max-tokens response — degrades to
+    /// <see cref="NullIntent" /> rather than throwing, matching the tolerance of the tag-based path this
+    /// replaced. Extracted from the OpenAI client so it is unit-testable without the network.
+    /// </summary>
+    public static IntentBase ParseResponse(string? responseContent, string input, ILogger? logger = null)
+    {
+        ParsedIntent? parsed;
+        try
+        {
+            parsed = JsonConvert.DeserializeObject<ParsedIntent>(responseContent ?? string.Empty);
+        }
+        catch (JsonException ex)
+        {
+            logger?.LogWarning("Structured parse returned invalid JSON for input '{Input}': {Message}", input,
+                ex.Message);
+            return new NullIntent();
+        }
+
+        if (parsed is null)
+        {
+            logger?.LogWarning("Structured parse returned null JSON for input '{Input}'", input);
+            return new NullIntent();
+        }
+
+        return ParsingHelper.GetIntent(input, ToTagString(parsed), logger);
     }
 }
 
