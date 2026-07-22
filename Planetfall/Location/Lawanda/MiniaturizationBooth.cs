@@ -68,17 +68,18 @@ internal class MiniaturizationBooth : LocationBase, ICardActivatedDevice
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        // Issue #433: gate on the noun, not the verb alone. Without this, "push slot" / "press wall"
-        // (any type/press/push/key verb on any noun) hit the keyboard logic instead of the actual noun,
-        // shadowing the booth's own slot. Only operate the keyboard when the noun is the keyboard itself
-        // or a numeric key (e.g. "type 384"); anything else falls through to the noun/narrator.
-        if (action.MatchVerb(Verbs.TypeVerbs.Union(["press", "push", "key"]).ToArray())
-            && (action.MatchNoun(KeyboardNouns) || action.Noun.ToInteger().HasValue))
+        if (action.MatchVerb(Verbs.TypeVerbs.Union(["press", "push", "key"]).ToArray()))
         {
+            // Issue #433: gate on the noun, not the verb alone. Without this, "push slot" / "press wall"
+            // (a keypress verb on any noun) hit the keyboard logic instead of the actual noun, shadowing
+            // the booth's own slot. Only operate the keyboard when the noun is the keyboard itself or a
+            // numeric key (e.g. "type 384"); anything else falls through to the noun/narrator below.
+            var keyPress = action.Noun.ToInteger();
+            if (!action.MatchNoun(KeyboardNouns) && !keyPress.HasValue)
+                return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+
             if (!IsEnabled)
                 return new PositiveInteractionResult("A recording says \"Internal computer repair booth not activated.\"");
-
-            var keyPress = action.Noun.ToInteger();
 
             if (keyPress.HasValue)
             {

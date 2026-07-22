@@ -1,7 +1,11 @@
 using System.Text;
 using FluentAssertions;
+using GameEngine.Item;
+using Model.AIGeneration;
+using Model.AIParsing;
 using Model.Intent;
 using Model.Interaction;
+using Moq;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.Lab;
@@ -209,11 +213,33 @@ public class MiniaturizationBoothTests : EngineTestsBase
         booth.IsEnabled.Should().BeFalse();
 
         var action = new SimpleIntent { Verb = "press", Noun = "wall" };
-        var result = await booth.RespondToSimpleInteraction(action, target.Context, null!, null!);
+        // Pass a real client/factory (not null) so the fall-through into base -> item processors stays
+        // exercised even if the booth later gains items whose routing dereferences them.
+        var factory = new ItemProcessorFactory(Mock.Of<IAITakeAndAndDropParser>());
+        var result = await booth.RespondToSimpleInteraction(action, target.Context, Mock.Of<IGenerationClient>(), factory);
 
         // Before the fix this returned the booth's "not activated" PositiveInteractionResult; the noun
         // guard now lets an unrelated noun fall through to a NoNounMatch (the narrator handles it).
         result.Should().BeOfType<NoNounMatchInteractionResult>();
+    }
+
+    // Issue #433: the shadowing is worst when the booth IS activated - the old verb-only gate answered
+    // "push slot" with "The keyboard only has numeric keys." (past the !IsEnabled check), burying the
+    // booth's own slot. The noun guard must reject the non-keyboard noun before that point too.
+    [Test]
+    public async Task PushSlot_Activated_DoesNotHitKeyboardLogic()
+    {
+        var target = GetTarget();
+        StartHere<MiniaturizationBooth>();
+        Take<MiniaturizationAccessCard>();
+
+        await target.GetResponse("slide miniaturization card through slot");
+        GetLocation<MiniaturizationBooth>().IsEnabled.Should().BeTrue();
+
+        var response = await target.GetResponse("push slot");
+
+        response.Should().NotContain("The keyboard only has numeric keys");
+        response.Should().NotContain("Internal computer repair booth not activated");
     }
 
     // Issue #433: the noun guard must not break operating the keyboard itself. "press keyboard" still
