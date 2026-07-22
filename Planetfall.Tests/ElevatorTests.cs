@@ -714,6 +714,50 @@ public class ElevatorTests : EngineTestsBase
     }
 
     [Test]
+    public async Task PressButtonAgainWhileMoving_DoesNotRestartTheTrip_Upper()
+    {
+        var target = GetTarget();
+        StartHere<UpperElevator>().InLobby = true;
+        Take<UpperElevatorAccessCard>();
+
+        await target.GetResponse("slide upper access card through slot");
+        await target.GetResponse("press up button");
+        GetLocation<UpperElevator>().TurnsSinceMoving.Should().Be(2);
+
+        var response = await target.GetResponse("press up button");
+        response.Should().Contain("Nothing happens");
+        response.Should().NotContain("The elevator door slides shut");
+        GetLocation<UpperElevator>().TurnsSinceMoving.Should().Be(3);
+
+        // The trip still lands on schedule - the second press neither restarted nor extended it.
+        response = await target.GetResponse("wait");
+        response.Should().Contain("The elevator door slides open");
+        GetLocation<UpperElevator>().InLobby.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task PressButtonAgainWhileMoving_DoesNotRestartTheTrip_Lower()
+    {
+        var target = GetTarget();
+        StartHere<LowerElevator>().InLobby = true;
+        Take<LowerElevatorAccessCard>();
+
+        await target.GetResponse("slide lower access card through slot");
+        await target.GetResponse("press down button");
+        GetLocation<LowerElevator>().TurnsSinceMoving.Should().Be(2);
+
+        var response = await target.GetResponse("press down button");
+        response.Should().Contain("Nothing happens");
+        response.Should().NotContain("The elevator door slides shut");
+        GetLocation<LowerElevator>().TurnsSinceMoving.Should().Be(3);
+
+        // The trip still lands on schedule - the second press neither restarted nor extended it.
+        response = await target.GetResponse("wait");
+        response.Should().Contain("The elevator door slides open");
+        GetLocation<LowerElevator>().InLobby.Should().BeFalse();
+    }
+
+    [Test]
     public async Task LookWhileMoving_DescribesTheDoorAsClosed_Upper()
     {
         var target = GetTarget();
