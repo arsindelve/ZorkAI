@@ -87,6 +87,11 @@ public static class StructuredIntentParsing
             "inventory" the player wants to know what they are carrying
             "act"       anything else
 
+        IMPORTANT: "move" is only for TRAVEL by a movement verb (go/walk/run/head/enter/climb...). A
+        press/push/turn/type/set command is intent=act EVEN when it names a direction word: in
+        "press the up button" / "press up", the "up" is part of the object being pressed, NOT a movement.
+        Put such commands as "act" with the direction word kept in the noun, and leave "direction" null.
+
         "verb" — the single most important verb expressing the player's intention; prefer a simple, common
             synonym. Turn something on -> "activate"; turn something off -> "deactivate"; wear/put on
             clothing -> "don"; take off/remove clothing -> "doff". Null if there is no meaningful verb.
@@ -111,6 +116,8 @@ public static class StructuredIntentParsing
         "take the sword" -> {"intent":"take","verb":"take","nouns":["sword"],"preposition":null,"direction":null,"adjective":null}
         "look under the rug" -> {"intent":"act","verb":"look","nouns":["rug"],"preposition":"under","direction":null,"adjective":null}
         "turn on lamp" -> {"intent":"act","verb":"activate","nouns":["lamp"],"preposition":null,"direction":null,"adjective":null}
+        "press the up button" -> {"intent":"act","verb":"press","nouns":["up button"],"preposition":null,"direction":null,"adjective":null}
+        "press up" -> {"intent":"act","verb":"press","nouns":["up"],"preposition":null,"direction":null,"adjective":null}
         "put on the hat" -> {"intent":"act","verb":"don","nouns":["hat"],"preposition":null,"direction":null,"adjective":null}
         "inflate the pile of plastic with the air pump" -> {"intent":"act","verb":"inflate","nouns":["pile of plastic","air pump"],"preposition":"with","direction":null,"adjective":null}
         "tie the rope to the railing" -> {"intent":"act","verb":"tie","nouns":["rope","railing"],"preposition":"to","direction":null,"adjective":null}

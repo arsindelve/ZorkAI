@@ -33,7 +33,15 @@ public class BehindHouse : LocationBase
             // classification, since the AI parser does not reliably tag these short phrasings as a
             // "board"/movement intent (unlike, say, "go to the kitchen through the window").
             var normalized = input.ToLowerInvariant().Trim().Replace("the ", "");
-            if (normalized is "enter window" or "board window" or "through window" or "go through window")
+            // "enter the house" / "go into the house" name the structure the player is behind, and the only
+            // way in from here is the (gated) window passage — the same movement "in"/"west" performs. The
+            // AI parser classifies these inconsistently (often as a "goto" whose destination "house" then
+            // matches the neighbouring "North of House"/"South of House" rooms and produces a nonsense
+            // "which one?"), so resolve them deterministically on the raw input, exactly as the window
+            // phrasings above. ("go in house" is already handled as a bare "in" by the direction parser.)
+            if (normalized is "enter window" or "board window" or "through window" or "go through window"
+                or "enter house" or "enter building" or "go into house" or "go inside house"
+                or "walk into house" or "walk in house")
             {
                 var (resultObject, resultMessage) =
                     await new MoveEngine().Process(new MoveIntent { Direction = Direction.In }, context, client);
