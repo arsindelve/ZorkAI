@@ -137,7 +137,7 @@ public class DynamoDbSessionRepositoryBehaviorTests
     public async Task GetSessionState_ReturnsNull_WhenItemDoesNotExist()
     {
         _client.Setup(c => c.GetItemAsync(It.IsAny<GetItemRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetItemResponse { Item = new Dictionary<string, AttributeValue>() });
+            .ReturnsAsync(new GetItemResponse());
 
         var result = await _target.GetSessionState("missing", "sessions");
         result.Should().BeNull();

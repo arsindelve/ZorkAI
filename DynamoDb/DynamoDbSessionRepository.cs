@@ -25,7 +25,10 @@ public class DynamoDbSessionRepository : DynamoDbRepositoryBase, ISessionReposit
             }
         });
 
-        return response.Item.TryGetValue("gameData", out var gameData) ? gameData.S : null;
+        // AWS SDK v4 leaves Item null when no row exists; a missing session is a normal first-run case.
+        return response.Item is not null && response.Item.TryGetValue("gameData", out var gameData)
+            ? gameData.S
+            : null;
     }
 
     public async Task WriteSessionState(string sessionId, string gameData, string tableName)
