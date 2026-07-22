@@ -43,9 +43,11 @@ internal class MessHall : LocationBase
 
     protected override string GetContextBasedDescription(IContext context)
     {
+        // Interpolate the kitchen door's actual state (issue #438). Hardcoding "closed" contradicted
+        // "examine kitchen door" and the fact that you can walk south while it is open. Mirrors RecArea.
         return
             "This is a large hall lined with tables and benches. An opening to the north leads back to the corridor. " +
-            "A door to the south is closed. Next to the door is a small slot. ";
+            $"A door to the south is {(GetItem<KitchenDoor>().IsOpen ? "open" : "closed")}. Next to the door is a small slot. ";
     }
 
     public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
