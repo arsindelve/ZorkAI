@@ -58,10 +58,11 @@ public class GodModeProcessor : IGlobalCommand
         // OnLeaveLocation/AfterEnterLocation, so a game-specific location-blind death clock (e.g.
         // Planetfall's Feinstein explosion) never gets the chance to disarm itself. Let the context
         // do that explicitly for a god-mode teleport.
-        if (context is IGodModeTeleportAware teleportAware)
-            teleportAware.OnGodModeTeleport();
+        var teleportNote = context is IGodModeTeleportAware teleportAware
+            ? teleportAware.OnGodModeTeleport()
+            : null;
 
-        return $"Welcome to {location.Name}";
+        return $"Welcome to {location.Name}" + (teleportNote is null ? "" : $". {teleportNote}");
     }
 
     private string Take(string input, IContext context)
