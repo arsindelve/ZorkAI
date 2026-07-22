@@ -1,4 +1,6 @@
 ﻿using FluentAssertions;
+using Model.AIGeneration;
+using Model.Intent;
 using Model.Interface;
 using Moq;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
@@ -758,5 +760,32 @@ public class BioLockEastTests : EngineTestsBase
         response.Should().Contain("blue glow comes from a crack in the northern wall");
         response.Should().Contain("Shadowy, ominous shapes move about within the room");
         response.Should().Contain("magnetic-striped card");
+    }
+
+    [Test]
+    public async Task LookThroughWindow_ShowsBioLabView_EvenWhenParseDoesNotCleanlyExtractWindow()
+    {
+        // Issue #423: on prod the AI parser resolves "look through window" non-deterministically — the
+        // "through" preposition disrupts verb/noun extraction, so it does NOT reliably arrive as
+        // verb ∈ LookVerbs + noun "window". The GetResponse-based LookThroughWindow test above only
+        // exercises the fixture parser's (lucky) parse; this simulates the prod BAD parse — the
+        // preposition absorbed into the noun so Match(LookVerbs, ["window"]) fails — and asserts the Bio
+        // Lab view still shows. The handler must be robust to however the command parses: this phrasing is
+        // the walkthrough's own, and it is what reveals the mutants and the miniaturization card.
+        var target = GetTarget();
+        var bioLockEast = StartHere<BioLockEast>();
+
+        var badParse = new SimpleIntent
+        {
+            Verb = "look",
+            Noun = "through window", // preposition absorbed into the noun -> the old structured gate misses
+            OriginalInput = "look through window"
+        };
+
+        var result = await bioLockEast.RespondToSimpleInteraction(
+            badParse, target.Context, Mock.Of<IGenerationClient>(), Mock.Of<IItemProcessorFactory>());
+
+        result.InteractionMessage.Should().Contain("large laboratory, dimly illuminated");
+        result.InteractionMessage.Should().Contain("magnetic-striped card");
     }
 }

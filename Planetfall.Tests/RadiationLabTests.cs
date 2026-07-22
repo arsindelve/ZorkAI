@@ -1,0 +1,78 @@
+using FluentAssertions;
+using Model.AIGeneration;
+using Model.Intent;
+using Model.Interface;
+using Moq;
+using Planetfall.Location.Lawanda.Lab;
+
+namespace Planetfall.Tests;
+
+public class RadiationLabTests : EngineTestsBase
+{
+    [Test]
+    public async Task LookThroughCrack_ShowsBioLabView_EvenWhenParseDoesNotCleanlyExtractCrack()
+    {
+        // Issue #447: on prod "look through crack" parses non-deterministically (measured 5/8 wrong) — the
+        // "through" preposition disrupts verb/noun extraction, so it does NOT reliably arrive as
+        // verb ∈ LookVerbs + noun "crack". Unlike the Bio Lock window, the crack has NO alternative phrasing
+        // that reaches the view (examine / look at / look in crack all return "too small"), so the handler
+        // MUST be robust to however the command parses. This simulates the bad parse — the preposition
+        // absorbed into the noun so Match(LookVerbs, ["crack"]) misses — and asserts the view still shows.
+        var target = GetTarget();
+        var room = StartHere<RadiationLab>();
+
+        var badParse = new SimpleIntent
+        {
+            Verb = "look",
+            Noun = "through crack",
+            OriginalInput = "look through crack"
+        };
+
+        var result = await room.RespondToSimpleInteraction(
+            badParse, target.Context, Mock.Of<IGenerationClient>(), Mock.Of<IItemProcessorFactory>());
+
+        result.InteractionMessage.Should().Contain("Sinister shapes lurk about within");
+    }
+
+    [Test]
+    public async Task PeerThroughCrack_WithDisruptedVerbAndNoun_StillShowsView()
+    {
+        // Same fragility with a look-family synonym: "peer through the crack" must reach the view even when
+        // the verb is a LookVerbs synonym and the noun extraction is disrupted by the preposition.
+        var target = GetTarget();
+        var room = StartHere<RadiationLab>();
+
+        var badParse = new SimpleIntent
+        {
+            Verb = "peer",
+            Noun = "crack through",
+            OriginalInput = "peer through the crack"
+        };
+
+        var result = await room.RespondToSimpleInteraction(
+            badParse, target.Context, Mock.Of<IGenerationClient>(), Mock.Of<IItemProcessorFactory>());
+
+        result.InteractionMessage.Should().Contain("Sinister shapes lurk about within");
+    }
+
+    [Test]
+    public async Task ExamineCrack_WithoutThrough_StillSaysTooSmall()
+    {
+        // Regression guard: "examine crack" (no "through") must keep the "too small" response, NOT the
+        // Bio Lab view. The robust through-gate only fires when the raw input actually says "through".
+        var target = GetTarget();
+        var room = StartHere<RadiationLab>();
+
+        var examine = new SimpleIntent
+        {
+            Verb = "examine",
+            Noun = "crack",
+            OriginalInput = "examine crack"
+        };
+
+        var result = await room.RespondToSimpleInteraction(
+            examine, target.Context, Mock.Of<IGenerationClient>(), Mock.Of<IItemProcessorFactory>());
+
+        result.InteractionMessage.Should().Contain("too small to go through");
+    }
+}

@@ -20,10 +20,13 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (
-            (action.Match(new[] { "examine" }
-                .Concat(Verbs.LookVerbs)
-                .ToArray(), ["window"]) && action.OriginalInput != null && action.OriginalInput.Contains("through")) ||
+        // Issue #423: on prod the AI parser does not reliably resolve "look through window" to
+        // verb ∈ LookVerbs + noun "window" — the "through" disrupts verb/noun extraction, so the
+        // through-branch (the exact phrasing the handler was written to catch, and the walkthrough's own)
+        // fired only intermittently and silently degraded to the room description. The parser-level #423
+        // change alone can't cure that variance, so gate the view on the raw input (a look/examine verb +
+        // "through" + "window"). The second branch keeps examine / look at / look into window working.
+        if (action.MatchInInput(Verbs.LookVerbs.Concat(Verbs.ExamineVerbs).ToArray(), "through", ["window"]) ||
             action.Match(Verbs.ExamineVerbs, ["window"]))
             return new PositiveInteractionResult(
                 "You can see a large laboratory, dimly illuminated. A blue glow comes from a crack in the northern wall of the lab. Shadowy, " +
