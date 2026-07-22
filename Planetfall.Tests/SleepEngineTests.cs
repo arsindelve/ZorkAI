@@ -526,6 +526,25 @@ public class SleepEngineTests : EngineTestsBase
 
     #region Wake Up Tests
 
+    [TestCase(1, 1950)]  // lowest possible roll wakes the player at the day's exact base time
+    [TestCase(80, 2029)] // highest possible roll wakes them one tick short of the next hundred
+    public void ResetToMorning_SpreadsTheWakeTimeAcrossTheDaysFullWindow(int roll, int expectedTime)
+    {
+        // IRandomChooser.RollDice is 1-based (1..sides) where the Random.Next(80) it replaced was
+        // 0-based (0..79). Without compensating, every wake-up in the game shifts a tick later and the
+        // player can never wake at a day's exact base time - the table's own "~1950-2030" comments stop
+        // describing what the code does.
+        GetTarget();
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(Chronometer.MorningJitterTicks)).Returns(roll);
+        var chronometer = GetItem<Chronometer>();
+        chronometer.Chooser = mockChooser.Object;
+
+        chronometer.ResetToMorning(4); // Day 4's base morning is 1950
+
+        chronometer.CurrentTime.Should().Be(expectedTime);
+    }
+
     [Test]
     public void WakeUp_InBed_ShowsRefreshedMessage()
     {

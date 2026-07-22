@@ -56,7 +56,9 @@ public class Chronometer : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICan
     {
         if (MorningTimesByDay.TryGetValue(day, out var baseTime))
         {
-            CurrentTime = baseTime + Chooser.RollDice(MorningJitterTicks);
+            // RollDice is 1-based (1..sides); subtract one to keep the original 0-based spread, so the
+            // player can still wake at the day's exact base time.
+            CurrentTime = baseTime + Chooser.RollDice(MorningJitterTicks) - 1;
         }
     }
 

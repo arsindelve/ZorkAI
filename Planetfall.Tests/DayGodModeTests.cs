@@ -25,7 +25,9 @@ public class DayGodModeTests : EngineTestsBase
     private void PinMorningJitter(int jitter)
     {
         var mockChooser = new Mock<IRandomChooser>();
-        mockChooser.Setup(r => r.RollDice(Chronometer.MorningJitterTicks)).Returns(jitter);
+        // RollDice is 1-based and ResetToMorning subtracts one, so roll `jitter + 1` to land on the
+        // jitter the caller actually asked for.
+        mockChooser.Setup(r => r.RollDice(Chronometer.MorningJitterTicks)).Returns(jitter + 1);
         GetItem<Chronometer>().Chooser = mockChooser.Object;
     }
 
