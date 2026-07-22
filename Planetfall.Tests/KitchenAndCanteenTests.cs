@@ -80,6 +80,101 @@ public class KitchenAndCanteenTests : EngineTestsBase
     }
 
     [Test]
+    public async Task PutCanteenInNiche()
+    {
+        // Regression guard for issue #424: the "in niche" phrasing must keep working.
+        var target = GetTarget();
+        StartHere<Kitchen>();
+        target.Context.ItemPlacedHere<Canteen>();
+
+        var response = await target.GetResponse("put canteen in niche");
+        response.Should()
+            .Contain(
+                "The canteen fits snugly into the octagonal niche, its mouth resting just below the spout of the machine");
+        Repository.GetItem<KitchenMachine>().Items.Should().Contain(Repository.GetItem<Canteen>());
+    }
+
+    [Test]
+    public async Task PutCanteenUnderSpout()
+    {
+        // Issue #424: the machine's own description calls the niche "beneath a spout" and the sibling
+        // Machine Shop dispenser accepts "put flask under spout", but this dispenser used to no-op on the
+        // equally-natural "put canteen under spout". It should land the canteen in the niche just like
+        // "put canteen in niche".
+        var target = GetTarget();
+        StartHere<Kitchen>();
+        target.Context.ItemPlacedHere<Canteen>();
+
+        var response = await target.GetResponse("put canteen under spout");
+        response.Should()
+            .Contain(
+                "The canteen fits snugly into the octagonal niche, its mouth resting just below the spout of the machine");
+        Repository.GetItem<KitchenMachine>().Items.Should().Contain(Repository.GetItem<Canteen>());
+    }
+
+    [Test]
+    public async Task PutCanteenUnderneathSpout()
+    {
+        // Issue #424: "underneath" is an equally-natural synonym for the same placement.
+        var target = GetTarget();
+        StartHere<Kitchen>();
+        target.Context.ItemPlacedHere<Canteen>();
+
+        var response = await target.GetResponse("put canteen underneath spout");
+        response.Should()
+            .Contain(
+                "The canteen fits snugly into the octagonal niche, its mouth resting just below the spout of the machine");
+        Repository.GetItem<KitchenMachine>().Items.Should().Contain(Repository.GetItem<Canteen>());
+    }
+
+    [Test]
+    public async Task PutCanteenUnderSpout_CanteenNotInScope_FallsThroughToNarrator()
+    {
+        // Issue #424 review: when no canteen is in scope (not held, not in this room), the phrasing must
+        // fall through to the narrator rather than claiming "You don't have the canteen." - mirroring the
+        // Machine Shop and the "put canteen in niche" path.
+        var target = GetTarget();
+        StartHere<Kitchen>();
+        // The canteen exists in the story but is neither held nor present in the Kitchen.
+
+        var response = await target.GetResponse("put canteen under spout");
+
+        Repository.GetItem<KitchenMachine>().Items.Should().BeEmpty();
+        response.Should().NotContain("You don't have the canteen");
+        response.Should().NotContain("fits snugly into the octagonal niche");
+    }
+
+    [Test]
+    public async Task PutCanteenUnderSpout_OnFloorNotHeld()
+    {
+        // Issue #424 review: a canteen in scope but not held gets the same "you don't have it" guard as
+        // the in-niche path, and is not placed.
+        var target = GetTarget();
+        var kitchen = StartHere<Kitchen>();
+        kitchen.ItemPlacedHere(GetItem<Canteen>());
+
+        var response = await target.GetResponse("put canteen under spout");
+
+        response.Should().Contain("You don't have the canteen");
+        Repository.GetItem<KitchenMachine>().Items.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task PutKitUnderSpout_DoesNotFit()
+    {
+        // Issue #424 review: a wrong-type item under the spout gets the same "It doesn't fit in the niche."
+        // refusal as "put kit in machine", instead of falling through to the generic narrator.
+        var target = GetTarget();
+        StartHere<Kitchen>();
+        target.Context.ItemPlacedHere<SurvivalKit>();
+
+        var response = await target.GetResponse("put kit under spout");
+
+        response.Should().Contain("It doesn't fit in the niche");
+        Repository.GetItem<KitchenMachine>().Items.Should().BeEmpty();
+    }
+
+    [Test]
     public async Task PressButton_MachineEmpty()
     {
         var target = GetTarget();
