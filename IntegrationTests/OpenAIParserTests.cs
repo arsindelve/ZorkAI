@@ -542,6 +542,84 @@ public class OpenAIParserTests
         simpleIntent!.Noun.Should().Be("rug");
     }
 
+    // ===== Conversational / messy natural language =====
+    // This is the AI parser's actual job: standard Zork grammar ("take sword", "put sword in case") is
+    // handled deterministically upstream, so what reaches the AI is polite, verbose, filler-laden,
+    // conversational phrasing. It must still resolve to the correct intent.
+
+    [Test]
+    [TestCase(typeof(LivingRoom), "would you please put the sword in the trophy case, ok?",
+        new[]
+        {
+            "<intent>act</intent>", "<verb>put</verb>", "<noun>trophy case</noun>", "<noun>sword</noun>",
+            "<preposition>in</preposition>"
+        })]
+    [TestCase(typeof(WestOfHouse), "hey buddy, could you grab the lamp for me?",
+        new[] { "<intent>take</intent>", "<noun>lamp</noun>" })]
+    [TestCase(typeof(WestOfHouse), "I reckon I'd like to open that there mailbox",
+        new[] { "<intent>act</intent>", "<verb>open</verb>", "<noun>mailbox</noun>" })]
+    [TestCase(typeof(TrollRoom), "um, maybe kill the troll with the sword?",
+        new[] { "<intent>act</intent>", "<verb>kill</verb>", "<noun>troll</noun>", "<noun>sword</noun>" })]
+    [TestCase(typeof(WestOfHouse), "pretty please drop the sword",
+        new[] { "<intent>drop</intent>", "<noun>sword</noun>" })]
+    [TestCase(typeof(WestOfHouse), "let's go ahead and turn on the lantern, shall we?",
+        new[] { "<intent>act</intent>", "<verb>activate</verb>", "<noun>lantern</noun>" })]
+    [TestCase(typeof(WestOfHouse), "would you kindly examine the trophy case for me",
+        new[] { "<intent>act</intent>", "<verb>examine</verb>", "<noun>trophy case</noun>" })]
+    [TestCase(typeof(WestOfHouse), "ok so I think I'd like to read the leaflet now please",
+        new[] { "<intent>act</intent>", "<verb>read</verb>", "<noun>leaflet</noun>" })]
+    [TestCase(typeof(DamBase), "alright, let's hop in the boat and go for a ride",
+        new[] { "<intent>board</intent>", "<noun>boat</noun>" })]
+    public async Task ConversationalInput_StillParsesToTheRightIntent(Type location, string sentence,
+        string[] asserts)
+    {
+        string desc;
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+            var locationObject = (ILocation)Activator.CreateInstance(location)!;
+            desc = locationObject.GetDescription(Mock.Of<IContext>());
+        }
+
+        var target = new OpenAIParser(null);
+        var intent = await target.AskTheAIParser(sentence, desc, string.Empty);
+        var response = intent.Message;
+        Console.WriteLine(response);
+
+        foreach (var assert in asserts) response.Should().Contain(assert);
+    }
+
+    [Test]
+    [TestCase("can you tell me what's in my pockets right now?")]
+    [TestCase("hey, remind me what I'm lugging around")]
+    [TestCase("what all am I holding onto at the moment?")]
+    public async Task ConversationalInventory_ResolvesToInventory(string sentence)
+    {
+        var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+        var desc = locationObject.GetDescription(Mock.Of<IContext>());
+
+        var target = new OpenAIParser(null);
+        var intent = await target.AskTheAIParser(sentence, desc, string.Empty);
+
+        intent.Should().BeOfType<InventoryIntent>();
+    }
+
+    [Test]
+    [TestCase("so like, where the heck am I right now?")]
+    [TestCase("hmm, could you describe where I'm standing?")]
+    [TestCase("remind me what this place looks like again")]
+    public async Task ConversationalLook_ResolvesToLook(string sentence)
+    {
+        var locationObject = (ILocation)Activator.CreateInstance(typeof(WestOfHouse))!;
+        var desc = locationObject.GetDescription(Mock.Of<IContext>());
+
+        var target = new OpenAIParser(null);
+        var intent = await target.AskTheAIParser(sentence, desc, string.Empty);
+
+        intent.Should().BeOfType<LookIntent>();
+    }
+
     // ===== Structured-Outputs reliability guarantees =====
     // These exercise the three constraints added to the AI parser (guaranteed-valid JSON structure, a valid
     // intent from the closed set, and run-to-run determinism). They call the live model, hence [Explicit]
