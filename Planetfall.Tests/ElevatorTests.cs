@@ -758,6 +758,38 @@ public class ElevatorTests : EngineTestsBase
     }
 
     [Test]
+    public async Task LookWhileMoving_DescribesTheDoorAsClosed_Upper()
+    {
+        var target = GetTarget();
+        StartHere<UpperElevator>().InLobby = true;
+        Take<UpperElevatorAccessCard>();
+
+        await target.GetResponse("slide upper access card through slot");
+        await target.GetResponse("press up button");
+        GetItem<UpperElevatorDoor>().IsOpen.Should().BeFalse();
+
+        var response = await target.GetResponse("look");
+        response.Should().Contain("a sliding door to the south which is closed");
+        response.Should().NotContain("which is open");
+    }
+
+    [Test]
+    public async Task LookWhileMoving_DescribesTheDoorAsClosed_Lower()
+    {
+        var target = GetTarget();
+        StartHere<LowerElevator>().InLobby = true;
+        Take<LowerElevatorAccessCard>();
+
+        await target.GetResponse("slide lower access card through slot");
+        await target.GetResponse("press down button");
+        GetItem<LowerElevatorDoor>().IsOpen.Should().BeFalse();
+
+        var response = await target.GetResponse("look");
+        response.Should().Contain("a sliding door to the north which is closed");
+        response.Should().NotContain("which is open");
+    }
+
+    [Test]
     public async Task UpperElevatorFullTest()
     {
         var target = GetTarget();

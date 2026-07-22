@@ -168,8 +168,12 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
 
     protected override string GetContextBasedDescription(IContext context)
     {
+        // Interpolate the door's actual state (issue #450). Hardcoding "open" contradicted the
+        // "elevator door slides shut" message from Move() and "examine door" during the ~3 turns
+        // the car is in motion with the door closed. Mirrors RecArea / the #438 Mess Hall fix.
         return
-            $"This is a {Size} room with a sliding door to the {ExitDirection} which is open. " +
+            $"This is a {Size} room with a sliding door to the {ExitDirection} which is " +
+            $"{(GetItem<TDoor>().IsOpen ? "open" : "closed")}. " +
             $"A control panel contains an Up button, a Down button, and a narrow slot. ";
     }
 
