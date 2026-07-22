@@ -126,40 +126,63 @@ public class DeterministicParserTests
             result.Should().BeOfType<SimpleIntent>();
             ((SimpleIntent)result!).Noun.Should().Be("trophy case");
         }
+
+        [TestCase("take the lamp", "take", "lamp")]
+        [TestCase("drop the sword", "drop", "sword")]
+        [TestCase("read the leaflet", "read", "leaflet")]
+        public void TakeDropAndOtherVerbs_AreHandledDeterministically(string input, string verb, string noun)
+        {
+            // Standard grammar goes deterministic — no AI. (take/drop are no longer punted; "read" is a verb
+            // the engine handles that wasn't in Verbs.cs and is now recognised.)
+            var result = _parser.Parse(input);
+
+            result.Should().BeOfType<SimpleIntent>();
+            var simple = (SimpleIntent)result!;
+            simple.Verb.Should().Be(verb);
+            simple.Noun.Should().Be(noun);
+        }
+
+        [Test]
+        public void MultiNounWithTool_IsHandledDeterministically()
+        {
+            // The case you called out: "kill troll with sword" is clean grammar, not AI fodder.
+            var result = _parser.Parse("kill the troll with the sword");
+
+            result.Should().BeOfType<MultiNounIntent>();
+            var multi = (MultiNounIntent)result!;
+            multi.Verb.Should().Be("kill");
+            multi.NounOne.Should().Be("troll");
+            multi.NounTwo.Should().Be("sword");
+            multi.Preposition.Should().Be("with");
+        }
+
+        [TestCase("turn on the lantern", "activate")]
+        [TestCase("turn off the lantern", "deactivate")]
+        public void MultiWordVerbPhrases_AreCanonicalised(string input, string canonicalVerb)
+        {
+            var result = _parser.Parse(input);
+
+            result.Should().BeOfType<SimpleIntent>();
+            var simple = (SimpleIntent)result!;
+            simple.Verb.Should().Be(canonicalVerb);
+            simple.Noun.Should().Be("lantern");
+        }
+
+        [TestCase("take sword?")]
+        [TestCase("open the mailbox.")]
+        public void TrailingPunctuation_IsStripped(string input)
+        {
+            _parser.Parse(input).Should().BeOfType<SimpleIntent>();
+        }
     }
 
     [TestFixture]
     public class Misses : DeterministicParserTests
     {
         [Test]
-        public void TakeIsLeftToTheMultiItemAi()
-        {
-            // Take/drop deliberately fall through so the multi-item take/drop AI still runs.
-            _parser.Parse("take lamp").Should().BeNull();
-            _parser.Parse("drop sword").Should().BeNull();
-        }
-
-        [Test]
-        public void VerbWithToolAndSecondNoun_FallsBackToAi()
-        {
-            // "attack troll with sword" must NOT become a single-noun act — the exact-noun rule means the
-            // remainder "troll with sword" isn't a known noun, so it falls back to the multi-noun AI.
-            _parser.Parse("attack troll with sword").Should().BeNull();
-            _parser.Parse("unlock the grating with the key").Should().BeNull();
-        }
-
-        [Test]
         public void UnknownNoun_FallsBackToAi()
         {
             _parser.Parse("examine flux capacitor").Should().BeNull();
-        }
-
-        [Test]
-        public void MultiWordVerbPhrase_FallsBackToAi()
-        {
-            // "turn on lamp" -> the remainder "on lamp" is not a known noun, so we don't guess; the AI
-            // (which canonicalises "turn on" -> activate) handles it.
-            _parser.Parse("turn on lamp").Should().BeNull();
         }
 
         [Test]
@@ -180,14 +203,6 @@ public class DeterministicParserTests
             // SimpleIntent. "window" IS a known noun, so the ONLY reason these return null is the movement
             // verb being excluded from the through-rule (cf. LookThroughKnownObject_KeepsThroughAsAdverb).
             _parser.Parse(input).Should().BeNull();
-        }
-
-        [Test]
-        public void PutOnSomething_IsNotTreatedAsPutIn()
-        {
-            // "put on the X" (wear) must not be mis-read as "put X in a container"; it falls back to the AI
-            // (which canonicalises to "don").
-            _parser.Parse("put on the trophy case").Should().BeNull();
         }
 
         [Test]
