@@ -1420,9 +1420,9 @@ public class LaserTests : EngineTestsBase
 
         var response = await target.GetResponse("put fresh in laser");
 
-        // The extra battery is refused...
+        // The extra battery is refused (not admitted with the success message)...
         response.Should().Contain("already a battery");
-        response.Should().NotContain("resting in the depression");
+        response.Should().NotContain("now resting in the depression, attached to the laser");
         // ...the depression still holds only the old battery, and the fresh one stays in hand.
         laser.Items.Should().ContainSingle().Which.Should().Be(oldBattery);
         laser.Items.Should().NotContain(freshBattery);
@@ -1453,6 +1453,13 @@ public class LaserTests : EngineTestsBase
 
         response.Should().Contain("resting in the depression");
         laser.Items.Should().ContainSingle().Which.Should().Be(freshBattery);
+
+        // End-to-end: after the correct swap the laser fires from the live fresh battery (a beam),
+        // not the removed dead one (which would "Click."). This guards the issue's headline symptom -
+        // that firing kept drawing from the first-inserted dead battery.
+        var shootResponse = await target.GetResponse("shoot laser");
+        shootResponse.Should().Contain("beam of light");
+        shootResponse.Should().NotContain("Click");
     }
 
     #endregion
