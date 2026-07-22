@@ -20,11 +20,15 @@ internal class ElevatorLobby : LocationBase
         {
             { Direction.E, Go<BoothTwo>() },
             { Direction.W, Go<CorridorJunction>() },
+            // Both entrances need the car to be standing at the lobby as well as the door being open
+            // (compone.zil, ELEVATOR-ENTER-F tests *-ELEVATOR-UP alongside OPENBIT). The door flag is
+            // shared by both ends of the shaft, so on its own it cannot say which floor the car is on.
             {
                 Direction.S,
                 new MovementParameters
                 {
-                    CanGo = _ => GetItem<LowerElevatorDoor>().IsOpen, CustomFailureMessage = "The door is closed.",
+                    CanGo = _ => GetItem<LowerElevatorDoor>().IsOpen && GetLocation<LowerElevator>().InLobby,
+                    CustomFailureMessage = "The door is closed.",
                     Location = GetLocation<LowerElevator>()
                 }
             },
@@ -32,7 +36,8 @@ internal class ElevatorLobby : LocationBase
                 Direction.N,
                 new MovementParameters
                 {
-                    CanGo = _ => GetItem<UpperElevatorDoor>().IsOpen, CustomFailureMessage = "The door is closed.",
+                    CanGo = _ => GetItem<UpperElevatorDoor>().IsOpen && GetLocation<UpperElevator>().InLobby,
+                    CustomFailureMessage = "The door is closed.",
                     Location = GetLocation<UpperElevator>()
                 }
             }
