@@ -684,4 +684,120 @@ public class ExplosionTests : EngineTestsBase
             result!.InteractionMessage.Should().Contain("You're not in the safety web.");
         }
     }
+
+    // Issue #448 follow-up: the same handler gated each verb list on SubLocation, so each list could
+    // only ever produce its *complaint* - the seated branch only ever reached GetIn's "You're already
+    // in the safety web", the standing branch only ever reached GetOut's "You're not in the safety
+    // web". Naming the webbing in the OTHER state matched no branch at all and fell through to base,
+    // where no processor handles sit/leave on the web: a blank line. GetIn/GetOut each already answer
+    // their own wrong-state case, so the state gates were never needed.
+    [TestFixture]
+    public class SafetyWebWrongStateTests : EngineTestsBase
+    {
+        private static EscapePod Pod(GameEngine<PlanetfallGame, PlanetfallContext> target, bool seated)
+        {
+            var pod = Repository.GetLocation<EscapePod>();
+            pod.Init(); // place BulkheadDoor and SafetyWeb in the pod's scope
+            target.Context.CurrentLocation = pod;
+            pod.SubLocation = seated ? Repository.GetItem<SafetyWeb>() : null;
+            return pod;
+        }
+
+        [Test]
+        public async Task SitOnTheWebbing_WhileStanding_PutsYouInTheWeb()
+        {
+            var target = GetTarget();
+            var pod = Pod(target, seated: false);
+
+            var response = await target.GetResponse("sit on the webbing");
+
+            response.Should().Contain("You are now safely cushioned within the web.");
+            pod.SubLocation.Should().BeOfType<SafetyWeb>();
+        }
+
+        // "leave the webbing"/"exit webbing" are caught upstream as raw phrases by
+        // EscapePod.RespondToSpecificLocationInteraction; the bare noun "web" is the phrasing that
+        // reaches this handler as a SimpleIntent, and it used to answer with nothing at all.
+        [Test]
+        public async Task LeaveWeb_WhileSeated_StandsYouUp()
+        {
+            var target = GetTarget();
+            var pod = Pod(target, seated: true);
+
+            var response = await target.GetResponse("leave web");
+
+            response.Should().Contain("You are standing again.");
+            pod.SubLocation.Should().BeNull();
+        }
+
+        // The "exit" verb takes the same branch as "leave". Called directly because the test parser
+        // doesn't carry "exit" as a verb, so the phrasing can't reach the handler through the engine.
+        [Test]
+        public async Task ExitWeb_WhileSeated_StandsYouUp()
+        {
+            var target = GetTarget();
+            var pod = Pod(target, seated: true);
+
+            var action = new SimpleIntent { Verb = "exit", Noun = "web" };
+            var result = await Repository.GetItem<SafetyWeb>().RespondToSimpleInteraction(action, target.Context,
+                Mock.Of<IGenerationClient>(), new ItemProcessorFactory(Mock.Of<IAITakeAndAndDropParser>()));
+
+            result.Should().BeOfType<PositiveInteractionResult>();
+            result!.InteractionMessage.Should().Contain("You are standing again.");
+            pod.SubLocation.Should().BeNull();
+        }
+
+        // Standing up in the landed pod is what starts it sinking. Leaving the webbing by name must
+        // behave exactly like the bare "stand" - the hazard can't be dodged by phrasing. Two fresh
+        // games so no state leaks between the two commands.
+        [Test]
+        public async Task LeaveWeb_InTheLandedPod_StartsThePodSinking_ExactlyLikeStanding()
+        {
+            var standTarget = GetTarget();
+            var standPod = Pod(standTarget, seated: true);
+            standPod.LandedSafely = true;
+            var standResponse = await standTarget.GetResponse("stand");
+
+            var leaveTarget = GetTarget();
+            var leavePod = Pod(leaveTarget, seated: true);
+            leavePod.LandedSafely = true;
+            var leaveResponse = await leaveTarget.GetResponse("leave web");
+
+            standResponse.Should().Contain("you see water rising past the viewport");
+            leaveResponse.Should().Be(standResponse);
+            leavePod.TurnsAfterStanding.Should().Be(standPod.TurnsAfterStanding).And.BeGreaterThan(0);
+        }
+
+        [Test]
+        public async Task GetWeb_WhileStanding_PutsYouInTheWeb()
+        {
+            var target = GetTarget();
+            var pod = Pod(target, seated: false);
+
+            // Previously answered "You're not in the safety web." - a nonsense reply to a request to
+            // get INTO it.
+            var response = await target.GetResponse("get web");
+
+            response.Should().Contain("You are now safely cushioned within the web.");
+            pod.SubLocation.Should().BeOfType<SafetyWeb>();
+        }
+
+        // Deliberate asymmetry: "get" is the one verb in both directions ("get in"/"get out" with the
+        // preposition lost), so it must never be read as *leaving*. Standing up in the landed pod
+        // starts an unrecoverable sinking clock, and an ambiguous verb must not trigger that - only an
+        // explicit leave/exit/stand may. Seated, "get web" says so and changes nothing.
+        [Test]
+        public async Task GetWeb_WhileSeated_DoesNotStandYouUp()
+        {
+            var target = GetTarget();
+            var pod = Pod(target, seated: true);
+            pod.LandedSafely = true;
+
+            var response = await target.GetResponse("get web");
+
+            response.Should().Contain("You're already in the safety web.");
+            pod.SubLocation.Should().BeOfType<SafetyWeb>();
+            pod.TurnsAfterStanding.Should().Be(0);
+        }
+    }
 }
