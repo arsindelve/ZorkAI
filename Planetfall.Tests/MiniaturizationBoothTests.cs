@@ -1,5 +1,7 @@
 using System.Text;
 using FluentAssertions;
+using Model.Intent;
+using Model.Interaction;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.Lab;
@@ -177,6 +179,69 @@ public class MiniaturizationBoothTests : EngineTestsBase
         response.Should().Contain("Ooops! You seem to have transported yourself into an active sector of the computer");
         response.Should().Contain("fried by powerful electric currents");
         response.Should().Contain("You have died");
+    }
+
+    // Issue #433: the keyboard handler used to fire on the type/press/push/key verb alone, ignoring
+    // the noun. "push slot" must address the slot (fall through to base), NOT the booth's keyboard
+    // logic — so it must not emit the "not activated" or "numeric keys" booth messages.
+    [Test]
+    public async Task PushSlot_NotActivated_DoesNotHitKeyboardLogic()
+    {
+        var target = GetTarget();
+        StartHere<MiniaturizationBooth>();
+
+        GetLocation<MiniaturizationBooth>().IsEnabled.Should().BeFalse();
+
+        var response = await target.GetResponse("push slot");
+
+        response.Should().NotContain("Internal computer repair booth not activated");
+        response.Should().NotContain("The keyboard only has numeric keys");
+    }
+
+    // Issue #433: "press wall" (an unrelated noun) must fall through to the narrator, not the booth
+    // keyboard logic. Called directly on the location because the test parser doesn't recognize "wall"
+    // as a noun; this exercises the location's routing regardless of the parser.
+    [Test]
+    public async Task PressWall_NotActivated_FallsThroughToNarrator()
+    {
+        var target = GetTarget();
+        var booth = StartHere<MiniaturizationBooth>();
+        booth.IsEnabled.Should().BeFalse();
+
+        var action = new SimpleIntent { Verb = "press", Noun = "wall" };
+        var result = await booth.RespondToSimpleInteraction(action, target.Context, null!, null!);
+
+        // Before the fix this returned the booth's "not activated" PositiveInteractionResult; the noun
+        // guard now lets an unrelated noun fall through to a NoNounMatch (the narrator handles it).
+        result.Should().BeOfType<NoNounMatchInteractionResult>();
+    }
+
+    // Issue #433: the noun guard must not break operating the keyboard itself. "press keyboard" still
+    // reaches the keyboard logic (reporting the booth isn't activated when it isn't).
+    [Test]
+    public async Task PressKeyboard_NotActivated_StillReachesKeyboardLogic()
+    {
+        var target = GetTarget();
+        StartHere<MiniaturizationBooth>();
+
+        var response = await target.GetResponse("press keyboard");
+
+        response.Should().Contain("Internal computer repair booth not activated");
+    }
+
+    // Issue #433: when the booth is enabled, pressing the keyboard with no numeric key still reaches
+    // the keyboard logic and reports that only numeric keys exist.
+    [Test]
+    public async Task PressKeyboard_Activated_ReportsNumericKeysOnly()
+    {
+        var target = GetTarget();
+        StartHere<MiniaturizationBooth>();
+        Take<MiniaturizationAccessCard>();
+
+        await target.GetResponse("slide miniaturization card through slot");
+        var response = await target.GetResponse("press keyboard");
+
+        response.Should().Contain("The keyboard only has numeric keys");
     }
 
     // Issue #399: sliding the card activates the booth for only 30 turns in the original
