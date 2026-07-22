@@ -1398,6 +1398,65 @@ public class LaserTests : EngineTestsBase
 
     #endregion
 
+    #region Battery Capacity Tests
+
+    [Test]
+    public async Task PutSecondBattery_WhileOldStillInside_IsRefused()
+    {
+        // Issue #437: the depression holds a single battery. Inserting the fresh battery WITHOUT
+        // first removing the dead one must be refused - otherwise both end up in the slot and firing
+        // keeps drawing from the first-inserted (dead) battery, which reads as "the fresh one is dead
+        // too." ContainerBase.SpaceForItems defaults to 2 and each battery is Size 1, so without a
+        // single-slot override the laser silently admitted the second battery (1 + 1 <= 2).
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<Laser>();
+        var laser = GetItem<Laser>();
+        var oldBattery = GetItem<OldBattery>();
+        var freshBattery = Take<FreshBattery>();
+
+        // The laser starts holding exactly the old battery.
+        laser.Items.Should().ContainSingle().Which.Should().Be(oldBattery);
+
+        var response = await target.GetResponse("put fresh in laser");
+
+        // The extra battery is refused...
+        response.Should().Contain("already a battery");
+        response.Should().NotContain("resting in the depression");
+        // ...the depression still holds only the old battery, and the fresh one stays in hand.
+        laser.Items.Should().ContainSingle().Which.Should().Be(oldBattery);
+        laser.Items.Should().NotContain(freshBattery);
+        target.Context.Items.Should().Contain(freshBattery);
+    }
+
+    [Test]
+    public async Task SwapBattery_RemoveOldThenInsertFresh_LeavesOnlyFresh()
+    {
+        // Issue #437: the single-slot limit must not break the intended swap. With the dead battery
+        // removed first, the fresh one drops neatly into the now-empty depression.
+        var target = GetTarget();
+        // ToolRoom avoids DeckNine's random actor spawning (Ambassador places slime which also
+        // responds to "remove"), matching the sibling RemoveBattery_MultipleTimes_CanReinsert test.
+        StartHere<ToolRoom>();
+        Take<Laser>();
+        var laser = GetItem<Laser>();
+        var oldBattery = GetItem<OldBattery>();
+
+        // Remove the dead battery first - only the old battery is in scope at this point.
+        await target.GetResponse("remove battery");
+        laser.Items.Should().NotContain(oldBattery);
+        laser.Items.Should().BeEmpty();
+
+        // Now bring in the fresh battery and insert it into the empty depression.
+        var freshBattery = Take<FreshBattery>();
+        var response = await target.GetResponse("put fresh in laser");
+
+        response.Should().Contain("resting in the depression");
+        laser.Items.Should().ContainSingle().Which.Should().Be(freshBattery);
+    }
+
+    #endregion
+
     #region Wrong Item Tests
 
     [Test]
