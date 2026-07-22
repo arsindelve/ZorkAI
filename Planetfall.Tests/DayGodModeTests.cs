@@ -281,6 +281,39 @@ public class DayGodModeTests : EngineTestsBase
     }
 
     [Test]
+    public async Task GodMode_Day_EvacuationClearsPronounAntecedentsLeftInTheFloodedRoom()
+    {
+        var engine = GetTarget();
+        StartHere<Balcony>();
+
+        await engine.GetResponse("examine plaque");
+        Context.LastNoun.Should().Be("plaque");
+        Context.LastNouns = ["plaque"];
+
+        await engine.GetResponse("god mode day 4");
+
+        Context.CurrentLocation.Should().BeOfType<WindingStair>();
+        Context.LastNoun.Should().BeEmpty();
+        Context.LastNouns.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task GodMode_Day_EvacuationKeepsPronounAntecedentsForCarriedItems()
+    {
+        var engine = GetTarget();
+        StartHere<Balcony>();
+        Take<Diary>();
+        Context.LastNoun = "diary";
+        Context.LastNouns = ["diary"];
+
+        await engine.GetResponse("god mode day 4");
+
+        Context.CurrentLocation.Should().BeOfType<WindingStair>();
+        Context.LastNoun.Should().Be("diary");
+        Context.LastNouns.Should().Equal("diary");
+    }
+
+    [Test]
     public async Task GodMode_Go_WarnsButObeysWhenTheDestinationIsAlreadyDrowned()
     {
         // "god mode go" is an explicit request to be somewhere, and reaching otherwise-unreachable

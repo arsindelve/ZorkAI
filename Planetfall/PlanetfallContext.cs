@@ -381,6 +381,12 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, IGo
         if (ReferenceEquals(destination, startedAt))
             return null;
 
+        // Match normal movement's pronoun cleanup: antecedents for objects left in the flooded room
+        // must not follow the player uphill, while carried objects remain valid after the move.
+        if (!HasMatchingNoun(LastNoun).HasItem)
+            LastNoun = "";
+        LastNouns = LastNouns.Where(noun => HasMatchingNoun(noun).HasItem).ToList();
+
         // Move them the way the game moves anyone, so the destination's entry hooks run and they can
         // see where they've been put. AfterEnterLocation is the one part we can't run - it's async and
         // needs a generation client this hook has no access to - and it's narrative flavour, not state.
