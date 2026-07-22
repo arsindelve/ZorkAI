@@ -42,6 +42,20 @@ public class SleepEngine
     public static IRandomChooser Chooser { get; set; } = new RandomChooser();
 
     /// <summary>
+    /// What a day rolling over left behind, for the caller to narrate.
+    /// </summary>
+    /// <param name="Survived">
+    /// False when the disease reached <see cref="SicknessDeathLevel" />, leaving the caller to run the
+    /// death - the counters are already advanced at that point, exactly as before.
+    /// </param>
+    /// <param name="WokeFamished">
+    /// Whether the player crossed into the new day hungry. This is the same reading that chose the
+    /// shorter hunger timer, handed back rather than left for the caller to re-derive, so the timer and
+    /// the sentence explaining it can never disagree.
+    /// </param>
+    internal readonly record struct DayTransition(bool Survived, bool WokeFamished);
+
+    /// <summary>
     /// Advances the calendar one day and re-establishes everything that is a function of the day: the
     /// disease level, the chronometer's morning time, fatigue, and the sleep/hunger warning schedules.
     /// This is the "it is now a new day" half of waking up. The costs of having SLEPT - dropping what
@@ -49,10 +63,8 @@ public class SleepEngine
     /// <see cref="ProcessWakeUp" />, because they are sleep's price and not the calendar's; that split
     /// is what lets the god-mode day command replay the real transition without confiscating a
     /// tester's inventory.
-    /// Returns false when the disease has reached <see cref="SicknessDeathLevel" />, leaving the caller
-    /// to run the death - the counters are already advanced at that point, exactly as before.
     /// </summary>
-    internal static bool StartNewDay(PlanetfallContext context)
+    internal static DayTransition StartNewDay(PlanetfallContext context)
     {
         context.Day++;
 
@@ -62,10 +74,9 @@ public class SleepEngine
         // Untreated, the counter tracks the day and the player still dies on the original day-9 schedule.
         context.SicknessCounter++;
         if (context.SicknessCounter >= SicknessDeathLevel)
-            return false;
+            return new DayTransition(false, false);
 
-        // Was the player hungry when the day turned over? Read this BEFORE the reset below clears it -
-        // it decides both the shorter hunger timer and the caller's "incredibly famished" line.
+        // Was the player hungry when the day turned over? Read this BEFORE the reset below clears it.
         var wokeFamished = context.Hunger > HungerLevel.WellFed;
 
         // Reset chronometer to morning time for the new day
@@ -88,7 +99,7 @@ public class SleepEngine
         context.HungerNotifications.NextWarningAt = context.CurrentTime +
             (wokeFamished ? FamishedHungerWarningTicks : FreshHungerWarningTicks);
 
-        return true;
+        return new DayTransition(true, wokeFamished);
     }
 
     /// <summary>
@@ -196,12 +207,10 @@ public class SleepEngine
     /// </summary>
     private static string ProcessWakeUp(PlanetfallContext context)
     {
-        // Read this before StartNewDay clears it - it decides the "incredibly famished" line below.
-        var wokeFamished = context.Hunger > HungerLevel.WellFed;
-
         // Advance the calendar and every clock derived from it. Everything from here down is the price
         // of having SLEPT, which is why it lives here rather than in the shared transition.
-        if (!StartNewDay(context))
+        var transition = StartNewDay(context);
+        if (!transition.Survived)
             return new DeathProcessor().Process(
                 "You finally succumb to the ravages of your illness and collapse.",
                 context).InteractionMessage;
@@ -254,8 +263,9 @@ public class SleepEngine
                 message += "You wake feeling weak and worn-out. It will be an effort just to stand up. ";
         }
 
-        // Hunger itself was reset and rescheduled by StartNewDay; only the narration belongs here.
-        if (wokeFamished)
+        // Hunger itself was reset and rescheduled by StartNewDay; only the narration belongs here, and
+        // it reads the same decision the timer used rather than re-deriving it.
+        if (transition.WokeFamished)
             message += "You are also incredibly famished. Better get some breakfast! ";
 
         // Floyd greeting (if present and active)
