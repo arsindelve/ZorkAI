@@ -2,6 +2,7 @@ using FluentAssertions;
 using Model.Interface;
 using Moq;
 using Planetfall.Item.Feinstein;
+using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Dorm;
 using Utilities;
 
@@ -216,6 +217,58 @@ public class DayGodModeTests : EngineTestsBase
         await engine.GetResponse("god mode day 5");
 
         Context.Items.Should().Contain(diary);
+    }
+
+    [Test]
+    public async Task GodMode_Day_MovesThePlayerOffARoomTheCalendarHasFlooded()
+    {
+        // The Crag is reachable only on Day 1 (Balcony routes Down to Underwater afterwards), and real
+        // play can never strand you there because sleeping on it drowns you. Advancing the calendar
+        // skips that death, so the advance has to spill the player onto higher ground itself - twice
+        // here, since the Balcony it spills onto has also gone under by Day 5.
+        var engine = GetTarget();
+        StartHere<Crag>();
+
+        var response = await engine.GetResponse("god mode day 5");
+
+        Context.CurrentLocation.Should().BeOfType<WindingStair>();
+        response.Should().Contain("rising water");
+    }
+
+    [Test]
+    public async Task GodMode_Day_MovesThePlayerOffTheBalconyOnceItFloods()
+    {
+        var engine = GetTarget();
+        StartHere<Balcony>();
+
+        await engine.GetResponse("god mode day 4"); // the Winding Stair stops reaching the Balcony here
+
+        Context.CurrentLocation.Should().BeOfType<WindingStair>();
+    }
+
+    [Test]
+    public async Task GodMode_Day_LeavesThePlayerOnTheBalconyWhileItIsStillDry()
+    {
+        // Control: the evacuation is day-gated, not a blanket "get off the cliff".
+        var engine = GetTarget();
+        StartHere<Balcony>();
+
+        var response = await engine.GetResponse("god mode day 3");
+
+        Context.CurrentLocation.Should().BeOfType<Balcony>();
+        response.Should().NotContain("rising water");
+    }
+
+    [Test]
+    public async Task GodMode_Day_LeavesThePlayerAloneInARoomTheCalendarDoesNotTouch()
+    {
+        var engine = GetTarget();
+        StartHere<DormA>();
+
+        var response = await engine.GetResponse("god mode day 5");
+
+        Context.CurrentLocation.Should().BeOfType<DormA>();
+        response.Should().NotContain("rising water");
     }
 
     #endregion

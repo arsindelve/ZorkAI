@@ -96,7 +96,9 @@ public static class PlanetfallGodModeCommands
         // end-of-turn increment land it exactly on the day's morning time.
         Repository.GetItem<Chronometer>().CurrentTime -= PlanetfallContext.TurnTimeIncrement;
 
-        return $"God mode: it is now Day {day}. ";
+        // Skipping the night also skipped its hazards, so the world may have moved on without the
+        // player - let the context reconcile where they're standing against the day they're now in.
+        return $"God mode: it is now Day {day}. " + context.OnGodModeCalendarJump();
     }
 
     /// <summary>

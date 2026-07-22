@@ -2,6 +2,7 @@ using Model.AIGeneration.Requests;
 using Newtonsoft.Json;
 using Planetfall.Command;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Location;
 using Planetfall.Location.Kalamontee;
 using Utilities;
 
@@ -329,6 +330,36 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, IGo
 
         if (CurrentLocation is not EscapePod)
             RemoveActor<EscapePod>();
+    }
+
+    /// <summary>
+    ///     The calendar counterpart of <see cref="OnGodModeTeleport" />. "god mode day &lt;n&gt;" is a raw
+    ///     time swap: it advances the calendar without the sleep that normally carries the player across a
+    ///     night, and therefore without sleep's death rolls. The lower cliff is the one place that matters
+    ///     for - the Crag and the Balcony go under as the days pass, and real play can never strand you
+    ///     there precisely because sleeping down there drowns you. So after a calendar jump we spill the
+    ///     player onto higher ground ourselves, repeating until they are dry (the Crag's refuge is the
+    ///     Balcony, which on a later day has gone under too).
+    ///     Returns a note for the player, or null when nothing had to move. Each room decides for itself
+    ///     via <see cref="IFloodedOnLaterDays" />, so adding another drowned room needs no change here.
+    /// </summary>
+    public string? OnGodModeCalendarJump()
+    {
+        var startedAt = CurrentLocation;
+
+        // Guard against a mis-implemented HigherGroundOn pointing back at a room we already left; the
+        // interface requires strictly higher ground, but a cycle here would hang the game.
+        var visited = new HashSet<ILocation> { CurrentLocation };
+
+        while (CurrentLocation is IFloodedOnLaterDays flooded &&
+               flooded.HigherGroundOn(Day) is { } higherGround &&
+               visited.Add(higherGround))
+            CurrentLocation = higherGround;
+
+        return ReferenceEquals(startedAt, CurrentLocation)
+            ? null
+            : $"The rising water has taken the {startedAt.Name}; you've been moved up to " +
+              $"the {CurrentLocation.Name}. ";
     }
 
     /// <summary>
