@@ -47,6 +47,17 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
+        // Issue #448: both branches below used to match on the VERB alone. The web is seeded into the
+        // pod's Items (issue #376), so LocationBase runs this handler for every command in the room -
+        // which meant any sit/get/rest (seated) or leave/exit/get (standing) command was answered for
+        // the webbing no matter what it was actually aimed at: "sit on the control panel" came back
+        // "You're already in the safety web." Only claim the command when it names the webbing (or
+        // names nothing at all, as the bare "sit"/"get in" phrasings do - those are normally caught
+        // earlier by EscapePod.RespondToSpecificLocationInteraction, but this keeps them working if
+        // one ever reaches here). Anything else falls through to base -> the real noun.
+        if (!NamesTheWebbing(action))
+            return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+
         if (context.CurrentLocation.SubLocation != null && action.MatchVerb(["get", "rest", "sit"]))
             return new PositiveInteractionResult(GetIn(context));
 
@@ -54,6 +65,12 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
             return new PositiveInteractionResult(GetOut(context));
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+    }
+
+    private bool NamesTheWebbing(SimpleIntent action)
+    {
+        return string.IsNullOrWhiteSpace(action.Noun) ||
+               HasMatchingNounAndAdjective(action.Noun, action.Adjective).HasItem;
     }
 }
 

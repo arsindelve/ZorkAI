@@ -1,6 +1,10 @@
 using FluentAssertions;
 using GameEngine;
+using GameEngine.Item;
+using Model.AIGeneration;
 using Model.AIParsing;
+using Model.Intent;
+using Model.Interaction;
 using Model.Interface;
 using Moq;
 using OpenAI;
@@ -567,6 +571,117 @@ public class ExplosionTests : EngineTestsBase
 
             response.Should().Contain("You are now safely cushioned within the web.");
             pod.SubLocation.Should().BeOfType<SafetyWeb>();
+        }
+    }
+
+    // Issue #448: SafetyWeb.RespondToSimpleInteraction matched on the VERB alone, with no check that
+    // the noun was the webbing. Because the web is seeded into the pod's Items (issue #376),
+    // LocationBase.RespondToSimpleInteraction runs its handler for every command in the room, so any
+    // sit/get/rest (while seated) or leave/exit/get (while standing) command was hijacked regardless
+    // of its object: "sit on the control panel" answered "You're already in the safety web."
+    [TestFixture]
+    public class SafetyWebNounGuardTests : EngineTestsBase
+    {
+        private static EscapePod PodWithPlayerInTheWeb(GameEngine<PlanetfallGame, PlanetfallContext> target)
+        {
+            var pod = Repository.GetLocation<EscapePod>();
+            pod.Init(); // place BulkheadDoor and SafetyWeb in the pod's scope
+            target.Context.CurrentLocation = pod;
+            pod.SubLocation = Repository.GetItem<SafetyWeb>();
+            return pod;
+        }
+
+        [Test]
+        public async Task SitOnControlPanel_WhileInTheWeb_DoesNotClaimYoureAlreadyInTheWeb()
+        {
+            var target = GetTarget();
+            PodWithPlayerInTheWeb(target);
+
+            var response = await target.GetResponse("sit on the control panel");
+
+            response.Should().NotContain("already in the safety web");
+        }
+
+        [Test]
+        public async Task SitOnUnrelatedNoun_WhileInTheWeb_DoesNotClaimYoureAlreadyInTheWeb()
+        {
+            var target = GetTarget();
+            PodWithPlayerInTheWeb(target);
+
+            // "rug" is about as far from the webbing as a noun gets, and it isn't in the pod at all.
+            var response = await target.GetResponse("sit on rug");
+
+            response.Should().NotContain("already in the safety web");
+        }
+
+        [Test]
+        public async Task SitOnTheWebbing_WhileInTheWeb_StillRoutesToTheWeb()
+        {
+            var target = GetTarget();
+            PodWithPlayerInTheWeb(target);
+
+            var response = await target.GetResponse("sit on the webbing");
+
+            response.Should().Contain("You're already in the safety web.");
+        }
+
+        [Test]
+        public async Task BareSit_WhileInTheWeb_StillRoutesToTheWeb()
+        {
+            var target = GetTarget();
+            PodWithPlayerInTheWeb(target);
+
+            var response = await target.GetResponse("sit");
+
+            response.Should().Contain("You're already in the safety web.");
+        }
+
+        [Test]
+        public async Task BareSit_WhileStanding_StillPutsYouInTheWeb()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            pod.Init();
+            target.Context.CurrentLocation = pod;
+
+            var response = await target.GetResponse("sit");
+
+            response.Should().Contain("You are now safely cushioned within the web.");
+            pod.SubLocation.Should().BeOfType<SafetyWeb>();
+        }
+
+        // The standing-side branch (leave/exit/get) has the identical defect and must be guarded too.
+        [Test]
+        public async Task LeaveUnrelatedNoun_WhileStanding_DoesNotClaimYoureNotInTheWeb()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            pod.Init();
+            target.Context.CurrentLocation = pod;
+
+            var action = new SimpleIntent { Verb = "leave", Noun = "control panel" };
+            var result = await Repository.GetItem<SafetyWeb>().RespondToSimpleInteraction(action, target.Context,
+                Mock.Of<IGenerationClient>(), new ItemProcessorFactory(Mock.Of<IAITakeAndAndDropParser>()));
+
+            // Before the fix this was a PositiveInteractionResult carrying "You're not in the safety
+            // web."; the noun guard now lets an unrelated noun fall through to the narrator.
+            result.Should().BeOfType<NoNounMatchInteractionResult>();
+        }
+
+        [Test]
+        public async Task LeaveTheWebbing_WhileStanding_StillAnswersForTheWeb()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            pod.Init();
+            target.Context.CurrentLocation = pod;
+
+            var action = new SimpleIntent { Verb = "leave", Noun = "webbing" };
+            var result = await Repository.GetItem<SafetyWeb>().RespondToSimpleInteraction(action, target.Context,
+                Mock.Of<IGenerationClient>(), new ItemProcessorFactory(Mock.Of<IAITakeAndAndDropParser>()));
+
+            result.Should().BeOfType<PositiveInteractionResult>();
+            result!.InteractionMessage.Should().Contain("You're not in the safety web.");
         }
     }
 }
