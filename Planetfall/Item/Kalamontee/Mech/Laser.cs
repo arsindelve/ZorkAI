@@ -101,12 +101,15 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
                 // GenericDescription yields "An old battery" / "A new battery"; lowercase the article
                 // so it reads naturally mid-sentence ("...which contains an old battery.").
                 var contents = battery.GenericDescription(null);
-                contents = char.ToLowerInvariant(contents[0]) + contents[1..];
+                // Guard the empty default: ItemBase.GenericDescription returns "" and nothing forces a
+                // battery subclass to override it, so index into it only when there's something there.
+                if (!string.IsNullOrEmpty(contents))
+                    contents = char.ToLowerInvariant(contents[0]) + contents[1..];
                 return description +
-                       $"There is a depression on the top of the laser which contains {contents}.";
+                       $"There is a depression on the top of the laser which contains {contents}. ";
             }
 
-            return description + "There is an empty depression on the top of the laser.";
+            return description + "There is an empty depression on the top of the laser. ";
         }
     }
 
