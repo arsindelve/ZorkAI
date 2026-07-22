@@ -5,7 +5,7 @@ namespace ZorkAI.OpenAI;
 
 public abstract class OpenAIClientBase
 {
-    protected readonly ChatClient? Client;
+    protected readonly IChatCompletionClient? Client;
     protected readonly ILogger? Logger;
     protected readonly bool HasApiKey;
 
@@ -13,9 +13,18 @@ public abstract class OpenAIClientBase
     // (e.g. ChatGPTClient runs Floyd's companion speech on a cheaper, faster model).
     protected readonly string? ApiKey;
 
-    protected OpenAIClientBase(ILogger? logger, bool requireApiKey = true, string? modelOverride = null)
+    protected OpenAIClientBase(ILogger? logger, bool requireApiKey = true, string? modelOverride = null,
+        IChatCompletionClient? clientOverride = null)
     {
         Logger = logger;
+
+        if (clientOverride is not null)
+        {
+            HasApiKey = true;
+            Client = clientOverride;
+            return;
+        }
+
         var key = Environment.GetEnvironmentVariable("OPEN_AI_KEY");
 
         if (string.IsNullOrEmpty(key))
@@ -33,7 +42,7 @@ public abstract class OpenAIClientBase
             // modelOverride lets a subclass whose model is constructor-selectable build the base Client
             // with the right model directly, avoiding a virtual ModelName call before the subclass's
             // fields are initialized (and avoiding a second, unused client).
-            Client = new ChatClient(model: modelOverride ?? ModelName, apiKey: key);
+            Client = new OpenAIChatCompletionClient(new ChatClient(model: modelOverride ?? ModelName, apiKey: key));
         }
     }
 

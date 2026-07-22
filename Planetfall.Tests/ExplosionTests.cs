@@ -800,4 +800,77 @@ public class ExplosionTests : EngineTestsBase
             pod.TurnsAfterStanding.Should().Be(0);
         }
     }
+
+    [TestFixture]
+    public class EscapePodTimelineTests : EngineTestsBase
+    {
+        [Test]
+        public async Task ClosedPodSinking_ProgressesThroughWarningsAndDeath()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            target.Context.CurrentLocation = pod;
+            pod.TurnsAfterStanding = 1;
+            Repository.GetItem<BulkheadDoor>().IsOpen = false;
+
+            (await pod.Act(target.Context, Mock.Of<IGenerationClient>())).Should().Be("\n\n");
+            (await pod.Act(target.Context, Mock.Of<IGenerationClient>())).Should().Contain("completely submerged");
+            (await pod.Act(target.Context, Mock.Of<IGenerationClient>())).Should().Contain("creaks ominously");
+            (await pod.Act(target.Context, Mock.Of<IGenerationClient>())).Should().Contain("pod splits open");
+            target.Context.DeathCounter.Should().Be(1);
+        }
+
+        [Test]
+        public async Task OpenPodSinking_UsesTheOpenDoorDeathNarration()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            target.Context.CurrentLocation = pod;
+            pod.TurnsAfterStanding = 4;
+            Repository.GetItem<BulkheadDoor>().IsOpen = true;
+
+            var response = await pod.Act(target.Context, Mock.Of<IGenerationClient>());
+
+            response.Should().Contain("curtains for you");
+            response.Should().Contain("left the pod a bit sooner");
+            target.Context.DeathCounter.Should().Be(1);
+        }
+
+        [Test]
+        public async Task LandingOutsideTheSafetyWeb_KillsThePlayer()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            target.Context.CurrentLocation = pod;
+            pod.SubLocation = null;
+            pod.TurnsSinceExplosion = 13;
+            target.Context.RegisterActor(pod);
+
+            var response = await pod.Act(target.Context, Mock.Of<IGenerationClient>());
+
+            response.Should().Contain("sharper corners of the control panel");
+            response.Should().Contain("You have died");
+            target.Context.DeathCounter.Should().Be(1);
+        }
+
+        [Test]
+        public async Task LandingInTheSafetyWeb_AddsSuppliesAndRetargetsTheDoor()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            target.Context.CurrentLocation = pod;
+            pod.SubLocation = Repository.GetItem<SafetyWeb>();
+            pod.TurnsSinceExplosion = 13;
+            target.Context.RegisterActor(pod);
+
+            var response = await pod.Act(target.Context, Mock.Of<IGenerationClient>());
+
+            response.Should().Contain("pod lands with a thud");
+            pod.LandedSafely.Should().BeTrue();
+            pod.WhereDoesTheDoorLead.Should().BeOfType<Underwater>();
+            Repository.GetItem<Towel>().CurrentLocation.Should().Be(pod);
+            Repository.GetItem<SurvivalKit>().CurrentLocation.Should().Be(pod);
+            target.Context.Actors.Should().NotContain(pod);
+        }
+    }
 }
