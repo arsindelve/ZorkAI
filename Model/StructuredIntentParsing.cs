@@ -63,7 +63,9 @@ public static class StructuredIntentParsing
     /// <summary>
     /// System prompt for the structured parse. Mirrors the intent/verb/noun rules of the original
     /// tag-based <see cref="ParsingHelper.SystemPrompt" />, but asks for the schema fields instead of tags.
-    /// {0} is the current location description, {1} is the player's sentence.
+    /// The {0} / {1} placeholders (location description, player sentence) are substituted by
+    /// <see cref="BuildSystemPrompt" /> — NOT by string.Format, which would choke on the literal { } in the
+    /// JSON examples below.
     /// </summary>
     public static readonly string SystemPrompt =
         """
@@ -118,6 +120,14 @@ public static class StructuredIntentParsing
         "where am I?" -> {"intent":"look","verb":null,"nouns":[],"preposition":null,"direction":null,"adjective":null}
         "what am I carrying?" -> {"intent":"inventory","verb":null,"nouns":[],"preposition":null,"direction":null,"adjective":null}
         """;
+
+    /// <summary>
+    /// Substitutes the location description and the player's sentence into <see cref="SystemPrompt" />.
+    /// Uses <c>string.Replace</c> deliberately, NOT <c>string.Format</c>: the prompt embeds literal { }
+    /// from its JSON examples, which string.Format treats as malformed format items and throws on.
+    /// </summary>
+    public static string BuildSystemPrompt(string locationDescription, string input) =>
+        SystemPrompt.Replace("{0}", locationDescription).Replace("{1}", input);
 
     /// <summary>
     /// Renders a validated <see cref="ParsedIntent" /> to the canonical tag string consumed by

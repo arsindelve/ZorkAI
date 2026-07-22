@@ -144,4 +144,32 @@ public class StructuredIntentParsingTests
 
         StructuredIntentParsing.ToTagString(dto).Should().Be(StructuredIntentParsing.ToTagString(dto));
     }
+
+    [Test]
+    public void BuildSystemPrompt_DoesNotThrow_AndSubstitutesPlaceholders()
+    {
+        // Regression guard: the prompt embeds literal { } in its JSON examples, so it must be built with
+        // string.Replace, NOT string.Format (which throws FormatException on the braces). BuildSystemPrompt
+        // must substitute {0}/{1} without throwing and must leave the example braces intact.
+        var act = () => StructuredIntentParsing.BuildSystemPrompt("West of House", "take the lamp");
+
+        act.Should().NotThrow();
+        var prompt = act();
+        prompt.Should().Contain("West of House");
+        prompt.Should().Contain("take the lamp");
+        prompt.Should().NotContain("{0}");
+        prompt.Should().NotContain("{1}");
+        prompt.Should().Contain("{\"intent\":\"act\"", "the JSON example braces must survive intact");
+    }
+
+    [Test]
+    public void SystemPrompt_WouldThrow_UnderStringFormat()
+    {
+        // Documents exactly why BuildSystemPrompt exists: running the prompt through string.Format throws
+        // because of the literal { } in the JSON examples. If this ever stops throwing, the prompt no longer
+        // needs the Replace-based builder.
+        var act = () => string.Format(StructuredIntentParsing.SystemPrompt, "loc", "input");
+
+        act.Should().Throw<FormatException>();
+    }
 }

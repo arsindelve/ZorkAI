@@ -46,11 +46,14 @@ public class DeterministicParser
         "attack", "kill", "salute", "peer", "peek", "flip", "board"
     };
 
-    // Verbs that may lead a "verb PREPOSITION object" exploratory command ("look under rug", "peer through
-    // crack", "go through window", "climb through hatch").
+    // Verbs that may lead a "verb PREPOSITION object" EXPLORATORY command ("look under rug", "peer through
+    // crack"). Deliberately the look/examine family only — NOT movement verbs (go/walk/climb/crawl/move):
+    // "go through <opening>" is usually a request to MOVE through it, which the AI resolves to a MoveIntent
+    // (e.g. "go through the window" -> move/in). Emitting SimpleIntent(go, X, through) here would silently
+    // break that "enter via X" movement, so those fall through to the AI instead.
     private static readonly HashSet<string> PrepositionLeadVerbs = new(StringComparer.OrdinalIgnoreCase)
     {
-        "look", "peer", "peek", "glance", "examine", "search", "go", "walk", "climb", "crawl", "move"
+        "look", "peer", "peek", "glance", "examine", "search"
     };
 
     private static readonly string[] TravelPrefixes =

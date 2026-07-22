@@ -17,7 +17,9 @@ public class OpenAIParser(ILogger? logger) : OpenAIClientBase(logger), IAIParser
 
     public async Task<IntentBase> AskTheAIParser(string input, string locationDescription, string sessionId)
     {
-        var systemPrompt = string.Format(StructuredIntentParsing.SystemPrompt, locationDescription, input);
+        // NB: build via BuildSystemPrompt (string.Replace), never string.Format — the prompt embeds literal
+        // { } in its JSON examples, which string.Format would throw a FormatException on.
+        var systemPrompt = StructuredIntentParsing.BuildSystemPrompt(locationDescription, input);
 
         var messages = new List<ChatMessage>
         {
@@ -46,8 +48,21 @@ public class OpenAIParser(ILogger? logger) : OpenAIClientBase(logger), IAIParser
         var responseContent = completion.Content[0].Text;
 
         // Render the validated JSON to the canonical tag form and reuse the existing, battle-tested
-        // intent-construction pipeline unchanged.
-        var parsed = JsonConvert.DeserializeObject<ParsedIntent>(responseContent);
+        // intent-construction pipeline unchanged. A strict schema makes valid JSON overwhelmingly likely,
+        // but a refusal or a max-tokens truncation could still hand back non-JSON — degrade to NullIntent
+        // rather than throw, matching the graceful behavior of the tag-based path we replaced.
+        ParsedIntent? parsed;
+        try
+        {
+            parsed = JsonConvert.DeserializeObject<ParsedIntent>(responseContent);
+        }
+        catch (JsonException ex)
+        {
+            Logger?.LogWarning("Structured parse returned invalid JSON for input '{Input}': {Message}", input,
+                ex.Message);
+            return new NullIntent();
+        }
+
         if (parsed is null)
         {
             Logger?.LogWarning("Structured parse returned null JSON for input '{Input}'", input);
