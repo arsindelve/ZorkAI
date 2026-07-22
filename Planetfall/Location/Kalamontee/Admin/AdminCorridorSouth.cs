@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.AIGeneration;
+using Newtonsoft.Json;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
@@ -12,6 +13,11 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
 
     [UsedImplicitly] public bool HasTakenTheKey { get; set; }
 
+    // Use the injectable chooser, not Random directly, so the glint-of-light daemon is deterministic
+    // under test (CLAUDE.md: "Never use `Random` directly in game code - always use `IRandomChooser`").
+    [UsedImplicitly] [JsonIgnore]
+    public IRandomChooser Chooser { get; set; } = new RandomChooser();
+
     public override string Name => "Admin Corridor South";
 
     public Task<string> Act(IContext context, IGenerationClient client)
@@ -19,9 +25,8 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
         if (HasSeenTheLight || HasTakenTheKey)
             return Task.FromResult(string.Empty);
 
-        var chance = Random.Shared.Next(3);
-
-        if (chance == 0)
+        // One-in-three chance per turn, matching the original Random.Shared.Next(3) == 0.
+        if (Chooser.RollDiceSuccess(3))
             return Task.FromResult(
                 "\n\nYou catch, out of the corner of your eye, a glint of light from the direction of the floor. ");
 
