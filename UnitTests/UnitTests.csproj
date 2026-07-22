@@ -36,6 +36,7 @@
         <ProjectReference Include="..\ZorkAI.OpenAI\ZorkAI.OpenAI.csproj" />
         <ProjectReference Include="..\Planetfall\Planetfall.csproj"/>
         <ProjectReference Include="..\Planetfall-Lambda\src\Planetfall-Lambda\Planetfall-Lambda.csproj"/>
+        <ProjectReference Include="..\SecretsManager\SecretsManager.csproj"/>
         <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
     </ItemGroup>
 

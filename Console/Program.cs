@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text;
 using ChatLambda;
 using DynamoDb;
@@ -9,12 +9,32 @@ using Model;
 using Model.Interface;
 using Planetfall;
 using SecretsManager;
+using ZorkAI.OpenAI;
 using ZorkOne;
 
-var database = new DynamoDbSessionRepository();
+// Optional flags after the game name map onto the self-hosted environment variables (issue #383),
+// so "ZorkOne --provider ollama --model llama3.1" works without exporting anything first.
+ApplySelfHostFlags(args);
+
+var settings = OpenAIEndpointSettings.FromEnvironment();
+
+// Self-hosted mode swaps every cloud dependency for a local one: file-based saves instead of
+// DynamoDB, a built-in narrator prompt instead of Secrets Manager, and a local conversation
+// classifier instead of the Lambda. Cloud mode is untouched.
+ISessionRepository database = settings.IsSelfHosted
+    ? new FileSessionRepository()
+    : new DynamoDbSessionRepository();
+
 var sessionId = Environment.MachineName + "8";
 
 Console.ForegroundColor = ConsoleColor.DarkCyan;
+
+if (settings.IsSelfHosted)
+{
+    Console.WriteLine(
+        $"Self-hosted AI mode: {settings.Endpoint} (model: {settings.ModelOverride ?? "server default"})");
+    await WarnIfEndpointUnreachable(settings.Endpoint!);
+}
 
 var engine = await GetEngine();
 
@@ -94,10 +114,21 @@ async Task<GameEngine<TGame, TContext>> CreateEngine<TGame, TContext>()
     var logger = loggerFactory.CreateLogger<GameEngine<TGame, TContext>>();
     var parseLogger = loggerFactory.CreateLogger<ParseConversation>();
 
-    var gameEngine = new GameEngine<TGame, TContext>(logger, new AmazonSecretsManager(), new ParseConversation(null, parseLogger))
+    ISecretsManager secretsManager = settings.IsSelfHosted
+        ? new LocalSecretsManager()
+        : new AmazonSecretsManager();
+
+    IParseConversation parseConversation = settings.IsSelfHosted
+        ? new LocalParseConversation { Logger = parseLogger }
+        : new ParseConversation(null, parseLogger);
+
+    var gameEngine = new GameEngine<TGame, TContext>(logger, secretsManager, parseConversation)
     {
         Runtime = Runtime.Console,
-        NoGeneratedResponses = false
+        NoGeneratedResponses = false,
+        // This is the only place that knows self-hosted play means "no AWS at all"; the engine never
+        // infers it from the environment. Everything else keeps CloudWatch telemetry on by default.
+        CloudLoggingEnabled = !settings.IsSelfHosted
     };
     await gameEngine.InitializeEngine();
     return gameEngine;
@@ -116,4 +147,47 @@ async Task<IGameEngine> GetEngine()
     };
 
     return newEngine;
+}
+
+// Maps --provider/--endpoint/--model flags to the ZORKAI_PROVIDER/OPENAI_BASE_URL/OPENAI_MODEL
+// environment variables read by OpenAIEndpointSettings. Flags win over pre-existing variables.
+static void ApplySelfHostFlags(string[] arguments)
+{
+    for (var i = 1; i < arguments.Length - 1; i++)
+    {
+        var value = arguments[i + 1];
+        switch (arguments[i].ToLowerInvariant())
+        {
+            case "--provider":
+                Environment.SetEnvironmentVariable("ZORKAI_PROVIDER", value);
+                break;
+            case "--endpoint":
+                Environment.SetEnvironmentVariable("OPENAI_BASE_URL", value);
+                break;
+            case "--model":
+                Environment.SetEnvironmentVariable("OPENAI_MODEL", value);
+                break;
+        }
+    }
+}
+
+// Cheap fail-fast: ping the local server's /models endpoint so a player whose LM Studio/Ollama
+// isn't running gets a clear warning up front instead of a mid-game timeout. Warning only - the
+// game still starts, since the server may come up later.
+static async Task WarnIfEndpointUnreachable(Uri endpoint)
+{
+    try
+    {
+        using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
+        var modelsUrl = endpoint.ToString().TrimEnd('/') + "/models";
+        using var response = await httpClient.GetAsync(modelsUrl);
+    }
+    catch (Exception)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine(
+            $"Warning: nothing answered at {endpoint}. Is your local AI server running? " +
+            "The game will start, but AI commands will fail until it is reachable.");
+        Console.ForegroundColor = ConsoleColor.DarkCyan;
+    }
 }

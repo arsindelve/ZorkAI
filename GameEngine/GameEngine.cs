@@ -153,6 +153,20 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public Runtime Runtime { get; set; }
 
+    /// <summary>
+    ///     Whether to emit CloudWatch turn/generation/parsing telemetry. On by default, and turned off
+    ///     only by a composition root that knows it is running without AWS - today just the console in
+    ///     self-hosted mode (issue #383).
+    ///     <para>
+    ///     Deliberately NOT derived from the AI endpoint configuration. OPENAI_BASE_URL and
+    ///     ZORKAI_PROVIDER say where the *model* lives, which is a separate question from whether we
+    ///     have AWS; OPENAI_BASE_URL in particular is a generic name that proxies and gateways also use.
+    ///     Reading it here would let a deployed Lambda silently stop logging because someone pointed it
+    ///     at an LLM proxy. Defaulting to true keeps every caller that does not opt out fully logged.
+    ///     </para>
+    /// </summary>
+    public bool CloudLoggingEnabled { get; set; } = true;
+
     private bool _noGeneratedResponses;
     public bool NoGeneratedResponses
     {
@@ -791,9 +805,31 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public async Task InitializeEngine()
     {
+        // The narrator's system prompt is required for play, so it is applied first and in its own
+        // try. It used to share one try/catch with the telemetry setup below, which meant any
+        // CloudWatch hiccup - or a typo in the endpoint variables - skipped it and left the narrator
+        // running promptless for the rest of the session, signalled only by a stack trace on stdout.
         try
         {
-            _turnLogger = await CloudWatchLoggerFactory.Get<TurnLog>(_gameInstance.GameName, "Turns", _turnCorrelationId);
+            GenerationClient.SystemPrompt = await _secretsManager.GetSecret(
+                _gameInstance.SystemPromptSecretKey
+            );
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+
+        // Self-hosted play (issue #383) has no AWS, so skip logger creation entirely rather than
+        // letting the SDK spin through credential/network retries. The decision is injected, never
+        // read from the environment here - see CloudLoggingEnabled.
+        if (!CloudLoggingEnabled)
+            return;
+
+        try
+        {
+            _turnLogger =
+                await CloudWatchLoggerFactory.Get<TurnLog>(_gameInstance.GameName, "Turns", _turnCorrelationId);
 
             GenerationClient.TurnCorrelationId = _turnCorrelationId;
             GenerationClient.CloudWatchLogger =
@@ -804,10 +840,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             _parser.Logger =
                 await CloudWatchLoggerFactory.Get<GenerationLog>(_gameInstance.GameName, "InputParsing",
                     _turnCorrelationId);
-
-            GenerationClient.SystemPrompt = await _secretsManager.GetSecret(
-                _gameInstance.SystemPromptSecretKey
-            );
         }
         catch (Exception ex)
         {

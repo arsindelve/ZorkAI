@@ -2,7 +2,7 @@ using Amazon.Lambda;
 
 namespace ChatLambda;
 
-public class ChatWithBlather(IAmazonLambda? lambdaClient) : ChatWithCompanion(lambdaClient)
+public class ChatWithBlather(IAmazonLambda? lambdaClient) : ChatWithCompanion(lambdaClient), IChatWithBlather
 {
     protected override string AssistantName => "blather";
 

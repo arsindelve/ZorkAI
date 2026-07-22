@@ -7,7 +7,9 @@ namespace Planetfall.Item.Feinstein;
 
 internal class Ambassador : QuirkyCompanion, ICanBeExamined, ICanBeTalkedTo
 {
-    private readonly ChatWithAmbassador _chatWithAmbassador = new(null);
+    // Factory-resolved: cloud Lambda normally, local model in self-hosted mode (issue #383).
+    [UsedImplicitly] [JsonIgnore]
+    public IChatWithAmbassador ChatWithAmbassador { get; set; } = CompanionChatFactory.Ambassador(AmbassadorPrompts.SystemPrompt);
 
     [UsedImplicitly] [JsonIgnore]
     public IRandomChooser Chooser { get; set; } = new RandomChooser();
@@ -123,7 +125,7 @@ internal class Ambassador : QuirkyCompanion, ICanBeExamined, ICanBeTalkedTo
     {
         try
         {
-            var response = await _chatWithAmbassador.AskAmbassadorAsync(text);
+            var response = await ChatWithAmbassador.AskAmbassadorAsync(text);
             
             // Add the response to Ambassador's conversation history for continuity
             LastTurnsOutput.Push(response.Message);
