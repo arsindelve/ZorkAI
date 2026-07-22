@@ -61,7 +61,10 @@ public class MuralTests : EngineTestsBase
 
         var response = await target.GetResponse("look");
 
-        response.Should().Contain("This office looks like a headquarters");
+        // \b anchors "This" to a word boundary, so the bug ("TThis office...") fails to match while the
+        // correct text matches. This makes the positive assertion catch the regression on its own rather
+        // than resting solely on the NotContain guard below (a plain Contain would pass on "TThis" too).
+        response.Should().MatchRegex(@"\bThis office looks like a headquarters");
         response.Should().NotContain("TThis");
     }
 
