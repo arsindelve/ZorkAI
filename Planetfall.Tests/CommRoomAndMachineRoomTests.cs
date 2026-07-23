@@ -338,6 +338,35 @@ public class CommRoomAndMachineRoomTests : EngineTestsBase
         response.Should().Contain("The flask fills with some clear chemical fluid");
     }
 
+    // Issue #469: MachineShop.FlaskUnderSpout was write-once — "put flask under spout" set it true and
+    // nothing ever cleared it. Taking the flask back left the flag stuck on, so the room kept reporting the
+    // flask "under the spout" while it sat in the player's hand, and pressing a dispenser button filled the
+    // in-hand flask. Taking the flask off the spout must clear the flag: the description drops the "under the
+    // spout" line and a button press spills instead of filling.
+    [Test]
+    public async Task TakeFlaskFromSpout_ClearsUnderSpoutState()
+    {
+        var target = GetTarget();
+        Take<Flask>();
+        StartHere<MachineShop>();
+
+        await target.GetResponse("put flask under spout");
+        GetLocation<MachineShop>().FlaskUnderSpout.Should().BeTrue();
+
+        await target.GetResponse("take flask");
+        target.Context.HasItem<Flask>().Should().BeTrue();
+        GetLocation<MachineShop>().FlaskUnderSpout.Should().BeFalse();
+
+        // (a) look no longer claims the flask is under the spout while it's in your hand
+        var lookResponse = await target.GetResponse("look");
+        lookResponse.Should().NotContain("Sitting under the spout is a glass flask.");
+
+        // (b) pressing a button spills onto the floor instead of filling the in-hand flask
+        var pressResponse = await target.GetResponse("press red button");
+        pressResponse.Should().Contain("spills all over the floor, and dries up");
+        GetItem<Flask>().LiquidColor.Should().BeNull();
+    }
+
     [Test]
     public async Task PressButton_FlaskUnderneath_AlreadyFull()
     {
