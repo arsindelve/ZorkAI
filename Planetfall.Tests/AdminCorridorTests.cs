@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Model;
 using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Kalamontee.Mech;
@@ -98,6 +99,30 @@ public class AdminCorridorTests : EngineTestsBase
 
         response.Should().Contain("too wide to jump");
         Context.CurrentLocation.Should().BeOfType<AdminCorridor>();
+    }
+
+    // Issue #473: entering AdminCorridor from AdminCorridorNorth (crossing the ladder) returned the
+    // transition text directly instead of prepending it to base.BeforeEnterLocation(...). base is the
+    // only place VisitCount is incremented (and OnFirstTimeEnterLocation fires); in Brief mode
+    // LookProcessor shows the full room description only when VisitCount == 1, so entering via the
+    // transition path silently dropped the first-visit room description.
+    [Test]
+    public async Task EnterFromAdminCorridorNorth_FirstVisit_ShowsRoomDescriptionAndIncrementsVisitCount()
+    {
+        var target = GetTarget();
+        Context.Verbosity = Verbosity.Brief;
+        StartHere<AdminCorridorNorth>();
+        var ladder = GetItem<Ladder>();
+        ladder.IsExtended = true;
+        ladder.IsAcrossRift = true;
+
+        var response = await target.GetResponse("s");
+
+        Context.CurrentLocation.Should().BeOfType<AdminCorridor>();
+        // The ladder-crossing transition text must accompany, not replace, the first-visit description.
+        response.Should().Contain("You slowly make your way across the swaying ladder");
+        response.Should().Contain("has been rent apart here");
+        GetLocation<AdminCorridor>().VisitCount.Should().Be(1);
     }
 
     // Issue #369: "jump rift"/"jump into rift"/"jump over rift" were being misrouted to the

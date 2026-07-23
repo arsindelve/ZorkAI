@@ -41,11 +41,16 @@ internal class AdminCorridor : RiftLocationBase
 
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
+        // Issue #473: prepend the transition text to base (mirroring AdminCorridorNorth) rather than
+        // returning it standalone. base.BeforeEnterLocation is the only place VisitCount is
+        // incremented (and OnFirstTimeEnterLocation fires); returning early skipped it, so in Brief
+        // mode the first-visit room description was silently dropped.
+        string prepend = "";
         if (previousLocation is AdminCorridorNorth)
-            return
+            prepend =
                 "You slowly make your way across the swaying ladder. You can see sharp, pointy rocks at the bottom of the rift, far below...\n\n";
 
-        return base.BeforeEnterLocation(context, previousLocation);
+        return prepend + base.BeforeEnterLocation(context, previousLocation);
     }
 
 
