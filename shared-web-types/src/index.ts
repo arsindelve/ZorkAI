@@ -25,3 +25,8 @@ export { default as FunctionsMenu } from './menu/FunctionsMenu';
 export { default as RestoreModal } from './modal/RestoreModal';
 export { default as SaveModal } from './modal/SaveModal';
 export { default as ReleaseNotesModal } from './modal/ReleaseNotesModal';
+export type { HintExchange } from './HintExchange';
+export { askForHint } from './utils/HintServer';
+export type { HintAnswer } from './utils/HintServer';
+export { default as HintPanel } from './components/HintPanel';
+export { default as HintsButton } from './components/HintsButton';

@@ -1,5 +1,5 @@
 import {useMutation} from "@tanstack/react-query";
-import {GameRequest, GameResponse, SessionHandler, Mixpanel, VerbsButton, CommandsButton, InventoryButton, LocationButton, DialogType} from "@zork-ai/shared-types";
+import {GameRequest, GameResponse, SessionHandler, Mixpanel, VerbsButton, CommandsButton, InventoryButton, LocationButton, DialogType, HintPanel, HintsButton} from "@zork-ai/shared-types";
 import React, {useEffect, useState} from "react";
 import {Alert, Button, CircularProgress, Snackbar} from "@mui/material";
 import '@fontsource/roboto';
@@ -91,6 +91,7 @@ function Game() {
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
     const [snackBarMessage, setSnackBarMessage] = useState<string>("");
     const [showJumpToLatest, setShowJumpToLatest] = useState<boolean>(false);
+    const [hintsOpen, setHintsOpen] = useState<boolean>(false);
     const atBottomRef = React.useRef<boolean>(true);
 
     const sessionId = new SessionHandler();
@@ -403,7 +404,9 @@ function Game() {
 
             <Header locationName={locationName} time={time} score={score}/>
 
-            <Compass
+            {/* The compass floats over the transcript's top-right — the same spot the hint panel
+                docks into — so hide it while hints are open and bring it back on close. */}
+            {!hintsOpen && <Compass
             onCompassClick={handleCommandClick}
             exits={exits}
             pingMove={pingMove}
@@ -424,9 +427,11 @@ function Game() {
                 WebkitBackdropFilter: 'blur(8px)',
                 border: '1px solid color-mix(in srgb, var(--planetfall-primary) 30%, transparent)',
                 boxShadow: '0 4px 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent), 0 2px 10px rgba(0, 0, 0, 0.5)'
-            }}/>
+            }}/>}
 
-            <div className="relative flex-1 min-h-0 max-h-[55vh]">
+            <div className="relative flex-1 min-h-0 max-h-[55vh] flex flex-row gap-3">
+            {/* Transcript (and its jump-to-latest overlay) — shares the row with the hint panel. */}
+            <div className="relative flex-1 min-w-0 h-full">
             <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word) => handleWordClicked(word)}
                            onScroll={handleTranscriptScroll}
                            onMouseMove={highlightWordAtPointer}
@@ -485,6 +490,18 @@ function Game() {
             )}
             </div>
 
+            {/* Hint side panel: docked beside the transcript on desktop, full overlay of it on
+                mobile. Read-only server-side — asking costs no turn; the conversation history is
+                client-owned (persisted per session inside the shared component). */}
+            <HintPanel
+                open={hintsOpen}
+                onClose={() => setHintsOpen(false)}
+                sessionId={sessionId.getSessionId()[0]}
+                ask={server.hint}
+                className="absolute inset-0 z-30 md:relative md:inset-auto md:z-auto md:w-[340px] md:flex-none md:h-full"
+            />
+            </div>
+
             <div
                 className="flex flex-col items-stretch gap-2 px-3 sm:px-5 py-3 min-h-[90px] rounded-b-lg border-t shadow-inner"
                 style={{
@@ -539,6 +556,7 @@ function Game() {
                             />
                         )}
                         <CommandsButton onCommandClick={handleCommandClick}/>
+                        <HintsButton open={hintsOpen} onToggle={() => setHintsOpen(prev => !prev)}/>
 
                         <Button
                             variant="contained"

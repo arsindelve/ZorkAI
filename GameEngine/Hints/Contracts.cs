@@ -61,4 +61,8 @@ public interface IProactiveRule
 public sealed record HintRequest(
     string SessionId, IContext StateSnapshot, string Question, IReadOnlyList<HintExchange> History);
 
-public sealed record HintResponse(string Text);
+/// <summary>
+///     IsHint=false marks a non-hint reply (refusal / system-unavailable). Clients must still show it
+///     but must NOT record it in the conversation history they replay — it isn't part of the pacing.
+/// </summary>
+public sealed record HintResponse(string Text, bool IsHint = true);

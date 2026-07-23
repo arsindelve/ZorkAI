@@ -43,7 +43,12 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
             "Use the player's situation (what's done, Floyd alive/dead, their health) as grounding/background — to " +
             "make the answer accurate, NEVER as an excuse to dodge the question. This output is internal reasoning " +
             "for a second stage (not shown to the player) — be specific and complete. Never invent facts beyond the " +
-            "knowledge base; if it isn't covered, say so.";
+            "knowledge base; if it isn't covered, say so.\n" +
+            "SEQUENCING: many steps only become possible after an event (a bulkhead opens, an explosion happens, a " +
+            "card is obtained). Present steps strictly in order with their preconditions, and END your answer with " +
+            "one line, exactly: 'NEXT ACTION NOW: <the single command the player can actually perform this turn, " +
+            "given their current state>'. If the correct move this turn is to wait for something, NEXT ACTION NOW " +
+            "is 'wait'.";
 
         var historyText = history.Count == 0
             ? "(this is their first question)"
@@ -74,7 +79,13 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
             "CRITICAL: however gentle or snarky you are, ALWAYS include the concrete next move — a real place, " +
             "object, or action from the solution. Never let the joke replace the hint. Never promise an item, " +
             "exit, or option that the solution/state does not actually contain (e.g. don't say 'find another X' " +
-            "if there is only one X).";
+            "if there is only one X).\n" +
+            "SEQUENCING IS SACRED: the solution's step order and preconditions are exact game mechanics. Never " +
+            "reorder, skip, or compress steps in a way that changes WHEN something can be done — if a step only " +
+            "works after an event (a door opens, an explosion), your hint must keep that gate. The concrete move " +
+            "you give MUST be the solution's 'NEXT ACTION NOW' (or a gentler pointer toward it) — never a later " +
+            "step the player cannot perform yet. Do not invent urgency or time pressure the solution doesn't " +
+            "state; if the right move is to wait, say to wait.";
 
         var historyText = history.Count == 0
             ? "(no prior hint conversation on anything)"
