@@ -35,10 +35,15 @@ internal class CorridorJunction : LocationWithNoStartingItems
 
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
+        // Issue #473: prepend the transition text to base (mirroring AdminCorridorNorth) rather than
+        // returning it standalone. base.BeforeEnterLocation is the only place VisitCount is
+        // incremented (and OnFirstTimeEnterLocation fires); returning early skipped it, so in Brief
+        // mode the first-visit room description was silently dropped.
+        string prepend = "";
         if (previousLocation is DormCorridor)
-            return
+            prepend =
                 "You walk down the long, featureless hallway for a long time. Finally, you see an intersection ahead...\n\n";
 
-        return base.BeforeEnterLocation(context, previousLocation);
+        return prepend + base.BeforeEnterLocation(context, previousLocation);
     }
 }
