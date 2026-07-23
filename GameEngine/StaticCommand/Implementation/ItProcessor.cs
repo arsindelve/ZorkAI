@@ -10,6 +10,24 @@ internal class ItProcessor : IStatefulProcessor
 {
     private string? _lastInput;
 
+    public ItProcessor()
+    {
+    }
+
+    /// <summary>
+    ///     Rebuilds an "it"/"them" clarification that was already asked on a previous turn but whose
+    ///     answer arrives on a freshly reconstructed engine (issue #472). <paramref name="commandAwaitingNoun" />
+    ///     is the original command the player is completing (e.g. "take it"); re-detecting the pronoun from
+    ///     it restores <see cref="PronounUsed" /> so <see cref="Process" /> substitutes the answer correctly.
+    ///     Leaving <see cref="Completed" />/<see cref="ContinueProcessing" /> at their false defaults puts
+    ///     the processor back into the "armed, waiting for the noun" state.
+    /// </summary>
+    public ItProcessor(string commandAwaitingNoun)
+    {
+        _lastInput = commandAwaitingNoun;
+        DidWeUseItOrThem(commandAwaitingNoun);
+    }
+
     public Pronoun PronounUsed { get; set; }
 
     public bool Completed { get; private set; }
