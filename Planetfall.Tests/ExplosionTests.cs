@@ -872,5 +872,76 @@ public class ExplosionTests : EngineTestsBase
             Repository.GetItem<SurvivalKit>().CurrentLocation.Should().Be(pod);
             target.Context.Actors.Should().NotContain(pod);
         }
+
+        // TurnsSinceExplosion == 4 is the Feinstein blowing apart - the one landing branch the timeline
+        // tests above skip, and the only place the pod consults its IRandomChooser. Outside the web the
+        // player is thrown against the bulkhead: a 20% instant "head first" death (a RollDiceSuccess(5)
+        // hit, PROB 20 in the original), otherwise a survivable bruising. Mocking the chooser pins each
+        // side of that dice branch deterministically (see the Randomness Pattern in CLAUDE.md).
+        [Test]
+        public async Task ExplosionOutsideTheWeb_OnAFatalRoll_ThrowsThePlayerHeadFirst()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            target.Context.CurrentLocation = pod;
+            pod.SubLocation = null;
+            pod.TurnsSinceExplosion = 3; // Act advances it to 4
+            target.Context.RegisterActor(pod);
+
+            var chooser = new Mock<IRandomChooser>();
+            chooser.Setup(c => c.RollDiceSuccess(5)).Returns(true);
+            pod.Chooser = chooser.Object;
+
+            var response = await pod.Act(target.Context, Mock.Of<IGenerationClient>());
+
+            response.Should().Contain("head first");
+            response.Should().Contain("You have died");
+            target.Context.DeathCounter.Should().Be(1);
+        }
+
+        [Test]
+        public async Task ExplosionOutsideTheWeb_OnASurvivableRoll_BruisesButDoesNotKill()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            target.Context.CurrentLocation = pod;
+            pod.SubLocation = null;
+            pod.TurnsSinceExplosion = 3;
+            target.Context.RegisterActor(pod);
+
+            var chooser = new Mock<IRandomChooser>();
+            chooser.Setup(c => c.RollDiceSuccess(5)).Returns(false);
+            pod.Chooser = chooser.Object;
+
+            var response = await pod.Act(target.Context, Mock.Of<IGenerationClient>());
+
+            response.Should().Contain("bruising a few limbs");
+            response.Should().NotContain("head first");
+            target.Context.DeathCounter.Should().Be(0);
+        }
+
+        // In the web the throw never happens, so the fatal roll must not even be consulted - the pod
+        // rider takes no bruise and no death. Verifying the chooser is untouched pins the short-circuit
+        // (`!inWeb && ...`) that keeps a webbed player safe regardless of the dice.
+        [Test]
+        public async Task ExplosionInsideTheWeb_RidesItOutUnharmed_WithoutConsultingTheDice()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            target.Context.CurrentLocation = pod;
+            pod.SubLocation = Repository.GetItem<SafetyWeb>();
+            pod.TurnsSinceExplosion = 3;
+            target.Context.RegisterActor(pod);
+
+            var chooser = new Mock<IRandomChooser>();
+            pod.Chooser = chooser.Object;
+
+            var response = await pod.Act(target.Context, Mock.Of<IGenerationClient>());
+
+            response.Should().NotContain("bruising");
+            response.Should().NotContain("head first");
+            target.Context.DeathCounter.Should().Be(0);
+            chooser.Verify(c => c.RollDiceSuccess(It.IsAny<int>()), Times.Never);
+        }
     }
 }

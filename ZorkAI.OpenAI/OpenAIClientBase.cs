@@ -20,6 +20,10 @@ public abstract class OpenAIClientBase
 
         if (clientOverride is not null)
         {
+            // An injected client means we have a working generation seam, so HasApiKey is true - but
+            // ApiKey stays null on purpose. ApiKey only exists to let a subclass build a *second*
+            // real ChatClient on another model (Floyd's companion speech); there is no raw key behind
+            // an injected seam, and any subclass that needs a companion client injects that too.
             HasApiKey = true;
             Client = clientOverride;
             return;
