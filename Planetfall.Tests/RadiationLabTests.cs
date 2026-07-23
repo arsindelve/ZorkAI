@@ -10,6 +10,37 @@ namespace Planetfall.Tests;
 public class RadiationLabTests : EngineTestsBase
 {
     [Test]
+    public async Task Issue447_LookThroughCrack_ShowsBioLabView_EndToEndThroughTheEngine()
+    {
+        // #447 end-to-end: prove the FULL pipeline, not just the handler. The real AI parser reliably
+        // produces SimpleIntent(look, "crack") for "look through crack" (verified in the [Explicit]
+        // OpenAIParserTests). Here we inject exactly that intent and drive the whole engine via GetResponse
+        // to prove a look-verb SimpleIntent actually ROUTES to RadiationLab.RespondToSimpleInteraction (and
+        // is not intercepted as a bare room-look) so the raw-input view gate fires and the Bio Lab view
+        // shows. This is the routing half the handler-only tests below don't cover.
+        var parsed = new SimpleIntent
+        {
+            Verb = "look", Noun = "crack", Adverb = "through", OriginalInput = "look through crack"
+        };
+
+        var parser = new Mock<IIntentParser>();
+        parser.Setup(p => p.DetermineSystemIntentType(It.IsAny<string>())).Returns((IntentBase?)null);
+        parser.Setup(p => p.DetermineGlobalIntentType(It.IsAny<string>())).Returns((IntentBase?)null);
+        parser.Setup(p => p.ResolvePronounsAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()))
+            .ReturnsAsync((string?)null);
+        parser.Setup(p => p.DetermineComplexIntentType(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(parsed);
+
+        var target = GetTarget(parser.Object);
+        StartHere<RadiationLab>();
+
+        var response = await target.GetResponse("look through crack");
+
+        response.Should().Contain("Sinister shapes lurk about within");
+        response.Should().NotContain("too small to go through");
+    }
+
+    [Test]
     public async Task LookThroughCrack_ShowsBioLabView_EvenWhenParseDoesNotCleanlyExtractCrack()
     {
         // Issue #447: on prod "look through crack" parses non-deterministically (measured 5/8 wrong) — the

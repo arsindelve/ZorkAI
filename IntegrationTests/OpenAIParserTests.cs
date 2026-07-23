@@ -825,6 +825,34 @@ public class OpenAIParserTests
         foreach (var assert in asserts) response.Should().Contain(assert);
     }
 
+    [Test]
+    // Issue #447: at the Radiation Lab, "look through crack" must reach RadiationLab.RespondToSimpleInteraction
+    // (i.e. parse to a SimpleIntent carrying the "crack" noun) so the raw-input view gate can fire. A bare
+    // LookIntent (look-around) routes to LookProcessor -> room description, and the handler fix never runs.
+    // Run several times to catch the non-determinism #447 measured (~5/8 wrong on prod).
+    [TestCase("look through crack")]
+    [TestCase("look through the crack")]
+    [TestCase("peer through the crack")]
+    public async Task Issue447_LookThroughCrack_ParsesToACrackBearingIntent(string sentence)
+    {
+        const string radiationLabDesc =
+            "This room is filled with unfathomable equipment and large canisters bearing radioactive warnings. " +
+            "Many of the canisters are split open. You can see the Bio Lab through a large crack in the south " +
+            "wall. Sinister-looking forms move about within the Bio Lab. Although the lights here are off, the " +
+            "room is suffused with a pale blue glow. ";
+
+        var target = new OpenAIParser(null);
+
+        for (var i = 0; i < 6; i++)
+        {
+            var intent = await target.AskTheAIParser(sentence, radiationLabDesc, string.Empty);
+            Console.WriteLine($"'{sentence}' run {i}: {intent.GetType().Name} :: {intent.Message?.Replace("\n", " ")}");
+            intent.Should().BeOfType<SimpleIntent>(
+                $"run {i}: '{sentence}' must route to RespondToSimpleInteraction, not a bare LookIntent/MoveIntent");
+            ((SimpleIntent)intent).Noun.Should().Be("crack", $"run {i}");
+        }
+    }
+
     // ===== Structured-Outputs reliability guarantees =====
     // These exercise the three constraints added to the AI parser (guaranteed-valid JSON structure, a valid
     // intent from the closed set, and run-to-run determinism). They call the live model, hence [Explicit]
