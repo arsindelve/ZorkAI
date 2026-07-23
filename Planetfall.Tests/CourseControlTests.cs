@@ -438,6 +438,53 @@ public class CourseControlTests : EngineTestsBase
     }
 
     [Test]
+    public async Task PutGoodBedistorInCube_WhileFusedStillInside_IsRefused()
+    {
+        // Issue #462: the cube is a SINGLE bedistor socket. It ships holding the fused (broken)
+        // bedistor, and without a capacity cap ContainerBase.SpaceForItems defaults to 2 - so a
+        // good bedistor (Size 1) dropped in ALONGSIDE the fused one (Size 1) fit (1 + 1 <= 2),
+        // "fixing" Course Control with the broken part still socketed and skipping the
+        // pliers-removal sub-puzzle entirely. Capping to one slot forces the fused bedistor to be
+        // removed first. Mirrors the laser depression (#437) and FromitzAccessPanel capping.
+        var target = GetTarget();
+        StartHere<CourseControl>();
+        GetItem<LargeMetalCube>().IsOpen = true; // fused bedistor is shipped inside
+        Take<GoodBedistor>();
+
+        var response = await target.GetResponse("put good in cube");
+
+        // Refused: the good bedistor stays in inventory, the cube keeps only the fused one, and
+        // Course Control is NOT reported fixed and no points are awarded.
+        response.Should().NotContain("The warning lights go out");
+        GetItem<LargeMetalCube>().HasItem<GoodBedistor>().Should().BeFalse();
+        GetItem<LargeMetalCube>().HasItem<FusedBedistor>().Should().BeTrue();
+        GetItem<LargeMetalCube>().Items.Count.Should().Be(1);
+        target.Context.HasItem<GoodBedistor>().Should().BeTrue();
+        GetLocation<CourseControl>().Fixed.Should().BeFalse();
+        target.Score.Should().Be(0);
+    }
+
+    [Test]
+    public async Task PutGoodBedistorInCube_AfterFusedRemoved_FixesCourseControl()
+    {
+        // Issue #462 guard: once the fused bedistor is out of the single socket, the good bedistor
+        // is accepted and fixes Course Control as intended - the cap only blocks the second one.
+        var target = GetTarget();
+        StartHere<CourseControl>();
+        var cube = GetItem<LargeMetalCube>();
+        cube.IsOpen = true;
+        cube.RemoveItem(GetItem<FusedBedistor>()); // pliers-removal already done
+        Take<GoodBedistor>();
+
+        var response = await target.GetResponse("put good in cube");
+
+        response.Should().Contain("The warning lights go out");
+        cube.HasItem<GoodBedistor>().Should().BeTrue();
+        GetLocation<CourseControl>().Fixed.Should().BeTrue();
+        target.Score.Should().Be(6);
+    }
+
+    [Test]
     public async Task PutWrongItemInCube_GetsAuthoredRefusal()
     {
         // The original cube ends its "put" handler with a refusal naming the item (CUBE-F,
