@@ -289,6 +289,53 @@ public class ParsingHelperTests
     }
 
     [Test]
+    public void GetIntent_WithMultipleDirections_DoesNotThrow_AndReturnsMoveIntent()
+    {
+        // #256 was fixed only for duplicate <verb>/<intent> tags. The SAME crash class is still live on
+        // the other single-value tags: a "move" whose <direction> tag is duplicated (gpt-4o occasionally
+        // emits two, e.g. "go north or south") skips the multi-command guard (one intent, no verb) and
+        // reaches DetermineMoveIntent's .SingleOrDefault(), which throws InvalidOperationException on >1
+        // element and surfaces as an HTTP 500. A duplicated <direction> is NOT reliable evidence of
+        // multiple jammed commands (unlike a duplicated verb), so it must degrade to a single MoveIntent,
+        // never crash.
+        var input = "go north south";
+        var response = @"<intent>move</intent>
+<direction>north</direction>
+<direction>south</direction>";
+
+        var act = () => ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        act.Should().NotThrow();
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+        result.Should().BeOfType<MoveIntent>();
+        (result as MoveIntent)?.Direction.Should().Be(Direction.N);
+    }
+
+    [Test]
+    public void GetIntent_WithMultiplePrepositions_DoesNotThrow_AndReturnsMultiNounIntent()
+    {
+        // Sibling of the above at the other unguarded throw site. A perfectly legitimate single command
+        // — "put the sword in the case with the key" — has two <preposition> tags, so this is NOT a
+        // multi-command line and must not be routed to MultipleCommandsIntent. Before the fix,
+        // DetermineActionIntent's preposition .SingleOrDefault() threw on the two prepositions (HTTP 500).
+        // It must degrade to a single MultiNounIntent using the first preposition.
+        var input = "put the sword in the case with the key";
+        var response = @"<intent>act</intent>
+<verb>put</verb>
+<noun>sword</noun>
+<noun>case</noun>
+<preposition>in</preposition>
+<preposition>with</preposition>";
+
+        var act = () => ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        act.Should().NotThrow();
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+        result.Should().BeOfType<MultiNounIntent>();
+        (result as MultiNounIntent)?.Preposition.Should().Be("in");
+    }
+
+    [Test]
     public void GetIntent_WithNullResponse_ReturnsNullIntent()
     {
         // This test verifies that a null response produces a NullIntent

@@ -171,9 +171,14 @@ public class PronounResolverBehaviorTests
 public class OpenAIParsingBehaviorTests
 {
     [Test]
-    public async Task Parser_ConvertsTaggedCompletionToIntent()
+    public async Task Parser_ConvertsStructuredJsonResponseToIntent()
     {
-        var completion = CompletionReturning("<intent>move</intent><direction>north</direction>");
+        // The parser now consumes an OpenAI Structured Output (strict JSON) instead of pseudo-XML tags,
+        // so the model returns a ParsedIntent-shaped object; the parser must still resolve it to the
+        // correct engine intent.
+        var completion = CompletionReturning(
+            "{\"intent\":\"move\",\"verb\":\"walk\",\"nouns\":[],\"preposition\":null," +
+            "\"direction\":\"north\",\"adjective\":null}");
         var target = new OpenAIParser(null, completion.Object);
 
         var result = await target.AskTheAIParser("head north", "A corridor", "session");

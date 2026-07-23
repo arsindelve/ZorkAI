@@ -198,7 +198,11 @@ public static class ParsingHelper
             return null;
         }
 
-        var prepositionTag = ExtractElementsByTag(response, "preposition").SingleOrDefault();
+        // #256 generalization: the top-of-GetIntent guard only catches duplicate <verb>/<intent> tags.
+        // A duplicated <preposition> (e.g. a legitimate single command like "put sword in case with key")
+        // is NOT a multi-command line, so it must not crash here — .SingleOrDefault() threw
+        // InvalidOperationException on >1 element and surfaced as an HTTP 500. Take the first and proceed.
+        var prepositionTag = ExtractElementsByTag(response, "preposition").FirstOrDefault();
 
         var nouns = ExtractElementsByTag(response, "noun");
         if (!nouns.Any())
@@ -266,9 +270,12 @@ public static class ParsingHelper
         if (intentTag != "move")
             return null;
 
-        var directionTag = ExtractElementsByTag(response, "direction").SingleOrDefault();
+        // #256 generalization (see also the preposition site above): a duplicated <direction> tag
+        // ("go north south") slips past the top-of-GetIntent guard (one intent, no verb) and must
+        // degrade to a single MoveIntent rather than crash on .SingleOrDefault() (HTTP 500).
+        var directionTag = ExtractElementsByTag(response, "direction").FirstOrDefault();
         if (string.IsNullOrEmpty(directionTag))
-            directionTag = ExtractElementsByTag(response, "verb").SingleOrDefault();
+            directionTag = ExtractElementsByTag(response, "verb").FirstOrDefault();
 
         var direction = DirectionParser.ParseDirection(directionTag ?? string.Empty);
         if (direction != Direction.Unknown)
