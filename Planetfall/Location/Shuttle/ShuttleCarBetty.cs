@@ -13,7 +13,11 @@ public class ShuttleCarBetty : ShuttleCabin
             { Direction.W, Go<BettyControlWest>() },
             { Direction.E, Go<BettyControlEast>() },
             {
-                Direction.N,
+                // Issue #461: the platform lies SOUTH of the cabin (you board Betty by going
+                // north from the platform), and the cabin description says "platform to the
+                // south". The exit was wired to Direction.N, contradicting both -- so "go
+                // south" failed and the only way out was an unintuitive north<->north loop.
+                Direction.S,
                 Repository.GetLocation<AlfieControlEast>().TunnelPosition == 0
                     ? Go<LawandaPlatform>()
                     : Go<KalamonteePlatform>()

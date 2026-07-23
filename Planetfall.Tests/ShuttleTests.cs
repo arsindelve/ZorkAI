@@ -714,8 +714,11 @@ public class ShuttleTests : EngineTestsBase
         output = await target.GetResponse("E");
         Console.Write(output);
         output.Should().Contain("Shuttle Car Betty");
-        
-        output = await target.GetResponse("N");
+
+        // Issue #461: the doorway out of Betty is SOUTH (you boarded Betty by going north
+        // from the platform, so the platform lies south of the cabin). This used to be "N",
+        // encoding the old non-Euclidean north<->north loop.
+        output = await target.GetResponse("S");
         Console.Write(output);
         output.Should().Contain("An open shuttle car lies to the north.");
         output.Should().Contain("Kalamontee");
@@ -828,5 +831,59 @@ public class ShuttleTests : EngineTestsBase
         // Second lever manipulation - should NOT set pending comment (prompt already used)
         await target.GetResponse("pull lever");
         pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    [Test]
+    public async Task Betty_SouthReturnsToPlatform_MatchingCabinDescription()
+    {
+        // Regression test for issue #461: Shuttle Car Betty's cabin description says the
+        // doorway to the platform is "to the south", but the platform exit was wired to
+        // Direction.N -- so following the description ("go south") failed with "can't go
+        // that way" and the player had to guess "north". You board Betty by going NORTH
+        // from the platform, so the platform genuinely lies SOUTH of the cabin: the
+        // description is correct and the map direction (N) was the defect.
+        var target = GetTarget();
+        StartHere<ShuttleCarBetty>();
+
+        var description = await target.GetResponse("look");
+        description.Should().Contain("doorway leads out to a wide platform to the south");
+
+        await target.GetResponse("south");
+
+        // South returns you to the platform the description points at.
+        target.Context.CurrentLocation.Should().BeOfType<LawandaPlatform>();
+    }
+
+    [Test]
+    public async Task Betty_NorthNoLongerReturnsToPlatform()
+    {
+        // Companion to #461: the old wiring let you board Betty by going NORTH and then
+        // leave by going NORTH again -- a non-Euclidean north<->north loop that also
+        // contradicted the cabin description. After the fix, north from inside Betty is
+        // not the way back to the platform.
+        var target = GetTarget();
+        StartHere<ShuttleCarBetty>();
+
+        await target.GetResponse("north");
+
+        target.Context.CurrentLocation.Should().BeOfType<ShuttleCarBetty>();
+    }
+
+    [Test]
+    public async Task Alfie_NorthReturnsToPlatform_MatchingCabinDescription()
+    {
+        // Guard mirroring #461 against Betty's already-consistent sibling: Alfie's cabin
+        // says the platform is "to the north" AND its platform exit is Direction.N. You
+        // board Alfie by going SOUTH from the platform, so the platform lies north of the
+        // cabin -- description and map agree. Fixing Betty must not disturb this.
+        var target = GetTarget();
+        StartHere<ShuttleCarAlfie>();
+
+        var description = await target.GetResponse("look");
+        description.Should().Contain("doorway leads out to a wide platform to the north");
+
+        await target.GetResponse("north");
+
+        target.Context.CurrentLocation.Should().BeOfType<KalamonteePlatform>();
     }
 }
