@@ -886,4 +886,44 @@ public class ShuttleTests : EngineTestsBase
 
         target.Context.CurrentLocation.Should().BeOfType<KalamonteePlatform>();
     }
+
+    [Test]
+    public async Task Betty_PlatformExit_KeysOffBettyControl_NotAlfie()
+    {
+        // Regression test for issue #468: Shuttle Car Betty's platform-exit destination was
+        // computed from AlfieControlEast.TunnelPosition -- the OTHER car's control -- instead
+        // of Betty's own BettyControlEast. The two cars move independently, so once Alfie's
+        // tunnel position is non-zero (e.g. after anyone drives Alfie), stepping out of a
+        // stationary Betty at Lawanda teleported the player to Kalamontee with no shuttle
+        // ride -- a free teleport / world-state desync.
+        var target = GetTarget();
+        StartHere<ShuttleCarBetty>();
+
+        // Betty is untouched and still docked at Lawanda (BettyControlWest == 0). Drive
+        // Alfie's East control off zero WITHOUT moving Betty -- the exact state that arises
+        // in ordinary play after an East-initiated Alfie trip. Betty's exit must ignore it.
+        GetLocation<AlfieControlEast>().TunnelPosition = 12;
+
+        await target.GetResponse("south");
+
+        // Betty never moved, so exiting her lands you back at Lawanda -- not Kalamontee.
+        target.Context.CurrentLocation.Should().BeOfType<LawandaPlatform>();
+    }
+
+    [Test]
+    public async Task Alfie_PlatformExit_IgnoresBettyControl()
+    {
+        // Guard for issue #468's fix: Alfie's platform exit keys off AlfieControlEast and
+        // must stay independent of BettyControlEast. Move Betty's East control off zero (as
+        // if Betty had been driven) while Alfie sits untouched at Kalamontee, and confirm
+        // Alfie still exits to Kalamontee.
+        var target = GetTarget();
+        StartHere<ShuttleCarAlfie>();
+
+        GetLocation<BettyControlEast>().TunnelPosition = 12;
+
+        await target.GetResponse("north");
+
+        target.Context.CurrentLocation.Should().BeOfType<KalamonteePlatform>();
+    }
 }
