@@ -71,6 +71,8 @@
     { "inputs": ["drop the access card"], "verb": "drop", "noun": "access card" },
 
     { "inputs": ["sit on rug"], "verb": "sit", "noun": "rug", "originalInput": "sit on rug" },
+    { "inputs": ["sit on the control panel", "sit on control panel"], "verb": "sit", "noun": "control panel", "originalInput": "sit on the control panel" },
+    { "inputs": ["sit on the webbing", "sit on webbing"], "verb": "sit", "noun": "webbing", "originalInput": "sit on the webbing" },
     { "inputs": ["look under rug"], "verb": "look", "noun": "rug", "originalInput": "look under rug" },
     { "inputs": ["look under table"], "verb": "look", "noun": "table", "originalInput": "look under table" },
 

@@ -1464,6 +1464,65 @@ public class LaserTests : EngineTestsBase
 
     #endregion
 
+    #region Examine Tests
+
+    [Test]
+    public async Task ExamineLaser_WithOldBattery_MentionsBatteryInDepression()
+    {
+        // Baseline: while the (starting) old battery is in the depression, examine should still
+        // describe it as an old battery.
+        var target = GetTarget();
+        Take<Laser>();
+
+        var response = await target.GetResponse("examine laser");
+
+        response.Should().Contain("depression");
+        response.Should().Contain("old battery");
+    }
+
+    [Test]
+    public async Task ExamineLaser_AfterRemovingBattery_ReportsEmptyDepression()
+    {
+        // Issue #434: the battery clause was a hardcoded "contains an old battery" that ignored the
+        // laser's actual contents. After the player removes the battery the depression is empty, yet
+        // examine kept claiming a battery was present.
+        var target = GetTarget();
+        StartHere<ToolRoom>(); // ToolRoom avoids DeckNine's random actor spawning ("remove" collisions)
+        Take<Laser>();
+
+        await target.GetResponse("remove battery");
+        GetItem<Laser>().Items.Should().BeEmpty();
+
+        var response = await target.GetResponse("examine laser");
+
+        response.Should().NotContain("old battery");
+        response.Should().Contain("empty depression");
+    }
+
+    [Test]
+    public async Task ExamineLaser_WithFreshBattery_DoesNotCallItOld()
+    {
+        // Issue #434: after the required old->fresh swap the depression holds the FRESH battery, but
+        // the hardcoded clause still described it as "an old battery."
+        var target = GetTarget();
+        Take<Laser>();
+        var oldBattery = GetItem<OldBattery>();
+        var freshBattery = GetItem<FreshBattery>();
+        var laser = GetItem<Laser>();
+
+        // Swap the dead battery for the fresh one.
+        laser.Items.Clear();
+        oldBattery.CurrentLocation = null;
+        laser.ItemPlacedHere(freshBattery);
+
+        var response = await target.GetResponse("examine laser");
+
+        response.Should().NotContain("old battery");
+        response.Should().Contain("new battery");
+    }
+
+    #endregion
+
     #region Wrong Item Tests
 
     [Test]

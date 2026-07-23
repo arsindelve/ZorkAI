@@ -255,8 +255,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // "it" clarification). A crash can occur *after* _processorInProgress was assigned but before
         // the turn completed; if we leave it set, the NEXT turn's input is fed into that orphaned
         // processor instead of being parsed normally — soft-locking the player in a long-lived engine
-        // (e.g. console runtime). Clearing it keeps the "player can keep playing" guarantee (issue #271).
-        _processorInProgress = null;
+        // (e.g. console runtime). Clearing it — and its persisted descriptors (issue #472), so the
+        // orphaned prompt cannot be rehydrated on a later request either — keeps the "player can keep
+        // playing" guarantee (issue #271).
+        ClearProcessorInProgress();
 
         _logger?.LogError(ex,
             "Unhandled exception during turn processing for input '{Input}'. TurnCorrelationId: {TurnCorrelationId}",
@@ -621,6 +623,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (requiresClarification)
         {
             _processorInProgress = _itProcessor;
+            // Persist the command awaiting a noun so the "What item are you referring to?" clarification
+            // survives the stateless save/restore boundary (issue #472). _currentInput is exactly what
+            // ItProcessor.Check just stashed as the command to complete once the noun arrives.
+            Context.PendingClarificationCommand = _currentInput;
             return PostProcessing(replacedInput);
         }
 
@@ -730,6 +736,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // with yet.
         if (Context.RequestSequence == 0 && Context.Moves > 0)
             Context.RequestSequence = Context.Moves;
+
+        // Rebuild any pending "which one do you mean?" / "it"-clarification prompt that was armed on the
+        // turn this state was saved (issue #472). The live processor lives only in an engine field, which
+        // the stateless deployment does not serialize, so without this the next input — the player's
+        // answer — would be parsed as a fresh command instead of resolving the prompt.
+        RehydrateProcessorInProgress();
 
         return Context;
     }
@@ -905,7 +917,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         };
 
         if (complexIntentResult.resultObject is DisambiguationInteractionResult complexResult)
-            _processorInProgress = new DisambiguationProcessor(complexResult);
+            ArmDisambiguation(complexResult);
 
         return complexIntentResult;
     }
@@ -1038,7 +1050,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (_processorInProgress.Completed)
         {
             var continueProcessingThisInput = _processorInProgress.ContinueProcessing;
-            _processorInProgress = null;
+            ClearProcessorInProgress();
 
             // Does the processor want us to return what it outputted?....
             if (!continueProcessingThisInput)
@@ -1054,6 +1066,59 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         }
 
         return (immediatelyReturn, processorInProgressOutput);
+    }
+
+    /// <summary>
+    ///     Arms a pending "which one do you mean?" disambiguation and, crucially, mirrors the two fields
+    ///     the answer needs into a serializable descriptor on the <see cref="Context" /> so the prompt
+    ///     survives the stateless per-request save/restore boundary (issue #472). The live
+    ///     <see cref="DisambiguationProcessor" /> is an in-memory field that is never serialized; the
+    ///     descriptor is what actually round-trips and lets <see cref="RehydrateProcessorInProgress" />
+    ///     rebuild the processor on the next request.
+    /// </summary>
+    private void ArmDisambiguation(DisambiguationInteractionResult disambiguation)
+    {
+        _processorInProgress = new DisambiguationProcessor(disambiguation);
+        Context.PendingDisambiguation = new PendingDisambiguation
+        {
+            PossibleResponses = disambiguation.PossibleResponses,
+            ReplacementString = disambiguation.ReplacementString
+        };
+    }
+
+    /// <summary>
+    ///     Clears the in-progress stateful processor together with the persisted descriptors that back the
+    ///     two prompts which must survive the request boundary (issue #472). Called whenever a processor
+    ///     finishes or is abandoned; clearing both descriptors unconditionally is safe because at most one
+    ///     can be set at a time, and the save/quit/restore processors never set either.
+    /// </summary>
+    private void ClearProcessorInProgress()
+    {
+        _processorInProgress = null;
+        Context.PendingDisambiguation = null;
+        Context.PendingClarificationCommand = null;
+    }
+
+    /// <summary>
+    ///     Reconstructs <see cref="_processorInProgress" /> from whichever pending-prompt descriptor
+    ///     round-tripped on the restored <see cref="Context" /> (issue #472). The two descriptors are
+    ///     mutually exclusive by construction — a turn arms exactly one prompt — so disambiguation is
+    ///     simply checked first. Does nothing when no prompt was pending, leaving normal parsing in charge.
+    /// </summary>
+    private void RehydrateProcessorInProgress()
+    {
+        if (Context.PendingDisambiguation is { } pending)
+        {
+            // The stored prompt text is irrelevant when answering — only the response map and template
+            // drive resolution — so rebuild the result with an empty message.
+            _processorInProgress = new DisambiguationProcessor(
+                new DisambiguationInteractionResult(
+                    string.Empty, pending.PossibleResponses, pending.ReplacementString));
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(Context.PendingClarificationCommand))
+            _processorInProgress = new ItProcessor(Context.PendingClarificationCommand);
     }
 
     private static async Task<string> GetGeneratedNoOpResponse(

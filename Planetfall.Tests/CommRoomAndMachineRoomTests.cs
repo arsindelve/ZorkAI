@@ -338,6 +338,35 @@ public class CommRoomAndMachineRoomTests : EngineTestsBase
         response.Should().Contain("The flask fills with some clear chemical fluid");
     }
 
+    // Issue #469: MachineShop.FlaskUnderSpout was write-once — "put flask under spout" set it true and
+    // nothing ever cleared it. Taking the flask back left the flag stuck on, so the room kept reporting the
+    // flask "under the spout" while it sat in the player's hand, and pressing a dispenser button filled the
+    // in-hand flask. Taking the flask off the spout must clear the flag: the description drops the "under the
+    // spout" line and a button press spills instead of filling.
+    [Test]
+    public async Task TakeFlaskFromSpout_ClearsUnderSpoutState()
+    {
+        var target = GetTarget();
+        Take<Flask>();
+        StartHere<MachineShop>();
+
+        await target.GetResponse("put flask under spout");
+        GetLocation<MachineShop>().FlaskUnderSpout.Should().BeTrue();
+
+        await target.GetResponse("take flask");
+        target.Context.HasItem<Flask>().Should().BeTrue();
+        GetLocation<MachineShop>().FlaskUnderSpout.Should().BeFalse();
+
+        // (a) look no longer claims the flask is under the spout while it's in your hand
+        var lookResponse = await target.GetResponse("look");
+        lookResponse.Should().NotContain("Sitting under the spout is a glass flask.");
+
+        // (b) pressing a button spills onto the floor instead of filling the in-hand flask
+        var pressResponse = await target.GetResponse("press red button");
+        pressResponse.Should().Contain("spills all over the floor, and dries up");
+        GetItem<Flask>().LiquidColor.Should().BeNull();
+    }
+
     [Test]
     public async Task PressButton_FlaskUnderneath_AlreadyFull()
     {
@@ -454,6 +483,109 @@ public class CommRoomAndMachineRoomTests : EngineTestsBase
         GetLocation<SystemsMonitors>().Fixed.Should().Contain("KUMUUNIKAASHUNZ");
         target.Context.Score.Should().Be(6);
         Console.WriteLine(GetLocation<SystemsMonitors>().GetDescriptionForGeneration(target.Context));
+    }
+
+    // Issue #463: a wrong-color pour shuts the send console down (SystemIsCritical) and the failure is
+    // described as permanent ("...Shuteeng Down Awl Sistumz... the send console shuts down"). But PourLiquid
+    // branched only on flask color vs CurrentColor, and PermanentlyBroken() left CurrentColor untouched --
+    // so pouring the correct black->gray sequence afterward still ran NextColor()/Fixed(), "repairing" a
+    // console the game declared permanently shut down and awarding +6. Once critical, further pours must be
+    // inert: the console stays down, no points, communications never marked fixed.
+    [Test]
+    public async Task PourLiquid_AfterCriticalShutdown_BlackThenGray_StaysBroken()
+    {
+        var target = GetTarget();
+        Take<Flask>();
+        StartHere<CommRoom>();
+
+        // Round 1 -- wrong color forces the "permanent" shutdown.
+        GetItem<Flask>().LiquidColor = "red";
+        var critical = await target.GetResponse("pour fluid into hole");
+        critical.Should().Contain("the send console shuts down");
+        GetLocation<CommRoom>().SystemIsCritical.Should().BeTrue();
+
+        // Round 2 -- correct black.
+        GetItem<Flask>().LiquidColor = "black";
+        await target.GetResponse("pour fluid into hole");
+
+        // Round 3 -- correct gray.
+        GetItem<Flask>().LiquidColor = "gray";
+        await target.GetResponse("pour fluid into hole");
+
+        // The console declared "shut down" must not have repaired itself and sent the distress call.
+        GetLocation<CommRoom>().IsFixed.Should().BeFalse();
+        GetLocation<CommRoom>().SystemIsCritical.Should().BeTrue();
+        target.Context.Score.Should().Be(0);
+        GetLocation<SystemsMonitors>().Fixed.Should().NotContain("KUMUUNIKAASHUNZ");
+        GetLocation<SystemsMonitors>().Busted.Should().Contain("KUMUUNIKAASHUNZ");
+    }
+
+    // Issue #463: PermanentlyBroken() set SystemIsCritical but wasn't guarded on it, so repeating a wrong
+    // pour re-fired the full "...send console shuts down" message every turn (the #431 "match command, not
+    // state" class). Once shut down, a further pour is inert and does not re-announce the shutdown.
+    [Test]
+    public async Task PourLiquid_WrongColorTwice_DoesNotReAnnounceShutdown()
+    {
+        var target = GetTarget();
+        Take<Flask>();
+        StartHere<CommRoom>();
+
+        GetItem<Flask>().LiquidColor = "red";
+        var first = await target.GetResponse("pour fluid into hole");
+        first.Should().Contain("the send console shuts down");
+
+        GetItem<Flask>().LiquidColor = "red";
+        var second = await target.GetResponse("pour fluid into hole");
+        second.Should().NotContain("the send console shuts down");
+    }
+
+    // Issue #463 guard: the new critical/fixed guards must not block the legitimate repair. The normal
+    // black->gray sequence from a clean state must still fix the console, send the distress call, and score.
+    [Test]
+    public async Task PourLiquid_CleanBlackThenGray_StillFixesAndSends()
+    {
+        var target = GetTarget();
+        Take<Flask>();
+        StartHere<CommRoom>();
+
+        GetItem<Flask>().LiquidColor = "black";
+        await target.GetResponse("pour fluid into hole");
+        GetLocation<CommRoom>().CurrentColor.Should().Be("gray");
+
+        GetItem<Flask>().LiquidColor = "gray";
+        var response = await target.GetResponse("pour fluid into hole");
+
+        response.Should().Contain("message is now being sent.");
+        GetLocation<CommRoom>().IsFixed.Should().BeTrue();
+        target.Context.Score.Should().Be(6);
+    }
+
+    // Issue #463: after the console is fixed and the message is being sent, further pours must be inert.
+    // PourLiquid had no IsFixed guard, and Fixed() nulls CurrentColor -- so any subsequent pour mismatched
+    // CurrentColor and ran PermanentlyBroken(), "shutting down" a console that was already working.
+    [Test]
+    public async Task PourLiquid_AfterFixed_IsInert_AndDoesNotShutDown()
+    {
+        var target = GetTarget();
+        Take<Flask>();
+        StartHere<CommRoom>();
+
+        // Drive the real repair to reach the genuinely fixed state (Fixed() nulls CurrentColor).
+        GetItem<Flask>().LiquidColor = "black";
+        await target.GetResponse("pour fluid into hole");
+        GetItem<Flask>().LiquidColor = "gray";
+        await target.GetResponse("pour fluid into hole");
+        GetLocation<CommRoom>().IsFixed.Should().BeTrue();
+
+        // A further pour into a working, message-sending console must be inert, not "shut it down".
+        GetItem<Flask>().LiquidColor = "black";
+        var response = await target.GetResponse("pour fluid into hole");
+
+        response.Should().NotContain("the send console shuts down");
+        response.Should().NotContain("message is now being sent.");
+        GetLocation<CommRoom>().SystemIsCritical.Should().BeFalse();
+        GetLocation<CommRoom>().IsFixed.Should().BeTrue();
+        target.Context.Score.Should().Be(6); // still only the single +6 from the original fix
     }
 
     // Issue #412: the Comm Room shows the player a "glowing button marked 'Mesij Plaabak'", and pressing

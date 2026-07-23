@@ -1,4 +1,4 @@
-﻿using Amazon.DynamoDBv2.DocumentModel;
+﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Model.Interface;
 
@@ -6,27 +6,29 @@ namespace DynamoDb;
 
 public class DynamoDbSessionRepository : DynamoDbRepositoryBase, ISessionRepository
 {
+    public DynamoDbSessionRepository() : this(null)
+    {
+    }
+
+    public DynamoDbSessionRepository(IAmazonDynamoDB? client) : base(client)
+    {
+    }
+
     public async Task<string?> GetSessionState(string sessionId, string tableName)
     {
-        // Define the TableConfig for your session table
-        var tableConfig = new TableConfig(tableName)
+        var response = await Client.GetItemAsync(new GetItemRequest
         {
-            // The TableConfig is primarily used for the table name,
-            // the KeySchema is typically handled through the TableBuilder.
-        };
+            TableName = tableName,
+            Key = new Dictionary<string, AttributeValue>
+            {
+                { "session_id", new AttributeValue(sessionId) }
+            }
+        });
 
-        // Create the Table object using TableBuilder
-        // This is the correct way to initialize the Table object.
-        var table = new TableBuilder(Client, tableConfig)
-            .AddHashKey("session_id", DynamoDBEntryType.String) // Specify the hash key and its type
-            .Build();
-
-        var result = await table.GetItemAsync(sessionId);
-
-        if (result is null)
-            return null;
-
-        return result["gameData"];
+        // AWS SDK v4 leaves Item null when no row exists; a missing session is a normal first-run case.
+        return response.Item is not null && response.Item.TryGetValue("gameData", out var gameData)
+            ? gameData.S
+            : null;
     }
 
     public async Task WriteSessionState(string sessionId, string gameData, string tableName)
@@ -37,7 +39,7 @@ public class DynamoDbSessionRepository : DynamoDbRepositoryBase, ISessionReposit
             { "gameData", new AttributeValue(gameData) }
         };
 
-        await Client.PutItemAsync(tableName, item);
+        await Client.PutItemAsync(new PutItemRequest { TableName = tableName, Item = item });
     }
 
     public async Task WriteSessionStep(string sessionId, long turnIndex, string input, string output, string tableName)
@@ -50,7 +52,7 @@ public class DynamoDbSessionRepository : DynamoDbRepositoryBase, ISessionReposit
             { "output", new AttributeValue(output) }
         };
 
-        await Client.PutItemAsync(tableName, item);
+        await Client.PutItemAsync(new PutItemRequest { TableName = tableName, Item = item });
     }
 
     public async Task<string> GetSessionStepsAsText(string sessionId, string tableName)

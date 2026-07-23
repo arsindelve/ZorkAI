@@ -22,6 +22,11 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
     {
     }
 
+    public OpenAiHintLanguageModel(ILogger? logger, IChatCompletionClient client)
+        : base(logger, requireApiKey: false, clientOverride: client)
+    {
+    }
+
     public async Task<string> Solve(string docs, string playerContext, IReadOnlyList<HintExchange> history,
         string question, HintPersona persona)
     {
@@ -92,9 +97,8 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
         var messages = new List<ChatMessage> { new SystemChatMessage(system), new UserChatMessage(user) };
         try
         {
-            ChatCompletion completion = await Client!.CompleteChatAsync(messages,
+            return await Client!.CompleteChatAsync(messages,
                 new ChatCompletionOptions { Temperature = temperature });
-            return completion.Content[0].Text;
         }
         catch (Exception e)
         {

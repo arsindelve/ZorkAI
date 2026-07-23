@@ -134,6 +134,21 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
     [JsonIgnore]
     public bool TurnConsumedByForcedEvent { get; set; }
 
+    /// <summary>
+    ///     Persists an in-flight "which one do you mean?" disambiguation across the stateless per-request
+    ///     save/restore boundary (issue #472). Unlike <see cref="PendingDeath" /> this is NOT
+    ///     <c>[JsonIgnore]</c> — it must round-trip so the rebuilt engine can restore the pending prompt and
+    ///     route the next input to it. See <see cref="IContext.PendingDisambiguation" />.
+    /// </summary>
+    public PendingDisambiguation? PendingDisambiguation { get; set; }
+
+    /// <summary>
+    ///     Persists an in-flight "it"/"them" clarification (the command awaiting a noun) across the same
+    ///     boundary as <see cref="PendingDisambiguation" /> (issue #472). See
+    ///     <see cref="IContext.PendingClarificationCommand" />.
+    /// </summary>
+    public string? PendingClarificationCommand { get; set; }
+
     public List<TItem> GetItems<TItem>()
     {
         return Items.OfType<TItem>().ToList();

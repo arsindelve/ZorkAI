@@ -83,11 +83,35 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
     
     public int Setting { get; set; } = 5;
 
-    public string ExaminationDescription =>
-        "The laser, though portable, is still fairly heavy. It has a long, slender " +
-        "barrel and a dial with six settings, labelled \"1\" through \"6.\" This " +
-        $"dial is currently on setting {Setting}. There is a depression on the top of the " +
-        "laser which contains an old battery.";
+    public string ExaminationDescription
+    {
+        get
+        {
+            var description =
+                "The laser, though portable, is still fairly heavy. It has a long, slender " +
+                "barrel and a dial with six settings, labelled \"1\" through \"6.\" This " +
+                $"dial is currently on setting {Setting}. ";
+
+            // Issue #434: the depression is the laser's single container slot (Items), so describe
+            // what's ACTUALLY resting in it. The battery clause used to be hardcoded to "an old
+            // battery," which went stale once the player removed the dead battery (empty depression)
+            // or completed the required old->fresh swap (the fresh battery was still called "old").
+            if (Items.FirstOrDefault() is BatteryBase battery)
+            {
+                // GenericDescription yields "An old battery" / "A new battery"; lowercase the article
+                // so it reads naturally mid-sentence ("...which contains an old battery.").
+                var contents = battery.GenericDescription(null);
+                // Guard the empty default: ItemBase.GenericDescription returns "" and nothing forces a
+                // battery subclass to override it, so index into it only when there's something there.
+                if (!string.IsNullOrEmpty(contents))
+                    contents = char.ToLowerInvariant(contents[0]) + contents[1..];
+                return description +
+                       $"There is a depression on the top of the laser which contains {contents}. ";
+            }
+
+            return description + "There is an empty depression on the top of the laser. ";
+        }
+    }
 
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {

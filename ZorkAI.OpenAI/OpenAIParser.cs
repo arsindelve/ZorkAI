@@ -6,8 +6,16 @@ using OpenAI.Chat;
 
 namespace ZorkAI.OpenAI;
 
-public class OpenAIParser(ILogger? logger) : OpenAIClientBase(logger), IAIParser
+public class OpenAIParser : OpenAIClientBase, IAIParser
 {
+    public OpenAIParser(ILogger? logger) : base(logger)
+    {
+    }
+
+    public OpenAIParser(ILogger? logger, IChatCompletionClient client) : base(logger, clientOverride: client)
+    {
+    }
+
     protected override string ModelName => "gpt-4o";
 
     // Fixed seed so identical input yields the same parse across runs as far as the model allows
@@ -43,8 +51,9 @@ public class OpenAIParser(ILogger? logger) : OpenAIClientBase(logger), IAIParser
         };
 #pragma warning restore OPENAI001
 
-        ChatCompletion completion = await Client!.CompleteChatAsync(messages, options);
-        var responseContent = completion.Content[0].Text;
+        // Client is the IChatCompletionClient seam (issue #460): CompleteChatAsync returns the response
+        // text directly, so no ChatCompletion unwrapping here.
+        var responseContent = await Client!.CompleteChatAsync(messages, options);
 
         // Deserialize the validated JSON, render it to the canonical tag form, and reuse the existing,
         // battle-tested intent-construction pipeline. Invalid/truncated JSON degrades to NullIntent rather

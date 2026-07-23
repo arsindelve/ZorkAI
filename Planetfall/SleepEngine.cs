@@ -24,9 +24,83 @@ public class SleepEngine
     };
 
     /// <summary>
+    /// Sickness level at which the disease is fatal (mirrors the original's SICKNESS-LEVEL 9).
+    /// </summary>
+    internal const int SicknessDeathLevel = 9;
+
+    /// <summary>
+    /// Ticks until the first hunger warning of a new day, depending on whether the player ended the
+    /// previous day hungry.
+    /// </summary>
+    private const int FamishedHungerWarningTicks = 200;
+
+    private const int FreshHungerWarningTicks = 800;
+
+    /// <summary>
     /// Injectable random chooser for deterministic testing.
     /// </summary>
     public static IRandomChooser Chooser { get; set; } = new RandomChooser();
+
+    /// <summary>
+    /// What a day rolling over left behind, for the caller to narrate.
+    /// </summary>
+    /// <param name="Survived">
+    /// False when the disease reached <see cref="SicknessDeathLevel" />, leaving the caller to run the
+    /// death - the counters are already advanced at that point, exactly as before.
+    /// </param>
+    /// <param name="WokeFamished">
+    /// Whether the player crossed into the new day hungry. This is the same reading that chose the
+    /// shorter hunger timer, handed back rather than left for the caller to re-derive, so the timer and
+    /// the sentence explaining it can never disagree.
+    /// </param>
+    internal readonly record struct DayTransition(bool Survived, bool WokeFamished);
+
+    /// <summary>
+    /// Advances the calendar one day and re-establishes everything that is a function of the day: the
+    /// disease level, the chronometer's morning time, fatigue, and the sleep/hunger warning schedules.
+    /// This is the "it is now a new day" half of waking up. The costs of having SLEPT - dropping what
+    /// you were carrying, spoiling food, the wake-up narration - deliberately stay in
+    /// <see cref="ProcessWakeUp" />, because they are sleep's price and not the calendar's; that split
+    /// is what lets the god-mode day command replay the real transition without confiscating a
+    /// tester's inventory.
+    /// </summary>
+    internal static DayTransition StartNewDay(PlanetfallContext context)
+    {
+        context.Day++;
+
+        // Issue #116: advance the disease one level per day (mirrors the I-SICKNESS-WARNINGS daemon's
+        // once-per-day SICKNESS-LEVEL increment, globals.zil:2330). Death is tied to the sickness counter,
+        // not the calendar - so treating the illness (which lowers the counter) actually postpones death.
+        // Untreated, the counter tracks the day and the player still dies on the original day-9 schedule.
+        context.SicknessCounter++;
+        if (context.SicknessCounter >= SicknessDeathLevel)
+            return new DayTransition(false, false);
+
+        // Was the player hungry when the day turned over? Read this BEFORE the reset below clears it.
+        var wokeFamished = context.Hunger > HungerLevel.WellFed;
+
+        // Reset chronometer to morning time for the new day
+        // (Per SLEEP_MECHANICS.md reset_time routine - each day starts at progressively later time)
+        Repository.GetItem<Chronometer>().ResetToMorning(context.Day);
+
+        // Reset fatigue
+        context.Tired = TiredLevel.WellRested;
+
+        // Reset sleep timer for new day (must be after chronometer reset since it uses CurrentTime)
+        context.SleepNotifications.ResetForNewDay(context.CurrentTime, context.Day);
+
+        // Enable next sickness check
+        context.SicknessNotifications.DaysNotified.Remove(context.Day);
+
+        // Original game set HUNGER_LEVEL = 4 (AboutToPassOut) with 100 tick delay - very punishing
+        // Override: Reset to WellFed with shorter initial timer, giving player ~31 turns to find food
+        // This is more forgiving while still creating urgency via the warning message
+        context.Hunger = HungerLevel.WellFed;
+        context.HungerNotifications.NextWarningAt = context.CurrentTime +
+            (wokeFamished ? FamishedHungerWarningTicks : FreshHungerWarningTicks);
+
+        return new DayTransition(true, wokeFamished);
+    }
 
     /// <summary>
     /// Processes voluntary sleep (player enters bed while tired).
@@ -133,31 +207,13 @@ public class SleepEngine
     /// </summary>
     private static string ProcessWakeUp(PlanetfallContext context)
     {
-        // Advance day
-        context.Day++;
-
-        // Issue #116: advance the disease one level per day (mirrors the I-SICKNESS-WARNINGS daemon's
-        // once-per-day SICKNESS-LEVEL increment, globals.zil:2330). Death is tied to the sickness counter,
-        // not the calendar - so treating the illness (which lowers the counter) actually postpones death.
-        // Untreated, the counter tracks the day and the player still dies on the original day-9 schedule.
-        context.SicknessCounter++;
-        if (context.SicknessCounter >= 9)
+        // Advance the calendar and every clock derived from it. Everything from here down is the price
+        // of having SLEPT, which is why it lives here rather than in the shared transition.
+        var transition = StartNewDay(context);
+        if (!transition.Survived)
             return new DeathProcessor().Process(
                 "You finally succumb to the ravages of your illness and collapse.",
                 context).InteractionMessage;
-
-        // Reset chronometer to morning time for the new day
-        // (Per SLEEP_MECHANICS.md reset_time routine - each day starts at progressively later time)
-        Repository.GetItem<Chronometer>().ResetToMorning(context.Day);
-
-        // Reset fatigue
-        context.Tired = TiredLevel.WellRested;
-
-        // Reset sleep timer for new day (must be after chronometer reset since it uses CurrentTime)
-        context.SleepNotifications.ResetForNewDay(context.CurrentTime, context.Day);
-
-        // Enable next sickness check
-        context.SicknessNotifications.DaysNotified.Remove(context.Day);
 
         // Drop non-worn inventory items to the floor
         // If in bed, drop to parent location (dormitory floor), otherwise drop to current location
@@ -207,20 +263,10 @@ public class SleepEngine
                 message += "You wake feeling weak and worn-out. It will be an effort just to stand up. ";
         }
 
-        // Hunger adjustment
-        // Original game set HUNGER_LEVEL = 4 (AboutToPassOut) with 100 tick delay - very punishing
-        // Override: Reset to WellFed with shorter initial timer, giving player ~31 turns to find food
-        // This is more forgiving while still creating urgency via the warning message
-        if (context.Hunger > HungerLevel.WellFed)
-        {
-            context.Hunger = HungerLevel.WellFed;
-            context.HungerNotifications.NextWarningAt = context.CurrentTime + 200;
+        // Hunger itself was reset and rescheduled by StartNewDay; only the narration belongs here, and
+        // it reads the same decision the timer used rather than re-deriving it.
+        if (transition.WokeFamished)
             message += "You are also incredibly famished. Better get some breakfast! ";
-        }
-        else
-        {
-            context.HungerNotifications.NextWarningAt = context.CurrentTime + 800;
-        }
 
         // Floyd greeting (if present and active)
         var floyd = Repository.GetItem<Floyd>();
