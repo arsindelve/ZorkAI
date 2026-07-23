@@ -1,3 +1,4 @@
+using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Model.Interface;
 
@@ -5,6 +6,17 @@ namespace DynamoDb;
 
 public class DynamoDbSavedGameRepository : DynamoDbRepositoryBase, ISavedGameRepository
 {
+    private readonly Func<Guid> _newId;
+
+    public DynamoDbSavedGameRepository() : this(null)
+    {
+    }
+
+    public DynamoDbSavedGameRepository(IAmazonDynamoDB? client, Func<Guid>? newId = null) : base(client)
+    {
+        _newId = newId ?? Guid.NewGuid;
+    }
+
     public async Task<string?> GetSavedGame(string id, string sessionId, string tableName)
     {
         var request = new GetItemRequest
@@ -25,7 +37,7 @@ public class DynamoDbSavedGameRepository : DynamoDbRepositoryBase, ISavedGameRep
 
     public async Task<string> SaveGame(string? id, string clientId, string name, string gameData, string tableName)
     {
-        id ??= Guid.NewGuid().ToString();
+        id ??= _newId().ToString();
         var item = new Dictionary<string, AttributeValue>
         {
             { "id", new AttributeValue(id) },
@@ -35,7 +47,7 @@ public class DynamoDbSavedGameRepository : DynamoDbRepositoryBase, ISavedGameRep
             { "date", new AttributeValue(DateTime.UtcNow.Ticks.ToString()) }
         };
 
-        await Client.PutItemAsync(tableName, item);
+        await Client.PutItemAsync(new PutItemRequest { TableName = tableName, Item = item });
         return id;
     }
 

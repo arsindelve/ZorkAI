@@ -6,8 +6,16 @@ using OpenAI.Chat;
 
 namespace ZorkAI.OpenAI;
 
-public class OpenAIParser(ILogger? logger) : OpenAIClientBase(logger), IAIParser
+public class OpenAIParser : OpenAIClientBase, IAIParser
 {
+    public OpenAIParser(ILogger? logger) : base(logger)
+    {
+    }
+
+    public OpenAIParser(ILogger? logger, IChatCompletionClient client) : base(logger, clientOverride: client)
+    {
+    }
+
     protected override string ModelName => "gpt-4o";
 
     public async Task<IntentBase> AskTheAIParser(string input, string locationDescription, string sessionId)
@@ -24,8 +32,7 @@ public class OpenAIParser(ILogger? logger) : OpenAIClientBase(logger), IAIParser
             Temperature = 0f
         };
 
-        ChatCompletion completion = await Client!.CompleteChatAsync(messages, options);
-        var responseContent = completion.Content[0].Text;
+        var responseContent = await Client!.CompleteChatAsync(messages, options);
         return ParsingHelper.GetIntent(input, responseContent, Logger);
     }
 
