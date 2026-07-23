@@ -722,6 +722,109 @@ public class OpenAIParserTests
         foreach (var assert in asserts) response.Should().Contain(assert);
     }
 
+    [Test]
+    // More single-noun action verbs across varied objects.
+    [TestCase(typeof(Kitchen), "I'm famished, let me eat the lunch",
+        new[] { "<intent>act</intent>", "<verb>eat</verb>", "<noun>lunch</noun>" })]
+    [TestCase(typeof(Kitchen), "have a drink from the bottle",
+        new[] { "<intent>act</intent>", "<noun>bottle</noun>" })]
+    [TestCase(typeof(WestOfHouse), "read the leaflet out loud",
+        new[] { "<intent>act</intent>", "<verb>read</verb>", "<noun>leaflet</noun>" })]
+    [TestCase(typeof(LivingRoom), "give the trophy case a good once-over",
+        new[] { "<intent>act</intent>", "<noun>trophy case</noun>" })]
+    [TestCase(typeof(WestOfHouse), "shut the mailbox please",
+        new[] { "<intent>act</intent>", "<noun>mailbox</noun>" })]
+    [TestCase(typeof(WestOfHouse), "pry open the mailbox",
+        new[] { "<intent>act</intent>", "<noun>mailbox</noun>" })]
+    public async Task MoreSingleNounActions(Type location, string sentence, string[] asserts)
+    {
+        string desc;
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+            var locationObject = (ILocation)Activator.CreateInstance(location)!;
+            desc = locationObject.GetDescription(Mock.Of<IContext>());
+        }
+
+        var target = new OpenAIParser(null);
+        var intent = await target.AskTheAIParser(sentence, desc, string.Empty);
+        var response = intent.Message;
+        Console.WriteLine(response);
+
+        foreach (var assert in asserts) response.Should().Contain(assert);
+    }
+
+    [Test]
+    // Multi-noun across a variety of connecting prepositions and objects (bare nouns, so no adjective drift).
+    [TestCase(typeof(DomeRoom), "tie the rope to the railing",
+        new[]
+        {
+            "<intent>act</intent>", "<verb>tie</verb>", "<noun>rope</noun>", "<noun>railing</noun>",
+            "<preposition>to</preposition>"
+        })]
+    [TestCase(typeof(DamBase), "inflate the boat with the pump",
+        new[] { "<intent>act</intent>", "<noun>boat</noun>", "<noun>pump</noun>", "<preposition>with</preposition>" })]
+    [TestCase(typeof(TrollRoom), "kill the thief with the knife",
+        new[]
+        {
+            "<intent>act</intent>", "<noun>thief</noun>", "<noun>knife</noun>", "<preposition>with</preposition>"
+        })]
+    [TestCase(typeof(Kitchen), "pour the water into the bottle",
+        new[] { "<intent>act</intent>", "<noun>water</noun>", "<noun>bottle</noun>" })]
+    [TestCase(typeof(WestOfHouse), "unlock the grating with the key",
+        new[] { "<intent>act</intent>", "<verb>unlock</verb>", "<noun>key</noun>", "<preposition>with</preposition>" })]
+    public async Task MoreMultiNounScenarios(Type location, string sentence, string[] asserts)
+    {
+        string desc;
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+            var locationObject = (ILocation)Activator.CreateInstance(location)!;
+            desc = locationObject.GetDescription(Mock.Of<IContext>());
+        }
+
+        var target = new OpenAIParser(null);
+        var intent = await target.AskTheAIParser(sentence, desc, string.Empty);
+        var response = intent.Message;
+        Console.WriteLine(response);
+
+        foreach (var assert in asserts) response.Should().Contain(assert);
+    }
+
+    [Test]
+    // More colloquial place/vehicle navigation.
+    // NB: no direction word in the sentence — "pop DOWN to the cellar" would reasonably parse as move/down.
+    [TestCase(typeof(Kitchen), "how about we head to the cellar",
+        new[] { "<intent>goto</intent>", "<noun>cellar</noun>" })]
+    [TestCase(typeof(WestOfHouse), "let's head over to the forest",
+        new[] { "<intent>goto</intent>", "<noun>forest</noun>" })]
+    [TestCase(typeof(DamBase), "hop into the boat",
+        new[] { "<intent>board</intent>", "<noun>boat</noun>" })]
+    [TestCase(typeof(DamBase), "clamber out of the boat",
+        new[] { "<intent>disembark</intent>", "<noun>boat</noun>" })]
+    [TestCase(typeof(EastOfChasm), "just keep following the path",
+        new[] { "<intent>move</intent>" })]
+    public async Task MoreColloquialNavigation(Type location, string sentence, string[] asserts)
+    {
+        string desc;
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+            var locationObject = (ILocation)Activator.CreateInstance(location)!;
+            desc = locationObject.GetDescription(Mock.Of<IContext>());
+        }
+
+        var target = new OpenAIParser(null);
+        var intent = await target.AskTheAIParser(sentence, desc, string.Empty);
+        var response = intent.Message;
+        Console.WriteLine(response);
+
+        foreach (var assert in asserts) response.Should().Contain(assert);
+    }
+
     // ===== Structured-Outputs reliability guarantees =====
     // These exercise the three constraints added to the AI parser (guaranteed-valid JSON structure, a valid
     // intent from the closed set, and run-to-run determinism). They call the live model, hence [Explicit]
