@@ -759,4 +759,73 @@ public class BioLockEastTests : EngineTestsBase
         response.Should().Contain("Shadowy, ominous shapes move about within the room");
         response.Should().Contain("magnetic-striped card");
     }
+
+    [Test]
+    public async Task LookThroughWindow_CardNotYetTaken_StillShowsCardOnFloor()
+    {
+        // Regression guard for issue #477: while the miniaturization access card has not been
+        // retrieved, the window view still reports it lying on the Bio Lab floor.
+        var target = GetTarget();
+        StartHere<BioLockEast>();
+        GetItem<MiniaturizationAccessCard>().HasEverBeenPickedUp = false;
+
+        var response = await target.GetResponse("look through window");
+
+        response.Should().Contain("large laboratory, dimly illuminated");
+        response.Should().Contain("blue glow comes from a crack in the northern wall");
+        response.Should().Contain("Shadowy, ominous shapes move about within the room");
+        response.Should().Contain("magnetic-striped card");
+    }
+
+    [Test]
+    public async Task LookThroughWindow_AfterCardTaken_OmitsCardOnFloor()
+    {
+        // Issue #477: once the player is holding the miniaturization access card, the window
+        // must stop reporting it on the floor (the ZIL WINDOW-F guards the sentence on MINI-CARD's
+        // TOUCHBIT). The rest of the window view is unchanged.
+        var target = GetTarget();
+        StartHere<BioLockEast>();
+        Take<MiniaturizationAccessCard>();
+
+        var response = await target.GetResponse("look through window");
+
+        response.Should().Contain("large laboratory, dimly illuminated");
+        response.Should().Contain("blue glow comes from a crack in the northern wall");
+        response.Should().Contain("Shadowy, ominous shapes move about within the room");
+        response.Should().NotContain("magnetic-striped card");
+    }
+
+    [Test]
+    public async Task LookThroughWindow_AfterFloydDeliversCard_OmitsCardOnFloor()
+    {
+        // Issue #477: Floyd's sacrifice delivers the card to the Bio Lock East floor via
+        // EndSequence -> ItemPlacedHere, which sets CurrentLocation but NOT HasEverBeenPickedUp.
+        // The window (looking into the lab) must stop reporting the card once it has left the lab,
+        // even before the player stoops to pick it up. Guarding only on HasEverBeenPickedUp would
+        // leave this contradiction open right after the sacrifice.
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true;
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
+        var door = GetItem<BioLockInnerDoor>();
+        door.IsOpen = true;
+        target.Context.RegisterActor(bioLockEast);
+
+        await target.GetResponse("close door"); // Completes the sacrifice: card delivered to the floor
+
+        // Card has left the lab (now on the Bio Lock East floor) but has not been personally taken.
+        var miniCard = GetItem<MiniaturizationAccessCard>();
+        miniCard.CurrentLocation.Should().Be(bioLockEast);
+        miniCard.HasEverBeenPickedUp.Should().BeFalse();
+
+        var response = await target.GetResponse("look through window");
+
+        response.Should().Contain("large laboratory, dimly illuminated");
+        response.Should().Contain("blue glow comes from a crack in the northern wall");
+        response.Should().Contain("Shadowy, ominous shapes move about within the room");
+        response.Should().NotContain("magnetic-striped card");
+    }
 }

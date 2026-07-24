@@ -5,8 +5,17 @@ using Newtonsoft.Json;
 
 namespace ZorkAI.OpenAI;
 
-public class OpenAITakeAndDropListParser(ILogger? logger) : OpenAIClientBase(logger), IAITakeAndAndDropParser
+public class OpenAITakeAndDropListParser : OpenAIClientBase, IAITakeAndAndDropParser
 {
+    public OpenAITakeAndDropListParser(ILogger? logger) : base(logger)
+    {
+    }
+
+    public OpenAITakeAndDropListParser(ILogger? logger, IChatCompletionClient client)
+        : base(logger, clientOverride: client)
+    {
+    }
+
     protected override string ModelName => "gpt-4o-mini";
 
     public async Task<string[]> GetListOfItemsToTake(string input, string locationDescription)

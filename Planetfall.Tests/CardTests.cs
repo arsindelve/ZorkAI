@@ -1,5 +1,10 @@
 using FluentAssertions;
 using GameEngine;
+using GameEngine.Item.ItemProcessor;
+using Model.AIGeneration;
+using Model.AIParsing;
+using Model.Intent;
+using Moq;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Location.Kalamontee;
 
@@ -391,5 +396,115 @@ public class CardTests : EngineTestsBase
 
         Repository.GetPreciseMatchInScope("kitchen card", engine.Context).Should().Be(kitchen);
         Repository.GetItemInScope("kitchen card", engine.Context).Should().Be(kitchen);
+    }
+
+    // Issue #414: while holding BOTH elevator access cards, dropping one by its full, specific name
+    // failed - the DROP path resolves nouns via Repository.GetItemInInventory, which (unlike the
+    // examine path's GetItemInScope) was adjective-blind: it fell straight to HasMatchingNoun's
+    // containment fallback. The LOWER card's bare noun "elevator access card" is contained in the
+    // input "upper elevator access card", so whichever card sat earlier in inventory won and DROP
+    // acted on the wrong card. These lock in that GetItemInInventory now honors the precise
+    // (adjective-qualified) noun regardless of inventory order, matching the examine path.
+    [Test]
+    [TestCase(true)] // lower carried first - the issue's reported failing order
+    [TestCase(false)] // upper carried first
+    public void ElevatorCard_DropResolution_HonorsAdjective_RegardlessOfInventoryOrder(bool lowerFirst)
+    {
+        var engine = GetTarget();
+        engine.Context.CurrentLocation = Repository.GetLocation<MessCorridor>();
+
+        var upper = Repository.GetItem<UpperElevatorAccessCard>();
+        var lower = Repository.GetItem<LowerElevatorAccessCard>();
+
+        if (lowerFirst)
+        {
+            engine.Context.ItemPlacedHere(lower);
+            engine.Context.ItemPlacedHere(upper);
+        }
+        else
+        {
+            engine.Context.ItemPlacedHere(upper);
+            engine.Context.ItemPlacedHere(lower);
+        }
+
+        Repository.GetItemInInventory("upper elevator access card", engine.Context).Should().Be(upper);
+        Repository.GetItemInInventory("lower elevator access card", engine.Context).Should().Be(lower);
+    }
+
+    // Asymmetry guard (issue #414): the examine path (GetItemInScope -> GetPreciseMatchInScope) already
+    // resolved the adjective correctly. Pin that so the drop-path fix keeps parity with examine and the
+    // shared precise-matching definitions can't silently drift.
+    [Test]
+    [TestCase(true)]
+    [TestCase(false)]
+    public void ElevatorCard_ExamineResolution_HonorsAdjective_RegardlessOfInventoryOrder(bool lowerFirst)
+    {
+        var engine = GetTarget();
+        engine.Context.CurrentLocation = Repository.GetLocation<MessCorridor>();
+
+        var upper = Repository.GetItem<UpperElevatorAccessCard>();
+        var lower = Repository.GetItem<LowerElevatorAccessCard>();
+
+        if (lowerFirst)
+        {
+            engine.Context.ItemPlacedHere(lower);
+            engine.Context.ItemPlacedHere(upper);
+        }
+        else
+        {
+            engine.Context.ItemPlacedHere(upper);
+            engine.Context.ItemPlacedHere(lower);
+        }
+
+        Repository.GetItemInScope("upper elevator access card", engine.Context).Should().Be(upper);
+        Repository.GetItemInScope("lower elevator access card", engine.Context).Should().Be(lower);
+    }
+
+    // Issue #414, engine-path proof: while holding BOTH cards, "drop upper elevator access card" must
+    // drop the UPPER card and leave the lower one in hand. In production the real drop parser hands the
+    // full noun phrase to GetItemsToDrop; the harness's default parser reduces it to the distinctive
+    // second word ("upper"), sidestepping the collision. So we drive the real DropIntent dispatch target
+    // (TakeOrDropInteractionProcessor.Process) with a parser that returns the full phrase, mirroring prod.
+    [Test]
+    [TestCase(true)] // lower carried first - the issue's reported failing order
+    [TestCase(false)] // upper carried first
+    public async Task DropUpperElevatorCard_WhileHoldingBoth_DropsUpperCard(bool lowerFirst)
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MessCorridor>();
+        engine.Context.CurrentLocation = room;
+
+        var upper = Repository.GetItem<UpperElevatorAccessCard>();
+        var lower = Repository.GetItem<LowerElevatorAccessCard>();
+
+        if (lowerFirst)
+        {
+            engine.Context.ItemPlacedHere(lower);
+            engine.Context.ItemPlacedHere(upper);
+        }
+        else
+        {
+            engine.Context.ItemPlacedHere(upper);
+            engine.Context.ItemPlacedHere(lower);
+        }
+
+        var dropParser = new Mock<IAITakeAndAndDropParser>();
+        dropParser.Setup(s => s.GetListOfItemsToDrop(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(["upper elevator access card"]);
+        var processor = new TakeOrDropInteractionProcessor(dropParser.Object);
+
+        var (_, message) = await processor.Process(
+            new DropIntent
+            {
+                OriginalInput = "drop upper elevator access card",
+                Noun = "upper elevator access card"
+            },
+            engine.Context,
+            Mock.Of<IGenerationClient>());
+
+        message.Should().Contain("Dropped");
+        engine.Context.Items.Should().NotContain(upper);
+        engine.Context.Items.Should().Contain(lower);
+        upper.CurrentLocation.Should().BeOfType<MessCorridor>();
     }
 }

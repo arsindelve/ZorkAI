@@ -5,11 +5,15 @@ namespace Planetfall.Location.Kalamontee;
 
 // TODO: Sleep here on day three and die. 
 
-public class Balcony : LocationBase
+public class Balcony : LocationBase, IFloodedOnLaterDays
 {
     public override string Name => "Balcony";
 
     public override string[] NounsForMatching => ["terrace"];
+
+    // Underwater from Day 4 on - the Winding Stair above only routes Down to here while Day < 4, and
+    // the Day 3 description already has the ocean lapping at the base.
+    public ILocation? HigherGroundOn(int day) => day >= 4 ? Repository.GetLocation<WindingStair>() : null;
 
     public string DeathDescription =>
         "Suddenly, in the middle of the night, a wave of water washes over you. Before you can quite get your bearings, you drown. ";

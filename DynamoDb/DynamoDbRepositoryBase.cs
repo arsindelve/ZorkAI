@@ -5,10 +5,16 @@ namespace DynamoDb;
 
 public abstract class DynamoDbRepositoryBase
 {
-    protected readonly AmazonDynamoDBClient Client;
+    protected readonly IAmazonDynamoDB Client;
 
-    protected DynamoDbRepositoryBase()
+    protected DynamoDbRepositoryBase(IAmazonDynamoDB? client = null)
     {
+        if (client is not null)
+        {
+            Client = client;
+            return;
+        }
+
         var clientConfig = new AmazonDynamoDBConfig
         {
             // TODO: Read from env vars or config

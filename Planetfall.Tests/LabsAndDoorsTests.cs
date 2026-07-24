@@ -1,5 +1,6 @@
 using FluentAssertions;
 using GameEngine;
+using Planetfall.Item.Lawanda.Lab;
 using Planetfall.Item.Lawanda.LabOffice;
 using Planetfall.Location.Lawanda.Lab;
 using Planetfall.Location.Lawanda.LabOffice;
@@ -686,5 +687,109 @@ public class LabsAndDoorsTests : EngineTestsBase
         var response = await target.GetResponse("press black");
 
         response.Should().Contain("relay clicking");
+    }
+
+    // Issue #404: SimpleDoor.ExaminationDescription unconditionally appended " door" to the primary
+    // noun, doubling it ("radiation-lock door door") for doors whose noun already ended in "door".
+
+    [Test]
+    public async Task ExamineRadiationLockDoor_NoDoubledNoun()
+    {
+        var target = GetTarget();
+        StartHere<RadiationLockEast>();
+
+        var response = await target.GetResponse("examine door");
+
+        response.Should().Contain("The radiation-lock door is closed");
+        response.Should().NotContain("door door");
+    }
+
+    [Test]
+    public async Task ExamineBioLockOuterDoor_NoDoubledNoun()
+    {
+        var target = GetTarget();
+        StartHere<BioLockWest>();
+
+        var response = await target.GetResponse("examine door");
+
+        response.Should().Contain("The bio-lock door is closed");
+        response.Should().NotContain("door door");
+    }
+
+    [Test]
+    public async Task ExamineBioLockInnerDoor_NoDoubledNoun()
+    {
+        var target = GetTarget();
+        StartHere<BioLockEast>();
+
+        var response = await target.GetResponse("examine door");
+
+        response.Should().Contain("The door is closed");
+        response.Should().NotContain("door door");
+    }
+
+    [Test]
+    public void RadiationLockInnerDoor_ExaminationDescription_NoDoubledNoun()
+    {
+        Repository.Reset();
+
+        GetItem<RadiationLockInnerDoor>().ExaminationDescription
+            .Should().Be("The radiation-lock door is closed. ");
+    }
+
+    [Test]
+    public void RadiationLockOuterDoor_ExaminationDescription_NoDoubledNoun()
+    {
+        Repository.Reset();
+
+        GetItem<RadiationLockOuterDoor>().ExaminationDescription
+            .Should().Be("The radiation-lock door is closed. ");
+    }
+
+    [Test]
+    public void BioLockOuterDoor_ExaminationDescription_NoDoubledNoun()
+    {
+        Repository.Reset();
+
+        GetItem<BioLockOuterDoor>().ExaminationDescription
+            .Should().Be("The bio-lock door is closed. ");
+    }
+
+    [Test]
+    public void BioLockInnerDoor_ExaminationDescription_NoDoubledNoun()
+    {
+        Repository.Reset();
+
+        GetItem<BioLockInnerDoor>().ExaminationDescription
+            .Should().Be("The door is closed. ");
+    }
+
+    [Test]
+    public void BioLockOuterDoor_ExaminationDescription_WhenOpen_NoDoubledNoun()
+    {
+        Repository.Reset();
+        var door = GetItem<BioLockOuterDoor>();
+        door.IsOpen = true;
+
+        door.ExaminationDescription.Should().Be("The bio-lock door is open. ");
+    }
+
+    [Test]
+    public void SimpleDoor_ExaminationDescription_BareNoun_StillAppendsDoor()
+    {
+        // Guard the issue's requirement: a door whose primary noun is bare (e.g. "cell")
+        // must still read "The cell door is …", not "The cell is …".
+        var door = new BareNounTestDoor { IsOpen = false };
+
+        door.ExaminationDescription.Should().Be("The cell door is closed. ");
+    }
+
+    /// <summary>
+    /// Test-only door with a bare primary noun, to prove the "append door" branch of
+    /// <see cref="SimpleDoor.ExaminationDescription"/> survives the issue #404 fix.
+    /// </summary>
+    private sealed class BareNounTestDoor : SimpleDoor
+    {
+        public override string[] NounsForMatching => ["cell"];
     }
 }

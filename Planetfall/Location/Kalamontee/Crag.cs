@@ -4,11 +4,15 @@ namespace Planetfall.Location.Kalamontee;
 
 // TODO: Sleep here and die. 
 
-public class Crag : LocationWithNoStartingItems
+public class Crag : LocationWithNoStartingItems, IFloodedOnLaterDays
 {
     public override string Name => "Crag";
 
     public override string[] NounsForMatching => ["ledge", "cleft", "cliff"];
+
+    // Underwater from Day 2 on - the Balcony above only routes Down to here while it is Day 1, and its
+    // own Day 2 description says so outright ("The crag where you landed yesterday is now underwater!").
+    public ILocation? HigherGroundOn(int day) => day > 1 ? Repository.GetLocation<Balcony>() : null;
 
     public string DeathDescription =>
         "Suddenly, in the middle of the night, a wave of water washes over you. Before you can quite get your bearings, you drown. ";

@@ -10,8 +10,17 @@ namespace ZorkAI.OpenAI;
 /// The resolution process utilizes a language model for improved accuracy, where available, and can gracefully degrade
 /// when no API key is provided for interaction with the model.
 /// </summary>
-public class PronounResolver(ILogger? logger = null) : OpenAIClientBase(logger, requireApiKey: false), IPronounResolver
+public class PronounResolver : OpenAIClientBase, IPronounResolver
 {
+    public PronounResolver(ILogger? logger = null) : base(logger, requireApiKey: false)
+    {
+    }
+
+    public PronounResolver(ILogger? logger, IChatCompletionClient client)
+        : base(logger, requireApiKey: false, clientOverride: client)
+    {
+    }
+
     protected override string ModelName => "gpt-4o-mini"; // Cheaper model for pronoun resolution
 
     // Pronouns we want to resolve
@@ -112,8 +121,7 @@ Rewritten command:";
             Temperature = 0f // Deterministic for pronoun resolution
         };
 
-        ChatCompletion completion = await Client!.CompleteChatAsync(messages, options);
-        var result = completion.Content[0].Text;
+        var result = await Client!.CompleteChatAsync(messages, options);
 
         // Clean up response (remove quotes, trim)
         result = result.Trim().Trim('"').Trim('\'');

@@ -56,6 +56,22 @@ internal class CommRoom : LocationWithNoStartingItems, IFloydDoesNotTalkHere
         var flaskColor = GetItem<Flask>().LiquidColor!;
         GetItem<Flask>().LiquidColor = null;
 
+        // Issue #463: the shut-down (critical) and fixed states are terminal, so guard before touching the
+        // color-progression branches below. PermanentlyBroken() deliberately leaves CurrentColor unchanged,
+        // so without this guard a wrong pour that set SystemIsCritical could be undone by later pouring the
+        // correct black->gray sequence back through NextColor()/Fixed() -- "repairing" a console the game
+        // declared permanently shut down and awarding the points. The IsFixed guard is the mirror image:
+        // Fixed() nulls CurrentColor, so any further pour would otherwise mismatch and run PermanentlyBroken(),
+        // "shutting down" a console that is already working. Gating here also stops the "...send console shuts
+        // down" line re-firing on every repeated wrong pour (the #431 "match command, not state" class).
+        if (SystemIsCritical)
+            return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(
+                "The liquid disappears into the hole, but nothing happens; the send console has shut down. "));
+
+        if (IsFixed)
+            return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(
+                "The liquid disappears into the hole, but nothing happens. "));
+
         if (flaskColor != CurrentColor)
             return PermanentlyBroken();
 
@@ -106,7 +122,19 @@ internal class CommRoom : LocationWithNoStartingItems, IFloydDoesNotTalkHere
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(Verbs.PushVerbs, ["button"]))
+        // Issue #412: the room describes a "glowing button marked \"Mesij Plaabak\"", so accept the printed
+        // label and the descriptors the player is shown — not just the bare noun "button". Matching only
+        // "button" let every natural/labelled phrasing ("mesij plaabak", "playback button", "message
+        // playback button", "glowing button") fall through to the narrator, which never played the
+        // transmission and sometimes falsely claimed it had. Mirrors the rich synonym sets used by the
+        // coolant-pour handler above. (Bare "message"/"console" stay with the read/examine handler below.)
+        string[] buttonNouns =
+        [
+            "button", "glowing button", "playback button", "message playback button",
+            "playback", "message playback", "mesij plaabak", "mesij", "plaabak"
+        ];
+
+        if (action.Match(Verbs.PushVerbs, buttonNouns))
             return new PositiveInteractionResult(
                 "A voice fills the room ... the voice of the Feinstein's communications officer! \"Stellar Patrol " +
                 "Ship Feinstein to planetside ... Please respond on frequency 48.5 ... SPS Feinstein to planetside ... " +

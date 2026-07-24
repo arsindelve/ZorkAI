@@ -1,4 +1,7 @@
 using FluentAssertions;
+using Model.AIGeneration;
+using Model.Interface;
+using Moq;
 using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech;
@@ -78,6 +81,101 @@ public class AdminCorridorSouthTests : EngineTestsBase
         GetLocation<AdminCorridorSouth>().HasTakenTheKey.Should().BeFalse();
     }
 
+    // Issue #436 — the multi-noun analog of the examine catch-all fixed in #291. While the magnet
+    // is set down in this room (not held), the "you don't have the curved metal bar" hint must fire
+    // ONLY for genuine magnet/key-fishing attempts, not for every two-noun command. A magnet-unrelated
+    // command like "put brush in uniform" must fall through to normal handling.
+    [Test]
+    public async Task MagnetUnrelatedTwoNounCommand_WithMagnetOnFloorHere_DoesNotClaimMissingBar()
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+
+        // Magnet is in this room but NOT in the player's inventory.
+        GetLocation<AdminCorridorSouth>().ItemPlacedHere(GetItem<Magnet>());
+        Context.HasItem<Magnet>().Should().BeFalse();
+        GetItem<Magnet>().CurrentLocation.Should().Be(GetLocation<AdminCorridorSouth>());
+
+        // A genuinely magnet-unrelated two-noun command. The brush (size 2) can't fit the Patrol
+        // uniform's one-slot pocket, so the normal PutProcessor path answers "There's no room." -
+        // exactly the control the issue documented while the magnet was still held. Asserting that
+        // positive outcome (not merely the absence of the bar message) proves the command is really
+        // routed to normal handling, and would fail if it were swallowed some other wrong way.
+        Take<Brush>();
+        Take<PatrolUniform>();
+
+        var response = await target.GetResponse("put brush in uniform");
+
+        response.Should().Contain("There's no room");
+        response.Should().NotContain("You don't have the curved metal bar");
+    }
+
+    // Issue #436 — the flip side: a real fishing attempt while the magnet is on the floor here must
+    // still get the "you don't have the bar" hint (and must not silently retrieve the key).
+    [Test]
+    public async Task FishingAttempt_WithMagnetOnFloorHere_StillGivesBarHint()
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+
+        GetLocation<AdminCorridorSouth>().ItemPlacedHere(GetItem<Magnet>());
+        Context.HasItem<Magnet>().Should().BeFalse();
+
+        var response = await target.GetResponse("get key with magnet");
+
+        response.Should().Contain("You don't have the curved metal bar");
+        Context.HasItem<Key>().Should().BeFalse();
+        GetLocation<AdminCorridorSouth>().HasTakenTheKey.Should().BeFalse();
+    }
+
+    // Issue #436 review follow-up: the glint-of-light daemon now rolls via the injectable
+    // IRandomChooser instead of Random.Shared (CLAUDE.md's randomness rule), so its 1-in-3 behavior
+    // is deterministic under test. A successful roll shows the glint hint...
+    [Test]
+    public async Task Act_WhenGlintRollSucceeds_ShowsGlintOfLight()
+    {
+        GetTarget();
+        var room = GetLocation<AdminCorridorSouth>();
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(3)).Returns(true);
+        room.Chooser = mockChooser.Object;
+
+        var result = await room.Act(Context, Mock.Of<IGenerationClient>());
+
+        result.Should().Contain("glint of light");
+    }
+
+    // ...and a failed roll stays silent.
+    [Test]
+    public async Task Act_WhenGlintRollFails_StaysSilent()
+    {
+        GetTarget();
+        var room = GetLocation<AdminCorridorSouth>();
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(3)).Returns(false);
+        room.Chooser = mockChooser.Object;
+
+        var result = await room.Act(Context, Mock.Of<IGenerationClient>());
+
+        result.Should().BeEmpty();
+    }
+
+    // Once the key is discovered or taken, the daemon is dormant regardless of the roll.
+    [Test]
+    public async Task Act_AfterKeyTaken_StaysSilentEvenOnSuccessfulRoll()
+    {
+        GetTarget();
+        var room = GetLocation<AdminCorridorSouth>();
+        room.HasTakenTheKey = true;
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(3)).Returns(true);
+        room.Chooser = mockChooser.Object;
+
+        var result = await room.Act(Context, Mock.Of<IGenerationClient>());
+
+        result.Should().BeEmpty();
+    }
+
     [Test]
     public async Task UseMagnetOnCrevice_AlreadyHasKey_NothingHappens()
     {
@@ -117,6 +215,25 @@ public class AdminCorridorSouthTests : EngineTestsBase
         Take<Magnet>();
 
         var response = await target.GetResponse("get key with magnet");
+
+        response.Should().Contain("a piece of metal leaps from the crevice");
+        response.Should().Contain("steel key");
+        Context.HasItem<Key>().Should().BeTrue();
+        GetLocation<AdminCorridorSouth>().HasTakenTheKey.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task SnatchKeyWithMagnet_RetrievesKey()
+    {
+        // Review follow-up to issue #406: the retrieval framing's verb list is now built on
+        // Verbs.TakeVerbs instead of a partial hand-rolled copy that omitted "snatch", "acquire",
+        // "hold", and "carry" - those phrasings fell through to the AI narrator, which improvised
+        // a refusal contradicting the authored success text.
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+        Take<Magnet>();
+
+        var response = await target.GetResponse("snatch key with magnet");
 
         response.Should().Contain("a piece of metal leaps from the crevice");
         response.Should().Contain("steel key");

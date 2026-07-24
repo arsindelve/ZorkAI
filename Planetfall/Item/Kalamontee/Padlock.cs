@@ -75,6 +75,11 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
 
         if (match)
         {
+            // Guard on Locked state, not just the command phrasing — otherwise "unlock padlock with key"
+            // re-narrates "springs open" on an already-open padlock. Mirrors the simple-interaction path.
+            if (!Locked)
+                return new PositiveInteractionResult("The padlock is already open. ");
+
             Locked = false;
             Repository.GetItem<Floyd>().CommentOnAction(FloydPrompts.PadlockUnlocked, context);
             return new PositiveInteractionResult("The padlock springs open. ");

@@ -1,7 +1,11 @@
 using FluentAssertions;
+using Model;
+using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee;
+using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Admin;
+using Planetfall.Location.Kalamontee.Mech;
 
 namespace Planetfall.Tests;
 
@@ -95,6 +99,30 @@ public class AdminCorridorTests : EngineTestsBase
 
         response.Should().Contain("too wide to jump");
         Context.CurrentLocation.Should().BeOfType<AdminCorridor>();
+    }
+
+    // Issue #473: entering AdminCorridor from AdminCorridorNorth (crossing the ladder) returned the
+    // transition text directly instead of prepending it to base.BeforeEnterLocation(...). base is the
+    // only place VisitCount is incremented (and OnFirstTimeEnterLocation fires); in Brief mode
+    // LookProcessor shows the full room description only when VisitCount == 1, so entering via the
+    // transition path silently dropped the first-visit room description.
+    [Test]
+    public async Task EnterFromAdminCorridorNorth_FirstVisit_ShowsRoomDescriptionAndIncrementsVisitCount()
+    {
+        var target = GetTarget();
+        Context.Verbosity = Verbosity.Brief;
+        StartHere<AdminCorridorNorth>();
+        var ladder = GetItem<Ladder>();
+        ladder.IsExtended = true;
+        ladder.IsAcrossRift = true;
+
+        var response = await target.GetResponse("s");
+
+        Context.CurrentLocation.Should().BeOfType<AdminCorridor>();
+        // The ladder-crossing transition text must accompany, not replace, the first-visit description.
+        response.Should().Contain("You slowly make your way across the swaying ladder");
+        response.Should().Contain("has been rent apart here");
+        GetLocation<AdminCorridor>().VisitCount.Should().Be(1);
     }
 
     // Issue #369: "jump rift"/"jump into rift"/"jump over rift" were being misrouted to the
@@ -254,5 +282,52 @@ public class AdminCorridorTests : EngineTestsBase
 
         response.Should().Contain("already spans the rift");
         GetLocation<AdminCorridorNorth>().Items.Count(i => i is Ladder).Should().Be(1);
+    }
+
+    // Issue #429: the generic "throw <thing> into rift" handler in RiftLocationBase resolved the
+    // thrown object with a GLOBAL Repository.GetItem lookup that ignores scope/state. Two divergences
+    // followed, both reproduced on prod. These mirror the sibling ladder guards (#297) above.
+    [TestFixture]
+    public class ThrowIntoRift : AdminCorridorTests
+    {
+        // Divergence A: throwing an item that lives in a completely different part of the complex
+        // still "succeeded" — the global lookup found the singleton regardless of location and
+        // deleted it (CurrentLocation = null). Because critical-path items (e.g. the laser) can be
+        // destroyed this way without the player ever touching them, this is a softlock vector.
+        [Test]
+        public async Task ThrowIntoRift_ItemInAnotherRoom_IsNotDestroyedAndNoLossNarrated()
+        {
+            var target = GetTarget();
+            StartHere<AdminCorridorNorth>();
+            var laser = GetItem<Laser>();
+            // The laser sits in the Mech area — not carried, not here at the rift.
+            GetLocation<ToolRoom>().ItemPlacedHere(laser);
+
+            var response = await target.GetResponse("throw laser into rift");
+
+            response.Should().NotContain("sails gracefully into the rift");
+            // The out-of-scope laser must not be deleted from the game.
+            laser.CurrentLocation.Should().Be(GetLocation<ToolRoom>());
+        }
+
+        // Divergence B: once a thrown item's CurrentLocation is null, the command still matched and
+        // the global lookup still returned the singleton, so the loss was narrated a second time.
+        [Test]
+        public async Task ThrowIntoRift_ReThrowingAlreadyLostItem_DoesNotReNarrateLoss()
+        {
+            var target = GetTarget();
+            StartHere<AdminCorridorNorth>();
+            var diary = Take<Diary>();
+
+            // First throw: the held diary really does sail into the rift and leaves play.
+            var first = await target.GetResponse("throw diary into rift");
+            first.Should().Contain("sails gracefully into the rift");
+            diary.CurrentLocation.Should().BeNull();
+            Context.Items.Should().NotContain(diary);
+
+            // Second throw of the now-gone diary must not re-narrate success.
+            var second = await target.GetResponse("throw diary into rift");
+            second.Should().NotContain("sails gracefully into the rift");
+        }
     }
 }

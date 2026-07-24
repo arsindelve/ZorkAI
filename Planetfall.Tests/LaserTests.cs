@@ -3,6 +3,7 @@ using GameEngine;
 using Model.Interface;
 using Moq;
 using Planetfall;
+using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.Lab;
@@ -1393,6 +1394,151 @@ public class LaserTests : EngineTestsBase
         // Verify Floyd's pending comment was NOT set
         var pfContext = (PlanetfallContext)target.Context;
         pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    #endregion
+
+    #region Battery Capacity Tests
+
+    [Test]
+    public async Task PutSecondBattery_WhileOldStillInside_IsRefused()
+    {
+        // Issue #437: the depression holds a single battery. Inserting the fresh battery WITHOUT
+        // first removing the dead one must be refused - otherwise both end up in the slot and firing
+        // keeps drawing from the first-inserted (dead) battery, which reads as "the fresh one is dead
+        // too." ContainerBase.SpaceForItems defaults to 2 and each battery is Size 1, so without a
+        // single-slot override the laser silently admitted the second battery (1 + 1 <= 2).
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Take<Laser>();
+        var laser = GetItem<Laser>();
+        var oldBattery = GetItem<OldBattery>();
+        var freshBattery = Take<FreshBattery>();
+
+        // The laser starts holding exactly the old battery.
+        laser.Items.Should().ContainSingle().Which.Should().Be(oldBattery);
+
+        var response = await target.GetResponse("put fresh in laser");
+
+        // The extra battery is refused (not admitted with the success message)...
+        response.Should().Contain("already a battery");
+        response.Should().NotContain("now resting in the depression, attached to the laser");
+        // ...the depression still holds only the old battery, and the fresh one stays in hand.
+        laser.Items.Should().ContainSingle().Which.Should().Be(oldBattery);
+        laser.Items.Should().NotContain(freshBattery);
+        target.Context.Items.Should().Contain(freshBattery);
+    }
+
+    [Test]
+    public async Task SwapBattery_RemoveOldThenInsertFresh_LeavesOnlyFresh()
+    {
+        // Issue #437: the single-slot limit must not break the intended swap. With the dead battery
+        // removed first, the fresh one drops neatly into the now-empty depression.
+        var target = GetTarget();
+        // ToolRoom avoids DeckNine's random actor spawning (Ambassador places slime which also
+        // responds to "remove"), matching the sibling RemoveBattery_MultipleTimes_CanReinsert test.
+        StartHere<ToolRoom>();
+        Take<Laser>();
+        var laser = GetItem<Laser>();
+        var oldBattery = GetItem<OldBattery>();
+
+        // Remove the dead battery first - only the old battery is in scope at this point.
+        await target.GetResponse("remove battery");
+        laser.Items.Should().NotContain(oldBattery);
+        laser.Items.Should().BeEmpty();
+
+        // Now bring in the fresh battery and insert it into the empty depression.
+        var freshBattery = Take<FreshBattery>();
+        var response = await target.GetResponse("put fresh in laser");
+
+        response.Should().Contain("resting in the depression");
+        laser.Items.Should().ContainSingle().Which.Should().Be(freshBattery);
+
+        // End-to-end: after the correct swap the laser fires from the live fresh battery (a beam),
+        // not the removed dead one (which would "Click."). This guards the issue's headline symptom -
+        // that firing kept drawing from the first-inserted dead battery.
+        var shootResponse = await target.GetResponse("shoot laser");
+        shootResponse.Should().Contain("beam of light");
+        shootResponse.Should().NotContain("Click");
+    }
+
+    #endregion
+
+    #region Examine Tests
+
+    [Test]
+    public async Task ExamineLaser_WithOldBattery_MentionsBatteryInDepression()
+    {
+        // Baseline: while the (starting) old battery is in the depression, examine should still
+        // describe it as an old battery.
+        var target = GetTarget();
+        Take<Laser>();
+
+        var response = await target.GetResponse("examine laser");
+
+        response.Should().Contain("depression");
+        response.Should().Contain("old battery");
+    }
+
+    [Test]
+    public async Task ExamineLaser_AfterRemovingBattery_ReportsEmptyDepression()
+    {
+        // Issue #434: the battery clause was a hardcoded "contains an old battery" that ignored the
+        // laser's actual contents. After the player removes the battery the depression is empty, yet
+        // examine kept claiming a battery was present.
+        var target = GetTarget();
+        StartHere<ToolRoom>(); // ToolRoom avoids DeckNine's random actor spawning ("remove" collisions)
+        Take<Laser>();
+
+        await target.GetResponse("remove battery");
+        GetItem<Laser>().Items.Should().BeEmpty();
+
+        var response = await target.GetResponse("examine laser");
+
+        response.Should().NotContain("old battery");
+        response.Should().Contain("empty depression");
+    }
+
+    [Test]
+    public async Task ExamineLaser_WithFreshBattery_DoesNotCallItOld()
+    {
+        // Issue #434: after the required old->fresh swap the depression holds the FRESH battery, but
+        // the hardcoded clause still described it as "an old battery."
+        var target = GetTarget();
+        Take<Laser>();
+        var oldBattery = GetItem<OldBattery>();
+        var freshBattery = GetItem<FreshBattery>();
+        var laser = GetItem<Laser>();
+
+        // Swap the dead battery for the fresh one.
+        laser.Items.Clear();
+        oldBattery.CurrentLocation = null;
+        laser.ItemPlacedHere(freshBattery);
+
+        var response = await target.GetResponse("examine laser");
+
+        response.Should().NotContain("old battery");
+        response.Should().Contain("new battery");
+    }
+
+    #endregion
+
+    #region Wrong Item Tests
+
+    [Test]
+    public async Task PutWrongItemInLaser_GetsAuthoredRefusal()
+    {
+        // The original laser refuses a non-battery by naming the item and the depression it won't go
+        // into (LASER-F, comptwo.zil:2686). The port declared CanOnlyHoldTheseTypes but no message for
+        // it, so the refusal fell through to the AI narrator instead of a crisp, deterministic reply.
+        var target = GetTarget();
+        StartHere<MachineShop>();
+        Take<Laser>();
+        Take<Brush>();
+
+        var response = await target.GetResponse("put brush in laser");
+
+        response.Should().Contain("The brush won't fit in the laser's depression");
     }
 
     #endregion

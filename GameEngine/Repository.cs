@@ -93,8 +93,35 @@ public static class Repository
 
         noun = noun.ToLowerInvariant().Trim();
 
+        // Issue #414: run the adjective-precise pass FIRST, exactly as GetItemInScope does for
+        // examine/take (#244) - but scoped to inventory, since you can only drop what you hold.
+        // Without this, the DROP path was adjective-blind: HasMatchingNoun's containment fallback
+        // matches any noun contained in the input, so the LOWER elevator card (bare noun "elevator
+        // access card") also matched "upper elevator access card", and whichever card sat earlier in
+        // inventory won - dropping the wrong card. This restores parity with the examine path, whose
+        // GetPreciseMatchInScope already distinguished the two cards via NounsForPreciseMatching.
+        var preciseMatch = GetPreciseMatchInInventory(noun, context);
+        if (preciseMatch != null)
+            return preciseMatch;
+
         var (hasMatch, item) = context.HasMatchingNoun(noun, lookInsideContainers: true);
         return hasMatch ? item : null;
+    }
+
+    /// <summary>
+    /// Inventory-scoped counterpart to <see cref="GetPreciseMatchInScope"/>: finds the item the player
+    /// is carrying (directly or nested inside a held/worn container) whose
+    /// <see cref="IItem.NounsForPreciseMatching"/> contains an exact match for the noun. DROP must
+    /// prefer an inventory match over a room match (you can only drop what you hold), so unlike the
+    /// room-first <see cref="GetPreciseMatchInScope"/> this deliberately never looks at the current
+    /// location. Returns null when nothing carried matches precisely, leaving the adjective-blind
+    /// containment fallback in the caller intact for bare/compound nouns (issue #414).
+    /// </summary>
+    private static IItem? GetPreciseMatchInInventory(string noun, IContext context)
+    {
+        return (context.GetAllItemsRecursively ?? [])
+            .FirstOrDefault(item => item.NounsForPreciseMatching
+                .Any(n => n.Equals(noun, StringComparison.InvariantCultureIgnoreCase)));
     }
 
     /// <summary>

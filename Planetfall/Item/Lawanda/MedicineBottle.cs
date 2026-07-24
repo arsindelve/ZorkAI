@@ -8,6 +8,13 @@ internal class MedicineBottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped
 
     public override Type[] CanOnlyHoldTheseTypes => [typeof(Medicine)];
 
+    // Issue #422: the bottle-holds-only-medicine restriction is a port addition (the original
+    // MEDICINE-BOTTLE has no ACTION routine guarding PUT). It is kept deliberately, but a bare type
+    // rejection returns no message and falls through to the AI narrator in MultiNounEngine - a blank
+    // line when generation returns nothing. Naming the item keeps the refusal deterministic.
+    public override string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlace) =>
+        $"The {nameOfItemWeTriedToPlace} won't fit in the bottle. ";
+
     public override bool IsTransparent => true;
 
     public string ExaminationDescription => ReadDescription;

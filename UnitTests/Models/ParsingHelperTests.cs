@@ -371,6 +371,93 @@ public class ParsingHelperTests
     }
 
     [Test]
+    public void GetIntent_LookIntentWithNoun_ReturnsSimpleIntent_NotBareLook()
+    {
+        // Issue #423: at Bio Lock East, "look through window" — the natural phrasing to see into the Bio
+        // Lab (mutants + the miniaturization card the Floyd sacrifice needs) and the walkthrough's own
+        // step — silently rendered the ROOM instead of the view through the window. gpt-4o buckets a
+        // *targeted* look ("look through the window") into intent=look — the bare "look around" bucket —
+        // while still dutifully emitting the <verb>/<noun> tags (look / window). GetIntent returned a bare
+        // LookIntent for any intent=look, DISCARDING the noun, so it routed to LookProcessor (the whole
+        // room) and the Bio Lock East handler never saw "window". A look that names a specific object is a
+        // targeted examine and must become a SimpleIntent carrying that noun.
+        var input = "look through the window";
+        var response = @"<intent>look</intent>
+<verb>look</verb>
+<noun>window</noun>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<SimpleIntent>();
+        var simpleIntent = result as SimpleIntent;
+        simpleIntent?.Verb.Should().Be("look");
+        simpleIntent?.Noun.Should().Be("window");
+        simpleIntent?.OriginalInput.Should().Be(input);
+    }
+
+    [Test]
+    public void GetIntent_LookIntentWithNoun_PreservesTheLookVerbSynonym()
+    {
+        // #423 sibling: the Radiation Lab crack (RadiationLab.cs) uses the same "look through <noun>"
+        // pattern and mis-classified identically. "peer through the crack" comes back as intent=look with
+        // verb=peer/noun=crack; it must become a SimpleIntent that keeps the look-family verb so the
+        // location's LookVerbs gate still recognises it.
+        var input = "peer through the crack";
+        var response = @"<intent>look</intent>
+<verb>peer</verb>
+<noun>crack</noun>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<SimpleIntent>();
+        var simpleIntent = result as SimpleIntent;
+        simpleIntent?.Verb.Should().Be("peer");
+        simpleIntent?.Noun.Should().Be("crack");
+    }
+
+    [Test]
+    public void GetIntent_BareLook_WithNoNoun_StillReturnsLookIntent()
+    {
+        // Regression guard for #423: a genuine object-less look ("look", "look around", "where am I?")
+        // carries no <noun> and must remain a bare LookIntent that re-renders the room. The fix only
+        // redirects a look that names a specific object.
+        var input = "look around";
+        var response = @"<intent>look</intent>
+<verb>look</verb>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<LookIntent>();
+    }
+
+    [TestCase("room")]
+    [TestCase("area")]
+    [TestCase("surroundings")]
+    [TestCase("surrounding")]
+    [TestCase("here")]
+    [TestCase("everything")]
+    [TestCase("around")]
+    [TestCase("place")]
+    [TestCase("vicinity")]
+    [TestCase("scene")]
+    public void GetIntent_LookIntentWithWholeSceneNoun_StaysBareLookIntent(string noun)
+    {
+        // #423 hardening: the common bare-look phrasings ("look", "look around", ...) are exact-match
+        // global commands resolved before the parser, but a NON-exact room-look ("look at the room",
+        // "look around the area", "look at everything") reaches the AI parser, and gpt-4o tags it
+        // intent=look with a whole-scene noun (room/area/surroundings/...). That is still a room-look and
+        // must render the room, NOT degrade to a no-op examine of a non-object noun. Only a look that
+        // names a REAL object is redirected to a targeted examine (SimpleIntent).
+        var response = $@"<intent>look</intent>
+<verb>look</verb>
+<noun>{noun}</noun>";
+
+        var result = ParsingHelper.GetIntent($"look at the {noun}", response, _loggerMock?.Object);
+
+        result.Should().BeOfType<LookIntent>();
+    }
+
+    [Test]
     public void GetIntent_WithMoveResponse_UsesVerbAsFallback_When_DirectionTagMissing()
     {
         // Arrange

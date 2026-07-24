@@ -37,6 +37,28 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
 
     public override Type[] CanOnlyHoldTheseTypes => [typeof(BatteryBase)];
 
+    // Issue #437: the depression is a SINGLE slot. ContainerBase.SpaceForItems defaults to 2 and each
+    // battery is Size 1, so without this override the laser silently admitted a second battery
+    // (1 + 1 <= 2). A player who inserts the fresh battery without first removing the dead one then
+    // ends up with both in the slot, and TryFireLaser keeps drawing from Items.FirstOrDefault() - the
+    // first-inserted (dead) battery - so firing yields "Click." as if the fresh battery were dead too.
+    // One slot forces the correct swap (remove the old battery, then insert the fresh one).
+    protected override int SpaceForItems => 1;
+
+    // With the depression full, refuse the extra battery by asserting the occupancy (mirrors the spool
+    // reader, issue #417). This is safe here because a battery is always Size 1: HaveRoomForItem can
+    // only fail for a battery when one is already resting in the slot. The type check runs before the
+    // room check (PutProcessor, issue #417), so a non-battery still gets the "won't fit" message below.
+    public override string NoRoomMessage =>
+        "There's already a battery resting in the laser's depression. ";
+
+    // The original refuses a non-battery by naming the item and the depression it won't go into
+    // (LASER-F, comptwo.zil:2686). Without this the type rejection has no message and falls through
+    // to the AI narrator, which answers a deterministic refusal with a generated one (and a blank
+    // line if generation fails).
+    public override string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlace) =>
+        $"The {nameOfItemWeTriedToPlace} won't fit in the laser's depression. ";
+
     public override int Size => 1;
 
     public override string ItemPlacedHereResult(IItem item, IContext context)
@@ -61,11 +83,35 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
     
     public int Setting { get; set; } = 5;
 
-    public string ExaminationDescription =>
-        "The laser, though portable, is still fairly heavy. It has a long, slender " +
-        "barrel and a dial with six settings, labelled \"1\" through \"6.\" This " +
-        $"dial is currently on setting {Setting}. There is a depression on the top of the " +
-        "laser which contains an old battery.";
+    public string ExaminationDescription
+    {
+        get
+        {
+            var description =
+                "The laser, though portable, is still fairly heavy. It has a long, slender " +
+                "barrel and a dial with six settings, labelled \"1\" through \"6.\" This " +
+                $"dial is currently on setting {Setting}. ";
+
+            // Issue #434: the depression is the laser's single container slot (Items), so describe
+            // what's ACTUALLY resting in it. The battery clause used to be hardcoded to "an old
+            // battery," which went stale once the player removed the dead battery (empty depression)
+            // or completed the required old->fresh swap (the fresh battery was still called "old").
+            if (Items.FirstOrDefault() is BatteryBase battery)
+            {
+                // GenericDescription yields "An old battery" / "A new battery"; lowercase the article
+                // so it reads naturally mid-sentence ("...which contains an old battery.").
+                var contents = battery.GenericDescription(null);
+                // Guard the empty default: ItemBase.GenericDescription returns "" and nothing forces a
+                // battery subclass to override it, so index into it only when there's something there.
+                if (!string.IsNullOrEmpty(contents))
+                    contents = char.ToLowerInvariant(contents[0]) + contents[1..];
+                return description +
+                       $"There is a depression on the top of the laser which contains {contents}. ";
+            }
+
+            return description + "There is an empty depression on the top of the laser. ";
+        }
+    }
 
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {
