@@ -10,7 +10,22 @@ using Model.Interface;
 using Planetfall;
 using SecretsManager;
 using Stationfall;
+using ZorkConsole;
 using ZorkOne;
+
+// Guard the required game argument before touching AWS or the game engine: an empty args used to throw
+// IndexOutOfRangeException on args[0], and an unrecognized game threw an uncaught exception. Give the
+// user actionable feedback and a non-zero exit code instead.
+var gameSelection = GameArgumentResolver.Resolve(args);
+if (!gameSelection.IsValid)
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.Error.WriteLine(gameSelection.Feedback);
+    Console.ResetColor();
+    Environment.Exit(1);
+}
+
+var gameName = gameSelection.GameName!;
 
 var database = new DynamoDbSessionRepository();
 var sessionId = Environment.MachineName + "8";
@@ -106,7 +121,7 @@ async Task<GameEngine<TGame, TContext>> CreateEngine<TGame, TContext>()
 
 async Task<IGameEngine> GetEngine()
 {
-    IGameEngine newEngine = args[0] switch
+    IGameEngine newEngine = gameName switch
     {
         "Planetfall" => await CreateEngine<PlanetfallGame, PlanetfallContext>(),
         "Stationfall" => await CreateEngine<StationfallGame, StationfallContext>(),
@@ -114,7 +129,8 @@ async Task<IGameEngine> GetEngine()
         "EscapeRoom" => await CreateEngine<EscapeRoomGame, EscapeRoomContext>(),
         //"ZorkTwo" => CreateEngine<ZorkII, ZorkIIContext>(),
 
-        _ => throw new InvalidOperationException($"Unsupported engine type: {args[0]}")
+        // Defense-in-depth: GameArgumentResolver already guaranteed a supported name up front.
+        _ => throw new InvalidOperationException($"Unsupported engine type: {gameName}")
     };
 
     return newEngine;
