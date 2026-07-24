@@ -1,5 +1,6 @@
 ﻿using ChatLambda;
 using Model.AIGeneration;
+using Planetfall.AI;
 using Planetfall.Command;
 
 namespace Planetfall.Item.Feinstein;

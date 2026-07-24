@@ -10,7 +10,14 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
 {
     public override string Name => "Bio Lock East";
 
-    public BioLockStateMachineManager StateMachine { get; } = new();
+    // Issue #493: this MUST have a setter. The deployed game is stateless — each turn is a separate
+    // request whose full state travels in the base64 session — and the session serializer deliberately
+    // drops read-only properties (GameEngine.DoNotSerializeReadOnlyPropertiesResolver). As a get-only
+    // property, the entire Bio-Lab sacrifice state machine was never written to the session and reset to
+    // a fresh new() every turn, so Floyd never offered the plan and opening the inner door was always an
+    // instant "wrong time" death — making the mini card (and thus the game) unreachable in production.
+    // A setter lets it round-trip like every other writable state object (cf. the #472 disambiguation fix).
+    public BioLockStateMachineManager StateMachine { get; set; } = new();
 
     public override void Init()
     {
@@ -80,7 +87,23 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
         // the state machine. Without releasing Floyd here, IsAwayOnScriptedSequence would stay true
         // forever with no other code path to clear it, permanently blocking his normal following behavior.
         if (StateMachine.IsFloydInLabFighting)
+        {
             Repository.GetItem<Floyd>().IsAwayOnScriptedSequence = false;
+
+            // Issue #493 review: releasing Floyd is not enough. The state machine is still frozen mid-
+            // sequence (e.g. FloydRushedInNeedToCloseDoor). Left as-is, walking back into Bio Lock East
+            // re-registers this actor and resumes that state, firing a spurious "you failed to close the
+            // door" death even though Floyd followed the player out. Reset the sequence so a later
+            // re-entry starts clean (Floyd, who still remembers he volunteered, simply re-offers).
+            StateMachine.ResetSequence();
+
+            // Also close the inner door Floyd rushed through. Resetting the state machine alone would
+            // leave an anomalous "NotStarted but door open" state: on re-entry Floyd nags "open the door"
+            // while it is already open, and re-opening an open door is a no-op (OpenMe short-circuits to
+            // "It is already open." without calling OnOpening), so the obvious restart does nothing.
+            // Closing it restores the genuine pre-sequence state, so "open door" cleanly restarts the rush.
+            GetItem<BioLockInnerDoor>().IsOpen = false;
+        }
 
         context.RemoveActor(this);
     }
