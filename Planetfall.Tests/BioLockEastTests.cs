@@ -433,6 +433,77 @@ public class BioLockEastTests : EngineTestsBase
     }
 
     [Test]
+    public async Task AbandoningSequence_ByWalkingAway_ThenReturning_DoesNotSpuriouslyKillThePlayer()
+    {
+        // Issue #493 review follow-up: OnLeaveLocation releases Floyd (IsAwayOnScriptedSequence=false) when
+        // the player abandons the sequence mid-rush, but it left LabSequenceState frozen at
+        // FloydRushedInNeedToCloseDoor. Floyd follows the player back out, but the moment the player walks
+        // back into Bio Lock East the actor is re-registered and resumes that frozen state, firing the
+        // "you failed to close the door" death - with Floyd standing right next to them. Abandoning must
+        // reset the sequence so a later re-entry is safe.
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.HasEverBeenOn = true;
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(5)).Returns(false); // deterministic: always the "follow" branch
+        floyd.Chooser = mockChooser.Object;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true;
+        bioLockEast.StateMachine.FloydHasSaidNeedToGetCard = true;
+        target.Context.RegisterActor(floyd);
+        target.Context.RegisterActor(bioLockEast);
+
+        await target.GetResponse("open door"); // Floyd rushes into the lab
+
+        await target.GetResponse("west"); // abandon the sequence
+        bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.NotStarted,
+            "abandoning the sequence must reset it, not leave it frozen mid-rush");
+
+        var returnResponse = await target.GetResponse("east"); // walk back in
+        returnResponse.Should().NotContain("You have died");
+        returnResponse.Should().NotContain(FloydConstants.BiologicalNightmaresDeath);
+
+        var waitResponse = await target.GetResponse("wait"); // a further turn is still safe
+        waitResponse.Should().NotContain("You have died");
+    }
+
+    [Test]
+    public async Task AfterSacrificeCompletes_ReenteringRoom_DeadFloydDoesNotNagToOpenTheDoor()
+    {
+        // Issue #493 review follow-up: EndSequence marks Floyd dead and lays his body back in this room but
+        // leaves IsOn true, so IsHereAndIsOn stays true for the corpse. With the leftover
+        // FloydHasSaidNeedToGetCard flag and a zero door-open counter, re-entering the room made
+        // HandleTurnAction fall into the "waiting for door open" branch - the dead robot cheerfully asking
+        // the player to open the door again. Once the sequence is Completed the actor must stay silent.
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true;
+        bioLockEast.StateMachine.FloydHasSaidNeedToGetCard = true;
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
+        var door = GetItem<BioLockInnerDoor>();
+        door.IsOpen = true;
+        target.Context.RegisterActor(bioLockEast);
+
+        var complete = await target.GetResponse("close door"); // completes the sacrifice
+        complete.Should().Contain("Floyd staggers to the ground");
+        bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.Completed);
+
+        await target.GetResponse("west"); // leave
+        var returnResponse = await target.GetResponse("east"); // and come back
+        var waitResponse = await target.GetResponse("wait");
+
+        returnResponse.Should().NotContain(FloydConstants.OpenTheDoor);
+        waitResponse.Should().NotContain(FloydConstants.OpenTheDoor);
+        waitResponse.Should().NotContain(FloydConstants.Sulk);
+    }
+
+    [Test]
     public async Task FloydFighting_Turn1_ShouldShowInTheLabTwo()
     {
         var target = GetTarget();

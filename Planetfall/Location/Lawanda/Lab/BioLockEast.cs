@@ -10,7 +10,14 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
 {
     public override string Name => "Bio Lock East";
 
-    public BioLockStateMachineManager StateMachine { get; } = new();
+    // Issue #493: this MUST have a setter. The deployed game is stateless — each turn is a separate
+    // request whose full state travels in the base64 session — and the session serializer deliberately
+    // drops read-only properties (GameEngine.DoNotSerializeReadOnlyPropertiesResolver). As a get-only
+    // property, the entire Bio-Lab sacrifice state machine was never written to the session and reset to
+    // a fresh new() every turn, so Floyd never offered the plan and opening the inner door was always an
+    // instant "wrong time" death — making the mini card (and thus the game) unreachable in production.
+    // A setter lets it round-trip like every other writable state object (cf. the #472 disambiguation fix).
+    public BioLockStateMachineManager StateMachine { get; set; } = new();
 
     public override void Init()
     {
@@ -80,7 +87,16 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
         // the state machine. Without releasing Floyd here, IsAwayOnScriptedSequence would stay true
         // forever with no other code path to clear it, permanently blocking his normal following behavior.
         if (StateMachine.IsFloydInLabFighting)
+        {
             Repository.GetItem<Floyd>().IsAwayOnScriptedSequence = false;
+
+            // Issue #493 review: releasing Floyd is not enough. The state machine is still frozen mid-
+            // sequence (e.g. FloydRushedInNeedToCloseDoor). Left as-is, walking back into Bio Lock East
+            // re-registers this actor and resumes that state, firing a spurious "you failed to close the
+            // door" death even though Floyd followed the player out. Reset the sequence so a later
+            // re-entry starts clean (Floyd, who still remembers he volunteered, simply re-offers).
+            StateMachine.ResetSequence();
+        }
 
         context.RemoveActor(this);
     }
