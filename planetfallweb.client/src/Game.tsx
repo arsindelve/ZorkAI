@@ -115,6 +115,11 @@ function Game() {
     const [snackBarMessage, setSnackBarMessage] = useState<string>('');
     const [showJumpToLatest, setShowJumpToLatest] = useState<boolean>(false);
     const [hintsOpen, setHintsOpen] = useState<boolean>(false);
+    // The active session id, captured by gameInit. Deliberately NOT read during render:
+    // SessionHandler.getSessionId() CREATES the session and reports firstTime=true only on the
+    // call that created it, so a render-time reader would consume that one-shot signal before
+    // gameInit runs and a brand-new player would never get the welcome dialog.
+    const [activeSessionId, setActiveSessionId] = useState<string>('');
     const atBottomRef = React.useRef<boolean>(true);
 
     const sessionId = new SessionHandler();
@@ -373,6 +378,7 @@ function Game() {
     async function gameInit(): Promise<GameResponse> {
         const [id, firstTime] = sessionId.getSessionId();
         if (firstTime) setDialogToOpen(DialogType.Welcome);
+        setActiveSessionId(id);
         return await server.gameInit(id);
     }
 
@@ -529,13 +535,15 @@ function Game() {
                 {/* Hint side panel: docked beside the transcript on desktop, full overlay of it on
                     mobile. Read-only server-side — asking costs no turn; the conversation history is
                     client-owned (persisted per session inside the shared component). */}
-                <HintPanel
-                    open={hintsOpen}
-                    onClose={() => setHintsOpen(false)}
-                    sessionId={sessionId.getSessionId()[0]}
-                    ask={server.hint}
-                    className="absolute inset-0 z-30 md:relative md:inset-auto md:z-auto md:w-[340px] md:flex-none md:h-full"
-                />
+                {activeSessionId && (
+                    <HintPanel
+                        open={hintsOpen}
+                        onClose={() => setHintsOpen(false)}
+                        sessionId={activeSessionId}
+                        ask={server.hint}
+                        className="absolute inset-0 z-30 md:relative md:inset-auto md:z-auto md:w-[340px] md:flex-none md:h-full"
+                    />
+                )}
             </div>
 
             <div
