@@ -9,6 +9,7 @@ using Model;
 using Model.Interface;
 using Planetfall;
 using SecretsManager;
+using Stationfall;
 using ZorkOne;
 
 var database = new DynamoDbSessionRepository();
@@ -108,6 +109,7 @@ async Task<IGameEngine> GetEngine()
     IGameEngine newEngine = args[0] switch
     {
         "Planetfall" => await CreateEngine<PlanetfallGame, PlanetfallContext>(),
+        "Stationfall" => await CreateEngine<StationfallGame, StationfallContext>(),
         "ZorkOne" => await CreateEngine<ZorkI, ZorkIContext>(),
         "EscapeRoom" => await CreateEngine<EscapeRoomGame, EscapeRoomContext>(),
         //"ZorkTwo" => CreateEngine<ZorkII, ZorkIIContext>(),
