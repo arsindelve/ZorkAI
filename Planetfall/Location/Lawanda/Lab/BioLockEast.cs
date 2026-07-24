@@ -25,9 +25,20 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
                 .Concat(Verbs.LookVerbs)
                 .ToArray(), ["window"]) && action.OriginalInput != null && action.OriginalInput.Contains("through")) ||
             action.Match(Verbs.ExamineVerbs, ["window"]))
-            return new PositiveInteractionResult(
+        {
+            var view =
                 "You can see a large laboratory, dimly illuminated. A blue glow comes from a crack in the northern wall of the lab. Shadowy, " +
-                "ominous shapes move about within the room. On the floor, just inside the door, you can see a magnetic-striped card. ");
+                "ominous shapes move about within the room. ";
+
+            // Issue #477: only describe the card on the floor while it hasn't been retrieved. The original
+            // WINDOW-F (globals.zil) guards this sentence on MINI-CARD's TOUCHBIT; HasEverBeenPickedUp is
+            // the engine's equivalent. Without this guard the window contradicts the player after the Floyd
+            // sacrifice, insisting the card is still on the floor while they're holding it.
+            if (!Repository.GetItem<MiniaturizationAccessCard>().HasEverBeenPickedUp)
+                view += "On the floor, just inside the door, you can see a magnetic-striped card. ";
+
+            return new PositiveInteractionResult(view);
+        }
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }

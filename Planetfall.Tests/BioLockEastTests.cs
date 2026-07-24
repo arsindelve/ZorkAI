@@ -759,4 +759,39 @@ public class BioLockEastTests : EngineTestsBase
         response.Should().Contain("Shadowy, ominous shapes move about within the room");
         response.Should().Contain("magnetic-striped card");
     }
+
+    [Test]
+    public async Task LookThroughWindow_CardNotYetTaken_StillShowsCardOnFloor()
+    {
+        // Regression guard for issue #477: while the miniaturization access card has not been
+        // retrieved, the window view still reports it lying on the Bio Lab floor.
+        var target = GetTarget();
+        StartHere<BioLockEast>();
+        GetItem<MiniaturizationAccessCard>().HasEverBeenPickedUp = false;
+
+        var response = await target.GetResponse("look through window");
+
+        response.Should().Contain("large laboratory, dimly illuminated");
+        response.Should().Contain("blue glow comes from a crack in the northern wall");
+        response.Should().Contain("Shadowy, ominous shapes move about within the room");
+        response.Should().Contain("magnetic-striped card");
+    }
+
+    [Test]
+    public async Task LookThroughWindow_AfterCardTaken_OmitsCardOnFloor()
+    {
+        // Issue #477: once the player is holding the miniaturization access card, the window
+        // must stop reporting it on the floor (the ZIL WINDOW-F guards the sentence on MINI-CARD's
+        // TOUCHBIT). The rest of the window view is unchanged.
+        var target = GetTarget();
+        StartHere<BioLockEast>();
+        Take<MiniaturizationAccessCard>();
+
+        var response = await target.GetResponse("look through window");
+
+        response.Should().Contain("large laboratory, dimly illuminated");
+        response.Should().Contain("blue glow comes from a crack in the northern wall");
+        response.Should().Contain("Shadowy, ominous shapes move about within the room");
+        response.Should().NotContain("magnetic-striped card");
+    }
 }
