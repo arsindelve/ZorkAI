@@ -7,6 +7,10 @@ internal class BoothThree : BoothBase
     public override string Name => "Booth 3";
 
     public override string[] NounsForMatching => ["booth three"];
+
+    // The teleport-booth buttons are matched in this booth's handler (full compound and bare color),
+    // not on any item. "beige" pairs with the already-covered "brown".
+    public override IEnumerable<string> SceneryNouns => ["brown button", "beige button", "beige"];
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

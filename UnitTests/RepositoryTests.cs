@@ -291,6 +291,21 @@ public class RepositoryTests
         nouns.Should().Contain("basement");      // Cellar.NounsForMatching (destination alias)
         nouns.Should().Contain("railing");       // TorchRoom.Scenery -> default SceneryNouns (SceneryItem)
     }
+
+    [Test]
+    public void GetNouns_HarvestsPlanetfallLocationScenery()
+    {
+        // The same location-scenery harvest must work for Planetfall (proves it is game-agnostic, not
+        // ZorkOne-special). These are scenery nouns declared on Planetfall locations' SceneryNouns.
+        var nouns = Repository.GetNouns("Planetfall");
+
+        nouns.Should().Contain("rift");        // RiftLocationBase.SceneryNouns (RiftNouns)
+        nouns.Should().Contain("crevice");     // AdminCorridorSouth.SceneryNouns
+        nouns.Should().Contain("lever");       // ShuttleControl.SceneryNouns
+        nouns.Should().Contain("window");      // BioLockEast.SceneryNouns (#423)
+        nouns.Should().Contain("up button");   // ElevatorBase.SceneryNouns
+        nouns.Should().Contain("green button"); // MachineShop.SceneryNouns
+    }
     
     [Test]
     public void GetContainers_ReturnsArrayOfNounsFromContainers()

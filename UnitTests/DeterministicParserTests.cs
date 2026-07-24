@@ -288,3 +288,36 @@ public class IntentParserDeterministicWiringTests
         aiParser.Verify(p => p.AskTheAIParser("pray at the altar", "somewhere", "session"), Times.Once);
     }
 }
+
+/// <summary>
+/// The location-scenery harvest is game-agnostic: the deterministic parser resolves Planetfall's
+/// location-declared scenery nouns too, with no ZorkOne special-casing. Planetfall has no deterministic
+/// walkthrough harness, so these stand in as the end-to-end proof that the newly-declared scenery nouns
+/// actually resolve (parser vocabulary -> intent), not just that they are harvested.
+/// </summary>
+[TestFixture]
+public class DeterministicParserPlanetfallTests
+{
+    private DeterministicParser _parser = null!;
+
+    [SetUp]
+    public void Setup()
+    {
+        Repository.Reset();
+        _parser = new DeterministicParser("Planetfall");
+    }
+
+    [TestCase("examine the rift", "examine", "rift")]          // RiftLocationBase.SceneryNouns
+    [TestCase("examine the crevice", "examine", "crevice")]    // AdminCorridorSouth.SceneryNouns
+    [TestCase("examine the window", "examine", "window")]      // BioLockEast.SceneryNouns (#423)
+    [TestCase("push the green button", "push", "green button")] // MachineShop.SceneryNouns (compound)
+    public void LocationDeclaredSceneryNoun_ResolvesToASimpleIntent(string input, string verb, string noun)
+    {
+        var result = _parser.Parse(input);
+
+        result.Should().BeOfType<SimpleIntent>();
+        var simple = (SimpleIntent)result!;
+        simple.Verb.Should().Be(verb);
+        simple.Noun.Should().Be(noun);
+    }
+}

@@ -12,6 +12,9 @@ internal class Infirmary : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHere
 {
     public override string Name => "Infirmary";
 
+    // The bare shelves are matched in this room's handler, not on any item.
+    public override IEnumerable<string> SceneryNouns => ["shelf", "shelves"];
+
     [UsedImplicitly] public bool HasToldAboutLazarus { get; set; }
     
     [UsedImplicitly] public int TurnsInInfirmary { get; set; }

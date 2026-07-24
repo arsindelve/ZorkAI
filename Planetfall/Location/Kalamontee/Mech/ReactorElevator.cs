@@ -13,6 +13,10 @@ internal class ReactorElevator : LocationWithNoStartingItems
 {
     public override string Name => "Reactor Elevator";
 
+    // Control-panel scenery matched in this room's handler, not on any item.
+    public override IEnumerable<string> SceneryNouns =>
+        ["up button", "down button", "control panel", "controls", "buttons"];
+
     private ReactorElevatorDoor Door => Repository.GetItem<ReactorElevatorDoor>();
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)

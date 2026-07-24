@@ -10,6 +10,9 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
 {
     public override string Name => "Bio Lock East";
 
+    // The lab-view window is matched in this room's handler (issue #423), not on any item.
+    public override IEnumerable<string> SceneryNouns => ["window"];
+
     public BioLockStateMachineManager StateMachine { get; } = new();
 
     public override void Init()

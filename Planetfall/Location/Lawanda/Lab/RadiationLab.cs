@@ -10,6 +10,9 @@ internal class RadiationLab : LocationBase, ITurnBasedActor
 {
     public override string Name => "Radiation Lab";
 
+    // The crack you peer through is matched in this room's handler (issue #447), not on any item.
+    public override IEnumerable<string> SceneryNouns => ["crack"];
+
     [UsedImplicitly] public int SickTurnCounter { get; set; }
 
     public override void Init()

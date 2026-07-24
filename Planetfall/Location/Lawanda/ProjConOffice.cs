@@ -11,6 +11,9 @@ internal class ProjConOffice : FloydSpecialInteractionLocation
     public override string Name => "ProjCon Office";
 
     public override string[] NounsForMatching => ["project control", "headquarters"];
+
+    // The west-wall logo is matched in this room's handler, not on any item.
+    public override IEnumerable<string> SceneryNouns => ["logo"];
     
     [UsedImplicitly]
     public bool AnnouncmentHasBeenMade { get; set; }

@@ -8,6 +8,10 @@ internal class ElevatorLobby : LocationBase
 {
     public override string Name => "Elevator Lobby";
 
+    // "blue button" is matched in this room's handler (the covered "red button" has a match here too,
+    // but "blue button" was absent from the vocabulary).
+    public override IEnumerable<string> SceneryNouns => ["blue button"];
+
     public override void Init()
     {
         StartWithItem<LowerElevatorDoor>();

@@ -10,6 +10,9 @@ public class Helicopter : FloydSpecialInteractionLocation
 
     public override string[] NounsForMatching => ["chopper", "copter"];
 
+    // Control-panel scenery matched in this room's handler, not on any item.
+    public override IEnumerable<string> SceneryNouns => [..base.SceneryNouns, "control panel", "controls"];
+
     public override string FloydPrompt => FloydPrompts.Helicopter;
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)

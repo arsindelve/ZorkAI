@@ -10,6 +10,9 @@ public class SystemsMonitors : LocationWithNoStartingItems
 
     public override string[] NounsForMatching => ["control room"];
 
+    // The wall of monitors is matched in this room's handler, not on any item.
+    public override IEnumerable<string> SceneryNouns => ["monitors", "screens"];
+
     [UsedImplicitly]
     public List<string> Fixed { get; set; } = [];
 

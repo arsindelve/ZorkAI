@@ -14,6 +14,14 @@ internal class MachineShop : LocationWithNoStartingItems
     // never move (issue #268 review). Keeping it on the actual machine shop resolves to a single hop.
     public override string[] NounsForMatching => ["workshop"];
 
+    // The dispenser spout and its colored/shaped buttons are matched in this room's handler (the handler
+    // word-splits, so the "<color> button" compound resolves to the right button), not on any item.
+    public override IEnumerable<string> SceneryNouns =>
+    [
+        "spout", "dispensing machine", "blue button", "green button", "yellow button", "brown button",
+        "gray button", "square button", "round button"
+    ];
+
     [UsedImplicitly] public bool FlaskUnderSpout { get; set; }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)

@@ -16,6 +16,14 @@ internal class CommRoom : LocationWithNoStartingItems, IFloydDoesNotTalkHere
 
     public override string[] NounsForMatching => ["communications", "radio room"];
 
+    // The coolant pour-targets (funnel/hole/console) and the playback button are matched in this room's
+    // handler, not on any item.
+    public override IEnumerable<string> SceneryNouns =>
+    [
+        "coolant", "fluid", "chemical", "hole", "funnel", "console", "message", "glowing button",
+        "playback button", "message playback button", "playback", "message playback"
+    ];
+
     [UsedImplicitly] public bool SystemIsCritical { get; set; }
 
     [UsedImplicitly] public bool IsFixed { get; set; }

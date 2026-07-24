@@ -20,6 +20,9 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
 
     public override string Name => "Admin Corridor South";
 
+    // The crevice/floor scenery is matched from local lists in this room's handler, not on any item.
+    public override IEnumerable<string> SceneryNouns => ["ground", "crack", "crevice", "floor", "hole"];
+
     public Task<string> Act(IContext context, IGenerationClient client)
     {
         if (HasSeenTheLight || HasTakenTheKey)

@@ -11,6 +11,10 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
     where TSlot : SlotBase<TCard, TSlot>, IItem, new()
     where TCard : AccessCard, new()
 {
+    // The elevator's "up button"/"down button" are matched in this base's handler, not on any item.
+    // Extends base so any derived elevator keeps its own Scenery nouns.
+    public override IEnumerable<string> SceneryNouns => [..base.SceneryNouns, "up button", "down button"];
+
     [UsedImplicitly] public bool HasBeenSummoned { get; set; }
 
     [UsedImplicitly] public bool InLobby { get; set; }
