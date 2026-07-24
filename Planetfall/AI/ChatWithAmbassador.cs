@@ -3,7 +3,7 @@ using ChatLambda;
 
 namespace Planetfall.AI;
 
-public class ChatWithAmbassador(IAmazonLambda? lambdaClient) : ChatWithCompanion(lambdaClient)
+public class ChatWithAmbassador(IAmazonLambda? lambdaClient) : ChatWithCompanion(lambdaClient), IChatWithAmbassador
 {
     protected override string AssistantName => "ambassador";
 

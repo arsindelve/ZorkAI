@@ -10,6 +10,9 @@
         <ProjectReference Include="..\ChatLambda\ChatLambda.csproj" />
         <ProjectReference Include="..\GameEngine\GameEngine.csproj"/>
         <ProjectReference Include="..\Model\Model.csproj"/>
+        <!-- AI/ builds its own chat clients against the shared endpoint settings, so this is a direct
+             dependency rather than one inherited through ChatLambda. -->
+        <ProjectReference Include="..\ZorkAI.OpenAI\ZorkAI.OpenAI.csproj"/>
         <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
     </ItemGroup>
 
@@ -24,9 +27,11 @@
       concatenation logic lives in C#, not here. An explicit include means a missing/renamed walkthrough
       fails the build loudly rather than silently degrading the hints.
 
-      AI/ is excluded: it holds the companion-chat Lambda clients (ChatWithFloyd/Blather/Ambassador),
-      which are plumbing, not game knowledge. They previously lived in the ChatLambda project and were
-      never part of the hint bundle, so excluding them keeps the bundle byte-identical after the move.
+      AI/ is excluded: it holds the companion-chat backends (the ChatWithFloyd/Blather/Ambassador
+      Lambda clients, the self-hosted LocalCompanionChat, and the factory that picks between them),
+      which are plumbing, not game knowledge. They all previously lived in the ChatLambda project and
+      were never part of the hint bundle, so excluding them keeps the bundle byte-identical after the
+      move.
     -->
     <ItemGroup>
         <EmbeddedResource Include="**/*.cs" Exclude="obj/**;bin/**;AI/**" />

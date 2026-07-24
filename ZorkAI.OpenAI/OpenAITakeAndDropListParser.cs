@@ -44,9 +44,42 @@ public class OpenAITakeAndDropListParser : OpenAIClientBase, IAITakeAndAndDropPa
             ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat()
         };
 
-        var response = await Client!.CompleteChatAsync(messages, options);
-        var result = JsonConvert.DeserializeObject<ItemsResponse>(response);
-        return result?.Items ?? [];
+        string response;
+        try
+        {
+            response = await Client!.CompleteChatAsync(messages, options);
+        }
+        catch (Exception ex)
+        {
+            // Some self-hosted OpenAI-compatible servers (issue #383) reject the JSON response
+            // format. Retry once without it; ParseItems below tolerates the free-form output.
+            Logger?.LogDebug(ex, "JSON response format rejected; retrying without it.");
+            response = await Client!.CompleteChatAsync(messages, new ChatCompletionOptions { Temperature = 0f });
+        }
+
+        return ParseItems(response);
+    }
+
+    /// <summary>
+    ///     Parses the items array out of model output, tolerating the code fences and surrounding
+    ///     prose that local models emit without a JSON response format. Public and static so it is
+    ///     unit-testable without a model.
+    /// </summary>
+    public static string[] ParseItems(string? raw)
+    {
+        var json = LlmJson.ExtractJsonObject(raw);
+        if (json is null)
+            return [];
+
+        try
+        {
+            var result = JsonConvert.DeserializeObject<ItemsResponse>(json);
+            return result?.Items ?? [];
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
     }
 
     private class ItemsResponse

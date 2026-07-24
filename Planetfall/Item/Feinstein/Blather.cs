@@ -1,5 +1,6 @@
 ﻿using ChatLambda;
 using Model.AIGeneration;
+using Newtonsoft.Json;
 using Planetfall.AI;
 using Planetfall.Command;
 
@@ -7,8 +8,11 @@ namespace Planetfall.Item.Feinstein;
 
 internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICanBeTalkedTo
 {
-    private readonly ChatWithBlather _chatWithBlather = new(null);
-    
+    // Factory-resolved: cloud Lambda normally, local model in self-hosted mode (issue #383).
+    [UsedImplicitly] [JsonIgnore]
+    public IChatWithBlather ChatWithBlather { get; set; } = CompanionChatFactory.Blather(BlatherPrompts.SystemPrompt);
+
+
     [UsedImplicitly]
     public int TurnsOnDeckNine { get; set; }
 
@@ -144,7 +148,7 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICan
     {
         try
         {
-            var response = await _chatWithBlather.AskBlatherAsync(text);
+            var response = await ChatWithBlather.AskBlatherAsync(text);
             
             // Add the response to Blather's conversation history for continuity
             LastTurnsOutput.Push(response.Message);
