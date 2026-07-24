@@ -29,8 +29,10 @@ public class PlanetfallGame : IInfocomGame
 
     public string DefaultSaveGameName => "planetfall-ai.sav";
 
-    // Planetfall keeps Infocom's grue in-joke for its dark rooms, same wording as the Zork games.
-    public string DarkLocationDescription => "It is pitch black. You are likely to be eaten by a grue. ";
+    // Planetfall keeps Infocom's grue in-joke for its dark rooms, but with its own wording — "You
+    // might be eaten by a grue.", NOT Zork's "You are likely to be eaten by a grue." Verbatim from
+    // the original DESCRIBE-ROOM routine (planetfall/verbs.zil).
+    public string DarkLocationDescription => "It is pitch black. You might be eaten by a grue. ";
 
     // https://github.com/the-infocom-files/planetfall/blob/834001e0704ceae3000953a79429ba8ad5216077/verbs.zil#L242
 
