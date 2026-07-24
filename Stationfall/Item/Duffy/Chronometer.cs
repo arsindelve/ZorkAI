@@ -18,13 +18,17 @@ public class Chronometer : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICan
     // Worn from the start of the game.
     public bool BeingWorn { get; set; } = true;
 
+    private static readonly Random Random = new();
+
     /// <summary>
-    ///     Galactic Standard Time, advanced each turn by the context. The original seeds this randomly
-    ///     (misc.zil:190); the port uses a fixed opening value so the autopilot course — which is
-    ///     computed from this number — stays reproducible for the walkthrough tests.
+    ///     Galactic Standard Time, advanced each turn by the context. Seeded randomly, as in the
+    ///     original (misc.zil:190), so the autopilot course differs between games — the player is meant
+    ///     to read the clock and do the arithmetic, not memorize a heading. Tests pin this directly.
+    ///     It stays on the raw Random rather than an injected chooser because a property initializer
+    ///     runs before anything could be injected.
     /// </summary>
     [UsedImplicitly]
-    public int CurrentTime { get; set; } = 4430;
+    public int CurrentTime { get; set; } = Random.Next(4431, 5651);
 
     /// <summary>
     ///     The chronometer mysteriously stops after Day 2 (ship.zil:92-95). Phase 3's sleep engine will
@@ -53,6 +57,11 @@ public class Chronometer : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICan
     /// </summary>
     private string GetTimeDescription()
     {
+        // No reading unless it's on your wrist (the original's V-TIME gates on WORNBIT).
+        if (!BeingWorn)
+            return "It is a standard wrist chronometer with a digital display. You'd have to be " +
+                   "wearing it to read the time. ";
+
         if (HasStopped)
             return "You glance at your chronometer and realize, with some annoyance, that it has " +
                    "stopped. You can't recall doing anything that would have broken it. ";

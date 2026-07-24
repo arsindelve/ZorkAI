@@ -2681,6 +2681,105 @@
       "nounTwo": "slot",
       "preposition": "in",
       "originalInput": "put assignment completion form in slot"
+    },
+    {
+      "inputs": [
+        "give activation to helen",
+        "give activation form to helen"
+      ],
+      "verb": "give",
+      "nounOne": "activation",
+      "nounTwo": "helen",
+      "preposition": "to",
+      "originalInput": "give activation to helen"
+    },
+    {
+      "inputs": [
+        "give activation to floyd",
+        "give activation form to floyd"
+      ],
+      "verb": "give",
+      "nounOne": "activation",
+      "nounTwo": "floyd",
+      "preposition": "to",
+      "originalInput": "give activation to floyd"
+    },
+    {
+      "inputs": [
+        "give activation to rex",
+        "give activation form to rex"
+      ],
+      "verb": "give",
+      "nounOne": "activation",
+      "nounTwo": "rex",
+      "preposition": "to",
+      "originalInput": "give activation to rex"
+    },
+    {
+      "inputs": [
+        "give assignment to helen",
+        "give assignment form to helen"
+      ],
+      "verb": "give",
+      "nounOne": "assignment",
+      "nounTwo": "helen",
+      "preposition": "to",
+      "originalInput": "give assignment to helen"
+    },
+    {
+      "inputs": [
+        "give assignment to floyd",
+        "give assignment form to floyd"
+      ],
+      "verb": "give",
+      "nounOne": "assignment",
+      "nounTwo": "floyd",
+      "preposition": "to",
+      "originalInput": "give assignment to floyd"
+    },
+    {
+      "inputs": [
+        "give assignment to rex",
+        "give assignment form to rex"
+      ],
+      "verb": "give",
+      "nounOne": "assignment",
+      "nounTwo": "rex",
+      "preposition": "to",
+      "originalInput": "give assignment to rex"
+    },
+    {
+      "inputs": [
+        "give authorization to helen",
+        "give authorization form to helen"
+      ],
+      "verb": "give",
+      "nounOne": "authorization",
+      "nounTwo": "helen",
+      "preposition": "to",
+      "originalInput": "give authorization to helen"
+    },
+    {
+      "inputs": [
+        "give authorization to floyd",
+        "give authorization form to floyd"
+      ],
+      "verb": "give",
+      "nounOne": "authorization",
+      "nounTwo": "floyd",
+      "preposition": "to",
+      "originalInput": "give authorization to floyd"
+    },
+    {
+      "inputs": [
+        "give authorization to rex",
+        "give authorization form to rex"
+      ],
+      "verb": "give",
+      "nounOne": "authorization",
+      "nounTwo": "rex",
+      "preposition": "to",
+      "originalInput": "give authorization to rex"
     }
   ],
   "enterSubLocationIntents": [

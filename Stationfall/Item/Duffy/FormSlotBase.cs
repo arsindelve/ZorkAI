@@ -61,14 +61,16 @@ public abstract class FormSlotBase : ContainerBase, ICanBeExamined
         if (form is null)
             return await base.RespondToMultiNounInteraction(action, context);
 
-        if (AcceptedFormType is null || form.GetType() != AcceptedFormType)
-            return new PositiveInteractionResult(RejectForm(form, context));
-
+        // Check possession BEFORE the form's type: otherwise the slot narrates physically taking and
+        // returning a form that was swallowed turns ago, or that the player left in another room.
         if (form.Consumed)
-            return new PositiveInteractionResult("The slot has already taken that form. ");
+            return new PositiveInteractionResult("That form is gone — the slot swallowed it. ");
 
         if (!context.Items.Contains(form))
             return new PositiveInteractionResult("You aren't holding it. ");
+
+        if (AcceptedFormType is null || form.GetType() != AcceptedFormType)
+            return new PositiveInteractionResult(RejectForm(form, context));
 
         return new PositiveInteractionResult(AcceptForm(form, context));
     }

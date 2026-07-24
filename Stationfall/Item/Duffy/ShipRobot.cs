@@ -30,6 +30,13 @@ public abstract class ShipRobot : ContainerBase, ICanBeExamined, ITurnBasedActor
     protected override int SpaceForItems => 5;
 
     /// <summary>
+    ///     The robots carry things in plain sight (the original's SEARCHBIT/OPENBIT, ship.zil:285).
+    ///     This matters: without it, handing a robot the activation form would hide it from inventory,
+    ///     examine and take, and quietly make the game unwinnable.
+    /// </summary>
+    public override bool IsTransparent => true;
+
+    /// <summary>
     ///     A selected robot follows the player from room to room. Returns the line describing the move,
     ///     or empty when there's nothing to say.
     /// </summary>

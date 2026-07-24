@@ -14,10 +14,10 @@ namespace Stationfall.Tests.Walkthrough;
 public class WalkthroughShipDeparture : WalkthroughTestBase
 {
     /// <summary>
-    ///     Chronometer reading pinned before the course is typed. Any value from 6600 to 6699 gives
-    ///     course 103 via ((T/50 - 132)^2 / 4) + 103.
+    ///     Chronometer reading pinned before the course is typed. 4600 yields course 503 via
+    ///     ((T/50 - 132)^2 / 4) + 103 -- deliberately not the formula's flat 103 floor.
     /// </summary>
-    public const int PinnedTime = 6600;
+    public const int PinnedTime = 4600;
 
     [Test]
     [TestCase("east", null, "Cargo Bay Entrance")]
@@ -32,7 +32,7 @@ public class WalkthroughShipDeparture : WalkthroughTestBase
     [TestCase("read time", null, "Galactic Standard Time")]
     [TestCase("enter pilot seat", null, "pilot seat", "Floyd clambers into the copilot seat")]
     [TestCase("put class three activation form in slot", null, "Spacecraft activated")]
-    [TestCase("type 103", "PinChronometer", "Course set")]
+    [TestCase("type 503", "PinChronometer", "Course set")]
     [TestCase("wait", null, "Time passes")]
     [TestCase("wait", null, "Time passes")]
     [TestCase("wait", null, "engines begin to whine")]
