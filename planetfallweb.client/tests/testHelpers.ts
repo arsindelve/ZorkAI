@@ -12,6 +12,20 @@ import {mockResponses} from './mockResponses';
  * This function navigates to the application, waits for the welcome modal to be visible,
  * and then closes it by clicking the close button.
  */
+export async function visitGame(page: Page, path: string = '/') {
+    await page.goto(path);
+
+    // The welcome modal only appears on a browser's FIRST visit (SessionHandler reports
+    // firstTime once per localStorage). On repeat navigations within the same context there is
+    // nothing to dismiss, so close it only if it actually shows up.
+    const modal = page.locator('[data-testid="welcome-modal"]');
+    if (await modal.isVisible({timeout: 2000}).catch(() => false)) {
+        await page.locator('[data-testid="welcome-modal-close-button"]').click();
+    }
+
+    await page.waitForSelector('[data-testid="game-input"]', {state: 'visible'});
+}
+
 export async function closeWelcomeModal(page: Page, path: string = '/') {
     // Navigate to the application (a custom path lets specs pass query params, e.g. ?hints=0)
     await page.goto(path);

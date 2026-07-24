@@ -10,7 +10,7 @@
  */
 
 import {test, expect, Route} from '@playwright/test';
-import {closeWelcomeModal, handlePlanetfallRoute} from './testHelpers';
+import {closeWelcomeModal, handlePlanetfallRoute, visitGame} from './testHelpers';
 
 const HINT_URL = 'http://localhost:5000/Planetfall/hint';
 
@@ -119,12 +119,13 @@ test.describe('Hint Panel', () => {
         // The rest of the game UI is unaffected.
         await expect(page.locator('[data-testid="game-input"]')).toBeVisible();
 
-        // The override persists across a plain reload (no query param).
-        await closeWelcomeModal(page);
+        // The override persists across a plain reload (no query param). Use visitGame: the welcome
+        // modal already fired on this context's first visit and will not appear again.
+        await visitGame(page);
         await expect(page.locator('[data-testid="hints-button"]')).toHaveCount(0);
 
         // ?hints=1 flips it back on for this browser.
-        await closeWelcomeModal(page, '/?hints=1');
+        await visitGame(page, '/?hints=1');
         await page.click('[data-testid="hints-button"]');
         await expect(page.getByTestId('hint-panel')).toBeVisible();
     });
