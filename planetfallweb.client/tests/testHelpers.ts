@@ -12,9 +12,9 @@ import {mockResponses} from './mockResponses';
  * This function navigates to the application, waits for the welcome modal to be visible,
  * and then closes it by clicking the close button.
  */
-export async function closeWelcomeModal(page: Page) {
-    // Navigate to the application
-    await page.goto('/');
+export async function closeWelcomeModal(page: Page, path: string = '/') {
+    // Navigate to the application (a custom path lets specs pass query params, e.g. ?hints=0)
+    await page.goto(path);
 
     // Wait for the welcome modal to be visible
     await page.waitForSelector('[data-testid="welcome-modal"]', {state: 'visible'});

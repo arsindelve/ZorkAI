@@ -106,4 +106,26 @@ test.describe('Hint Panel', () => {
         await page.locator('[data-testid="hint-chip"]').first().click();
         await expect(page.getByText('A chip-sized nudge.')).toBeVisible();
     });
+
+    // The committed config.json enables hints for dev/e2e (prod's deploy-written config omits the
+    // key, shipping the feature dark). ?hints=0 / ?hints=1 is the per-browser override, persisted
+    // in localStorage — this is the switch used to test the real prod pipeline before launch.
+    test('feature flag: ?hints=0 hides hints, persists, and ?hints=1 restores them', async ({
+        page,
+    }) => {
+        await closeWelcomeModal(page, '/?hints=0');
+        await expect(page.locator('[data-testid="hints-button"]')).toHaveCount(0);
+        await expect(page.locator('[data-testid="hint-panel"]')).toHaveCount(0);
+        // The rest of the game UI is unaffected.
+        await expect(page.locator('[data-testid="game-input"]')).toBeVisible();
+
+        // The override persists across a plain reload (no query param).
+        await closeWelcomeModal(page);
+        await expect(page.locator('[data-testid="hints-button"]')).toHaveCount(0);
+
+        // ?hints=1 flips it back on for this browser.
+        await closeWelcomeModal(page, '/?hints=1');
+        await page.click('[data-testid="hints-button"]');
+        await expect(page.getByTestId('hint-panel')).toBeVisible();
+    });
 });
