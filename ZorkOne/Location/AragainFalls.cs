@@ -10,6 +10,10 @@ public class AragainFalls : LocationWithNoStartingItems
 {
     public override string Name => "Aragain Falls";
 
+    // "rainbow" is matched via RainbowInteraction (cross / look under the rainbow), not on any item.
+    // Extend the Scenery-derived nouns with it so the deterministic parser resolves those commands.
+    public override IEnumerable<string> SceneryNouns => [..base.SceneryNouns, "rainbow"];
+
     public override string[] NounsForMatching => ["waterfall"];
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
