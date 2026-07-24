@@ -1,4 +1,5 @@
 using ChatLambda;
+using Planetfall.AI;
 
 namespace IntegrationTests;
 
