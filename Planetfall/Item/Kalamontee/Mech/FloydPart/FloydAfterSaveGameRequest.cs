@@ -1,4 +1,6 @@
-namespace Model.AIGeneration.Requests;
+using Model.AIGeneration.Requests;
+
+namespace Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 public class FloydAfterSaveGameRequest : Request
 {

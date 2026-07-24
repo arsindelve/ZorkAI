@@ -354,8 +354,14 @@ public static class Repository
     /// <summary>
     /// For unit testing purposes only.
     /// </summary>
+    /// <remarks>
+    /// Issue #486: <paramref name="gameName"/> is required - it is the game assembly to reflect over,
+    /// and <see cref="Repository"/> is engine-level and game-agnostic. A default here would bake one
+    /// specific game into the shared engine and silently load the wrong game's nouns whenever a caller
+    /// omitted it. Callers already have the game name available (e.g. <c>context.Game.GameName</c>).
+    /// </remarks>
     /// <returns></returns>
-    public static string[] GetNouns(string gameName = "ZorkOne")
+    public static string[] GetNouns(string gameName)
     {
         lock (_allNouns)
         {
@@ -379,10 +385,14 @@ public static class Repository
     }
 
     /// <summary>
-    /// For god mode purposes only. 
+    /// For god mode purposes only.
     /// </summary>
+    /// <remarks>
+    /// Issue #486: <paramref name="gameName"/> is required - see <see cref="GetNouns"/>. The engine
+    /// must never default to a specific game's assembly.
+    /// </remarks>
     /// <returns></returns>
-    public static void LoadAllLocations(string gameName = "ZorkOne")
+    public static void LoadAllLocations(string gameName)
     {
         lock (_allLocations)
         {
@@ -410,10 +420,14 @@ public static class Repository
     }
 
     /// <summary>
-    /// For god mode purposes only. 
+    /// For god mode purposes only.
     /// </summary>
+    /// <remarks>
+    /// Issue #486: <paramref name="gameName"/> is required - see <see cref="GetNouns"/>. The engine
+    /// must never default to a specific game's assembly.
+    /// </remarks>
     /// <returns></returns>
-    public static void LoadAllItems(string gameName = "ZorkOne")
+    public static void LoadAllItems(string gameName)
     {
         lock (_allItems)
         {
@@ -466,10 +480,14 @@ public static class Repository
     }
 
     /// <summary>
-    /// For unit testing purposes only. 
+    /// For unit testing purposes only.
     /// </summary>
+    /// <remarks>
+    /// Issue #486: <paramref name="gameName"/> is required - see <see cref="GetNouns"/>. The engine
+    /// must never default to a specific game's assembly.
+    /// </remarks>
     /// <returns></returns>
-    public static string[] GetContainers(string gameName = "ZorkOne")
+    public static string[] GetContainers(string gameName)
     {
         if (_allContainers.Length > 0) return _allContainers;
 

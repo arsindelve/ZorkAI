@@ -23,9 +23,13 @@
       disk). PlanetfallHintProvider reads these resources and assembles the bundle at runtime — the
       concatenation logic lives in C#, not here. An explicit include means a missing/renamed walkthrough
       fails the build loudly rather than silently degrading the hints.
+
+      AI/ is excluded: it holds the companion-chat Lambda clients (ChatWithFloyd/Blather/Ambassador),
+      which are plumbing, not game knowledge. They previously lived in the ChatLambda project and were
+      never part of the hint bundle, so excluding them keeps the bundle byte-identical after the move.
     -->
     <ItemGroup>
-        <EmbeddedResource Include="**/*.cs" Exclude="obj/**;bin/**" />
+        <EmbeddedResource Include="**/*.cs" Exclude="obj/**;bin/**;AI/**" />
         <EmbeddedResource Include="../Planetfall.Tests/Walkthrough/WalkthroughTestOne.cs" />
     </ItemGroup>
 

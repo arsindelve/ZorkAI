@@ -2,6 +2,7 @@ using System.Text;
 using Amazon.Lambda;
 using Amazon.Lambda.Model;
 using ChatLambda;
+using Planetfall.AI;
 
 namespace UnitTests.LambdaChat;
 
