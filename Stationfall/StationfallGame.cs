@@ -1,6 +1,5 @@
 using Model.Interface;
 using Stationfall.GlobalCommand;
-using Stationfall.Location;
 
 namespace Stationfall;
 

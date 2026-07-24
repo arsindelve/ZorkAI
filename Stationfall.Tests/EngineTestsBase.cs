@@ -11,7 +11,7 @@ using Model.Item;
 using Model.Location;
 using Moq;
 using Stationfall.GlobalCommand;
-using Stationfall.Location;
+using Stationfall.Location.Duffy;
 using UnitTests;
 
 namespace Stationfall.Tests;
@@ -63,7 +63,11 @@ public class EngineTestsBase
             new ItemProcessorFactory(takeAndDropParser.Object), _parser, _client.Object,
             Mock.Of<ISecretsManager>(), Mock.Of<ICloudWatchLogger<TurnLog>>(), ParseConversationMock.Object);
         engine.Context.Verbosity = Verbosity.Verbose;
+
+        // The test-facing GameEngine constructor skips the boot sequence the production one runs
+        // (GameEngine.cs:98-99), so seed the starting room and the player's starting inventory here.
         Repository.GetLocation<DeckTwelve>().Init();
+        engine.Context.Init();
 
         _storedEngine = engine;
         engine.Context.LastInput = null;
