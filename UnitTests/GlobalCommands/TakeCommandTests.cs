@@ -1,11 +1,129 @@
-﻿using GameEngine;
+using GameEngine;
 using Model.AIGeneration.Requests;
 using ZorkOne.Location.MazeLocation;
 
 namespace UnitTests.GlobalCommands;
 
-public class TakeAllDropAllTests : EngineTestsBase
+/// <summary>
+/// The take/drop global commands in all three of their forms: a bare "take" that must resolve or
+/// prompt, "take all"/"drop all" over a whole room, and a named take whose noun comes back from the
+/// AI list parser. Merged from the former TakeOnlyItemAvailableTests / TakeAllDropAllTests /
+/// TakeSwordRepro (the last of which was also misnamed — a "Repro" is a test like any other).
+/// </summary>
+public class TakeCommandTests : EngineTestsBase
 {
+    [Test]
+    public async Task Take_NoItemsToTake_SingleItemIsRooted()
+    {
+        var engine = GetTargetWithRealParser();
+
+        // Act
+        var response = await engine.GetResponse("take");
+
+        // Assert
+        response.Should().Contain("What do you");
+    }
+
+    [Test]
+    public async Task Take_NoItemsToTake()
+    {
+        var engine = GetTargetWithRealParser();
+        engine.Context.CurrentLocation = Repository.GetLocation<RockyLedge>();
+
+        // Act
+        var response = await engine.GetResponse("take");
+
+        // Assert
+        response.Should().Contain("What do you");
+    }
+
+    [Test]
+    public async Task Take_MultipleItemsToTake()
+    {
+        var engine = GetTargetWithRealParser();
+        engine.Context.CurrentLocation = Repository.GetLocation<Attic>();
+
+        // Act
+        var response = await engine.GetResponse("take");
+
+        // Assert
+        response.Should().Contain("What do you");
+    }
+
+    [Test]
+    public async Task Take_MultipleItemsToTake_SecondPass()
+    {
+        var engine = GetTargetWithRealParser();
+        Repository.GetItem<Lantern>().IsOn = true;
+        engine.Context.Take(Repository.GetItem<Lantern>());
+        engine.Context.CurrentLocation = Repository.GetLocation<Attic>();
+        engine.Context.CurrentLocation = Repository.GetLocation<Attic>();
+
+        // Act
+        await engine.GetResponse("take");
+        var response = await engine.GetResponse("rope");
+
+        // Assert
+        response.Should().Contain("Taken");
+        engine.Context.HasItem<Rope>().Should().BeTrue();
+    }
+
+    [Test]
+    public async Task Take_NoItemsToTake_ReplyWithCustomString()
+    {
+        var engine = GetTargetWithRealParser();
+
+        // Act
+        await engine.GetResponse("take");
+        var response = await engine.GetResponse("mailbox");
+
+        // Assert
+        response.Should().Contain("anchored");
+    }
+
+    [Test]
+    public async Task Take_SingleItemToTake()
+    {
+        var engine = GetTargetWithRealParser();
+        // There is a single item to be taken in this location
+        engine.Context.CurrentLocation = Repository.GetLocation<Gallery>();
+
+        // Act
+        var response = await engine.GetResponse("take");
+
+        // Assert
+        response.Should().Contain("Taken");
+        response.Should().Contain("(painting)");
+    }
+
+    [Test]
+    public async Task TakeSword_FromLivingRoom_ShouldSucceed()
+    {
+        var target = GetTarget();
+        // Force AI parser to return "sword" plain
+        TakeAndDropParser.Setup(s => s.GetListOfItemsToTake(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new[] { "sword" });
+
+        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+        var response = await target.GetResponse("take sword");
+
+        response.Should().Contain("Taken");
+    }
+
+    [Test]
+    public async Task TakeSword_AIReturnsElvishSword_ShouldSucceed()
+    {
+        var target = GetTarget();
+        // Force AI parser to return "elvish sword" — what may happen in production
+        TakeAndDropParser.Setup(s => s.GetListOfItemsToTake(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new[] { "elvish sword" });
+
+        target.Context.CurrentLocation = Repository.GetLocation<LivingRoom>();
+        var response = await target.GetResponse("take sword");
+
+        response.Should().Contain("Taken");
+    }
+
     [Test]
     public async Task TakeAllNothingHereThatCanBeTaken()
     {

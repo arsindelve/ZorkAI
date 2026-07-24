@@ -2,7 +2,7 @@ using Utilities;
 
 namespace UnitTests;
 
-public class NumberConverter
+public class NumberConverterTests
 {
     [Test]
     [TestCase("five", 5)]
