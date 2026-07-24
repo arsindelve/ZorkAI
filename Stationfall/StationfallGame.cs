@@ -1,14 +1,13 @@
 using Model.Interface;
+using Stationfall.GlobalCommand;
 using Stationfall.Location;
 
 namespace Stationfall;
 
 /// <summary>
-///     Scaffold for the Stationfall port (the sequel to Planetfall). This is an intentionally-empty
-///     shell that satisfies <see cref="IInfocomGame" /> so the project builds and can be wired into
-///     the engine. The real content — rooms, items, Floyd's return, scoring, global commands — is
-///     still to be authored. Model everything here on <c>PlanetfallGame</c>: Stationfall is a
-///     Planetfall-family game and reuses its engine subsystems (Floyd, hunger/sleep clocks).
+///     The Stationfall game definition (the sequel to Planetfall). Model everything here on
+///     <c>PlanetfallGame</c>: Stationfall is a Planetfall-family game and will reuse its engine
+///     subsystems (Floyd, hunger/sleep clocks) as the port fills in.
 /// </summary>
 public class StationfallGame : IInfocomGame
 {
@@ -18,8 +17,8 @@ public class StationfallGame : IInfocomGame
 
     public string GameName => "Stationfall";
 
-    // TODO: Floyd returns in Stationfall. List the talkable NPC types here (e.g. typeof(Floyd)) once
-    // ported, so "Floyd, ..." is recognized even when he isn't in the room (see PlanetfallGame).
+    // TODO (Phase 3): Floyd returns in Stationfall — add typeof(Floyd) here once ported so
+    // "Floyd, ..." is recognized even when he isn't in the room (see PlanetfallGame).
     public IReadOnlyList<Type> TalkableCharacterTypes => [];
 
     public string StartText => """
@@ -36,21 +35,28 @@ public class StationfallGame : IInfocomGame
     // TODO: design decision — Stationfall's own system-prompt secret key.
     public string SystemPromptSecretKey => "StationfallPrompt";
 
-    // TODO: author the real rank bands (see PlanetfallGame.GetScoreDescription for the pattern).
+    // Rank ladder verified against the original's TELL-SCORE (verbs.zil:73-88).
     public string GetScoreDescription(int score)
     {
-        throw new NotImplementedException("Stationfall score ranks not yet authored.");
+        if (score >= 80) return "Intergalactic Mega-Hero";
+        if (score >= 65) return "Interstellar Superstar";
+        if (score >= 50) return "Interplanetary Star";
+        if (score >= 40) return "International VIP";
+        if (score >= 27) return "Footnote in History";
+        if (score >= 17) return "One-Day Flash on the Evening News";
+        if (score >= 1) return "Rising Young Insignificant Nobody";
+        return "Insignificant Nobody";
     }
 
-    // TODO: build a StationfallGlobalCommandFactory (model on PlanetfallGlobalCommandFactory).
     public IGlobalCommandFactory GetGlobalCommandFactory()
     {
-        throw new NotImplementedException("Stationfall global command factory not yet built.");
+        return new StationfallGlobalCommandFactory();
     }
 
     public void Init(IContext context)
     {
-        // TODO: register per-turn actors/daemons here — hunger & sleep clocks (reused from
-        // Planetfall), the station's wandering NPCs, and Floyd once he is ported.
+        // TODO (Phase 3): register per-turn daemons here — hunger & sleep clocks (reused from
+        // Planetfall), the pyramid's robot-evilness takeover, the hull welders, and Floyd. Nothing to
+        // register yet for a bootable Deck Twelve.
     }
 }
