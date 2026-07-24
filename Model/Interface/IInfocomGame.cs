@@ -29,6 +29,14 @@ public interface IInfocomGame
     string StartText { get; }
 
     /// <summary>
+    ///     The text shown when the adventurer is in a dark location with no light source, unless the
+    ///     specific location supplies its own wording. This lives on the game — not the engine's
+    ///     <c>DarkLocation</c> base class — so a game's flavor text (e.g. Zork's "eaten by a grue")
+    ///     never has to be hardcoded into the shared engine.
+    /// </summary>
+    string DarkLocationDescription { get; }
+
+    /// <summary>
     ///     Represents the default save game name for an Infocom game.
     /// </summary>
     /// <remarks>
