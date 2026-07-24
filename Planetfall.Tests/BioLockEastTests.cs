@@ -471,6 +471,45 @@ public class BioLockEastTests : EngineTestsBase
     }
 
     [Test]
+    public async Task AbandoningSequence_ByWalkingAway_ThenReturning_SacrificeCanBeRestarted()
+    {
+        // Issue #493 review follow-up: abandoning must restore the true pre-sequence state, which includes
+        // CLOSING the inner door Floyd rushed through. If the door is left open, returning leaves Floyd
+        // nagging "open the door" while it is already open - and re-opening an open door is a no-op
+        // ("It is already open.") that never re-fires HandleDoorOpening - so the obvious recovery
+        // ("open door") does nothing and the sacrifice can only be restarted via a non-obvious close/open.
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.HasEverBeenOn = true;
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(5)).Returns(false); // deterministic: always the "follow" branch
+        floyd.Chooser = mockChooser.Object;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true;
+        bioLockEast.StateMachine.FloydHasSaidNeedToGetCard = true;
+        target.Context.RegisterActor(floyd);
+        target.Context.RegisterActor(bioLockEast);
+
+        await target.GetResponse("open door"); // Floyd rushes into the lab
+        await target.GetResponse("west"); // abandon the sequence
+
+        // The inner door must be closed again - the reset restores the real pre-sequence state.
+        GetItem<BioLockInnerDoor>().IsOpen.Should()
+            .BeFalse("abandoning must close the door Floyd rushed through, not leave a 'NotStarted + open' state");
+
+        await target.GetResponse("east"); // walk back in
+
+        // The obvious recovery must work: 'open door' restarts the whole sacrifice from the top.
+        var restart = await target.GetResponse("open door");
+        restart.Should().Contain(FloydConstants.InTheLabOne);
+        restart.Should().NotContain("already open");
+        bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.FloydRushedInNeedToCloseDoor);
+    }
+
+    [Test]
     public async Task AfterSacrificeCompletes_ReenteringRoom_DeadFloydDoesNotNagToOpenTheDoor()
     {
         // Issue #493 review follow-up: EndSequence marks Floyd dead and lays his body back in this room but

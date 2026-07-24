@@ -20,7 +20,6 @@ internal class TeleportationSlot<TBooth> : SlotBase<TeleportationAccessCard, Tel
     public override string[] NounsForMatching =>
         ["teleportation slot", "slot", "teleportation card slot"];
 
-
     protected override InteractionResult OnSuccessfulSlide(IContext context, string? afterMessage)
     {
         // Activate the booth AND start its 30-turn expiry countdown (issue #399). Previously this only

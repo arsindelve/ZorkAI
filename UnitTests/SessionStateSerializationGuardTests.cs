@@ -1,3 +1,4 @@
+using System.IO;
 using System.Reflection;
 using System.Text;
 using FluentAssertions;
@@ -26,15 +27,29 @@ namespace UnitTests;
 ///     setter (<c>{ get; set; }</c> or <c>{ get; private set; }</c>) so the object round-trips; genuinely
 ///     immutable, always-reconstructed config goes on <see cref="Allowlisted"/> with a reason.
 ///
-///     Scope: the serialization roots — every concrete location, item, and context. A nested state-holder
-///     these reference (e.g. <c>BioLockStateMachineManager</c>) must likewise keep all of its own state on
-///     writable properties; today they all do.
+///     Scope and known limitations (kept deliberately narrow to stay false-positive-free):
+///     - It scans the serialization roots — every concrete location, item, and context in every game
+///       assembly (discovered dynamically, so new games are covered automatically) — plus their inherited
+///       base properties.
+///     - It does NOT recurse into nested state-holders reached via writable properties (e.g.
+///       <c>BioLockStateMachineManager</c>, timers, coordinators). Those must likewise keep all of their
+///       own state on writable properties; today they all do, but nothing here enforces it.
+///     - It only recognises the auto-property shape (a compiler-generated backing field). The
+///       semantically identical field-backed form —
+///       <c>private readonly Mgr _m = new(); public Mgr M => _m;</c> — also loses state (a private field
+///       is not serialized either) but is not detected, because a read-only expression-bodied property
+///       cannot be told apart from a genuinely computed one by reflection alone. Prefer a writable
+///       property for any serialized state; do not hide it behind a read-only field accessor.
 /// </summary>
 [TestFixture]
 public class SessionStateSerializationGuardTests
 {
-    // Assemblies whose concrete locations/items/contexts travel in the serialized session.
-    private static readonly string[] GameAssemblies = ["GameEngine", "ZorkOne", "Planetfall"];
+    // A floor of games that discovery must always find. This is a failsafe against discovery silently
+    // finding nothing (which would make the whole guard pass vacuously) - NOT the list of what gets
+    // scanned. Any game whose DLL is in the test output is discovered and scanned automatically, so a
+    // newly-added game is covered without touching this list; it only needs updating if a game is renamed
+    // or removed.
+    private static readonly string[] ExpectedGames = ["ZorkOne", "Planetfall", "EscapeRoom", "ZorkTwo"];
 
     /// <summary>
     ///     "DeclaringType.PropertyName" entries that are get-only reference-typed properties on serialized
@@ -47,10 +62,17 @@ public class SessionStateSerializationGuardTests
     [Test]
     public void NoSerializedType_HasAGetOnlyPropertyHoldingMutableState()
     {
+        var gameAssemblies = DiscoverGameAssemblies();
+
+        // Failsafe: if discovery finds fewer games than expected, the guard would be silently protecting
+        // less than it claims - fail loudly rather than pass vacuously.
+        gameAssemblies.Select(a => a.GetName().Name!).Should().Contain(ExpectedGames,
+            "the serialization guard must scan every game; if discovery misses one it is not protecting it");
+
         var offenders = new List<string>();
         var seen = new HashSet<string>();
 
-        foreach (var assembly in GameAssemblies.Select(Assembly.Load))
+        foreach (var assembly in gameAssemblies)
         foreach (var type in GetLoadableTypes(assembly))
         {
             if (!IsSerializedType(type))
@@ -74,6 +96,38 @@ public class SessionStateSerializationGuardTests
         }
 
         offenders.Should().BeEmpty(BuildFailureMessage(offenders));
+    }
+
+    private static IReadOnlyList<Assembly> DiscoverGameAssemblies()
+    {
+        // Directory-scan the test output instead of hardcoding game names, so a newly-added game is
+        // covered automatically once it is referenced (its DLL then lands here). A game assembly is one
+        // that references GameEngine and defines at least one concrete serialized type. GameEngine itself
+        // is intentionally excluded: its abstract bases (LocationBase, ItemBase, Context<T>) carry no
+        // concrete types, and their inherited properties are already covered when a concrete game type
+        // that derives from them is scanned.
+        var assemblies = new List<Assembly>();
+
+        foreach (var dll in Directory.GetFiles(AppContext.BaseDirectory, "*.dll"))
+        {
+            Assembly asm;
+            try
+            {
+                asm = Assembly.LoadFrom(dll);
+            }
+            catch
+            {
+                continue; // unmanaged / unloadable dll in the output - not a game assembly
+            }
+
+            if (!asm.GetReferencedAssemblies().Any(r => r.Name == "GameEngine"))
+                continue;
+
+            if (GetLoadableTypes(asm).Any(IsSerializedType))
+                assemblies.Add(asm);
+        }
+
+        return assemblies;
     }
 
     private static bool IsSerializedType(Type type)

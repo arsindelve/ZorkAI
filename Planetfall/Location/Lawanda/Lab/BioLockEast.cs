@@ -96,6 +96,13 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
             // door" death even though Floyd followed the player out. Reset the sequence so a later
             // re-entry starts clean (Floyd, who still remembers he volunteered, simply re-offers).
             StateMachine.ResetSequence();
+
+            // Also close the inner door Floyd rushed through. Resetting the state machine alone would
+            // leave an anomalous "NotStarted but door open" state: on re-entry Floyd nags "open the door"
+            // while it is already open, and re-opening an open door is a no-op (OpenMe short-circuits to
+            // "It is already open." without calling OnOpening), so the obvious restart does nothing.
+            // Closing it restores the genuine pre-sequence state, so "open door" cleanly restarts the rush.
+            GetItem<BioLockInnerDoor>().IsOpen = false;
         }
 
         context.RemoveActor(this);
