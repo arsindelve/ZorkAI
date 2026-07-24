@@ -357,7 +357,13 @@
     { "inputs": ["give laser to microbe", "throw laser to microbe", "feed laser to microbe"], "verb": "give", "nounOne": "laser", "nounTwo": "microbe", "preposition": "to", "originalInput": "give laser to microbe" },
     { "inputs": ["offer laser to microbe"], "verb": "offer", "nounOne": "laser", "nounTwo": "microbe", "preposition": "to", "originalInput": "offer laser to microbe" },
 
-    { "inputs": ["put good in cube"], "verb": "put", "nounOne": "good bedistor", "nounTwo": "cube", "preposition": "in", "originalInput": "put good in cube" }
+    { "inputs": ["put good in cube"], "verb": "put", "nounOne": "good bedistor", "nounTwo": "cube", "preposition": "in", "originalInput": "put good in cube" },
+
+    // Stationfall's form slots. The dynamic put-X-in-Y rule only handles the four-word shape, so the
+    // full form titles the game teaches the player need explicit mappings.
+    { "inputs": ["put robot use authorization form in slot", "insert robot use authorization form in slot"], "verb": "put", "nounOne": "robot use authorization form", "nounTwo": "slot", "preposition": "in", "originalInput": "put robot use authorization form in slot" },
+    { "inputs": ["put class three activation form in slot", "put class three spacecraft activation form in slot"], "verb": "put", "nounOne": "class three spacecraft activation form", "nounTwo": "slot", "preposition": "in", "originalInput": "put class three activation form in slot" },
+    { "inputs": ["put assignment completion form in slot", "insert assignment completion form in slot"], "verb": "put", "nounOne": "assignment completion form", "nounTwo": "slot", "preposition": "in", "originalInput": "put assignment completion form in slot" }
   ],
 
   "enterSubLocationIntents": [

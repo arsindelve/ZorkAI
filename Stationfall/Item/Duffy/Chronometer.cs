@@ -8,7 +8,10 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public class Chronometer : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRead, IAmClothing
 {
-    public override string[] NounsForMatching => ["chronometer", "watch", "wristwatch", "wrist watch"];
+    // "time" is included so "read time" / "check time" work — the original has a dedicated TIME verb
+    // (verbs.zil V-TIME), and reading the time is a required step before setting the truck's course.
+    public override string[] NounsForMatching =>
+        ["chronometer", "watch", "wristwatch", "wrist watch", "time"];
 
     public override int Size => 8;
 

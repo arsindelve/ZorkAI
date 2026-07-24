@@ -206,8 +206,17 @@ public class ShipDepartureTests : EngineTestsBase
 
         log.Should().Contain("Defaulting to bay two");
         log.Should().Contain("Stationfall");
-        engine.Context.CurrentLocation.Should().BeOfType<DockingBayTwo>();
         engine.Context.Score.Should().Be(5);
+
+        // Docking leaves you aboard; the truck's exit now leads into the station
+        // (SPACETRUCK-EXIT-F, ship.zil:1023-1032).
+        engine.Context.CurrentLocation.Should().BeOfType<Spacetruck>();
+
+        await engine.GetResponse("get up");
+        await engine.GetResponse("open hatch");
+        await engine.GetResponse("exit");
+
+        engine.Context.CurrentLocation.Should().BeOfType<DockingBayTwo>();
     }
 
     [Test]

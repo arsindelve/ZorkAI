@@ -378,31 +378,18 @@ public class Spacetruck : LocationBase, ITurnBasedActor
         HasDocked = true;
         context.AddPoints(5);
 
-        // Floyd rides along, so move him before the player.
-        var floyd = Repository.GetItem<Floyd>();
-        if (floyd.IsSelected)
-        {
-            floyd.CurrentLocation?.RemoveItem(floyd);
-            Repository.GetLocation<DockingBayTwo>().ItemPlacedHere(floyd);
-        }
+        // The player stays aboard: in the original the truck's OUT exit simply starts leading to
+        // Docking Bay #2 once it has docked (SPACETRUCK-EXIT-F, ship.zil:1023-1032), so they get up,
+        // collect their gear, open the hatch, and walk out under their own steam. Floyd stays put too;
+        // he follows when the player leaves.
+        await Task.CompletedTask;
 
-        Repository.GetItem<CopilotSeat>().OccupiedByFloyd = false;
-        Repository.GetItem<PilotSeat>().OccupiedByFloyd = false;
-        SubLocation = null;
-
-        context.CurrentLocation = Repository.GetLocation<DockingBayTwo>();
-        Repository.GetItem<SpacetruckHatch>().IsOpen = true;
-
-        var arrival =
-            "The maneuvering thrusters kick on, nudging you toward the station. A recorded voice says, " +
-            "\"Docking bay one is occupied. Defaulting to bay two.\" \n\n" +
-            "The truck glides into the docking bay and your stomach flips as the bay's arti-grav field " +
-            "comes on. The truck settles the last few centimeters to the floor, the bay floods with " +
-            "air, and a voice whispers, \"Stationfall.\" Through the viewport you see no one at all " +
-            "waiting to meet you. Odd. \n\n";
-
-        // Assigning CurrentLocation fires none of the enter hooks, so describe the new room explicitly.
-        return arrival + await new LookProcessor().Process(string.Empty, context, client, Runtime.Unknown);
+        return "The maneuvering thrusters kick on, nudging you toward the station. A recorded voice " +
+               "says, \"Docking bay one is occupied. Defaulting to bay two.\" \n\n" +
+               "The truck glides into the docking bay and your stomach flips as the bay's arti-grav " +
+               "field comes on. The truck settles the last few centimeters to the floor, the bay " +
+               "floods with air, and a voice whispers, \"Stationfall.\" Through the viewport you see " +
+               "no one at all waiting to meet you. Odd. ";
     }
 
     protected override string GetContextBasedDescription(IContext context)
