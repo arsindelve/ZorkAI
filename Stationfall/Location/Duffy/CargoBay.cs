@@ -1,3 +1,5 @@
+using Model.AIGeneration;
+
 namespace Stationfall.Location.Duffy;
 
 /// <summary>
@@ -29,6 +31,44 @@ public class CargoBay : LocationBase
                 }
             }
         };
+    }
+
+    /// <summary>
+    ///     "enter truck" is the natural way to board, but the truck is a room rather than an item, so
+    ///     the parser has nothing to resolve the noun to. Route the common phrasings to the In exit.
+    /// </summary>
+    public override Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
+        IGenerationClient client)
+    {
+        var normalized = input?.ToLowerInvariant().Replace("the ", "").Trim();
+
+        string[] boarding =
+        [
+            "enter truck", "enter spacetruck", "board truck", "board spacetruck", "get in truck",
+            "get into truck", "get in spacetruck", "climb in truck", "enter cab"
+        ];
+
+        if (normalized is not null && boarding.Contains(normalized))
+        {
+            var hatch = Repository.GetItem<SpacetruckHatch>();
+
+            if (!hatch.IsOpen)
+                return Task.FromResult<InteractionResult>(
+                    new PositiveInteractionResult("The spacetruck's hatch is closed. "));
+
+            return Task.FromResult<InteractionResult>(new PositiveInteractionResult(
+                MoveTo<Spacetruck>(context, client)));
+        }
+
+        return base.RespondToSpecificLocationInteraction(input, context, client);
+    }
+
+    private static string MoveTo<T>(IContext context, IGenerationClient client) where T : class, ILocation, new()
+    {
+        var destination = Repository.GetLocation<T>();
+        context.CurrentLocation.OnLeaveLocation(context, destination, context.CurrentLocation);
+        context.CurrentLocation = destination;
+        return destination.GetDescription(context);
     }
 
     protected override string GetContextBasedDescription(IContext context)
