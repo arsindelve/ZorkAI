@@ -141,34 +141,14 @@ public class Spacetruck : LocationBase, ITurnBasedActor
         }
 
         // The hatch item lives in the Cargo Bay (where you first open it), so it isn't in scope from
-        // inside the truck. Handle it here explicitly rather than seeding one shared instance into two
-        // rooms, which would leave its CurrentLocation pointing at whichever room initialized last.
-        if (normalized is "close hatch" or "shut hatch" or "close door" or "close the hatch")
-        {
-            var hatch = Repository.GetItem<SpacetruckHatch>();
+        // inside the truck. Handle it here rather than seeding one shared instance into two rooms,
+        // which would leave its CurrentLocation pointing at whichever room initialized last. Matching
+        // is on verb + any of the hatch's own nouns, so every phrasing the item advertises works —
+        // shutting the hatch is required before launch, and a silent miss is fatal.
+        var hatchResponse = SpacetruckHatch.TryHandleRawCommand(normalized, context, this);
 
-            if (!hatch.IsOpen)
-                return Task.FromResult<InteractionResult>(new PositiveInteractionResult("It is already closed. "));
-
-            hatch.IsOpen = false;
-            return Task.FromResult<InteractionResult>(
-                new PositiveInteractionResult(hatch.NowClosed(this)));
-        }
-
-        if (normalized is "open hatch" or "open door" or "open the hatch")
-        {
-            var hatch = Repository.GetItem<SpacetruckHatch>();
-            var refusal = hatch.CannotBeOpenedDescription(context);
-
-            if (refusal is not null)
-                return Task.FromResult<InteractionResult>(new PositiveInteractionResult(refusal));
-
-            if (hatch.IsOpen)
-                return Task.FromResult<InteractionResult>(new PositiveInteractionResult("It is already open. "));
-
-            hatch.IsOpen = true;
-            return Task.FromResult<InteractionResult>(new PositiveInteractionResult(hatch.NowOpen(this)));
-        }
+        if (hatchResponse is not null)
+            return Task.FromResult<InteractionResult>(new PositiveInteractionResult(hatchResponse));
 
         switch (normalized)
         {
@@ -184,11 +164,28 @@ public class Spacetruck : LocationBase, ITurnBasedActor
             case "press red button":
             case "push button":
             case "press button":
+                // Once docked, the beacon actually plays its recording (RED-BUTTON-F, ship.zil:1136).
                 return Task.FromResult<InteractionResult>(new PositiveInteractionResult(
-                    "You're not in trouble! Misuse of the emergency beacon is a court-martial offense. "));
+                    HasDocked
+                        ? "A recording answers: \"At the conclusion of this message your emergency " +
+                          "signal will be transmitted. In the meantime, please remain calm. Nothing " +
+                          "can go wrong... go wrong... go wrong...\" "
+                        : "You're not in trouble! Misuse of the emergency beacon is a court-martial " +
+                          "offense. "));
         }
 
         return base.RespondToSpecificLocationInteraction(input, context, client);
+    }
+
+    /// <summary>
+    ///     Walking out of the truck necessarily gets you out of the seat. Without this the seat stays
+    ///     "occupied" after you leave, which both satisfies the launch interlock for a player who is
+    ///     standing in the cargo bay and lets them dodge the failed-to-strap-in death.
+    /// </summary>
+    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
+    {
+        SubLocation = null;
+        base.OnLeaveLocation(context, newLocation, previousLocation);
     }
 
     /// <summary>
@@ -237,6 +234,12 @@ public class Spacetruck : LocationBase, ITurnBasedActor
         if (CoursePicked != 0)
             return "A recorded voice says, \"You have already made your selection.\" ";
 
+        // 0 is the "no course yet" sentinel, so accepting it as a heading would leave the autopilot
+        // believing nothing had been entered and stall the launch forever. No valid heading is below
+        // 1 anyway — the formula's floor is 103.
+        if (course < 1)
+            return "A recorded voice says, \"Error.\" ";
+
         if (!BothSeatsOccupied(context))
             return "A recorded voice says, \"Safety precautions forbid the acceptance of course " +
                    "settings unless both the pilot and copilot seats are occupied.\" ";
@@ -272,6 +275,13 @@ public class Spacetruck : LocationBase, ITurnBasedActor
     /// </summary>
     public async Task<string> Act(IContext context, IGenerationClient client)
     {
+        // Helen can't resist paperwork: while she is aboard she shreds the activation form the moment
+        // she can see it (the original's SPACETRUCK-F M-END hook, ship.zil:1017-1021).
+        var shredded = ShredTheFormIfHelenIsAboard(context);
+
+        if (shredded is not null)
+            return shredded;
+
         if (CoursePicked == 0 || HasDocked)
             return string.Empty;
 
@@ -304,6 +314,25 @@ public class Spacetruck : LocationBase, ITurnBasedActor
     }
 
     /// <summary>
+    ///     Returns the shredding message when Helen is in the truck with the activation form in reach,
+    ///     or null when there's nothing to shred.
+    /// </summary>
+    private string? ShredTheFormIfHelenIsAboard(IContext context)
+    {
+        var helen = Repository.GetItem<Helen>();
+
+        if (!helen.IsSelected || helen.CurrentLocation != this || context.CurrentLocation != this)
+            return null;
+
+        var form = Repository.GetItem<ClassThreeSpacecraftActivationForm>();
+
+        if (form.Consumed || !context.Items.Contains(form))
+            return null;
+
+        return Helen.Shred(form, context);
+    }
+
+    /// <summary>
     ///     The moment of launch, and three ways to die: standing in the bay, leaving the hatch open, or
     ///     failing to strap in (ship.zil:1158-1174).
     /// </summary>
@@ -318,15 +347,11 @@ public class Spacetruck : LocationBase, ITurnBasedActor
                 "gasses are extremely deadly. ", context).InteractionMessage;
         }
 
-        if (context.CurrentLocation is not Spacetruck)
-        {
-            // Left aboard the ship: the truck simply leaves without you.
-            context.RemoveActor(this);
-            HasDocked = false;
-            return "Somewhere below, you hear the cargo bay doors cycle as the spacetruck departs " +
-                   "without you. ";
-        }
-
+        // Note: there is deliberately NO "the truck leaves without you" branch. In the original the
+        // only survivable outcome is being strapped into a seat (ship.zil:1158-1174) — the final
+        // catch-all kills anyone who isn't, wherever they are. An earlier version of this method let a
+        // player who wandered off live, which stranded them in a truck that was permanently "in
+        // flight" and had no exits.
         if (Repository.GetItem<SpacetruckHatch>().IsOpen)
         {
             context.RemoveActor(this);

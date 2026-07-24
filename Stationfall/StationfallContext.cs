@@ -29,10 +29,20 @@ public class StationfallContext : Context<StationfallGame>, ITimeBasedContext
 
     public int CurrentTime => Repository.GetItem<Chronometer>().CurrentTime;
 
-    public string CurrentTimeResponse =>
-        Repository.GetItem<Chronometer>().HasStopped
-            ? "Your chronometer appears to have stopped. "
-            : $"According to your chronometer, the current time is {CurrentTime}. ";
+    public string CurrentTimeResponse
+    {
+        get
+        {
+            var chronometer = Repository.GetItem<Chronometer>();
+
+            if (!chronometer.BeingWorn)
+                return "You aren't wearing your chronometer. ";
+
+            return chronometer.HasStopped
+                ? "Your chronometer appears to have stopped. "
+                : $"According to your chronometer, the current time is {CurrentTime}. ";
+        }
+    }
 
     public override string CurrentScore =>
         $"Your score would be {Score} (out of 80 points). It is Day {Day} of your adventure. " +

@@ -13,12 +13,14 @@ namespace Stationfall.Tests;
 public class ShipDepartureTests : EngineTestsBase
 {
     /// <summary>
-    ///     A chronometer reading chosen so the course formula lands on a tidy number:
-    ///     6600/50 = 132; 132-132 = 0; 0 squared = 0; 0/4 = 0; 0+103 = 103.
+    ///     A chronometer reading in the range real play actually produces, chosen so the course is NOT
+    ///     the formula's flat floor of 103: 4600/50 = 92; 92-132 = -40; squared = 1600; /4 = 400;
+    ///     +103 = 503. Pinning near 6600 would have made the heading 103 for a ±7-turn window, so a
+    ///     hardcoded course would have passed these tests.
     /// </summary>
-    private const int PinnedTime = 6600;
+    private const int PinnedTime = 4600;
 
-    private const int ExpectedCourse = 103;
+    private const int ExpectedCourse = 503;
 
     [Test]
     public void CourseFormula_MatchesTheOriginalIntegerArithmetic()
@@ -199,6 +201,11 @@ public class ShipDepartureTests : EngineTestsBase
         Repository.GetItem<Chronometer>().CurrentTime = PinnedTime;
         var course = await engine.GetResponse($"type {ExpectedCourse}");
         course.Should().Contain("Course set");
+
+        // The heading must be derived from the clock at the moment of typing, not hardcoded.
+        Repository.GetLocation<Spacetruck>().RightCourse
+            .Should().Be(Spacetruck.CalculateCorrectCourse(PinnedTime))
+            .And.Be(ExpectedCourse);
 
         var log = string.Empty;
         for (var turn = 0; turn < 14 && !Repository.GetLocation<Spacetruck>().HasDocked; turn++)

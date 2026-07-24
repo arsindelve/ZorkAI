@@ -1,3 +1,5 @@
+using Model.AIGeneration;
+
 namespace Stationfall.Location.Duffy;
 
 /// <summary>
@@ -38,6 +40,22 @@ public class DockingBayTwo : LocationBase
                 }
             }
         };
+    }
+
+    /// <summary>
+    ///     The hatch item lives in the Cargo Bay, so it is out of scope here too; route open/close/
+    ///     examine to it so a player can climb back into the docked truck.
+    /// </summary>
+    public override Task<InteractionResult> RespondToSpecificLocationInteraction(string? input, IContext context,
+        IGenerationClient client)
+    {
+        var normalized = input?.ToLowerInvariant().Replace("the ", "").Trim();
+        var hatchResponse = SpacetruckHatch.TryHandleRawCommand(normalized, context, this);
+
+        if (hatchResponse is not null)
+            return Task.FromResult<InteractionResult>(new PositiveInteractionResult(hatchResponse));
+
+        return base.RespondToSpecificLocationInteraction(input, context, client);
     }
 
     protected override string GetContextBasedDescription(IContext context)
