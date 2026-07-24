@@ -1,5 +1,7 @@
 using ChatLambda;
 using GameEngine;
+using GameEngine.Location;
+using GameEngine.StaticCommand.Implementation;
 using Model.AIGeneration.Requests;
 using Model.AIParsing;
 using Model.Intent;
@@ -445,6 +447,40 @@ public class EngineTests : EngineTestsBase
 
         result = await target.GetResponse("turn off lantern");
         result.Should().Contain("grue");
+    }
+
+    // The dark-room description must be sourced from the game (IInfocomGame.DarkLocationDescription),
+    // NOT baked into the engine's DarkLocation base class. Proof: a dark room with no location-specific
+    // override renders whatever the game supplies. Guards against re-hardcoding game-specific flavor
+    // (e.g. Zork's grue) in the shared engine.
+    [Test]
+    public void DarkLocationDescription_IsSuppliedByTheGame_NotHardcodedInTheEngine()
+    {
+        var game = new Mock<IInfocomGame>();
+        game.Setup(g => g.DarkLocationDescription).Returns("A darkness unique to this game. ");
+
+        var context = new Mock<IContext>();
+        context.Setup(c => c.ItIsDarkHere).Returns(true);
+        context.Setup(c => c.CurrentLocation).Returns(new TestDarkRoom());
+        context.Setup(c => c.Game).Returns(game.Object);
+
+        var result = LookProcessor.LookAround(context.Object);
+
+        result.Should().Be("A darkness unique to this game. ");
+    }
+
+    // A dark location with no bespoke dark description, used to prove the engine falls back to the game.
+    private sealed class TestDarkRoom : DarkLocation
+    {
+        public override string Name => "Test Dark Room";
+
+        protected override string GetContextBasedDescription(IContext context) => "A lit test room. ";
+
+        protected override Dictionary<Direction, MovementParameters> Map(IContext context) => new();
+
+        public override void Init()
+        {
+        }
     }
 
     [Test]

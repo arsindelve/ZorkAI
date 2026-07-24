@@ -20,6 +20,8 @@ public class ZorkI : IInfocomGame
 
     public string DefaultSaveGameName => "zork1-ai.sav";
 
+    public string DarkLocationDescription => "It is pitch black. You are likely to be eaten by a grue. ";
+
     public string GetScoreDescription(int score)
     {
         // https://ganelson.github.io/inform-website/book/WI_9_3.html
