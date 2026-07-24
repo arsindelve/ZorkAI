@@ -12,7 +12,7 @@ interface HeaderComponentProps {
 
 const statChip: React.CSSProperties = {
     background: 'rgba(12, 10, 9, 0.55)',
-    border: '1px solid rgba(196, 154, 76, 0.25)'
+    border: '1px solid rgba(196, 154, 76, 0.25)',
 };
 
 const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, moves, score}) => (
@@ -21,7 +21,8 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, moves, s
         style={{
             background: 'linear-gradient(135deg, #2b2723 0%, #161310 100%)',
             border: '1px solid rgba(196, 154, 76, 0.35)',
-            boxShadow: '0 6px 22px rgba(196, 154, 76, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+            boxShadow:
+                '0 6px 22px rgba(196, 154, 76, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
         }}
     >
         <div
@@ -39,24 +40,43 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, moves, s
                 {locationName}
             </span>
         </div>
-        <div className="flex gap-3 w-[242px] lg:w-[274px] mr-1">{/* width + mr-1 align this cluster's edges with the compass box below */}
+        <div className="flex gap-3 w-[242px] lg:w-[274px] mr-1">
+            {/* width + mr-1 align this cluster's edges with the compass box below */}
             <div
                 className="hidden sm:flex flex-1 items-center justify-center px-3 py-2 rounded-lg transition-colors duration-200 hover:border-[#c49a4c]"
                 data-testid="header-moves"
                 style={statChip}
             >
-                <DirectionsRunIcon className="mr-2" style={{color: '#c49a4c'}} fontSize="small"/>
-                <span className="mr-2 uppercase tracking-widest text-stone-400" style={{fontSize: '0.65rem'}}>Moves</span>
-                <CountUp value={moves} className="font-bold text-lg" style={{color: '#e3c179', textShadow: '0 0 10px rgba(196, 154, 76, 0.45)'}}/>
+                <DirectionsRunIcon className="mr-2" style={{color: '#c49a4c'}} fontSize="small" />
+                <span
+                    className="mr-2 uppercase tracking-widest text-stone-400"
+                    style={{fontSize: '0.65rem'}}
+                >
+                    Moves
+                </span>
+                <CountUp
+                    value={moves}
+                    className="font-bold text-lg"
+                    style={{color: '#e3c179', textShadow: '0 0 10px rgba(196, 154, 76, 0.45)'}}
+                />
             </div>
             <div
                 className="hidden sm:flex flex-1 items-center justify-center px-3 py-2 rounded-lg transition-colors duration-200 hover:border-[#c49a4c]"
                 data-testid="header-score"
                 style={statChip}
             >
-                <ScoreboardIcon className="mr-2" style={{color: '#c49a4c'}} fontSize="small"/>
-                <span className="mr-2 uppercase tracking-widest text-stone-400" style={{fontSize: '0.65rem'}}>Score</span>
-                <CountUp value={score} className="font-bold text-lg" style={{color: '#e3c179', textShadow: '0 0 10px rgba(196, 154, 76, 0.45)'}}/>
+                <ScoreboardIcon className="mr-2" style={{color: '#c49a4c'}} fontSize="small" />
+                <span
+                    className="mr-2 uppercase tracking-widest text-stone-400"
+                    style={{fontSize: '0.65rem'}}
+                >
+                    Score
+                </span>
+                <CountUp
+                    value={score}
+                    className="font-bold text-lg"
+                    style={{color: '#e3c179', textShadow: '0 0 10px rgba(196, 154, 76, 0.45)'}}
+                />
             </div>
         </div>
     </div>

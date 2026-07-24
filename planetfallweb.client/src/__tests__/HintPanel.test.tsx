@@ -13,7 +13,7 @@ describe('HintPanel Component', () => {
     });
 
     const renderPanel = (ask: jest.Mock, open = true) =>
-        render(<HintPanel open={open} onClose={jest.fn()} sessionId={sessionId} ask={ask}/>);
+        render(<HintPanel open={open} onClose={jest.fn()} sessionId={sessionId} ask={ask} />);
 
     test('renders nothing when closed', () => {
         renderPanel(jest.fn(), false);
@@ -36,11 +36,15 @@ describe('HintPanel Component', () => {
         await waitFor(() => expect(screen.getByTestId('hint-answer')).toBeInTheDocument());
         expect(ask).toHaveBeenCalledWith('what do I do?', []);
         expect(screen.getByTestId('hint-question')).toHaveTextContent('what do I do?');
-        expect(screen.getByTestId('hint-answer')).toHaveTextContent('Try waiting. The ship has plans.');
+        expect(screen.getByTestId('hint-answer')).toHaveTextContent(
+            'Try waiting. The ship has plans.',
+        );
 
         // The exchange is persisted per session — this is the client-owned stateless history.
         const stored = JSON.parse(localStorage.getItem(storageKey)!);
-        expect(stored).toEqual([{question: 'what do I do?', revealed: 'Try waiting. The ship has plans.'}]);
+        expect(stored).toEqual([
+            {question: 'what do I do?', revealed: 'Try waiting. The ship has plans.'},
+        ]);
     });
 
     test('a follow-up passes the prior history to ask', async () => {
@@ -79,7 +83,9 @@ describe('HintPanel Component', () => {
 
     test('a refusal (isHint: false) is shown but never recorded', async () => {
         // e.g. the stale-session message: the server answers 200 with a system message, not a hint.
-        const ask = jest.fn().mockResolvedValue({text: "I can't find a game in progress.", isHint: false});
+        const ask = jest
+            .fn()
+            .mockResolvedValue({text: "I can't find a game in progress.", isHint: false});
         renderPanel(ask);
 
         fireEvent.change(screen.getByTestId('hint-input'), {target: {value: 'help'}});

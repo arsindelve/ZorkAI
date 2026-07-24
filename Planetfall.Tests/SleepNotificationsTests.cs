@@ -269,6 +269,61 @@ public class SleepNotificationsTests
 
     #endregion
 
+    #region Already-In-Bed Settle Tests (Issue #392)
+
+    [Test]
+    public void SleepNotifications_TrySettleIntoBed_WhenInBedAndWarningDue_QueuesFallAsleepAndReturnsSettleMessage()
+    {
+        var notifications = new SleepNotifications();
+        notifications.Initialize(0); // NextWarningAt = 3600
+
+        var result = notifications.TrySettleIntoBed(3600, isInBed: true);
+
+        result.Should().Contain("You suddenly realize how tired you were and how comfortable the bed is");
+        result.Should().NotContain("finding a nice safe place to sleep");
+        notifications.FallAsleepQueued.Should().BeTrue();
+        notifications.FallAsleepAt.Should().Be(3616); // 3600 + 16
+    }
+
+    [Test]
+    public void SleepNotifications_TrySettleIntoBed_WhenNotInBed_ReturnsNullAndQueuesNothing()
+    {
+        var notifications = new SleepNotifications();
+        notifications.Initialize(0);
+
+        var result = notifications.TrySettleIntoBed(3600, isInBed: false);
+
+        result.Should().BeNull();
+        notifications.FallAsleepQueued.Should().BeFalse();
+    }
+
+    [Test]
+    public void SleepNotifications_TrySettleIntoBed_BeforeWarningDue_ReturnsNullAndQueuesNothing()
+    {
+        var notifications = new SleepNotifications();
+        notifications.Initialize(0); // NextWarningAt = 3600
+
+        var result = notifications.TrySettleIntoBed(3599, isInBed: true);
+
+        result.Should().BeNull();
+        notifications.FallAsleepQueued.Should().BeFalse();
+    }
+
+    [Test]
+    public void SleepNotifications_TrySettleIntoBed_WhenAlreadyFallingAsleep_ReturnsNullAndDoesNotRequeue()
+    {
+        var notifications = new SleepNotifications();
+        notifications.Initialize(0);
+        notifications.QueueFallAsleep(1000); // FallAsleepAt = 1016
+
+        var result = notifications.TrySettleIntoBed(3600, isInBed: true);
+
+        result.Should().BeNull();
+        notifications.FallAsleepAt.Should().Be(1016); // unchanged - not re-queued
+    }
+
+    #endregion
+
     #region Fall Asleep Queue Tests
 
     [Test]

@@ -22,7 +22,9 @@ internal class TeleportationSlot<TBooth> : SlotBase<TeleportationAccessCard, Tel
     
     protected override InteractionResult OnSuccessfulSlide(IContext context, string? afterMessage)
     {
-        Repository.GetLocation<TBooth>().IsEnabled = true;
+        // Activate the booth AND start its 30-turn expiry countdown (issue #399). Previously this only
+        // set IsEnabled, so the activation never lapsed.
+        CardActivationTimer.Enable(Repository.GetLocation<TBooth>(), context);
         return new PositiveInteractionResult("Nothing happens for a moment. Then a light flashes \"Redee.\"" + afterMessage);
     }
 }

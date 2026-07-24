@@ -365,9 +365,9 @@ This Lambda integration demonstrates how the core game engine's excellent archit
 - **Examples**: See `Laser.cs`, `Floyd.cs`, `SleepEngine.cs` for usage patterns
 - **Known violations to fix when touched**: a few classes still `new Random()` directly instead of the
   injected `Chooser` — `Planetfall/Location/Feinstein/BlatherLocation.cs` (`RandomBlatherBlock()`),
-  `ZorkOne/Location/ForestLocation/ForestPath.cs`, `ZorkOne/Location/UpATree.cs`,
-  `Planetfall/Item/Feinstein/Ambassador.cs`. These make their randomness untestable; refactor to
-  `Chooser` (and mock it) when modifying them.
+  `ZorkOne/Location/ForestLocation/ForestPath.cs`, `ZorkOne/Location/UpATree.cs`. These make their
+  randomness untestable; refactor to `Chooser` (and mock it) when modifying them.
+  (`Planetfall/Item/Feinstein/Ambassador.cs` was converted in PR #384.)
 
 ### AI Integration Guidelines  
 - **Hierarchical parsing**: Try simple pattern matching first, then fall back to expensive AI calls

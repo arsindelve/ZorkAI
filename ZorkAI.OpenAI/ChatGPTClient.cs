@@ -11,8 +11,18 @@ namespace ZorkAI.OpenAI;
 /// <summary>
 ///     Represents a client for interacting with ZorkAI.OpenAI API to generate text.
 /// </summary>
-public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerationClient
+public class ChatGPTClient : OpenAIClientBase, IGenerationClient
 {
+    public ChatGPTClient(ILogger? logger) : base(logger)
+    {
+    }
+
+    public ChatGPTClient(ILogger? logger, IChatCompletionClient client,
+        IChatCompletionClient? companionClient = null) : base(logger, clientOverride: client)
+    {
+        _companionClient = companionClient;
+    }
+
     protected override string ModelName => "gpt-4o";
 
     // Companion speech (Floyd's chatter) runs on a cheaper, equally-fast model. It is a short,
@@ -21,10 +31,12 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
     // NOTE: confirm this id is enabled on the account before deploying.
     private const string CompanionModelName = "gpt-5.4-mini";
 
-    private ChatClient? _companionClient;
+    private IChatCompletionClient? _companionClient;
 
-    private ChatClient? CompanionClient =>
-        _companionClient ??= ApiKey is null ? null : new ChatClient(model: CompanionModelName, apiKey: ApiKey);
+    private IChatCompletionClient? CompanionClient =>
+        _companionClient ??= ApiKey is null
+            ? null
+            : new OpenAIChatCompletionClient(new ChatClient(model: CompanionModelName, apiKey: ApiKey));
 
     public Action? OnGenerate { get; set; }
 
@@ -78,8 +90,7 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
             Temperature = request.Temperature
         };
 
-        ChatCompletion completion = await Client!.CompleteChatAsync(messages, options);
-        var responseContent = completion.Content[0].Text;
+        var responseContent = await Client!.CompleteChatAsync(messages, options);
 
         if (string.IsNullOrEmpty(responseContent))
             return "The narrator is silent. ";
@@ -123,19 +134,17 @@ public class ChatGPTClient(ILogger? logger) : OpenAIClientBase(logger), IGenerat
         // Companion speech runs on a cheaper model. If that model is unavailable or misconfigured,
         // degrade gracefully to the narrator's model rather than throwing - keeping with the codebase's
         // "graceful degradation when AI services unavailable" principle.
-        ChatCompletion completion;
+        string responseContent;
         try
         {
-            completion = await (CompanionClient ?? Client)!.CompleteChatAsync(messages, options);
+            responseContent = await (CompanionClient ?? Client)!.CompleteChatAsync(messages, options);
         }
         catch (Exception ex) when (CompanionClient is not null && Client is not null)
         {
             Logger?.LogWarning(ex,
                 "Companion model '{Model}' failed; falling back to the narrator model.", CompanionModelName);
-            completion = await Client.CompleteChatAsync(messages, options);
+            responseContent = await Client.CompleteChatAsync(messages, options);
         }
-
-        var responseContent = completion.Content[0].Text;
 
         if (string.IsNullOrEmpty(responseContent))
             return "Your companion says nothing. ";

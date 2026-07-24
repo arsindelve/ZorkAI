@@ -255,8 +255,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // "it" clarification). A crash can occur *after* _processorInProgress was assigned but before
         // the turn completed; if we leave it set, the NEXT turn's input is fed into that orphaned
         // processor instead of being parsed normally — soft-locking the player in a long-lived engine
-        // (e.g. console runtime). Clearing it keeps the "player can keep playing" guarantee (issue #271).
-        _processorInProgress = null;
+        // (e.g. console runtime). Clearing it — and its persisted descriptors (issue #472), so the
+        // orphaned prompt cannot be rehydrated on a later request either — keeps the "player can keep
+        // playing" guarantee (issue #271).
+        ClearProcessorInProgress();
 
         _logger?.LogError(ex,
             "Unhandled exception during turn processing for input '{Input}'. TurnCorrelationId: {TurnCorrelationId}",
@@ -351,24 +353,57 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     }
 
     /// <summary>
-    ///     Rewrites a leading "look at &lt;noun&gt;" into the canonical "examine &lt;noun&gt;" so it routes
-    ///     through the examine-with-noun path instead of collapsing to the bare-room LOOK command
-    ///     (issues #312 / #283). Only the exact "look at " prefix followed by a noun is rewritten — bare
-    ///     "look"/"look around" and other "look &lt;preposition&gt;" phrases (e.g. "look under the rug",
-    ///     "look in the box") are intentionally left alone.
+    ///     Rewrites a leading "look at &lt;noun&gt;" — and the container-inspection phrasings
+    ///     "look in &lt;noun&gt;" / "look inside &lt;noun&gt;" (issue #396) — into the canonical
+    ///     "examine &lt;noun&gt;" so they route through the examine-with-noun path (which lists an open
+    ///     container's contents) instead of collapsing to the bare-room LOOK command or being handed to
+    ///     the AI parser, which mis-tags the "in" as a movement ("You cannot go that way."). This mirrors
+    ///     the original ZIL, where LOOK IN &lt;object&gt; maps to V-LOOK-INSIDE (issues #312 / #283 for
+    ///     "look at"; issue #396 for "look in"/"look inside"). Left untouched: bare "look"/"look around",
+    ///     genuinely different prepositions ("look under the rug", "look behind the painting", "look
+    ///     through the crack", and "look into ..." — not an original syntax, and it reads as
+    ///     "investigate"), and the "look in inventory" / "look in my inventory" phrasing owned by
+    ///     GlobalCommandFactory's InventoryProcessor (which runs on the literal text after this —
+    ///     rewriting it to "examine inventory" would break the inventory listing).
     /// </summary>
     internal static string? NormalizeLookAt(string? input)
     {
         if (string.IsNullOrWhiteSpace(input))
             return input;
 
-        const string prefix = "look at ";
         var trimmed = input.TrimStart();
-        if (!trimmed.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-            return input;
 
-        var noun = trimmed[prefix.Length..].Trim();
-        return string.IsNullOrEmpty(noun) ? input : "examine " + noun;
+        // "look at <noun>" -> "examine <noun>" (issues #312 / #283).
+        const string lookAtPrefix = "look at ";
+        if (trimmed.StartsWith(lookAtPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            var atNoun = trimmed[lookAtPrefix.Length..].Trim();
+            return string.IsNullOrEmpty(atNoun) ? input : "examine " + atNoun;
+        }
+
+        // "look in <noun>" / "look inside <noun>" -> "examine <noun>" (issue #396). The trailing space in
+        // "look in " keeps the two prefixes mutually exclusive ("look inside X" never matches "look in "),
+        // so the match order is not load-bearing; longest-first is just a defensive habit.
+        string[] lookInPrefixes = ["look inside ", "look in "];
+        foreach (var lookInPrefix in lookInPrefixes)
+        {
+            if (!trimmed.StartsWith(lookInPrefix, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            var noun = trimmed[lookInPrefix.Length..].Trim();
+            if (string.IsNullOrEmpty(noun))
+                return input;
+
+            // Preserve the "look in inventory" / "look in my inventory" special-case owned by
+            // GlobalCommandFactory (InventoryProcessor); rewriting it to "examine inventory" breaks it.
+            if (noun.Equals("inventory", StringComparison.OrdinalIgnoreCase)
+                || noun.Equals("my inventory", StringComparison.OrdinalIgnoreCase))
+                return input;
+
+            return "examine " + noun;
+        }
+
+        return input;
     }
 
     /// <summary>
@@ -395,12 +430,13 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (string.IsNullOrEmpty(playerInput))
             return PostProcessing(await GetGeneratedNoCommandResponse());
 
-        // 2b. ------- "look at <noun>" is an examine synonym, not the bare-room LOOK command. The AI
-        // parser (rule (f) in the system prompt) collapses "look at X" to a noun-less look intent for
-        // single-word nouns, re-describing the room instead of the object (issues #312 / #283). Rewrite
-        // it to the canonical "examine <noun>" here so it routes through the examine-with-noun path,
-        // while leaving the bare forms ("look", "look around") and other "look <prep>" phrases
-        // ("look under the rug", "look in the box") untouched. Note: because this runs before pronoun
+        // 2b. ------- "look at <noun>" — and the "look in/inside <noun>" container-inspection phrasings
+        // (issue #396) — are examine synonyms, not the bare-room LOOK command. The AI parser collapses
+        // "look at X" to a noun-less look intent (issues #312 / #283) and mis-tags "look in X" as an "in"
+        // movement ("You cannot go that way."). Rewrite them to the canonical "examine <noun>" here so
+        // they route through the examine-with-noun path (which lists an open container's contents), while
+        // leaving the bare forms ("look", "look around") and genuinely different prepositions ("look
+        // under the rug", "look behind the painting") untouched. Note: because this runs before pronoun
         // resolution and the LastInput capture below, a subsequent "again"/"g" replays "look at X" as
         // "examine X" — harmless, since both produce the same examination output.
         playerInput = NormalizeLookAt(playerInput);
@@ -587,6 +623,10 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (requiresClarification)
         {
             _processorInProgress = _itProcessor;
+            // Persist the command awaiting a noun so the "What item are you referring to?" clarification
+            // survives the stateless save/restore boundary (issue #472). _currentInput is exactly what
+            // ItProcessor.Check just stashed as the command to complete once the noun arrives.
+            Context.PendingClarificationCommand = _currentInput;
             return PostProcessing(replacedInput);
         }
 
@@ -696,6 +736,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // with yet.
         if (Context.RequestSequence == 0 && Context.Moves > 0)
             Context.RequestSequence = Context.Moves;
+
+        // Rebuild any pending "which one do you mean?" / "it"-clarification prompt that was armed on the
+        // turn this state was saved (issue #472). The live processor lives only in an engine field, which
+        // the stateless deployment does not serialize, so without this the next input — the player's
+        // answer — would be parsed as a fresh command instead of resolving the prompt.
+        RehydrateProcessorInProgress();
 
         return Context;
     }
@@ -871,7 +917,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         };
 
         if (complexIntentResult.resultObject is DisambiguationInteractionResult complexResult)
-            _processorInProgress = new DisambiguationProcessor(complexResult);
+            ArmDisambiguation(complexResult);
 
         return complexIntentResult;
     }
@@ -1004,7 +1050,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         if (_processorInProgress.Completed)
         {
             var continueProcessingThisInput = _processorInProgress.ContinueProcessing;
-            _processorInProgress = null;
+            ClearProcessorInProgress();
 
             // Does the processor want us to return what it outputted?....
             if (!continueProcessingThisInput)
@@ -1020,6 +1066,59 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         }
 
         return (immediatelyReturn, processorInProgressOutput);
+    }
+
+    /// <summary>
+    ///     Arms a pending "which one do you mean?" disambiguation and, crucially, mirrors the two fields
+    ///     the answer needs into a serializable descriptor on the <see cref="Context" /> so the prompt
+    ///     survives the stateless per-request save/restore boundary (issue #472). The live
+    ///     <see cref="DisambiguationProcessor" /> is an in-memory field that is never serialized; the
+    ///     descriptor is what actually round-trips and lets <see cref="RehydrateProcessorInProgress" />
+    ///     rebuild the processor on the next request.
+    /// </summary>
+    private void ArmDisambiguation(DisambiguationInteractionResult disambiguation)
+    {
+        _processorInProgress = new DisambiguationProcessor(disambiguation);
+        Context.PendingDisambiguation = new PendingDisambiguation
+        {
+            PossibleResponses = disambiguation.PossibleResponses,
+            ReplacementString = disambiguation.ReplacementString
+        };
+    }
+
+    /// <summary>
+    ///     Clears the in-progress stateful processor together with the persisted descriptors that back the
+    ///     two prompts which must survive the request boundary (issue #472). Called whenever a processor
+    ///     finishes or is abandoned; clearing both descriptors unconditionally is safe because at most one
+    ///     can be set at a time, and the save/quit/restore processors never set either.
+    /// </summary>
+    private void ClearProcessorInProgress()
+    {
+        _processorInProgress = null;
+        Context.PendingDisambiguation = null;
+        Context.PendingClarificationCommand = null;
+    }
+
+    /// <summary>
+    ///     Reconstructs <see cref="_processorInProgress" /> from whichever pending-prompt descriptor
+    ///     round-tripped on the restored <see cref="Context" /> (issue #472). The two descriptors are
+    ///     mutually exclusive by construction — a turn arms exactly one prompt — so disambiguation is
+    ///     simply checked first. Does nothing when no prompt was pending, leaving normal parsing in charge.
+    /// </summary>
+    private void RehydrateProcessorInProgress()
+    {
+        if (Context.PendingDisambiguation is { } pending)
+        {
+            // The stored prompt text is irrelevant when answering — only the response map and template
+            // drive resolution — so rebuild the result with an empty message.
+            _processorInProgress = new DisambiguationProcessor(
+                new DisambiguationInteractionResult(
+                    string.Empty, pending.PossibleResponses, pending.ReplacementString));
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(Context.PendingClarificationCommand))
+            _processorInProgress = new ItProcessor(Context.PendingClarificationCommand);
     }
 
     private static async Task<string> GetGeneratedNoOpResponse(

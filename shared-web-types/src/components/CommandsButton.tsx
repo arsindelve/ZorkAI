@@ -1,6 +1,6 @@
-import React, {useState, useEffect} from "react";
-import {Button, Menu, MenuItem, ListItemText, Box} from "@mui/material";
-import {Mixpanel} from "../utils/Mixpanel";
+import React, {useState, useEffect} from 'react';
+import {Button, Menu, MenuItem, ListItemText, Box} from '@mui/material';
+import {Mixpanel} from '../utils/Mixpanel';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import TerminalIcon from '@mui/icons-material/Terminal';
 
@@ -11,7 +11,20 @@ type CommandButtonProps = {
 const toSentenceCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function CommandsButton({onCommandClick}: CommandButtonProps) {
-    const commands = ["verbose", "diagnose", "enter", "exit", "go up", "go down", "wait", "inventory", "again", "drop all", "take all", "look"];
+    const commands = [
+        'verbose',
+        'diagnose',
+        'enter',
+        'exit',
+        'go up',
+        'go down',
+        'wait',
+        'inventory',
+        'again',
+        'drop all',
+        'take all',
+        'look',
+    ];
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const [isLoaded, setIsLoaded] = useState(false);
@@ -27,7 +40,7 @@ export default function CommandsButton({onCommandClick}: CommandButtonProps) {
     const handleClose = (command?: string) => {
         if (command) {
             Mixpanel.track('Click Command', {
-                "command": command
+                command: command,
             });
             onCommandClick(command); // Pass the clicked command to the parent
         }
@@ -44,7 +57,7 @@ export default function CommandsButton({onCommandClick}: CommandButtonProps) {
                 endIcon={<KeyboardArrowDownIcon />}
                 disabled={!isLoaded}
                 sx={{
-                    borderRadius: { xs: '50%', sm: '20px' },
+                    borderRadius: {xs: '50%', sm: '20px'},
                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
                     color: 'white',
                     '&:hover': {
@@ -53,17 +66,19 @@ export default function CommandsButton({onCommandClick}: CommandButtonProps) {
                     transition: 'all 0.3s ease',
                     textTransform: 'none',
                     fontWeight: 'bold',
-                    display: { xs: isLoaded ? 'inline-flex' : 'none', sm: 'inline-flex' },
-                    opacity: { xs: 1, sm: isLoaded ? 1 : 0.6 },
+                    display: {xs: isLoaded ? 'inline-flex' : 'none', sm: 'inline-flex'},
+                    opacity: {xs: 1, sm: isLoaded ? 1 : 0.6},
                     transform: isLoaded ? 'translateY(0)' : 'translateY(10px)',
-                    minWidth: { xs: 'auto', sm: '64px' },
-                    px: { xs: 1.5, sm: 2 },
-                    py: { xs: 1, sm: undefined },
-                    '& .MuiButton-endIcon': { display: { xs: 'none', sm: 'flex' } },
-                    '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 } },
+                    minWidth: {xs: 'auto', sm: '64px'},
+                    px: {xs: 1.5, sm: 2},
+                    py: {xs: 1, sm: undefined},
+                    '& .MuiButton-endIcon': {display: {xs: 'none', sm: 'flex'}},
+                    '& .MuiButton-startIcon': {mr: {xs: 0, sm: 1}},
                 }}
             >
-                <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Commands</Box>
+                <Box component="span" sx={{display: {xs: 'none', sm: 'inline'}}}>
+                    Commands
+                </Box>
             </Button>
 
             <Menu
@@ -71,12 +86,12 @@ export default function CommandsButton({onCommandClick}: CommandButtonProps) {
                 open={open}
                 onClose={() => handleClose()} // Handle menu close
                 anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "center",
+                    vertical: 'bottom',
+                    horizontal: 'center',
                 }}
                 transformOrigin={{
-                    vertical: "top",
-                    horizontal: "center",
+                    vertical: 'top',
+                    horizontal: 'center',
                 }}
                 slotProps={{
                     paper: {
@@ -93,8 +108,8 @@ export default function CommandsButton({onCommandClick}: CommandButtonProps) {
                                     backgroundColor: 'rgba(0, 0, 0, 0.04)',
                                 },
                             },
-                        }
-                    }
+                        },
+                    },
                 }}
             >
                 {/* Map through the commands array to create MenuItems */}

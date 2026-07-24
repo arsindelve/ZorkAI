@@ -1,11 +1,12 @@
 namespace Planetfall.Item.Kalamontee.Admin;
 
-public class LargeDesk : OpenAndCloseContainerBase, ICanBeExamined
+public class LargeDesk : OpenAndCloseContainerBase
 {
-    public override string[] NounsForMatching => ["lsrge desk", "desk"];
+    public override string[] NounsForMatching => ["large desk", "desk"];
 
-    public string ExaminationDescription =>
-        $"The desk has a drawer which is currently {(IsOpen ? "open" : "closed")}. ";
+    // Examine is inherited from OpenAndCloseContainerBase (issue #398): open -> lists the shuttle
+    // access card in the drawer; closed -> "The large desk is closed." The old override reported
+    // only that the drawer was "currently open" and hid its contents.
 
     public override void Init()
     {

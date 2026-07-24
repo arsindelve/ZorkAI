@@ -57,4 +57,37 @@ public class MessKitchenDoorTests : EngineTestsBase
 
         target.Context.CurrentLocation.Should().BeOfType<Kitchen>();
     }
+
+    [Test]
+    public async Task Look_MessHall_DescribesDoorAsOpen_WhenKitchenDoorOpen()
+    {
+        // Issue #438: the room description hardcoded "A door to the south is closed" and never consulted
+        // the kitchen door's state, contradicting "examine kitchen door" and the fact that you can walk
+        // south while it is open.
+        var target = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        room.Init();
+        Repository.GetItem<KitchenDoor>().IsOpen = true;
+        target.Context.CurrentLocation = room;
+
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("A door to the south is open");
+        response.Should().NotContain("A door to the south is closed");
+    }
+
+    [Test]
+    public async Task Look_MessHall_DescribesDoorAsClosed_WhenKitchenDoorClosed()
+    {
+        // Issue #438: the closed-state description must still render when the door is shut.
+        var target = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        room.Init();
+        Repository.GetItem<KitchenDoor>().IsOpen = false;
+        target.Context.CurrentLocation = room;
+
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("A door to the south is closed");
+    }
 }

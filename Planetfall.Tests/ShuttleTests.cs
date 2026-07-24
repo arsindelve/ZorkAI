@@ -75,13 +75,59 @@ public class ShuttleTests : EngineTestsBase
     [Test]
     public async Task Look_WhileCloseToStation_Outbound()
     {
+        // Issue #479: while a car is moving, the approach position (23 -- one short of the
+        // platform at EndOfTunnel 24) shows a distinct "station ahead" window view. The port
+        // previously gated this on TunnelPosition 190/195, values TunnelPosition (0..24) never
+        // reaches, so the view was unreachable dead code. The ZIL ground truth (DESCRIBE-VIEW,
+        // globals.zil) keys off counter 23 while SHUTTLE-MOVING; the landmark table already
+        // uses 23 for the "approaching a brightly lit area" sign.
         var target = GetTarget();
-        StartHere<AlfieControlEast>().TunnelPosition = 190;
+        var controls = StartHere<AlfieControlEast>();
+        controls.TunnelPosition = 23;
+        controls.Speed = 5;
 
         var response = await target.GetResponse("look");
 
         response.Should()
             .Contain("Through the cabin window you can see parallel rails ending at a brightly lit station ahead");
+        response.Should().NotContain("vanishing in the distance");
+    }
+
+    [Test]
+    public async Task Look_ParkedAtApproachPosition_ShowsGenericView()
+    {
+        // Issue #479 faithfulness guard: the original conditions the "station ahead" view on
+        // SHUTTLE-MOVING. A car stopped (Speed 0) at the approach position (23) shows the
+        // generic tunnel view, not "station ahead".
+        var target = GetTarget();
+        var controls = StartHere<AlfieControlEast>();
+        controls.TunnelPosition = 23;
+        controls.Speed = 0;
+
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("vanishing in the distance");
+        response.Should().NotContain("station ahead");
+    }
+
+    [Test]
+    [TestCase(0)]
+    [TestCase(12)]
+    [TestCase(22)]
+    public async Task Look_MovingBeforeApproachPosition_ShowsGenericView(int position)
+    {
+        // Issue #479 boundary guard: only position 23 flips to the "station ahead" view.
+        // Earlier in-tunnel positions (even while moving) still show the generic view -- this
+        // pins the exact boundary so a future edit can't widen the window.
+        var target = GetTarget();
+        var controls = StartHere<AlfieControlEast>();
+        controls.TunnelPosition = position;
+        controls.Speed = 5;
+
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("vanishing in the distance");
+        response.Should().NotContain("station ahead");
     }
 
     [Test]
@@ -714,8 +760,11 @@ public class ShuttleTests : EngineTestsBase
         output = await target.GetResponse("E");
         Console.Write(output);
         output.Should().Contain("Shuttle Car Betty");
-        
-        output = await target.GetResponse("N");
+
+        // Issue #461: the doorway out of Betty is SOUTH (you boarded Betty by going north
+        // from the platform, so the platform lies south of the cabin). This used to be "N",
+        // encoding the old non-Euclidean north<->north loop.
+        output = await target.GetResponse("S");
         Console.Write(output);
         output.Should().Contain("An open shuttle car lies to the north.");
         output.Should().Contain("Kalamontee");
@@ -828,5 +877,99 @@ public class ShuttleTests : EngineTestsBase
         // Second lever manipulation - should NOT set pending comment (prompt already used)
         await target.GetResponse("pull lever");
         pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    [Test]
+    public async Task Betty_SouthReturnsToPlatform_MatchingCabinDescription()
+    {
+        // Regression test for issue #461: Shuttle Car Betty's cabin description says the
+        // doorway to the platform is "to the south", but the platform exit was wired to
+        // Direction.N -- so following the description ("go south") failed with "can't go
+        // that way" and the player had to guess "north". You board Betty by going NORTH
+        // from the platform, so the platform genuinely lies SOUTH of the cabin: the
+        // description is correct and the map direction (N) was the defect.
+        var target = GetTarget();
+        StartHere<ShuttleCarBetty>();
+
+        var description = await target.GetResponse("look");
+        description.Should().Contain("doorway leads out to a wide platform to the south");
+
+        await target.GetResponse("south");
+
+        // South returns you to the platform the description points at.
+        target.Context.CurrentLocation.Should().BeOfType<LawandaPlatform>();
+    }
+
+    [Test]
+    public async Task Betty_NorthNoLongerReturnsToPlatform()
+    {
+        // Companion to #461: the old wiring let you board Betty by going NORTH and then
+        // leave by going NORTH again -- a non-Euclidean north<->north loop that also
+        // contradicted the cabin description. After the fix, north from inside Betty is
+        // not the way back to the platform.
+        var target = GetTarget();
+        StartHere<ShuttleCarBetty>();
+
+        await target.GetResponse("north");
+
+        target.Context.CurrentLocation.Should().BeOfType<ShuttleCarBetty>();
+    }
+
+    [Test]
+    public async Task Alfie_NorthReturnsToPlatform_MatchingCabinDescription()
+    {
+        // Guard mirroring #461 against Betty's already-consistent sibling: Alfie's cabin
+        // says the platform is "to the north" AND its platform exit is Direction.N. You
+        // board Alfie by going SOUTH from the platform, so the platform lies north of the
+        // cabin -- description and map agree. Fixing Betty must not disturb this.
+        var target = GetTarget();
+        StartHere<ShuttleCarAlfie>();
+
+        var description = await target.GetResponse("look");
+        description.Should().Contain("doorway leads out to a wide platform to the north");
+
+        await target.GetResponse("north");
+
+        target.Context.CurrentLocation.Should().BeOfType<KalamonteePlatform>();
+    }
+
+    [Test]
+    public async Task Betty_PlatformExit_KeysOffBettyControl_NotAlfie()
+    {
+        // Regression test for issue #468: Shuttle Car Betty's platform-exit destination was
+        // computed from AlfieControlEast.TunnelPosition -- the OTHER car's control -- instead
+        // of Betty's own BettyControlEast. The two cars move independently, so once Alfie's
+        // tunnel position is non-zero (e.g. after anyone drives Alfie), stepping out of a
+        // stationary Betty at Lawanda teleported the player to Kalamontee with no shuttle
+        // ride -- a free teleport / world-state desync.
+        var target = GetTarget();
+        StartHere<ShuttleCarBetty>();
+
+        // Betty is untouched and still docked at Lawanda (BettyControlWest == 0). Drive
+        // Alfie's East control off zero WITHOUT moving Betty -- the exact state that arises
+        // in ordinary play after an East-initiated Alfie trip. Betty's exit must ignore it.
+        GetLocation<AlfieControlEast>().TunnelPosition = 12;
+
+        await target.GetResponse("south");
+
+        // Betty never moved, so exiting her lands you back at Lawanda -- not Kalamontee.
+        target.Context.CurrentLocation.Should().BeOfType<LawandaPlatform>();
+    }
+
+    [Test]
+    public async Task Alfie_PlatformExit_IgnoresBettyControl()
+    {
+        // Guard for issue #468's fix: Alfie's platform exit keys off AlfieControlEast and
+        // must stay independent of BettyControlEast. Move Betty's East control off zero (as
+        // if Betty had been driven) while Alfie sits untouched at Kalamontee, and confirm
+        // Alfie still exits to Kalamontee.
+        var target = GetTarget();
+        StartHere<ShuttleCarAlfie>();
+
+        GetLocation<BettyControlEast>().TunnelPosition = 12;
+
+        await target.GetResponse("north");
+
+        target.Context.CurrentLocation.Should().BeOfType<KalamonteePlatform>();
     }
 }

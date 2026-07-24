@@ -1,6 +1,10 @@
 using FluentAssertions;
 using GameEngine;
+using GameEngine.Item;
+using Model.AIGeneration;
 using Model.AIParsing;
+using Model.Intent;
+using Model.Interaction;
 using Model.Interface;
 using Moq;
 using OpenAI;
@@ -567,6 +571,377 @@ public class ExplosionTests : EngineTestsBase
 
             response.Should().Contain("You are now safely cushioned within the web.");
             pod.SubLocation.Should().BeOfType<SafetyWeb>();
+        }
+    }
+
+    // Issue #448: SafetyWeb.RespondToSimpleInteraction matched on the VERB alone, with no check that
+    // the noun was the webbing. Because the web is seeded into the pod's Items (issue #376),
+    // LocationBase.RespondToSimpleInteraction runs its handler for every command in the room, so any
+    // sit/get/rest (while seated) or leave/exit/get (while standing) command was hijacked regardless
+    // of its object: "sit on the control panel" answered "You're already in the safety web."
+    [TestFixture]
+    public class SafetyWebNounGuardTests : EngineTestsBase
+    {
+        private static EscapePod PodWithPlayerInTheWeb(GameEngine<PlanetfallGame, PlanetfallContext> target)
+        {
+            var pod = Repository.GetLocation<EscapePod>();
+            pod.Init(); // place BulkheadDoor and SafetyWeb in the pod's scope
+            target.Context.CurrentLocation = pod;
+            pod.SubLocation = Repository.GetItem<SafetyWeb>();
+            return pod;
+        }
+
+        [Test]
+        public async Task SitOnControlPanel_WhileInTheWeb_DoesNotClaimYoureAlreadyInTheWeb()
+        {
+            var target = GetTarget();
+            PodWithPlayerInTheWeb(target);
+
+            var response = await target.GetResponse("sit on the control panel");
+
+            response.Should().NotContain("already in the safety web");
+        }
+
+        [Test]
+        public async Task SitOnUnrelatedNoun_WhileInTheWeb_DoesNotClaimYoureAlreadyInTheWeb()
+        {
+            var target = GetTarget();
+            PodWithPlayerInTheWeb(target);
+
+            // "rug" is about as far from the webbing as a noun gets, and it isn't in the pod at all.
+            var response = await target.GetResponse("sit on rug");
+
+            response.Should().NotContain("already in the safety web");
+        }
+
+        [Test]
+        public async Task SitOnTheWebbing_WhileInTheWeb_StillRoutesToTheWeb()
+        {
+            var target = GetTarget();
+            PodWithPlayerInTheWeb(target);
+
+            var response = await target.GetResponse("sit on the webbing");
+
+            response.Should().Contain("You're already in the safety web.");
+        }
+
+        [Test]
+        public async Task BareSit_WhileInTheWeb_StillRoutesToTheWeb()
+        {
+            var target = GetTarget();
+            PodWithPlayerInTheWeb(target);
+
+            var response = await target.GetResponse("sit");
+
+            response.Should().Contain("You're already in the safety web.");
+        }
+
+        [Test]
+        public async Task BareSit_WhileStanding_StillPutsYouInTheWeb()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            pod.Init();
+            target.Context.CurrentLocation = pod;
+
+            var response = await target.GetResponse("sit");
+
+            response.Should().Contain("You are now safely cushioned within the web.");
+            pod.SubLocation.Should().BeOfType<SafetyWeb>();
+        }
+
+        // The standing-side branch (leave/exit/get) has the identical defect and must be guarded too.
+        [Test]
+        public async Task LeaveUnrelatedNoun_WhileStanding_DoesNotClaimYoureNotInTheWeb()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            pod.Init();
+            target.Context.CurrentLocation = pod;
+
+            var action = new SimpleIntent { Verb = "leave", Noun = "control panel" };
+            var result = await Repository.GetItem<SafetyWeb>().RespondToSimpleInteraction(action, target.Context,
+                Mock.Of<IGenerationClient>(), new ItemProcessorFactory(Mock.Of<IAITakeAndAndDropParser>()));
+
+            // Before the fix this was a PositiveInteractionResult carrying "You're not in the safety
+            // web."; the noun guard now lets an unrelated noun fall through to the narrator.
+            result.Should().BeOfType<NoNounMatchInteractionResult>();
+        }
+
+        [Test]
+        public async Task LeaveTheWebbing_WhileStanding_StillAnswersForTheWeb()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            pod.Init();
+            target.Context.CurrentLocation = pod;
+
+            var action = new SimpleIntent { Verb = "leave", Noun = "webbing" };
+            var result = await Repository.GetItem<SafetyWeb>().RespondToSimpleInteraction(action, target.Context,
+                Mock.Of<IGenerationClient>(), new ItemProcessorFactory(Mock.Of<IAITakeAndAndDropParser>()));
+
+            result.Should().BeOfType<PositiveInteractionResult>();
+            result!.InteractionMessage.Should().Contain("You're not in the safety web.");
+        }
+    }
+
+    // Issue #448 follow-up: the same handler gated each verb list on SubLocation, so each list could
+    // only ever produce its *complaint* - the seated branch only ever reached GetIn's "You're already
+    // in the safety web", the standing branch only ever reached GetOut's "You're not in the safety
+    // web". Naming the webbing in the OTHER state matched no branch at all and fell through to base,
+    // where no processor handles sit/leave on the web: a blank line. GetIn/GetOut each already answer
+    // their own wrong-state case, so the state gates were never needed.
+    [TestFixture]
+    public class SafetyWebWrongStateTests : EngineTestsBase
+    {
+        private static EscapePod Pod(GameEngine<PlanetfallGame, PlanetfallContext> target, bool seated)
+        {
+            var pod = Repository.GetLocation<EscapePod>();
+            pod.Init(); // place BulkheadDoor and SafetyWeb in the pod's scope
+            target.Context.CurrentLocation = pod;
+            pod.SubLocation = seated ? Repository.GetItem<SafetyWeb>() : null;
+            return pod;
+        }
+
+        [Test]
+        public async Task SitOnTheWebbing_WhileStanding_PutsYouInTheWeb()
+        {
+            var target = GetTarget();
+            var pod = Pod(target, seated: false);
+
+            var response = await target.GetResponse("sit on the webbing");
+
+            response.Should().Contain("You are now safely cushioned within the web.");
+            pod.SubLocation.Should().BeOfType<SafetyWeb>();
+        }
+
+        // "leave the webbing"/"exit webbing" are caught upstream as raw phrases by
+        // EscapePod.RespondToSpecificLocationInteraction; the bare noun "web" is the phrasing that
+        // reaches this handler as a SimpleIntent, and it used to answer with nothing at all.
+        [Test]
+        public async Task LeaveWeb_WhileSeated_StandsYouUp()
+        {
+            var target = GetTarget();
+            var pod = Pod(target, seated: true);
+
+            var response = await target.GetResponse("leave web");
+
+            response.Should().Contain("You are standing again.");
+            pod.SubLocation.Should().BeNull();
+        }
+
+        // The "exit" verb takes the same branch as "leave". Called directly because the test parser
+        // doesn't carry "exit" as a verb, so the phrasing can't reach the handler through the engine.
+        [Test]
+        public async Task ExitWeb_WhileSeated_StandsYouUp()
+        {
+            var target = GetTarget();
+            var pod = Pod(target, seated: true);
+
+            var action = new SimpleIntent { Verb = "exit", Noun = "web" };
+            var result = await Repository.GetItem<SafetyWeb>().RespondToSimpleInteraction(action, target.Context,
+                Mock.Of<IGenerationClient>(), new ItemProcessorFactory(Mock.Of<IAITakeAndAndDropParser>()));
+
+            result.Should().BeOfType<PositiveInteractionResult>();
+            result!.InteractionMessage.Should().Contain("You are standing again.");
+            pod.SubLocation.Should().BeNull();
+        }
+
+        // Standing up in the landed pod is what starts it sinking. Leaving the webbing by name must
+        // behave exactly like the bare "stand" - the hazard can't be dodged by phrasing. Two fresh
+        // games so no state leaks between the two commands.
+        [Test]
+        public async Task LeaveWeb_InTheLandedPod_StartsThePodSinking_ExactlyLikeStanding()
+        {
+            var standTarget = GetTarget();
+            var standPod = Pod(standTarget, seated: true);
+            standPod.LandedSafely = true;
+            var standResponse = await standTarget.GetResponse("stand");
+
+            var leaveTarget = GetTarget();
+            var leavePod = Pod(leaveTarget, seated: true);
+            leavePod.LandedSafely = true;
+            var leaveResponse = await leaveTarget.GetResponse("leave web");
+
+            standResponse.Should().Contain("you see water rising past the viewport");
+            leaveResponse.Should().Be(standResponse);
+            leavePod.TurnsAfterStanding.Should().Be(standPod.TurnsAfterStanding).And.BeGreaterThan(0);
+        }
+
+        [Test]
+        public async Task GetWeb_WhileStanding_PutsYouInTheWeb()
+        {
+            var target = GetTarget();
+            var pod = Pod(target, seated: false);
+
+            // Previously answered "You're not in the safety web." - a nonsense reply to a request to
+            // get INTO it.
+            var response = await target.GetResponse("get web");
+
+            response.Should().Contain("You are now safely cushioned within the web.");
+            pod.SubLocation.Should().BeOfType<SafetyWeb>();
+        }
+
+        // Deliberate asymmetry: "get" is the one verb in both directions ("get in"/"get out" with the
+        // preposition lost), so it must never be read as *leaving*. Standing up in the landed pod
+        // starts an unrecoverable sinking clock, and an ambiguous verb must not trigger that - only an
+        // explicit leave/exit/stand may. Seated, "get web" says so and changes nothing.
+        [Test]
+        public async Task GetWeb_WhileSeated_DoesNotStandYouUp()
+        {
+            var target = GetTarget();
+            var pod = Pod(target, seated: true);
+            pod.LandedSafely = true;
+
+            var response = await target.GetResponse("get web");
+
+            response.Should().Contain("You're already in the safety web.");
+            pod.SubLocation.Should().BeOfType<SafetyWeb>();
+            pod.TurnsAfterStanding.Should().Be(0);
+        }
+    }
+
+    [TestFixture]
+    public class EscapePodTimelineTests : EngineTestsBase
+    {
+        [Test]
+        public async Task ClosedPodSinking_ProgressesThroughWarningsAndDeath()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            target.Context.CurrentLocation = pod;
+            pod.TurnsAfterStanding = 1;
+            Repository.GetItem<BulkheadDoor>().IsOpen = false;
+
+            (await pod.Act(target.Context, Mock.Of<IGenerationClient>())).Should().Be("\n\n");
+            (await pod.Act(target.Context, Mock.Of<IGenerationClient>())).Should().Contain("completely submerged");
+            (await pod.Act(target.Context, Mock.Of<IGenerationClient>())).Should().Contain("creaks ominously");
+            (await pod.Act(target.Context, Mock.Of<IGenerationClient>())).Should().Contain("pod splits open");
+            target.Context.DeathCounter.Should().Be(1);
+        }
+
+        [Test]
+        public async Task OpenPodSinking_UsesTheOpenDoorDeathNarration()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            target.Context.CurrentLocation = pod;
+            pod.TurnsAfterStanding = 4;
+            Repository.GetItem<BulkheadDoor>().IsOpen = true;
+
+            var response = await pod.Act(target.Context, Mock.Of<IGenerationClient>());
+
+            response.Should().Contain("curtains for you");
+            response.Should().Contain("left the pod a bit sooner");
+            target.Context.DeathCounter.Should().Be(1);
+        }
+
+        [Test]
+        public async Task LandingOutsideTheSafetyWeb_KillsThePlayer()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            target.Context.CurrentLocation = pod;
+            pod.SubLocation = null;
+            pod.TurnsSinceExplosion = 13;
+            target.Context.RegisterActor(pod);
+
+            var response = await pod.Act(target.Context, Mock.Of<IGenerationClient>());
+
+            response.Should().Contain("sharper corners of the control panel");
+            response.Should().Contain("You have died");
+            target.Context.DeathCounter.Should().Be(1);
+        }
+
+        [Test]
+        public async Task LandingInTheSafetyWeb_AddsSuppliesAndRetargetsTheDoor()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            target.Context.CurrentLocation = pod;
+            pod.SubLocation = Repository.GetItem<SafetyWeb>();
+            pod.TurnsSinceExplosion = 13;
+            target.Context.RegisterActor(pod);
+
+            var response = await pod.Act(target.Context, Mock.Of<IGenerationClient>());
+
+            response.Should().Contain("pod lands with a thud");
+            pod.LandedSafely.Should().BeTrue();
+            pod.WhereDoesTheDoorLead.Should().BeOfType<Underwater>();
+            Repository.GetItem<Towel>().CurrentLocation.Should().Be(pod);
+            Repository.GetItem<SurvivalKit>().CurrentLocation.Should().Be(pod);
+            target.Context.Actors.Should().NotContain(pod);
+        }
+
+        // TurnsSinceExplosion == 4 is the Feinstein blowing apart - the one landing branch the timeline
+        // tests above skip, and the only place the pod consults its IRandomChooser. Outside the web the
+        // player is thrown against the bulkhead: a 20% instant "head first" death (a RollDiceSuccess(5)
+        // hit, PROB 20 in the original), otherwise a survivable bruising. Mocking the chooser pins each
+        // side of that dice branch deterministically (see the Randomness Pattern in CLAUDE.md).
+        [Test]
+        public async Task ExplosionOutsideTheWeb_OnAFatalRoll_ThrowsThePlayerHeadFirst()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            target.Context.CurrentLocation = pod;
+            pod.SubLocation = null;
+            pod.TurnsSinceExplosion = 3; // Act advances it to 4
+            target.Context.RegisterActor(pod);
+
+            var chooser = new Mock<IRandomChooser>();
+            chooser.Setup(c => c.RollDiceSuccess(5)).Returns(true);
+            pod.Chooser = chooser.Object;
+
+            var response = await pod.Act(target.Context, Mock.Of<IGenerationClient>());
+
+            response.Should().Contain("head first");
+            response.Should().Contain("You have died");
+            target.Context.DeathCounter.Should().Be(1);
+        }
+
+        [Test]
+        public async Task ExplosionOutsideTheWeb_OnASurvivableRoll_BruisesButDoesNotKill()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            target.Context.CurrentLocation = pod;
+            pod.SubLocation = null;
+            pod.TurnsSinceExplosion = 3;
+            target.Context.RegisterActor(pod);
+
+            var chooser = new Mock<IRandomChooser>();
+            chooser.Setup(c => c.RollDiceSuccess(5)).Returns(false);
+            pod.Chooser = chooser.Object;
+
+            var response = await pod.Act(target.Context, Mock.Of<IGenerationClient>());
+
+            response.Should().Contain("bruising a few limbs");
+            response.Should().NotContain("head first");
+            target.Context.DeathCounter.Should().Be(0);
+        }
+
+        // In the web the throw never happens, so the fatal roll must not even be consulted - the pod
+        // rider takes no bruise and no death. Verifying the chooser is untouched pins the short-circuit
+        // (`!inWeb && ...`) that keeps a webbed player safe regardless of the dice.
+        [Test]
+        public async Task ExplosionInsideTheWeb_RidesItOutUnharmed_WithoutConsultingTheDice()
+        {
+            var target = GetTarget();
+            var pod = Repository.GetLocation<EscapePod>();
+            target.Context.CurrentLocation = pod;
+            pod.SubLocation = Repository.GetItem<SafetyWeb>();
+            pod.TurnsSinceExplosion = 3;
+            target.Context.RegisterActor(pod);
+
+            var chooser = new Mock<IRandomChooser>();
+            pod.Chooser = chooser.Object;
+
+            var response = await pod.Act(target.Context, Mock.Of<IGenerationClient>());
+
+            response.Should().NotContain("bruising");
+            response.Should().NotContain("head first");
+            target.Context.DeathCounter.Should().Be(0);
+            chooser.Verify(c => c.RollDiceSuccess(It.IsAny<int>()), Times.Never);
         }
     }
 }

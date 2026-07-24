@@ -1,5 +1,5 @@
-import {HintExchange} from "../HintExchange";
-import {Mixpanel} from "./Mixpanel";
+import {HintExchange} from '../HintExchange';
+import {Mixpanel} from './Mixpanel';
 
 /**
  * Ask the game's stateless /hint endpoint for a hint.
@@ -21,33 +21,32 @@ export async function askForHint(
     baseUrl: string,
     sessionId: string,
     question: string,
-    history: HintExchange[]
+    history: HintExchange[],
 ): Promise<HintAnswer> {
     const started = Date.now();
 
     const response = await fetch(`${baseUrl}/hint`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
         },
         body: JSON.stringify({
             sessionId,
             question,
-            history: history.slice(-10)
-        })
+            history: history.slice(-10),
+        }),
     });
 
-    if (!response.ok)
-        throw new Error(`Hint request failed: ${response.status}`);
+    if (!response.ok) throw new Error(`Hint request failed: ${response.status}`);
 
     const data: HintAnswer = await response.json();
 
-    Mixpanel.track("Asked For Hint", {
+    Mixpanel.track('Asked For Hint', {
         question,
         historyLength: history.length,
         latencyMs: Date.now() - started,
-        isHint: data.isHint !== false
+        isHint: data.isHint !== false,
     });
 
     return data;

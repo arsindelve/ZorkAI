@@ -6,8 +6,17 @@ using OpenAI.Chat;
 
 namespace ZorkAI.OpenAI;
 
-public class OpenAITakeAndDropListParser(ILogger? logger) : OpenAIClientBase(logger), IAITakeAndAndDropParser
+public class OpenAITakeAndDropListParser : OpenAIClientBase, IAITakeAndAndDropParser
 {
+    public OpenAITakeAndDropListParser(ILogger? logger) : base(logger)
+    {
+    }
+
+    public OpenAITakeAndDropListParser(ILogger? logger, IChatCompletionClient client)
+        : base(logger, clientOverride: client)
+    {
+    }
+
     protected override string ModelName => "gpt-4o-mini";
 
     public async Task<string[]> GetListOfItemsToTake(string input, string locationDescription)
@@ -35,8 +44,8 @@ public class OpenAITakeAndDropListParser(ILogger? logger) : OpenAIClientBase(log
             ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat()
         };
 
-        ChatCompletion completion = await Client!.CompleteChatAsync(messages, options);
-        var result = JsonConvert.DeserializeObject<ItemsResponse>(completion.Content[0].Text);
+        var response = await Client!.CompleteChatAsync(messages, options);
+        var result = JsonConvert.DeserializeObject<ItemsResponse>(response);
         return result?.Items ?? [];
     }
 

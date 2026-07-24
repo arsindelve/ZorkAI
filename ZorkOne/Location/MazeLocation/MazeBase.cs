@@ -197,11 +197,16 @@ public class MazeEleven : MazeBase
 
     public override string BeforeEnterLocation(IContext context, ILocation previousLocation)
     {
+        // Issue #473: prepend the transition text to base rather than returning it standalone.
+        // base.BeforeEnterLocation is the only place VisitCount is incremented (and
+        // OnFirstTimeEnterLocation fires); returning early skipped it, so in Brief mode the
+        // first-visit room description was silently dropped on this transition.
+        string prepend = "";
         if (previousLocation is MazeNine)
-            return
+            prepend =
                 "You won't be able to get back up to the tunnel you are going through when it gets to the next room.\n ";
 
-        return base.BeforeEnterLocation(context, previousLocation);
+        return prepend + base.BeforeEnterLocation(context, previousLocation);
     }
 }
 

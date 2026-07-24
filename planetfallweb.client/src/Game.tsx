@@ -1,32 +1,44 @@
-import {useMutation} from "@tanstack/react-query";
-import {GameRequest, GameResponse, SessionHandler, Mixpanel, VerbsButton, CommandsButton, InventoryButton, LocationButton, DialogType, HintPanel, HintsButton} from "@zork-ai/shared-types";
-import React, {useEffect, useState} from "react";
-import {Alert, Button, CircularProgress, Snackbar} from "@mui/material";
+import {useMutation} from '@tanstack/react-query';
+import {
+    GameRequest,
+    GameResponse,
+    SessionHandler,
+    Mixpanel,
+    VerbsButton,
+    CommandsButton,
+    InventoryButton,
+    LocationButton,
+    DialogType,
+    HintPanel,
+    HintsButton,
+} from '@zork-ai/shared-types';
+import React, {useEffect, useState} from 'react';
+import {Alert, Button, CircularProgress, Snackbar} from '@mui/material';
 import '@fontsource/roboto';
-import Header from "./components/Header.tsx";
+import Header from './components/Header.tsx';
 
 import Server from './Server';
-import {ClickableText, ClickableTextHandle} from "@zork-ai/shared-types";
-import {Compass, parseMoveDirection} from "@zork-ai/shared-types";
+import {ClickableText, ClickableTextHandle} from '@zork-ai/shared-types';
+import {Compass, parseMoveDirection} from '@zork-ai/shared-types';
 
-import {useGameContext} from "@zork-ai/shared-types";
-import GameInput from "./components/GameInput.tsx";
+import {useGameContext} from '@zork-ai/shared-types';
+import GameInput from './components/GameInput.tsx';
 
 // --- Per-word hover highlight (CSS Custom Highlight API) ---------------------
 // Lives in the client (passed to ClickableText as onMouseMove/onMouseLeave) rather
 // than inside the shared ClickableText, so it loads reliably regardless of how the
 // shared package resolves. Highlights only the single word under the cursor to
 // signal that individual words are clickable.
-const WORD_HOVER_HIGHLIGHT = "word-hover";
+const WORD_HOVER_HIGHLIGHT = 'word-hover';
 
 const supportsHighlightApi = (): boolean =>
-    typeof CSS !== "undefined" &&
+    typeof CSS !== 'undefined' &&
     !!CSS.highlights &&
-    typeof (globalThis as { Highlight?: unknown }).Highlight !== "undefined";
+    typeof (globalThis as {Highlight?: unknown}).Highlight !== 'undefined';
 
 const expandToWordRange = (node: Node | null, offset: number): Range | null => {
     if (!node || node.nodeType !== Node.TEXT_NODE) return null;
-    const text = node.textContent ?? "";
+    const text = node.textContent ?? '';
     if (!text) return null;
     let start = offset;
     let end = offset;
@@ -48,48 +60,59 @@ const highlightWordAtPointer = (event: React.MouseEvent<HTMLDivElement>): void =
     let node: Node | null = null;
     let offset = 0;
     const doc = document as Document & {
-        caretPositionFromPoint?: (x: number, y: number) => { offsetNode: Node; offset: number } | null;
+        caretPositionFromPoint?: (
+            x: number,
+            y: number,
+        ) => {offsetNode: Node; offset: number} | null;
     };
-    if (typeof doc.caretRangeFromPoint === "function") {
+    if (typeof doc.caretRangeFromPoint === 'function') {
         const range = doc.caretRangeFromPoint(event.clientX, event.clientY);
-        if (range) { node = range.startContainer; offset = range.startOffset; }
-    } else if (typeof doc.caretPositionFromPoint === "function") {
+        if (range) {
+            node = range.startContainer;
+            offset = range.startOffset;
+        }
+    } else if (typeof doc.caretPositionFromPoint === 'function') {
         const pos = doc.caretPositionFromPoint(event.clientX, event.clientY);
-        if (pos) { node = pos.offsetNode; offset = pos.offset; }
+        if (pos) {
+            node = pos.offsetNode;
+            offset = pos.offset;
+        }
     }
     const wordRange = expandToWordRange(node, offset);
     const overWord = !!wordRange && wordRange.toString().trim().length > 0;
 
     // Pointer cursor only while hovering an actual (clickable) word, not whitespace.
-    event.currentTarget.style.cursor = overWord ? "pointer" : "";
+    event.currentTarget.style.cursor = overWord ? 'pointer' : '';
 
     if (!supportsHighlightApi()) return;
-    if (!overWord) { clearWordHighlight(); return; }
-    const HighlightCtor = (globalThis as { Highlight?: new (range: Range) => unknown }).Highlight!;
+    if (!overWord) {
+        clearWordHighlight();
+        return;
+    }
+    const HighlightCtor = (globalThis as {Highlight?: new (range: Range) => unknown}).Highlight!;
     // @ts-expect-error - highlights is not in older TS lib.dom typings
     CSS.highlights.set(WORD_HOVER_HIGHLIGHT, new HighlightCtor(wordRange!));
 };
 
 function Game() {
+    const restoreResponse = '<Restore>';
+    const saveResponse = '<Save>';
+    const restartResponse = '<Restart>';
 
-    const restoreResponse = "<Restore>";
-    const saveResponse = "<Save>";
-    const restartResponse = "<Restart>";
-
-    const [playerInput, setInput] = useState<string>("");
+    const [playerInput, setInput] = useState<string>('');
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
-    const [gameText, setGameText] = useState<string[]>(["Your game is loading...."]);
-    const [score, setScore] = useState<string>("0");
-    const [time, setTime] = useState<string>("0");
+    const [gameText, setGameText] = useState<string[]>(['Your game is loading....']);
+    const [score, setScore] = useState<string>('0');
+    const [time, setTime] = useState<string>('0');
     const [inventory, setInventory] = useState<string[]>([]);
     const [inventoryActions, setInventoryActions] = useState<Record<string, string[]>>({});
     const [locationActions, setLocationActions] = useState<Record<string, string[]>>({});
     const [exits, setExits] = useState<string[]>([]);
-    const [locationName, setLocationName] = useState<string>("");
-    const [pingMove, setPingMove] = useState<{id: string; nonce: number}>({id: "", nonce: 0});
+    const [locationName, setLocationName] = useState<string>('');
+    const [pingMove, setPingMove] = useState<{id: string; nonce: number}>({id: '', nonce: 0});
 
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
-    const [snackBarMessage, setSnackBarMessage] = useState<string>("");
+    const [snackBarMessage, setSnackBarMessage] = useState<string>('');
     const [showJumpToLatest, setShowJumpToLatest] = useState<boolean>(false);
     const [hintsOpen, setHintsOpen] = useState<boolean>(false);
     const atBottomRef = React.useRef<boolean>(true);
@@ -110,16 +133,15 @@ function Game() {
         restoreGameRequest,
         deleteGameRequest,
         setDeleteGameRequest,
-        setCopyGameTranscript
+        setCopyGameTranscript,
     } = useGameContext();
 
     function focusOnPlayerInput() {
         if (playerInputElement.current)
-            window.setTimeout(() =>
-                playerInputElement!.current!.focus(), 100);
+            window.setTimeout(() => playerInputElement!.current!.focus(), 100);
     }
 
-    // Save the game. 
+    // Save the game.
     useEffect(() => {
         if (saveGameRequest) {
             (async () => {
@@ -128,7 +150,7 @@ function Game() {
                 const response = await server.saveGame(saveGameRequest);
                 setGameText((prevGameText) => [...prevGameText, response]);
                 setSaveGameRequest(undefined);
-                setSnackBarMessage("Game Saved Successfully.");
+                setSnackBarMessage('Game Saved Successfully.');
                 setSnackBarOpen(true);
             })();
         }
@@ -138,32 +160,30 @@ function Game() {
 
     // Restore a saved game
     useEffect(() => {
-        if (!restoreGameRequest)
-            return;
+        if (!restoreGameRequest) return;
         setGameText([]);
         gameRestore(restoreGameRequest.id!).then((data) => {
             handleResponse(data);
             setRestoreGameRequest(undefined);
             focusOnPlayerInput();
-        })
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [restoreGameRequest]);
 
     // Delete a saved game
     useEffect(() => {
-        if (!deleteGameRequest)
-            return;
+        if (!deleteGameRequest) return;
         (async () => {
             try {
                 await server.deleteSavedGame(deleteGameRequest.id!, sessionId.getClientId());
                 setDeleteGameRequest(undefined);
-                setSnackBarMessage("Game Deleted Successfully.");
+                setSnackBarMessage('Game Deleted Successfully.');
                 setSnackBarOpen(true);
                 // Refresh the restore dialog to show updated list
                 setDialogToOpen(DialogType.Restore);
             } catch (error) {
                 console.error('Error deleting saved game:', error);
-                setSnackBarMessage("Failed to delete game.");
+                setSnackBarMessage('Failed to delete game.');
                 setSnackBarOpen(true);
             }
         })();
@@ -193,23 +213,22 @@ function Game() {
         setShowJumpToLatest(false);
     }
 
-    // Restart the game. 
+    // Restart the game.
     useEffect(() => {
-        if (!restartGame)
-            return;
+        if (!restartGame) return;
         sessionId.regenerate();
-        setGameText([""]);
+        setGameText(['']);
         gameInit().then((data) => {
             handleResponse(data);
             setRestartGame(false);
-            setSnackBarMessage("Game Restarted Successfully.");
+            setSnackBarMessage('Game Restarted Successfully.');
             setSnackBarOpen(true);
             focusOnPlayerInput();
-        })
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [restartGame]);
 
-    // Set focus to the input box on load. 
+    // Set focus to the input box on load.
     useEffect(() => {
         focusOnPlayerInput();
     }, []);
@@ -218,7 +237,7 @@ function Game() {
     useEffect(() => {
         gameInit().then((data) => {
             handleResponse(data);
-        })
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -226,19 +245,19 @@ function Game() {
         const trimmed = (data.response ?? '').trim();
         if (trimmed === saveResponse) {
             setDialogToOpen(DialogType.Save);
-            setInput("");
+            setInput('');
             return;
         }
 
         if (trimmed === restoreResponse) {
             setDialogToOpen(DialogType.Restore);
-            setInput("");
+            setInput('');
             return;
         }
 
         if (trimmed === restartResponse) {
             setDialogToOpen(DialogType.Restart);
-            setInput("");
+            setInput('');
             return;
         }
 
@@ -254,14 +273,14 @@ function Game() {
             // margins fully control (and even out) the spacing.
             data.response = data.response.replace(
                 new RegExp(`\\n*^[ \\t]*${escaped}[ \\t]*$\\n*`, 'm'),
-                `<span class="room-header">${roomName}</span>`
+                `<span class="room-header">${roomName}</span>`,
             );
         }
 
         // Replace newline chars with HTML line breaks and preserve leading whitespace (spaces and tabs)
         data.response = data.response
-            .replace(/\t/g, '    ')  // Convert tabs to 4 spaces
-            .replace(/\n/g, "<br />")
+            .replace(/\t/g, '    ') // Convert tabs to 4 spaces
+            .replace(/\n/g, '<br />')
             .replace(/^( +)/gm, (match) => '&nbsp;'.repeat(match.length))
             .replace(/<br \/>( +)/g, (_, spaces) => '<br />' + '&nbsp;'.repeat(spaces.length));
 
@@ -271,7 +290,7 @@ function Game() {
         // bigger than the gap above it.
         data.response = data.response.replace(
             /(<span class="room-header">[^<]*<\/span>)(?:\s|&nbsp;|<br\s*\/?>)+/i,
-            '$1'
+            '$1',
         );
 
         // Only render the command-echo paragraph when there's actually a command —
@@ -282,7 +301,7 @@ function Game() {
         const textToAppend = echo + data.response;
 
         setGameText((prevGameText) => [...prevGameText, textToAppend]);
-        setInput("");
+        setInput('');
         setLocationName(data.locationName);
         setScore(data.score.toString());
         setTime((data.time ?? 0).toString());
@@ -300,7 +319,7 @@ function Game() {
         },
         onError: () => {
             // Error handling is done via the Alert component below
-        }
+        },
     });
 
     function submitInput(inputValue?: string) {
@@ -309,7 +328,8 @@ function Game() {
         // Record non-empty commands for Up/Down recall, collapsing immediate repeats.
         if (valueToSubmit) {
             setCommandHistory((prev) =>
-                prev[prev.length - 1] === valueToSubmit ? prev : [...prev, valueToSubmit]);
+                prev[prev.length - 1] === valueToSubmit ? prev : [...prev, valueToSubmit],
+            );
         }
         // Flash the compass control for the direction just moved.
         const moveDir = parseMoveDirection(valueToSubmit);
@@ -321,20 +341,20 @@ function Game() {
     }
 
     function handleWordClicked(word: string) {
-        setInput(playerInput + " " + word + " ");
+        setInput(playerInput + ' ' + word + ' ');
         focusOnPlayerInput();
         Mixpanel.track('Click on Word', {
-            "word": word
+            word: word,
         });
     }
 
     const handleVerbClick = (verb: string) => {
-        setInput(verb + " ");
+        setInput(verb + ' ');
         focusOnPlayerInput();
     };
 
     const handleInventoryClick = (item: string) => {
-        setInput(playerInput + " " + item + " ");
+        setInput(playerInput + ' ' + item + ' ');
         focusOnPlayerInput();
     };
 
@@ -352,15 +372,14 @@ function Game() {
 
     async function gameInit(): Promise<GameResponse> {
         const [id, firstTime] = sessionId.getSessionId();
-        if (firstTime)
-            setDialogToOpen(DialogType.Welcome);
-        return await server.gameInit(id)
+        if (firstTime) setDialogToOpen(DialogType.Welcome);
+        return await server.gameInit(id);
     }
 
     async function gameRestore(restoreGameId: string): Promise<GameResponse> {
         const [id] = sessionId.getSessionId();
         const response = server.gameRestore(restoreGameId, sessionId.getClientId(), id);
-        setSnackBarMessage("Game Restored Successfully");
+        setSnackBarMessage('Game Restored Successfully');
         setSnackBarOpen(true);
         return response;
     }
@@ -373,11 +392,11 @@ function Game() {
         if (gameContentElement.current) {
             const success = await gameContentElement.current.copyToClipboardAsRTF();
             if (success) {
-                setSnackBarMessage("Game text copied to clipboard with formatting.");
+                setSnackBarMessage('Game text copied to clipboard with formatting.');
                 setSnackBarOpen(true);
                 Mixpanel.track('Copy to Clipboard', {});
             } else {
-                setSnackBarMessage("Failed to copy text to clipboard.");
+                setSnackBarMessage('Failed to copy text to clipboard.');
                 setSnackBarOpen(true);
             }
         }
@@ -389,9 +408,7 @@ function Game() {
     }, [setCopyGameTranscript]);
 
     return (
-
-        <div className={"relative flex flex-col flex-1 min-h-0 mx-10 mt-20 mb-4"}>
-
+        <div className={'relative flex flex-col flex-1 min-h-0 mx-10 mt-20 mb-4'}>
             <div>
                 <Snackbar
                     anchorOrigin={{vertical: 'top', horizontal: 'center'}}
@@ -402,15 +419,16 @@ function Game() {
                 />
             </div>
 
-            <Header locationName={locationName} time={time} score={score}/>
+            <Header locationName={locationName} time={time} score={score} />
 
             {/* The compass floats over the transcript's top-right — the same spot the hint panel
                 docks into — so hide it while hints are open and bring it back on close. */}
-            {!hintsOpen && <Compass
-            onCompassClick={handleCommandClick}
-            exits={exits}
-            pingMove={pingMove}
-            className="
+            {!hintsOpen && (
+                <Compass
+                    onCompassClick={handleCommandClick}
+                    exits={exits}
+                    pingMove={pingMove}
+                    className="
             hidden
             md:block
             absolute
@@ -421,93 +439,113 @@ function Game() {
             rounded-xl
             p-7
             "
-            style={{
-                background: 'linear-gradient(135deg, color-mix(in srgb, var(--planetfall-bg-medium) 14%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 14%, transparent) 100%)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                border: '1px solid color-mix(in srgb, var(--planetfall-primary) 30%, transparent)',
-                boxShadow: '0 4px 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent), 0 2px 10px rgba(0, 0, 0, 0.5)'
-            }}/>}
+                    style={{
+                        background:
+                            'linear-gradient(135deg, color-mix(in srgb, var(--planetfall-bg-medium) 14%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 14%, transparent) 100%)',
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
+                        border: '1px solid color-mix(in srgb, var(--planetfall-primary) 30%, transparent)',
+                        boxShadow:
+                            '0 4px 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent), 0 2px 10px rgba(0, 0, 0, 0.5)',
+                    }}
+                />
+            )}
 
             <div className="relative flex-1 min-h-0 max-h-[55vh] flex flex-row gap-3">
-            {/* Transcript (and its jump-to-latest overlay) — shares the row with the hint panel. */}
-            <div className="relative flex-1 min-w-0 h-full">
-            <ClickableText ref={gameContentElement} exits={exits} onWordClick={(word) => handleWordClicked(word)}
-                           onScroll={handleTranscriptScroll}
-                           onMouseMove={highlightWordAtPointer}
-                           onMouseLeave={clearWordHighlight}
-                           className="relative flex flex-col p-6 sm:p-12 h-full overflow-auto font-mono rounded-lg border-2 shadow-lg clickable scanline-effect z-10"
-                           style={{
-                               background: 'linear-gradient(135deg, var(--planetfall-bg-dark) 0%, #020617 100%)',
-                               borderColor: 'color-mix(in srgb, var(--planetfall-primary) 20%, transparent)',
-                               boxShadow: '0 0 40px color-mix(in srgb, var(--planetfall-primary) 8%, transparent), inset 0 0 60px color-mix(in srgb, var(--planetfall-secondary) 3%, transparent)',
-                               opacity: 0.8
-                           }}
-                           data-testid="game-responses-container">
-                <div className="relative z-0">
-                    {/* Background styling elements */}
-                    <div
-                        className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMjEyMTIxIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=')] opacity-5 pointer-events-none"></div>
-                    <div
-                        className="absolute top-2 left-2 w-20 h-20 rounded-full blur-3xl pointer-events-none"
-                        style={{background: 'color-mix(in srgb, var(--planetfall-primary) 15%, transparent)'}}></div>
-                    <div
-                        className="absolute bottom-10 right-5 w-32 h-32 rounded-full blur-3xl pointer-events-none"
-                        style={{background: 'color-mix(in srgb, var(--planetfall-secondary) 8%, transparent)'}}></div>
-                </div>
+                {/* Transcript (and its jump-to-latest overlay) — shares the row with the hint panel. */}
+                <div className="relative flex-1 min-w-0 h-full">
+                    <ClickableText
+                        ref={gameContentElement}
+                        exits={exits}
+                        onWordClick={(word) => handleWordClicked(word)}
+                        onScroll={handleTranscriptScroll}
+                        onMouseMove={highlightWordAtPointer}
+                        onMouseLeave={clearWordHighlight}
+                        className="relative flex flex-col p-6 sm:p-12 h-full overflow-auto font-mono rounded-lg border-2 shadow-lg clickable scanline-effect z-10"
+                        style={{
+                            background:
+                                'linear-gradient(135deg, var(--planetfall-bg-dark) 0%, #020617 100%)',
+                            borderColor:
+                                'color-mix(in srgb, var(--planetfall-primary) 20%, transparent)',
+                            boxShadow:
+                                '0 0 40px color-mix(in srgb, var(--planetfall-primary) 8%, transparent), inset 0 0 60px color-mix(in srgb, var(--planetfall-secondary) 3%, transparent)',
+                            opacity: 0.8,
+                        }}
+                        data-testid="game-responses-container"
+                    >
+                        <div className="relative z-0">
+                            {/* Background styling elements */}
+                            <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMjEyMTIxIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=')] opacity-5 pointer-events-none"></div>
+                            <div
+                                className="absolute top-2 left-2 w-20 h-20 rounded-full blur-3xl pointer-events-none"
+                                style={{
+                                    background:
+                                        'color-mix(in srgb, var(--planetfall-primary) 15%, transparent)',
+                                }}
+                            ></div>
+                            <div
+                                className="absolute bottom-10 right-5 w-32 h-32 rounded-full blur-3xl pointer-events-none"
+                                style={{
+                                    background:
+                                        'color-mix(in srgb, var(--planetfall-secondary) 8%, transparent)',
+                                }}
+                            ></div>
+                        </div>
 
-                {/* mt-auto pins the transcript to the bottom of the panel (terminal feel)
+                        {/* mt-auto pins the transcript to the bottom of the panel (terminal feel)
                     while still scrolling normally once the content overflows. */}
-                <div className="mt-auto relative z-10 w-full">
-                    {gameText.map((item: string, index: number) => (
-                        <p
-                            dangerouslySetInnerHTML={{__html: item}}
-                            className={`mb-4 relative z-10 ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
-                            key={index}
-                            data-testid="game-response"
+                        <div className="mt-auto relative z-10 w-full">
+                            {gameText.map((item: string, index: number) => (
+                                <p
+                                    dangerouslySetInnerHTML={{__html: item}}
+                                    className={`mb-4 relative z-10 ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
+                                    key={index}
+                                    data-testid="game-response"
+                                ></p>
+                            ))}
+                        </div>
+                    </ClickableText>
+
+                    {showJumpToLatest && (
+                        <button
+                            type="button"
+                            onClick={jumpToLatest}
+                            data-testid="jump-to-latest"
+                            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-mono pointer-events-auto transition-transform hover:scale-105 animate-fadeIn"
+                            style={{
+                                background:
+                                    'color-mix(in srgb, var(--planetfall-bg-medium) 92%, transparent)',
+                                border: '1px solid color-mix(in srgb, var(--planetfall-primary) 45%, transparent)',
+                                color: 'var(--planetfall-primary)',
+                                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.5)',
+                                backdropFilter: 'blur(4px)',
+                            }}
                         >
-                        </p>
-                    ))}
+                            &darr;&nbsp;New messages
+                        </button>
+                    )}
                 </div>
-            </ClickableText>
 
-            {showJumpToLatest && (
-                <button
-                    type="button"
-                    onClick={jumpToLatest}
-                    data-testid="jump-to-latest"
-                    className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-mono pointer-events-auto transition-transform hover:scale-105 animate-fadeIn"
-                    style={{
-                        background: 'color-mix(in srgb, var(--planetfall-bg-medium) 92%, transparent)',
-                        border: '1px solid color-mix(in srgb, var(--planetfall-primary) 45%, transparent)',
-                        color: 'var(--planetfall-primary)',
-                        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.5)',
-                        backdropFilter: 'blur(4px)'
-                    }}
-                >
-                    &darr;&nbsp;New messages
-                </button>
-            )}
-            </div>
-
-            {/* Hint side panel: docked beside the transcript on desktop, full overlay of it on
-                mobile. Read-only server-side — asking costs no turn; the conversation history is
-                client-owned (persisted per session inside the shared component). */}
-            <HintPanel
-                open={hintsOpen}
-                onClose={() => setHintsOpen(false)}
-                sessionId={sessionId.getSessionId()[0]}
-                ask={server.hint}
-                className="absolute inset-0 z-30 md:relative md:inset-auto md:z-auto md:w-[340px] md:flex-none md:h-full"
-            />
+                {/* Hint side panel: docked beside the transcript on desktop, full overlay of it on
+                    mobile. Read-only server-side — asking costs no turn; the conversation history is
+                    client-owned (persisted per session inside the shared component). */}
+                <HintPanel
+                    open={hintsOpen}
+                    onClose={() => setHintsOpen(false)}
+                    sessionId={sessionId.getSessionId()[0]}
+                    ask={server.hint}
+                    className="absolute inset-0 z-30 md:relative md:inset-auto md:z-auto md:w-[340px] md:flex-none md:h-full"
+                />
             </div>
 
             <div
                 className="flex flex-col items-stretch gap-2 px-3 sm:px-5 py-3 min-h-[90px] rounded-b-lg border-t shadow-inner"
                 style={{
-                    background: 'linear-gradient(135deg, var(--planetfall-bg-medium) 0%, var(--planetfall-bg-dark) 100%)',
-                    borderColor: 'color-mix(in srgb, var(--planetfall-primary) 15%, transparent)'
-                }}>
+                    background:
+                        'linear-gradient(135deg, var(--planetfall-bg-medium) 0%, var(--planetfall-bg-dark) 100%)',
+                    borderColor: 'color-mix(in srgb, var(--planetfall-primary) 15%, transparent)',
+                }}
+            >
                 {/* The command line is the primary interaction — give it its own full-width row. */}
                 <GameInput
                     playerInputElement={playerInputElement}
@@ -520,11 +558,15 @@ function Game() {
 
                 {mutation.isPending && (
                     <div className="p-2 flex items-center justify-center min-h-[44px]">
-                        <CircularProgress size={28} sx={{
-                            color: 'var(--planetfall-accent)',
-                            boxShadow: '0 0 15px 5px color-mix(in srgb, var(--planetfall-accent) 30%, transparent)',
-                            borderRadius: '50%'
-                        }}/>
+                        <CircularProgress
+                            size={28}
+                            sx={{
+                                color: 'var(--planetfall-accent)',
+                                boxShadow:
+                                    '0 0 15px 5px color-mix(in srgb, var(--planetfall-accent) 30%, transparent)',
+                                borderRadius: '50%',
+                            }}
+                        />
                     </div>
                 )}
 
@@ -538,8 +580,9 @@ function Game() {
                         flex-wrap
                         gap-3 sm:gap-4
                         min-h-[44px]
-                        ">
-                        <VerbsButton onVerbClick={handleVerbClick}/>
+                        "
+                    >
+                        <VerbsButton onVerbClick={handleVerbClick} />
                         {inventory.length > 0 && (
                             <InventoryButton
                                 onInventoryClick={handleInventoryClick}
@@ -548,15 +591,18 @@ function Game() {
                                 inventoryActions={inventoryActions}
                             />
                         )}
-                        {Object.values(locationActions).some(actions => actions.length > 0) && (
+                        {Object.values(locationActions).some((actions) => actions.length > 0) && (
                             <LocationButton
                                 onItemClick={handleInventoryClick}
                                 onActionClick={handleCommandClick}
                                 locationActions={locationActions}
                             />
                         )}
-                        <CommandsButton onCommandClick={handleCommandClick}/>
-                        <HintsButton open={hintsOpen} onToggle={() => setHintsOpen(prev => !prev)}/>
+                        <CommandsButton onCommandClick={handleCommandClick} />
+                        <HintsButton
+                            open={hintsOpen}
+                            onToggle={() => setHintsOpen((prev) => !prev)}
+                        />
 
                         <Button
                             variant="contained"
@@ -573,25 +619,27 @@ function Game() {
                                 padding: '4px 10px',
                                 backgroundColor: 'var(--planetfall-primary)',
                                 '&:hover': {
-                                    backgroundColor: 'color-mix(in srgb, var(--planetfall-primary) 80%, white)',
+                                    backgroundColor:
+                                        'color-mix(in srgb, var(--planetfall-primary) 80%, white)',
                                 },
                                 borderRadius: '8px',
                                 transition: 'all 0.3s ease',
-
                             }}
-                            data-testid="go-button">
+                            data-testid="go-button"
+                        >
                             Go
                         </Button>
                     </div>
                 )}
             </div>
 
-            {mutation.isError &&
-                <Alert variant="filled" severity="error">Something went wrong with your
-                    request. </Alert>}
-
+            {mutation.isError && (
+                <Alert variant="filled" severity="error">
+                    Something went wrong with your request.{' '}
+                </Alert>
+            )}
         </div>
-    )
+    );
 }
 
 export default Game;

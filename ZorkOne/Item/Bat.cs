@@ -17,10 +17,12 @@ public class Bat : ItemBase
 
     /// <summary>
     /// Provoking the bat (attacking or trying to take it) without garlic carries you off, same as
-    /// just walking into the room without it - see BatRoom.CarryPlayerOff.
+    /// just walking into the room without it - see BatRoom.CarryPlayerOff. Built on Verbs.TakeVerbs
+    /// rather than a hand-inlined copy so a take synonym added to the family (issue #406's drift
+    /// class) provokes the bat instead of silently printing the ceiling refusal.
     /// </summary>
     private static readonly string[] ProvokingVerbs =
-        Verbs.KillVerbs.Concat(["hold", "take", "pick up", "grab", "get", "acquire", "snatch"]).ToArray();
+        Verbs.KillVerbs.Concat(Verbs.TakeVerbs).ToArray();
 
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {

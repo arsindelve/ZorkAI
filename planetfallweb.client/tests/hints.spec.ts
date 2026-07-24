@@ -18,12 +18,11 @@ async function fulfillHint(route: Route, text: string) {
     await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({text})
+        body: JSON.stringify({text}),
     });
 }
 
 test.describe('Hint Panel', () => {
-
     test.beforeEach(async ({page}) => {
         await page.route('http://localhost:5000/Planetfall', handlePlanetfallRoute);
     });
@@ -31,7 +30,10 @@ test.describe('Hint Panel', () => {
     test('Hints button opens and closes the panel', async ({page}) => {
         await closeWelcomeModal(page);
 
-        await page.waitForSelector('[data-testid="hints-button"]', {state: 'visible', timeout: 10000});
+        await page.waitForSelector('[data-testid="hints-button"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
         await page.click('[data-testid="hints-button"]');
 
         await expect(page.getByTestId('hint-panel')).toBeVisible();
@@ -46,14 +48,19 @@ test.describe('Hint Panel', () => {
         await expect(page.locator('.compass-ring').first()).toBeVisible();
     });
 
-    test('asking a question shows the narrator answer and replays history on the follow-up', async ({page}) => {
+    test('asking a question shows the narrator answer and replays history on the follow-up', async ({
+        page,
+    }) => {
         const requests: {question: string; history: {question: string; revealed: string}[]}[] = [];
 
-        await page.route(HINT_URL, async route => {
+        await page.route(HINT_URL, async (route) => {
             requests.push(route.request().postDataJSON());
-            await fulfillHint(route, requests.length === 1
-                ? 'Try waiting. The ship has plans for you.'
-                : 'Fine: wait until the explosion, then head for the pod.');
+            await fulfillHint(
+                route,
+                requests.length === 1
+                    ? 'Try waiting. The ship has plans for you.'
+                    : 'Fine: wait until the explosion, then head for the pod.',
+            );
         });
 
         await closeWelcomeModal(page);
@@ -72,12 +79,12 @@ test.describe('Hint Panel', () => {
         expect(requests[0].history).toEqual([]);
         expect(requests[1].question).toBe('more help');
         expect(requests[1].history).toEqual([
-            {question: 'what should I do?', revealed: 'Try waiting. The ship has plans for you.'}
+            {question: 'what should I do?', revealed: 'Try waiting. The ship has plans for you.'},
         ]);
     });
 
     test('a failed hint request shows an in-voice error and keeps the question', async ({page}) => {
-        await page.route(HINT_URL, route => route.fulfill({status: 500, body: 'boom'}));
+        await page.route(HINT_URL, (route) => route.fulfill({status: 500, body: 'boom'}));
 
         await closeWelcomeModal(page);
         await page.click('[data-testid="hints-button"]');
@@ -91,7 +98,7 @@ test.describe('Hint Panel', () => {
     });
 
     test('quick-ask chips send a question directly', async ({page}) => {
-        await page.route(HINT_URL, route => fulfillHint(route, 'A chip-sized nudge.'));
+        await page.route(HINT_URL, (route) => fulfillHint(route, 'A chip-sized nudge.'));
 
         await closeWelcomeModal(page);
         await page.click('[data-testid="hints-button"]');

@@ -47,13 +47,38 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (context.CurrentLocation.SubLocation != null && action.MatchVerb(["get", "rest", "sit"]))
+        // Issue #448: both branches below used to match on the VERB alone. The web is seeded into the
+        // pod's Items (issue #376), so LocationBase runs this handler for every command in the room -
+        // which meant any sit/get/rest (seated) or leave/exit/get (standing) command was answered for
+        // the webbing no matter what it was actually aimed at: "sit on the control panel" came back
+        // "You're already in the safety web." Only claim the command when it names the webbing (or
+        // names nothing at all, as the bare "sit"/"get in" phrasings do - those are normally caught
+        // earlier by EscapePod.RespondToSpecificLocationInteraction, but this keeps them working if
+        // one ever reaches here). Anything else falls through to base -> the real noun.
+        if (!NamesTheWebbing(action))
+            return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+
+        // Each verb list used to be gated on SubLocation as well, which meant each could only ever
+        // reach its own *complaint* - naming the webbing in the other state matched no branch and fell
+        // through to base, where nothing handles sit/leave on the web, so the player got a blank line.
+        // GetIn/GetOut each already answer their own wrong-state case, so no state gate is needed here.
+        if (action.MatchVerb(["sit", "rest", "get"]))
             return new PositiveInteractionResult(GetIn(context));
 
-        if (context.CurrentLocation.SubLocation == null && action.MatchVerb(["leave", "exit", "get"]))
+        // "get" is deliberately absent here. It's the one verb that reads in both directions ("get
+        // in"/"get out" with the preposition lost), and standing up in the landed pod arms an
+        // unrecoverable sinking clock - a hazard an ambiguous verb must never trigger. Only an explicit
+        // leave/exit (or the raw "stand", handled by RespondToSpecificLocationInteraction) may unseat.
+        if (action.MatchVerb(["leave", "exit"]))
             return new PositiveInteractionResult(GetOut(context));
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+    }
+
+    private bool NamesTheWebbing(SimpleIntent action)
+    {
+        return string.IsNullOrWhiteSpace(action.Noun) ||
+               HasMatchingNounAndAdjective(action.Noun, action.Adjective).HasItem;
     }
 }
 

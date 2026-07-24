@@ -1,4 +1,5 @@
 using GameEngine;
+using GameEngine.Item;
 using GameEngine.Item.MultiItemProcessor;
 using Model.Intent;
 using Model.Item;
@@ -304,5 +305,90 @@ public class PutProcessorTests : EngineTestsBase
         result!.InteractionHappened.Should().BeTrue();
         result.InteractionMessage.Should().Contain("no room");
         garlic.CurrentLocation.Should().NotBe(mailbox);
+    }
+
+    /// <summary>
+    ///     Issue #417: a typed container's NoRoomMessage is free to assert occupancy ("There's already
+    ///     a spool in the reader"), so it must never answer an item the container could not hold at any
+    ///     size. HaveRoomForItem is size-based, so checking room first made an EMPTY container blame
+    ///     room for what was really a type mismatch. This guards the ordering in the engine itself -
+    ///     no Zork container is typed, so only the game suites would otherwise catch a regression here.
+    /// </summary>
+    [Test]
+    public void PutProcessor_WrongTypeAndTooBig_RefusesOnTypeNotRoom()
+    {
+        var target = new PutProcessor();
+        var sword = Repository.GetItem<Sword>(); // Size 5, far bigger than the receiver holds
+        var receiver = new OnlyHoldsLeafletsContainer();
+        sword.CurrentLocation = new ZorkIContext();
+
+        // Act
+        var result = target.Process(new MultiNounIntent
+        {
+            Verb = "put",
+            NounOne = "sword",
+            NounTwo = "tiny box",
+            Preposition = "inside",
+            OriginalInput = ""
+        }, null!, sword, receiver);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.InteractionHappened.Should().BeTrue();
+        result.InteractionMessage.Should().Contain("only holds leaflets");
+        result.InteractionMessage.Should().NotContain("occupied");
+        sword.CurrentLocation.Should().NotBe(receiver);
+    }
+
+    /// <summary>
+    ///     The companion to the test above: a receiver that IS the right type still gets the room
+    ///     refusal, so moving the type check first did not disable the room check.
+    /// </summary>
+    [Test]
+    public void PutProcessor_RightTypeButTooBig_StillRefusesOnRoom()
+    {
+        var target = new PutProcessor();
+        var leaflet = Repository.GetItem<Leaflet>();
+        var receiver = new OnlyHoldsLeafletsContainer();
+        receiver.ItemPlacedHere(Repository.GetItem<Matchbook>()); // fills the single slot
+        leaflet.CurrentLocation = new ZorkIContext();
+
+        // Act
+        var result = target.Process(new MultiNounIntent
+        {
+            Verb = "put",
+            NounOne = "leaflet",
+            NounTwo = "tiny box",
+            Preposition = "inside",
+            OriginalInput = ""
+        }, null!, leaflet, receiver);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.InteractionHappened.Should().BeTrue();
+        result.InteractionMessage.Should().Contain("occupied");
+        leaflet.CurrentLocation.Should().NotBe(receiver);
+    }
+
+    /// <summary>
+    ///     A type-restricted container with room for exactly one item, whose NoRoomMessage asserts
+    ///     occupancy the way SpoolReader's does - so a type mismatch answered with it would be a lie.
+    /// </summary>
+    private class OnlyHoldsLeafletsContainer : ContainerBase
+    {
+        public override string[] NounsForMatching => ["tiny box"];
+
+        protected override int SpaceForItems => 1;
+
+        public override Type[] CanOnlyHoldTheseTypes => [typeof(Leaflet)];
+
+        public override string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlace) =>
+            "That box only holds leaflets. ";
+
+        public override string NoRoomMessage => "The box is already occupied. ";
+
+        public override void Init()
+        {
+        }
     }
 }

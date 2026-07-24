@@ -10,12 +10,17 @@
  */
 
 import {test, expect} from '@playwright/test';
-import { closeWelcomeModal, handlePlanetfallRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
+import {
+    closeWelcomeModal,
+    handlePlanetfallRoute,
+    handleSaveGameRoute,
+    handleRestoreGameRoute,
+    handleGetSavedGamesRoute,
+} from './testHelpers';
 
 test.describe('Game Dialogs', () => {
-
     // Set up API mocking before each test
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({page}) => {
         // Intercept requests to the API endpoints
         await page.route('http://localhost:5000/Planetfall', handlePlanetfallRoute);
 
@@ -43,7 +48,9 @@ test.describe('Game Dialogs', () => {
         await page.route('http://localhost:5000/Planetfall/restoreGame', handleRestoreGameRoute);
     });
 
-    test('Welcome dialog - welcome dialog appears on first visit and can be closed', async ({page}) => {
+    test('Welcome dialog - welcome dialog appears on first visit and can be closed', async ({
+        page,
+    }) => {
         // Navigate to the application
         await page.goto('/');
 
@@ -52,11 +59,17 @@ test.describe('Game Dialogs', () => {
 
         // Verify that the welcome modal contains the expected title
         const modalTitle = page.locator('[data-testid="welcome-modal"] #alert-dialog-title');
-        await expect(modalTitle).toContainText('Welcome to Planetfall AI - A Modern Reimagining of the 1983 Classic!');
+        await expect(modalTitle).toContainText(
+            'Welcome to Planetfall AI - A Modern Reimagining of the 1983 Classic!',
+        );
 
         // Verify that the welcome modal contains some expected content
-        const modalContent = page.locator('[data-testid="welcome-modal"] #alert-dialog-description');
-        await expect(modalContent).toContainText('This is a modern re-imagining of the beloved 1983 science fiction text adventure game Planetfall.');
+        const modalContent = page.locator(
+            '[data-testid="welcome-modal"] #alert-dialog-description',
+        );
+        await expect(modalContent).toContainText(
+            'This is a modern re-imagining of the beloved 1983 science fiction text adventure game Planetfall.',
+        );
         await expect(modalContent).toContainText('Need inspiration? Try:');
 
         // Close the welcome modal
@@ -66,13 +79,16 @@ test.describe('Game Dialogs', () => {
         await expect(page.locator('[data-testid="welcome-modal"]')).not.toBeVisible();
     });
 
-    // Note: Planetfall does not have a video dialog - this test is skipped
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    test.skip('Video dialog - video dialog can be opened from About menu and closed', async ({page}) => {
+    // Note: Planetfall does not have a video dialog - this test is skipped.
+    // No `page` fixture is destructured because the skipped body never uses it,
+    // which also avoids a no-unused-vars directive that Prettier line-wrapping breaks.
+    test.skip('Video dialog - video dialog can be opened from About menu and closed', async () => {
         // This test is skipped for Planetfall as there is no intro video
     });
 
-    test('Release notes dialog - release notes dialog can be opened from About menu and closed', async ({page}) => {
+    test('Release notes dialog - release notes dialog can be opened from About menu and closed', async ({
+        page,
+    }) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
@@ -105,5 +121,4 @@ test.describe('Game Dialogs', () => {
         // Verify that the release notes dialog is closed
         await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
     });
-
 });

@@ -17,7 +17,10 @@ public class CryoElevatorButton : ItemBase, ITurnBasedActor
     public override Task<InteractionResult?> RespondToSimpleInteraction(
         SimpleIntent action, IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (!action.MatchVerb(Verbs.PushVerbs))
+        // Gate on the button's own noun, not just the verb. Without the noun check, a stray
+        // "push wall" / "push floor" / "push door" would operate the elevator (and, after arrival,
+        // route any push to the instant-death ending). Mirror the sibling buttons' noun guard.
+        if (!action.MatchVerb(Verbs.PushVerbs) || !action.MatchNounAndAdjective(NounsForMatching))
             return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         // Hilarious death if player pushes button after arriving

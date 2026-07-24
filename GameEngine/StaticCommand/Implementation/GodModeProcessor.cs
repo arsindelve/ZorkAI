@@ -21,72 +21,15 @@ public class GodModeProcessor : IGlobalCommand
         if (input.Contains(" where ")) return Task.FromResult(Where(input));
         if (input.Contains(" kill ")) return Task.FromResult(Kill(input, context));
 
-        if (context is IResettableClockContext clockContext &&
-            ResetClock(input, clockContext) is { } clockResetResult)
-            return Task.FromResult(clockResetResult);
-
-        // Issue #277: toggle the survival clocks (sleep/hunger) for deterministic playtesting. Only
-        // games whose context tracks those clocks (Planetfall) implement ISurvivalClockContext.
-        if (context is ISurvivalClockContext survivalContext &&
-            ToggleSurvivalClocks(input, survivalContext) is { } survivalResult)
-            return Task.FromResult(survivalResult);
+        // Game-specific god-mode subcommands (e.g. Planetfall's chronometer reset, survival-clock and
+        // companion-wandering toggles) live on the game's own context via IGodModeCommandHandler, so
+        // game concepts never leak into the engine. Checked last: a game can add commands but not
+        // shadow the built-ins above.
+        if (context is IGodModeCommandHandler gameHandler &&
+            gameHandler.HandleGodModeCommand(input) is { } gameResult)
+            return Task.FromResult(gameResult);
 
         return Task.FromResult("Invalid use of God mode. Bad adventurer! ");
-    }
-
-    private static string? ResetClock(string input, IResettableClockContext context)
-    {
-        var words = input.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (!words.Contains("reset") || (!words.Contains("time") && !words.Contains("clock")))
-            return null;
-
-        const int walkthroughResetTime = 2000;
-        context.ResetClockForGodMode(walkthroughResetTime);
-        return $"God mode: chronometer reset to {walkthroughResetTime}.";
-    }
-
-    /// <summary>
-    /// Issue #277: recognizes "god mode [no] sleep|hunger|survival" (with optional "on"/"off") and
-    /// flips the corresponding survival-clock flag on the context. "no"/"off" disables a clock;
-    /// anything else re-enables it. "survival" affects both clocks at once. Returns the confirmation
-    /// message, or null if the input names no recognized clock (so the caller falls through to the
-    /// generic god-mode error).
-    /// </summary>
-    private static string? ToggleSurvivalClocks(string input, ISurvivalClockContext context)
-    {
-        var words = input.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-        var affectsSleep = words.Contains("sleep") || words.Contains("survival");
-        var affectsHunger = words.Contains("hunger") || words.Contains("survival");
-
-        // Not a survival-clock command - let the caller emit the generic error.
-        if (!affectsSleep && !affectsHunger)
-            return null;
-
-        // "no" / "off" disables the clock; a bare verb (or explicit "on") re-enables it.
-        var disable = words.Contains("no") || words.Contains("off");
-
-        var affected = new List<string>();
-        var effects = new List<string>();
-        if (affectsSleep)
-        {
-            context.SleepClockDisabled = disable;
-            affected.Add("sleep");
-            effects.Add("tired");
-        }
-
-        if (affectsHunger)
-        {
-            context.HungerClockDisabled = disable;
-            affected.Add("hunger");
-            effects.Add("hungry");
-        }
-
-        var clocks = string.Join(" and ", affected);
-        var noun = affected.Count > 1 ? "clocks" : "clock";
-        return disable
-            ? $"God mode: {clocks} {noun} disabled. You will no longer get {string.Join(" or ", effects)}. "
-            : $"God mode: {clocks} {noun} enabled. ";
     }
 
     private string Where(string input)
@@ -115,10 +58,11 @@ public class GodModeProcessor : IGlobalCommand
         // OnLeaveLocation/AfterEnterLocation, so a game-specific location-blind death clock (e.g.
         // Planetfall's Feinstein explosion) never gets the chance to disarm itself. Let the context
         // do that explicitly for a god-mode teleport.
-        if (context is IGodModeTeleportAware teleportAware)
-            teleportAware.OnGodModeTeleport();
+        var teleportNote = context is IGodModeTeleportAware teleportAware
+            ? teleportAware.OnGodModeTeleport()
+            : null;
 
-        return $"Welcome to {location.Name}";
+        return $"Welcome to {location.Name}" + (teleportNote is null ? "" : $". {teleportNote}");
     }
 
     private string Take(string input, IContext context)

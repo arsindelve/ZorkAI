@@ -8,8 +8,10 @@ public static class Verbs
     /// <summary>
     ///     The "pick it up" family. Kept here as the single source of truth so the take/drop processor,
     ///     the pronoun resolver, and the "them" antecedent tracking all agree on what counts as taking.
+    ///     "carry" is a canonical original synonym (Planetfall syntax.zil:334
+    ///     &lt;SYNONYM TAKE GET HOLD CARRY&gt;).
     /// </summary>
-    public static readonly string[] TakeVerbs = ["take", "get", "grab", "pick up", "hold", "acquire", "snatch"];
+    public static readonly string[] TakeVerbs = ["take", "get", "grab", "pick up", "hold", "acquire", "snatch", "carry"];
 
     /// <summary>
     ///     The "put it down" family. A short list today (the engine only acts on "drop"), but centralized
@@ -59,6 +61,13 @@ public static class Verbs
 
     public static readonly string[] TouchVerbs =
         ["touch", "rub", "feel", "press", "stroke", "pat", "tap", "poke", "brush", "caress", "prod", "nudge"];
+
+    /// <summary>
+    ///     The "squeeze" family. Used by the toothpaste Tube to extract its viscous material, mirroring
+    ///     the original's SQUEEZE handling in TUBE-FUNCTION (zork1/1actions.zil). Deliberately excludes
+    ///     "press" (a push/button synonym) so squeezing the tube never collides with pressing a button.
+    /// </summary>
+    public static readonly string[] SqueezeVerbs = ["squeeze", "squish", "compress"];
 
     /// <summary>
     ///     The "look at / examine" family. Distinct from <see cref="LookVerbs" /> (which is about

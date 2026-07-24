@@ -1,5 +1,6 @@
 using GameEngine.Location;
 using Model.AIGeneration;
+using Newtonsoft.Json;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
@@ -12,6 +13,11 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
 
     [UsedImplicitly] public bool HasTakenTheKey { get; set; }
 
+    // Use the injectable chooser, not Random directly, so the glint-of-light daemon is deterministic
+    // under test (CLAUDE.md: "Never use `Random` directly in game code - always use `IRandomChooser`").
+    [UsedImplicitly] [JsonIgnore]
+    public IRandomChooser Chooser { get; set; } = new RandomChooser();
+
     public override string Name => "Admin Corridor South";
 
     public Task<string> Act(IContext context, IGenerationClient client)
@@ -19,9 +25,8 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
         if (HasSeenTheLight || HasTakenTheKey)
             return Task.FromResult(string.Empty);
 
-        var chance = Random.Shared.Next(3);
-
-        if (chance == 0)
+        // One-in-three chance per turn, matching the original Random.Shared.Next(3) == 0.
+        if (Chooser.RollDiceSuccess(3))
             return Task.FromResult(
                 "\n\nYou catch, out of the corner of your eye, a glint of light from the direction of the floor. ");
 
@@ -68,14 +73,6 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
     {
-        if (!context.HasItem<Magnet>())
-        {
-            if (Repository.GetItem<Magnet>().CurrentLocation == this)
-                return new PositiveInteractionResult("You don't have the curved metal bar. ");
-
-            return new NoNounMatchInteractionResult();
-        }
-
         var magnetNouns = Repository.GetItem<Magnet>().NounsForMatching;
 
         // The crevice and its neighbours. "hole" is one of the crevice's ZIL synonyms
@@ -114,28 +111,41 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
         // contradicting the success text. Match only the key's own nouns here, not the crack/floor
         // synonyms: you retrieve the key "with" the magnet, you don't "lift the floor with" it.
         var keyNouns = Repository.GetItem<Key>().NounsForMatching;
+        // The take family comes from Verbs.TakeVerbs rather than a partial hand-rolled copy - the
+        // old inline list omitted "snatch"/"acquire"/"hold" (issue #406's drift class), so those
+        // phrasings fell to the narrator's contradictory "non-magnetic" improvisation.
         match |= action.Match(
-            ["get", "take", "grab", "pick up", "retrieve", "lift", "fish", "pull", "attract",
-                "remove", "snag", "hook", "fetch", "extract", "scoop", "catch", "collect", "recover",
-                "yank", "drag", "reel", "pluck", "nab", "haul", "obtain", "draw"],
+            Verbs.TakeVerbs.Concat(
+                ["retrieve", "lift", "fish", "pull", "attract",
+                    "remove", "snag", "hook", "fetch", "extract", "scoop", "catch", "collect", "recover",
+                    "yank", "drag", "reel", "pluck", "nab", "haul", "obtain", "draw"]).ToArray(),
             keyNouns, magnetNouns, ["with", "using", "to", "toward", "towards"]);
 
-        if (match)
-        {
-            if (HasTakenTheKey)
-                return new PositiveInteractionResult("Nothing interesting happens. ");
+        // Only a magnet/key-fishing attempt reaches here. Anything else falls through to base so an
+        // unrelated two-noun command (e.g. "put brush in uniform") is handled normally — the old code
+        // gated the "you don't have the bar" hint on the magnet's mere presence in the room, so it
+        // swallowed EVERY two-noun command while the magnet was set down here (issue #436, the
+        // multi-noun sibling of the examine catch-all fixed in #291).
+        if (!match)
+            return await base.RespondToMultiNounInteraction(action, context);
 
-            HasTakenTheKey = true;
-            context.ItemPlacedHere<Key>();
+        // It's a genuine fishing attempt, but the player isn't holding the magnet.
+        if (!context.HasItem<Magnet>())
+            return Repository.GetItem<Magnet>().CurrentLocation == this
+                ? new PositiveInteractionResult("You don't have the curved metal bar. ")
+                : new NoNounMatchInteractionResult();
 
-            Repository.GetItem<Floyd>().CommentOnAction(FloydPrompts.MagnetRetrievesKey, context);
+        if (HasTakenTheKey)
+            return new PositiveInteractionResult("Nothing interesting happens. ");
 
-            return new PositiveInteractionResult(
-                "With a spray of dust and a loud clank, a piece of metal leaps from the crevice and " +
-                "affixes itself to the magnet. It is a steel key! With a tug, you remove the key from the magnet. ");
-        }
+        HasTakenTheKey = true;
+        context.ItemPlacedHere<Key>();
 
-        return await base.RespondToMultiNounInteraction(action, context);
+        Repository.GetItem<Floyd>().CommentOnAction(FloydPrompts.MagnetRetrievesKey, context);
+
+        return new PositiveInteractionResult(
+            "With a spray of dust and a loud clank, a piece of metal leaps from the crevice and " +
+            "affixes itself to the magnet. It is a steel key! With a tug, you remove the key from the magnet. ");
     }
 
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,

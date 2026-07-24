@@ -1,9 +1,9 @@
-import React, {useEffect, useRef, useState} from "react";
-import TipsAndUpdatesOutlinedIcon from "@mui/icons-material/TipsAndUpdatesOutlined";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import SendRoundedIcon from "@mui/icons-material/SendRounded";
-import {HintExchange} from "../HintExchange";
-import {HintAnswer} from "../utils/HintServer";
+import React, {useEffect, useRef, useState} from 'react';
+import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlined';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import SendRoundedIcon from '@mui/icons-material/SendRounded';
+import {HintExchange} from '../HintExchange';
+import {HintAnswer} from '../utils/HintServer';
 
 /**
  * The hint side panel: a chat-style conversation with the game's snarky, incorporeal narrator.
@@ -56,12 +56,12 @@ export default function HintPanel({
     sessionId,
     ask,
     className,
-    quickAsks = ["What should I do?", "I'm stuck", "Is this a dead end?", "Tell me more"]
+    quickAsks = ['What should I do?', "I'm stuck", 'Is this a dead end?', 'Tell me more'],
 }: HintPanelProps) {
     const [history, setHistory] = useState<HintExchange[]>(() => loadHistory(sessionId));
-    const [question, setQuestion] = useState<string>("");
+    const [question, setQuestion] = useState<string>('');
     const [pending, setPending] = useState<boolean>(false);
-    const [pendingQuestion, setPendingQuestion] = useState<string>("");
+    const [pendingQuestion, setPendingQuestion] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
 
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -82,7 +82,7 @@ export default function HintPanel({
     }, [history, sessionId]);
 
     useEffect(() => {
-        scrollRef.current?.scrollTo({top: scrollRef.current.scrollHeight, behavior: "smooth"});
+        scrollRef.current?.scrollTo({top: scrollRef.current.scrollHeight, behavior: 'smooth'});
     }, [history, pending, error, open]);
 
     useEffect(() => {
@@ -93,7 +93,7 @@ export default function HintPanel({
         const q = text.trim();
         if (!q || pending) return;
 
-        setQuestion("");
+        setQuestion('');
         setError(null);
         setPending(true);
         setPendingQuestion(q);
@@ -106,51 +106,51 @@ export default function HintPanel({
                 setError(answer.text);
                 setQuestion(q);
             } else {
-                setHistory(prev => [...prev, {question: q, revealed: answer.text}]);
+                setHistory((prev) => [...prev, {question: q, revealed: answer.text}]);
             }
         } catch {
             // Show the failure in-voice, keep it OUT of the history, and let the player resend.
-            setError("The hint system appears to be off sulking somewhere. Try again in a moment.");
+            setError('The hint system appears to be off sulking somewhere. Try again in a moment.');
             setQuestion(q);
         } finally {
             setPending(false);
-            setPendingQuestion("");
+            setPendingQuestion('');
         }
     };
 
     if (!open) return null;
 
-    const accent = "var(--hint-accent, #f59e0b)";
-    const userAccent = "var(--hint-user-accent, #38bdf8)";
-    const text = "var(--hint-text, #e2e8f0)";
-    const muted = "var(--hint-muted, #94a3b8)";
-    const narratorFont = "var(--hint-narrator-font, ui-monospace, monospace)";
+    const accent = 'var(--hint-accent, #f59e0b)';
+    const userAccent = 'var(--hint-user-accent, #38bdf8)';
+    const text = 'var(--hint-text, #e2e8f0)';
+    const muted = 'var(--hint-muted, #94a3b8)';
+    const narratorFont = 'var(--hint-narrator-font, ui-monospace, monospace)';
 
     const bubbleBase: React.CSSProperties = {
-        maxWidth: "92%",
-        fontSize: "13px",
+        maxWidth: '92%',
+        fontSize: '13px',
         lineHeight: 1.6,
-        padding: "8px 11px",
-        animation: "hintFadeIn 0.4s ease-out forwards"
+        padding: '8px 11px',
+        animation: 'hintFadeIn 0.4s ease-out forwards',
     };
 
     const narratorBubble: React.CSSProperties = {
         ...bubbleBase,
-        alignSelf: "flex-start",
-        background: "var(--hint-bubble, rgba(30, 41, 59, 0.85))",
+        alignSelf: 'flex-start',
+        background: 'var(--hint-bubble, rgba(30, 41, 59, 0.85))',
         borderLeft: `3px solid ${accent}`,
-        borderRadius: "0 13px 13px 13px",
+        borderRadius: '0 13px 13px 13px',
         color: text,
-        fontFamily: narratorFont
+        fontFamily: narratorFont,
     };
 
     const playerBubble: React.CSSProperties = {
         ...bubbleBase,
-        alignSelf: "flex-end",
+        alignSelf: 'flex-end',
         background: `color-mix(in srgb, ${userAccent} 16%, transparent)`,
         border: `1px solid color-mix(in srgb, ${userAccent} 40%, transparent)`,
-        borderRadius: "13px 13px 3px 13px",
-        color: text
+        borderRadius: '13px 13px 3px 13px',
+        color: text,
     };
 
     return (
@@ -158,13 +158,14 @@ export default function HintPanel({
             className={className}
             data-testid="hint-panel"
             style={{
-                display: "flex",
-                flexDirection: "column",
-                borderRadius: "10px",
+                display: 'flex',
+                flexDirection: 'column',
+                borderRadius: '10px',
                 border: `1px solid color-mix(in srgb, ${accent} 45%, transparent)`,
-                background: "linear-gradient(135deg, var(--hint-bg, #1e293b) 0%, var(--hint-bg-deep, #0f172a) 100%)",
+                background:
+                    'linear-gradient(135deg, var(--hint-bg, #1e293b) 0%, var(--hint-bg-deep, #0f172a) 100%)',
                 boxShadow: `0 0 34px color-mix(in srgb, ${accent} 12%, transparent)`,
-                overflow: "hidden"
+                overflow: 'hidden',
             }}
         >
             <style>{`
@@ -174,39 +175,43 @@ export default function HintPanel({
 
             <div
                 style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    padding: "11px 12px",
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '11px 12px',
                     borderBottom: `1px solid color-mix(in srgb, ${accent} 25%, transparent)`,
-                    flex: "none"
+                    flex: 'none',
                 }}
             >
-                <TipsAndUpdatesOutlinedIcon fontSize="small" style={{color: "var(--hint-badge, #fbbf24)"}}/>
+                <TipsAndUpdatesOutlinedIcon
+                    fontSize="small"
+                    style={{color: 'var(--hint-badge, #fbbf24)'}}
+                />
                 <div style={{flex: 1, minWidth: 0}}>
                     <div
                         style={{
                             color: accent,
-                            fontSize: "16px",
+                            fontSize: '16px',
                             fontWeight: 600,
                             lineHeight: 1.1,
-                            fontFamily: "var(--hint-heading-font, inherit)",
-                            textShadow: `0 0 10px color-mix(in srgb, ${accent} 50%, transparent)`
+                            fontFamily: 'var(--hint-heading-font, inherit)',
+                            textShadow: `0 0 10px color-mix(in srgb, ${accent} 50%, transparent)`,
                         }}
                     >
                         Hints
                     </div>
-                    <div style={{color: muted, fontSize: "11px"}}>Ask the narrator</div>
+                    <div style={{color: muted, fontSize: '11px'}}>Ask the narrator</div>
                 </div>
                 <span
                     style={{
-                        fontSize: "10px",
-                        color: "var(--hint-badge, #fbbf24)",
-                        background: "color-mix(in srgb, var(--hint-badge, #fbbf24) 16%, transparent)",
-                        border: "1px solid color-mix(in srgb, var(--hint-badge, #fbbf24) 40%, transparent)",
-                        padding: "2px 7px",
-                        borderRadius: "999px",
-                        whiteSpace: "nowrap"
+                        fontSize: '10px',
+                        color: 'var(--hint-badge, #fbbf24)',
+                        background:
+                            'color-mix(in srgb, var(--hint-badge, #fbbf24) 16%, transparent)',
+                        border: '1px solid color-mix(in srgb, var(--hint-badge, #fbbf24) 40%, transparent)',
+                        padding: '2px 7px',
+                        borderRadius: '999px',
+                        whiteSpace: 'nowrap',
                     }}
                 >
                     Costs no turn
@@ -215,9 +220,16 @@ export default function HintPanel({
                     onClick={onClose}
                     aria-label="Close hints"
                     data-testid="hint-close"
-                    style={{background: "none", border: "none", cursor: "pointer", padding: "2px", display: "flex", color: muted}}
+                    style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '2px',
+                        display: 'flex',
+                        color: muted,
+                    }}
                 >
-                    <CloseRoundedIcon fontSize="small"/>
+                    <CloseRoundedIcon fontSize="small" />
                 </button>
             </div>
 
@@ -227,22 +239,22 @@ export default function HintPanel({
                 style={{
                     flex: 1,
                     minHeight: 0,
-                    overflowY: "auto",
-                    padding: "12px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "11px"
+                    overflowY: 'auto',
+                    padding: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '11px',
                 }}
             >
                 {history.length === 0 && !pending && (
                     <div
                         style={{
-                            fontStyle: "italic",
-                            fontSize: "12.5px",
+                            fontStyle: 'italic',
+                            fontSize: '12.5px',
                             color: muted,
-                            textAlign: "center",
+                            textAlign: 'center',
                             lineHeight: 1.5,
-                            padding: "6px 4px"
+                            padding: '6px 4px',
                         }}
                     >
                         Stuck? Ask me anything. I won't judge. Much.
@@ -251,25 +263,37 @@ export default function HintPanel({
 
                 {history.map((exchange, index) => (
                     <React.Fragment key={index}>
-                        <div style={playerBubble} data-testid="hint-question">{exchange.question}</div>
-                        <div style={narratorBubble} data-testid="hint-answer">{exchange.revealed}</div>
+                        <div style={playerBubble} data-testid="hint-question">
+                            {exchange.question}
+                        </div>
+                        <div style={narratorBubble} data-testid="hint-answer">
+                            {exchange.revealed}
+                        </div>
                     </React.Fragment>
                 ))}
 
                 {pending && (
                     <>
                         <div style={playerBubble}>{pendingQuestion}</div>
-                        <div style={{...narratorBubble, display: "flex", gap: "5px", alignItems: "center"}}
-                             data-testid="hint-pending" aria-label="The narrator is thinking">
-                            {[0, 1, 2].map(i => (
+                        <div
+                            style={{
+                                ...narratorBubble,
+                                display: 'flex',
+                                gap: '5px',
+                                alignItems: 'center',
+                            }}
+                            data-testid="hint-pending"
+                            aria-label="The narrator is thinking"
+                        >
+                            {[0, 1, 2].map((i) => (
                                 <span
                                     key={i}
                                     style={{
-                                        width: "6px",
-                                        height: "6px",
-                                        borderRadius: "50%",
+                                        width: '6px',
+                                        height: '6px',
+                                        borderRadius: '50%',
                                         background: accent,
-                                        animation: `hintDot 1.2s ${i * 0.2}s infinite`
+                                        animation: `hintDot 1.2s ${i * 0.2}s infinite`,
                                     }}
                                 />
                             ))}
@@ -278,29 +302,39 @@ export default function HintPanel({
                 )}
 
                 {error && (
-                    <div style={{...narratorBubble, borderLeftColor: "var(--hint-warning, #ef4444)"}}
-                         data-testid="hint-error">
+                    <div
+                        style={{...narratorBubble, borderLeftColor: 'var(--hint-warning, #ef4444)'}}
+                        data-testid="hint-error"
+                    >
                         {error}
                     </div>
                 )}
             </div>
 
-            <div style={{display: "flex", flexWrap: "wrap", gap: "6px", padding: "0 12px 10px", flex: "none"}}>
-                {quickAsks.map(chip => (
+            <div
+                style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '6px',
+                    padding: '0 12px 10px',
+                    flex: 'none',
+                }}
+            >
+                {quickAsks.map((chip) => (
                     <button
                         key={chip}
                         onClick={() => submit(chip)}
                         disabled={pending}
                         data-testid="hint-chip"
                         style={{
-                            fontSize: "11.5px",
+                            fontSize: '11.5px',
                             color: `color-mix(in srgb, ${accent} 75%, white)`,
-                            background: "none",
+                            background: 'none',
                             border: `1px solid color-mix(in srgb, ${accent} 40%, transparent)`,
-                            borderRadius: "999px",
-                            padding: "4px 10px",
-                            cursor: pending ? "default" : "pointer",
-                            opacity: pending ? 0.5 : 1
+                            borderRadius: '999px',
+                            padding: '4px 10px',
+                            cursor: pending ? 'default' : 'pointer',
+                            opacity: pending ? 0.5 : 1,
                         }}
                     >
                         {chip}
@@ -310,20 +344,20 @@ export default function HintPanel({
 
             <div
                 style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    padding: "10px 12px",
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '10px 12px',
                     borderTop: `1px solid color-mix(in srgb, ${accent} 20%, transparent)`,
-                    flex: "none"
+                    flex: 'none',
                 }}
             >
                 <input
                     ref={inputRef}
                     value={question}
-                    onChange={e => setQuestion(e.target.value)}
-                    onKeyDown={e => {
-                        if (e.key === "Enter") submit(question);
+                    onChange={(e) => setQuestion(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') submit(question);
                     }}
                     placeholder="Ask for a hint…"
                     disabled={pending}
@@ -331,13 +365,14 @@ export default function HintPanel({
                     style={{
                         flex: 1,
                         minWidth: 0,
-                        background: "color-mix(in srgb, var(--hint-bg-deep, #0f172a) 80%, transparent)",
+                        background:
+                            'color-mix(in srgb, var(--hint-bg-deep, #0f172a) 80%, transparent)',
                         border: `1px solid color-mix(in srgb, ${userAccent} 30%, transparent)`,
-                        borderRadius: "999px",
-                        padding: "8px 13px",
+                        borderRadius: '999px',
+                        padding: '8px 13px',
                         color: text,
-                        fontSize: "12.5px",
-                        outline: "none"
+                        fontSize: '12.5px',
+                        outline: 'none',
                     }}
                 />
                 <button
@@ -346,21 +381,23 @@ export default function HintPanel({
                     aria-label="Send hint question"
                     data-testid="hint-send"
                     style={{
-                        width: "34px",
-                        height: "34px",
-                        flex: "none",
-                        borderRadius: "50%",
-                        border: "none",
+                        width: '34px',
+                        height: '34px',
+                        flex: 'none',
+                        borderRadius: '50%',
+                        border: 'none',
                         background: accent,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: pending || !question.trim() ? "default" : "pointer",
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: pending || !question.trim() ? 'default' : 'pointer',
                         opacity: pending || !question.trim() ? 0.5 : 1,
-                        boxShadow: `0 0 14px color-mix(in srgb, ${accent} 45%, transparent)`
+                        boxShadow: `0 0 14px color-mix(in srgb, ${accent} 45%, transparent)`,
                     }}
                 >
-                    <SendRoundedIcon style={{fontSize: "18px", color: "var(--hint-bg-deep, #0f172a)"}}/>
+                    <SendRoundedIcon
+                        style={{fontSize: '18px', color: 'var(--hint-bg-deep, #0f172a)'}}
+                    />
                 </button>
             </div>
         </div>

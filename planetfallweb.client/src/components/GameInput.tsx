@@ -1,5 +1,5 @@
-import React, { ChangeEvent, KeyboardEvent, RefObject, useEffect, useState } from 'react';
-import { Box } from '@mui/material';
+import React, {ChangeEvent, KeyboardEvent, RefObject, useEffect, useState} from 'react';
+import {Box} from '@mui/material';
 
 interface GameInputProps {
     playerInputElement: RefObject<HTMLInputElement | null>;
@@ -17,7 +17,7 @@ const GameInput: React.FC<GameInputProps> = ({
     playerInput,
     setInput,
     handleKeyDown,
-    commandHistory = []
+    commandHistory = [],
 }) => {
     const [isFocused, setIsFocused] = useState(false);
     // null = not navigating history (editing the live line); otherwise an index
@@ -38,9 +38,8 @@ const GameInput: React.FC<GameInputProps> = ({
         if (e.key === 'ArrowUp') {
             if (commandHistory.length === 0) return;
             e.preventDefault();
-            const idx = historyIndex === null
-                ? commandHistory.length - 1
-                : Math.max(0, historyIndex - 1);
+            const idx =
+                historyIndex === null ? commandHistory.length - 1 : Math.max(0, historyIndex - 1);
             setHistoryIndex(idx);
             setInput(commandHistory[idx]);
             return;
@@ -70,14 +69,15 @@ const GameInput: React.FC<GameInputProps> = ({
                     transition-all duration-300 rounded-md -z-10
                 `}
                 style={{
-                    background: 'linear-gradient(90deg, color-mix(in srgb, var(--planetfall-primary) 8%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 80%, transparent) 100%)'
+                    background:
+                        'linear-gradient(90deg, color-mix(in srgb, var(--planetfall-primary) 8%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 80%, transparent) 100%)',
                 }}
             ></div>
 
             <div className="flex items-center w-full relative">
                 <span
                     className="absolute left-3 sm:left-4 font-mono text-base sm:text-lg font-bold select-none pointer-events-none animate-blink"
-                    style={{ color: 'var(--planetfall-primary)' }}
+                    style={{color: 'var(--planetfall-primary)'}}
                     aria-hidden="true"
                 >
                     &gt;
@@ -99,8 +99,12 @@ const GameInput: React.FC<GameInputProps> = ({
                         color: 'var(--planetfall-text)',
                         borderWidth: '2px',
                         borderStyle: 'solid',
-                        borderColor: isFocused ? 'color-mix(in srgb, var(--planetfall-accent) 35%, transparent)' : 'color-mix(in srgb, var(--planetfall-primary) 15%, transparent)',
-                        boxShadow: isFocused ? '0 0 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent)' : 'none'
+                        borderColor: isFocused
+                            ? 'color-mix(in srgb, var(--planetfall-accent) 35%, transparent)'
+                            : 'color-mix(in srgb, var(--planetfall-primary) 15%, transparent)',
+                        boxShadow: isFocused
+                            ? '0 0 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent)'
+                            : 'none',
                     }}
                     value={playerInput}
                     placeholder="Type your command, then press enter/return..."
@@ -114,9 +118,10 @@ const GameInput: React.FC<GameInputProps> = ({
 
             <p
                 className="mt-1 ml-1 text-[11px] italic select-none hidden sm:block"
-                style={{ color: 'color-mix(in srgb, var(--planetfall-text) 45%, transparent)' }}
+                style={{color: 'color-mix(in srgb, var(--planetfall-text) 45%, transparent)'}}
             >
-                Tip: click any word above to add it to your command &middot; &uarr;/&darr; recalls past commands
+                Tip: click any word above to add it to your command &middot; &uarr;/&darr; recalls
+                past commands
             </p>
         </Box>
     );
