@@ -1,0 +1,37 @@
+<Project>
+
+    <!--
+      NuGet package vulnerability CI gate.
+
+      .NET's built-in NuGet audit runs during `dotnet restore` and emits a warning whenever a
+      referenced package (direct or, with NuGetAuditMode=all, transitive) has a known vulnerability
+      published in the GitHub Advisory Database via nuget.org:
+
+          NU1901  low severity
+          NU1902  moderate severity
+          NU1903  high severity
+          NU1904  critical severity
+
+      By default these are only warnings, so a vulnerable package does NOT fail the build. This file
+      promotes them to errors so the existing `.NET` CI workflow (which runs `dotnet restore` /
+      `dotnet build`) fails the moment any known-vulnerable package enters the dependency tree.
+
+      NU1900 (unable to reach the audit source) is deliberately left as a warning so a transient
+      nuget.org outage cannot spuriously break the build.
+
+      This is a root Directory.Build.props, so it is imported by every project in the solution
+      automatically. To triage a finding locally, run `dotnet list package` with the vulnerable
+      and include-transitive flags.
+    -->
+    <PropertyGroup>
+        <!-- Audit both direct and transitive dependencies. -->
+        <NuGetAudit>true</NuGetAudit>
+        <NuGetAuditMode>all</NuGetAuditMode>
+        <!-- Report every severity, from low upward. -->
+        <NuGetAuditLevel>low</NuGetAuditLevel>
+        <!-- Fail on any vulnerability finding without turning unrelated compiler warnings into
+             errors (only the NuGet audit codes are promoted). -->
+        <WarningsAsErrors>$(WarningsAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsAsErrors>
+    </PropertyGroup>
+
+</Project>

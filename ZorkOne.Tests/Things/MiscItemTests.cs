@@ -31,7 +31,7 @@ public class MiscItemTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Repository.LoadAllItems();
+        Repository.LoadAllItems("ZorkOne");
         var item = Repository.GetItem(itemType);
         target.Context.Take(item);
 
@@ -59,7 +59,7 @@ public class MiscItemTests : EngineTestsBase
         var target = GetTarget();
 
         // Use the passed type to get the item
-        Repository.LoadAllItems();
+        Repository.LoadAllItems("ZorkOne");
         var item = Repository.GetItem(itemType)!;
         target.Context.CurrentLocation.ItemPlacedHere(item);
 
@@ -86,7 +86,7 @@ public class MiscItemTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Repository.LoadAllItems();
+        Repository.LoadAllItems("ZorkOne");
         var item = Repository.GetItem(itemType)!;
         target.Context.ItemPlacedHere(item);
         await target.GetResponse($"drop {itemType}");
@@ -110,7 +110,7 @@ public class MiscItemTests : EngineTestsBase
     {
         var target = GetTarget();
 
-        Repository.LoadAllItems();
+        Repository.LoadAllItems("ZorkOne");
         var item = Repository.GetItem(itemType)!;
         target.Context.CurrentLocation.ItemPlacedHere(item);
         if (!string.IsNullOrEmpty(precondition))

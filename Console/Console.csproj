@@ -13,6 +13,7 @@
         <ProjectReference Include="..\GameEngine\GameEngine.csproj"/>
         <ProjectReference Include="..\ZorkAI.OpenAI\ZorkAI.OpenAI.csproj" />
         <ProjectReference Include="..\Planetfall\Planetfall.csproj"/>
+        <ProjectReference Include="..\Stationfall\Stationfall.csproj"/>
         <ProjectReference Include="..\Utilities\Utilities.csproj"/>
         <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
         <ProjectReference Include="..\ZorkTwo\ZorkTwo.csproj"/>
