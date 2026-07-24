@@ -1,0 +1,32 @@
+name: NPM Audit
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  npm-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version: '24'
+
+    # Security gate for the web projects. The single root package-lock.json
+    # covers every web workspace (zorkweb.client, planetfallweb.client,
+    # shared-web-types), so one root-level audit checks them all. `npm audit`
+    # reads the lockfile and queries the registry advisory database directly,
+    # so no `npm ci` install step is needed.
+    #
+    # --audit-level=high fails the build on any high- or critical-severity
+    # advisory while allowing the known moderate react-router advisories that
+    # only resolve via a breaking major upgrade. Raise the bar to `moderate`
+    # once those are addressed.
+    - name: Audit web dependencies for known vulnerabilities
+      run: npm audit --audit-level=high
