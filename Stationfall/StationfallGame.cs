@@ -30,6 +30,12 @@ public class StationfallGame : IInfocomGame
 
     public string DefaultSaveGameName => "stationfall-ai.sav";
 
+    // Stationfall keeps Infocom's grue in-joke, but with its own station-flavored wording rather than
+    // Zork's "eaten by a grue" or Planetfall's "might be eaten by a grue". Verbatim from the original
+    // DESCRIBE-ROOM routine (stationfall/verbs.zil:2668-2676). The VACUUM-STORAGE room has a bespoke
+    // variant there; when that room is ported it overrides GetDarkDescription for itself.
+    public string DarkLocationDescription => "It is pitch black. You hope there are no grues aboard the station. ";
+
     public string SessionTableName => "stationfall_session";
 
     // TODO: design decision — Stationfall's own system-prompt secret key.
