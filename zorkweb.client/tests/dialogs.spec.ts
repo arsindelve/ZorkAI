@@ -1,8 +1,8 @@
 /**
  * Zork Game Dialog Tests
- * 
+ *
  * These tests verify the functionality of various dialogs in the game.
- * 
+ *
  * NOTE: API Mocking
  * To avoid dependency on the backend API (which may not always be running),
  * these tests use Playwright's route interception to mock API responses.
@@ -10,12 +10,17 @@
  */
 
 import {test, expect} from '@playwright/test';
-import { closeWelcomeModal, handleZorkOneRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
+import {
+    closeWelcomeModal,
+    handleZorkOneRoute,
+    handleSaveGameRoute,
+    handleRestoreGameRoute,
+    handleGetSavedGamesRoute,
+} from './testHelpers';
 
 test.describe('Game Dialogs', () => {
-
     // Set up API mocking before each test
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({page}) => {
         // Intercept requests to the API endpoints
         await page.route('http://localhost:5000/ZorkOne', handleZorkOneRoute);
 
@@ -43,7 +48,9 @@ test.describe('Game Dialogs', () => {
         await page.route('http://localhost:5000/ZorkOne/restoreGame', handleRestoreGameRoute);
     });
 
-    test('Welcome dialog - welcome dialog appears on first visit and can be closed', async ({page}) => {
+    test('Welcome dialog - welcome dialog appears on first visit and can be closed', async ({
+        page,
+    }) => {
         // Navigate to the application
         await page.goto('/');
 
@@ -52,11 +59,17 @@ test.describe('Game Dialogs', () => {
 
         // Verify that the welcome modal contains the expected title
         const modalTitle = page.locator('[data-testid="welcome-modal"] #alert-dialog-title');
-        await expect(modalTitle).toContainText('Welcome to Zork AI - A Modern Reimagining of the 1980s Classic!');
+        await expect(modalTitle).toContainText(
+            'Welcome to Zork AI - A Modern Reimagining of the 1980s Classic!',
+        );
 
         // Verify that the welcome modal contains some expected content
-        const modalContent = page.locator('[data-testid="welcome-modal"] #alert-dialog-description');
-        await expect(modalContent).toContainText('This is a modern re-imagining of the iconic text adventure game Zork I.');
+        const modalContent = page.locator(
+            '[data-testid="welcome-modal"] #alert-dialog-description',
+        );
+        await expect(modalContent).toContainText(
+            'This is a modern re-imagining of the iconic text adventure game Zork I.',
+        );
         await expect(modalContent).toContainText('Need inspiration? Try:');
 
         // Close the welcome modal
@@ -100,7 +113,9 @@ test.describe('Game Dialogs', () => {
         await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
     });
 
-    test('Release notes dialog - release notes dialog can be opened from About menu and closed', async ({page}) => {
+    test('Release notes dialog - release notes dialog can be opened from About menu and closed', async ({
+        page,
+    }) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
@@ -133,5 +148,4 @@ test.describe('Game Dialogs', () => {
         // Verify that the release notes dialog is closed
         await expect(page.locator('div[role="dialog"]')).not.toBeVisible();
     });
-
 });

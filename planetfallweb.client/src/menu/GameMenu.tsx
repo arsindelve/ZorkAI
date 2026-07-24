@@ -1,9 +1,9 @@
 import '@fontsource/platypi/500.css';
-import AboutMenu from "./AboutMenu.tsx";
-import {FunctionsMenu} from "@zork-ai/shared-types";
-import { useEffect, useState } from 'react';
+import AboutMenu from './AboutMenu.tsx';
+import {FunctionsMenu} from '@zork-ai/shared-types';
+import {useEffect, useState} from 'react';
 
-export default function GameMenu({ latestVersion }: { latestVersion: string }) {
+export default function GameMenu({latestVersion}: {latestVersion: string}) {
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
@@ -15,9 +15,12 @@ export default function GameMenu({ latestVersion }: { latestVersion: string }) {
             data-testid="game-menu-container"
             className={`p-2 grid grid-cols-10 gap-2 w-full fixed top-0 z-10 shadow-lg transition-transform duration-500 ${isLoaded ? 'translate-y-0' : '-translate-y-full'}`}
             style={{
-                background: 'linear-gradient(90deg, var(--planetfall-bg-dark) 0%, var(--planetfall-bg-medium) 50%, var(--planetfall-bg-dark) 100%)',
-                borderBottom: '2px solid color-mix(in srgb, var(--planetfall-primary) 40%, transparent)',
-                boxShadow: '0 4px 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent)'
+                background:
+                    'linear-gradient(90deg, var(--planetfall-bg-dark) 0%, var(--planetfall-bg-medium) 50%, var(--planetfall-bg-dark) 100%)',
+                borderBottom:
+                    '2px solid color-mix(in srgb, var(--planetfall-primary) 40%, transparent)',
+                boxShadow:
+                    '0 4px 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent)',
             }}
         >
             <div className="col-span-7 flex items-center">
@@ -28,7 +31,7 @@ export default function GameMenu({ latestVersion }: { latestVersion: string }) {
                     style={{
                         transitionDelay: '300ms',
                         width: '240px',
-                        height: 'auto'
+                        height: 'auto',
                     }}
                 />
             </div>

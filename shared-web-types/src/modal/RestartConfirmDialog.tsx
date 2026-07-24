@@ -4,7 +4,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
-import { Typography } from '@mui/material';
+import {Typography} from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
 
 interface RestartConfirmDialogProps {
@@ -18,7 +18,7 @@ const RestartConfirmDialog: React.FC<RestartConfirmDialogProps> = ({
     open,
     setOpen,
     onConfirm,
-    onCancel
+    onCancel,
 }) => {
     return (
         <Dialog
@@ -31,8 +31,8 @@ const RestartConfirmDialog: React.FC<RestartConfirmDialogProps> = ({
             PaperProps={{
                 style: {
                     borderRadius: '12px',
-                    overflow: 'hidden'
-                }
+                    overflow: 'hidden',
+                },
             }}
         >
             <DialogTitle
@@ -43,7 +43,7 @@ const RestartConfirmDialog: React.FC<RestartConfirmDialogProps> = ({
                     display: 'flex',
                     alignItems: 'center',
                     gap: 1,
-                    py: 2
+                    py: 2,
                 }}
             >
                 <WarningIcon fontSize="large" />
@@ -51,12 +51,12 @@ const RestartConfirmDialog: React.FC<RestartConfirmDialogProps> = ({
                     Restart Your Game? Are you sure?
                 </Typography>
             </DialogTitle>
-            <DialogContent sx={{ p: 5, mt: 5, mb: 2 }}>
+            <DialogContent sx={{p: 5, mt: 5, mb: 2}}>
                 <Typography variant="body1">
                     Your game will be reset to the beginning. Are you sure you want to restart?
                 </Typography>
             </DialogContent>
-            <DialogActions sx={{ p: 2, bgcolor: 'grey.100' }}>
+            <DialogActions sx={{p: 2, bgcolor: 'grey.100'}}>
                 <Button
                     variant="outlined"
                     onClick={() => {
@@ -70,8 +70,8 @@ const RestartConfirmDialog: React.FC<RestartConfirmDialogProps> = ({
                         color: 'grey.800',
                         '&:hover': {
                             borderColor: 'grey.800',
-                            bgcolor: 'grey.100'
-                        }
+                            bgcolor: 'grey.100',
+                        },
                     }}
                     data-testid="restart-confirm-cancel"
                 >
@@ -86,7 +86,7 @@ const RestartConfirmDialog: React.FC<RestartConfirmDialogProps> = ({
                     color="error"
                     sx={{
                         borderRadius: '20px',
-                        px: 3
+                        px: 3,
                     }}
                     data-testid="restart-confirm-yes"
                 >

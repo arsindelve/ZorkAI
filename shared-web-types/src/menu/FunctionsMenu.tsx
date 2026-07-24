@@ -2,15 +2,15 @@ import * as React from 'react';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import {useGameContext} from "../context/GameContext";
-import DialogType from "../DialogType";
+import {useGameContext} from '../context/GameContext';
+import DialogType from '../DialogType';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import RestoreIcon from '@mui/icons-material/Restore';
 import SaveIcon from '@mui/icons-material/Save';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { ListItemIcon, ListItemText } from '@mui/material';
+import {ListItemIcon, ListItemText} from '@mui/material';
 
 export default function FunctionsMenu() {
     const {setDialogToOpen, copyGameTranscript} = useGameContext();
@@ -75,46 +75,54 @@ export default function FunctionsMenu() {
                                     backgroundColor: 'rgba(0, 0, 0, 0.04)',
                                 },
                             },
-                        }
-                    }
+                        },
+                    },
                 }}
-                transformOrigin={{ horizontal: 'center', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
+                transformOrigin={{horizontal: 'center', vertical: 'top'}}
+                anchorOrigin={{horizontal: 'center', vertical: 'bottom'}}
             >
-                <MenuItem onClick={() => {
-                    setDialogToOpen(DialogType.Restart);
-                    handleClose();
-                }}>
+                <MenuItem
+                    onClick={() => {
+                        setDialogToOpen(DialogType.Restart);
+                        handleClose();
+                    }}
+                >
                     <ListItemIcon>
                         <RestartAltIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>Restart Your Game</ListItemText>
                 </MenuItem>
 
-                <MenuItem onClick={() => {
-                    setDialogToOpen(DialogType.Restore);
-                    handleClose();
-                }}>
+                <MenuItem
+                    onClick={() => {
+                        setDialogToOpen(DialogType.Restore);
+                        handleClose();
+                    }}
+                >
                     <ListItemIcon>
                         <RestoreIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>Restore a Previous Saved Game</ListItemText>
                 </MenuItem>
 
-                <MenuItem onClick={() => {
-                    setDialogToOpen(DialogType.Save);
-                    handleClose();
-                }}>
+                <MenuItem
+                    onClick={() => {
+                        setDialogToOpen(DialogType.Save);
+                        handleClose();
+                    }}
+                >
                     <ListItemIcon>
                         <SaveIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>Save your Game</ListItemText>
                 </MenuItem>
 
-                <MenuItem onClick={() => {
-                    copyGameTranscript();
-                    handleClose();
-                }}>
+                <MenuItem
+                    onClick={() => {
+                        copyGameTranscript();
+                        handleClose();
+                    }}
+                >
                     <ListItemIcon>
                         <ContentCopyIcon fontSize="small" />
                     </ListItemIcon>
