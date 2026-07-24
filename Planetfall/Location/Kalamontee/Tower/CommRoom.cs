@@ -56,6 +56,22 @@ internal class CommRoom : LocationWithNoStartingItems, IFloydDoesNotTalkHere
         var flaskColor = GetItem<Flask>().LiquidColor!;
         GetItem<Flask>().LiquidColor = null;
 
+        // Issue #463: the shut-down (critical) and fixed states are terminal, so guard before touching the
+        // color-progression branches below. PermanentlyBroken() deliberately leaves CurrentColor unchanged,
+        // so without this guard a wrong pour that set SystemIsCritical could be undone by later pouring the
+        // correct black->gray sequence back through NextColor()/Fixed() -- "repairing" a console the game
+        // declared permanently shut down and awarding the points. The IsFixed guard is the mirror image:
+        // Fixed() nulls CurrentColor, so any further pour would otherwise mismatch and run PermanentlyBroken(),
+        // "shutting down" a console that is already working. Gating here also stops the "...send console shuts
+        // down" line re-firing on every repeated wrong pour (the #431 "match command, not state" class).
+        if (SystemIsCritical)
+            return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(
+                "The liquid disappears into the hole, but nothing happens; the send console has shut down. "));
+
+        if (IsFixed)
+            return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(
+                "The liquid disappears into the hole, but nothing happens. "));
+
         if (flaskColor != CurrentColor)
             return PermanentlyBroken();
 

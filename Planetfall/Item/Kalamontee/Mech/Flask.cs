@@ -1,5 +1,6 @@
 using Model.AIGeneration;
 using Planetfall.Command;
+using Planetfall.Location.Kalamontee.Mech;
 
 namespace Planetfall.Item.Kalamontee.Mech;
 
@@ -8,6 +9,19 @@ public class Flask : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
     public override string[] NounsForMatching => ["glass flask", "flask", "large glass flask"];
 
     public string? LiquidColor { get; set; }
+
+    // Issue #469: MachineShop.FlaskUnderSpout is the room's record that the flask is genuinely under the
+    // spout — the description and the dispenser buttons both trust it. "put flask under spout" sets it, but
+    // nothing used to clear it, so taking the flask back left it stuck true: the room kept describing the
+    // flask "under the spout" while it was in the player's hand, and a button press filled the in-hand flask.
+    // Clearing it here, when the flask leaves the spout, mirrors how putting it there set it.
+    public override string? OnBeingTaken(IContext context, ICanContainItems? previousLocation)
+    {
+        if (previousLocation is MachineShop machineShop)
+            machineShop.FlaskUnderSpout = false;
+
+        return base.OnBeingTaken(context, previousLocation);
+    }
 
     public string ExaminationDescription =>
         "The flask has a wide mouth and looks large enough to hold one or two liters. It is made of glass, " +

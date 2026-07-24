@@ -1,6 +1,6 @@
 using ZorkAI.OpenAI;
 
-namespace ChatLambda;
+namespace Planetfall.AI;
 
 /// <summary>
 ///     Chooses each companion's conversation backend: the cloud LangGraph Lambda (default), or a

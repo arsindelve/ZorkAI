@@ -43,6 +43,24 @@ public class MessHallPadlockedDoorTests : EngineTestsBase
     }
 
     [Test]
+    public async Task UnlockPadlockWithKey_Again_SaysAlreadyOpen()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MessCorridor>();
+        target.Context.ItemPlacedHere<Key>();
+
+        var first = await target.GetResponse("unlock padlock with key");
+        first.Should().Contain("springs open");
+        Repository.GetItem<Padlock>().Locked.Should().BeFalse();
+
+        // Issuing it again must not re-narrate "springs open" — the padlock is already unlocked.
+        // The multi-noun path must guard on Locked state, matching the simple-interaction path.
+        var second = await target.GetResponse("unlock padlock with key");
+        second.Should().Contain("The padlock is already open.");
+        second.Should().NotContain("springs open");
+    }
+
+    [Test]
     public async Task UnlockDoorWithKey_UnlocksPadlock()
     {
         var target = GetTarget();

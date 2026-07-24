@@ -7,6 +7,7 @@ using Model.Intent;
 using Model.Interface;
 using Model.Item;
 using Moq;
+using Planetfall.AI;
 using Planetfall.Item;
 using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Admin;

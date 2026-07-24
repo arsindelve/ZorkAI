@@ -1,7 +1,8 @@
+using ChatLambda;
 using OpenAI.Chat;
 using ZorkAI.OpenAI;
 
-namespace ChatLambda;
+namespace Planetfall.AI;
 
 /// <summary>
 ///     Companion conversation against a self-hosted, OpenAI-compatible server (LM Studio, Ollama,

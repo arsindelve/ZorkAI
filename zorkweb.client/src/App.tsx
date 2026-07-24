@@ -1,14 +1,25 @@
 import './App.css';
-import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
-import Game from "./Game.tsx";
-import GameMenu from "./menu/GameMenu.tsx";
-import {useEffect, useState} from "react";
-import Server from "./Server.ts";
-import {ISavedGame, SessionHandler, RestoreModal, SaveModal, RestartConfirmDialog, useGameContext, VideoDialog, Mixpanel, DialogType, ReleaseNotesServer, ReleaseNotesModal} from "@zork-ai/shared-types";
-import WelcomeDialog from "./modal/WelcomeModal.tsx";
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+import Game from './Game.tsx';
+import GameMenu from './menu/GameMenu.tsx';
+import {useEffect, useState} from 'react';
+import Server from './Server.ts';
+import {
+    ISavedGame,
+    SessionHandler,
+    RestoreModal,
+    SaveModal,
+    RestartConfirmDialog,
+    useGameContext,
+    VideoDialog,
+    Mixpanel,
+    DialogType,
+    ReleaseNotesServer,
+    ReleaseNotesModal,
+} from '@zork-ai/shared-types';
+import WelcomeDialog from './modal/WelcomeModal.tsx';
 
 function App() {
-
     const [restartConfirmOpen, setRestartConfirmOpen] = useState<boolean>(false);
     const [restoreDialogOpen, setRestoreDialogOpen] = useState<boolean>(false);
     const [saveDialogOpen, setSaveDialogOpen] = useState<boolean>(false);
@@ -16,7 +27,7 @@ function App() {
     const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
     const [videoDialogOpen, setVideoDialogOpen] = useState<boolean>(false);
     const [releaseNotesDialogOpen, setReleaseNotesDialogOpen] = useState<boolean>(false);
-    const [releases, setReleases] = useState<{ date: string; name: string; notes: string }[]>([]);
+    const [releases, setReleases] = useState<{date: string; name: string; notes: string}[]>([]);
     const [latestVersion, setLatestVersion] = useState<string>('');
 
     const server = new Server();
@@ -27,14 +38,16 @@ function App() {
 
     // Fetch releases on mount
     useEffect(() => {
-        ReleaseNotesServer().then((data) => {
-            setReleases(data);
-            if (data.length > 0) {
-                setLatestVersion(data[0].name);
-            }
-        }).catch((error) => {
-            console.error('Error fetching releases:', error);
-        });
+        ReleaseNotesServer()
+            .then((data) => {
+                setReleases(data);
+                if (data.length > 0) {
+                    setLatestVersion(data[0].name);
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching releases:', error);
+            });
     }, []);
 
     useEffect(() => {
@@ -79,7 +92,7 @@ function App() {
         };
 
         handleDialog().catch((error) => {
-            console.error("App.tsx: Error handling dialog:", error);
+            console.error('App.tsx: Error handling dialog:', error);
         });
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -102,14 +115,11 @@ function App() {
     }
 
     return (
-
-        <div
-            className="bg-[url('./back2.png')] bg-repeat bg-[size:500px_500px] h-screen overflow-hidden flex flex-col">
+        <div className="bg-[url('./back2.png')] bg-repeat bg-[size:500px_500px] h-screen overflow-hidden flex flex-col">
             <div className="flex-grow flex flex-col min-h-0 mt">
                 <GameMenu latestVersion={latestVersion} />
 
                 <QueryClientProvider client={queryClient}>
-
                     <Game />
 
                     <RestartConfirmDialog
@@ -120,37 +130,46 @@ function App() {
                         }}
                     />
 
-                    <RestoreModal games={availableSavedGames}
-                                  open={restoreDialogOpen}
-                                  setOpen={setRestoreDialogOpen}
+                    <RestoreModal
+                        games={availableSavedGames}
+                        open={restoreDialogOpen}
+                        setOpen={setRestoreDialogOpen}
                     />
 
-                    <SaveModal games={availableSavedGames}
-                               setOpen={setSaveDialogOpen}
-                               open={saveDialogOpen}
+                    <SaveModal
+                        games={availableSavedGames}
+                        setOpen={setSaveDialogOpen}
+                        open={saveDialogOpen}
                     />
 
-                    <VideoDialog open={videoDialogOpen}
-                                 handleClose={() => {
-                                     setVideoDialogOpen(false);
-                                     Mixpanel.track('Close Video Dialog', {});
-                                 }}/>
+                    <VideoDialog
+                        open={videoDialogOpen}
+                        handleClose={() => {
+                            setVideoDialogOpen(false);
+                            Mixpanel.track('Close Video Dialog', {});
+                        }}
+                    />
 
-                    <ReleaseNotesModal handleClose={() => {
-                        setReleaseNotesDialogOpen(false);
-                        Mixpanel.track('Close Release Notes Dialog', {});
-                    }} open={releaseNotesDialogOpen} releases={releases} gameName="Zork AI" />
+                    <ReleaseNotesModal
+                        handleClose={() => {
+                            setReleaseNotesDialogOpen(false);
+                            Mixpanel.track('Close Release Notes Dialog', {});
+                        }}
+                        open={releaseNotesDialogOpen}
+                        releases={releases}
+                        gameName="Zork AI"
+                    />
 
-                    <WelcomeDialog handleWatchVideo={handleWatchVideo} open={welcomeDialogOpen}
-                                   handleClose={() => {
-                                       setWelcomeDialogOpen(false);
-                                       Mixpanel.track('Close Welcome Dialog', {});
-                                   }}/>
-
-
+                    <WelcomeDialog
+                        handleWatchVideo={handleWatchVideo}
+                        open={welcomeDialogOpen}
+                        handleClose={() => {
+                            setWelcomeDialogOpen(false);
+                            Mixpanel.track('Close Welcome Dialog', {});
+                        }}
+                    />
                 </QueryClientProvider>
             </div>
-
         </div>
     );
 }

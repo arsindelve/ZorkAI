@@ -14,8 +14,14 @@ internal abstract class RiftLocationBase : LocationWithNoStartingItems
         if (!action.MatchVerb(Verbs.ThrowVerbs) || !action.MatchNounTwo(RiftNouns))
             return await base.RespondToMultiNounInteraction(action, context);
 
-        // What are we throwing? 
-        var itemWeJustLostForever = Repository.GetItem(action.NounOne);
+        // Issue #429: resolve the thrown object from the player's SCOPE (carried or here at the
+        // rift), not a global Repository.GetItem lookup. Keying off the command text alone let the
+        // singleton be found regardless of location, so "throw laser into rift" deleted the laser
+        // from across the map with a false success (a softlock vector, Divergence A), and
+        // re-throwing an already-lost item (CurrentLocation == null, so out of scope) re-narrated
+        // the loss (Divergence B). Gating on the object's presence mirrors the sibling ladder fix
+        // (#297) in AdminCorridor; an out-of-scope noun now falls through to normal routing.
+        var itemWeJustLostForever = Repository.GetItemInScope(action.NounOne, context);
         if (itemWeJustLostForever is null)
             return await base.RespondToMultiNounInteraction(action, context);
 

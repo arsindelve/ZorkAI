@@ -433,6 +433,116 @@ public class BioLockEastTests : EngineTestsBase
     }
 
     [Test]
+    public async Task AbandoningSequence_ByWalkingAway_ThenReturning_DoesNotSpuriouslyKillThePlayer()
+    {
+        // Issue #493 review follow-up: OnLeaveLocation releases Floyd (IsAwayOnScriptedSequence=false) when
+        // the player abandons the sequence mid-rush, but it left LabSequenceState frozen at
+        // FloydRushedInNeedToCloseDoor. Floyd follows the player back out, but the moment the player walks
+        // back into Bio Lock East the actor is re-registered and resumes that frozen state, firing the
+        // "you failed to close the door" death - with Floyd standing right next to them. Abandoning must
+        // reset the sequence so a later re-entry is safe.
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.HasEverBeenOn = true;
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(5)).Returns(false); // deterministic: always the "follow" branch
+        floyd.Chooser = mockChooser.Object;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true;
+        bioLockEast.StateMachine.FloydHasSaidNeedToGetCard = true;
+        target.Context.RegisterActor(floyd);
+        target.Context.RegisterActor(bioLockEast);
+
+        await target.GetResponse("open door"); // Floyd rushes into the lab
+
+        await target.GetResponse("west"); // abandon the sequence
+        bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.NotStarted,
+            "abandoning the sequence must reset it, not leave it frozen mid-rush");
+
+        var returnResponse = await target.GetResponse("east"); // walk back in
+        returnResponse.Should().NotContain("You have died");
+        returnResponse.Should().NotContain(FloydConstants.BiologicalNightmaresDeath);
+
+        var waitResponse = await target.GetResponse("wait"); // a further turn is still safe
+        waitResponse.Should().NotContain("You have died");
+    }
+
+    [Test]
+    public async Task AbandoningSequence_ByWalkingAway_ThenReturning_SacrificeCanBeRestarted()
+    {
+        // Issue #493 review follow-up: abandoning must restore the true pre-sequence state, which includes
+        // CLOSING the inner door Floyd rushed through. If the door is left open, returning leaves Floyd
+        // nagging "open the door" while it is already open - and re-opening an open door is a no-op
+        // ("It is already open.") that never re-fires HandleDoorOpening - so the obvious recovery
+        // ("open door") does nothing and the sacrifice can only be restarted via a non-obvious close/open.
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.HasEverBeenOn = true;
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(5)).Returns(false); // deterministic: always the "follow" branch
+        floyd.Chooser = mockChooser.Object;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true;
+        bioLockEast.StateMachine.FloydHasSaidNeedToGetCard = true;
+        target.Context.RegisterActor(floyd);
+        target.Context.RegisterActor(bioLockEast);
+
+        await target.GetResponse("open door"); // Floyd rushes into the lab
+        await target.GetResponse("west"); // abandon the sequence
+
+        // The inner door must be closed again - the reset restores the real pre-sequence state.
+        GetItem<BioLockInnerDoor>().IsOpen.Should()
+            .BeFalse("abandoning must close the door Floyd rushed through, not leave a 'NotStarted + open' state");
+
+        await target.GetResponse("east"); // walk back in
+
+        // The obvious recovery must work: 'open door' restarts the whole sacrifice from the top.
+        var restart = await target.GetResponse("open door");
+        restart.Should().Contain(FloydConstants.InTheLabOne);
+        restart.Should().NotContain("already open");
+        bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.FloydRushedInNeedToCloseDoor);
+    }
+
+    [Test]
+    public async Task AfterSacrificeCompletes_ReenteringRoom_DeadFloydDoesNotNagToOpenTheDoor()
+    {
+        // Issue #493 review follow-up: EndSequence marks Floyd dead and lays his body back in this room but
+        // leaves IsOn true, so IsHereAndIsOn stays true for the corpse. With the leftover
+        // FloydHasSaidNeedToGetCard flag and a zero door-open counter, re-entering the room made
+        // HandleTurnAction fall into the "waiting for door open" branch - the dead robot cheerfully asking
+        // the player to open the door again. Once the sequence is Completed the actor must stay silent.
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true;
+        bioLockEast.StateMachine.FloydHasSaidNeedToGetCard = true;
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
+        var door = GetItem<BioLockInnerDoor>();
+        door.IsOpen = true;
+        target.Context.RegisterActor(bioLockEast);
+
+        var complete = await target.GetResponse("close door"); // completes the sacrifice
+        complete.Should().Contain("Floyd staggers to the ground");
+        bioLockEast.StateMachine.LabSequenceState.Should().Be(FloydLabSequenceState.Completed);
+
+        await target.GetResponse("west"); // leave
+        var returnResponse = await target.GetResponse("east"); // and come back
+        var waitResponse = await target.GetResponse("wait");
+
+        returnResponse.Should().NotContain(FloydConstants.OpenTheDoor);
+        waitResponse.Should().NotContain(FloydConstants.OpenTheDoor);
+        waitResponse.Should().NotContain(FloydConstants.Sulk);
+    }
+
+    [Test]
     public async Task FloydFighting_Turn1_ShouldShowInTheLabTwo()
     {
         var target = GetTarget();
@@ -758,5 +868,74 @@ public class BioLockEastTests : EngineTestsBase
         response.Should().Contain("blue glow comes from a crack in the northern wall");
         response.Should().Contain("Shadowy, ominous shapes move about within the room");
         response.Should().Contain("magnetic-striped card");
+    }
+
+    [Test]
+    public async Task LookThroughWindow_CardNotYetTaken_StillShowsCardOnFloor()
+    {
+        // Regression guard for issue #477: while the miniaturization access card has not been
+        // retrieved, the window view still reports it lying on the Bio Lab floor.
+        var target = GetTarget();
+        StartHere<BioLockEast>();
+        GetItem<MiniaturizationAccessCard>().HasEverBeenPickedUp = false;
+
+        var response = await target.GetResponse("look through window");
+
+        response.Should().Contain("large laboratory, dimly illuminated");
+        response.Should().Contain("blue glow comes from a crack in the northern wall");
+        response.Should().Contain("Shadowy, ominous shapes move about within the room");
+        response.Should().Contain("magnetic-striped card");
+    }
+
+    [Test]
+    public async Task LookThroughWindow_AfterCardTaken_OmitsCardOnFloor()
+    {
+        // Issue #477: once the player is holding the miniaturization access card, the window
+        // must stop reporting it on the floor (the ZIL WINDOW-F guards the sentence on MINI-CARD's
+        // TOUCHBIT). The rest of the window view is unchanged.
+        var target = GetTarget();
+        StartHere<BioLockEast>();
+        Take<MiniaturizationAccessCard>();
+
+        var response = await target.GetResponse("look through window");
+
+        response.Should().Contain("large laboratory, dimly illuminated");
+        response.Should().Contain("blue glow comes from a crack in the northern wall");
+        response.Should().Contain("Shadowy, ominous shapes move about within the room");
+        response.Should().NotContain("magnetic-striped card");
+    }
+
+    [Test]
+    public async Task LookThroughWindow_AfterFloydDeliversCard_OmitsCardOnFloor()
+    {
+        // Issue #477: Floyd's sacrifice delivers the card to the Bio Lock East floor via
+        // EndSequence -> ItemPlacedHere, which sets CurrentLocation but NOT HasEverBeenPickedUp.
+        // The window (looking into the lab) must stop reporting the card once it has left the lab,
+        // even before the player stoops to pick it up. Guarding only on HasEverBeenPickedUp would
+        // leave this contradiction open right after the sacrifice.
+        var target = GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        var bioLockEast = StartHere<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+        bioLockEast.StateMachine.HasWaitedOneTurnInBioLockEast = true;
+        bioLockEast.StateMachine.LabSequenceState = FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
+        var door = GetItem<BioLockInnerDoor>();
+        door.IsOpen = true;
+        target.Context.RegisterActor(bioLockEast);
+
+        await target.GetResponse("close door"); // Completes the sacrifice: card delivered to the floor
+
+        // Card has left the lab (now on the Bio Lock East floor) but has not been personally taken.
+        var miniCard = GetItem<MiniaturizationAccessCard>();
+        miniCard.CurrentLocation.Should().Be(bioLockEast);
+        miniCard.HasEverBeenPickedUp.Should().BeFalse();
+
+        var response = await target.GetResponse("look through window");
+
+        response.Should().Contain("large laboratory, dimly illuminated");
+        response.Should().Contain("blue glow comes from a crack in the northern wall");
+        response.Should().Contain("Shadowy, ominous shapes move about within the room");
+        response.Should().NotContain("magnetic-striped card");
     }
 }

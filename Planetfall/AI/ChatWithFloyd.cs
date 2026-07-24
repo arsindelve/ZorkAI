@@ -1,6 +1,7 @@
 using Amazon.Lambda;
+using ChatLambda;
 
-namespace ChatLambda;
+namespace Planetfall.AI;
 
 public class ChatWithFloyd(IAmazonLambda? lambdaClient) : ChatWithCompanion(lambdaClient), IChatWithFloyd
 {

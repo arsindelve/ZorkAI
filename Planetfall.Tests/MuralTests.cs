@@ -53,6 +53,22 @@ public class MuralTests : EngineTestsBase
     }
 
     [Test]
+    public async Task ProjConOffice_DescriptionShouldNotStartWithDoubledLetter()
+    {
+        // Regression for #435: the pre-announcement description had a typo ("TThis office...").
+        var target = GetTarget();
+        StartHere<ProjConOffice>();
+
+        var response = await target.GetResponse("look");
+
+        // \b anchors "This" to a word boundary, so the bug ("TThis office...") fails to match while the
+        // correct text matches. This makes the positive assertion catch the regression on its own rather
+        // than resting solely on the NotContain guard below (a plain Contain would pass on "TThis" too).
+        response.Should().MatchRegex(@"\bThis office looks like a headquarters");
+        response.Should().NotContain("TThis");
+    }
+
+    [Test]
     public void ProjConOffice_MuralShouldBePresent()
     {
         GetTarget();

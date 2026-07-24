@@ -1,4 +1,6 @@
-namespace ChatLambda;
+using ChatLambda;
+
+namespace Planetfall.AI;
 
 /// <summary>
 /// Interface for communicating with Floyd's AI Lambda function.

@@ -2,6 +2,7 @@
 using Model.AIGeneration;
 using Model.Item;
 using Newtonsoft.Json;
+using Planetfall.AI;
 
 namespace Planetfall.Item.Feinstein;
 

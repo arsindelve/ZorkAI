@@ -301,6 +301,25 @@ public interface IContext : ICanContainItems
     bool TurnConsumedByForcedEvent { get; set; }
 
     /// <summary>
+    ///     A serializable snapshot of an in-flight "which one do you mean?" disambiguation prompt, or null
+    ///     when no prompt is pending. Lives on the Context (rather than only in an in-memory engine field)
+    ///     so it round-trips through the save/restore boundary: in the stateless deployment the engine is
+    ///     rebuilt every request, so without this the pending prompt is lost between the turn that asks the
+    ///     question and the turn that carries the answer, and the answer is mis-parsed as a fresh command
+    ///     (issue #472). The engine rebuilds the pending processor from this on restore.
+    /// </summary>
+    PendingDisambiguation? PendingDisambiguation { get; set; }
+
+    /// <summary>
+    ///     The original command awaiting a noun after an "it"/"them" pronoun could not be resolved and the
+    ///     engine asked "What item are you referring to?" (e.g. <c>"take it"</c>), or null when no such
+    ///     clarification is pending. Persisted on the Context for the same reason as
+    ///     <see cref="PendingDisambiguation" /> — the "it"-clarification path uses the identical in-memory
+    ///     processor mechanism and was broken by the same stateless-deployment gap (issue #472).
+    /// </summary>
+    string? PendingClarificationCommand { get; set; }
+
+    /// <summary>
     ///     Gets the current death count. Override in game-specific contexts that track deaths.
     /// </summary>
     int GetDeathCount();

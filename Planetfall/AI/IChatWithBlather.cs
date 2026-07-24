@@ -1,4 +1,6 @@
-namespace ChatLambda;
+using ChatLambda;
+
+namespace Planetfall.AI;
 
 /// <summary>
 /// Interface for communicating with Blather's conversational AI (cloud Lambda or a local model).

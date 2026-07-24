@@ -5,7 +5,7 @@ namespace ZorkAI.OpenAI;
 
 public abstract class OpenAIClientBase
 {
-    protected readonly ChatClient? Client;
+    protected readonly IChatCompletionClient? Client;
     protected readonly ILogger? Logger;
 
     // Historically "do we have an OPEN_AI_KEY"; now "do we have a usable client". A self-hosted
@@ -17,12 +17,27 @@ public abstract class OpenAIClientBase
     // (e.g. ChatGPTClient runs Floyd's companion speech on a cheaper, faster model).
     protected readonly string? ApiKey;
 
-    private readonly OpenAIEndpointSettings _settings;
+    private readonly OpenAIEndpointSettings _settings = OpenAIEndpointSettings.FromEnvironment();
 
-    protected OpenAIClientBase(ILogger? logger, bool requireApiKey = true, string? modelOverride = null)
+    // False when the real Client was replaced by an injected seam: CreateAdditionalClient must not
+    // reach for the network behind a test double's back.
+    private readonly bool _canCreateAdditionalClient;
+
+    protected OpenAIClientBase(ILogger? logger, bool requireApiKey = true, string? modelOverride = null,
+        IChatCompletionClient? clientOverride = null)
     {
         Logger = logger;
-        _settings = OpenAIEndpointSettings.FromEnvironment();
+
+        if (clientOverride is not null)
+        {
+            // An injected client means we have a working generation seam, so HasApiKey is true - but
+            // ApiKey stays null on purpose. ApiKey only exists to let a subclass build a *second*
+            // real ChatClient on another model (Floyd's companion speech); there is no raw key behind
+            // an injected seam, and any subclass that needs a companion client injects that too.
+            HasApiKey = true;
+            Client = clientOverride;
+            return;
+        }
 
         if (!_settings.CanCreateClient)
         {
@@ -38,10 +53,11 @@ public abstract class OpenAIClientBase
         {
             HasApiKey = true;
             ApiKey = _settings.ApiKey;
+            _canCreateAdditionalClient = true;
             // modelOverride lets a subclass whose model is constructor-selectable build the base Client
             // with the right model directly, avoiding a virtual ModelName call before the subclass's
             // fields are initialized (and avoiding a second, unused client).
-            Client = _settings.CreateClient(modelOverride ?? ModelName);
+            Client = new OpenAIChatCompletionClient(_settings.CreateClient(modelOverride ?? ModelName));
         }
     }
 
@@ -49,11 +65,12 @@ public abstract class OpenAIClientBase
 
     /// <summary>
     ///     Creates a second client on a different model against the same endpoint/credentials as the
-    ///     primary <see cref="Client" /> (null if no client can be constructed). Subclasses must use
-    ///     this rather than newing a ChatClient so custom endpoints and model overrides apply everywhere.
+    ///     primary <see cref="Client" /> (null if no real client can be constructed). Subclasses must
+    ///     use this rather than newing a ChatClient so custom endpoints and model overrides apply
+    ///     everywhere.
     /// </summary>
-    protected ChatClient? CreateAdditionalClient(string modelName)
+    protected IChatCompletionClient? CreateAdditionalClient(string modelName)
     {
-        return Client is null ? null : _settings.CreateClient(modelName);
+        return _canCreateAdditionalClient ? new OpenAIChatCompletionClient(_settings.CreateClient(modelName)) : null;
     }
 }
