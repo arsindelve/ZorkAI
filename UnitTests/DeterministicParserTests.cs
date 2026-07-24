@@ -156,6 +156,21 @@ public class DeterministicParserTests
             multi.Preposition.Should().Be("with");
         }
 
+        [Test]
+        public void LocationDeclaredSceneryNoun_ResolvesDeterministically()
+        {
+            // "bolt" backs no item — it is scenery declared on the Dam location (Dam.SceneryNouns) and
+            // harvested into the vocabulary by Repository.GetNouns. Proving this parses is proof the engine
+            // needs NO hardcoded per-game scenery list: the noun is understood purely because its location
+            // declares it. (Before this refactor, "bolt" only worked via a hardcoded list inside the engine.)
+            var result = _parser.Parse("turn the bolt with the wrench");
+
+            result.Should().BeOfType<MultiNounIntent>();
+            var multi = (MultiNounIntent)result!;
+            multi.NounOne.Should().Be("bolt");
+            multi.NounTwo.Should().Be("wrench");
+        }
+
         [TestCase("turn on the lantern", "activate")]
         [TestCase("turn off the lantern", "deactivate")]
         public void MultiWordVerbPhrases_AreCanonicalised(string input, string canonicalVerb)
@@ -208,7 +223,10 @@ public class DeterministicParserTests
         [Test]
         public void PutInUnknownContainer_FallsBackToAi()
         {
-            _parser.Parse("put the sword in the forest").Should().BeNull();
+            // The second noun must be genuinely outside the game's vocabulary. "forest" is NOT usable here:
+            // the Forest locations declare it, so it is a known noun the parser rightly resolves. Use a word
+            // the game never mentions so this still exercises the unknown-container -> AI fallback.
+            _parser.Parse("put the sword in the volcano").Should().BeNull();
         }
 
         [TestCase("examine the mailbox carefully")]

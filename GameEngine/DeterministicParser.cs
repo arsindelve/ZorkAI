@@ -90,26 +90,6 @@ public class DeterministicParser
     private static readonly string[] TravelPrefixes =
         ["go to ", "walk to ", "head to ", "travel to ", "go into ", "walk into ", "run to ", "proceed to "];
 
-    // Interactable scenery nouns handled by specific LOCATIONS (via literal noun lists in their Match calls)
-    // that are NOT registered as any item's NounsForMatching, so Repository.GetNouns misses them. Harvested
-    // from the location handlers + the historical test fixtures (each is a real command the game supports).
-    // TODO: have locations DECLARE their scenery nouns so this per-game list isn't hand-maintained.
-    private static readonly Dictionary<string, string[]> SceneryNounsByGame = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ["ZorkOne"] =
-        [
-            "railing", "rail", "wooden railing", "chasm", "crack", "crevice", "crevasse", "abyss", "hole",
-            "floor", "bar", "grate", "grating", "bed", "table", "ground", "sand", "dirt", "wall", "granite",
-            "granite wall", "canyon", "great canyon", "cliff", "cliffs", "white cliffs", "lake", "ravine",
-            "gorge", "mud", "leak", "pipe", "water", "stream", "engravings", "engraving", "lettering",
-            "gothic lettering", "boards", "board", "front door", "mirror", "rainbow", "web", "slot",
-            "switch", "temple", "loft", "basement",
-            // Flood Control Dam control panel
-            "button", "yellow button", "brown button", "red button", "blue button", "dial", "lever",
-            "control panel", "panel", "bubble", "green bubble", "bolt", "lid"
-        ]
-    };
-
     public DeterministicParser(string gameName)
     {
         _vocab = VocabCache.GetOrAdd(gameName, Load);
@@ -117,10 +97,12 @@ public class DeterministicParser
 
     private static Vocabulary Load(string gameName)
     {
-        var nouns = new HashSet<string>(Repository.GetNouns(gameName), StringComparer.OrdinalIgnoreCase);
-        if (SceneryNounsByGame.TryGetValue(gameName, out var scenery))
-            nouns.UnionWith(scenery);
-        return new Vocabulary(nouns);
+        // The vocabulary is every noun the GAME declares — item NounsForMatching plus each location's
+        // NounsForMatching and scenery nouns — harvested game-agnostically by the Repository. The engine
+        // deliberately holds NO per-game noun list of its own: scenery nouns live on the locations that
+        // handle them (LocationBase.SceneryNouns), so a new game or a new piece of scenery is understood
+        // here automatically, without touching the engine.
+        return new Vocabulary(new HashSet<string>(Repository.GetNouns(gameName), StringComparer.OrdinalIgnoreCase));
     }
 
     /// <summary>
