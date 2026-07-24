@@ -28,9 +28,26 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
         // "through" + "window"). The second branch keeps examine / look at / look into window working.
         if (action.MatchInInput(Verbs.LookVerbs.Concat(Verbs.ExamineVerbs).ToArray(), "through", ["window"]) ||
             action.Match(Verbs.ExamineVerbs, ["window"]))
-            return new PositiveInteractionResult(
+        {
+            var view =
                 "You can see a large laboratory, dimly illuminated. A blue glow comes from a crack in the northern wall of the lab. Shadowy, " +
-                "ominous shapes move about within the room. On the floor, just inside the door, you can see a magnetic-striped card. ");
+                "ominous shapes move about within the room. ";
+
+            // Issue #477: the window looks into the lab, so only describe the card on the lab floor while
+            // it is actually still in the lab, mirroring the ZIL WINDOW-F guard on MINI-CARD's TOUCHBIT.
+            // The card has no real location until it leaves the lab, by either path: Floyd's sacrifice
+            // delivers it to this room (EndSequence -> ItemPlacedHere, which sets CurrentLocation but NOT
+            // HasEverBeenPickedUp), and a direct/god-mode take sets HasEverBeenPickedUp. Keying only on
+            // HasEverBeenPickedUp would leave the post-sacrifice window where the card sits at the player's
+            // feet yet the view still claimed it was inside the lab. Note we must not set the card's
+            // picked-up flag at delivery: that flag gates its first-pickup point award (Context.cs).
+            var card = Repository.GetItem<MiniaturizationAccessCard>();
+            var cardStillInLab = card.CurrentLocation is null && !card.HasEverBeenPickedUp;
+            if (cardStillInLab)
+                view += "On the floor, just inside the door, you can see a magnetic-striped card. ";
+
+            return new PositiveInteractionResult(view);
+        }
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
