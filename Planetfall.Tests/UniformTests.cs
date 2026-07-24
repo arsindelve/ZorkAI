@@ -1,6 +1,8 @@
 using FluentAssertions;
 using GameEngine;
 using Planetfall.Item.Feinstein;
+using Planetfall.Item.Kalamontee.Admin;
+using Planetfall.Item.Lawanda.Lab;
 using Planetfall.Location.Feinstein;
 using Planetfall.Location.Lawanda.Lab;
 
@@ -155,6 +157,46 @@ public class UniformTests : EngineTestsBase
 
         var response = await target.GetResponse("take paper");
         response.Should().NotContain("Taken");
+    }
+
+    [Test]
+    public async Task LabUniform_TakeCardFromPocket_ThenPutItBack()
+    {
+        // Issue #478: the pocket ships with two size-1 items (teleportation access card and
+        // piece of paper) but capacity must fit both. A container that can't hold its own
+        // starting contents is an invariant violation - after taking the card out, it must
+        // be possible to put it back.
+        var target = GetTarget();
+        StartHere<LabStorage>();
+
+        await target.GetResponse("open pocket");
+        (await target.GetResponse("take card")).Should().Contain("Taken");
+
+        var response = await target.GetResponse("put card in pocket");
+        response.Should().NotContain("There's no room");
+        response.Should().Contain("Done");
+
+        // Both seeded items coexist in the pocket once the card is returned.
+        var pocket = Repository.GetItem<LabUniformPocket>();
+        pocket.Items.Should().Contain(Repository.GetItem<TeleportationAccessCard>());
+        pocket.Items.Should().Contain(Repository.GetItem<PieceOfPaper>());
+    }
+
+    [Test]
+    public void LabUniform_PocketHasRoomForItsSeededContents()
+    {
+        // Guard: the pocket's declared capacity must accommodate both items it starts with.
+        GetTarget();
+        StartHere<LabStorage>();
+
+        var pocket = Repository.GetItem<LabUniformPocket>();
+        var card = Repository.GetItem<TeleportationAccessCard>();
+
+        pocket.Items.Should().HaveCount(2);
+
+        // Remove the card, then confirm the pocket still reports room to take it back.
+        pocket.RemoveItem(card);
+        pocket.HaveRoomForItem(card).Should().BeTrue();
     }
     
     [Test]

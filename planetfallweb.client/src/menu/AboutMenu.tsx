@@ -2,10 +2,10 @@ import * as React from 'react';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import config from "../../config.json";
-import {Mixpanel, DialogType} from "@zork-ai/shared-types";
-import {useGameContext} from "@zork-ai/shared-types";
-import { ListItemIcon, ListItemText } from '@mui/material';
+import config from '../../config.json';
+import {Mixpanel, DialogType} from '@zork-ai/shared-types';
+import {useGameContext} from '@zork-ai/shared-types';
+import {ListItemIcon, ListItemText} from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import HelpIcon from '@mui/icons-material/Help';
@@ -17,7 +17,7 @@ import ArticleIcon from '@mui/icons-material/Article';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 
-export default function AboutMenu({ latestVersion }: { latestVersion: string }) {
+export default function AboutMenu({latestVersion}: {latestVersion: string}) {
     const {setDialogToOpen} = useGameContext();
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -36,8 +36,8 @@ export default function AboutMenu({ latestVersion }: { latestVersion: string }) 
 
     const go = (name: string, url: string) => {
         Mixpanel.track('Click on Menu Item', {
-            "url": url,
-            "name": name
+            url: url,
+            name: name,
         });
         window.open(url, '_blank');
         handleClose();
@@ -56,7 +56,7 @@ export default function AboutMenu({ latestVersion }: { latestVersion: string }) 
                 color="primary"
                 startIcon={<InfoIcon />}
                 endIcon={<KeyboardArrowDownIcon />}
-                sx={{ 
+                sx={{
                     borderRadius: '20px',
                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
                     color: 'white',
@@ -92,69 +92,89 @@ export default function AboutMenu({ latestVersion }: { latestVersion: string }) 
                                     backgroundColor: 'rgba(0, 0, 0, 0.04)',
                                 },
                             },
-                        }
-                    }
+                        },
+                    },
                 }}
-                transformOrigin={{ horizontal: 'center', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
+                transformOrigin={{horizontal: 'center', vertical: 'top'}}
+                anchorOrigin={{horizontal: 'center', vertical: 'bottom'}}
             >
                 <MenuItem
                     onClick={() => {
                         setDialogToOpen(DialogType.Welcome);
                         handleClose();
-                    }}>
+                    }}
+                >
                     <ListItemIcon>
                         <HelpIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>What is Planetfall.AI?</ListItemText>
                 </MenuItem>
 
-                <MenuItem onClick={() => go("Repo", "https://github.com/arsindelve/ZorkAI")}>
+                <MenuItem onClick={() => go('Repo', 'https://github.com/arsindelve/ZorkAI')}>
                     <ListItemIcon>
                         <CodeIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>See the source code</ListItemText>
                 </MenuItem>
 
-                <MenuItem onClick={() => go("Planetfall Manual", "https://infodoc.plover.net/manuals/planetfa.pdf")}>
+                <MenuItem
+                    onClick={() =>
+                        go('Planetfall Manual', 'https://infodoc.plover.net/manuals/planetfa.pdf')
+                    }
+                >
                     <ListItemIcon>
                         <MenuBookIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>Read the Original Infocom Manual</ListItemText>
                 </MenuItem>
 
-                <MenuItem onClick={() => go("Map", "https://infodoc.plover.net/maps/planetfa.pdf")}>
+                <MenuItem onClick={() => go('Map', 'https://infodoc.plover.net/maps/planetfa.pdf')}>
                     <ListItemIcon>
                         <MapIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>Look at a Map (spoilers)</ListItemText>
                 </MenuItem>
 
-                <MenuItem onClick={() => go("Walkthrough", "http://www.eristic.net/games/infocom/planetfall.html")}>
+                <MenuItem
+                    onClick={() =>
+                        go('Walkthrough', 'http://www.eristic.net/games/infocom/planetfall.html')
+                    }
+                >
                     <ListItemIcon>
                         <ListAltIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>Look at a Walkthrough (major spoilers)</ListItemText>
                 </MenuItem>
 
-                <MenuItem onClick={() => go("Wikipedia", "https://en.wikipedia.org/wiki/Planetfall")}>
+                <MenuItem
+                    onClick={() => go('Wikipedia', 'https://en.wikipedia.org/wiki/Planetfall')}
+                >
                     <ListItemIcon>
                         <ArticleIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>Wikipedia Article on Planetfall</ListItemText>
                 </MenuItem>
 
-                <MenuItem onClick={() => go("Playable Version", "https://archive.org/details/a2_Planetfall_1983_Infocom_a")}>
+                <MenuItem
+                    onClick={() =>
+                        go(
+                            'Playable Version',
+                            'https://archive.org/details/a2_Planetfall_1983_Infocom_a',
+                        )
+                    }
+                >
                     <ListItemIcon>
                         <PlayArrowIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>Play the Original Infocom Version</ListItemText>
                 </MenuItem>
 
-                <MenuItem onClick={() => {
-                    setDialogToOpen(DialogType.ReleaseNotes);
-                    handleClose();
-                }}>
+                <MenuItem
+                    onClick={() => {
+                        setDialogToOpen(DialogType.ReleaseNotes);
+                        handleClose();
+                    }}
+                >
                     <ListItemIcon>
                         <NewReleasesIcon fontSize="small" />
                     </ListItemIcon>

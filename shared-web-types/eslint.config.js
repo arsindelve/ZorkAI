@@ -2,8 +2,11 @@ import js from '@eslint/js';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
 
+// Mirrors the two web clients' ESLint setup so the shared component/types library
+// is held to the same standard. The clients' react-refresh rule is intentionally
+// omitted here: it targets a Vite app's HMR entry components, not a library that
+// deliberately co-exports components and helpers.
 export default tseslint.config(
     {ignores: ['dist']},
     {
@@ -15,11 +18,9 @@ export default tseslint.config(
         },
         plugins: {
             'react-hooks': reactHooks,
-            'react-refresh': reactRefresh,
         },
         rules: {
             ...reactHooks.configs.recommended.rules,
-            'react-refresh/only-export-components': ['warn', {allowConstantExport: true}],
         },
     },
 );

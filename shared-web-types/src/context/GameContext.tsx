@@ -1,7 +1,7 @@
-import React, {createContext, useContext, useState} from "react";
-import {ISaveGameRequest} from "../SaveGameRequest";
-import DialogType from "../DialogType";
-import {ISavedGame} from "../SavedGame";
+import React, {createContext, useContext, useState} from 'react';
+import {ISaveGameRequest} from '../SaveGameRequest';
+import DialogType from '../DialogType';
+import {ISavedGame} from '../SavedGame';
 
 // Define the context type
 interface GameContextType {
@@ -31,19 +31,25 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 export const useGameContext = () => {
     const context = useContext(GameContext);
     if (!context) {
-        throw new Error("useGameContext must be used within a GameProvider");
+        throw new Error('useGameContext must be used within a GameProvider');
     }
     return context;
 };
 
 // Context provider
-export const GameProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
+export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const [dialogToOpen, setDialogToOpen] = useState<DialogType | undefined>(undefined);
     const [restartGame, setRestartGame] = useState(false);
-    const [saveGameRequest, setSaveGameRequest] = useState(undefined as ISaveGameRequest | undefined);
-    const [restoreGameRequest, setRestoreGameRequest] = useState(undefined as ISavedGame | undefined);
+    const [saveGameRequest, setSaveGameRequest] = useState(
+        undefined as ISaveGameRequest | undefined,
+    );
+    const [restoreGameRequest, setRestoreGameRequest] = useState(
+        undefined as ISavedGame | undefined,
+    );
     const [deleteGameRequest, setDeleteGameRequest] = useState(undefined as ISavedGame | undefined);
-    const [copyGameTranscript, setCopyGameTranscript] = useState<() => Promise<void>>(() => async () => {});
+    const [copyGameTranscript, setCopyGameTranscript] = useState<() => Promise<void>>(
+        () => async () => {},
+    );
 
     return (
         <GameContext.Provider
@@ -59,8 +65,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 deleteGameRequest,
                 setDeleteGameRequest,
                 copyGameTranscript,
-                setCopyGameTranscript
-            }}>
+                setCopyGameTranscript,
+            }}
+        >
             {children}
         </GameContext.Provider>
     );

@@ -1,8 +1,8 @@
 /**
  * Zork Game Features Tests
- * 
+ *
  * These tests verify miscellaneous features of the game.
- * 
+ *
  * NOTE: API Mocking
  * To avoid dependency on the backend API (which may not always be running),
  * these tests use Playwright's route interception to mock API responses.
@@ -10,12 +10,17 @@
  */
 
 import {test, expect} from '@playwright/test';
-import { closeWelcomeModal, handlePlanetfallRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
+import {
+    closeWelcomeModal,
+    handlePlanetfallRoute,
+    handleSaveGameRoute,
+    handleRestoreGameRoute,
+    handleGetSavedGamesRoute,
+} from './testHelpers';
 
 test.describe('Game Features', () => {
-
     // Set up API mocking before each test
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({page}) => {
         // Intercept requests to the API endpoints
         await page.route('http://localhost:5000/Planetfall', handlePlanetfallRoute);
 
@@ -43,7 +48,9 @@ test.describe('Game Features', () => {
         await page.route('http://localhost:5000/Planetfall/restoreGame', handleRestoreGameRoute);
     });
 
-    test('Copy game transcript - copy game transcript functionality works and displays success message', async ({page}) => {
+    test('Copy game transcript - copy game transcript functionality works and displays success message', async ({
+        page,
+    }) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
@@ -62,9 +69,9 @@ test.describe('Game Features', () => {
             Object.defineProperty(navigator, 'clipboard', {
                 value: {
                     writeText: () => Promise.resolve(),
-                    write: () => Promise.resolve()
+                    write: () => Promise.resolve(),
                 },
-                writable: true
+                writable: true,
             });
         });
 
@@ -76,5 +83,4 @@ test.describe('Game Features', () => {
         await expect(snackbar).toBeVisible();
         await expect(snackbar).toContainText('Game text copied to clipboard with formatting');
     });
-
 });

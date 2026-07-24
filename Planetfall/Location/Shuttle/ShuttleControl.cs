@@ -24,6 +24,11 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
     protected const int EndOfTunnel = 24;
     protected const int StartOfTunnel = 0;
 
+    // Issue #479: the position, one short of the platform (EndOfTunnel), at which a moving car's
+    // window shows the "station ahead" view. Matches the ZIL DESCRIBE-VIEW check (globals.zil:
+    // SHUTTLE-COUNTER 23) and the "approaching a brightly lit area" landmark below.
+    private const int ApproachingStation = 23;
+
     private static readonly Dictionary<int, string> Landmarks = new()
     {
         { 2, "You pass a sign which says \"Limit 45.\"" },
@@ -76,7 +81,12 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
         TunnelPosition switch
         {
             EndOfTunnel => "a featureless concrete wall. ",
-            190 or 195 => "parallel rails ending at a brightly lit station ahead. ",
+            // Issue #479: only show the "station ahead" view when the moving car is one position
+            // short of the platform. Previously gated on 190/195 -- values TunnelPosition (0..24)
+            // never reaches -- so this view was unreachable dead code. The ZIL conditions the view
+            // on SHUTTLE-MOVING too, so a car parked (Speed == 0) at 23 falls through to the
+            // generic view.
+            ApproachingStation when Speed != 0 => "parallel rails ending at a brightly lit station ahead. ",
             _ => "parallel rails running along the floor of a long tunnel, vanishing in the distance. "
         };
 

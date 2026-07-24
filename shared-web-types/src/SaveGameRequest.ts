@@ -6,7 +6,6 @@ export interface ISaveGameRequest {
 }
 
 export class SaveGameRequest implements ISaveGameRequest {
-
     clientId: string | undefined;
     name: string;
     sessionId: string | undefined;
@@ -16,5 +15,4 @@ export class SaveGameRequest implements ISaveGameRequest {
         this.name = name;
         this.sessionId = sessionId;
     }
-
 }

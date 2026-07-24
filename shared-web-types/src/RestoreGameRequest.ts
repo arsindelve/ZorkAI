@@ -5,7 +5,6 @@ export interface IRestoreGameRequest {
 }
 
 export class RestoreGameRequest implements IRestoreGameRequest {
-
     sessionId: string;
     id: string;
     clientId: string;
@@ -14,7 +13,5 @@ export class RestoreGameRequest implements IRestoreGameRequest {
         this.id = id;
         this.sessionId = sessionId;
         this.clientId = clientId;
-
     }
-
 }

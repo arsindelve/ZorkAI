@@ -75,13 +75,59 @@ public class ShuttleTests : EngineTestsBase
     [Test]
     public async Task Look_WhileCloseToStation_Outbound()
     {
+        // Issue #479: while a car is moving, the approach position (23 -- one short of the
+        // platform at EndOfTunnel 24) shows a distinct "station ahead" window view. The port
+        // previously gated this on TunnelPosition 190/195, values TunnelPosition (0..24) never
+        // reaches, so the view was unreachable dead code. The ZIL ground truth (DESCRIBE-VIEW,
+        // globals.zil) keys off counter 23 while SHUTTLE-MOVING; the landmark table already
+        // uses 23 for the "approaching a brightly lit area" sign.
         var target = GetTarget();
-        StartHere<AlfieControlEast>().TunnelPosition = 190;
+        var controls = StartHere<AlfieControlEast>();
+        controls.TunnelPosition = 23;
+        controls.Speed = 5;
 
         var response = await target.GetResponse("look");
 
         response.Should()
             .Contain("Through the cabin window you can see parallel rails ending at a brightly lit station ahead");
+        response.Should().NotContain("vanishing in the distance");
+    }
+
+    [Test]
+    public async Task Look_ParkedAtApproachPosition_ShowsGenericView()
+    {
+        // Issue #479 faithfulness guard: the original conditions the "station ahead" view on
+        // SHUTTLE-MOVING. A car stopped (Speed 0) at the approach position (23) shows the
+        // generic tunnel view, not "station ahead".
+        var target = GetTarget();
+        var controls = StartHere<AlfieControlEast>();
+        controls.TunnelPosition = 23;
+        controls.Speed = 0;
+
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("vanishing in the distance");
+        response.Should().NotContain("station ahead");
+    }
+
+    [Test]
+    [TestCase(0)]
+    [TestCase(12)]
+    [TestCase(22)]
+    public async Task Look_MovingBeforeApproachPosition_ShowsGenericView(int position)
+    {
+        // Issue #479 boundary guard: only position 23 flips to the "station ahead" view.
+        // Earlier in-tunnel positions (even while moving) still show the generic view -- this
+        // pins the exact boundary so a future edit can't widen the window.
+        var target = GetTarget();
+        var controls = StartHere<AlfieControlEast>();
+        controls.TunnelPosition = position;
+        controls.Speed = 5;
+
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("vanishing in the distance");
+        response.Should().NotContain("station ahead");
     }
 
     [Test]
