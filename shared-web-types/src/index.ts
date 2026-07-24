@@ -25,6 +25,7 @@ export {default as FunctionsMenu} from './menu/FunctionsMenu';
 export {default as RestoreModal} from './modal/RestoreModal';
 export {default as SaveModal} from './modal/SaveModal';
 export {default as ReleaseNotesModal} from './modal/ReleaseNotesModal';
+export {isFeatureEnabled} from './utils/featureFlags';
 export type {HintExchange} from './HintExchange';
 export {askForHint} from './utils/HintServer';
 export type {HintAnswer} from './utils/HintServer';

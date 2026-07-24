@@ -11,7 +11,9 @@ import {
     DialogType,
     HintPanel,
     HintsButton,
+    isFeatureEnabled,
 } from '@zork-ai/shared-types';
+import config from '../config.json';
 import React, {useEffect, useState} from 'react';
 import {Alert, Button, CircularProgress, Snackbar} from '@mui/material';
 import '@fontsource/roboto';
@@ -114,6 +116,10 @@ function Game() {
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
     const [snackBarMessage, setSnackBarMessage] = useState<string>('');
     const [showJumpToLatest, setShowJumpToLatest] = useState<boolean>(false);
+    // Feature flag: the deployed config.json (rewritten by deploy.yml) has no hints_enabled key,
+    // so hints ship dark in prod until the key is added there; the committed config turns them on
+    // for local dev and e2e. Any browser can override either way via ?hints=1 / ?hints=0.
+    const hintsEnabled = isFeatureEnabled('hints', config.hints_enabled === true);
     const [hintsOpen, setHintsOpen] = useState<boolean>(false);
     const atBottomRef = React.useRef<boolean>(true);
 
@@ -529,13 +535,15 @@ function Game() {
                 {/* Hint side panel: docked beside the transcript on desktop, full overlay of it on
                     mobile. Read-only server-side — asking costs no turn; the conversation history is
                     client-owned (persisted per session inside the shared component). */}
-                <HintPanel
-                    open={hintsOpen}
-                    onClose={() => setHintsOpen(false)}
-                    sessionId={sessionId.getSessionId()[0]}
-                    ask={server.hint}
-                    className="absolute inset-0 z-30 md:relative md:inset-auto md:z-auto md:w-[340px] md:flex-none md:h-full"
-                />
+                {hintsEnabled && (
+                    <HintPanel
+                        open={hintsOpen}
+                        onClose={() => setHintsOpen(false)}
+                        sessionId={sessionId.getSessionId()[0]}
+                        ask={server.hint}
+                        className="absolute inset-0 z-30 md:relative md:inset-auto md:z-auto md:w-[340px] md:flex-none md:h-full"
+                    />
+                )}
             </div>
 
             <div
@@ -599,10 +607,12 @@ function Game() {
                             />
                         )}
                         <CommandsButton onCommandClick={handleCommandClick} />
-                        <HintsButton
-                            open={hintsOpen}
-                            onToggle={() => setHintsOpen((prev) => !prev)}
-                        />
+                        {hintsEnabled && (
+                            <HintsButton
+                                open={hintsOpen}
+                                onToggle={() => setHintsOpen((prev) => !prev)}
+                            />
+                        )}
 
                         <Button
                             variant="contained"
