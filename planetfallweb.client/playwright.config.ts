@@ -1,7 +1,7 @@
-import { defineConfig, devices } from '@playwright/test';
+import {defineConfig, devices} from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import {fileURLToPath} from 'url';
 
 // Get the directory name of the current module
 const __filename = fileURLToPath(import.meta.url);
@@ -10,66 +10,68 @@ const __dirname = path.dirname(__filename);
 // Ensure test artifacts directory exists
 const testArtifactsDir = path.join(__dirname, 'test-artifacts');
 if (!fs.existsSync(testArtifactsDir)) {
-  fs.mkdirSync(testArtifactsDir, { recursive: true });
+    fs.mkdirSync(testArtifactsDir, {recursive: true});
 }
 
 export default defineConfig({
-  testDir: './tests',
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: 2,
-  workers: process.env.CI ? 1 : 4,
-  // Use multiple reporters for better debugging
-  reporter: [
-    ['html', { outputFolder: 'playwright-report' }],
-    ['json', { outputFile: 'test-artifacts/test-results.json' }],
-    ['list'] // Shows test progress in the console
-  ],
-  // Output directory for test artifacts
-  outputDir: 'test-artifacts',
-  use: {
-    baseURL: 'http://localhost:5173',
-    // Trace on retry only. trace:'on' records continuously and makes the
-    // route-mocked tests time out; on-first-retry still captures a trace for
-    // any test that fails and retries.
-    trace: 'on-first-retry',
-    // Capture screenshots on failure and at the end of each test
-    screenshot: 'on',
-    // Record video for failed tests
-    video: 'retain-on-failure',
-    // Increase default timeout for assertions from 5s to 10s
-    expect: {
-      timeout: 10000
+    testDir: './tests',
+    fullyParallel: true,
+    forbidOnly: !!process.env.CI,
+    retries: 2,
+    workers: process.env.CI ? 1 : 4,
+    // Use multiple reporters for better debugging
+    reporter: [
+        ['html', {outputFolder: 'playwright-report'}],
+        ['json', {outputFile: 'test-artifacts/test-results.json'}],
+        ['list'], // Shows test progress in the console
+    ],
+    // Output directory for test artifacts
+    outputDir: 'test-artifacts',
+    use: {
+        baseURL: 'http://localhost:5173',
+        // Trace on retry only. trace:'on' records continuously and makes the
+        // route-mocked tests time out; on-first-retry still captures a trace for
+        // any test that fails and retries.
+        trace: 'on-first-retry',
+        // Capture screenshots on failure and at the end of each test
+        screenshot: 'on',
+        // Record video for failed tests
+        video: 'retain-on-failure',
+        // Increase default timeout for assertions from 5s to 10s
+        expect: {
+            timeout: 10000,
+        },
+        // Capture console logs
+        contextOptions: {
+            logger: {
+                isEnabled: (name) => name === 'browser',
+                log: (name, severity, message) => console.log(`${name} ${severity}: ${message}`),
+            },
+        },
     },
-    // Capture console logs
-    contextOptions: {
-      logger: {
-        isEnabled: (name) => name === 'browser',
-        log: (name, severity, message) => console.log(`${name} ${severity}: ${message}`)
-      }
+    projects: [
+        {
+            name: 'chromium',
+            use: {...devices['Desktop Chrome']},
+        },
+        ...(process.env.CI
+            ? [
+                  {
+                      name: 'firefox',
+                      use: {...devices['Desktop Firefox']},
+                  },
+                  {
+                      name: 'webkit',
+                      use: {...devices['Desktop Safari']},
+                  },
+              ]
+            : []),
+    ],
+    webServer: {
+        command: 'npm run dev',
+        url: 'http://localhost:5173',
+        reuseExistingServer: !process.env.CI,
+        stdout: 'pipe',
+        stderr: 'pipe',
     },
-  },
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    ...(process.env.CI ? [
-      {
-        name: 'firefox',
-        use: { ...devices['Desktop Firefox'] },
-      },
-      {
-        name: 'webkit',
-        use: { ...devices['Desktop Safari'] },
-      }
-    ] : [])
-  ],
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
-    stdout: 'pipe',
-    stderr: 'pipe',
-  },
 });

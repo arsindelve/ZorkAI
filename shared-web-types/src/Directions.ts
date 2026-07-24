@@ -11,5 +11,5 @@ export enum Direction {
     Out = 'Out',
     Up = 'Up',
     Down = 'Down',
-    Unknown = 'Unknown'
+    Unknown = 'Unknown',
 }

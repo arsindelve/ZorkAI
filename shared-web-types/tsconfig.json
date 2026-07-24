@@ -1,14 +1,14 @@
 {
-  "compilerOptions": {
-    "jsx": "react",
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "declaration": true,
-    "declarationMap": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true
-  },
-  "include": ["src/**/*"]
+    "compilerOptions": {
+        "jsx": "react",
+        "target": "ES2020",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "strict": true,
+        "declaration": true,
+        "declarationMap": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true
+    },
+    "include": ["src/**/*"]
 }

@@ -4,7 +4,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
-import { Typography } from '@mui/material';
+import {Typography} from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 
 interface VideoDialogProps {
@@ -24,8 +24,8 @@ const VideoDialog: React.FC<VideoDialogProps> = ({open, handleClose}) => (
             style: {
                 borderRadius: '12px',
                 overflow: 'hidden',
-                maxHeight: '90vh'
-            }
+                maxHeight: '90vh',
+            },
         }}
     >
         <DialogTitle
@@ -36,7 +36,7 @@ const VideoDialog: React.FC<VideoDialogProps> = ({open, handleClose}) => (
                 display: 'flex',
                 alignItems: 'center',
                 gap: 1,
-                py: 2
+                py: 2,
             }}
         >
             <PlayArrowIcon fontSize="large" />
@@ -46,11 +46,11 @@ const VideoDialog: React.FC<VideoDialogProps> = ({open, handleClose}) => (
         </DialogTitle>
         <DialogContent
             sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
                 padding: 0,
-                height: "70vh"
+                height: '70vh',
             }}
         >
             <video
@@ -58,10 +58,10 @@ const VideoDialog: React.FC<VideoDialogProps> = ({open, handleClose}) => (
                 controls
                 autoPlay
                 role="video"
-                style={{width: "100%", height: "100%"}}
+                style={{width: '100%', height: '100%'}}
             />
         </DialogContent>
-        <DialogActions sx={{ p: 2, bgcolor: 'grey.100' }}>
+        <DialogActions sx={{p: 2, bgcolor: 'grey.100'}}>
             <Button
                 onClick={handleClose}
                 variant="outlined"
@@ -72,8 +72,8 @@ const VideoDialog: React.FC<VideoDialogProps> = ({open, handleClose}) => (
                     color: 'grey.800',
                     '&:hover': {
                         borderColor: 'grey.800',
-                        bgcolor: 'grey.100'
-                    }
+                        bgcolor: 'grey.100',
+                    },
                 }}
                 autoFocus
             >

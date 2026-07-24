@@ -1,8 +1,8 @@
 /**
  * Zork Game Save/Restore Tests
- * 
+ *
  * These tests verify the functionality of saving, restoring, and restarting the game.
- * 
+ *
  * NOTE: API Mocking
  * To avoid dependency on the backend API (which may not always be running),
  * these tests use Playwright's route interception to mock API responses.
@@ -10,17 +10,22 @@
  */
 
 import {test, expect} from '@playwright/test';
-import { closeWelcomeModal, handlePlanetfallRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
-import { mockResponses } from './mockResponses';
+import {
+    closeWelcomeModal,
+    handlePlanetfallRoute,
+    handleSaveGameRoute,
+    handleRestoreGameRoute,
+    handleGetSavedGamesRoute,
+} from './testHelpers';
+import {mockResponses} from './mockResponses';
 
 test.describe('Game Save and Restore', () => {
-
     // Set up API mocking before each test
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({page}) => {
         // Intercept DELETE requests to /saveGame/{id} for deleteSavedGame
         await page.route('http://localhost:5000/Planetfall/saveGame/*', async (route) => {
             if (route.request().method() === 'DELETE') {
-                await route.fulfill({ status: 200, contentType: 'application/json', body: '' });
+                await route.fulfill({status: 200, contentType: 'application/json', body: ''});
             } else {
                 await route.continue();
             }
@@ -52,17 +57,27 @@ test.describe('Game Save and Restore', () => {
         await page.route('http://localhost:5000/Planetfall/restoreGame', handleRestoreGameRoute);
     });
 
-    test('Restore Modal - clicking delete opens confirmation dialog with correct game name', async ({ page }) => {
+    test('Restore Modal - clicking delete opens confirmation dialog with correct game name', async ({
+        page,
+    }) => {
         await closeWelcomeModal(page);
-        await page.waitForSelector('[data-testid="game-button"]', { state: 'visible' });
+        await page.waitForSelector('[data-testid="game-button"]', {state: 'visible'});
         await page.locator('[data-testid="game-button"]').click();
         const gameMenu = page.locator('#game-menu');
         await expect(gameMenu).toBeVisible();
-        const restoreMenuItem = page.locator('#game-menu li:has-text("Restore a Previous Saved Game")');
+        const restoreMenuItem = page.locator(
+            '#game-menu li:has-text("Restore a Previous Saved Game")',
+        );
         await restoreMenuItem.click();
-        await page.waitForSelector('[data-testid="restore-game-modal"]', { state: 'visible', timeout: 10000 });
+        await page.waitForSelector('[data-testid="restore-game-modal"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
         // Ensure list is visible
-        await page.waitForSelector('[data-testid="restore-game-list"]', { state: 'visible', timeout: 10000 });
+        await page.waitForSelector('[data-testid="restore-game-list"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
         const firstItem = page.locator('[data-testid="restore-game-item"]').first();
         await expect(firstItem).toBeVisible();
         // Click the delete icon button
@@ -70,21 +85,33 @@ test.describe('Game Save and Restore', () => {
         // Expect confirmation dialog to appear with the correct title and message including the game name
         const confirmDialog = page.locator('[aria-labelledby="confirmation-dialog-title"]');
         await expect(confirmDialog).toBeVisible();
-        await expect(confirmDialog.locator('#confirmation-dialog-title')).toHaveText('Delete Saved Game');
-        await expect(confirmDialog).toContainText(`Are you sure you want to delete "${mockResponses.savedGames[0].name}"?`);
+        await expect(confirmDialog.locator('#confirmation-dialog-title')).toHaveText(
+            'Delete Saved Game',
+        );
+        await expect(confirmDialog).toContainText(
+            `Are you sure you want to delete "${mockResponses.savedGames[0].name}"?`,
+        );
         // Close dialog via Cancel to clean up
         await confirmDialog.locator('button:has-text("Cancel")').click();
         await expect(confirmDialog).not.toBeVisible();
     });
 
-    test('Restore Modal - canceling deletion keeps the item and closes the confirmation dialog', async ({ page }) => {
+    test('Restore Modal - canceling deletion keeps the item and closes the confirmation dialog', async ({
+        page,
+    }) => {
         await closeWelcomeModal(page);
-        await page.waitForSelector('[data-testid="game-button"]', { state: 'visible' });
+        await page.waitForSelector('[data-testid="game-button"]', {state: 'visible'});
         await page.locator('[data-testid="game-button"]').click();
         await expect(page.locator('#game-menu')).toBeVisible();
         await page.locator('#game-menu li:has-text("Restore a Previous Saved Game")').click();
-        await page.waitForSelector('[data-testid="restore-game-modal"]', { state: 'visible', timeout: 10000 });
-        await page.waitForSelector('[data-testid="restore-game-list"]', { state: 'visible', timeout: 10000 });
+        await page.waitForSelector('[data-testid="restore-game-modal"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
+        await page.waitForSelector('[data-testid="restore-game-list"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
         const items = page.locator('[data-testid="restore-game-item"]');
         const initialCount = await items.count();
         const firstItem = items.first();
@@ -96,16 +123,28 @@ test.describe('Game Save and Restore', () => {
         await expect(items).toHaveCount(initialCount);
     });
 
-    test('Restore Modal - confirming deletion calls API and shows success snackbar', async ({ page }) => {
+    test('Restore Modal - confirming deletion calls API and shows success snackbar', async ({
+        page,
+    }) => {
         await closeWelcomeModal(page);
-        await page.waitForSelector('[data-testid="game-button"]', { state: 'visible' });
+        await page.waitForSelector('[data-testid="game-button"]', {state: 'visible'});
         await page.locator('[data-testid="game-button"]').click();
         await page.locator('#game-menu li:has-text("Restore a Previous Saved Game")').click();
-        await page.waitForSelector('[data-testid="restore-game-modal"]', { state: 'visible', timeout: 10000 });
-        await page.waitForSelector('[data-testid="restore-game-list"]', { state: 'visible', timeout: 10000 });
+        await page.waitForSelector('[data-testid="restore-game-modal"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
+        await page.waitForSelector('[data-testid="restore-game-list"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
         const firstItem = page.locator('[data-testid="restore-game-item"]').first();
         // Prepare to wait for DELETE request
-        const deleteRequestPromise = page.waitForRequest((req) => req.method() === 'DELETE' && /\/Planetfall\/saveGame\/.+\?sessionId=/.test(req.url()));
+        const deleteRequestPromise = page.waitForRequest(
+            (req) =>
+                req.method() === 'DELETE' &&
+                /\/Planetfall\/saveGame\/.+\?sessionId=/.test(req.url()),
+        );
         // Open confirmation dialog and confirm
         await firstItem.locator('button[title="Delete saved game"]').click();
         const confirmDialog = page.locator('[aria-labelledby="confirmation-dialog-title"]');
@@ -119,7 +158,9 @@ test.describe('Game Save and Restore', () => {
         await expect(snackbar).toContainText('Game Deleted Successfully');
     });
 
-    test('Save Game - saved games are displayed in the save modal and API is called', async ({page}) => {
+    test('Save Game - saved games are displayed in the save modal and API is called', async ({
+        page,
+    }) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
@@ -146,7 +187,10 @@ test.describe('Game Save and Restore', () => {
 
         // Wait for the save modal to appear
         try {
-            await page.waitForSelector('[data-testid="save-game-modal"]', {state: 'visible', timeout: 10000});
+            await page.waitForSelector('[data-testid="save-game-modal"]', {
+                state: 'visible',
+                timeout: 10000,
+            });
         } catch (error) {
             console.error('Error waiting for save modal:', error);
             throw error;
@@ -160,8 +204,8 @@ test.describe('Game Save and Restore', () => {
             // Wait with a longer timeout - use a more specific selector to avoid strict mode violations
             // We know there will be at least one save-game-new-section div (the input section)
             await page.waitForSelector('[data-testid="save-game-new-section"]', {
-                state: 'visible', 
-                timeout: 10000
+                state: 'visible',
+                timeout: 10000,
             });
         } catch (error) {
             console.error('Error waiting for saved games section:', error);
@@ -196,7 +240,9 @@ test.describe('Game Save and Restore', () => {
         await expect(snackbar).toContainText('Game Saved Successfully');
     });
 
-    test('Restore Game - saved games are displayed in the restore modal and API is called', async ({page}) => {
+    test('Restore Game - saved games are displayed in the restore modal and API is called', async ({
+        page,
+    }) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
@@ -211,7 +257,9 @@ test.describe('Game Save and Restore', () => {
         await expect(gameMenu).toBeVisible();
 
         // Find the specific menu item
-        const restoreMenuItem = page.locator('#game-menu li:has-text("Restore a Previous Saved Game")');
+        const restoreMenuItem = page.locator(
+            '#game-menu li:has-text("Restore a Previous Saved Game")',
+        );
         const restoreMenuItemCount = await restoreMenuItem.count();
 
         if (restoreMenuItemCount > 0) {
@@ -223,7 +271,10 @@ test.describe('Game Save and Restore', () => {
 
         // Wait for the restore modal to appear
         try {
-            await page.waitForSelector('[data-testid="restore-game-modal"]', {state: 'visible', timeout: 10000});
+            await page.waitForSelector('[data-testid="restore-game-modal"]', {
+                state: 'visible',
+                timeout: 10000,
+            });
         } catch (error) {
             console.error('Error waiting for restore modal:', error);
             throw error;
@@ -238,7 +289,7 @@ test.describe('Game Save and Restore', () => {
             // Wait for the saved games to be loaded
             await page.waitForSelector('[data-testid="restore-game-list"]', {
                 state: 'visible',
-                timeout: 10000
+                timeout: 10000,
             });
         } catch (error) {
             console.error('Error waiting for saved games section:', error);
@@ -255,12 +306,17 @@ test.describe('Game Save and Restore', () => {
             await expect(firstSavedGame).toBeVisible();
 
             // Click the Restore button for the first saved game
-            await page.locator('[data-testid="restore-game-modal"] button:has-text("Restore")').first().click();
+            await page
+                .locator('[data-testid="restore-game-modal"] button:has-text("Restore")')
+                .first()
+                .click();
         } else {
             console.error('No saved games found for verification!');
 
             // Close the modal by clicking Cancel
-            await page.locator('[data-testid="restore-game-modal"] button:has-text("Cancel")').click();
+            await page
+                .locator('[data-testid="restore-game-modal"] button:has-text("Cancel")')
+                .click();
             return;
         }
 
@@ -279,12 +335,17 @@ test.describe('Game Save and Restore', () => {
         expect(responseCount).toBeGreaterThan(0);
     });
 
-    test('API Response "<Restore>" - when API returns "<Restore>" response, the restore modal opens', async ({page}) => {
+    test('API Response "<Restore>" - when API returns "<Restore>" response, the restore modal opens', async ({
+        page,
+    }) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
         // Wait for the input field to be visible
-        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+        await page.waitForSelector('[data-testid="game-input"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
 
         // Type the "restore" command in the input field
         await page.fill('[data-testid="game-input"]', 'restore');
@@ -297,7 +358,10 @@ test.describe('Game Save and Restore', () => {
 
         // Wait for the restore modal to appear
         try {
-            await page.waitForSelector('[data-testid="restore-game-modal"]', {state: 'visible', timeout: 10000});
+            await page.waitForSelector('[data-testid="restore-game-modal"]', {
+                state: 'visible',
+                timeout: 10000,
+            });
         } catch (error) {
             console.error('Error waiting for restore modal:', error);
             throw error;
@@ -312,7 +376,7 @@ test.describe('Game Save and Restore', () => {
             // Wait for the saved games to be loaded
             await page.waitForSelector('[data-testid="restore-game-list"]', {
                 state: 'visible',
-                timeout: 10000
+                timeout: 10000,
             });
         } catch (error) {
             console.error('Error waiting for saved games section:', error);
@@ -329,24 +393,33 @@ test.describe('Game Save and Restore', () => {
             await expect(firstSavedGame).toBeVisible();
 
             // Close the modal by clicking Cancel
-            await page.locator('[data-testid="restore-game-modal"] button:has-text("Cancel")').click();
+            await page
+                .locator('[data-testid="restore-game-modal"] button:has-text("Cancel")')
+                .click();
         } else {
             console.error('No saved games found for verification!');
 
             // Close the modal by clicking Cancel
-            await page.locator('[data-testid="restore-game-modal"] button:has-text("Cancel")').click();
+            await page
+                .locator('[data-testid="restore-game-modal"] button:has-text("Cancel")')
+                .click();
         }
 
         // Verify that the restore modal is closed
         await expect(page.locator('[data-testid="restore-game-modal"]')).not.toBeVisible();
     });
 
-    test('API Response "<Save>" - when API returns "<Save>" response, the save modal opens', async ({page}) => {
+    test('API Response "<Save>" - when API returns "<Save>" response, the save modal opens', async ({
+        page,
+    }) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
         // Wait for the input field to be visible
-        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+        await page.waitForSelector('[data-testid="game-input"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
 
         // Type the "save" command in the input field
         await page.fill('[data-testid="game-input"]', 'save');
@@ -359,7 +432,10 @@ test.describe('Game Save and Restore', () => {
 
         // Wait for the save modal to appear
         try {
-            await page.waitForSelector('[data-testid="save-game-modal"]', {state: 'visible', timeout: 10000});
+            await page.waitForSelector('[data-testid="save-game-modal"]', {
+                state: 'visible',
+                timeout: 10000,
+            });
         } catch (error) {
             console.error('Error waiting for save modal:', error);
             throw error;
@@ -374,7 +450,7 @@ test.describe('Game Save and Restore', () => {
             // Wait for the saved games to be loaded
             await page.waitForSelector('[data-testid="save-game-new-section"]', {
                 state: 'visible',
-                timeout: 10000
+                timeout: 10000,
             });
         } catch (error) {
             console.error('Error waiting for saved games section:', error);
@@ -403,12 +479,17 @@ test.describe('Game Save and Restore', () => {
         await expect(page.locator('[data-testid="save-game-modal"]')).not.toBeVisible();
     });
 
-    test('API Response "<Restart>" - when API returns "<Restart>" response, the restart modal opens', async ({page}) => {
+    test('API Response "<Restart>" - when API returns "<Restart>" response, the restart modal opens', async ({
+        page,
+    }) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
         // Wait for the input field to be visible
-        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+        await page.waitForSelector('[data-testid="game-input"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
 
         // Type the "restart" command in the input field
         await page.fill('[data-testid="game-input"]', 'restart');
@@ -421,19 +502,28 @@ test.describe('Game Save and Restore', () => {
 
         // Wait for the restart modal to appear
         try {
-            await page.waitForSelector('[data-testid="restart-confirm-dialog"]', {state: 'visible', timeout: 10000});
+            await page.waitForSelector('[data-testid="restart-confirm-dialog"]', {
+                state: 'visible',
+                timeout: 10000,
+            });
         } catch (error) {
             console.error('Error waiting for restart modal:', error);
             throw error;
         }
 
         // Verify that the restart modal contains the expected title
-        const modalTitle = page.locator('[data-testid="restart-confirm-dialog"] h2#restart-confirm-dialog');
+        const modalTitle = page.locator(
+            '[data-testid="restart-confirm-dialog"] h2#restart-confirm-dialog',
+        );
         await expect(modalTitle).toContainText('Restart Your Game? Are you sure?');
 
         // Verify that the restart modal contains the expected message
-        const modalMessage = page.locator('[data-testid="restart-confirm-dialog"] .MuiDialogContent-root');
-        await expect(modalMessage).toContainText('Your game will be reset to the beginning. Are you sure you want to restart?');
+        const modalMessage = page.locator(
+            '[data-testid="restart-confirm-dialog"] .MuiDialogContent-root',
+        );
+        await expect(modalMessage).toContainText(
+            'Your game will be reset to the beginning. Are you sure you want to restart?',
+        );
 
         // Close the modal by clicking Cancel
         await page.locator('[data-testid="restart-confirm-cancel"]').click();
@@ -442,14 +532,16 @@ test.describe('Game Save and Restore', () => {
         await expect(page.locator('[data-testid="restart-confirm-dialog"]')).not.toBeVisible();
     });
 
-    test('Save Modal - Overwrite Existing Save section is hidden when no saved games exist', async ({page}) => {
+    test('Save Modal - Overwrite Existing Save section is hidden when no saved games exist', async ({
+        page,
+    }) => {
         // Override the getSavedGames route to return an empty array
         await page.route('http://localhost:5000/Planetfall/saveGame?*', async (route) => {
             if (route.request().method() === 'GET') {
-                await route.fulfill({ 
-                    status: 200, 
+                await route.fulfill({
+                    status: 200,
                     contentType: 'application/json',
-                    body: JSON.stringify([]) // Empty array - no saved games
+                    body: JSON.stringify([]), // Empty array - no saved games
                 });
             } else {
                 await route.continue();
@@ -474,7 +566,10 @@ test.describe('Game Save and Restore', () => {
         await saveMenuItem.click();
 
         // Wait for the save modal to appear
-        await page.waitForSelector('[data-testid="save-game-modal"]', {state: 'visible', timeout: 10000});
+        await page.waitForSelector('[data-testid="save-game-modal"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
 
         // Verify that the "Create New Save" section is visible
         await expect(page.locator('[data-testid="save-game-new-section"]')).toBeVisible();
@@ -491,7 +586,9 @@ test.describe('Game Save and Restore', () => {
         await page.locator('[data-testid="save-game-modal"] button:has-text("Cancel")').click();
     });
 
-    test('Save Modal - Overwrite Existing Save section is visible when saved games exist', async ({page}) => {
+    test('Save Modal - Overwrite Existing Save section is visible when saved games exist', async ({
+        page,
+    }) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
@@ -510,7 +607,10 @@ test.describe('Game Save and Restore', () => {
         await saveMenuItem.click();
 
         // Wait for the save modal to appear
-        await page.waitForSelector('[data-testid="save-game-modal"]', {state: 'visible', timeout: 10000});
+        await page.waitForSelector('[data-testid="save-game-modal"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
 
         // Verify that the "Create New Save" section is visible
         await expect(page.locator('[data-testid="save-game-new-section"]')).toBeVisible();

@@ -1,1 +1,1 @@
-export const Mixpanel = { track: jest.fn(), identify: jest.fn() };
+export const Mixpanel = {track: jest.fn(), identify: jest.fn()};

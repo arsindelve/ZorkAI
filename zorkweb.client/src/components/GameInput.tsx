@@ -1,5 +1,5 @@
-import React, { ChangeEvent, KeyboardEvent, RefObject, useEffect, useState } from 'react';
-import { Box } from '@mui/material';
+import React, {ChangeEvent, KeyboardEvent, RefObject, useEffect, useState} from 'react';
+import {Box} from '@mui/material';
 
 interface GameInputProps {
     playerInputElement: RefObject<HTMLInputElement | null>;
@@ -17,7 +17,7 @@ const GameInput: React.FC<GameInputProps> = ({
     playerInput,
     setInput,
     handleKeyDown,
-    commandHistory = []
+    commandHistory = [],
 }) => {
     const [isFocused, setIsFocused] = useState(false);
     // null = not navigating history (editing the live line); otherwise an index
@@ -38,9 +38,8 @@ const GameInput: React.FC<GameInputProps> = ({
         if (e.key === 'ArrowUp') {
             if (commandHistory.length === 0) return;
             e.preventDefault();
-            const idx = historyIndex === null
-                ? commandHistory.length - 1
-                : Math.max(0, historyIndex - 1);
+            const idx =
+                historyIndex === null ? commandHistory.length - 1 : Math.max(0, historyIndex - 1);
             setHistoryIndex(idx);
             setInput(commandHistory[idx]);
             return;
@@ -106,7 +105,8 @@ const GameInput: React.FC<GameInputProps> = ({
             </div>
 
             <p className="mt-1 ml-1 text-[11px] italic text-stone-400/70 select-none hidden sm:block">
-                Tip: click any word above to add it to your command &middot; &uarr;/&darr; recalls past commands
+                Tip: click any word above to add it to your command &middot; &uarr;/&darr; recalls
+                past commands
             </p>
         </Box>
     );

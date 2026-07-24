@@ -1,8 +1,8 @@
 /**
  * Zork Game Commands Tests
- * 
+ *
  * These tests verify the functionality of game input and commands.
- * 
+ *
  * NOTE: API Mocking
  * To avoid dependency on the backend API (which may not always be running),
  * these tests use Playwright's route interception to mock API responses.
@@ -10,12 +10,18 @@
  */
 
 import {test, expect} from '@playwright/test';
-import { closeWelcomeModal, waitForGameResponse, handlePlanetfallRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
+import {
+    closeWelcomeModal,
+    waitForGameResponse,
+    handlePlanetfallRoute,
+    handleSaveGameRoute,
+    handleRestoreGameRoute,
+    handleGetSavedGamesRoute,
+} from './testHelpers';
 
 test.describe('Game Commands', () => {
-
     // Set up API mocking before each test
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({page}) => {
         // Intercept requests to the API endpoints
         await page.route('http://localhost:5000/Planetfall', handlePlanetfallRoute);
 
@@ -48,7 +54,10 @@ test.describe('Game Commands', () => {
         await closeWelcomeModal(page);
 
         // Wait for the input field to be visible
-        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+        await page.waitForSelector('[data-testid="game-input"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
 
         // Type a command in the input field
         await page.fill('[data-testid="game-input"]', 'look around');
@@ -63,8 +72,8 @@ test.describe('Game Commands', () => {
         await waitForGameResponse(page);
 
         // Now check if our specific command was echoed
-        const commandEcho = page.locator('p.text-glow').filter({ hasText: /look around/i });
-        await expect(commandEcho.first()).toBeVisible({ timeout: 5000 });
+        const commandEcho = page.locator('p.text-glow').filter({hasText: /look around/i});
+        await expect(commandEcho.first()).toBeVisible({timeout: 5000});
 
         // Verify that the game responded to the command
         const gameResponses = page.locator('[data-testid="game-response"]');
@@ -78,12 +87,17 @@ test.describe('Game Commands', () => {
         expect(inputValue).toBe('');
     });
 
-    test('Game input - player can enter a command and press Enter to receive a response', async ({page}) => {
+    test('Game input - player can enter a command and press Enter to receive a response', async ({
+        page,
+    }) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
         // Wait for the input field to be visible
-        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+        await page.waitForSelector('[data-testid="game-input"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
 
         // Type a command in the input field
         await page.fill('[data-testid="game-input"]', 'look around');
@@ -98,8 +112,8 @@ test.describe('Game Commands', () => {
         await waitForGameResponse(page);
 
         // Now check if our specific command was echoed
-        const commandEcho = page.locator('p.text-glow').filter({ hasText: /look around/i });
-        await expect(commandEcho.first()).toBeVisible({ timeout: 5000 });
+        const commandEcho = page.locator('p.text-glow').filter({hasText: /look around/i});
+        await expect(commandEcho.first()).toBeVisible({timeout: 5000});
 
         // Verify that the game responded to the command
         const gameResponses = page.locator('[data-testid="game-response"]');
@@ -115,7 +129,10 @@ test.describe('Game Commands', () => {
 
     test('Compass - player can navigate using the compass', async ({page}) => {
         // This test only runs on desktop viewports where the compass is visible
-        test.skip((page.viewportSize()?.width ?? 0) < 768, 'Compass is only visible on desktop viewports');
+        test.skip(
+            (page.viewportSize()?.width ?? 0) < 768,
+            'Compass is only visible on desktop viewports',
+        );
 
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
@@ -137,8 +154,8 @@ test.describe('Game Commands', () => {
         await waitForGameResponse(page);
 
         // Now check if our specific command was echoed
-        const commandEcho = page.locator('p.text-glow').filter({ hasText: /North/i });
-        await expect(commandEcho).toBeVisible({ timeout: 5000 });
+        const commandEcho = page.locator('p.text-glow').filter({hasText: /North/i});
+        await expect(commandEcho).toBeVisible({timeout: 5000});
 
         // Verify that the game responded to the command
         const gameResponses = page.locator('[data-testid="game-response"]');
@@ -151,5 +168,4 @@ test.describe('Game Commands', () => {
         const inputValue = await page.inputValue('[data-testid="game-input"]');
         expect(inputValue).toBe('');
     });
-
 });
