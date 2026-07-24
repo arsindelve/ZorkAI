@@ -359,21 +359,43 @@ public static class Repository
     {
         lock (_allNouns)
         {
-            var allItems = new List<ItemBase>();
             var assembly = Assembly.Load(gameName);
-
             var types = assembly.GetTypes();
 
-            foreach (var type in types)
+            var nouns = new List<string>();
 
-                if (type is { IsClass: true, IsGenericType: false, IsAbstract: false } &&
-                    type.IsSubclassOf(typeof(ItemBase)))
+            foreach (var type in types)
+            {
+                if (type is not { IsClass: true, IsGenericType: false, IsAbstract: false })
+                    continue;
+
+                if (type.IsSubclassOf(typeof(ItemBase)))
                 {
                     var instance = (ItemBase)Activator.CreateInstance(type)!;
-                    allItems.Add(instance);
+                    nouns.AddRange(instance.NounsForMatching);
                 }
+                else if (type.IsSubclassOf(typeof(LocationBase)))
+                {
+                    // A location owns its scenery nouns (LocationBase.SceneryNouns, backed by its Scenery
+                    // declarations) and any destination aliases (NounsForMatching). Harvesting them here —
+                    // instead of hardcoding a per-game noun list in the parser — keeps the engine ignorant of
+                    // any specific game's content: each game declares, the engine reflects. Guarded so a
+                    // location that can't be constructed bare doesn't sink the whole vocabulary.
+                    try
+                    {
+                        var location = (LocationBase)Activator.CreateInstance(type)!;
+                        nouns.AddRange(location.NounsForMatching);
+                        nouns.AddRange(location.SceneryNouns);
+                    }
+                    catch
+                    {
+                        // A location that throws when constructed without Init() simply contributes no
+                        // vocabulary; the AI parser still covers its nouns as a fallback.
+                    }
+                }
+            }
 
-            _allNouns = allItems.SelectMany(s => s.NounsForMatching).ToArray();
+            _allNouns = nouns.ToArray();
             return _allNouns;
         }
     }

@@ -110,7 +110,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
         _openAITakeAndDropListParser = new OpenAITakeAndDropListParser(logger);
         _itemProcessorFactory = new ItemProcessorFactory(_openAITakeAndDropListParser);
-        _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
+        _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger, _gameInstance.GameName);
         _conversationHandler = new ConversationHandler(_logger, parseConversation, GenerationClient,
             _gameInstance.TalkableCharacterTypes);
     }

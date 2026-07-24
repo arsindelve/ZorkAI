@@ -29,13 +29,20 @@ internal class RadiationLab : LocationBase, ITurnBasedActor
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(Verbs.ExamineVerbs, ["crack"]) && action.OriginalInput != null && !action.OriginalInput.Contains("through"))
-            return new PositiveInteractionResult(
-                "The crack is too small to go through, but large enough to look through. ");
-
-        if (action.Match(Verbs.LookVerbs, ["crack"]) && action.OriginalInput != null && action.OriginalInput.Contains("through"))
+        // Issue #447 (sibling of #423): on prod the AI parser resolves "look through crack"
+        // non-deterministically — the "through" disrupts verb/noun extraction, so it did NOT reliably
+        // come back as verb ∈ LookVerbs + noun "crack" and the view fired only ~3/8 of the time. The
+        // room's own text invites "look through" the crack and there is NO alternative phrasing that
+        // reaches the view, so gate it on the raw input (a look/examine verb + "through" + "crack")
+        // rather than on a clean structured match. Order matters: the view must win over the "too small"
+        // response when "through" is present.
+        if (action.MatchInInput(Verbs.LookVerbs.Concat(Verbs.ExamineVerbs).ToArray(), "through", ["crack"]))
             return new PositiveInteractionResult(
                 "You see a dimly lit Bio Lab. Sinister shapes lurk about within. ");
+
+        if (action.Match(Verbs.ExamineVerbs, ["crack"]))
+            return new PositiveInteractionResult(
+                "The crack is too small to go through, but large enough to look through. ");
 
         if (action.Match(Verbs.ExamineVerbs, ["equipment"]))
             return new PositiveInteractionResult(
