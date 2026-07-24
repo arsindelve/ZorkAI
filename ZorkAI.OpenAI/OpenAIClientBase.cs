@@ -71,10 +71,12 @@ public abstract class OpenAIClientBase
             ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat()
         };
 
-        ChatCompletion completion = await Client!.CompleteChatAsync(messages, options);
-        if (completion.Content.Count == 0)
+        // The IChatCompletionClient seam (main) returns the reply text directly; an empty/whitespace
+        // reply means "no answer", which callers treat as a fall-through rather than deserializing.
+        var response = await Client!.CompleteChatAsync(messages, options);
+        if (string.IsNullOrWhiteSpace(response))
             return null;
 
-        return JsonConvert.DeserializeObject<T>(completion.Content[0].Text);
+        return JsonConvert.DeserializeObject<T>(response);
     }
 }
