@@ -1,0 +1,16 @@
+# Dependencies & build output
+**/node_modules/
+**/dist/
+**/build/
+
+# Test / tooling artifacts
+**/coverage/
+**/playwright-report/
+**/test-results/
+
+# Deploy-overwritten at build time (see .github/workflows/deploy.yml)
+zorkweb.client/config.json
+planetfallweb.client/config.json
+
+# Lockfiles
+package-lock.json

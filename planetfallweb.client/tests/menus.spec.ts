@@ -1,8 +1,8 @@
 /**
  * Zork Game Menu Tests
- * 
+ *
  * These tests verify the functionality of various menus in the game.
- * 
+ *
  * NOTE: API Mocking
  * To avoid dependency on the backend API (which may not always be running),
  * these tests use Playwright's route interception to mock API responses.
@@ -10,12 +10,18 @@
  */
 
 import {test, expect} from '@playwright/test';
-import { closeWelcomeModal, waitForGameResponse, handlePlanetfallRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
+import {
+    closeWelcomeModal,
+    waitForGameResponse,
+    handlePlanetfallRoute,
+    handleSaveGameRoute,
+    handleRestoreGameRoute,
+    handleGetSavedGamesRoute,
+} from './testHelpers';
 
 test.describe('Game Menus', () => {
-
     // Set up API mocking before each test
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({page}) => {
         // Intercept requests to the API endpoints
         await page.route('http://localhost:5000/Planetfall', handlePlanetfallRoute);
 
@@ -62,7 +68,9 @@ test.describe('Game Menus', () => {
         await expect(menuItems).toHaveCount(8); // There are 8 menu items in the Planetfall AboutMenu component
 
         // Verify a specific menu item is present
-        const whatIsThisGameItem = page.locator('#basic-menu li:has-text("What is Planetfall.AI?")');
+        const whatIsThisGameItem = page.locator(
+            '#basic-menu li:has-text("What is Planetfall.AI?")',
+        );
         await expect(whatIsThisGameItem).toBeVisible();
     });
 
@@ -135,8 +143,8 @@ test.describe('Game Menus', () => {
         await waitForGameResponse(page);
 
         // Now check if our specific command was echoed
-        const commandEcho = page.locator('p.text-glow').filter({ hasText: /look/i });
-        await expect(commandEcho).toBeVisible({ timeout: 5000 });
+        const commandEcho = page.locator('p.text-glow').filter({hasText: /look/i});
+        await expect(commandEcho).toBeVisible({timeout: 5000});
 
         // Verify that the game responded to the command
         const gameResponses = page.locator('[data-testid="game-response"]');
@@ -159,7 +167,10 @@ test.describe('Game Menus', () => {
         await closeWelcomeModal(page);
 
         // Wait for the input field to be visible
-        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+        await page.waitForSelector('[data-testid="game-input"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
 
         // Type the "inventory" command in the input field to trigger the API response with inventory items
         await page.fill('[data-testid="game-input"]', 'inventory');
@@ -174,7 +185,10 @@ test.describe('Game Menus', () => {
         await waitForGameResponse(page);
 
         // Wait for the Inventory button to be visible with a longer timeout
-        await page.waitForSelector('[data-testid="inventory-button"]', {state: 'visible', timeout: 10000});
+        await page.waitForSelector('[data-testid="inventory-button"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
 
         // Verify that the Inventory button is visible
         const inventoryButton = page.locator('[data-testid="inventory-button"]');
@@ -198,12 +212,17 @@ test.describe('Game Menus', () => {
         await expect(menu).not.toBeVisible();
     });
 
-    test('Inventory - when API returns items in inventory array, they are listed in the Inventory menu', async ({page}) => {
+    test('Inventory - when API returns items in inventory array, they are listed in the Inventory menu', async ({
+        page,
+    }) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
         // Wait for the input field to be visible
-        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+        await page.waitForSelector('[data-testid="game-input"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
 
         // Type the "inventory" command in the input field
         await page.fill('[data-testid="game-input"]', 'inventory');
@@ -218,7 +237,10 @@ test.describe('Game Menus', () => {
         await waitForGameResponse(page);
 
         // Wait for the Inventory button to be visible with a longer timeout
-        await page.waitForSelector('[data-testid="inventory-button"]', {state: 'visible', timeout: 10000});
+        await page.waitForSelector('[data-testid="inventory-button"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
 
         // Verify that the Inventory button is visible
         const inventoryButton = page.locator('[data-testid="inventory-button"]');
@@ -242,18 +264,23 @@ test.describe('Game Menus', () => {
         await expect(page.locator('li:has-text("sword")')).toBeVisible();
 
         // Click outside to close the menu
-        await page.click('body', { position: { x: 0, y: 0 } });
+        await page.click('body', {position: {x: 0, y: 0}});
 
         // Verify that the menu is closed
         await expect(page.locator('ul[role="menu"]')).not.toBeVisible();
     });
 
-    test('Inventory - when API returns empty inventory array, the Inventory button is not visible', async ({page}) => {
+    test('Inventory - when API returns empty inventory array, the Inventory button is not visible', async ({
+        page,
+    }) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
         // Wait for the input field to be visible
-        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+        await page.waitForSelector('[data-testid="game-input"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
 
         // Type the "drop all" command in the input field
         await page.fill('[data-testid="game-input"]', 'drop all');
@@ -271,5 +298,4 @@ test.describe('Game Menus', () => {
         const inventoryButton = page.locator('[data-testid="inventory-button"]');
         await expect(inventoryButton).not.toBeVisible();
     });
-
 });

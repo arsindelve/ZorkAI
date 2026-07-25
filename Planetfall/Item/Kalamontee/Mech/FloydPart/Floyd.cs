@@ -2,6 +2,7 @@ using ChatLambda;
 using GameEngine.IntentEngine;
 using Model.AIGeneration;
 using Newtonsoft.Json;
+using Planetfall.AI;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Lawanda;
 using Planetfall.Location;
