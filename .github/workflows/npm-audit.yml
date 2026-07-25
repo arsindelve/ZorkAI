@@ -24,14 +24,23 @@ jobs:
     # reads the lockfile and queries the registry advisory database directly,
     # so no `npm ci` install step is needed.
     #
-    # --audit-level=high fails the build on any high- or critical-severity
-    # advisory in PRODUCTION dependencies — the code that actually ships to
-    # players. --omit=dev excludes dev tooling (jest, eslint, vite plugins):
-    # those chains are currently blanket-flagged by GHSA-mh99-v99m-4gvg
-    # (brace-expansion <=5.0.7, a dev-time glob DoS) which has NO patched 1.x
-    # release, and forcing 5.x via overrides breaks eslint's minimatch@3
-    # (verified: "TypeError: expand is not a function"). Revisit dropping
-    # --omit=dev once a 1.x backport lands. The known moderate react-router
-    # advisories were fixed in-range on 2026-07-24.
-    - name: Audit web dependencies for known vulnerabilities
+    # The gate is split in two so that build-tooling advisories can't block
+    # shipping while advisories in code we actually serve to players still do:
+    #
+    # 1. Runtime deps (--omit=dev) are gated at `high` — this is the code that
+    #    ends up in the browser bundle. The known moderate react-router
+    #    advisories are still tolerated here; they only resolve via a breaking
+    #    major upgrade. Raise this bar to `moderate` once those are addressed.
+    # 2. The full tree (dev deps included) is gated at `critical` — enough to
+    #    catch a compromised build tool, without failing on high-severity
+    #    advisories that never reach production. As of Jul 2026 that means the
+    #    brace-expansion DoS (GHSA-mh99-v99m-4gvg), reachable only through
+    #    jest's and eslint's transitive minimatch/glob; the advisory is fixed
+    #    only in brace-expansion 5.0.8, which the minimatch 3.x those tools
+    #    depend on cannot consume (v5's CJS export is not callable), so the
+    #    sole fix is a breaking eslint/jest major bump.
+    - name: Audit runtime web dependencies for known vulnerabilities
       run: npm audit --omit=dev --audit-level=high
+
+    - name: Audit all web dependencies for critical vulnerabilities
+      run: npm audit --audit-level=critical
