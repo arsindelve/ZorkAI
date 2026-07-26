@@ -317,8 +317,12 @@
     { "inputs": ["shoot laser at floyd"], "verb": "shoot", "nounOne": "laser", "nounTwo": "floyd", "preposition": "at", "originalInput": "shoot laser at floyd" },
     { "inputs": ["fire laser at flask"], "verb": "fire", "nounOne": "laser", "nounTwo": "flask", "preposition": "at", "originalInput": "fire laser at flask" },
 
-    { "inputs": ["shoot relay with laser", "shoot speck with laser"], "verb": "shoot", "nounOne": "relay", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot relay with laser" },
-    { "inputs": ["shoot laser at relay", "shoot laser at speck"], "verb": "shoot", "nounOne": "laser", "nounTwo": "relay", "preposition": "at", "originalInput": "shoot laser at relay" },
+    { "inputs": ["shoot relay with laser"], "verb": "shoot", "nounOne": "relay", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot relay with laser" },
+    { "inputs": ["shoot laser at relay"], "verb": "shoot", "nounOne": "laser", "nounTwo": "relay", "preposition": "at", "originalInput": "shoot laser at relay" },
+    { "inputs": ["shoot speck with laser"], "verb": "shoot", "nounOne": "speck", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot speck with laser" },
+    { "inputs": ["shoot laser at speck"], "verb": "shoot", "nounOne": "laser", "nounTwo": "speck", "preposition": "at", "originalInput": "shoot laser at speck" },
+    { "inputs": ["shoot boulder with laser"], "verb": "shoot", "nounOne": "boulder", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot boulder with laser" },
+    { "inputs": ["shoot impurity with laser"], "verb": "shoot", "nounOne": "impurity", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot impurity with laser" },
     { "inputs": ["fire laser at relay"], "verb": "fire", "nounOne": "laser", "nounTwo": "relay", "preposition": "at", "originalInput": "fire laser at relay" },
 
     { "inputs": ["shoot microbe with laser"], "verb": "shoot", "nounOne": "microbe", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot microbe with laser" },
