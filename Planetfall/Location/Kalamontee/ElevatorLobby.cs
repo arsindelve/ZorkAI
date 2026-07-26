@@ -8,6 +8,13 @@ internal class ElevatorLobby : LocationBase
 {
     public override string Name => "Elevator Lobby";
 
+    // Every surface in this room - the two entrances, the description, and "examine <colour> door" -
+    // must answer from the effective state, never from the shared OPENBIT flag on its own. See
+    // ElevatorBase.IsOpenAtTheLobby for why, and issue #505 for what happens when they disagree.
+    private bool BlueDoorIsOpen => GetLocation<UpperElevator>().IsOpenAtTheLobby;
+
+    private bool RedDoorIsOpen => GetLocation<LowerElevator>().IsOpenAtTheLobby;
+
     public override void Init()
     {
         StartWithItem<LowerElevatorDoor>();
@@ -27,7 +34,7 @@ internal class ElevatorLobby : LocationBase
                 Direction.S,
                 new MovementParameters
                 {
-                    CanGo = _ => GetItem<LowerElevatorDoor>().IsOpen && GetLocation<LowerElevator>().InLobby,
+                    CanGo = _ => RedDoorIsOpen,
                     CustomFailureMessage = "The door is closed.",
                     Location = GetLocation<LowerElevator>()
                 }
@@ -36,7 +43,7 @@ internal class ElevatorLobby : LocationBase
                 Direction.N,
                 new MovementParameters
                 {
-                    CanGo = _ => GetItem<UpperElevatorDoor>().IsOpen && GetLocation<UpperElevator>().InLobby,
+                    CanGo = _ => BlueDoorIsOpen,
                     CustomFailureMessage = "The door is closed.",
                     Location = GetLocation<UpperElevator>()
                 }
@@ -47,6 +54,18 @@ internal class ElevatorLobby : LocationBase
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
+        // The door object reports the shaft-wide flag, which is only correct from inside the car. Answer
+        // for our own two doors here so "examine blue door" cannot corroborate a state the room text and
+        // the exits both deny (issue #505).
+        if (action.MatchVerb(Verbs.ExamineVerbs))
+        {
+            if (action.MatchNounAndAdjective(GetItem<UpperElevatorDoor>().NounsForMatching))
+                return new PositiveInteractionResult($"The door is {(BlueDoorIsOpen ? "open" : "closed")}. ");
+
+            if (action.MatchNounAndAdjective(GetItem<LowerElevatorDoor>().NounsForMatching))
+                return new PositiveInteractionResult($"The door is {(RedDoorIsOpen ? "open" : "closed")}. ");
+        }
+
         if (action.Match(Verbs.PushVerbs, ["button", "elevator button"]))
             return new DisambiguationInteractionResult("Which button do you mean, the red button or the blue button",
                 new Dictionary<string, string>
@@ -74,9 +93,16 @@ internal class ElevatorLobby : LocationBase
 
     protected override string GetContextBasedDescription(IContext context)
     {
+        // Read the effective state, not the raw flag: the lobby used to announce a door as open while
+        // walking that way answered "The door is closed." The "also" clause means "both doors are in the
+        // same state", so it has to compare the effective states too - on the raw flags it could say
+        // "also" when they differ and omit it when they match (issue #505).
+        var blueOpen = BlueDoorIsOpen;
+        var redOpen = RedDoorIsOpen;
+
         return
-            $"This is a wide, brightly lit lobby. A blue metal door to the north is {(GetItem<UpperElevatorDoor>().IsOpen ? "open" : "closed")} and a larger red metal " +
-            $"door to the south is {(GetItem<LowerElevatorDoor>().IsOpen == GetItem<UpperElevatorDoor>().IsOpen ? "also " : "")}{(GetItem<LowerElevatorDoor>().IsOpen ? "open" : "closed")}. " +
+            $"This is a wide, brightly lit lobby. A blue metal door to the north is {(blueOpen ? "open" : "closed")} and a larger red metal " +
+            $"door to the south is {(redOpen == blueOpen ? "also " : "")}{(redOpen ? "open" : "closed")}. " +
             $"Beside the blue door is a blue button, and beside the red door is a red button. A corridor leads west. To the east is a small room about the size of a telephone booth. ";
     }
 }

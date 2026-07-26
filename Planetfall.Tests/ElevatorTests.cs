@@ -24,7 +24,9 @@ public class ElevatorTests : EngineTestsBase
     {
         var target = GetTarget();
         StartHere<ElevatorLobby>();
+        // A door only reads as open from the lobby when its car is standing at the lobby (issue #505).
         GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = true;
 
         var response = await target.GetResponse("look");
         response.Should()
@@ -37,6 +39,7 @@ public class ElevatorTests : EngineTestsBase
         var target = GetTarget();
         StartHere<ElevatorLobby>();
         GetItem<LowerElevatorDoor>().IsOpen = true;
+        GetLocation<LowerElevator>().InLobby = true;
 
         var response = await target.GetResponse("look");
         response.Should()
@@ -50,6 +53,8 @@ public class ElevatorTests : EngineTestsBase
         StartHere<ElevatorLobby>();
         GetItem<LowerElevatorDoor>().IsOpen = true;
         GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<LowerElevator>().InLobby = true;
+        GetLocation<UpperElevator>().InLobby = true;
 
         var response = await target.GetResponse("look");
         response.Should()
@@ -830,5 +835,203 @@ public class ElevatorTests : EngineTestsBase
         response.Should().Contain("Upper Elevator");
         response = await target.GetResponse("press up button");
         response.Should().Contain("Nothing happens");
+    }
+
+    /// <summary>
+    ///     Issue #505. The door flag is shared by both ends of the shaft, and the arrival code leaves it
+    ///     open at whichever end the car parked at. The lobby's description used to read that bare flag,
+    ///     so it announced a door as open while walking that way answered "The door is closed."
+    /// </summary>
+    [Test]
+    public async Task Look_Upper_CarIsAwayAtTheTower_ReportsTheBlueDoorClosed()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = false;
+
+        var response = await target.GetResponse("look");
+        response.Should().Contain("A blue metal door to the north is closed");
+        response.Should().NotContain("blue metal door to the north is open");
+    }
+
+    [Test]
+    public async Task Look_Lower_CarIsAwayAtTheWaitingArea_ReportsTheRedDoorClosed()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+        GetLocation<LowerElevator>().InLobby = false;
+
+        var response = await target.GetResponse("look");
+        response.Should().Contain("red metal door to the south is also closed");
+        response.Should().NotContain("door to the south is open");
+        response.Should().NotContain("door to the south is also open");
+    }
+
+    [Test]
+    public async Task Look_Upper_CarIsHere_ReportsTheBlueDoorOpen_AndNorthIsPassable()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = true;
+
+        var response = await target.GetResponse("look");
+        response.Should().Contain("A blue metal door to the north is open");
+
+        response = await target.GetResponse("n");
+        response.Should().Contain("Upper Elevator");
+    }
+
+    [Test]
+    public async Task Look_Lower_CarIsHere_ReportsTheRedDoorOpen_AndSouthIsPassable()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+        GetLocation<LowerElevator>().InLobby = true;
+
+        var response = await target.GetResponse("look");
+        response.Should().Contain("red metal door to the south is open");
+
+        response = await target.GetResponse("s");
+        response.Should().Contain("Lower Elevator");
+    }
+
+    /// <summary>
+    ///     The invariant behind issues #456, #450 and #505: whatever word the lobby uses for a door, the
+    ///     matching movement must agree. Covers all four (IsOpen x InLobby) states of each shaft.
+    /// </summary>
+    [Test]
+    [TestCase(false, false)]
+    [TestCase(false, true)]
+    [TestCase(true, false)]
+    [TestCase(true, true)]
+    public async Task Look_BlueDoorWording_AlwaysAgreesWithWhetherNorthIsPassable(bool isOpen, bool inLobby)
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = isOpen;
+        GetLocation<UpperElevator>().InLobby = inLobby;
+
+        var look = await target.GetResponse("look");
+        var describedAsOpen = look!.Contains("blue metal door to the north is open");
+        look.Should().Contain(describedAsOpen ? "north is open" : "north is closed");
+
+        var move = await target.GetResponse("n");
+        var walkedIntoTheCar = move!.Contains("Upper Elevator");
+
+        describedAsOpen.Should().Be(walkedIntoTheCar);
+    }
+
+    [Test]
+    [TestCase(false, false)]
+    [TestCase(false, true)]
+    [TestCase(true, false)]
+    [TestCase(true, true)]
+    public async Task Look_RedDoorWording_AlwaysAgreesWithWhetherSouthIsPassable(bool isOpen, bool inLobby)
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<LowerElevatorDoor>().IsOpen = isOpen;
+        GetLocation<LowerElevator>().InLobby = inLobby;
+
+        var look = await target.GetResponse("look");
+        var describedAsOpen = look!.Contains("door to the south is open") ||
+                              look.Contains("door to the south is also open");
+
+        var move = await target.GetResponse("s");
+        var walkedIntoTheCar = move!.Contains("Lower Elevator");
+
+        describedAsOpen.Should().Be(walkedIntoTheCar);
+    }
+
+    /// <summary>
+    ///     The "also" clause means "both doors are in the same state", so it has to be computed from the
+    ///     effective states too - not from the raw flags, which can agree while the effective states differ.
+    /// </summary>
+    [Test]
+    public async Task Look_RawFlagsAgreeButEffectiveStatesDiffer_OmitsAlso()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = true;
+        GetLocation<LowerElevator>().InLobby = false;
+
+        var response = await target.GetResponse("look");
+        response.Should()
+            .Contain("A blue metal door to the north is open and a larger red metal door to the south is closed");
+    }
+
+    [Test]
+    public async Task Look_RawFlagsDifferButBothEffectivelyClosed_SaysAlso()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = false;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+        GetLocation<LowerElevator>().InLobby = false;
+
+        var response = await target.GetResponse("look");
+        response.Should()
+            .Contain(
+                "A blue metal door to the north is closed and a larger red metal door to the south is also closed");
+    }
+
+    /// <summary>
+    ///     Issue #505, consequence two: "examine blue door" read the same shaft-wide flag, so the natural
+    ///     way to double-check the room description corroborated the wrong answer.
+    /// </summary>
+    [Test]
+    public async Task ExamineDoor_CarIsAway_ReportsClosed()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = false;
+        GetLocation<LowerElevator>().InLobby = false;
+
+        var response = await target.GetResponse("examine blue door");
+        response.Should().Contain("The door is closed");
+        response.Should().NotContain("The door is open");
+
+        response = await target.GetResponse("examine red door");
+        response.Should().Contain("The door is closed");
+        response.Should().NotContain("The door is open");
+    }
+
+    [Test]
+    public async Task ExamineDoor_CarIsHere_ReportsOpen()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = true;
+        GetLocation<LowerElevator>().InLobby = true;
+
+        var response = await target.GetResponse("examine blue door");
+        response.Should().Contain("The door is open");
+
+        response = await target.GetResponse("examine red door");
+        response.Should().Contain("The door is open");
+    }
+
+    /// <summary>
+    ///     Inside the car the flag *is* local, so the car's own door keeps reporting it directly.
+    /// </summary>
+    [Test]
+    public async Task ExamineDoor_InsideTheCar_StillReportsTheCarsOwnDoor()
+    {
+        var target = GetTarget();
+        StartHere<UpperElevator>().InLobby = false;
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+
+        var response = await target.GetResponse("examine blue door");
+        response.Should().Contain("The door is open");
     }
 }

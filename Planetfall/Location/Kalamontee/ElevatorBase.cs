@@ -15,6 +15,17 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
 
     [UsedImplicitly] public bool InLobby { get; set; }
 
+    /// <summary>
+    ///     Whether this car's door is open <i>as seen from the Elevator Lobby</i>. The OPENBIT flag is
+    ///     shared by both ends of the shaft, and the arrival path leaves it open at whichever end the car
+    ///     parked at, so the bare flag cannot say which floor the car is on. Every lobby-side surface -
+    ///     the entrance in <see cref="ElevatorLobby" />'s map, the lobby's description, and
+    ///     "examine blue/red door" - has to agree on this one predicate or the room contradicts itself
+    ///     (issues #456, #450, #505). compone.zil's ELEVATOR-LOBBY-F and ELEVATOR-ENTER-F both test the
+    ///     flag alongside *-ELEVATOR-UP for the same reason.
+    /// </summary>
+    public bool IsOpenAtTheLobby => GetItem<TDoor>().IsOpen && InLobby;
+
     [UsedImplicitly] public int TurnsSinceSummoned { get; set; }
 
     [UsedImplicitly] public int TurnsSinceEnabled { get; set; }
