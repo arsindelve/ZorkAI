@@ -161,6 +161,14 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
         GetItem<TDoor>().IsOpen = true;
         context.RemoveActor(this);
         InLobby = true;
+
+        // The summon is fulfilled, so clear its bookkeeping: HasBeenSummoned means "a call is in
+        // flight", which is what the "Patience, patience..." check below wants. Left set, a later
+        // summon of the same car short-circuited to "Patience" without ever registering the actor,
+        // so the car could never be called back a second time.
+        HasBeenSummoned = false;
+        TurnsSinceSummoned = 0;
+
         return Task.FromResult($"\n\nThe door at the {EntranceDirection} end of the room slides open. ");
     }
 
@@ -231,7 +239,11 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
 
     internal InteractionResult SummonElevator(string response, IContext context)
     {
-        if (GetItem<TDoor>().IsOpen)
+        // The call button is only reachable from the lobby, so "the door is already open" has to mean
+        // open *here* - on the raw shared flag, a car parked at the far end refused the summon that is
+        // the player's only way to get it back, in exactly the state the lobby describes as closed
+        // (issue #505).
+        if (IsOpenAtTheLobby)
             return new PositiveInteractionResult($"Pushing the {Color} button has no effect. ");
 
         if (HasBeenSummoned)

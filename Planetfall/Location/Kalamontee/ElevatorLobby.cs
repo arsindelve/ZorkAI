@@ -54,16 +54,23 @@ internal class ElevatorLobby : LocationBase
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        // The door object reports the shaft-wide flag, which is only correct from inside the car. Answer
-        // for our own two doors here so "examine blue door" cannot corroborate a state the room text and
-        // the exits both deny (issue #505).
-        if (action.MatchVerb(Verbs.ExamineVerbs))
+        // The door object reports the shaft-wide flag, which is only correct from inside the car, so
+        // every verb that reads a door's state has to be answered here instead - otherwise "examine red
+        // door" and "open red door" corroborate a state the room text and the exit both deny (#505).
+        // The bare nouns ("door", "elevator door") never reach this: both doors match them, so
+        // SimpleInteractionEngine disambiguates first.
+        if (action.MatchNounAndAdjective(GetItem<UpperElevatorDoor>().NounsForMatching))
         {
-            if (action.MatchNounAndAdjective(GetItem<UpperElevatorDoor>().NounsForMatching))
-                return new PositiveInteractionResult($"The door is {(BlueDoorIsOpen ? "open" : "closed")}. ");
+            var answer = AnswerForDoor(action, GetItem<UpperElevatorDoor>(), BlueDoorIsOpen, context);
+            if (answer is not null)
+                return answer;
+        }
 
-            if (action.MatchNounAndAdjective(GetItem<LowerElevatorDoor>().NounsForMatching))
-                return new PositiveInteractionResult($"The door is {(RedDoorIsOpen ? "open" : "closed")}. ");
+        if (action.MatchNounAndAdjective(GetItem<LowerElevatorDoor>().NounsForMatching))
+        {
+            var answer = AnswerForDoor(action, GetItem<LowerElevatorDoor>(), RedDoorIsOpen, context);
+            if (answer is not null)
+                return answer;
         }
 
         if (action.Match(Verbs.PushVerbs, ["button", "elevator button"]))
@@ -89,6 +96,29 @@ internal class ElevatorLobby : LocationBase
                 .SummonElevator("You hear a faint whirring noise from behind the blue door. ", context);
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+    }
+
+    /// <summary>
+    ///     Re-states what OpenAndCloseInteractionProcessor and the examine processor would say for this
+    ///     door, but keyed on <paramref name="isOpenHere" /> instead of the shared flag. The messages stay
+    ///     owned by the door, and nothing is lost by bypassing the processors: an elevator door always
+    ///     refuses to be opened or closed by hand, so those paths never mutate state for it. Returns null
+    ///     for any other verb, which then falls through to normal handling.
+    /// </summary>
+    private InteractionResult? AnswerForDoor(SimpleIntent action, ElevatorDoorBase door, bool isOpenHere,
+        IContext context)
+    {
+        if (action.MatchVerb(Verbs.ExamineVerbs))
+            return new PositiveInteractionResult($"The door is {(isOpenHere ? "open" : "closed")}. ");
+
+        if (action.MatchVerb(Verbs.OpenVerbs))
+            return new PositiveInteractionResult(isOpenHere ? door.AlreadyOpen : door.CannotBeOpenedDescription(context));
+
+        if (action.MatchVerb(Verbs.CloseVerbs))
+            return new PositiveInteractionResult(
+                isOpenHere ? door.CannotBeClosedDescription(context) : door.AlreadyClosed);
+
+        return null;
     }
 
     protected override string GetContextBasedDescription(IContext context)

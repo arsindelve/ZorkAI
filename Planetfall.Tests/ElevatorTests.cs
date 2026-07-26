@@ -1034,4 +1034,210 @@ public class ElevatorTests : EngineTestsBase
         var response = await target.GetResponse("examine blue door");
         response.Should().Contain("The door is open");
     }
+
+    /// <summary>
+    ///     The two doors must not be transposed: with only one car at the lobby, each door has to report
+    ///     its own shaft. Both examine tests above use matching states, which would not catch a swap.
+    /// </summary>
+    [Test]
+    public async Task ExamineDoor_OnlyTheBlueCarIsHere_EachDoorReportsItsOwnShaft()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = true;
+        GetLocation<LowerElevator>().InLobby = false;
+
+        var response = await target.GetResponse("examine blue door");
+        response.Should().Contain("The door is open");
+
+        response = await target.GetResponse("examine red door");
+        response.Should().Contain("The door is closed");
+    }
+
+    /// <summary>
+    ///     The call button is how the player recovers from a car parked at the far end - the whole reason
+    ///     issue #505 was not a progression block. It gated on the raw shared flag, so in exactly the
+    ///     state the room now (correctly) calls closed it answered "has no effect" and never summoned.
+    /// </summary>
+    [Test]
+    public async Task PressButton_Blue_CarIsAwayWithTheSharedFlagStillOpen_RecallsTheCar()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        // The state a completed ride leaves behind: the car is at the far end, and its arrival left the
+        // shared flag open there.
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = false;
+
+        var response = await target.GetResponse("press blue button");
+        response.Should().Contain("You hear a faint whirring noise from behind the blue door");
+        response.Should().NotContain("no effect");
+        response.Should().NotContain("Patience");
+
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        response = await target.GetResponse("wait");
+        response.Should().Contain("The door at the north end of the room slides open");
+
+        response = await target.GetResponse("n");
+        response.Should().Contain("Upper Elevator");
+    }
+
+    [Test]
+    public async Task PressButton_Red_CarIsAwayWithTheSharedFlagStillOpen_RecallsTheCar()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+        GetLocation<LowerElevator>().InLobby = false;
+
+        var response = await target.GetResponse("press red button");
+        response.Should().Contain("The red door begins vibrating a bit");
+        response.Should().NotContain("no effect");
+        response.Should().NotContain("Patience");
+
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        response = await target.GetResponse("wait");
+        response.Should().Contain("The door at the south end of the room slides open");
+
+        response = await target.GetResponse("s");
+        response.Should().Contain("Lower Elevator");
+    }
+
+    /// <summary>
+    ///     The same recall, reached by ordinary play rather than by setting flags: ride the blue car up,
+    ///     step out at the Tower, and come back to the lobby. Only the player is moved back (as the
+    ///     issue's god-mode teleport did); every bit of the elevator's state is whatever the ride left.
+    /// </summary>
+    [Test]
+    public async Task PressButton_Blue_AfterRidingUpAndWalkingBack_RecallsTheCar()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        Take<UpperElevatorAccessCard>();
+
+        await target.GetResponse("press blue button");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        await target.GetResponse("north");
+        await target.GetResponse("slide upper access card through slot");
+        await target.GetResponse("press up button");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        var response = await target.GetResponse("south");
+        response.Should().Contain("Tower Core");
+
+        // Let the card's activation lapse, as it would while walking back.
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        GetLocation<UpperElevator>().IsEnabled.Should().BeFalse();
+
+        // The car is parked at the top with the shared flag left open by its arrival.
+        GetLocation<UpperElevator>().InLobby.Should().BeFalse();
+        GetItem<UpperElevatorDoor>().IsOpen.Should().BeTrue();
+
+        // Back at the lobby, on foot. Only the player moves - assigning CurrentLocation directly rather
+        // than via StartHere, which would clear the actor list and freeze the elevator's own timers.
+        Context.CurrentLocation = GetLocation<ElevatorLobby>();
+
+        response = await target.GetResponse("look");
+        response.Should().Contain("A blue metal door to the north is closed");
+
+        response = await target.GetResponse("press blue button");
+        response.Should().Contain("You hear a faint whirring noise from behind the blue door");
+
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        response = await target.GetResponse("wait");
+        response.Should().Contain("The door at the north end of the room slides open");
+
+        response = await target.GetResponse("north");
+        response.Should().Contain("Upper Elevator");
+    }
+
+    /// <summary>
+    ///     A fulfilled summon has to clear its own bookkeeping, or the "Patience, patience..." guard
+    ///     stays armed forever and every later summon of that car short-circuits without registering the
+    ///     actor - so the car still could never be recalled, even with the button's gate corrected.
+    /// </summary>
+    [Test]
+    public async Task Summon_OnceComplete_ClearsTheSummonBookkeeping()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+
+        await target.GetResponse("press blue button");
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        var response = await target.GetResponse("wait");
+        response.Should().Contain("The door at the north end of the room slides open");
+
+        GetLocation<UpperElevator>().HasBeenSummoned.Should().BeFalse();
+        GetLocation<UpperElevator>().TurnsSinceSummoned.Should().Be(0);
+    }
+
+    /// <summary>
+    ///     "open"/"close" are the third and fourth surfaces reading the shared flag: on the same turn the
+    ///     room, the examine and the exit all say closed, "open red door" used to answer "It is open."
+    /// </summary>
+    [Test]
+    [TestCase("blue")]
+    [TestCase("red")]
+    public async Task OpenDoor_CarIsAway_WontBudge(string door)
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = false;
+        GetLocation<LowerElevator>().InLobby = false;
+
+        var response = await target.GetResponse($"open {door} door");
+        response.Should().Contain("It won't budge");
+        response.Should().NotContain("It is open");
+    }
+
+    [Test]
+    [TestCase("blue")]
+    [TestCase("red")]
+    public async Task CloseDoor_CarIsAway_AlreadyClosed(string door)
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = false;
+        GetLocation<LowerElevator>().InLobby = false;
+
+        var response = await target.GetResponse($"close {door} door");
+        response.Should().Contain("It is closed");
+        response.Should().NotContain("designed to slide shut");
+    }
+
+    [Test]
+    public async Task OpenAndCloseDoor_OnlyTheBlueCarIsHere_EachDoorReportsItsOwnShaft()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = true;
+        GetLocation<LowerElevator>().InLobby = false;
+
+        var response = await target.GetResponse("open blue door");
+        response.Should().Contain("It is open");
+
+        response = await target.GetResponse("open red door");
+        response.Should().Contain("It won't budge");
+
+        response = await target.GetResponse("close blue door");
+        response.Should().Contain("designed to slide shut");
+
+        response = await target.GetResponse("close red door");
+        response.Should().Contain("It is closed");
+    }
 }
