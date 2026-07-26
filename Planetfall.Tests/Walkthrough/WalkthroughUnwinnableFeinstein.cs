@@ -200,3 +200,87 @@ public sealed class WalkthroughStandUpInTheLandedPodAndDrown : WalkthroughTestBa
     public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
         => await DoWithSetup(input, setup, expectedResponses);
 }
+
+/// <summary>
+///     The alien ambassador wanders past on his way somewhere, munching something that looks a great
+///     deal like celery. It is not celery, and Blow'k-Bibben-Gordoan metabolism is not compatible with
+///     ours. This is the shortest losing walkthrough in the game: four moves.
+/// </summary>
+[TestFixture]
+public sealed class WalkthroughEatTheAmbassadorsCelery : WalkthroughTestBase
+{
+    [UsedImplicitly]
+    public void TheAmbassadorWandersIn()
+    {
+        DeckNineEncounterRoll = 1;
+    }
+
+    [Test]
+    [TestCase("wait", "TheAmbassadorWandersIn", "Time passes")]
+    [TestCase("wait", null,
+        "The alien ambassador from the planet Blow'k-bibben-Gordo ambles toward you",
+        "He is munching on something resembling an enormous stalk of celery")]
+    // He will not hand it over - taking it is a protocol violation, not a theft.
+    [TestCase("take celery", null, "The ambassador seems perturbed by your lack of normal protocol")]
+    // Eating it is neither.
+    [TestCase("eat celery", null,
+        "Blow'k-Bibben-Gordoan metabolism is not compatible with our own",
+        "You die of all sorts of convulsions",
+        "*** You have died ***")]
+    public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
+        => await DoWithSetup(input, setup, expectedResponses);
+}
+
+/// <summary>
+///     Ensign First Class Blather catches you off your post on Deck Eight. He is a bully with a
+///     clipboard and the game invites you to do something about it. Do not: he is not a combatant, he
+///     is an authored instant death.
+/// </summary>
+[TestFixture]
+public sealed class WalkthroughPickAFightWithBlather : WalkthroughTestBase
+{
+    [Test]
+    [TestCase("up", null, "Gangway")]
+    [TestCase("up", null, "Deck Eight", "Ensign Blather, his uniform immaculate, enters", "Twenty demerits")]
+    [TestCase("examine blather", null, "a tall, beefy officer with a tremendous, misshapen nose")]
+    // Saluting is the correct answer, and the game rewards it. This walkthrough does not salute.
+    [TestCase("attack blather", null,
+        "Blather removes several of your appendages and internal organs",
+        "*** You have died ***")]
+    public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
+        => await DoWithSetup(input, setup, expectedResponses);
+}
+
+/// <summary>
+///     The same encounter, played by simply ignoring him. Blather runs out of patience on the fifth
+///     turn and throws you in the brig, and the brig has one exit, which is locked. Nothing you type
+///     from there matters: the Feinstein explodes on schedule with you inside it.
+/// </summary>
+[TestFixture]
+public sealed class WalkthroughGetThrownInTheBrigAndBlowUpWithTheShip : WalkthroughTestBase
+{
+    [Test]
+    [TestCase("up", null, "Gangway")]
+    [TestCase("up", null, "Deck Eight", "Ensign Blather, his uniform immaculate, enters", "Forty if you're not back on Deck Nine in five seconds")]
+    [TestCase("wait", null, "I said to return to your post, Ensign Seventh Class!")]
+    [TestCase("wait", null, "I said to return to your post, Ensign Seventh Class!")]
+    [TestCase("wait", null, "I said to return to your post, Ensign Seventh Class!")]
+    [TestCase("wait", null,
+        "Blather loses his last vestige of patience and drags you to the",
+        "brig",
+        "the door clangs shut behind you",
+        "Graffiti cover the walls")]
+    // From here the game is decided. The cell door is the only exit and it does not open.
+    [TestCase("south", null, "The cell door is locked")]
+    [TestCase("open cell door", null, "No way, Jose")]
+    [TestCase("wait", null, "Time passes")]
+    // The explosion arrives on its own schedule whether or not you can do anything about it.
+    [TestCase("wait", null, "A massive explosion rocks the ship")]
+    [TestCase("wait", null, "the sounds of emergency bulkheads closing")]
+    [TestCase("wait", null,
+        "The ship rocks from the force of multiple explosions",
+        "Too bad you weren't in the escape pod",
+        "*** You have died ***")]
+    public async Task Walkthrough(string input, string? setup, params string[] expectedResponses)
+        => await DoWithSetup(input, setup, expectedResponses);
+}

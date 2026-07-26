@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Model.Interface;
 using Moq;
 using Planetfall.AI;
+using Planetfall.Item.Computer;
 using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
@@ -27,6 +28,8 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     private Mock<IRandomChooser> _deckNineChooser;
     private Mock<IRandomChooser> _escapePodChooser;
     private Mock<IRandomChooser> _adminCorridorSouthChooser;
+    private Mock<IRandomChooser> _ambassadorChooser;
+    private Mock<IRandomChooser> _microbeChooser;
     private Mock<IChatWithFloyd> _chatWithFloyd;
 
     /// <summary>
@@ -37,6 +40,14 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     ///     defaults to the survivable branch; a walkthrough documenting the head-first death sets it true.
     /// </summary>
     protected bool ThrownAgainstTheBulkheadIsFatal { get; set; }
+
+    /// <summary>
+    ///     Deck Nine's per-turn d6 between moves 2 and 6: 1 brings the alien ambassador down the
+    ///     corridor, 2 brings Ensign Blather, anything else leaves you alone. The default keeps the ten
+    ///     turns before the explosion identical on every run; a walkthrough that needs one of them to
+    ///     show up sets this from its own setup.
+    /// </summary>
+    protected int DeckNineEncounterRoll { get; set; } = 3;
 
     [OneTimeSetUp]
     public void Init()
@@ -65,11 +76,21 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         _chaseChooser.Setup(s => s.Choose(It.IsAny<List<string>>()))
             .Returns("The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms! ");
 
-        // Deck Nine rolls a d6 every turn between moves 2 and 6 to decide whether the ambassador (1)
-        // or Blather (2) wanders in. Any other value means nobody does, which keeps the ten turns
-        // before the explosion byte-identical on every run.
+        // See DeckNineEncounterRoll. Read through a lambda so a fixture can pick its own value from
+        // its setup, after this one-time init has already run.
         _deckNineChooser = new Mock<IRandomChooser>();
-        _deckNineChooser.Setup(s => s.RollDice(6)).Returns(3);
+        _deckNineChooser.Setup(s => s.RollDice(6)).Returns(() => DeckNineEncounterRoll);
+
+        // Once the ambassador is in the room he rolls a d10 each turn: 1-2 do nothing, 3-4 leave,
+        // 5-10 generate LLM speech. Pin him to "do nothing" so he stays put and the mocked
+        // generation client is never asked for a line.
+        _ambassadorChooser = new Mock<IRandomChooser>();
+        _ambassadorChooser.Setup(s => s.RollDice(10)).Returns(1);
+
+        // The microbe picks its closing-in and lashing-out flavour text at random. Always take the
+        // first line so a walkthrough can assert on what it says.
+        _microbeChooser = new Mock<IRandomChooser>();
+        _microbeChooser.Setup(s => s.Choose(It.IsAny<List<string>>())).Returns((List<string> l) => l[0]);
 
         // See ThrownAgainstTheBulkheadIsFatal. Read through a lambda so a fixture can choose the
         // branch it documents from its own setup, after this one-time init has already run.
@@ -127,6 +148,8 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         Repository.GetLocation<DeckNine>().Chooser = _deckNineChooser.Object;
         Repository.GetLocation<EscapePod>().Chooser = _escapePodChooser.Object;
         Repository.GetLocation<AdminCorridorSouth>().Chooser = _adminCorridorSouthChooser.Object;
+        Repository.GetItem<Ambassador>().Chooser = _ambassadorChooser.Object;
+        Repository.GetItem<Microbe>().Chooser = _microbeChooser.Object;
 
         var result = await _target.GetResponse(input);
         if (Debugger.IsAttached)
