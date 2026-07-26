@@ -36,7 +36,7 @@ the code you're hunting in, and confirm the exact command to run a single test a
   React/TypeScript projects; use their `package.json` scripts (unit runner and/or Playwright).
 - **Lambda APIs** — their own `*.Tests` projects via `dotnet test`.
 
-Match the surrounding test files' framework, layout, and assertion style. Skim `CLAUDE.md`
+Match the surrounding test files' framework, layout, and assertion style. Skim `AGENTS.md`
 "Development Best Practices" for the C# conventions.
 
 ## 3. Hunt for candidates
@@ -89,11 +89,11 @@ git commit -m "<concise summary>
 
 <why it was wrong and what changed>
 
-Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>"
+Co-Authored-By: Codex Opus 4.8 (1M context) <noreply@anthropic.com>"
 git push -u origin fix/<short-slug>
 gh pr create --base main --fill   # or pass --title/--body with the bug, the proof, and pass counts
 ```
-End PR bodies with the "Generated with Claude Code" line. Then report the bug, the `file:line`,
+End PR bodies with the "Generated with Codex" line. Then report the bug, the `file:line`,
 the proof (red→green), the pass counts, and the PR URL. Mention other candidates you found but
 did not touch.
 

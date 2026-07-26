@@ -1,23 +1,56 @@
 using System.Text;
 using GameEngine;
+using GameEngine.StaticCommand.Implementation;
+using Model.AIGeneration;
+using Model.Interaction;
+using Model.Interface;
 using ZorkOne;
 
 namespace UnitTests.Engine;
 
 /// <summary>
-///     Issue #472: the deployed game is stateless — every command is a separate request whose full
-///     state travels in the serialized session, and the <see cref="GameEngine{TInfocomGame,TContext}" />
-///     is rebuilt per request. A "which one do you mean?" disambiguation (and the sibling "it"/"them"
-///     clarification) is armed in an in-memory engine field, so before this fix it was lost across the
-///     request boundary and the player's answer was parsed as a brand-new command ("no effect", a
-///     re-prompt, or an accidental movement).
+///     Everything about "which one do you mean?", in one place. Disambiguation used to be tested from
+///     three different directories — the processor's matching rules (GlobalCommands), the end-to-end
+///     prompt/answer flow (SingleNounProcessors) and the save/restore round-trip (Engine) — which made
+///     it easy to fix one layer and miss the others. Merged from the former DisambiguationProcessorTests
+///     / DisambiguationTests / DisambiguationPersistenceTests.
 ///
-///     Every test here serializes + deserializes the game between the PROMPT turn and the ANSWER turn,
-///     mirroring the Lambda save/restore round-trip. A single-process test that skips the round-trip does
-///     NOT catch this bug — the engine field survives in memory — so the round-trip is the essential part.
+///     Issue #472 is why the persistence half exists: the deployed game is stateless — every command is a
+///     separate request whose full state travels in the serialized session, and the
+///     <see cref="GameEngine{TInfocomGame,TContext}" /> is rebuilt per request. A disambiguation (and the
+///     sibling "it"/"them" clarification) is armed in an in-memory engine field, so before that fix it was
+///     lost across the request boundary and the player's answer was parsed as a brand-new command.
+///     Those tests serialize + deserialize between the PROMPT turn and the ANSWER turn, mirroring the
+///     Lambda round-trip. A single-process test that skips the round-trip does NOT catch the bug — the
+///     engine field survives in memory — so the round-trip is the essential part.
 /// </summary>
-public class DisambiguationPersistenceTests : EngineTestsBase
+public class DisambiguationTests : EngineTestsBase
 {
+    /// <summary>
+    ///     The Maintenance Room is the disambiguation fixture: it holds four differently-colored buttons,
+    ///     so a bare "press button" must prompt. It is a DarkLocation, hence the explicit lighting.
+    /// </summary>
+    private GameEngine<ZorkI, ZorkIContext> StartInMaintenanceRoom()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MaintenanceRoom>();
+        room.IsNoLongerDark = true;
+        engine.Context.CurrentLocation = room;
+        return engine;
+    }
+
+    /// <summary>Same, plus the two knives that make a bare "knife" ambiguous.</summary>
+    private GameEngine<ZorkI, ZorkIContext> StartInMaintenanceRoomWithBothKnives()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MaintenanceRoom>();
+        room.IsNoLongerDark = true;
+        engine.Context.ItemPlacedHere(Repository.GetItem<NastyKnife>());
+        engine.Context.ItemPlacedHere(Repository.GetItem<RustyKnife>());
+        engine.Context.CurrentLocation = room;
+        return engine;
+    }
+
     /// <summary>
     ///     Rebuild the engine from a saved-game blob exactly as the stateless deployment does on the next
     ///     request: a fresh engine (which also resets the Repository) with the prior state restored into it.
@@ -30,15 +63,163 @@ public class DisambiguationPersistenceTests : EngineTestsBase
         return restored;
     }
 
+    // ----- The processor's matching rules. It matches answers by SUBSTRING, so several of a prompt's
+    // choices can match one reply and the tie-breaking rules decide which button the player actually gets.
+
+    private static Task<string> Answer(Dictionary<string, string> choices, string reply)
+    {
+        var result = new DisambiguationInteractionResult("Which one do you mean?", choices, "press the {0}");
+        return new DisambiguationProcessor(result)
+            .Process(reply, Mock.Of<IContext>(), Mock.Of<IGenerationClient>(), Runtime.Console);
+    }
+
+    [Test]
+    public async Task LongerMatchWins_BecauseItIsTheMoreSpecificAnswer()
+    {
+        var choices = new Dictionary<string, string>
+        {
+            { "red", "red button" },
+            { "red elevator button", "red elevator button" }
+        };
+
+        var response = await Answer(choices, "the red elevator button");
+
+        response.Should().Be("press the red elevator button");
+    }
+
+    // Booth 2 labels its two buttons "1" and "3", so "one" answers the brown button while "tan" answers
+    // the other one -- and a reply of "the tan one" contains BOTH keys, at equal length. The player named
+    // the tan button first, and that is the one they meant. Getting this wrong teleports them to the
+    // wrong booth, so it is worth pinning.
+    //
+    // Note the residual hazard this does NOT solve: "one" is both Booth 2's label for a button and an
+    // English pronoun, so a reply that puts the pronoun first ("the one that is tan") still resolves to
+    // the wrong button. No tie-breaking rule can separate those two senses -- it needs the key gone, the
+    // same lesson DestinationNavigation already learned when it stopped emitting single-character keys.
+    [Test]
+    public async Task EqualLengthMatches_AreBrokenByWhereThePlayerMentionedThem()
+    {
+        var choices = new Dictionary<string, string>
+        {
+            { "brown", "brown button" },
+            { "tan", "tan button" },
+            { "one", "brown button" },
+            { "three", "tan button" }
+        };
+
+        var response = await Answer(choices, "the tan one");
+
+        response.Should().Be("press the tan button");
+    }
+
+    // The tie-break used to fall through to whatever order the caller happened to list its choices in,
+    // which a Dictionary does not promise and which no test held in place: re-sorting a prompt's choices
+    // could silently change which button a player got. Declaration order must not be able to decide.
+    [Test]
+    public async Task DeclarationOrderDoesNotDecideTheWinner()
+    {
+        var oneOrder = new Dictionary<string, string>
+        {
+            { "round", "round button" },
+            { "white", "white button" }
+        };
+
+        var reversed = new Dictionary<string, string>
+        {
+            { "white", "white button" },
+            { "round", "round button" }
+        };
+
+        var first = await Answer(oneOrder, "the round white button");
+        var second = await Answer(reversed, "the round white button");
+
+        first.Should().Be("press the round button");
+        second.Should().Be(first);
+    }
+
+    [Test]
+    public async Task AnUnrecognizedReply_IsPassedThroughUntouched()
+    {
+        var choices = new Dictionary<string, string> { { "red", "red button" } };
+
+        var response = await Answer(choices, "go north");
+
+        response.Should().Be("go north");
+    }
+
+    [Test]
+    public async Task AnEmptyReply_YieldsNoCommand()
+    {
+        var choices = new Dictionary<string, string> { { "red", "red button" } };
+
+        var response = await Answer(choices, "");
+
+        response.Should().BeEmpty();
+    }
+
+    // ----- The end-to-end prompt/answer flow, in a single process.
+
+    [Test]
+    public async Task SoManyButtons_StepOne()
+    {
+        var engine = StartInMaintenanceRoom();
+
+        var response = await engine.GetResponse("press button");
+
+        response.Should()
+            .Contain(
+                "Which button do you mean, the blue button, the red button, the yellow button or the brown button?");
+    }
+
+    [Test]
+    public async Task SoManyButtons_StepTwo_Correct()
+    {
+        var engine = StartInMaintenanceRoom();
+
+        await engine.GetResponse("press button");
+        var response = await engine.GetResponse("yellow one");
+
+        response.Should().Contain("Click");
+    }
+
+    [Test]
+    public async Task SoManyButtons_StepTwo_SomethingElse()
+    {
+        var engine = StartInMaintenanceRoom();
+
+        await engine.GetResponse("press button");
+        var response = await engine.GetResponse("wait");
+
+        response.Should().Contain("Time passes");
+    }
+
+    [Test]
+    public async Task SoManyKnives()
+    {
+        var engine = StartInMaintenanceRoomWithBothKnives();
+
+        var response = await engine.GetResponse("drop knife");
+
+        response.Should().Contain("Do you mean the nasty knife or the rusty knife");
+    }
+
+    [Test]
+    public async Task SoManyKnives_Dropped()
+    {
+        var engine = StartInMaintenanceRoomWithBothKnives();
+
+        await engine.GetResponse("drop knife");
+        var response = await engine.GetResponse("rusty");
+
+        response.Should().Contain("Dropped");
+    }
+
+    // ----- Issue #472: the same flow, but with a stateless save/restore between prompt and answer.
+
     [Test]
     public async Task Knife_Disambiguation_AnswerResolves_AcrossSaveRestore()
     {
-        var engine = GetTarget();
-        var room = Repository.GetLocation<MaintenanceRoom>();
-        room.IsNoLongerDark = true;
-        engine.Context.ItemPlacedHere(Repository.GetItem<NastyKnife>());
-        engine.Context.ItemPlacedHere(Repository.GetItem<RustyKnife>());
-        engine.Context.CurrentLocation = room;
+        var engine = StartInMaintenanceRoomWithBothKnives();
 
         var prompt = await engine.GetResponse("drop knife");
         prompt.Should().Contain("Do you mean the nasty knife or the rusty knife");
@@ -56,10 +237,7 @@ public class DisambiguationPersistenceTests : EngineTestsBase
     [Test]
     public async Task Button_Disambiguation_AnswerResolves_AcrossSaveRestore()
     {
-        var engine = GetTarget();
-        var room = Repository.GetLocation<MaintenanceRoom>();
-        room.IsNoLongerDark = true;
-        engine.Context.CurrentLocation = room;
+        var engine = StartInMaintenanceRoom();
 
         var prompt = await engine.GetResponse("press button");
         prompt.Should().Contain("Which button do you mean");
@@ -78,12 +256,7 @@ public class DisambiguationPersistenceTests : EngineTestsBase
     {
         // The control case from the issue: an answer that would be inert as a standalone command
         // ("rusty" alone is not a full command) must resolve when it answers the pending prompt.
-        var engine = GetTarget();
-        var room = Repository.GetLocation<MaintenanceRoom>();
-        room.IsNoLongerDark = true;
-        engine.Context.ItemPlacedHere(Repository.GetItem<NastyKnife>());
-        engine.Context.ItemPlacedHere(Repository.GetItem<RustyKnife>());
-        engine.Context.CurrentLocation = room;
+        var engine = StartInMaintenanceRoomWithBothKnives();
 
         await engine.GetResponse("drop knife");
         var restored = RoundTrip(engine);
@@ -99,12 +272,7 @@ public class DisambiguationPersistenceTests : EngineTestsBase
     {
         // Answering with something that is not one of the choices abandons the prompt and processes the
         // new command normally (matching the in-memory behavior), and must NOT drop a knife.
-        var engine = GetTarget();
-        var room = Repository.GetLocation<MaintenanceRoom>();
-        room.IsNoLongerDark = true;
-        engine.Context.ItemPlacedHere(Repository.GetItem<NastyKnife>());
-        engine.Context.ItemPlacedHere(Repository.GetItem<RustyKnife>());
-        engine.Context.CurrentLocation = room;
+        var engine = StartInMaintenanceRoomWithBothKnives();
 
         await engine.GetResponse("drop knife");
         var restored = RoundTrip(engine);
@@ -121,12 +289,7 @@ public class DisambiguationPersistenceTests : EngineTestsBase
     {
         // After the pending prompt is answered across a restore, the NEXT command must be parsed
         // normally — the pending state must not linger and swallow it.
-        var engine = GetTarget();
-        var room = Repository.GetLocation<MaintenanceRoom>();
-        room.IsNoLongerDark = true;
-        engine.Context.ItemPlacedHere(Repository.GetItem<NastyKnife>());
-        engine.Context.ItemPlacedHere(Repository.GetItem<RustyKnife>());
-        engine.Context.CurrentLocation = room;
+        var engine = StartInMaintenanceRoomWithBothKnives();
 
         await engine.GetResponse("drop knife");
         var afterPrompt = RoundTrip(engine);
@@ -184,12 +347,7 @@ public class DisambiguationPersistenceTests : EngineTestsBase
     [Test]
     public async Task Prompt_ArmsPendingDisambiguationDescriptor_OnContext()
     {
-        var engine = GetTarget();
-        var room = Repository.GetLocation<MaintenanceRoom>();
-        room.IsNoLongerDark = true;
-        engine.Context.ItemPlacedHere(Repository.GetItem<NastyKnife>());
-        engine.Context.ItemPlacedHere(Repository.GetItem<RustyKnife>());
-        engine.Context.CurrentLocation = room;
+        var engine = StartInMaintenanceRoomWithBothKnives();
 
         engine.Context.PendingDisambiguation.Should().BeNull("no prompt has been asked yet");
 
@@ -204,12 +362,7 @@ public class DisambiguationPersistenceTests : EngineTestsBase
     [Test]
     public async Task SaveGameJson_CarriesPendingDisambiguation_WhilePromptIsOpen()
     {
-        var engine = GetTarget();
-        var room = Repository.GetLocation<MaintenanceRoom>();
-        room.IsNoLongerDark = true;
-        engine.Context.ItemPlacedHere(Repository.GetItem<NastyKnife>());
-        engine.Context.ItemPlacedHere(Repository.GetItem<RustyKnife>());
-        engine.Context.CurrentLocation = room;
+        var engine = StartInMaintenanceRoomWithBothKnives();
 
         await engine.GetResponse("drop knife");
 
@@ -225,12 +378,7 @@ public class DisambiguationPersistenceTests : EngineTestsBase
     [Test]
     public async Task PendingDisambiguation_IsClearedAfterAnswer_AndDoesNotLeakIntoTheNextSave()
     {
-        var engine = GetTarget();
-        var room = Repository.GetLocation<MaintenanceRoom>();
-        room.IsNoLongerDark = true;
-        engine.Context.ItemPlacedHere(Repository.GetItem<NastyKnife>());
-        engine.Context.ItemPlacedHere(Repository.GetItem<RustyKnife>());
-        engine.Context.CurrentLocation = room;
+        var engine = StartInMaintenanceRoomWithBothKnives();
 
         await engine.GetResponse("drop knife");
         var restored = RoundTrip(engine);
@@ -244,12 +392,7 @@ public class DisambiguationPersistenceTests : EngineTestsBase
     [Test]
     public async Task UnrelatedAnswer_ClearsPendingDisambiguation()
     {
-        var engine = GetTarget();
-        var room = Repository.GetLocation<MaintenanceRoom>();
-        room.IsNoLongerDark = true;
-        engine.Context.ItemPlacedHere(Repository.GetItem<NastyKnife>());
-        engine.Context.ItemPlacedHere(Repository.GetItem<RustyKnife>());
-        engine.Context.CurrentLocation = room;
+        var engine = StartInMaintenanceRoomWithBothKnives();
 
         await engine.GetResponse("drop knife");
         var restored = RoundTrip(engine);
@@ -293,12 +436,7 @@ public class DisambiguationPersistenceTests : EngineTestsBase
         // Faithful reproduction of ZorkOneController's session handling: SaveGame() -> UTF8 -> base64 ->
         // (DynamoDB) -> base64 decode -> RestoreGame(). Base64 is lossless, so this must behave exactly
         // like RoundTrip above; included to pin the real transport the bug was reported on.
-        var engine = GetTarget();
-        var room = Repository.GetLocation<MaintenanceRoom>();
-        room.IsNoLongerDark = true;
-        engine.Context.ItemPlacedHere(Repository.GetItem<NastyKnife>());
-        engine.Context.ItemPlacedHere(Repository.GetItem<RustyKnife>());
-        engine.Context.CurrentLocation = room;
+        var engine = StartInMaintenanceRoomWithBothKnives();
 
         await engine.GetResponse("drop knife");
 
