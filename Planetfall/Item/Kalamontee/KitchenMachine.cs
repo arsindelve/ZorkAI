@@ -23,7 +23,7 @@ internal class KitchenMachine : ContainerBase, ICanBeExamined
         "This wall-mounted unit contains an octagonal niche beneath a spout. " +
         (Items.Any() ? "A canteen is resting in the niche, its mouth lying just below the spout. " : "") +
         "Above the spout is a button. " +
-        "The machine is labelled\n\"Hii Prooteen Likwid Dispensur.\" ";
+        "The machine is labelled \"Hii Prooteen Likwid Dispensur.\" ";
 
     public override string GenericDescription(ILocation? currentLocation)
     {

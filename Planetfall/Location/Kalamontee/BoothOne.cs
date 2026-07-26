@@ -23,7 +23,7 @@ internal class BoothOne : BoothBase
     {
         return
             "This is a tiny room with a large \"1\" painted on the wall. A panel contains a slot about ten centimeters " +
-            "wide, a beige button labelled \"2\" and a tan button labelled\n\"3.\"";
+            "wide, a beige button labelled \"2\" and a tan button labelled \"3.\"";
     }
 
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client,
