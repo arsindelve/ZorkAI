@@ -677,4 +677,45 @@ public class AdminCorridorSouthTests : EngineTestsBase
 
         GetItem<KitchenAccessCard>().Scrambled.Should().BeFalse();
     }
+
+    // Issue #503 follow-up: the possession GATE that lets you fish with the magnet reaches into carried
+    // containers, so the magnet's own hazard daemon must too. While it tested CurrentLocation == context
+    // it deregistered itself the moment the magnet went into the uniform pocket, which made the pocket a
+    // free way to keep the magnet's use and opt out of its entire downside.
+    [Test]
+    public async Task MagnetInUniformPocket_StillScramblesCards()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+
+        // Wear the uniform (the harness doesn't run PlanetfallContext.Init) and empty its one-slot
+        // pocket so the magnet can go in it.
+        Take<PatrolUniform>();
+        Take<IdCard>();
+
+        // Take it for real, so OnBeingTaken registers it as an actor, then pocket it.
+        await target.GetResponse("take bar");
+        await target.GetResponse("put bar in pocket");
+        GetItem<Magnet>().CurrentLocation.Should().BeOfType<PatrolUniformPocket>();
+
+        Take<KitchenAccessCard>();
+        await target.GetResponse("look");
+
+        GetItem<KitchenAccessCard>().Scrambled.Should().BeTrue();
+    }
+
+    // The mirror image: a card in the pocket is no safer than one in your hand. Otherwise the implicit
+    // take in SlotBase would be a trap - sliding a pocketed card would haul it up to the top level and
+    // into the magnet's reach on that very turn, destroying a card that had been safe a moment earlier.
+    [Test]
+    public async Task CardInUniformPocket_IsStillScrambled()
+    {
+        var target = GetTarget();
+        StartHere<ToolRoom>();
+        Pocket<KitchenAccessCard>();
+
+        await target.GetResponse("take bar");
+
+        GetItem<KitchenAccessCard>().Scrambled.Should().BeTrue();
+    }
 }
