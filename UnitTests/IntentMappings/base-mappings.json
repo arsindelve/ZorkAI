@@ -347,6 +347,9 @@
     { "inputs": ["enter bulkhead", "board bulkhead"], "noun": "bulkhead" },
     { "inputs": ["enter door", "board door"], "noun": "door" },
 
+    { "inputs": ["enter helicopter", "board helicopter", "enter the helicopter"], "noun": "helicopter" },
+    { "inputs": ["enter vehicle", "board vehicle", "enter the vehicle"], "noun": "vehicle" },
+
     { "inputs": ["enter elevator", "enter the elevator"], "noun": "elevator" },
     { "inputs": ["enter the kitchen", "enter kitchen"], "noun": "kitchen" },
 
