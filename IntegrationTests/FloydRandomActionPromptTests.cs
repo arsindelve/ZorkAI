@@ -110,7 +110,7 @@ public class FloydRandomActionPromptTests
     }
 
     [Test]
-    public async Task Floyd_NonSequiturDialog_HappyCharmingQuestion()
+    public async Task Floyd_NonSequiturDialog_MemoryOrRumor()
     {
         var (floyd, context) = SetupFloydInRandomLocation();
         var generationClient = new ChatGPTClient(null);
@@ -120,7 +120,7 @@ public class FloydRandomActionPromptTests
 
         Console.WriteLine("╔══════════════════════════════════════════════════════════════╗");
         Console.WriteLine("║  PROMPT: NonSequiturDialog (1/72 chance, ~1.4%)              ║");
-        Console.WriteLine("║  Happy, charming questions                                   ║");
+        Console.WriteLine("║  Memories, rumors, and musings -- never a question           ║");
         Console.WriteLine("╠══════════════════════════════════════════════════════════════╣");
         Console.WriteLine($"║  Location: {context.CurrentLocation.Name}");
         Console.WriteLine("╠══════════════════════════════════════════════════════════════╣");
