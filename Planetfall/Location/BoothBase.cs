@@ -61,7 +61,20 @@ internal abstract class BoothBase : LocationBase, ICardActivatedDevice
         // Using the booth consumes the activation and cancels its expiry countdown, mirroring
         // <DISABLE <INT I-TURNOFF-TELEPORTATION>> on a successful teleport (globals.zil:1522).
         CardActivationTimer.Cancel(this, context);
-        context.CurrentLocation = Repository.GetLocation<T>();
+
+        ILocation destination = Repository.GetLocation<T>();
+
+        // Issue #520: the original robs the whole booth into the destination (<ROB ,HERE .DEST> in
+        // TELEPORT, globals.zil:1522), so anything set down on the booth floor travels with you.
+        // Without this it is stranded - and Booth 3 is on a different continent from Booths 1 and 2.
+        // ROB only carries TAKEBIT objects, and the booth's own card slot is a LOCAL-GLOBALS fixture
+        // that never had one; here it genuinely lives in the room's item list, so filter to takeable
+        // items or the slot rides along and corrupts both booths. Iterate a copy - ItemPlacedHere
+        // mutates the source collection as it re-parents each item.
+        foreach (var item in Items.OfType<ICanBeTakenAndDropped>().Cast<IItem>().ToList())
+            destination.ItemPlacedHere(item);
+
+        context.CurrentLocation = destination;
 
         sb.AppendLine("You experience a strange feeling in the pit of your stomach. ");
         return new PositiveInteractionResult(sb.ToString());

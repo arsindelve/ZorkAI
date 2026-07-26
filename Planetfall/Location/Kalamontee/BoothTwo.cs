@@ -17,7 +17,7 @@ internal class BoothTwo : BoothBase
     protected override string GetContextBasedDescription(IContext context)
     {
         return "This is a tiny room with a large \"2\" painted on the wall. A panel contains a " +
-               "slot about ten centimeters wide, a brown button labelled \"1\" and a tan button labelled\n\"3.\"";
+               "slot about ten centimeters wide, a brown button labelled \"1\" and a tan button labelled \"3.\"";
     }
     
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context, IGenerationClient client,
