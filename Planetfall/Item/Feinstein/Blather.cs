@@ -57,12 +57,19 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICan
         if (action.MatchNounOne(Repository.GetItem<Brush>().NounsForMatching) &&
             action.MatchVerb(Verbs.ThrowVerbs))
         {
-            if (!context.HasItem<Brush>())
+            // Container-aware possession, like every other gate of its kind (issue #503). The brush is
+            // size 2 and so can't fit the one-slot uniform pocket today, but the gate should express
+            // "are you carrying it", not "is it at the top level" - a distinction that silently sends
+            // the turn to the narrator the moment some container can hold it.
+            if (!context.IsCarrying<Brush>())
             {
                 return await base.RespondToMultiNounInteraction(action, context);
             }
 
-            context.Drop<Brush>();
+            // Drop the instance, not Drop<Brush>(): the generic overload looks only at the top level of
+            // inventory, so a pocketed brush would have "bounced off Blather" while staying in your
+            // pocket. Context.Drop -> RemoveItem detaches it from whatever container holds it.
+            context.Drop(Repository.GetItem<Brush>());
 
             var result =
                 "The Patrol-issue self-contained multi-purpose scrub brush bounces off Blather's bulbous nose. " +

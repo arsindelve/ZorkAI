@@ -23,6 +23,22 @@ public class CommRoomAndMachineRoomTests : EngineTestsBase
         GetLocation<MachineShop>().HasItem<Flask>().Should().BeTrue();
     }
     
+    // Issue #503: the flask is size 1 and fits the Patrol uniform pocket, where the flat
+    // context.HasItem<Flask>() counted it as "not carried" and the command fell to the narrator.
+    [Test]
+    public async Task PutFlaskUnderSpout_FlaskInUniformPocket_Success()
+    {
+        var target = GetTarget();
+        Pocket<Flask>();
+        StartHere<MachineShop>();
+
+        var response = await target.GetResponse("put flask under spout");
+
+        response.Should().Contain("The glass flask is now sitting under the spout.");
+        GetLocation<MachineShop>().FlaskUnderSpout.Should().BeTrue();
+        GetLocation<MachineShop>().HasItem<Flask>().Should().BeTrue();
+    }
+
     [Test]
     public async Task PutFlaskUnderSpout_Look()
     {

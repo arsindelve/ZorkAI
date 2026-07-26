@@ -5,6 +5,7 @@ using Model.AIGeneration;
 using Model.AIParsing;
 using Model.Intent;
 using Moq;
+using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Location.Kalamontee;
 
@@ -24,6 +25,48 @@ public class CardTests : EngineTestsBase
         var response = await engine.GetResponse("slide kitchen access card through slot");
 
         response.Should().Contain("The kitchen door quietly slides open");
+    }
+
+    // Issue #503: a card in the Patrol uniform pocket - the game's starting container, and where the
+    // ID card ships - must still slide. The success path used to gate on the flat, top-level-only
+    // context.HasItem<T>(), so pocketing a card silently sent the turn to the narrator.
+    [Test]
+    public async Task Kitchen_HappyPath_CardInUniformPocket()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        engine.Context.CurrentLocation = room;
+
+        var card = Pocket<KitchenAccessCard>();
+        card.CurrentLocation.Should().BeOfType<PatrolUniformPocket>();
+        engine.Context.Items.Should().NotContain(card);
+
+        var response = await engine.GetResponse("slide kitchen access card through slot");
+
+        response.Should().Contain("The kitchen door quietly slides open");
+        Repository.GetItem<KitchenDoor>().IsOpen.Should().BeTrue();
+
+        // The original's SLOT-F performs an implicit take before acting, so the card ends up in hand.
+        engine.Context.Items.Should().Contain(card);
+    }
+
+    // Issue #503 regression pin: SlotBase resolves the card by TYPE from the repository, so the
+    // possession check is the only thing scoping it. A card lying somewhere else in the game must not
+    // open the door (the unscoped-lookup class of bug from #423).
+    [Test]
+    public async Task Kitchen_CardNotCarried_DoesNotOpenTheDoor()
+    {
+        var engine = GetTarget();
+        var room = Repository.GetLocation<MessHall>();
+        engine.Context.CurrentLocation = room;
+
+        // The card is across the map, not on the player.
+        Repository.GetLocation<MessCorridor>().ItemPlacedHere(Repository.GetItem<KitchenAccessCard>());
+
+        var response = await engine.GetResponse("slide kitchen access card through slot");
+
+        response.Should().NotContain("The kitchen door quietly slides open");
+        Repository.GetItem<KitchenDoor>().IsOpen.Should().BeFalse();
     }
 
     [Test]

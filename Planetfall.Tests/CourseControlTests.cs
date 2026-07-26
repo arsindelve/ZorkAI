@@ -409,6 +409,23 @@ public class CourseControlTests : EngineTestsBase
         GetItem<LargeMetalCube>().HasItem<FusedBedistor>().Should().BeFalse();
     }
 
+    // Issue #503: the pliers are size 1 and fit the Patrol uniform pocket. The flat
+    // context.HasItem<Pliers>() refused the whole removal while they sat there.
+    [Test]
+    public async Task UsePliersOnBedistor_PliersInUniformPocket_RemovesBedistor()
+    {
+        var target = GetTarget();
+        StartHere<CourseControl>();
+        Pocket<Pliers>();
+        GetItem<LargeMetalCube>().IsOpen = true;
+
+        var response = await target.GetResponse("use pliers on bedistor");
+
+        response.Should().Contain("With a tug, you manage to remove the fused bedistor");
+        target.Context.HasItem<FusedBedistor>().Should().BeTrue();
+        GetItem<LargeMetalCube>().HasItem<FusedBedistor>().Should().BeFalse();
+    }
+
     [Test]
     public async Task UsePliersOnFused_RemovesBedistor()
     {

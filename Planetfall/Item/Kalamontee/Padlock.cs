@@ -62,9 +62,6 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
     {
-        if (!context.HasItem<Key>())
-            return new NoNounMatchInteractionResult();
-
         // Allow "unlock door with key" when padlock is attached to the door
         var nounsToMatch = AttachedToDoor
             ? [..NounsForMatching, "door"]
@@ -75,6 +72,15 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
 
         if (match)
         {
+            // Possession is checked here, after the match, and with the container-aware IsCarrying:
+            // context.HasItem<Key>() is top-level only, so the steel key sitting in the Patrol uniform
+            // pocket - the natural place to put a tiny key you just fished out of a crevice - failed
+            // it and the turn fell through to the narrator instead of unlocking anything (issue #503).
+            // The check must stay: the key is resolved by TYPE from the repository, so it is the only
+            // thing stopping a key lying in another room from springing this padlock.
+            if (!context.IsCarrying<Key>())
+                return new NoNounMatchInteractionResult();
+
             // Guard on Locked state, not just the command phrasing — otherwise "unlock padlock with key"
             // re-narrates "springs open" on an already-open padlock. Mirrors the simple-interaction path.
             if (!Locked)
