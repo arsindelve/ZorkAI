@@ -192,14 +192,13 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
     /// the port doesn't implement, or the name of something the player is carrying - because there is
     /// nothing else it could name. Treating "the parser returned one thing" as "the player asked for
     /// that thing" silently pocketed (or dropped) an unnamed object and answered a bare "Taken."
-    /// This confirms the candidate really is what the player typed before it is acted on:
-    /// if it isn't, the player's own noun wins, and when that resolves to nothing the caller's
-    /// null handling produces a <see cref="NoNounMatchInteractionResult"/> instead of a wrong-item
-    /// success.
     ///
-    /// Only a request that names ONE object can be substituted this way, so
-    /// <see cref="NamesASingleObject"/> gates the whole check - see its remarks for why applying it
-    /// to a quantified or multi-object command is not merely useless but actively harmful.
+    /// <para>This is the take/drop policy: the parser's candidate wins unless the noun the player
+    /// actually typed contradicts it, in which case their own noun wins - and when that resolves to
+    /// nothing, the caller's null handling produces a <see cref="NoNounMatchInteractionResult"/>
+    /// instead of a wrong-item success. The two predicates it leans on are general noun logic and
+    /// live in <see cref="NounMatch"/>; see <see cref="NounMatch.NamesASingleObject"/> in particular
+    /// for why a quantified or multi-object command must be left alone entirely.</para>
     /// </summary>
     private static IItem? ItemThePlayerActuallyNamed(IItem? candidate, SimpleIntent action,
         Func<string, IItem?> resolveNoun)
@@ -209,83 +208,10 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (candidate is null || string.IsNullOrWhiteSpace(action.Noun))
             return candidate;
 
-        if (!NamesASingleObject(action))
+        if (!NounMatch.NamesASingleObject(action.Noun, action.OriginalInput))
             return candidate;
 
-        if (NounCouldName(candidate, action.Noun))
-            return candidate;
-
-        return resolveNoun(action.Noun);
-    }
-
-    /// <summary>
-    /// Collective words that stand in for "whatever qualifies" rather than naming an object. The
-    /// IntentParser hands these through as the noun, so they can never match a candidate.
-    /// </summary>
-    private static readonly string[] CollectiveNouns =
-        ["all", "everything", "anything", "something", "both", "them", "these", "those", "stuff", "things"];
-
-    /// <summary>
-    /// Markers that the command covers more than one object. Padded on both sides at the comparison
-    /// site, so "take the ball" does not trip on " all " and "press the button" does not trip on
-    /// " but ".
-    /// </summary>
-    private static readonly string[] MultipleObjectMarkers =
-        [" and ", " & ", " , ", " except ", " but ", " besides ", " all ", " everything ", " anything ", " both "];
-
-    /// <summary>
-    /// True only when the command names exactly one object, which is the sole shape the issue #502
-    /// guard is allowed to police.
-    ///
-    /// <para>The trap: <c>TakeIntent.Noun</c>/<c>DropIntent.Noun</c> is just
-    /// <c>nouns.FirstOrDefault()</c> (<c>ParsingHelper</c>), so on a quantified command it is a
-    /// collective word ("everything") or even the *excluded* noun - "pick up everything except the
-    /// tube" yields <c>Noun = "tube"</c>. Checking the parser's candidate against that noun would not
-    /// just refuse a legitimate take; it would resolve to the tube and take the very object the
-    /// player excluded. Likewise on "take X and Y" where only Y is here, the parser returns Y while
-    /// <c>Noun</c> is X: a single candidate is a legitimate partial resolution of a multi-object
-    /// request, not a substitution. These phrasings are supported - see
-    /// <c>IntegrationTests/OpenAITakeAndDropParserTests.cs</c>.</para>
-    /// </summary>
-    private static bool NamesASingleObject(SimpleIntent action)
-    {
-        if (CollectiveNouns.Contains(action.Noun!.ToLowerInvariant().Trim()))
-            return false;
-
-        var input = $" {(action.OriginalInput ?? string.Empty).ToLowerInvariant().Replace(",", " , ")} ";
-        return !MultipleObjectMarkers.Any(input.Contains);
-    }
-
-    /// <summary>
-    /// Could the player's noun be naming this item? Compares against the item's own nouns only - a
-    /// bag that happens to hold the named object is not itself the named object.
-    ///
-    /// <para>Deliberately does NOT call <see cref="IItem.HasMatchingNoun"/>: only
-    /// <c>ItemBase</c> has the word-boundary containment fallback that lets "brass lantern" match a
-    /// bare "lantern". <c>ContainerBase</c> and <c>OpenAndCloseContainerBase</c> override it with
-    /// plain exact equality, so routing through it would make the check exact-match-only for every
-    /// container-derived item (sack, bottle, canteen, coffin, survival kit...) and refuse any
-    /// adjective the player added but the parser didn't echo - "take the elongated sack",
-    /// "drop the full canteen". Containment runs in both directions so it doesn't matter which side
-    /// carries the extra adjective.</para>
-    /// </summary>
-    private static bool NounCouldName(IItem candidate, string noun)
-    {
-        var typed = noun.ToLowerInvariant().Trim();
-
-        var candidateNouns = candidate.NounsForMatching
-            .Concat(candidate.NounsForPreciseMatching)
-            .Select(n => n.ToLowerInvariant().Trim())
-            .Where(n => n.Length > 0)
-            .Distinct()
-            .ToList();
-
-        if (candidateNouns.Contains(typed))
-            return true;
-
-        // Padding both sides with spaces avoids false positives like matching "key" inside "monkey".
-        var paddedTyped = $" {typed} ";
-        return candidateNouns.Any(n => paddedTyped.Contains($" {n} ") || $" {n} ".Contains(paddedTyped));
+        return NounMatch.CouldName(candidate, action.Noun) ? candidate : resolveNoun(action.Noun);
     }
 
     public static InteractionResult DropIt(IContext context, IItem? castItem)
