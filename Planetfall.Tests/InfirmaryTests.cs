@@ -107,17 +107,61 @@ public class InfirmaryTests : EngineTestsBase
         response.Should().Contain("A quantity of medicine");
     }
     
+    // Issue #514: "look in <noun>" is normalized to "examine <noun>" by the engine, so the bottle's
+    // examine text IS its container listing. Aliasing ExaminationDescription to ReadDescription made
+    // both verbs print the label, byte-identical whether the bottle was full or empty. The label now
+    // lives only on the READ path (and on "examine label"), matching every sibling container.
     [Test]
-    public async Task Examine_MedicineBottle()
+    public async Task Examine_MedicineBottle_ListsTheContents()
     {
         var target = GetTarget();
         StartHere<Infirmary>();
-        
+
         var response = await target.GetResponse("examine bottle");
+
+        response.Should().Contain("The medicine bottle contains:");
+        response.Should().Contain("A quantity of medicine");
+        response.Should().NotContain("Dizeez supreshun medisin -- eksperimentul");
+    }
+
+    [Test]
+    public async Task LookInMedicineBottle_ListsTheContents()
+    {
+        var target = GetTarget();
+        StartHere<Infirmary>();
+
+        var response = await target.GetResponse("look in bottle");
+
+        response.Should().Contain("The medicine bottle contains:");
+        response.Should().Contain("A quantity of medicine");
+        response.Should().NotContain("Dizeez supreshun medisin -- eksperimentul");
+    }
+
+    [Test]
+    public async Task LookInsideMedicineBottle_WhenEmpty_SaysSo()
+    {
+        var target = GetTarget();
+        StartHere<Infirmary>();
+        GetItem<MedicineBottle>().Items.Clear();
+
+        var response = await target.GetResponse("look inside bottle");
+
+        response.Should().Contain("The medicine bottle is empty.");
+        response.Should().NotContain("A quantity of medicine");
+        response.Should().NotContain("Dizeez supreshun medisin -- eksperimentul");
+    }
+
+    [Test]
+    public async Task Examine_Label_StillReadsTheLabel()
+    {
+        var target = GetTarget();
+        StartHere<Infirmary>();
+
+        var response = await target.GetResponse("examine label");
 
         response.Should().Contain("Dizeez supreshun medisin -- eksperimentul");
     }
-    
+
     [Test]
     public async Task Read_MedicineBottle()
     {
