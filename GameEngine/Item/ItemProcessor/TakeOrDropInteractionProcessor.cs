@@ -127,6 +127,10 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
                        ?? Repository.GetItemInInventory(action.Noun, context)
                        ?? Repository.GetItem(items[0])
                        ?? Repository.GetItem(action.Noun);
+
+            item = ItemThePlayerActuallyNamed(item, action,
+                noun => Repository.GetItemInInventory(noun, context) ?? Repository.GetItem(noun));
+
             return DropIt(context, item);
         }
 
@@ -166,6 +170,10 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             // fall back to the noun the IntentParser already extracted from the player's input.
             var item = Repository.GetItemInScope(items[0], context)
                        ?? Repository.GetItemInScope(action.Noun, context);
+
+            item = ItemThePlayerActuallyNamed(item, action,
+                noun => Repository.GetItemInScope(noun, context));
+
             return TakeIt(context, item);
         }
 
@@ -175,6 +183,35 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             .ToList();
 
         return new PositiveInteractionResult(await TakeEverythingProcessor.TakeAll(context, itemsWithFeedback, client));
+    }
+
+    /// <summary>
+    /// Issue #502: the AI take/drop list-parser only ever sees the room description (take) or the
+    /// inventory listing (drop), and is asked which of *those* things the player wants. When exactly
+    /// one candidate is present it returns that candidate for essentially any noun - a typo, a word
+    /// the port doesn't implement, or the name of something the player is carrying - because there is
+    /// nothing else it could name. Treating "the parser returned one thing" as "the player asked for
+    /// that thing" silently pocketed (or dropped) an unnamed object and answered a bare "Taken."
+    ///
+    /// <para>This is the take/drop policy: the parser's candidate wins unless the noun the player
+    /// actually typed contradicts it, in which case their own noun wins - and when that resolves to
+    /// nothing, the caller's null handling produces a <see cref="NoNounMatchInteractionResult"/>
+    /// instead of a wrong-item success. The two predicates it leans on are general noun logic and
+    /// live in <see cref="NounMatch"/>; see <see cref="NounMatch.NamesASingleObject"/> in particular
+    /// for why a quantified or multi-object command must be left alone entirely.</para>
+    /// </summary>
+    private static IItem? ItemThePlayerActuallyNamed(IItem? candidate, SimpleIntent action,
+        Func<string, IItem?> resolveNoun)
+    {
+        // No noun to check against (e.g. a bare "take"/"drop" the parser expanded for us), or nothing
+        // resolved at all - leave the caller's existing behavior exactly as it was.
+        if (candidate is null || string.IsNullOrWhiteSpace(action.Noun))
+            return candidate;
+
+        if (!NounMatch.NamesASingleObject(action.Noun, action.OriginalInput))
+            return candidate;
+
+        return NounMatch.CouldName(candidate, action.Noun) ? candidate : resolveNoun(action.Noun);
     }
 
     public static InteractionResult DropIt(IContext context, IItem? castItem)
