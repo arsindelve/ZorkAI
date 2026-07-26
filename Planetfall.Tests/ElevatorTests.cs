@@ -1,4 +1,7 @@
 using FluentAssertions;
+using Model.AIGeneration;
+using Model.Intent;
+using Moq;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Tower;
@@ -1204,6 +1207,84 @@ public class ElevatorTests : EngineTestsBase
         response.Should().Contain("The door at the north end of the room slides open");
 
         response = await target.GetResponse("north");
+        response.Should().Contain("Upper Elevator");
+    }
+
+    /// <summary>
+    ///     ExamineInteractionProcessor answers a wider set of verbs than Verbs.ExamineVerbs lists -
+    ///     "check", "look in" and "peek at" appear only in its own switch. Any of them reaching the door
+    ///     item reports the shared flag, so "check blue door" would still answer "open" on the same turn
+    ///     the room, "examine" and the exit all say closed.
+    /// </summary>
+    [Test]
+    [TestCase("examine")]
+    [TestCase("x")]
+    [TestCase("check")]
+    [TestCase("look at")]
+    [TestCase("look in")]
+    [TestCase("peek at")]
+    public async Task ExamineDoor_EveryVerbTheExamineProcessorAnswers_CarIsAway_ReportsClosed(string verb)
+    {
+        GetTarget();
+        var lobby = StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = false;
+
+        var result = await lobby.RespondToSimpleInteraction(
+            new SimpleIntent { Verb = verb, Noun = "blue door" }, Context, Mock.Of<IGenerationClient>(), null!);
+
+        result.InteractionMessage.Should().Contain("The door is closed");
+    }
+
+    /// <summary>
+    ///     The arrival line describes the lobby's own doorway, so it must not print in whatever room the
+    ///     player wandered off to - ElevatorIsEnabled right below it already guards this way. Clearing
+    ///     the summon bookkeeping makes this repeatable rather than once per game.
+    /// </summary>
+    [Test]
+    public async Task Summon_PlayerHasLeftTheLobby_DoesNotAnnounceTheDoorElsewhere()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+
+        await target.GetResponse("press blue button");
+        await target.GetResponse("west");
+        await target.GetResponse("wait");
+        var response = await target.GetResponse("wait");
+
+        response.Should().NotContain("slides open");
+        // The car still arrived - it is only the announcement that is suppressed.
+        GetLocation<UpperElevator>().InLobby.Should().BeTrue();
+        GetItem<UpperElevatorDoor>().IsOpen.Should().BeTrue();
+    }
+
+    /// <summary>
+    ///     A summon must survive the card's activation lapsing. Act() prioritises the enabled countdown,
+    ///     which ends by removing the actor - that silently cancelled the pending summon and left
+    ///     HasBeenSummoned set forever, so every later press answered "Patience, patience..." and the car
+    ///     could never be recalled again.
+    /// </summary>
+    [Test]
+    public async Task PressButton_WhileTheCardIsStillActive_SummonStillCompletes()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = false;
+        // The car is away and still card-enabled, with its activation about to lapse.
+        GetLocation<UpperElevator>().IsEnabled = true;
+        GetLocation<UpperElevator>().TurnsSinceEnabled = 5;
+
+        var response = await target.GetResponse("press blue button");
+        response.Should().Contain("You hear a faint whirring noise from behind the blue door");
+
+        await target.GetResponse("wait");
+        await target.GetResponse("wait");
+        response = await target.GetResponse("wait");
+        response.Should().Contain("The door at the north end of the room slides open");
+
+        GetLocation<UpperElevator>().HasBeenSummoned.Should().BeFalse();
+        response = await target.GetResponse("n");
         response.Should().Contain("Upper Elevator");
     }
 

@@ -15,6 +15,12 @@ internal class ElevatorLobby : LocationBase
 
     private bool RedDoorIsOpen => GetLocation<LowerElevator>().IsOpenAtTheLobby;
 
+    // ExamineInteractionProcessor answers a wider set than Verbs.ExamineVerbs lists - "check", "look in"
+    // and "peek at" appear only in its own switch. Matching just the array would let "check blue door"
+    // reach the door item and report the shared flag, reopening the contradiction for that one phrasing.
+    private static readonly string[] ExamineDoorVerbs =
+        [..Verbs.ExamineVerbs, "check", "look in", "peek at"];
+
     public override void Init()
     {
         StartWithItem<LowerElevatorDoor>();
@@ -108,8 +114,8 @@ internal class ElevatorLobby : LocationBase
     private InteractionResult? AnswerForDoor(SimpleIntent action, ElevatorDoorBase door, bool isOpenHere,
         IContext context)
     {
-        if (action.MatchVerb(Verbs.ExamineVerbs))
-            return new PositiveInteractionResult($"The door is {(isOpenHere ? "open" : "closed")}. ");
+        if (action.MatchVerb(ExamineDoorVerbs))
+            return new PositiveInteractionResult(door.DescribeAs(isOpenHere));
 
         if (action.MatchVerb(Verbs.OpenVerbs))
             return new PositiveInteractionResult(isOpenHere ? door.AlreadyOpen : door.CannotBeOpenedDescription(context));

@@ -60,7 +60,11 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
         if (TurnsSinceMoving > 0)
             return ElevatorIsMoving();
 
-        if (IsEnabled)
+        // A pending summon owns the actor slot. The enabled countdown ends by removing the actor, which
+        // would cancel the summon silently and strand HasBeenSummoned set forever - every later press
+        // would then answer "Patience, patience..." and the car could never be recalled. Let the summon
+        // finish first; the countdown resumes once it has.
+        if (IsEnabled && !HasBeenSummoned)
             return ElevatorIsEnabled(context);
 
         if (HasBeenSummoned)
@@ -168,7 +172,6 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
             return Task.FromResult(string.Empty);
 
         GetItem<TDoor>().IsOpen = true;
-        context.RemoveActor(this);
         InLobby = true;
 
         // The summon is fulfilled, so clear its bookkeeping: HasBeenSummoned means "a call is in
@@ -178,7 +181,16 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
         HasBeenSummoned = false;
         TurnsSinceSummoned = 0;
 
-        return Task.FromResult($"\n\nThe door at the {EntranceDirection} end of the room slides open. ");
+        // Only release the actor slot if nothing else still needs ticking - an activation that was
+        // paused for this summon has to be able to run its countdown down afterwards.
+        if (!IsEnabled)
+            context.RemoveActor(this);
+
+        // The doorway being described is the lobby's, so say so only to a player standing in it, the
+        // way ElevatorIsEnabled below guards its own recording.
+        return Task.FromResult(context.CurrentLocation is ElevatorLobby
+            ? $"\n\nThe door at the {EntranceDirection} end of the room slides open. "
+            : string.Empty);
     }
 
     private Task<string> ElevatorIsEnabled(IContext context)
