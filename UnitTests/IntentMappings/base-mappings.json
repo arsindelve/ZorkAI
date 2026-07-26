@@ -87,6 +87,8 @@
 
     { "inputs": ["examine crack"], "verb": "examine", "noun": "crack", "originalInput": "examine crack" },
     { "inputs": ["examine hole"], "verb": "examine", "noun": "hole", "originalInput": "examine hole" },
+    { "inputs": ["examine crevice"], "verb": "examine", "noun": "crevice", "originalInput": "examine crevice" },
+    { "inputs": ["collapse ladder"], "verb": "collapse", "noun": "ladder", "originalInput": "collapse ladder" },
     { "inputs": ["look through crack"], "verb": "look", "noun": "crack", "originalInput": "look through crack" },
     { "inputs": ["look through window"], "verb": "look", "noun": "window", "originalInput": "look through window" },
     { "inputs": ["examine equipment"], "verb": "examine", "noun": "equipment", "originalInput": "examine equipment" },
@@ -117,6 +119,7 @@
     { "inputs": ["put ladder across rift"], "verb": "put", "nounOne": "ladder", "nounTwo": "rift", "preposition": "across", "originalInput": "put ladder across rift" },
     { "inputs": ["throw diary into rift"], "verb": "throw", "nounOne": "diary", "nounTwo": "rift", "preposition": "into", "originalInput": "throw diary into rift" },
     { "inputs": ["throw laser into rift"], "verb": "throw", "nounOne": "laser", "nounTwo": "rift", "preposition": "into", "originalInput": "throw laser into rift" },
+    { "inputs": ["throw magnet into rift"], "verb": "throw", "nounOne": "magnet", "nounTwo": "rift", "preposition": "into", "originalInput": "throw magnet into rift" },
     { "inputs": ["put flask under spout"], "verb": "put", "nounOne": "flask", "nounTwo": "spout", "preposition": "under", "originalInput": "put flask under spout" },
     { "inputs": ["put canteen under spout"], "verb": "put", "nounOne": "canteen", "nounTwo": "spout", "preposition": "under", "originalInput": "put canteen under spout" },
     { "inputs": ["put canteen underneath spout"], "verb": "put", "nounOne": "canteen", "nounTwo": "spout", "preposition": "underneath", "originalInput": "put canteen underneath spout" },

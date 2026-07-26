@@ -12,6 +12,8 @@ using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.BioLab;
+using Planetfall.Location.Feinstein;
+using Planetfall.Location.Kalamontee.Admin;
 
 namespace Planetfall.Tests.Walkthrough;
 
@@ -22,7 +24,19 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     private Mock<IRandomChooser> _floydChooser;
     private Mock<IRandomChooser> _laserChooser;
     private Mock<IRandomChooser> _chaseChooser;
+    private Mock<IRandomChooser> _deckNineChooser;
+    private Mock<IRandomChooser> _escapePodChooser;
+    private Mock<IRandomChooser> _adminCorridorSouthChooser;
     private Mock<IChatWithFloyd> _chatWithFloyd;
+
+    /// <summary>
+    ///     The one random beat in the escape-pod sequence. When the Feinstein blows apart and the player
+    ///     is NOT strapped into the safety webbing, a one-in-five roll decides between an instant
+    ///     head-first death and a survivable bruising. Walkthroughs that ride the explosion out in the
+    ///     webbing never reach the roll at all (the check short-circuits on being in the web), so this
+    ///     defaults to the survivable branch; a walkthrough documenting the head-first death sets it true.
+    /// </summary>
+    protected bool ThrownAgainstTheBulkheadIsFatal { get; set; }
 
     [OneTimeSetUp]
     public void Init()
@@ -50,6 +64,22 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         _chaseChooser = new Mock<IRandomChooser>();
         _chaseChooser.Setup(s => s.Choose(It.IsAny<List<string>>()))
             .Returns("The mutants burst into the room right on your heels! Needle-sharp mandibles nip at your arms! ");
+
+        // Deck Nine rolls a d6 every turn between moves 2 and 6 to decide whether the ambassador (1)
+        // or Blather (2) wanders in. Any other value means nobody does, which keeps the ten turns
+        // before the explosion byte-identical on every run.
+        _deckNineChooser = new Mock<IRandomChooser>();
+        _deckNineChooser.Setup(s => s.RollDice(6)).Returns(3);
+
+        // See ThrownAgainstTheBulkheadIsFatal. Read through a lambda so a fixture can choose the
+        // branch it documents from its own setup, after this one-time init has already run.
+        _escapePodChooser = new Mock<IRandomChooser>();
+        _escapePodChooser.Setup(s => s.RollDiceSuccess(5)).Returns(() => ThrownAgainstTheBulkheadIsFatal);
+
+        // Admin Corridor South drops a one-in-three "glint of light" hint into any turn spent there.
+        // Suppress it so it can't appear mid-assertion on some runs and not others.
+        _adminCorridorSouthChooser = new Mock<IRandomChooser>();
+        _adminCorridorSouthChooser.Setup(s => s.RollDiceSuccess(3)).Returns(false);
 
         _chatWithFloyd = new Mock<IChatWithFloyd>();
         _chatWithFloyd.Setup(s => s.AskFloydAsync("go north")).ReturnsAsync(new CompanionResponse(
@@ -93,6 +123,10 @@ public abstract class WalkthroughTestBase : EngineTestsBase
 
         var chaseManager = Repository.GetItem<ChaseSceneManager>();
         chaseManager.Chooser = _chaseChooser.Object;
+
+        Repository.GetLocation<DeckNine>().Chooser = _deckNineChooser.Object;
+        Repository.GetLocation<EscapePod>().Chooser = _escapePodChooser.Object;
+        Repository.GetLocation<AdminCorridorSouth>().Chooser = _adminCorridorSouthChooser.Object;
 
         var result = await _target.GetResponse(input);
         if (Debugger.IsAttached)
