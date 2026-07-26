@@ -33,15 +33,4 @@ public class Speck : ItemBase, ICanBeExamined
     // thing you have been told to shoot actually describes it.
     public string ExaminationDescription =>
         "The speck, presumably of microscopic size, resembles a blue boulder to you in your current size. ";
-
-    /// <summary>
-    /// Takes the speck out of play, mirroring &lt;REMOVE ,SPECK&gt; (comptwo.zil:2852). Once it has
-    /// been vaporized — or once the relay containing it has been shattered — naming it must fail
-    /// scope resolution rather than resolving to an object that is no longer there.
-    /// </summary>
-    public void RemoveFromPlay()
-    {
-        CurrentLocation?.RemoveItem(this);
-        CurrentLocation = null;
-    }
 }
