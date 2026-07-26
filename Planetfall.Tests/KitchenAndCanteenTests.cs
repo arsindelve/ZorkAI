@@ -368,4 +368,18 @@ public class KitchenAndCanteenTests : EngineTestsBase
         response.Should().Contain("brush");
         GetItem<Canteen>().Items.Should().BeEmpty();
     }
+
+    // Same stray mid-sentence "\n" artifact fixed in the Booth 1/2 descriptions under issue #520 -
+    // an identical "labelled\n" break, here in the dispenser's examination text.
+    [Test]
+    public async Task KitchenMachine_Description_HasNoStrayMidSentenceLineBreak()
+    {
+        var target = GetTarget();
+        StartHere<Kitchen>();
+
+        var response = await target.GetResponse("examine machine");
+
+        response.Should().Contain("The machine is labelled \"Hii Prooteen Likwid Dispensur.\"");
+        response.Should().NotContain("labelled\n");
+    }
 }

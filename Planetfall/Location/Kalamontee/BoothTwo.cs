@@ -40,7 +40,10 @@ internal class BoothTwo : BoothBase
         if (action.Match(Verbs.PushVerbs, ["brown button", "brown", "tan button", "tan", "1", 
                 "3", "one", "three", "1 button", "3 button", "one button", "three button"]))
         {
-            if (action.MatchNoun(["tan button", "tan", "3", "two", "3 button", "three button"]))
+            // "three", not "two": this booth's tan button is labelled "3". Booth 2 has no "2" button
+            // at all, so matching "two" here both answered a noun that does not exist and left the
+            // spelled-out "three" falling through to the narrator without teleporting.
+            if (action.MatchNoun(["tan button", "tan", "3", "three", "3 button", "three button"]))
                 return GoThree(context);
 
             if (action.MatchNoun(["brown button", "brown", "1", "one", "1 button", "one button"]))

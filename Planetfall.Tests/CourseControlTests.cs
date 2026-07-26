@@ -516,4 +516,18 @@ public class CourseControlTests : EngineTestsBase
 
         response.Should().Contain("The brush doesn't fit");
     }
+
+    // Same stray mid-sentence "\n" artifact fixed in the Booth 1/2 descriptions under issue #520:
+    // this room's description broke in the middle of "to the north and south".
+    [Test]
+    public async Task SystemsCorridorEast_Description_HasNoStrayMidSentenceLineBreak()
+    {
+        var target = GetTarget();
+        StartHere<SystemsCorridorEast>();
+
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("smaller doorways to the north and south");
+        response.Should().NotContain("north\n");
+    }
 }
