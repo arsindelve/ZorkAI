@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Location.Kalamontee;
+using Planetfall.Location.Kalamontee.Tower;
 using Planetfall.Location.Shuttle;
 
 namespace Planetfall.Tests;
@@ -209,6 +210,53 @@ public class ElevatorTests : EngineTestsBase
         var response = await target.GetResponse("s");
         response.Should().Contain("The door is closed");
         response.Should().NotContain("Lower Elevator");
+    }
+
+    /// <summary>
+    ///     The Tower Core is the far end of the upper shaft, the mirror of the Waiting Area on the lower
+    ///     one - and it was still a bare Go&lt;UpperElevator&gt;(). With the shared flag left open by the car's
+    ///     arrival at the lobby, you could walk north into a car that is not there; stepping back out
+    ///     then landed you in the Elevator Lobby, having ridden nothing, because the car's own exit
+    ///     resolves against where the car is rather than where you got in.
+    /// </summary>
+    [Test]
+    public async Task Enter_FromTowerCore_CarIsDownAtTheLobby()
+    {
+        var target = GetTarget();
+        StartHere<TowerCore>();
+        // The car is down at the lobby with its door open at that end - there is nothing to step into here.
+        GetLocation<UpperElevator>().InLobby = true;
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+
+        var response = await target.GetResponse("n");
+        response.Should().Contain("The door is closed");
+        response.Should().NotContain("Upper Elevator");
+        Context.CurrentLocation.Should().BeOfType<TowerCore>();
+    }
+
+    [Test]
+    public async Task Enter_FromTowerCore_DoorClosed()
+    {
+        var target = GetTarget();
+        StartHere<TowerCore>();
+        GetLocation<UpperElevator>().InLobby = false;
+        GetItem<UpperElevatorDoor>().IsOpen = false;
+
+        var response = await target.GetResponse("n");
+        response.Should().Contain("The door is closed");
+        response.Should().NotContain("Upper Elevator");
+    }
+
+    [Test]
+    public async Task Enter_FromTowerCore_CarIsHere()
+    {
+        var target = GetTarget();
+        StartHere<TowerCore>();
+        GetLocation<UpperElevator>().InLobby = false;
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+
+        var response = await target.GetResponse("n");
+        response.Should().Contain("Upper Elevator");
     }
 
     [Test]

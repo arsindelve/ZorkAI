@@ -26,6 +26,15 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
     /// </summary>
     public bool IsOpenAtTheLobby => GetItem<TDoor>().IsOpen && InLobby;
 
+    /// <summary>
+    ///     The same question asked from the shaft's other end - the Tower Core for the upper car, the
+    ///     Waiting Area for the lower one (compone.zil, OTHER-ELEVATOR-ENTER-F). Without the position
+    ///     half, that entrance lets you walk into a car standing at the lobby; stepping back out then
+    ///     lands you in the lobby, having ridden nothing, since the car's exit resolves against where
+    ///     the car actually is.
+    /// </summary>
+    public bool IsOpenAtTheFarEnd => GetItem<TDoor>().IsOpen && !InLobby;
+
     [UsedImplicitly] public int TurnsSinceSummoned { get; set; }
 
     [UsedImplicitly] public int TurnsSinceEnabled { get; set; }
