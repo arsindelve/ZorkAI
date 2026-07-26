@@ -27,6 +27,23 @@ public class AdminCorridorSouthTests : EngineTestsBase
         GetLocation<AdminCorridorSouth>().HasTakenTheKey.Should().BeTrue();
     }
 
+    // Issue #503: the magnet is size 1, so it fits the Patrol uniform pocket - and the flat
+    // context.HasItem<Magnet>() said you weren't carrying it, sending the fishing attempt to the
+    // narrator instead of pulling the key out of the crevice.
+    [Test]
+    public async Task UseMagnetOnCrevice_MagnetInUniformPocket_RetrievesKey()
+    {
+        var target = GetTarget();
+        StartHere<AdminCorridorSouth>();
+        Pocket<Magnet>();
+
+        var response = await target.GetResponse("use magnet on crevice");
+
+        response.Should().Contain("a piece of metal leaps from the crevice");
+        Context.HasItem<Key>().Should().BeTrue();
+        GetLocation<AdminCorridorSouth>().HasTakenTheKey.Should().BeTrue();
+    }
+
     [Test]
     public async Task UseMagnetOnKey_RetrievesKey()
     {
