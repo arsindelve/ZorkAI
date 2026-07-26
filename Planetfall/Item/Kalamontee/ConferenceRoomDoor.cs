@@ -96,6 +96,12 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
 
                 if (parsedNumber != unlockCodeNumber)
                 {
+                    // Dialing the number the dial already shows changes nothing, and the original has a
+                    // dedicated response for it rather than re-reporting the setting (issue #501). The
+                    // unlock check stays ahead of this so it can never be shadowed.
+                    if (parsedNumber.ToString() == Code)
+                        return "That's what the dial is set to now! ";
+
                     Code = parsedNumber.ToString();
                     return $"The dial is now set to {parsedNumber}. ";
                 }
