@@ -15,6 +15,26 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
 
     [UsedImplicitly] public bool InLobby { get; set; }
 
+    /// <summary>
+    ///     Whether this car's door is open <i>as seen from the Elevator Lobby</i>. The OPENBIT flag is
+    ///     shared by both ends of the shaft, and the arrival path leaves it open at whichever end the car
+    ///     parked at, so the bare flag cannot say which floor the car is on. Every lobby-side surface -
+    ///     the entrance in <see cref="ElevatorLobby" />'s map, the lobby's description, and
+    ///     "examine blue/red door" - has to agree on this one predicate or the room contradicts itself
+    ///     (issues #456, #450, #505). compone.zil's ELEVATOR-LOBBY-F and ELEVATOR-ENTER-F both test the
+    ///     flag alongside *-ELEVATOR-UP for the same reason.
+    /// </summary>
+    public bool IsOpenAtTheLobby => GetItem<TDoor>().IsOpen && InLobby;
+
+    /// <summary>
+    ///     The same question asked from the shaft's other end - the Tower Core for the upper car, the
+    ///     Waiting Area for the lower one (compone.zil, OTHER-ELEVATOR-ENTER-F). Without the position
+    ///     half, that entrance lets you walk into a car standing at the lobby; stepping back out then
+    ///     lands you in the lobby, having ridden nothing, since the car's exit resolves against where
+    ///     the car actually is.
+    /// </summary>
+    public bool IsOpenAtTheFarEnd => GetItem<TDoor>().IsOpen && !InLobby;
+
     [UsedImplicitly] public int TurnsSinceSummoned { get; set; }
 
     [UsedImplicitly] public int TurnsSinceEnabled { get; set; }
@@ -40,7 +60,11 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
         if (TurnsSinceMoving > 0)
             return ElevatorIsMoving();
 
-        if (IsEnabled)
+        // A pending summon owns the actor slot. The enabled countdown ends by removing the actor, which
+        // would cancel the summon silently and strand HasBeenSummoned set forever - every later press
+        // would then answer "Patience, patience..." and the car could never be recalled. Let the summon
+        // finish first; the countdown resumes once it has.
+        if (IsEnabled && !HasBeenSummoned)
             return ElevatorIsEnabled(context);
 
         if (HasBeenSummoned)
@@ -148,9 +172,25 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
             return Task.FromResult(string.Empty);
 
         GetItem<TDoor>().IsOpen = true;
-        context.RemoveActor(this);
         InLobby = true;
-        return Task.FromResult($"\n\nThe door at the {EntranceDirection} end of the room slides open. ");
+
+        // The summon is fulfilled, so clear its bookkeeping: HasBeenSummoned means "a call is in
+        // flight", which is what the "Patience, patience..." check below wants. Left set, a later
+        // summon of the same car short-circuited to "Patience" without ever registering the actor,
+        // so the car could never be called back a second time.
+        HasBeenSummoned = false;
+        TurnsSinceSummoned = 0;
+
+        // Only release the actor slot if nothing else still needs ticking - an activation that was
+        // paused for this summon has to be able to run its countdown down afterwards.
+        if (!IsEnabled)
+            context.RemoveActor(this);
+
+        // The doorway being described is the lobby's, so say so only to a player standing in it, the
+        // way ElevatorIsEnabled below guards its own recording.
+        return Task.FromResult(context.CurrentLocation is ElevatorLobby
+            ? $"\n\nThe door at the {EntranceDirection} end of the room slides open. "
+            : string.Empty);
     }
 
     private Task<string> ElevatorIsEnabled(IContext context)
@@ -220,7 +260,11 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
 
     internal InteractionResult SummonElevator(string response, IContext context)
     {
-        if (GetItem<TDoor>().IsOpen)
+        // The call button is only reachable from the lobby, so "the door is already open" has to mean
+        // open *here* - on the raw shared flag, a car parked at the far end refused the summon that is
+        // the player's only way to get it back, in exactly the state the lobby describes as closed
+        // (issue #505).
+        if (IsOpenAtTheLobby)
             return new PositiveInteractionResult($"Pushing the {Color} button has no effect. ");
 
         if (HasBeenSummoned)

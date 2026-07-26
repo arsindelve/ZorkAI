@@ -21,7 +21,7 @@ public class WaitingArea : LocationWithNoStartingItems
         var intoTheCar = new MovementParameters
         {
             GatingItem = Door,
-            CanGo = _ => Door.IsOpen && !GetLocation<LowerElevator>().InLobby,
+            CanGo = _ => GetLocation<LowerElevator>().IsOpenAtTheFarEnd,
             Location = GetLocation<LowerElevator>(),
             CustomFailureMessage = "The door is closed. "
         };
