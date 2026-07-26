@@ -93,8 +93,6 @@
     { "inputs": ["type 385"], "verb": "type", "noun": "385", "originalInput": "type 385" },
     { "inputs": ["drink fluid"], "verb": "drink", "noun": "fluid", "originalInput": "drink fluid" },
     { "inputs": ["take good bedistor"], "verb": "take", "noun": "good bedistor", "originalInput": "take good bedistor" },
-    { "inputs": ["eat celery"], "verb": "eat", "noun": "celery", "originalInput": "eat celery" },
-    { "inputs": ["take celery"], "verb": "take", "noun": "celery", "originalInput": "take celery" },
     { "inputs": ["look through crack"], "verb": "look", "noun": "crack", "originalInput": "look through crack" },
     { "inputs": ["look through window"], "verb": "look", "noun": "window", "originalInput": "look through window" },
     { "inputs": ["examine equipment"], "verb": "examine", "noun": "equipment", "originalInput": "examine equipment" },
