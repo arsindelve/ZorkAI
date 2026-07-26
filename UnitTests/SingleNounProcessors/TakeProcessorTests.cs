@@ -386,6 +386,87 @@ public class TakeProcessorTests : EngineTestsBase
     }
 
     [Test]
+    public async Task Take_AdjectiveTheParserDidNotEcho_StillMatchesAContainerItem()
+    {
+        // Issue #502 guard rail: the noun check must not be shadowed by the container overrides.
+        // ItemBase.HasMatchingNoun has a word-boundary containment fallback, but ContainerBase and
+        // OpenAndCloseContainerBase override it with plain exact equality - so for every
+        // container-derived item (sack, bottle, canteen, coffin, survival kit...) an adjective the
+        // player added but the parser didn't echo would look like a mismatch and be refused.
+        var target = GetTarget();
+        var location = Repository.GetLocation<NorthOfHouse>();
+        target.Context.CurrentLocation = location;
+        location.ItemPlacedHere(Repository.GetItem<BrownSack>());
+
+        TakeAndDropParser.Setup(s => s.GetListOfItemsToTake(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(["sack"]);
+
+        IVerbProcessor processor = new TakeOrDropInteractionProcessor(TakeAndDropParser.Object);
+        var result = await processor.Process(
+            new SimpleIntent
+                { Verb = "take", Noun = "elongated sack", OriginalInput = "take the elongated sack" },
+            target.Context, Repository.GetItem<BrownSack>(), Client.Object);
+
+        result!.InteractionMessage.Should().Contain("Taken");
+        target.Context.HasItem<BrownSack>().Should().BeTrue();
+    }
+
+    [Test]
+    public async Task Take_QuantifiedRequest_StillTakesTheOneQualifyingItem()
+    {
+        // Issue #502 guard rail: TakeIntent.Noun is only nouns.FirstOrDefault() (ParsingHelper), so
+        // for a quantified command it is a collective word or - as here - the *excluded* noun, never
+        // the object the parser resolved. Applying the noun check to those would not just refuse the
+        // take, it would actively take the wrong thing (the sword the player explicitly excluded).
+        // "pick up everything except the tube" is a supported phrasing - see
+        // IntegrationTests/OpenAITakeAndDropParserTests.cs.
+        var target = GetTarget();
+        var location = Repository.GetLocation<NorthOfHouse>();
+        target.Context.CurrentLocation = location;
+        location.ItemPlacedHere(Repository.GetItem<Lantern>());
+        location.ItemPlacedHere(Repository.GetItem<Sword>());
+
+        TakeAndDropParser.Setup(s => s.GetListOfItemsToTake(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(["lantern"]);
+
+        IVerbProcessor processor = new TakeOrDropInteractionProcessor(TakeAndDropParser.Object);
+        var result = await processor.Process(
+            new SimpleIntent
+            {
+                Verb = "take", Noun = "sword",
+                OriginalInput = "pick up everything except the sword"
+            },
+            target.Context, Repository.GetItem<Lantern>(), Client.Object);
+
+        result!.InteractionMessage.Should().Contain("Taken");
+        target.Context.HasItem<Lantern>().Should().BeTrue("it is the only item the quantifier covers");
+        target.Context.HasItem<Sword>().Should().BeFalse("the player explicitly excluded the sword");
+    }
+
+    [Test]
+    public async Task Take_MultipleObjectsNamedButOnlyOnePresent_StillTakesThePresentOne()
+    {
+        // Issue #502 guard rail: on "take X and Y" the parser only ever returns what the room
+        // actually holds, while action.Noun is whichever noun came first. A single returned candidate
+        // is then a legitimate partial resolution of a multi-object request, not a substitution.
+        var target = GetTarget();
+        var location = Repository.GetLocation<NorthOfHouse>();
+        target.Context.CurrentLocation = location;
+        location.ItemPlacedHere(Repository.GetItem<Lantern>());
+
+        TakeAndDropParser.Setup(s => s.GetListOfItemsToTake(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(["lantern"]);
+
+        IVerbProcessor processor = new TakeOrDropInteractionProcessor(TakeAndDropParser.Object);
+        var result = await processor.Process(
+            new SimpleIntent { Verb = "take", Noun = "sword", OriginalInput = "take the sword and the lantern" },
+            target.Context, Repository.GetItem<Lantern>(), Client.Object);
+
+        result!.InteractionMessage.Should().Contain("Taken");
+        target.Context.HasItem<Lantern>().Should().BeTrue();
+    }
+
+    [Test]
     public async Task Drop_NounMatchesNothingHeld_DoesNotSilentlyDropTheOnlyItemCarried()
     {
         // Issue #502: GetItemsToDrop has the same shape as GetItemsToTake - with a single item in

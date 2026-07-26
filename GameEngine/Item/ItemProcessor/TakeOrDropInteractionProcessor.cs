@@ -128,7 +128,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
                        ?? Repository.GetItem(items[0])
                        ?? Repository.GetItem(action.Noun);
 
-            item = ItemThePlayerActuallyNamed(item, action.Noun,
+            item = ItemThePlayerActuallyNamed(item, action,
                 noun => Repository.GetItemInInventory(noun, context) ?? Repository.GetItem(noun));
 
             return DropIt(context, item);
@@ -171,7 +171,7 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             var item = Repository.GetItemInScope(items[0], context)
                        ?? Repository.GetItemInScope(action.Noun, context);
 
-            item = ItemThePlayerActuallyNamed(item, action.Noun,
+            item = ItemThePlayerActuallyNamed(item, action,
                 noun => Repository.GetItemInScope(noun, context));
 
             return TakeIt(context, item);
@@ -195,23 +195,97 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
     /// This confirms the candidate really is what the player typed before it is acted on:
     /// if it isn't, the player's own noun wins, and when that resolves to nothing the caller's
     /// null handling produces a <see cref="NoNounMatchInteractionResult"/> instead of a wrong-item
-    /// success. The identity check deliberately does NOT look inside containers - a bag that happens
-    /// to hold the named object is not itself the named object.
+    /// success.
+    ///
+    /// Only a request that names ONE object can be substituted this way, so
+    /// <see cref="NamesASingleObject"/> gates the whole check - see its remarks for why applying it
+    /// to a quantified or multi-object command is not merely useless but actively harmful.
     /// </summary>
-    private static IItem? ItemThePlayerActuallyNamed(IItem? candidate, string? noun,
+    private static IItem? ItemThePlayerActuallyNamed(IItem? candidate, SimpleIntent action,
         Func<string, IItem?> resolveNoun)
     {
         // No noun to check against (e.g. a bare "take"/"drop" the parser expanded for us), or nothing
         // resolved at all - leave the caller's existing behavior exactly as it was.
-        if (candidate is null || string.IsNullOrWhiteSpace(noun))
+        if (candidate is null || string.IsNullOrWhiteSpace(action.Noun))
             return candidate;
 
-        // Compound phrases are fine: HasMatchingNoun's word-boundary fallback still matches "lantern"
-        // against a candidate the parser called a "brass lantern", and vice versa.
-        if (candidate.HasMatchingNoun(noun, lookInsideContainers: false).HasItem)
+        if (!NamesASingleObject(action))
             return candidate;
 
-        return resolveNoun(noun);
+        if (NounCouldName(candidate, action.Noun))
+            return candidate;
+
+        return resolveNoun(action.Noun);
+    }
+
+    /// <summary>
+    /// Collective words that stand in for "whatever qualifies" rather than naming an object. The
+    /// IntentParser hands these through as the noun, so they can never match a candidate.
+    /// </summary>
+    private static readonly string[] CollectiveNouns =
+        ["all", "everything", "anything", "something", "both", "them", "these", "those", "stuff", "things"];
+
+    /// <summary>
+    /// Markers that the command covers more than one object. Padded on both sides at the comparison
+    /// site, so "take the ball" does not trip on " all " and "press the button" does not trip on
+    /// " but ".
+    /// </summary>
+    private static readonly string[] MultipleObjectMarkers =
+        [" and ", " & ", " , ", " except ", " but ", " besides ", " all ", " everything ", " anything ", " both "];
+
+    /// <summary>
+    /// True only when the command names exactly one object, which is the sole shape the issue #502
+    /// guard is allowed to police.
+    ///
+    /// <para>The trap: <c>TakeIntent.Noun</c>/<c>DropIntent.Noun</c> is just
+    /// <c>nouns.FirstOrDefault()</c> (<c>ParsingHelper</c>), so on a quantified command it is a
+    /// collective word ("everything") or even the *excluded* noun - "pick up everything except the
+    /// tube" yields <c>Noun = "tube"</c>. Checking the parser's candidate against that noun would not
+    /// just refuse a legitimate take; it would resolve to the tube and take the very object the
+    /// player excluded. Likewise on "take X and Y" where only Y is here, the parser returns Y while
+    /// <c>Noun</c> is X: a single candidate is a legitimate partial resolution of a multi-object
+    /// request, not a substitution. These phrasings are supported - see
+    /// <c>IntegrationTests/OpenAITakeAndDropParserTests.cs</c>.</para>
+    /// </summary>
+    private static bool NamesASingleObject(SimpleIntent action)
+    {
+        if (CollectiveNouns.Contains(action.Noun!.ToLowerInvariant().Trim()))
+            return false;
+
+        var input = $" {(action.OriginalInput ?? string.Empty).ToLowerInvariant().Replace(",", " , ")} ";
+        return !MultipleObjectMarkers.Any(input.Contains);
+    }
+
+    /// <summary>
+    /// Could the player's noun be naming this item? Compares against the item's own nouns only - a
+    /// bag that happens to hold the named object is not itself the named object.
+    ///
+    /// <para>Deliberately does NOT call <see cref="IItem.HasMatchingNoun"/>: only
+    /// <c>ItemBase</c> has the word-boundary containment fallback that lets "brass lantern" match a
+    /// bare "lantern". <c>ContainerBase</c> and <c>OpenAndCloseContainerBase</c> override it with
+    /// plain exact equality, so routing through it would make the check exact-match-only for every
+    /// container-derived item (sack, bottle, canteen, coffin, survival kit...) and refuse any
+    /// adjective the player added but the parser didn't echo - "take the elongated sack",
+    /// "drop the full canteen". Containment runs in both directions so it doesn't matter which side
+    /// carries the extra adjective.</para>
+    /// </summary>
+    private static bool NounCouldName(IItem candidate, string noun)
+    {
+        var typed = noun.ToLowerInvariant().Trim();
+
+        var candidateNouns = candidate.NounsForMatching
+            .Concat(candidate.NounsForPreciseMatching)
+            .Select(n => n.ToLowerInvariant().Trim())
+            .Where(n => n.Length > 0)
+            .Distinct()
+            .ToList();
+
+        if (candidateNouns.Contains(typed))
+            return true;
+
+        // Padding both sides with spaces avoids false positives like matching "key" inside "monkey".
+        var paddedTyped = $" {typed} ";
+        return candidateNouns.Any(n => paddedTyped.Contains($" {n} ") || $" {n} ".Contains(paddedTyped));
     }
 
     public static InteractionResult DropIt(IContext context, IItem? castItem)
