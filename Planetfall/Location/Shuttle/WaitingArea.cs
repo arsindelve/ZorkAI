@@ -10,21 +10,16 @@ public class WaitingArea : LocationWithNoStartingItems
 
     public override string[] NounsForMatching => ["waiting room", "lounge"];
 
-    private LowerElevatorDoor Door => Repository.GetItem<LowerElevatorDoor>();
+    // The original gates this entrance on the door being open *and* the car actually being at this end
+    // of the shaft (compone.zil, OTHER-ELEVATOR-ENTER-F, which also makes the door the implicit "it" -
+    // hence the Doorway's GatingItem). A bare Go<LowerElevator>() let you walk into a car parked up at
+    // the lobby, and then be sealed in, since the car's own exits gate on the door.
+    private Doorway Door =>
+        new(Repository.GetItem<LowerElevatorDoor>(), () => GetLocation<LowerElevator>().IsOpenAtTheFarEnd);
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
-        // The original gates this entrance on the door being open *and* the car actually being at
-        // this end of the shaft (compone.zil, OTHER-ELEVATOR-ENTER-F, which also makes the door the
-        // implicit "it" - hence GatingItem). A bare Go<LowerElevator>() let you walk into a car
-        // parked up at the lobby, and then be sealed in, since the car's own exits gate on the door.
-        var intoTheCar = new MovementParameters
-        {
-            GatingItem = Door,
-            CanGo = _ => GetLocation<LowerElevator>().IsOpenAtTheFarEnd,
-            Location = GetLocation<LowerElevator>(),
-            CustomFailureMessage = "The door is closed. "
-        };
+        var intoTheCar = Door.Passage(GetLocation<LowerElevator>());
 
         return new Dictionary<Direction, MovementParameters>
         {

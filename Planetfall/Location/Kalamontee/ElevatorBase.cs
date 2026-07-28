@@ -35,6 +35,14 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
     /// </summary>
     public bool IsOpenAtTheFarEnd => GetItem<TDoor>().IsOpen && !InLobby;
 
+    /// <summary>
+    ///     The door as seen from inside the car, where the raw flag <i>is</i> the whole truth: the car is
+    ///     by definition at whichever end its own door opens onto. The two vantage points that need a
+    ///     narrower predicate build their own Doorway from <see cref="IsOpenAtTheLobby" /> /
+    ///     <see cref="IsOpenAtTheFarEnd" />.
+    /// </summary>
+    private Doorway Door => new(GetItem<TDoor>());
+
     [UsedImplicitly] public int TurnsSinceSummoned { get; set; }
 
     [UsedImplicitly] public int TurnsSinceEnabled { get; set; }
@@ -208,13 +216,12 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
 
     protected override string GetContextBasedDescription(IContext context)
     {
-        // Interpolate the door's actual state (issue #450). Hardcoding "open" contradicted the
-        // "elevator door slides shut" message from Move() and "examine door" during the ~3 turns
-        // the car is in motion with the door closed. Mirrors RecArea / the #438 Mess Hall fix.
+        // Report the door's actual state (issue #450). Hardcoding "open" contradicted the "elevator door
+        // slides shut" message from Move() and "examine door" during the ~3 turns the car is in motion
+        // with the door closed. Mirrors RecArea / the #438 Mess Hall fix.
         return
-            $"This is a {Size} room with a sliding door to the {ExitDirection} which is " +
-            $"{(GetItem<TDoor>().IsOpen ? "open" : "closed")}. " +
-            $"A control panel contains an Up button, a Down button, and a narrow slot. ";
+            $"This is a {Size} room with a sliding door to the {ExitDirection} which is {Door.StateWord}. " +
+            "A control panel contains an Up button, a Down button, and a narrow slot. ";
     }
 
     public override void Init()
@@ -225,6 +232,8 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
+        var outThroughTheDoor = Door.Passage(Exit());
+
         return new Dictionary<Direction, MovementParameters>
         {
             {
@@ -237,22 +246,8 @@ internal abstract class ElevatorBase<TDoor, TSlot, TCard> : FloydSpecialInteract
                 new MovementParameters
                     { CanGo = _ => false, CustomFailureMessage = "You'll have to use the elevator controls. " }
             },
-            {
-                DirectionParser.ParseDirection(ExitDirection), new MovementParameters
-                {
-                    CustomFailureMessage = "The door is closed. ",
-                    CanGo = _ => Repository.GetItem<TDoor>().IsOpen,
-                    Location = Exit()
-                }
-            },
-            {
-                Direction.Out, new MovementParameters
-                {
-                    CustomFailureMessage = "The door is closed. ",
-                    CanGo = _ => Repository.GetItem<TDoor>().IsOpen,
-                    Location = Exit()
-                }
-            }
+            { DirectionParser.ParseDirection(ExitDirection), outThroughTheDoor },
+            { Direction.Out, outThroughTheDoor }
         };
     }
 

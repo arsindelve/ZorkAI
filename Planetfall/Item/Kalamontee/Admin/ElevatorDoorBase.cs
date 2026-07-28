@@ -1,20 +1,17 @@
 
 namespace Planetfall.Item.Kalamontee.Admin;
 
-public abstract class ElevatorDoorBase : ItemBase, ICanBeExamined, IOpenAndClose
+public abstract class ElevatorDoorBase : ItemBase, IDoor
 {
+    // Defined in terms of DescribeAs so examining the door and reading a room description that reports
+    // it can never phrase the state differently. See IDoor.
     public string ExaminationDescription => DescribeAs(IsOpen);
 
-    /// <summary>
-    ///     The door's own wording for a given state, so a caller that knows better than the raw flag can
-    ///     reuse it instead of copying the literal. The Elevator Lobby needs this: the flag is shared by
-    ///     both ends of the shaft, so from there the answer depends on which end the car is at (#505).
-    /// </summary>
     public string DescribeAs(bool isOpen)
     {
         return $"The door is {(isOpen ? "open" : "closed")}. ";
     }
-    
+
     public bool IsOpen { get; set; }
 
     public string NowOpen(ILocation currentLocation)

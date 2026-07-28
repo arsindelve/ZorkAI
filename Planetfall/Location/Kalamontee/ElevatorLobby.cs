@@ -10,16 +10,13 @@ internal class ElevatorLobby : LocationBase
 
     // Every surface in this room - the two entrances, the description, and "examine <colour> door" -
     // must answer from the effective state, never from the shared OPENBIT flag on its own. See
-    // ElevatorBase.IsOpenAtTheLobby for why, and issue #505 for what happens when they disagree.
-    private bool BlueDoorIsOpen => GetLocation<UpperElevator>().IsOpenAtTheLobby;
+    // ElevatorBase.IsOpenAtTheLobby for why, and issue #505 for what happens when they disagree. Stating
+    // each door once as a Doorway is what makes "must" enforceable rather than a convention.
+    private Doorway BlueDoor =>
+        new(GetItem<UpperElevatorDoor>(), () => GetLocation<UpperElevator>().IsOpenAtTheLobby);
 
-    private bool RedDoorIsOpen => GetLocation<LowerElevator>().IsOpenAtTheLobby;
-
-    // ExamineInteractionProcessor answers a wider set than Verbs.ExamineVerbs lists - "check", "look in"
-    // and "peek at" appear only in its own switch. Matching just the array would let "check blue door"
-    // reach the door item and report the shared flag, reopening the contradiction for that one phrasing.
-    private static readonly string[] ExamineDoorVerbs =
-        [..Verbs.ExamineVerbs, "check", "look in", "peek at"];
+    private Doorway RedDoor =>
+        new(GetItem<LowerElevatorDoor>(), () => GetLocation<LowerElevator>().IsOpenAtTheLobby);
 
     public override void Init()
     {
@@ -36,24 +33,9 @@ internal class ElevatorLobby : LocationBase
             // Both entrances need the car to be standing at the lobby as well as the door being open
             // (compone.zil, ELEVATOR-ENTER-F tests *-ELEVATOR-UP alongside OPENBIT). The door flag is
             // shared by both ends of the shaft, so on its own it cannot say which floor the car is on.
-            {
-                Direction.S,
-                new MovementParameters
-                {
-                    CanGo = _ => RedDoorIsOpen,
-                    CustomFailureMessage = "The door is closed.",
-                    Location = GetLocation<LowerElevator>()
-                }
-            },
-            {
-                Direction.N,
-                new MovementParameters
-                {
-                    CanGo = _ => BlueDoorIsOpen,
-                    CustomFailureMessage = "The door is closed.",
-                    Location = GetLocation<UpperElevator>()
-                }
-            }
+            // That two-part test lives in the Doorway, so the exit and the description share it.
+            { Direction.S, RedDoor.Passage(GetLocation<LowerElevator>(), "The door is closed.") },
+            { Direction.N, BlueDoor.Passage(GetLocation<UpperElevator>(), "The door is closed.") }
         };
     }
 
@@ -65,19 +47,9 @@ internal class ElevatorLobby : LocationBase
         // door" and "open red door" corroborate a state the room text and the exit both deny (#505).
         // The bare nouns ("door", "elevator door") never reach this: both doors match them, so
         // SimpleInteractionEngine disambiguates first.
-        if (action.MatchNounAndAdjective(GetItem<UpperElevatorDoor>().NounsForMatching))
-        {
-            var answer = AnswerForDoor(action, GetItem<UpperElevatorDoor>(), BlueDoorIsOpen, context);
-            if (answer is not null)
-                return answer;
-        }
-
-        if (action.MatchNounAndAdjective(GetItem<LowerElevatorDoor>().NounsForMatching))
-        {
-            var answer = AnswerForDoor(action, GetItem<LowerElevatorDoor>(), RedDoorIsOpen, context);
-            if (answer is not null)
-                return answer;
-        }
+        var doorAnswer = BlueDoor.Answer(action, context) ?? RedDoor.Answer(action, context);
+        if (doorAnswer is not null)
+            return doorAnswer;
 
         if (action.Match(Verbs.PushVerbs, ["button", "elevator button"]))
             return new DisambiguationInteractionResult("Which button do you mean, the red button or the blue button",
@@ -104,41 +76,17 @@ internal class ElevatorLobby : LocationBase
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
-    /// <summary>
-    ///     Re-states what OpenAndCloseInteractionProcessor and the examine processor would say for this
-    ///     door, but keyed on <paramref name="isOpenHere" /> instead of the shared flag. The messages stay
-    ///     owned by the door, and nothing is lost by bypassing the processors: an elevator door always
-    ///     refuses to be opened or closed by hand, so those paths never mutate state for it. Returns null
-    ///     for any other verb, which then falls through to normal handling.
-    /// </summary>
-    private InteractionResult? AnswerForDoor(SimpleIntent action, ElevatorDoorBase door, bool isOpenHere,
-        IContext context)
-    {
-        if (action.MatchVerb(ExamineDoorVerbs))
-            return new PositiveInteractionResult(door.DescribeAs(isOpenHere));
-
-        if (action.MatchVerb(Verbs.OpenVerbs))
-            return new PositiveInteractionResult(isOpenHere ? door.AlreadyOpen : door.CannotBeOpenedDescription(context));
-
-        if (action.MatchVerb(Verbs.CloseVerbs))
-            return new PositiveInteractionResult(
-                isOpenHere ? door.CannotBeClosedDescription(context) : door.AlreadyClosed);
-
-        return null;
-    }
-
     protected override string GetContextBasedDescription(IContext context)
     {
-        // Read the effective state, not the raw flag: the lobby used to announce a door as open while
-        // walking that way answered "The door is closed." The "also" clause means "both doors are in the
-        // same state", so it has to compare the effective states too - on the raw flags it could say
-        // "also" when they differ and omit it when they match (issue #505).
-        var blueOpen = BlueDoorIsOpen;
-        var redOpen = RedDoorIsOpen;
+        // The "also" clause means "both doors are in the same state", so it has to compare the effective
+        // states too - on the raw flags it could say "also" when they differ and omit it when they match
+        // (issue #505). Both Doorways answer effectively, so comparing them is enough.
+        var blueOpen = BlueDoor.IsOpen;
+        var redOpen = RedDoor.IsOpen;
 
         return
-            $"This is a wide, brightly lit lobby. A blue metal door to the north is {(blueOpen ? "open" : "closed")} and a larger red metal " +
-            $"door to the south is {(redOpen == blueOpen ? "also " : "")}{(redOpen ? "open" : "closed")}. " +
-            $"Beside the blue door is a blue button, and beside the red door is a red button. A corridor leads west. To the east is a small room about the size of a telephone booth. ";
+            $"This is a wide, brightly lit lobby. A blue metal door to the north is {BlueDoor.StateWord} and a larger red metal " +
+            $"door to the south is {(redOpen == blueOpen ? "also " : "")}{RedDoor.StateWord}. " +
+            "Beside the blue door is a blue button, and beside the red door is a red button. A corridor leads west. To the east is a small room about the size of a telephone booth. ";
     }
 }
