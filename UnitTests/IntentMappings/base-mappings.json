@@ -359,6 +359,8 @@
     { "inputs": ["enter pod", "board pod", "enter the pod", "board the pod"], "noun": "pod" },
     { "inputs": ["enter bulkhead", "board bulkhead"], "noun": "bulkhead" },
     { "inputs": ["enter door", "board door"], "noun": "door" },
+    { "inputs": ["enter blue door", "board blue door"], "noun": "blue door" },
+    { "inputs": ["enter red door", "board red door"], "noun": "red door" },
 
     { "inputs": ["enter helicopter", "board helicopter", "enter the helicopter"], "noun": "helicopter" },
     { "inputs": ["enter vehicle", "board vehicle", "enter the vehicle"], "noun": "vehicle" },
