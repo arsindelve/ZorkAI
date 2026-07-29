@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Planetfall.Item.Kalamontee.Admin;
 
@@ -40,7 +40,15 @@ public abstract class ElevatorLandingDoor : ElevatorDoorBase
     protected abstract bool IsOpenHere { get; }
 
     // No backing field, and nothing to serialize: the flag belongs to ShaftDoor, which is serialized in
-    // its own right. Writing through means a landing door can never drift from the shaft it shows.
+    // its own right. These MUST be Newtonsoft's JsonIgnore, not System.Text.Json's - saves go through
+    // JsonConvert (GameEngine.SaveGame), which ignores the STJ attribute entirely and would happily
+    // write a landing door's derived IsOpen into the blob and then push it back through the setter on
+    // restore, overwriting the shaft flag with this room's view of it.
+    //
+    // Note that get and set are deliberately not inverses: a landing door shows whether the shaft is
+    // open *at this end*, but opening one opens the shaft. Nothing in the game exercises the setter -
+    // ElevatorDoorBase refuses open and close unconditionally - and it exists only to satisfy
+    // IOpenAndClose.
     [JsonIgnore]
     public override bool IsOpen
     {

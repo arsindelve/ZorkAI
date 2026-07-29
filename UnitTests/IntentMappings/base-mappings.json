@@ -57,6 +57,8 @@
     { "inputs": ["close red door"], "verb": "close", "noun": "red door" },
     { "inputs": ["examine red door"], "verb": "examine", "noun": "red door" },
     { "inputs": ["examine blue door"], "verb": "examine", "noun": "blue door" },
+    { "inputs": ["examine sliding door"], "verb": "examine", "noun": "sliding door" },
+    { "inputs": ["examine metal door"], "verb": "examine", "noun": "metal door" },
     { "inputs": ["open elevator door"], "verb": "open", "noun": "elevator door" },
     { "inputs": ["open blue door"], "verb": "open", "noun": "blue door" },
     { "inputs": ["close blue door"], "verb": "close", "noun": "blue door" },

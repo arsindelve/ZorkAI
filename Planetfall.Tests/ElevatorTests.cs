@@ -6,6 +6,7 @@ using Model.AIParsing;
 using Model.Intent;
 using Model.Item;
 using Moq;
+using Newtonsoft.Json;
 using Planetfall.Item;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Location.Kalamontee;
@@ -1607,6 +1608,27 @@ public class ElevatorTests : EngineTestsBase
     }
 
     /// <summary>
+    ///     Each far-end door answers to the noun its own room's description uses - "a sliding door leads
+    ///     north" at the Tower Core, "to the south is a metal door" at the Waiting Area - not just the
+    ///     bare "door" the other tests here reach for.
+    /// </summary>
+    [Test]
+    public async Task ExamineDoor_AtTheFarEnd_AnswersToTheNounTheRoomDescriptionUses()
+    {
+        var target = GetTarget();
+
+        StartHere<TowerCore>();
+        GetLocation<UpperElevator>().InLobby = false;
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        (await target.GetResponse("examine sliding door")).Should().Contain("The door is open");
+
+        StartHere<WaitingArea>();
+        GetLocation<LowerElevator>().InLobby = true;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+        (await target.GetResponse("examine metal door")).Should().Contain("The door is closed");
+    }
+
+    /// <summary>
     ///     A door in the car, a door in the lobby and a door at the far end are three objects, but one
     ///     shaft and therefore one open/closed state. Whichever object the player reaches, the state they
     ///     read is the shaft's.
@@ -1628,5 +1650,138 @@ public class ElevatorTests : EngineTestsBase
 
         StartHere<UpperElevator>();
         (await target.GetResponse("examine door")).Should().Contain("The door is closed");
+    }
+
+    // =============================================================================================
+    // Save-game compatibility. A location's Init() never runs again on restore - the saved Items list
+    // IS the room's contents - so splitting the shaft doors changed what every in-flight session is
+    // carrying. The stateless Lambda rehydrates from the session blob every turn, which makes a stale
+    // blob permanent rather than merely first-turn.
+    // =============================================================================================
+
+    /// <summary>
+    ///     Reproduces what a blob written before the split deserializes to: the shared shaft doors sit in
+    ///     the Elevator Lobby's Items, and the landing doors were never placed anywhere. Left alone, the
+    ///     lobby's verbs find the shared door - LocationBase routes over Items with no scope check - and
+    ///     it reports the raw shaft flag, which is #505 again.
+    /// </summary>
+    private void ArrangeLobbyAsAPreSplitBlob()
+    {
+        var lobby = GetLocation<ElevatorLobby>();
+        lobby.Items.Clear();
+        lobby.ItemPlacedHere(GetItem<LowerElevatorDoor>());
+        lobby.ItemPlacedHere(GetItem<UpperElevatorDoor>());
+        GetLocation<TowerCore>().Items.Clear();
+        GetLocation<WaitingArea>().Items.Clear();
+    }
+
+    [Test]
+    public async Task AfterRestore_BlobSavedBeforeTheDoorSplit_LobbyStopsContradictingItself()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        ArrangeLobbyAsAPreSplitBlob();
+        // The state a completed ride to the far end leaves behind: flag open, car away.
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = false;
+
+        new PlanetfallGame().AfterRestore(Context);
+
+        (await target.GetResponse("examine blue door")).Should().Contain("The door is closed");
+        (await target.GetResponse("open blue door")).Should().Contain("It won\'t budge");
+        (await target.GetResponse("north")).Should().Contain("The door is closed");
+        Context.CurrentLocation.Should().BeOfType<ElevatorLobby>();
+    }
+
+    [Test]
+    public void AfterRestore_BlobSavedBeforeTheDoorSplit_ReseatsTheLobbyDoors()
+    {
+        GetTarget();
+        var lobby = StartHere<ElevatorLobby>();
+        ArrangeLobbyAsAPreSplitBlob();
+
+        new PlanetfallGame().AfterRestore(Context);
+
+        lobby.Items.Should().Contain(GetItem<UpperElevatorLobbyDoor>());
+        lobby.Items.Should().Contain(GetItem<LowerElevatorLobbyDoor>());
+        // The shared door belongs to the car now; it must not be left answering for the lobby as well.
+        lobby.Items.Should().NotContain(GetItem<UpperElevatorDoor>());
+        lobby.Items.Should().NotContain(GetItem<LowerElevatorDoor>());
+    }
+
+    [Test]
+    public async Task AfterRestore_BlobSavedBeforeTheDoorSplit_SeedsTheFarEndDoors()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        ArrangeLobbyAsAPreSplitBlob();
+
+        new PlanetfallGame().AfterRestore(Context);
+
+        GetLocation<TowerCore>().Items.Should().Contain(GetItem<UpperElevatorTowerDoor>());
+        GetLocation<WaitingArea>().Items.Should().Contain(GetItem<LowerElevatorWaitingAreaDoor>());
+
+        StartHere<TowerCore>();
+        GetLocation<UpperElevator>().InLobby = false;
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        (await target.GetResponse("examine door")).Should().Contain("The door is open");
+    }
+
+    /// <summary>
+    ///     It also runs on blobs that are already current, so it must not duplicate what is already there.
+    /// </summary>
+    [Test]
+    public void AfterRestore_OnAnAlreadyCurrentBlob_LeavesExactlyOneDoorPerRoom()
+    {
+        GetTarget();
+        var lobby = StartHere<ElevatorLobby>();
+
+        new PlanetfallGame().AfterRestore(Context);
+        new PlanetfallGame().AfterRestore(Context);
+
+        lobby.Items.OfType<ElevatorDoorBase>().Should().HaveCount(2);
+        GetLocation<TowerCore>().Items.OfType<ElevatorDoorBase>().Should().HaveCount(1);
+        GetLocation<WaitingArea>().Items.OfType<ElevatorDoorBase>().Should().HaveCount(1);
+    }
+
+    /// <summary>
+    ///     A landing door holds no state of its own, so it must not write any into the blob. The
+    ///     attribute that guarantees that has to be Newtonsoft's - saves go through JsonConvert, which
+    ///     ignores System.Text.Json's attribute of the same name and would round-trip the derived value
+    ///     back through the write-through setter.
+    /// </summary>
+    [Test]
+    public void LandingDoor_SerializesNoStateOfItsOwn()
+    {
+        GetTarget();
+
+        var json = JsonConvert.SerializeObject(GetItem<UpperElevatorLobbyDoor>());
+
+        json.Should().NotContain("IsOpen");
+        json.Should().NotContain("HasEverBeenOpened");
+    }
+
+    /// <summary>
+    ///     End to end through the real save/restore path: the shaft's state is the car door's, and it has
+    ///     to survive a round trip untouched by the three landing doors that report it.
+    /// </summary>
+    [Test]
+    public async Task SaveAndRestore_RoundTrip_PreservesTheShaftStateAndItsVantagePoints()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = false;
+        await target.GetResponse("look");
+
+        target.RestoreGame(target.SaveGame());
+
+        GetItem<UpperElevatorDoor>().IsOpen.Should().BeTrue();
+        GetLocation<UpperElevator>().InLobby.Should().BeFalse();
+        // ...and each vantage point still reads it correctly: closed at the lobby, open at the tower.
+        StartHere<ElevatorLobby>();
+        (await target.GetResponse("examine blue door")).Should().Contain("The door is closed");
+        StartHere<TowerCore>();
+        (await target.GetResponse("examine door")).Should().Contain("The door is open");
     }
 }
