@@ -4,8 +4,26 @@ namespace Model.Hints;
 // Model.AIGeneration) so both the engine (GameEngine.Hints) and the OpenAI implementation
 // (ZorkAI.OpenAI) can see it without a project-reference cycle.
 
-/// <summary>The voice both LLM calls speak in. v1: one snarky-narrator persona for all games.</summary>
-public sealed record HintPersona(string SystemPrompt);
+/// <summary>
+///     The voice both LLM calls speak in (v1: one snarky-narrator persona per game), plus the small amount
+///     of game identity the shared solver prompt needs. <see cref="IHintLanguageModel" /> implementations
+///     live in a shared library, so anything game-specific — which game this is, and which flags of the
+///     player's situation actually change an answer — must arrive here rather than be hardcoded there.
+/// </summary>
+/// <param name="SystemPrompt">The persona's voice, used verbatim by the revealer (LLM 2).</param>
+/// <param name="GameName">
+///     The game being solved, as the player would name it (e.g. "Planetfall"). Defaults to a neutral phrase
+///     so an un-customized persona asserts no game identity at all.
+/// </param>
+/// <param name="StateGrounding">
+///     A short, game-specific list of what the player's situation contains and what actually matters in it
+///     (e.g. "what's done, Floyd alive/dead, their health") — grounding for the solver, never an excuse to
+///     dodge the question.
+/// </param>
+public sealed record HintPersona(
+    string SystemPrompt,
+    string GameName = "this text adventure",
+    string StateGrounding = "what they have done so far, and their current condition");
 
 /// <summary>One turn of the hint conversation — what the player asked and what was revealed back.</summary>
 public sealed record HintExchange(string Question, string Revealed);

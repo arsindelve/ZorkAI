@@ -23,9 +23,16 @@ public sealed class PlanetfallHintProvider : IHintProvider
 
     public string Docs => Knowledge.Value;
 
+    // The game's identity and its decision-critical flags ride on the persona: the hint LLM implementation
+    // is shared by every game, so it can't know either of them (#484). GameName comes off the game itself
+    // rather than a second copy of the string here.
     public HintPersona Persona => new(
         "You are the invisible, incorporeal narrator of the Infocom game Planetfall — dry, lightly " +
-        "sarcastic, in character. Never mention being an AI; never break the fourth wall about 'hints'.");
+        "sarcastic, in character. Never mention being an AI; never break the fourth wall about 'hints'.",
+        Game.GameName,
+        "what's done, Floyd alive/dead, their health");
+
+    private static readonly PlanetfallGame Game = new();
 
     public IReadOnlyList<IProactiveRule> ProactiveRules { get; } = new IProactiveRule[]
     {
