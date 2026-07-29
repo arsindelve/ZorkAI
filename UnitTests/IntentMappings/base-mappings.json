@@ -363,6 +363,8 @@
     { "inputs": ["enter door", "board door"], "noun": "door" },
     { "inputs": ["enter blue door", "board blue door"], "noun": "blue door" },
     { "inputs": ["enter red door", "board red door"], "noun": "red door" },
+    { "inputs": ["enter upper elevator door"], "noun": "upper elevator door" },
+    { "inputs": ["enter lower elevator door"], "noun": "lower elevator door" },
 
     { "inputs": ["enter helicopter", "board helicopter", "enter the helicopter"], "noun": "helicopter" },
     { "inputs": ["enter vehicle", "board vehicle", "enter the vehicle"], "noun": "vehicle" },

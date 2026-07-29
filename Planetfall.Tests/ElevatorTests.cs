@@ -1491,6 +1491,49 @@ public class ElevatorTests : EngineTestsBase
     }
 
     /// <summary>
+    ///     The lobby has two doors, so the bare noun names neither of them. "examine door" always asked
+    ///     which one; the enter path resolved through GetItemInScope, which returns the FIRST match, and
+    ///     so silently picked whichever door was seeded first - answering "the door is closed" about the
+    ///     red one on a turn the player was plainly looking at an open blue one, or walking them into the
+    ///     wrong elevator outright. Both surfaces ask the same question now (#532).
+    /// </summary>
+    [Test]
+    public async Task EnterDoor_FromTheLobby_BareNoun_AsksWhichDoor()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        // Blue open with its car here, red closed - the state where picking the wrong one is visible.
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = true;
+        GetItem<LowerElevatorDoor>().IsOpen = false;
+
+        var response = await target.GetResponse("enter door");
+
+        response.Should().Contain("Do you mean");
+        response.Should().Contain("upper elevator door");
+        response.Should().Contain("lower elevator door");
+        Context.CurrentLocation.Should().BeOfType<ElevatorLobby>();
+    }
+
+    /// <summary>
+    ///     And answering it walks the player through the door they actually named.
+    /// </summary>
+    [Test]
+    public async Task EnterDoor_FromTheLobby_AnsweringTheQuestion_WalksThroughThatDoor()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = true;
+
+        await target.GetResponse("enter door");
+        var response = await target.GetResponse("blue door");
+
+        response.Should().Contain("Upper Elevator");
+        Context.CurrentLocation.Should().BeOfType<UpperElevator>();
+    }
+
+    /// <summary>
     ///     The far ends of the two shafts both name a door in their own description ("A sliding door
     ///     leads north", "to the south is a metal door") and never seeded one, so nothing there could
     ///     resolve "door" at all.
