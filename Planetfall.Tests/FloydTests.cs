@@ -188,6 +188,25 @@ public class FloydTests : EngineTestsBase
         response.Should().Contain("thoughtfulness");
     }
 
+    // Issue #503: the original's (HAVE) flag reaches into open carried containers, so an oil can in
+    // the Patrol uniform pocket satisfies it. The flat context.HasItem<OilCan>() did not, and asked
+    // "Oil it with what?" while you were carrying the can.
+    [Test]
+    [TestCase("oil floyd")]
+    [TestCase("oil floyd with oil can")]
+    public async Task OilFloyd_OilCanInUniformPocket_Thanks(string command)
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        GetItem<Floyd>().IsOn = true;
+        Pocket<OilCan>();
+
+        var response = await target.GetResponse(command);
+
+        response.Should().Contain("thoughtfulness");
+        response.Should().NotContain("Oil it with what?");
+    }
+
     [Test]
     public async Task OilFloyd_WithOilCan_NotHeld_DoesNotThank()
     {

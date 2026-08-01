@@ -79,9 +79,14 @@ Rules:
   - GlobalCommands/, SingleNounProcessors/, MultiNounProcessors/: Command processor tests
 - **ZorkOne.Tests**: Game-specific tests for Zork I
 - **Planetfall.Tests**: Game-specific tests for Planetfall
-- **Lambda.Tests**: AWS Lambda API tests
-- **Planetfall-Lambda.Tests**: Planetfall Lambda API tests
+- **EscapeRoom.Tests**: Game-specific tests for Escape Room
 - **IntegrationTests**: Cross-service integration tests (marked [Explicit], require AWS credentials)
+
+The Lambda APIs have **no test projects of their own** — the controllers, entry points and Startup
+wiring for both are tested from `UnitTests/Lambda/` and `UnitTests/PlanetfallLambda/`. (The old
+`Lambda/test/Lambda.Tests` and `Planetfall-Lambda/test/Planetfall-Lambda.Tests` were deleted: they
+were never in `Zork.sln`, so CI never ran them, and they had rotted — their `ValuesControllerTests`
+targeted a controller that no longer exists. Do not recreate them; add Lambda tests to `UnitTests`.)
 
 ## Key Architecture Components
 

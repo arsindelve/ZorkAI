@@ -1,10 +1,17 @@
 
 namespace Planetfall.Item.Kalamontee.Admin;
 
-public abstract class ElevatorDoorBase : ItemBase, ICanBeExamined, IOpenAndClose
+public abstract class ElevatorDoorBase : ItemBase, IDoor
 {
-    public string ExaminationDescription => $"The door is {(IsOpen ? "open" : "closed")}. ";
-    
+    // Defined in terms of DescribeAs so examining the door and reading a room description that reports
+    // it can never phrase the state differently. See IDoor.
+    public string ExaminationDescription => DescribeAs(IsOpen);
+
+    public string DescribeAs(bool isOpen)
+    {
+        return $"The door is {(isOpen ? "open" : "closed")}. ";
+    }
+
     public bool IsOpen { get; set; }
 
     public string NowOpen(ILocation currentLocation)

@@ -1,4 +1,5 @@
 using GameEngine.Location;
+using Planetfall.Item.Kalamontee.Admin;
 
 namespace Planetfall.Location.Kalamontee.Tower;
 
@@ -6,12 +7,21 @@ internal class TowerCore : LocationWithNoStartingItems
 {
     public override string Name => "Tower Core";
 
+    // This is the far end of the upper shaft, so the entrance needs the same two-part test the Waiting
+    // Area uses on the lower one: the door open *and* the car standing at this end. A bare
+    // Go<UpperElevator>() let you walk into a car parked down at the lobby, because the door flag is
+    // shared by both ends of the shaft (issue #505).
+    private Doorway Door =>
+        new(Repository.GetItem<UpperElevatorDoor>(), () => GetLocation<UpperElevator>().IsOpenAtTheFarEnd);
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
+        var intoTheCar = Door.Passage(GetLocation<UpperElevator>());
+
         return new Dictionary<Direction, MovementParameters>
         {
             { Direction.SW, Go<ObservationDeck>() },
-            { Direction.N, Go<UpperElevator>() },
+            { Direction.N, intoTheCar },
             { Direction.Up, Go<Helipad>() },
             { Direction.NE, Go<CommRoom>() }
         };
