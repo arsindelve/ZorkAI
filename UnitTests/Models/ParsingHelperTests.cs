@@ -492,7 +492,8 @@ public class ParsingHelperTests
     [Test]
     public void GetIntent_WithMultiNounNoPreposition_DefaultsToWith()
     {
-        // Arrange
+        // Arrange - the player themselves used no preposition, so there is nothing to recover from
+        // their words and the historical "with" default is still the best guess (issue #538).
         var input = "unlock door key";
         var response = @"<intent>act</intent>
 <verb>unlock</verb>
@@ -506,6 +507,103 @@ public class ParsingHelperTests
         result.Should().BeOfType<MultiNounIntent>();
         var multiNounIntent = result as MultiNounIntent;
         multiNounIntent?.Preposition.Should().Be("with");
+    }
+
+    /// <summary>
+    ///     Issue #538. gpt-4o intermittently omits the &lt;preposition&gt; tag on a perfectly
+    ///     well-formed two-noun command, and the old fallback hardcoded "with". That is right only for
+    ///     the "with" family: "set dial to 419", "slide card through slot" and "put bedistor in panel"
+    ///     all arrived at their handlers carrying "with", every <c>MatchPreposition</c> guard missed,
+    ///     and the turn fell through to the AI narrator with no engine response. Because the omission
+    ///     is a coin flip, two identical consecutive commands produced opposite outcomes. The player's
+    ///     own words are the ground truth for which preposition binds the two nouns, so recover it
+    ///     from the original input.
+    /// </summary>
+    [TestCase("set dial to 419", "set", "dial", "419", "to")]
+    [TestCase("set laser to 1", "set", "laser", "1", "to")]
+    [TestCase("slide teleportation card through slot", "slide", "teleportation card", "slot", "through")]
+    [TestCase("put the shiny bedistor in the panel", "put", "shiny bedistor", "panel", "in")]
+    [TestCase("throw the laser off the edge", "throw", "laser", "edge", "off")]
+    public void GetIntent_WhenParserOmitsThePreposition_RecoversItFromThePlayersOwnWords(
+        string input, string verb, string nounOne, string nounTwo, string expectedPreposition)
+    {
+        var response = $"""
+                        <intent>act</intent>
+                        <verb>{verb}</verb>
+                        <noun>{nounOne}</noun>
+                        <noun>{nounTwo}</noun>
+                        """;
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<MultiNounIntent>();
+        ((MultiNounIntent)result).Preposition.Should().Be(expectedPreposition);
+    }
+
+    [Test]
+    public void GetIntent_WhenParserOmitsThePreposition_PrefersTheOneBindingTheTwoNouns()
+    {
+        // Issue #538: recovery must pick the preposition that actually connects the two nouns, not
+        // the first one anywhere in the sentence. "with" appears earlier here, but the second noun
+        // ("slot") is bound by "through".
+        var input = "with the pliers, slide the card through the slot";
+        var response = @"<intent>act</intent>
+<verb>slide</verb>
+<noun>card</noun>
+<noun>slot</noun>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<MultiNounIntent>();
+        ((MultiNounIntent)result).Preposition.Should().Be("through");
+    }
+
+    /// <summary>
+    ///     Issue #538. The system prompt's own rule 1e carves out "take &lt;thing&gt; with
+    ///     &lt;tool&gt;" as an <c>act</c>, not a <c>take</c> — precisely because the model tends to
+    ///     bucket it as a take. When it does slip, the two-noun command collapsed into a
+    ///     <see cref="TakeIntent" /> that kept only the first noun, so
+    ///     <c>FusedBedistor.RespondToMultiNounInteraction</c> ("take fused with pliers") never ran and
+    ///     the turn fell through to the narrator. A two-noun take joined by a TOOL preposition is
+    ///     always the action form.
+    /// </summary>
+    [TestCase("with")]
+    [TestCase("using")]
+    public void GetIntent_WhenParserTagsAToolAssistedTakeAsATake_StillReturnsTheActionForm(string preposition)
+    {
+        var response = $"""
+                        <intent>take</intent>
+                        <verb>take</verb>
+                        <noun>fused bedistor</noun>
+                        <noun>pliers</noun>
+                        <preposition>{preposition}</preposition>
+                        """;
+
+        var result = ParsingHelper.GetIntent($"take the fused bedistor {preposition} the pliers", response,
+            _loggerMock?.Object);
+
+        result.Should().BeOfType<MultiNounIntent>();
+        var multiNoun = (MultiNounIntent)result;
+        multiNoun.Verb.Should().Be("take");
+        multiNoun.NounOne.Should().Be("fused bedistor");
+        multiNoun.NounTwo.Should().Be("pliers");
+        multiNoun.Preposition.Should().Be(preposition);
+    }
+
+    [Test]
+    public void GetIntent_WithATwoNounTakeThatIsNotToolAssisted_StaysATakeIntent()
+    {
+        // Guard for the #538 diversion above: "take the sword and the shield" is a genuine multi-item
+        // TAKE, not a tool-assisted one. It must keep reaching TakeProcessor (which re-reads the whole
+        // input to build the item list) rather than being rewritten into a two-noun action.
+        var response = @"<intent>take</intent>
+<verb>take</verb>
+<noun>sword</noun>
+<noun>shield</noun>";
+
+        var result = ParsingHelper.GetIntent("take the sword and the shield", response, _loggerMock?.Object);
+
+        result.Should().BeOfType<TakeIntent>();
     }
 
     [Test]
