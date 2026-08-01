@@ -236,57 +236,70 @@ public class SimpleInteractionEngineTests
     }
 
 
+    /// <summary>
+    ///     The ambiguity check itself now lives in <see cref="NounDisambiguator" />, shared with the
+    ///     multi-noun and enter/exit engines (issue #532) - so these call it directly rather than
+    ///     reaching into SimpleInteractionEngine by reflection.
+    /// </summary>
     [TestFixture]
     public class CheckDisambiguationMethod : SimpleInteractionEngineTests
     {
         [Test]
         public void Should_ReturnNull_When_NoAmbiguousItems()
         {
-            // Arrange
             var intent = new SimpleIntent { Verb = "take", Noun = "sword" };
-            
+
             var sword = new Mock<IItem>();
-            sword.Setup(i => i.NounsForMatching).Returns(new[] { "sword", "blade" });
-            sword.Setup(i => i.NounsForPreciseMatching).Returns(new[] { "sword", "blade" });
+            sword.Setup(i => i.NounsForMatching).Returns(["sword", "blade"]);
+            sword.Setup(i => i.NounsForPreciseMatching).Returns(["sword", "blade"]);
 
-            var items = new List<IItem> { sword.Object };
-            _mockContext.Setup(c => c.GetAllItemsRecursively).Returns(items);
+            _mockContext.Setup(c => c.GetAllItemsRecursively).Returns([sword.Object]);
 
-            // Use reflection to call the private method
-            var method = typeof(SimpleInteractionEngine).GetMethod("CheckDisambiguation",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var result = NounDisambiguator.Check(intent.MatchNounAndAdjective, _mockContext.Object, "take {0}");
 
-            // Act
-            var result = method!.Invoke(_engine, new object[] { intent, _mockContext.Object });
-
-            // Assert
             result.Should().BeNull();
         }
 
         [Test]
         public void Should_ReturnNull_When_OnlyOneItemMatches()
         {
-            // Arrange
             var intent = new SimpleIntent { Verb = "take", Noun = "sword" };
-            
+
             var sword = new Mock<IItem>();
-            sword.Setup(i => i.NounsForMatching).Returns(new[] { "sword", "blade" });
+            sword.Setup(i => i.NounsForMatching).Returns(["sword", "blade"]);
 
             var dagger = new Mock<IItem>();
-            dagger.Setup(i => i.NounsForMatching).Returns(new[] { "dagger", "knife" });
+            dagger.Setup(i => i.NounsForMatching).Returns(["dagger", "knife"]);
 
-            var items = new List<IItem> { sword.Object, dagger.Object };
-            _mockContext.Setup(c => c.GetAllItemsRecursively).Returns(items);
+            _mockContext.Setup(c => c.GetAllItemsRecursively).Returns([sword.Object, dagger.Object]);
 
-            // Use reflection to call the private method
-            var method = typeof(SimpleInteractionEngine).GetMethod("CheckDisambiguation",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var result = NounDisambiguator.Check(intent.MatchNounAndAdjective, _mockContext.Object, "take {0}");
 
-            // Act
-            var result = method!.Invoke(_engine, new object[] { intent, _mockContext.Object });
-
-            // Assert
             result.Should().BeNull();
+        }
+
+        [Test]
+        public void Should_AskWhichOne_When_TwoItemsAnswerToTheSameNoun()
+        {
+            var intent = new SimpleIntent { Verb = "take", Noun = "door" };
+
+            var red = new Mock<IItem>();
+            red.Setup(i => i.NounsForMatching).Returns(["door", "red door"]);
+            red.Setup(i => i.NounsForPreciseMatching).Returns(["door", "red door"]);
+
+            var blue = new Mock<IItem>();
+            blue.Setup(i => i.NounsForMatching).Returns(["door", "blue door"]);
+            blue.Setup(i => i.NounsForPreciseMatching).Returns(["door", "blue door"]);
+
+            _mockContext.Setup(c => c.GetAllItemsRecursively).Returns([red.Object, blue.Object]);
+
+            var result = NounDisambiguator.Check(intent.MatchNounAndAdjective, _mockContext.Object, "take {0}");
+
+            result.Should().NotBeNull();
+            result!.InteractionMessage.Should().Contain("red door");
+            result.InteractionMessage.Should().Contain("blue door");
+            // The reply has to name one item unambiguously, or we would loop forever asking.
+            result.PossibleResponses["door"].Should().BeOneOf("red door", "blue door");
         }
     }
 
