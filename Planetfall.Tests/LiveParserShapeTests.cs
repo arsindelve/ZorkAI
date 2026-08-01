@@ -100,6 +100,51 @@ public class LiveParserShapeTests : EngineTestsBase
         response.Should().Contain("Redee");
     }
 
+    /// <summary>
+    ///     Issue #538. "press 3" is the only single-noun phrasing in the report that reached no
+    ///     handler, and its object is a bare numeral — which rule 3 of the system prompt does not
+    ///     describe as a noun phrase, so gpt-4o sometimes leaves it untagged entirely. That collapses
+    ///     the turn to a NullIntent and the booth never teleports.
+    /// </summary>
+    [Test]
+    public async Task PressADigitButton_WhenTheParserOmitsTheNoun_StillTeleports()
+    {
+        var target = GetTarget(ParserReturning("""
+                                               <intent>act</intent>
+                                               <verb>press</verb>
+                                               """));
+        var booth = StartHere<BoothTwo>();
+        booth.IsEnabled = true;
+
+        var response = await target.GetResponse("press 3");
+
+        response.Should().Contain("strange feeling in the pit of your stomach");
+        Context.CurrentLocation.Name.Should().Be("Booth 3");
+    }
+
+    /// <summary>
+    ///     Issue #538, the other shape a bare numeral provokes: rather than dropping the digit, the
+    ///     model expands it against the room description into "button 3". The booths listed
+    ///     "3 button" but never that word order, so the command missed every match and fell through to
+    ///     the narrator.
+    /// </summary>
+    [Test]
+    public async Task PressADigitButton_WhenTheParserExpandsItToButtonN_StillTeleports()
+    {
+        var target = GetTarget(ParserReturning("""
+                                               <intent>act</intent>
+                                               <verb>press</verb>
+                                               <noun>button 3</noun>
+                                               """));
+        var booth = StartHere<BoothTwo>();
+        booth.IsEnabled = true;
+
+        var response = await target.GetResponse("press 3");
+
+        response.Should().Contain("strange feeling in the pit of your stomach");
+        Context.CurrentLocation.Name.Should().Be("Booth 3");
+    }
+
     [Test]
     public async Task TakeWithATool_WhenTheParserBucketsItAsATake_StillRemovesTheFusedBedistor()
     {

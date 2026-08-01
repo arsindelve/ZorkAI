@@ -39,13 +39,20 @@ internal class BoothThree : BoothBase
                     { "brown button", "brown button" }
                 }, "press the {0}");
 
-        if (action.Match(Verbs.PushVerbs, ["brown button", "brown", "beige button", "beige", "1", 
-                "2", "one", "two", "1 button", "2 button", "one button", "two button"]))
+        // "button 2" as well as "2 button" (issue #538): asked to name the object of a bare "press 2",
+        // the AI parser resolves the digit against the room description and can return either word
+        // order. Only one was listed, so the other missed every match and the turn fell through to the
+        // narrator without teleporting.
+        if (action.Match(Verbs.PushVerbs, ["brown button", "brown", "beige button", "beige", "1",
+                "2", "one", "two", "1 button", "2 button", "one button", "two button",
+                "button 1", "button 2", "button one", "button two"]))
         {
-            if (action.MatchNoun(["beige button", "beige", "2", "two", "2 button", "two button"]))
+            if (action.MatchNoun(["beige button", "beige", "2", "two", "2 button", "two button",
+                    "button 2", "button two"]))
                 return GoTwo(context);
 
-            if (action.MatchNoun(["brown button", "brown", "1", "one", "1 button", "one button"]))
+            if (action.MatchNoun(["brown button", "brown", "1", "one", "1 button", "one button",
+                    "button 1", "button one"]))
                 return GoOne(context);
         }
 

@@ -606,6 +606,66 @@ public class ParsingHelperTests
         result.Should().BeOfType<TakeIntent>();
     }
 
+    /// <summary>
+    ///     Issue #538. "press 3" was the only SINGLE-noun phrasing in the report that intermittently
+    ///     reached no handler, and what makes it unusual is that its object is a bare numeral. Rule 3
+    ///     of the system prompt asks the model to tag noun PHRASES, and a bare digit is not one, so on
+    ///     some runs gpt-4o emits the intent and the verb and simply leaves the number out — the whole
+    ///     command then collapses to a <see cref="NullIntent" /> and goes straight to the narrator.
+    ///     The player typed the object, so recover it from their own words rather than dropping the
+    ///     turn.
+    /// </summary>
+    [TestCase("press 3", "press", "3", null)]
+    [TestCase("press the tan button", "press", "tan button", null)]
+    [TestCase("type 17", "type", "17", null)]
+    [TestCase("look under the rug", "look", "rug", "under")]
+    [TestCase("set dial to 42", "set", "dial", "to")]
+    public void GetIntent_WhenParserOmitsTheNoun_RecoversItFromThePlayersOwnWords(
+        string input, string verb, string expectedNoun, string? expectedAdverb)
+    {
+        var response = $"""
+                        <intent>act</intent>
+                        <verb>{verb}</verb>
+                        """;
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<SimpleIntent>();
+        var simpleIntent = (SimpleIntent)result;
+        simpleIntent.Verb.Should().Be(verb);
+        simpleIntent.Noun.Should().Be(expectedNoun);
+        simpleIntent.Adverb.Should().Be(expectedAdverb);
+        simpleIntent.OriginalInput.Should().Be(input);
+    }
+
+    [Test]
+    public void GetIntent_WhenParserOmitsTheNounAndThePlayerNamedNoObject_StaysANullIntent()
+    {
+        // Guard for the #538 noun recovery: a genuinely object-less command has nothing to recover.
+        // It must keep degrading to the narrator rather than inventing an empty noun.
+        var response = @"<intent>act</intent>
+<verb>jump</verb>";
+
+        var result = ParsingHelper.GetIntent("jump", response, _loggerMock?.Object);
+
+        result.Should().BeOfType<NullIntent>();
+    }
+
+    [Test]
+    public void GetIntent_WhenParserOmitsTheNounAndRewroteTheVerb_StaysANullIntent()
+    {
+        // Guard for the #538 noun recovery: the prompt tells the model to normalize verbs ("turn on"
+        // -> "activate"), so when the tagged verb is absent from the input we cannot tell where the
+        // verb ends and the object begins. Recovering blindly would yield "on lamp"; declining leaves
+        // behavior exactly as it was.
+        var response = @"<intent>act</intent>
+<verb>activate</verb>";
+
+        var result = ParsingHelper.GetIntent("turn on lamp", response, _loggerMock?.Object);
+
+        result.Should().BeOfType<NullIntent>();
+    }
+
     [Test]
     public void GetIntent_WithAdjectiveTag_IncludesAdjective()
     {

@@ -220,7 +220,23 @@ public static class ParsingHelper
 
         var nouns = ExtractElementsByTag(response, "noun");
         if (!nouns.Any())
-            return null;
+        {
+            // Issue #538: the model tagged the intent and the verb but no object at all, and the whole
+            // command then collapses to a NullIntent and goes straight to the narrator. This is what
+            // dropped "press 3" — the only single-noun phrasing in the report — because rule 3 asks the
+            // model to tag noun PHRASES and a bare numeral is not one, so it sometimes leaves the digit
+            // out. The player named the object, so recover it from their own words.
+            var recovered = RecoverNounFromInput(originalInput, verbTag);
+            if (recovered is null)
+            {
+                logger?.LogDebug("No noun was found, and none could be recovered from the player's input");
+                return null;
+            }
+
+            nouns = [recovered.Value.Noun];
+            if (string.IsNullOrEmpty(prepositionTag))
+                prepositionTag = recovered.Value.Preposition;
+        }
 
         if (nouns.Count == 1)
         {
@@ -376,6 +392,80 @@ public static class ParsingHelper
                 return words[i];
 
         return null;
+    }
+
+    // Issue #538. Words that lead a noun phrase without being part of it; dropped when reading a noun
+    // back out of the player's own sentence.
+    private static readonly string[] Determiners =
+        ["the", "a", "an", "my", "your", "his", "her", "their", "its", "some", "this", "that", "these", "those"];
+
+    /// <summary>
+    ///     Issue #538. Reads the object of the command out of the player's original input, for the
+    ///     turns where the AI parser tagged an intent and a verb but no &lt;noun&gt; at all. Returns
+    ///     null — leaving the historical <see cref="NullIntent" /> in place — when there is nothing
+    ///     trustworthy to recover.
+    /// </summary>
+    /// <remarks>
+    ///     Deliberately conservative on two counts, so this can only ever turn a dropped turn into a
+    ///     working one and never change a turn that already worked:
+    ///     <list type="bullet">
+    ///         <item>
+    ///             The tagged verb must actually appear in the input. The prompt asks the model to
+    ///             normalize verbs ("turn on" -&gt; "activate", "put on" -&gt; "don"), and when it has
+    ///             done so we cannot tell where the verb ends and the object begins — "turn on lamp"
+    ///             would yield the nonsense noun "on lamp".
+    ///         </item>
+    ///         <item>
+    ///             A genuinely object-less command ("jump") recovers nothing and stays a NullIntent.
+    ///         </item>
+    ///     </list>
+    ///     A preposition is peeled off either end of the phrase and returned separately, so
+    ///     "look under the rug" recovers the noun "rug" with the adverb "under", and "set dial to 42"
+    ///     recovers "dial" with "to" — the shapes the handlers are actually written against.
+    /// </remarks>
+    private static (string Noun, string? Preposition)? RecoverNounFromInput(string? originalInput, string verb)
+    {
+        if (string.IsNullOrWhiteSpace(originalInput) || string.IsNullOrWhiteSpace(verb))
+            return null;
+
+        var words = originalInput
+            .Split(WordSeparators, StringSplitOptions.RemoveEmptyEntries)
+            .Select(word => word.ToLowerInvariant())
+            .ToList();
+
+        var verbIndex = words.IndexOf(verb.Trim().ToLowerInvariant());
+        if (verbIndex < 0)
+            return null;
+
+        var remainder = words.Skip(verbIndex + 1).ToList();
+
+        string? preposition = null;
+
+        // A phrase that OPENS with a preposition is modifying the verb ("look under the rug"), so the
+        // preposition is the adverb and the noun is whatever follows it.
+        remainder = DropLeadingDeterminers(remainder);
+        if (remainder.Count > 1 && KnownPrepositions.Contains(remainder[0]))
+        {
+            preposition = remainder[0];
+            remainder = DropLeadingDeterminers(remainder.Skip(1).ToList());
+        }
+
+        // A preposition LATER in the phrase begins a second argument ("set dial to 42"). The noun ends
+        // there; the tail is still reachable through OriginalInput, which is what the handlers for
+        // those commands read.
+        var tailPreposition = remainder.FindIndex(KnownPrepositions.Contains);
+        if (tailPreposition > 0)
+        {
+            preposition ??= remainder[tailPreposition];
+            remainder = remainder.Take(tailPreposition).ToList();
+        }
+
+        return remainder.Count == 0 ? null : (string.Join(' ', remainder), preposition);
+    }
+
+    private static List<string> DropLeadingDeterminers(List<string> words)
+    {
+        return words.SkipWhile(Determiners.Contains).ToList();
     }
 
     /// <summary>

@@ -581,4 +581,35 @@ public class OpenAIParserTests
             multiNoun.Preposition.Should().Be(preposition, $"run {run}");
         }
     }
+
+    /// <summary>
+    ///     Issue #538. "press 3" was the only single-noun phrasing that reached no handler, because a
+    ///     bare numeral is not the noun phrase rule 3 asks for and the model sometimes leaves it
+    ///     untagged. The deterministic repair (recovering the noun from the player's own input) is
+    ///     proved by <c>ParsingHelperTests</c> and
+    ///     <c>Planetfall.Tests.LiveParserShapeTests</c>; this is the live counterpart. The teleport
+    ///     booth's description is passed literally rather than built from the location, which is
+    ///     internal to the Planetfall assembly.
+    /// </summary>
+    [Test]
+    [TestCase("press 3")]
+    [TestCase("press 1")]
+    public async Task DigitButtonShapeIsStableAcrossRepeatedRuns(string input)
+    {
+        const int runs = 5;
+        const string boothDescription =
+            "Booth 2. This is a tiny room with a large \"2\" painted on the wall. A panel contains a " +
+            "slot about ten centimeters wide, a brown button labelled \"1\" and a tan button labelled \"3.\"";
+
+        var target = new OpenAIParser(null);
+
+        for (var run = 1; run <= runs; run++)
+        {
+            var intent = await target.AskTheAIParser(input, boothDescription, string.Empty);
+            Console.WriteLine($"Run {run}: {intent.Message}");
+
+            intent.Should().BeOfType<SimpleIntent>($"run {run} of '{input}' must produce a single-noun intent");
+            ((SimpleIntent)intent).Noun.Should().NotBeNullOrWhiteSpace($"run {run}");
+        }
+    }
 }
