@@ -444,7 +444,10 @@ function Game() {
                 }}
             />
 
-            <div className="relative flex-1 min-h-0 max-h-[55vh]">
+            {/* The scanline overlay lives here, on the non-scrolling wrapper — never on
+                the transcript itself, whose scrollable overflow its transform would
+                inflate. overflow-hidden clips the overlay as it sweeps past the panel. */}
+            <div className="relative flex-1 min-h-0 max-h-[55vh] overflow-hidden rounded-lg scanline-effect">
                 <ClickableText
                     ref={gameContentElement}
                     exits={exits}
@@ -452,7 +455,7 @@ function Game() {
                     onScroll={handleTranscriptScroll}
                     onMouseMove={highlightWordAtPointer}
                     onMouseLeave={clearWordHighlight}
-                    className="relative flex flex-col p-6 sm:p-12 h-full overflow-auto font-mono rounded-lg border-2 shadow-lg clickable scanline-effect z-10"
+                    className="relative flex flex-col p-6 sm:p-12 h-full overflow-auto font-mono rounded-lg border-2 shadow-lg clickable z-10"
                     style={{
                         background:
                             'linear-gradient(135deg, var(--planetfall-bg-dark) 0%, #020617 100%)',
