@@ -438,10 +438,7 @@ function Game() {
                 }}
             />
 
-            {/* The scanline overlay lives here, on the non-scrolling wrapper — never on
-                the transcript itself, whose scrollable overflow its transform would
-                inflate. overflow-hidden clips the overlay as it sweeps past the panel. */}
-            <div className="relative flex-1 min-h-0 mt-2 overflow-hidden rounded-t-lg scanline-effect">
+            <div className="relative flex-1 min-h-0 mt-2">
                 <ClickableText
                     ref={gameContentElement}
                     exits={exits}
@@ -476,6 +473,18 @@ function Game() {
                         ))}
                     </div>
                 </ClickableText>
+
+                {/* The scanline sweep gets its own clipping layer rather than riding on
+                    the transcript or on a wrapper around it. On the transcript, its
+                    transform inflated the scrollable overflow and auto-scroll aimed at a
+                    phantom bottom; on the wrapper, the overflow-hidden needed to clip the
+                    sweep also clipped the panel's shadow and left the transcript's parent
+                    silently scrollable. z-[15] sits over the text (z-10) but under the
+                    compass (z-20) and the "New messages" pill (z-30). */}
+                <div
+                    aria-hidden="true"
+                    className="absolute inset-0 z-[15] overflow-hidden rounded-t-lg pointer-events-none scanline-effect"
+                />
 
                 {showJumpToLatest && (
                     <button

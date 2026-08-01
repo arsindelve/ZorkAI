@@ -130,5 +130,23 @@ test.describe('Game Interface', () => {
 
         // ...and the newest text must still be sitting at the true bottom of the panel.
         expect(after.distanceFromBottom).toBeLessThanOrEqual(2);
+
+        // The sweep must not have been merely relocated onto an ancestor either. An
+        // ancestor with phantom scrollable overflow is silently scrollable, and any
+        // reveal-scroll (scrollIntoView, find-in-page) would slide the whole panel
+        // inside its clip with no way for the player to put it back.
+        const ancestorOverflow = await page.$eval(
+            '[data-testid="game-responses-container"]',
+            (el) => {
+                let node = el.parentElement;
+                let worst = 0;
+                while (node && node !== document.body) {
+                    worst = Math.max(worst, Math.round(node.scrollHeight - node.clientHeight));
+                    node = node.parentElement;
+                }
+                return worst;
+            },
+        );
+        expect(ancestorOverflow).toBe(0);
     });
 });

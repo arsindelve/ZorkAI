@@ -143,21 +143,23 @@
 
 /* Sci-fi scanline effect.
 
-   TRAP: never put this class on the scrolling transcript itself. The overlay is
-   animated with translateY, and a transformed descendant contributes its
-   *transformed* bounds to the scroll container's scrollable overflow. Inside the
-   scroller, scrollHeight therefore crept up by the panel's height every 8s and
-   snapped back on each loop — auto-scroll aimed at a phantom bottom (dead space
+   TRAP: apply this only to a dedicated overlay layer that clips itself — never
+   to the scrolling transcript, and never to an ancestor of it either. The sweep
+   is a translateY animation, and a transformed descendant contributes its
+   *transformed* bounds to its scroll container's scrollable overflow. On the
+   transcript, scrollHeight therefore crept up by the panel's height every 8s and
+   snapped back on each loop: auto-scroll aimed at a phantom bottom (dead space
    under the newest line), the view lurched, and the inflated
    scrollHeight-scrollTop-clientHeight gap falsely tripped the "New messages"
-   pill. Keep it on the non-scrolling wrapper, which also means the scanlines
-   cover the whole panel instead of scrolling away with the text. */
+   pill. Moving it to a wrapper *around* the transcript is not a fix either —
+   that wrapper then needs overflow:hidden to clip the sweep, which also clips
+   the panel's outer glow and leaves the transcript's parent silently
+   scrollable, so any reveal-scroll displaces the whole panel. The overlay owns
+   its own stacking order; don't set z-index here. */
 .scanline-effect::after {
     content: '';
     position: absolute;
     inset: 0;
-    /* Above the transcript (z-10), below the "New messages" pill (z-30). */
-    z-index: 20;
     background: repeating-linear-gradient(
         0deg,
         transparent,
