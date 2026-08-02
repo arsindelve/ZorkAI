@@ -21,16 +21,27 @@ public class BulkheadDoor : ItemBase, IOpenAndClose
     ///     <para>
     ///         Trap when adding to this list: the LONGEST entry doubles as the item's display name
     ///         (ExamineInteractionProcessor prints "nothing special about the {longest noun}"), so a new
-    ///         long synonym silently renames the door. "narrow emergency bulkhead" must stay the longest.
+    ///         long synonym silently renames the door. "escape pod bulkhead" — POD-DOOR's own DESC — must
+    ///         stay the longest. It previously was not: "narrow emergency bulkhead" held that spot, which
+    ///         is GANGWAY-DOOR's name (globals.zil:1139), so "examine escape pod" answered about the
+    ///         bulkhead at the base of the gangway.
+    ///     </para>
+    ///     <para>
+    ///         Deliberately absent: the bare EMERGENCY qualifier on a door/bulkhead. The original shares
+    ///         that adjective across three objects in Deck Nine's scope — POD-DOOR, GANGWAY-DOOR
+    ///         (globals.zil:1139) and CORRIDOR-DOOR (globals.zil:1133), the latter two becoming
+    ///         referenceable when they slam shut (globals.zil:1216) — so "emergency bulkhead" and
+    ///         "emergency door" are ambiguous there, not names POD-DOOR owns. Claiming them here would
+    ///         make the pod door answer for the gangway bulkhead the turn the game narrates it closing.
+    ///         "emergency pod" IS kept: POD is GLOBAL-POD's synonym alone, so it is unambiguous.
     ///     </para>
     /// </remarks>
     public override string[] NounsForMatching =>
     [
         // POD-DOOR
         "bulkhead", "door", "bulkhead door",
-        "emergency bulkhead", "escape bulkhead", "pod bulkhead",
-        "emergency door", "escape door", "pod door",
-        "escape pod bulkhead", "escape pod door", "narrow emergency bulkhead",
+        "escape bulkhead", "pod bulkhead", "escape pod bulkhead",
+        "escape door", "pod door", "escape pod door",
         // GLOBAL-POD
         "pod", "emergency pod", "escape pod", "primary pod"
     ];

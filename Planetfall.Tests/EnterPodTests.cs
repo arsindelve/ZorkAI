@@ -171,7 +171,6 @@ public class EnterPodTests : EngineTestsBase
         [TestCase("open the escape pod")]
         [TestCase("open pod bulkhead")]
         [TestCase("open the pod bulkhead")]
-        [TestCase("open emergency bulkhead")]
         [TestCase("open escape pod bulkhead")]
         [TestCase("open pod")]
         [TestCase("open bulkhead")]
@@ -183,6 +182,43 @@ public class EnterPodTests : EngineTestsBase
             var response = await target.GetResponse(command);
 
             response.Should().Contain(NoEmergencyYet);
+        }
+
+        /// <summary>
+        /// Naming the pod must not answer under some other door's name. The door's display name is its
+        /// longest noun (ExamineInteractionProcessor), and that has to be POD-DOOR's own DESC, "escape
+        /// pod bulkhead" (globals.zil:1094) — not "narrow emergency bulkhead", which names the bulkhead
+        /// at the base of the gangway (GANGWAY-DOOR, globals.zil:1139).
+        /// </summary>
+        [Test]
+        public async Task ExaminePod_AnswersUnderThePodsOwnBulkheadName()
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<DeckNine>();
+
+            var response = await target.GetResponse("examine escape pod");
+
+            response.Should().Contain("escape pod bulkhead");
+            response.Should().NotContain("narrow emergency bulkhead");
+        }
+
+        /// <summary>
+        /// The bare EMERGENCY qualifier is shared: in the original, POD-DOOR, GANGWAY-DOOR
+        /// (globals.zil:1139) and CORRIDOR-DOOR (globals.zil:1133) all carry ADJECTIVE EMERGENCY with
+        /// SYNONYM DOOR/BULKHEAD, and all three are in Deck Nine's scope once the latter two slam shut
+        /// (globals.zil:1216). So "emergency bulkhead" is ambiguous there, not a name the pod door owns —
+        /// and the turn the game narrates "A narrow emergency bulkhead at the base of the gangway ...
+        /// crash shut!", the pod door must not answer for it.
+        /// </summary>
+        [Test]
+        public async Task AmbiguousEmergencyName_IsNotClaimedByThePodDoor()
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<DeckNine>();
+
+            var response = await target.GetResponse("open emergency bulkhead");
+
+            response.Should().NotContain(NoEmergencyYet);
         }
     }
 
