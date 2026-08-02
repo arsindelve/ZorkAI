@@ -144,6 +144,49 @@ public class EnterPodTests : EngineTestsBase
     }
 
     /// <summary>
+    /// The pod door has to answer to every name the room description gives it. Deck Nine says "the
+    /// entrance to one of the ship's primary escape pods. The pod bulkhead is closed." — so "escape
+    /// pod" and "pod bulkhead" are the two phrases the prose actively teaches, and both used to miss
+    /// the BulkheadDoor entirely: the narrator then mocked the player for naming an object that
+    /// wasn't there ("the elusive escape pod ... seems to have taken a day off").
+    ///
+    /// The original states the same object under both names. planetfall-source/globals.zil:1094 gives
+    /// POD-DOOR the synonyms DOOR/BULKHEAD with adjectives EMERGENCY/ESCAPE/POD, and globals.zil:904
+    /// gives GLOBAL-POD the synonym POD with adjectives EMERGENCY/ESCAPE/PRIMARY — and GLOBAL-POD-F
+    /// (globals.zil:925) sends OPEN straight to POD-DOOR, so naming the pod and naming its bulkhead
+    /// are the same command. This port merges the two into BulkheadDoor, so it must carry the union
+    /// of those names.
+    ///
+    /// Both phrasings are covered in both shapes the AI parser produces — the whole phrase as one
+    /// noun, and split into adjective + noun — because SimpleIntent.MatchNounAndAdjective compares
+    /// "adjective noun" against that very same list, with no containment fallback.
+    /// </summary>
+    [TestFixture]
+    public class PodDoorNames : EngineTestsBase
+    {
+        private const string NoEmergencyYet =
+            "Why open the door to the emergency escape pod if there's no emergency?";
+
+        [TestCase("open escape pod")]
+        [TestCase("open the escape pod")]
+        [TestCase("open pod bulkhead")]
+        [TestCase("open the pod bulkhead")]
+        [TestCase("open emergency bulkhead")]
+        [TestCase("open escape pod bulkhead")]
+        [TestCase("open pod")]
+        [TestCase("open bulkhead")]
+        public async Task OpenPodDoor_ByAnyOfItsNames_GetsTheDoorsOwnAnswer(string command)
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<DeckNine>();
+
+            var response = await target.GetResponse(command);
+
+            response.Should().Contain(NoEmergencyYet);
+        }
+    }
+
+    /// <summary>
     /// "exit pod" from inside the pod after it has landed in the ocean. The pod's door now leads to
     /// the Underwater location (WhereDoesTheDoorLead), so "exit pod" -> Move(Out) must carry the
     /// player out into the water when the bulkhead is open, and report the closed door otherwise -

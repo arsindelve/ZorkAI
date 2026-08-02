@@ -4,8 +4,36 @@ namespace Planetfall.Item.Feinstein;
 
 public class BulkheadDoor : ItemBase, IOpenAndClose
 {
+    /// <summary>
+    ///     The original states this as two objects that share one command: POD-DOOR
+    ///     (planetfall-source/globals.zil:1094 — synonyms DOOR/BULKHEAD, adjectives EMERGENCY/ESCAPE/POD)
+    ///     and GLOBAL-POD (globals.zil:904 — synonym POD, adjectives EMERGENCY/ESCAPE/PRIMARY), whose
+    ///     action routine sends OPEN straight to POD-DOOR (globals.zil:925). This port merges them into
+    ///     one item, so it has to carry the union of both name sets.
+    /// </summary>
+    /// <remarks>
+    ///     Every adjective+noun pair must be spelled out. The AI parser hands back either the whole
+    ///     phrase as one noun or an adjective/noun split, and SimpleIntent.MatchNounAndAdjective simply
+    ///     compares "adjective noun" against this list — there is no containment fallback on this path.
+    ///     Leaving "escape pod" and "pod bulkhead" out, the exact two phrases Deck Nine's own description
+    ///     teaches, meant "open escape pod" resolved to nothing and the narrator mocked the player for
+    ///     naming an object that wasn't there.
+    ///     <para>
+    ///         Trap when adding to this list: the LONGEST entry doubles as the item's display name
+    ///         (ExamineInteractionProcessor prints "nothing special about the {longest noun}"), so a new
+    ///         long synonym silently renames the door. "narrow emergency bulkhead" must stay the longest.
+    ///     </para>
+    /// </remarks>
     public override string[] NounsForMatching =>
-        ["bulkhead", "bulkhead door", "door", "pod", "pod door", "escape pod door", "narrow emergency bulkhead"];
+    [
+        // POD-DOOR
+        "bulkhead", "door", "bulkhead door",
+        "emergency bulkhead", "escape bulkhead", "pod bulkhead",
+        "emergency door", "escape door", "pod door",
+        "escape pod bulkhead", "escape pod door", "narrow emergency bulkhead",
+        // GLOBAL-POD
+        "pod", "emergency pod", "escape pod", "primary pod"
+    ];
 
     public bool IsOpen { get; set; }
 

@@ -53,6 +53,16 @@
     { "inputs": ["press message playback button"], "verb": "press", "noun": "message playback button" },
     { "inputs": ["press glowing button"], "verb": "press", "noun": "glowing button" },
 
+    // The escape-pod bulkhead, named the way Deck Nine's own description names it. The live AI parser
+    // returns both shapes for these - the whole phrase as one noun, or split into adjective + noun -
+    // so both are stubbed here (issue: "open escape pod" was answered as if no pod existed).
+    { "inputs": ["open escape pod"], "verb": "open", "noun": "escape pod" },
+    { "inputs": ["open the escape pod"], "verb": "open", "noun": "pod", "adjective": "escape" },
+    { "inputs": ["open pod bulkhead"], "verb": "open", "noun": "pod bulkhead" },
+    { "inputs": ["open the pod bulkhead"], "verb": "open", "noun": "bulkhead", "adjective": "pod" },
+    { "inputs": ["open emergency bulkhead"], "verb": "open", "noun": "bulkhead", "adjective": "emergency" },
+    { "inputs": ["open escape pod bulkhead"], "verb": "open", "noun": "escape pod bulkhead" },
+
     { "inputs": ["open red door"], "verb": "open", "noun": "red door" },
     { "inputs": ["close red door"], "verb": "close", "noun": "red door" },
     { "inputs": ["examine red door"], "verb": "examine", "noun": "red door" },
