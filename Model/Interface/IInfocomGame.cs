@@ -81,4 +81,20 @@ public interface IInfocomGame
     /// Defaults to none.
     /// </summary>
     IReadOnlyList<Type> TalkableCharacterTypes => [];
+
+    /// <summary>
+    ///     Called once per restore, immediately after the saved <see cref="Repository" /> state has been
+    ///     installed, so a game can migrate a blob written by an older build. Defaults to doing nothing.
+    /// </summary>
+    /// <remarks>
+    ///     A location's <c>Init()</c> never runs again on restore — the saved <c>Items</c> list IS the
+    ///     room's contents. So whenever a release changes which object a room starts with, every
+    ///     in-flight session keeps the old one forever, and in the stateless deployment (which rehydrates
+    ///     from the session blob every turn) that is permanent rather than merely stale. This is the hook
+    ///     for repairing that. Implementations must be idempotent: it also runs on blobs that are already
+    ///     current.
+    /// </remarks>
+    void AfterRestore(IContext context)
+    {
+    }
 }

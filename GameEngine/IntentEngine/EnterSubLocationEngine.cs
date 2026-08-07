@@ -17,6 +17,13 @@ internal class EnterSubLocationEngine : IIntentEngine
         if (string.IsNullOrEmpty(enter.Noun))
             throw new ArgumentException("Null or empty noun. What's up with that?");
 
+        // Ask before resolving. GetItemInScope returns the FIRST match, so without this a room with two
+        // doors silently picked one for "enter door" while answering "Do you mean...?" to "examine door"
+        // (issue #532). The player gets the same question either way now.
+        var ambiguous = NounDisambiguator.Check(enter.Noun, context, "enter {0}");
+        if (ambiguous is not null)
+            return (ambiguous, ambiguous.InteractionMessage);
+
         IItem? subLocation = Repository.GetItemInScope(enter.Noun, context);
         if (subLocation == null)
         {
