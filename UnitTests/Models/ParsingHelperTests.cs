@@ -236,6 +236,45 @@ public class ParsingHelperTests
         multiNounIntent?.Message.Should().Be(MultiNounResponse);
     }
 
+    [TestCase("set dial to 419", "set", "dial", "419", "to")]
+    [TestCase("set laser to 1", "set", "laser", "1", "to")]
+    [TestCase("put the shiny in the panel", "put", "shiny", "panel", "in")]
+    [TestCase("put good in cube", "put", "good", "cube", "in")]
+    [TestCase("slide teleportation card through slot", "slide", "teleportation card", "slot", "through")]
+    [TestCase("drop magnet down into the crack", "drop", "magnet", "crack", "down into")]
+    [TestCase("put magnet down on panel", "put", "magnet", "panel", "on")]
+    public void GetIntent_WhenModelOmitsMultiNounPreposition_RecoversItFromOriginalInput(
+        string input, string verb, string nounOne, string nounTwo, string expectedPreposition)
+    {
+        // Production repro for #538. gpt-4o intermittently omitted the preposition tag for this
+        // command family. ParsingHelper replaced every missing preposition with "with", producing
+        // `set dial with 419`; ConferenceRoomDoor only accepts "to", so no handler ran.
+        var response = $@"<intent>act</intent>
+<verb>{verb}</verb>
+<noun>{nounOne}</noun>
+<noun>{nounTwo}</noun>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<MultiNounIntent>()
+            .Which.Preposition.Should().Be(expectedPreposition);
+    }
+
+    [Test]
+    public void GetIntent_WhenMissingPrepositionCannotBeRecovered_PreservesWithFallback()
+    {
+        const string input = "with the wrench, turn the bolt";
+        const string response = @"<intent>act</intent>
+<verb>turn</verb>
+<noun>bolt</noun>
+<noun>wrench</noun>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<MultiNounIntent>()
+            .Which.Preposition.Should().Be("with");
+    }
+
     [Test]
     public void GetIntent_WithMultipleVerbs_ReturnsMultipleCommandsIntent()
     {

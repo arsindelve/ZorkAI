@@ -7,6 +7,16 @@ namespace Model;
 
 public static class ParsingHelper
 {
+    // These are the connectors accepted by multi-noun handlers across the games. They give us a
+    // deterministic fallback when the AI identifies both nouns but intermittently omits the
+    // <preposition> tag (#538).
+    private static readonly string[] MultiNounPrepositions =
+    [
+        "down into", "next to", "underneath", "through", "towards", "against", "across", "using", "beside",
+        "toward", "with", "onto", "into", "under", "over", "near", "from", "off", "down", "at", "by", "in",
+        "on", "to"
+    ];
+
     // Issue #423: whole-scene nouns that mean "the room itself", not a specific object. When gpt-4o tags a
     // non-exact room-look ("look at the room", "look around the area") as intent=look with one of these as
     // the noun, it is still a bare room-look and must render the room — NOT be redirected to a targeted
@@ -223,8 +233,7 @@ public static class ParsingHelper
             if (string.IsNullOrEmpty(prepositionTag))
             {
                 logger?.LogDebug("No preposition was found trying to make a MultiNoun intent");
-                // TODO: Claude is inconsistent giving us the preposition. For now, hardcode the most common one if we don't get it. 
-                prepositionTag = "with";
+                prepositionTag = RecoverPrepositionFromInput(originalInput, nouns[0], nouns[1]) ?? "with";
             }
 
             return new MultiNounIntent
@@ -239,6 +248,35 @@ public static class ParsingHelper
         }
 
         return null;
+    }
+
+    private static string? RecoverPrepositionFromInput(string input, string nounOne, string nounTwo)
+    {
+        var nounOneIndex = input.IndexOf(nounOne, StringComparison.OrdinalIgnoreCase);
+        if (nounOneIndex < 0)
+            return null;
+
+        var textAfterNounOne = nounOneIndex + nounOne.Length;
+        var nounTwoIndex = input.IndexOf(nounTwo, textAfterNounOne, StringComparison.OrdinalIgnoreCase);
+        if (nounTwoIndex < 0)
+            return null;
+
+        var betweenNouns = input[textAfterNounOne..nounTwoIndex];
+        var normalized = string.Concat(betweenNouns.Select(character =>
+            char.IsLetter(character) || char.IsWhiteSpace(character) ? char.ToLowerInvariant(character) : ' '));
+        var padded = $" {string.Join(' ', normalized.Split(' ', StringSplitOptions.RemoveEmptyEntries))} ";
+
+        // The connector nearest noun two expresses the relationship between the parsed nouns. If a
+        // phrase and its suffix end together ("down into" / "into"), keep the longer phrase.
+        return MultiNounPrepositions
+            .Select(preposition =>
+                (Preposition: preposition,
+                    Index: padded.LastIndexOf($" {preposition} ", StringComparison.Ordinal)))
+            .Where(match => match.Index >= 0)
+            .OrderByDescending(match => match.Index + match.Preposition.Length)
+            .ThenByDescending(match => match.Preposition.Length)
+            .Select(match => match.Preposition)
+            .FirstOrDefault();
     }
 
     private static GoToDestinationIntent? DetermineGoToIntent(string? response)
