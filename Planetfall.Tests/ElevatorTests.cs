@@ -1,7 +1,13 @@
 using FluentAssertions;
+using GameEngine;
+using GameEngine.Item;
 using Model.AIGeneration;
+using Model.AIParsing;
 using Model.Intent;
+using Model.Item;
 using Moq;
+using Newtonsoft.Json;
+using Planetfall.Item;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Tower;
@@ -1212,9 +1218,11 @@ public class ElevatorTests : EngineTestsBase
 
     /// <summary>
     ///     ExamineInteractionProcessor answers a wider set of verbs than Verbs.ExamineVerbs lists -
-    ///     "check", "look in" and "peek at" appear only in its own switch. Any of them reaching the door
-    ///     item reports the shared flag, so "check blue door" would still answer "open" on the same turn
-    ///     the room, "examine" and the exit all say closed.
+    ///     "check", "look in" and "peek at" appear only in its own switch. Every one of them now goes
+    ///     straight to the door item, which is the point of #532: the lobby's door object answers for the
+    ///     lobby, so no phrasing can slip past a room-level guard and read the shaft flag raw. This used
+    ///     to be the room intercepting each verb by hand, and a verb it forgot answered "open" on the same
+    ///     turn the room, "examine" and the exit all said closed.
     /// </summary>
     [Test]
     [TestCase("examine")]
@@ -1231,7 +1239,8 @@ public class ElevatorTests : EngineTestsBase
         GetLocation<UpperElevator>().InLobby = false;
 
         var result = await lobby.RespondToSimpleInteraction(
-            new SimpleIntent { Verb = verb, Noun = "blue door" }, Context, Mock.Of<IGenerationClient>(), null!);
+            new SimpleIntent { Verb = verb, Noun = "blue door" }, Context, Mock.Of<IGenerationClient>(),
+            new ItemProcessorFactory(Mock.Of<IAITakeAndAndDropParser>()));
 
         result.InteractionMessage.Should().Contain("The door is closed");
     }
@@ -1368,5 +1377,454 @@ public class ElevatorTests : EngineTestsBase
 
         response = await target.GetResponse("close red door");
         response.Should().Contain("It is closed");
+    }
+
+    // =============================================================================================
+    // Issue #532: each shaft door was ONE Repository singleton seeded into two rooms, so the two
+    // Init()s fought over its CurrentLocation and the loser could not resolve it as an object at all.
+    //
+    // ElevatorLobby.Map calls GetLocation<UpperElevator>() / GetLocation<LowerElevator>() to name its
+    // destinations, and Repository.GetLocation lazily Inits - so merely looking at the lobby builds
+    // both cars, whose Init runs last and takes ownership of both doors. From then on
+    // Repository.GetItemInScope rejects the door in the lobby (IsItemAccessible tests
+    // item.CurrentLocation == context.CurrentLocation), and the far-end rooms never seeded it at all.
+    //
+    // The verbs #505 taught the lobby to intercept - examine / open / close - masked this, because
+    // they never reach scope resolution. The force verbs and the far-end rooms were left exposed.
+    // =============================================================================================
+
+    /// <summary>
+    ///     Both lobby doors have to resolve as objects standing in the lobby. Asserting on the resolved
+    ///     door's own state rather than its type is what catches the load-order variant of this bug,
+    ///     where "blue door" silently resolved to the RED door because the bare noun "door" is contained
+    ///     in "blue door" and the wrong object was the only accessible one.
+    /// </summary>
+    [Test]
+    public async Task DoorNouns_FromTheLobby_ResolveToADoorStandingInTheLobby()
+    {
+        var target = GetTarget();
+        var lobby = StartHere<ElevatorLobby>();
+        // One look is the whole setup. ElevatorLobby.Map names both cars, Repository.GetLocation Inits
+        // on first request, and each car's Init used to seize the lobby's door - so simply standing here
+        // and looking around was enough to take both doors out of scope.
+        await target.GetResponse("look");
+        // Distinct states, so a transposition cannot hide behind two matching answers.
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetItem<LowerElevatorDoor>().IsOpen = false;
+        GetLocation<UpperElevator>().InLobby = true;
+        GetLocation<LowerElevator>().InLobby = true;
+
+        var blue = Repository.GetItemInScope("blue door", Context);
+        var red = Repository.GetItemInScope("red door", Context);
+
+        blue.Should().NotBeNull("the blue door is described by this room, so it must resolve here (#532)");
+        red.Should().NotBeNull("the red door is described by this room, so it must resolve here (#532)");
+        blue!.CurrentLocation.Should().BeSameAs(lobby);
+        red!.CurrentLocation.Should().BeSameAs(lobby);
+        blue.Should().NotBeSameAs(red);
+        ((IDoor)blue).IsOpen.Should().BeTrue("\"blue door\" must resolve to the upper shaft's door");
+        ((IDoor)red).IsOpen.Should().BeFalse("\"red door\" must resolve to the lower shaft's door");
+    }
+
+    /// <summary>
+    ///     What the lobby's player actually loses when the door falls out of scope: "enter blue door" is
+    ///     the phrasing the room's own description invites, and DoorReroute (#262) turns it into the walk
+    ///     north - but only if the noun resolves to the item the map declares as that exit's GatingItem.
+    /// </summary>
+    [Test]
+    public async Task EnterDoor_FromTheLobby_CarIsHere_WalksIntoTheCar()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        await target.GetResponse("look");
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = true;
+
+        var response = await target.GetResponse("enter blue door");
+
+        response.Should().Contain("Upper Elevator");
+        Context.CurrentLocation.Should().BeOfType<UpperElevator>();
+    }
+
+    [Test]
+    public async Task EnterDoor_FromTheLobby_CarIsAway_RefusesAndStaysPut()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        await target.GetResponse("look");
+        // The shared flag left open by an arrival at the FAR end - the lobby's door is really closed.
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = false;
+
+        var response = await target.GetResponse("enter blue door");
+
+        response.Should().Contain("The door is closed");
+        Context.CurrentLocation.Should().BeOfType<ElevatorLobby>();
+    }
+
+    [Test]
+    public async Task EnterDoor_AtTheTowerCore_CarIsHere_WalksIntoTheCar()
+    {
+        var target = GetTarget();
+        StartHere<TowerCore>();
+        GetLocation<UpperElevator>().InLobby = false;
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+
+        var response = await target.GetResponse("enter door");
+
+        response.Should().Contain("Upper Elevator");
+        Context.CurrentLocation.Should().BeOfType<UpperElevator>();
+    }
+
+    [Test]
+    public async Task EnterDoor_AtTheWaitingArea_CarIsHere_WalksIntoTheCar()
+    {
+        var target = GetTarget();
+        StartHere<WaitingArea>();
+        GetLocation<LowerElevator>().InLobby = false;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+
+        var response = await target.GetResponse("enter door");
+
+        response.Should().Contain("Lower Elevator");
+        Context.CurrentLocation.Should().BeOfType<LowerElevator>();
+    }
+
+    /// <summary>
+    ///     The lobby has two doors, so the bare noun names neither of them. "examine door" always asked
+    ///     which one; the enter path resolved through GetItemInScope, which returns the FIRST match, and
+    ///     so silently picked whichever door was seeded first - answering "the door is closed" about the
+    ///     red one on a turn the player was plainly looking at an open blue one, or walking them into the
+    ///     wrong elevator outright. Both surfaces ask the same question now (#532).
+    /// </summary>
+    [Test]
+    public async Task EnterDoor_FromTheLobby_BareNoun_AsksWhichDoor()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        // Blue open with its car here, red closed - the state where picking the wrong one is visible.
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = true;
+        GetItem<LowerElevatorDoor>().IsOpen = false;
+
+        var response = await target.GetResponse("enter door");
+
+        response.Should().Contain("Do you mean");
+        response.Should().Contain("upper elevator door");
+        response.Should().Contain("lower elevator door");
+        Context.CurrentLocation.Should().BeOfType<ElevatorLobby>();
+    }
+
+    /// <summary>
+    ///     And answering it walks the player through the door they actually named.
+    /// </summary>
+    [Test]
+    public async Task EnterDoor_FromTheLobby_AnsweringTheQuestion_WalksThroughThatDoor()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = true;
+
+        await target.GetResponse("enter door");
+        var response = await target.GetResponse("blue door");
+
+        response.Should().Contain("Upper Elevator");
+        Context.CurrentLocation.Should().BeOfType<UpperElevator>();
+    }
+
+    /// <summary>
+    ///     The far ends of the two shafts both name a door in their own description ("A sliding door
+    ///     leads north", "to the south is a metal door") and never seeded one, so nothing there could
+    ///     resolve "door" at all.
+    /// </summary>
+    [Test]
+    public void DoorNoun_AtTheTowerCore_ResolvesToADoorStandingThere()
+    {
+        GetTarget();
+        var towerCore = StartHere<TowerCore>();
+
+        var door = Repository.GetItemInScope("door", Context);
+
+        door.Should().NotBeNull("the Tower Core's description names a sliding door (#532)");
+        door!.CurrentLocation.Should().BeSameAs(towerCore);
+    }
+
+    [Test]
+    public void DoorNoun_AtTheWaitingArea_ResolvesToADoorStandingThere()
+    {
+        GetTarget();
+        var waitingArea = StartHere<WaitingArea>();
+
+        var door = Repository.GetItemInScope("door", Context);
+
+        door.Should().NotBeNull("the Waiting Area's description names a metal door (#532)");
+        door!.CurrentLocation.Should().BeSameAs(waitingArea);
+    }
+
+    /// <summary>
+    ///     And having resolved, the far-end door must answer from the far end's vantage point - open only
+    ///     when the car is standing at THIS end - exactly as the entrance in the same room already does.
+    /// </summary>
+    [Test]
+    public async Task ExamineDoor_AtTheTowerCore_CarIsHere_ReportsOpen()
+    {
+        var target = GetTarget();
+        StartHere<TowerCore>();
+        GetLocation<UpperElevator>().InLobby = false;
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+
+        var response = await target.GetResponse("examine door");
+
+        response.Should().Contain("The door is open");
+    }
+
+    [Test]
+    public async Task ExamineDoor_AtTheTowerCore_CarIsDownAtTheLobby_ReportsClosed()
+    {
+        var target = GetTarget();
+        StartHere<TowerCore>();
+        // The shared flag is left open by the car's arrival at the LOBBY end - the exact state that
+        // makes a raw-flag reading contradict the exit standing right beside it.
+        GetLocation<UpperElevator>().InLobby = true;
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+
+        var response = await target.GetResponse("examine door");
+
+        response.Should().Contain("The door is closed");
+        response.Should().NotContain("The door is open");
+    }
+
+    [Test]
+    public async Task ExamineDoor_AtTheWaitingArea_CarIsHere_ReportsOpen()
+    {
+        var target = GetTarget();
+        StartHere<WaitingArea>();
+        GetLocation<LowerElevator>().InLobby = false;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+
+        var response = await target.GetResponse("examine door");
+
+        response.Should().Contain("The door is open");
+    }
+
+    [Test]
+    public async Task ExamineDoor_AtTheWaitingArea_CarIsUpAtTheLobby_ReportsClosed()
+    {
+        var target = GetTarget();
+        StartHere<WaitingArea>();
+        GetLocation<LowerElevator>().InLobby = true;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+
+        var response = await target.GetResponse("examine door");
+
+        response.Should().Contain("The door is closed");
+        response.Should().NotContain("The door is open");
+    }
+
+    [Test]
+    public async Task OpenDoor_AtTheTowerCore_CarIsDownAtTheLobby_WontBudge()
+    {
+        var target = GetTarget();
+        StartHere<TowerCore>();
+        GetLocation<UpperElevator>().InLobby = true;
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+
+        var response = await target.GetResponse("open door");
+
+        response.Should().Contain("It won\'t budge");
+        response.Should().NotContain("It is open");
+    }
+
+    [Test]
+    public async Task OpenDoor_AtTheWaitingArea_CarIsUpAtTheLobby_WontBudge()
+    {
+        var target = GetTarget();
+        StartHere<WaitingArea>();
+        GetLocation<LowerElevator>().InLobby = true;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+
+        var response = await target.GetResponse("open door");
+
+        response.Should().Contain("It won\'t budge");
+        response.Should().NotContain("It is open");
+    }
+
+    /// <summary>
+    ///     Each far-end door answers to the noun its own room's description uses - "a sliding door leads
+    ///     north" at the Tower Core, "to the south is a metal door" at the Waiting Area - not just the
+    ///     bare "door" the other tests here reach for.
+    /// </summary>
+    [Test]
+    public async Task ExamineDoor_AtTheFarEnd_AnswersToTheNounTheRoomDescriptionUses()
+    {
+        var target = GetTarget();
+
+        StartHere<TowerCore>();
+        GetLocation<UpperElevator>().InLobby = false;
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        (await target.GetResponse("examine sliding door")).Should().Contain("The door is open");
+
+        StartHere<WaitingArea>();
+        GetLocation<LowerElevator>().InLobby = true;
+        GetItem<LowerElevatorDoor>().IsOpen = true;
+        (await target.GetResponse("examine metal door")).Should().Contain("The door is closed");
+    }
+
+    /// <summary>
+    ///     A door in the car, a door in the lobby and a door at the far end are three objects, but one
+    ///     shaft and therefore one open/closed state. Whichever object the player reaches, the state they
+    ///     read is the shaft's.
+    /// </summary>
+    [Test]
+    public async Task ShaftDoorState_IsSharedByEveryRoomThatSeesIt_Upper()
+    {
+        var target = GetTarget();
+        StartHere<TowerCore>();
+        GetLocation<UpperElevator>().InLobby = false;
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+
+        (await target.GetResponse("examine door")).Should().Contain("The door is open");
+
+        // Ride nothing - just shut the shaft and ask again from inside the car.
+        GetItem<UpperElevatorDoor>().IsOpen = false;
+
+        (await target.GetResponse("examine door")).Should().Contain("The door is closed");
+
+        StartHere<UpperElevator>();
+        (await target.GetResponse("examine door")).Should().Contain("The door is closed");
+    }
+
+    // =============================================================================================
+    // Save-game compatibility. A location's Init() never runs again on restore - the saved Items list
+    // IS the room's contents - so splitting the shaft doors changed what every in-flight session is
+    // carrying. The stateless Lambda rehydrates from the session blob every turn, which makes a stale
+    // blob permanent rather than merely first-turn.
+    // =============================================================================================
+
+    /// <summary>
+    ///     Reproduces what a blob written before the split deserializes to: the shared shaft doors sit in
+    ///     the Elevator Lobby's Items, and the landing doors were never placed anywhere. Left alone, the
+    ///     lobby's verbs find the shared door - LocationBase routes over Items with no scope check - and
+    ///     it reports the raw shaft flag, which is #505 again.
+    /// </summary>
+    private void ArrangeLobbyAsAPreSplitBlob()
+    {
+        var lobby = GetLocation<ElevatorLobby>();
+        lobby.Items.Clear();
+        lobby.ItemPlacedHere(GetItem<LowerElevatorDoor>());
+        lobby.ItemPlacedHere(GetItem<UpperElevatorDoor>());
+        GetLocation<TowerCore>().Items.Clear();
+        GetLocation<WaitingArea>().Items.Clear();
+    }
+
+    [Test]
+    public async Task AfterRestore_BlobSavedBeforeTheDoorSplit_LobbyStopsContradictingItself()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        ArrangeLobbyAsAPreSplitBlob();
+        // The state a completed ride to the far end leaves behind: flag open, car away.
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = false;
+
+        new PlanetfallGame().AfterRestore(Context);
+
+        (await target.GetResponse("examine blue door")).Should().Contain("The door is closed");
+        (await target.GetResponse("open blue door")).Should().Contain("It won\'t budge");
+        (await target.GetResponse("north")).Should().Contain("The door is closed");
+        Context.CurrentLocation.Should().BeOfType<ElevatorLobby>();
+    }
+
+    [Test]
+    public void AfterRestore_BlobSavedBeforeTheDoorSplit_ReseatsTheLobbyDoors()
+    {
+        GetTarget();
+        var lobby = StartHere<ElevatorLobby>();
+        ArrangeLobbyAsAPreSplitBlob();
+
+        new PlanetfallGame().AfterRestore(Context);
+
+        lobby.Items.Should().Contain(GetItem<UpperElevatorLobbyDoor>());
+        lobby.Items.Should().Contain(GetItem<LowerElevatorLobbyDoor>());
+        // The shared door belongs to the car now; it must not be left answering for the lobby as well.
+        lobby.Items.Should().NotContain(GetItem<UpperElevatorDoor>());
+        lobby.Items.Should().NotContain(GetItem<LowerElevatorDoor>());
+    }
+
+    [Test]
+    public async Task AfterRestore_BlobSavedBeforeTheDoorSplit_SeedsTheFarEndDoors()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        ArrangeLobbyAsAPreSplitBlob();
+
+        new PlanetfallGame().AfterRestore(Context);
+
+        GetLocation<TowerCore>().Items.Should().Contain(GetItem<UpperElevatorTowerDoor>());
+        GetLocation<WaitingArea>().Items.Should().Contain(GetItem<LowerElevatorWaitingAreaDoor>());
+
+        StartHere<TowerCore>();
+        GetLocation<UpperElevator>().InLobby = false;
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        (await target.GetResponse("examine door")).Should().Contain("The door is open");
+    }
+
+    /// <summary>
+    ///     It also runs on blobs that are already current, so it must not duplicate what is already there.
+    /// </summary>
+    [Test]
+    public void AfterRestore_OnAnAlreadyCurrentBlob_LeavesExactlyOneDoorPerRoom()
+    {
+        GetTarget();
+        var lobby = StartHere<ElevatorLobby>();
+
+        new PlanetfallGame().AfterRestore(Context);
+        new PlanetfallGame().AfterRestore(Context);
+
+        lobby.Items.OfType<ElevatorDoorBase>().Should().HaveCount(2);
+        GetLocation<TowerCore>().Items.OfType<ElevatorDoorBase>().Should().HaveCount(1);
+        GetLocation<WaitingArea>().Items.OfType<ElevatorDoorBase>().Should().HaveCount(1);
+    }
+
+    /// <summary>
+    ///     A landing door holds no state of its own, so it must not write any into the blob. The
+    ///     attribute that guarantees that has to be Newtonsoft's - saves go through JsonConvert, which
+    ///     ignores System.Text.Json's attribute of the same name and would round-trip the derived value
+    ///     back through the write-through setter.
+    /// </summary>
+    [Test]
+    public void LandingDoor_SerializesNoStateOfItsOwn()
+    {
+        GetTarget();
+
+        var json = JsonConvert.SerializeObject(GetItem<UpperElevatorLobbyDoor>());
+
+        json.Should().NotContain("IsOpen");
+        json.Should().NotContain("HasEverBeenOpened");
+    }
+
+    /// <summary>
+    ///     End to end through the real save/restore path: the shaft's state is the car door's, and it has
+    ///     to survive a round trip untouched by the three landing doors that report it.
+    /// </summary>
+    [Test]
+    public async Task SaveAndRestore_RoundTrip_PreservesTheShaftStateAndItsVantagePoints()
+    {
+        var target = GetTarget();
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = false;
+        await target.GetResponse("look");
+
+        target.RestoreGame(target.SaveGame());
+
+        GetItem<UpperElevatorDoor>().IsOpen.Should().BeTrue();
+        GetLocation<UpperElevator>().InLobby.Should().BeFalse();
+        // ...and each vantage point still reads it correctly: closed at the lobby, open at the tower.
+        StartHere<ElevatorLobby>();
+        (await target.GetResponse("examine blue door")).Should().Contain("The door is closed");
+        StartHere<TowerCore>();
+        (await target.GetResponse("examine door")).Should().Contain("The door is open");
     }
 }

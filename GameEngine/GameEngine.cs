@@ -726,6 +726,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         Context.Engine = this;
         Context.Game = new TInfocomGame();
 
+        // Let the game repair a blob written by an older build, before anything reads the restored
+        // state. Init() does not run again on restore, so a room whose starting items changed since the
+        // save keeps the old ones forever otherwise. No-op by default.
+        _gameInstance.AfterRestore(Context);
+
         // Migration safety net (issue #354 follow-up): a session saved before RequestSequence
         // existed deserializes it as the default 0. Left alone, the next WriteSessionStep call (a
         // DynamoDB sort key in ZorkOneController) would restart numbering from 1 and silently
