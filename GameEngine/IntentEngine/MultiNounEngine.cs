@@ -12,7 +12,11 @@ namespace GameEngine.IntentEngine;
 ///     This is the engine for processing any multi-noun intents such as
 ///     "put thing1 in thing2" or "kill thing1 with sharp-thing-2"
 /// </summary>
-public class MultiNounEngine : IIntentEngine
+/// <param name="itemProcessorFactory">
+///     Carries the agentic fall-through narrator seam (issue #136). Optional: without it the engine
+///     keeps the narration-only fall-through behavior.
+/// </param>
+public class MultiNounEngine(IItemProcessorFactory? itemProcessorFactory = null) : IIntentEngine
 {
     private readonly List<IMultiNounVerbProcessor> _processors = [new PutProcessor()];
 
@@ -95,6 +99,15 @@ public class MultiNounEngine : IIntentEngine
 
         if (nounOneExistsHere & !nounTwoExistsHere)
         {
+            // Issue #136 Hook B: "throw the sword into the chasm" - the destination usually isn't a
+            // real item, so this missing-second-noun branch would narrate "there's no chasm here"
+            // before the generic fall-through ever runs. When the acted-upon first noun is a HELD
+            // item, consult the agentic narrator first; the destination is context for its decision,
+            // never a target.
+            var agentic = await TryAgenticAction(interaction, context);
+            if (agentic is not null)
+                return agentic.Value;
+
             if (itemOne is IAmANamedPerson)
                 return (null, await GetGeneratedResponse<MissingSecondNounWithPersonMultiNounOperationRequest>(
                     interaction,
@@ -111,14 +124,22 @@ public class MultiNounEngine : IIntentEngine
                 generationClient,
                 context));
 
-        // This indicates that one of the two items is not real, i.e. it's part of 
-        // the location description like the kitchen table. No real interaction is 
+        // This indicates that one of the two items is not real, i.e. it's part of
+        // the location description like the kitchen table. No real interaction is
         // possible.
         if (itemOne is null || itemTwo is null)
+        {
+            // Issue #136 Hook B: same seam when the destination is scenery from the room description
+            // ("throw the sword into the river" with a river actually described here).
+            var agentic = await TryAgenticAction(interaction, context);
+            if (agentic is not null)
+                return agentic.Value;
+
             return (null, await GetGeneratedVerbNotUsefulResponse(interaction, generationClient,
                 context));
+        }
 
-        // Let all the processors decide if they can handle this interaction. 
+        // Let all the processors decide if they can handle this interaction.
         foreach (var processor in _processors)
         {
             var result = processor.Process(interaction, context, itemOne,
@@ -128,9 +149,28 @@ public class MultiNounEngine : IIntentEngine
                 return (result, result.InteractionMessage);
         }
 
+        // Issue #136 Hook B: both nouns are real items but nothing modelled the action
+        // ("throw the sword at the mailbox") - last chance before the generic no-effect narration.
+        var agenticFallThrough = await TryAgenticAction(interaction, context);
+        if (agenticFallThrough is not null)
+            return agenticFallThrough.Value;
+
         // If not positive interaction.....
         return (null, await GetGeneratedVerbNotUsefulResponse(interaction, generationClient,
             context));
+    }
+
+    /// <summary>
+    ///     Issue #136: consult the agentic fall-through narrator for an unhandled multi-noun action.
+    ///     Gated (inside the handler) on NounOne resolving to an item in the player's inventory; a
+    ///     null return means "keep the existing narration-only path". The no-tools result object is
+    ///     null to match this engine's other fall-through returns.
+    /// </summary>
+    private async Task<(InteractionResult? resultObject, string ResultMessage)?> TryAgenticAction(
+        MultiNounIntent interaction, IContext context)
+    {
+        return await AgenticActionHandler.TryResolveAgenticAction(interaction.OriginalInput, interaction.NounOne,
+            context, itemProcessorFactory, null);
     }
 
     private static (bool IsHere, IItem? item) IsItemHere(IContext context, string item)
