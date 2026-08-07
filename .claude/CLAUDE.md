@@ -216,6 +216,15 @@ adding/reviewing room and item handlers:
    scope-rejected noun it short-circuits to `string.Empty` (a blank line) instead of the narrator. Fix:
    unhandled force verbs should fall through to the narrator in shared routing, not per-object.
 
+   That narrator fallback only stops the blank line — the object is still out of scope, so
+   `enter <door>`, `take`, and every other verb routed through `Repository.GetItemInScope` still find
+   nothing, and a room that never seeded the object at all can resolve it from nowhere. The real fix is
+   to **split identity and share state**: give each room its own object whose `CurrentLocation` is
+   honest, and have it read/write the one flag the shared object used to hold. The elevator shafts are
+   the worked example (issue #532, `Planetfall/Item/Kalamontee/Admin/ElevatorLandingDoor.cs`): three
+   rooms, three door objects, one `IsOpen`. Doing this also retires the "answer for the door by hand"
+   workaround such rooms accumulate, because each object's raw state is now its own room's truth.
+
 **God-mode setup trap (white-box):** `god mode take <item>` / `go <place>`
 (`GameEngine/StaticCommand/Implementation/GodModeProcessor.cs`) route through `Repository.LoadAllLocations`
 /`LoadAllItems`, which **deliberately rebuild the Repository without `Init()`** (per issue #241). A side

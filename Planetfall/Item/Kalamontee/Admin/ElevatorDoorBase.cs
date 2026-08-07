@@ -12,7 +12,9 @@ public abstract class ElevatorDoorBase : ItemBase, IDoor
         return $"The door is {(isOpen ? "open" : "closed")}. ";
     }
 
-    public bool IsOpen { get; set; }
+    // Virtual so a landing door can answer for its own room rather than hold a flag of its own; the
+    // shaft's one open/closed state stays here, on the door inside the car. See ElevatorLandingDoor.
+    public virtual bool IsOpen { get; set; }
 
     public string NowOpen(ILocation currentLocation)
     {
@@ -38,6 +40,6 @@ public abstract class ElevatorDoorBase : ItemBase, IDoor
 
     public string AlreadyClosed => "It is closed. ";
 
-    public bool HasEverBeenOpened { get; set; }
+    public virtual bool HasEverBeenOpened { get; set; }
 
 }
