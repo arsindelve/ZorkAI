@@ -126,7 +126,21 @@ public static class ParsingHelper
             return null;
 
         var nouns = ExtractElementsByTag(response, "noun");
-        
+
+        // Issue #538: the system prompt's own rule 1e carves out "take <thing> with <tool>" as an
+        // "act", not a "take" — precisely because the model tends to bucket it as a take anyway. When
+        // it does slip (intermittently, for the same input), the two-noun command collapsed into a
+        // TakeIntent that keeps only the FIRST noun, so the tool is silently dropped, the multi-noun
+        // handler (e.g. FusedBedistor's "take fused with pliers") never runs, and the turn falls
+        // through to the AI narrator with no engine response. A two-noun take joined by a TOOL
+        // preposition is always the action form, so let it fall through to DetermineActionIntent.
+        // Scoped to the tool prepositions on purpose: "take the sword and the shield" is a genuine
+        // multi-item take and must keep reaching TakeProcessor. Scoped to exactly two nouns because
+        // that is the only count DetermineActionIntent can turn into a MultiNounIntent — any other
+        // count must stay a take rather than degrade into a NullIntent.
+        if (nouns.Count == 2 && UsesAToolPreposition(response, input))
+            return null;
+
         return new TakeIntent
         {
             Message = response,
@@ -185,7 +199,11 @@ public static class ParsingHelper
         // intent once it has confirmed a noun is present (an object-less look already returned a
         // LookIntent), so treat that noun-bearing look as an action too, rather than a bare room-look
         // that silently swallows the noun.
-        if (intentTag != "act" && intentTag != "look")
+        // Issue #538: a "take" only reaches here when DetermineTakeIntent has already declined it as a
+        // tool-assisted two-noun command ("take the bedistor with the pliers") — the shape the system
+        // prompt's rule 1e defines as an action. Accept it here so it becomes the MultiNounIntent its
+        // handler is waiting for instead of collapsing to a NullIntent and the narrator.
+        if (intentTag != "act" && intentTag != "look" && intentTag != "take")
         {
             logger?.LogDebug("The intent tag was not 'act' trying to make an act intent");
             return null;
@@ -202,7 +220,23 @@ public static class ParsingHelper
 
         var nouns = ExtractElementsByTag(response, "noun");
         if (!nouns.Any())
-            return null;
+        {
+            // Issue #538: the model tagged the intent and the verb but no object at all, and the whole
+            // command then collapses to a NullIntent and goes straight to the narrator. This is what
+            // dropped "press 3" — the only single-noun phrasing in the report — because rule 3 asks the
+            // model to tag noun PHRASES and a bare numeral is not one, so it sometimes leaves the digit
+            // out. The player named the object, so recover it from their own words.
+            var recovered = RecoverNounFromInput(originalInput, verbTag);
+            if (recovered is null)
+            {
+                logger?.LogDebug("No noun was found, and none could be recovered from the player's input");
+                return null;
+            }
+
+            nouns = [recovered.Value.Noun];
+            if (string.IsNullOrEmpty(prepositionTag))
+                prepositionTag = recovered.Value.Preposition;
+        }
 
         if (nouns.Count == 1)
         {
@@ -223,8 +257,19 @@ public static class ParsingHelper
             if (string.IsNullOrEmpty(prepositionTag))
             {
                 logger?.LogDebug("No preposition was found trying to make a MultiNoun intent");
-                // TODO: Claude is inconsistent giving us the preposition. For now, hardcode the most common one if we don't get it. 
-                prepositionTag = "with";
+
+                // Issue #538: the model is inconsistent about emitting <preposition> — the SAME
+                // two-noun command produces the tag on one turn and omits it on the next. The old
+                // fallback hardcoded "with", which is correct only for the "with" family; every other
+                // prepositional command ("set dial to 419", "slide card through slot", "put bedistor
+                // in panel") then reached its handler carrying a preposition the player never typed,
+                // so every MatchPreposition guard missed and the turn fell through to the AI narrator
+                // with no engine response at all. That is why two identical consecutive commands could
+                // have opposite outcomes, and why "unlock padlock with key" never showed the bug.
+                // The player's own words are ground truth for which preposition joins the two nouns,
+                // so recover it from them; "with" stays the fallback only when the input genuinely has
+                // no preposition to recover ("unlock door key").
+                prepositionTag = RecoverPrepositionFromInput(originalInput, nouns[1]) ?? "with";
             }
 
             return new MultiNounIntent
@@ -291,6 +336,160 @@ public static class ParsingHelper
             return null;
 
         return intentTag != tag ? null : new T();
+    }
+
+    // Issue #538. The prepositions a player can realistically use to join two nouns in a command.
+    // Matched whole-word, so this is only ever used to read the preposition back out of the player's
+    // own sentence when the AI parser failed to tag it — never to decide whether a command is valid.
+    private static readonly string[] KnownPrepositions =
+    [
+        "underneath", "throughout", "through", "between", "beneath", "against", "towards", "outside",
+        "inside", "beside", "behind", "across", "around", "toward", "under", "using", "above", "along",
+        "about", "after", "onto", "into", "over", "with", "from", "down", "upon", "past", "off", "out",
+        "for", "at", "by", "in", "on", "to", "up"
+    ];
+
+    private static readonly char[] WordSeparators = [' ', '\t', '\r', '\n', ',', '.', ';', ':', '!', '?', '"', '\''];
+
+    /// <summary>
+    ///     Issue #538. Reads the preposition that joins the two nouns out of the player's original
+    ///     input, for the turns where the AI parser omitted the &lt;preposition&gt; tag. Returns null
+    ///     when the player used no preposition at all ("unlock door key"), leaving the caller's
+    ///     historical "with" default in place.
+    /// </summary>
+    /// <remarks>
+    ///     The search runs BACKWARDS from the second noun so it finds the preposition that actually
+    ///     binds the pair rather than any earlier one in the sentence ("with the pliers, slide the card
+    ///     through the slot" is "through", not "with"). Index 0 is excluded because that position is
+    ///     the verb, not a connector.
+    /// </remarks>
+    private static string? RecoverPrepositionFromInput(string? originalInput, string secondNoun)
+    {
+        if (string.IsNullOrWhiteSpace(originalInput))
+            return null;
+
+        var words = originalInput
+            .Split(WordSeparators, StringSplitOptions.RemoveEmptyEntries)
+            .Select(word => word.ToLowerInvariant())
+            .ToList();
+
+        // Start just before the second noun where we can find it. The model sometimes normalizes or
+        // re-words a noun, in which case we fall back to scanning from the end of the sentence.
+        var startIndex = words.Count - 1;
+        var headOfSecondNoun = secondNoun
+            .Split(WordSeparators, StringSplitOptions.RemoveEmptyEntries)
+            .FirstOrDefault()?.ToLowerInvariant();
+
+        if (!string.IsNullOrEmpty(headOfSecondNoun))
+        {
+            var nounIndex = words.LastIndexOf(headOfSecondNoun);
+            if (nounIndex > 0)
+                startIndex = nounIndex - 1;
+        }
+
+        for (var i = startIndex; i >= 1; i--)
+            if (KnownPrepositions.Contains(words[i]))
+                return words[i];
+
+        return null;
+    }
+
+    // Issue #538. Words that lead a noun phrase without being part of it; dropped when reading a noun
+    // back out of the player's own sentence.
+    private static readonly string[] Determiners =
+        ["the", "a", "an", "my", "your", "his", "her", "their", "its", "some", "this", "that", "these", "those"];
+
+    /// <summary>
+    ///     Issue #538. Reads the object of the command out of the player's original input, for the
+    ///     turns where the AI parser tagged an intent and a verb but no &lt;noun&gt; at all. Returns
+    ///     null — leaving the historical <see cref="NullIntent" /> in place — when there is nothing
+    ///     trustworthy to recover.
+    /// </summary>
+    /// <remarks>
+    ///     Deliberately conservative on two counts, so this can only ever turn a dropped turn into a
+    ///     working one and never change a turn that already worked:
+    ///     <list type="bullet">
+    ///         <item>
+    ///             The tagged verb must actually appear in the input. The prompt asks the model to
+    ///             normalize verbs ("turn on" -&gt; "activate", "put on" -&gt; "don"), and when it has
+    ///             done so we cannot tell where the verb ends and the object begins — "turn on lamp"
+    ///             would yield the nonsense noun "on lamp".
+    ///         </item>
+    ///         <item>
+    ///             A genuinely object-less command ("jump") recovers nothing and stays a NullIntent.
+    ///         </item>
+    ///     </list>
+    ///     A preposition is peeled off either end of the phrase and returned separately, so
+    ///     "look under the rug" recovers the noun "rug" with the adverb "under", and "set dial to 42"
+    ///     recovers "dial" with "to" — the shapes the handlers are actually written against.
+    /// </remarks>
+    private static (string Noun, string? Preposition)? RecoverNounFromInput(string? originalInput, string verb)
+    {
+        if (string.IsNullOrWhiteSpace(originalInput) || string.IsNullOrWhiteSpace(verb))
+            return null;
+
+        var words = originalInput
+            .Split(WordSeparators, StringSplitOptions.RemoveEmptyEntries)
+            .Select(word => word.ToLowerInvariant())
+            .ToList();
+
+        var verbIndex = words.IndexOf(verb.Trim().ToLowerInvariant());
+        if (verbIndex < 0)
+            return null;
+
+        var remainder = words.Skip(verbIndex + 1).ToList();
+
+        string? preposition = null;
+
+        // A phrase that OPENS with a preposition is modifying the verb ("look under the rug"), so the
+        // preposition is the adverb and the noun is whatever follows it.
+        remainder = DropLeadingDeterminers(remainder);
+        if (remainder.Count > 1 && KnownPrepositions.Contains(remainder[0]))
+        {
+            preposition = remainder[0];
+            remainder = DropLeadingDeterminers(remainder.Skip(1).ToList());
+        }
+
+        // A preposition LATER in the phrase begins a second argument ("set dial to 42"). The noun ends
+        // there; the tail is still reachable through OriginalInput, which is what the handlers for
+        // those commands read.
+        var tailPreposition = remainder.FindIndex(KnownPrepositions.Contains);
+        if (tailPreposition > 0)
+        {
+            preposition ??= remainder[tailPreposition];
+            remainder = remainder.Take(tailPreposition).ToList();
+        }
+
+        return remainder.Count == 0 ? null : (string.Join(' ', remainder), preposition);
+    }
+
+    private static List<string> DropLeadingDeterminers(List<string> words)
+    {
+        return words.SkipWhile(Determiners.Contains).ToList();
+    }
+
+    /// <summary>
+    ///     Issue #538. True when a two-noun command joins its nouns with a TOOL preposition — the
+    ///     "take the bedistor with/using the pliers" shape that the system prompt's rule 1e says must
+    ///     be an action, not a take. Checks the parser's own tag first, then the player's words, since
+    ///     the mis-bucketed turns are exactly the ones where a tag goes missing.
+    /// </summary>
+    private static bool UsesAToolPreposition(string? response, string? originalInput)
+    {
+        string[] toolPrepositions = ["with", "using"];
+
+        var prepositionTag = ExtractElementsByTag(response, "preposition").FirstOrDefault();
+        if (!string.IsNullOrEmpty(prepositionTag) &&
+            toolPrepositions.Contains(prepositionTag, StringComparer.OrdinalIgnoreCase))
+            return true;
+
+        if (string.IsNullOrWhiteSpace(originalInput))
+            return false;
+
+        return originalInput
+            .Split(WordSeparators, StringSplitOptions.RemoveEmptyEntries)
+            .Skip(1)
+            .Any(word => toolPrepositions.Contains(word, StringComparer.OrdinalIgnoreCase));
     }
 
     private static List<string> ExtractElementsByTag(string? response, string tag)

@@ -537,4 +537,79 @@ public class OpenAIParserTests
         var simpleIntent = intent as SimpleIntent;
         simpleIntent!.Noun.Should().Be("rug");
     }
+
+    /// <summary>
+    ///     Issue #538. The prepositional walkthrough commands ("set dial to 419", "slide card through
+    ///     slot", "put bedistor in panel") intermittently reached no handler in production — roughly
+    ///     20-40% of the time — because gpt-4o omits the &lt;preposition&gt; tag on some runs of the
+    ///     SAME input, and the parser then substituted "with". The deterministic repair lives in
+    ///     <c>ParsingHelper</c> and is proved by <c>ParsingHelperTests</c> and
+    ///     <c>Planetfall.Tests.LiveParserShapeTests</c>; this test is the live counterpart, run against
+    ///     the real model several times over so a future prompt or model change that reintroduces the
+    ///     instability is visible here rather than in a player's session.
+    /// </summary>
+    [Test]
+    [TestCase("set dial to 419", "set", "dial", "419", "to")]
+    [TestCase("set laser to 1", "set", "laser", "1", "to")]
+    [TestCase("slide teleportation card through slot", "slide", "card", "slot", "through")]
+    public async Task MultiNounShapeIsStableAcrossRepeatedRuns(string input, string verb, string nounOne,
+        string nounTwo, string preposition)
+    {
+        const int runs = 5;
+
+        string locationObjectDescription;
+        lock (_lockObject)
+        {
+            Repository.Reset();
+            var locationObject = (ILocation)Activator.CreateInstance(typeof(RecArea))!;
+            locationObjectDescription = locationObject.GetDescription(Mock.Of<IContext>());
+        }
+
+        var target = new OpenAIParser(null);
+
+        for (var run = 1; run <= runs; run++)
+        {
+            var intent = await target.AskTheAIParser(input, locationObjectDescription, string.Empty);
+            Console.WriteLine($"Run {run}: {intent.Message}");
+
+            intent.Should().BeOfType<MultiNounIntent>($"run {run} of '{input}' must produce a two-noun intent");
+            var multiNoun = (MultiNounIntent)intent;
+
+            multiNoun.Verb.Should().Be(verb, $"run {run}");
+            multiNoun.NounOne.Should().Contain(nounOne, $"run {run}");
+            multiNoun.NounTwo.Should().Be(nounTwo, $"run {run}");
+            multiNoun.Preposition.Should().Be(preposition, $"run {run}");
+        }
+    }
+
+    /// <summary>
+    ///     Issue #538. "press 3" was the only single-noun phrasing that reached no handler, because a
+    ///     bare numeral is not the noun phrase rule 3 asks for and the model sometimes leaves it
+    ///     untagged. The deterministic repair (recovering the noun from the player's own input) is
+    ///     proved by <c>ParsingHelperTests</c> and
+    ///     <c>Planetfall.Tests.LiveParserShapeTests</c>; this is the live counterpart. The teleport
+    ///     booth's description is passed literally rather than built from the location, which is
+    ///     internal to the Planetfall assembly.
+    /// </summary>
+    [Test]
+    [TestCase("press 3")]
+    [TestCase("press 1")]
+    public async Task DigitButtonShapeIsStableAcrossRepeatedRuns(string input)
+    {
+        const int runs = 5;
+        const string boothDescription =
+            "Booth 2. This is a tiny room with a large \"2\" painted on the wall. A panel contains a " +
+            "slot about ten centimeters wide, a brown button labelled \"1\" and a tan button labelled \"3.\"";
+
+        var target = new OpenAIParser(null);
+
+        for (var run = 1; run <= runs; run++)
+        {
+            var intent = await target.AskTheAIParser(input, boothDescription, string.Empty);
+            Console.WriteLine($"Run {run}: {intent.Message}");
+
+            intent.Should().BeOfType<SimpleIntent>($"run {run} of '{input}' must produce a single-noun intent");
+            ((SimpleIntent)intent).Noun.Should().NotBeNullOrWhiteSpace($"run {run}");
+        }
+    }
 }
