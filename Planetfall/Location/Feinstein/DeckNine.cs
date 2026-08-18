@@ -59,8 +59,29 @@ internal class DeckNine : LocationBase, ITurnBasedActor
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.Up, Go<Gangway>() },
-            { Direction.E, Go<ReactorLobby>() },
+            // Up and East are gated exactly as West/In are: once the emergency bulkheads crash shut
+            // during the explosion (ExplosionCoordinator closes them one turn after the pod door
+            // opens), these two exits seal and the escape pod is the only way out - matching the
+            // original, which refuses the move rather than letting the player walk out to their death
+            // (issue #529; globals.zil:500,503 gate EAST/UP on CORRIDOR-DOOR/GANGWAY-DOOR).
+            {
+                Direction.Up,
+                new MovementParameters
+                {
+                    Location = Repository.GetLocation<Gangway>(),
+                    CanGo = _ => Repository.GetItem<GangwayDoor>().IsOpen,
+                    CustomFailureMessage = "The emergency bulkhead is closed. "
+                }
+            },
+            {
+                Direction.E,
+                new MovementParameters
+                {
+                    Location = Repository.GetLocation<ReactorLobby>(),
+                    CanGo = _ => Repository.GetItem<CorridorDoor>().IsOpen,
+                    CustomFailureMessage = "The emergency bulkhead is closed. "
+                }
+            },
             {
                 Direction.W,
                 new MovementParameters

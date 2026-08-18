@@ -833,6 +833,101 @@ public class ExplosionTests : EngineTestsBase
         }
     }
 
+    // Issue #529: during the Feinstein explosion, one turn after the pod door opens, the game narrates
+    // that "a narrow emergency bulkhead at the base of the gangway and a wider one along the corridor to
+    // starboard both crash shut". In the original those two doors (CORRIDOR-DOOR / GANGWAY-DOOR) have
+    // their OPENBIT cleared, sealing Deck Nine's East and Up exits so the escape pod is the only way out
+    // (planetfall-source/globals.zil:1211-1216 closes both doors before printing the same message;
+    // globals.zil:493-507 gate DECK-NINE's EAST/UP on them). The port kept the prose but never modelled
+    // the doors: Up and E stayed freely traversable, and walking through a "shut" bulkhead dropped the
+    // player into Reactor Lobby / Gangway and killed them one turn later - a death the original makes
+    // impossible by simply refusing the move.
+    [TestFixture]
+    public class BulkheadSealTests : EngineTestsBase
+    {
+        // Drop the player on Deck Nine with the random ambassador/Blather encounter (DeckNine.Act rolls
+        // 1-6 on moves 2-6) pinned off, so the escape sequence advances deterministically.
+        private GameEngine<PlanetfallGame, PlanetfallContext> DeckNineTarget()
+        {
+            var target = GetTarget();
+            var noSpawn = new Mock<IRandomChooser>();
+            noSpawn.Setup(r => r.RollDice(6)).Returns(3); // neither 1 (ambassador) nor 2 (Blather)
+            Repository.GetLocation<DeckNine>().Chooser = noSpawn.Object;
+            target.Context.CurrentLocation = Repository.GetLocation<DeckNine>();
+            return target;
+        }
+
+        // Advance the explosion until the "both crash shut" beat has fired, staying on Deck Nine.
+        // Nine idle waits (moves 1-9), the tenth command is the explosion (pod door opens), the
+        // eleventh is the seal.
+        private static async Task WaitUntilBulkheadsCrashShut(
+            GameEngine<PlanetfallGame, PlanetfallContext> target)
+        {
+            var response = "";
+            for (var i = 0; i < 11; i++)
+                response = await target.GetResponse("wait");
+
+            response.Should().Contain("both crash shut");
+        }
+
+        [Test]
+        public async Task AfterBulkheadsCrashShut_EastIsBlocked()
+        {
+            var target = DeckNineTarget();
+            await WaitUntilBulkheadsCrashShut(target);
+
+            var response = await target.GetResponse("east");
+
+            response.Should().Contain("The emergency bulkhead is closed.");
+            target.Context.CurrentLocation.Should().BeOfType<DeckNine>();
+        }
+
+        [Test]
+        public async Task AfterBulkheadsCrashShut_UpIsBlocked()
+        {
+            var target = DeckNineTarget();
+            await WaitUntilBulkheadsCrashShut(target);
+
+            var response = await target.GetResponse("up");
+
+            response.Should().Contain("The emergency bulkhead is closed.");
+            target.Context.CurrentLocation.Should().BeOfType<DeckNine>();
+        }
+
+        // The original refuses the move outright; the port let you walk out and be killed the very next
+        // beat. Once sealed, leaving through the corridor must not end the run.
+        [Test]
+        public async Task AfterBulkheadsCrashShut_PlayerDoesNotDieFromLeaving()
+        {
+            var target = DeckNineTarget();
+            await WaitUntilBulkheadsCrashShut(target);
+
+            var afterEast = await target.GetResponse("east");
+            var afterOneMoreTurn = await target.GetResponse("wait");
+
+            afterEast.Should().NotContain("You have died");
+            afterOneMoreTurn.Should().NotContain("You have died");
+            target.Context.DeathCounter.Should().Be(0);
+        }
+
+        // Regression guard: before the seal (at the explosion turn itself), East is still a real exit to
+        // the Reactor Lobby - the fix gates the exit on the bulkhead, it does not amputate it. Green
+        // before and after the fix.
+        [Test]
+        public async Task BeforeBulkheadsCrashShut_EastStillReachesReactorLobby()
+        {
+            var target = DeckNineTarget();
+
+            // Nine waits (moves 1-9); the tenth command is the explosion turn, doors still open.
+            for (var i = 0; i < 9; i++)
+                await target.GetResponse("wait");
+
+            await target.GetResponse("east");
+
+            target.Context.CurrentLocation.Should().BeOfType<ReactorLobby>();
+        }
+    }
+
     [TestFixture]
     public class EscapePodTimelineTests : EngineTestsBase
     {
