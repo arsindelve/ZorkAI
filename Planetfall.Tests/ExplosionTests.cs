@@ -926,6 +926,58 @@ public class ExplosionTests : EngineTestsBase
 
             target.Context.CurrentLocation.Should().BeOfType<ReactorLobby>();
         }
+
+        // The two exits back onto Deck Nine are gated on the same bulkheads (globals.zil:646 gates the
+        // Gangway's DOWN on GANGWAY-DOOR; globals.zil:629 gates the Reactor Lobby's WEST on
+        // CORRIDOR-DOOR). The DeckNine-side tests above already prove ExplosionCoordinator closes both
+        // doors at the seal, so these characterize the return-exit gates themselves: open before the
+        // seal, refused after. Driven by the door state directly rather than the 11-wait sequence
+        // because once the bulkheads shut, both rooms are one turn from the unconditional move-12
+        // explosion death - a player can't stand in either and try the door without being killed first.
+        // A fresh target per state keeps the two halves independent (GetTarget resets the Repository).
+        [Test]
+        public async Task GangwayDownToDeckNine_IsGatedOnTheNarrowBulkhead()
+        {
+            // Open (the door's start state): Down is a real exit back to Deck Nine.
+            var openTarget = GetTarget();
+            openTarget.Context.CurrentLocation = Repository.GetLocation<Gangway>();
+            Repository.GetItem<GangwayDoor>().IsOpen = true;
+
+            (await openTarget.GetResponse("down")).Should().NotContain("The emergency bulkhead is closed.");
+            openTarget.Context.CurrentLocation.Should().BeOfType<DeckNine>();
+
+            // Closed (as ExplosionCoordinator leaves it after the seal): Down is refused, no escape back.
+            var sealedTarget = GetTarget();
+            sealedTarget.Context.CurrentLocation = Repository.GetLocation<Gangway>();
+            Repository.GetItem<GangwayDoor>().IsOpen = false;
+
+            var response = await sealedTarget.GetResponse("down");
+
+            response.Should().Contain("The emergency bulkhead is closed.");
+            sealedTarget.Context.CurrentLocation.Should().BeOfType<Gangway>();
+        }
+
+        [Test]
+        public async Task ReactorLobbyWestToDeckNine_IsGatedOnTheWideBulkhead()
+        {
+            // Open (the door's start state): West is a real exit back to Deck Nine.
+            var openTarget = GetTarget();
+            openTarget.Context.CurrentLocation = Repository.GetLocation<ReactorLobby>();
+            Repository.GetItem<CorridorDoor>().IsOpen = true;
+
+            (await openTarget.GetResponse("west")).Should().NotContain("The emergency bulkhead is closed.");
+            openTarget.Context.CurrentLocation.Should().BeOfType<DeckNine>();
+
+            // Closed (as ExplosionCoordinator leaves it after the seal): West is refused, no escape back.
+            var sealedTarget = GetTarget();
+            sealedTarget.Context.CurrentLocation = Repository.GetLocation<ReactorLobby>();
+            Repository.GetItem<CorridorDoor>().IsOpen = false;
+
+            var response = await sealedTarget.GetResponse("west");
+
+            response.Should().Contain("The emergency bulkhead is closed.");
+            sealedTarget.Context.CurrentLocation.Should().BeOfType<ReactorLobby>();
+        }
     }
 
     [TestFixture]
