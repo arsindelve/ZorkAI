@@ -120,8 +120,7 @@ public static class Repository
     private static IItem? GetPreciseMatchInInventory(string noun, IContext context)
     {
         return (context.GetAllItemsRecursively ?? [])
-            .FirstOrDefault(item => item.NounsForPreciseMatching
-                .Any(n => n.Equals(noun, StringComparison.InvariantCultureIgnoreCase)));
+            .FirstOrDefault(item => NounMatch.PreciselyNames(item, noun));
     }
 
     /// <summary>
@@ -200,7 +199,7 @@ public static class Repository
 
         return candidates.FirstOrDefault(item =>
             IsItemAccessible(item, context) &&
-            item.NounsForPreciseMatching.Any(n => n.Equals(noun, StringComparison.InvariantCultureIgnoreCase)));
+            NounMatch.PreciselyNames(item, noun));
     }
 
     /// <summary>

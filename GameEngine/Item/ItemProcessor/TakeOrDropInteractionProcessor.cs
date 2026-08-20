@@ -115,6 +115,15 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             // (e.g. a second Fromitz board) instead of the one actually held. Only fall back to the global
             // lookup when nothing in inventory matches, purely so DropIt can still produce its "you don't
             // have that" message for a real-but-unheld item instead of a silent no-match.
+            //
+            // Issue #536: for a single-object command, resolve the player's noun strictly - a loose
+            // suffix-word match ("drop lower card" -> a top-level-held ID card via its bare "card") must
+            // not drop an item the player never named (DropIt's flat guard only shields nested items).
+            // Quantified commands keep the old loose lookup.
+            if (NounMatch.NamesASingleObject(action.Noun, action.OriginalInput))
+                return DropIt(context, StrictlyNamedItem(action,
+                    noun => Repository.GetItemInInventory(noun, context) ?? Repository.GetItem(noun)));
+
             var specificItem = Repository.GetItemInInventory(action.Noun, context) ?? Repository.GetItem(action.Noun);
             return specificItem is not null ? DropIt(context, specificItem) : new NoNounMatchInteractionResult();
         }
@@ -133,6 +142,19 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
 
             return DropIt(context, item);
         }
+
+        // Issue #537 (drop side): identical shape to the take branch - the drop list-parser sees the inventory
+        // listing and returns everything held when the player names one item the listing doesn't surface
+        // directly (e.g. a single item nested in an open held container). A multi-element result for a command
+        // that names exactly one object is a non-answer, so resolve the player's own noun and drop that. Only a
+        // genuinely quantified command should drop the batch.
+        //
+        // Issue #536, one branch over: GetItemInInventory also matches by loose containment, and DropIt's flat
+        // guard only protects nested items - a top-level-held item ("drop lower card" -> the ID card) would be
+        // dropped by its bare noun. StrictlyNamedItem requires a precise name before dropping the resolved object.
+        if (NounMatch.NamesASingleObject(action.Noun, action.OriginalInput))
+            return DropIt(context, StrictlyNamedItem(action,
+                noun => Repository.GetItemInInventory(noun, context) ?? Repository.GetItem(noun)));
 
         // When dropping multiple items, we need to provide feedback for items that don't exist.
         // Issue #362: same scoped-first fallback as the single-item branch above - an unscoped
@@ -160,6 +182,18 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
             // smart enough to match the noun to the item description. An example of this is the "magnet" which is
             // (deliberately, as a puzzle) described as "a metal bar, curved into a U-shape" which the parser does not
             // understand is a magnet. So as a final attempt, let's see if there is a direct noun match.
+            //
+            // Issue #536: GetItemInScope matches by loose word-boundary containment and reaches into worn/held
+            // containers, so a bare noun ("card" on the ID card) gets dragged out by any "<adjective> card"
+            // phrase - "take lower card" in an empty Kitchen quietly pulled the ID card from the uniform pocket
+            // and answered a bare "Taken.". This is the same silent wrong-item substitution #502 removed from the
+            // single-candidate branch, one branch over. For a single-object command resolve the player's noun
+            // strictly: only take what that noun *precisely* names, so a suffix-word coincidence falls through to
+            // the standard "that isn't here" refusal. The magnet still works ("magnet" is one of its own nouns).
+            // A quantified command never resolves one specific object here, so it keeps the old loose lookup.
+            if (NounMatch.NamesASingleObject(action.Noun, action.OriginalInput))
+                return TakeIt(context, StrictlyNamedItem(action, noun => Repository.GetItemInScope(noun, context)));
+
             var specificItem = Repository.GetItemInScope(action.Noun, context);
             return specificItem is not null ? TakeIt(context, specificItem) : new NoNounMatchInteractionResult();
         }
@@ -176,6 +210,21 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
 
             return TakeIt(context, item);
         }
+
+        // Issue #537: the take list-parser only ever sees the room description and, asked which of *those*
+        // things the player wants, returns the whole room when the player names something that isn't in it
+        // (the reported case was "take medicine" with the medicine inside a held, open bottle). A multi-element
+        // result for a command that names exactly one object is the parser failing to find the noun, not the
+        // player asking for all of them - so resolve the player's own noun and take that one thing. Only a
+        // genuinely quantified command ("take all", "take X and Y") should sweep the room, and
+        // NamesASingleObject is precisely what tells the two apart (issue #502).
+        //
+        // Issue #536, one branch over: GetItemInScope matches by loose containment and reaches into worn/held
+        // containers, so following the noun unguarded would still drag a pocketed item up by a bare noun -
+        // "take lower card" in a populated room pulling the ID card out by its "card". StrictlyNamedItem requires
+        // the resolved object to be *precisely* named; a suffix-word coincidence falls through to the refusal.
+        if (NounMatch.NamesASingleObject(action.Noun, action.OriginalInput))
+            return TakeIt(context, StrictlyNamedItem(action, noun => Repository.GetItemInScope(noun, context)));
 
         // When taking multiple items, we need to provide feedback for items that don't exist
         var itemsWithFeedback = items
@@ -194,11 +243,13 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
     /// that thing" silently pocketed (or dropped) an unnamed object and answered a bare "Taken."
     ///
     /// <para>This is the take/drop policy: the parser's candidate wins unless the noun the player
-    /// actually typed contradicts it, in which case their own noun wins - and when that resolves to
-    /// nothing, the caller's null handling produces a <see cref="NoNounMatchInteractionResult"/>
-    /// instead of a wrong-item success. The two predicates it leans on are general noun logic and
-    /// live in <see cref="NounMatch"/>; see <see cref="NounMatch.NamesASingleObject"/> in particular
-    /// for why a quantified or multi-object command must be left alone entirely.</para>
+    /// actually typed contradicts it, in which case their own noun wins - resolved through
+    /// <see cref="StrictlyNamedItem"/> so a loose suffix-word coincidence cannot substitute a different
+    /// object (issue #536), and when it resolves to nothing the caller's null handling produces a
+    /// <see cref="NoNounMatchInteractionResult"/> instead of a wrong-item success. The predicates it
+    /// leans on are general noun logic and live in <see cref="NounMatch"/>; see
+    /// <see cref="NounMatch.NamesASingleObject"/> in particular for why a quantified or multi-object
+    /// command must be left alone entirely.</para>
     /// </summary>
     private static IItem? ItemThePlayerActuallyNamed(IItem? candidate, SimpleIntent action,
         Func<string, IItem?> resolveNoun)
@@ -211,7 +262,31 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
         if (!NounMatch.NamesASingleObject(action.Noun, action.OriginalInput))
             return candidate;
 
-        return NounMatch.CouldName(candidate, action.Noun) ? candidate : resolveNoun(action.Noun);
+        return NounMatch.CouldName(candidate, action.Noun) ? candidate : StrictlyNamedItem(action, resolveNoun);
+    }
+
+    /// <summary>
+    /// The single seam through which every take/drop branch resolves the noun the player *actually
+    /// typed* as the authoritative pick (the zero-, single- re-resolution, and multi-candidate paths).
+    /// It resolves through the given lookup but accepts the result only when the noun *precisely* names
+    /// it (<see cref="NounMatch.PreciselyNames"/>).
+    ///
+    /// <para>The resolvers used here (<see cref="Repository.GetItemInScope"/>,
+    /// <see cref="Repository.GetItemInInventory"/>) match by loose word-boundary containment and reach
+    /// into worn/held containers, so resolving the player's noun unguarded lets a bare candidate noun be
+    /// dragged out by any phrase that merely ends in it - "lower card" pulling the ID card up by its
+    /// "card" (issue #536). Funnelling all three branches through here means the precise-name guard
+    /// cannot be added to one branch and forgotten in another. Returns null - which the TakeIt/DropIt
+    /// callers turn into a <see cref="NoNounMatchInteractionResult"/> - when the noun is empty, resolves
+    /// to nothing, or resolves only by a loose suffix-word coincidence.</para>
+    /// </summary>
+    private static IItem? StrictlyNamedItem(SimpleIntent action, Func<string, IItem?> resolveNoun)
+    {
+        if (string.IsNullOrWhiteSpace(action.Noun))
+            return null;
+
+        var resolved = resolveNoun(action.Noun);
+        return resolved is not null && NounMatch.PreciselyNames(resolved, action.Noun) ? resolved : null;
     }
 
     public static InteractionResult DropIt(IContext context, IItem? castItem)
