@@ -530,6 +530,65 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
+    public async Task TalkToFloyd_DeadAndPresent_MournsEvenWithGenerationDisabled()
+    {
+        // #545 follow-up: with NoGeneratedResponses set (a per-request flag the Planetfall API
+        // exposes), the present-talker branch bailed out on the generation kill-switch before
+        // reaching OnBeingTalkedTo, so addressing the corpse produced a BLANK response - the fix
+        // never ran. Floyd's post-mortem line is a constant and owes the AI nothing.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+        Mock.Get(target.GenerationClient).Setup(c => c.IsDisabled).Returns(true);
+
+        var response = await target.GetResponse("floyd, are you okay");
+
+        response.Should().Contain("no answer comes");
+    }
+
+    [Test]
+    public async Task TalkToFloyd_DeadAndPresent_DoesNotCallTheConversationClassifier()
+    {
+        // ParseConversation.ParseAsync is an AWS Lambda round-trip whose only job is rewriting the
+        // player's words into a command for Floyd. A dead Floyd answers with one constant, so that
+        // round-trip is pure waste on every utterance addressed to the body.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+
+        var response = await target.GetResponse("floyd, are you okay");
+
+        response.Should().Contain("no answer comes");
+        ParseConversationMock.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task AskAboutFloyd_DeadAndPresent_MournsInsteadOfFallingThroughToTheParser()
+    {
+        // Imperative address ("ask floyd ...") never starts with the name, so the present path's
+        // deterministic backstop misses it and it used to depend entirely on the classifier. With the
+        // classifier no longer consulted for a dead Floyd, detection uses IsGenuineDirectAddress,
+        // which recognizes the imperative lead-ins too - so this phrasing now reaches the mourning
+        // line rather than leaking to the narrator.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+
+        var response = await target.GetResponse("ask floyd about the card");
+
+        response.Should().Contain("no answer comes");
+    }
+
+    [Test]
     public async Task TalkToFloyd_DeadAndAbsent_AcknowledgesDeathInsteadOfJokingAboutAdventures()
     {
         // Issue #545, trapped-death branch: Floyd dies inside the Bio Lab with CurrentLocation
