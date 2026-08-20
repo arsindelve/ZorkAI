@@ -1,3 +1,9 @@
+> # ⛔ STOP — SPOILERS ⛔
+>
+> **This file solves the game.** It exists only as the ZIL-verified oracle the port's tests are
+> written against. If you intend to *play* Stationfall, close this file now and do not read the
+> rest of this folder. See `Docs/Stationfall-Port-Plan.md` for a spoiler-free status of the port.
+
 # Stationfall — Deaths, Traps & Red Herrings (negative-path catalogue)
 
 Failure cases worth encoding as **negative-path tests** and worth getting right in the port (the
