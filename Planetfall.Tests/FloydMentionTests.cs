@@ -110,6 +110,23 @@ public class FloydMentionTests : EngineTestsBase
             response.Should().Contain("Robot Shop");
         }
 
+        // Noun scoping holds on the CONVERSATION path too, not just for examine: addressing the
+        // pristine robot as "robot" still reaches Floyd.OnBeingTalkedTo and gets the turned-off
+        // line. Worth pinning because the never-activated state (IsOn and HasEverBeenOn both false)
+        // is a real, reachable state - the robot standing in the shop before you ever touch him -
+        // and the name is the ONLY thing issue #552 takes away from the player there.
+        [Test]
+        public async Task AddressingThePristineRobotAsRobot_StillReachesHim()
+        {
+            var target = GetTarget();
+            StartHere<RobotShop>();
+
+            var response = await target.GetResponse("robot, are you okay");
+
+            response.Should().NotContain(FourthWall);
+            response.Should().Contain("appears to be turned off");
+        }
+
         // The gate can't be "!IsOn && !HasEverBeenOn" alone: neither flag flips until Floyd finishes
         // his 3-turn wake-up, so the joke would fire while the robot is visibly booting.
         [Test]
