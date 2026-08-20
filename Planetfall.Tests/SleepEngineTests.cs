@@ -7,6 +7,7 @@ using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Admin;
 using Planetfall.Location.Kalamontee.Dorm;
+using Planetfall.Location.Lawanda.Lab;
 using Utilities;
 
 namespace Planetfall.Tests;
@@ -822,6 +823,60 @@ public class SleepEngineTests : EngineTestsBase
             result.Should().Contain("Floyd");
             result.Should().Contain("sleeping on the floor");
         }
+    }
+
+    // Floyd's corpse keeps IsOn = true - BioLockStateMachineManager.EndSequence leaves it that way
+    // deliberately, because the body is still the same object lying in the room. The wake-up greeting
+    // gated on "HasEverBeenOn && IsOn", which the corpse satisfies, so every night after the Bio Lab
+    // sacrifice the body was dragged out of Bio Lock East into the player's bedroom to chirp "About
+    // time you woke up, you lazy bones! Let's explore around some more!" Found during the #545 review.
+    [Test]
+    public void WakeUp_FloydIsDead_DoesNotGreetThePlayer()
+    {
+        var target = GetTarget();
+        var pfContext = target.Context;
+        StartHere<BedLocation>();
+
+        var floyd = GetItem<Floyd>();
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;      // as EndSequence leaves him
+        floyd.HasDied = true;
+
+        pfContext.Day = 1;
+        pfContext.SleepNotifications.QueueFallAsleep(pfContext.CurrentTime);
+
+        var result = SleepEngine.ProcessFallAsleep(pfContext);
+
+        result.Should().NotContain("lazy bones");
+        result.Should().NotContain("Let's explore around some more");
+        result.Should().NotContain("Floyd");
+    }
+
+    // The other half of the same guard, and the half that corrupts state rather than just tone: the
+    // greeting block moves Floyd into the player's location before it speaks. Sleeping anywhere would
+    // silently relocate the body out of the room the player watched him die in.
+    [Test]
+    public void WakeUp_FloydIsDead_LeavesTheBodyWhereItFell()
+    {
+        var target = GetTarget();
+        var pfContext = target.Context;
+        StartHere<BedLocation>();
+
+        var floyd = GetItem<Floyd>();
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+        floyd.HasDied = true;
+        var bioLockEast = GetLocation<BioLockEast>();
+        bioLockEast.ItemPlacedHere(floyd);
+
+        pfContext.Day = 1;
+        pfContext.SleepNotifications.QueueFallAsleep(pfContext.CurrentTime);
+
+        SleepEngine.ProcessFallAsleep(pfContext);
+
+        floyd.CurrentLocation.Should().Be(bioLockEast);
+        bioLockEast.Items.Should().Contain(floyd);
+        GetLocation<BedLocation>().Items.Should().NotContain(floyd);
     }
 
     [Test]

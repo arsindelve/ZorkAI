@@ -268,9 +268,15 @@ public class SleepEngine
         if (transition.WokeFamished)
             message += "You are also incredibly famished. Better get some breakfast! ";
 
-        // Floyd greeting (if present and active)
+        // Floyd greeting (if present and alive)
         var floyd = Repository.GetItem<Floyd>();
-        if (floyd.HasEverBeenOn && floyd.IsOn)
+        // IsAlive, not "HasEverBeenOn && IsOn": EndSequence deliberately leaves the corpse switched
+        // on, so the old pair was satisfied by a dead Floyd - and this block MOVES him before it
+        // speaks, so every night after the sacrifice dragged the body out of Bio Lock East into the
+        // player's bedroom to chirp "About time you woke up, you lazy bones!" (found in the #545
+        // review). The dropped HasEverBeenOn clause was redundant: IsOn is only ever set alongside
+        // it, by Activate and by the wake-up countdown.
+        if (floyd.IsAlive)
         {
             // Move Floyd to player's location
             floyd.CurrentLocation?.RemoveItem(floyd);
