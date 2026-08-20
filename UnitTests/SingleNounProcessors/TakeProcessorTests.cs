@@ -812,6 +812,65 @@ public class TakeProcessorTests : EngineTestsBase
     }
 
     [Test]
+    public async Task Drop_SingleCandidate_NounLooselyMatchesAHeldItem_DoesNotSilentlyDropIt()
+    {
+        // Issue #536 through the single-candidate DROP branch - the mirror of the take-side regression.
+        // With one droppable item the drop parser returns just it, and ItemThePlayerActuallyNamed
+        // re-resolves the player's noun when it doesn't match that candidate. That re-resolution routes
+        // through the same StrictlyNamedItem seam as take, so "drop lower card" must not drop a top-level
+        // ID card by its bare noun "card".
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<NorthOfHouse>();
+        var idCard = Repository.GetItem<IdCard>();
+        target.Context.Take(idCard);
+        target.Context.Take(Repository.GetItem<Sword>());
+
+        TakeAndDropParser.Setup(s => s.GetListOfItemsToDrop(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(["sword"]);
+
+        IVerbProcessor processor = new TakeOrDropInteractionProcessor(TakeAndDropParser.Object);
+        var result = await processor.Process(
+            new SimpleIntent { Verb = "drop", Noun = "lower card", OriginalInput = "drop lower card" },
+            target.Context, Repository.GetItem<Sword>(), Client.Object);
+
+        result.Should().BeOfType<NoNounMatchInteractionResult>();
+        target.Context.HasItem<IdCard>().Should().BeTrue("the player never named the ID card");
+        target.Context.HasItem<Sword>().Should().BeTrue("the sword was never named either");
+    }
+
+    [Test]
+    public async Task Drop_MultiCandidate_NamedItemIsNested_RefusesWithoutDroppingHeldItems()
+    {
+        // Issue #537 drop plan point 5: the named item resolves precisely but is nested inside an open
+        // held container. DropIt is deliberately flat (only top-level held items drop), so the player must
+        // take a nested item out first - the command must produce "You don't have that!" for the nested
+        // item WITHOUT dropping the other held items the over-returning parser listed.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<NorthOfHouse>();
+
+        var sack = Repository.GetItem<BrownSack>();
+        target.Context.Take(sack);
+        sack.IsOpen = true;
+        var lunch = Repository.GetItem<Lunch>();
+        sack.ItemPlacedHere(lunch);
+        target.Context.Take(Repository.GetItem<Sword>());
+        target.Context.Take(Repository.GetItem<Lantern>());
+
+        TakeAndDropParser.Setup(s => s.GetListOfItemsToDrop(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(["sword", "lantern"]);
+
+        IVerbProcessor processor = new TakeOrDropInteractionProcessor(TakeAndDropParser.Object);
+        var result = await processor.Process(
+            new SimpleIntent { Verb = "drop", Noun = "lunch", OriginalInput = "drop lunch" },
+            target.Context, Repository.GetItem<Sword>(), Client.Object);
+
+        result!.InteractionMessage.Should().Contain("don't have that");
+        lunch.CurrentLocation.Should().Be(sack, "a nested item can't be dropped until it's taken out");
+        target.Context.HasItem<Sword>().Should().BeTrue("the sword was never named");
+        target.Context.HasItem<Lantern>().Should().BeTrue("the lantern was never named");
+    }
+
+    [Test]
     public async Task TakeItem_Disambiguation()
     {
         var target = GetTarget();
