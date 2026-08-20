@@ -589,6 +589,72 @@ public class FloydTests : EngineTestsBase
         response.Should().Contain("no answer comes");
     }
 
+    // #545 round-2 review, finding 2. The IsGoneForGood gate was added to CheckForConversation's
+    // NAMED branch but not to TryRouteNamelessSpeech, which still bails on the generation
+    // kill-switch. Standing over the body and saying "hello" with NoGeneratedResponses set produced
+    // a BLANK response - no mourning line, and the utterance leaked back into normal parsing. A
+    // gone-for-good talker's reply is a constant and owes generation nothing on this branch either.
+    [Test]
+    public async Task SpeakingNamelesslyToDeadFloyd_MournsEvenWithGenerationDisabled()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>(); // Floyd is placed here by Init, so he is the sole present talker.
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+        Mock.Get(target.GenerationClient).Setup(c => c.IsDisabled).Returns(true);
+
+        var response = await target.GetResponse("say hello");
+
+        response.Should().Contain("no answer comes");
+    }
+
+    // #545 round-2 review, finding 3. RespondForGoneForGoodTalker replaced a two-part detector
+    // (deterministic strip OR the ParseConversation classifier) with IsGenuineDirectAddress alone.
+    // That misses the looser phrasings only the classifier recognized - "could you let floyd know
+    // ..." leads with "could", which is neither a leading name nor an address lead-in - so they
+    // stopped reaching Floyd and leaked to the narrator, the exact outcome #545 exists to prevent.
+    // Mirrors the absent path, which has kept the classifier as its fallback all along (see
+    // AbsentTalkableNpcTests.AddressingAbsentFloydWithUnusualPhrasing_DefersToClassifier_SaysNotHere).
+    [Test]
+    public async Task AddressingDeadFloydWithUnusualPhrasing_DefersToClassifier_AndMourns()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+        ParseConversationMock
+            .Setup(p => p.ParseAsync("could you let floyd know to wait for me"))
+            .ReturnsAsync((true, ""));
+
+        var response = await target.GetResponse("could you let floyd know to wait for me");
+
+        response.Should().Contain("no answer comes");
+    }
+
+    // The classifier fallback must stay deterministic offline, exactly as the absent path is: with
+    // generation disabled the loose phrasing is not classified at all, so it falls through rather
+    // than guessing. The common phrasings IsGenuineDirectAddress covers still mourn (see
+    // TalkToFloyd_DeadAndPresent_MournsEvenWithGenerationDisabled), so nothing regresses offline.
+    [Test]
+    public async Task AddressingDeadFloydWithUnusualPhrasing_GenerationDisabled_DoesNotConsultClassifier()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+        Mock.Get(target.GenerationClient).Setup(c => c.IsDisabled).Returns(true);
+
+        await target.GetResponse("could you let floyd know to wait for me");
+
+        ParseConversationMock.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+    }
+
     [Test]
     public async Task TalkToFloyd_DeadAndPresent_DoesNotCallTheConversationClassifier()
     {
