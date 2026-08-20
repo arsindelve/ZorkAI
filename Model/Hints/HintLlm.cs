@@ -12,8 +12,9 @@ namespace Model.Hints;
 /// </summary>
 /// <param name="SystemPrompt">The persona's voice, used verbatim by the revealer (LLM 2).</param>
 /// <param name="GameName">
-///     The game being solved, as the player would name it (e.g. "Planetfall"). Defaults to a neutral phrase
-///     so an un-customized persona asserts no game identity at all.
+///     The game being solved, as the player would name it (e.g. "Planetfall"). Empty by default: an
+///     un-customized persona asserts no game identity at all, and the prompt drops the naming clause
+///     rather than substituting a placeholder.
 /// </param>
 /// <param name="StateGrounding">
 ///     A short, game-specific list of what the player's situation contains and what actually matters in it
@@ -22,7 +23,7 @@ namespace Model.Hints;
 /// </param>
 public sealed record HintPersona(
     string SystemPrompt,
-    string GameName = "this text adventure",
+    string GameName = "",
     string StateGrounding = "what they have done so far, and their current condition");
 
 /// <summary>One turn of the hint conversation — what the player asked and what was revealed back.</summary>

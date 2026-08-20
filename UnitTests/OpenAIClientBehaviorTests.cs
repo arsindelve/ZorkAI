@@ -306,6 +306,9 @@ public class OpenAiHintLanguageModelBehaviorTests
         var system = messages![0].Content[0].Text;
         system.Should().NotContain("Planetfall");
         system.Should().NotContain("Floyd");
+        // ...and the sentence must still read as English: no game identity means the naming clause is
+        // dropped entirely, not filled with a placeholder ("the text-adventure game this text adventure").
+        system.Should().StartWith("You are the SOLVER stage of a hint system for a text adventure.");
     }
 
     [Test]

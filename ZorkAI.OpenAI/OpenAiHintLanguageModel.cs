@@ -35,8 +35,15 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
         // This class is shared by every game, so the solver scaffolding below must stay generic: the game's
         // identity and the flags that matter in its state come from the persona. Hardcoding them here told
         // Zork/EscapeRoom they were playing Planetfall, and grounded them on Floyd (#484).
+        // Name the game only when the persona actually supplies one — an unnamed game drops the clause
+        // rather than filling it with a placeholder, which would read "...the text-adventure game this
+        // text adventure."
+        var game = string.IsNullOrWhiteSpace(persona.GameName)
+            ? "a text adventure"
+            : $"the text-adventure game {persona.GameName}";
+
         var system =
-            $"You are the SOLVER stage of a hint system for the text-adventure game {persona.GameName}. Work out the " +
+            $"You are the SOLVER stage of a hint system for {game}. Work out the " +
             "COMPLETE, correct answer to the player's question, using ONLY the knowledge base and their situation.\n" +
             "RESOLVE FOLLOW-UPS: the player may be continuing a thread. If their new question is elliptical " +
             "('how do I open it?', 'more', 'is it serious?'), use the conversation so far to figure out what " +
