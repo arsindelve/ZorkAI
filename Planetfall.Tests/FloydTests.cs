@@ -24,6 +24,9 @@ namespace Planetfall.Tests;
 
 public class FloydTests : EngineTestsBase
 {
+    // These two search the deactivated robot as "robot", not by name: before the player wakes him
+    // they have no in-game way of knowing the name "Floyd", and issue #552 reserves that word for
+    // the fourth-wall intercept. "robot" is the noun the Robot Shop actually teaches.
     [Test]
     public async Task Search_FindCard()
     {
@@ -31,7 +34,7 @@ public class FloydTests : EngineTestsBase
         StartHere<RobotShop>();
         GetItem<Floyd>().IsOn = false;
 
-        var response = await target.GetResponse("search floyd");
+        var response = await target.GetResponse("search robot");
 
         response.Should().Contain("find and take");
         target.Context.HasItem<LowerElevatorAccessCard>().Should().BeTrue();
@@ -45,7 +48,7 @@ public class FloydTests : EngineTestsBase
         GetItem<Floyd>().IsOn = false;
         Take<LowerElevatorAccessCard>();
 
-        var response = await target.GetResponse("search floyd");
+        var response = await target.GetResponse("search robot");
 
         response.Should().Contain("search discovers nothing");
         target.Context.HasItem<LowerElevatorAccessCard>().Should().BeTrue();
@@ -333,11 +336,15 @@ public class FloydTests : EngineTestsBase
         response.Should().Contain("From its design, the robot seems to be of the multi-purpose sort");
     }
 
+    // Switched off AFTER the player has met him - the only state in which they can examine him by
+    // name and get the deactivated description (issue #552 intercepts the name before that).
+    // FloydMentionTests covers reaching the same text pre-meeting via "examine robot".
     [Test]
     public async Task ExamineFloyd_Off()
     {
         var target = GetTarget();
         StartHere<RobotShop>();
+        GetItem<Floyd>().HasEverBeenOn = true;
 
         var response = await target.GetResponse("examine floyd");
 
@@ -514,6 +521,11 @@ public class FloydTests : EngineTestsBase
         StartHere<RobotShop>();
         var floyd = GetItem<Floyd>();
         floyd.IsOn = false;
+        // Pinned to the post-activation case: the never-activated robot IS reachable in this state,
+        // but naming him there is claimed by #552's fourth-wall intercept, and this test exists to
+        // cover the switched-off-but-alive branch of OnBeingTalkedTo rather than that intercept.
+        // FloydMentionTests covers reaching Floyd pre-activation via "robot".
+        floyd.HasEverBeenOn = true;
         var chat = new Mock<IChatWithFloyd>();
         chat.Setup(s => s.AskFloydAsync(It.IsAny<string>()))
             .ReturnsAsync(new CompanionResponse("CHAT-SHOULD-NOT-HAPPEN", null));

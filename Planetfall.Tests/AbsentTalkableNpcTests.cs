@@ -20,10 +20,22 @@ namespace Planetfall.Tests;
 /// </summary>
 public class AbsentTalkableNpcTests : EngineTestsBase
 {
+    /// <summary>
+    /// Puts Floyd in the state these tests are actually about: met, then left behind or wandered
+    /// off. Naming him BEFORE the player has woken him is claimed by the fourth-wall intercept
+    /// (issue #552), which is a different answer to a different situation - the player can't have
+    /// been separated from a companion they have never met.
+    /// </summary>
+    private void MeetFloyd()
+    {
+        GetItem<Floyd>().HasEverBeenOn = true;
+    }
+
     [Test]
     public async Task AddressingAbsentFloyd_GoUp_SaysNotHere_AndDoesNotMove()
     {
         var target = GetTarget();
+        MeetFloyd();
         StartHere<DeckNine>();
 
         var response = await target.GetResponse("floyd, go up");
@@ -36,6 +48,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task AddressingAbsentFloyd_DropDiary_SaysNotHere_AndKeepsItem()
     {
         var target = GetTarget();
+        MeetFloyd();
         StartHere<DeckNine>();
         Take<Diary>();
 
@@ -49,6 +62,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task AddressingAbsentFloyd_Sing_SaysNotHere_AndDoesNotHallucinate()
     {
         var target = GetTarget();
+        MeetFloyd();
         StartHere<DeckNine>();
 
         var response = await target.GetResponse("floyd, sing");
@@ -185,6 +199,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task AddressingAbsentFloydWithoutComma_GoUp_SaysNotHere_AndDoesNotMove()
     {
         var target = GetTarget();
+        MeetFloyd();
         StartHere<DeckNine>();
 
         var response = await target.GetResponse("floyd go up");
@@ -197,6 +212,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task AddressingAbsentFloydWithoutComma_DropDiary_SaysNotHere_AndKeepsItem()
     {
         var target = GetTarget();
+        MeetFloyd();
         StartHere<DeckNine>();
         Take<Diary>();
 
@@ -237,6 +253,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task AddressingAbsentFloydCasually_SaysNotHere(string input)
     {
         var target = GetTarget();
+        MeetFloyd();
         StartHere<DeckNine>();
 
         var response = await target.GetResponse(input);
@@ -251,6 +268,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task AddressingAbsentFloydWithUnusualPhrasing_DefersToClassifier_SaysNotHere()
     {
         var target = GetTarget();
+        MeetFloyd();
         StartHere<DeckNine>();
         ParseConversationMock
             .Setup(p => p.ParseAsync("could you let floyd know to wait for me"))
@@ -266,6 +284,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task TellingAbsentFloydToDoSomething_SaysNotHere()
     {
         var target = GetTarget();
+        MeetFloyd();
         StartHere<DeckNine>();
 
         var response = await target.GetResponse("tell floyd to go up");

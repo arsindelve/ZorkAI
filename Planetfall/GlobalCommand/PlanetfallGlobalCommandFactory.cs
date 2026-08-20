@@ -7,6 +7,11 @@ public class PlanetfallGlobalCommandFactory : GlobalCommandFactory
 {
     public override IGlobalCommand? GetGlobalCommands(string? input)
     {
+        // Checked before the exact-match table below because it matches on a word ANYWHERE in the
+        // command, not on the whole command (issue #552).
+        if (FloydMentionCommands.Match(input) is { } floydMention)
+            return floydMention;
+
         switch (input?.ToLowerInvariant().StripNonChars().Trim())
         {
             case "zork":

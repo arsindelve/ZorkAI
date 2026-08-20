@@ -73,6 +73,23 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     [UsedImplicitly] public int TurnOnCountdown { get; set; } = 3;
 
     /// <summary>
+    ///     True once the player has any in-game way of knowing the name "Floyd" - they have flipped
+    ///     his switch (even if he is still mid-countdown and not yet awake), met him awake, or lost
+    ///     him in the Bio Lab. Before that, naming him is a returning fan talking, not the character
+    ///     (issue #552).
+    ///     <para>
+    ///     The activation flag is load-bearing here: neither <see cref="IsOn" /> nor
+    ///     <see cref="HasEverBeenOn" /> flips until the 3-turn wake-up countdown finishes, so gating on
+    ///     those two alone would keep cracking the fourth-wall joke while the robot is visibly booting.
+    ///     <see cref="HasAwardedActivationPoints" /> is set the moment the player first activates him,
+    ///     which is exactly the moment the game itself starts calling him Floyd.
+    ///     </para>
+    /// </summary>
+    [JsonIgnore]
+    public bool PlayerKnowsFloydByName =>
+        IsOn || HasEverBeenOn || HasDied || HasAwardedActivationPoints;
+
+    /// <summary>
     /// Whether Floyd is alive: switched on AND not dead. Ask this - never <see cref="IsOn"/> - whenever
     /// the question is "would Floyd react?".
     /// <para>
@@ -241,7 +258,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         }
     }
 
-    private bool IsInTheRoom(IContext context)
+    public bool IsInTheRoom(IContext context)
     {
         return CurrentLocation == context.CurrentLocation;
     }
