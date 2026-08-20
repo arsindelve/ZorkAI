@@ -48,15 +48,18 @@ Measured against the original, not from memory. Update this table as phases land
 |---|---:|---:|
 | Rooms | 6 | 104 |
 | Region objects | 20 | 116 |
-| Background daemons | ~2 | 32 |
-| **Reachable score** | **5** | **80** |
-| Tests | 62 | — |
+| Background daemons | ~4 | 32 |
+| **Reachable score** | **8** | **80** |
+| Tests | 83 | — |
 
 Landed so far:
 
 - **Phase 1** — project scaffold, boot, console entry (`--game Stationfall`), AWS prompt secret.
 - **Phase 2** — the opening act: 6 rooms, ~20 objects, its full puzzle chain, all its deaths, and
   the documented walkthrough for that segment running verbatim as a test oracle.
+- **Phase 3** — the survival clocks and the day boundary, built on a new shared `StellarPatrol`
+  library extracted from Planetfall. Also restored per-action time costs, which the port had been
+  flattening to a single value per turn.
 
 For scale: Planetfall in this engine is 127 location files and 142 item files. Stationfall is the
 bigger game.

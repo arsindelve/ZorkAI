@@ -20,6 +20,14 @@ public abstract class GooBase : ItemBase, ICanBeExamined, ICanBeEaten
 
     public (string Message, bool WasConsumed) OnEating(IContext context)
     {
+        if (context is StationfallContext stationfallContext)
+        {
+            if (!stationfallContext.IsHungry)
+                return (StationfallContext.NotHungryMessage, false);
+
+            stationfallContext.Eat();
+        }
+
         return ($"You scoop up the {Color} goo and eat it. It tastes the way {OfficialName} might taste " +
                 "if it had been described to the cook over a bad comm link. ", true);
     }

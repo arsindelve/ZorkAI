@@ -20,3 +20,9 @@ own numbers and its own words by deriving from them.
 
 **Adding to this library:** wait until there are two real implementations before abstracting one.
 An abstraction derived from a single example tends to encode that example's accidents.
+
+Applying that test to what exists so far: the *ladders* are shared, because they are genuinely the
+same mechanic down to the wording. The per-turn glue that runs them — each game's
+`ProcessBeginningOfTurn` — is not, and deliberately stays duplicated. It is thin, and the two
+versions differ in ways that matter (one carries a disease and a set of god-mode clock toggles the
+other has no notion of). Merging them would mean parameterising away most of what they are.

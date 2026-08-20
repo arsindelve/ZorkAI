@@ -34,9 +34,10 @@ public abstract class SleepNotificationsBase
     [UsedImplicitly] public int FallAsleepAt { get; set; }
 
     /// <summary>
-    ///     Starts the clock on day one. Must run after the chronometer exists.
+    ///     Starts the clock on day one. Must run after the chronometer exists. Virtual because one game
+    ///     schedules its first warning at an absolute time of day rather than an offset from the start.
     /// </summary>
-    public void Initialize(int currentTime)
+    public virtual void Initialize(int currentTime)
     {
         NextWarningAt = currentTime + InitialWarningTicksForDay(1);
     }
