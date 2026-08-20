@@ -706,6 +706,49 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
+    public async Task DoesFloydOfferCard_HeIsDead()
+    {
+        // Issue #545 review: the reveal daemon's liveness test is "!floyd.IsOn", and EndSequence
+        // deliberately leaves the corpse's IsOn true - so the body satisfied it and would clap its
+        // hands with excitement while waving a card. Only geography kept this dormant in a real game
+        // (Floyd dies in Bio Lock East, which has no card slot); the guard itself has to be right.
+        var target = GetTarget();
+        StartHere<MessHall>();
+        Take<KitchenAccessCard>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasDied = true;
+        floyd.CurrentLocation = GetLocation<MessHall>();
+        floyd.Chooser = Mock.Of<IRandomChooser>(r => r.RollDice(100) == 1); // within Day 1's window -> would reveal
+
+        var response = await target.GetResponse("slide kitchen access card through slot");
+
+        response.Should().NotContain("Floyd claps his hands with excitement");
+        floyd.ItemBeingHeld.Should().BeNull();
+        floyd.HasRevealedLowerElevatorCard.Should().BeFalse();
+    }
+
+    [Test]
+    public void SearchFloyd_Dead_DoesNotTickleTheCorpse()
+    {
+        // Issue #545 review: SearchFloyd's "is he alive" test is IsOn alone, which the corpse
+        // satisfies, so the body would giggle, clutch its side panels and stream oil from its eyes.
+        // Floyd.RespondToSimpleInteraction currently returns to base on HasDied before the search
+        // branch is reached, so no player input can reach this today - which is exactly why it is
+        // exercised against the manager directly. The guard must be correct in its own right, not
+        // merely shadowed by an earlier return in its single caller.
+        GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasDied = true;
+
+        var result = new FloydInventoryManager(floyd).SearchFloyd(Context);
+
+        result.InteractionMessage.Should().NotContain("giggles");
+        result.InteractionMessage.Should().NotContain("tickling");
+    }
+
+    [Test]
     public async Task DoesFloydOfferCard_NoLongerHasIt()
     {
         var target = GetTarget();
