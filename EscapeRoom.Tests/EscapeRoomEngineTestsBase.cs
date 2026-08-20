@@ -14,6 +14,7 @@ namespace EscapeRoom.Tests;
 
 public class EscapeRoomEngineTestsBase : EngineTestsBaseCommon<EscapeRoomContext>
 {
+    protected Mock<IAgenticActionParser> AgenticActionParser = new();
     protected Mock<IAITakeAndAndDropParser> TakeAndDropParser = new();
 
     protected GameEngine<EscapeRoomGame, EscapeRoomContext> GetTarget(IIntentParser? parser = null)
@@ -38,12 +39,18 @@ public class EscapeRoomEngineTestsBase : EngineTestsBaseCommon<EscapeRoomContext
                 return words.Length > 1 ? [words[1]] : [];
             });
 
+        // Inert agentic-narrator default (issue #136): no narration, no tool calls, so the engines
+        // keep the plain fall-through behavior unless a test stubs a real decision.
+        AgenticActionParser = new Mock<IAgenticActionParser>();
+        AgenticActionParser.Setup(s => s.Resolve(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new AgenticActionResult(string.Empty, []));
+
         var mockParseConversation = new Mock<IParseConversation>();
         mockParseConversation.Setup(x => x.ParseAsync(It.IsAny<string>()))
             .ReturnsAsync((false, ""));
 
         var engine = new GameEngine<EscapeRoomGame, EscapeRoomContext>(
-            new ItemProcessorFactory(TakeAndDropParser.Object),
+            new ItemProcessorFactory(TakeAndDropParser.Object, AgenticActionParser.Object),
             Parser,
             Client.Object,
             Mock.Of<ISecretsManager>(),
