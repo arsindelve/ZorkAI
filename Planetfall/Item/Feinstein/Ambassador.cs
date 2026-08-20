@@ -27,6 +27,13 @@ internal class Ambassador : QuirkyCompanion, ICanBeExamined, ICanBeTalkedTo
         "are retracted. Green slime oozes from multiple orifices in his scaly skin. He speaks through a " +
         "mechanical translator slung around his neck. ";
 
+    // Once the escape pod is down on Resida, the Feinstein and everyone still aboard her are beyond
+    // reach for the rest of the game. Nothing can be learned about them any more, so the narrator must
+    // not be asked to improvise an answer to "where is he?" - it invents whereabouts (issue #545).
+    // This deliberately says nothing about their fate: the static line stays the plain "isn't here",
+    // which is the honest answer and matches what the original ever tells you.
+    public bool IsGoneForGood => Repository.GetLocation<EscapePod>().LandedSafely;
+
     // "ambassador" is a title rather than a name, so the default "Ambassador isn't here." reads
     // oddly; use the article form instead (see #264).
     public string NotHereDescription => "The ambassador isn't here. ";

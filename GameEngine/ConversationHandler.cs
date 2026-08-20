@@ -53,6 +53,16 @@ public class ConversationHandler(
             return await TryRouteNamelessSpeech(input, present, context);
         }
 
+        // A character who is gone for good is present in body only, and answers with one fixed line
+        // whatever was said to them. That makes the whole rewriter pipeline below pointless for them,
+        // so they get the deterministic route instead (#545 follow-up). Skipping it is not merely an
+        // optimization: ProcessConversation opens with an AWS Lambda round-trip that can only rewrite
+        // words the character will ignore, and the kill-switch below used to return null for a corpse,
+        // which meant addressing one in NoGeneratedResponses mode produced a blank response rather
+        // than the mourning line.
+        if (targetCharacter.IsGoneForGood)
+            return await RespondForGoneForGoodTalker(input, targetCharacter, context);
+
         // A talkable character is present. Routing the player's utterance to them relies on the AI
         // rewriter, so respect the generation kill-switch exactly as before (#182 behavior).
         if (generationClient.IsDisabled)
@@ -62,6 +72,38 @@ public class ConversationHandler(
         }
 
         return await ProcessConversation(input, targetCharacter, context);
+    }
+
+    /// <summary>
+    /// Answers the player who addressed a PRESENT character who is gone for good (a corpse in the
+    /// room). Their reply does not depend on what was said, so this deliberately does NOT consult the
+    /// <c>ParseConversation</c> rewriter the living path uses - that call is an AWS Lambda round-trip
+    /// whose only product is a command the character will never act on.
+    ///
+    /// Address detection therefore falls to <see cref="IsGenuineDirectAddress"/>, the same
+    /// deterministic test the absent path relies on. That is not a downgrade from the living path's
+    /// backstop: <see cref="TryStripDirectAddress"/> recognizes only the leading-name forms and leaves
+    /// imperative lead-ins ("ask floyd about the card") to the classifier, whereas
+    /// IsGenuineDirectAddress covers both - so a corpse is addressable by strictly more phrasings than
+    /// before, and deterministically, including in NoGeneratedResponses mode.
+    ///
+    /// Returns null when the input merely NAMES the character rather than addressing them ("examine
+    /// floyd", "take floyd"), so those keep falling through to the item's own handlers.
+    /// </summary>
+    private async Task<string?> RespondForGoneForGoodTalker(string input, ICanBeTalkedTo target, IContext context)
+    {
+        if (!IsGenuineDirectAddress(input, target))
+        {
+            logger?.LogDebug("[CONVERSATION DEBUG] Gone-for-good talker named but not addressed; falling through");
+            return null;
+        }
+
+        // The remainder is immaterial - the reply is a constant - but pass the words after the name
+        // when we can strip them, so the character still receives what was actually said to them.
+        TryStripDirectAddress(input, target, out var remainder);
+
+        logger?.LogDebug($"[CONVERSATION DEBUG] Gone-for-good talker addressed with '{remainder}'; answering directly");
+        return await target.OnBeingTalkedTo(remainder, context, generationClient);
     }
 
     /// <summary>
@@ -230,6 +272,15 @@ public class ConversationHandler(
     private async Task<string> NarrateAbsence(ICanBeTalkedTo target, IContext context)
     {
         var fallback = target.NotHereDescription;
+
+        // A character who is gone for good is never handed to the narrator: asked where they are, it
+        // answers by inventing a whereabouts ("off on his own little adventure"), which reads as a
+        // joke one turn after the player watched them die. Their own static line mourns instead (#545).
+        if (target.IsGoneForGood)
+        {
+            logger?.LogDebug($"[CONVERSATION DEBUG] Talker is gone for good; static line: '{fallback}'");
+            return fallback;
+        }
 
         if (generationClient.IsDisabled)
         {

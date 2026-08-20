@@ -49,6 +49,24 @@ public class ConversationHandlerTests
     }
 
     /// <summary>
+    /// A known talker who is gone for good (dead), with their own mourning line — mirrors Floyd
+    /// after the Bio Lab sacrifice (issue #545).
+    /// </summary>
+    public class GhostTalker : ItemBase, ICanBeTalkedTo
+    {
+        public override string[] NounsForMatching => ["ghost"];
+
+        public override string GenericDescription(ILocation? currentLocation) => string.Empty;
+
+        public bool IsGoneForGood => true;
+
+        public string NotHereDescription => "The ghost is gone. There will be no answer. ";
+
+        public Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client) =>
+            Task.FromResult("ghost talked");
+    }
+
+    /// <summary>
     /// A known talker named "floyd" that also answers to the generic synonym "robot" — mirrors the
     /// real Floyd, used to verify the synonym is not treated as a name for direct address.
     /// </summary>
@@ -393,6 +411,107 @@ public class ConversationHandlerTests
         mockClient.Verify(c => c.GenerateNarration(It.IsAny<TalkingToAbsentCharacterRequest>(), It.IsAny<string>()),
             Times.Once);
         mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task CheckForConversation_PresentTalkerGoneForGood_AnswersEvenWhenGenerationDisabled()
+    {
+        // #545 follow-up: the gone-for-good short-circuit was wired only into the absent path, so a
+        // corpse standing in the room still fell through the present-talker branch's generation
+        // kill-switch and returned null - the player got a BLANK response instead of the mourning
+        // line. A gone-for-good character's reply is a fixed string, so it owes nothing to the AI and
+        // must stay available in NoGeneratedResponses mode.
+        var mockParser = new Mock<IParseConversation>();
+        var mockClient = new Mock<IGenerationClient>();
+        mockClient.Setup(c => c.IsDisabled).Returns(true);
+        var handler = new ConversationHandler(null, mockParser.Object, mockClient.Object,
+            new[] { typeof(GhostTalker) });
+        var context = new ZorkIContext();
+        context.Items.Add(Repository.GetItem<GhostTalker>());
+
+        var result = await handler.CheckForConversation("ghost, are you okay", context);
+
+        result.Should().Be("ghost talked");
+    }
+
+    [Test]
+    public async Task CheckForConversation_PresentTalkerGoneForGood_SkipsTheConversationClassifier()
+    {
+        // ParseAsync is an AWS Lambda round-trip (ChatLambda/ParseConversation.cs). Its only job is
+        // rewriting what the player said into a command for the character - worthless for a character
+        // whose every reply is one constant, so it must not be paid for on every utterance addressed
+        // to a corpse.
+        var mockParser = new Mock<IParseConversation>();
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
+            new[] { typeof(GhostTalker) });
+        var context = new ZorkIContext();
+        context.Items.Add(Repository.GetItem<GhostTalker>());
+
+        var result = await handler.CheckForConversation("ghost, are you okay", context);
+
+        result.Should().Be("ghost talked");
+        mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestCase("ask ghost about the lamp")]
+    [TestCase("tell ghost to go north")]
+    [TestCase("talk to ghost")]
+    public async Task CheckForConversation_PresentTalkerGoneForGood_RecognizesImperativeAddress(string input)
+    {
+        // The present path normally leaves imperative lead-ins ("ask X ...") to the classifier, which
+        // we no longer call here. Detection therefore uses IsGenuineDirectAddress - the same
+        // deterministic test the absent path trusts - which covers the imperative forms too, so
+        // skipping the rewriter costs no coverage.
+        var mockParser = new Mock<IParseConversation>();
+        mockParser.Setup(p => p.ParseAsync(It.IsAny<string>())).ReturnsAsync((false, string.Empty));
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
+            new[] { typeof(GhostTalker) });
+        var context = new ZorkIContext();
+        context.Items.Add(Repository.GetItem<GhostTalker>());
+
+        var result = await handler.CheckForConversation(input, context);
+
+        result.Should().Be("ghost talked");
+    }
+
+    [TestCase("examine ghost")]
+    [TestCase("take ghost")]
+    [TestCase("turn off ghost")]
+    public async Task CheckForConversation_PresentTalkerGoneForGood_DoesNotHijackOrdinaryCommands(string input)
+    {
+        // The short-circuit must not swallow real commands that merely NAME the character. "examine
+        // floyd" on the corpse has to keep reaching the item's own examine handler (the mourning
+        // description), not be answered as though the player spoke to the body.
+        var mockParser = new Mock<IParseConversation>();
+        var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
+            new[] { typeof(GhostTalker) });
+        var context = new ZorkIContext();
+        context.Items.Add(Repository.GetItem<GhostTalker>());
+
+        var result = await handler.CheckForConversation(input, context);
+
+        result.Should().BeNull();
+    }
+
+    [Test]
+    public async Task CheckForConversation_AbsentTalkerGoneForGood_UsesStaticLineInsteadOfNarration()
+    {
+        // Issue #545: asked where an absent character is, the narrator answers by inventing a
+        // whereabouts - which, for a character the player just watched die, reads as a joke about
+        // the corpse being "off on his own little adventure". A gone-for-good talker gets their own
+        // deterministic mourning line and the narrator is never consulted at all.
+        var mockParser = new Mock<IParseConversation>();
+        var mockClient = new Mock<IGenerationClient>();
+        mockClient.Setup(c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()))
+                  .ReturnsAsync("The ghost must be off on its own little adventure.");
+        var handler = new ConversationHandler(null, mockParser.Object, mockClient.Object,
+            new[] { typeof(GhostTalker) });
+        var context = new ZorkIContext();
+
+        var result = await handler.CheckForConversation("ghost, are you okay", context);
+
+        result.Should().Be("The ghost is gone. There will be no answer. ");
+        mockClient.Verify(c => c.GenerateNarration(It.IsAny<Request>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]

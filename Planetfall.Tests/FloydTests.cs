@@ -487,6 +487,212 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
+    public async Task TakeFloyd_Alive_SquealsAndMovesAway()
+    {
+        // The living half of the CannotBeTakenDescription gate. Without this the surviving branch of
+        // that nested ternary has no positive coverage at all, so inverting the nesting - serving the
+        // elegy to a living Floyd and the squeal to his corpse - would pass the entire suite.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+
+        var response = await target.GetResponse("take floyd");
+
+        response.Should().Contain("surprised squeal");
+        response.Should().Contain("respectable distance away");
+    }
+
+    [Test]
+    public async Task TalkToFloyd_TurnedOffButAlive_SaysHeIsSwitchedOff()
+    {
+        // The middle case between the two gates in OnBeingTalkedTo: switched off but NOT dead. It had
+        // no coverage either, so writing the new gate as "HasDied || !IsOn" - which would hand the
+        // mourning line to a merely deactivated Floyd - would also have gone unnoticed.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = false;
+        var chat = new Mock<IChatWithFloyd>();
+        chat.Setup(s => s.AskFloydAsync(It.IsAny<string>()))
+            .ReturnsAsync(new CompanionResponse("CHAT-SHOULD-NOT-HAPPEN", null));
+        floyd.ChatWithFloyd = chat.Object;
+
+        var response = await target.GetResponse("floyd, are you okay");
+
+        response.Should().Contain("appears to be turned off");
+        response.Should().NotContain("no answer comes");
+        response.Should().NotContain("CHAT-SHOULD-NOT-HAPPEN");
+    }
+
+    [Test]
+    public async Task TalkToFloyd_Dead_MournsInsteadOfChatting()
+    {
+        // Issue #545: EndSequence deliberately leaves the corpse's IsOn true, so the old
+        // !IsOn-only gate in OnBeingTalkedTo let the chat lambda answer for a dead Floyd
+        // ("Floyd says he is okay now that you are here."). The gate must consult HasDied.
+        var target = GetTarget();
+        StartHere<RobotShop>(); // RobotShop.Init places Floyd here, so he is a present talker.
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+        var chat = new Mock<IChatWithFloyd>();
+        chat.Setup(s => s.AskFloydAsync(It.IsAny<string>()))
+            .ReturnsAsync(new CompanionResponse("Floyd says he is okay now that you are here.", null));
+        floyd.ChatWithFloyd = chat.Object;
+
+        var response = await target.GetResponse("floyd, are you okay");
+
+        response.Should().NotContain("okay now that you are here");
+        response.Should().Contain("no answer comes");
+        chat.Verify(s => s.AskFloydAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task TakeFloyd_Dead_DoesNotSquealAndScootAway()
+    {
+        // Issue #545: CannotBeTakenDescription keyed off IsOn alone, and the corpse's IsOn is
+        // deliberately left true, so "take floyd" served the living-Floyd refusal - the body
+        // giving "a surprised squeal" and moving "a respectable distance away".
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+
+        var response = await target.GetResponse("take floyd");
+
+        response.Should().NotContain("surprised squeal");
+        response.Should().Contain("lay him gently back down");
+    }
+
+    [Test]
+    public async Task TalkToFloyd_DeadAndPresent_MournsEvenWithGenerationDisabled()
+    {
+        // #545 follow-up: with NoGeneratedResponses set (a per-request flag the Planetfall API
+        // exposes), the present-talker branch bailed out on the generation kill-switch before
+        // reaching OnBeingTalkedTo, so addressing the corpse produced a BLANK response - the fix
+        // never ran. Floyd's post-mortem line is a constant and owes the AI nothing.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+        Mock.Get(target.GenerationClient).Setup(c => c.IsDisabled).Returns(true);
+
+        var response = await target.GetResponse("floyd, are you okay");
+
+        response.Should().Contain("no answer comes");
+    }
+
+    [Test]
+    public async Task TalkToFloyd_DeadAndPresent_DoesNotCallTheConversationClassifier()
+    {
+        // ParseConversation.ParseAsync is an AWS Lambda round-trip whose only job is rewriting the
+        // player's words into a command for Floyd. A dead Floyd answers with one constant, so that
+        // round-trip is pure waste on every utterance addressed to the body.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+
+        var response = await target.GetResponse("floyd, are you okay");
+
+        response.Should().Contain("no answer comes");
+        ParseConversationMock.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task AskAboutFloyd_DeadAndPresent_MournsInsteadOfFallingThroughToTheParser()
+    {
+        // Imperative address ("ask floyd ...") never starts with the name, so the present path's
+        // deterministic backstop misses it and it used to depend entirely on the classifier. With the
+        // classifier no longer consulted for a dead Floyd, detection uses IsGenuineDirectAddress,
+        // which recognizes the imperative lead-ins too - so this phrasing now reaches the mourning
+        // line rather than leaking to the narrator.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+
+        var response = await target.GetResponse("ask floyd about the card");
+
+        response.Should().Contain("no answer comes");
+    }
+
+    [Test]
+    public async Task TalkToFloyd_DeadAndAbsent_AcknowledgesDeathInsteadOfJokingAboutAdventures()
+    {
+        // Issue #545, trapped-death branch: Floyd dies inside the Bio Lab with CurrentLocation
+        // null, so addressing him takes the absent-talker path - which handed him to the narrator,
+        // who cheerfully invented a whereabouts ("off on his own little adventure") one turn after
+        // the player watched him die. A character who is gone for good gets their own static line.
+        var target = GetTarget();
+        StartHere<MessHall>(); // Floyd is not here.
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.CurrentLocation = null;
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateNarration(It.IsAny<TalkingToAbsentCharacterRequest>(), It.IsAny<string>()))
+            .ReturnsAsync("Floyd must be off on his own little adventure.");
+
+        var response = await target.GetResponse("floyd, are you okay");
+
+        response.Should().NotContain("adventure");
+        response.Should().Contain("Floyd is gone");
+    }
+
+    [Test]
+    public async Task TalkToFloyd_AliveAndAbsent_StillGetsTheNarratedAbsence()
+    {
+        // The gone-for-good gate must not swallow the ordinary absent-Floyd narration (#264):
+        // while Floyd is merely elsewhere, the narrator still answers in its own voice.
+        var target = GetTarget();
+        StartHere<MessHall>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateNarration(It.IsAny<TalkingToAbsentCharacterRequest>(), It.IsAny<string>()))
+            .ReturnsAsync("Floyd must be off on his own little adventure.");
+
+        var response = await target.GetResponse("floyd, are you okay");
+
+        response.Should().Contain("adventure");
+    }
+
+    [Test]
+    public void SaveGameRequest_FloydIsDead_DoesNotSpeakInHisExcitedVoice()
+    {
+        // Issue #545 review, found by routing every liveness test through one property: saving the
+        // game beside Floyd is narrated in HIS voice (FloydAfterSaveGameRequest - "Yippee! Time for
+        // the dangerous bit?"). The gate is IsHereAndIsOn, and the corpse is left switched on and
+        // lying in Bio Lock East - so saving one turn after the death scene, standing over the body,
+        // had the dead robot squeal with excitement. Unlike the other post-mortem leaks this one is
+        // plainly reachable: the player is in that room, with that body, and saving is routine.
+        var target = GetTarget();
+        var bioLockEast = StartHere<BioLockEast>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.HasDied = true;
+        floyd.CurrentLocation = bioLockEast;
+        bioLockEast.ItemPlacedHere(floyd);
+
+        var request = target.Context.GetSaveGameRequest("Bio Lock East");
+
+        request.Should().BeNull();
+    }
+
+    [Test]
     public async Task TurnOff_FloydIsDead()
     {
         var target = GetTarget();
@@ -560,6 +766,49 @@ public class FloydTests : EngineTestsBase
         var response = await target.GetResponse("slide kitchen access card through slot");
 
         response.Should().NotContain("Floyd claps his hands with excitement");
+    }
+
+    [Test]
+    public async Task DoesFloydOfferCard_HeIsDead()
+    {
+        // Issue #545 review: the reveal daemon's liveness test is "!floyd.IsOn", and EndSequence
+        // deliberately leaves the corpse's IsOn true - so the body satisfied it and would clap its
+        // hands with excitement while waving a card. Only geography kept this dormant in a real game
+        // (Floyd dies in Bio Lock East, which has no card slot); the guard itself has to be right.
+        var target = GetTarget();
+        StartHere<MessHall>();
+        Take<KitchenAccessCard>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasDied = true;
+        floyd.CurrentLocation = GetLocation<MessHall>();
+        floyd.Chooser = Mock.Of<IRandomChooser>(r => r.RollDice(100) == 1); // within Day 1's window -> would reveal
+
+        var response = await target.GetResponse("slide kitchen access card through slot");
+
+        response.Should().NotContain("Floyd claps his hands with excitement");
+        floyd.ItemBeingHeld.Should().BeNull();
+        floyd.HasRevealedLowerElevatorCard.Should().BeFalse();
+    }
+
+    [Test]
+    public void SearchFloyd_Dead_DoesNotTickleTheCorpse()
+    {
+        // Issue #545 review: SearchFloyd's "is he alive" test is IsOn alone, which the corpse
+        // satisfies, so the body would giggle, clutch its side panels and stream oil from its eyes.
+        // Floyd.RespondToSimpleInteraction currently returns to base on HasDied before the search
+        // branch is reached, so no player input can reach this today - which is exactly why it is
+        // exercised against the manager directly. The guard must be correct in its own right, not
+        // merely shadowed by an earlier return in its single caller.
+        GetTarget();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasDied = true;
+
+        var result = new FloydInventoryManager(floyd).SearchFloyd(Context);
+
+        result.InteractionMessage.Should().NotContain("giggles");
+        result.InteractionMessage.Should().NotContain("tickling");
     }
 
     [Test]
@@ -1369,6 +1618,29 @@ public class FloydTests : EngineTestsBase
 
         var pfContext = target.Context;
         pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    [Test]
+    public void CommentOnAction_DoesNotSetPrompt_WhenFloydIsDead()
+    {
+        // Issue #545 review: the queue's gate asked IsHereAndIsOn, and EndSequence leaves the corpse
+        // switched on, so a comment could be queued for a dead Floyd. Act() returns on HasDied before
+        // ever clearing PendingFloydActionCommentPrompt, so the queued prompt would also stay stuck
+        // forever, and the one-shot prompt would be burned unspoken.
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.HasDied = true;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        var queued = floyd.CommentOnAction("Test prompt", target.Context);
+
+        queued.Should().BeFalse();
+        target.Context.PendingFloydActionCommentPrompt.Should().BeNull();
+        target.Context.UsedFloydActionCommentPrompts.Should().NotContain("Test prompt");
     }
 
     [Test]

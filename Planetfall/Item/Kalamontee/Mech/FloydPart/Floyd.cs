@@ -73,13 +73,28 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     [UsedImplicitly] public int TurnOnCountdown { get; set; } = 3;
 
     /// <summary>
-    /// Checks if Floyd is both turned on and in the same location as the player.
+    /// Whether Floyd is alive: switched on AND not dead. Ask this - never <see cref="IsOn"/> - whenever
+    /// the question is "would Floyd react?".
+    /// <para>
+    /// The trap this exists to close (issue #545): the Bio Lab sacrifice deliberately leaves the
+    /// corpse's <see cref="IsOn"/> true (BioLockStateMachineManager.EndSequence), because the body is
+    /// still the same object lying in the room. Every check written as a bare IsOn is therefore
+    /// satisfied by a dead Floyd, and each one found this way has been its own bug: the corpse chatting,
+    /// squealing when lifted, giggling when tickled, clapping while waving a card, and squealing with
+    /// excitement when the player saved the game beside his body. Reading liveness through one property
+    /// means the next such path cannot forget the second half of the question.
+    /// </para>
+    /// </summary>
+    public bool IsAlive => IsOn && !HasDied;
+
+    /// <summary>
+    /// Checks if Floyd is alive and in the same location as the player.
     /// </summary>
     /// <param name="context">The game context containing the player's current location.</param>
-    /// <returns>True if Floyd is on and in the player's current location; otherwise, false.</returns>
-    public bool IsHereAndIsOn(IContext context)
+    /// <returns>True if Floyd is alive and in the player's current location; otherwise, false.</returns>
+    public bool IsHereAndAlive(IContext context)
     {
-        return IsOn && IsInTheRoom(context);
+        return IsAlive && IsInTheRoom(context);
     }
 
     /// <summary>
@@ -94,8 +109,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     /// queue took — e.g. to decide between an empty response and a fallback line — can branch on this.</returns>
     public bool CommentOnAction(string prompt, IContext context)
     {
-        // Must be on and in the same location as player
-        if (!IsHereAndIsOn(context))
+        // Must be alive and in the same location as player
+        if (!IsHereAndAlive(context))
             return false;
 
         if (context is not PlanetfallContext planetfallContext)
@@ -128,9 +143,29 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     public override string[] NounsForMatching => ["floyd", "robot", "B-19-7", "multi-purpose robot"];
 
-    public override string? CannotBeTakenDescription => IsOn
-        ? FloydConstants.TakeFloyd
-        : null;
+    // HasDied is checked before IsOn, not folded into it: EndSequence deliberately leaves the
+    // corpse's IsOn true, so keying on IsOn alone served the living-Floyd refusal - the body
+    // squealing in surprise and scooting away from his own funeral (issue #545).
+    public override string? CannotBeTakenDescription => HasDied
+        ? FloydConstants.TakeDead
+        : IsOn
+            ? FloydConstants.TakeFloyd
+            : null;
+
+    /// <summary>
+    /// Floyd's death is permanent, so once he has died the engine must never let the narrator
+    /// improvise about where he has got to. See <see cref="ICanBeTalkedTo.IsGoneForGood"/>.
+    /// </summary>
+    public bool IsGoneForGood => HasDied;
+
+    /// <summary>
+    /// Answers the player who addresses Floyd by name while his body is elsewhere. After the
+    /// trapped-death branch he has no location at all (he dies inside the Bio Lab), so this is the
+    /// line that replaces the narrator's cheerful guesswork about his whereabouts.
+    /// </summary>
+    public string NotHereDescription => HasDied
+        ? FloydConstants.NotHereDead
+        : ICanBeTalkedTo.DefaultNotHereDescription(this);
 
     protected override string SystemPrompt => FloydPrompts.SystemPrompt;
 
@@ -176,6 +211,12 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     /// <returns>Floyd's response to the conversation, or an error message if he's off or the AI service fails.</returns>
     public async Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
     {
+        // HasDied first: the corpse keeps IsOn = true (EndSequence), so without this gate the chat
+        // lambda answered for a dead Floyd - "Floyd says he is okay now that you are here" beside
+        // his body (issue #545).
+        if (HasDied)
+            return FloydConstants.TalkToDead;
+
         if (!IsOn)
             return "The robot doesn't respond - it appears to be turned off.";
 
@@ -327,7 +368,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
     {
-        if (!IsOn || HasDied)
+        if (!IsAlive)
             return await base.RespondToMultiNounInteraction(action, context);
 
         // V-OIL with an explicit indirect object (syntax.zil:446-448, verbs.zil:1738-1757):

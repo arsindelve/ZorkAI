@@ -27,7 +27,9 @@ public class FloydInventoryManager(Floyd floyd)
 
     public InteractionResult SearchFloyd(IContext context)
     {
-        if (floyd.IsOn)
+        // Liveness, not IsOn: the corpse is left switched on, and an IsOn-only test had the body
+        // giggle and stream oil from its eyes at being tickled (issue #545). See Floyd.IsAlive.
+        if (floyd.IsAlive)
             return new PositiveInteractionResult(FloydConstants.TickleFloyd);
 
         if (!floyd.HasItem<LowerElevatorAccessCard>())
@@ -42,7 +44,9 @@ public class FloydInventoryManager(Floyd floyd)
     public string? OfferLowerElevatorCard(IContext context, IRandomChooser chooser)
     {
         if (!IsFloydInRoom(context) ||
-            !floyd.IsOn ||
+            // Liveness, not IsOn (see Floyd.IsAlive): without it this daemon had a dead Floyd clap
+            // his hands with excitement and wave a card (issue #545).
+            !floyd.IsAlive ||
             !floyd.Items.Any() ||
             floyd.HasRevealedLowerElevatorCard ||
             !RevealChanceSucceeds(context, chooser))

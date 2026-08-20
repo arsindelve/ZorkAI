@@ -513,7 +513,8 @@ public class BioLockEastTests : EngineTestsBase
     public async Task AfterSacrificeCompletes_ReenteringRoom_DeadFloydDoesNotNagToOpenTheDoor()
     {
         // Issue #493 review follow-up: EndSequence marks Floyd dead and lays his body back in this room but
-        // leaves IsOn true, so IsHereAndIsOn stays true for the corpse. With the leftover
+        // leaves IsOn true, so the old IsOn-only presence test stayed true for the corpse (liveness now
+        // reads Floyd.IsAlive, which excludes him - see #545). With the leftover
         // FloydHasSaidNeedToGetCard flag and a zero door-open counter, re-entering the room made
         // HandleTurnAction fall into the "waiting for door open" branch - the dead robot cheerfully asking
         // the player to open the door again. Once the sequence is Completed the actor must stay silent.

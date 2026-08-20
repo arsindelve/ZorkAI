@@ -58,14 +58,15 @@ public class BioLockStateMachineManager
     /// <summary>
     /// Handle turn-based actions for Floyd in BioLockEast
     /// </summary>
-    public string HandleTurnAction(bool isFloydHereAndOn, bool computerRoomFloydHasExpressedConcern, IContext context, Floyd floyd)
+    public string HandleTurnAction(bool isFloydHereAndAlive, bool computerRoomFloydHasExpressedConcern, IContext context, Floyd floyd)
     {
         // Once the sequence has finished - Floyd sacrificed himself and his body lies here (EndSequence),
         // or he died trapped in the lab (the NeedToReopenDoor terminal branch) - this actor must stay
-        // silent. EndSequence leaves the corpse's IsOn true and places it back in this room, so
-        // isFloydHereAndOn is true for the body; without this guard, re-entering the room re-registers the
-        // actor and the leftover FloydHasSaidNeedToGetCard flag falls into the "waiting for door open"
-        // branch below, making Floyd's corpse cheerfully ask the player to open the door again (issue #493).
+        // silent, or re-entering the room re-registers the actor and the leftover FloydHasSaidNeedToGetCard
+        // flag falls into the "waiting for door open" branch below, making Floyd's corpse cheerfully ask
+        // the player to open the door again (issue #493). This guard is now belt-and-braces: the caller
+        // passes Floyd.IsHereAndAlive, which is false for the body, where it used to pass a bare IsOn test
+        // that the corpse satisfied (EndSequence deliberately leaves IsOn true - see Floyd.IsAlive, #545).
         if (LabSequenceState == FloydLabSequenceState.Completed)
             return string.Empty;
 
@@ -75,7 +76,7 @@ public class BioLockStateMachineManager
                            LabSequenceState == FloydLabSequenceState.NeedToReopenDoor ||
                            LabSequenceState == FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
 
-        if (!isFloydInLab && !isFloydHereAndOn)
+        if (!isFloydInLab && !isFloydHereAndAlive)
             return string.Empty;
 
         // First turn in BioLockEast: Floyd doesn't say anything yet
@@ -184,7 +185,7 @@ public class BioLockStateMachineManager
         var bioLockEast = Repository.GetLocation<BioLockEast>();
         var floyd = Repository.GetItem<Floyd>();
 
-        var isFloydReady = FloydHasSaidNeedToGetCard && floyd.IsHereAndIsOn(context);
+        var isFloydReady = FloydHasSaidNeedToGetCard && floyd.IsHereAndAlive(context);
 
         // If Floyd is ready to go get the card, start the sequence
         if (isFloydReady && LabSequenceState == FloydLabSequenceState.NotStarted)
