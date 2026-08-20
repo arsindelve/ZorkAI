@@ -33,17 +33,24 @@ public interface ICanBeTalkedTo : IInteractionTarget
     /// generation, so it is deterministic. The default capitalizes the character's matching name;
     /// override it for non-default phrasing (e.g. "The ambassador isn't here.").
     /// </summary>
-    string NotHereDescription
-    {
-        get
-        {
-            var name = (this as IItem)?.Name;
-            if (string.IsNullOrWhiteSpace(name))
-                return "That character isn't here. ";
+    string NotHereDescription => DefaultNotHereDescription(this);
 
-            // Name defaults to the lowercase matching noun (e.g. "floyd"); player-facing text
-            // should read "Floyd isn't here.".
-            return char.ToUpperInvariant(name[0]) + name[1..] + " isn't here. ";
-        }
+    /// <summary>
+    /// The default phrasing behind <see cref="NotHereDescription"/>, exposed as a static helper.
+    /// C# gives an implementer no way to call a default interface member it has overridden, so
+    /// without this a character who wants to override the line only CONDITIONALLY - Floyd mourns
+    /// once he has died but is otherwise an ordinary "isn't here" - has to paste a copy of the
+    /// default string into its own override, where it silently stops tracking this one. Defer to
+    /// this instead of copying.
+    /// </summary>
+    static string DefaultNotHereDescription(ICanBeTalkedTo talker)
+    {
+        var name = (talker as IItem)?.Name;
+        if (string.IsNullOrWhiteSpace(name))
+            return "That character isn't here. ";
+
+        // Name defaults to the lowercase matching noun (e.g. "floyd"); player-facing text
+        // should read "Floyd isn't here.".
+        return char.ToUpperInvariant(name[0]) + name[1..] + " isn't here. ";
     }
 }

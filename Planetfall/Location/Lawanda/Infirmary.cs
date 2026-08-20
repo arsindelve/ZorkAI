@@ -37,7 +37,7 @@ internal class Infirmary : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHere
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
-        if (!Repository.GetItem<Floyd>().IsHereAndIsOn(context) || HasToldAboutLazarus)
+        if (!Repository.GetItem<Floyd>().IsHereAndAlive(context) || HasToldAboutLazarus)
             return Task.FromResult(string.Empty);
 
         TurnsInInfirmary++;

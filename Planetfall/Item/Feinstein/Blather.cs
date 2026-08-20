@@ -19,6 +19,13 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICan
 
     public override string[] NounsForMatching => ["blather", "ensign blather"];
 
+    // Once the escape pod is down on Resida, the Feinstein and everyone still aboard her are beyond
+    // reach for the rest of the game. Nothing can be learned about them any more, so the narrator must
+    // not be asked to improvise an answer to "where is he?" - it invents whereabouts (issue #545).
+    // This deliberately says nothing about their fate: the static line stays the plain "isn't here",
+    // which is the honest answer and matches what the original ever tells you.
+    public bool IsGoneForGood => Repository.GetLocation<EscapePod>().LandedSafely;
+
     public string ExaminationDescription =>
         "Ensign Blather is a tall, beefy officer with a tremendous, misshapen nose. His uniform is perfect in " +
         "every respect, and the crease in his trousers could probably slice diamonds in half. ";

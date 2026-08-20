@@ -406,7 +406,7 @@ public class PlanetfallContext : Context<PlanetfallGame>, ITimeBasedContext, IGo
     public override Request? GetSaveGameRequest(string location)
     {
         var floyd = Repository.GetItem<Floyd>();
-        return floyd.IsHereAndIsOn(this) ?
+        return floyd.IsHereAndAlive(this) ?
             new FloydAfterSaveGameRequest(location) :
             null; // Use default AfterSaveGameRequest
     }

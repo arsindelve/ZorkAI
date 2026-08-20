@@ -487,6 +487,46 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
+    public async Task TakeFloyd_Alive_SquealsAndMovesAway()
+    {
+        // The living half of the CannotBeTakenDescription gate. Without this the surviving branch of
+        // that nested ternary has no positive coverage at all, so inverting the nesting - serving the
+        // elegy to a living Floyd and the squeal to his corpse - would pass the entire suite.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+
+        var response = await target.GetResponse("take floyd");
+
+        response.Should().Contain("surprised squeal");
+        response.Should().Contain("respectable distance away");
+    }
+
+    [Test]
+    public async Task TalkToFloyd_TurnedOffButAlive_SaysHeIsSwitchedOff()
+    {
+        // The middle case between the two gates in OnBeingTalkedTo: switched off but NOT dead. It had
+        // no coverage either, so writing the new gate as "HasDied || !IsOn" - which would hand the
+        // mourning line to a merely deactivated Floyd - would also have gone unnoticed.
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = false;
+        var chat = new Mock<IChatWithFloyd>();
+        chat.Setup(s => s.AskFloydAsync(It.IsAny<string>()))
+            .ReturnsAsync(new CompanionResponse("CHAT-SHOULD-NOT-HAPPEN", null));
+        floyd.ChatWithFloyd = chat.Object;
+
+        var response = await target.GetResponse("floyd, are you okay");
+
+        response.Should().Contain("appears to be turned off");
+        response.Should().NotContain("no answer comes");
+        response.Should().NotContain("CHAT-SHOULD-NOT-HAPPEN");
+    }
+
+    [Test]
     public async Task TalkToFloyd_Dead_MournsInsteadOfChatting()
     {
         // Issue #545: EndSequence deliberately leaves the corpse's IsOn true, so the old
@@ -627,6 +667,29 @@ public class FloydTests : EngineTestsBase
         var response = await target.GetResponse("floyd, are you okay");
 
         response.Should().Contain("adventure");
+    }
+
+    [Test]
+    public void SaveGameRequest_FloydIsDead_DoesNotSpeakInHisExcitedVoice()
+    {
+        // Issue #545 review, found by routing every liveness test through one property: saving the
+        // game beside Floyd is narrated in HIS voice (FloydAfterSaveGameRequest - "Yippee! Time for
+        // the dangerous bit?"). The gate is IsHereAndIsOn, and the corpse is left switched on and
+        // lying in Bio Lock East - so saving one turn after the death scene, standing over the body,
+        // had the dead robot squeal with excitement. Unlike the other post-mortem leaks this one is
+        // plainly reachable: the player is in that room, with that body, and saving is routine.
+        var target = GetTarget();
+        var bioLockEast = StartHere<BioLockEast>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.HasDied = true;
+        floyd.CurrentLocation = bioLockEast;
+        bioLockEast.ItemPlacedHere(floyd);
+
+        var request = target.Context.GetSaveGameRequest("Bio Lock East");
+
+        request.Should().BeNull();
     }
 
     [Test]
@@ -1555,6 +1618,29 @@ public class FloydTests : EngineTestsBase
 
         var pfContext = target.Context;
         pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    [Test]
+    public void CommentOnAction_DoesNotSetPrompt_WhenFloydIsDead()
+    {
+        // Issue #545 review: the queue's gate asked IsHereAndIsOn, and EndSequence leaves the corpse
+        // switched on, so a comment could be queued for a dead Floyd. Act() returns on HasDied before
+        // ever clearing PendingFloydActionCommentPrompt, so the queued prompt would also stay stuck
+        // forever, and the one-shot prompt would be burned unspoken.
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.HasDied = true;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+
+        var queued = floyd.CommentOnAction("Test prompt", target.Context);
+
+        queued.Should().BeFalse();
+        target.Context.PendingFloydActionCommentPrompt.Should().BeNull();
+        target.Context.UsedFloydActionCommentPrompts.Should().NotContain("Test prompt");
     }
 
     [Test]

@@ -110,7 +110,7 @@ public class FloydMovementManager(Floyd floyd)
     /// </summary>
     public void StartWandering(IContext context)
     {
-        if (!floyd.IsOn || floyd.HasDied)
+        if (!floyd.IsAlive)
             return; // Can't wander if he's not on or dead
 
         floyd.IsOffWandering = true;

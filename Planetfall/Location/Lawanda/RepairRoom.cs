@@ -77,7 +77,7 @@ internal class RepairRoom : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHere
 
     public Task<string> Act(IContext context, IGenerationClient client)
     {
-        if (!Repository.GetItem<Floyd>().IsHereAndIsOn(context) || HasToldMeAboutAchilles)
+        if (!Repository.GetItem<Floyd>().IsHereAndAlive(context) || HasToldMeAboutAchilles)
             return Task.FromResult(string.Empty);
 
         HasToldMeAboutAchilles = true;

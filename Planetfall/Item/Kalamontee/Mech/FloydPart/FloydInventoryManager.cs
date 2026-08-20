@@ -27,13 +27,9 @@ public class FloydInventoryManager(Floyd floyd)
 
     public InteractionResult SearchFloyd(IContext context)
     {
-        // "Is he alive?" is HasDied AND IsOn, never IsOn alone: EndSequence deliberately leaves the
-        // corpse's IsOn true (BioLockStateMachineManager.cs:63-68), so an IsOn-only test has the body
-        // giggle and stream oil from its eyes at being tickled (issue #545). Floyd's own
-        // RespondToSimpleInteraction happens to return to base on HasDied before this is reached, but
-        // that is one caller's ordering, not a guarantee - the liveness test belongs here, where IsOn
-        // is actually read.
-        if (floyd.IsOn && !floyd.HasDied)
+        // Liveness, not IsOn: the corpse is left switched on, and an IsOn-only test had the body
+        // giggle and stream oil from its eyes at being tickled (issue #545). See Floyd.IsAlive.
+        if (floyd.IsAlive)
             return new PositiveInteractionResult(FloydConstants.TickleFloyd);
 
         if (!floyd.HasItem<LowerElevatorAccessCard>())
@@ -48,11 +44,9 @@ public class FloydInventoryManager(Floyd floyd)
     public string? OfferLowerElevatorCard(IContext context, IRandomChooser chooser)
     {
         if (!IsFloydInRoom(context) ||
-            !floyd.IsOn ||
-            // Same trap as SearchFloyd above: the corpse keeps IsOn = true, so without HasDied this
-            // daemon has a dead Floyd clap his hands with excitement and wave a card (issue #545).
-            // Only geography kept it dormant - he dies in Bio Lock East, which has no card slot.
-            floyd.HasDied ||
+            // Liveness, not IsOn (see Floyd.IsAlive): without it this daemon had a dead Floyd clap
+            // his hands with excitement and wave a card (issue #545).
+            !floyd.IsAlive ||
             !floyd.Items.Any() ||
             floyd.HasRevealedLowerElevatorCard ||
             !RevealChanceSucceeds(context, chooser))
