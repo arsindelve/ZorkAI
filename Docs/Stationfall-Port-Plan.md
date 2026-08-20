@@ -50,7 +50,7 @@ Measured against the original, not from memory. Update this table as phases land
 | Region objects | 20 | 116 |
 | Background daemons | ~4 | 32 |
 | **Reachable score** | **8** | **80** |
-| Tests | 83 | — |
+| Tests | 85 | — |
 
 Landed so far:
 
@@ -82,6 +82,12 @@ Blocking work for Phases 5–6, no score movement:
 
 - **Commanding an NPC** (`<name>, <command>`). The engine has no intent for this at all; Planetfall
   approximates its equivalent with bespoke per-scene code. Needs a real intent plus routing.
+- **The companion, into `StellarPatrol`.** He is literally the same character in both games and
+  Planetfall's implementation runs to ~1800 lines across nine files. The persona prompts, the canned
+  social responses, following the player between rooms and carrying things are all common. What is
+  *not* common: power management (only one game's companion starts switched off) and every scripted
+  scene, which belong to their own game. Worth doing before Region A needs him, so the work is not
+  written twice and then merged.
 - **Generalising the elevator/vehicle pattern** — `Planetfall/Location/Kalamontee/ElevatorBase.cs`
   is the closest existing model.
 - **Atmosphere / pressure gating**, including its failure daemon.

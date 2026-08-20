@@ -349,6 +349,59 @@ public class SurvivalClockTests : EngineTestsBase
         }
     }
 
+    /// <summary>
+    ///     The clocks are only as good as their persistence: a survival timer that resets across a save
+    ///     hands the player back their whole day, and one that resets the wrong way starves them.
+    /// </summary>
+    [TestFixture]
+    public class AcrossASaveAndRestore : SurvivalClockTests
+    {
+        [Test]
+        public async Task TheLaddersAndTheirSchedulesComeBackUnchanged()
+        {
+            await TurnAt(6330); // first hunger pang
+            await TurnAt(8100); // first fatigue warning
+
+            // Fatigue takes long enough to arrive that hunger has escalated twice by the time it does.
+            Context.Hunger.Should().Be(HungerLevel.Ravenous);
+            Context.Tired.Should().Be(TiredLevel.Tired);
+
+            var hungerDueAt = Context.HungerNotifications.NextWarningAt;
+            var fatigueDueAt = Context.SleepNotifications.NextWarningAt;
+
+            var saved = _target.SaveGame();
+
+            // Move the state on, so a restore that quietly did nothing would be caught.
+            await TurnAt(8420);
+            Context.Tired.Should().Be(TiredLevel.VeryTired);
+
+            _target.RestoreGame(saved);
+
+            Context.Hunger.Should().Be(HungerLevel.Ravenous);
+            Context.Tired.Should().Be(TiredLevel.Tired);
+            Context.HungerNotifications.NextWarningAt.Should().Be(hungerDueAt);
+            Context.SleepNotifications.NextWarningAt.Should().Be(fatigueDueAt);
+        }
+
+        [Test]
+        public void TheDayAndAStoppedChronometerComeBackUnchanged()
+        {
+            Context.Day = 3;
+            GetItem<Chronometer>().HasStopped = true;
+
+            var saved = _target.SaveGame();
+
+            Context.Day = 1;
+            GetItem<Chronometer>().HasStopped = false;
+
+            _target.RestoreGame(saved);
+
+            Context.Day.Should().Be(3);
+            GetItem<Chronometer>().HasStopped.Should()
+                .BeTrue("a watch that repaired itself over a save would give the game away");
+        }
+    }
+
     [TestFixture]
     public class TheSleepVerb : SurvivalClockTests
     {
