@@ -321,6 +321,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task ExaminingAbsentFloyd_IsNotInterceptedByGuard()
     {
         var target = GetTarget();
+        MeetFloyd(); // without this #552's pre-meeting intercept answers and the guard is never reached
         StartHere<DeckNine>();
 
         var response = await target.GetResponse("examine floyd");
@@ -344,6 +345,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task AttackingAbsentFloyd_IsNotInterceptedByGuard()
     {
         var target = GetTarget();
+        MeetFloyd(); // without this #552's pre-meeting intercept answers and the guard is never reached
         StartHere<DeckNine>();
 
         var response = await target.GetResponse("attack floyd");

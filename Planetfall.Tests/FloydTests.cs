@@ -622,6 +622,29 @@ public class FloydTests : EngineTestsBase
         response.Should().Contain("no answer comes");
     }
 
+    // The guard on that backstop. Ordinary commands naming the corpse must reach Floyd's own
+    // handlers WITHOUT consulting the classifier - its decode is fail-open (anything but the literal
+    // "No" counts as conversational), so an unlucky call replaced the examine description with the
+    // mourning line. Stubbed here to the worst case: always "yes, conversational".
+    [TestCase("examine floyd", "a tremendous sense of loss")]
+    [TestCase("take floyd", "lay him gently back down")]
+    public async Task OrdinaryCommandsOnTheCorpse_NeverConsultTheClassifier(string input, string expected)
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+        ParseConversationMock.Setup(p => p.ParseAsync(It.IsAny<string>())).ReturnsAsync((true, ""));
+
+        var response = await target.GetResponse(input);
+
+        response.Should().Contain(expected);
+        response.Should().NotContain("no answer comes");
+        ParseConversationMock.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+    }
+
     // #545 round-2 review, finding 3. RespondForGoneForGoodTalker replaced a two-part detector
     // (deterministic strip OR the ParseConversation classifier) with IsGenuineDirectAddress alone.
     // That misses the looser phrasings only the classifier recognized - "could you let floyd know
@@ -2570,6 +2593,7 @@ public class FloydTests : EngineTestsBase
         var target = GetTarget();
         StartHere<RobotShop>();
         Take<IdCard>();
+        GetItem<Floyd>().HasEverBeenOn = true; // else #552's pre-meeting intercept answers instead
         GetItem<Floyd>().IsOn = false;
 
         var response = await target.GetResponse("show id card to floyd");

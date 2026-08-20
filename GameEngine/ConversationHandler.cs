@@ -2,6 +2,7 @@ using ChatLambda;
 using Microsoft.Extensions.Logging;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
+using Model;
 using Model.Interface;
 using Model.Item;
 
@@ -115,19 +116,49 @@ public class ConversationHandler(
     }
 
     /// <summary>
-    /// Backstop for address phrasings <see cref="IsGenuineDirectAddress"/> cannot recognize, kept
-    /// identical to <see cref="FindAddressedAbsentCharacter"/>'s: consult the conversation
-    /// classifier, but skip it when generation is disabled so the guard stays deterministic and
-    /// offline-safe in NoGeneratedResponses mode.
+    /// Backstop for address phrasings <see cref="IsGenuineDirectAddress"/> cannot recognize. Two
+    /// guards keep it from eating the ordinary commands the caller's doc promises will fall through:
+    /// <list type="bullet">
+    /// <item>Skipped when the input opens with a game verb. "examine floyd" / "take floyd" /
+    /// "search robot" are commands for the item's own handlers, and the whole point of the
+    /// gone-for-good route is that they reach them WITHOUT a network call. Letting the classifier
+    /// judge those made the corpse's examine/take/search output depend on a remote LLM whose decode
+    /// is fail-open (anything but the literal string "No" counts as conversational) - so an
+    /// unlucky call replaced the examine description with the mourning line. That regression is
+    /// what this guard exists to prevent; the phrasings actually being recovered here ("could you
+    /// let floyd know ...") never start with a verb.</item>
+    /// <item>Skipped when generation is disabled, so the guard stays deterministic and offline-safe
+    /// in NoGeneratedResponses mode - the same rule <see cref="FindAddressedAbsentCharacter"/>
+    /// follows.</item>
+    /// </list>
     /// </summary>
     private async Task<bool> ClassifierSaysAddressed(string input)
     {
-        if (generationClient.IsDisabled)
+        if (generationClient.IsDisabled || OpensWithAGameVerb(input))
             return false;
 
         var parseResult = await parseConversation.ParseAsync(input);
         logger?.LogDebug($"[CONVERSATION DEBUG] Gone-for-good classifier isConversational: {parseResult.isConversational}");
         return parseResult.isConversational;
+    }
+
+    /// <summary>
+    /// True when the command's first word is a verb the game itself acts on. Drawn from
+    /// <see cref="Verbs"/>, the codebase's stated single source of truth for verb families, so a
+    /// synonym added there is honored here without a second list to maintain.
+    /// </summary>
+    private static bool OpensWithAGameVerb(string input)
+    {
+        string[][] families =
+        [
+            Verbs.ExamineVerbs, Verbs.LookVerbs, Verbs.TakeVerbs, Verbs.DropVerbs, Verbs.OpenVerbs,
+            Verbs.CloseVerbs, Verbs.PushVerbs, Verbs.MoveVerbs, Verbs.KillVerbs, Verbs.BreakVerbs,
+            Verbs.TouchVerbs, Verbs.ApplyVerbs, Verbs.ThrowVerbs, Verbs.GiveVerbs, Verbs.ShowVerbs
+        ];
+
+        return families.SelectMany(family => family)
+            .Concat(["search", "turn", "switch", "activate", "deactivate", "read", "smell", "oil"])
+            .Any(verb => StartsWithWholeWord(input.TrimStart(), verb));
     }
 
     /// <summary>
@@ -147,7 +178,9 @@ public class ConversationHandler(
     /// gate already keeps this branch dormant there; the speech test is a second line of defense.</item>
     /// <item>Routing relies on the NPC's AI conversation backend, so it honors the generation
     /// kill-switch exactly like the present-name path, staying deterministic in NoGeneratedResponses
-    /// mode.</item>
+    /// mode - EXCEPT for a gone-for-good talker, who answers with a constant and so deliberately
+    /// bypasses the kill-switch below. Hoisting that check back to the top of the method would look
+    /// equivalent and would silently restore the blank-response bug.</item>
     /// </list>
     /// Returns the NPC's reply, or null to fall through to normal parsing.
     /// </summary>

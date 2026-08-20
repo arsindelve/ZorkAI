@@ -458,10 +458,10 @@ public class ConversationHandlerTests
     [TestCase("talk to ghost")]
     public async Task CheckForConversation_PresentTalkerGoneForGood_RecognizesImperativeAddress(string input)
     {
-        // The present path normally leaves imperative lead-ins ("ask X ...") to the classifier, which
-        // we no longer call here. Detection therefore uses IsGenuineDirectAddress - the same
-        // deterministic test the absent path trusts - which covers the imperative forms too, so
-        // skipping the rewriter costs no coverage.
+        // Detection is two-tier: IsGenuineDirectAddress first - the same deterministic test the
+        // absent path trusts, covering leading names AND imperative lead-ins - with the classifier
+        // only as a backstop for what it misses. These forms are all caught deterministically, so
+        // the classifier is never reached; the Times.Never below is what pins that.
         var mockParser = new Mock<IParseConversation>();
         mockParser.Setup(p => p.ParseAsync(It.IsAny<string>())).ReturnsAsync((false, string.Empty));
         var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
@@ -472,6 +472,7 @@ public class ConversationHandlerTests
         var result = await handler.CheckForConversation(input, context);
 
         result.Should().Be("ghost talked");
+        mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
     }
 
     [TestCase("examine ghost")]
@@ -482,7 +483,14 @@ public class ConversationHandlerTests
         // The short-circuit must not swallow real commands that merely NAME the character. "examine
         // floyd" on the corpse has to keep reaching the item's own examine handler (the mourning
         // description), not be answered as though the player spoke to the body.
+        //
+        // The classifier is stubbed to the WORST case - always "yes, conversational" - because its
+        // real decode is fail-open (anything but the literal string "No" counts as conversational).
+        // This test previously passed only on Moq's unstubbed default of false, which meant it
+        // asserted the behavior of a mock rather than of the handler; a verb-first command must
+        // never reach the classifier at all.
         var mockParser = new Mock<IParseConversation>();
+        mockParser.Setup(p => p.ParseAsync(It.IsAny<string>())).ReturnsAsync((true, string.Empty));
         var handler = new ConversationHandler(null, mockParser.Object, Mock.Of<IGenerationClient>(),
             new[] { typeof(GhostTalker) });
         var context = new ZorkIContext();
@@ -491,6 +499,7 @@ public class ConversationHandlerTests
         var result = await handler.CheckForConversation(input, context);
 
         result.Should().BeNull();
+        mockParser.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
     }
 
     [Test]
