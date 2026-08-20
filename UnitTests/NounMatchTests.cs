@@ -1,5 +1,7 @@
 using GameEngine;
 using GameEngine.Item;
+using Planetfall.Item.Feinstein;
+using Planetfall.Item.Kalamontee.Admin;
 using ZorkOne.Item;
 
 namespace UnitTests;
@@ -142,6 +144,51 @@ public class NounMatchTests
         public void NamesASingleObject_ToleratesANullOriginalInput()
         {
             NounMatch.NamesASingleObject("lantern", null).Should().BeTrue();
+        }
+    }
+
+    [TestFixture]
+    public class PreciselyNamesTests : NounMatchTests
+    {
+        [Test]
+        public void PreciselyNames_RejectsASuffixWordCoincidence()
+        {
+            // Issue #536: the ID card's bare noun "card" is a trailing word of "lower card", so the
+            // looser CouldName says yes - which is exactly how "take lower card" in an empty room
+            // dragged the ID card out of a pocket. PreciselyNames must say no: "lower card" is not one
+            // of the ID card's own precise nouns.
+            var idCard = Repository.GetItem<IdCard>();
+
+            NounMatch.CouldName(idCard, "lower card").Should()
+                .BeTrue("this is the loose match PreciselyNames is meant to be stricter than");
+            NounMatch.PreciselyNames(idCard, "lower card").Should().BeFalse();
+        }
+
+        [Test]
+        public void PreciselyNames_AcceptsTheCardThatActuallyRegistersThatPhrase()
+        {
+            // The port distinguishes the two cards in exactly this vocabulary: the lower elevator access
+            // card registers "lower card" as one of its precise nouns, the ID card does not.
+            NounMatch.PreciselyNames(Repository.GetItem<LowerElevatorAccessCard>(), "lower card").Should().BeTrue();
+        }
+
+        [TestCase("lantern", TestName = "PreciselyNames_ExactBareNoun")]
+        [TestCase("brass lantern", TestName = "PreciselyNames_ExactAdjectivePhrase")]
+        [TestCase("LANTERN", TestName = "PreciselyNames_IsCaseInsensitive")]
+        [TestCase("  brass lantern  ", TestName = "PreciselyNames_IgnoresSurroundingWhitespace")]
+        public void PreciselyNames_AcceptsTheItemsOwnNouns(string noun)
+        {
+            NounMatch.PreciselyNames(Repository.GetItem<Lantern>(), noun).Should().BeTrue();
+        }
+
+        [TestCase("lower lantern", TestName = "PreciselyNames_RejectsAnAdjectiveTheItemDoesNotRegister")]
+        [TestCase("xyzzy", TestName = "PreciselyNames_RejectsNonsense")]
+        [TestCase("", TestName = "PreciselyNames_RejectsEmpty")]
+        [TestCase("   ", TestName = "PreciselyNames_RejectsWhitespace")]
+        [TestCase(null, TestName = "PreciselyNames_RejectsNull")]
+        public void PreciselyNames_RejectsWhatIsNotOneOfItsNouns(string? noun)
+        {
+            NounMatch.PreciselyNames(Repository.GetItem<Lantern>(), noun).Should().BeFalse();
         }
     }
 }
