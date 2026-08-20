@@ -1,7 +1,11 @@
 using Utilities;
 
-namespace Planetfall;
+namespace StellarPatrol;
 
+/// <summary>
+///     The shared fatigue ladder. As with <see cref="HungerLevel" />, both games use identical warning
+///     text and differ only in how fast they climb it.
+/// </summary>
 public enum TiredLevel
 {
     [Description("You seem to be well-rested.")]
