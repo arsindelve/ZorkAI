@@ -53,10 +53,26 @@
     { "inputs": ["press message playback button"], "verb": "press", "noun": "message playback button" },
     { "inputs": ["press glowing button"], "verb": "press", "noun": "glowing button" },
 
+    // The escape-pod bulkhead, named the way Deck Nine's own description names it. The live AI parser
+    // returns both shapes for these - the whole phrase as one noun, or split into adjective + noun -
+    // so both are stubbed here (issue: "open escape pod" was answered as if no pod existed).
+    { "inputs": ["open escape pod"], "verb": "open", "noun": "escape pod" },
+    { "inputs": ["open the escape pod"], "verb": "open", "noun": "pod", "adjective": "escape" },
+    { "inputs": ["open pod bulkhead"], "verb": "open", "noun": "pod bulkhead" },
+    { "inputs": ["open the pod bulkhead"], "verb": "open", "noun": "bulkhead", "adjective": "pod" },
+    { "inputs": ["open escape pod bulkhead"], "verb": "open", "noun": "escape pod bulkhead" },
+    { "inputs": ["examine escape pod"], "verb": "examine", "noun": "escape pod" },
+    // Deliberately NOT a pod-door name: the original shares the EMERGENCY adjective across three doors
+    // in Deck Nine's scope, so this phrase is ambiguous rather than POD-DOOR's. Stubbed so the test can
+    // prove the pod door does not claim it.
+    { "inputs": ["open emergency bulkhead"], "verb": "open", "noun": "bulkhead", "adjective": "emergency" },
+
     { "inputs": ["open red door"], "verb": "open", "noun": "red door" },
     { "inputs": ["close red door"], "verb": "close", "noun": "red door" },
     { "inputs": ["examine red door"], "verb": "examine", "noun": "red door" },
     { "inputs": ["examine blue door"], "verb": "examine", "noun": "blue door" },
+    { "inputs": ["examine sliding door"], "verb": "examine", "noun": "sliding door" },
+    { "inputs": ["examine metal door"], "verb": "examine", "noun": "metal door" },
     { "inputs": ["open elevator door"], "verb": "open", "noun": "elevator door" },
     { "inputs": ["open blue door"], "verb": "open", "noun": "blue door" },
     { "inputs": ["close blue door"], "verb": "close", "noun": "blue door" },
@@ -359,6 +375,10 @@
     { "inputs": ["enter pod", "board pod", "enter the pod", "board the pod"], "noun": "pod" },
     { "inputs": ["enter bulkhead", "board bulkhead"], "noun": "bulkhead" },
     { "inputs": ["enter door", "board door"], "noun": "door" },
+    { "inputs": ["enter blue door", "board blue door"], "noun": "blue door" },
+    { "inputs": ["enter red door", "board red door"], "noun": "red door" },
+    { "inputs": ["enter upper elevator door"], "noun": "upper elevator door" },
+    { "inputs": ["enter lower elevator door"], "noun": "lower elevator door" },
 
     { "inputs": ["enter helicopter", "board helicopter", "enter the helicopter"], "noun": "helicopter" },
     { "inputs": ["enter vehicle", "board vehicle", "enter the vehicle"], "noun": "vehicle" },

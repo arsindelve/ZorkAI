@@ -4,7 +4,7 @@ using Planetfall.Location.Kalamontee;
 
 namespace Planetfall.Location.Shuttle;
 
-public class WaitingArea : LocationWithNoStartingItems
+public class WaitingArea : LocationBase
 {
     public override string Name => "Waiting Area";
 
@@ -13,9 +13,17 @@ public class WaitingArea : LocationWithNoStartingItems
     // The original gates this entrance on the door being open *and* the car actually being at this end
     // of the shaft (compone.zil, OTHER-ELEVATOR-ENTER-F, which also makes the door the implicit "it" -
     // hence the Doorway's GatingItem). A bare Go<LowerElevator>() let you walk into a car parked up at
-    // the lobby, and then be sealed in, since the car's own exits gate on the door.
-    private Doorway Door =>
-        new(Repository.GetItem<LowerElevatorDoor>(), () => GetLocation<LowerElevator>().IsOpenAtTheFarEnd);
+    // the lobby, and then be sealed in, since the car's own exits gate on the door. That two-part test
+    // is the waiting area door's own IsOpen.
+    private Doorway Door => new(GetItem<LowerElevatorWaitingAreaDoor>());
+
+    // The room's description names this door ("to the south is a metal door"), so the room has to have
+    // one. It never did - the shaft's single door object was owned by the car and the lobby - so
+    // "examine door" and "enter door" here resolved to nothing at all (issue #532).
+    public override void Init()
+    {
+        StartWithItem<LowerElevatorWaitingAreaDoor>();
+    }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {

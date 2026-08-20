@@ -264,7 +264,10 @@ public class DoorTests : EngineTestsBase
 
         var examine = await target.GetResponse("examine bulkhead");
 
-        examine.Should().Contain("nothing special about the narrow emergency bulkhead");
+        // The door's display name is its longest noun, which is POD-DOOR's own DESC
+        // (planetfall-source/globals.zil:1094). It used to be "narrow emergency bulkhead" — the name of
+        // the gangway bulkhead (globals.zil:1139), a different door entirely.
+        examine.Should().Contain("nothing special about the escape pod bulkhead");
     }
 
     [Test]
