@@ -32,8 +32,18 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
     {
         if (!HasApiKey) return string.Empty;
 
-        const string system =
-            "You are the SOLVER stage of a hint system for the text-adventure game Planetfall. Work out the " +
+        // This class is shared by every game, so the solver scaffolding below must stay generic: the game's
+        // identity and the flags that matter in its state come from the persona. Hardcoding them here told
+        // Zork/EscapeRoom they were playing Planetfall, and grounded them on Floyd (#484).
+        // Name the game only when the persona actually supplies one — an unnamed game drops the clause
+        // rather than filling it with a placeholder, which would read "...the text-adventure game this
+        // text adventure."
+        var game = string.IsNullOrWhiteSpace(persona.GameName)
+            ? "a text adventure"
+            : $"the text-adventure game {persona.GameName}";
+
+        var system =
+            $"You are the SOLVER stage of a hint system for {game}. Work out the " +
             "COMPLETE, correct answer to the player's question, using ONLY the knowledge base and their situation.\n" +
             "RESOLVE FOLLOW-UPS: the player may be continuing a thread. If their new question is elliptical " +
             "('how do I open it?', 'more', 'is it serious?'), use the conversation so far to figure out what " +
@@ -45,7 +55,7 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
             "redirect them to a different task or item.\n" +
             "- Only if they ask an open-ended question ('what do I do?', 'I'm stuck', 'where next?') should you use " +
             "their current next step from the situation.\n" +
-            "Use the player's situation (what's done, Floyd alive/dead, their health) as grounding/background — to " +
+            $"Use the player's situation ({persona.StateGrounding}) as grounding/background — to " +
             "make the answer accurate, NEVER as an excuse to dodge the question. This output is internal reasoning " +
             "for a second stage (not shown to the player) — be specific and complete. Never invent facts beyond the " +
             "knowledge base; if it isn't covered, say so.";

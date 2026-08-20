@@ -37,6 +37,17 @@ public class PlanetfallHintProviderTests : EngineTestsBase
     }
 
     [Test]
+    public void Persona_CarriesTheGameIdentityAndStateGrounding()
+    {
+        // The shared solver prompt is game-agnostic; Planetfall's identity and the flags that matter to it
+        // (Floyd alive/dead, health) travel on the persona, not baked into ZorkAI.OpenAI (issue #484).
+        var persona = Provider().Persona;
+        persona.GameName.Should().Be(new PlanetfallGame().GameName);
+        persona.StateGrounding.Should().Contain("Floyd");
+        persona.SystemPrompt.Should().Contain("narrator");
+    }
+
+    [Test]
     public void DescribePlayerContext_LeadsWithKeyState_ThenFullSaveGame()
     {
         var context = Provider().DescribePlayerContext(Context);
