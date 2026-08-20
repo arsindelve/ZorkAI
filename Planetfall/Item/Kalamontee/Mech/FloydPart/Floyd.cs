@@ -128,9 +128,29 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     public override string[] NounsForMatching => ["floyd", "robot", "B-19-7", "multi-purpose robot"];
 
-    public override string? CannotBeTakenDescription => IsOn
-        ? FloydConstants.TakeFloyd
-        : null;
+    // HasDied is checked before IsOn, not folded into it: EndSequence deliberately leaves the
+    // corpse's IsOn true, so keying on IsOn alone served the living-Floyd refusal - the body
+    // squealing in surprise and scooting away from his own funeral (issue #545).
+    public override string? CannotBeTakenDescription => HasDied
+        ? FloydConstants.TakeDead
+        : IsOn
+            ? FloydConstants.TakeFloyd
+            : null;
+
+    /// <summary>
+    /// Floyd's death is permanent, so once he has died the engine must never let the narrator
+    /// improvise about where he has got to. See <see cref="ICanBeTalkedTo.IsGoneForGood"/>.
+    /// </summary>
+    public bool IsGoneForGood => HasDied;
+
+    /// <summary>
+    /// Answers the player who addresses Floyd by name while his body is elsewhere. After the
+    /// trapped-death branch he has no location at all (he dies inside the Bio Lab), so this is the
+    /// line that replaces the narrator's cheerful guesswork about his whereabouts.
+    /// </summary>
+    public string NotHereDescription => HasDied
+        ? FloydConstants.NotHereDead
+        : "Floyd isn't here. ";
 
     protected override string SystemPrompt => FloydPrompts.SystemPrompt;
 
@@ -176,6 +196,12 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     /// <returns>Floyd's response to the conversation, or an error message if he's off or the AI service fails.</returns>
     public async Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
     {
+        // HasDied first: the corpse keeps IsOn = true (EndSequence), so without this gate the chat
+        // lambda answered for a dead Floyd - "Floyd says he is okay now that you are here" beside
+        // his body (issue #545).
+        if (HasDied)
+            return FloydConstants.TalkToDead;
+
         if (!IsOn)
             return "The robot doesn't respond - it appears to be turned off.";
 

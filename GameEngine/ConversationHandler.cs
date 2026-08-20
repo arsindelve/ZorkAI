@@ -231,6 +231,15 @@ public class ConversationHandler(
     {
         var fallback = target.NotHereDescription;
 
+        // A character who is gone for good is never handed to the narrator: asked where they are, it
+        // answers by inventing a whereabouts ("off on his own little adventure"), which reads as a
+        // joke one turn after the player watched them die. Their own static line mourns instead (#545).
+        if (target.IsGoneForGood)
+        {
+            logger?.LogDebug($"[CONVERSATION DEBUG] Talker is gone for good; static line: '{fallback}'");
+            return fallback;
+        }
+
         if (generationClient.IsDisabled)
         {
             logger?.LogDebug($"[CONVERSATION DEBUG] Generation disabled; absent talker fallback: '{fallback}'");

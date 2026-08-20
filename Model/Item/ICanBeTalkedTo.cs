@@ -18,6 +18,16 @@ public interface ICanBeTalkedTo : IInteractionTarget
     Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client);
 
     /// <summary>
+    /// True when this character is gone for good - dead - rather than merely somewhere else.
+    /// Addressing an absent character normally hands the reply to the narrator, which answers a
+    /// whereabouts question by inventing one ("Floyd must be off on his own little adventure") - a
+    /// grotesque thing to read one turn after watching that character die (issue #545). When this is
+    /// true the deterministic <see cref="NotHereDescription"/> is used instead, so the character's
+    /// own author decides how their absence is mourned. Defaults to false.
+    /// </summary>
+    bool IsGoneForGood => false;
+
+    /// <summary>
     /// The terse, static reply shown when the player directly addresses this character by name
     /// while they are not present — e.g. "Floyd isn't here.". This is a fixed string, never an AI
     /// generation, so it is deterministic. The default capitalizes the character's matching name;

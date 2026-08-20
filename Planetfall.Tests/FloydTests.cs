@@ -487,6 +487,90 @@ public class FloydTests : EngineTestsBase
     }
 
     [Test]
+    public async Task TalkToFloyd_Dead_MournsInsteadOfChatting()
+    {
+        // Issue #545: EndSequence deliberately leaves the corpse's IsOn true, so the old
+        // !IsOn-only gate in OnBeingTalkedTo let the chat lambda answer for a dead Floyd
+        // ("Floyd says he is okay now that you are here."). The gate must consult HasDied.
+        var target = GetTarget();
+        StartHere<RobotShop>(); // RobotShop.Init places Floyd here, so he is a present talker.
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+        var chat = new Mock<IChatWithFloyd>();
+        chat.Setup(s => s.AskFloydAsync(It.IsAny<string>()))
+            .ReturnsAsync(new CompanionResponse("Floyd says he is okay now that you are here.", null));
+        floyd.ChatWithFloyd = chat.Object;
+
+        var response = await target.GetResponse("floyd, are you okay");
+
+        response.Should().NotContain("okay now that you are here");
+        response.Should().Contain("no answer comes");
+        chat.Verify(s => s.AskFloydAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task TakeFloyd_Dead_DoesNotSquealAndScootAway()
+    {
+        // Issue #545: CannotBeTakenDescription keyed off IsOn alone, and the corpse's IsOn is
+        // deliberately left true, so "take floyd" served the living-Floyd refusal - the body
+        // giving "a surprised squeal" and moving "a respectable distance away".
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+
+        var response = await target.GetResponse("take floyd");
+
+        response.Should().NotContain("surprised squeal");
+        response.Should().Contain("lay him gently back down");
+    }
+
+    [Test]
+    public async Task TalkToFloyd_DeadAndAbsent_AcknowledgesDeathInsteadOfJokingAboutAdventures()
+    {
+        // Issue #545, trapped-death branch: Floyd dies inside the Bio Lab with CurrentLocation
+        // null, so addressing him takes the absent-talker path - which handed him to the narrator,
+        // who cheerfully invented a whereabouts ("off on his own little adventure") one turn after
+        // the player watched him die. A character who is gone for good gets their own static line.
+        var target = GetTarget();
+        StartHere<MessHall>(); // Floyd is not here.
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.CurrentLocation = null;
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateNarration(It.IsAny<TalkingToAbsentCharacterRequest>(), It.IsAny<string>()))
+            .ReturnsAsync("Floyd must be off on his own little adventure.");
+
+        var response = await target.GetResponse("floyd, are you okay");
+
+        response.Should().NotContain("adventure");
+        response.Should().Contain("Floyd is gone");
+    }
+
+    [Test]
+    public async Task TalkToFloyd_AliveAndAbsent_StillGetsTheNarratedAbsence()
+    {
+        // The gone-for-good gate must not swallow the ordinary absent-Floyd narration (#264):
+        // while Floyd is merely elsewhere, the narrator still answers in its own voice.
+        var target = GetTarget();
+        StartHere<MessHall>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.CurrentLocation = GetLocation<RobotShop>();
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateNarration(It.IsAny<TalkingToAbsentCharacterRequest>(), It.IsAny<string>()))
+            .ReturnsAsync("Floyd must be off on his own little adventure.");
+
+        var response = await target.GetResponse("floyd, are you okay");
+
+        response.Should().Contain("adventure");
+    }
+
+    [Test]
     public async Task TurnOff_FloydIsDead()
     {
         var target = GetTarget();

@@ -63,6 +63,24 @@ public static class FloydConstants
         "From its design, the robot seems to be of the multi-purpose sort. It is slightly cross-eyed, and its " +
         "mechanical mouth forms a lopsided grin. ";
 
+    // The three constants below answer the player once Floyd has died. The corpse's IsOn is
+    // deliberately left true by BioLockStateMachineManager.EndSequence, so every post-mortem
+    // interaction path has to consult HasDied instead - the paths that didn't were serving
+    // living-Floyd responses to his body (issue #545). Register follows DEAD-FLOYD-F
+    // (compone.zil:2303-2313): grief, never the living robot's chirp.
+    internal const string TakeDead =
+        "You slip your arms beneath your friend and try to lift him, but Floyd is far too heavy, and " +
+        "you have not the heart to drag him. You lay him gently back down. ";
+
+    internal const string TalkToDead =
+        "You speak your friend's name, but Floyd lies still and silent, and no answer comes. ";
+
+    // Used when the player addresses Floyd after his death while his body is elsewhere - most
+    // painfully, the trapped-death branch, where he dies inside the Bio Lab and has no location at
+    // all. See Floyd.NotHereDescription.
+    internal const string NotHereDead =
+        "Floyd is gone. There will be no answer. ";
+
     internal const string ExaminationDead =
         "You turn to look at Floyd, but a tremendous sense of loss overcomes you, and you turn away. ";
 
