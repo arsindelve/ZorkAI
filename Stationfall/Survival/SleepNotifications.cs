@@ -25,6 +25,10 @@ public class SleepNotifications : SleepNotificationsBase
     ///     Millichrons between climbing into a bed while tired and actually dropping off
     ///     (globals.zil:853). Longer than the drift-off that follows a fatigue warning, which is the
     ///     base class's default.
+    ///     Unused until somewhere implements <see cref="IAmABed" />; the action that puts the player
+    ///     into that bed is what should pass this to
+    ///     <see cref="SleepNotificationsBase.QueueFallAsleep" />. See the remarks on
+    ///     <see cref="IAmABed" /> for why passing it explicitly matters.
     /// </summary>
     public const int TicksToDriftOffInBed = 22;
 
