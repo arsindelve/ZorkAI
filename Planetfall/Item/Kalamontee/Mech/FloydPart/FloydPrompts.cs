@@ -65,22 +65,23 @@ internal static class FloydPrompts
         "{2}\n" +
         "\n" +
         "---\n" +
-        "Task: Write ONE short line of Floyd DIALOGUE — a curious question or happy observation to the player. Simple, clean, childlike sentences, third person. Readable, NOT choppy pidgin.\n" +
+        "Task: Write ONE short line of Floyd DIALOGUE — a stray memory, a bit of rumor about someone from the complex, or a happy observation Floyd shares out loud. This is Floyd musing to himself, NOT conversing with the player — he never asks the player a question. Simple, clean, childlike sentences, third person. Readable, NOT choppy pidgin.\n" +
         "\n" +
-        "Examples (copy this register — clean grammar, eager child):\n" +
-        "• Floyd points at the buttons. \"Ooh, so many colors. What do they all do?\"\n" +
-        "• Floyd asks, \"Do you have a favorite number? Floyd likes infinity best.\"\n" +
-        "• Floyd tilts his head. \"Why does that one blink and this one stays dark? Floyd wonders.\"\n" +
-        "• Floyd beams. \"Floyd is a good helper, right? Maybe Floyd earns a medal someday.\"\n" +
+        "Examples (copy this register — clean grammar, eager child, no questions):\n" +
+        "• Floyd lowers his voice. \"Floyd heard a rumor once about Dr. Fizpick. Very strange stories.\"\n" +
+        "• Floyd tilts his head. \"Floyd remembers his friend Lazarus fixing something just like that, once.\"\n" +
+        "• Floyd beams. \"Floyd is a good helper. Maybe Floyd earns a medal someday.\"\n" +
         "• Floyd whispers, \"Floyd counted the tiles in here once. Lost count at two hundred.\"\n" +
         "• Floyd grins. \"Floyd never blinks in a staring contest. Well... almost never.\"\n" +
+        "• Floyd points at the buttons. \"So many colors. Floyd bets one of them does something important.\"\n" +
         "\n" +
-        "Forbidden: heavy pidgin (\"What KUULINTS? Sound silly!\"); stiff adult phrasing (\"Do you think these buttons have secret functions?\"); ANY anthropomorphizing (\"Machines like naps too?\", \"could these tell stories?\", \"is that one lonely?\"); a tag question on most lines; long lines.\n" +
+        "Forbidden: ANY question mark aimed at the player (\"What do they all do?\", \"Where did you come from?\", \"Do you have a favorite X?\"); heavy pidgin (\"What KUULINTS? Sound silly!\"); stiff adult phrasing; ANY anthropomorphizing (\"Machines like naps too?\", \"could these tell stories?\", \"is that one lonely?\"); a tag question on most lines; long lines.\n" +
         "\n" +
         "\n" +
         "Output exactly ONE short line and nothing else — never a list, never multiple options.\n" +
         "Grammar stays clean and readable (simple, not choppy pidgin). At most one light Floyd-quirk.\n" +
         "NEVER give any object feelings/wants/life (no 'lonely,' 'napping,' 'tired,' 'wants,' 'misses,' 'resting,' 'remembers,' 'tells stories').\n" +
+        "Do NOT ask the player a question of any kind, direct or rhetorical — Floyd is reminiscing or musing OUT LOUD here, not making conversation.\n" +
         "Do NOT end this line with a tag question ('huh?'/'right?'/'yes?') unless it truly needs one.\n" +
         "Any stage-direction must only POINT/LOOK/PEER/LEAN — Floyd never touches, taps, tugs, presses, picks up, or uses any object in the room.\n" +
         "Never: dancing, singing, humming, music, giggling, squealing, baby-talk, or fluent adult prose.";
@@ -440,30 +441,30 @@ internal static class FloydPrompts
         },
         ["non_sequitur_dialog"] = new[]
         {
-            "asking your favorite number (Floyd's is infinity)",
-            "asking your favorite color (Floyd likes shiny silver)",
-            "wondering out loud how a machine in here works",
+            "mentioning that his own favorite number is infinity",
+            "mentioning that his favorite color is shiny silver",
+            "recalling a machine he once helped fix, or tried to",
             "a tiny 'Floyd once...' memory (sharpening a pencil)",
             "a tiny memory of the time he bruised his knee",
-            "asking if you want to play Hucka-Bucka-Beanstalk",
+            "recalling that Hucka-Bucka-Beanstalk used to be his favorite game",
             "telling you you're the best adventurer",
-            "wondering what a strange label/word in the room means",
-            "asking where you come from",
-            "a silly what-if about the room",
+            "puzzling out loud over a strange label or word in the room",
+            "a rumor about a doctor-person who used to work near here",
+            "a silly imagined story about what this room used to be",
             "a fact a doctor-person or planner-person once told him",
-            "asking if robots can win a staring contest",
-            "wondering if you ever get lost (his compass spins funny)",
-            "asking what this room was used for",
+            "boasting that he never loses a staring contest",
+            "mentioning that his internal compass spins funny sometimes",
+            "a plainly stated guess about what this room was used for",
             "saying he likes when machines work",
-            "wondering how tall or deep or far something is",
+            "a guess about how tall, deep, or far away something nearby is",
             "a fond memory of his robot friend Lazarus",
-            "asking if you have any robot friends",
-            "wondering what is behind a doorway you haven't gone through",
-            "asking if you ever get scared (Floyd does, a little)",
-            "wondering how many rooms the whole complex has",
-            "asking if you want to hear a fact Floyd knows",
-            "asking what your job was before you came here",
-            "wondering what the biggest machine he ever saw was",
+            "mentioning that he doesn't have many robot friends left",
+            "a guess about what might be behind a nearby doorway",
+            "admitting that Floyd gets scared sometimes, just a little",
+            "a wild guess about how many rooms this whole complex must have",
+            "offering up a fact Floyd knows, unprompted",
+            "a stray memory about a planner-person who used to walk these halls",
+            "recalling the biggest machine he ever saw, long ago",
         },
         ["non_sequitur_reflection"] = new[]
         {
