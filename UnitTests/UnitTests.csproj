@@ -36,6 +36,7 @@
         <ProjectReference Include="..\ZorkAI.OpenAI\ZorkAI.OpenAI.csproj" />
         <ProjectReference Include="..\Planetfall\Planetfall.csproj"/>
         <ProjectReference Include="..\Planetfall-Lambda\src\Planetfall-Lambda\Planetfall-Lambda.csproj"/>
+        <ProjectReference Include="..\Stationfall-Lambda\src\Stationfall-Lambda\Stationfall-Lambda.csproj"/>
         <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
         <!-- Referenced so their DLLs land in the test output and the serialization guard
              (SessionStateSerializationGuardTests) covers every game, not just Zork One / Planetfall. -->
