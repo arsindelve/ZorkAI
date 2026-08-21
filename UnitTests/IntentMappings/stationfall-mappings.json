@@ -1,0 +1,23 @@
+{
+  "version": "1.0",
+  "gameName": "stationfall",
+  "extends": "base",
+
+  // Phrasings the hand-rolled TestParser cannot reach on its own: it has no "shut" verb, and its
+  // verb+noun fallback only handles two-word commands, so every multi-word noun needs naming here.
+  // These used to "work" only because the Spacetruck and Docking Bay intercepted raw input strings
+  // before the parser ever saw them. That interception is gone now that the hatch is a real object in
+  // each room, so the phrasings the hatch advertises have to be genuinely parseable instead.
+  "simpleIntents": [
+    { "inputs": ["shut hatch", "shut the hatch"], "verb": "close", "noun": "hatch" },
+    { "inputs": ["shut door", "shut the door"], "verb": "close", "noun": "door" },
+    { "inputs": ["close spacetruck hatch", "close the spacetruck hatch"], "verb": "close", "noun": "spacetruck hatch" },
+    { "inputs": ["close truck hatch", "close the truck hatch"], "verb": "close", "noun": "truck hatch" },
+    { "inputs": ["shut spacetruck hatch"], "verb": "close", "noun": "spacetruck hatch" },
+    { "inputs": ["shut truck hatch"], "verb": "close", "noun": "truck hatch" },
+    { "inputs": ["open spacetruck hatch", "open the spacetruck hatch"], "verb": "open", "noun": "spacetruck hatch" },
+    { "inputs": ["open truck hatch", "open the truck hatch"], "verb": "open", "noun": "truck hatch" },
+    { "inputs": ["examine spacetruck hatch"], "verb": "examine", "noun": "spacetruck hatch" },
+    { "inputs": ["examine truck hatch"], "verb": "examine", "noun": "truck hatch" }
+  ]
+}
