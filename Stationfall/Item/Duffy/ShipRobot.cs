@@ -70,7 +70,7 @@ public abstract class ShipRobot : ContainerBase, ICanBeExamined, ITurnBasedActor
     /// <summary>
     ///     Display name — the robots go by their given names, with no article.
     /// </summary>
-    public string Name => NounsForMatching[0][..1].ToUpperInvariant() + NounsForMatching[0][1..];
+    public override string Name => NounsForMatching[0][..1].ToUpperInvariant() + NounsForMatching[0][1..];
 
     public override string GenericDescription(ILocation? currentLocation)
     {

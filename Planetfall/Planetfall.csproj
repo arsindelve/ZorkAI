@@ -10,6 +10,7 @@
         <ProjectReference Include="..\ChatLambda\ChatLambda.csproj" />
         <ProjectReference Include="..\GameEngine\GameEngine.csproj"/>
         <ProjectReference Include="..\Model\Model.csproj"/>
+        <ProjectReference Include="..\StellarPatrol\StellarPatrol.csproj"/>
         <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
     </ItemGroup>
 
@@ -30,6 +31,13 @@
     -->
     <ItemGroup>
         <EmbeddedResource Include="**/*.cs" Exclude="obj/**;bin/**;AI/**" />
+        <!-- Survival and time mechanics moved to the shared StellarPatrol library; the hint
+             bundle still needs them, or it loses knowledge of hunger, fatigue and the clock. -->
+        <EmbeddedResource Include="../StellarPatrol/**/*.cs" Exclude="../StellarPatrol/obj/**;../StellarPatrol/bin/**">
+            <!-- Link is required, not cosmetic: without it these flatten onto the same resource
+                 identifiers as Planetfall's own files and the build fails on the collision. -->
+            <Link>StellarPatrol/%(RecursiveDir)%(Filename)%(Extension)</Link>
+        </EmbeddedResource>
         <EmbeddedResource Include="../Planetfall.Tests/Walkthrough/WalkthroughTestOne.cs" />
     </ItemGroup>
 

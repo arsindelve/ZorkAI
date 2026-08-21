@@ -9,7 +9,11 @@
     <ItemGroup>
         <ProjectReference Include="..\GameEngine\GameEngine.csproj"/>
         <ProjectReference Include="..\Model\Model.csproj"/>
-        <ProjectReference Include="..\StellarPatrol\StellarPatrol.csproj"/>
+        <ProjectReference Include="..\Utilities\Utilities.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="JetBrains.Annotations" Version="2025.2.4"/>
     </ItemGroup>
 
 </Project>

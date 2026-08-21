@@ -15,6 +15,14 @@ public class BlueSoup : ItemBase, ICanBeExamined, ICanBeEaten
 
     public (string Message, bool WasConsumed) OnEating(IContext context)
     {
+        if (context is StationfallContext stationfallContext)
+        {
+            if (!stationfallContext.IsHungry)
+                return (StationfallContext.NotHungryMessage, false);
+
+            stationfallContext.Eat();
+        }
+
         return ("You drink the soup. It is sweet, faintly nutty, and by a wide margin the best thing " +
                 "the Patrol has ever fed you. ", true);
     }
