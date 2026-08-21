@@ -101,6 +101,11 @@ public static class SleepEngine
                                                        ? HungerNotifications.FamishedMorningTicks
                                                        : HungerNotifications.RestedMorningTicks);
 
+        // A night's sleep costs the soup too - all of it if the Thermos was left open
+        // (globals.zil:1150-1155).
+        var soup = Repository.GetItem<BlueSoup>();
+        soup.Cool(Repository.GetItem<Thermos>().IsOpen ? soup.Warmth : BlueSoup.DegreesLostOvernight);
+
         DropEverythingNotWorn(context);
 
         var message = $"***** NOVEM {context.Day + 3}, 11349 *****\n\n";

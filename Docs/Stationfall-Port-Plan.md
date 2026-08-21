@@ -50,7 +50,7 @@ Measured against the original, not from memory. Update this table as phases land
 | Region objects | 20 | 116 |
 | Background daemons | ~4 | 32 |
 | **Reachable score** | **8** | **80** |
-| Tests | 85 | — |
+| Tests | 109 | — |
 
 Landed so far:
 
@@ -60,6 +60,9 @@ Landed so far:
 - **Phase 3** — the survival clocks and the day boundary, built on a new shared `StellarPatrol`
   library extracted from Planetfall. Also restored per-action time costs, which the port had been
   flattening to a single value per turn.
+- **Opening content pass** — the fittings of the opening rooms, as opposed to their puzzle chain:
+  the things a player pokes at on the way through. Phase 2 built the chain and left much of the
+  furniture as examine-only scenery or as strings matched in a room's input handler.
 
 For scale: Planetfall in this engine is 127 location files and 142 item files. Stationfall is the
 bigger game.

@@ -18,6 +18,27 @@
     { "inputs": ["open spacetruck hatch", "open the spacetruck hatch"], "verb": "open", "noun": "spacetruck hatch" },
     { "inputs": ["open truck hatch", "open the truck hatch"], "verb": "open", "noun": "truck hatch" },
     { "inputs": ["examine spacetruck hatch"], "verb": "examine", "noun": "spacetruck hatch" },
-    { "inputs": ["examine truck hatch"], "verb": "examine", "noun": "truck hatch" }
+    { "inputs": ["examine truck hatch"], "verb": "examine", "noun": "truck hatch" },
+
+    // Multi-word nouns for the Duffy's fittings. The TestParser's verb+noun fallback is two words
+    // only, so anything with an adjective in front of it has to be named here.
+    { "inputs": ["turn on radio", "turn the radio on", "switch on radio"], "verb": "turn on", "noun": "radio" },
+    { "inputs": ["turn off radio", "turn the radio off", "switch off radio"], "verb": "turn off", "noun": "radio" },
+    { "inputs": ["listen to radio", "listen to the radio"], "verb": "listen", "noun": "radio" },
+    { "inputs": ["push red button", "press red button", "push the red button", "press the red button"], "verb": "push", "noun": "red button" },
+    { "inputs": ["examine red button"], "verb": "examine", "noun": "red button" },
+    { "inputs": ["look in first bin", "look inside first bin", "examine first bin"], "verb": "look in", "noun": "first bin" },
+    { "inputs": ["look in second bin", "look inside second bin", "examine second bin"], "verb": "look in", "noun": "second bin" },
+    { "inputs": ["look in third bin", "look inside third bin", "examine third bin"], "verb": "look in", "noun": "third bin" },
+    { "inputs": ["enter first bin", "get in first bin", "climb in first bin"], "verb": "enter", "noun": "first bin" },
+    { "inputs": ["examine boxed forms", "examine forms"], "verb": "examine", "noun": "forms" },
+    { "inputs": ["tear forms", "tear the forms"], "verb": "tear", "noun": "forms" },
+    { "inputs": ["examine port door"], "verb": "examine", "noun": "port door" },
+    { "inputs": ["open port door"], "verb": "open", "noun": "port door" },
+    { "inputs": ["look in thermos", "look inside thermos", "reach in thermos"], "verb": "look in", "noun": "thermos" },
+    { "inputs": ["pour out thermos", "pour the thermos out"], "verb": "pour", "noun": "thermos" },
+    { "inputs": ["examine blue soup"], "verb": "examine", "noun": "blue soup" },
+    { "inputs": ["take gray goo", "take the gray goo"], "verb": "take", "noun": "gray goo" },
+    { "inputs": ["drop gray goo"], "verb": "drop", "noun": "gray goo" }
   ]
 }

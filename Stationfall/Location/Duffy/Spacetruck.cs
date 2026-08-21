@@ -170,6 +170,19 @@ public class Spacetruck : LocationBase, ITurnBasedActor
     ///     "occupied" after you leave, which both satisfies the launch interlock for a player who is
     ///     standing in the cargo bay and lets them dodge the failed-to-strap-in death.
     /// </summary>
+    /// <summary>
+    ///     The Thermos only starts losing heat once you are aboard with it (ship.zil SPACETRUCK-F queues
+    ///     the cooling interrupt on first entry, not at the start of the game) - so a player who dawdles
+    ///     on the ship does not find cold soup waiting for them.
+    /// </summary>
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient generationClient)
+    {
+        Repository.GetItem<BlueSoup>().StartCooling(context);
+
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
+    }
+
     public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
     {
         SubLocation = null;
