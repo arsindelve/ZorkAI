@@ -21,6 +21,15 @@ public class Rex : ShipRobot
         "Rex is an enormous lifting robot. He regards you with the blank, patient incomprehension of " +
         "sixteen tons of machinery that has never once had an idea. ";
 
+    protected override string GreetingResponse => "\"Yeah. Hey.\" ";
+
+    protected override string FollowResponse =>
+        IsSelected
+            ? "\"I go where they puts me, an' they put me with youse.\" "
+            : "\"Can't. Ain't been assigned ta youse.\" ";
+
+    protected override string CatchAllResponse => "Rex looks at you without the least sign of comprehension. ";
+
     protected override string FollowThePlayer(IContext context)
     {
         MoveToPlayer(context);
