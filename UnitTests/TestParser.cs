@@ -47,8 +47,11 @@ public class TestParser : IntentParser
 
         _allNouns = _allNouns.Union(specialNouns).ToArray();
 
-        // Initialize the JSON-based resolver for O(1) lookups
-        _resolver = IntentMappingResolver.ForGame("base");
+        // Initialize the JSON-based resolver for O(1) lookups. This must follow the game, not be
+        // pinned to "base": the loader already supports a per-game overlay that extends base
+        // (IntentMappingLoader.LoadConfigurationInternal), and hardcoding "base" here meant no game
+        // could ever use one. Games without an overlay fall back to base, so this is inert for them.
+        _resolver = IntentMappingResolver.ForGame(gameName);
     }
 
     public override Task<IntentBase> DetermineComplexIntentType(string? input, string locationDescription,

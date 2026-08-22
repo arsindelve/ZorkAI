@@ -28,5 +28,6 @@ public class FormStorageRoom : LocationBase
     public override void Init()
     {
         StartWithItem<Pallets>();
+        StartWithItem<BoxedForms>();
     }
 }

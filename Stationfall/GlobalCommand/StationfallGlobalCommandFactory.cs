@@ -6,8 +6,7 @@ namespace Stationfall.GlobalCommand;
 
 /// <summary>
 ///     Stationfall's game-specific global commands. Mirrors <c>PlanetfallGlobalCommandFactory</c>;
-///     the base class supplies the standard global and system commands. Phase 3 will wire in
-///     "sleep"/"diagnose" once the sleep and health engines are ported.
+///     the base class supplies the standard global and system commands.
 /// </summary>
 public class StationfallGlobalCommandFactory : GlobalCommandFactory
 {
@@ -17,6 +16,11 @@ public class StationfallGlobalCommandFactory : GlobalCommandFactory
         {
             case "zork":
                 return new SimpleResponseCommand("Gesundheit! ");
+
+            case "sleep":
+            case "nap":
+            case "snooze":
+                return new SleepProcessor();
         }
 
         return base.GetGlobalCommands(input);

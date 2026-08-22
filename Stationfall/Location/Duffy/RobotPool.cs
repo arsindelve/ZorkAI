@@ -26,7 +26,14 @@ public class RobotPool : LocationBase
     [
         new(["keypad", "keys", "console", "equipment", "selection equipment"],
             "A numeric keypad beside the slot, for typing the bin number of the robot you want. ",
-            "The keypad is bolted to the console. ")
+            "The keypad is bolted to the console. "),
+        // The original answers a bare "bin" by asking which one (ship.zil BIN-F). Scenery is the right
+        // shape for that: the three real bins are matched first, so this only catches the ambiguous
+        // case that has nothing to act on.
+        new(["bin", "bins"],
+            "Three numbered bins are set into the wall. You'll have to say which one you mean — the " +
+            "first, the second or the third. ",
+            "The bins are set into the wall. ")
     ];
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
@@ -126,6 +133,9 @@ public class RobotPool : LocationBase
     public override void Init()
     {
         StartWithItem<RobotPoolSlot>();
+        StartWithItem<FirstBin>();
+        StartWithItem<SecondBin>();
+        StartWithItem<ThirdBin>();
         StartWithItem<Rex>();
         StartWithItem<Helen>();
         StartWithItem<Floyd>();

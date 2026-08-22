@@ -1,3 +1,9 @@
+> # ⛔ STOP — SPOILERS ⛔
+>
+> **This file solves the game.** It exists only as the ZIL-verified oracle the port's tests are
+> written against. If you intend to *play* Stationfall, close this file now and do not read the
+> rest of this folder. See `Docs/Stationfall-Port-Plan.md` for a spoiler-free status of the port.
+
 # Stationfall — Full Walkthrough (80 / 80 points)
 
 Complete run to the maximum score and the **Intergalactic Mega-Hero** rank. Synthesized from public

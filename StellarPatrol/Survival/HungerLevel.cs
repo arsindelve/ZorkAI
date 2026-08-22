@@ -1,7 +1,12 @@
 using Utilities;
 
-namespace Planetfall;
+namespace StellarPatrol;
 
+/// <summary>
+///     The shared hunger/thirst ladder. Both Stellar Patrol games run the same mechanic with the same
+///     warning text - Infocom carried it into the sequel verbatim - so the wording lives here once and
+///     each game supplies only its own timings (see <see cref="HungerNotificationsBase" />).
+/// </summary>
 public enum HungerLevel
 {
     [Description("You seem to be well-fed.")]
