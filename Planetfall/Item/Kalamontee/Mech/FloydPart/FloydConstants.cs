@@ -37,6 +37,47 @@ public static class FloydConstants
     internal const string Kill =
         "Floyd starts dashing around the room. \"Oh boy oh boy oh boy! I haven't played Chase and Tag for years! You be It! Nah, nah!\" ";
 
+    // Issue #552. The player has no in-game way of knowing the name "Floyd" until they wake the
+    // robot in the Robot Shop, so naming him earlier can only be a returning fan name-dropping a
+    // famous companion. Owner-selected verbatim; fourth-wall winks are franchise-authentic (Floyd's
+    // own "maybe we can use them in the sequel..." endgame line).
+    internal const string NobodyHereByThatName =
+        "Floyd? There's nobody here by that name. Someone's played Planetfall before, haven't they? ";
+
+    // Issue #552, the "where is Floyd" matrix. Canned rather than narrated so the answer can't drift
+    // into a different improvised joke every turn - and, after the Bio Lab, can't crack a joke at all.
+    internal const string WhereIsFloydHereAndOn =
+        "Floyd is right here! Floyd is always right here. ";
+
+    internal const string WhereIsFloydHereAndOff =
+        "Floyd is right here, slumped where you left him. ";
+
+    internal const string WhereIsFloydAbsent =
+        "Floyd is off exploring somewhere. He'll turn up. ";
+
+    internal const string WhereIsFloydDead =
+        "Floyd is gone. ";
+
+    // The three below are NOT owner-selected - #552's spec gave four states and play turned up three
+    // more. Deliberately flat and promise-free: the point of the canned answers is that they cannot
+    // be wrong, so where the game does not know enough to say something warm it says something true.
+    // Swap the wording freely; the state routing is what matters.
+
+    // Floyd is off on a scripted errand (CurrentLocation null, IsAwayOnScriptedSequence set) - most
+    // painfully, inside the Bio Lab during the sacrifice. "He'll turn up" is a promise the game
+    // cannot keep here, so this says only what the player can see.
+    internal const string WhereIsFloydOutOfSight =
+        "You can't see Floyd from here. ";
+
+    // Switched off and left in another room. He is not wandering and he is not coming back.
+    internal const string WhereIsFloydAbsentAndOff =
+        "Floyd is switched off, right where you left him. ";
+
+    // The three-turn wake-up countdown: the player has flipped the switch but he has not stirred,
+    // so neither "always right here" nor "slumped where you left him" is true yet.
+    internal const string WhereIsFloydStillBooting =
+        "The robot is right here, though nothing about him has stirred yet. ";
+
     internal const string ComesAliveBase =
         "Suddenly, the robot comes to life and its head starts swivelling about. It notices you and " +
         "bounds over. \"Hi! I'm B-19-7, but to everyperson I'm called Floyd. Are you a doctor-person " +

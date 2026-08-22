@@ -490,6 +490,9 @@ public class BoothTests : EngineTestsBase
         StartHere<BoothThree>();
         Take<TeleportationAccessCard>();
         GetLocation<BoothThree>().ItemPlacedHere(GetItem<Floyd>());
+        // Addressing him by name is only the player's to do once they've met him; before that the
+        // fourth-wall intercept claims the name (issue #552).
+        GetItem<Floyd>().HasEverBeenOn = true;
 
         await target.GetResponse("slide teleportation access card through slot");
         await target.GetResponse("press one");

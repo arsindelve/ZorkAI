@@ -24,6 +24,9 @@ namespace Planetfall.Tests;
 
 public class FloydTests : EngineTestsBase
 {
+    // These two search the deactivated robot as "robot", not by name: before the player wakes him
+    // they have no in-game way of knowing the name "Floyd", and issue #552 reserves that word for
+    // the fourth-wall intercept. "robot" is the noun the Robot Shop actually teaches.
     [Test]
     public async Task Search_FindCard()
     {
@@ -31,7 +34,7 @@ public class FloydTests : EngineTestsBase
         StartHere<RobotShop>();
         GetItem<Floyd>().IsOn = false;
 
-        var response = await target.GetResponse("search floyd");
+        var response = await target.GetResponse("search robot");
 
         response.Should().Contain("find and take");
         target.Context.HasItem<LowerElevatorAccessCard>().Should().BeTrue();
@@ -45,7 +48,7 @@ public class FloydTests : EngineTestsBase
         GetItem<Floyd>().IsOn = false;
         Take<LowerElevatorAccessCard>();
 
-        var response = await target.GetResponse("search floyd");
+        var response = await target.GetResponse("search robot");
 
         response.Should().Contain("search discovers nothing");
         target.Context.HasItem<LowerElevatorAccessCard>().Should().BeTrue();
@@ -333,11 +336,15 @@ public class FloydTests : EngineTestsBase
         response.Should().Contain("From its design, the robot seems to be of the multi-purpose sort");
     }
 
+    // Switched off AFTER the player has met him - the only state in which they can examine him by
+    // name and get the deactivated description (issue #552 intercepts the name before that).
+    // FloydMentionTests covers reaching the same text pre-meeting via "examine robot".
     [Test]
     public async Task ExamineFloyd_Off()
     {
         var target = GetTarget();
         StartHere<RobotShop>();
+        GetItem<Floyd>().HasEverBeenOn = true;
 
         var response = await target.GetResponse("examine floyd");
 
@@ -514,6 +521,11 @@ public class FloydTests : EngineTestsBase
         StartHere<RobotShop>();
         var floyd = GetItem<Floyd>();
         floyd.IsOn = false;
+        // Pinned to the post-activation case: the never-activated robot IS reachable in this state,
+        // but naming him there is claimed by #552's fourth-wall intercept, and this test exists to
+        // cover the switched-off-but-alive branch of OnBeingTalkedTo rather than that intercept.
+        // FloydMentionTests covers reaching Floyd pre-activation via "robot".
+        floyd.HasEverBeenOn = true;
         var chat = new Mock<IChatWithFloyd>();
         chat.Setup(s => s.AskFloydAsync(It.IsAny<string>()))
             .ReturnsAsync(new CompanionResponse("CHAT-SHOULD-NOT-HAPPEN", null));
@@ -587,6 +599,95 @@ public class FloydTests : EngineTestsBase
         var response = await target.GetResponse("floyd, are you okay");
 
         response.Should().Contain("no answer comes");
+    }
+
+    // #545 round-2 review, finding 2. The IsGoneForGood gate was added to CheckForConversation's
+    // NAMED branch but not to TryRouteNamelessSpeech, which still bails on the generation
+    // kill-switch. Standing over the body and saying "hello" with NoGeneratedResponses set produced
+    // a BLANK response - no mourning line, and the utterance leaked back into normal parsing. A
+    // gone-for-good talker's reply is a constant and owes generation nothing on this branch either.
+    [Test]
+    public async Task SpeakingNamelesslyToDeadFloyd_MournsEvenWithGenerationDisabled()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>(); // Floyd is placed here by Init, so he is the sole present talker.
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+        Mock.Get(target.GenerationClient).Setup(c => c.IsDisabled).Returns(true);
+
+        var response = await target.GetResponse("say hello");
+
+        response.Should().Contain("no answer comes");
+    }
+
+    // The guard on that backstop. Ordinary commands naming the corpse must reach Floyd's own
+    // handlers WITHOUT consulting the classifier - its decode is fail-open (anything but the literal
+    // "No" counts as conversational), so an unlucky call replaced the examine description with the
+    // mourning line. Stubbed here to the worst case: always "yes, conversational".
+    [TestCase("examine floyd", "a tremendous sense of loss")]
+    [TestCase("take floyd", "lay him gently back down")]
+    public async Task OrdinaryCommandsOnTheCorpse_NeverConsultTheClassifier(string input, string expected)
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+        ParseConversationMock.Setup(p => p.ParseAsync(It.IsAny<string>())).ReturnsAsync((true, ""));
+
+        var response = await target.GetResponse(input);
+
+        response.Should().Contain(expected);
+        response.Should().NotContain("no answer comes");
+        ParseConversationMock.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    // #545 round-2 review, finding 3. RespondForGoneForGoodTalker replaced a two-part detector
+    // (deterministic strip OR the ParseConversation classifier) with IsGenuineDirectAddress alone.
+    // That misses the looser phrasings only the classifier recognized - "could you let floyd know
+    // ..." leads with "could", which is neither a leading name nor an address lead-in - so they
+    // stopped reaching Floyd and leaked to the narrator, the exact outcome #545 exists to prevent.
+    // Mirrors the absent path, which has kept the classifier as its fallback all along (see
+    // AbsentTalkableNpcTests.AddressingAbsentFloydWithUnusualPhrasing_DefersToClassifier_SaysNotHere).
+    [Test]
+    public async Task AddressingDeadFloydWithUnusualPhrasing_DefersToClassifier_AndMourns()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+        ParseConversationMock
+            .Setup(p => p.ParseAsync("could you let floyd know to wait for me"))
+            .ReturnsAsync((true, ""));
+
+        var response = await target.GetResponse("could you let floyd know to wait for me");
+
+        response.Should().Contain("no answer comes");
+    }
+
+    // The classifier fallback must stay deterministic offline, exactly as the absent path is: with
+    // generation disabled the loose phrasing is not classified at all, so it falls through rather
+    // than guessing. The common phrasings IsGenuineDirectAddress covers still mourn (see
+    // TalkToFloyd_DeadAndPresent_MournsEvenWithGenerationDisabled), so nothing regresses offline.
+    [Test]
+    public async Task AddressingDeadFloydWithUnusualPhrasing_GenerationDisabled_DoesNotConsultClassifier()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+        floyd.IsOn = true;
+        Mock.Get(target.GenerationClient).Setup(c => c.IsDisabled).Returns(true);
+
+        await target.GetResponse("could you let floyd know to wait for me");
+
+        ParseConversationMock.Verify(p => p.ParseAsync(It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -2492,6 +2593,7 @@ public class FloydTests : EngineTestsBase
         var target = GetTarget();
         StartHere<RobotShop>();
         Take<IdCard>();
+        GetItem<Floyd>().HasEverBeenOn = true; // else #552's pre-meeting intercept answers instead
         GetItem<Floyd>().IsOn = false;
 
         var response = await target.GetResponse("show id card to floyd");

@@ -436,6 +436,7 @@ public class InfirmaryTests : EngineTestsBase
         var target = GetTarget();
         StartHere<RobotShop>();
         Take<MedicalRobotBreastPlate>();
+        GetItem<Floyd>().HasEverBeenOn = true; // else #552's pre-meeting intercept answers instead
         GetItem<Floyd>().IsOn = false;
 
         var response = await target.GetResponse("give breastplate to floyd");
