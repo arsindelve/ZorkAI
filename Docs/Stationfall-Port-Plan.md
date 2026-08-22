@@ -71,6 +71,31 @@ bigger game.
 
 ---
 
+## The completeness bar (depth before breadth)
+
+The goal is not a game that reaches the end. It is a game whose **early parts are finished**, so the
+owner can start playing while later parts are still being built.
+
+That makes incompleteness dangerous rather than merely absent. This engine narrates with an LLM when
+nothing handles the player's input, so an unimplemented object does not go quiet — it produces a
+confident, plausible, invented answer. A player cannot tell improvised behaviour from ported
+behaviour. An unfinished region does not feel unfinished; it feels like a different game.
+
+So "finished" is a measurement, not a judgement. A region is finished when:
+
+1. Every noun the room's own prose puts in front of the player has an authored answer.
+2. Every verb the original's action routine handles for an object is handled.
+3. Every death, refusal and score trigger reachable in the region fires.
+4. **`CompletenessSweepTests` records zero narrator fall-throughs for the region.**
+
+Point (4) is the enforceable one. `GameEngine/Diagnostics/LeakRecordingGenerationClient` wraps the
+generation client and records every occasion the game had no answer of its own. Drive a region, and
+the recorded leaks *are* the to-do list.
+
+**First measurement of the opening: 53 fall-throughs** — 49 of them from nouns *every* room should
+answer for (walls, floor, ceiling, air, me, hands), which the engine has no equivalent for at all,
+and 4 room-specific. That single systemic gap is therefore the highest-value fix in the project.
+
 ## Phases
 
 ### Phase 3 — Survival and time systems
