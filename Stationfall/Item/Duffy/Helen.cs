@@ -66,6 +66,14 @@ public class Helen : ShipRobot, ICanBeGivenThings
         return await base.RespondToMultiNounInteraction(action, context);
     }
 
+    protected override string GreetingResponse => "\"Likewise, I'm sure.\" ";
+
+    protected override string FollowResponse =>
+        "\"I'm to remain with whichever human I've been assigned. That's the procedure.\" ";
+
+    protected override string CatchAllResponse =>
+        "That has nothing to do with sorting forms, and Helen loses interest in you visibly. ";
+
     protected override string FollowThePlayer(IContext context)
     {
         MoveToPlayer(context);

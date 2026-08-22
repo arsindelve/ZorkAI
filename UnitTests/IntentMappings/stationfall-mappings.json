@@ -39,6 +39,12 @@
     { "inputs": ["pour out thermos", "pour the thermos out"], "verb": "pour", "noun": "thermos" },
     { "inputs": ["examine blue soup"], "verb": "examine", "noun": "blue soup" },
     { "inputs": ["take gray goo", "take the gray goo"], "verb": "take", "noun": "gray goo" },
-    { "inputs": ["drop gray goo"], "verb": "drop", "noun": "gray goo" }
+    { "inputs": ["drop gray goo"], "verb": "drop", "noun": "gray goo" },
+    { "inputs": ["pick floyd", "choose floyd"], "verb": "pick", "noun": "floyd" },
+    { "inputs": ["pick rex", "choose rex"], "verb": "pick", "noun": "rex" },
+    { "inputs": ["examine floyd", "look at floyd"], "verb": "examine", "noun": "floyd" },
+    { "inputs": ["examine rex"], "verb": "examine", "noun": "rex" },
+    { "inputs": ["examine helen"], "verb": "examine", "noun": "helen" },
+    { "inputs": ["take rex"], "verb": "take", "noun": "rex" }
   ]
 }

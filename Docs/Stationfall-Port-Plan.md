@@ -50,7 +50,7 @@ Measured against the original, not from memory. Update this table as phases land
 | Region objects | 20 | 116 |
 | Background daemons | ~4 | 32 |
 | **Reachable score** | **8** | **80** |
-| Tests | 109 | — |
+| Tests | 121 | — |
 
 Landed so far:
 
@@ -63,6 +63,8 @@ Landed so far:
 - **Opening content pass** — the fittings of the opening rooms, as opposed to their puzzle chain:
   the things a player pokes at on the way through. Phase 2 built the chain and left much of the
   furniture as examine-only scenery or as strings matched in a room's input handler.
+- **The opening's robots** — the three of them as characters: addressable by name, each with its own
+  register, with the companion's opening beats and the consequences of choosing wrongly.
 
 For scale: Planetfall in this engine is 127 location files and 142 item files. Stationfall is the
 bigger game.
@@ -83,8 +85,15 @@ round-trip the new state.
 ### Phase 4 — Engine capabilities that do not exist yet
 Blocking work for Phases 5–6, no score movement:
 
-- **Commanding an NPC** (`<name>, <command>`). The engine has no intent for this at all; Planetfall
-  approximates its equivalent with bespoke per-scene code. Needs a real intent plus routing.
+- **Commanding an NPC** (`<name>, <command>`). Correcting an earlier overstatement here: the engine
+  *can* route speech to a character addressed by name — `ICanBeTalkedTo` and `ConversationHandler`
+  do that, including for absent characters. What it cannot do is have a character *act on* a
+  command. That is the real gap.
+  Related, and found the hard way: `ConversationHandler.FindTargetCharacter` treats **any** of a
+  character's nouns appearing **anywhere** in the input as addressing them. A character holding a
+  generic noun therefore swallows ordinary commands that merely contain the word. Worked around
+  per-character for now by not claiming generic nouns; the engine-level fix wants its own change,
+  since it would alter Planetfall's matching too.
 - **The companion, into `StellarPatrol`.** He is literally the same character in both games and
   Planetfall's implementation runs to ~1800 lines across nine files. The persona prompts, the canned
   social responses, following the player between rooms and carrying things are all common. What is
