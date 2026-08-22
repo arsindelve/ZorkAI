@@ -20,6 +20,11 @@ public class Spacetruck : LocationBase, ITurnBasedActor
     private const int NotLaunched = -1;
 
     /// <summary>
+    ///     The last step of the launch sequence: arrival, one way or the other.
+    /// </summary>
+    private const int FinalFlightStep = 5;
+
+    /// <summary>
     ///     Set once the activation form has been accepted; the keypad is inert until then.
     /// </summary>
     [UsedImplicitly]
@@ -67,6 +72,14 @@ public class Spacetruck : LocationBase, ITurnBasedActor
     /// </summary>
     public bool IsInFlight => LaunchCounter >= 0 && !HasDocked;
 
+    /// <summary>
+    ///     Whether the trip has run its course. Deliberately not the same as <see cref="HasDocked" />:
+    ///     the counter reaches its last step whether you arrived at the station or came to a dead stop
+    ///     in empty space, and some things aboard — the emergency beacon especially — care only that
+    ///     the flying has stopped.
+    /// </summary>
+    public bool FlightHasEnded => LaunchCounter >= FinalFlightStep;
+
     private bool CourseIsCorrect => CoursePicked != 0 && CoursePicked == RightCourse;
 
     public override string Name => "Spacetruck";
@@ -81,17 +94,15 @@ public class Spacetruck : LocationBase, ITurnBasedActor
         new(["viewport", "window"],
             "A broad viewport above the console. ",
             "The viewport is part of the truck. "),
-        new(["radio", "sb radio", "space band radio"],
-            "A space-band radio. Its microphone is missing, so you can listen but never answer. ",
-            "The radio is built into the console. "),
-        new(["red button", "button", "beacon"],
-            "A red button that fires the emergency distress beacon. ",
-            "The button is part of the console. ")
+        new(["dashboard", "instruments", "instrument panel"],
+            "A spartan instrument panel: a course display, a fuel gauge, and a great deal of blank " +
+            "metal where a more expensive truck would have something useful. ",
+            "The panel is part of the truck. ")
     ];
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
-        var hatch = Repository.GetItem<SpacetruckHatch>();
+        var hatch = Repository.GetItem<SpacetruckCabHatch>();
 
         // Before launch the hatch leads back into the cargo bay; after docking, out into the station.
         ILocation destination = HasDocked
@@ -140,16 +151,6 @@ public class Spacetruck : LocationBase, ITurnBasedActor
             return Task.FromResult<InteractionResult>(new PositiveInteractionResult(seat.GetIn(context)));
         }
 
-        // The hatch item lives in the Cargo Bay (where you first open it), so it isn't in scope from
-        // inside the truck. Handle it here rather than seeding one shared instance into two rooms,
-        // which would leave its CurrentLocation pointing at whichever room initialized last. Matching
-        // is on verb + any of the hatch's own nouns, so every phrasing the item advertises works —
-        // shutting the hatch is required before launch, and a silent miss is fatal.
-        var hatchResponse = SpacetruckHatch.TryHandleRawCommand(normalized, context, this);
-
-        if (hatchResponse is not null)
-            return Task.FromResult<InteractionResult>(new PositiveInteractionResult(hatchResponse));
-
         switch (normalized)
         {
             case "stand":
@@ -159,19 +160,6 @@ public class Spacetruck : LocationBase, ITurnBasedActor
                     context.CurrentLocation.SubLocation is SeatBase seat
                         ? seat.GetOut(context)
                         : "You're already standing. "));
-
-            case "push red button":
-            case "press red button":
-            case "push button":
-            case "press button":
-                // Once docked, the beacon actually plays its recording (RED-BUTTON-F, ship.zil:1136).
-                return Task.FromResult<InteractionResult>(new PositiveInteractionResult(
-                    HasDocked
-                        ? "A recording answers: \"At the conclusion of this message your emergency " +
-                          "signal will be transmitted. In the meantime, please remain calm. Nothing " +
-                          "can go wrong... go wrong... go wrong...\" "
-                        : "You're not in trouble! Misuse of the emergency beacon is a court-martial " +
-                          "offense. "));
         }
 
         return base.RespondToSpecificLocationInteraction(input, context, client);
@@ -182,6 +170,19 @@ public class Spacetruck : LocationBase, ITurnBasedActor
     ///     "occupied" after you leave, which both satisfies the launch interlock for a player who is
     ///     standing in the cargo bay and lets them dodge the failed-to-strap-in death.
     /// </summary>
+    /// <summary>
+    ///     The Thermos only starts losing heat once you are aboard with it (ship.zil SPACETRUCK-F queues
+    ///     the cooling interrupt on first entry, not at the start of the game) - so a player who dawdles
+    ///     on the ship does not find cold soup waiting for them.
+    /// </summary>
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient generationClient)
+    {
+        Repository.GetItem<BlueSoup>().StartCooling(context);
+
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
+    }
+
     public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
     {
         SubLocation = null;
@@ -433,5 +434,8 @@ public class Spacetruck : LocationBase, ITurnBasedActor
         StartWithItem<PilotSeat>();
         StartWithItem<CopilotSeat>();
         StartWithItem<SurvivalKit>();
+        StartWithItem<SpacetruckCabHatch>();
+        StartWithItem<Radio>();
+        StartWithItem<RedButton>();
     }
 }

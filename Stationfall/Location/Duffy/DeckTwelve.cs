@@ -14,14 +14,6 @@ public class DeckTwelve : LocationBase
 
     public override string[] NounsForMatching => ["deck 12", "deck twelve"];
 
-    protected override IReadOnlyList<SceneryItem> Scenery =>
-    [
-        new(["door", "port door", "closed door", "sealed door"],
-            "A heavy door leading to the rest of the Duffy. It is firmly closed, and there is a slot " +
-            "set into the bulkhead beside it. ",
-            "The door is part of the ship. ")
-    ];
-
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>
@@ -50,5 +42,6 @@ public class DeckTwelve : LocationBase
     public override void Init()
     {
         StartWithItem<DeckTwelveSlot>();
+        StartWithItem<PortDoor>();
     }
 }

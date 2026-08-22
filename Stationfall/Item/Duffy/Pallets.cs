@@ -1,3 +1,5 @@
+using Model.AIGeneration;
+
 namespace Stationfall.Item.Duffy;
 
 /// <summary>
@@ -23,6 +25,24 @@ public class Pallets : ItemBase, ICanBeExamined, ICanBeRead
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {
         return string.Empty;
+    }
+
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action,
+        IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
+    {
+        if (!action.MatchNounAndAdjective(NounsForMatching))
+            return new NoNounMatchInteractionResult();
+
+        // Opening a box is a joke with a long windup, and the length is the joke (ship.zil PALLETS-F).
+        if (action.MatchVerb(["open", "look in", "look inside", "search", "empty", "unseal"]))
+            return new PositiveInteractionResult(
+                "You work a box open. Inside are forms" + string.Concat(Enumerable.Repeat(" and forms", 50)) +
+                ". Horrified, you reseal the box. ");
+
+        if (action.MatchVerb(["close", "shut", "seal"]))
+            return new PositiveInteractionResult("The boxes are already sealed. ");
+
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 
     public override string GenericDescription(ILocation? currentLocation)
