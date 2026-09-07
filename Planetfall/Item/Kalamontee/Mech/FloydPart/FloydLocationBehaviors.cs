@@ -48,6 +48,14 @@ public class FloydLocationBehaviors(Floyd floyd)
         if (floyd.HasGottenTheFromitzBoard)
             return FloydConstants.AlreadyGotTheFromitzBoard;
 
+        // The board is not in play until Floyd has been through the little door and found it: the
+        // original keeps it INVISIBLE until then (comptwo.zabstr:68) and answers "What fromitz
+        // board?" (compone.zil:1904). Granting it regardless let a player skip the discovery
+        // sequence entirely. Checked AFTER the already-got guard, mirroring the original's order, so
+        // a save that somehow holds the board without the flag still gets "already did that".
+        if (!floyd.HasEverGoneThroughTheLittleDoor)
+            return FloydConstants.WhatFromitzBoard;
+
         context.ItemPlacedHere<ShinyFromitzBoard>();
         floyd.HasGottenTheFromitzBoard = true;
         return FloydConstants.GetTheFromitzBoard;

@@ -2954,6 +2954,8 @@ public class FloydTests : EngineTestsBase
         StartHere<RepairRoom>();
         var floyd = GetItem<Floyd>();
         floyd.IsOn = true;
+        // The canonical precondition: Floyd has been through the little door and found the board.
+        floyd.HasEverGoneThroughTheLittleDoor = true;
         floyd.ChatWithFloyd = FloydAnsweringPickUpBoard().Object;
         GetLocation<RepairRoom>().ItemPlacedHere(floyd);
 
@@ -2962,6 +2964,30 @@ public class FloydTests : EngineTestsBase
         response.Should().Contain("If you say so");
         target.Context.Items.Should().Contain(GetItem<ShinyFromitzBoard>());
         floyd.HasGottenTheFromitzBoard.Should().BeTrue();
+    }
+
+    /// <summary>
+    /// The board is not in play until Floyd has been through the little door and found it. In the
+    /// original, asking him to fetch it before then gets a puzzled "What fromitz board?" - the board
+    /// is INVISIBLE until discovered (comptwo.zabstr:68; compone.zil:1904). The port granted it
+    /// immediately, letting a player skip the discovery sequence entirely.
+    /// </summary>
+    [Test]
+    public async Task FromitzBoardRetrieval_BeforeFloydHasGoneThroughTheDoor_HeDoesNotKnowWhatBoardYouMean()
+    {
+        var target = GetTarget();
+        StartHere<RepairRoom>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverGoneThroughTheLittleDoor = false;
+        floyd.ChatWithFloyd = FloydAnsweringPickUpBoard().Object;
+        GetLocation<RepairRoom>().ItemPlacedHere(floyd);
+
+        var response = await target.GetResponse("floyd, take board");
+
+        response.Should().Contain("What fromitz board?");
+        target.Context.Items.Should().NotContain(GetItem<ShinyFromitzBoard>());
+        floyd.HasGottenTheFromitzBoard.Should().BeFalse();
     }
 
     #endregion
