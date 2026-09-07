@@ -845,11 +845,26 @@ public class SleepEngineTests : EngineTestsBase
         pfContext.Day = 1;
         pfContext.SleepNotifications.QueueFallAsleep(pfContext.CurrentTime);
 
-        var result = SleepEngine.ProcessFallAsleep(pfContext);
+        // HasEverBeenOn (required for this scenario) also arms the 13% Floyd DREAM, whose text names
+        // him - nothing to do with the greeting under test, but enough to trip NotContain("Floyd")
+        // about one run in eight. Pin the static chooser (RollDice(100) > 60 skips every dream) so
+        // the turn is deterministic, and restore the real chooser afterward - per CLAUDE.md's
+        // mock-IRandomChooser rule, and exactly as the sibling tests in this fixture do.
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(c => c.RollDice(100)).Returns(90);
+        SleepEngine.Chooser = mockChooser.Object;
+        try
+        {
+            var result = SleepEngine.ProcessFallAsleep(pfContext);
 
-        result.Should().NotContain("lazy bones");
-        result.Should().NotContain("Let's explore around some more");
-        result.Should().NotContain("Floyd");
+            result.Should().NotContain("lazy bones");
+            result.Should().NotContain("Let's explore around some more");
+            result.Should().NotContain("Floyd");
+        }
+        finally
+        {
+            SleepEngine.Chooser = new GameEngine.RandomChooser();
+        }
     }
 
     // The other half of the same guard, and the half that corrupts state rather than just tone: the

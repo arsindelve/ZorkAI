@@ -146,6 +146,13 @@ public static class FloydConstants
     internal const string AlreadyGotTheFromitzBoard =
         "Floyd looks half-bored and half-annoyed. \"Floyd already did that. How about some leap-frogger?\"";
 
+    /// <summary>
+    /// Asked to fetch the board before he has been through the little door and found it. The board
+    /// is not in play yet - INVISIBLE until discovered in the original (comptwo.zabstr:68) - so he
+    /// has no idea what you mean (compone.zil:1904).
+    /// </summary>
+    internal const string WhatFromitzBoard = "\"Huh?\" asks Floyd. \"What fromitz board?\"";
+
     internal const string GoNorth =
         "Floyd squeezes through the opening and is gone for quite a while. You hear thudding noises and squeals " +
         "of enjoyment. After a while the noise stops, and Floyd emerges, looking downcast. \"Floyd found a rubber " +
