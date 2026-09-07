@@ -2965,4 +2965,42 @@ public class FloydTests : EngineTestsBase
     }
 
     #endregion
+
+    #region Small Door Phrasings (issue #562 follow-up)
+
+    /// <summary>
+    /// The Floyd Lambda has no room context, so it cannot know that the Repair Room's little opening
+    /// lies north: "go through the little door" comes back as GoSomewhere with direction
+    /// "little door", not "north". This layer DOES know the room, so it is the right place to accept
+    /// the phrasings a player naturally uses for the opening they can see in front of them.
+    /// </summary>
+    private static Mock<IChatWithFloyd> FloydAnsweringGoSomewhere(string spoken, string direction)
+    {
+        var mock = new Mock<IChatWithFloyd>();
+        mock.Setup(s => s.AskFloydAsync(spoken)).ReturnsAsync(new CompanionResponse(
+            "Floyd's response",
+            new CompanionMetadata("GoSomewhere", new Dictionary<string, object> { { "direction", direction } })));
+        return mock;
+    }
+
+    [TestCase("go through the little door", "little door")]
+    [TestCase("go through the door", "door")]
+    [TestCase("squeeze through the opening", "opening")]
+    [TestCase("go into the small opening", "small opening")]
+    public async Task SmallDoor_DoorAndOpeningPhrasings_RunTheExplorationLikeNorth(string spoken, string direction)
+    {
+        var target = GetTarget();
+        StartHere<RepairRoom>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.ChatWithFloyd = FloydAnsweringGoSomewhere(spoken, direction).Object;
+        GetLocation<RepairRoom>().ItemPlacedHere(floyd);
+
+        var response = await target.GetResponse($"floyd, {spoken}");
+
+        response.Should().Contain("squeezes through");
+        floyd.HasEverGoneThroughTheLittleDoor.Should().BeTrue();
+    }
+
+    #endregion
 }

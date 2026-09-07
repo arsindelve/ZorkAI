@@ -6,6 +6,19 @@ namespace Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 public class FloydLocationBehaviors(Floyd floyd)
 {
+    /// <summary>
+    /// The ways a player names the Repair Room's little opening. The Floyd Lambda has no room
+    /// context, so "go through the little door" comes back as GoSomewhere with direction
+    /// "little door", not "north" - only this layer knows the opening lies north, so only this
+    /// layer can accept the phrasings for the thing the player can actually see (issue #562
+    /// follow-up). "n" is accepted as defense in depth: the prompt normalizes abbreviations, but a
+    /// model that doesn't (gpt-5.4 was measured emitting "n") must not silently break the puzzle.
+    /// </summary>
+    private static readonly HashSet<string> SmallDoorDirections = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "north", "n", "door", "little door", "small door", "opening", "small opening", "little opening"
+    };
+
     public string? HandleSpecificInteraction(CompanionResponse companionResponse, IContext context)
     {
         // For now, the only custom interaction is when Floyd is in the Repair Room
@@ -18,7 +31,8 @@ public class FloydLocationBehaviors(Floyd floyd)
             return HandleFromitzBoardRetrieval(context);
 
         if (companionResponse.Metadata?.AssistantType == "GoSomewhere" &&
-            companionResponse.Metadata.Parameters?.FirstOrDefault().Value?.ToString() == "north")
+            SmallDoorDirections.Contains(
+                companionResponse.Metadata.Parameters?.FirstOrDefault().Value?.ToString()?.Trim() ?? ""))
             return HandleSmallDoorExploration(context);
 
         return null;
