@@ -52,5 +52,6 @@ public class DockingBayTwo : LocationBase
     public override void Init()
     {
         StartWithItem<DockingBayHatch>();
+        StartWithItem<DockingBaySpacetruck>();
     }
 }

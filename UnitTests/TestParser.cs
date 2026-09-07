@@ -45,7 +45,13 @@ public class TestParser : IntentParser
             "games", "tapes", "controls", "control panel", "light", "red light", "equipment", "rainbow"
         ];
 
-        _allNouns = _allNouns.Union(specialNouns).ToArray();
+        // Scenery nouns too. Without these the parser is blind to every noun a room advertises but
+        // does not back with an item, so scenery answers to nothing under test while working fine in
+        // play - which made a whole class of content look implemented when it had never been exercised.
+        _allNouns = _allNouns
+            .Union(specialNouns)
+            .Union(Repository.GetSceneryNouns(gameName))
+            .ToArray();
 
         // Initialize the JSON-based resolver for O(1) lookups. This must follow the game, not be
         // pinned to "base": the loader already supports a per-game overlay that extends base

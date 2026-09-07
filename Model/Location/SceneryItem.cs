@@ -1,4 +1,4 @@
-namespace GameEngine.Location;
+namespace Model.Location;
 
 /// <summary>
 ///     A lightweight, inert piece of room scenery: a noun the room's prose mentions but which has

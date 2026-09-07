@@ -84,5 +84,6 @@ public class CargoBay : LocationBase
     public override void Init()
     {
         StartWithItem<SpacetruckHatch>();
+        StartWithItem<CargoBaySpacetruck>();
     }
 }

@@ -1,3 +1,4 @@
+using Model.Location;
 namespace Model.Interface;
 
 /// <summary>
@@ -80,6 +81,17 @@ public interface IInfocomGame
     /// Listing the types here also makes a not-yet-instantiated NPC "known" despite lazy loading.
     /// Defaults to none.
     /// </summary>
+    /// <summary>
+    ///     Scenery that answers in every room: walls, floor, ceiling, the air, the player's own body.
+    ///     The originals make these global objects, so the game recognises them anywhere and gives a
+    ///     stock reply. Without them every room silently defers those nouns to the AI narrator, which
+    ///     invents an answer the player cannot distinguish from a real one - the single largest source
+    ///     of improvised narration in this engine.
+    ///     Checked only after the room's own Scenery, so a room with something particular to say about
+    ///     its walls always wins.
+    /// </summary>
+    IReadOnlyList<SceneryItem> GlobalScenery => [];
+
     IReadOnlyList<Type> TalkableCharacterTypes => [];
 
     /// <summary>

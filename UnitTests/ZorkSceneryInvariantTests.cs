@@ -1,3 +1,4 @@
+using Model.Location;
 using System.Reflection;
 using GameEngine;
 using GameEngine.Item;

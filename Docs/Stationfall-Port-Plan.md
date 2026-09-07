@@ -71,6 +71,38 @@ bigger game.
 
 ---
 
+## The completeness bar (depth before breadth)
+
+The goal is not a game that reaches the end. It is a game whose **early parts are finished**, so the
+owner can start playing while later parts are still being built.
+
+That makes incompleteness dangerous rather than merely absent. This engine narrates with an LLM when
+nothing handles the player's input, so an unimplemented object does not go quiet — it produces a
+confident, plausible, invented answer. A player cannot tell improvised behaviour from ported
+behaviour. An unfinished region does not feel unfinished; it feels like a different game.
+
+So "finished" is a measurement, not a judgement. A region is finished when:
+
+1. Every noun the room's own prose puts in front of the player has an authored answer.
+2. Every verb the original's action routine handles for an object is handled.
+3. Every death, refusal and score trigger reachable in the region fires.
+4. **`CompletenessSweepTests` records zero narrator fall-throughs for the region.**
+
+Point (4) is the enforceable one. `GameEngine/Diagnostics/LeakRecordingGenerationClient` wraps the
+generation client and records every occasion the game had no answer of its own. Drive a region, and
+the recorded leaks *are* the to-do list.
+
+**The opening now measures zero**, and `TheOpeningLeavesNothingToTheNarrator` keeps it there. The
+first measurement was 53, of which 49 came from nouns *every* room should answer for — walls, floor,
+ceiling, air, the player's own body — which the engine had no equivalent for at all. `IInfocomGame`
+now declares `GlobalScenery`, checked after a room's own, so one system closed 92% of the gap and did
+it for Zork and Planetfall too.
+
+Note what the sweep covers today: `examine` on the nouns each room's prose puts in front of the
+player. That is the floor, not the ceiling. The next passes should widen it to the full verb set the
+original answers for, then to the objects rather than just the rooms — and each widening should be
+expected to find new gaps. A zero here means "nothing known is missing", never "nothing is missing".
+
 ## Phases
 
 ### Phase 3 — Survival and time systems
