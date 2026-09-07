@@ -77,8 +77,12 @@ public class CompletenessSweepTests : EngineTestsBase
         Assert.Pass($"{leaks.Count} gaps recorded.");
     }
 
+    /// <summary>
+    ///     The gate. While this passes, nothing in the opening is being improvised by the narrator.
+    ///     A new object or room description that names something it does not answer for will fail here,
+    ///     which is the point: content and its coverage land together or not at all.
+    /// </summary>
     [Test]
-    [Explicit("Gates the opening as complete. Made non-Explicit once the sweep reaches zero.")]
     public async Task TheOpeningLeavesNothingToTheNarrator()
     {
         var leaks = await SweepTheOpening();

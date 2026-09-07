@@ -396,6 +396,25 @@ public static class Repository
             }
         }
 
+        // Global scenery lives on the game, not on any location, so it needs collecting separately -
+        // and it is precisely the set most likely to be typed in every room.
+        foreach (var type in assembly.GetTypes())
+        {
+            if (type is not { IsClass: true, IsGenericType: false, IsAbstract: false } ||
+                !typeof(IInfocomGame).IsAssignableFrom(type))
+                continue;
+
+            try
+            {
+                if (Activator.CreateInstance(type) is IInfocomGame game)
+                    nouns.AddRange(game.GlobalScenery.SelectMany(s => s.Nouns));
+            }
+            catch
+            {
+                // A game that cannot be constructed standalone contributes no global scenery nouns.
+            }
+        }
+
         return nouns.Distinct().ToArray();
     }
 

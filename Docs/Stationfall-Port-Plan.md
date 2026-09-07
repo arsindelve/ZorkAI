@@ -92,9 +92,16 @@ Point (4) is the enforceable one. `GameEngine/Diagnostics/LeakRecordingGeneratio
 generation client and records every occasion the game had no answer of its own. Drive a region, and
 the recorded leaks *are* the to-do list.
 
-**First measurement of the opening: 53 fall-throughs** — 49 of them from nouns *every* room should
-answer for (walls, floor, ceiling, air, me, hands), which the engine has no equivalent for at all,
-and 4 room-specific. That single systemic gap is therefore the highest-value fix in the project.
+**The opening now measures zero**, and `TheOpeningLeavesNothingToTheNarrator` keeps it there. The
+first measurement was 53, of which 49 came from nouns *every* room should answer for — walls, floor,
+ceiling, air, the player's own body — which the engine had no equivalent for at all. `IInfocomGame`
+now declares `GlobalScenery`, checked after a room's own, so one system closed 92% of the gap and did
+it for Zork and Planetfall too.
+
+Note what the sweep covers today: `examine` on the nouns each room's prose puts in front of the
+player. That is the floor, not the ceiling. The next passes should widen it to the full verb set the
+original answers for, then to the objects rather than just the rooms — and each widening should be
+expected to find new gaps. A zero here means "nothing known is missing", never "nothing is missing".
 
 ## Phases
 

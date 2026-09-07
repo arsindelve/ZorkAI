@@ -14,6 +14,14 @@ public class DeckTwelve : LocationBase
 
     public override string[] NounsForMatching => ["deck 12", "deck twelve"];
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["corridor", "hallway", "passage"],
+            "The administrative corridor runs to starboard, lined with identical doors behind which " +
+            "identical people are filling in identical forms. ",
+            "The corridor is part of the ship. ")
+    ];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

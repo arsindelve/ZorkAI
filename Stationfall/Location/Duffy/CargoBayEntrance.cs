@@ -12,6 +12,14 @@ public class CargoBayEntrance : LocationBase
 
     public override string[] NounsForMatching => ["cargo bay entrance", "entrance"];
 
+    protected override IReadOnlyList<SceneryItem> Scenery =>
+    [
+        new(["entrance", "cargo bay entrance", "opening"],
+            "The corridor ends in a broad cargo opening to starboard, wide enough to take a loaded " +
+            "pallet, and a smaller doorway forward. ",
+            "The entrance is part of the ship. ")
+    ];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>
