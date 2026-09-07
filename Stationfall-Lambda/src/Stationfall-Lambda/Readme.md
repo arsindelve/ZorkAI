@@ -97,3 +97,9 @@ account (`576431164672`, us-east-1):
 * the DynamoDB tables `stationfall_session` and `stationfall_savegame`, whose key schemas match the
   other games' (`session_id` hash; `id` hash + `session_id` range with a `session_id-index` GSI).
   Both have deletion protection enabled, as Planetfall's do.
+* the OpenAI API key. This one bit on the first deploy: `OPEN_AI_KEY` is read from the environment by
+  `OpenAIClientBase`, but is declared in no `serverless.template` — it had been applied by hand to the
+  Zork and Planetfall functions and survived only because CloudFormation does not manage properties a
+  template never declares. A new stack therefore deployed "successfully" and then 502'd on every
+  request. `OpenAiKeyResolver` now falls back to the `OpenAiApiKey` secret when the env var is absent,
+  so no new stack needs the manual step; the env var still wins when present.
