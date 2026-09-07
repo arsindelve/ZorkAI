@@ -130,6 +130,31 @@ public class RobotPool : LocationBase
                "are a slot, for your form, and a keypad, for your selection. You can exit aft. ";
     }
 
+    /// <summary>
+    ///     Floyd only campaigns while you are standing in front of him, so he runs as an actor for
+    ///     exactly as long as you are in the room (ship.zil ROBOT-POOL-F queues his interrupt on entry
+    ///     and drops it again on the way out unless he was the one chosen).
+    /// </summary>
+    public override Task<string> AfterEnterLocation(IContext context, ILocation previousLocation,
+        IGenerationClient generationClient)
+    {
+        context.RegisterActor(Repository.GetItem<Floyd>());
+
+        return base.AfterEnterLocation(context, previousLocation, generationClient);
+    }
+
+    public override void OnLeaveLocation(IContext context, ILocation newLocation, ILocation previousLocation)
+    {
+        var floyd = Repository.GetItem<Floyd>();
+
+        // If he wasn't picked he stays behind in his bin, and must stop acting - otherwise he would go
+        // on begging from an empty room for the rest of the game.
+        if (!floyd.IsSelected)
+            context.RemoveActor(floyd);
+
+        base.OnLeaveLocation(context, newLocation, previousLocation);
+    }
+
     public override void Init()
     {
         StartWithItem<RobotPoolSlot>();
