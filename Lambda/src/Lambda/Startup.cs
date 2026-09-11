@@ -23,7 +23,7 @@ public class Startup
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
-        services.AddScoped<IGameEngine, GameEngine<ZorkI, ZorkIContext>>();
+        ServicesHelper.ConfigureGameEngine<ZorkI, ZorkIContext>(services);
         ServicesHelper.ConfigureCommonServices(services);
     }
 

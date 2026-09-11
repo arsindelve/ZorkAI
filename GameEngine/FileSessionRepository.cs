@@ -18,9 +18,7 @@ public class FileSessionRepository : ISessionRepository
     /// </param>
     public FileSessionRepository(string? baseDirectory = null)
     {
-        _baseDirectory = baseDirectory
-                         ?? Environment.GetEnvironmentVariable("ZORKAI_SAVE_DIR")
-                         ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".zorkai");
+        _baseDirectory = SelfHostedStorage.ResolveBaseDirectory(baseDirectory);
     }
 
     public async Task<string?> GetSessionState(string sessionId, string tableName)
@@ -67,21 +65,13 @@ public class FileSessionRepository : ISessionRepository
         return Path.Combine(_baseDirectory, Sanitize(tableName), Sanitize(sessionId) + ".steps.log");
     }
 
-    // The Windows-invalid set, applied on every platform so a save directory is portable and a
-    // session id can never smuggle in a path separator (Linux only forbids '/' and NUL natively).
-    private static readonly char[] HostileChars =
-        Path.GetInvalidFileNameChars().Union(['/', '\\', ':', '*', '?', '"', '<', '>', '|']).ToArray();
-
     /// <summary>
     ///     Makes an arbitrary session/table identifier safe to use as a file name. Public and static
-    ///     so it is unit-testable directly.
+    ///     so it is unit-testable directly. The rule itself lives in <see cref="SelfHostedStorage" />,
+    ///     shared with <see cref="FileSavedGameRepository" />.
     /// </summary>
     public static string Sanitize(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return "_";
-
-        var chars = value.Select(c => HostileChars.Contains(c) ? '_' : c).ToArray();
-        return new string(chars);
+        return SelfHostedStorage.Sanitize(value);
     }
 }

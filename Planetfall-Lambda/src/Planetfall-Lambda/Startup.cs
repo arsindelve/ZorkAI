@@ -24,7 +24,7 @@ public class Startup
         services.AddControllers();
         services.AddEndpointsApiExplorer();
 
-        services.AddScoped<IGameEngine, GameEngine<PlanetfallGame, PlanetfallContext>>();
+        ServicesHelper.ConfigureGameEngine<PlanetfallGame, PlanetfallContext>(services);
 
         // Hint subsystem (v1: Planetfall, all-OpenAI). Stateless: the hint conversation is supplied by
         // the client on each request, so there's no server-side memory to register.
