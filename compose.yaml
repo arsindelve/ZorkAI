@@ -1,0 +1,97 @@
+# The four game backends, running locally 24/7 with no AWS account and no OpenAI key.
+#
+#   docker compose up -d --build
+#
+#   Zork One    http://localhost:5100/ZorkOne
+#   Planetfall  http://localhost:5101/Planetfall
+#   Escape Room http://localhost:5102/EscapeRoom
+#   Stationfall http://localhost:5103/Stationfall
+#
+# Everything that used to live in AWS now lives on disk or on a local model server — see
+# GameEngine/Web/ServicesHelper.cs for the switch. The AI endpoint is the one dependency that
+# remains: this engine's parser is load-bearing, so without a reachable model only movement and the
+# global commands (look, inventory, score) work.
+
+x-backend: &backend
+  # No `build` here on purpose: a service's own `build` replaces this block wholesale under a merge
+  # key, so each service declares its own with the target that selects its game.
+  restart: unless-stopped
+  environment: &backend-env
+    # Any OpenAI-compatible server. Defaults to an Ollama already running on the host — the machine
+    # this was developed on had one with a model pulled, and re-downloading several GB into a
+    # container volume to reach the same place is waste. To use the bundled sidecar instead, run
+    # `docker compose --profile bundled-ollama up -d` and set this to http://ollama:11434/v1.
+    OPENAI_BASE_URL: ${OPENAI_BASE_URL:-http://host.docker.internal:11434/v1}
+    # One override covers every role (narrator, parser, pronoun resolver, companions); local servers
+    # typically expose one loaded model, and the hardcoded OpenAI model ids would 404 against it.
+    OPENAI_MODEL: ${OPENAI_MODEL:-qwen3:14b}
+  # host.docker.internal resolves natively on Docker Desktop; this line is what makes it work on
+  # plain Linux too.
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  volumes:
+    # Sessions and saved games. Without this the whole save tree is inside the container and every
+    # session dies with it.
+    - zorkai-saves:/data
+  healthcheck:
+    test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost:8080/"]
+    interval: 30s
+    timeout: 5s
+    start_period: 30s
+    retries: 3
+
+services:
+  zork1:
+    <<: *backend
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: zork1
+    container_name: zorkai-zork1
+    ports:
+      - "127.0.0.1:5100:8080"
+
+  planetfall:
+    <<: *backend
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: planetfall
+    container_name: zorkai-planetfall
+    ports:
+      - "127.0.0.1:5101:8080"
+
+  escaperoom:
+    <<: *backend
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: escaperoom
+    container_name: zorkai-escaperoom
+    ports:
+      - "127.0.0.1:5102:8080"
+
+  stationfall:
+    <<: *backend
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: stationfall
+    container_name: zorkai-stationfall
+    ports:
+      - "127.0.0.1:5103:8080"
+
+  # Opt-in, for a machine with no host Ollama: `docker compose --profile bundled-ollama up -d`.
+  # Its port is deliberately not published — a host Ollama already owns 11434, and the backends
+  # reach this one over the compose network as http://ollama:11434/v1.
+  ollama:
+    image: ollama/ollama:latest
+    container_name: zorkai-ollama
+    profiles: ["bundled-ollama"]
+    restart: unless-stopped
+    volumes:
+      - ollama-models:/root/.ollama
+
+volumes:
+  zorkai-saves:
+  ollama-models:
