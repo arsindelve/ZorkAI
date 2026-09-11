@@ -19,7 +19,7 @@ public class LookProcessor : IFreeGlobalCommand
         var location = context.CurrentLocation;
 
         if (context.ItIsDarkHere)
-            return ((DarkLocation)location).DarkDescription;
+            return ((DarkLocation)location).GetDarkDescription(context);
 
         var currentLocationDescription = (verbosity ?? context.Verbosity) switch
         {

@@ -728,11 +728,18 @@ public class ChaseSceneTests : EngineTestsBase
             var target = GetTarget();
             await SetupChaseInBioLab(target);
 
-            // Try to go back East to LabOffice - door should be closed
+            // Shut the office door behind us -- the setup opened it to get in here.
+            // (This assertion used to pass against an open door, because the Lab Office
+            // room description hardcoded "A closed door to the west"; the player was in
+            // fact walking straight back into the office.)
+            GetItem<OfficeDoor>().IsOpen = false;
+
+            // Try to go back East to LabOffice - the closed door blocks it
             var response = await target.GetResponse("e");
 
             // Should not be able to escape this way - trapped
-            response.Should().Contain("closed");
+            response.Should().Contain("The office door is closed");
+            response.Should().NotContain("Lab Office");
         }
 
         [Test]

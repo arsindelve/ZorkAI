@@ -11,6 +11,7 @@ using Model.Item;
 using Model.Location;
 using Moq;
 using Planetfall.GlobalCommand;
+using Planetfall.Item.Feinstein;
 using Planetfall.Location.Feinstein;
 using UnitTests;
 
@@ -44,6 +45,25 @@ public class EngineTestsBase
     {
         var item = GetItem<T>();
         Context.ItemPlacedHere(item);
+        return item;
+    }
+
+    /// <summary>
+    /// Carries an item the way a player naturally does: nested in the pocket of the worn Patrol
+    /// uniform, rather than at the top level of inventory. This is the arrangement that used to break
+    /// every possession gate written with the flat <c>Context.HasItem&lt;T&gt;()</c> (issue #503).
+    /// </summary>
+    /// <remarks>
+    /// The harness never runs <c>PlanetfallContext.Init</c>, so the uniform is put on the player here.
+    /// The pocket holds exactly one thing and ships with the ID card, so that comes out into your
+    /// hands first — precisely the inventory the bug report showed.
+    /// </remarks>
+    protected T Pocket<T>() where T : IItem, new()
+    {
+        Context.ItemPlacedHere(GetItem<PatrolUniform>());
+        Context.ItemPlacedHere(GetItem<IdCard>());
+        var item = GetItem<T>();
+        GetItem<PatrolUniformPocket>().ItemPlacedHere(item);
         return item;
     }
 

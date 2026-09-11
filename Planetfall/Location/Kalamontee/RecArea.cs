@@ -57,8 +57,14 @@ internal class RecArea : LocationBase
 
     protected override string GetContextBasedDescription(IContext context)
     {
+        // The dial report belongs to the *closed* branch only (issue #501). The dial resets to 0 when
+        // the door opens, so appending it unconditionally made a solved lock keep advertising a
+        // meaningless "currently set to 0" -- and suggests to the player that the dial still matters.
+        var door = Door.IsOpen
+            ? "open. "
+            : $"closed and locked. A dial on the door is currently set to {Door.Code}. ";
+
         return "This is a recreational facility of some sort. Games and tapes are scattered about the room. " +
-               $"Hallways head off to the east and south, and to the north is a door which is {(Door.IsOpen ? "open" : "closed and locked")}. " +
-               $"A dial on the door is currently set to {Door.Code}. ";
+               $"Hallways head off to the east and south, and to the north is a door which is {door}";
     }
 }

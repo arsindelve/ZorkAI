@@ -409,6 +409,23 @@ public class CourseControlTests : EngineTestsBase
         GetItem<LargeMetalCube>().HasItem<FusedBedistor>().Should().BeFalse();
     }
 
+    // Issue #503: the pliers are size 1 and fit the Patrol uniform pocket. The flat
+    // context.HasItem<Pliers>() refused the whole removal while they sat there.
+    [Test]
+    public async Task UsePliersOnBedistor_PliersInUniformPocket_RemovesBedistor()
+    {
+        var target = GetTarget();
+        StartHere<CourseControl>();
+        Pocket<Pliers>();
+        GetItem<LargeMetalCube>().IsOpen = true;
+
+        var response = await target.GetResponse("use pliers on bedistor");
+
+        response.Should().Contain("With a tug, you manage to remove the fused bedistor");
+        target.Context.HasItem<FusedBedistor>().Should().BeTrue();
+        GetItem<LargeMetalCube>().HasItem<FusedBedistor>().Should().BeFalse();
+    }
+
     [Test]
     public async Task UsePliersOnFused_RemovesBedistor()
     {
@@ -484,6 +501,43 @@ public class CourseControlTests : EngineTestsBase
         target.Score.Should().Be(6);
     }
 
+    // The socket is live once the good bedistor is in it, and reaching back in for the part is an
+    // authored instant death ("Kerzap!!", BEDISTOR-F). The guard was written against the bedistor's
+    // CurrentLocation, but TakeOrDropInteractionProcessor calls context.Take BEFORE OnBeingTaken, and
+    // Take reassigns CurrentLocation to the player - so by the time the guard ran the item was never
+    // in the cube any more and the death could not fire on any code path. The container we came out
+    // of is the `previousLocation` argument; that is what has to be checked.
+    [Test]
+    public async Task TakeGoodBedistorBackOutOfTheLiveSocket_Kills()
+    {
+        var target = GetTarget();
+        StartHere<CourseControl>();
+        var cube = GetItem<LargeMetalCube>();
+        cube.IsOpen = true;
+        cube.RemoveItem(GetItem<FusedBedistor>());
+        Take<GoodBedistor>();
+        await target.GetResponse("put good in cube");
+
+        var response = await target.GetResponse("take good bedistor");
+
+        response.Should().Contain("Kerzap!! You should know better than to touch an active bedistor!");
+        response.Should().Contain("*** You have died ***");
+    }
+
+    // The counterpart: a good bedistor picked up off the floor is just a spare part.
+    [Test]
+    public async Task TakeGoodBedistorFromTheFloor_IsAnOrdinaryTake()
+    {
+        var target = GetTarget();
+        var courseControl = StartHere<CourseControl>();
+        courseControl.ItemPlacedHere(GetItem<GoodBedistor>());
+
+        var response = await target.GetResponse("take good bedistor");
+
+        response.Should().Contain("Taken");
+        response.Should().NotContain("Kerzap");
+    }
+
     [Test]
     public async Task PutWrongItemInCube_GetsAuthoredRefusal()
     {
@@ -498,5 +552,19 @@ public class CourseControlTests : EngineTestsBase
         var response = await target.GetResponse("put brush in cube");
 
         response.Should().Contain("The brush doesn't fit");
+    }
+
+    // Same stray mid-sentence "\n" artifact fixed in the Booth 1/2 descriptions under issue #520:
+    // this room's description broke in the middle of "to the north and south".
+    [Test]
+    public async Task SystemsCorridorEast_Description_HasNoStrayMidSentenceLineBreak()
+    {
+        var target = GetTarget();
+        StartHere<SystemsCorridorEast>();
+
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("smaller doorways to the north and south");
+        response.Should().NotContain("north\n");
     }
 }

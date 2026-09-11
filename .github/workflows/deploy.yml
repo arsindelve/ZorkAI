@@ -62,6 +62,14 @@ jobs:
           cd /home/runner/work/ZorkAI/ZorkAI/Planetfall-Lambda/src/Planetfall-Lambda
           dotnet lambda deploy-serverless -sb planetfallai-assets -sn PlanetfallStack --region us-east-1
 
+      - name: Deploy AWS Lambda Stationfall
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cd /home/runner/work/ZorkAI/ZorkAI/Stationfall-Lambda/src/Stationfall-Lambda
+          dotnet lambda deploy-serverless -sb stationfallai-assets -sn StationfallStack --region us-east-1
+
       - name: Overwrite file Zork
         run: |
           cat > /home/runner/work/ZorkAI/ZorkAI/zorkweb.client/config.json <<'EOF'

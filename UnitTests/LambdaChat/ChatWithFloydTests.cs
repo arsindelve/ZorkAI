@@ -246,6 +246,43 @@ public class ChatWithFloydTests
     }
 
     [Test]
+    public void AskFloydAsync_WhenLambdaEnvelopeReportsError_SurfacesThatError_NotANullReference()
+    {
+        // The AWS invocation itself succeeds (outer HTTP 200), but the Lambda's OWN envelope
+        // reports a failure. This is exactly what prod returned after OpenAI retired the Assistants
+        // API that the Floyd Lambda is built on (see issue #562):
+        //   {"statusCode":500,"body":"{\"error\":\"Error code: 404\"}"}
+        // The old code never inspected the inner statusCode and pressed on to dereference a body
+        // that carried no "results" - `bodyContent?.Results.Response` guards bodyContent but NOT
+        // Results - throwing a NullReferenceException. That masked the real cause and surfaced to
+        // the player as the generic "Floyd doesn't understand" fallback. The client must instead
+        // surface the actual error so an outage is diagnosable.
+        var responseJson = """
+        {
+          "statusCode": 500,
+          "body": "{\"error\": \"Error code: 404\"}"
+        }
+        """;
+
+        var invokeResponse = new InvokeResponse
+        {
+            StatusCode = 200,
+            Payload = new MemoryStream(Encoding.UTF8.GetBytes(responseJson))
+        };
+
+        _mockLambdaClient
+            .Setup(x => x.InvokeAsync(It.IsAny<InvokeRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(invokeResponse);
+
+        var target = new ChatWithFloyd(_mockLambdaClient.Object);
+
+        var ex = Assert.ThrowsAsync<Exception>(async () => await target.AskFloydAsync("floyd, take board"));
+        ex!.Message.Should().Contain("500");
+        ex.Message.Should().Contain("Error code: 404");
+        ex.Message.Should().NotContain("Object reference");
+    }
+
+    [Test]
     public async Task AskFloydAsync_SendsCorrectRequestPayload()
     {
         // Arrange

@@ -22,6 +22,9 @@ public static class LaserSpeckHelper
         if (laserSetting != 1)
         {
             relay.RelayDestroyed = true;
+            // <REMOVE ,RELAY> (comptwo.zil:2867). The speck lived inside the relay, so shattering the
+            // relay takes the speck out of scope with it (issue #517).
+            Repository.DestroyItem<Speck>();
             return new PositiveInteractionResult(
                 $"{beamDescription} which slices through the red plastic covering of the relay like a hot knife through butter. " +
                 "Air rushes into the relay, which collapses into a heap of plastic shards. ");
@@ -62,6 +65,8 @@ public static class LaserSpeckHelper
 
         // Second hit - destroy the speck!
         relay.SpeckDestroyed = true;
+        // <REMOVE ,SPECK> (comptwo.zil:2852) — vaporized, so the noun must stop resolving (issue #517).
+        Repository.DestroyItem<Speck>();
         context.AddPoints(8);
 
         // Start 200-turn timer to escape before sector activates

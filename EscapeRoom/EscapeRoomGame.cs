@@ -12,6 +12,8 @@ public class EscapeRoomGame : IInfocomGame
 
     public string DefaultSaveGameName => "escaperoom.sav";
 
+    public string DarkLocationDescription => "It is pitch dark. You can't see a thing. ";
+
     public string SessionTableName => "escaperoom_session";
 
     public string SystemPromptSecretKey => "EscapeRoomPrompt";

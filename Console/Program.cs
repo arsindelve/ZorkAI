@@ -11,10 +11,27 @@ using Planetfall;
 using SecretsManager;
 using Stationfall;
 using ZorkAI.OpenAI;
+using ZorkConsole;
 using ZorkOne;
 
+// Guard the required game argument before touching AWS or the game engine: an empty args used to throw
+// IndexOutOfRangeException on args[0], and an unrecognized game threw an uncaught exception. Give the
+// user actionable feedback and a non-zero exit code instead. Flags after the game name are ignored
+// here — GameArgumentResolver only inspects args[0].
+var gameSelection = GameArgumentResolver.Resolve(args);
+if (!gameSelection.IsValid)
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.Error.WriteLine(gameSelection.Feedback);
+    Console.ResetColor();
+    Environment.Exit(1);
+}
+
+var gameName = gameSelection.GameName!;
+
 // Optional flags after the game name map onto the self-hosted environment variables (issue #383),
-// so "ZorkOne --provider ollama --model llama3.1" works without exporting anything first.
+// so "ZorkOne --provider ollama --model llama3.1" works without exporting anything first. Must run
+// before the settings are read, and before any OpenAI client is constructed.
 ApplySelfHostFlags(args);
 
 var settings = OpenAIEndpointSettings.FromEnvironment();
@@ -137,7 +154,7 @@ async Task<GameEngine<TGame, TContext>> CreateEngine<TGame, TContext>()
 
 async Task<IGameEngine> GetEngine()
 {
-    IGameEngine newEngine = args[0] switch
+    IGameEngine newEngine = gameName switch
     {
         "Planetfall" => await CreateEngine<PlanetfallGame, PlanetfallContext>(),
         "Stationfall" => await CreateEngine<StationfallGame, StationfallContext>(),
@@ -145,7 +162,8 @@ async Task<IGameEngine> GetEngine()
         "EscapeRoom" => await CreateEngine<EscapeRoomGame, EscapeRoomContext>(),
         //"ZorkTwo" => CreateEngine<ZorkII, ZorkIIContext>(),
 
-        _ => throw new InvalidOperationException($"Unsupported engine type: {args[0]}")
+        // Defense-in-depth: GameArgumentResolver already guaranteed a supported name up front.
+        _ => throw new InvalidOperationException($"Unsupported engine type: {gameName}")
     };
 
     return newEngine;

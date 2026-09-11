@@ -23,6 +23,13 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICan
 
     public override string[] NounsForMatching => ["blather", "ensign blather"];
 
+    // Once the escape pod is down on Resida, the Feinstein and everyone still aboard her are beyond
+    // reach for the rest of the game. Nothing can be learned about them any more, so the narrator must
+    // not be asked to improvise an answer to "where is he?" - it invents whereabouts (issue #545).
+    // This deliberately says nothing about their fate: the static line stays the plain "isn't here",
+    // which is the honest answer and matches what the original ever tells you.
+    public bool IsGoneForGood => Repository.GetLocation<EscapePod>().LandedSafely;
+
     public string ExaminationDescription =>
         "Ensign Blather is a tall, beefy officer with a tremendous, misshapen nose. His uniform is perfect in " +
         "every respect, and the crease in his trousers could probably slice diamonds in half. ";
@@ -61,12 +68,19 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICan
         if (action.MatchNounOne(Repository.GetItem<Brush>().NounsForMatching) &&
             action.MatchVerb(Verbs.ThrowVerbs))
         {
-            if (!context.HasItem<Brush>())
+            // Container-aware possession, like every other gate of its kind (issue #503). The brush is
+            // size 2 and so can't fit the one-slot uniform pocket today, but the gate should express
+            // "are you carrying it", not "is it at the top level" - a distinction that silently sends
+            // the turn to the narrator the moment some container can hold it.
+            if (!context.IsCarrying<Brush>())
             {
                 return await base.RespondToMultiNounInteraction(action, context);
             }
 
-            context.Drop<Brush>();
+            // Drop the instance, not Drop<Brush>(): the generic overload looks only at the top level of
+            // inventory, so a pocketed brush would have "bounced off Blather" while staying in your
+            // pocket. Context.Drop -> RemoveItem detaches it from whatever container holds it.
+            context.Drop(Repository.GetItem<Brush>());
 
             var result =
                 "The Patrol-issue self-contained multi-purpose scrub brush bounces off Blather's bulbous nose. " +

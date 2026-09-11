@@ -86,6 +86,30 @@ public class ChatGPTClientBehaviorTests
             It.IsAny<ChatCompletionOptions>()), Times.Once);
     }
 
+    // NormalizeQuotes is the client's output-sanitizing step: the model likes to emit typographic
+    // quotes, which then leak into a game whose text is otherwise plain ASCII. Merged in from the
+    // former standalone ChatGPTClientTests.
+    [Test]
+    public void NormalizeQuotes_ConvertsCurlyDoubleQuotes_ToStraight()
+    {
+        var input = "Floyd points. “This one is broken.”";
+        ChatGPTClient.NormalizeQuotes(input).Should().Be("Floyd points. \"This one is broken.\"");
+    }
+
+    [Test]
+    public void NormalizeQuotes_ConvertsCurlyApostrophes_ToStraight()
+    {
+        ChatGPTClient.NormalizeQuotes("Floyd’s gears feel creaky.")
+            .Should().Be("Floyd's gears feel creaky.");
+    }
+
+    [Test]
+    public void NormalizeQuotes_LeavesStraightQuotesUntouched()
+    {
+        const string already = "Floyd asks, \"What's that?\"";
+        ChatGPTClient.NormalizeQuotes(already).Should().Be(already);
+    }
+
     private static Mock<IChatCompletionClient> CompletionReturning(string response)
     {
         var completion = new Mock<IChatCompletionClient>();
@@ -240,6 +264,51 @@ public class OpenAiHintLanguageModelBehaviorTests
         result.Should().Be("Use the ladder.");
         messages![1].Content[0].Text.Should().Contain("ladder docs").And.Contain("at the rift")
             .And.Contain("Where next?").And.Contain("How do I cross?");
+    }
+
+    [Test]
+    public async Task Solve_SystemPrompt_NamesThePersonasGame_NotAHardcodedOne()
+    {
+        // ZorkAI.OpenAI is shared by every game. The solver prompt must take the game's identity and its
+        // state-grounding language from the persona, or every non-Planetfall game gets a system prompt
+        // asserting it IS Planetfall and talking about Floyd (issue #484).
+        IReadOnlyList<ChatMessage>? messages = null;
+        var completion = new Mock<IChatCompletionClient>();
+        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
+                It.IsAny<ChatCompletionOptions>()))
+            .Callback<IReadOnlyList<ChatMessage>, ChatCompletionOptions>((m, _) => messages = m)
+            .ReturnsAsync("Open it with the key.");
+        var target = new OpenAiHintLanguageModel(null, completion.Object);
+
+        await target.Solve("zork docs", "west of house", [], "How do I open the door?",
+            new HintPersona("Be dry.", "Zork I", "which treasures are in the trophy case, whether the thief lives"));
+
+        var system = messages![0].Content[0].Text;
+        system.Should().Contain("Zork I");
+        system.Should().Contain("trophy case");
+        system.Should().NotContain("Planetfall");
+        system.Should().NotContain("Floyd");
+    }
+
+    [Test]
+    public async Task Solve_SystemPrompt_WithDefaultPersona_NamesNoGameAtAll()
+    {
+        IReadOnlyList<ChatMessage>? messages = null;
+        var completion = new Mock<IChatCompletionClient>();
+        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
+                It.IsAny<ChatCompletionOptions>()))
+            .Callback<IReadOnlyList<ChatMessage>, ChatCompletionOptions>((m, _) => messages = m)
+            .ReturnsAsync("Something.");
+        var target = new OpenAiHintLanguageModel(null, completion.Object);
+
+        await target.Solve("docs", "somewhere", [], "What now?", new HintPersona("Be dry."));
+
+        var system = messages![0].Content[0].Text;
+        system.Should().NotContain("Planetfall");
+        system.Should().NotContain("Floyd");
+        // ...and the sentence must still read as English: no game identity means the naming clause is
+        // dropped entirely, not filled with a placeholder ("the text-adventure game this text adventure").
+        system.Should().StartWith("You are the SOLVER stage of a hint system for a text adventure.");
     }
 
     [Test]

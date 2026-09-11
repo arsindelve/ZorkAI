@@ -8,7 +8,17 @@ internal class ReactorLobby : BlatherLocation
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.W, Go<DeckNine>() },
+            // The west exit back to Deck Nine is sealed by the same wide corridor bulkhead once it
+            // crashes shut in the explosion (issue #529; globals.zil:629 gates WEST on CORRIDOR-DOOR).
+            {
+                Direction.W,
+                new MovementParameters
+                {
+                    Location = Repository.GetLocation<DeckNine>(),
+                    CanGo = _ => Repository.GetItem<CorridorDoor>().IsOpen,
+                    CustomFailureMessage = "The emergency bulkhead is closed. "
+                }
+            },
             { Direction.E, BlatherBlocksYou() },
             { Direction.S, BlatherBlocksYou() }
         };

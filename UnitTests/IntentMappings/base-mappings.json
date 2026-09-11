@@ -53,10 +53,26 @@
     { "inputs": ["press message playback button"], "verb": "press", "noun": "message playback button" },
     { "inputs": ["press glowing button"], "verb": "press", "noun": "glowing button" },
 
+    // The escape-pod bulkhead, named the way Deck Nine's own description names it. The live AI parser
+    // returns both shapes for these - the whole phrase as one noun, or split into adjective + noun -
+    // so both are stubbed here (issue: "open escape pod" was answered as if no pod existed).
+    { "inputs": ["open escape pod"], "verb": "open", "noun": "escape pod" },
+    { "inputs": ["open the escape pod"], "verb": "open", "noun": "pod", "adjective": "escape" },
+    { "inputs": ["open pod bulkhead"], "verb": "open", "noun": "pod bulkhead" },
+    { "inputs": ["open the pod bulkhead"], "verb": "open", "noun": "bulkhead", "adjective": "pod" },
+    { "inputs": ["open escape pod bulkhead"], "verb": "open", "noun": "escape pod bulkhead" },
+    { "inputs": ["examine escape pod"], "verb": "examine", "noun": "escape pod" },
+    // Deliberately NOT a pod-door name: the original shares the EMERGENCY adjective across three doors
+    // in Deck Nine's scope, so this phrase is ambiguous rather than POD-DOOR's. Stubbed so the test can
+    // prove the pod door does not claim it.
+    { "inputs": ["open emergency bulkhead"], "verb": "open", "noun": "bulkhead", "adjective": "emergency" },
+
     { "inputs": ["open red door"], "verb": "open", "noun": "red door" },
     { "inputs": ["close red door"], "verb": "close", "noun": "red door" },
     { "inputs": ["examine red door"], "verb": "examine", "noun": "red door" },
     { "inputs": ["examine blue door"], "verb": "examine", "noun": "blue door" },
+    { "inputs": ["examine sliding door"], "verb": "examine", "noun": "sliding door" },
+    { "inputs": ["examine metal door"], "verb": "examine", "noun": "metal door" },
     { "inputs": ["open elevator door"], "verb": "open", "noun": "elevator door" },
     { "inputs": ["open blue door"], "verb": "open", "noun": "blue door" },
     { "inputs": ["close blue door"], "verb": "close", "noun": "blue door" },
@@ -87,6 +103,12 @@
 
     { "inputs": ["examine crack"], "verb": "examine", "noun": "crack", "originalInput": "examine crack" },
     { "inputs": ["examine hole"], "verb": "examine", "noun": "hole", "originalInput": "examine hole" },
+    { "inputs": ["examine crevice"], "verb": "examine", "noun": "crevice", "originalInput": "examine crevice" },
+    { "inputs": ["collapse ladder"], "verb": "collapse", "noun": "ladder", "originalInput": "collapse ladder" },
+    { "inputs": ["examine rift"], "verb": "examine", "noun": "rift", "originalInput": "examine rift" },
+    { "inputs": ["type 385"], "verb": "type", "noun": "385", "originalInput": "type 385" },
+    { "inputs": ["drink fluid"], "verb": "drink", "noun": "fluid", "originalInput": "drink fluid" },
+    { "inputs": ["take good bedistor"], "verb": "take", "noun": "good bedistor", "originalInput": "take good bedistor" },
     { "inputs": ["look through crack"], "verb": "look", "noun": "crack", "originalInput": "look through crack" },
     { "inputs": ["look through window"], "verb": "look", "noun": "window", "originalInput": "look through window" },
     { "inputs": ["examine equipment"], "verb": "examine", "noun": "equipment", "originalInput": "examine equipment" },
@@ -117,6 +139,9 @@
     { "inputs": ["put ladder across rift"], "verb": "put", "nounOne": "ladder", "nounTwo": "rift", "preposition": "across", "originalInput": "put ladder across rift" },
     { "inputs": ["throw diary into rift"], "verb": "throw", "nounOne": "diary", "nounTwo": "rift", "preposition": "into", "originalInput": "throw diary into rift" },
     { "inputs": ["throw laser into rift"], "verb": "throw", "nounOne": "laser", "nounTwo": "rift", "preposition": "into", "originalInput": "throw laser into rift" },
+    { "inputs": ["throw magnet into rift"], "verb": "throw", "nounOne": "magnet", "nounTwo": "rift", "preposition": "into", "originalInput": "throw magnet into rift" },
+    { "inputs": ["throw bedistor into rift"], "verb": "throw", "nounOne": "bedistor", "nounTwo": "rift", "preposition": "into", "originalInput": "throw bedistor into rift" },
+    { "inputs": ["put good bedistor in cube"], "verb": "put", "nounOne": "good bedistor", "nounTwo": "cube", "preposition": "in", "originalInput": "put good bedistor in cube" },
     { "inputs": ["put flask under spout"], "verb": "put", "nounOne": "flask", "nounTwo": "spout", "preposition": "under", "originalInput": "put flask under spout" },
     { "inputs": ["put canteen under spout"], "verb": "put", "nounOne": "canteen", "nounTwo": "spout", "preposition": "under", "originalInput": "put canteen under spout" },
     { "inputs": ["put canteen underneath spout"], "verb": "put", "nounOne": "canteen", "nounTwo": "spout", "preposition": "underneath", "originalInput": "put canteen underneath spout" },
@@ -317,8 +342,12 @@
     { "inputs": ["shoot laser at floyd"], "verb": "shoot", "nounOne": "laser", "nounTwo": "floyd", "preposition": "at", "originalInput": "shoot laser at floyd" },
     { "inputs": ["fire laser at flask"], "verb": "fire", "nounOne": "laser", "nounTwo": "flask", "preposition": "at", "originalInput": "fire laser at flask" },
 
-    { "inputs": ["shoot relay with laser", "shoot speck with laser"], "verb": "shoot", "nounOne": "relay", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot relay with laser" },
-    { "inputs": ["shoot laser at relay", "shoot laser at speck"], "verb": "shoot", "nounOne": "laser", "nounTwo": "relay", "preposition": "at", "originalInput": "shoot laser at relay" },
+    { "inputs": ["shoot relay with laser"], "verb": "shoot", "nounOne": "relay", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot relay with laser" },
+    { "inputs": ["shoot laser at relay"], "verb": "shoot", "nounOne": "laser", "nounTwo": "relay", "preposition": "at", "originalInput": "shoot laser at relay" },
+    { "inputs": ["shoot speck with laser"], "verb": "shoot", "nounOne": "speck", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot speck with laser" },
+    { "inputs": ["shoot laser at speck"], "verb": "shoot", "nounOne": "laser", "nounTwo": "speck", "preposition": "at", "originalInput": "shoot laser at speck" },
+    { "inputs": ["shoot boulder with laser"], "verb": "shoot", "nounOne": "boulder", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot boulder with laser" },
+    { "inputs": ["shoot impurity with laser"], "verb": "shoot", "nounOne": "impurity", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot impurity with laser" },
     { "inputs": ["fire laser at relay"], "verb": "fire", "nounOne": "laser", "nounTwo": "relay", "preposition": "at", "originalInput": "fire laser at relay" },
 
     { "inputs": ["shoot microbe with laser"], "verb": "shoot", "nounOne": "microbe", "nounTwo": "laser", "preposition": "with", "originalInput": "shoot microbe with laser" },
@@ -328,7 +357,21 @@
     { "inputs": ["give laser to microbe", "throw laser to microbe", "feed laser to microbe"], "verb": "give", "nounOne": "laser", "nounTwo": "microbe", "preposition": "to", "originalInput": "give laser to microbe" },
     { "inputs": ["offer laser to microbe"], "verb": "offer", "nounOne": "laser", "nounTwo": "microbe", "preposition": "to", "originalInput": "offer laser to microbe" },
 
-    { "inputs": ["put good in cube"], "verb": "put", "nounOne": "good bedistor", "nounTwo": "cube", "preposition": "in", "originalInput": "put good in cube" }
+    { "inputs": ["put good in cube"], "verb": "put", "nounOne": "good bedistor", "nounTwo": "cube", "preposition": "in", "originalInput": "put good in cube" },
+
+    // Stationfall's form slots. The dynamic put-X-in-Y rule only handles the four-word shape, so the
+    // full form titles the game teaches the player need explicit mappings.
+    { "inputs": ["put robot use authorization form in slot", "insert robot use authorization form in slot"], "verb": "put", "nounOne": "robot use authorization form", "nounTwo": "slot", "preposition": "in", "originalInput": "put robot use authorization form in slot" },
+    { "inputs": ["put class three activation form in slot", "put class three spacecraft activation form in slot"], "verb": "put", "nounOne": "class three spacecraft activation form", "nounTwo": "slot", "preposition": "in", "originalInput": "put class three activation form in slot" },
+    { "inputs": ["put assignment completion form in slot", "insert assignment completion form in slot"], "verb": "put", "nounOne": "assignment completion form", "nounTwo": "slot", "preposition": "in", "originalInput": "put assignment completion form in slot" },
+
+    // Stationfall: handing a form to one of the Duffy's robots. "give" is not one of the test parser's
+    // verbs, so these need mappings (Helen shreds any form she is given).
+    { "inputs": ["give activation to helen", "give activation form to helen"], "verb": "give", "nounOne": "activation", "nounTwo": "helen", "preposition": "to", "originalInput": "give activation to helen" },
+    { "inputs": ["give assignment to helen", "give assignment form to helen"], "verb": "give", "nounOne": "assignment", "nounTwo": "helen", "preposition": "to", "originalInput": "give assignment to helen" },
+    { "inputs": ["give authorization to helen", "give authorization form to helen"], "verb": "give", "nounOne": "authorization", "nounTwo": "helen", "preposition": "to", "originalInput": "give authorization to helen" },
+    { "inputs": ["give activation to floyd", "give activation form to floyd"], "verb": "give", "nounOne": "activation", "nounTwo": "floyd", "preposition": "to", "originalInput": "give activation to floyd" },
+    { "inputs": ["give activation to rex", "give activation form to rex"], "verb": "give", "nounOne": "activation", "nounTwo": "rex", "preposition": "to", "originalInput": "give activation to rex" }
   ],
 
   "enterSubLocationIntents": [
@@ -346,6 +389,13 @@
     { "inputs": ["enter pod", "board pod", "enter the pod", "board the pod"], "noun": "pod" },
     { "inputs": ["enter bulkhead", "board bulkhead"], "noun": "bulkhead" },
     { "inputs": ["enter door", "board door"], "noun": "door" },
+    { "inputs": ["enter blue door", "board blue door"], "noun": "blue door" },
+    { "inputs": ["enter red door", "board red door"], "noun": "red door" },
+    { "inputs": ["enter upper elevator door"], "noun": "upper elevator door" },
+    { "inputs": ["enter lower elevator door"], "noun": "lower elevator door" },
+
+    { "inputs": ["enter helicopter", "board helicopter", "enter the helicopter"], "noun": "helicopter" },
+    { "inputs": ["enter vehicle", "board vehicle", "enter the vehicle"], "noun": "vehicle" },
 
     { "inputs": ["enter elevator", "enter the elevator"], "noun": "elevator" },
     { "inputs": ["enter the kitchen", "enter kitchen"], "noun": "kitchen" },

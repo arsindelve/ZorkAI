@@ -1,6 +1,5 @@
 using Model.Interface;
 using Stationfall.GlobalCommand;
-using Stationfall.Location;
 
 namespace Stationfall;
 
@@ -19,6 +18,42 @@ public class StationfallGame : IInfocomGame
 
     // TODO (Phase 3): Floyd returns in Stationfall — add typeof(Floyd) here once ported so
     // "Floyd, ..." is recognized even when he isn't in the room (see PlanetfallGame).
+    /// <summary>
+    ///     Nouns that answer in every room. The original makes these global objects, so it recognises
+    ///     them anywhere; without them each one silently becomes an improvised answer from the narrator,
+    ///     which is indistinguishable from a real one and therefore worse than nothing. A room with
+    ///     something particular to say about its own walls overrides these.
+    /// </summary>
+    public IReadOnlyList<SceneryItem> GlobalScenery =>
+    [
+        new(["wall", "walls", "bulkhead", "bulkheads"],
+            "Standard Patrol bulkhead: riveted plate, painted the regulation grey that the Patrol " +
+            "believes is restful. ",
+            "The bulkheads are structural, and you are not. "),
+        new(["floor", "ground", "deck", "deck plates", "plating"],
+            "Ridged metal decking, worn shiny down the middle where everyone walks. ",
+            "The deck stays where it is. "),
+        new(["ceiling", "roof", "overhead"],
+            "Ducting, cable runs, and a row of light panels, one of which is flickering in a way " +
+            "nobody has filed about. ",
+            "It's a good deal further up than you can reach. "),
+        new(["air", "atmosphere"],
+            "Recycled, faintly metallic, and a little too dry — the smell of every ship and station " +
+            "you have ever served on. ",
+            "You are, in fact, already breathing it. "),
+        new(["me", "myself", "self", "my body"],
+            "You are an Ensign Seventh Class in the Stellar Patrol, in a uniform you have kept " +
+            "regulation-neat for reasons that are becoming harder to articulate. ",
+            "You've got yourself already. "),
+        new(["hands", "hand", "fingers"],
+            "Two of them, the regulation number, and presently empty of anything interesting. ",
+            "They're attached. "),
+        new(["uniform patch", "insignia", "rank insignia"],
+            "The single dull chevron of an Ensign Seventh Class. You have been assured it gets " +
+            "better. ",
+            "It's stitched on. ")
+    ];
+
     public IReadOnlyList<Type> TalkableCharacterTypes => [];
 
     public string StartText => """
@@ -29,6 +64,12 @@ public class StationfallGame : IInfocomGame
                                """;
 
     public string DefaultSaveGameName => "stationfall-ai.sav";
+
+    // Stationfall keeps Infocom's grue in-joke, but with its own station-flavored wording rather than
+    // Zork's "eaten by a grue" or Planetfall's "might be eaten by a grue". Verbatim from the original
+    // DESCRIBE-ROOM routine (stationfall/verbs.zil:2668-2676). The VACUUM-STORAGE room has a bespoke
+    // variant there; when that room is ported it overrides GetDarkDescription for itself.
+    public string DarkLocationDescription => "It is pitch black. You hope there are no grues aboard the station. ";
 
     public string SessionTableName => "stationfall_session";
 

@@ -129,8 +129,10 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
         if (!match)
             return await base.RespondToMultiNounInteraction(action, context);
 
-        // It's a genuine fishing attempt, but the player isn't holding the magnet.
-        if (!context.HasItem<Magnet>())
+        // It's a genuine fishing attempt, but the player isn't carrying the magnet. Container-aware
+        // (issue #503): with the flat check, a magnet inside something you carry counted as "not
+        // yours" and the fishing attempt fell through to the narrator.
+        if (!context.IsCarrying<Magnet>())
             return Repository.GetItem<Magnet>().CurrentLocation == this
                 ? new PositiveInteractionResult("You don't have the curved metal bar. ")
                 : new NoNounMatchInteractionResult();

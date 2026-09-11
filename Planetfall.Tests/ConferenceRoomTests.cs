@@ -203,7 +203,6 @@ public class ConferenceRoomTests : EngineTestsBase
     #region Word-Based Number Input Tests
 
     [Test]
-    [TestCase("zero", "0")]
     [TestCase("one", "1")]
     [TestCase("two", "2")]
     [TestCase("three", "3")]
@@ -323,6 +322,10 @@ public class ConferenceRoomTests : EngineTestsBase
         StartHere<RecArea>();
         GetItem<ConferenceRoomDoor>().UnlockCode = "9999";
 
+        // Dial away from its initial 0 first: dialing the setting it already shows is a no-op with its
+        // own response (issue #501), so this asserts "zero" parses as a valid *new* setting.
+        await target.GetResponse("set dial to 42");
+
         string? response = await target.GetResponse("set dial to zero");
         response.Should().Contain("The dial is now set to 0");
         GetItem<ConferenceRoomDoor>().Code.Should().Be("0");
@@ -434,6 +437,96 @@ public class ConferenceRoomTests : EngineTestsBase
         // Verify Floyd's pending comment was NOT set (door didn't open)
         var pfContext = (PlanetfallContext)target.Context;
         pfContext.PendingFloydActionCommentPrompt.Should().BeNull();
+    }
+
+    #endregion
+
+    #region Re-dialing The Current Setting
+
+    [Test]
+    public async Task SetDial_ToNumberItIsAlreadyOn_SaysThatIsWhatItIsSetToNow()
+    {
+        // Issue #501: the original has a dedicated branch for dialing the number the dial already
+        // shows -- it must not re-report "The dial is now set to 5." as if something changed.
+        var target = GetTarget();
+        StartHere<RecArea>();
+        GetItem<ConferenceRoomDoor>().UnlockCode = "999";
+
+        var first = await target.GetResponse("set dial to 5");
+        first.Should().Contain("The dial is now set to 5");
+
+        var second = await target.GetResponse("set dial to 5");
+        second.Should().Contain("That's what the dial is set to now!");
+        second.Should().NotContain("The dial is now set to 5");
+        GetItem<ConferenceRoomDoor>().Code.Should().Be("5");
+    }
+
+    [Test]
+    public async Task SetDial_ToZero_WhenDialStartsAtZero_SaysThatIsWhatItIsSetToNow()
+    {
+        // Same branch as above, for the dial's initial setting of 0.
+        var target = GetTarget();
+        StartHere<RecArea>();
+        GetItem<ConferenceRoomDoor>().UnlockCode = "999";
+
+        string? response = await target.GetResponse("set dial to zero");
+
+        response.Should().Contain("That's what the dial is set to now!");
+        GetItem<ConferenceRoomDoor>().Code.Should().Be("0");
+    }
+
+    [Test]
+    public async Task SetDial_ToCorrectCode_OpensDoor_EvenIfDialAlreadyShowsIt()
+    {
+        // The "already on that number" branch must never shadow the unlock check.
+        var target = GetTarget();
+        StartHere<RecArea>();
+        var door = GetItem<ConferenceRoomDoor>();
+        door.UnlockCode = "42";
+        door.Code = "42";
+
+        string? response = await target.GetResponse("set dial to 42");
+
+        response.Should().Contain("The door swings open, and the dial resets to 0");
+        door.IsOpen.Should().BeTrue();
+    }
+
+    #endregion
+
+    #region Rec Area Description Tests
+
+    [Test]
+    public async Task RecAreaDescription_DoorOpen_DoesNotReportTheDial()
+    {
+        // Issue #501: in the original, the dial sentence belongs to the *closed* branch only. Once the
+        // door is open the description ends at "...a door which is open." The dial is reset to 0 when
+        // the door opens, so an unconditional dial clause reports a meaningless "set to 0" on a lock
+        // that is already solved.
+        var target = GetTarget();
+        StartHere<RecArea>();
+        GetItem<ConferenceRoomDoor>().IsOpen = true;
+
+        string? response = await target.GetResponse("look");
+
+        response.Should().Contain("a door which is open");
+        response.Should().NotContain("A dial on the door");
+    }
+
+    [Test]
+    public async Task RecAreaDescription_DoorClosed_ReportsTheDialSetting()
+    {
+        // Issue #501: the closed branch must keep reporting the dial's current setting -- the fix
+        // moves the clause, it must not drop it.
+        var target = GetTarget();
+        StartHere<RecArea>();
+        var door = GetItem<ConferenceRoomDoor>();
+        door.IsOpen = false;
+        door.Code = "42";
+
+        string? response = await target.GetResponse("look");
+
+        response.Should().Contain("a door which is closed and locked");
+        response.Should().Contain("A dial on the door is currently set to 42");
     }
 
     #endregion

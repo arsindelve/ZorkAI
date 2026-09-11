@@ -81,49 +81,9 @@ internal class SimpleInteractionEngine(IItemProcessorFactory itemProcessorFactor
         return (null, await GetGeneratedNoOpResponse(simpleInteraction.OriginalInput ?? "", generationClient, context));
     }
 
-    private DisambiguationInteractionResult? CheckDisambiguation(SimpleIntent intent, IContext context)
+    private static DisambiguationInteractionResult? CheckDisambiguation(SimpleIntent intent, IContext context)
     {
-        var ambiguousItems = new List<IItem>();
-
-        IEnumerable<IItem> allItemsInSight =
-            context.GetAllItemsRecursively
-                .Union((context.CurrentLocation as ICanContainItems)!.GetAllItemsRecursively)
-                .ToList();
-
-        foreach (var item in allItemsInSight)
-            if (intent.MatchNounAndAdjective(item.NounsForMatching))
-                ambiguousItems.Add(item);
-
-        // We have one or fewer items that match the noun. Good to go. 
-        if (ambiguousItems.Count <= 1)
-            return null;
-
-        var itemNouns = ambiguousItems
-            .Select(s => s.NounsForMatching.MaxBy(n => n.Length))
-            .ToList()!
-            .SingleLineListWithOr();
-        var message = $"Do you mean {itemNouns}?";
-
-        // For each item, we need a map of all possible nouns, to the longest noun, and then 
-        // we will replace the matching noun with the longest noun. If we don't do
-        // this, we'll loop around disambiguating forever. 
-        var nounToLongestNounMap = new Dictionary<string, string>();
-        foreach (var item in ambiguousItems)
-        {
-            string? longestNoun = item.NounsForPreciseMatching.MaxBy(noun => noun.Length);
-            foreach (var noun in item.NounsForPreciseMatching)
-            {
-                nounToLongestNounMap[noun] = longestNoun ?? string.Empty;
-            }
-        }
-
-        var replacement = intent.Verb + " {0}";
-        
-        return new DisambiguationInteractionResult(
-            message,
-            nounToLongestNounMap,
-            replacement
-        );
+        return NounDisambiguator.Check(intent.MatchNounAndAdjective, context, intent.Verb + " {0}");
     }
 
     private static async Task<string> GetGeneratedNoMatchingVerbResponse(string? noun, string verb,

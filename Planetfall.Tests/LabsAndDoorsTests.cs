@@ -467,6 +467,49 @@ public class LabsAndDoorsTests : EngineTestsBase
     }
 
     [Test]
+    public async Task LabOffice_Look_WhenDoorClosed_DescribesAClosedDoor()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+        GetItem<OfficeDoor>().IsOpen = false;
+
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("A closed door to the west");
+        response.Should().NotContain("An open door to the west");
+    }
+
+    [Test]
+    public async Task LabOffice_Look_WhenDoorOpen_DescribesAnOpenDoor()
+    {
+        // The room description asserts a mutable fact, so it has to be interpolated from
+        // OfficeDoor.IsOpen -- it used to hardcode "A closed door", contradicting both
+        // "examine door" and the live West exit on the very same screen.
+        var target = GetTarget();
+        StartHere<LabOffice>();
+        GetItem<OfficeDoor>().IsOpen = true;
+
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("An open door to the west");
+        response.Should().NotContain("A closed door to the west");
+    }
+
+    [Test]
+    public async Task LabOffice_Look_AndExamineDoor_AgreeThatDoorIsOpen()
+    {
+        var target = GetTarget();
+        StartHere<LabOffice>();
+        GetItem<OfficeDoor>().IsOpen = true;
+
+        var look = await target.GetResponse("look");
+        var examine = await target.GetResponse("examine door");
+
+        look.Should().Contain("An open door to the west");
+        examine.Should().Contain("The office door is open");
+    }
+
+    [Test]
     public async Task LabOffice_PressRedButton_ActivatesFungicide()
     {
         var target = GetTarget();

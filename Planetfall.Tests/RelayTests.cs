@@ -427,6 +427,184 @@ public class RelayTests : EngineTestsBase
 
     #endregion
 
+    #region Speck Tests
+
+    // Issue #517: the SPECK is a first-class object in the original (comptwo.zil:2562-2567,
+    // SYNONYM SPECK BOULDER IMPURITY / ADJECTIVE BLUE) and the laser's SHOOT handler dispatches on
+    // it (comptwo.zil:2712). The port modelled the puzzle on the relay alone, so the canonical
+    // solution "shoot speck with laser" died on "You don't see any speck here." in production —
+    // hidden from CI only because the test fixture rewrote the noun to "relay".
+
+    [Test]
+    public void Speck_IsPresentInTheRelayRoom()
+    {
+        GetTarget();
+        var location = StartHere<StripNearRelay>();
+        var speck = GetItem<Speck>();
+
+        speck.CurrentLocation.Should().Be(location);
+        location.Items.Should().Contain(speck);
+    }
+
+    [Test]
+    public async Task Speck_IsNotListedInTheRoomDescription()
+    {
+        var target = GetTarget();
+        StartHere<StripNearRelay>();
+
+        var response = await target.GetResponse("look");
+
+        // NDESCBIT in the original — the speck is only visible through the relay's description.
+        response.Should().NotContain("There is a speck");
+    }
+
+    [Test]
+    public async Task ExamineSpeck_DescribesTheSpeck()
+    {
+        var target = GetTarget();
+        StartHere<StripNearRelay>();
+
+        var response = await target.GetResponse("examine speck");
+
+        response.Should().Contain("blue boulder");
+    }
+
+    [TestCase("boulder")]
+    [TestCase("impurity")]
+    public async Task ExamineSpeck_BySynonym_DescribesTheSpeck(string noun)
+    {
+        var target = GetTarget();
+        StartHere<StripNearRelay>();
+
+        var response = await target.GetResponse($"examine {noun}");
+
+        response.Should().Contain("blue boulder");
+    }
+
+    [Test]
+    public async Task ShootSpeck_WithRedLaser_FirstHit_SetsSpeckHit()
+    {
+        var target = GetTarget();
+        StartHere<StripNearRelay>();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        GetItem<Laser>().Setting = 1; // Red
+        SetupMockRandomChooser(shouldHit: true);
+        var relay = GetItem<Relay>();
+
+        var response = await target.GetResponse("shoot speck with laser");
+
+        response.Should().NotContain("You don't see any speck here");
+        response.Should().Contain("The speck is hit by the beam!");
+        relay.SpeckHit.Should().BeTrue();
+        relay.SpeckDestroyed.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task ShootLaserAtSpeck_WithRedLaser_FirstHit_SetsSpeckHit()
+    {
+        var target = GetTarget();
+        StartHere<StripNearRelay>();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        GetItem<Laser>().Setting = 1; // Red
+        SetupMockRandomChooser(shouldHit: true);
+        var relay = GetItem<Relay>();
+
+        var response = await target.GetResponse("shoot laser at speck");
+
+        response.Should().Contain("The speck is hit by the beam!");
+        relay.SpeckHit.Should().BeTrue();
+    }
+
+    [TestCase("boulder")]
+    [TestCase("impurity")]
+    public async Task ShootSpeck_BySynonym_WithRedLaser_HitsTheSpeck(string noun)
+    {
+        var target = GetTarget();
+        StartHere<StripNearRelay>();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        GetItem<Laser>().Setting = 1; // Red
+        SetupMockRandomChooser(shouldHit: true);
+
+        var response = await target.GetResponse($"shoot {noun} with laser");
+
+        response.Should().Contain("The speck is hit by the beam!");
+    }
+
+    [Test]
+    public async Task ShootSpeck_WithRedLaser_SecondHit_DestroysSpeck()
+    {
+        var target = GetTarget();
+        StartHere<StripNearRelay>();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        GetItem<Laser>().Setting = 1; // Red
+        SetupMockRandomChooser(shouldHit: true);
+        var relay = GetItem<Relay>();
+        relay.SpeckHit = true; // Already hit once
+
+        var response = await target.GetResponse("shoot speck with laser");
+
+        response.Should().Contain("The beam hits the speck again!");
+        response.Should().Contain("vaporizes into a fine cloud of ash");
+        relay.SpeckDestroyed.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task ShootSpeck_WithNonRedLaser_DestroysTheRelay()
+    {
+        var target = GetTarget();
+        StartHere<StripNearRelay>();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        GetItem<Laser>().Setting = 3; // Yellow (non-red)
+
+        var response = await target.GetResponse("shoot speck with laser");
+
+        response.Should().Contain("slices through the red plastic");
+        GetItem<Relay>().RelayDestroyed.Should().BeTrue();
+    }
+
+    [Test]
+    public async Task ShootSpeck_AfterSpeckDestroyed_SpeckIsGoneFromScope()
+    {
+        var target = GetTarget();
+        StartHere<StripNearRelay>();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        GetItem<Laser>().Setting = 1; // Red
+        SetupMockRandomChooser(shouldHit: true);
+        GetItem<Relay>().SpeckHit = true; // Already hit once — this shot vaporizes it
+
+        await target.GetResponse("shoot speck with laser");
+        var response = await target.GetResponse("shoot speck with laser");
+
+        // <REMOVE ,SPECK> (comptwo.zil:2852) — the speck no longer exists to be shot at.
+        response.Should().Contain("You don't see any speck here");
+        GetItem<Speck>().CurrentLocation.Should().BeNull();
+    }
+
+    [Test]
+    public async Task ShootSpeck_AfterRelayDestroyed_SpeckIsGoneFromScope()
+    {
+        var target = GetTarget();
+        StartHere<StripNearRelay>();
+        Take<Laser>();
+        GetItem<OldBattery>().ChargesRemaining = 10;
+        GetItem<Laser>().Setting = 4; // Green (non-red) — shatters the relay
+
+        await target.GetResponse("shoot speck with laser");
+        var response = await target.GetResponse("shoot speck with laser");
+
+        // <REMOVE ,RELAY> (comptwo.zil:2867) takes the speck it contained out of scope with it.
+        response.Should().Contain("You don't see any speck here");
+        GetItem<Speck>().CurrentLocation.Should().BeNull();
+    }
+
+    #endregion
+
     #region Timer Tests
 
     [Test]

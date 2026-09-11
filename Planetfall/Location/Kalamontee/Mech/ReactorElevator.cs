@@ -13,36 +13,26 @@ internal class ReactorElevator : LocationWithNoStartingItems
 {
     public override string Name => "Reactor Elevator";
 
-    private ReactorElevatorDoor Door => Repository.GetItem<ReactorElevatorDoor>();
+    // The door and the exits it gates, stated once. Both exits and the description below read this one
+    // predicate, so the room cannot describe a door the player is then refused (issue #523).
+    private Doorway Door => new(Repository.GetItem<ReactorElevatorDoor>());
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
+        var outThroughTheDoor = Door.Passage(GetLocation<ReactorControl>());
+
         return new Dictionary<Direction, MovementParameters>
         {
-            {
-                Direction.W, new MovementParameters
-                {
-                    CanGo = _ => Door.IsOpen,
-                    Location = GetLocation<ReactorControl>(),
-                    CustomFailureMessage = "The door is closed. "
-                }
-            },
-            {
-                Direction.Out, new MovementParameters
-                {
-                    CanGo = _ => Door.IsOpen,
-                    Location = GetLocation<ReactorControl>(),
-                    CustomFailureMessage = "The door is closed. "
-                }
-            }
+            { Direction.W, outThroughTheDoor },
+            { Direction.Out, outThroughTheDoor }
         };
     }
 
     protected override string GetContextBasedDescription(IContext context)
     {
         return
-            "This is an elevator with a door to the west, currently open. A control panel contains " +
-            "an Up button, a Down button, and a small slot. ";
+            $"This is an elevator with a door to the west, currently {Door.StateWord}. A control panel " +
+            "contains an Up button, a Down button, and a small slot. ";
     }
 
     public override void Init()

@@ -2,6 +2,7 @@ using ChatLambda;
 using CloudWatch;
 using CloudWatch.Model;
 using GameEngine;
+using GameEngine.Diagnostics;
 using GameEngine.Item;
 using Model;
 using Model.AIGeneration;
@@ -11,7 +12,7 @@ using Model.Item;
 using Model.Location;
 using Moq;
 using Stationfall.GlobalCommand;
-using Stationfall.Location;
+using Stationfall.Location.Duffy;
 using UnitTests;
 
 namespace Stationfall.Tests;
@@ -31,6 +32,12 @@ public class EngineTestsBase
         _storedEngine?.Context ?? throw new InvalidOperationException("Engine not initialized");
 
     protected Mock<IParseConversation> ParseConversationMock { get; private set; } = null!;
+
+    /// <summary>
+    ///     Records every narrator fall-through this engine produced. See
+    ///     <see cref="LeakRecordingGenerationClient" />.
+    /// </summary>
+    protected LeakRecordingGenerationClient LeakRecorder { get; private set; } = null!;
 
     protected GameEngine<StationfallGame, StationfallContext> GetTarget(IIntentParser? parser = null)
     {
@@ -59,12 +66,25 @@ public class EngineTestsBase
         ParseConversationMock.Setup(x => x.ParseAsync(It.IsAny<string>()))
             .ReturnsAsync((false, ""));
 
+        // Wrap the generation client so every fall-through to the narrator is recorded. An
+        // unimplemented object does not go quiet in this engine - it gets improvised, plausibly and
+        // wrongly - so the recorded leaks are the only reliable measure of whether a region is done.
+        GameEngine<StationfallGame, StationfallContext>? built = null;
+        LeakRecorder = new LeakRecordingGenerationClient(
+            _client.Object,
+            () => (built?.Context.LastInput ?? "(none)", built?.Context.CurrentLocation.Name ?? "(none)"));
+
         var engine = new GameEngine<StationfallGame, StationfallContext>(
-            new ItemProcessorFactory(takeAndDropParser.Object), _parser, _client.Object,
+            new ItemProcessorFactory(takeAndDropParser.Object), _parser, LeakRecorder,
             Mock.Of<ISecretsManager>(), Mock.Of<ICloudWatchLogger<TurnLog>>(), ParseConversationMock.Object);
         engine.Context.Verbosity = Verbosity.Verbose;
-        Repository.GetLocation<DeckTwelve>().Init();
 
+        // The test-facing GameEngine constructor skips the boot sequence the production one runs
+        // (GameEngine.cs:98-99), so seed the starting room and the player's starting inventory here.
+        Repository.GetLocation<DeckTwelve>().Init();
+        engine.Context.Init();
+
+        built = engine;
         _storedEngine = engine;
         engine.Context.LastInput = null;
         engine.Context.LastResponse = null;

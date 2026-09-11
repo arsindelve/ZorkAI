@@ -9,9 +9,11 @@ public class MessDoor : ItemBase, IOpenAndClose, ICanBeExamined
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
     {
-        // "unlock door with key" should unlock the padlock when it's attached
+        // "unlock door with key" should unlock the padlock when it's attached. Possession is
+        // container-aware (issue #503) so the key works from the uniform pocket here too - otherwise
+        // this path would refuse before the padlock, which does the same check, ever saw the command.
         var padlock = Repository.GetItem<Padlock>();
-        if (padlock.AttachedToDoor && context.HasItem<Key>())
+        if (padlock.AttachedToDoor && context.IsCarrying<Key>())
         {
             if (action.Match<Key>(["unlock", "open"], NounsForMatching, ["with", "using"]))
             {

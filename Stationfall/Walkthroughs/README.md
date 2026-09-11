@@ -1,3 +1,9 @@
+> # ⛔ STOP — SPOILERS ⛔
+>
+> **This file solves the game.** It exists only as the ZIL-verified oracle the port's tests are
+> written against. If you intend to *play* Stationfall, close this file now and do not read the
+> rest of this folder. See `Docs/Stationfall-Port-Plan.md` for a spoiler-free status of the port.
+
 # Stationfall — Walkthroughs (ZIL-verified reference)
 
 Reference walkthroughs for the Stationfall port. These are the **ground truth** for the eventual
