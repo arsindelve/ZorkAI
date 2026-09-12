@@ -21,17 +21,15 @@ public static class ServicesHelper
     ///     configured model endpoint — the same de-clouding the console got, moved to the one place all
     ///     four Lambdas compose from.
     ///     <para>
-    ///     The switch is <see cref="OpenAIEndpointSettings.IsSelfHosted" />, i.e. whether OPENAI_BASE_URL
-    ///     or ZORKAI_PROVIDER names a custom endpoint. That is read here, in a composition root, and
-    ///     never inside the engine — see <c>GameEngine.CloudLoggingEnabled</c> for why that distinction
-    ///     matters.
+    ///     The switch is <see cref="SelfHostedMode.IsEnabled" /> — one explicit ZORKAI_SELF_HOSTED
+    ///     opt-in, never inferred from the AI endpoint variables. See <see cref="SelfHostedMode" /> for
+    ///     why: a deployed Lambda pointed at an LLM gateway must not silently move player sessions off
+    ///     DynamoDB. Read here, in a composition root, and never inside the engine.
     ///     </para>
     /// </summary>
     public static void ConfigureCommonServices(IServiceCollection services)
     {
-        var settings = OpenAIEndpointSettings.FromEnvironment();
-
-        if (settings.IsSelfHosted)
+        if (SelfHostedMode.IsEnabled)
         {
             // File-backed state instead of DynamoDB. Singleton/scoped lifetimes deliberately match the
             // cloud registrations below so nothing else in the container has to care which mode it is.
@@ -68,11 +66,6 @@ public static class ServicesHelper
     }
 
     /// <summary>
-    ///     Whether the process is configured for self-hosted play.
-    /// </summary>
-    public static bool IsSelfHosted => OpenAIEndpointSettings.FromEnvironment().IsSelfHosted;
-
-    /// <summary>
     ///     Registers a game's engine, wiring <c>CloudLoggingEnabled</c> from the self-hosted setting.
     ///     <para>
     ///     Each Startup used to register the engine by type — <c>AddScoped&lt;IGameEngine,
@@ -89,7 +82,7 @@ public static class ServicesHelper
         where TGame : IInfocomGame, new()
         where TContext : class, IContext, new()
     {
-        var cloudLoggingEnabled = !IsSelfHosted;
+        var cloudLoggingEnabled = !SelfHostedMode.IsEnabled;
 
         services.AddScoped<IGameEngine>(sp => new GameEngine<TGame, TContext>(
             sp.GetRequiredService<ILogger<GameEngine<TGame, TContext>>>(),
