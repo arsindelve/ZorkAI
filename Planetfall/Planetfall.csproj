@@ -33,9 +33,18 @@
       which are plumbing, not game knowledge. They all previously lived in the ChatLambda project and
       were never part of the hint bundle, so excluding them keeps the bundle byte-identical after the
       move.
+
+      AmbassadorPrompts.cs and BlatherPrompts.cs are excluded for the same reason, and explicitly
+      because they do NOT sit under AI/. They are new files holding LLM persona text — plumbing, not
+      game facts — and the glob would otherwise sweep them into the bundle that the *deployed*
+      Planetfall hint endpoint sends to the model on every request. That is a production behavior
+      change (and a per-hint token cost) that a self-hosted-play change has no business making.
+      FloydPrompts.cs is deliberately NOT excluded: it predates this work and is already in the
+      bundle, so excluding it would change the baseline in the other direction.
     -->
     <ItemGroup>
-        <EmbeddedResource Include="**/*.cs" Exclude="obj/**;bin/**;AI/**" />
+        <EmbeddedResource Include="**/*.cs"
+                          Exclude="obj/**;bin/**;AI/**;Item/Feinstein/AmbassadorPrompts.cs;Item/Feinstein/BlatherPrompts.cs" />
         <!-- Survival and time mechanics moved to the shared StellarPatrol library; the hint
              bundle still needs them, or it loses knowledge of hunger, fatigue and the clock. -->
         <EmbeddedResource Include="../StellarPatrol/**/*.cs" Exclude="../StellarPatrol/obj/**;../StellarPatrol/bin/**">
