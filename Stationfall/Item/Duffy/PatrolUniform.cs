@@ -1,3 +1,4 @@
+using Model.AIGeneration;
 namespace Stationfall.Item.Duffy;
 
 /// <summary>
@@ -32,6 +33,20 @@ public class PatrolUniform : ContainerBase, ICanBeTakenAndDropped, ICanBeExamine
     {
         return OnTheGroundDescription(currentLocation);
     }
+    /// <summary>
+    ///     The pocket is part of the garment - there is nothing to work (ship.zil PATROL-UNIFORM-F).
+    /// </summary>
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action,
+        IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
+    {
+        if (action.MatchNounAndAdjective(NounsForMatching) &&
+            action.MatchVerb(["open", "close", "shut", "unfasten", "fasten"]))
+            return new PositiveInteractionResult(
+                "There's no way to open or close the pocket of the uniform. ");
+
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+    }
+
 
     public override void Init()
     {
