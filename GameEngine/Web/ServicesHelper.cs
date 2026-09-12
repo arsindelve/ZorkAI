@@ -58,7 +58,16 @@ public static class ServicesHelper
         // Endpoint-agnostic: ChatGPTClient resolves its endpoint and model through
         // OpenAIEndpointSettings, so the same registration serves the real OpenAI API and any
         // OpenAI-compatible server.
-        services.AddScoped<IGenerationClient, ChatGPTClient>();
+        //
+        // Built by factory, not by type. ChatGPTClient's constructor takes the NON-generic ILogger,
+        // which the container never registers (only ILogger<T>), so AddScoped<IGenerationClient,
+        // ChatGPTClient>() could never actually be constructed: "No constructor for type
+        // 'ZorkAI.OpenAI.ChatGPTClient' can be instantiated using services from the service
+        // container". That stayed invisible because nothing resolves IGenerationClient from DI — the
+        // engine news up its own — but ValidateOnBuild, which ASP.NET Core turns on under
+        // ASPNETCORE_ENVIRONMENT=Development, validates every descriptor and killed host startup.
+        services.AddScoped<IGenerationClient>(sp =>
+            new ChatGPTClient(sp.GetService<ILogger<ChatGPTClient>>()));
     }
 
     /// <summary>

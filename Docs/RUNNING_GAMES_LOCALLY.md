@@ -158,7 +158,7 @@ one (`Planetfall/Hints/PlanetfallHintProvider.cs`).
 | `ZORKAI_SAVE_DIR` | Root for sessions and saves. Default `~/.zorkai`; the containers set `/data`. |
 | `ZORKAI_SYSTEM_PROMPT` | Overrides the built-in narrator prompt used in self-hosted mode. |
 | `ASPNETCORE_URLS` | Bind address. Containers use `http://+:8080`. |
-| `ASPNETCORE_ENVIRONMENT` | Must be `Production`. See traps. |
+| `ASPNETCORE_ENVIRONMENT` | `Production` in the containers. `Development` also works now — see traps. |
 
 **`ZORKAI_SELF_HOSTED` is separate from `OPENAI_BASE_URL` on purpose.** Setting only the endpoint
 leaves the backend on DynamoDB — the endpoint says where the *model* lives, which is a different
@@ -240,10 +240,11 @@ Ordered by how much time they cost.
    (not_found_error)` for an unknown model, and the engine turns that into its graceful in-fiction
    error — so a wrong model id looks exactly like a game bug. `curl -s
    http://localhost:11434/v1/models` lists what is available.
-2. **`ASPNETCORE_ENVIRONMENT` must be `Production`.** Planetfall, EscapeRoom and Stationfall each
-   register `GameEngineInitializer`, an `IHostedService` (singleton) that injects the scoped
-   `IGameEngine`. Under `Development`, DI scope validation is on and the host throws at startup.
-   Pre-existing, worked around rather than fixed.
+2. **`ASPNETCORE_ENVIRONMENT` defaults to `Production`, and that is a preference now, not a
+   requirement.** `Development` used to be impossible: `GameEngineInitializer` consumed the scoped
+   `IGameEngine` from a singleton, and the `IGenerationClient` descriptor could not be constructed
+   at all, so the two validations `Development` enables killed host startup. Both are fixed, so you
+   can override it to debug. Production remains the right default for a long-running backend.
 3. **`ZORKAI_SELF_HOSTED` alone controls de-clouding.** Setting `OPENAI_BASE_URL` without it leaves
    you on DynamoDB and you will see `security token` / credential errors.
 4. **`POST /saveGame` needs a session that has already played a turn** (§3).

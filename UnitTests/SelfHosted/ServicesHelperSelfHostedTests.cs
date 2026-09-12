@@ -7,6 +7,8 @@ using GameEngine.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Model.AIGeneration;
+using ZorkAI.OpenAI;
 using Model.Interface;
 using SecretsManager;
 
@@ -241,6 +243,22 @@ public class ServicesHelperSelfHostedTests
         var engine = (GameEngine<EscapeRoomGame, EscapeRoomContext>)provider.GetRequiredService<IGameEngine>();
 
         engine.CloudLoggingEnabled.Should().BeTrue();
+    }
+
+    [TestCase(true)]
+    [TestCase(false)]
+    public void Should_ResolveTheGenerationClient_InEitherMode(bool selfHosted)
+    {
+        if (selfHosted) GoSelfHosted(); else GoCloud();
+
+        using var provider = BuildProvider();
+
+        // ChatGPTClient's constructor takes the NON-generic ILogger, which the container never
+        // registers, so registering it by type produced a descriptor that could never be
+        // constructed. Nothing resolved IGenerationClient from DI (the engine news up its own), so
+        // it stayed invisible until ValidateOnBuild - on under ASPNETCORE_ENVIRONMENT=Development -
+        // validated every descriptor and refused to start the host.
+        provider.GetRequiredService<IGenerationClient>().Should().BeOfType<ChatGPTClient>();
     }
 
     private static Type? Implementation<TService>(IServiceCollection services)
