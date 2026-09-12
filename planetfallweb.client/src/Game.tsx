@@ -9,7 +9,11 @@ import {
     InventoryButton,
     LocationButton,
     DialogType,
+    HintPanel,
+    HintsButton,
+    isFeatureEnabled,
 } from '@zork-ai/shared-types';
+import config from '../config.json';
 import React, {useEffect, useState} from 'react';
 import {Alert, Button, CircularProgress, Snackbar} from '@mui/material';
 import '@fontsource/roboto';
@@ -112,6 +116,16 @@ function Game() {
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
     const [snackBarMessage, setSnackBarMessage] = useState<string>('');
     const [showJumpToLatest, setShowJumpToLatest] = useState<boolean>(false);
+    // Feature flag: the deployed config.json (rewritten by deploy.yml) has no hints_enabled key,
+    // so hints ship dark in prod until the key is added there; the committed config turns them on
+    // for local dev and e2e. Any browser can override either way via ?hints=1 / ?hints=0.
+    const hintsEnabled = isFeatureEnabled('hints', config.hints_enabled === true);
+    const [hintsOpen, setHintsOpen] = useState<boolean>(false);
+    // The active session id, captured by gameInit. Deliberately NOT read during render:
+    // SessionHandler.getSessionId() CREATES the session and reports firstTime=true only on the
+    // call that created it, so a render-time reader would consume that one-shot signal before
+    // gameInit runs and a brand-new player would never get the welcome dialog.
+    const [activeSessionId, setActiveSessionId] = useState<string>('');
     const atBottomRef = React.useRef<boolean>(true);
 
     const sessionId = new SessionHandler();
@@ -370,6 +384,7 @@ function Game() {
     async function gameInit(): Promise<GameResponse> {
         const [id, firstTime] = sessionId.getSessionId();
         if (firstTime) setDialogToOpen(DialogType.Welcome);
+        setActiveSessionId(id);
         return await server.gameInit(id);
     }
 
@@ -418,11 +433,14 @@ function Game() {
 
             <Header locationName={locationName} time={time} score={score} />
 
-            <Compass
-                onCompassClick={handleCommandClick}
-                exits={exits}
-                pingMove={pingMove}
-                className="
+            {/* The compass floats over the transcript's top-right — the same spot the hint panel
+                docks into — so hide it while hints are open and bring it back on close. */}
+            {!hintsOpen && (
+                <Compass
+                    onCompassClick={handleCommandClick}
+                    exits={exits}
+                    pingMove={pingMove}
+                    className="
             hidden
             md:block
             absolute
@@ -433,99 +451,117 @@ function Game() {
             rounded-xl
             p-7
             "
-                style={{
-                    background:
-                        'linear-gradient(135deg, color-mix(in srgb, var(--planetfall-bg-medium) 14%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 14%, transparent) 100%)',
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
-                    border: '1px solid color-mix(in srgb, var(--planetfall-primary) 30%, transparent)',
-                    boxShadow:
-                        '0 4px 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent), 0 2px 10px rgba(0, 0, 0, 0.5)',
-                }}
-            />
-
-            <div className="relative flex-1 min-h-0 max-h-[55vh]">
-                <ClickableText
-                    ref={gameContentElement}
-                    exits={exits}
-                    onWordClick={(word) => handleWordClicked(word)}
-                    onScroll={handleTranscriptScroll}
-                    onMouseMove={highlightWordAtPointer}
-                    onMouseLeave={clearWordHighlight}
-                    className="relative flex flex-col p-6 sm:p-12 h-full overflow-auto font-mono rounded-lg border-2 shadow-lg clickable z-10"
                     style={{
                         background:
-                            'linear-gradient(135deg, var(--planetfall-bg-dark) 0%, #020617 100%)',
-                        borderColor:
-                            'color-mix(in srgb, var(--planetfall-primary) 20%, transparent)',
+                            'linear-gradient(135deg, color-mix(in srgb, var(--planetfall-bg-medium) 14%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 14%, transparent) 100%)',
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
+                        border: '1px solid color-mix(in srgb, var(--planetfall-primary) 30%, transparent)',
                         boxShadow:
-                            '0 0 40px color-mix(in srgb, var(--planetfall-primary) 8%, transparent), inset 0 0 60px color-mix(in srgb, var(--planetfall-secondary) 3%, transparent)',
-                        opacity: 0.8,
+                            '0 4px 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent), 0 2px 10px rgba(0, 0, 0, 0.5)',
                     }}
-                    data-testid="game-responses-container"
-                >
-                    <div className="relative z-0">
-                        {/* Background styling elements */}
-                        <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMjEyMTIxIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=')] opacity-5 pointer-events-none"></div>
-                        <div
-                            className="absolute top-2 left-2 w-20 h-20 rounded-full blur-3xl pointer-events-none"
-                            style={{
-                                background:
-                                    'color-mix(in srgb, var(--planetfall-primary) 15%, transparent)',
-                            }}
-                        ></div>
-                        <div
-                            className="absolute bottom-10 right-5 w-32 h-32 rounded-full blur-3xl pointer-events-none"
-                            style={{
-                                background:
-                                    'color-mix(in srgb, var(--planetfall-secondary) 8%, transparent)',
-                            }}
-                        ></div>
-                    </div>
+                />
+            )}
 
-                    {/* mt-auto pins the transcript to the bottom of the panel (terminal feel)
+            <div className="relative flex-1 min-h-0 max-h-[55vh] flex flex-row gap-3">
+                {/* Transcript column — keeps the scanline overlay and jump pill scoped to the
+                    transcript rather than spanning the hint panel too. */}
+                <div className="relative flex-1 min-w-0 h-full">
+                    <ClickableText
+                        ref={gameContentElement}
+                        exits={exits}
+                        onWordClick={(word) => handleWordClicked(word)}
+                        onScroll={handleTranscriptScroll}
+                        onMouseMove={highlightWordAtPointer}
+                        onMouseLeave={clearWordHighlight}
+                        className="relative flex flex-col p-6 sm:p-12 h-full overflow-auto font-mono rounded-lg border-2 shadow-lg clickable z-10"
+                        style={{
+                            background:
+                                'linear-gradient(135deg, var(--planetfall-bg-dark) 0%, #020617 100%)',
+                            borderColor:
+                                'color-mix(in srgb, var(--planetfall-primary) 20%, transparent)',
+                            boxShadow:
+                                '0 0 40px color-mix(in srgb, var(--planetfall-primary) 8%, transparent), inset 0 0 60px color-mix(in srgb, var(--planetfall-secondary) 3%, transparent)',
+                            opacity: 0.8,
+                        }}
+                        data-testid="game-responses-container"
+                    >
+                        <div className="relative z-0">
+                            {/* Background styling elements */}
+                            <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMjEyMTIxIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=')] opacity-5 pointer-events-none"></div>
+                            <div
+                                className="absolute top-2 left-2 w-20 h-20 rounded-full blur-3xl pointer-events-none"
+                                style={{
+                                    background:
+                                        'color-mix(in srgb, var(--planetfall-primary) 15%, transparent)',
+                                }}
+                            ></div>
+                            <div
+                                className="absolute bottom-10 right-5 w-32 h-32 rounded-full blur-3xl pointer-events-none"
+                                style={{
+                                    background:
+                                        'color-mix(in srgb, var(--planetfall-secondary) 8%, transparent)',
+                                }}
+                            ></div>
+                        </div>
+
+                        {/* mt-auto pins the transcript to the bottom of the panel (terminal feel)
                     while still scrolling normally once the content overflows. */}
-                    <div className="mt-auto relative z-10 w-full">
-                        {gameText.map((item: string, index: number) => (
-                            <p
-                                dangerouslySetInnerHTML={{__html: item}}
-                                className={`mb-4 relative z-10 ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
-                                key={index}
-                                data-testid="game-response"
-                            ></p>
-                        ))}
-                    </div>
-                </ClickableText>
+                        <div className="mt-auto relative z-10 w-full">
+                            {gameText.map((item: string, index: number) => (
+                                <p
+                                    dangerouslySetInnerHTML={{__html: item}}
+                                    className={`mb-4 relative z-10 ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
+                                    key={index}
+                                    data-testid="game-response"
+                                ></p>
+                            ))}
+                        </div>
+                    </ClickableText>
 
-                {/* The scanline sweep gets its own clipping layer rather than riding on
+                    {/* The scanline sweep gets its own clipping layer rather than riding on
                     the transcript or on a wrapper around it. On the transcript, its
                     transform inflated the scrollable overflow and auto-scroll aimed at a
                     phantom bottom; on the wrapper, the overflow-hidden needed to clip the
                     sweep also clipped the panel's outer glow and left the transcript's
                     parent silently scrollable. z-[15] sits over the text (z-10) but under
                     the compass (z-20) and the "New messages" pill (z-30). */}
-                <div
-                    aria-hidden="true"
-                    className="absolute inset-0 z-[15] overflow-hidden rounded-lg pointer-events-none scanline-effect"
-                />
+                    <div
+                        aria-hidden="true"
+                        className="absolute inset-0 z-[15] overflow-hidden rounded-lg pointer-events-none scanline-effect"
+                    />
 
-                {showJumpToLatest && (
-                    <button
-                        type="button"
-                        onClick={jumpToLatest}
-                        data-testid="jump-to-latest"
-                        className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-mono pointer-events-auto transition-transform hover:scale-105 animate-fadeIn"
-                        style={{
-                            background:
-                                'color-mix(in srgb, var(--planetfall-bg-medium) 92%, transparent)',
-                            border: '1px solid color-mix(in srgb, var(--planetfall-primary) 45%, transparent)',
-                            color: 'var(--planetfall-primary)',
-                            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.5)',
-                            backdropFilter: 'blur(4px)',
-                        }}
-                    >
-                        &darr;&nbsp;New messages
-                    </button>
+                    {showJumpToLatest && (
+                        <button
+                            type="button"
+                            onClick={jumpToLatest}
+                            data-testid="jump-to-latest"
+                            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-mono pointer-events-auto transition-transform hover:scale-105 animate-fadeIn"
+                            style={{
+                                background:
+                                    'color-mix(in srgb, var(--planetfall-bg-medium) 92%, transparent)',
+                                border: '1px solid color-mix(in srgb, var(--planetfall-primary) 45%, transparent)',
+                                color: 'var(--planetfall-primary)',
+                                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.5)',
+                                backdropFilter: 'blur(4px)',
+                            }}
+                        >
+                            &darr;&nbsp;New messages
+                        </button>
+                    )}
+                </div>
+
+                {/* Hint side panel: docked beside the transcript on desktop, full overlay of it on
+                    mobile. Read-only server-side — asking costs no turn; the conversation history is
+                    client-owned (persisted per session inside the shared component). */}
+                {hintsEnabled && activeSessionId && (
+                    <HintPanel
+                        open={hintsOpen}
+                        onClose={() => setHintsOpen(false)}
+                        sessionId={activeSessionId}
+                        ask={server.hint}
+                        className="absolute inset-0 z-30 md:relative md:inset-auto md:z-auto md:w-[340px] md:flex-none md:h-full"
+                    />
                 )}
             </div>
 
@@ -590,6 +626,12 @@ function Game() {
                             />
                         )}
                         <CommandsButton onCommandClick={handleCommandClick} />
+                        {hintsEnabled && (
+                            <HintsButton
+                                open={hintsOpen}
+                                onToggle={() => setHintsOpen((prev) => !prev)}
+                            />
+                        )}
 
                         <Button
                             variant="contained"

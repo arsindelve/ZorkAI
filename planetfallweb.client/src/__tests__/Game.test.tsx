@@ -136,6 +136,28 @@ describe('Game', () => {
         await waitFor(() => expect(context.setDialogToOpen).toHaveBeenCalledWith(dialog));
     });
 
+    test('opens the welcome dialog on a first visit even though the hint panel is mounted', async () => {
+        // SessionHandler.getSessionId() has a SIDE EFFECT: it creates the session id and reports
+        // firstTime=true ONLY on the call that created it. This mock mimics that faithfully (the
+        // default mock above is stateless and cannot). A render-time caller — e.g. passing the
+        // session id to <HintPanel> — would consume that one-shot signal before gameInit's effect
+        // runs, and a brand-new player would never see the welcome dialog.
+        let created = false;
+        session.getSessionId.mockImplementation(() => {
+            if (!created) {
+                created = true;
+                return ['session-new', true];
+            }
+            return ['session-new', false];
+        });
+
+        render(<Game />);
+
+        await waitFor(() =>
+            expect(context.setDialogToOpen).toHaveBeenCalledWith(DialogType.Welcome),
+        );
+    });
+
     test('shows request failures from the mutation', async () => {
         (useMutation as jest.Mock).mockReturnValue({mutate, isPending: false, isError: true});
         render(<Game />);
