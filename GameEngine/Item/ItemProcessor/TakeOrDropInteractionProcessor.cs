@@ -66,11 +66,28 @@ public class TakeOrDropInteractionProcessor : IVerbProcessor
     public async Task<(InteractionResult? resultObject, string? ResultMessage)> Process(TakeIntent action,
         IContext context, IGenerationClient client)
     {
-        var result = await GetItemsToTake(context,
-            new SimpleIntent { OriginalInput = action.OriginalInput, Verb = "take", Noun = action.Noun }, client);
+        var takeAction = new SimpleIntent
+            { OriginalInput = action.OriginalInput, Verb = "take", Noun = action.Noun };
+
+        var result = await GetItemsToTake(context, takeAction, client);
 
         if (result is null or NoNounMatchInteractionResult)
         {
+            // Issue #577: the noun resolved to no real item, but it may still name the room's (or the
+            // game's) inert scenery, whose authored "you can't take that" this path never consulted -
+            // so every CannotBeTakenReason in every game was reachable only by phrasing luck. Which
+            // intent shape the live parser produces varies by noun, and the canonical verb is the one
+            // that landed here: "get wall" answered, "take wall" got improvised prose that contradicted
+            // the game's own facts. Asked AFTER the item lookup, exactly as LocationBase orders it, so a
+            // genuine object sharing the noun still wins. Nothing is scenery in the dark - the
+            // SimpleIntent path never reaches its own scenery branch without light (SimpleInteractionEngine),
+            // and TakeIt's darkness guard (issue #342) is skipped entirely when no item resolved.
+            if (context.CurrentLocation?.MatchScenery(takeAction, context) is { } scenery)
+            {
+                var refusal = context.ItIsDarkHere ? "It's too dark to see! " : scenery.TakeRefusal;
+                return (new PositiveInteractionResult(refusal), refusal);
+            }
+
             var message = await client.GenerateNarration(
                 new TakeSomethingThatIsNotPortable(action.OriginalInput), context.SystemPromptAddendum);
             return (new PositiveInteractionResult(message), message);

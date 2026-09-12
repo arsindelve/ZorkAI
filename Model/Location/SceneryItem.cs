@@ -20,4 +20,13 @@ namespace Model.Location;
 public sealed record SceneryItem(
     string[] Nouns,
     string ExaminationDescription,
-    string? CannotBeTakenReason = null);
+    string? CannotBeTakenReason = null)
+{
+    /// <summary>
+    ///     The whole answer to a take, generic fallback included. Two unrelated call sites reach a
+    ///     take refusal — the verb-and-noun path in <c>LocationBase.RespondToSimpleInteraction</c> and
+    ///     the take-intent path in <c>TakeOrDropInteractionProcessor</c> — and issue #577 was precisely
+    ///     the two disagreeing, so the sentence lives here rather than being spelled out at each one.
+    /// </summary>
+    public string TakeRefusal => CannotBeTakenReason ?? "That's not something you can take. ";
+}
