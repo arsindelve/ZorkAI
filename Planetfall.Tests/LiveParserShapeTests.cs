@@ -145,6 +145,56 @@ public class LiveParserShapeTests : EngineTestsBase
         Context.CurrentLocation.Name.Should().Be("Booth 3");
     }
 
+    /// <summary>
+    ///     Issue #551. The deterministic TestParser maps "enter door" straight to an
+    ///     EnterSubLocationIntent, so the #532/#534 disambiguation tests pass while a real player in
+    ///     the Elevator Lobby got "You cannot go that way." — gpt-4o buckets bare "enter &lt;noun&gt;"
+    ///     as a MOVE whose direction is "enter", so MoveEngine answered for a room with no In exit and
+    ///     EnterSubLocationEngine (and its "Do you mean...?") was never reached. Only the longer
+    ///     "go through door" phrasing ever got the question.
+    /// </summary>
+    [Test]
+    public async Task EnterADoor_WhenTheParserBucketsItAsAMove_StillAsksWhichDoor()
+    {
+        var target = GetTarget(ParserReturning("""
+                                               <intent>move</intent>
+                                               <verb>enter</verb>
+                                               <noun>door</noun>
+                                               <direction>enter</direction>
+                                               """));
+        StartHere<ElevatorLobby>();
+
+        var response = await target.GetResponse("enter door");
+
+        response.Should().Contain("Do you mean");
+        response.Should().Contain("upper elevator door");
+        response.Should().Contain("lower elevator door");
+        Context.CurrentLocation.Should().BeOfType<ElevatorLobby>();
+    }
+
+    /// <summary>
+    ///     And the other half of that same mis-bucketed shape: once the noun does name one door, the
+    ///     command has to actually walk through it rather than refuse. Bare "enter blue door" is the
+    ///     phrasing PR #534's table verified by hand in production.
+    /// </summary>
+    [Test]
+    public async Task EnterANamedDoor_WhenTheParserBucketsItAsAMove_StillWalksThroughIt()
+    {
+        var target = GetTarget(ParserReturning("""
+                                               <intent>move</intent>
+                                               <verb>enter</verb>
+                                               <noun>blue door</noun>
+                                               <direction>enter</direction>
+                                               """));
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = true;
+
+        await target.GetResponse("enter blue door");
+
+        Context.CurrentLocation.Should().BeOfType<UpperElevator>();
+    }
+
     [Test]
     public async Task TakeWithATool_WhenTheParserBucketsItAsATake_StillRemovesTheFusedBedistor()
     {

@@ -10,4 +10,11 @@ namespace Model.Intent;
 public record MoveIntent : IntentBase
 {
     public Direction Direction { get; init; }
+
+    /// <summary>
+    ///     The object the player named alongside the direction, when they named one ("enter door",
+    ///     "go in the boat"). Null for a bare direction, which is every move the engine builds
+    ///     internally. Only <see cref="Direction.In" /> consults it - see MoveEngine, issue #551.
+    /// </summary>
+    public string? Noun { get; init; }
 }
