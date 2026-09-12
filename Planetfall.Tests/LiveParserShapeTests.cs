@@ -195,6 +195,54 @@ public class LiveParserShapeTests : EngineTestsBase
         Context.CurrentLocation.Should().BeOfType<UpperElevator>();
     }
 
+    /// <summary>
+    ///     The mirror image of the same defect, and the same room proves it: rule 5 lists "exit"
+    ///     alongside "enter", so "exit door" is bucketed as a move in Direction.Out. The lobby has no
+    ///     Out exit either, so ExitSubLocationEngine - which has carried the symmetric #532
+    ///     disambiguation since it was written - was just as unreachable. "exit door" is already in
+    ///     base-mappings.json, so the TestParser suite could never see this.
+    /// </summary>
+    [Test]
+    public async Task ExitADoor_WhenTheParserBucketsItAsAMove_StillAsksWhichDoor()
+    {
+        var target = GetTarget(ParserReturning("""
+                                               <intent>move</intent>
+                                               <verb>exit</verb>
+                                               <noun>door</noun>
+                                               <direction>exit</direction>
+                                               """));
+        StartHere<ElevatorLobby>();
+
+        var response = await target.GetResponse("exit door");
+
+        response.Should().Contain("Do you mean");
+        response.Should().Contain("upper elevator door");
+        response.Should().Contain("lower elevator door");
+        Context.CurrentLocation.Should().BeOfType<ElevatorLobby>();
+    }
+
+    /// <summary>
+    ///     From a given room a door gates exactly one passage, so "exit blue door" traverses it the
+    ///     same way "enter blue door" does - the map says which way (issue #262, DoorReroute).
+    /// </summary>
+    [Test]
+    public async Task ExitANamedDoor_WhenTheParserBucketsItAsAMove_StillWalksThroughIt()
+    {
+        var target = GetTarget(ParserReturning("""
+                                               <intent>move</intent>
+                                               <verb>exit</verb>
+                                               <noun>blue door</noun>
+                                               <direction>exit</direction>
+                                               """));
+        StartHere<ElevatorLobby>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = true;
+
+        await target.GetResponse("exit blue door");
+
+        Context.CurrentLocation.Should().BeOfType<UpperElevator>();
+    }
+
     [Test]
     public async Task TakeWithATool_WhenTheParserBucketsItAsATake_StillRemovesTheFusedBedistor()
     {

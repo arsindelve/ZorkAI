@@ -24,9 +24,9 @@ public class MoveEngine : IIntentEngine
 
         if (movement == null)
         {
-            var entered = await TryEnterTheNamedObject(moveTo, context, generationClient);
-            if (entered is not null)
-                return entered.Value;
+            var boarded = await TryBoardTheNamedObject(moveTo, context, generationClient);
+            if (boarded is not null)
+                return boarded.Value;
 
             return (null, await GetGeneratedCantGoThatWayResponse(generationClient, moveTo.Direction.ToString(), context));
         }
@@ -51,33 +51,40 @@ public class MoveEngine : IIntentEngine
     }
 
     /// <summary>
-    ///     Issue #551. "enter &lt;thing&gt;" is a board command, but the AI parser's direction list also
-    ///     contains the word "enter", so gpt-4o routinely buckets bare "enter door" as a move in
-    ///     <see cref="Direction.In" /> with the door merely tagged as a noun. In the Planetfall Elevator
-    ///     Lobby - a room with two doors and no In exit - that meant a real player got "You cannot go
-    ///     that way." where the #532 fix promises "Do you mean the lower or the upper elevator door?".
-    ///     The deterministic TestParser maps "enter door" straight to an EnterSubLocationIntent, so the
-    ///     suite never saw it.
+    ///     Issue #551. "enter &lt;thing&gt;" and "exit &lt;thing&gt;" are board/disembark commands, but the
+    ///     AI parser's direction list also contains the words "enter" and "exit", so gpt-4o routinely
+    ///     buckets bare "enter door" as a move in <see cref="Direction.In" /> - and "exit door" as one
+    ///     in <see cref="Direction.Out" /> - with the door merely tagged as a noun. In the Planetfall
+    ///     Elevator Lobby - a room with two doors and neither an In nor an Out exit - that meant a real
+    ///     player got "You cannot go that way." where the #532 fix promises "Do you mean the lower or
+    ///     the upper elevator door?". The deterministic TestParser maps both phrasings straight to
+    ///     their sub-location intents, so the suite never saw either one.
     ///     <para>
     ///         Deliberately narrow, so this can only turn a refusal into the action the player asked for
     ///         and never redirect a move that already worked: it runs only after the map has said there
-    ///         is NO exit this way at all, only for In (the direction the word "enter" produces), and
-    ///         only when the noun they typed names something actually in scope. Everything else - the
-    ///         "which door?" question, a sub-location, a door to walk through, the plain refusal for a
-    ///         noun you can't enter - is <see cref="EnterSubLocationEngine" />'s existing job.
+    ///         is NO exit this way at all, only for In and Out (the directions the words "enter" and
+    ///         "exit" produce), and only when the noun they typed names something actually in scope.
+    ///         Everything else - the "which door?" question, a sub-location to get into or out of, a
+    ///         door to walk through, the plain refusal for a noun you can't enter - is
+    ///         <see cref="EnterSubLocationEngine" />'s and <see cref="ExitSubLocationEngine" />'s
+    ///         existing job, reached here exactly as the board/disembark intents reach it.
     ///     </para>
     /// </summary>
-    private static async Task<(InteractionResult? resultObject, string ResultMessage)?> TryEnterTheNamedObject(
+    private static async Task<(InteractionResult? resultObject, string ResultMessage)?> TryBoardTheNamedObject(
         MoveIntent moveTo, IContext context, IGenerationClient generationClient)
     {
-        if (moveTo.Direction != Direction.In || string.IsNullOrWhiteSpace(moveTo.Noun))
+        if (moveTo.Direction is not (Direction.In or Direction.Out) || string.IsNullOrWhiteSpace(moveTo.Noun))
             return null;
 
         if (Repository.GetItemInScope(moveTo.Noun, context) is null)
             return null;
 
-        return await new EnterSubLocationEngine().Process(
-            new EnterSubLocationIntent { Noun = moveTo.Noun, Message = moveTo.Message }, context, generationClient);
+        return moveTo.Direction == Direction.In
+            ? await new EnterSubLocationEngine().Process(
+                new EnterSubLocationIntent { Noun = moveTo.Noun, Message = moveTo.Message }, context, generationClient)
+            : await new ExitSubLocationEngine().Process(
+                new ExitSubLocationIntent { NounOne = moveTo.Noun, Message = moveTo.Message }, context,
+                generationClient);
     }
 
     public static async Task<string> Go(IContext context, IGenerationClient generationClient, MovementParameters movement)

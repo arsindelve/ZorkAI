@@ -13,8 +13,9 @@ public record MoveIntent : IntentBase
 
     /// <summary>
     ///     The object the player named alongside the direction, when they named one ("enter door",
-    ///     "go in the boat"). Null for a bare direction, which is every move the engine builds
-    ///     internally. Only <see cref="Direction.In" /> consults it - see MoveEngine, issue #551.
+    ///     "exit door", "go in the boat"). Null for a bare direction, which is every move the engine
+    ///     builds internally. Only <see cref="Direction.In" /> and <see cref="Direction.Out" /> consult
+    ///     it - see MoveEngine, issue #551.
     /// </summary>
     public string? Noun { get; init; }
 }
