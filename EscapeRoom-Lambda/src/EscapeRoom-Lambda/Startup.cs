@@ -21,7 +21,7 @@ public class Startup
         services.AddControllers();
         services.AddEndpointsApiExplorer();
 
-        services.AddScoped<IGameEngine, GameEngine<EscapeRoomGame, EscapeRoomContext>>();
+        ServicesHelper.ConfigureGameEngine<EscapeRoomGame, EscapeRoomContext>(services);
         // Register the hosted service that will initialize GameEngine asynchronously
         services.AddHostedService<GameEngineInitializer>();
         ServicesHelper.ConfigureCommonServices(services);

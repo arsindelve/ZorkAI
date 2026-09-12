@@ -21,7 +21,7 @@ public class Startup
         services.AddControllers();
         services.AddEndpointsApiExplorer();
 
-        services.AddScoped<IGameEngine, GameEngine<StationfallGame, StationfallContext>>();
+        ServicesHelper.ConfigureGameEngine<StationfallGame, StationfallContext>(services);
 
         // NOTE: no IHintLanguageModel registration here, unlike Planetfall_Lambda. The hint subsystem
         // needs a game-specific IHintProvider, and Stationfall doesn't have one yet (Planetfall's is
