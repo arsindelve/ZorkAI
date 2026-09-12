@@ -9,6 +9,11 @@ internal class StripNearRelay : LocationBase
     public override void Init()
     {
         StartWithItem<Relay>();
+        // Issue #517: the speck is what the laser puzzle actually targets. In the original it lives
+        // inside the (transparent) relay; the port's Relay is not a container, so seed the speck into
+        // the room alongside it. It is NDESC — ItemBase.GenericDescription is empty, so it never shows
+        // up in the room listing, exactly like the relay.
+        StartWithItem<Speck>();
     }
 
     public override string Name => "Strip Near Relay";

@@ -198,10 +198,13 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
                 "\"Yow!\" yells Floyd. He jumps to the other end of the room and eyes you warily. ");
         }
 
-        // Special response for shooting the Relay
-        if (target is Relay relay)
+        // Special response for shooting the speck (SHOOT-SPECK, comptwo.zil:2712). Issue #517: the
+        // speck is the object the original dispatches on; Relay is kept as a lenient alias because
+        // the relay's description makes "shoot relay with laser" a natural thing for a player to
+        // type, and the port has always accepted it.
+        if (target is Speck or Relay)
         {
-            return LaserSpeckHelper.ShootRelay(relay, context, BeamDescription, Setting, Chooser);
+            return LaserSpeckHelper.ShootRelay(Repository.GetItem<Relay>(), context, BeamDescription, Setting, Chooser);
         }
 
         // Special response for shooting the Microbe (SHOOT-MICROBE, comptwo.zil:2991)

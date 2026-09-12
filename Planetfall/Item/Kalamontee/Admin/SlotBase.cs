@@ -42,8 +42,21 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot> : ItemBase, ICanBeExa
 
         if (action.Match<TAccessCard, TAccessSlot>(verbs, prepositions))
         {
-            if (!context.HasItem<TAccessCard>())
+            // Possession must be container-aware, exactly like the wrong-card branch below (which uses
+            // HasMatchingNoun). context.HasItem<T>() is top-level-only, so a card in the Patrol uniform
+            // pocket - the game's starting container, and where the ID card ships - failed this check
+            // and the turn fell through to the narrator with no hint that pocketing the card was the
+            // problem (issue #503). The check itself must stay: the card is resolved by TYPE from the
+            // repository, so this is the only thing stopping a card lying across the map from working.
+            if (!context.IsCarrying<TAccessCard>())
                 return new NoNounMatchInteractionResult();
+
+            // The original slides a card you are merely carrying: SLOT-F performs an implicit take
+            // (globals.zil:1375) before any of the per-card branches run, so mirror that and put the
+            // card in hand either way.
+            var card = Repository.GetItem<TAccessCard>();
+            if (!context.Items.Contains(card))
+                context.ItemPlacedHere(card);
 
             // Deliberate deviation from the original (issue #211 follow-up): the ZIL's WRONG-CARD
             // (globals.zil:1438) doesn't distinguish "wrong card" from "corrupted card" - a scrambled
@@ -52,7 +65,7 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot> : ItemBase, ICanBeExa
             // way to tell "wrong card" (try a different one) apart from "your card is ruined" (the
             // magnet did this - stop carrying it with your cards). We judged that ambiguity unfair and
             // gave the scrambled case its own message instead of matching the original verbatim.
-            if (Repository.GetItem<TAccessCard>().Scrambled)
+            if (card.Scrambled)
                 return new PositiveInteractionResult(
                     "A sign flashes \"Damejd kard...akses deeniid.\"");
 
@@ -63,7 +76,14 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot> : ItemBase, ICanBeExa
 
         var nounOne = Repository.GetItem(action.NounOne);
 
-        // Right idea, wrong card. 
+        // Right idea, wrong card. NOTE (found while fixing #503, left alone deliberately): this global
+        // Repository.GetItem(noun) returns the first LOADED item whose nouns loosely match, and the ID
+        // card's bare noun "card" swallows every "<x> access card" phrase - so once the ID card exists
+        // (it starts in the uniform pocket) this branch can resolve to the ID card, which isn't an
+        // AccessCard, and the wrong-card message never fires. That's a separate noun-resolution defect,
+        // not the possession bug above; fixing it here is not safe by inspection, because the obvious
+        // scope-aware replacements resolve through CurrentLocation, which for an inventory item can be
+        // stale (Floyd's Init re-seeds the lower elevator card singleton and steals its CurrentLocation).
         if (action.MatchVerb(verbs) && action.MatchPreposition(prepositions) && nounOne is AccessCard)
         {
             if (!context.HasMatchingNoun(action.NounOne).HasItem)

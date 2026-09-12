@@ -31,9 +31,6 @@ public class FusedBedistor : BedistorBase, ICanBeTakenAndDropped
         if (CurrentLocation is not LargeMetalCube cube)
             return await base.RespondToMultiNounInteraction(action, context);
 
-        if (!context.HasItem<Pliers>())
-            return new NoNounMatchInteractionResult();
-
         var match = action.Match<Pliers>(["take", "remove"], NounsForMatching, ["with", "using"]);
 
         // Also support "use pliers on bedistor"
@@ -41,6 +38,12 @@ public class FusedBedistor : BedistorBase, ICanBeTakenAndDropped
 
         if (match)
         {
+            // Container-aware possession (issue #503): the pliers are small enough to pocket, and the
+            // flat context.HasItem<T>() would refuse the whole action if they were. Checked after the
+            // match, since the pliers are resolved by type - this is what scopes them to the player.
+            if (!context.IsCarrying<Pliers>())
+                return new NoNounMatchInteractionResult();
+
             // Remove from the cube and place in the player's inventory
             cube.RemoveItem(this);
             context.ItemPlacedHere(this);

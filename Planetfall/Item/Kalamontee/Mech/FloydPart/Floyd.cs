@@ -35,7 +35,9 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     
     [UsedImplicitly] [JsonIgnore] public IRandomChooser Chooser { get; set; } = new RandomChooser();
 
-    [UsedImplicitly] [JsonIgnore] public IChatWithFloyd ChatWithFloyd { get; set; } = new ChatWithFloyd(null);
+    // Factory-resolved: cloud Lambda normally, local model in self-hosted mode (issue #383).
+    [UsedImplicitly] [JsonIgnore] public IChatWithFloyd ChatWithFloyd { get; set; } =
+        CompanionChatFactory.Floyd(FloydPrompts.SystemPrompt);
 
     [UsedImplicitly] public bool IsOn { get; set; }
 
@@ -73,13 +75,45 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     [UsedImplicitly] public int TurnOnCountdown { get; set; } = 3;
 
     /// <summary>
-    /// Checks if Floyd is both turned on and in the same location as the player.
+    ///     True once the player has any in-game way of knowing the name "Floyd" - they have flipped
+    ///     his switch (even if he is still mid-countdown and not yet awake), met him awake, or lost
+    ///     him in the Bio Lab. Before that, naming him is a returning fan talking, not the character
+    ///     (issue #552).
+    ///     <para>
+    ///     The activation flag is load-bearing here: neither <see cref="IsOn" /> nor
+    ///     <see cref="HasEverBeenOn" /> flips until the 3-turn wake-up countdown finishes, so gating on
+    ///     those two alone would keep cracking the fourth-wall joke while the robot is visibly booting.
+    ///     <see cref="HasAwardedActivationPoints" /> is set the moment the player first activates him,
+    ///     which is exactly the moment the game itself starts calling him Floyd.
+    ///     </para>
+    /// </summary>
+    [JsonIgnore]
+    public bool PlayerKnowsFloydByName =>
+        IsOn || HasEverBeenOn || HasDied || HasAwardedActivationPoints;
+
+    /// <summary>
+    /// Whether Floyd is alive: switched on AND not dead. Ask this - never <see cref="IsOn"/> - whenever
+    /// the question is "would Floyd react?".
+    /// <para>
+    /// The trap this exists to close (issue #545): the Bio Lab sacrifice deliberately leaves the
+    /// corpse's <see cref="IsOn"/> true (BioLockStateMachineManager.EndSequence), because the body is
+    /// still the same object lying in the room. Every check written as a bare IsOn is therefore
+    /// satisfied by a dead Floyd, and each one found this way has been its own bug: the corpse chatting,
+    /// squealing when lifted, giggling when tickled, clapping while waving a card, and squealing with
+    /// excitement when the player saved the game beside his body. Reading liveness through one property
+    /// means the next such path cannot forget the second half of the question.
+    /// </para>
+    /// </summary>
+    public bool IsAlive => IsOn && !HasDied;
+
+    /// <summary>
+    /// Checks if Floyd is alive and in the same location as the player.
     /// </summary>
     /// <param name="context">The game context containing the player's current location.</param>
-    /// <returns>True if Floyd is on and in the player's current location; otherwise, false.</returns>
-    public bool IsHereAndIsOn(IContext context)
+    /// <returns>True if Floyd is alive and in the player's current location; otherwise, false.</returns>
+    public bool IsHereAndAlive(IContext context)
     {
-        return IsOn && IsInTheRoom(context);
+        return IsAlive && IsInTheRoom(context);
     }
 
     /// <summary>
@@ -94,8 +128,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     /// queue took — e.g. to decide between an empty response and a fallback line — can branch on this.</returns>
     public bool CommentOnAction(string prompt, IContext context)
     {
-        // Must be on and in the same location as player
-        if (!IsHereAndIsOn(context))
+        // Must be alive and in the same location as player
+        if (!IsHereAndAlive(context))
             return false;
 
         if (context is not PlanetfallContext planetfallContext)
@@ -128,9 +162,29 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
     public override string[] NounsForMatching => ["floyd", "robot", "B-19-7", "multi-purpose robot"];
 
-    public override string? CannotBeTakenDescription => IsOn
-        ? FloydConstants.TakeFloyd
-        : null;
+    // HasDied is checked before IsOn, not folded into it: EndSequence deliberately leaves the
+    // corpse's IsOn true, so keying on IsOn alone served the living-Floyd refusal - the body
+    // squealing in surprise and scooting away from his own funeral (issue #545).
+    public override string? CannotBeTakenDescription => HasDied
+        ? FloydConstants.TakeDead
+        : IsOn
+            ? FloydConstants.TakeFloyd
+            : null;
+
+    /// <summary>
+    /// Floyd's death is permanent, so once he has died the engine must never let the narrator
+    /// improvise about where he has got to. See <see cref="ICanBeTalkedTo.IsGoneForGood"/>.
+    /// </summary>
+    public bool IsGoneForGood => HasDied;
+
+    /// <summary>
+    /// Answers the player who addresses Floyd by name while his body is elsewhere. After the
+    /// trapped-death branch he has no location at all (he dies inside the Bio Lab), so this is the
+    /// line that replaces the narrator's cheerful guesswork about his whereabouts.
+    /// </summary>
+    public string NotHereDescription => HasDied
+        ? FloydConstants.NotHereDead
+        : ICanBeTalkedTo.DefaultNotHereDescription(this);
 
     protected override string SystemPrompt => FloydPrompts.SystemPrompt;
 
@@ -176,6 +230,12 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     /// <returns>Floyd's response to the conversation, or an error message if he's off or the AI service fails.</returns>
     public async Task<string> OnBeingTalkedTo(string text, IContext context, IGenerationClient client)
     {
+        // HasDied first: the corpse keeps IsOn = true (EndSequence), so without this gate the chat
+        // lambda answered for a dead Floyd - "Floyd says he is okay now that you are here" beside
+        // his body (issue #545).
+        if (HasDied)
+            return FloydConstants.TalkToDead;
+
         if (!IsOn)
             return "The robot doesn't respond - it appears to be turned off.";
 
@@ -200,7 +260,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         }
     }
 
-    private bool IsInTheRoom(IContext context)
+    public bool IsInTheRoom(IContext context)
     {
         return CurrentLocation == context.CurrentLocation;
     }
@@ -327,23 +387,25 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
     {
-        if (!IsOn || HasDied)
+        if (!IsAlive)
             return await base.RespondToMultiNounInteraction(action, context);
 
         // V-OIL with an explicit indirect object (syntax.zil:446-448, verbs.zil:1738-1757):
         // "oil floyd with oil can". Only the oil can counts as the oiling instrument; oiling a
         // living Floyd with it gives the same thank-you as the no-indirect-object form. The ZIL
-        // grammar is OIL OBJECT WITH OBJECT (HAVE) — the (HAVE) flag requires the can be HELD, so
-        // gate on context.HasItem<OilCan>() (matching the single-noun branch), not merely
+        // grammar is OIL OBJECT WITH OBJECT (HAVE) — the (HAVE) flag requires the can be carried, so
+        // gate on context.IsCarrying<OilCan>() (matching the single-noun branch), not merely
         // GetItemInScope, which would also resolve a can sitting in the room.
         // Both checks are needed and not redundant: GetItemInScope(NounTwo) is OilCan verifies the
         // *named* indirect object is the can (so "oil floyd with sword" is rejected even while a can
-        // is held), and HasItem<OilCan>() enforces the (HAVE) flag (the can must be in inventory).
+        // is carried), and IsCarrying<OilCan>() enforces the (HAVE) flag (the can must be on you).
+        // IsCarrying, not the flat HasItem<T>(): (HAVE) reaches into open carried containers, so a can
+        // in the uniform pocket satisfies the original's grammar too (issue #503).
         // MatchPreposition(["with"]) keeps us faithful to the WITH grammar — the parser passes through
         // whatever connector it extracts, so this rejects e.g. "oil floyd using/near oil can".
         if (action.MatchVerb(FloydSocialResponses.OilVerbs) && action.MatchNounOne(NounsForMatching) &&
             action.MatchPreposition(["with"]) &&
-            Repository.GetItemInScope(action.NounTwo, context) is OilCan && context.HasItem<OilCan>())
+            Repository.GetItemInScope(action.NounTwo, context) is OilCan && context.IsCarrying<OilCan>())
             return new PositiveInteractionResult(FloydConstants.Oil);
 
         // SHOW is handled before GIVE: in the original, "show <x> to floyd" drives several reactions

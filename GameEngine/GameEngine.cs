@@ -53,6 +53,13 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     private bool _lastResponseWasGenerated;
     private IStatefulProcessor? _processorInProgress;
     private ICloudWatchLogger<TurnLog>? _turnLogger;
+
+    // Turn-log diagnostics (issue #578), reset at the top of every sentence and read by
+    // PostProcessing. The intent shape stays null on the paths that never reach the parser; the
+    // terminal path starts at Handled and is narrowed by whichever branch actually ends the turn.
+    private string? _parsedIntent;
+    private TurnTerminalPath _terminalPath = TurnTerminalPath.Handled;
+
     public TContext Context { get; private set; }
 
     /// <summary>
@@ -153,6 +160,20 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     public int Score => Context.Score;
 
     public Runtime Runtime { get; set; }
+
+    /// <summary>
+    ///     Whether to emit CloudWatch turn/generation/parsing telemetry. On by default, and turned off
+    ///     only by a composition root that knows it is running without AWS - today just the console in
+    ///     self-hosted mode (issue #383).
+    ///     <para>
+    ///     Deliberately NOT derived from the AI endpoint configuration. OPENAI_BASE_URL and
+    ///     ZORKAI_PROVIDER say where the *model* lives, which is a separate question from whether we
+    ///     have AWS; OPENAI_BASE_URL in particular is a generic name that proxies and gateways also use.
+    ///     Reading it here would let a deployed Lambda silently stop logging because someone pointed it
+    ///     at an LLM proxy. Defaulting to true keeps every caller that does not opt out fully logged.
+    ///     </para>
+    /// </summary>
+    public bool CloudLoggingEnabled { get; set; } = true;
 
     private bool _noGeneratedResponses;
     public bool NoGeneratedResponses
@@ -261,6 +282,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // playing" guarantee (issue #271).
         ClearProcessorInProgress();
 
+        // Set before either log is written so both this turn's explicit error entry AND the ordinary
+        // entry SafePostProcess writes below agree on how the turn ended (issue #578). Whatever
+        // branch was mid-flight when the exception was thrown never got to finish, so its own
+        // classification would be a lie.
+        _terminalPath = TurnTerminalPath.EngineError;
+
         _logger?.LogError(ex,
             "Unhandled exception during turn processing for input '{Input}'. TurnCorrelationId: {TurnCorrelationId}",
             _currentInput, _turnCorrelationId);
@@ -276,7 +303,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
                 Score = Context.Score,
                 Moves = Context.Moves,
                 Input = _currentInput ?? string.Empty,
-                Response = $"ENGINE ERROR ({_turnCorrelationId}): {ex}"
+                Response = $"ENGINE ERROR ({_turnCorrelationId}): {ex}",
+                ParsedIntent = _parsedIntent,
+                TerminalPath = _terminalPath
             });
         }
         catch (Exception loggingEx)
@@ -414,6 +443,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     {
         _currentInput = playerInput;
 
+        // Each sentence of a multi-sentence input writes its own TurnLog, so the diagnostics reset
+        // per sentence, not per top-level call (issue #578).
+        _parsedIntent = null;
+        _terminalPath = TurnTerminalPath.Handled;
+
         // 1. ------- Processor in Progress -
         // See if we have something already running like a save, quit, etc.
         // and see if it has any output.  Does not count as a turn. No actor or turn processing.
@@ -449,6 +483,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var systemCommand = _parser.DetermineSystemIntentType(playerInput);
         if (systemCommand is GlobalCommandIntent global)
         {
+            _parsedIntent = IntentShapeDescriber.Describe(global);
             var globalResult = await ProcessGlobalCommandIntent(global);
             return PostProcessing(globalResult);
         }
@@ -596,6 +631,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var simpleIntent = earlyGlobalIntent;
         if (simpleIntent is not null)
         {
+            _parsedIntent = IntentShapeDescriber.Describe(simpleIntent);
+
             var resultMessage = simpleIntent switch
             {
                 GlobalCommandIntent intent => await ProcessGlobalCommandIntent(intent),
@@ -727,6 +764,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         Context.Engine = this;
         Context.Game = new TInfocomGame();
 
+        // Let the game repair a blob written by an older build, before anything reads the restored
+        // state. Init() does not run again on restore, so a room whose starting items changed since the
+        // save keeps the old ones forever otherwise. No-op by default.
+        _gameInstance.AfterRestore(Context);
+
         // Migration safety net (issue #354 follow-up): a session saved before RequestSequence
         // existed deserializes it as the default 0. Left alone, the next WriteSessionStep call (a
         // DynamoDB sort key in ZorkOneController) would restart numbering from 1 and silently
@@ -804,9 +846,31 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
 
     public async Task InitializeEngine()
     {
+        // The narrator's system prompt is required for play, so it is applied first and in its own
+        // try. It used to share one try/catch with the telemetry setup below, which meant any
+        // CloudWatch hiccup - or a typo in the endpoint variables - skipped it and left the narrator
+        // running promptless for the rest of the session, signalled only by a stack trace on stdout.
         try
         {
-            _turnLogger = await CloudWatchLoggerFactory.Get<TurnLog>(_gameInstance.GameName, "Turns", _turnCorrelationId);
+            GenerationClient.SystemPrompt = await _secretsManager.GetSecret(
+                _gameInstance.SystemPromptSecretKey
+            );
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+
+        // Self-hosted play (issue #383) has no AWS, so skip logger creation entirely rather than
+        // letting the SDK spin through credential/network retries. The decision is injected, never
+        // read from the environment here - see CloudLoggingEnabled.
+        if (!CloudLoggingEnabled)
+            return;
+
+        try
+        {
+            _turnLogger =
+                await CloudWatchLoggerFactory.Get<TurnLog>(_gameInstance.GameName, "Turns", _turnCorrelationId);
 
             GenerationClient.TurnCorrelationId = _turnCorrelationId;
             GenerationClient.CloudWatchLogger =
@@ -817,10 +881,6 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             _parser.Logger =
                 await CloudWatchLoggerFactory.Get<GenerationLog>(_gameInstance.GameName, "InputParsing",
                     _turnCorrelationId);
-
-            GenerationClient.SystemPrompt = await _secretsManager.GetSecret(
-                _gameInstance.SystemPromptSecretKey
-            );
         }
         catch (Exception ex)
         {
@@ -852,15 +912,16 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     {
         _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
 
-        // TODO: why does this return an interaction result and a result message? This feels vestigial. 
+        // The Debug line above is not retained in production, which is exactly what made issue #540's
+        // parser-shape defects so expensive to find. Record the shape on the turn log instead (#578).
+        _parsedIntent = IntentShapeDescriber.Describe(parsedResult);
+
+        // TODO: why does this return an interaction result and a result message? This feels vestigial.
         var complexIntentResult = parsedResult switch
         {
             GlobalCommandIntent intent => (null, await ProcessGlobalCommandIntent(intent)),
 
-            NullIntent => (
-                null,
-                await GetGeneratedNoOpResponse(_currentInput!, GenerationClient, Context)
-            ),
+            NullIntent => (null, await ProcessNullIntent()),
 
             InventoryIntent => (null, await new InventoryProcessor().Process("", Context, GenerationClient, Runtime.Unknown)),
             
@@ -902,25 +963,59 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             DropIntent dropIntent => await new TakeOrDropInteractionProcessor(_openAITakeAndDropListParser).Process(
                 dropIntent, Context, GenerationClient),
             
-            SimpleIntent simpleInteraction => await new SimpleInteractionEngine(_itemProcessorFactory).Process(
-                simpleInteraction,
-                Context,
-                GenerationClient
-            ),
+            SimpleIntent simpleInteraction => await ProcessSimpleIntent(simpleInteraction),
 
-            MultiNounIntent multiInteraction => await new MultiNounEngine(_itemProcessorFactory).Process(
-                multiInteraction,
-                Context,
-                GenerationClient
-            ),
+            MultiNounIntent multiInteraction => await ProcessMultiNounIntent(multiInteraction),
 
-            _ => (null, await GetGeneratedNoOpResponse(_currentInput!, GenerationClient, Context))
+            _ => (null, await ProcessUnmatchedIntent())
         };
 
         if (complexIntentResult.resultObject is DisambiguationInteractionResult complexResult)
             ArmDisambiguation(complexResult);
 
         return complexIntentResult;
+    }
+
+    // The four wrappers below exist so the dispatch switch above can record which branch ended the
+    // turn (issue #578). A switch *expression* arm cannot assign a field, and classifying the intent
+    // in a second switch beside the first would be a trap: adding an intent type to one and not the
+    // other would silently mislabel every turn of that type.
+
+    private async Task<(InteractionResult? resultObject, string ResultMessage)> ProcessSimpleIntent(
+        SimpleIntent simpleInteraction)
+    {
+        var engine = new SimpleInteractionEngine(_itemProcessorFactory);
+        var result = await engine.Process(simpleInteraction, Context, GenerationClient);
+        _terminalPath = engine.TerminalPath;
+        return result;
+    }
+
+    private async Task<(InteractionResult? resultObject, string ResultMessage)> ProcessMultiNounIntent(
+        MultiNounIntent multiInteraction)
+    {
+        // Pass the factory so the issue #136 agentic fall-through seam (Hook B) is reachable; the
+        // engine still records its own TerminalPath for the turn log (issue #578).
+        var engine = new MultiNounEngine(_itemProcessorFactory);
+        var result = await engine.Process(multiInteraction, Context, GenerationClient);
+        _terminalPath = engine.TerminalPath;
+        return result;
+    }
+
+    /// <summary>The parser could not produce any usable shape from the input.</summary>
+    private async Task<string> ProcessNullIntent()
+    {
+        _terminalPath = TurnTerminalPath.NullIntent;
+        return await GetGeneratedNoOpResponse(_currentInput!, GenerationClient, Context);
+    }
+
+    /// <summary>
+    ///     The parser produced an intent type the dispatch switch has no arm for. Nothing routes here
+    ///     today; if it ever does, the turn log is what will say so.
+    /// </summary>
+    private async Task<string> ProcessUnmatchedIntent()
+    {
+        _terminalPath = TurnTerminalPath.UnmatchedIntentType;
+        return await GetGeneratedNoOpResponse(_currentInput!, GenerationClient, Context);
     }
 
     private async Task<string> ProcessActorsAndContextEndOfTurn(string? contextPrepend, string? turnResult,
@@ -976,7 +1071,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
                 Score = Context.Score,
                 Moves = Context.Moves,
                 Input = _currentInput,
-                Response = finalResult.Trim()
+                Response = finalResult.Trim(),
+                ParsedIntent = _parsedIntent,
+                TerminalPath = _terminalPath
             });
 
         if (!string.IsNullOrEmpty(finalResult))

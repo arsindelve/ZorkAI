@@ -8,7 +8,12 @@ public class Helicopter : FloydSpecialInteractionLocation
 {
     public override string Name => "Helicopter";
 
-    public override string[] NounsForMatching => ["chopper", "copter"];
+    // "vehicle" is the word the Helipad's own description uses for this thing, and the original gives
+    // the object both synonyms (SYNONYM VEHICLE HELICOPTER, planetfall-source/compone.zil:2767-2772).
+    // Destination navigation resolves "enter <noun>" against a neighbouring room's name and synonyms,
+    // so without these "enter helicopter" boarded the vehicle while "enter vehicle" — the same object —
+    // was refused with "You cannot go that way." (issue #519).
+    public override string[] NounsForMatching => ["chopper", "copter", "vehicle", "large vehicle"];
 
     public override string FloydPrompt => FloydPrompts.Helicopter;
 

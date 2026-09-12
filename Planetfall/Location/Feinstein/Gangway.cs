@@ -12,7 +12,17 @@ public class Gangway : LocationWithNoStartingItems
     {
         return new Dictionary<Direction, MovementParameters>
         {
-            { Direction.Down, Go<DeckNine>() },
+            // The down exit back to Deck Nine is sealed by the same narrow bulkhead once it crashes
+            // shut in the explosion (issue #529; globals.zil:646 gates DOWN on GANGWAY-DOOR).
+            {
+                Direction.Down,
+                new MovementParameters
+                {
+                    Location = Repository.GetLocation<DeckNine>(),
+                    CanGo = _ => Repository.GetItem<GangwayDoor>().IsOpen,
+                    CustomFailureMessage = "The emergency bulkhead is closed. "
+                }
+            },
             { Direction.Up, Go<DeckEight>() }
         };
     }

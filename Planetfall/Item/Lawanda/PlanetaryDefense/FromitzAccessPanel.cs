@@ -27,7 +27,10 @@ public class FromitzAccessPanel : OpenAndCloseContainerBase, ICanBeExamined
 
         if (item is ShinyFromitzBoard)
         {
-            response += "The card clicks neatly into the socket. The warning lights stop flashing. ";
+            // Issue #513: append only the extra clause. The socket sentence above is unconditional, so
+            // repeating it here made solving the puzzle stutter the line twice. The ZIL's GOOD-BOARD arm
+            // (comptwo.zil) emits the socket sentence once, then the warning-lights clause.
+            response += "The warning lights stop flashing. ";
             Repository.GetLocation<Location.Lawanda.PlanetaryDefense>().ItIsFixed(context);
         }
 

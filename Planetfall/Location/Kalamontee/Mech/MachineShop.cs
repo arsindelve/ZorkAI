@@ -38,7 +38,9 @@ internal class MachineShop : LocationWithNoStartingItems
                 return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(
                     "You don't have the flask. "));
 
-            if (!context.HasItem<Flask>())
+            // Container-aware possession (issue #503) - the flat HasItem<T>() refuses the action when
+            // the flask is inside something you're carrying, and the turn falls to the narrator.
+            if (!context.IsCarrying<Flask>())
                 return Task.FromResult<InteractionResult?>(new NoNounMatchInteractionResult());
 
             FlaskUnderSpout = true;

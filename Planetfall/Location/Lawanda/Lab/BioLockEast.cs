@@ -120,7 +120,7 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
         var computerRoom = Repository.GetLocation<ComputerRoom>();
 
         var result = StateMachine.HandleTurnAction(
-            floyd.IsHereAndIsOn(context),
+            floyd.IsHereAndAlive(context),
             computerRoom.FloydHasExpressedConcern,
             context,
             floyd);

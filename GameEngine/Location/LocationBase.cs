@@ -345,20 +345,34 @@ public abstract class LocationBase : ILocation, ICanContainItems
         // Inert scenery (issue #315). Checked AFTER real items so a genuine object that shares a noun
         // always wins. Matching the noun makes the thing "present", so an unsupported verb yields a
         // NoVerbMatch ("you can't do that to it") — never the narrator's false "no such thing is here".
-        var scenery = Scenery.FirstOrDefault(s => action.MatchNounAndAdjective(s.Nouns));
+        var scenery = MatchScenery(action, context);
         if (scenery is not null)
         {
             if (action.MatchVerb(Verbs.ExamineVerbs))
                 return new PositiveInteractionResult(scenery.ExaminationDescription);
 
             if (action.MatchVerb(Verbs.TakeVerbs))
-                return new PositiveInteractionResult(
-                    scenery.CannotBeTakenReason ?? "That's not something you can take. ");
+                return new PositiveInteractionResult(scenery.TakeRefusal);
 
             return new NoVerbMatchInteractionResult { Verb = action.Verb, Noun = action.Noun };
         }
 
         return result ?? new NoNounMatchInteractionResult();
+    }
+
+    /// <summary>
+    ///     The room's own scenery first, then the game's global scenery — walls, floor, ceiling, the
+    ///     air, the player's own body — which answer everywhere. A room that has something particular
+    ///     to say about its walls therefore always wins over the generic reply.
+    /// </summary>
+    /// <remarks>
+    ///     See <see cref="ILocation.MatchScenery" /> for why this is a seam of its own rather than a few
+    ///     lines inside <see cref="RespondToSimpleInteraction" />.
+    /// </remarks>
+    public SceneryItem? MatchScenery(SimpleIntent action, IContext context)
+    {
+        return Scenery.FirstOrDefault(s => action.MatchNounAndAdjective(s.Nouns))
+               ?? context.Game.GlobalScenery.FirstOrDefault(s => action.MatchNounAndAdjective(s.Nouns));
     }
 
     /// <summary>

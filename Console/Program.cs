@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text;
 using ChatLambda;
 using DynamoDb;
@@ -10,12 +10,14 @@ using Model.Interface;
 using Planetfall;
 using SecretsManager;
 using Stationfall;
+using ZorkAI.OpenAI;
 using ZorkConsole;
 using ZorkOne;
 
 // Guard the required game argument before touching AWS or the game engine: an empty args used to throw
 // IndexOutOfRangeException on args[0], and an unrecognized game threw an uncaught exception. Give the
-// user actionable feedback and a non-zero exit code instead.
+// user actionable feedback and a non-zero exit code instead. Flags after the game name are ignored
+// here — GameArgumentResolver only inspects args[0].
 var gameSelection = GameArgumentResolver.Resolve(args);
 if (!gameSelection.IsValid)
 {
@@ -27,10 +29,52 @@ if (!gameSelection.IsValid)
 
 var gameName = gameSelection.GameName!;
 
-var database = new DynamoDbSessionRepository();
+// Optional flags after the game name map onto the self-hosted environment variables (issue #383),
+// so "ZorkOne --provider ollama --model llama3.1" works without exporting anything first. Must run
+// before the settings are read, and before any OpenAI client is constructed.
+SelfHostFlags.ApplyToEnvironment(args);
+
+// Held to the same standard as the game argument above: a mistyped --provider used to come out as
+// an unhandled InvalidOperationException with a full stack trace, because Resolve throws on an
+// unknown provider name and nothing caught it.
+OpenAIEndpointSettings settings;
+try
+{
+    settings = OpenAIEndpointSettings.FromEnvironment();
+}
+catch (Exception ex)
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.Error.WriteLine(ex.Message);
+    Console.ResetColor();
+    Environment.Exit(1);
+    return;
+}
+
+// A custom endpoint on the console means "play entirely locally", so publish that as the explicit
+// ZORKAI_SELF_HOSTED opt-in the rest of the engine reads. Set here, in the composition root, rather
+// than having each consumer infer "no AWS" from the endpoint variables on its own — see
+// SelfHostedMode for why that inference is unsafe anywhere that gets deployed.
+if (settings.IsSelfHosted)
+    Environment.SetEnvironmentVariable(SelfHostedMode.EnvironmentVariableName, "true");
+
+// Self-hosted mode swaps every cloud dependency for a local one: file-based saves instead of
+// DynamoDB, a built-in narrator prompt instead of Secrets Manager, and a local conversation
+// classifier instead of the Lambda. Cloud mode is untouched.
+ISessionRepository database = settings.IsSelfHosted
+    ? new FileSessionRepository()
+    : new DynamoDbSessionRepository();
+
 var sessionId = Environment.MachineName + "8";
 
 Console.ForegroundColor = ConsoleColor.DarkCyan;
+
+if (settings.IsSelfHosted)
+{
+    Console.WriteLine(
+        $"Self-hosted AI mode: {settings.Endpoint} (model: {settings.ModelOverride ?? "server default"})");
+    await WarnIfEndpointUnreachable(settings.Endpoint!);
+}
 
 var engine = await GetEngine();
 
@@ -110,10 +154,21 @@ async Task<GameEngine<TGame, TContext>> CreateEngine<TGame, TContext>()
     var logger = loggerFactory.CreateLogger<GameEngine<TGame, TContext>>();
     var parseLogger = loggerFactory.CreateLogger<ParseConversation>();
 
-    var gameEngine = new GameEngine<TGame, TContext>(logger, new AmazonSecretsManager(), new ParseConversation(null, parseLogger))
+    ISecretsManager secretsManager = settings.IsSelfHosted
+        ? new LocalSecretsManager()
+        : new AmazonSecretsManager();
+
+    IParseConversation parseConversation = settings.IsSelfHosted
+        ? new LocalParseConversation { Logger = parseLogger }
+        : new ParseConversation(null, parseLogger);
+
+    var gameEngine = new GameEngine<TGame, TContext>(logger, secretsManager, parseConversation)
     {
         Runtime = Runtime.Console,
-        NoGeneratedResponses = false
+        NoGeneratedResponses = false,
+        // This is the only place that knows self-hosted play means "no AWS at all"; the engine never
+        // infers it from the environment. Everything else keeps CloudWatch telemetry on by default.
+        CloudLoggingEnabled = !settings.IsSelfHosted
     };
     await gameEngine.InitializeEngine();
     return gameEngine;
@@ -134,4 +189,25 @@ async Task<IGameEngine> GetEngine()
     };
 
     return newEngine;
+}
+
+// Cheap fail-fast: ping the local server's /models endpoint so a player whose LM Studio/Ollama
+// isn't running gets a clear warning up front instead of a mid-game timeout. Warning only - the
+// game still starts, since the server may come up later.
+static async Task WarnIfEndpointUnreachable(Uri endpoint)
+{
+    try
+    {
+        using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
+        var modelsUrl = endpoint.ToString().TrimEnd('/') + "/models";
+        using var response = await httpClient.GetAsync(modelsUrl);
+    }
+    catch (Exception)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine(
+            $"Warning: nothing answered at {endpoint}. Is your local AI server running? " +
+            "The game will start, but AI commands will fail until it is reachable.");
+        Console.ForegroundColor = ConsoleColor.DarkCyan;
+    }
 }

@@ -12,9 +12,18 @@ internal class KitchenMachine : ContainerBase, ICanBeExamined
 
     public override string CanOnlyHoldTheseTypesErrorMessage(string nameOfItemWeTriedToPlaceHere) => "It doesn't fit in the niche. ";
 
+    // Issue #504: this used to be a flat constant, so "examine machine" described an empty niche even
+    // with the canteen sitting in it - contradicting the room listing (GenericDescription, below) in the
+    // very same turn, on the one action the room description tells the player to take. The original
+    // splices a canteen sentence between the two fixed halves; keep the contents interpolated here so a
+    // mutable fact is never asserted as a literal. CanOnlyHoldTheseTypes is [Canteen], so Items.Any()
+    // implies the canteen and naming it directly is safe. "examine niche" and "look in niche" route
+    // here too, which is why the fix also fixes the "where did my canteen go?" follow-ups.
     public string ExaminationDescription =>
-        "This wall-mounted unit contains an octagonal niche beneath a spout. Above the spout is a button. " +
-        "The machine is labelled\n\"Hii Prooteen Likwid Dispensur.\" ";
+        "This wall-mounted unit contains an octagonal niche beneath a spout. " +
+        (Items.Any() ? "A canteen is resting in the niche, its mouth lying just below the spout. " : "") +
+        "Above the spout is a button. " +
+        "The machine is labelled \"Hii Prooteen Likwid Dispensur.\" ";
 
     public override string GenericDescription(ILocation? currentLocation)
     {

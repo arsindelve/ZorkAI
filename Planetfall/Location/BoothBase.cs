@@ -51,17 +51,41 @@ internal abstract class BoothBase : LocationBase, ICardActivatedDevice
             return new PositiveInteractionResult("A sign flashes \"Teleportaashun buux not aktivaatid.\"");
 
         var sb = new StringBuilder();
+        ILocation destination = Repository.GetLocation<T>();
 
-        if (Repository.GetItem<Floyd>().CurrentLocation == context.CurrentLocation)
+        var floyd = Repository.GetItem<Floyd>();
+        if (floyd.CurrentLocation == context.CurrentLocation)
         {
             sb.AppendLine("Floyd gives a terrified squeal, and clutches at his guidance mechanism. ");
-            Repository.GetItem<Floyd>().CurrentLocation = Repository.GetLocation<T>();
+
+            // Re-parent Floyd, never just reassign CurrentLocation: everything that resolves a noun
+            // through the room - scope checks, ConversationHandler.CollectTalkableEntities - reads
+            // CurrentLocation.Items. A bare assignment left him listed in the booth he departed and
+            // absent from the one he arrived in, so "examine floyd" and talking to him came back
+            // empty in the destination. FloydMovementManager cannot repair it, because its
+            // isInTheRoom check compares CurrentLocation, which already agrees.
+            RemoveItem(floyd);
+            destination.ItemPlacedHere(floyd);
         }
-        
+
         // Using the booth consumes the activation and cancels its expiry countdown, mirroring
         // <DISABLE <INT I-TURNOFF-TELEPORTATION>> on a successful teleport (globals.zil:1522).
         CardActivationTimer.Cancel(this, context);
-        context.CurrentLocation = Repository.GetLocation<T>();
+
+        // Issue #520: the original robs the whole booth into the destination (<ROB ,HERE .DEST> in
+        // TELEPORT, globals.zil:1522), so anything set down on the booth floor travels with you.
+        // Without this it is stranded - and Booth 3 is on a different continent from Booths 1 and 2.
+        // The booth's card slot must stay put, though: in the original it is a LOCAL-GLOBALS fixture
+        // and so was never part of the room's contents for ROB to move, whereas here it genuinely
+        // lives in the room's item list. Filtering to takeable items reproduces that; a move-all
+        // would drag the slot along and corrupt both booths. Iterate a copy - the loop mutates Items.
+        foreach (var item in Items.OfType<ICanBeTakenAndDropped>().Cast<IItem>().ToList())
+        {
+            RemoveItem(item);
+            destination.ItemPlacedHere(item);
+        }
+
+        context.CurrentLocation = destination;
 
         sb.AppendLine("You experience a strange feeling in the pit of your stomach. ");
         return new PositiveInteractionResult(sb.ToString());

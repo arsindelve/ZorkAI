@@ -120,8 +120,7 @@ public static class Repository
     private static IItem? GetPreciseMatchInInventory(string noun, IContext context)
     {
         return (context.GetAllItemsRecursively ?? [])
-            .FirstOrDefault(item => item.NounsForPreciseMatching
-                .Any(n => n.Equals(noun, StringComparison.InvariantCultureIgnoreCase)));
+            .FirstOrDefault(item => NounMatch.PreciselyNames(item, noun));
     }
 
     /// <summary>
@@ -200,7 +199,7 @@ public static class Repository
 
         return candidates.FirstOrDefault(item =>
             IsItemAccessible(item, context) &&
-            item.NounsForPreciseMatching.Any(n => n.Equals(noun, StringComparison.InvariantCultureIgnoreCase)));
+            NounMatch.PreciselyNames(item, noun));
     }
 
     /// <summary>
@@ -361,6 +360,64 @@ public static class Repository
     /// omitted it. Callers already have the game name available (e.g. <c>context.Game.GameName</c>).
     /// </remarks>
     /// <returns></returns>
+    /// <summary>
+    ///     Every noun the game's locations advertise as scenery. These are not items, so
+    ///     <see cref="GetNouns" /> — which reflects over ItemBase — cannot see them, and anything built
+    ///     from that list alone is blind to every piece of scenery in the game. The deterministic test
+    ///     parser is built from that list, which is why scenery appeared to answer to nothing at all
+    ///     under test while working perfectly in play.
+    /// </summary>
+    public static string[] GetSceneryNouns(string gameName)
+    {
+        var assembly = Assembly.Load(gameName);
+        var nouns = new List<string>();
+
+        foreach (var type in assembly.GetTypes())
+        {
+            if (type is not { IsClass: true, IsGenericType: false, IsAbstract: false } ||
+                !type.IsSubclassOf(typeof(LocationBase)))
+                continue;
+
+            var property = type.GetProperty("Scenery",
+                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+
+            if (property is null)
+                continue;
+
+            try
+            {
+                var instance = Activator.CreateInstance(type);
+                if (property.GetValue(instance) is IEnumerable<SceneryItem> scenery)
+                    nouns.AddRange(scenery.SelectMany(s => s.Nouns));
+            }
+            catch
+            {
+                // A location that cannot be constructed standalone simply contributes no scenery nouns.
+            }
+        }
+
+        // Global scenery lives on the game, not on any location, so it needs collecting separately -
+        // and it is precisely the set most likely to be typed in every room.
+        foreach (var type in assembly.GetTypes())
+        {
+            if (type is not { IsClass: true, IsGenericType: false, IsAbstract: false } ||
+                !typeof(IInfocomGame).IsAssignableFrom(type))
+                continue;
+
+            try
+            {
+                if (Activator.CreateInstance(type) is IInfocomGame game)
+                    nouns.AddRange(game.GlobalScenery.SelectMany(s => s.Nouns));
+            }
+            catch
+            {
+                // A game that cannot be constructed standalone contributes no global scenery nouns.
+            }
+        }
+
+        return nouns.Distinct().ToArray();
+    }
+
     public static string[] GetNouns(string gameName)
     {
         lock (_allNouns)

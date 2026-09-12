@@ -79,9 +79,14 @@ Rules:
   - GlobalCommands/, SingleNounProcessors/, MultiNounProcessors/: Command processor tests
 - **ZorkOne.Tests**: Game-specific tests for Zork I
 - **Planetfall.Tests**: Game-specific tests for Planetfall
-- **Lambda.Tests**: AWS Lambda API tests
-- **Planetfall-Lambda.Tests**: Planetfall Lambda API tests
+- **EscapeRoom.Tests**: Game-specific tests for Escape Room
 - **IntegrationTests**: Cross-service integration tests (marked [Explicit], require AWS credentials)
+
+The Lambda APIs have **no test projects of their own** — the controllers, entry points and Startup
+wiring for both are tested from `UnitTests/Lambda/` and `UnitTests/PlanetfallLambda/`. (The old
+`Lambda/test/Lambda.Tests` and `Planetfall-Lambda/test/Planetfall-Lambda.Tests` were deleted: they
+were never in `Zork.sln`, so CI never ran them, and they had rotted — their `ValuesControllerTests`
+targeted a controller that no longer exists. Do not recreate them; add Lambda tests to `UnitTests`.)
 
 ## Key Architecture Components
 
@@ -210,6 +215,15 @@ adding/reviewing room and item handlers:
    `GetGeneratedNoMatchingVerbResponse`, which re-resolves via `Repository.GetItemInScope`; on a
    scope-rejected noun it short-circuits to `string.Empty` (a blank line) instead of the narrator. Fix:
    unhandled force verbs should fall through to the narrator in shared routing, not per-object.
+
+   That narrator fallback only stops the blank line — the object is still out of scope, so
+   `enter <door>`, `take`, and every other verb routed through `Repository.GetItemInScope` still find
+   nothing, and a room that never seeded the object at all can resolve it from nowhere. The real fix is
+   to **split identity and share state**: give each room its own object whose `CurrentLocation` is
+   honest, and have it read/write the one flag the shared object used to hold. The elevator shafts are
+   the worked example (issue #532, `Planetfall/Item/Kalamontee/Admin/ElevatorLandingDoor.cs`): three
+   rooms, three door objects, one `IsOpen`. Doing this also retires the "answer for the door by hand"
+   workaround such rooms accumulate, because each object's raw state is now its own room's truth.
 
 **God-mode setup trap (white-box):** `god mode take <item>` / `go <place>`
 (`GameEngine/StaticCommand/Implementation/GodModeProcessor.cs`) route through `Repository.LoadAllLocations`

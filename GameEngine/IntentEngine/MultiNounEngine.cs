@@ -1,3 +1,4 @@
+using CloudWatch.Model;
 using GameEngine.Item.ItemProcessor;
 using GameEngine.Item.MultiItemProcessor;
 using Model.AIGeneration;
@@ -19,6 +20,14 @@ namespace GameEngine.IntentEngine;
 public class MultiNounEngine(IItemProcessorFactory? itemProcessorFactory = null) : IIntentEngine
 {
     private readonly List<IMultiNounVerbProcessor> _processors = [new PutProcessor()];
+
+    /// <summary>
+    ///     Which branch of <see cref="Process" /> produced the response, for the turn log (issue #578).
+    ///     Read by the engine straight after <see cref="Process" /> returns — a fresh instance is built
+    ///     per turn, so there is nothing to reset. Stays <see cref="TurnTerminalPath.Handled" /> unless
+    ///     one of the no-handler deflections below fires.
+    /// </summary>
+    internal TurnTerminalPath TerminalPath { get; private set; } = TurnTerminalPath.Handled;
 
     public async Task<(InteractionResult? resultObject, string ResultMessage)> Process(IntentBase intent,
         IContext context, IGenerationClient generationClient)
@@ -76,7 +85,10 @@ public class MultiNounEngine(IItemProcessorFactory? itemProcessorFactory = null)
         // talked about a unicorn, a bottle of tequila or some other meaningless item. 
         if (!Repository.ItemExistsInTheStory(interaction.NounOne) &&
             !Repository.ItemExistsInTheStory(interaction.NounTwo))
+        {
+            TerminalPath = TurnTerminalPath.MultiNounNeitherNounInTheStory;
             return (null, await GetGeneratedNoOpResponse(interaction.OriginalInput, generationClient, context));
+        }
 
         var (nounOneExistsHere, itemOne) = IsItemHere(context, interaction.NounOne);
         var (nounTwoExistsHere, itemTwo) = IsItemHere(context, interaction.NounTwo);
@@ -87,11 +99,15 @@ public class MultiNounEngine(IItemProcessorFactory? itemProcessorFactory = null)
         if (!nounOneExistsHere & nounTwoExistsHere)
         {
             if (itemTwo is IAmANamedPerson)
+            {
+                TerminalPath = TurnTerminalPath.MultiNounFirstNounMissingSecondIsAPerson;
                 return (null, await GetGeneratedResponse<MissingFirstNounMultiNounWithPersonOperationRequest>(
                     interaction,
                     generationClient,
                     context));
+            }
 
+            TerminalPath = TurnTerminalPath.MultiNounFirstNounMissing;
             return (null, await GetGeneratedResponse<MissingFirstNounMultiNounOperationRequest>(interaction,
                 generationClient,
                 context));
@@ -109,20 +125,27 @@ public class MultiNounEngine(IItemProcessorFactory? itemProcessorFactory = null)
                 return agentic.Value;
 
             if (itemOne is IAmANamedPerson)
+            {
+                TerminalPath = TurnTerminalPath.MultiNounSecondNounMissingFirstIsAPerson;
                 return (null, await GetGeneratedResponse<MissingSecondNounWithPersonMultiNounOperationRequest>(
                     interaction,
                     generationClient,
                     context));
+            }
 
+            TerminalPath = TurnTerminalPath.MultiNounSecondNounMissing;
             return (null, await GetGeneratedResponse<MissingSecondNounMultiNounOperationRequest>(interaction,
                 generationClient,
                 context));
         }
 
         if (!nounOneExistsHere & !nounTwoExistsHere)
+        {
+            TerminalPath = TurnTerminalPath.MultiNounBothNounsMissing;
             return (null, await GetGeneratedResponse<MissingBothNounsMultiNounOperationRequest>(interaction,
                 generationClient,
                 context));
+        }
 
         // This indicates that one of the two items is not real, i.e. it's part of
         // the location description like the kitchen table. No real interaction is
@@ -130,11 +153,14 @@ public class MultiNounEngine(IItemProcessorFactory? itemProcessorFactory = null)
         if (itemOne is null || itemTwo is null)
         {
             // Issue #136 Hook B: same seam when the destination is scenery from the room description
-            // ("throw the sword into the river" with a river actually described here).
+            // ("throw the sword into the river" with a river actually described here). A resolved
+            // agentic action keeps the default Handled path; only the narration fall-through below is
+            // the MultiNounNounIsSceneryOnly deflection (issue #578).
             var agentic = await TryAgenticAction(interaction, context);
             if (agentic is not null)
                 return agentic.Value;
 
+            TerminalPath = TurnTerminalPath.MultiNounNounIsSceneryOnly;
             return (null, await GetGeneratedVerbNotUsefulResponse(interaction, generationClient,
                 context));
         }
@@ -156,6 +182,7 @@ public class MultiNounEngine(IItemProcessorFactory? itemProcessorFactory = null)
             return agenticFallThrough.Value;
 
         // If not positive interaction.....
+        TerminalPath = TurnTerminalPath.MultiNounNoProcessorMatched;
         return (null, await GetGeneratedVerbNotUsefulResponse(interaction, generationClient,
             context));
     }
@@ -258,50 +285,9 @@ public class MultiNounEngine(IItemProcessorFactory? itemProcessorFactory = null)
         return result;
     }
 
-    private DisambiguationInteractionResult? CheckDisambiguation(MultiNounIntent intent,
+    private static DisambiguationInteractionResult? CheckDisambiguation(MultiNounIntent intent,
         IContext context, Func<string[], bool> matchFunction)
     {
-        var ambiguousItems = new List<IItem>();
-
-        List<IItem>? allItemsInLocation = (context.CurrentLocation as ICanContainItems)?.GetAllItemsRecursively;
-        if (allItemsInLocation is null)
-            return null;
-        
-        IEnumerable<IItem> allItemsInSight =
-            context.GetAllItemsRecursively
-                .Union(allItemsInLocation)
-                .ToList();
-        
-        foreach (var item in allItemsInSight)
-            if (matchFunction(item.NounsForMatching))
-                ambiguousItems.Add(item);
-
-        // We have one or fewer items that match the noun. Good to go. 
-        if (ambiguousItems.Count <= 1)
-            return null;
-
-        var itemNouns = ambiguousItems
-            .Select(s => s.NounsForMatching.MaxBy(n => n.Length))
-            .ToList()!
-            .SingleLineListWithOr();
-        var message = $"Do you mean {itemNouns}?";
-
-        // For each item, we need a map of all possible nouns, to the longest noun, and then 
-        // we will replace the matching noun with the longest noun. If we don't do
-        // this, we'll loop around disambiguating forever. 
-        var nounToLongestNounMap = new Dictionary<string, string>();
-        foreach (var item in ambiguousItems)
-        {
-            var longestNoun = item.NounsForPreciseMatching.MaxBy(noun => noun.Length);
-            foreach (var noun in item.NounsForPreciseMatching) nounToLongestNounMap[noun] = longestNoun ?? string.Empty;
-        }
-
-        var replacement = intent.OriginalInput.Replace(intent.NounOne, "{0}");
-
-        return new DisambiguationInteractionResult(
-            message,
-            nounToLongestNounMap,
-            replacement
-        );
+        return NounDisambiguator.Check(matchFunction, context, intent.OriginalInput.Replace(intent.NounOne, "{0}"));
     }
 }

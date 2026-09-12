@@ -18,7 +18,8 @@ public class BootTests : EngineTestsBase
         var response = await engine.GetResponse("look");
 
         response.Should().Contain("Deck Twelve");
-        response.Should().Contain("Stellar Patrol Ship Duffy");
+        response.Should().Contain("administrative level");
+        response.Should().Contain("slot");
     }
 
     [Test]
