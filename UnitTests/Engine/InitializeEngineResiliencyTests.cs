@@ -11,15 +11,22 @@ namespace UnitTests.Engine;
 
 public class InitializeEngineResiliencyTests
 {
-    private static GameEngine<ZorkI, ZorkIContext> BuildEngine(Mock<ISecretsManager> secrets)
+    private static GameEngine<ZorkI, ZorkIContext> BuildEngine(Mock<ISecretsManager> secrets,
+        bool keepCloudLoggingDefault = false)
     {
-        return BuildEngine(secrets, out _);
+        return BuildEngine(secrets, out _, keepCloudLoggingDefault);
     }
 
-    // IGenerationClient.SystemPrompt is set-only, so tests that care about it observe the set on the
-    // mock rather than reading the property back.
+    /// <summary>
+    ///     IGenerationClient.SystemPrompt is set-only, so tests that care about it observe the set on
+    ///     the mock rather than reading the property back.
+    /// </summary>
+    /// <param name="keepCloudLoggingDefault">
+    ///     Leaves CloudLoggingEnabled at the value GameEngine's constructor chose, for the one test
+    ///     that asserts on that default. Every other test wants it off — see below.
+    /// </param>
     private static GameEngine<ZorkI, ZorkIContext> BuildEngine(Mock<ISecretsManager> secrets,
-        out Mock<IGenerationClient> generationClient)
+        out Mock<IGenerationClient> generationClient, bool keepCloudLoggingDefault = false)
     {
         var takeAndDropParser = new Mock<IAITakeAndAndDropParser>();
         takeAndDropParser
@@ -53,6 +60,14 @@ public class InitializeEngineResiliencyTests
             secrets.Object,
             Mock.Of<CloudWatch.ICloudWatchLogger<CloudWatch.Model.TurnLog>>(),
             Mock.Of<IParseConversation>());
+
+        // Required, not incidental. InitializeEngine otherwise calls CloudWatchLoggerFactory.Get,
+        // which constructs a real AmazonCloudWatchLogsClient and issues CreateLogGroup/CreateLogStream
+        // — three loggers per call. On any machine or runner with ambient AWS credentials these tests
+        // would create real log groups in whatever account those credentials belong to, and pay
+        // credential/IMDS latency where they don't. Tests here must touch no network and no AWS.
+        if (!keepCloudLoggingDefault)
+            engine.CloudLoggingEnabled = false;
 
         Repository.Reset();
         Repository.GetLocation<WestOfHouse>().Init();
@@ -129,7 +144,9 @@ public class InitializeEngineResiliencyTests
             var secrets = new Mock<ISecretsManager>();
             secrets.Setup(s => s.GetSecret(It.IsAny<string>())).ReturnsAsync("prompt");
 
-            var engine = BuildEngine(secrets);
+            // The default is the whole subject here, so this is the one caller that must see it
+            // rather than the network-safe override the other tests need.
+            var engine = BuildEngine(secrets, keepCloudLoggingDefault: true);
 
             engine.CloudLoggingEnabled.Should().BeTrue();
         }

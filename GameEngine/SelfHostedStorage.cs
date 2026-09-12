@@ -30,6 +30,13 @@ public static class SelfHostedStorage
 
     /// <summary>
     ///     Makes an arbitrary session/table/save identifier safe to use as a file or directory name.
+    ///     <para>
+    ///     Neutralizing the all-dots segments matters because <see cref="FileSavedGameRepository" />
+    ///     uses a sanitized session id as a <i>directory</i>, and session and client ids arrive
+    ///     straight off the wire in every controller. Replacing only the invalid characters left
+    ///     <c>".."</c> intact, so a save posted with that client id resolved one level up and wrote,
+    ///     read and deleted outside its table directory.
+    ///     </para>
     /// </summary>
     public static string Sanitize(string value)
     {
@@ -37,6 +44,12 @@ public static class SelfHostedStorage
             return "_";
 
         var chars = value.Select(c => HostileChars.Contains(c) ? '_' : c).ToArray();
+
+        // "." and ".." (and longer runs) are valid file names character-wise but navigate the tree.
+        // Only a segment that is *entirely* dots traverses, so "save.1" and "my.session" survive.
+        if (chars.All(c => c == '.'))
+            return new string('_', chars.Length);
+
         return new string(chars);
     }
 }

@@ -85,12 +85,13 @@ public class FileSavedGameRepository : ISavedGameRepository
 
         foreach (var file in Directory.EnumerateFiles(directory, "*.savedgame"))
         {
-            var document = Deserialize(await File.ReadAllTextAsync(file));
-
-            // A file we cannot parse is skipped rather than thrown over: one corrupted save must not
-            // make the whole save list unreadable and lock the player out of the others.
-            if (document is not null)
-                saves.Add((document.Id, document.Name, new DateTime(document.DateTicks)));
+            // A file we cannot use is skipped rather than thrown over: one corrupted save must not
+            // make the whole save list unreadable and lock the player out of the others. That means
+            // more than catching JsonException — a truncated or hand-edited file can parse as valid
+            // JSON and still carry out-of-range ticks or a missing name, and `new DateTime(ticks)`
+            // would throw straight out of this listing.
+            if (TryReadSave(await File.ReadAllTextAsync(file), out var save))
+                saves.Add(save);
         }
 
         return saves;
@@ -127,6 +128,27 @@ public class FileSavedGameRepository : ISavedGameRepository
         {
             return null;
         }
+    }
+
+    /// <summary>
+    ///     Reads one save file into a listing entry, or reports false for anything unusable. Every
+    ///     field is treated as untrusted: the file may have been truncated mid-write or edited by hand.
+    /// </summary>
+    private static bool TryReadSave(string json, out (string Id, string Name, DateTime SavedOn) save)
+    {
+        save = default;
+
+        var document = Deserialize(json);
+        if (document is null || string.IsNullOrEmpty(document.Id))
+            return false;
+
+        // DateTime rejects anything outside its range, so a garbage tick count would otherwise throw
+        // ArgumentOutOfRangeException out of GetSavedGames and take the whole listing with it.
+        if (document.DateTicks < DateTime.MinValue.Ticks || document.DateTicks > DateTime.MaxValue.Ticks)
+            return false;
+
+        save = (document.Id, document.Name ?? string.Empty, new DateTime(document.DateTicks));
+        return true;
     }
 
     /// <summary>

@@ -156,6 +156,43 @@ public class FileSavedGameRepositoryTests
         saves.Single().Id.Should().Be("good");
     }
 
+    [TestCase("..")]
+    [TestCase(".")]
+    [TestCase("...")]
+    public async Task Should_NotEscapeTheTableDirectory_When_TheSessionIdNavigatesUpward(string hostileSession)
+    {
+        // Session and client ids arrive straight off the wire in every controller, and the sanitized
+        // session id is used as a *directory*. Sanitizing only the invalid characters left ".."
+        // intact, so `POST /saveGame` with that client id wrote one level up — outside its table
+        // directory and, with enough of them, outside the save root entirely.
+        await _repository.SaveGame("escapee", hostileSession, "Probe", "data", Table);
+
+        Directory.GetFiles(_baseDirectory, "*.savedgame", SearchOption.TopDirectoryOnly)
+            .Should().BeEmpty("no save may land above its own table directory");
+
+        Directory.GetFiles(Path.Combine(_baseDirectory, Table), "*.savedgame", SearchOption.AllDirectories)
+            .Should().HaveCount(1);
+    }
+
+    [Test]
+    public async Task Should_StillListOtherSaves_When_OneHasUnusableContents()
+    {
+        await _repository.SaveGame("good", "session-1", "Readable", "data", Table);
+
+        // Parses as JSON, so the JsonException guard never fires — but the ticks are outside
+        // DateTime's range, and `new DateTime(ticks)` would throw out of the whole listing.
+        var directory = Path.Combine(_baseDirectory, Table, "session-1");
+        await File.WriteAllTextAsync(Path.Combine(directory, "badticks.savedgame"),
+            """{"Id":"badticks","Name":"Broken","SessionId":"session-1","GameData":"x","DateTicks":-999}""");
+        await File.WriteAllTextAsync(Path.Combine(directory, "noid.savedgame"),
+            """{"Name":"Nameless","SessionId":"session-1","GameData":"x","DateTicks":0}""");
+
+        var saves = await _repository.GetSavedGames("session-1", Table);
+
+        saves.Should().HaveCount(1);
+        saves.Single().Id.Should().Be("good");
+    }
+
     [Test]
     public async Task Should_HandleIdsAndSessions_WithFilesystemHostileCharacters()
     {

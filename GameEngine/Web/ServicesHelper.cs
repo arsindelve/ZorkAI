@@ -4,7 +4,6 @@ using ChatLambda;
 using DynamoDb;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Model.AIGeneration;
 using Model.Interface;
 using SecretsManager;
@@ -37,13 +36,10 @@ public static class ServicesHelper
             services.AddScoped<ISavedGameRepository>(_ => new FileSavedGameRepository());
             services.AddScoped<ISecretsManager, LocalSecretsManager>();
 
-            // Constructed by hand rather than by type so the classifier keeps the container's logger.
-            // Its Logger property defaults to NullLogger, so a plain AddScoped<,>() would silently
-            // discard the "classifier returned unparseable output" diagnostics it exists to emit.
-            services.AddScoped<IParseConversation>(sp => new LocalParseConversation
-            {
-                Logger = (ILogger?)sp.GetService<ILogger<LocalParseConversation>>() ?? NullLogger.Instance
-            });
+            // Registered by type, and the NullLogger default is fine: GameEngine's constructor
+            // assigns parseConversation.Logger itself, so injecting one here would be overwritten
+            // before the classifier ever runs.
+            services.AddScoped<IParseConversation, LocalParseConversation>();
         }
         else
         {
