@@ -1,3 +1,4 @@
+using Model.Intent;
 using FluentAssertions;
 using GameEngine;
 using Stationfall.Item.Duffy;
@@ -191,6 +192,47 @@ public class DuffyRegressionTests : EngineTestsBase
     }
 
     // --- helpers -------------------------------------------------------------------------------
+
+    /// <summary>
+    ///     Issue #568. The walkthrough's own canonical phrasing, "put class three activation form in
+    ///     slot", failed on production with "There's no room." — the generic container refusal — because
+    ///     the form did not answer to that exact phrase and FormSlotBase.ResolveForm needs an exact hit.
+    ///     <para>
+    ///         This drives the slot directly with the noun the phrase produces, rather than going through
+    ///         the engine, on purpose. The walkthrough row that supposedly covers this passes today only
+    ///         because a test mapping rewrites the noun to the full title before the form ever sees it
+    ///         (base-mappings.json), so the oracle could never have caught this. The intent below is what
+    ///         production actually hands the slot.
+    ///     </para>
+    /// </summary>
+    [TestCase("class three activation form")]
+    [TestCase("class three spacecraft activation form")]
+    [TestCase("activation form")]
+    [TestCase("activation")]
+    [TestCase("form")]
+    public async Task EveryDocumentedPhrasingForTheActivationForm_ActivatesTheSpacecraft(string noun)
+    {
+        var engine = GetTarget();
+        await BoardTheTruckWithFloyd(engine);
+        await engine.GetResponse("close hatch");
+        await engine.GetResponse("sit in pilot seat");
+
+        // ItemOne is deliberately left null: production's parser did not resolve it either, which is
+        // exactly why resolution fell through to the noun list.
+        var result = await Repository.GetItem<SpacetruckSlot>().RespondToMultiNounInteraction(
+            new MultiNounIntent
+            {
+                Verb = "put",
+                NounOne = noun,
+                NounTwo = "slot",
+                Preposition = "in",
+                OriginalInput = $"put {noun} in slot"
+            },
+            engine.Context);
+
+        result!.InteractionMessage.Should().Contain("Spacecraft activated",
+            $"\"{noun}\" is a phrasing the player is invited to type");
+    }
 
     private static async Task SelectFloyd(GameEngine<StationfallGame, StationfallContext> engine)
     {
