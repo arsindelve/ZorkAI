@@ -357,7 +357,11 @@
     { "inputs": ["give laser to microbe", "throw laser to microbe", "feed laser to microbe"], "verb": "give", "nounOne": "laser", "nounTwo": "microbe", "preposition": "to", "originalInput": "give laser to microbe" },
     { "inputs": ["offer laser to microbe"], "verb": "offer", "nounOne": "laser", "nounTwo": "microbe", "preposition": "to", "originalInput": "offer laser to microbe" },
 
-    { "inputs": ["put good in cube"], "verb": "put", "nounOne": "good bedistor", "nounTwo": "cube", "preposition": "in", "originalInput": "put good in cube" },
+    // Issue #550: nounOne is the BARE adjective, which is what the real parser emits for this input
+    // (rule 3 tags the noun phrase the player actually typed). Pre-expanding it to "good bedistor"
+    // here is what kept CI green while the command was a dropped turn in production - the fixture
+    // resolved an intent the parser never produces. Keep this faithful to the parser.
+    { "inputs": ["put good in cube"], "verb": "put", "nounOne": "good", "nounTwo": "cube", "preposition": "in", "originalInput": "put good in cube" },
 
     // Stationfall's form slots. The dynamic put-X-in-Y rule only handles the four-word shape, so the
     // full form titles the game teaches the player need explicit mappings.

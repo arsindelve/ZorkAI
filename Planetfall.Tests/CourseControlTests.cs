@@ -567,4 +567,33 @@ public class CourseControlTests : EngineTestsBase
         response.Should().Contain("smaller doorways to the north and south");
         response.Should().NotContain("north\n");
     }
+
+    [Test]
+    public async Task BareAdjectives_ResolveToTheirOwnBedistor_AndTheQualifiedPhrasingsStillWork()
+    {
+        // Issue #550 guard. "good" was added to GoodBedistor so a bare adjective resolves the way
+        // its sibling's "fused" already did. Pin BOTH directions - neither adjective may resolve
+        // the other sibling - and pin the printed name, which is the LONGEST noun: a short handle
+        // must never become the name the game prints (the trap from PR #542).
+        var target = GetTarget();
+        StartHere<CourseControl>();
+        GetItem<LargeMetalCube>().IsOpen = true; // fused sits in the open cube, in scope
+        Take<GoodBedistor>();
+        Take<Pliers>();
+
+        Repository.GetItemInScope("good", target.Context).Should().Be(GetItem<GoodBedistor>());
+        Repository.GetItemInScope("fused", target.Context).Should().Be(GetItem<FusedBedistor>());
+        Repository.GetItemInScope("good bedistor", target.Context).Should().Be(GetItem<GoodBedistor>());
+
+        GetItem<GoodBedistor>().NounsForMatching.MaxBy(n => n.Length).Should().Be("good ninety-ohm bedistor");
+        GetItem<GoodBedistor>().Name.Should().Be("good ninety-ohm bedistor");
+
+        // The phrasings that already worked in production must keep working alongside the new handle.
+        var response = await target.GetResponse("take fused with pliers");
+        response.Should().Contain("you manage to remove the fused bedistor");
+
+        response = await target.GetResponse("put good bedistor in cube");
+        response.Should().Contain("The warning lights go out");
+        GetItem<LargeMetalCube>().HasItem<GoodBedistor>().Should().BeTrue();
+    }
 }

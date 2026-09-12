@@ -164,4 +164,41 @@ public class LiveParserShapeTests : EngineTestsBase
         response.Should().Contain("you manage to remove the fused bedistor");
         Context.HasItem<FusedBedistor>().Should().BeTrue();
     }
+
+    /// <summary>
+    ///     Issue #550, a residual of #538 that PR #540's preposition recovery does not cover: here the
+    ///     preposition survives, the multi-noun routing is healthy, and the cube handler is healthy —
+    ///     only the bare adjective fails to resolve. The original gives the good bedistor the
+    ///     bare-adjective handle its fused sibling has (<c>ADJECTIVE GOOD NINETY OHM</c>,
+    ///     planetfall-source/compone.zil:1419), which is exactly why "take fused with pliers" works in
+    ///     this port while "put good in cube" dropped the turn.
+    ///     <para>
+    ///         The walkthrough suite could not catch it: <c>base-mappings.json</c> pre-expanded
+    ///         "put good in cube" to nounOne "good bedistor" — an intent the parser never produces — so
+    ///         the bare noun was never exercised. That mapping is now faithful to the parser, which
+    ///         makes walkthrough step 262 a second guard; this test is the one that pins the real
+    ///         parser rather than a model of it.
+    ///     </para>
+    /// </summary>
+    [Test]
+    public async Task PutTheBedistorByItsBareAdjective_WithTheRealParser_StillFixesCourseControl()
+    {
+        var target = GetTarget(ParserReturning("""
+                                               <intent>act</intent>
+                                               <verb>put</verb>
+                                               <noun>good</noun>
+                                               <noun>cube</noun>
+                                               <preposition>in</preposition>
+                                               """));
+        StartHere<CourseControl>();
+        GetItem<LargeMetalCube>().IsOpen = true;
+        Take<FusedBedistor>(); // pried out of the socket and still in hand, as in the prod report
+        Take<GoodBedistor>();
+
+        var response = await target.GetResponse("put good in cube");
+
+        response.Should().Contain("The warning lights go out");
+        GetItem<LargeMetalCube>().HasItem<GoodBedistor>().Should().BeTrue();
+        GetLocation<CourseControl>().Fixed.Should().BeTrue();
+    }
 }

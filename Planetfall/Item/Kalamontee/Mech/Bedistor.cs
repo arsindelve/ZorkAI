@@ -16,7 +16,16 @@ public abstract class BedistorBase : ItemBase
 
 public class GoodBedistor : BedistorBase, ICanBeTakenAndDropped
 {
-    public override string[] NounsForMatching => ["good ninety-ohm bedistor", "bedistor", "ninety-ohm bedistor", "good bedistor", "ninety-ohm", "90-ohm bedistor", "90-ohm"];
+    // Issue #550: the bare adjective "good" must be a handle of its own, exactly as "fused" is on
+    // FusedBedistor - the original registers both as adjectives (ADJECTIVE GOOD NINETY OHM,
+    // compone.zil:1419) and the Infocom parser resolves an unambiguous adjective with no head noun.
+    // The containment fallback in HasMatchingNoun cannot cover for a missing entry here: it asks
+    // whether the player's PHRASE contains one of our nouns, so "good" on its own matches nothing
+    // unless it is itself registered. That made "put good in cube" a dropped turn - no handler at
+    // all, and narrator prose in place of the bedistor swap. Keep the full name FIRST (Name is
+    // NounsForMatching.First(), and the printed name is the LONGEST entry, so a short handle is
+    // safe to add).
+    public override string[] NounsForMatching => ["good ninety-ohm bedistor", "bedistor", "ninety-ohm bedistor", "good bedistor", "good", "ninety-ohm", "90-ohm bedistor", "90-ohm"];
 
     public string OnTheGroundDescription(ILocation? currentLocation)
     {
