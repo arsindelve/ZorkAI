@@ -36,6 +36,13 @@ ApplySelfHostFlags(args);
 
 var settings = OpenAIEndpointSettings.FromEnvironment();
 
+// A custom endpoint on the console means "play entirely locally", so publish that as the explicit
+// ZORKAI_SELF_HOSTED opt-in the rest of the engine reads. Set here, in the composition root, rather
+// than having each consumer infer "no AWS" from the endpoint variables on its own — see
+// SelfHostedMode for why that inference is unsafe anywhere that gets deployed.
+if (settings.IsSelfHosted)
+    Environment.SetEnvironmentVariable(SelfHostedMode.EnvironmentVariableName, "true");
+
 // Self-hosted mode swaps every cloud dependency for a local one: file-based saves instead of
 // DynamoDB, a built-in narrator prompt instead of Secrets Manager, and a local conversation
 // classifier instead of the Lambda. Cloud mode is untouched.

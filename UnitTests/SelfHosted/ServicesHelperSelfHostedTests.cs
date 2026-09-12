@@ -27,6 +27,7 @@ public class ServicesHelperSelfHostedTests
     private string? _originalKey;
     private string? _originalProvider;
     private string? _originalSaveDir;
+    private string? _originalSelfHosted;
 
     [SetUp]
     public void SetUp()
@@ -37,6 +38,7 @@ public class ServicesHelperSelfHostedTests
         _originalProvider = Environment.GetEnvironmentVariable("ZORKAI_PROVIDER");
         _originalKey = Environment.GetEnvironmentVariable("OPEN_AI_KEY");
         _originalSaveDir = Environment.GetEnvironmentVariable(SelfHostedStorage.SaveDirectoryVariable);
+        _originalSelfHosted = Environment.GetEnvironmentVariable(SelfHostedMode.EnvironmentVariableName);
     }
 
     [TearDown]
@@ -46,11 +48,13 @@ public class ServicesHelperSelfHostedTests
         Environment.SetEnvironmentVariable("ZORKAI_PROVIDER", _originalProvider);
         Environment.SetEnvironmentVariable("OPEN_AI_KEY", _originalKey);
         Environment.SetEnvironmentVariable(SelfHostedStorage.SaveDirectoryVariable, _originalSaveDir);
+        Environment.SetEnvironmentVariable(SelfHostedMode.EnvironmentVariableName, _originalSelfHosted);
         Repository.Reset();
     }
 
     private static void GoSelfHosted()
     {
+        Environment.SetEnvironmentVariable(SelfHostedMode.EnvironmentVariableName, "true");
         Environment.SetEnvironmentVariable("OPENAI_BASE_URL", "http://localhost:11434/v1");
         Environment.SetEnvironmentVariable("ZORKAI_PROVIDER", null);
         Environment.SetEnvironmentVariable("OPEN_AI_KEY", null);
@@ -58,6 +62,7 @@ public class ServicesHelperSelfHostedTests
 
     private static void GoCloud()
     {
+        Environment.SetEnvironmentVariable(SelfHostedMode.EnvironmentVariableName, null);
         Environment.SetEnvironmentVariable("OPENAI_BASE_URL", null);
         Environment.SetEnvironmentVariable("ZORKAI_PROVIDER", null);
         Environment.SetEnvironmentVariable("OPEN_AI_KEY", "sk-not-a-real-key");
@@ -130,6 +135,68 @@ public class ServicesHelperSelfHostedTests
         Implementation<ISecretsManager>(services).Should().Be<AmazonSecretsManager>();
         Implementation<IParseConversation>(services).Should().Be<ParseConversation>();
         services.Should().Contain(d => d.ServiceType == typeof(Amazon.Lambda.IAmazonLambda));
+    }
+
+    [Test]
+    public void Should_KeepTheAwsStack_When_OnlyTheAiEndpointIsCustom()
+    {
+        // The production guarantee. OPENAI_BASE_URL is a generic name that gateways, proxies and
+        // Azure OpenAI all use, so pointing a DEPLOYED Lambda at one must not move every player's
+        // session and saved game from DynamoDB onto the function's ephemeral filesystem. Only the
+        // explicit ZORKAI_SELF_HOSTED opt-in may do that. See SelfHostedMode.
+        Environment.SetEnvironmentVariable(SelfHostedMode.EnvironmentVariableName, null);
+        Environment.SetEnvironmentVariable("OPENAI_BASE_URL", "https://my-openai-gateway.internal/v1");
+        Environment.SetEnvironmentVariable("OPEN_AI_KEY", "sk-not-a-real-key");
+
+        var services = new ServiceCollection();
+        services.AddLogging();
+        ServicesHelper.ConfigureCommonServices(services);
+
+        Implementation<ISessionRepository>(services).Should().Be<DynamoDbSessionRepository>();
+        Implementation<ISavedGameRepository>(services).Should().Be<DynamoDbSavedGameRepository>();
+        Implementation<ISecretsManager>(services).Should().Be<AmazonSecretsManager>();
+        Implementation<IParseConversation>(services).Should().Be<ParseConversation>();
+    }
+
+    [Test]
+    public void Should_KeepCloudLoggingOn_When_OnlyTheAiEndpointIsCustom()
+    {
+        Environment.SetEnvironmentVariable(SelfHostedMode.EnvironmentVariableName, null);
+        Environment.SetEnvironmentVariable("OPENAI_BASE_URL", "https://my-openai-gateway.internal/v1");
+        Environment.SetEnvironmentVariable("OPEN_AI_KEY", "sk-not-a-real-key");
+
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddScoped<ISecretsManager, LocalSecretsManager>();
+        services.AddScoped<IParseConversation, LocalParseConversation>();
+        ServicesHelper.ConfigureGameEngine<EscapeRoomGame, EscapeRoomContext>(services);
+        using var provider = services.BuildServiceProvider();
+
+        var engine = (GameEngine<EscapeRoomGame, EscapeRoomContext>)provider.GetRequiredService<IGameEngine>();
+
+        engine.CloudLoggingEnabled.Should().BeTrue();
+    }
+
+    [TestCase("true")]
+    [TestCase("TRUE")]
+    [TestCase("1")]
+    [TestCase("yes")]
+    [TestCase("on")]
+    public void Should_TreatAsSelfHosted_When_FlagIsAffirmative(string value)
+    {
+        SelfHostedMode.Resolve(_ => value).Should().BeTrue();
+    }
+
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase("  ")]
+    [TestCase("false")]
+    [TestCase("0")]
+    [TestCase("no")]
+    [TestCase("maybe")]
+    public void Should_TreatAsCloud_When_FlagIsAbsentOrNotAffirmative(string? value)
+    {
+        SelfHostedMode.Resolve(_ => value).Should().BeFalse();
     }
 
     [Test]
