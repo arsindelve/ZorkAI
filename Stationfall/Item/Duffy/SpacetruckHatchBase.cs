@@ -37,6 +37,8 @@ public abstract class SpacetruckHatchBase : OpenAndCloseContainerBase, ICanBeExa
     public string ExaminationDescription =>
         $"A broad loading hatch in the side of the spacetruck. It is {(IsOpen ? "open" : "closed")}. ";
 
+    public override string CannotBeTakenDescription => "The hatch is part of the spacetruck. ";
+
     // No backing field and nothing to serialize here: the flag belongs to the holder, which is
     // serialized in its own right. This must be Newtonsoft's JsonIgnore, not System.Text.Json's - saves
     // go through JsonConvert (GameEngine.SaveGame), which ignores the STJ attribute entirely and would

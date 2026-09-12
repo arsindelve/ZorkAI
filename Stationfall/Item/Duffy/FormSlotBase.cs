@@ -22,6 +22,8 @@ public abstract class FormSlotBase : ContainerBase, ICanBeExamined
     public virtual string ExaminationDescription =>
         "A narrow slot, exactly wide enough to swallow a standard Patrol form. ";
 
+    public override string CannotBeTakenDescription => "The slot is part of the wall. ";
+
     /// <summary>
     ///     The form this particular slot is willing to accept, or null if it accepts none.
     /// </summary>

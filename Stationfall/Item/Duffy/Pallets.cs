@@ -18,6 +18,10 @@ public class Pallets : ItemBase, ICanBeExamined, ICanBeRead
         "Row upon row of pallets, stacked to the ceiling with identical boxes. Each box has something " +
         "stamped on the side. ";
 
+    public override string CannotBeTakenDescription =>
+        "A pallet of boxed forms is a job for a forklift, and the Patrol has not seen fit to issue " +
+        "you one. ";
+
     public string ReadDescription =>
         "The nearer boxes are labelled with the names of forms: a form for disbursing form pallets, a " +
         "form for reporting the loss of a form pallet label, and a form for releasing that report. ";

@@ -85,6 +85,16 @@ public abstract class ShipRobot : ContainerBase, ICanBeExamined, ITurnBasedActor
 
     public abstract string ExaminationDescription { get; }
 
+    /// <summary>
+    ///     Spelled out here and not only in the physical-verb branch of
+    ///     <see cref="RespondToSimpleInteraction" />: a take never runs that branch — the engine routes
+    ///     it to the take processor, which consults this and nothing else (issue #577).
+    /// </summary>
+    public override string CannotBeTakenDescription =>
+        IsWithinReach
+            ? $"{Name} is a colleague, not a piece of luggage. "
+            : $"You can't reach {Name} from here. ";
+
     protected override int SpaceForItems => 5;
 
     /// <summary>

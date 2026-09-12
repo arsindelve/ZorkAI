@@ -894,4 +894,96 @@ public class TakeProcessorTests : EngineTestsBase
         result.Should().Contain("Taken");
         target.Context.HasItem<NastyKnife>().Should().BeTrue();
     }
+
+    /// <summary>
+    ///     Issue #577: inert scenery answers "take" only when the parser happens to produce a
+    ///     SimpleIntent. Production's real AI parser tags the canonical "take &lt;noun&gt;" as a
+    ///     TakeIntent, which GameEngine dispatches straight to
+    ///     TakeOrDropInteractionProcessor.Process(TakeIntent, ...) — a path that resolves real items
+    ///     only and hands anything else to the narrator. So the authored CannotBeTakenReason existed,
+    ///     was correct, and was unreachable through the one verb players actually type: "get house"
+    ///     answered, "take house" got improvised prose. These drive the TakeIntent overload directly,
+    ///     exactly as GameEngine.cs does (same technique as the issue #342 tests above).
+    /// </summary>
+    [Test]
+    public async Task TakeScenery_ViaTakeIntent_GivesTheAuthoredRefusal()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<NorthOfHouse>();
+
+        var processor = new TakeOrDropInteractionProcessor(TakeAndDropParser.Object);
+        var (_, message) = await processor.Process(
+            new TakeIntent { Noun = "house", OriginalInput = "take house" }, target.Context, Client.Object);
+
+        message.Should().Contain("You can't take a house with you.");
+    }
+
+    [TestCase("take")]
+    [TestCase("get")]
+    [TestCase("grab")]
+    [TestCase("pick up")]
+    [TestCase("hold")]
+    [TestCase("acquire")]
+    [TestCase("snatch")]
+    [TestCase("carry")]
+    public async Task TakeScenery_EveryTakeVerb_GivesTheSameAuthoredRefusal(string verb)
+    {
+        // The whole point of the fix: which of the two intent shapes a phrasing lands in is decided by
+        // the live parser and varies by noun, so every verb in the family must produce the same answer
+        // whichever way it is classified. The verbs are deliberately spelled out rather than sourced
+        // from Verbs.TakeVerbs - a self-referential list would shrink in lockstep with a removed
+        // synonym and hide the regression (same reasoning as CannotBeTaken_CoversTheWholeTakeVerbFamily).
+        var target = GetTarget();
+        var location = Repository.GetLocation<NorthOfHouse>();
+        target.Context.CurrentLocation = location;
+
+        var viaSimpleIntent = await location.RespondToSimpleInteraction(
+            new SimpleIntent { Verb = verb, Noun = "house", OriginalInput = $"{verb} house" },
+            target.Context, Client.Object, new ItemProcessorFactory(TakeAndDropParser.Object));
+
+        var processor = new TakeOrDropInteractionProcessor(TakeAndDropParser.Object);
+        var (_, viaTakeIntent) = await processor.Process(
+            new TakeIntent { Noun = "house", OriginalInput = $"{verb} house" }, target.Context, Client.Object);
+
+        viaSimpleIntent.InteractionMessage.Should().Contain("You can't take a house with you.");
+        viaTakeIntent.Should().Contain("You can't take a house with you.");
+    }
+
+    [Test]
+    public async Task TakeScenery_ViaTakeIntent_WhenARealItemSharesTheNoun_TakesTheItemInstead()
+    {
+        // Scenery is matched only after real items on the SimpleIntent path; the TakeIntent path must
+        // keep that ordering, or declaring scenery anywhere could shadow a genuine takeable object.
+        var target = GetTarget();
+        var location = Repository.GetLocation<NorthOfHouse>();
+        target.Context.CurrentLocation = location;
+        location.ItemPlacedHere(Repository.GetItem<Leaflet>());
+
+        var processor = new TakeOrDropInteractionProcessor(TakeAndDropParser.Object);
+        var (_, message) = await processor.Process(
+            new TakeIntent { Noun = "leaflet", OriginalInput = "take leaflet" }, target.Context, Client.Object);
+
+        message.Should().Contain("Taken");
+        target.Context.HasItem<Leaflet>().Should().BeTrue();
+    }
+
+    [Test]
+    public async Task TakeScenery_ViaTakeIntent_InADarkRoom_SaysTooDark()
+    {
+        // Scenery is a thing you can see, not a thing you can feel for: the SimpleIntent path never
+        // reaches the scenery branch in the dark (SimpleInteractionEngine's darkness guard fires
+        // first), so the TakeIntent path must not describe the Torch Room's railing to a player
+        // standing in the pitch black either.
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<TorchRoom>();
+
+        target.Context.ItIsDarkHere.Should().BeTrue();
+
+        var processor = new TakeOrDropInteractionProcessor(TakeAndDropParser.Object);
+        var (_, message) = await processor.Process(
+            new TakeIntent { Noun = "railing", OriginalInput = "take railing" }, target.Context, Client.Object);
+
+        message.Should().Contain("too dark");
+        message.Should().NotContain("twenty feet up");
+    }
 }
