@@ -362,7 +362,12 @@
     // Stationfall's form slots. The dynamic put-X-in-Y rule only handles the four-word shape, so the
     // full form titles the game teaches the player need explicit mappings.
     { "inputs": ["put robot use authorization form in slot", "insert robot use authorization form in slot"], "verb": "put", "nounOne": "robot use authorization form", "nounTwo": "slot", "preposition": "in", "originalInput": "put robot use authorization form in slot" },
-    { "inputs": ["put class three activation form in slot", "put class three spacecraft activation form in slot"], "verb": "put", "nounOne": "class three spacecraft activation form", "nounTwo": "slot", "preposition": "in", "originalInput": "put class three activation form in slot" },
+    // Split deliberately (issue #568): one entry covering both phrasings had to pick ONE nounOne, so it
+    // rewrote "class three activation form" into the full title before the form ever saw it. That hid a
+    // real gap in the form's noun list - the walkthrough row passed while production failed on the very
+    // phrasing the walkthrough documents. Each phrasing now passes through the noun the player typed.
+    { "inputs": ["put class three activation form in slot"], "verb": "put", "nounOne": "class three activation form", "nounTwo": "slot", "preposition": "in", "originalInput": "put class three activation form in slot" },
+    { "inputs": ["put class three spacecraft activation form in slot"], "verb": "put", "nounOne": "class three spacecraft activation form", "nounTwo": "slot", "preposition": "in", "originalInput": "put class three spacecraft activation form in slot" },
     { "inputs": ["put assignment completion form in slot", "insert assignment completion form in slot"], "verb": "put", "nounOne": "assignment completion form", "nounTwo": "slot", "preposition": "in", "originalInput": "put assignment completion form in slot" },
 
     // Stationfall: handing a form to one of the Duffy's robots. "give" is not one of the test parser's

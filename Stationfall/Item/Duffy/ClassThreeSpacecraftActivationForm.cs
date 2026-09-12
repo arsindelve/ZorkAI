@@ -13,8 +13,8 @@ public class ClassThreeSpacecraftActivationForm : FormBase
     // "activation" is the unique single-word handle for this form; see RobotUseAuthorizationForm.
     public override string[] NounsForMatching =>
     [
-        "activation", "class three spacecraft activation form", "spacecraft activation form", "activation form",
-        "spacecraft form", "class three form", "hb-56-v", "form"
+        "activation", "class three spacecraft activation form", "class three activation form", "spacecraft activation form", "activation form", "spacecraft form", "class three form",
+        "hb-56-v", "form"
     ];
 
     public override string ReadDescription =>
