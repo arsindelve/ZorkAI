@@ -243,6 +243,109 @@ public class LiveParserShapeTests : EngineTestsBase
         Context.CurrentLocation.Should().BeOfType<UpperElevator>();
     }
 
+    /// <summary>
+    ///     Issue #580. PR #573 fixed the shape above and shipped in 2.11.0, yet "enter door" in the
+    ///     Elevator Lobby still answered "You cannot go that way." on 14 of 14 production trials while
+    ///     its mirror "exit door" reached the question. That asymmetry pins the shape gpt-4o really
+    ///     emits: "exit the boat" is an in-prompt example that KEEPS its noun, but nothing in the
+    ///     prompt shows "enter &lt;thing&gt;" as a board, so the model reads bare "enter door" as a pure
+    ///     DIRECTION move - rule 1a lists "in" as a relative direction and rule 5 lists the literal
+    ///     word "enter" - and a direction has no object, so it emits no &lt;noun&gt; at all. With the
+    ///     object gone, MoveEngine.TryBoardTheNamedObject has nothing to look up and the lobby's
+    ///     missing In exit produces the flat refusal. The other two candidate causes are ruled out by
+    ///     the same report: "examine door" asks the question in this room, so the noun IS resolvable in
+    ///     scope; and a direction that failed to resolve would have gone to destination navigation
+    ///     ("You can't get there from here."), not to MoveEngine's refusal. The player named the door -
+    ///     recover it from their own words.
+    /// </summary>
+    [Test]
+    public async Task EnterADoor_WhenTheParserDropsTheNounEntirely_StillAsksWhichDoor()
+    {
+        var target = GetTarget(ParserReturning("""
+                                               <intent>move</intent>
+                                               <verb>enter</verb>
+                                               <direction>enter</direction>
+                                               """));
+        StartHere<ElevatorLobby>();
+
+        var response = await target.GetResponse("enter door");
+
+        response.Should().Contain("Do you mean");
+        response.Should().Contain("upper elevator door");
+        response.Should().Contain("lower elevator door");
+        Context.CurrentLocation.Should().BeOfType<ElevatorLobby>();
+    }
+
+    /// <summary>
+    ///     Issue #580, the same dropped noun with the direction tagged as the word "in" rather than
+    ///     "enter". Both spellings are on rule 5's list and both resolve to Direction.In, so the
+    ///     recovery must not depend on which one the model happened to pick.
+    /// </summary>
+    [Test]
+    public async Task EnterADoor_WhenTheParserDropsTheNounAndTagsTheDirectionIn_StillAsksWhichDoor()
+    {
+        var target = GetTarget(ParserReturning("""
+                                               <intent>move</intent>
+                                               <verb>enter</verb>
+                                               <direction>in</direction>
+                                               """));
+        StartHere<ElevatorLobby>();
+
+        var response = await target.GetResponse("enter door");
+
+        response.Should().Contain("Do you mean");
+        response.Should().Contain("upper elevator door");
+        response.Should().Contain("lower elevator door");
+        Context.CurrentLocation.Should().BeOfType<ElevatorLobby>();
+    }
+
+    /// <summary>
+    ///     Issue #580's decisive discriminator, reproduced: the Upper Elevator has exactly ONE door in
+    ///     scope, so nothing here is about disambiguation - with the object recovered, "enter door"
+    ///     walks through the door the way "go through door" always did, instead of refusing.
+    /// </summary>
+    [Test]
+    public async Task EnterADoor_WhenTheParserDropsTheNoun_StillWalksThroughTheOnlyDoorInTheRoom()
+    {
+        var target = GetTarget(ParserReturning("""
+                                               <intent>move</intent>
+                                               <verb>enter</verb>
+                                               <direction>enter</direction>
+                                               """));
+        StartHere<UpperElevator>();
+        GetItem<UpperElevatorDoor>().IsOpen = true;
+        GetLocation<UpperElevator>().InLobby = true;
+
+        var response = await target.GetResponse("enter door");
+
+        response.Should().NotContain("cannot go that way");
+        Context.CurrentLocation.Should().BeOfType<ElevatorLobby>();
+    }
+
+    /// <summary>
+    ///     Issue #580, point 5: even the half that worked was model-dependent - "exit door" produced
+    ///     the question on only 1 of 5 production trials. The same dropped noun is the shape behind the
+    ///     trial that refused, and the same recovery fixes it, so neither half depends on which bucket
+    ///     the model picks.
+    /// </summary>
+    [Test]
+    public async Task ExitADoor_WhenTheParserDropsTheNounEntirely_StillAsksWhichDoor()
+    {
+        var target = GetTarget(ParserReturning("""
+                                               <intent>move</intent>
+                                               <verb>exit</verb>
+                                               <direction>exit</direction>
+                                               """));
+        StartHere<ElevatorLobby>();
+
+        var response = await target.GetResponse("exit door");
+
+        response.Should().Contain("Do you mean");
+        response.Should().Contain("upper elevator door");
+        response.Should().Contain("lower elevator door");
+        Context.CurrentLocation.Should().BeOfType<ElevatorLobby>();
+    }
+
     [Test]
     public async Task TakeWithATool_WhenTheParserBucketsItAsATake_StillRemovesTheFusedBedistor()
     {

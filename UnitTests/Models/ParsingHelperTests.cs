@@ -923,6 +923,113 @@ public class ParsingHelperTests
     }
 
     [Test]
+    public void GetIntent_WithEnterANoun_ButNoNounTag_RecoversTheObjectFromThePlayersOwnWords()
+    {
+        // Issue #580. "enter <thing>" is a board command, but rule 1a calls "in" a relative direction
+        // and rule 5 lists the literal word "enter", so gpt-4o buckets bare "enter door" as a pure
+        // DIRECTION move - and a direction has no object, so it drops the <noun> tag entirely. Without
+        // the object, MoveEngine.TryBoardTheNamedObject (issue #551) has nothing to look up and a room
+        // with no In exit answers "You cannot go that way." The player named the door; read it back out
+        // of their sentence.
+        var input = "enter door";
+        var response = @"<intent>move</intent>
+<verb>enter</verb>
+<direction>enter</direction>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<MoveIntent>();
+        (result as MoveIntent)?.Direction.Should().Be(Direction.In);
+        (result as MoveIntent)?.Noun.Should().Be("door");
+    }
+
+    [Test]
+    public void GetIntent_WithExitANoun_ButNoNounTag_RecoversTheObjectFromThePlayersOwnWords()
+    {
+        // Issue #580, the mirror half: the same dropped noun in Direction.Out.
+        var input = "exit the pod";
+        var response = @"<intent>move</intent>
+<verb>exit</verb>
+<direction>out</direction>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<MoveIntent>();
+        (result as MoveIntent)?.Direction.Should().Be(Direction.Out);
+        (result as MoveIntent)?.Noun.Should().Be("pod");
+    }
+
+    [Test]
+    public void GetIntent_WithGetInTheNoun_ButNoNounTag_RecoversTheObjectWithoutItsPreposition()
+    {
+        // Issue #580. The other phrasings that reach Direction.In carry a preposition the noun must
+        // not swallow: "get in the boat" is the boat, not "in the boat".
+        var input = "get in the boat";
+        var response = @"<intent>move</intent>
+<verb>get</verb>
+<direction>in</direction>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<MoveIntent>();
+        (result as MoveIntent)?.Direction.Should().Be(Direction.In);
+        (result as MoveIntent)?.Noun.Should().Be("boat");
+    }
+
+    [TestCase("go in")]
+    [TestCase("go out")]
+    [TestCase("enter")]
+    public void GetIntent_WithABareDirectionalMove_RecoversNoNoun(string input)
+    {
+        // Issue #580 guard: the player named no object, so there is nothing to recover. The direction
+        // word itself is not a noun - handing "in"/"out" to MoveEngine as one would have it hunt the
+        // room for an item by that name.
+        var response = @"<intent>move</intent>
+<verb>go</verb>
+<direction>" + (input.EndsWith("out") ? "out" : "in") + @"</direction>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<MoveIntent>();
+        (result as MoveIntent)?.Noun.Should().BeNullOrEmpty();
+    }
+
+    [Test]
+    public void GetIntent_WithACardinalMove_AndNoNounTag_RecoversNothing()
+    {
+        // Issue #580 guard: recovery is only for the In/Out directions the words "enter"/"exit"
+        // produce. A cardinal move has no board/disembark meaning to fall back to, so it must stay
+        // exactly the plain move it has always been.
+        var input = "go north to the kitchen";
+        var response = @"<intent>move</intent>
+<verb>go</verb>
+<direction>north</direction>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<MoveIntent>();
+        (result as MoveIntent)?.Direction.Should().Be(Direction.N);
+        (result as MoveIntent)?.Noun.Should().BeNullOrEmpty();
+    }
+
+    [Test]
+    public void GetIntent_WithEnterANoun_AndATaggedNoun_KeepsTheParsersNoun()
+    {
+        // Issue #580 guard: recovery only fills a GAP. When the model did tag the object - the shape
+        // PR #573 was built against - that tag still wins.
+        var input = "enter the blue door";
+        var response = @"<intent>move</intent>
+<verb>enter</verb>
+<noun>blue door</noun>
+<direction>enter</direction>";
+
+        var result = ParsingHelper.GetIntent(input, response, _loggerMock?.Object);
+
+        result.Should().BeOfType<MoveIntent>();
+        (result as MoveIntent)?.Noun.Should().Be("blue door");
+    }
+
+    [Test]
     public void GetIntent_TakeIntentPriorityOverDropIntent()
     {
         // Arrange - take should match before other intents
