@@ -202,6 +202,31 @@ The same settings work as environment variables (`ZORKAI_PROVIDER`, `OPENAI_BASE
 A fully deterministic **classic mode** — no LLM at all, with the parser and characters behaving
 exactly as they did in the 1983 originals — is planned as a follow-up (see issue #383 discussion).
 
+### Running the game backends locally, 24/7
+
+The same de-clouding applies to the four HTTP backends, so you can keep all of them running on your
+own machine with no AWS account and no OpenAI key:
+
+```bash
+ollama pull qwen3:14b        # or any capable instruct model
+docker compose up -d --build
+```
+
+| Game | Endpoint |
+|------|----------|
+| Zork One | `http://localhost:5100/ZorkOne` |
+| Planetfall | `http://localhost:5101/Planetfall` |
+| Escape Room | `http://localhost:5102/EscapeRoom` |
+| Stationfall | `http://localhost:5103/Stationfall` |
+
+`restart: unless-stopped` brings them back after a reboot, and sessions and saved games live on a
+named volume, so state survives rebuilds and restarts. By default the containers use an Ollama
+already running on your host; set `OPENAI_BASE_URL` and `OPENAI_MODEL` to point anywhere else, or
+run `docker compose --profile bundled-ollama up -d` to get a containerized Ollama instead.
+
+Remember that the model is doing the parsing: with nothing listening at the endpoint, movement and
+the global commands still work, but anything needing the AI parser will not.
+
 ---
 
 ## Why This Exists

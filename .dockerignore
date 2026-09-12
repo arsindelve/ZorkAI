@@ -1,0 +1,38 @@
+# Keeps the Docker build context small. Without this the context is ~2.5 GB (node_modules alone is
+# ~467 MB, and bin/obj across the solution is most of the rest), all of which is copied to the daemon
+# on every build.
+#
+# IMPORTANT: do NOT exclude the *.Tests projects. Planetfall.csproj embeds
+# ../Planetfall.Tests/Walkthrough/WalkthroughTestOne.cs as a resource for the hint knowledge base, so
+# excluding test projects breaks the Planetfall build with a missing-file error.
+
+# Build output — rebuilt inside the image, and host output would be the wrong RID anyway.
+**/bin
+**/obj
+
+# Web clients: the backends don't build them, and node_modules is the single biggest directory here.
+**/node_modules
+**/dist
+**/playwright-report
+**/test-artifacts
+
+# Git history and tooling state.
+.git
+.github
+.claude
+.agents
+.idea
+.vs
+
+# ZIL reference checkouts — gitignored, reference-only, and not part of any build.
+zork1
+planetfall-source
+
+# Local editor/user state.
+**/*.user
+**/*.DotSettings.user
+
+# Docker's own files.
+**/.dockerignore
+docker-compose*.yml
+compose*.yaml
