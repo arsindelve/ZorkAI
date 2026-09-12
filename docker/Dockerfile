@@ -24,6 +24,11 @@ RUN dotnet publish Lambda/src/Lambda                               $PUBLISH_ARGS
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
+# The explicit opt-in that swaps DynamoDB/Secrets Manager/CloudWatch for local equivalents. It is a
+# dedicated variable rather than something inferred from OPENAI_BASE_URL on purpose: see
+# GameEngine/Web/SelfHostedMode.cs. Set here because this image exists only to run locally.
+ENV ZORKAI_SELF_HOSTED=true
+
 # Self-hosted play writes session state and saved games to disk instead of DynamoDB. This must be a
 # mounted volume in compose — left inside the container, every session dies with it.
 ENV ZORKAI_SAVE_DIR=/data

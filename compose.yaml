@@ -17,6 +17,10 @@ x-backend: &backend
   # key, so each service declares its own with the target that selects its game.
   restart: unless-stopped
   environment: &backend-env
+    # Already set in the image; repeated here because it is the switch that makes these containers
+    # AWS-free, and it should be visible where someone reads the config rather than only in the
+    # Dockerfile. Never inferred from OPENAI_BASE_URL — see GameEngine/Web/SelfHostedMode.cs.
+    ZORKAI_SELF_HOSTED: "true"
     # Any OpenAI-compatible server. Defaults to an Ollama already running on the host — the machine
     # this was developed on had one with a model pulled, and re-downloading several GB into a
     # container volume to reach the same place is waste. To use the bundled sidecar instead, run
