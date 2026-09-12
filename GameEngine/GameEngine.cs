@@ -53,6 +53,13 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     private bool _lastResponseWasGenerated;
     private IStatefulProcessor? _processorInProgress;
     private ICloudWatchLogger<TurnLog>? _turnLogger;
+
+    // Turn-log diagnostics (issue #578), reset at the top of every sentence and read by
+    // PostProcessing. The intent shape stays null on the paths that never reach the parser; the
+    // terminal path starts at Handled and is narrowed by whichever branch actually ends the turn.
+    private string? _parsedIntent;
+    private TurnTerminalPath _terminalPath = TurnTerminalPath.Handled;
+
     public TContext Context { get; private set; }
 
     /// <summary>
@@ -274,6 +281,12 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         // playing" guarantee (issue #271).
         ClearProcessorInProgress();
 
+        // Set before either log is written so both this turn's explicit error entry AND the ordinary
+        // entry SafePostProcess writes below agree on how the turn ended (issue #578). Whatever
+        // branch was mid-flight when the exception was thrown never got to finish, so its own
+        // classification would be a lie.
+        _terminalPath = TurnTerminalPath.EngineError;
+
         _logger?.LogError(ex,
             "Unhandled exception during turn processing for input '{Input}'. TurnCorrelationId: {TurnCorrelationId}",
             _currentInput, _turnCorrelationId);
@@ -289,7 +302,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
                 Score = Context.Score,
                 Moves = Context.Moves,
                 Input = _currentInput ?? string.Empty,
-                Response = $"ENGINE ERROR ({_turnCorrelationId}): {ex}"
+                Response = $"ENGINE ERROR ({_turnCorrelationId}): {ex}",
+                ParsedIntent = _parsedIntent,
+                TerminalPath = _terminalPath
             });
         }
         catch (Exception loggingEx)
@@ -427,6 +442,11 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     {
         _currentInput = playerInput;
 
+        // Each sentence of a multi-sentence input writes its own TurnLog, so the diagnostics reset
+        // per sentence, not per top-level call (issue #578).
+        _parsedIntent = null;
+        _terminalPath = TurnTerminalPath.Handled;
+
         // 1. ------- Processor in Progress -
         // See if we have something already running like a save, quit, etc.
         // and see if it has any output.  Does not count as a turn. No actor or turn processing.
@@ -462,6 +482,7 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var systemCommand = _parser.DetermineSystemIntentType(playerInput);
         if (systemCommand is GlobalCommandIntent global)
         {
+            _parsedIntent = IntentShapeDescriber.Describe(global);
             var globalResult = await ProcessGlobalCommandIntent(global);
             return PostProcessing(globalResult);
         }
@@ -609,6 +630,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         var simpleIntent = earlyGlobalIntent;
         if (simpleIntent is not null)
         {
+            _parsedIntent = IntentShapeDescriber.Describe(simpleIntent);
+
             var resultMessage = simpleIntent switch
             {
                 GlobalCommandIntent intent => await ProcessGlobalCommandIntent(intent),
@@ -888,15 +911,16 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     {
         _logger?.LogDebug($"Input was parsed as {parsedResult.GetType().Name}");
 
-        // TODO: why does this return an interaction result and a result message? This feels vestigial. 
+        // The Debug line above is not retained in production, which is exactly what made issue #540's
+        // parser-shape defects so expensive to find. Record the shape on the turn log instead (#578).
+        _parsedIntent = IntentShapeDescriber.Describe(parsedResult);
+
+        // TODO: why does this return an interaction result and a result message? This feels vestigial.
         var complexIntentResult = parsedResult switch
         {
             GlobalCommandIntent intent => (null, await ProcessGlobalCommandIntent(intent)),
 
-            NullIntent => (
-                null,
-                await GetGeneratedNoOpResponse(_currentInput!, GenerationClient, Context)
-            ),
+            NullIntent => (null, await ProcessNullIntent()),
 
             InventoryIntent => (null, await new InventoryProcessor().Process("", Context, GenerationClient, Runtime.Unknown)),
             
@@ -938,25 +962,57 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
             DropIntent dropIntent => await new TakeOrDropInteractionProcessor(_openAITakeAndDropListParser).Process(
                 dropIntent, Context, GenerationClient),
             
-            SimpleIntent simpleInteraction => await new SimpleInteractionEngine(_itemProcessorFactory).Process(
-                simpleInteraction,
-                Context,
-                GenerationClient
-            ),
+            SimpleIntent simpleInteraction => await ProcessSimpleIntent(simpleInteraction),
 
-            MultiNounIntent multiInteraction => await new MultiNounEngine().Process(
-                multiInteraction,
-                Context,
-                GenerationClient
-            ),
+            MultiNounIntent multiInteraction => await ProcessMultiNounIntent(multiInteraction),
 
-            _ => (null, await GetGeneratedNoOpResponse(_currentInput!, GenerationClient, Context))
+            _ => (null, await ProcessUnmatchedIntent())
         };
 
         if (complexIntentResult.resultObject is DisambiguationInteractionResult complexResult)
             ArmDisambiguation(complexResult);
 
         return complexIntentResult;
+    }
+
+    // The four wrappers below exist so the dispatch switch above can record which branch ended the
+    // turn (issue #578). A switch *expression* arm cannot assign a field, and classifying the intent
+    // in a second switch beside the first would be a trap: adding an intent type to one and not the
+    // other would silently mislabel every turn of that type.
+
+    private async Task<(InteractionResult? resultObject, string ResultMessage)> ProcessSimpleIntent(
+        SimpleIntent simpleInteraction)
+    {
+        var engine = new SimpleInteractionEngine(_itemProcessorFactory);
+        var result = await engine.Process(simpleInteraction, Context, GenerationClient);
+        _terminalPath = engine.TerminalPath;
+        return result;
+    }
+
+    private async Task<(InteractionResult? resultObject, string ResultMessage)> ProcessMultiNounIntent(
+        MultiNounIntent multiInteraction)
+    {
+        var engine = new MultiNounEngine();
+        var result = await engine.Process(multiInteraction, Context, GenerationClient);
+        _terminalPath = engine.TerminalPath;
+        return result;
+    }
+
+    /// <summary>The parser could not produce any usable shape from the input.</summary>
+    private async Task<string> ProcessNullIntent()
+    {
+        _terminalPath = TurnTerminalPath.NullIntent;
+        return await GetGeneratedNoOpResponse(_currentInput!, GenerationClient, Context);
+    }
+
+    /// <summary>
+    ///     The parser produced an intent type the dispatch switch has no arm for. Nothing routes here
+    ///     today; if it ever does, the turn log is what will say so.
+    /// </summary>
+    private async Task<string> ProcessUnmatchedIntent()
+    {
+        _terminalPath = TurnTerminalPath.UnmatchedIntentType;
+        return await GetGeneratedNoOpResponse(_currentInput!, GenerationClient, Context);
     }
 
     private async Task<string> ProcessActorsAndContextEndOfTurn(string? contextPrepend, string? turnResult,
@@ -1012,7 +1068,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
                 Score = Context.Score,
                 Moves = Context.Moves,
                 Input = _currentInput,
-                Response = finalResult.Trim()
+                Response = finalResult.Trim(),
+                ParsedIntent = _parsedIntent,
+                TerminalPath = _terminalPath
             });
 
         if (!string.IsNullOrEmpty(finalResult))
