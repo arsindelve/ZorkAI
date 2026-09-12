@@ -95,6 +95,39 @@ public class BlueSoup : ItemBase, ICanBeExamined, ICanBeEaten, ITurnBasedActor
         Warmth = Math.Max(0, Warmth - degrees);
     }
 
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action,
+        IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
+    {
+        if (action.MatchNounAndAdjective(NounsForMatching))
+        {
+            // Touching or tasting it reports the temperature - which is the only reason the
+            // temperature exists (ship.zil SOUP-F).
+            if (action.MatchVerb(["touch", "taste", "feel", "reach in", "reach into"]))
+                return new PositiveInteractionResult(ExaminationDescription);
+
+            if (action.MatchVerb(["pour", "empty", "pour out", "dump", "spill"]))
+                return new PositiveInteractionResult(SpillIt());
+        }
+
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+    }
+
+    /// <summary>
+    ///     Tips the soup out wherever you are standing. It is gone for good.
+    /// </summary>
+    public string SpillIt()
+    {
+        var thermos = Repository.GetItem<Thermos>();
+
+        if (thermos.Items.Contains(this))
+            thermos.RemoveItem(this);
+
+        CurrentLocation = null;
+
+        return "You tip the soup out. It spreads across the deck in a wide blue disc, and the smell of " +
+               "blueberries fills the place. ";
+    }
+
     public (string Message, bool WasConsumed) OnEating(IContext context)
     {
         if (context is StationfallContext stationfallContext)

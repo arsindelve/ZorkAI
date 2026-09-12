@@ -31,15 +31,42 @@ public abstract class SpacetruckExteriorBase : ItemBase, ICanBeExamined
         return string.Empty;
     }
 
+    private static string OperateHatch(bool open, IContext context)
+    {
+        var hatch = Repository.GetItem<SpacetruckHatch>();
+
+        if (hatch.IsOpen == open)
+            return open ? "It is already open. " : "It is already closed. ";
+
+        var refusal = open ? hatch.CannotBeOpenedDescription(context) : null;
+        if (refusal is not null)
+            return refusal;
+
+        hatch.IsOpen = open;
+        return open ? hatch.NowOpen(context.CurrentLocation) : hatch.NowClosed(context.CurrentLocation);
+    }
+
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action,
         IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.MatchNounAndAdjective(NounsForMatching))
         {
             // Opening "the truck" means opening its hatch; there is nothing else on it to open.
-            if (action.MatchVerb(["open", "close", "shut", "unseal"]))
-                return await Repository.GetItem<SpacetruckHatch>()
-                    .RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+            // Acting on the hatch directly rather than forwarding the intent: the intent names the
+            // truck, which the hatch does not answer to, so forwarding it just fell through to the
+            // narrator - the very gap the sweep caught.
+            if (action.MatchVerb(["open", "unseal"]))
+                return new PositiveInteractionResult(OperateHatch(true, context));
+
+            if (action.MatchVerb(["close", "shut"]))
+                return new PositiveInteractionResult(OperateHatch(false, context));
+
+            if (action.MatchVerb(["search", "look in", "look inside"]))
+                return new PositiveInteractionResult(
+                    Repository.GetItem<SpacetruckHatch>().IsOpen
+                        ? "Through the open hatch you can see two seats and an empty cargo section. "
+                        : "The hatch is closed, and the viewport shows you nothing but your own " +
+                          "reflection. ");
 
             if (action.MatchVerb(["launch", "start", "drive", "fly", "turn on"]))
                 return new PositiveInteractionResult("You're not even in it! ");

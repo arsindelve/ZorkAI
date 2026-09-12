@@ -28,7 +28,10 @@ public class TestParser : IntentParser
             "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate", "search",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind", "kick", "deflate",
             "lower", "raise", "get", "carry", "inflate", "leave", "unlock", "lock", "climb", "extend", "lift", "shake",
-            "oil", "lubricate", "cross", "through", "go", "break", "smash", "squeeze", "attack", "kill", "salute"
+            "oil", "lubricate", "cross", "through", "go", "break", "smash", "squeeze", "attack", "kill", "salute",
+            // Ordinary verbs the originals answer for that this parser could not see at all, so any
+            // object handling them looked unimplemented under test while working in play.
+            "pour", "crumple", "taste", "destroy"
         ];
 
         _allNouns = Repository.GetNouns(gameName);
