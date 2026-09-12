@@ -302,7 +302,7 @@ public static class ParsingHelper
         return new GoToDestinationIntent { Destination = nouns.First(), Message = response };
     }
 
-    private static IntentBase? DetermineMoveIntent(string? response)
+    private static IntentBase? DetermineMoveIntent(string? response, string originalInput)
     {
         var intentTag = ExtractElementsByTag(response, "intent").SingleOrDefault();
         if (string.IsNullOrEmpty(intentTag))
@@ -326,7 +326,20 @@ public static class ParsingHelper
         // there is no exit that way at all.
         var direction = DirectionParser.ParseDirection(directionTag ?? string.Empty);
         if (direction != Direction.Unknown)
+        {
+            // Issue #580: and when it buckets the command that way, it often drops the object too. A
+            // DIRECTION has no object, so having decided "enter door" is a move, the model emits no
+            // <noun> at all - which left the #551 recovery below with nothing to look up, and the
+            // Elevator Lobby still answering "You cannot go that way." after 2.11.0 shipped. Only the
+            // enter half broke because "exit the boat" is one of the system prompt's own examples and
+            // keeps its noun, while no example shows "enter <thing>" as a board. The player named the
+            // thing, so read it back out of their own sentence, exactly as the noun and preposition
+            // recoveries for issue #538 do.
+            if (string.IsNullOrWhiteSpace(noun) && direction is Direction.In or Direction.Out)
+                noun = RecoverBoardingNounFromInput(originalInput);
+
             return new MoveIntent { Direction = direction, Noun = noun, Message = response };
+        }
 
         // Issue #268 deterministic safety net: the model tagged this "move" but the direction did not
         // resolve to a real direction (typically "other"). If it also named a place, the player wants
@@ -336,6 +349,37 @@ public static class ParsingHelper
             : new GoToDestinationIntent { Destination = noun, Message = response };
     }
     
+    /// <summary>
+    ///     Issue #580. Reads the object of an "enter &lt;thing&gt;" / "exit &lt;thing&gt;" command out of
+    ///     the player's own input, for the turns where the AI parser bucketed it as a bare directional
+    ///     move and tagged no &lt;noun&gt; at all. Returns null when there was no object to recover.
+    /// </summary>
+    /// <remarks>
+    ///     Keyed off the player's LEADING word rather than the &lt;verb&gt; tag, because this shape is
+    ///     precisely the one where the model has stopped describing the command as a verb plus an
+    ///     object - it may tag the direction word as the verb, or emit no verb at all.
+    ///     <para>
+    ///         A recovered noun that is itself a direction is discarded: "go in" and "out" name no
+    ///         object, and handing one to <c>MoveEngine</c> would have it hunt the room for an item
+    ///         called "in". Everything else is still checked against what is actually in scope there
+    ///         before it can change the turn, so the worst this can do is recover a word that resolves
+    ///         to nothing and leave the refusal exactly as it was.
+    ///     </para>
+    /// </remarks>
+    private static string? RecoverBoardingNounFromInput(string? originalInput)
+    {
+        var leadingWord = originalInput?
+            .Split(WordSeparators, StringSplitOptions.RemoveEmptyEntries)
+            .FirstOrDefault();
+
+        if (string.IsNullOrEmpty(leadingWord))
+            return null;
+
+        var recovered = RecoverNounFromInput(originalInput, leadingWord)?.Noun;
+
+        return DirectionParser.ParseDirection(recovered) == Direction.Unknown ? recovered : null;
+    }
+
     private static T? DetermineSimpleIntent<T>(string? response) where T : IntentBase, new()
     {
         var tag = typeof(T).GetProperty("TagName")?.GetValue(null) as string;
@@ -554,7 +598,7 @@ public static class ParsingHelper
         if (goToIntent != null)
             return goToIntent;
 
-        var moveIntent = DetermineMoveIntent(response?.ToLowerInvariant());
+        var moveIntent = DetermineMoveIntent(response?.ToLowerInvariant(), input);
         if (moveIntent != null)
             return moveIntent;
         
