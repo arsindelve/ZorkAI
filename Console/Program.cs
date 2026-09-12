@@ -32,9 +32,24 @@ var gameName = gameSelection.GameName!;
 // Optional flags after the game name map onto the self-hosted environment variables (issue #383),
 // so "ZorkOne --provider ollama --model llama3.1" works without exporting anything first. Must run
 // before the settings are read, and before any OpenAI client is constructed.
-ApplySelfHostFlags(args);
+SelfHostFlags.ApplyToEnvironment(args);
 
-var settings = OpenAIEndpointSettings.FromEnvironment();
+// Held to the same standard as the game argument above: a mistyped --provider used to come out as
+// an unhandled InvalidOperationException with a full stack trace, because Resolve throws on an
+// unknown provider name and nothing caught it.
+OpenAIEndpointSettings settings;
+try
+{
+    settings = OpenAIEndpointSettings.FromEnvironment();
+}
+catch (Exception ex)
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.Error.WriteLine(ex.Message);
+    Console.ResetColor();
+    Environment.Exit(1);
+    return;
+}
 
 // A custom endpoint on the console means "play entirely locally", so publish that as the explicit
 // ZORKAI_SELF_HOSTED opt-in the rest of the engine reads. Set here, in the composition root, rather
@@ -174,28 +189,6 @@ async Task<IGameEngine> GetEngine()
     };
 
     return newEngine;
-}
-
-// Maps --provider/--endpoint/--model flags to the ZORKAI_PROVIDER/OPENAI_BASE_URL/OPENAI_MODEL
-// environment variables read by OpenAIEndpointSettings. Flags win over pre-existing variables.
-static void ApplySelfHostFlags(string[] arguments)
-{
-    for (var i = 1; i < arguments.Length - 1; i++)
-    {
-        var value = arguments[i + 1];
-        switch (arguments[i].ToLowerInvariant())
-        {
-            case "--provider":
-                Environment.SetEnvironmentVariable("ZORKAI_PROVIDER", value);
-                break;
-            case "--endpoint":
-                Environment.SetEnvironmentVariable("OPENAI_BASE_URL", value);
-                break;
-            case "--model":
-                Environment.SetEnvironmentVariable("OPENAI_MODEL", value);
-                break;
-        }
-    }
 }
 
 // Cheap fail-fast: ping the local server's /models endpoint so a player whose LM Studio/Ollama
