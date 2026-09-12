@@ -17,7 +17,14 @@ public abstract class OpenAIClientBase
     // (e.g. ChatGPTClient runs Floyd's companion speech on a cheaper, faster model).
     protected readonly string? ApiKey;
 
-    private readonly OpenAIEndpointSettings _settings = OpenAIEndpointSettings.FromEnvironment();
+    // Resolved in the constructor, not in a field initializer. A field initializer runs for *every*
+    // construction, before the constructor body - including the clientOverride test-double path that
+    // never wants the environment read at all, and the requireApiKey:false clients whose whole
+    // contract is to degrade quietly when AI is unavailable. Since Resolve throws on a malformed
+    // ZORKAI_PROVIDER or OPENAI_BASE_URL, a field initializer turned a config typo into a hard crash
+    // out of PronounResolver's and the hint model's constructors. Null here means "settings could not
+    // be resolved", which is a degraded state, not a usable one.
+    private readonly OpenAIEndpointSettings? _settings;
 
     // False when the real Client was replaced by an injected seam: CreateAdditionalClient must not
     // reach for the network behind a test double's back.
@@ -30,12 +37,33 @@ public abstract class OpenAIClientBase
 
         if (clientOverride is not null)
         {
+            // Deliberately before any environment read: an injected seam must not be able to fail on
+            // the host's configuration.
             // An injected client means we have a working generation seam, so HasApiKey is true - but
             // ApiKey stays null on purpose. ApiKey only exists to let a subclass build a *second*
             // real ChatClient on another model (Floyd's companion speech); there is no raw key behind
             // an injected seam, and any subclass that needs a companion client injects that too.
             HasApiKey = true;
             Client = clientOverride;
+            return;
+        }
+
+        try
+        {
+            _settings = OpenAIEndpointSettings.FromEnvironment();
+        }
+        catch (Exception ex)
+        {
+            // A malformed endpoint configuration is fatal for a client that must work, and merely
+            // disabling for one that is optional. Either way it is reported, never silent.
+            if (requireApiKey)
+                throw;
+
+            Logger?.LogError(ex,
+                "Could not resolve the OpenAI endpoint configuration; this optional client is disabled.");
+
+            HasApiKey = false;
+            Client = null;
             return;
         }
 
@@ -71,6 +99,8 @@ public abstract class OpenAIClientBase
     /// </summary>
     protected IChatCompletionClient? CreateAdditionalClient(string modelName)
     {
-        return _canCreateAdditionalClient ? new OpenAIChatCompletionClient(_settings.CreateClient(modelName)) : null;
+        return _canCreateAdditionalClient && _settings is not null
+            ? new OpenAIChatCompletionClient(_settings.CreateClient(modelName))
+            : null;
     }
 }

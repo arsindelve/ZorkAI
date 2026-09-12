@@ -7,8 +7,19 @@ namespace Planetfall.AI;
 /// <summary>
 ///     Companion conversation against a self-hosted, OpenAI-compatible server (LM Studio, Ollama,
 ///     koboldcpp — issue #383) instead of the cloud LangGraph Lambda. One instance plays one
-///     character: it is constructed with that character's personality system prompt and keeps a
-///     short rolling conversation memory so exchanges stay coherent within a session.
+///     character, constructed with that character's personality system prompt.
+///     <para>
+///     <b>Conversation memory applies to the console only.</b> The rolling history below lives on
+///     this instance, which the characters hold in a <c>[JsonIgnore]</c> field initializer. The
+///     console builds its engine once and keeps it for the whole session, so the history accumulates
+///     there. The HTTP backends do not: every controller action calls <c>RestoreSession</c> →
+///     <c>Repository.Restore</c>, which swaps in freshly deserialized characters and so re-runs that
+///     field initializer, handing out a new instance with an empty history on every turn. Making the
+///     memory work there means persisting it in the serialized game state, which is a deliberate
+///     product choice rather than a fix: the cloud LangGraph path has no conversation memory either
+///     (<c>ChatWithCompanion</c> sends only the prompt and the assistant name, with no session or
+///     thread id), so a stateless backend turn currently matches cloud behavior exactly.
+///     </para>
 ///     <para>
 ///     It implements all three character chat interfaces so <see cref="CompanionChatFactory" /> can
 ///     hand it out for whichever character is being wired. Responses carry no
@@ -23,7 +34,8 @@ public class LocalCompanionChat : IChatWithFloyd, IChatWithBlather, IChatWithAmb
     private const string DefaultModel = "gpt-4o-mini";
 
     // Keep the last N exchanges so the character remembers the conversation without growing the
-    // prompt without bound. Not serialized: memory resets on save/restore, which is acceptable.
+    // prompt without bound. See the class remarks for the scope of that memory: it is per instance,
+    // which means per console session, and per *turn* in the HTTP backends.
     private const int MaxRememberedExchanges = 8;
 
     private readonly List<(string PlayerSaid, string CharacterSaid)> _history = new();
