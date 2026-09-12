@@ -6,6 +6,7 @@ using GameEngine;
 using GameEngine.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Model.Interface;
 using SecretsManager;
 
@@ -90,18 +91,26 @@ public class ServicesHelperSelfHostedTests
     }
 
     [Test]
-    public void Should_GiveTheLocalClassifierARealLogger_When_SelfHosted()
+    public void Should_GiveTheLocalClassifierARealLogger_OnceTheEngineIsBuilt()
     {
         GoSelfHosted();
 
-        using var provider = BuildProvider();
+        var services = new ServiceCollection();
+        services.AddLogging();
+        ServicesHelper.ConfigureCommonServices(services);
+        ServicesHelper.ConfigureGameEngine<EscapeRoomGame, EscapeRoomContext>(services);
+        using var provider = services.BuildServiceProvider();
+        using var scope = provider.CreateScope();
 
-        // Its Logger defaults to NullLogger, so registering it by type would silently throw away the
-        // diagnostics it emits when a local model returns unparseable output.
-        var classifier = (LocalParseConversation)provider.GetRequiredService<IParseConversation>();
+        // The classifier's own default is NullLogger, which would discard the "unparseable output"
+        // diagnostics it exists to emit. It gets a real one from GameEngine's constructor rather than
+        // from DI, so resolving it alone proves nothing — the engine has to be built first.
+        var classifier = (LocalParseConversation)scope.ServiceProvider.GetRequiredService<IParseConversation>();
+        classifier.Logger.Should().BeOfType<NullLogger>();
 
-        classifier.Logger.Should().NotBeNull();
-        classifier.Logger.Should().BeAssignableTo<ILogger<LocalParseConversation>>();
+        scope.ServiceProvider.GetRequiredService<IGameEngine>();
+
+        classifier.Logger.Should().NotBeOfType<NullLogger>();
     }
 
     [Test]
