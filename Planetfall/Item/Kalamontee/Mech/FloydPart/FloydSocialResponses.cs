@@ -10,7 +10,7 @@ public class FloydSocialResponses(Floyd floyd)
 
     public InteractionResult? HandleSocialInteraction(SimpleIntent action, IContext context)
     {
-        if (!floyd.IsOn)
+        if (!floyd.IsAlive)
             return null;
 
         // V-OIL (verbs.zil:1738-1757): oiling a living Floyd is a flavor thank-you. The original

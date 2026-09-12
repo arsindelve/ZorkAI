@@ -1,5 +1,6 @@
 ﻿using ChatLambda;
 using Model.AIGeneration;
+using Newtonsoft.Json;
 using Planetfall.AI;
 using Planetfall.Command;
 
@@ -7,8 +8,11 @@ namespace Planetfall.Item.Feinstein;
 
 internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICanBeTalkedTo
 {
-    private readonly ChatWithBlather _chatWithBlather = new(null);
-    
+    // Factory-resolved: cloud Lambda normally, local model in self-hosted mode (issue #383).
+    [UsedImplicitly] [JsonIgnore]
+    public IChatWithBlather ChatWithBlather { get; set; } = CompanionChatFactory.Blather(BlatherPrompts.SystemPrompt);
+
+
     [UsedImplicitly]
     public int TurnsOnDeckNine { get; set; }
 
@@ -18,6 +22,13 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICan
     }
 
     public override string[] NounsForMatching => ["blather", "ensign blather"];
+
+    // Once the escape pod is down on Resida, the Feinstein and everyone still aboard her are beyond
+    // reach for the rest of the game. Nothing can be learned about them any more, so the narrator must
+    // not be asked to improvise an answer to "where is he?" - it invents whereabouts (issue #545).
+    // This deliberately says nothing about their fate: the static line stays the plain "isn't here",
+    // which is the honest answer and matches what the original ever tells you.
+    public bool IsGoneForGood => Repository.GetLocation<EscapePod>().LandedSafely;
 
     public string ExaminationDescription =>
         "Ensign Blather is a tall, beefy officer with a tremendous, misshapen nose. His uniform is perfect in " +
@@ -151,7 +162,7 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICan
     {
         try
         {
-            var response = await _chatWithBlather.AskBlatherAsync(text);
+            var response = await ChatWithBlather.AskBlatherAsync(text);
             
             // Add the response to Blather's conversation history for continuity
             LastTurnsOutput.Push(response.Message);

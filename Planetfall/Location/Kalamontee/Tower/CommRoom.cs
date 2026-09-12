@@ -7,10 +7,19 @@ namespace Planetfall.Location.Kalamontee.Tower;
 
 internal class CommRoom : LocationWithNoStartingItems, IFloydDoesNotTalkHere
 {
+    /// <summary>
+    ///     The funnel hole is part of the console itself, so it is described in every state of the send
+    ///     station -- broken, shut down, or transmitting. Issue #547: the critical description was the one
+    ///     that dropped this sentence, so after a shutdown the room kept answering commands aimed at a hole
+    ///     it no longer mentioned. Shared by all three descriptions so they cannot drift apart again.
+    /// </summary>
+    private const string FunnelHoleDescription =
+        "On the console next to the enunciator panel is a funnel-shaped hole labelled \"Kuulint Sistum Manyuuwul Oovuriid.\"";
+
     private const string FixedDescription =
         " A screen on the console displays a message. Next to the screen is a flashing sign which " +
         "says \"Tranzmishun in pragres.\" Next to this console is an enunciator whose lights are all dark. " +
-        "On the console next to the enunciator panel is a funnel-shaped hole labelled \"Kuulint Sistum Manyuuwul Oovuriid.\"";
+        FunnelHoleDescription;
 
     public override string Name => "Comm Room";
 
@@ -24,15 +33,14 @@ internal class CommRoom : LocationWithNoStartingItems, IFloydDoesNotTalkHere
 
     private string BrokenDescription => "A screen on the console displays a message. Next to the screen " +
                                         "is a flashing sign which says \"Malfunkshun in Sendeeng Kuulint Sistum.\" Next to this console " +
-                                        "is an enunciator. On the console next to the enunciator panel is a funnel-shaped hole " +
-                                        "labelled \"Kuulint Sistum Manyuuwul Oovuriid.\"" +
+                                        "is an enunciator. " + FunnelHoleDescription +
                                         $"\n\nA {CurrentColor} colored light is flashing on the enunciator panel.";
 
     private string CriticalDescription =>
         "A screen on the console displays a message. Next to the screen is " +
         "a flashing sign which says \"Kuulint Sistum Imbalins Kritikul -- " +
         "Shuteeng Down Awl Sistumz.\" Next to this console is an enunciator " +
-        "whose lights are all dark. ";
+        "whose lights are all dark. " + FunnelHoleDescription;
 
 
     public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
@@ -45,7 +53,24 @@ internal class CommRoom : LocationWithNoStartingItems, IFloydDoesNotTalkHere
         if (!action.Match(verbs, liquidNouns, holeNouns, prepositions))
             return base.RespondToMultiNounInteraction(action, context);
 
-        if (string.IsNullOrEmpty(GetItem<Flask>().LiquidColor))
+        var flask = GetItem<Flask>();
+
+        // Issue #547: everything below resolves the flask through the repository-global singleton, so
+        // without this guard a player standing here empty-handed drained -- and consumed -- a flask sitting
+        // anywhere else on the map, either advancing the puzzle or shutting the send console down for good.
+        // Possession is settled before any state branch runs, exactly as in the original, where the
+        // not-holding check opens the PUT/POUR branch ahead of every mutation and the fluid is in scope only
+        // while the flask is. IsCarrying (not the flat HasItem) so the flask still works from the Patrol
+        // uniform pocket -- the issue #503 correction. If the flask isn't in scope at all there is nothing
+        // to name, so fall through normally rather than announcing a flask the player may never have seen.
+        if (flask.IsHereButNotInInventory(context))
+            return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(
+                "You're not holding the flask. "));
+
+        if (!context.IsCarrying<Flask>())
+            return base.RespondToMultiNounInteraction(action, context);
+
+        if (string.IsNullOrEmpty(flask.LiquidColor))
             return base.RespondToMultiNounInteraction(action, context);
 
         return PourLiquid(context);

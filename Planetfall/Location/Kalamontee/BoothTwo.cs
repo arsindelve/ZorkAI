@@ -37,16 +37,23 @@ internal class BoothTwo : BoothBase
                     { "brown button", "brown button" }
                 }, "press the {0}");
 
-        if (action.Match(Verbs.PushVerbs, ["brown button", "brown", "tan button", "tan", "1", 
-                "3", "one", "three", "1 button", "3 button", "one button", "three button"]))
+        // "button 3" as well as "3 button" (issue #538): asked to name the object of a bare "press 3",
+        // the AI parser resolves the digit against the room description and can return either word
+        // order. Only one was listed, so the other missed every match and the turn fell through to the
+        // narrator without teleporting.
+        if (action.Match(Verbs.PushVerbs, ["brown button", "brown", "tan button", "tan", "1",
+                "3", "one", "three", "1 button", "3 button", "one button", "three button",
+                "button 1", "button 3", "button one", "button three"]))
         {
             // "three", not "two": this booth's tan button is labelled "3". Booth 2 has no "2" button
             // at all, so matching "two" here both answered a noun that does not exist and left the
             // spelled-out "three" falling through to the narrator without teleporting.
-            if (action.MatchNoun(["tan button", "tan", "3", "three", "3 button", "three button"]))
+            if (action.MatchNoun(["tan button", "tan", "3", "three", "3 button", "three button",
+                    "button 3", "button three"]))
                 return GoThree(context);
 
-            if (action.MatchNoun(["brown button", "brown", "1", "one", "1 button", "one button"]))
+            if (action.MatchNoun(["brown button", "brown", "1", "one", "1 button", "one button",
+                    "button 1", "button one"]))
                 return GoOne(context);
         }
 

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using CloudWatch.Model;
 using Model;
 using Model.AIGeneration;
 using Model.AIGeneration.Requests;
@@ -15,6 +16,14 @@ namespace GameEngine.IntentEngine;
 /// </summary>
 internal class SimpleInteractionEngine(IItemProcessorFactory itemProcessorFactory) : IIntentEngine
 {
+    /// <summary>
+    ///     Which branch of <see cref="Process" /> produced the response, for the turn log (issue #578).
+    ///     Read by the engine straight after <see cref="Process" /> returns — a fresh instance is built
+    ///     per turn, so there is nothing to reset. Stays <see cref="TurnTerminalPath.Handled" /> unless
+    ///     one of the no-handler deflections below fires.
+    /// </summary>
+    internal TurnTerminalPath TerminalPath { get; private set; } = TurnTerminalPath.Handled;
+
     public async Task<(InteractionResult? resultObject, string ResultMessage)>
         Process(IntentBase intent, IContext context, IGenerationClient generationClient)
     {
@@ -61,23 +70,33 @@ internal class SimpleInteractionEngine(IItemProcessorFactory itemProcessorFactor
         // The noun was present in the given LOCATION, but the verb applied to
         // it has no meaning in the story. I.E: push the sword...that will accomplish nothing. 
         if (locationInteraction is NoVerbMatchInteractionResult noVerb)
+        {
+            TerminalPath = TurnTerminalPath.NoMatchingVerbForNounInLocation;
             return (locationInteraction,
                 await GetGeneratedNoMatchingVerbResponse(noVerb.Noun, noVerb.Verb, generationClient, context));
+        }
 
         // The noun was present in INVENTORY but the verb applied to
-        // it has no meaning in the story. I.E: push the sword...that will accomplish nothing. 
+        // it has no meaning in the story. I.E: push the sword...that will accomplish nothing.
         if (contextInteraction is NoVerbMatchInteractionResult noVerbContext)
+        {
+            TerminalPath = TurnTerminalPath.NoMatchingVerbForNounInInventory;
             return (contextInteraction, await GetGeneratedNoMatchingVerbResponse(noVerbContext.Noun, noVerbContext.Verb,
                 generationClient,
                 context));
+        }
 
         // The noun exists in the game, but is not currently present. It might be in another location
-        // or is hidden inside something else (like the leaflet in the mailbox) 
+        // or is hidden inside something else (like the leaflet in the mailbox)
         if (Repository.ItemExistsInTheStory(simpleInteraction.Noun))
+        {
+            TerminalPath = TurnTerminalPath.NounNotPresent;
             return (null, await GetGeneratedNounNotPresentResponse(simpleInteraction.Noun, generationClient, context));
+        }
 
         // There is no matching noun at all, anywhere in the game. The user might have
-        // talked about a unicorn, a bottle of tequila or some other meaningless item. 
+        // talked about a unicorn, a bottle of tequila or some other meaningless item.
+        TerminalPath = TurnTerminalPath.NounNotInTheStory;
         return (null, await GetGeneratedNoOpResponse(simpleInteraction.OriginalInput ?? "", generationClient, context));
     }
 

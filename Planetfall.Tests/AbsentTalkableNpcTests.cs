@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Model.AIGeneration.Requests;
 using Moq;
 using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
@@ -19,10 +20,22 @@ namespace Planetfall.Tests;
 /// </summary>
 public class AbsentTalkableNpcTests : EngineTestsBase
 {
+    /// <summary>
+    /// Puts Floyd in the state these tests are actually about: met, then left behind or wandered
+    /// off. Naming him BEFORE the player has woken him is claimed by the fourth-wall intercept
+    /// (issue #552), which is a different answer to a different situation - the player can't have
+    /// been separated from a companion they have never met.
+    /// </summary>
+    private void MeetFloyd()
+    {
+        GetItem<Floyd>().HasEverBeenOn = true;
+    }
+
     [Test]
     public async Task AddressingAbsentFloyd_GoUp_SaysNotHere_AndDoesNotMove()
     {
         var target = GetTarget();
+        MeetFloyd();
         StartHere<DeckNine>();
 
         var response = await target.GetResponse("floyd, go up");
@@ -35,6 +48,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task AddressingAbsentFloyd_DropDiary_SaysNotHere_AndKeepsItem()
     {
         var target = GetTarget();
+        MeetFloyd();
         StartHere<DeckNine>();
         Take<Diary>();
 
@@ -48,12 +62,67 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task AddressingAbsentFloyd_Sing_SaysNotHere_AndDoesNotHallucinate()
     {
         var target = GetTarget();
+        MeetFloyd();
         StartHere<DeckNine>();
 
         var response = await target.GetResponse("floyd, sing");
 
         response.Should().Contain("Floyd isn't here.");
         response.Should().NotContain("tune");
+    }
+
+    [Test]
+    public async Task AddressingBlather_AfterThePodLands_IsDeterministicNotNarrated()
+    {
+        // Issue #545 review: IsGoneForGood exists to stop the narrator answering "where is X?" by
+        // inventing a whereabouts, but only Floyd opted in. Once the escape pod is down on Resida the
+        // Feinstein and everyone still aboard are beyond reach forever, so Blather must get his own
+        // fixed line rather than an improvisation about what he might be up to.
+        var target = GetTarget();
+        StartHere<DeckNine>();
+        GetLocation<EscapePod>().LandedSafely = true;
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateNarration(It.IsAny<TalkingToAbsentCharacterRequest>(), It.IsAny<string>()))
+            .ReturnsAsync("Blather is probably off inspecting another deck.");
+
+        var response = await target.GetResponse("blather, go up");
+
+        response.Should().Contain("Blather isn't here.");
+        response.Should().NotContain("another deck");
+        Context.CurrentLocation.Should().BeOfType<DeckNine>();
+    }
+
+    [Test]
+    public async Task AddressingAmbassador_AfterThePodLands_IsDeterministicNotNarrated()
+    {
+        var target = GetTarget();
+        StartHere<DeckNine>();
+        GetLocation<EscapePod>().LandedSafely = true;
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateNarration(It.IsAny<TalkingToAbsentCharacterRequest>(), It.IsAny<string>()))
+            .ReturnsAsync("The ambassador has slithered off somewhere.");
+
+        var response = await target.GetResponse("ambassador, go up");
+
+        response.Should().Contain("The ambassador isn't here.");
+        response.Should().NotContain("slithered");
+    }
+
+    [Test]
+    public async Task AddressingBlather_WhileStillAboard_StillGetsTheNarratedAbsence()
+    {
+        // The gate must be keyed on the pod having landed, not on the explosion: Blather is alive
+        // and barking at the player for several turns after the ship is hit, so while the player is
+        // still aboard his absence is an ordinary "he's elsewhere" the narrator may phrase freely.
+        var target = GetTarget();
+        StartHere<DeckNine>();
+        Mock.Get(target.GenerationClient)
+            .Setup(c => c.GenerateNarration(It.IsAny<TalkingToAbsentCharacterRequest>(), It.IsAny<string>()))
+            .ReturnsAsync("Blather is probably off inspecting another deck.");
+
+        var response = await target.GetResponse("blather, go up");
+
+        response.Should().Contain("another deck");
     }
 
     [Test]
@@ -130,6 +199,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task AddressingAbsentFloydWithoutComma_GoUp_SaysNotHere_AndDoesNotMove()
     {
         var target = GetTarget();
+        MeetFloyd();
         StartHere<DeckNine>();
 
         var response = await target.GetResponse("floyd go up");
@@ -142,6 +212,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task AddressingAbsentFloydWithoutComma_DropDiary_SaysNotHere_AndKeepsItem()
     {
         var target = GetTarget();
+        MeetFloyd();
         StartHere<DeckNine>();
         Take<Diary>();
 
@@ -182,6 +253,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task AddressingAbsentFloydCasually_SaysNotHere(string input)
     {
         var target = GetTarget();
+        MeetFloyd();
         StartHere<DeckNine>();
 
         var response = await target.GetResponse(input);
@@ -196,6 +268,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task AddressingAbsentFloydWithUnusualPhrasing_DefersToClassifier_SaysNotHere()
     {
         var target = GetTarget();
+        MeetFloyd();
         StartHere<DeckNine>();
         ParseConversationMock
             .Setup(p => p.ParseAsync("could you let floyd know to wait for me"))
@@ -211,6 +284,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task TellingAbsentFloydToDoSomething_SaysNotHere()
     {
         var target = GetTarget();
+        MeetFloyd();
         StartHere<DeckNine>();
 
         var response = await target.GetResponse("tell floyd to go up");
@@ -247,6 +321,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task ExaminingAbsentFloyd_IsNotInterceptedByGuard()
     {
         var target = GetTarget();
+        MeetFloyd(); // without this #552's pre-meeting intercept answers and the guard is never reached
         StartHere<DeckNine>();
 
         var response = await target.GetResponse("examine floyd");
@@ -270,6 +345,7 @@ public class AbsentTalkableNpcTests : EngineTestsBase
     public async Task AttackingAbsentFloyd_IsNotInterceptedByGuard()
     {
         var target = GetTarget();
+        MeetFloyd(); // without this #552's pre-meeting intercept answers and the guard is never reached
         StartHere<DeckNine>();
 
         var response = await target.GetResponse("attack floyd");

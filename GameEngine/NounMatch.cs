@@ -68,6 +68,38 @@ public static class NounMatch
     }
 
     /// <summary>
+    /// A deliberately stricter sibling of <see cref="CouldName"/>: true only when the typed noun is,
+    /// verbatim, one of the item's own precise nouns (<see cref="IItem.NounsForPreciseMatching"/>).
+    /// Where <see cref="CouldName"/> allows word-boundary containment in both directions - so a bare
+    /// candidate noun can be dragged out by any phrase that merely ends in it - this refuses that:
+    /// "lower card" does not name the ID card just because "card" is a trailing word of it (issue #536).
+    ///
+    /// <para>This is the check the take/drop <c>StrictlyNamedItem</c> guard needs. Those branches resolve
+    /// the player's noun through <see cref="Repository.GetItemInScope"/>, whose loose containment reaches
+    /// into worn and held containers; the ID card's bare noun "card" would otherwise let "take lower card"
+    /// quietly pull the ID card out of a pocket. Requiring a precise-noun hit keeps the genuine cases - the
+    /// magnet the parser cannot describe ("magnet" is one of its own nouns), an item the player really is
+    /// carrying - while rejecting a suffix-word coincidence. The port distinguishes the two cards in exactly
+    /// this vocabulary: <c>LowerElevatorAccessCard</c> registers "lower card" as a precise noun;
+    /// <c>IdCard</c> does not.</para>
+    ///
+    /// <para>Also the single predicate <see cref="Repository.GetPreciseMatchInScope"/> and its
+    /// inventory-scoped sibling resolve their adjective-aware pass with, so "is this noun exactly one of
+    /// the item's precise nouns?" is defined in exactly one place (the lookup half over in
+    /// <see cref="Repository"/> asks it; this comparison half answers it).</para>
+    /// </summary>
+    public static bool PreciselyNames(IItem candidate, string? noun)
+    {
+        if (string.IsNullOrWhiteSpace(noun))
+            return false;
+
+        var typed = noun.ToLowerInvariant().Trim();
+
+        return candidate.NounsForPreciseMatching
+            .Any(n => n.Trim().Equals(typed, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    /// <summary>
     /// True only when the command names exactly one object. Callers that verify an AI list-parser's
     /// candidate against the noun the IntentParser extracted must gate on this first (issue #502).
     ///
