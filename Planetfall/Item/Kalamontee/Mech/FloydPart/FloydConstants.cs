@@ -93,6 +93,22 @@ public static class FloydConstants
         "Floyd giggles and pushes you away. \"You're tickling Floyd!\" He clutches at his " +
         "side panels, laughing hysterically. Oil drops stream from his eyes. ";
 
+    // V-ASK-FOR's success branch (compone.zil:2054-2058). Asking nicely always works - there is no
+    // dice roll on this one, unlike the drop below.
+    internal const string HandsYouTheItem =
+        "\"Okay,\" says Floyd, handing you the {0}, \"but only because you're Floyd's best friend.\" ";
+
+    // V?DROP's success branch (compone.zil:1913-1917). The original rolls PROB 50 and otherwise has
+    // Floyd clutch the thing and refuse; he always complies here (see FloydItemRequests.LetGoOf for
+    // why that divergence is deliberate), so the refusal line has no constant.
+    internal const string ShrugsAndDrops =
+        "Floyd shrugs and drops the {0}. ";
+
+    // FLOYD-NOT-HAVE (compone.zil:2121-2122), the original's answer for asking him to hand over or
+    // drop something he has not got. Verbatim, broken grammar and all - it is one of his.
+    internal const string DoesNotHaveThat =
+        "\"Floyd does not one of those have!\" ";
+
     internal const string ThanksYouForGivingItem =
         "\"Neat!\" exclaims Floyd. He thanks you profusely. ";
 
