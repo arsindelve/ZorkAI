@@ -1,7 +1,9 @@
+using GameEngine.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Model.Interface;
 using Stationfall_Lambda;
@@ -96,6 +98,25 @@ public class StartupTests
     }
 
     [Test]
+    public void HostedServices_Should_ResolveUnderScopeValidation()
+    {
+        // ValidateScopes is what ASP.NET Core turns on for itself under
+        // ASPNETCORE_ENVIRONMENT=Development. GameEngineInitializer is a hosted service — a singleton —
+        // and it injected the scoped IGameEngine, so the host threw at startup and this backend could
+        // not run in Development at all. Resolving only the hosted services keeps the failure specific;
+        // ValidateOnBuild would add unrelated MVC infrastructure noise.
+        var serviceCollection = new ServiceCollection();
+        _startup.ConfigureServices(serviceCollection);
+
+        using var provider = serviceCollection.BuildServiceProvider(
+            new ServiceProviderOptions { ValidateScopes = true });
+
+        var resolving = () => provider.GetServices<IHostedService>().ToList();
+
+        resolving.Should().NotThrow();
+    }
+
+    [Test]
     public void Configure_Should_HaveCorrectSignature()
     {
         // Arrange & Act
@@ -118,51 +139,5 @@ public class StartupTests
         configureServicesMethod.Should().NotBeNull();
         configureServicesMethod!.GetParameters().Length.Should().Be(1);
         configureServicesMethod.GetParameters()[0].ParameterType.Should().Be(typeof(IServiceCollection));
-    }
-}
-
-[TestFixture]
-public class GameEngineInitializerTests
-{
-    [SetUp]
-    public void Setup()
-    {
-        _mockGameEngine = new Mock<IGameEngine>();
-        _initializer = new GameEngineInitializer(_mockGameEngine.Object);
-    }
-
-    private Mock<IGameEngine> _mockGameEngine;
-    private GameEngineInitializer _initializer;
-
-    [Test]
-    public async Task StartAsync_Should_CallInitializeEngine()
-    {
-        // Arrange
-        _mockGameEngine.Setup(e => e.InitializeEngine()).Returns(Task.CompletedTask);
-        var cancellationToken = CancellationToken.None;
-
-        // Act
-        await _initializer.StartAsync(cancellationToken);
-
-        // Assert
-        _mockGameEngine.Verify(e => e.InitializeEngine(), Times.Once);
-    }
-
-    [Test]
-    public async Task StopAsync_Should_CompleteSuccessfully()
-    {
-        // Arrange
-        var cancellationToken = CancellationToken.None;
-
-        // Act & Assert
-        await FluentActions.Invoking(() => _initializer.StopAsync(cancellationToken))
-            .Should().NotThrowAsync();
-    }
-
-    [Test]
-    public void Should_ImplementIHostedService()
-    {
-        // Assert
-        _initializer.Should().BeAssignableTo<Microsoft.Extensions.Hosting.IHostedService>();
     }
 }

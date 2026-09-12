@@ -38,9 +38,11 @@ ENV ZORKAI_SAVE_DIR=/data
 # these are local backends behind nothing.
 ENV ASPNETCORE_URLS=http://+:8080
 
-# Production, not Development, and not incidentally: each game except Zork registers
-# GameEngineInitializer, an IHostedService (singleton) that injects the scoped IGameEngine. Under
-# Development, DI scope validation is on and the host throws at startup.
+# Production because that is what a long-running backend wants: no developer exception page, less
+# logging, no per-startup DI validation. It is no longer a workaround — Development used to be
+# impossible (GameEngineInitializer consumed the scoped IGameEngine from a singleton, and the
+# IGenerationClient descriptor could not be constructed at all), and both are fixed, so you can
+# override this for debugging if you want to.
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 # curl is here only so compose can run a real healthcheck — the aspnet image ships without it, and a
