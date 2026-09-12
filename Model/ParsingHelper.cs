@@ -315,14 +315,22 @@ public static class ParsingHelper
         if (string.IsNullOrEmpty(directionTag))
             directionTag = ExtractElementsByTag(response, "verb").SingleOrDefault();
 
+        var noun = ExtractElementsByTag(response, "noun").FirstOrDefault();
+
+        // Issue #551: a resolved direction carries the noun through as well. "enter <thing>" and
+        // "exit <thing>" are board/disembark commands, but rule 5 also lists "enter" and "exit" as
+        // DIRECTIONS, so gpt-4o routinely tags "enter door" as a MOVE with <direction>enter</direction>
+        // — a direction the engine CAN honour, which is why this never reached the #268 safety net
+        // below and never reached the enter/exit engines either. The engine needs the object the player
+        // named in order to recover; MoveEngine consults it only when the direction is In or Out and
+        // there is no exit that way at all.
         var direction = DirectionParser.ParseDirection(directionTag ?? string.Empty);
         if (direction != Direction.Unknown)
-            return new MoveIntent { Direction = direction, Message = response };
+            return new MoveIntent { Direction = direction, Noun = noun, Message = response };
 
         // Issue #268 deterministic safety net: the model tagged this "move" but the direction did not
         // resolve to a real direction (typically "other"). If it also named a place, the player wants
         // destination navigation ("move to the dome room") — emit that rather than dropping the command.
-        var noun = ExtractElementsByTag(response, "noun").FirstOrDefault();
         return string.IsNullOrEmpty(noun)
             ? null
             : new GoToDestinationIntent { Destination = noun, Message = response };
