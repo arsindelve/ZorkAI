@@ -26,7 +26,7 @@ WORKDIR /app
 
 # The explicit opt-in that swaps DynamoDB/Secrets Manager/CloudWatch for local equivalents. It is a
 # dedicated variable rather than something inferred from OPENAI_BASE_URL on purpose: see
-# GameEngine/Web/SelfHostedMode.cs. Set here because this image exists only to run locally.
+# GameEngine/SelfHostedMode.cs. Set here because this image exists only to run locally.
 ENV ZORKAI_SELF_HOSTED=true
 
 # Self-hosted play writes session state and saved games to disk instead of DynamoDB. This must be a
