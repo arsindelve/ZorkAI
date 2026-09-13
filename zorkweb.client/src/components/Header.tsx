@@ -34,7 +34,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, moves, s
                 style={{color: '#c49a4c', fontSize: '1.7rem'}}
             />
             <span
-                className="text-white text-lg font-bold tracking-wide truncate"
+                className="text-white text-base font-bold tracking-wide truncate"
                 style={{textShadow: '0 0 14px rgba(196, 154, 76, 0.3)'}}
             >
                 {locationName}
@@ -56,7 +56,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, moves, s
                 </span>
                 <CountUp
                     value={moves}
-                    className="font-bold text-lg"
+                    className="font-bold text-base"
                     style={{color: '#e3c179', textShadow: '0 0 10px rgba(196, 154, 76, 0.45)'}}
                 />
             </div>
@@ -74,7 +74,7 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({locationName, moves, s
                 </span>
                 <CountUp
                     value={score}
-                    className="font-bold text-lg"
+                    className="font-bold text-base"
                     style={{color: '#e3c179', textShadow: '0 0 10px rgba(196, 154, 76, 0.45)'}}
                 />
             </div>
