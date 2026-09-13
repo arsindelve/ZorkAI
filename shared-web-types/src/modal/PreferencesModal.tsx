@@ -62,8 +62,8 @@ const PREFERENCES_STYLES = `
 }
 .prefs__title {
     font-family: Platypi, Georgia, serif;
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: 1.12rem;
+    font-weight: 500;
     letter-spacing: 0.04em;
     margin: 0;
 }
@@ -111,6 +111,7 @@ const PREFERENCES_STYLES = `
 /* Eyebrows borrow the MOVES/SCORE treatment already in the game's header. */
 .prefs__group {
     font-family: Platypi, Georgia, serif;
+    font-weight: 500;
     font-size: 0.64rem;
     text-transform: uppercase;
     letter-spacing: 0.18em;
@@ -250,10 +251,10 @@ const PREFERENCES_STYLES = `
     border-top: 1px solid var(--edge);
 }
 .prefs__done {
-    font-family: Platypi, Georgia, serif;
-    font-size: 0.85rem;
-    letter-spacing: 0.05em;
-    padding: 8px 28px;
+    font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size: 0.86rem;
+    letter-spacing: 0.01em;
+    padding: 9px 30px;
     border-radius: 999px;
     border: 1px solid var(--gold);
     background: var(--gold);
