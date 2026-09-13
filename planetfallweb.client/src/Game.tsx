@@ -448,11 +448,11 @@ function Game() {
             <Header locationName={locationName} time={time} score={score} />
 
             {showCompass && (
-            <Compass
-                onCompassClick={handleCommandClick}
-                exits={exits}
-                pingMove={pingMove}
-                className="
+                <Compass
+                    onCompassClick={handleCommandClick}
+                    exits={exits}
+                    pingMove={pingMove}
+                    className="
             hidden
             md:block
             absolute
@@ -463,19 +463,19 @@ function Game() {
             rounded-xl
             p-7
             "
-                style={{
-                    background:
-                        'linear-gradient(135deg, color-mix(in srgb, var(--planetfall-bg-medium) 14%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 14%, transparent) 100%)',
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
-                    border: '1px solid color-mix(in srgb, var(--planetfall-primary) 30%, transparent)',
-                    boxShadow:
-                        '0 4px 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent), 0 2px 10px rgba(0, 0, 0, 0.5)',
-                    // Scale the container so rose, controls and padding move together.
-                    transform: `scale(${compassScale(compassSize)})`,
-                    transformOrigin: 'top right',
-                }}
-            />
+                    style={{
+                        background:
+                            'linear-gradient(135deg, color-mix(in srgb, var(--planetfall-bg-medium) 14%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 14%, transparent) 100%)',
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
+                        border: '1px solid color-mix(in srgb, var(--planetfall-primary) 30%, transparent)',
+                        boxShadow:
+                            '0 4px 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent), 0 2px 10px rgba(0, 0, 0, 0.5)',
+                        // Scale the container so rose, controls and padding move together.
+                        transform: `scale(${compassScale(compassSize)})`,
+                        transformOrigin: 'top right',
+                    }}
+                />
             )}
 
             <div className="relative flex-1 min-h-0 max-h-[55vh]">
@@ -616,15 +616,13 @@ function Game() {
                             Object.values(locationActions).some(
                                 (actions) => actions.length > 0,
                             ) && (
-                            <LocationButton
-                                onItemClick={handleInventoryClick}
-                                onActionClick={handleCommandClick}
-                                locationActions={locationActions}
-                            />
-                        )}
-                        {showCommandsMenu && (
-                            <CommandsButton onCommandClick={handleCommandClick} />
-                        )}
+                                <LocationButton
+                                    onItemClick={handleInventoryClick}
+                                    onActionClick={handleCommandClick}
+                                    locationActions={locationActions}
+                                />
+                            )}
+                        {showCommandsMenu && <CommandsButton onCommandClick={handleCommandClick} />}
 
                         <Button
                             variant="contained"

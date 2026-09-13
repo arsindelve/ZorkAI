@@ -124,8 +124,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
         saveTranscriptFontSize(size);
     };
 
-    const [transcriptFont, setTranscriptFontState] =
-        useState<TranscriptFont>(loadTranscriptFont);
+    const [transcriptFont, setTranscriptFontState] = useState<TranscriptFont>(loadTranscriptFont);
 
     const setTranscriptFont = (font: TranscriptFont) => {
         setTranscriptFontState(font);
@@ -163,11 +162,15 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
 
     const [showCompass, setShowCompass] = useBooleanPreference(showCompassPreference);
     const [showVerbsMenu, setShowVerbsMenu] = useBooleanPreference(showVerbsMenuPreference);
-    const [showCommandsMenu, setShowCommandsMenu] = useBooleanPreference(showCommandsMenuPreference);
-    const [showLocationButton, setShowLocationButton] =
-        useBooleanPreference(showLocationButtonPreference);
-    const [showInventoryButton, setShowInventoryButton] =
-        useBooleanPreference(showInventoryButtonPreference);
+    const [showCommandsMenu, setShowCommandsMenu] = useBooleanPreference(
+        showCommandsMenuPreference,
+    );
+    const [showLocationButton, setShowLocationButton] = useBooleanPreference(
+        showLocationButtonPreference,
+    );
+    const [showInventoryButton, setShowInventoryButton] = useBooleanPreference(
+        showInventoryButtonPreference,
+    );
 
     const [compassSize, setCompassSizeState] = useState<CompassSize>(loadCompassSize);
 

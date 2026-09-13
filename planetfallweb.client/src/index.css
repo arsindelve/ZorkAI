@@ -34,7 +34,6 @@
     --pref-text-muted: color-mix(in srgb, var(--planetfall-text) 78%, transparent);
     --pref-text-dim: color-mix(in srgb, var(--planetfall-text) 60%, transparent);
     --pref-border: color-mix(in srgb, var(--planetfall-primary) 25%, transparent);
-
 }
 
 /* Animations */

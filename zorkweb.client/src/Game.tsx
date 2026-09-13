@@ -443,11 +443,11 @@ function Game() {
             <Header locationName={locationName} moves={moves} score={score} />
 
             {showCompass && (
-            <Compass
-                onCompassClick={handleCommandClick}
-                exits={exits}
-                pingMove={pingMove}
-                className="
+                <Compass
+                    onCompassClick={handleCommandClick}
+                    exits={exits}
+                    pingMove={pingMove}
+                    className="
             hidden
             md:block
             absolute
@@ -458,20 +458,21 @@ function Game() {
             rounded-xl
             p-7
             "
-                style={{
-                    background:
-                        'linear-gradient(135deg, rgba(41, 37, 36, 0.14) 0%, rgba(12, 10, 9, 0.14) 100%)',
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(196, 154, 76, 0.3)',
-                    boxShadow: '0 4px 20px rgba(196, 154, 76, 0.18), 0 2px 10px rgba(0, 0, 0, 0.5)',
-                    // Scale the whole container so the rose, its up/down controls and
-                    // its padding resize together. Anchored top-right because that is
-                    // the corner it is positioned from, so it grows inward.
-                    transform: `scale(${compassScale(compassSize)})`,
-                    transformOrigin: 'top right',
-                }}
-            />
+                    style={{
+                        background:
+                            'linear-gradient(135deg, rgba(41, 37, 36, 0.14) 0%, rgba(12, 10, 9, 0.14) 100%)',
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
+                        border: '1px solid rgba(196, 154, 76, 0.3)',
+                        boxShadow:
+                            '0 4px 20px rgba(196, 154, 76, 0.18), 0 2px 10px rgba(0, 0, 0, 0.5)',
+                        // Scale the whole container so the rose, its up/down controls and
+                        // its padding resize together. Anchored top-right because that is
+                        // the corner it is positioned from, so it grows inward.
+                        transform: `scale(${compassScale(compassSize)})`,
+                        transformOrigin: 'top right',
+                    }}
+                />
             )}
 
             <div className="relative flex-1 min-h-0 mt-2">
@@ -590,15 +591,13 @@ function Game() {
                             Object.values(locationActions).some(
                                 (actions) => actions.length > 0,
                             ) && (
-                            <LocationButton
-                                onItemClick={handleInventoryClick}
-                                onActionClick={handleCommandClick}
-                                locationActions={locationActions}
-                            />
-                        )}
-                        {showCommandsMenu && (
-                            <CommandsButton onCommandClick={handleCommandClick} />
-                        )}
+                                <LocationButton
+                                    onItemClick={handleInventoryClick}
+                                    onActionClick={handleCommandClick}
+                                    locationActions={locationActions}
+                                />
+                            )}
+                        {showCommandsMenu && <CommandsButton onCommandClick={handleCommandClick} />}
 
                         <Button
                             variant="contained"

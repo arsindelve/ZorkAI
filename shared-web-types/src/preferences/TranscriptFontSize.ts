@@ -47,8 +47,7 @@ export const TRANSCRIPT_FONT_SIZE_STORAGE_KEY = `${PREFERENCE_KEY_PREFIX}transcr
 
 export function isTranscriptFontSize(value: unknown): value is TranscriptFontSize {
     return (
-        typeof value === 'string' &&
-        (TRANSCRIPT_FONT_SIZES as readonly string[]).includes(value)
+        typeof value === 'string' && (TRANSCRIPT_FONT_SIZES as readonly string[]).includes(value)
     );
 }
 

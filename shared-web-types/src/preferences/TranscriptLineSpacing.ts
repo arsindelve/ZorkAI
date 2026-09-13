@@ -38,8 +38,7 @@ export const TRANSCRIPT_LINE_SPACING_STORAGE_KEY = `${PREFERENCE_KEY_PREFIX}tran
 
 export function isTranscriptLineSpacing(value: unknown): value is TranscriptLineSpacing {
     return (
-        typeof value === 'string' &&
-        (TRANSCRIPT_LINE_SPACINGS as readonly string[]).includes(value)
+        typeof value === 'string' && (TRANSCRIPT_LINE_SPACINGS as readonly string[]).includes(value)
     );
 }
 

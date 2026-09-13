@@ -26,11 +26,7 @@ import {
     formatTranscriptMarker,
     isTranscriptMarker,
 } from '../preferences/TranscriptMarker';
-import {
-    COMPASS_SIZE_LABELS,
-    COMPASS_SIZES,
-    isCompassSize,
-} from '../preferences/CompassPreferences';
+import {COMPASS_SIZE_LABELS, COMPASS_SIZES, isCompassSize} from '../preferences/CompassPreferences';
 
 // Ships its own CSS, the way <Compass> does: the palette comes from --pref-* custom
 // properties each client sets in its own :root, so one dialog wears each game's colors.
@@ -463,7 +459,9 @@ const PreferencesModal: React.FC<PreferencesModalProps> = ({
                             value={transcriptFont}
                             options={TRANSCRIPT_FONTS}
                             labels={TRANSCRIPT_FONT_LABELS}
-                            onChange={(value) => isTranscriptFont(value) && setTranscriptFont(value)}
+                            onChange={(value) =>
+                                isTranscriptFont(value) && setTranscriptFont(value)
+                            }
                             testIdPrefix="font"
                             ariaLabel="Font"
                             // Each name set in its own face - the fastest way to judge one.

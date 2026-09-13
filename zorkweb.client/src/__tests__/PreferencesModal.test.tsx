@@ -42,9 +42,7 @@ describe('PreferencesModal', () => {
             ...overrides,
         });
 
-        return render(
-            <PreferencesModal open={true} handleClose={jest.fn()} baseFontSizePx={15} />,
-        );
+        return render(<PreferencesModal open={true} handleClose={jest.fn()} baseFontSizePx={15} />);
     };
 
     beforeEach(() => {

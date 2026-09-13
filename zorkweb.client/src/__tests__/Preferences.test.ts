@@ -215,8 +215,7 @@ describe('User preferences', () => {
     });
 
     describe('Command marker', () => {
-        const at = (hours: number, minutes: number) =>
-            new Date(2026, 0, 1, hours, minutes, 0);
+        const at = (hours: number, minutes: number) => new Date(2026, 0, 1, hours, minutes, 0);
 
         test('defaults to none, so the transcript looks exactly as it does today', () => {
             expect(loadTranscriptMarker()).toBe('none');
@@ -242,9 +241,7 @@ describe('User preferences', () => {
         });
 
         test('an unknown marker renders nothing rather than throwing', () => {
-            expect(
-                formatTranscriptMarker('nonsense' as never, 3, at(9, 5)),
-            ).toBe('');
+            expect(formatTranscriptMarker('nonsense' as never, 3, at(9, 5))).toBe('');
         });
 
         test('round-trips a saved choice', () => {
