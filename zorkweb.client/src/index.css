@@ -11,6 +11,18 @@
     --compass-label-color: rgba(214, 211, 209, 0.7);
     --compass-btn-text: #f5e7c4;
     --compass-btn-idle: rgb(214, 211, 209);
+
+    /* Preferences dialog palette (see PreferencesModal in the shared package). */
+    --pref-surface: #17140f;
+    --pref-surface-raised: #221d16;
+    --pref-specimen-bg: #0c0a09;
+    --pref-accent: #c49a4c;
+    --pref-accent-bright: #e3c179;
+    --pref-text-color: #ede4d3;
+    --pref-text-muted: #bdb3a1;
+    --pref-text-dim: #9c9384;
+    --pref-border: rgba(196, 154, 76, 0.22);
+
 }
 
 /* ── Great Underground Empire masthead ─────────────────────────────────────

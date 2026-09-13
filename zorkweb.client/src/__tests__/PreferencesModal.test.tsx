@@ -75,12 +75,37 @@ describe('PreferencesModal', () => {
         expect(setTranscriptFontSize).toHaveBeenCalledWith('xlarge');
     });
 
-    test('previews each option at its real rendered size', () => {
+    test('the specimen renders at the chosen size', () => {
+        // One live specimen replaces the per-option previews: it shows the real
+        // transcript, so size, font and spacing are judged together.
+        renderModal({transcriptFontSize: 'large'});
+
+        expect(document.querySelector('.prefs__specimen')).toHaveStyle({fontSize: '17px'});
+    });
+
+    test('the specimen renders in the chosen font and spacing', () => {
+        renderModal({
+            transcriptFont: 'storybook',
+            transcriptLineSpacing: 'roomy',
+        });
+        const specimen = document.querySelector('.prefs__specimen');
+
+        expect(specimen).toHaveStyle({
+            fontFamily: "Georgia, 'Iowan Old Style', 'Times New Roman', Times, serif",
+        });
+        expect(specimen).toHaveStyle({lineHeight: '1.8'});
+    });
+
+    test('the specimen shows the command label when one is chosen', () => {
+        renderModal({transcriptMarker: 'number'});
+
+        expect(document.querySelector('.prefs__specimen-marker')).toBeInTheDocument();
+    });
+
+    test('the specimen shows no label when the marker is off', () => {
         renderModal();
 
-        // Medium must preview at the base size itself, not a nominal one.
-        expect(screen.getByText('Medium')).toHaveStyle({fontSize: '15px'});
-        expect(screen.getByText('Small')).toHaveStyle({fontSize: '13px'});
+        expect(document.querySelector('.prefs__specimen-marker')).not.toBeInTheDocument();
     });
 
     test('offers all five transcript fonts', () => {
@@ -111,16 +136,6 @@ describe('PreferencesModal', () => {
 
         expect(screen.getByText('Typewriter')).toHaveStyle({
             fontFamily: "'Courier New', Courier, 'Nimbus Mono PS', monospace",
-        });
-    });
-
-    test('the size options preview in the currently chosen font', () => {
-        // Size and family interact - previewing sizes in a font you are not using
-        // misrepresents what the transcript will look like.
-        renderModal({transcriptFont: 'storybook'});
-
-        expect(screen.getByText('Medium')).toHaveStyle({
-            fontFamily: "Georgia, 'Iowan Old Style', 'Times New Roman', Times, serif",
         });
     });
 

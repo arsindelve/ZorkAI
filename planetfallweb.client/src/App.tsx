@@ -175,6 +175,9 @@ function App() {
                     <PreferencesModal
                         open={preferencesDialogOpen}
                         baseFontSizePx={TRANSCRIPT_BASE_FONT_SIZE_PX}
+                        specimenCommand="press the button"
+                        specimenRoom="Reactor Lobby"
+                        specimenBody="The door slides open with a soft hiss." 
                         handleClose={() => {
                             setPreferencesDialogOpen(false);
                             Mixpanel.track('Close Preferences Dialog', {});
