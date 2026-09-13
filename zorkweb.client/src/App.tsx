@@ -171,6 +171,7 @@ function App() {
                     <PreferencesModal
                         open={preferencesDialogOpen}
                         baseFontSizePx={TRANSCRIPT_BASE_FONT_SIZE_PX}
+                        hasLocationImages
                         handleClose={() => {
                             setPreferencesDialogOpen(false);
                             Mixpanel.track('Close Preferences Dialog', {});

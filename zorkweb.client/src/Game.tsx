@@ -14,6 +14,7 @@ import {
     transcriptLineHeight,
     formatTranscriptMarker,
     compassScale,
+    LocationImage,
 } from '@zork-ai/shared-types';
 import React, {useEffect, useState} from 'react';
 import {Alert, Button, CircularProgress, Snackbar} from '@mui/material';
@@ -27,6 +28,7 @@ import {Compass, parseMoveDirection} from '@zork-ai/shared-types';
 import {useGameContext} from '@zork-ai/shared-types';
 import GameInput from './components/GameInput.tsx';
 import {TRANSCRIPT_BASE_FONT_SIZE_PX} from './transcriptFontSize.ts';
+import {ZORK_LOCATION_IMAGES} from './locationImages.ts';
 
 // --- Per-word hover highlight (CSS Custom Highlight API) ---------------------
 // Lives in the client (passed to ClickableText as onMouseMove/onMouseLeave) rather
@@ -113,6 +115,7 @@ function Game() {
     const [locationActions, setLocationActions] = useState<Record<string, string[]>>({});
     const [exits, setExits] = useState<string[]>([]);
     const [locationName, setLocationName] = useState<string>('');
+    const [itIsDarkHere, setItIsDarkHere] = useState<boolean>(false);
     const [pingMove, setPingMove] = useState<{id: string; nonce: number}>({id: '', nonce: 0});
     const [showJumpToLatest, setShowJumpToLatest] = useState<boolean>(false);
     const atBottomRef = React.useRef<boolean>(true);
@@ -152,6 +155,8 @@ function Game() {
         showCommandsMenu,
         showLocationButton,
         showInventoryButton,
+        showLocationImages,
+        animations,
     } = useGameContext();
 
     function focusOnPlayerInput() {
@@ -324,6 +329,7 @@ function Game() {
         setGameText((prevGameText) => [...prevGameText, textToAppend]);
         setInput('');
         setLocationName(data.locationName);
+        setItIsDarkHere(data.itIsDarkHere ?? false);
         setScore(data.score.toString());
         setMoves(data.moves.toString());
         setInventory(data.inventory);
@@ -522,6 +528,16 @@ function Game() {
                         ))}
                     </div>
                 </ClickableText>
+
+                {/* Sits inside the transcript's relative box, so the plate covers the
+                    panel the room description just landed in and dissolves back into it. */}
+                <LocationImage
+                    locationName={locationName}
+                    images={ZORK_LOCATION_IMAGES}
+                    isDark={itIsDarkHere}
+                    enabled={showLocationImages}
+                    animate={animations}
+                />
 
                 {showJumpToLatest && (
                     <button

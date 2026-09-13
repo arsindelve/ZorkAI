@@ -29,6 +29,7 @@ import {
     showCommandsMenuPreference,
     showLocationButtonPreference,
     showInventoryButtonPreference,
+    showLocationImagesPreference,
     animationsPreference,
 } from '../preferences/toggles';
 import {useBooleanPreference} from '../preferences/useBooleanPreference';
@@ -82,6 +83,9 @@ interface GameContextType {
 
     showInventoryButton: boolean;
     setShowInventoryButton: (show: boolean) => void;
+
+    showLocationImages: boolean;
+    setShowLocationImages: (show: boolean) => void;
 
     animations: boolean;
     setAnimations: (enabled: boolean) => void;
@@ -171,6 +175,9 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     const [showInventoryButton, setShowInventoryButton] = useBooleanPreference(
         showInventoryButtonPreference,
     );
+    const [showLocationImages, setShowLocationImages] = useBooleanPreference(
+        showLocationImagesPreference,
+    );
 
     const [compassSize, setCompassSizeState] = useState<CompassSize>(loadCompassSize);
 
@@ -214,6 +221,8 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 setShowLocationButton,
                 showInventoryButton,
                 setShowInventoryButton,
+                showLocationImages,
+                setShowLocationImages,
                 animations,
                 setAnimations,
             }}

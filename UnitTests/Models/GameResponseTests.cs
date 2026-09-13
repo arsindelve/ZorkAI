@@ -272,6 +272,43 @@ public class GameResponseTests
     }
 
     [Test]
+    public void GameResponse_GameEngineConstructor_WhenDark_ShouldReportDarkness()
+    {
+        // The client has location-derived things of its own to withhold in the dark - the room
+        // artwork most of all - so the darkness the server already acts on has to reach it.
+        var mockGameEngine = new Mock<IGameEngine>();
+        mockGameEngine.Setup(ge => ge.LocationName).Returns("Cellar");
+        mockGameEngine.Setup(ge => ge.Inventory).Returns(new List<string>());
+        mockGameEngine.Setup(ge => ge.Exits).Returns(new List<Direction>());
+        mockGameEngine.Setup(ge => ge.Context!.ItIsDarkHere).Returns(true);
+
+        var gameResponse = new GameResponse(
+            "It is pitch black. You are likely to be eaten by a grue.", mockGameEngine.Object);
+
+        gameResponse.ItIsDarkHere.Should().BeTrue();
+    }
+
+    [Test]
+    public void GameResponse_GameEngineConstructor_WhenLit_ShouldNotReportDarkness()
+    {
+        var mockGameEngine = new Mock<IGameEngine>();
+        mockGameEngine.Setup(ge => ge.LocationName).Returns("Cellar");
+        mockGameEngine.Setup(ge => ge.Inventory).Returns(new List<string>());
+        mockGameEngine.Setup(ge => ge.Exits).Returns(new List<Direction>());
+        mockGameEngine.Setup(ge => ge.Context!.ItIsDarkHere).Returns(false);
+        // The lit branch reaches into the location for its action chips, which the dark
+        // branch skips entirely - so only this test needs them stubbed.
+        mockGameEngine.Setup(ge => ge.Context!.GetAvailableActionsForInventory())
+            .Returns(new Dictionary<string, List<string>>());
+        mockGameEngine.Setup(ge => ge.Context!.CurrentLocation.GetAvailableActionsInLocation())
+            .Returns(new Dictionary<string, List<string>>());
+
+        var gameResponse = new GameResponse("You are in the cellar.", mockGameEngine.Object);
+
+        gameResponse.ItIsDarkHere.Should().BeFalse();
+    }
+
+    [Test]
     public void GameResponse_GameEngineConstructor_WhenLit_ShouldExposeLocationExitsAndActions()
     {
         // Control for issue #238: when the room is lit, the location-derived fields populate normally.
