@@ -51,9 +51,10 @@ describe('PreferencesModal', () => {
         jest.clearAllMocks();
     });
 
-    test('shows all four transcript font sizes', () => {
+    test('shows all five transcript font sizes', () => {
         renderModal();
 
+        expect(screen.getByText('Extra Small')).toBeInTheDocument();
         expect(screen.getByText('Small')).toBeInTheDocument();
         expect(screen.getByText('Medium')).toBeInTheDocument();
         expect(screen.getByText('Large')).toBeInTheDocument();

@@ -9,12 +9,13 @@ import {PREFERENCE_KEY_PREFIX, readStoredPreference, writeStoredPreference} from
 
 /* ----------------------------------------------------------------------- size */
 
-export type CompassSize = 'small' | 'medium' | 'large';
+export type CompassSize = 'xsmall' | 'small' | 'medium' | 'large';
 
 /** Menu order, smallest first. */
-export const COMPASS_SIZES: readonly CompassSize[] = ['small', 'medium', 'large'];
+export const COMPASS_SIZES: readonly CompassSize[] = ['xsmall', 'small', 'medium', 'large'];
 
 export const COMPASS_SIZE_LABELS: Record<CompassSize, string> = {
+    xsmall: 'Smallest',
     small: 'Smaller',
     medium: 'Default',
     large: 'Larger',
@@ -27,6 +28,7 @@ export const COMPASS_SIZE_LABELS: Record<CompassSize, string> = {
  * step without duplicating that scale in every client.
  */
 export const COMPASS_SIZE_SCALE: Record<CompassSize, number> = {
+    xsmall: 0.7,
     small: 0.85,
     medium: 1,
     large: 1.18,

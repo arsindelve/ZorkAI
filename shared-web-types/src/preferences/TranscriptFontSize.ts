@@ -8,10 +8,11 @@
 
 import {PREFERENCE_KEY_PREFIX, readStoredPreference, writeStoredPreference} from './storage';
 
-export type TranscriptFontSize = 'small' | 'medium' | 'large' | 'xlarge';
+export type TranscriptFontSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
 
 /** Menu order, smallest first. */
 export const TRANSCRIPT_FONT_SIZES: readonly TranscriptFontSize[] = [
+    'xsmall',
     'small',
     'medium',
     'large',
@@ -19,6 +20,7 @@ export const TRANSCRIPT_FONT_SIZES: readonly TranscriptFontSize[] = [
 ];
 
 export const TRANSCRIPT_FONT_SIZE_LABELS: Record<TranscriptFontSize, string> = {
+    xsmall: 'Extra Small',
     small: 'Small',
     medium: 'Medium',
     large: 'Large',
@@ -32,6 +34,7 @@ export const TRANSCRIPT_FONT_SIZE_LABELS: Record<TranscriptFontSize, string> = {
  * and Zork (15px) and Planetfall (16px) can keep their different baselines.
  */
 export const TRANSCRIPT_FONT_SCALE: Record<TranscriptFontSize, number> = {
+    xsmall: 0.74,
     small: 0.87,
     medium: 1,
     large: 1.15,

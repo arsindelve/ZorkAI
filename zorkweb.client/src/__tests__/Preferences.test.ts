@@ -1,7 +1,9 @@
 import {
     DEFAULT_COMPASS_SIZE,
     DEFAULT_TRANSCRIPT_FONT_SIZE,
+    COMPASS_SIZES,
     COMPASS_SIZE_STORAGE_KEY,
+    TRANSCRIPT_FONT_SIZES,
     TRANSCRIPT_FONT_SIZE_STORAGE_KEY,
     compassScale,
     createBooleanPreference,
@@ -77,15 +79,20 @@ describe('User preferences', () => {
             );
         });
 
-        test('the four sizes are strictly ordered and whole pixels', () => {
-            const [small, medium, large, xlarge] = (
-                ['small', 'medium', 'large', 'xlarge'] as const
-            ).map((size) => transcriptFontSizePx(TRANSCRIPT_BASE_FONT_SIZE_PX, size));
+        test('every rung is strictly larger than the one below it, in whole pixels', () => {
+            const px = TRANSCRIPT_FONT_SIZES.map((size) =>
+                transcriptFontSizePx(TRANSCRIPT_BASE_FONT_SIZE_PX, size),
+            );
 
-            expect(small).toBeLessThan(medium);
-            expect(medium).toBeLessThan(large);
-            expect(large).toBeLessThan(xlarge);
-            [small, medium, large, xlarge].forEach((px) => expect(Number.isInteger(px)).toBe(true));
+            px.forEach((value, index) => {
+                expect(Number.isInteger(value)).toBe(true);
+                // Rungs a shared pixel apart would be indistinguishable in the menu.
+                if (index > 0) expect(value).toBeGreaterThan(px[index - 1]);
+            });
+        });
+
+        test('offers five sizes', () => {
+            expect(TRANSCRIPT_FONT_SIZES).toHaveLength(5);
         });
 
         test('scales from each game’s own base, so the games can differ', () => {
@@ -93,8 +100,9 @@ describe('User preferences', () => {
             expect(transcriptFontSizePx(15, 'large')).not.toBe(transcriptFontSizePx(16, 'large'));
         });
 
-        test('isTranscriptFontSize accepts only the four sizes', () => {
+        test('isTranscriptFontSize accepts only the five sizes', () => {
             expect(isTranscriptFontSize('small')).toBe(true);
+            expect(isTranscriptFontSize('xsmall')).toBe(true);
             expect(isTranscriptFontSize('xlarge')).toBe(true);
             expect(isTranscriptFontSize('huge')).toBe(false);
             expect(isTranscriptFontSize(null)).toBe(false);
@@ -265,8 +273,14 @@ describe('User preferences', () => {
             expect(compassScale('medium')).toBe(1);
         });
 
-        test('offers exactly one step smaller and one step larger', () => {
-            expect(compassScale('small')).toBeLessThan(1);
+        test('offers two steps down and one up, each strictly ordered', () => {
+            const scales = COMPASS_SIZES.map(compassScale);
+
+            expect(scales).toHaveLength(4);
+            scales.forEach((value, index) => {
+                if (index > 0) expect(value).toBeGreaterThan(scales[index - 1]);
+            });
+            expect(compassScale('xsmall')).toBeLessThan(compassScale('small'));
             expect(compassScale('large')).toBeGreaterThan(1);
         });
 
@@ -283,8 +297,9 @@ describe('User preferences', () => {
             expect(loadCompassSize()).toBe('medium');
         });
 
-        test('isCompassSize accepts only the three sizes', () => {
+        test('isCompassSize accepts only its own sizes', () => {
             expect(isCompassSize('small')).toBe(true);
+            expect(isCompassSize('xsmall')).toBe(true);
             expect(isCompassSize('xlarge')).toBe(false);
             expect(isCompassSize(undefined)).toBe(false);
         });
