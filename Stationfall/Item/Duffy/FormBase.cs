@@ -1,3 +1,4 @@
+using Model.AIGeneration;
 using GameEngine.Item;
 using Model.Interface;
 using Model.Item;
@@ -15,6 +16,22 @@ public abstract class FormBase : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
     /// <summary>
     ///     The form's serial designation, e.g. "QX-17-T".
     /// </summary>
+    /// <summary>
+    ///     Destroying Patrol paperwork is an offence, and the form says so rather than letting the
+    ///     narrator improvise a refusal (ship.zil FORM-F).
+    /// </summary>
+    public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action,
+        IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
+    {
+        if (action.MatchNounAndAdjective(NounsForMatching) &&
+            action.MatchVerb(["crumple", "destroy", "tear", "rip", "shred", "burn", "eat", "break"]))
+            return new PositiveInteractionResult(
+                "Destroying a Patrol form is a violation of the Uniform Code of Paperwork, and you " +
+                "have no intention of explaining yourself at a hearing. ");
+
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
+    }
+
     public abstract string FormNumber { get; }
 
     /// <summary>

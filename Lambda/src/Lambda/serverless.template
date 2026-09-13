@@ -15,7 +15,11 @@
         "Timeout": 30,
         "Role": null,
         "Policies": [
-          "AWSLambda_FullAccess"
+          "AWSLambda_FullAccess",
+          "AmazonDynamoDBFullAccess",
+          "SecretsManagerReadWrite",
+          "AmazonBedrockFullAccess",
+          "arn:aws:iam::576431164672:policy/ReadZorkPrompts"
         ],
         "Events": {
           "ProxyResource": {

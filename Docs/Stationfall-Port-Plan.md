@@ -98,8 +98,12 @@ ceiling, air, the player's own body — which the engine had no equivalent for a
 now declares `GlobalScenery`, checked after a room's own, so one system closed 92% of the gap and did
 it for Zork and Planetfall too.
 
-Note what the sweep covers today: `examine` on the nouns each room's prose puts in front of the
-player. That is the floor, not the ceiling. The next passes should widen it to the full verb set the
+The verb sweep now measures zero too, and `EveryVerbTheOriginalAnswersFor_IsAnsweredHere` gates it:
+all 54 object/verb pairs the originals' action routines author an answer for, across the objects
+reachable in the opening, are answered here. It started at 22.
+
+Note what the sweeps cover today: the nouns each room's prose raises, and the verbs each object's ZIL
+action routine names. That is the floor, not the ceiling. The next passes should widen it to the full verb set the
 original answers for, then to the objects rather than just the rooms — and each widening should be
 expected to find new gaps. A zero here means "nothing known is missing", never "nothing is missing".
 

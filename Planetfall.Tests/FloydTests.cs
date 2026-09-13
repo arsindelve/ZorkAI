@@ -1303,6 +1303,169 @@ public class FloydTests : EngineTestsBase
         mockClient.Verify(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()), Times.Once);
     }
 
+    // Issue #549: Floyd's return is committed (placed back in the room, IsOffWandering cleared) BEFORE
+    // the return line is generated. When that generation call fails or comes back empty, the player is
+    // left with no way to know their companion is back - he silently rematerializes, and a player who
+    // keeps waiting has no idea he is already standing beside them. A companion's comings and goings
+    // are load-bearing state changes, so the announcement must never depend on a live LLM call, the
+    // same way Floyd.OnBeingTalkedTo already falls back to a canned line when the chat service fails.
+    [Test]
+    public async Task FloydWanders_Returns_WithCannedMessage_WhenGenerationThrows()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.IsOffWandering = true;
+        floyd.WanderingTurnsRemaining = 1;
+        floyd.CurrentLocation = null; // Floyd is wandering, not in any location
+        target.Context.RegisterActor(floyd);
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.Choose(It.IsAny<List<string>>()))
+            .Returns(FloydConstants.ReturnMessages[0]);
+        floyd.Chooser = mockChooser.Object;
+
+        // The generation path really does fail in production - a proxy 502 was recorded in the
+        // session that produced this bug report.
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ThrowsAsync(new HttpRequestException("502 Bad Gateway"));
+
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain(FloydConstants.ReturnMessages[0].Trim());
+        floyd.IsOffWandering.Should().BeFalse();
+        floyd.WanderingTurnsRemaining.Should().Be(0);
+        floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
+    }
+
+    [Test]
+    public async Task FloydWanders_Returns_WithCannedMessage_WhenGenerationIsEmpty()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.IsOffWandering = true;
+        floyd.WanderingTurnsRemaining = 1;
+        floyd.CurrentLocation = null;
+        target.Context.RegisterActor(floyd);
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.Choose(It.IsAny<List<string>>()))
+            .Returns(FloydConstants.ReturnMessages[0]);
+        floyd.Chooser = mockChooser.Object;
+
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync(string.Empty);
+
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain(FloydConstants.ReturnMessages[0].Trim());
+        floyd.IsOffWandering.Should().BeFalse();
+        floyd.CurrentLocation.Should().Be(GetLocation<RobotShop>());
+    }
+
+    // The departure path (issue #549) has exactly the same shape: Floyd is pulled out of the room
+    // before his goodbye is generated, so a failed call would have him vanish without a word.
+    [Test]
+    public async Task FloydWanders_Leaves_WithCannedMessage_WhenGenerationThrows()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+        target.Context.RegisterActor(floyd);
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(20)).Returns(true); // Trigger wandering
+        mockChooser.Setup(r => r.RollDice(5)).Returns(3);
+        floyd.Chooser = mockChooser.Object;
+
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ThrowsAsync(new HttpRequestException("502 Bad Gateway"));
+
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain(FloydConstants.GoingExploring);
+        floyd.IsOffWandering.Should().BeTrue();
+        floyd.WanderingTurnsRemaining.Should().Be(3);
+        GetLocation<RobotShop>().Items.Should().NotContain(floyd);
+    }
+
+    [Test]
+    public async Task FloydWanders_Leaves_WithCannedMessage_WhenGenerationIsEmpty()
+    {
+        var target = GetTarget();
+        var robotShop = StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.CurrentLocation = robotShop;
+        robotShop.ItemPlacedHere(floyd);
+        target.Context.RegisterActor(floyd);
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDiceSuccess(20)).Returns(true);
+        mockChooser.Setup(r => r.RollDice(5)).Returns(3);
+        floyd.Chooser = mockChooser.Object;
+
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ReturnsAsync("   ");
+
+        var response = await target.GetResponse("wait");
+
+        response.Should().Contain(FloydConstants.GoingExploring);
+        floyd.IsOffWandering.Should().BeTrue();
+        GetLocation<RobotShop>().Items.Should().NotContain(floyd);
+    }
+
+    // Third member of the same family (issue #549): when Floyd follows the player into a special
+    // interaction location, "Floyd follows you." is concatenated with a generated comment about the
+    // room. A failing generation call took the whole follow announcement down with it - and burned
+    // the location's one-shot InteractionHasHappened flag on the way, so the beat was lost forever.
+    [Test]
+    public async Task FloydFollows_StillAnnouncesFollow_WhenSpecialLocationCommentGenerationThrows()
+    {
+        var target = GetTarget();
+        var corridor = StartHere<MechCorridor>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.TurnOnCountdown = 0;
+        floyd.CurrentLocation = corridor;
+        corridor.ItemPlacedHere(floyd);
+        target.Context.RegisterActor(floyd);
+
+        var mockChooser = new Mock<IRandomChooser>();
+        mockChooser.Setup(r => r.RollDice(5)).Returns(2); // Not 1, so Floyd follows normally
+        floyd.Chooser = mockChooser.Object;
+
+        var mockClient = Mock.Get(target.GenerationClient);
+        mockClient.Setup(x => x.GenerateCompanionSpeech(It.IsAny<CompanionRequest>()))
+            .ThrowsAsync(new HttpRequestException("502 Bad Gateway"));
+
+        var response = await target.GetResponse("west");
+
+        response.Should().Contain("Floyd follows you");
+        floyd.CurrentLocation.Should().Be(GetLocation<Planetfall.Location.Kalamontee.Mech.PhysicalPlant>());
+        // The one-shot beat was never delivered, so it must not be marked as spent.
+        GetLocation<Planetfall.Location.Kalamontee.Mech.PhysicalPlant>().InteractionHasHappened.Should().BeFalse();
+    }
+
     [Test]
     public async Task FloydWanders_CountsDown_OverMultipleTurns()
     {
