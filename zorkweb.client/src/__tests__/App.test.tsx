@@ -3,6 +3,7 @@ import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 import {DialogType, ReleaseNotesServer, useGameContext} from '@zork-ai/shared-types';
 import App from '../App';
 import Server from '../Server';
+import {preferenceDefaults} from '../__mocks__/preferenceDefaults';
 
 jest.mock('../Game', () => () => <div data-testid="game" />);
 jest.mock('../Server');
@@ -31,6 +32,7 @@ jest.mock('@zork-ai/shared-types', () => {
         RestartConfirmDialog: modal('restart-modal'),
         VideoDialog: modal('video-modal'),
         ReleaseNotesModal: modal('release-notes-modal'),
+        PreferencesModal: modal('preferences-modal'),
     };
 });
 
@@ -40,6 +42,7 @@ describe('App', () => {
         dialogToOpen: undefined as DialogType | undefined,
         setDialogToOpen: jest.fn(),
         setRestartGame: jest.fn(),
+        ...preferenceDefaults,
     };
 
     beforeEach(() => {
@@ -79,6 +82,7 @@ describe('App', () => {
         [DialogType.Video, 'video-modal'],
         [DialogType.Welcome, 'welcome-modal'],
         [DialogType.ReleaseNotes, 'release-notes-modal'],
+        [DialogType.Preferences, 'preferences-modal'],
     ])('opens the %s dialog without loading saves', async (dialog, testId) => {
         context.dialogToOpen = dialog;
         render(<App />);

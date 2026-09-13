@@ -196,3 +196,17 @@
 .footer-text:hover {
     color: color-mix(in srgb, var(--planetfall-primary) 60%, white);
 }
+
+/* Reduce motion (Preferences > Animations off).
+   Set as data-reduce-motion on <html> by GameProvider, so it also covers MUI dialogs
+   and menus that render through a portal. Near-zero durations rather than `none` so
+   animations still *complete* and fire their end events - killing them outright can
+   leave an element stuck at its starting opacity. */
+:root[data-reduce-motion='true'] *,
+:root[data-reduce-motion='true'] *::before,
+:root[data-reduce-motion='true'] *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+}

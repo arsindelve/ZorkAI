@@ -9,6 +9,11 @@ import {
     InventoryButton,
     LocationButton,
     DialogType,
+    transcriptFontSizePx,
+    transcriptFontStack,
+    transcriptLineHeight,
+    formatTranscriptMarker,
+    compassScale,
 } from '@zork-ai/shared-types';
 import React, {useEffect, useState} from 'react';
 import {Alert, Button, CircularProgress, Snackbar} from '@mui/material';
@@ -21,6 +26,7 @@ import {Compass, parseMoveDirection} from '@zork-ai/shared-types';
 
 import {useGameContext} from '@zork-ai/shared-types';
 import GameInput from './components/GameInput.tsx';
+import {TRANSCRIPT_BASE_FONT_SIZE_PX} from './transcriptFontSize.ts';
 
 // --- Per-word hover highlight (CSS Custom Highlight API) ---------------------
 // Lives in the client (passed to ClickableText as onMouseMove/onMouseLeave) rather
@@ -117,6 +123,11 @@ function Game() {
     const sessionId = new SessionHandler();
     const server = new Server();
 
+    // Counts the commands the player has typed, for the optional transcript marker.
+    // A ref, not state: it is read inside the response handler, where a state value
+    // captured at render time would be stale.
+    const commandCount = React.useRef<number>(0);
+
     const gameContentElement = React.useRef<HTMLDivElement & ClickableTextHandle>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);
 
@@ -131,6 +142,16 @@ function Game() {
         deleteGameRequest,
         setDeleteGameRequest,
         setCopyGameTranscript,
+        transcriptFontSize,
+        transcriptFont,
+        transcriptLineSpacing,
+        transcriptMarker,
+        showCompass,
+        compassSize,
+        showVerbsMenu,
+        showCommandsMenu,
+        showLocationButton,
+        showInventoryButton,
     } = useGameContext();
 
     function focusOnPlayerInput() {
@@ -287,8 +308,16 @@ function Game() {
 
         // Only render the command-echo paragraph when there's actually a command —
         // an empty <p> still carries margins and threw off the spacing above room names.
+        let marker = '';
+        if (playerInput) {
+            commandCount.current += 1;
+            const label = formatTranscriptMarker(transcriptMarker, commandCount.current);
+            marker = label
+                ? `<span data-testid="command-marker" class="opacity-50 font-normal mr-2">${label}</span>`
+                : '';
+        }
         const echo = playerInput
-            ? `<p data-testid="command-echo" class="text-[#c49a4c] font-extrabold mt-3 mb-1">> ${playerInput}</p>`
+            ? `<p data-testid="command-echo" class="text-[#c49a4c] font-extrabold mt-3 mb-1">${marker}> ${playerInput}</p>`
             : '';
         const textToAppend = echo + data.response;
 
@@ -413,6 +442,7 @@ function Game() {
 
             <Header locationName={locationName} moves={moves} score={score} />
 
+            {showCompass && (
             <Compass
                 onCompassClick={handleCommandClick}
                 exits={exits}
@@ -435,8 +465,14 @@ function Game() {
                     WebkitBackdropFilter: 'blur(8px)',
                     border: '1px solid rgba(196, 154, 76, 0.3)',
                     boxShadow: '0 4px 20px rgba(196, 154, 76, 0.18), 0 2px 10px rgba(0, 0, 0, 0.5)',
+                    // Scale the whole container so the rose, its up/down controls and
+                    // its padding resize together. Anchored top-right because that is
+                    // the corner it is positioned from, so it grows inward.
+                    transform: `scale(${compassScale(compassSize)})`,
+                    transformOrigin: 'top right',
                 }}
             />
+            )}
 
             <div className="relative flex-1 min-h-0 mt-2">
                 <ClickableText
@@ -448,9 +484,21 @@ function Game() {
                     onScroll={handleTranscriptScroll}
                     className={
                         'relative flex flex-col p-6 sm:p-12 bg-opacity-80 h-full overflow-auto ' +
-                        'bg-stone-900 font-mono rounded-t-lg border-t-2 border-x-2 ' +
+                        'bg-stone-900 rounded-t-lg border-t-2 border-x-2 ' +
                         'border-stone-700/50 shadow-lg clickable z-10'
                     }
+                    // Set here rather than as Tailwind classes so the whole transcript
+                    // inherits one size and family the preferences can drive at runtime.
+                    // The font-mono class was removed for the same reason: two sources
+                    // of truth for the family is one too many.
+                    style={{
+                        fontSize: `${transcriptFontSizePx(
+                            TRANSCRIPT_BASE_FONT_SIZE_PX,
+                            transcriptFontSize,
+                        )}px`,
+                        fontFamily: transcriptFontStack(transcriptFont),
+                        lineHeight: transcriptLineHeight(transcriptLineSpacing),
+                    }}
                     data-testid="game-responses-container"
                 >
                     <div className="relative z-0">
@@ -529,8 +577,8 @@ function Game() {
                         min-h-[44px]
                         "
                     >
-                        <VerbsButton onVerbClick={handleVerbClick} />
-                        {inventory.length > 0 && (
+                        {showVerbsMenu && <VerbsButton onVerbClick={handleVerbClick} />}
+                        {showInventoryButton && inventory.length > 0 && (
                             <InventoryButton
                                 onInventoryClick={handleInventoryClick}
                                 onActionClick={handleCommandClick}
@@ -538,14 +586,19 @@ function Game() {
                                 inventoryActions={inventoryActions}
                             />
                         )}
-                        {Object.values(locationActions).some((actions) => actions.length > 0) && (
+                        {showLocationButton &&
+                            Object.values(locationActions).some(
+                                (actions) => actions.length > 0,
+                            ) && (
                             <LocationButton
                                 onItemClick={handleInventoryClick}
                                 onActionClick={handleCommandClick}
                                 locationActions={locationActions}
                             />
                         )}
-                        <CommandsButton onCommandClick={handleCommandClick} />
+                        {showCommandsMenu && (
+                            <CommandsButton onCommandClick={handleCommandClick} />
+                        )}
 
                         <Button
                             variant="contained"
