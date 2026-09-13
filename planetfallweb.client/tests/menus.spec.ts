@@ -90,7 +90,8 @@ test.describe('Game Menus', () => {
 
         // Verify that the menu contains expected items
         const menuItems = page.locator('#game-menu li');
-        await expect(menuItems).toHaveCount(4); // There are 4 menu items in the FunctionsMenu component
+        // Restart, Restore, Save, Copy Transcript, Preferences
+        await expect(menuItems).toHaveCount(5);
 
         // Verify a specific menu item is present
         const restartGameItem = page.locator('#game-menu li:has-text("Restart Your Game")');
