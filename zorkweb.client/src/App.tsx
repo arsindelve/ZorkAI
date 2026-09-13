@@ -16,8 +16,10 @@ import {
     DialogType,
     ReleaseNotesServer,
     ReleaseNotesModal,
+    PreferencesModal,
 } from '@zork-ai/shared-types';
 import WelcomeDialog from './modal/WelcomeModal.tsx';
+import {TRANSCRIPT_BASE_FONT_SIZE_PX} from './transcriptFontSize.ts';
 
 function App() {
     const [restartConfirmOpen, setRestartConfirmOpen] = useState<boolean>(false);
@@ -27,6 +29,7 @@ function App() {
     const [welcomeDialogOpen, setWelcomeDialogOpen] = useState<boolean>(false);
     const [videoDialogOpen, setVideoDialogOpen] = useState<boolean>(false);
     const [releaseNotesDialogOpen, setReleaseNotesDialogOpen] = useState<boolean>(false);
+    const [preferencesDialogOpen, setPreferencesDialogOpen] = useState<boolean>(false);
     const [releases, setReleases] = useState<{date: string; name: string; notes: string}[]>([]);
     const [latestVersion, setLatestVersion] = useState<string>('');
 
@@ -84,6 +87,11 @@ function App() {
                 case DialogType.ReleaseNotes:
                     Mixpanel.track('Open Release Notes Dialog', {});
                     setReleaseNotesDialogOpen(true);
+                    setDialogToOpen(undefined);
+                    break;
+                case DialogType.Preferences:
+                    Mixpanel.track('Open Preferences Dialog', {});
+                    setPreferencesDialogOpen(true);
                     setDialogToOpen(undefined);
                     break;
                 default:
@@ -158,6 +166,15 @@ function App() {
                         open={releaseNotesDialogOpen}
                         releases={releases}
                         gameName="Zork AI"
+                    />
+
+                    <PreferencesModal
+                        open={preferencesDialogOpen}
+                        baseFontSizePx={TRANSCRIPT_BASE_FONT_SIZE_PX}
+                        handleClose={() => {
+                            setPreferencesDialogOpen(false);
+                            Mixpanel.track('Close Preferences Dialog', {});
+                        }}
                     />
 
                     <WelcomeDialog

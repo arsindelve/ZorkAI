@@ -4,6 +4,7 @@ import {DialogType, SessionHandler, useGameContext} from '@zork-ai/shared-types'
 import {useMutation} from '@tanstack/react-query';
 import Game from '../Game';
 import Server from '../Server';
+import {preferenceDefaults} from '../__mocks__/preferenceDefaults';
 
 jest.mock('@tanstack/react-query', () => ({useMutation: jest.fn()}));
 jest.mock('@fontsource/roboto', () => ({}));
@@ -59,6 +60,7 @@ describe('Game', () => {
         deleteGameRequest: undefined,
         setDeleteGameRequest: jest.fn(),
         setCopyGameTranscript: jest.fn(),
+        ...preferenceDefaults,
     };
     let mutationOptions: {onSuccess: (response: unknown) => void};
 

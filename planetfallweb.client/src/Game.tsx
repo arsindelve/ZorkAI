@@ -9,6 +9,11 @@ import {
     InventoryButton,
     LocationButton,
     DialogType,
+    transcriptFontSizePx,
+    transcriptFontStack,
+    transcriptLineHeight,
+    formatTranscriptMarker,
+    compassScale,
 } from '@zork-ai/shared-types';
 import React, {useEffect, useState} from 'react';
 import {Alert, Button, CircularProgress, Snackbar} from '@mui/material';
@@ -16,6 +21,7 @@ import '@fontsource/roboto';
 import Header from './components/Header.tsx';
 
 import Server from './Server';
+import {TRANSCRIPT_BASE_FONT_SIZE_PX} from './transcriptFontSize.ts';
 import {ClickableText, ClickableTextHandle} from '@zork-ai/shared-types';
 import {Compass, parseMoveDirection} from '@zork-ai/shared-types';
 
@@ -117,6 +123,11 @@ function Game() {
     const sessionId = new SessionHandler();
     const server = new Server();
 
+    // Counts the commands the player has typed, for the optional transcript marker.
+    // A ref, not state: it is read inside the response handler, where a state value
+    // captured at render time would be stale.
+    const commandCount = React.useRef<number>(0);
+
     const gameContentElement = React.useRef<HTMLDivElement & ClickableTextHandle>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);
 
@@ -131,6 +142,16 @@ function Game() {
         deleteGameRequest,
         setDeleteGameRequest,
         setCopyGameTranscript,
+        transcriptFontSize,
+        transcriptFont,
+        transcriptLineSpacing,
+        transcriptMarker,
+        showCompass,
+        compassSize,
+        showVerbsMenu,
+        showCommandsMenu,
+        showLocationButton,
+        showInventoryButton,
     } = useGameContext();
 
     function focusOnPlayerInput() {
@@ -292,8 +313,16 @@ function Game() {
 
         // Only render the command-echo paragraph when there's actually a command —
         // an empty <p> still carries margins and threw off the spacing above room names.
+        let marker = '';
+        if (playerInput) {
+            commandCount.current += 1;
+            const label = formatTranscriptMarker(transcriptMarker, commandCount.current);
+            marker = label
+                ? `<span data-testid="command-marker" class="opacity-50 font-normal mr-2">${label}</span>`
+                : '';
+        }
         const echo = playerInput
-            ? `<p class="font-extrabold mt-3 mb-1 text-glow" style="color: var(--planetfall-primary);">> ${playerInput}</p>`
+            ? `<p class="font-extrabold mt-3 mb-1 text-glow" style="color: var(--planetfall-primary);">${marker}> ${playerInput}</p>`
             : '';
         const textToAppend = echo + data.response;
 
@@ -418,11 +447,12 @@ function Game() {
 
             <Header locationName={locationName} time={time} score={score} />
 
-            <Compass
-                onCompassClick={handleCommandClick}
-                exits={exits}
-                pingMove={pingMove}
-                className="
+            {showCompass && (
+                <Compass
+                    onCompassClick={handleCommandClick}
+                    exits={exits}
+                    pingMove={pingMove}
+                    className="
             hidden
             md:block
             absolute
@@ -433,16 +463,20 @@ function Game() {
             rounded-xl
             p-7
             "
-                style={{
-                    background:
-                        'linear-gradient(135deg, color-mix(in srgb, var(--planetfall-bg-medium) 14%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 14%, transparent) 100%)',
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
-                    border: '1px solid color-mix(in srgb, var(--planetfall-primary) 30%, transparent)',
-                    boxShadow:
-                        '0 4px 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent), 0 2px 10px rgba(0, 0, 0, 0.5)',
-                }}
-            />
+                    style={{
+                        background:
+                            'linear-gradient(135deg, color-mix(in srgb, var(--planetfall-bg-medium) 14%, transparent) 0%, color-mix(in srgb, var(--planetfall-bg-dark) 14%, transparent) 100%)',
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
+                        border: '1px solid color-mix(in srgb, var(--planetfall-primary) 30%, transparent)',
+                        boxShadow:
+                            '0 4px 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent), 0 2px 10px rgba(0, 0, 0, 0.5)',
+                        // Scale the container so rose, controls and padding move together.
+                        transform: `scale(${compassScale(compassSize)})`,
+                        transformOrigin: 'top right',
+                    }}
+                />
+            )}
 
             <div className="relative flex-1 min-h-0 max-h-[55vh]">
                 <ClickableText
@@ -452,8 +486,16 @@ function Game() {
                     onScroll={handleTranscriptScroll}
                     onMouseMove={highlightWordAtPointer}
                     onMouseLeave={clearWordHighlight}
-                    className="relative flex flex-col p-6 sm:p-12 h-full overflow-auto font-mono rounded-lg border-2 shadow-lg clickable z-10"
+                    className="relative flex flex-col p-6 sm:p-12 h-full overflow-auto rounded-lg border-2 shadow-lg clickable z-10"
                     style={{
+                        // Set here rather than as a utility class so the whole
+                        // transcript inherits one size the preference can drive.
+                        fontSize: `${transcriptFontSizePx(
+                            TRANSCRIPT_BASE_FONT_SIZE_PX,
+                            transcriptFontSize,
+                        )}px`,
+                        fontFamily: transcriptFontStack(transcriptFont),
+                        lineHeight: transcriptLineHeight(transcriptLineSpacing),
                         background:
                             'linear-gradient(135deg, var(--planetfall-bg-dark) 0%, #020617 100%)',
                         borderColor:
@@ -561,8 +603,8 @@ function Game() {
                         min-h-[44px]
                         "
                     >
-                        <VerbsButton onVerbClick={handleVerbClick} />
-                        {inventory.length > 0 && (
+                        {showVerbsMenu && <VerbsButton onVerbClick={handleVerbClick} />}
+                        {showInventoryButton && inventory.length > 0 && (
                             <InventoryButton
                                 onInventoryClick={handleInventoryClick}
                                 onActionClick={handleCommandClick}
@@ -570,14 +612,17 @@ function Game() {
                                 inventoryActions={inventoryActions}
                             />
                         )}
-                        {Object.values(locationActions).some((actions) => actions.length > 0) && (
-                            <LocationButton
-                                onItemClick={handleInventoryClick}
-                                onActionClick={handleCommandClick}
-                                locationActions={locationActions}
-                            />
-                        )}
-                        <CommandsButton onCommandClick={handleCommandClick} />
+                        {showLocationButton &&
+                            Object.values(locationActions).some(
+                                (actions) => actions.length > 0,
+                            ) && (
+                                <LocationButton
+                                    onItemClick={handleInventoryClick}
+                                    onActionClick={handleCommandClick}
+                                    locationActions={locationActions}
+                                />
+                            )}
+                        {showCommandsMenu && <CommandsButton onCommandClick={handleCommandClick} />}
 
                         <Button
                             variant="contained"

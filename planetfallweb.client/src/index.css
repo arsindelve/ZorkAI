@@ -23,6 +23,17 @@
     --compass-label-color: color-mix(in srgb, var(--planetfall-text) 65%, transparent);
     --compass-btn-text: #cfeaff;
     --compass-btn-idle: var(--planetfall-text);
+
+    /* Preferences dialog palette (see PreferencesModal in the shared package). */
+    --pref-surface: #0a1929;
+    --pref-surface-raised: #1e293b;
+    --pref-specimen-bg: #020617;
+    --pref-accent: var(--planetfall-primary);
+    --pref-accent-bright: var(--planetfall-accent);
+    --pref-text-color: var(--planetfall-text);
+    --pref-text-muted: color-mix(in srgb, var(--planetfall-text) 78%, transparent);
+    --pref-text-dim: color-mix(in srgb, var(--planetfall-text) 60%, transparent);
+    --pref-border: color-mix(in srgb, var(--planetfall-primary) 25%, transparent);
 }
 
 /* Animations */
@@ -195,4 +206,18 @@
 
 .footer-text:hover {
     color: color-mix(in srgb, var(--planetfall-primary) 60%, white);
+}
+
+/* Reduce motion (Preferences > Animations off).
+   Set as data-reduce-motion on <html> by GameProvider, so it also covers MUI dialogs
+   and menus that render through a portal. Near-zero durations rather than `none` so
+   animations still *complete* and fire their end events - killing them outright can
+   leave an element stuck at its starting opacity. */
+:root[data-reduce-motion='true'] *,
+:root[data-reduce-motion='true'] *::before,
+:root[data-reduce-motion='true'] *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
 }

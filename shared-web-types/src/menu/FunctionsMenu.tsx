@@ -8,6 +8,7 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import RestoreIcon from '@mui/icons-material/Restore';
 import SaveIcon from '@mui/icons-material/Save';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import TuneIcon from '@mui/icons-material/Tune';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {ListItemIcon, ListItemText} from '@mui/material';
@@ -127,6 +128,19 @@ export default function FunctionsMenu() {
                         <ContentCopyIcon fontSize="small" />
                     </ListItemIcon>
                     <ListItemText>Copy Game Transcript</ListItemText>
+                </MenuItem>
+
+                <MenuItem
+                    data-testid="menu-preferences"
+                    onClick={() => {
+                        setDialogToOpen(DialogType.Preferences);
+                        handleClose();
+                    }}
+                >
+                    <ListItemIcon>
+                        <TuneIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Preferences</ListItemText>
                 </MenuItem>
             </Menu>
         </div>

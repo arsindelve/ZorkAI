@@ -11,6 +11,17 @@
     --compass-label-color: rgba(214, 211, 209, 0.7);
     --compass-btn-text: #f5e7c4;
     --compass-btn-idle: rgb(214, 211, 209);
+
+    /* Preferences dialog palette (see PreferencesModal in the shared package). */
+    --pref-surface: #17140f;
+    --pref-surface-raised: #221d16;
+    --pref-specimen-bg: #0c0a09;
+    --pref-accent: #c49a4c;
+    --pref-accent-bright: #e3c179;
+    --pref-text-color: #ede4d3;
+    --pref-text-muted: #bdb3a1;
+    --pref-text-dim: #9c9384;
+    --pref-border: rgba(196, 154, 76, 0.22);
 }
 
 /* ── Great Underground Empire masthead ─────────────────────────────────────
@@ -158,4 +169,18 @@
     background-color: rgba(196, 154, 76, 0.3);
     color: #f5e7c4;
     text-shadow: 0 0 2px rgba(227, 193, 121, 0.6);
+}
+
+/* Reduce motion (Preferences > Animations off).
+   Set as data-reduce-motion on <html> by GameProvider, so it also covers MUI dialogs
+   and menus that render through a portal. Near-zero durations rather than `none` so
+   animations still *complete* and fire their end events - killing them outright can
+   leave an element stuck at its starting opacity. */
+:root[data-reduce-motion='true'] *,
+:root[data-reduce-motion='true'] *::before,
+:root[data-reduce-motion='true'] *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
 }
