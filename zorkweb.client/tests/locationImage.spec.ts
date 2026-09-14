@@ -71,6 +71,7 @@ test.describe('Room artwork', () => {
             score: 0,
             moves: 1,
             locationName: 'Kitchen',
+            locationKey: 'Kitchen',
             response,
             inventory: ['lamp'],
             exits: [],

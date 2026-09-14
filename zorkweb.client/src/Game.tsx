@@ -116,6 +116,10 @@ function Game() {
     const [exits, setExits] = useState<string[]>([]);
     const [locationName, setLocationName] = useState<string>('');
     const [itIsDarkHere, setItIsDarkHere] = useState<boolean>(false);
+    const [locationKey, setLocationKey] = useState<string | undefined>(undefined);
+    // Bumped whenever the player starts over, so the room artwork plays again for a fresh
+    // run rather than staying spent from the previous one.
+    const [playthrough, setPlaythrough] = useState<number>(0);
     const [pingMove, setPingMove] = useState<{id: string; nonce: number}>({id: '', nonce: 0});
     const [showJumpToLatest, setShowJumpToLatest] = useState<boolean>(false);
     const atBottomRef = React.useRef<boolean>(true);
@@ -185,6 +189,7 @@ function Game() {
     useEffect(() => {
         if (!restoreGameRequest) return;
         setGameText([]);
+        setPlaythrough((previous) => previous + 1);
         gameRestore(restoreGameRequest.id!).then((data) => {
             handleResponse(data);
             setRestoreGameRequest(undefined);
@@ -240,6 +245,7 @@ function Game() {
     useEffect(() => {
         if (!restartGame) return;
         sessionId.regenerate();
+        setPlaythrough((previous) => previous + 1);
         setGameText(['']);
         gameInit().then((data) => {
             handleResponse(data);
@@ -330,6 +336,7 @@ function Game() {
         setInput('');
         setLocationName(data.locationName);
         setItIsDarkHere(data.itIsDarkHere ?? false);
+        setLocationKey(data.locationKey);
         setScore(data.score.toString());
         setMoves(data.moves.toString());
         setInventory(data.inventory);
@@ -532,9 +539,11 @@ function Game() {
                 {/* Sits inside the transcript's relative box, so the plate covers the
                     panel the room description just landed in and dissolves back into it. */}
                 <LocationImage
+                    locationKey={locationKey}
                     locationName={locationName}
                     images={ZORK_LOCATION_IMAGES}
                     isDark={itIsDarkHere}
+                    resetOn={playthrough}
                     enabled={showLocationImages}
                     animate={animations}
                 />

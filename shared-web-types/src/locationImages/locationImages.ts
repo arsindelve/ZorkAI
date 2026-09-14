@@ -1,33 +1,25 @@
 /**
  * Artwork for the handful of rooms that have a picture drawn for them.
  *
- * A registry rather than a URL derived from the room name on the fly: most rooms have
- * no art, and guessing a URL for them would fire a 404 on every first visit. Only the
- * rooms listed here are ever requested.
+ * Keyed by `GameResponse.locationKey` - the room's own identity - and not by its display
+ * name, which is not unique: Zork I has two rooms called "Clearing", two called "Cave"
+ * and four called "Forest". Only one of the Clearings has the grating hidden under the
+ * leaves, so keying on the name would put its picture in both.
+ *
+ * A registry rather than a URL derived from the key on the fly: most rooms have no art,
+ * and guessing a URL for them would fire a 404 on every first visit.
  */
 
-/** Normalised room name -> absolute image URL. */
+/** Room key -> absolute image URL. */
 export interface LocationImageSet {
-    readonly [normalisedLocationName: string]: string;
+    readonly [locationKey: string]: string;
 }
 
 /**
- * The key a room name is looked up under.
+ * Build a lookup from `room key -> file name`, resolved against `baseUrl`.
  *
- * Lower-cased, trimmed and with runs of whitespace collapsed, because the C# location
- * names are not consistently written: "West Of House" sits next to "North of House",
- * and a couple ("Squeaky Room ", "Strange Passage ") carry a trailing space. Matching
- * on the raw string would silently drop the art for those rooms.
- */
-export function normaliseLocationName(locationName: string): string {
-    return locationName.trim().replace(/\s+/g, ' ').toLowerCase();
-}
-
-/**
- * Build a lookup from `room name -> file name`, resolved against `baseUrl`.
- *
- * The room names are written the way the game reports them, so the map reads like the
- * game; normalisation happens here, once.
+ * Two rooms may share a file - the north and south Caves are the same cave to a player -
+ * so file names are not required to be unique.
  */
 export function createLocationImageSet(
     baseUrl: string,
@@ -35,8 +27,8 @@ export function createLocationImageSet(
 ): LocationImageSet {
     const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
     const set: Record<string, string> = {};
-    for (const [locationName, fileName] of Object.entries(files)) {
-        set[normaliseLocationName(locationName)] = `${base}${fileName}`;
+    for (const [locationKey, fileName] of Object.entries(files)) {
+        set[locationKey] = `${base}${fileName}`;
     }
     return set;
 }
@@ -44,8 +36,8 @@ export function createLocationImageSet(
 /** The image for a room, or undefined when that room has no art. */
 export function locationImageUrl(
     images: LocationImageSet,
-    locationName: string | undefined | null,
+    locationKey: string | undefined | null,
 ): string | undefined {
-    if (!locationName) return undefined;
-    return images[normaliseLocationName(locationName)];
+    if (!locationKey) return undefined;
+    return images[locationKey];
 }

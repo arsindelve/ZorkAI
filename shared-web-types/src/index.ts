@@ -22,12 +22,9 @@ export {
     DEFAULT_LOCATION_IMAGE_FADE_IN_MS,
     DEFAULT_LOCATION_IMAGE_HOLD_MS,
     DEFAULT_LOCATION_IMAGE_FADE_OUT_MS,
+    DEFAULT_LOCATION_IMAGE_PAN_MS,
 } from './components/LocationImage';
-export {
-    createLocationImageSet,
-    locationImageUrl,
-    normaliseLocationName,
-} from './locationImages/locationImages';
+export {createLocationImageSet, locationImageUrl} from './locationImages/locationImages';
 export type {LocationImageSet} from './locationImages/locationImages';
 export {ReleaseNotesServer} from './utils/ReleaseNotesServer';
 export {default as ConfirmationDialog} from './modal/ConfirmationDialog';

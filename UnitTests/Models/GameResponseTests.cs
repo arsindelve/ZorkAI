@@ -2,6 +2,8 @@ using Model.Interface;
 using Model.Item;
 using Model.Movement;
 using Model.Web;
+using ZorkOne.Location;
+using GameEngine;
 using Planetfall.Item.Lawanda.Lab;
 
 namespace UnitTests.Models;
@@ -269,6 +271,26 @@ public class GameResponseTests
         // ...but inventory-derived fields remain (the player can still feel what they carry).
         gameResponse.Inventory.Should().BeEquivalentTo(inventory);
         gameResponse.ActionsAvailableFromInventory.Should().BeEquivalentTo(inventoryActions);
+    }
+
+    [Test]
+    public void GameResponse_GameEngineConstructor_ShouldReportTheLocationClassAsItsKey()
+    {
+        // The display name is not an identity: Zork I has two rooms called "Clearing", and
+        // only one of them has the grating under the leaves. A client picking artwork by
+        // name alone cannot tell them apart, so the room's own type name goes on the wire.
+        var mockGameEngine = new Mock<IGameEngine>();
+        mockGameEngine.Setup(ge => ge.LocationName).Returns("Clearing");
+        mockGameEngine.Setup(ge => ge.Inventory).Returns(new List<string>());
+        mockGameEngine.Setup(ge => ge.Exits).Returns(new List<Direction>());
+        mockGameEngine.Setup(ge => ge.Context!.ItIsDarkHere).Returns(true);
+        mockGameEngine.Setup(ge => ge.Context!.CurrentLocation)
+            .Returns(Repository.GetLocation<ClearingBehindHouse>());
+
+        var gameResponse = new GameResponse("You are in a small clearing.", mockGameEngine.Object);
+
+        gameResponse.LocationName.Should().Be("Clearing");
+        gameResponse.LocationKey.Should().Be(nameof(ClearingBehindHouse));
     }
 
     [Test]

@@ -3,6 +3,11 @@ export interface GameResponse {
     moves: number;
     time?: number;
     locationName: string;
+    /**
+     * The room's own identity - the location class's name. The display name is not one:
+     * two rooms are called "Clearing", two "Cave", four "Forest".
+     */
+    locationKey?: string;
     response: string;
     inventory: string[];
     exits: string[];

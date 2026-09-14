@@ -1,14 +1,24 @@
 import {useEffect, useRef, useState} from 'react';
-import {
-    LocationImageSet,
-    locationImageUrl,
-    normaliseLocationName,
-} from '../locationImages/locationImages';
+import {LocationImageSet, locationImageUrl} from '../locationImages/locationImages';
 
-/** Fade up, hold, dissolve away. Tuned so the plate reads as a beat, not an interruption. */
+/** Fade up, drift down the picture, dissolve away. */
 export const DEFAULT_LOCATION_IMAGE_FADE_IN_MS = 600;
-export const DEFAULT_LOCATION_IMAGE_HOLD_MS = 3400;
 export const DEFAULT_LOCATION_IMAGE_FADE_OUT_MS = 1200;
+
+/**
+ * How long the drift takes to cross the whole picture, and with it how long the picture
+ * stays up: the fade does not begin until the pan has arrived at the bottom. Cutting away
+ * mid-drift reads as an interruption, and the bottom of the frame is the half the letterbox
+ * crop was hiding in the first place - the half worth waiting for.
+ */
+export const DEFAULT_LOCATION_IMAGE_PAN_MS = 9600;
+
+/**
+ * How long a still picture stays up instead. Only used when the player has animations off:
+ * there is no pan to wait for then, and holding a motionless frame for the length of one
+ * would just be a long pause.
+ */
+export const DEFAULT_LOCATION_IMAGE_HOLD_MS = 3400;
 
 /**
  * Opaque across the top, gone well before the bottom of the frame.
@@ -23,7 +33,13 @@ const BOTTOM_FADE =
     'rgba(0, 0, 0, 0.35) 58%, rgba(0, 0, 0, 0) 72%)';
 
 type LocationImageProps = {
-    /** The room the player is in now, exactly as the server reports it. */
+    /**
+     * The room's own identity (`GameResponse.locationKey`), which is what the artwork is
+     * keyed by. Not the display name: Zork I has two rooms called "Clearing" and only one
+     * of them has the grating under the leaves.
+     */
+    locationKey: string | undefined;
+    /** The room's display name, for the picture's alt text. */
     locationName: string;
     images: LocationImageSet;
     /**
@@ -35,8 +51,17 @@ type LocationImageProps = {
     /** The player's Artwork preference. Off means nothing is shown and nothing is fetched. */
     enabled?: boolean;
     fadeInMs?: number;
-    holdMs?: number;
     fadeOutMs?: number;
+    /** How long the drift takes, and so how long the picture stays up. Longer is slower. */
+    panMs?: number;
+    /** How long a still picture stays up instead, when animations are off. */
+    holdMs?: number;
+    /**
+     * A value that changes whenever the player starts over - a restart, or a restored save.
+     * It clears the record of which rooms have already been seen, so the pictures play
+     * again for a fresh run through the game.
+     */
+    resetOn?: string | number;
     /**
      * The player's Animations preference. Off means no pan - the picture sits on its
      * centre crop instead. The global reduce-motion CSS would otherwise collapse the
@@ -49,7 +74,8 @@ type LocationImageProps = {
 /**
  * An establishing shot for a room, shown the first time the player arrives there.
  *
- * It fills the transcript panel and drifts slowly down the picture before dissolving away.
+ * It fills the transcript panel and drifts slowly down the picture, dissolving away only
+ * once the drift has reached the bottom.
  * Its own bottom edge is masked to nothing, so the room description the player just walked
  * into reads through the frame the whole time it is on screen. A click dismisses it early.
  *
@@ -63,6 +89,7 @@ type LocationImageProps = {
  * hiding from them - the same leak issue #238 closed for exits and action chips.
  */
 export default function LocationImage({
+    locationKey,
     locationName,
     images,
     isDark = false,
@@ -70,12 +97,16 @@ export default function LocationImage({
     fadeInMs = DEFAULT_LOCATION_IMAGE_FADE_IN_MS,
     holdMs = DEFAULT_LOCATION_IMAGE_HOLD_MS,
     fadeOutMs = DEFAULT_LOCATION_IMAGE_FADE_OUT_MS,
+    panMs = DEFAULT_LOCATION_IMAGE_PAN_MS,
+    resetOn,
     animate = true,
     className,
 }: LocationImageProps) {
     const alreadyRequested = useRef<Set<string>>(new Set());
+    const lastReset = useRef(resetOn);
     const timers = useRef<number[]>([]);
-    const [plate, setPlate] = useState<{url: string; name: string} | null>(null);
+    const [plate, setPlate] = useState<{url: string; name: string; id: number} | null>(null);
+    const plateCount = useRef<number>(0);
     const [opaque, setOpaque] = useState<boolean>(false);
     const [panned, setPanned] = useState<boolean>(false);
 
@@ -93,15 +124,25 @@ export default function LocationImage({
     useEffect(() => {
         if (!enabled || isDark) return;
 
-        const url = locationImageUrl(images, locationName);
+        // Checked here rather than in an effect of its own, so the clear is guaranteed to
+        // happen before the lookup below. A restart usually lands the player back in the
+        // room they started in, so the key alone would not have changed and an effect that
+        // only watched the key would never re-run.
+        if (lastReset.current !== resetOn) {
+            lastReset.current = resetOn;
+            alreadyRequested.current.clear();
+        }
+
+        if (!locationKey) return;
+
+        const url = locationImageUrl(images, locationKey);
         if (!url) return;
 
-        const key = normaliseLocationName(locationName);
-        if (alreadyRequested.current.has(key)) return;
+        if (alreadyRequested.current.has(locationKey)) return;
 
         // Marked before the image has loaded, not after. A room whose art has not been
         // drawn yet 404s, and without this it would 404 again on every single visit.
-        alreadyRequested.current.add(key);
+        alreadyRequested.current.add(locationKey);
 
         let cancelled = false;
         const loader = new Image();
@@ -111,15 +152,19 @@ export default function LocationImage({
             // Mount transparent and fade up on the next tick: an element that mounts at
             // its final opacity has nothing to transition from and would simply appear.
             clearTimers();
-            setPlate({url, name: locationName});
+            setPlate({url, name: locationName, id: ++plateCount.current});
             setOpaque(false);
             setPanned(false);
+
+            // The pan is the clock. It starts as the picture fades up and the fade out waits
+            // for it to finish, so the drift always reaches the bottom of the frame.
+            const onScreenMs = animate ? panMs : holdMs;
             after(20, () => {
                 setOpaque(true);
                 setPanned(true);
             });
-            after(20 + fadeInMs + holdMs, () => setOpaque(false));
-            after(20 + fadeInMs + holdMs + fadeOutMs, () => setPlate(null));
+            after(20 + onScreenMs, () => setOpaque(false));
+            after(20 + onScreenMs + fadeOutMs, () => setPlate(null));
         };
 
         // No art for this room after all - stay out of the way rather than flash a
@@ -134,12 +179,9 @@ export default function LocationImage({
         // isDark is a dependency, not just a guard: when the player lights a lamp the room
         // has not changed, and only re-running on that flip plays the picture they earned.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [locationName, enabled, isDark]);
+    }, [locationKey, enabled, isDark, resetOn]);
 
     if (!plate) return null;
-
-    // One continuous drift across the picture's whole life on screen, fades included.
-    const panMs = fadeInMs + holdMs + fadeOutMs;
 
     const dismiss = () => {
         clearTimers();
@@ -163,6 +205,11 @@ export default function LocationImage({
             }}
         >
             <img
+                // Keyed, so a room that arrives while the last one is still panning gets a
+                // brand new element. React would otherwise reconcile the two onto one <img>,
+                // and a reused node carries its in-flight transition across - the incoming
+                // picture would glide back up to the top instead of starting there.
+                key={plate.id}
                 src={plate.url}
                 alt={plate.name}
                 data-testid="location-image-picture"

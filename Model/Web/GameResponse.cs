@@ -20,9 +20,10 @@ public record GameResponse(
     List<Direction> Exits,
     Dictionary<string, List<string>> ActionsAvailableFromLocation,
     Dictionary<string, List<string>> ActionsAvailableFromInventory,
-    // Defaulted so the positional constructor stays source-compatible; the engine-based
-    // constructor below always passes it explicitly.
-    bool ItIsDarkHere = false)
+    // Both defaulted so the positional constructor stays source-compatible; the engine-based
+    // constructor below always passes them explicitly.
+    bool ItIsDarkHere = false,
+    string? LocationKey = null)
 {
     [SetsRequiredMembers]
     public GameResponse(string response, IGameEngine gameEngine) : this(response, gameEngine.LocationName,
@@ -44,13 +45,20 @@ public record GameResponse(
         // Reported rather than merely acted on, because the client has its own location-derived
         // things to withhold in the dark — the room artwork above all. A picture of a room the
         // player cannot see is the same leak issue #238 closed for exits and action chips.
-        gameEngine.Context is { ItIsDarkHere: true })
+        gameEngine.Context is { ItIsDarkHere: true },
+        // A stable identity for the room, because the display name is not one: Zork I has two
+        // rooms called "Clearing", two called "Cave" and four called "Forest". Only one of the
+        // Clearings has the grating hidden under the leaves, and a client picking artwork by
+        // name alone cannot tell them apart.
+        gameEngine.Context?.CurrentLocation?.GetType().Name)
     {
     }
 
     [UsedImplicitly] public required string Response { get; init; } = Response;
 
     [UsedImplicitly] public required string LocationName { get; init; } = LocationName;
+
+    [UsedImplicitly] public required string? LocationKey { get; init; } = LocationKey;
 
     [UsedImplicitly] public required int Moves { get; init; } = Moves;
 
