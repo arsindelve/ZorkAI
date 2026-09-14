@@ -43,7 +43,7 @@ public sealed class HintService
         // Fail visibly, not silently: if the model degraded to nothing, tell the player rather than
         // returning a blank hint. (The client should not append an "unavailable" reply to its history.)
         if (string.IsNullOrWhiteSpace(revealed))
-            return new HintResponse("The hint system is unavailable right now. Try again in a moment.");
+            return new HintResponse("The hint system is unavailable right now. Try again in a moment.", IsHint: false);
 
         return new HintResponse(revealed);
     }
