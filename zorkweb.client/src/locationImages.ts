@@ -80,6 +80,7 @@ export const ZORK_LOCATION_IMAGES = createLocationImageSet(ZORK_LOCATION_IMAGE_B
     NorthOfHouse: 'NorthOfHouse.webp',
     OnTheRainbow: 'OnTheRainbow.webp',
     Reservoir: 'Reservoir.webp',
+    ReservoirNorth: 'ReservoirNorth.webp',
     ReservoirSouth: 'ReservoirSouth.webp',
     RockyLedge: 'RockyLedge.webp',
     RoundRoom: 'RoundRoom.webp',
