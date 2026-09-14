@@ -51,6 +51,7 @@ export const ZORK_LOCATION_IMAGES = createLocationImageSet(ZORK_LOCATION_IMAGE_B
     LadderTop: 'LadderTop.webp',
     LandOfTheDead: 'LandOfTheDead.webp',
     LivingRoom: 'LivingRoom.webp',
+    MachineRoom: 'MachineRoom.webp',
     MaintenanceRoom: 'MaintenanceRoom.webp',
     MazeEight: 'Maze.webp',
     MazeEleven: 'Maze.webp',
