@@ -189,8 +189,12 @@ function Game() {
     useEffect(() => {
         if (!restoreGameRequest) return;
         setGameText([]);
-        setPlaythrough((previous) => previous + 1);
         gameRestore(restoreGameRequest.id!).then((data) => {
+            // Bumped here and not when the request went out: React batches it with the
+            // location the response carries, so the artwork sees the new room and the new
+            // playthrough together. Bumping early re-ran it against the room the player was
+            // standing in when they hit Restore, and replayed that room's picture.
+            setPlaythrough((previous) => previous + 1);
             handleResponse(data);
             setRestoreGameRequest(undefined);
             focusOnPlayerInput();
@@ -245,9 +249,10 @@ function Game() {
     useEffect(() => {
         if (!restartGame) return;
         sessionId.regenerate();
-        setPlaythrough((previous) => previous + 1);
         setGameText(['']);
         gameInit().then((data) => {
+            // See the restore effect above: bumped with the response, not ahead of it.
+            setPlaythrough((previous) => previous + 1);
             handleResponse(data);
             setRestartGame(false);
             setSnackBarMessage('Game Restarted Successfully.');

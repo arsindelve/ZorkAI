@@ -69,7 +69,6 @@ const plate = (
         panMs={PAN}
         holdMs={HOLD}
         fadeInMs={FADE_IN}
-        holdMs={HOLD}
         fadeOutMs={FADE_OUT}
     />
 );
@@ -220,16 +219,94 @@ describe('LocationImage', () => {
         expect(screen.getByTestId('location-image')).toHaveStyle({opacity: '0'});
     });
 
-    test('a click dismisses it early', () => {
+    test('a click anywhere dismisses it early', () => {
         renderPlate('Kitchen');
         loadTheImage();
         settle();
 
-        act(() => screen.getByTestId('location-image').click());
+        // Not on the plate: it takes no pointer events, so the click lands on whatever is
+        // underneath and is heard on the window on its way past.
+        act(() => document.body.click());
         expect(screen.getByTestId('location-image')).toHaveStyle({opacity: '0'});
 
         act(() => void jest.advanceTimersByTime(FADE_OUT));
         expect(screen.queryByTestId('location-image')).not.toBeInTheDocument();
+    });
+
+    test('lets clicks through to the transcript underneath', () => {
+        // The masked bottom of the frame shows real, readable text. A plate that took
+        // pointer events would swallow every click aimed at it for ten seconds while
+        // looking exactly like plain transcript.
+        renderPlate('Kitchen');
+        loadTheImage();
+        settle();
+
+        expect(screen.getByTestId('location-image')).toHaveStyle({pointerEvents: 'none'});
+    });
+
+    test('a keystroke dismisses it early', () => {
+        renderPlate('Kitchen');
+        loadTheImage();
+        settle();
+
+        act(() => {
+            window.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape'}));
+        });
+        act(() => void jest.advanceTimersByTime(FADE_OUT));
+
+        expect(screen.queryByTestId('location-image')).not.toBeInTheDocument();
+    });
+
+    test('comes down at once when the Artwork preference is turned off', () => {
+        const {rerender} = render(plate('Kitchen'));
+        loadTheImage();
+        settle();
+        expect(screen.getByTestId('location-image')).toBeInTheDocument();
+
+        rerender(plate('Kitchen', {enabled: false}));
+
+        expect(screen.queryByTestId('location-image')).not.toBeInTheDocument();
+    });
+
+    test('comes down at once when the room goes dark', () => {
+        // A lit picture of a room the server has started refusing to describe is the leak
+        // the darkness flag exists to close.
+        const {rerender} = render(plate('Kitchen'));
+        loadTheImage();
+        settle();
+
+        rerender(plate('Kitchen', {isDark: true}));
+
+        expect(screen.queryByTestId('location-image')).not.toBeInTheDocument();
+    });
+
+    test('does not linger over the next room when that room has no art', () => {
+        const {rerender} = render(plate('Kitchen'));
+        loadTheImage();
+        settle();
+
+        rerender(plate('TrollRoom'));
+        act(() => void jest.advanceTimersByTime(FADE_OUT));
+
+        expect(screen.queryByTestId('location-image')).not.toBeInTheDocument();
+    });
+
+    test('retries a picture once after a failed fetch', () => {
+        // A tunnel or a dropped connection should not spend the room's picture for the
+        // whole run; a file that is genuinely missing still stops asking.
+        const {rerender} = render(plate('Kitchen'));
+        act(() => FakeImage.last.onerror?.());
+        expect(screen.queryByTestId('location-image')).not.toBeInTheDocument();
+
+        rerender(plate('TrollRoom'));
+        rerender(plate('Kitchen'));
+        expect(FakeImage.instances).toHaveLength(2);
+
+        // Second failure sticks.
+        act(() => FakeImage.last.onerror?.());
+        rerender(plate('TrollRoom'));
+        rerender(plate('Kitchen'));
+        expect(FakeImage.instances).toHaveLength(2);
     });
 
     test('shows the art for a room only on the first arrival', () => {
@@ -334,8 +411,12 @@ describe('LocationImage', () => {
  * a key still refers to a real room. Class declarations, not file names: MazeBase.cs alone
  * holds sixteen of them.
  */
-function readZorkRooms(): {displayNames: Map<string, string>; abstractBases: Set<string>} {
+function readZorkRooms(): {displayNames: Map<string, string>; abstractBases: Set<string>} | null {
     const root = path.resolve(__dirname, '../../../ZorkOne/Location');
+    // The engine is a sibling project, not a dependency. A client-only checkout or a build
+    // context that copies just this package has nothing to read, and these checks sit out
+    // rather than erroring on setup and hiding whatever else the suite would have said.
+    if (!fs.existsSync(root)) return null;
     const declaration =
         /^\s*(?:public|internal)\s+(abstract\s+|sealed\s+)?class\s+(\w+)\s*:\s*([\w<>, ]+)/gm;
     const bases = new Map<string, string>();
@@ -363,8 +444,14 @@ function readZorkRooms(): {displayNames: Map<string, string>; abstractBases: Set
                 all.add(name);
                 bases.set(name, base.split(',')[0].trim());
                 if (modifier?.includes('abstract')) abstractBases.add(name);
-                const declared = body.match(/override string Name\s*=>\s*"([^"]+)"/);
+                // Only a plain string literal counts. A computed Name (`=> IsDrained ? "X"
+                // : "Y"`) would otherwise fall through to the base class's name and quietly
+                // make the shared-picture assertion pass or fail for the wrong reason, so
+                // it is recorded as its own unknown value instead.
+                const declaresName = /override string Name\s*=>/.test(body);
+                const declared = body.match(/override string Name\s*=>\s*"([^"]+)"\s*;/);
                 if (declared) ownName.set(name, declared[1].trim());
+                else if (declaresName) ownName.set(name, `<computed:${name}>`);
             });
         }
     };
@@ -418,7 +505,9 @@ describe('Zork location artwork', () => {
     test('every key is a room the player can actually stand in', () => {
         // Keys for an abstract base (MazeBase, MirrorRoom) match nothing at runtime, which
         // is silent: the room just never shows its picture. Both mistakes happened.
-        const {displayNames, abstractBases} = readZorkRooms();
+        const rooms = readZorkRooms();
+        if (!rooms) return;
+        const {displayNames, abstractBases} = rooms;
 
         expect(displayNames.size).toBeGreaterThan(100);
         expect(abstractBases.has('MazeBase')).toBe(true);
@@ -431,7 +520,9 @@ describe('Zork location artwork', () => {
     test('a picture is only shared by rooms that are the same place to the player', () => {
         // The maze is fifteen rooms and one picture; so are both Caves, both Mirror Rooms
         // and both ends of White Cliffs Beach. Sharing beyond that would be a mix-up.
-        const {displayNames} = readZorkRooms();
+        const rooms = readZorkRooms();
+        if (!rooms) return;
+        const {displayNames} = rooms;
         const byFile = new Map<string, string[]>();
         for (const [key, value] of entries) {
             byFile.set(value, [...(byFile.get(value) ?? []), key]);

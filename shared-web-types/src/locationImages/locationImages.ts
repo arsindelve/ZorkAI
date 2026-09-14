@@ -26,7 +26,11 @@ export function createLocationImageSet(
     files: Record<string, string>,
 ): LocationImageSet {
     const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-    const set: Record<string, string> = {};
+    // No prototype: the keys are C# class names, and a room class called `Constructor` or
+    // `ToString` would otherwise have the lookup hand back an inherited function. It is
+    // truthy, so it would sail past the "no art for this room" check and be assigned to an
+    // <img> src, which string-coerces it into a 404 against our own origin.
+    const set: Record<string, string> = Object.create(null);
     for (const [locationKey, fileName] of Object.entries(files)) {
         set[locationKey] = `${base}${fileName}`;
     }

@@ -56,11 +56,20 @@ test.describe('Room artwork', () => {
         );
     });
 
-    test('a click dismisses it early', async ({page}) => {
+    test('a click reaches the transcript underneath and dismisses it on the way', async ({
+        page,
+    }) => {
+        // The plate takes no pointer events - its masked bottom is readable transcript that
+        // has to stay clickable - so the click lands on the transcript and the plate hears
+        // it on the window.
         await serveArtwork(page);
         await start(page);
+        await expect(page.locator(PLATE)).toBeVisible();
 
-        await page.locator(PLATE).click();
+        await page
+            .locator('[data-testid="game-responses-container"]')
+            .click({position: {x: 5, y: 5}});
+
         await expect(page.locator(PLATE)).toHaveCount(0, {timeout: 5000});
     });
 
@@ -128,12 +137,14 @@ test.describe('Room artwork', () => {
         await serveArtwork(page);
         await start(page);
 
-        await page.locator(PLATE).click();
-        await expect(page.locator(PLATE)).toHaveCount(0, {timeout: 5000});
+        await expect(page.locator(PLATE)).toBeVisible();
 
+        // Opening the menu is itself a click, so the plate is on its way out already - and
+        // turning the preference off takes down whatever is left of it at once.
         await page.locator('[data-testid="game-button"]').click();
         await page.locator('#game-menu li:has-text("Preferences")').click();
         await page.locator('label[for="pref-location-images"]').click();
+        await expect(page.locator(PLATE)).toHaveCount(0);
         await page.locator('[data-testid="preferences-done"]').click();
 
         // A reload is a fresh arrival in the starting room, so the art would show again

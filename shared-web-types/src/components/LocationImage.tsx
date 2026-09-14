@@ -77,7 +77,10 @@ type LocationImageProps = {
  * It fills the transcript panel and drifts slowly down the picture, dissolving away only
  * once the drift has reached the bottom.
  * Its own bottom edge is masked to nothing, so the room description the player just walked
- * into reads through the frame the whole time it is on screen. A click dismisses it early.
+ * into reads through the frame the whole time it is on screen. Because that bottom stretch
+ * shows real, usable transcript, the plate does not take pointer events: a click there hits
+ * the word underneath and does what the player expected, and dismisses the picture on its
+ * way past. Any keystroke dismisses it too.
  *
  * "First time" is per picture and per playthrough. Per picture because several rooms can
  * share one - the maze is fifteen rooms and a single establishing shot - and it should
@@ -105,12 +108,22 @@ export default function LocationImage({
     className,
 }: LocationImageProps) {
     const alreadyRequested = useRef<Set<string>>(new Set());
+    const failures = useRef<Map<string, number>>(new Map());
     const lastReset = useRef(resetOn);
     const timers = useRef<number[]>([]);
     const [plate, setPlate] = useState<{url: string; name: string; id: number} | null>(null);
     const plateCount = useRef<number>(0);
     const [opaque, setOpaque] = useState<boolean>(false);
     const [panned, setPanned] = useState<boolean>(false);
+
+    // The image loads asynchronously, and the player can change a preference or walk on
+    // while it is in flight. The callback reads these through a ref so it acts on what is
+    // true when the picture arrives, not on what was true when it was asked for.
+    const latest = useRef({animate, panMs, holdMs, fadeOutMs, locationName});
+    latest.current = {animate, panMs, holdMs, fadeOutMs, locationName};
+
+    const showing = useRef<boolean>(false);
+    showing.current = plate !== null;
 
     const clearTimers = () => {
         timers.current.forEach((id) => window.clearTimeout(id));
@@ -121,10 +134,48 @@ export default function LocationImage({
         timers.current.push(window.setTimeout(run, ms));
     };
 
+    /** Take it down gently. */
+    const dismiss = () => {
+        if (!showing.current) return;
+        clearTimers();
+        setOpaque(false);
+        after(latest.current.fadeOutMs, () => setPlate(null));
+    };
+
+    /** Take it down at once, for the cases where a fade would itself be the bug. */
+    const hideNow = () => {
+        if (!showing.current) return;
+        clearTimers();
+        setPlate(null);
+    };
+
     useEffect(() => clearTimers, []);
 
+    // Dismiss on any interaction. Listened for on the window rather than handled on the
+    // plate, because the plate must not intercept the click - see pointerEvents below.
     useEffect(() => {
-        if (!enabled || isDark) return;
+        if (!plate) return;
+        const onInteract = () => dismiss();
+        window.addEventListener('click', onInteract);
+        window.addEventListener('keydown', onInteract);
+        return () => {
+            window.removeEventListener('click', onInteract);
+            window.removeEventListener('keydown', onInteract);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [plate]);
+
+    useEffect(() => {
+        // Whatever is on screen belongs to the room the player has just left, or to a
+        // setting they have just turned off. It comes down either way; a picture for the
+        // room they are in now replaces it once it has loaded. Turning artwork off and
+        // walking into the dark are not gentle exits - a picture of a room the game is
+        // refusing to describe is the leak `isDark` exists to close, so it goes at once.
+        if (!enabled || isDark) {
+            hideNow();
+            return;
+        }
+        dismiss();
 
         // Checked here rather than in an effect of its own, so the clear is guaranteed to
         // happen before the lookup below. A restart usually lands the player back in the
@@ -133,6 +184,7 @@ export default function LocationImage({
         if (lastReset.current !== resetOn) {
             lastReset.current = resetOn;
             alreadyRequested.current.clear();
+            failures.current.clear();
         }
 
         if (!locationKey) return;
@@ -154,27 +206,36 @@ export default function LocationImage({
 
         loader.onload = () => {
             if (cancelled) return;
+            failures.current.delete(url);
+
             // Mount transparent and fade up on the next tick: an element that mounts at
             // its final opacity has nothing to transition from and would simply appear.
+            const {animate: panning, panMs: pan, holdMs: hold, fadeOutMs: out} = latest.current;
             clearTimers();
-            setPlate({url, name: locationName, id: ++plateCount.current});
+            setPlate({url, name: latest.current.locationName, id: ++plateCount.current});
             setOpaque(false);
             setPanned(false);
 
             // The pan is the clock. It starts as the picture fades up and the fade out waits
             // for it to finish, so the drift always reaches the bottom of the frame.
-            const onScreenMs = animate ? panMs : holdMs;
+            const onScreenMs = panning ? pan : hold;
             after(20, () => {
                 setOpaque(true);
                 setPanned(true);
             });
             after(20 + onScreenMs, () => setOpaque(false));
-            after(20 + onScreenMs + fadeOutMs, () => setPlate(null));
+            after(20 + onScreenMs + out, () => setPlate(null));
         };
 
-        // No art for this room after all - stay out of the way rather than flash a
-        // broken image over the transcript.
-        loader.onerror = () => {};
+        // A file that is simply not there yet 404s, and staying marked is what stops it
+        // being asked for on every visit. A tunnel or a dropped connection is a different
+        // thing, and spending the room's picture for the whole run over one bad moment is
+        // too harsh - so the first failure is forgiven and only the second sticks.
+        loader.onerror = () => {
+            const soFar = (failures.current.get(url) ?? 0) + 1;
+            failures.current.set(url, soFar);
+            if (soFar < 2) alreadyRequested.current.delete(url);
+        };
 
         loader.src = url;
 
@@ -188,18 +249,17 @@ export default function LocationImage({
 
     if (!plate) return null;
 
-    const dismiss = () => {
-        clearTimers();
-        setOpaque(false);
-        after(fadeOutMs, () => setPlate(null));
-    };
-
     return (
         <div
             data-testid="location-image"
-            onClick={dismiss}
-            className={`absolute inset-0 z-20 overflow-hidden rounded-t-lg cursor-pointer ${className ?? ''}`}
+            role="presentation"
+            className={`absolute inset-0 z-20 overflow-hidden rounded-t-lg ${className ?? ''}`}
             style={{
+                // The masked bottom of the frame is readable transcript, and it has to stay
+                // clickable, scrollable and selectable. Taking pointer events would have the
+                // plate quietly eat every one of those for the ten seconds it is up, while
+                // looking for all the world like plain text.
+                pointerEvents: 'none',
                 opacity: opaque ? 1 : 0,
                 transition: `opacity ${opaque ? fadeInMs : fadeOutMs}ms ease-in-out`,
                 // The picture dissolves into the transcript rather than sitting on top of

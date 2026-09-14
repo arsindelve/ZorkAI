@@ -47,15 +47,15 @@ test.describe('Game Dialogs', () => {
         });
 
         await page.route('http://localhost:5000/ZorkOne/restoreGame', handleRestoreGameRoute);
-
-        // One test here navigates directly rather than through closeWelcomeModal, which
-        // is where the artwork is normally blocked.
-        await blockLocationArtwork(page);
     });
 
     test('Welcome dialog - welcome dialog appears on first visit and can be closed', async ({
         page,
     }) => {
+        // This is the one test in the file that navigates directly rather than through
+        // closeWelcomeModal, which is where the artwork is normally blocked.
+        await blockLocationArtwork(page);
+
         // Navigate to the application
         await page.goto('/');
 

@@ -3,7 +3,6 @@ using Model.Item;
 using Model.Movement;
 using Model.Web;
 using ZorkOne.Location;
-using GameEngine;
 using Planetfall.Item.Lawanda.Lab;
 
 namespace UnitTests.Models;
@@ -274,6 +273,27 @@ public class GameResponseTests
     }
 
     [Test]
+    public void GameResponse_GameEngineConstructor_WithNoContext_ShouldWithholdRatherThanClaimLight()
+    {
+        // The two fields above use `is { ItIsDarkHere: false }`, which a null Context fails,
+        // so a null already withholds the exits and the chips. Darkness has to fail the same
+        // way round or the client is told the room is lit while its payload has been stripped
+        // as though it were dark.
+        var mockGameEngine = new Mock<IGameEngine>();
+        mockGameEngine.Setup(ge => ge.LocationName).Returns("Cellar");
+        mockGameEngine.Setup(ge => ge.Inventory).Returns(new List<string>());
+        mockGameEngine.Setup(ge => ge.Exits).Returns(new List<Direction> { Direction.N });
+        mockGameEngine.Setup(ge => ge.Context).Returns((IContext?)null);
+
+        var gameResponse = new GameResponse("You are in the cellar.", mockGameEngine.Object);
+
+        gameResponse.Exits.Should().BeEmpty();
+        gameResponse.ActionsAvailableFromLocation.Should().BeEmpty();
+        gameResponse.ItIsDarkHere.Should().BeTrue();
+        gameResponse.LocationKey.Should().BeNull();
+    }
+
+    [Test]
     public void GameResponse_GameEngineConstructor_ShouldReportTheLocationClassAsItsKey()
     {
         // The display name is not an identity: Zork I has two rooms called "Clearing", and
@@ -284,8 +304,10 @@ public class GameResponseTests
         mockGameEngine.Setup(ge => ge.Inventory).Returns(new List<string>());
         mockGameEngine.Setup(ge => ge.Exits).Returns(new List<Direction>());
         mockGameEngine.Setup(ge => ge.Context!.ItIsDarkHere).Returns(true);
-        mockGameEngine.Setup(ge => ge.Context!.CurrentLocation)
-            .Returns(Repository.GetLocation<ClearingBehindHouse>());
+        // Constructed directly rather than fetched from the Repository: the Repository is a
+        // process-wide singleton, and this fixture has no Reset to undo what it would leave
+        // behind for every test that runs after it.
+        mockGameEngine.Setup(ge => ge.Context!.CurrentLocation).Returns(new ClearingBehindHouse());
 
         var gameResponse = new GameResponse("You are in a small clearing.", mockGameEngine.Object);
 

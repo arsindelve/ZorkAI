@@ -45,7 +45,12 @@ public record GameResponse(
         // Reported rather than merely acted on, because the client has its own location-derived
         // things to withhold in the dark — the room artwork above all. A picture of a room the
         // player cannot see is the same leak issue #238 closed for exits and action chips.
-        gameEngine.Context is { ItIsDarkHere: true },
+        //
+        // Negated rather than written as `is { ItIsDarkHere: true }` so a null Context lands on
+        // the same side as the two fields above: those use `is { ItIsDarkHere: false }`, which a
+        // null fails, and so withhold. The positive form would have a null report the room as
+        // *lit* while its exits and chips had already been stripped as if it were dark.
+        gameEngine.Context is not { ItIsDarkHere: false },
         // A stable identity for the room, because the display name is not one: Zork I has two
         // rooms called "Clearing", two called "Cave" and four called "Forest". Only one of the
         // Clearings has the grating hidden under the leaves, and a client picking artwork by
