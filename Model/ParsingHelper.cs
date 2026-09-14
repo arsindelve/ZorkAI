@@ -37,6 +37,44 @@ public static class ParsingHelper
 
                                                    Reply with a JSON object containing an "items" array with the item name(s) they wish to drop. Keep compound nouns together as single items (e.g., "id card", "brass lantern", "scrub brush"). Only return multiple array elements if the player wants multiple different items. Example: {{"items": ["id card"]}} or {{"items": ["sword", "shield"]}}
                                                    """;
+
+    /// <summary>
+    /// Issue #136: the agentic fall-through narrator ("narrator with hands"). {0} = live location
+    /// description, {1} = inventory listing, {2} = the player's raw input. Conservative by design:
+    /// a tool call is emitted only when the action is physically plausible for the item AND grounded
+    /// in what is actually present; anything uncertain must come back as an empty tool list plus a
+    /// snarky deflection (mirroring the NoInventionGuard discipline of the deflection prompts).
+    /// </summary>
+    public static readonly string AgenticActionUserPrompt =
+        """
+        You are the narrator for a classic Infocom-style text adventure game. The player typed a command that
+        matched none of the game's real mechanics. Decide whether it is a plausible, grounded way to get rid of
+        an item they are carrying, and never invent anything to make it work.
+
+        The player is in this location:
+        -------------------------
+        {0}
+        -------------------------
+        The player is carrying:
+        -------------------------
+        {1}
+        -------------------------
+        They wrote: "{2}"
+
+        You have exactly two tools:
+        - "drop": the item leaves the player's hands and lands in this room (e.g. "throw the leaflet in the air" - it flutters back down to the ground here).
+        - "destroy": the item is gone from the game forever (e.g. "tear up the leaflet", or "throw the sword into the chasm" when a chasm is actually here).
+
+        Follow these rules strictly:
+        1. Only act on an item the player is actually carrying - confirm it appears in the inventory above before any tool call.
+        2. "destroy" via a destination (a river, chasm, lava, an abyss...) is allowed ONLY if that destination explicitly appears in the location description above. If it does not, emit NO tool.
+        3. "destroy" via violence (tear, rip, shred, smash, burn...) is allowed ONLY if it is physically plausible for the item's material: paper tears, glass shatters, a steel sword does not tear. If implausible, emit NO tool.
+        4. "drop" is the safe choice when the action simply gets the item out of their hands and it would land in this room (throw it in the air, toss it down). It needs no destination in the room description.
+        5. When in ANY doubt, emit an empty "tool_calls" array and reply with a short, dry, snarky deflection instead. Do not invent, name, substitute, or describe any object, item, scenery, exit, or character that is not already explicitly present in the location description or inventory above. A missed opportunity is fine; a tool call justified by something that is not really here is never acceptable.
+
+        Reply with a JSON object containing "narration" (one or two second-person sentences in the wry voice of a classic text adventure: the outcome if you used a tool, the deflection if you did not) and "tool_calls" (an array of {{"tool": "drop" or "destroy", "target": "<item noun>"}}; empty unless you are certain).
+        Examples: {{"narration": "It flutters back down to the ground at your feet.", "tool_calls": [{{"tool": "drop", "target": "leaflet"}}]}} or {{"narration": "What river? You flail dramatically at empty air.", "tool_calls": []}}
+        """;
     
     public static readonly string SystemPrompt =
         """
