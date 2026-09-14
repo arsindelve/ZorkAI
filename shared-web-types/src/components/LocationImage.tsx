@@ -79,9 +79,11 @@ type LocationImageProps = {
  * Its own bottom edge is masked to nothing, so the room description the player just walked
  * into reads through the frame the whole time it is on screen. A click dismisses it early.
  *
- * "First time" is per browser session, held in a ref rather than localStorage: a player
- * who reloads or restores a save is arriving somewhere fresh again, and the pictures are
- * the point of the feature, not an achievement to be spent.
+ * "First time" is per picture and per playthrough. Per picture because several rooms can
+ * share one - the maze is fifteen rooms and a single establishing shot - and it should
+ * play in whichever of them the player reaches first, not in all of them. Per playthrough
+ * because a restart or a restored save is a fresh run, and the pictures are the point of
+ * the feature rather than an achievement to be spent; a plain reload replays them too.
  *
  * A room the player cannot see does not count as an arrival. In the dark nothing is shown
  * and nothing is fetched; the picture waits until they light a lamp or come back carrying
@@ -138,11 +140,14 @@ export default function LocationImage({
         const url = locationImageUrl(images, locationKey);
         if (!url) return;
 
-        if (alreadyRequested.current.has(locationKey)) return;
+        // Tracked by the picture rather than the room, because a picture can belong to
+        // several: wandering the maze is fifteen rooms sharing one establishing shot, and
+        // counting rooms replayed it in every one of them.
+        if (alreadyRequested.current.has(url)) return;
 
         // Marked before the image has loaded, not after. A room whose art has not been
         // drawn yet 404s, and without this it would 404 again on every single visit.
-        alreadyRequested.current.add(locationKey);
+        alreadyRequested.current.add(url);
 
         let cancelled = false;
         const loader = new Image();

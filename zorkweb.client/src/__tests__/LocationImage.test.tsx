@@ -44,6 +44,10 @@ const FADE_OUT = 200;
 const IMAGES = createLocationImageSet('https://example.test/locations/', {
     WestOfHouse: 'WestOfHouse.webp',
     Kitchen: 'Kitchen.webp',
+    // Rooms that are the same place to the player and share one picture, as the fifteen
+    // maze rooms and the two Caves do.
+    MazeOne: 'Maze.webp',
+    MazeTwo: 'Maze.webp',
 });
 
 const PAN = 4000;
@@ -242,6 +246,21 @@ describe('LocationImage', () => {
 
         goTo('Kitchen');
         expect(FakeImage.instances).toHaveLength(2);
+        expect(screen.queryByTestId('location-image')).not.toBeInTheDocument();
+    });
+
+    test('a picture shared by several rooms plays only in the first of them', () => {
+        // Wandering the maze is fifteen rooms with one picture between them. Counting the
+        // room rather than the picture meant it played again in every one.
+        const {rerender} = render(plate('MazeOne'));
+        loadTheImage();
+        settle();
+        act(() => void jest.advanceTimersByTime(PLATE_LIFE));
+        expect(FakeImage.instances).toHaveLength(1);
+
+        rerender(plate('MazeTwo'));
+
+        expect(FakeImage.instances).toHaveLength(1);
         expect(screen.queryByTestId('location-image')).not.toBeInTheDocument();
     });
 
