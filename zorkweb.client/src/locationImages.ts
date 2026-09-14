@@ -19,6 +19,7 @@ export const ZORK_LOCATION_IMAGE_BASE_URL = 'https://zorkai-assets.s3.amazonaws.
 export const ZORK_LOCATION_IMAGES = createLocationImageSet(ZORK_LOCATION_IMAGE_BASE_URL, {
     Altar: 'Altar.webp',
     AragainFalls: 'AragainFalls.webp',
+    AtlantisRoom: 'AtlantisRoom.webp',
     Attic: 'Attic.webp',
     BatRoom: 'BatRoom.webp',
     BehindHouse: 'BehindHouse.webp',
@@ -36,6 +37,7 @@ export const ZORK_LOCATION_IMAGES = createLocationImageSet(ZORK_LOCATION_IMAGE_B
     DamLobby: 'DamLobby.webp',
     DampCave: 'DampCave.webp',
     DomeRoom: 'DomeRoom.webp',
+    DraftyRoom: 'DraftyRoom.webp',
     EastOfChasm: 'EastOfChasm.webp',
     EastWestPassage: 'EastWestPassage.webp',
     EgyptianRoom: 'EgyptianRoom.webp',
@@ -86,6 +88,7 @@ export const ZORK_LOCATION_IMAGES = createLocationImageSet(ZORK_LOCATION_IMAGE_B
     StreamView: 'StreamView.webp',
     Studio: 'Studio.webp',
     Temple: 'Temple.webp',
+    TimberRoom: 'TimberRoom.webp',
     TorchRoom: 'TorchRoom.webp',
     TreasureRoom: 'TreasureRoom.webp',
     TrollRoom: 'TrollRoom.webp',
