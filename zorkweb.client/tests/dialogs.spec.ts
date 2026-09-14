@@ -11,6 +11,7 @@
 
 import {test, expect} from '@playwright/test';
 import {
+    blockLocationArtwork,
     closeWelcomeModal,
     handleZorkOneRoute,
     handleSaveGameRoute,
@@ -51,6 +52,10 @@ test.describe('Game Dialogs', () => {
     test('Welcome dialog - welcome dialog appears on first visit and can be closed', async ({
         page,
     }) => {
+        // This is the one test in the file that navigates directly rather than through
+        // closeWelcomeModal, which is where the artwork is normally blocked.
+        await blockLocationArtwork(page);
+
         // Navigate to the application
         await page.goto('/');
 

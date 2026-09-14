@@ -290,6 +290,11 @@ interface PreferencesModalProps {
     handleClose: () => void;
     /** The game's own base transcript size, so the specimen renders at true scale. */
     baseFontSizePx: number;
+    /**
+     * Whether this game has artwork for any of its rooms. Off by default: a toggle for
+     * pictures that do not exist would be a control that does nothing.
+     */
+    hasLocationImages?: boolean;
     /** A few lines of this game's own prose for the specimen to render. */
     specimenCommand?: string;
     specimenRoom?: string;
@@ -371,6 +376,7 @@ const PreferencesModal: React.FC<PreferencesModalProps> = ({
     open,
     handleClose,
     baseFontSizePx,
+    hasLocationImages = false,
     specimenCommand = 'open the mailbox',
     specimenRoom = 'West of House',
     specimenBody = 'Opening the small mailbox reveals a leaflet.',
@@ -396,6 +402,8 @@ const PreferencesModal: React.FC<PreferencesModalProps> = ({
         setShowLocationButton,
         showInventoryButton,
         setShowInventoryButton,
+        showLocationImages,
+        setShowLocationImages,
         animations,
         setAnimations,
     } = useGameContext();
@@ -554,6 +562,15 @@ const PreferencesModal: React.FC<PreferencesModalProps> = ({
                             onChange={setShowInventoryButton}
                             testIdName="toggle-inventory-button"
                         />
+                        {hasLocationImages && (
+                            <Chip
+                                id="pref-location-images"
+                                label="Artwork"
+                                checked={showLocationImages}
+                                onChange={setShowLocationImages}
+                                testIdName="toggle-location-images"
+                            />
+                        )}
                         <Chip
                             id="pref-animations"
                             label="Animations"

@@ -17,6 +17,15 @@ export {GameProvider, useGameContext} from './context/GameContext';
 export {default as ClickableText} from './components/ClickableText';
 export type {ClickableTextHandle} from './components/ClickableText';
 export {default as Compass, parseMoveDirection} from './components/Compass';
+export {
+    default as LocationImage,
+    DEFAULT_LOCATION_IMAGE_FADE_IN_MS,
+    DEFAULT_LOCATION_IMAGE_HOLD_MS,
+    DEFAULT_LOCATION_IMAGE_FADE_OUT_MS,
+    DEFAULT_LOCATION_IMAGE_PAN_MS,
+} from './components/LocationImage';
+export {createLocationImageSet, locationImageUrl} from './locationImages/locationImages';
+export type {LocationImageSet} from './locationImages/locationImages';
 export {ReleaseNotesServer} from './utils/ReleaseNotesServer';
 export {default as ConfirmationDialog} from './modal/ConfirmationDialog';
 export {default as RestartConfirmDialog} from './modal/RestartConfirmDialog';
@@ -55,6 +64,7 @@ export {
     showCommandsMenuPreference,
     showLocationButtonPreference,
     showInventoryButtonPreference,
+    showLocationImagesPreference,
     animationsPreference,
 } from './preferences/toggles';
 export {useBooleanPreference} from './preferences/useBooleanPreference';
