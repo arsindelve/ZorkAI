@@ -18,6 +18,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     private readonly FloydInventoryManager _inventoryManager;
     private readonly FloydSocialResponses _socialResponses;
     private readonly FloydMovementManager _movementManager;
+    private readonly FloydItemRequests _itemRequests;
 
     public Floyd()
     {
@@ -26,6 +27,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         _inventoryManager = new FloydInventoryManager(this);
         _socialResponses = new FloydSocialResponses(this);
         _movementManager = new FloydMovementManager(this);
+        _itemRequests = new FloydItemRequests(this);
     }
 
     // This is the thing that he is holding, literally in his hand. 
@@ -239,6 +241,15 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         if (!IsOn)
             return "The robot doesn't respond - it appears to be turned off.";
 
+        // Asking him to hand back or put down the thing in his hand is a real mechanic in the original,
+        // not conversation (compone.zil:2053-2060 and 1912-1923). Bridged BEFORE the chat service, which
+        // is instructed to decline every physical request in character and so answered these with a
+        // refusal that "take <item>" contradicted on the very next turn (issue #521). Returns null for
+        // everything else, which is almost everything, and that falls through to the service as before.
+        var itemRequest = _itemRequests.HandleSpokenRequest(text, context);
+        if (itemRequest is not null)
+            return itemRequest;
+
         try
         {
             CompanionResponse response = await ChatWithFloyd.AskFloydAsync(text);
@@ -407,6 +418,14 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
             action.MatchPreposition(["with"]) &&
             Repository.GetItemInScope(action.NounTwo, context) is OilCan && context.IsCarrying<OilCan>())
             return new PositiveInteractionResult(FloydConstants.Oil);
+
+        // "ask floyd for the diary" - the original's own grammar for being handed something
+        // (syntax.zil:341-342 -> V-ASK-FOR). It arrives as a command rather than as speech, since it
+        // leads with the verb instead of his name, so the conversational bridge in OnBeingTalkedTo
+        // never sees it (issue #521).
+        var askForResult = _itemRequests.HandleAskFor(action, context);
+        if (askForResult is not null)
+            return askForResult;
 
         // SHOW is handled before GIVE: in the original, "show <x> to floyd" drives several reactions
         // (FLOYD-F SHOW branch, compone.zil:2022-2047) that GIVE does not — the printout/computer-concern

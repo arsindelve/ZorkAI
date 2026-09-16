@@ -304,6 +304,13 @@
     { "inputs": ["give the plate to floyd", "give plate to floyd"], "verb": "give", "nounOne": "plate", "nounTwo": "floyd", "preposition": "to", "originalInput": "give the plate to floyd" },
     { "inputs": ["give the breastplate to floyd", "give breastplate to floyd"], "verb": "give", "nounOne": "breastplate", "nounTwo": "floyd", "preposition": "to", "originalInput": "give the breastplate to floyd" },
     { "inputs": ["give id card to floyd", "give the id card to floyd"], "verb": "give", "nounOne": "id card", "nounTwo": "floyd", "preposition": "to", "originalInput": "give id card to floyd" },
+    { "inputs": ["give the brush to floyd", "give brush to floyd"], "verb": "give", "nounOne": "brush", "nounTwo": "floyd", "preposition": "to", "originalInput": "give the brush to floyd" },
+
+    // The original's own grammar for asking a companion to hand something over: TELL/ASK <actor> FOR
+    // <object> (Planetfall syntax.zil:341-342, V-ASK-FOR). Reaches Floyd as a multi-noun command, not
+    // as speech, because the leading word is the verb rather than his name (issue #521).
+    { "inputs": ["ask floyd for the diary", "ask floyd for diary"], "verb": "ask", "nounOne": "floyd", "nounTwo": "diary", "preposition": "for", "originalInput": "ask floyd for the diary" },
+    { "inputs": ["ask floyd for help"], "verb": "ask", "nounOne": "floyd", "nounTwo": "help", "preposition": "for", "originalInput": "ask floyd for help" },
     { "inputs": ["show printout to floyd", "show the printout to floyd"], "verb": "show", "nounOne": "printout", "nounTwo": "floyd", "preposition": "to", "originalInput": "show printout to floyd" },
     { "inputs": ["show id card to floyd", "show the id card to floyd"], "verb": "show", "nounOne": "id card", "nounTwo": "floyd", "preposition": "to", "originalInput": "show id card to floyd" },
     { "inputs": ["show kitchen card to floyd"], "verb": "show", "nounOne": "kitchen card", "nounTwo": "floyd", "preposition": "to", "originalInput": "show kitchen card to floyd" },

@@ -49,6 +49,16 @@ public static class Verbs
         ["give", "offer", "transfer", "present", "provide", "hand", "donate", "deliver", "pass", "feed"];
 
     /// <summary>
+    ///     The "ask someone for something" family. The original's grammar is
+    ///     <c>TELL &lt;actor&gt; FOR &lt;object&gt;</c> with <c>SYNONYM TELL ASK</c>
+    ///     (Planetfall syntax.zil:341-342), which routes to <c>V-ASK-FOR</c> - so both words are the
+    ///     original's, and "request" is the modern synonym a player is just as likely to type.
+    ///     Always pair this with the "for" preposition: "ask floyd ABOUT mudge" is conversation, not a
+    ///     request to be handed something.
+    /// </summary>
+    public static readonly string[] AskForVerbs = ["ask", "tell", "request"];
+
+    /// <summary>
     ///     The "show it to someone" family. Distinct from <see cref="GiveVerbs" /> — showing keeps the
     ///     object in your hand (the ZIL syntax is <c>SHOW OBJECT (HAVE) TO OBJECT</c>), whereas giving
     ///     transfers it. Deliberately excludes "present" (a give synonym) so the two verbs don't collide.
