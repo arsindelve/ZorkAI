@@ -299,7 +299,17 @@ public class OpenAiHintOracleBehaviorTests
         var failing = new Mock<IChatCompletionClient>();
         failing.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()))
             .ThrowsAsync(new InvalidOperationException("boom"));
-        (await new OpenAiHintOracle(Mock.Of<ILogger>(), failing.Object).Answer("B", Persona, "S", [], "q")).Should().BeNull();
+        (await new OpenAiHintOracle(Mock.Of<ILogger>(), failing.Object) { RetryDelay = TimeSpan.Zero }
+            .Answer("B", Persona, "S", [], "q")).Should().BeNull();
+        failing.Verify(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()),
+            Times.Exactly(2)); // one retry, then decline
+
+        var flaky = new Mock<IChatCompletionClient>();
+        flaky.SetupSequence(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()))
+            .ThrowsAsync(new InvalidOperationException("429"))
+            .ReturnsAsync("A nudge.");
+        (await new OpenAiHintOracle(Mock.Of<ILogger>(), flaky.Object) { RetryDelay = TimeSpan.Zero }
+            .Answer("B", Persona, "S", [], "q")).Should().Be("A nudge."); // the retry can succeed
 
         var empty = new Mock<IChatCompletionClient>();
         empty.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()))

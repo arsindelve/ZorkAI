@@ -139,7 +139,7 @@ public class OraclePlaythroughEval : WalkthroughTestBase
     private static int Count<T>(IEnumerable<(T, List<(string, string, string)>, Grade Grade)> graded, Verdict verdict) =>
         graded.Count(g => g.Grade.Verdict == verdict);
 
-    private static readonly SemaphoreSlim Gate = new(8);
+    private static readonly SemaphoreSlim Gate = new(4); // eight at once tripped the rate limit
 
     private static async Task<T> Throttled<T>(Func<Task<T>> work)
     {

@@ -43,8 +43,17 @@ public static class HintGrader
         "they need.\n\n" +
         "Give ONE verdict for the whole exchange:\n" +
         "GOOD — a player would be well served: on the question, correct, appropriately graded, no spoilers.\n" +
+        "THE HOUSE STYLE, which is correct and must not be marked down: the FIRST answer on a subject is a QUESTION " +
+        "TO PONDER, like the old InvisiClues — a leading question that turns the player toward the right thing " +
+        "without naming the solution; statements come on the second ask, exact commands on the third. A first " +
+        "answer that is a question pointing at the RIGHT thing for this moment is GOOD, however little it gives " +
+        "away; judge it WEAK only if the question points nowhere useful or at the wrong thing. Likewise correct: " +
+        "never announcing on the first ask that something is a dead end; refusing to confirm a character's fate or " +
+        "the ending; and answering a plain how-do-I-operate-this question (a terminal, an elevator, which button) " +
+        "directly.\n" +
         "WEAK — not wrong, but not much help: vague past the point of usefulness, dodges the question, fails to get " +
-        "more specific when asked for more, declines a fair question, or is needlessly explicit on the very first ask.\n" +
+        "more specific when asked for more, declines a fair question, is needlessly explicit on the very first ask, " +
+        "or answers a simple how-do-I-operate-this question with a riddle.\n" +
         "WRONG — misleads: points at the wrong puzzle, place or action for this moment; contradicts the walkthrough " +
         "or the reference; treats a dead end as the way forward; or answers a different question than was asked.\n" +
         "SPOILER — reveals something well beyond where the player is (a later puzzle's solution, a later area, a " +

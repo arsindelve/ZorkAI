@@ -15,6 +15,11 @@ public class OpenAiHintOracle : OpenAIClientBase, IHintOracle
 {
     public const string DefaultModel = "gpt-5.6-terra";
 
+    private const int MaxAttempts = 2;
+
+    /// <summary>The pause before the single retry; settable so tests need not wait.</summary>
+    public TimeSpan RetryDelay { get; init; } = TimeSpan.FromSeconds(2);
+
     public OpenAiHintOracle(ILogger? logger = null, IChatCompletionClient? clientOverride = null)
         : base(logger, requireApiKey: false, modelOverride: ResolveModel(), clientOverride)
     {
@@ -156,15 +161,22 @@ public class OpenAiHintOracle : OpenAIClientBase, IHintOracle
         user.AppendLine(string.IsNullOrWhiteSpace(question) ? "(they pressed the hint button: give them a hint, or continue the thread)" : question);
 
         var messages = new List<ChatMessage> { new SystemChatMessage(system), new UserChatMessage(user.ToString()) };
-        try
-        {
-            var text = await Client.CompleteChatAsync(messages, new ChatCompletionOptions());
-            return string.IsNullOrWhiteSpace(text) ? null : text.Trim();
-        }
-        catch (Exception e)
-        {
-            Logger?.LogWarning(e, "Hint oracle call failed; declining.");
-            return null;
-        }
+        // One retry: a rate limit or a dropped connection should not cost the player their hint.
+        for (var attempt = 1;; attempt++)
+            try
+            {
+                var text = await Client.CompleteChatAsync(messages, new ChatCompletionOptions());
+                return string.IsNullOrWhiteSpace(text) ? null : text.Trim();
+            }
+            catch (Exception e) when (attempt < MaxAttempts)
+            {
+                Logger?.LogWarning(e, "Hint oracle call failed; retrying once.");
+                await Task.Delay(RetryDelay);
+            }
+            catch (Exception e)
+            {
+                Logger?.LogWarning(e, "Hint oracle call failed; declining.");
+                return null;
+            }
     }
 }
