@@ -15,6 +15,12 @@ export const showLocationButtonPreference = createBooleanPreference('showLocatio
 export const showInventoryButtonPreference = createBooleanPreference('showInventoryButton', true);
 
 /**
+ * The establishing shot shown the first time the player reaches a room that has art
+ * drawn for it. Only some rooms have one; see the per-game location image registry.
+ */
+export const showLocationImagesPreference = createBooleanPreference('showLocationImages', true);
+
+/**
  * Animations: the compass pulse, the direction "ping" flashes and the transcript
  * fade-in. Defaults to on, exactly as the games have always behaved. Turning it off
  * suppresses motion everywhere via a root-level attribute (see GameProvider).

@@ -17,6 +17,7 @@ import {
     showCommandsMenuPreference,
     showInventoryButtonPreference,
     showLocationButtonPreference,
+    showLocationImagesPreference,
     showVerbsMenuPreference,
     transcriptFontSizePx,
     DEFAULT_TRANSCRIPT_FONT,
@@ -309,6 +310,7 @@ describe('User preferences', () => {
             ['commands menu', showCommandsMenuPreference],
             ['location button', showLocationButtonPreference],
             ['inventory button', showInventoryButtonPreference],
+            ['location images', showLocationImagesPreference],
             ['animations', animationsPreference],
         ] as const;
 
