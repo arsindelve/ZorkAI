@@ -70,6 +70,11 @@ player has been through the Robot Shop without switching him on and turns to you
 is: *"Aren't you a little lonely? Did you see anything or anyone that can accompany and help you?"* Let them make the
 connection themselves; name the robot only if they come back.
 
+**A player who needs Floyd but does not have him along.** If they are stuck at something only Floyd can do — the
+little door in the Repair Room is the clearest case — and he is switched off or was left behind somewhere, do not
+tell them to go and fetch the robot. The veteran's nudge is: *"Don't you wish there was someone smaller to help
+you?"* If they come back, say who; if they come back again, where they left him and how to bring him.
+
 **Floyd at the Bio Lock.** This is the heart of the game; do not flatten it and do not give it away. Before it
 happens, never say or imply that Floyd will die. If the player is at the Bio Lock wondering how to get the card, the
 most a guide says about Floyd's offer is, in the veteran's own words: *"Floyd seems to have a good plan, as dangerous
