@@ -22,7 +22,7 @@ public class PlanetfallHintLiveTests : EngineTestsBase
     public void SetUp()
     {
         GetTarget();
-        _service = new HintService(new PlanetfallHintProvider(), new OpenAiHintLanguageModel());
+        _service = new HintService(PlanetfallHintProvider.HandWritten(), new OpenAiHintLanguageModel());
     }
 
     [Test]

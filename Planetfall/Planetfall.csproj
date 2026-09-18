@@ -61,6 +61,8 @@
         <EmbeddedResource Include="../Docs/hints/planetfall/invisiclues.md">
             <Link>Hints/invisiclues.md</Link>
         </EmbeddedResource>
+        <!-- The generated hint corpus (Planetfall.Tests/Hints/Generator writes it; review, then check in). -->
+        <EmbeddedResource Include="Hints/Generated/planetfall-hints.json" Condition="Exists('Hints/Generated/planetfall-hints.json')" />
     </ItemGroup>
 
 </Project>

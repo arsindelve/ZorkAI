@@ -47,6 +47,16 @@ eval fixtures differ). So:
 
 Both reuse the same engine pipeline; only the per-game data differs.
 
+## The per-game content is generated
+
+The `01`/`02`/`06` documents were the hand-written first cut. Three live evaluation passes showed that
+maintaining them meant hand-crafting an answer per scenario, so the puzzle graph, the completion
+predicates and the ladders are now **generated from the game** — the verified walkthroughs replayed
+through the engine, with the live state diffed after every command — by
+`Planetfall.Tests/Hints/Generator/HintCorpusGenerator.cs`, into `Planetfall/Hints/Generated/planetfall-hints.json`.
+The docs remain the design and the vocabulary; the JSON is the content. Details in
+[07 § As built](07-common-architecture.md).
+
 ## Who does what next
 
 - **Claude can produce/refine:** DAG edges (proposed, from ZIL evidence), state audits, soft-lock

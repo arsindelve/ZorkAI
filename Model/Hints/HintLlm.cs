@@ -57,8 +57,12 @@ public enum HintIntent
     OutOfScope
 }
 
-/// <summary>A puzzle the router may attach a question to (the catalog it chooses from).</summary>
-public sealed record HintTopic(string Id, string Title, string Location);
+/// <summary>
+///     A puzzle the router may attach a question to (the catalog it chooses from). <see cref="Aliases" />
+///     are the words players use for it — the nouns of its own commands — so matching does not depend on
+///     how the title happens to be worded.
+/// </summary>
+public sealed record HintTopic(string Id, string Title, string Location, IReadOnlyList<string>? Aliases = null);
 
 /// <summary>Fixed replies the seam uses as signals rather than prose.</summary>
 public static class HintSignals

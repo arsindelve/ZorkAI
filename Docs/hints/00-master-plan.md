@@ -233,9 +233,13 @@ OpenAI in the snarky-narrator voice. Zork and the web UI are deferred behind the
 - [x] Stage 4 — grounded retrieval + laddering: the `06` ladders as data (`PlanetfallHintCorpus`), one
       rung to the phraser; lore/mechanic from the `05` digest + the invisiclues, tier-gated
       (`PlanetfallLoreSource`); whole-source solve/reveal kept as the fallback when nothing authored fits
+- [x] Stages 2–4, generated — `Planetfall.Tests/Hints/Generator` derives the DAG, the completion
+      predicates, optionality, aliases and the ladders from the verified walkthroughs and the live state
+      (see [07 § As built](07-common-architecture.md)); output `Planetfall/Hints/Generated/planetfall-hints.json`,
+      now the production default — 45/60 vs the hand-written 39/60 on the sixty walkthrough checkpoints
 - [ ] Stage 5 — unwinnable-state detection: only the Disease *warning* is wired; the hard traps in
       [03](planetfall/03-softlock.md) still need their flags confirmed
-- [ ] Stage 6 — navigation hints
+- [x] Stage 6 — navigation hints: the generator emits a `REACH_<room>` node for every long first approach
 - [ ] Stage 7 — Zork I provider; feedback loop
 - [ ] Web Hints panel (the API returns `kind`/`topic`/`rung`/`totalRungs` for it)
 

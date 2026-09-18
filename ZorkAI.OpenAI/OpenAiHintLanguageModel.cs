@@ -66,7 +66,9 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
             "open-ended ('what now?', 'I'm stuck', 'what should I be doing?'), and always when continues is true — a " +
             "continuation names no new subject. Never set a topic for OUTOFSCOPE. Never explain; output the JSON only.";
 
-        var catalog = string.Join("\n", topics.Select(t => $"- {t.Id}: {t.Title} ({t.Location})"));
+        var catalog = string.Join("\n", topics.Select(t =>
+            $"- {t.Id}: {t.Title} ({t.Location})" +
+            (t.Aliases is { Count: > 0 } ? $" — words: {string.Join(", ", t.Aliases)}" : "")));
         var user =
             $"PUZZLES:\n{catalog}\n\nCONVERSATION SO FAR:\n{HistoryText(history)}\n\nPLAYER NOW SAYS:\n{question}";
 

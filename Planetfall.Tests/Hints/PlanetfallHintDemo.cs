@@ -14,7 +14,7 @@ namespace Planetfall.Tests.Hints;
 public class PlanetfallHintDemo : EngineTestsBase
 {
     private HintService Service() =>
-        new(new PlanetfallHintProvider(), new OpenAiHintLanguageModel());
+        new(PlanetfallHintProvider.HandWritten(), new OpenAiHintLanguageModel());
 
     [Test]
     public async Task PrintProgressions()
@@ -193,7 +193,7 @@ public class PlanetfallHintDemo : EngineTestsBase
             string.Join("\n\n", files.Select(f => $"// ===== {f} =====\n{File.ReadAllText(Path.Combine(root, f.Replace('/', Path.DirectorySeparatorChar)))}"));
 
         var llm = new OpenAiHintLanguageModel();
-        var provider = new PlanetfallHintProvider();
+        var provider = PlanetfallHintProvider.HandWritten();
         var persona = provider.Persona;
 
         string[] questions =
@@ -262,7 +262,7 @@ public class PlanetfallHintDemo : EngineTestsBase
         TestContext.Out.WriteLine($"[loaded {allFiles.Length} source + {walkFiles.Length} walkthrough files, {bundle.Length:N0} chars (~{bundle.Length / 4000}k tokens)]\n");
 
         var llm = new OpenAiHintLanguageModel(model: "gpt-5.4-mini");
-        var provider = new PlanetfallHintProvider();
+        var provider = PlanetfallHintProvider.HandWritten();
         var persona = provider.Persona;
         var empty = new List<HintExchange>();
 

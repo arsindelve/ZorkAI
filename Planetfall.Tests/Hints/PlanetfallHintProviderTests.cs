@@ -23,9 +23,50 @@ public class PlanetfallHintProviderTests : EngineTestsBase
     [SetUp]
     public void SetUp() => GetTarget(); // Repository.Reset() + engine + a real PlanetfallContext (Context)
 
-    private static PlanetfallHintProvider Provider() => new();
+    // The hand-written graph: these tests pin its node ids and flags. The generated corpus (the production
+    // default) is covered by GeneratedCorpus_* below and measured by PlanetfallHintPlaythroughEval.
+    private static PlanetfallHintProvider Provider() => PlanetfallHintProvider.HandWritten();
 
     private static ProgressState Progress(PlanetfallContext context) => Provider().ProgressMapper.Map(context);
+
+    [Test]
+    public void GeneratedCorpus_IsEmbedded_AndIsTheDefault()
+    {
+        var generated = PlanetfallHintProvider.LoadGenerated();
+        generated.Should().NotBeNull("the generator's output is checked in and embedded");
+        generated!.Nodes.Should().HaveCountGreaterThan(30);
+        generated.Nodes.Should().OnlyContain(n => n.Rungs.Count == 3 && n.Done.Count > 0 && n.Title.Length > 0);
+        generated.Nodes.Select(n => n.Id).Should().OnlyHaveUniqueItems();
+        var ids = generated.Nodes.Select(n => n.Id).ToHashSet();
+        generated.Nodes.SelectMany(n => n.Prerequisites).Should().OnlyContain(p => ids.Contains(p));
+
+        new PlanetfallHintProvider().IsGenerated.Should().BeTrue();
+        Provider().IsGenerated.Should().BeFalse();
+    }
+
+    [Test]
+    public void GeneratedCorpus_MapsAFreshGame_ToTheFirstPuzzle()
+    {
+        var provider = new PlanetfallHintProvider();
+        var state = provider.ProgressMapper.Map(Context);
+        var blockers = provider.PuzzleGraph.ActiveBlockers(state, Context);
+        blockers.Should().NotBeEmpty();
+        blockers[0].Should().Be(provider.PuzzleGraph.Nodes.First().Id, "nothing is done at the start");
+        state.Nodes.Values.Should().NotContain(NodeStatus.Done);
+    }
+
+    [Test]
+    public void GeneratedCorpus_ReadsTheLiveFlags()
+    {
+        var provider = new PlanetfallHintProvider();
+        Repository.GetItem<Magnet>().HasEverBeenPickedUp = true;
+        var state = provider.ProgressMapper.Map(Context);
+        state.StatusOf("TOOL_ROOM_MAGNET").Should().Be(NodeStatus.Done);
+        // back-fill: everything on the way to the magnet is done too
+        state.StatusOf("REACH_TOOL_ROOM").Should().Be(NodeStatus.Done);
+        state.StatusOf("DECK_NINE_WAIT").Should().Be(NodeStatus.Done);
+        state.StatusOf("ROBOT_SHOP_ACTIVATE_FLOYD").Should().Be(NodeStatus.Available);
+    }
 
     [Test]
     public void Docs_AreTheRealSourceAndWalkthroughs()

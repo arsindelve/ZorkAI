@@ -35,7 +35,7 @@ public class PlanetfallHintEvalTests : EngineTestsBase
     {
         GetTarget();
         _llm = new StubLlm();
-        _service = new HintService(new PlanetfallHintProvider(), _llm);
+        _service = new HintService(PlanetfallHintProvider.HandWritten(), _llm);
     }
 
     private Task<HintResponse> Ask(string question, RoutedIntent routed, params HintExchange[] history)
@@ -256,7 +256,7 @@ public class PlanetfallHintEvalTests : EngineTestsBase
     [Test]
     public void EarlyRungs_NeverMentionLateGameNouns()
     {
-        var corpus = new PlanetfallHintProvider().PuzzleCorpus;
+        var corpus = PlanetfallHintProvider.HandWritten().PuzzleCorpus;
         string[] lateNouns = ["microbe", "laser", "bedistor", "fromitz", "miniaturiz", "mutant", "Veldina", "cryo"];
 
         foreach (var node in new[] { "EXPLOSION", "ESCAPE_POD", "POD_RIDE", "LAND", "CLIMB", "MAGNET", "FLOYD", "STEEL_KEY", "CROSS_RIFT" })
@@ -272,7 +272,7 @@ public class PlanetfallHintEvalTests : EngineTestsBase
     public void TheMicrobeRung_CoversTheWholeVerifiedEscape()
     {
         // The walkthrough doesn't end at the speck: a microbe blocks the exit and has to be lured off the strip.
-        new PlanetfallHintProvider().PuzzleCorpus.TryGetLadder("MICROBE", out var ladder).Should().BeTrue();
+        PlanetfallHintProvider.HandWritten().PuzzleCorpus.TryGetLadder("MICROBE", out var ladder).Should().BeTrue();
 
         ladder.Rungs[2].Should().Contain("set laser to 2").And.Contain("throw laser off strip").And.Contain("Auxiliary Booth");
     }
@@ -451,7 +451,7 @@ public class PlanetfallHintEvalTests : EngineTestsBase
     [Test]
     public void SpoilerTier_RisesWithProgress()
     {
-        var provider = new PlanetfallHintProvider();
+        var provider = PlanetfallHintProvider.HandWritten();
 
         PlanetfallLoreSource.TierOf(Context, provider.ProgressMapper.Map(Context)).Should().Be(0);
 
@@ -471,7 +471,7 @@ public class PlanetfallHintEvalTests : EngineTestsBase
     [Test]
     public void InvisicluesSections_UnlockByArea()
     {
-        var provider = new PlanetfallHintProvider();
+        var provider = PlanetfallHintProvider.HandWritten();
 
         var atStart = provider.LoreSource.GroundedText(Context, provider.ProgressMapper.Map(Context));
         atStart.Should().Contain("## Aboard the Feinstein");

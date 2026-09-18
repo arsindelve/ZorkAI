@@ -47,6 +47,35 @@ per-game content we've already drafted (the `01`–`06` docs for [Planetfall](pl
 >   returns empty and the engine declines. Nothing ever returns the complete solution on error.
 > - **Locked topics redirect.** Asking about a puzzle whose prerequisites aren't met gets "that's further
 >   down the road" plus the real blocker's rung — never the later puzzle's ladder.
+> - **The corpus is generated, not hand-written.** Three live evaluation passes along the walkthrough
+>   showed that every fix to the hand-written DAG and ladders was a hand-crafted answer for one scenario
+>   — not a scalable way to cover a game. So the per-game content (`01` DAG, `02` state map, `06`
+>   ladders) is now *derived from the game itself* by `Planetfall.Tests/Hints/Generator`:
+>   - **Segments.** Both verified walkthroughs (`WalkthroughTestOne`, `WalkthroughDontFixAnything`) are
+>     replayed through the real engine; after every command the whole world is flattened
+>     (`StateFlattener`: every Repository item and location, every persisted scalar property). A command
+>     that is not a move and leaves a *mark* — some object's state no longer at its default — is a puzzle
+>     step; puzzle steps in one room, with the room's waits and looks around them, are one puzzle; the
+>     moves between puzzles are the next one's approach, and a long approach to a room never seen before
+>     is a navigation puzzle of its own (`REACH_*`).
+>   - **Completion predicates** are observed, not authored: the state that changed during the segment and
+>     still held when the next puzzle began — preferring objects the segment's own commands name — as
+>     `eq` / `gte` / `contains` over the flattened paths (`Item:Magnet.HasEverBeenPickedUp eq True`,
+>     `Location:SystemsMonitors.Fixed contains KUMUUNIKAASHUNZ`). Transient signals are fine because
+>     `DataPuzzleGraph` back-fills: a done node's prerequisites are done.
+>   - **Optional** = absent from the minimal walkthrough (segments aligned in order, exact commands).
+>     **Aliases** = the nouns of the segment's commands plus the room's words, for the router's catalog.
+>   - **Rungs** are written offline by the model from the segment's exact commands and the engine's actual
+>     responses, with a do-not-mention list of every later puzzle's words; rung C is the commands
+>     themselves. Fed, not generated.
+>   - The output is one reviewable JSON file per game (`Planetfall/Hints/Generated/planetfall-hints.json`,
+>     `HintData`), embedded and loaded by `DataPuzzleGraph` / `DataHintCorpus` — the same engine over data.
+>     Regenerate with `HintCorpusGenerator.Generate` ([Explicit]; `HINT_GEN_DRY=1` skips the model).
+>     The acceptance test is `PlanetfallHintPlaythroughEval.CompareHandAndGenerated_AllSixtyCheckpoints`:
+>     does the puzzle the engine chose have the walkthrough's actual next command in its solution rung.
+>     First result (2026-09-17, live router): generated **45/60** vs hand-written 39/60 (puzzles 16 vs
+>     15, in-between 15 vs 16, mid-puzzle 14 vs 8). The generated corpus is the production default
+>     (`new PlanetfallHintProvider()`); `PlanetfallHintProvider.HandWritten()` keeps the baseline.
 
 > **Provider note (locked build decision — [00 §7](00-master-plan.md#7-locked-build-decisions-v1)):**
 > the LLM bits (phrasing, intent router, lore answering) run on **OpenAI**, following the C#→OpenAI-
@@ -301,10 +330,12 @@ resumes the ladder across sessions.
 
 ## 10. Adding a third game
 
-1. Implement `IHintProvider` in `<Game>.Hints` — a `PuzzleNode[]` graph, a `ProgressMapper` reading that
-   game's state, an `IHintCorpus` of authored ladders, an `ILoreSource`, `ISoftLockRule[]`,
-   `IProactiveRule[]` (possibly empty), and a `HintPersona`.
-2. Author the `01`–`06` content for it (DAG, state map, soft-locks, eval, lore, corpus).
+1. Implement `IHintProvider` in `<Game>.Hints` — an `ILoreSource`, `ISoftLockRule[]`, `IProactiveRule[]`
+   (possibly empty), a `HintPersona`, and the fallback solver's docs.
+2. Generate the puzzle graph, state map and ladders: point a copy of `HintCorpusGenerator` at that game's
+   full and minimal walkthrough tests, review the JSON, check it in, and load it with `DataPuzzleGraph` /
+   `DataHintCorpus`. Author only what cannot be observed (the `05` lore digest and its tiers, the `03`
+   soft-lock flags).
 3. Register it via `IInfocomGame.Hints`.
 
 No change to `HintService`, the memory store, the LLM tiers, the front doors, or the eval harness. That

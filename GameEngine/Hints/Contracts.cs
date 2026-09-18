@@ -43,7 +43,8 @@ public sealed record PuzzleNode(
     string[] Prerequisites,
     bool Optional,
     string Title,
-    string Location);
+    string Location,
+    string[]? Aliases = null);
 
 /// <summary>The game's puzzle graph: nodes + prerequisite edges, reasoned over generically.</summary>
 public interface IPuzzleGraph

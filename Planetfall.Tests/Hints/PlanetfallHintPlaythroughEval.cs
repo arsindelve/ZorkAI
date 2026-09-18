@@ -1,8 +1,8 @@
 using System.Text;
-using System.Text.RegularExpressions;
 using GameEngine.Hints;
 using Model.Hints;
 using Planetfall.Hints;
+using Planetfall.Tests.Hints.Generator;
 using Planetfall.Tests.Walkthrough;
 using ZorkAI.OpenAI;
 
@@ -12,8 +12,9 @@ namespace Planetfall.Tests.Hints;
 ///     LIVE hint evaluation across the whole game. Replays the verified walkthrough through the real engine
 ///     (with the walkthrough harness's deterministic mocks), stops just before each puzzle, and asks the way a
 ///     stuck player would — vaguely first, then "more" — threading the running conversation exactly as the
-///     web client does (kind/topic/rung echoed, last 20 exchanges). Writes a transcript for a human to grade:
-///     every hint should match what the walkthrough does NEXT, and never what it does later.
+///     web client does (kind/topic/rung echoed, last 20 exchanges). Writes a transcript for a human to grade,
+///     and scores one thing mechanically: does the chosen puzzle's solution rung contain the walkthrough's
+///     actual NEXT command? That is the acceptance metric for a generated corpus against the hand-written one.
 ///     [Explicit]: real OpenAI (OPEN_AI_KEY). Set HINT_EVAL_OUT to also write the transcript to a file.
 /// </summary>
 [TestFixture]
@@ -98,24 +99,50 @@ public class PlanetfallHintPlaythroughEval : WalkthroughTestBase
     };
 
     [Test]
-    public Task PlayThrough_AndAskAtEveryPuzzle() => Run(Checkpoints);
+    public Task PlayThrough_AndAskAtEveryPuzzle() => Run(Checkpoints, new PlanetfallHintProvider(), "generated");
 
     [Test]
-    public Task PlayThrough_AndAskAtTwentyMorePuzzles() => Run(MoreCheckpoints);
+    public Task PlayThrough_AndAskAtTwentyMorePuzzles() => Run(MoreCheckpoints, new PlanetfallHintProvider(), "generated");
 
     [Test]
-    public Task PlayThrough_AndAskMidPuzzle() => Run(MidPuzzleCheckpoints);
+    public Task PlayThrough_AndAskMidPuzzle() => Run(MidPuzzleCheckpoints, new PlanetfallHintProvider(), "generated");
 
-    private async Task Run(Checkpoint[] checkpoints)
+    /// <summary>
+    ///     The acceptance test for a generated corpus: all sixty checkpoints, hand-written corpus vs generated,
+    ///     scored on whether the chosen puzzle's solution rung contains the walkthrough's actual next command.
+    /// </summary>
+    [Test]
+    public async Task CompareHandAndGenerated_AllSixtyCheckpoints()
     {
-        var steps = LoadWalkthrough();
-        var service = new HintService(new PlanetfallHintProvider(), new OpenAiHintLanguageModel());
+        if (!new PlanetfallHintProvider().IsGenerated)
+            throw new InvalidOperationException("No generated corpus is embedded: run HintCorpusGenerator.Generate first.");
+
+        var totals = new StringBuilder("\n# Coverage: solution rung contains the walkthrough's next command\n\n| set | hand | generated |\n|---|---|---|\n");
+        foreach (var (name, set) in new[] { ("puzzles", Checkpoints), ("in-between", MoreCheckpoints), ("mid-puzzle", MidPuzzleCheckpoints) })
+        {
+            var hand = await Run(set, PlanetfallHintProvider.HandWritten(), $"hand-{name}");
+            var data = await Run(set, new PlanetfallHintProvider(), $"generated-{name}");
+            totals.AppendLine($"| {name} | {hand}/{set.Length} | {data}/{set.Length} |");
+        }
+
+        TestContext.Out.WriteLine(totals.ToString());
+        var outPath = Environment.GetEnvironmentVariable("HINT_EVAL_OUT");
+        if (!string.IsNullOrWhiteSpace(outPath))
+            await File.AppendAllTextAsync(outPath, totals.ToString(), Encoding.UTF8);
+    }
+
+    private async Task<int> Run(Checkpoint[] checkpoints, PlanetfallHintProvider provider, string corpus)
+    {
+        StartOver();
+        var steps = WalkthroughSource.Load("WalkthroughTestOne.cs");
+        var service = new HintService(provider, new OpenAiHintLanguageModel());
         var history = new List<HintExchange>();
         var log = new StringBuilder();
-        log.AppendLine("# Planetfall hint evaluation — live, along the verified walkthrough\n");
+        log.AppendLine($"# Planetfall hint evaluation — live, along the verified walkthrough ({corpus} corpus)\n");
 
         var played = 0;
         var n = 0;
+        var hits = 0;
         foreach (var checkpoint in checkpoints)
         {
             // Advance the game to just before this puzzle.
@@ -123,12 +150,15 @@ public class PlanetfallHintPlaythroughEval : WalkthroughTestBase
                 await DoWithSetup(steps[played].Command, steps[played].Setup);
 
             n++;
+            var next = steps[checkpoint.Step].Command;
             log.AppendLine($"## {n}. {checkpoint.Puzzle}");
-            log.AppendLine($"_walkthrough step {checkpoint.Step}: `{steps[checkpoint.Step].Command}` · at **{Context.CurrentLocation.Name}**, score {Context.Score}, day {Context.Day}_\n");
+            log.AppendLine($"_walkthrough step {checkpoint.Step}: `{next}` · at **{Context.CurrentLocation.Name}**, score {Context.Score}, day {Context.Day}_\n");
 
+            HintResponse? first = null;
             foreach (var question in checkpoint.Questions)
             {
                 var r = await service.GetHint(new HintRequest("eval", Context, question, history.TakeLast(20).ToList()));
+                first ??= r;
                 if (r.IsHint)
                     history.Add(new HintExchange(question, r.Text, r.Topic, r.Rung, r.Kind.ToString()));
 
@@ -136,25 +166,40 @@ public class PlanetfallHintPlaythroughEval : WalkthroughTestBase
                 log.AppendLine($"`{r.Kind}` `{r.Topic ?? "-"}` `rung {r.Rung + 1}/{r.TotalRungs}`{(r.SoftLock != SoftLockKind.None ? $" `{r.SoftLock}`" : "")}  ");
                 log.AppendLine($"**GUIDE:** {r.Text}\n");
             }
+
+            var hit = CoversNextCommand(first!, provider, next);
+            if (hit) hits++;
+            log.AppendLine($"_covers next command `{next}`: {(hit ? "yes" : "NO")}_\n");
         }
 
+        log.AppendLine($"**Coverage: {hits}/{checkpoints.Length}**\n");
         var text = log.ToString();
         TestContext.Out.WriteLine(text);
         var outPath = Environment.GetEnvironmentVariable("HINT_EVAL_OUT");
         if (!string.IsNullOrWhiteSpace(outPath))
-            await File.WriteAllTextAsync(outPath, text, Encoding.UTF8);
+            await File.AppendAllTextAsync(outPath, text, Encoding.UTF8);
+        return hits;
     }
 
-    private sealed record Step(string Command, string? Setup);
-
-    /// <summary>The walkthrough's [TestCase] rows, in order, read from the source so this never drifts from it.</summary>
-    private static List<Step> LoadWalkthrough()
+    /// <summary>
+    ///     Does the answer point at the puzzle whose solution contains the walkthrough's next command? For a rung,
+    ///     that puzzle's last rung; for a solver answer, the text itself. Lore answers cover nothing.
+    /// </summary>
+    private static bool CoversNextCommand(HintResponse response, PlanetfallHintProvider provider, string next)
     {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Zork.sln"))) dir = dir.Parent;
-        var path = Path.Combine(dir!.FullName, "Planetfall.Tests", "Walkthrough", "WalkthroughTestOne.cs");
+        var needle = Normalize(next);
+        if (response.Kind == HintKind.Progress && response.Topic is not null &&
+            provider.PuzzleCorpus.TryGetLadder(response.Topic, out var ladder))
+            return Normalize(ladder.Rungs[^1]).Contains(needle);
 
-        var rows = Regex.Matches(File.ReadAllText(path), "\\[TestCase\\(\"([^\"]*)\", *(null|\"([^\"]*)\")");
-        return rows.Select(m => new Step(m.Groups[1].Value, m.Groups[3].Success ? m.Groups[3].Value : null)).ToList();
+        return response.Kind == HintKind.Grounded && Normalize(response.Text).Contains(needle);
+    }
+
+    private static string Normalize(string text)
+    {
+        var lower = text.ToLowerInvariant().Replace("’", "'");
+        var sb = new StringBuilder();
+        foreach (var c in lower) sb.Append(char.IsLetterOrDigit(c) ? c : ' ');
+        return " " + string.Join(" ", sb.ToString().Split(' ', StringSplitOptions.RemoveEmptyEntries)) + " ";
     }
 }

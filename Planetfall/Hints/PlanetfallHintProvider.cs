@@ -1,6 +1,7 @@
 using System.Text;
 using GameEngine;
 using GameEngine.Hints;
+using GameEngine.Hints.Data;
 using Model.Hints;
 using Model.Interface;
 using Planetfall.Item.Computer;
@@ -21,9 +22,55 @@ public sealed class PlanetfallHintProvider : IHintProvider
     private static readonly Lazy<string> Knowledge = new(BuildKnowledge);
     private static readonly PlanetfallGame Game = new();
 
-    public IPuzzleGraph PuzzleGraph => Graph;
-    public IProgressMapper ProgressMapper => Graph; // the graph owns the node definitions, so it maps too
-    public IHintCorpus PuzzleCorpus { get; } = new PlanetfallHintCorpus();
+    /// <summary>
+    ///     The production provider: the generated corpus (Planetfall.Tests/Hints/Generator, checked in as
+    ///     Hints/Generated/planetfall-hints.json). Falls back to the hand-written graph and ladders only when
+    ///     no corpus is embedded.
+    /// </summary>
+    public PlanetfallHintProvider() : this(LoadGenerated())
+    {
+    }
+
+    /// <summary>A given corpus (the generated data), or null for the hand-written graph and ladders.</summary>
+    public PlanetfallHintProvider(HintData? corpus)
+    {
+        if (corpus is null)
+        {
+            PuzzleGraph = Graph;
+            ProgressMapper = Graph; // the graph owns the node definitions, so it maps too
+            PuzzleCorpus = new PlanetfallHintCorpus();
+            return;
+        }
+
+        var graph = new DataPuzzleGraph(corpus);
+        PuzzleGraph = graph;
+        ProgressMapper = graph;
+        PuzzleCorpus = new DataHintCorpus(corpus);
+    }
+
+    /// <summary>The hand-written puzzle graph and ladders (Docs/hints/planetfall/01 and 06): the baseline the
+    ///     generated corpus is measured against, and the fallback when nothing is embedded.</summary>
+    public static PlanetfallHintProvider HandWritten() => new((HintData?)null);
+
+    public bool IsGenerated => PuzzleGraph is DataPuzzleGraph;
+
+    /// <summary>The checked-in generated corpus, if one is embedded (Hints/Generated/planetfall-hints.json); parsed once.</summary>
+    public static HintData? LoadGenerated() => Generated.Value;
+
+    private static readonly Lazy<HintData?> Generated = new(() =>
+    {
+        var asm = typeof(PlanetfallHintProvider).Assembly;
+        var name = asm.GetManifestResourceNames()
+            .FirstOrDefault(n => n.EndsWith("planetfall-hints.json", StringComparison.OrdinalIgnoreCase));
+        if (name is null) return null;
+        using var stream = asm.GetManifestResourceStream(name)!;
+        using var reader = new StreamReader(stream);
+        return HintData.FromJson(reader.ReadToEnd());
+    });
+
+    public IPuzzleGraph PuzzleGraph { get; }
+    public IProgressMapper ProgressMapper { get; }
+    public IHintCorpus PuzzleCorpus { get; }
     public ILoreSource LoreSource { get; } = new PlanetfallLoreSource();
     public IReadOnlyList<ISoftLockRule> SoftLockRules => PlanetfallHintRules.SoftLocks;
     public IReadOnlyList<IProactiveRule> ProactiveRules => PlanetfallHintRules.Proactive;

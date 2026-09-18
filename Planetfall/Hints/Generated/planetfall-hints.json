@@ -1,0 +1,2302 @@
+{
+  "game": "Planetfall",
+  "generatedFrom": [
+    "WalkthroughTestOne.cs",
+    "WalkthroughDontFixAnything.cs"
+  ],
+  "nodes": [
+    {
+      "id": "DECK_NINE_WAIT",
+      "title": "Wait for the blast",
+      "location": "Deck Nine",
+      "optional": false,
+      "prerequisites": [],
+      "aliases": [
+        "deck",
+        "nine"
+      ],
+      "done": [
+        {
+          "path": "Location:EscapePod.VisitCount",
+          "op": "gte",
+          "value": "1"
+        }
+      ],
+      "rungs": [
+        "Something in this place changes only after enough time passes. Stay put and notice the opening that follows the explosion.",
+        "Keep waiting until the ship is rocked by a massive blast; that is what causes the way out to appear.",
+        "Deck Nine: wait \u00D710, then port"
+      ],
+      "commands": [
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait"
+      ],
+      "approach": []
+    },
+    {
+      "id": "ESCAPE_POD_SIT",
+      "title": "Land the escape pod",
+      "location": "Escape Pod",
+      "optional": false,
+      "prerequisites": [
+        "DECK_NINE_WAIT"
+      ],
+      "aliases": [
+        "escape",
+        "pod"
+      ],
+      "done": [
+        {
+          "path": "Location:EscapePod.LandedSafely",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Location:EscapePod.WhereDoesTheDoorLead",
+          "op": "eq",
+          "value": "Underwater"
+        }
+      ],
+      "rungs": [
+        "Notice that the pod keeps moving on its own after you sit down, and that the important thing is to let it finish its trip.",
+        "Stay with the pod and wait until it completes the descent and settles on the planet.",
+        "Escape Pod: sit, wait \u00D711"
+      ],
+      "commands": [
+        "sit",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait"
+      ],
+      "approach": [
+        "port"
+      ]
+    },
+    {
+      "id": "ESCAPE_POD_KIT",
+      "title": "Open the bulkhead",
+      "location": "Escape Pod",
+      "optional": false,
+      "prerequisites": [
+        "ESCAPE_POD_SIT"
+      ],
+      "aliases": [
+        "kit",
+        "door",
+        "escape",
+        "pod"
+      ],
+      "done": [
+        {
+          "path": "Item:BulkheadDoor.IsOpen",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:BulkheadDoor.HasEverBeenOpened",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:SurvivalKit.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice that the useful item in here is something you can carry before you do anything else. The door is not just a door; opening it changes the situation immediately.",
+        "Take the kit first, then open the bulkhead to let the water in.",
+        "Escape Pod: take kit, open door"
+      ],
+      "commands": [
+        "take kit",
+        "open door"
+      ],
+      "approach": []
+    },
+    {
+      "id": "REACH_TOOL_ROOM",
+      "title": "Reach the tool room",
+      "location": "Escape Pod",
+      "optional": false,
+      "prerequisites": [
+        "ESCAPE_POD_KIT"
+      ],
+      "aliases": [
+        "underwater",
+        "crag",
+        "balcony",
+        "winding",
+        "stair",
+        "courtyard",
+        "plain",
+        "hall",
+        "rec",
+        "corridor",
+        "mess",
+        "dorm",
+        "junction",
+        "mech",
+        "reactor",
+        "control",
+        "elevator",
+        "tool",
+        "room"
+      ],
+      "done": [
+        {
+          "path": "Location:ToolRoom.VisitCount",
+          "op": "gte",
+          "value": "1"
+        }
+      ],
+      "rungs": [
+        "Head inland through the complex until you find the long corridor network, then keep going toward the mechanical section. The destination is reached by following the halls past the reactor area and then turning into the side room at the end.",
+        "From the starting point, go out into the water, then up through the cliff opening and continue upward through the balcony, stairway, and courtyard. After that, work your way north and east through the halls, then south into the mechanical corridors, east to the reactor area, back west, south, and finally southwest into the room with tools.",
+        "Escape Pod: out, up, up, up, up, N, NE, E, E, E, S, S, E, E, W, W, S, SW"
+      ],
+      "commands": [],
+      "approach": [
+        "out",
+        "up",
+        "up",
+        "up",
+        "up",
+        "N",
+        "NE",
+        "E",
+        "E",
+        "E",
+        "S",
+        "S",
+        "E",
+        "E",
+        "press up button",
+        "examine slot",
+        "W",
+        "W",
+        "S",
+        "SW"
+      ]
+    },
+    {
+      "id": "TOOL_ROOM_MAGNET",
+      "title": "Take the magnet",
+      "location": "Tool Room",
+      "optional": false,
+      "prerequisites": [
+        "REACH_TOOL_ROOM"
+      ],
+      "aliases": [
+        "magnet",
+        "tool",
+        "room",
+        "underwater",
+        "crag",
+        "balcony",
+        "winding",
+        "stair",
+        "courtyard",
+        "plain",
+        "hall",
+        "rec",
+        "corridor",
+        "mess",
+        "dorm",
+        "junction",
+        "mech",
+        "reactor",
+        "control",
+        "elevator"
+      ],
+      "done": [
+        {
+          "path": "Item:Magnet.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the useful thing already in the room. It is something you can pick up right away, and it may be the only item here worth taking.",
+        "Take the magnet, then leave the room the way you came.",
+        "Tool Room: take magnet, then E, E"
+      ],
+      "commands": [
+        "take magnet"
+      ],
+      "approach": [
+        "out",
+        "up",
+        "up",
+        "up",
+        "up",
+        "N",
+        "NE",
+        "E",
+        "E",
+        "E",
+        "S",
+        "S",
+        "E",
+        "E",
+        "press up button",
+        "examine slot",
+        "W",
+        "W",
+        "S",
+        "SW"
+      ]
+    },
+    {
+      "id": "ROBOT_SHOP_ACTIVATE_FLOYD",
+      "title": "Wake Floyd",
+      "location": "Robot Shop",
+      "optional": false,
+      "prerequisites": [
+        "TOOL_ROOM_MAGNET"
+      ],
+      "aliases": [
+        "robot",
+        "shop",
+        "machine"
+      ],
+      "done": [
+        {
+          "path": "Item:Floyd.IsOn",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:Floyd.HasEverBeenOn",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:Floyd.HasAwardedActivationPoints",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice that nothing happens right away when you try to start the robot. In this room, time itself is the thing that matters; give it a little while and see whether the robot responds on its own.",
+        "Try waiting for the robot instead of doing anything else. After a couple of waits, it should come alive and approach you.",
+        "Robot Shop: activate floyd, wait \u00D72"
+      ],
+      "commands": [
+        "activate floyd",
+        "wait",
+        "wait"
+      ],
+      "approach": [
+        "E",
+        "E"
+      ]
+    },
+    {
+      "id": "REACH_ADMIN_CORRIDOR_SOUTH",
+      "title": "Reach the admin corridor",
+      "location": "Robot Shop",
+      "optional": false,
+      "prerequisites": [
+        "ROBOT_SHOP_ACTIVATE_FLOYD"
+      ],
+      "aliases": [
+        "mech",
+        "corridor",
+        "junction",
+        "admin"
+      ],
+      "done": [
+        {
+          "path": "Location:AdminCorridorSouth.VisitCount",
+          "op": "gte",
+          "value": "1"
+        }
+      ],
+      "rungs": [
+        "Head north through the connected corridors until you reach the damaged section of hallway. Keep going past the junction and follow the main passage.",
+        "From the starting point, go northwest, then continue north three times to the junction, and go north once more into the damaged hallway.",
+        "FROM Robot Shop: nw, n, n, n, n"
+      ],
+      "commands": [],
+      "approach": [
+        "NW",
+        "N",
+        "N",
+        "N",
+        "N"
+      ]
+    },
+    {
+      "id": "ADMIN_CORRIDOR_SOUTH_MAGNET",
+      "title": "Retrieve the steel key",
+      "location": "Admin Corridor South",
+      "optional": false,
+      "prerequisites": [
+        "REACH_ADMIN_CORRIDOR_SOUTH"
+      ],
+      "aliases": [
+        "magnet",
+        "crevice",
+        "admin",
+        "corridor",
+        "mech",
+        "junction"
+      ],
+      "done": [
+        {
+          "path": "Location:AdminCorridorSouth.HasTakenTheKey",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the crevice and the magnet you already have. Something hidden there can be pulled free if you use the magnet on it.",
+        "Use the magnet on the crevice to draw out the metal object, then take the key once it appears.",
+        "Admin Corridor South: put magnet on crevice, then S, W, W"
+      ],
+      "commands": [
+        "put magnet on crevice"
+      ],
+      "approach": [
+        "NW",
+        "N",
+        "N",
+        "N",
+        "N"
+      ]
+    },
+    {
+      "id": "MESS_CORRIDOR_PADLOCK",
+      "title": "Open the locked door",
+      "location": "Mess Corridor",
+      "optional": false,
+      "prerequisites": [
+        "ADMIN_CORRIDOR_SOUTH_MAGNET"
+      ],
+      "aliases": [
+        "padlock",
+        "lock",
+        "door",
+        "mess",
+        "corridor",
+        "junction",
+        "dorm"
+      ],
+      "done": [
+        {
+          "path": "Item:MessDoor.IsOpen",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:MessDoor.HasEverBeenOpened",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:Padlock.Locked",
+          "op": "eq",
+          "value": "False"
+        },
+        {
+          "path": "Item:Padlock.AttachedToDoor",
+          "op": "eq",
+          "value": "False"
+        },
+        {
+          "path": "Item:Padlock.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the padlock on the door and the fact that it can be dealt with now that you have the key. Once it is open, the lock itself can be taken away.",
+        "Use the key on the padlock, then remove the lock and open the door.",
+        "Mess Corridor: unlock padlock with key, remove lock, open door, then N"
+      ],
+      "commands": [
+        "unlock padlock with key",
+        "remove lock",
+        "open door"
+      ],
+      "approach": [
+        "S",
+        "W",
+        "W"
+      ]
+    },
+    {
+      "id": "STORAGE_WEST_LADDER",
+      "title": "Take the ladder",
+      "location": "Storage West",
+      "optional": false,
+      "prerequisites": [
+        "MESS_CORRIDOR_PADLOCK"
+      ],
+      "aliases": [
+        "ladder",
+        "storage"
+      ],
+      "done": [
+        {
+          "path": "Item:Ladder.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice that the ladder is the useful thing here, and that you\u2019ve already cleared your hands of the other items.",
+        "Pick up the ladder from the storage area; that is the only thing needed in this room.",
+        "Storage West: drop all, take ladder"
+      ],
+      "commands": [
+        "drop all",
+        "take ladder"
+      ],
+      "approach": [
+        "N"
+      ]
+    },
+    {
+      "id": "REACH_ADMIN_CORRIDOR",
+      "title": "Reach the Admin Corridor",
+      "location": "Storage West",
+      "optional": false,
+      "prerequisites": [
+        "STORAGE_WEST_LADDER"
+      ],
+      "aliases": [
+        "mess",
+        "corridor",
+        "dorm",
+        "junction",
+        "admin"
+      ],
+      "done": [
+        {
+          "path": "Location:AdminCorridor.VisitCount",
+          "op": "gte",
+          "value": "1"
+        }
+      ],
+      "rungs": [
+        "Head east through the long hallway until you come to the crossing, then go north and keep going when the damage appears.",
+        "From Storage West, go south into the east-west passage, then east past the dorm area and along the long stretch to the intersection; turn north, then continue north into the damaged section.",
+        "Storage West, south, east, east, north, north"
+      ],
+      "commands": [],
+      "approach": [
+        "S",
+        "E",
+        "E",
+        "N",
+        "N"
+      ]
+    },
+    {
+      "id": "ADMIN_CORRIDOR_LADDER",
+      "title": "Span the rift",
+      "location": "Admin Corridor",
+      "optional": false,
+      "prerequisites": [
+        "REACH_ADMIN_CORRIDOR"
+      ],
+      "aliases": [
+        "ladder",
+        "across",
+        "rift",
+        "admin",
+        "corridor",
+        "mess",
+        "dorm",
+        "junction"
+      ],
+      "done": [
+        {
+          "path": "Item:Ladder.IsAcrossRift",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:Ladder.IsExtended",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the gap and the ladder you already have. The way forward is to make the ladder long enough to bridge the opening.",
+        "Use the ladder itself: set it down, extend it, and put it across the rift so it rests on the far side.",
+        "Admin Corridor: drop ladder, extend ladder, place ladder across rift, then N, W"
+      ],
+      "commands": [
+        "drop ladder",
+        "extend ladder",
+        "place ladder across rift"
+      ],
+      "approach": [
+        "S",
+        "E",
+        "E",
+        "N",
+        "N"
+      ]
+    },
+    {
+      "id": "SMALL_OFFICE_DESK",
+      "title": "Open the desk",
+      "location": "Small Office",
+      "optional": false,
+      "prerequisites": [
+        "ADMIN_CORRIDOR_LADDER"
+      ],
+      "aliases": [
+        "desk",
+        "upper",
+        "card",
+        "kitchen",
+        "small",
+        "office",
+        "admin",
+        "corridor"
+      ],
+      "done": [
+        {
+          "path": "Item:KitchenAccessCard.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:UpperElevatorAccessCard.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:SmallDesk.HasEverBeenOpened",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:SmallDesk.IsOpen",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the small desk; it can be opened, and it hides something useful inside. You only need to search the desk itself and take what it reveals.",
+        "Open the desk, then take both cards it reveals.",
+        "Small Office: open desk, take upper card, take kitchen card, then W"
+      ],
+      "commands": [
+        "open desk",
+        "take upper card",
+        "take kitchen card"
+      ],
+      "approach": [
+        "N",
+        "W"
+      ]
+    },
+    {
+      "id": "LARGE_OFFICE_DESK",
+      "title": "Get the shuttle card",
+      "location": "Large Office",
+      "optional": false,
+      "prerequisites": [
+        "SMALL_OFFICE_DESK"
+      ],
+      "aliases": [
+        "desk",
+        "shuttle",
+        "card",
+        "large",
+        "office"
+      ],
+      "done": [
+        {
+          "path": "Item:ShuttleAccessCard.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:LargeDesk.HasEverBeenOpened",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:LargeDesk.IsOpen",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the large desk in the office; it hides something useful.",
+        "Open the desk to reveal the card, then take it.",
+        "Large Office: open desk, take shuttle card"
+      ],
+      "commands": [
+        "open desk",
+        "take shuttle card"
+      ],
+      "approach": [
+        "W"
+      ]
+    },
+    {
+      "id": "REACH_MESS_HALL",
+      "title": "Reach the mess hall",
+      "location": "Large Office",
+      "optional": false,
+      "prerequisites": [
+        "LARGE_OFFICE_DESK"
+      ],
+      "aliases": [
+        "small",
+        "office",
+        "admin",
+        "corridor",
+        "junction",
+        "dorm",
+        "mess",
+        "hall"
+      ],
+      "done": [
+        {
+          "path": "Location:MessHall.VisitCount",
+          "op": "gte",
+          "value": "1"
+        }
+      ],
+      "rungs": [
+        "Head west through the building until you come to the long corridor with the dining area nearby, then continue toward the place where the hall opens out.",
+        "From the office area, go east into the corridor, cross the swaying ladder, head south through the damaged hallway, then west along the long corridor until you reach the opening to the hall.",
+        "Large Office: e, e, s, s, s, w, w, s"
+      ],
+      "commands": [],
+      "approach": [
+        "E",
+        "E",
+        "S",
+        "S",
+        "S",
+        "W",
+        "W",
+        "S"
+      ]
+    },
+    {
+      "id": "MESS_HALL_CANTEEN",
+      "title": "Open the kitchen door",
+      "location": "Mess Hall",
+      "optional": false,
+      "prerequisites": [
+        "REACH_MESS_HALL"
+      ],
+      "aliases": [
+        "canteen",
+        "kitchen",
+        "access",
+        "card",
+        "slot",
+        "mess",
+        "hall",
+        "small",
+        "office",
+        "admin",
+        "corridor",
+        "junction",
+        "dorm"
+      ],
+      "done": [
+        {
+          "path": "Item:Canteen.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:KitchenDoor.IsOpen",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the card slot near the kitchen door and the item you already picked up. That\u2019s the thing that matters here, not the rest of the room.",
+        "Use the card on the slot by the kitchen door to make it open.",
+        "Mess Hall: take canteen, slide kitchen access card through slot, then S"
+      ],
+      "commands": [
+        "take canteen",
+        "slide kitchen access card through slot"
+      ],
+      "approach": [
+        "E",
+        "E",
+        "S",
+        "S",
+        "S",
+        "W",
+        "W",
+        "S"
+      ]
+    },
+    {
+      "id": "KITCHEN_LOWER",
+      "title": "Take the lower card",
+      "location": "Kitchen",
+      "optional": false,
+      "prerequisites": [
+        "MESS_HALL_CANTEEN"
+      ],
+      "aliases": [
+        "lower",
+        "card",
+        "kitchen"
+      ],
+      "done": [
+        {
+          "path": "Item:LowerElevatorAccessCard.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the card you can reach here; it\u2019s the one that matters right now.",
+        "You only need to pick up the lower card from the kitchen.",
+        "Kitchen, take lower card"
+      ],
+      "commands": [
+        "take lower card"
+      ],
+      "approach": [
+        "S"
+      ]
+    },
+    {
+      "id": "TOOL_ROOM_FLASK",
+      "title": "Take the flask",
+      "location": "Tool Room",
+      "optional": false,
+      "prerequisites": [
+        "KITCHEN_LOWER"
+      ],
+      "aliases": [
+        "flask",
+        "tool",
+        "room",
+        "mess",
+        "hall",
+        "corridor",
+        "dorm",
+        "junction",
+        "mech"
+      ],
+      "done": [
+        {
+          "path": "Item:Flask.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the useful item in the room and that it can be picked up. Nothing else here needs to be solved yet.",
+        "Simply take the flask, then leave the room to the east.",
+        "Tool Room: take flask, then E"
+      ],
+      "commands": [
+        "take flask"
+      ],
+      "approach": [
+        "N",
+        "N",
+        "E",
+        "E",
+        "S",
+        "S",
+        "S",
+        "SW"
+      ]
+    },
+    {
+      "id": "MACHINE_SHOP_FLASK",
+      "title": "Fill the flask",
+      "location": "Machine Shop",
+      "optional": false,
+      "prerequisites": [
+        "TOOL_ROOM_FLASK"
+      ],
+      "aliases": [
+        "flask",
+        "spout",
+        "black",
+        "button",
+        "machine",
+        "shop"
+      ],
+      "done": [
+        {
+          "path": "Item:Flask.LiquidColor",
+          "op": "eq",
+          "value": "black"
+        }
+      ],
+      "rungs": [
+        "Notice the spout and the button together; the flask is meant to be used with that setup.",
+        "Put the flask under the spout, then use the black button to fill it and wait for the contents to change before taking it.",
+        "Machine Shop: put flask under spout, press black button, wait \u00D71, take flask"
+      ],
+      "commands": [
+        "put flask under spout",
+        "press black button",
+        "take flask"
+      ],
+      "approach": [
+        "E"
+      ]
+    },
+    {
+      "id": "REACH_ELEVATOR_LOBBY",
+      "title": "Reach the elevator lobby",
+      "location": "Machine Shop",
+      "optional": false,
+      "prerequisites": [
+        "MACHINE_SHOP_FLASK"
+      ],
+      "aliases": [
+        "mech",
+        "corridor",
+        "junction",
+        "elevator",
+        "lobby"
+      ],
+      "done": [
+        {
+          "path": "Location:ElevatorLobby.VisitCount",
+          "op": "gte",
+          "value": "1"
+        }
+      ],
+      "rungs": [
+        "Head north through the corridor until you come to the junction where a side passage leads off to the east. From there, go into the bright lobby beside the closed blue and red doors.",
+        "Leave the starting area by going north three times through the mech corridors, then continue north to the corridor junction and turn east into the lobby.",
+        "Machine Shop, north, north, north, east"
+      ],
+      "commands": [],
+      "approach": [
+        "N",
+        "N",
+        "N",
+        "N",
+        "E"
+      ]
+    },
+    {
+      "id": "ELEVATOR_LOBBY_BLUE",
+      "title": "Open the north door",
+      "location": "Elevator Lobby",
+      "optional": false,
+      "prerequisites": [
+        "REACH_ELEVATOR_LOBBY"
+      ],
+      "aliases": [
+        "blue",
+        "button",
+        "red",
+        "elevator",
+        "lobby",
+        "mech",
+        "corridor",
+        "junction"
+      ],
+      "done": [
+        {
+          "path": "Location:UpperElevator.VisitCount",
+          "op": "gte",
+          "value": "1"
+        }
+      ],
+      "rungs": [
+        "Notice which of the colored buttons seems to affect the way out, and be patient after using it.",
+        "Use the buttons in this lobby to make the north exit respond, then wait until it opens.",
+        "Elevator Lobby: press blue button, press red button, wait \u00D72, then N"
+      ],
+      "commands": [
+        "press blue button",
+        "press red button",
+        "wait",
+        "wait"
+      ],
+      "approach": [
+        "N",
+        "N",
+        "N",
+        "N",
+        "E"
+      ]
+    },
+    {
+      "id": "UPPER_ELEVATOR_UPPER",
+      "title": "Ride the elevator up",
+      "location": "Upper Elevator",
+      "optional": false,
+      "prerequisites": [
+        "ELEVATOR_LOBBY_BLUE"
+      ],
+      "aliases": [
+        "upper",
+        "access",
+        "card",
+        "slot",
+        "button",
+        "elevator"
+      ],
+      "done": [
+        {
+          "path": "Location:TowerCore.VisitCount",
+          "op": "gte",
+          "value": "1"
+        }
+      ],
+      "rungs": [
+        "Notice the access card slot and the up button; the elevator only responds once it has been enabled.",
+        "Use the upper access card in the slot, then send the elevator upward and wait for it to finish the trip.",
+        "Upper Elevator: slide upper access card through slot, press up button, wait \u00D72, then S, NE"
+      ],
+      "commands": [
+        "slide upper access card through slot",
+        "press up button",
+        "wait",
+        "wait"
+      ],
+      "approach": [
+        "N"
+      ]
+    },
+    {
+      "id": "COMM_ROOM_FLUID",
+      "title": "Activate the comm room lights",
+      "location": "Comm Room",
+      "optional": false,
+      "prerequisites": [
+        "UPPER_ELEVATOR_UPPER"
+      ],
+      "aliases": [
+        "fluid",
+        "hole",
+        "comm",
+        "room",
+        "tower",
+        "core"
+      ],
+      "done": [
+        {
+          "path": "Location:CommRoom.CurrentColor",
+          "op": "eq",
+          "value": "gray"
+        }
+      ],
+      "rungs": [
+        "Notice the hole and the enunciator lights together. Something in this room accepts the liquid and changes the lights, so the trick is to use the fluid on that opening.",
+        "Put the fluid into the hole and watch for the lights to respond; the important result is that almost everything goes dark except one remaining light.",
+        "Comm Room: pour fluid into hole, then SW, N"
+      ],
+      "commands": [
+        "pour fluid into hole"
+      ],
+      "approach": [
+        "S",
+        "NE"
+      ]
+    },
+    {
+      "id": "MACHINE_SHOP_FLASK_2",
+      "title": "Fill the flask",
+      "location": "Machine Shop",
+      "optional": false,
+      "prerequisites": [
+        "COMM_ROOM_FLUID"
+      ],
+      "aliases": [
+        "flask",
+        "spout",
+        "gray",
+        "button",
+        "machine",
+        "shop",
+        "elevator",
+        "lobby",
+        "corridor",
+        "junction",
+        "mech"
+      ],
+      "done": [
+        {
+          "path": "Item:Flask.LiquidColor",
+          "op": "eq",
+          "value": "gray"
+        }
+      ],
+      "rungs": [
+        "Notice the spout and the flask together; the machine here is meant to dispense something into a container.",
+        "Put the flask beneath the spout, then use the gray button to start the fill and wait for the contents to change before taking it.",
+        "Machine Shop: put flask under spout, press gray button, wait \u00D71, take flask"
+      ],
+      "commands": [
+        "put flask under spout",
+        "press gray button",
+        "take flask"
+      ],
+      "approach": [
+        "S",
+        "W",
+        "S",
+        "S",
+        "S",
+        "S"
+      ]
+    },
+    {
+      "id": "COMM_ROOM_FLUID_2",
+      "title": "Send the help message",
+      "location": "Comm Room",
+      "optional": true,
+      "prerequisites": [
+        "MACHINE_SHOP_FLASK_2"
+      ],
+      "aliases": [
+        "fluid",
+        "hole",
+        "comm",
+        "room",
+        "tower",
+        "core"
+      ],
+      "done": [
+        {
+          "path": "Location:CommRoom.IsFixed",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Location:CommRoom.CurrentColor",
+          "op": "eq",
+          "value": "null"
+        }
+      ],
+      "rungs": [
+        "Notice the place where the warning lights and enunciator are. Something here accepts the liquid and changes the room\u2019s signals.",
+        "Use the fluid on the hole in the room, then watch for the lights to change state.",
+        "Comm Room: pour fluid into hole, then SW, N"
+      ],
+      "commands": [
+        "pour fluid into hole"
+      ],
+      "approach": [
+        "S",
+        "NE"
+      ]
+    },
+    {
+      "id": "LOWER_ELEVATOR_LOWER",
+      "title": "Ride the elevator down",
+      "location": "Lower Elevator",
+      "optional": false,
+      "prerequisites": [
+        "MACHINE_SHOP_FLASK_2"
+      ],
+      "aliases": [
+        "lower",
+        "access",
+        "card",
+        "slot",
+        "button",
+        "elevator",
+        "lobby"
+      ],
+      "done": [
+        {
+          "path": "Location:WaitingArea.VisitCount",
+          "op": "gte",
+          "value": "1"
+        }
+      ],
+      "rungs": [
+        "Notice the lower access card slot and the down button; the elevator only needs to be enabled before it will move.",
+        "Use the lower access card in the slot, then press the down button and wait for the ride to finish.",
+        "Lower Elevator: slide lower access card through slot, press down button, wait \u00D72, then N, E, S, E"
+      ],
+      "commands": [
+        "slide lower access card through slot",
+        "press down button",
+        "wait",
+        "wait"
+      ],
+      "approach": [
+        "S",
+        "S"
+      ]
+    },
+    {
+      "id": "ALFIE_CONTROL_EAST_SHUTTLE",
+      "title": "Stop the shuttle car",
+      "location": "Alfie Control East",
+      "optional": false,
+      "prerequisites": [
+        "LOWER_ELEVATOR_LOWER"
+      ],
+      "aliases": [
+        "shuttle",
+        "access",
+        "card",
+        "slot",
+        "lever",
+        "alfie",
+        "control",
+        "waiting",
+        "area",
+        "kalamontee",
+        "platform",
+        "car"
+      ],
+      "done": [
+        {
+          "path": "Location:LawandaPlatform.VisitCount",
+          "op": "gte",
+          "value": "1"
+        }
+      ],
+      "rungs": [
+        "Notice that the shuttle keeps moving after it starts, and that the lever has more than one position. The changing display and passing signs tell you you\u2019re on a timed ride, so think about when to act.",
+        "Use the lever to start the shuttle, then wait until you reach the station area and stop it by moving the lever down. The car will glide into place and the cabin doors will open.",
+        "Alfie Control East: slide shuttle access card through slot, push lever, pull lever, wait \u00D718, pull lever"
+      ],
+      "commands": [
+        "slide shuttle access card through slot",
+        "push lever",
+        "pull lever",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "wait",
+        "pull lever"
+      ],
+      "approach": [
+        "N",
+        "E",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "id": "REACH_REPAIR_ROOM",
+      "title": "Reach the repair room",
+      "location": "Alfie Control East",
+      "optional": false,
+      "prerequisites": [
+        "ALFIE_CONTROL_EAST_SHUTTLE"
+      ],
+      "aliases": [
+        "shuttle",
+        "car",
+        "alfie",
+        "lawanda",
+        "platform",
+        "escalator",
+        "fork",
+        "systems",
+        "corridor",
+        "repair",
+        "room"
+      ],
+      "done": [
+        {
+          "path": "Location:RepairRoom.VisitCount",
+          "op": "gte",
+          "value": "1"
+        }
+      ],
+      "rungs": [
+        "Head for the area beyond the shuttle and the broken stairway, then keep going until you reach the dim room with the strange machines.",
+        "Leave Alfie Control East, go through the shuttle cabin to the platform, cross the unworking escalator, continue past the fork, and follow the corridor as it bends to the room.",
+        "Alfie Control East, west, north, east, east, northeast, north"
+      ],
+      "commands": [],
+      "approach": [
+        "W",
+        "N",
+        "E",
+        "E",
+        "NE",
+        "N"
+      ]
+    },
+    {
+      "id": "REPAIR_ROOM_BOARD",
+      "title": "Recover the fromitz board",
+      "location": "Repair Room",
+      "optional": false,
+      "prerequisites": [
+        "REACH_REPAIR_ROOM"
+      ],
+      "aliases": [
+        "board",
+        "repair",
+        "room",
+        "shuttle",
+        "car",
+        "alfie",
+        "lawanda",
+        "platform",
+        "escalator",
+        "fork",
+        "systems",
+        "corridor"
+      ],
+      "done": [
+        {
+          "path": "Item:Floyd.HasEverGoneThroughTheLittleDoor",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:Floyd.HasGottenTheFromitzBoard",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice that Floyd can reach places you cannot, and that he can bring back something useful from beyond the opening.",
+        "Send Floyd through the opening to fetch the board, then have him return it to you.",
+        "Repair Room: floyd, go north, floyd, take board, then S, E, N"
+      ],
+      "commands": [
+        "floyd, go north",
+        "floyd, take board"
+      ],
+      "approach": [
+        "W",
+        "N",
+        "E",
+        "E",
+        "NE",
+        "N"
+      ]
+    },
+    {
+      "id": "PLANETARY_DEFENSE_PANEL",
+      "title": "Fix the warning panel",
+      "location": "Planetary Defense",
+      "optional": true,
+      "prerequisites": [
+        "REPAIR_ROOM_BOARD"
+      ],
+      "aliases": [
+        "panel",
+        "second",
+        "shiny",
+        "fried",
+        "planetary",
+        "defense",
+        "systems",
+        "corridor"
+      ],
+      "done": [
+        {
+          "path": "Item:ShinyFromitzBoard.CurrentLocation",
+          "op": "eq",
+          "value": "FromitzAccessPanel"
+        },
+        {
+          "path": "Item:FriedFromitzBoard.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:FromitzAccessPanel.HasEverBeenOpened",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:FromitzAccessPanel.IsOpen",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Location:PlanetaryDefense.Fixed",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the panel that can be opened and the board hidden inside it. The flashing lights are telling you this is the thing to deal with.",
+        "Open the panel, remove the board that comes out, and replace it with the shiny one so the lights stop flashing.",
+        "Planetary Defense: open panel, take second, put shiny in panel, drop fried, then S, E, N"
+      ],
+      "commands": [
+        "open panel",
+        "take second",
+        "put shiny in panel",
+        "drop fried"
+      ],
+      "approach": [
+        "S",
+        "E",
+        "N"
+      ]
+    },
+    {
+      "id": "COURSE_CONTROL_CUBE",
+      "title": "Free the bedistor",
+      "location": "Course Control",
+      "optional": false,
+      "prerequisites": [
+        "REPAIR_ROOM_BOARD"
+      ],
+      "aliases": [
+        "cube",
+        "bedistor",
+        "course",
+        "control",
+        "systems",
+        "corridor"
+      ],
+      "done": [
+        {
+          "path": "Item:LargeMetalCube.HasEverBeenOpened",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:LargeMetalCube.IsOpen",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the large metal cube and what it contains. The important thing here is not to take the part directly, but to figure out how to get it loose from where it sits.",
+        "Open the cube and work on the part inside until it is no longer attached, then take it.",
+        "Course Control: open cube, take bedistor, then S, S"
+      ],
+      "commands": [
+        "open cube",
+        "take bedistor"
+      ],
+      "approach": [
+        "S",
+        "E",
+        "N"
+      ]
+    },
+    {
+      "id": "LIBRARY_LOBBY_TERMINAL",
+      "title": "Read the library terminal",
+      "location": "Library Lobby",
+      "optional": true,
+      "prerequisites": [
+        "COURSE_CONTROL_CUBE"
+      ],
+      "aliases": [
+        "terminal",
+        "4",
+        "0",
+        "6",
+        "1",
+        "library",
+        "lobby",
+        "systems",
+        "corridor"
+      ],
+      "done": [
+        {
+          "path": "Location:ProjectCorridorEast.VisitCount",
+          "op": "gte",
+          "value": "1"
+        }
+      ],
+      "rungs": [
+        "Notice that the terminal is really a menu system, and the useful path is hidden behind the topic choices. You are looking for the branch that leads to the subject you want, then the specific entry within it.",
+        "Work through the menus by choosing the geography topic, then the main menu, then the Zoork topic, and finally the first entry. After reading it, back out to the top menu and shut the terminal off.",
+        "Library Lobby: activate terminal, key 4 on the terminal, press 0 on the terminal, type 6, type 1, type 0, type 0, deactivate terminal, then S, E, S"
+      ],
+      "commands": [
+        "activate terminal",
+        "key 4 on the terminal",
+        "press 0 on the terminal",
+        "type 6",
+        "type 1",
+        "type 0",
+        "type 0",
+        "deactivate terminal"
+      ],
+      "approach": [
+        "S",
+        "S"
+      ]
+    },
+    {
+      "id": "LAB_STORAGE_POCKET",
+      "title": "Take the hidden paper",
+      "location": "Lab Storage",
+      "optional": false,
+      "prerequisites": [
+        "COURSE_CONTROL_CUBE"
+      ],
+      "aliases": [
+        "pocket",
+        "teleportation",
+        "lab",
+        "storage",
+        "project",
+        "corridor",
+        "main"
+      ],
+      "done": [
+        {
+          "path": "Item:TeleportationAccessCard.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:LabUniformPocket.HasEverBeenOpened",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:LabUniformPocket.IsOpen",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "There is something tucked away in the uniform pocket that is worth finding. The room itself does not need much else; focus on what can be uncovered from the clothing.",
+        "Open the pocket and take what you find inside. That is the useful item in this room.",
+        "Lab Storage: open pocket, take teleportation access card, then N, W, N, E"
+      ],
+      "commands": [
+        "open pocket",
+        "take teleportation"
+      ],
+      "approach": [
+        "S",
+        "E",
+        "S"
+      ]
+    },
+    {
+      "id": "BOOTH_3_TELEPORTATION",
+      "title": "Activate the booth",
+      "location": "Booth 3",
+      "optional": false,
+      "prerequisites": [
+        "LAB_STORAGE_POCKET"
+      ],
+      "aliases": [
+        "teleportation",
+        "card",
+        "slot",
+        "booth",
+        "main",
+        "lab",
+        "project",
+        "corridor",
+        "library",
+        "lobby"
+      ],
+      "done": [
+        {
+          "path": "Location:StorageEast.VisitCount",
+          "op": "gte",
+          "value": "1"
+        }
+      ],
+      "rungs": [
+        "Notice the slot and the card you already have; the important thing here is to try using one with the other.",
+        "Put the card through the slot and wait for the booth to respond after the brief pause.",
+        "Booth 3: slide teleportation card through slot, wait"
+      ],
+      "commands": [
+        "slide teleportation card through slot"
+      ],
+      "approach": [
+        "N",
+        "W",
+        "N",
+        "E"
+      ]
+    },
+    {
+      "id": "STORAGE_EAST_BEDISTOR",
+      "title": "Take the bedistor",
+      "location": "Storage East",
+      "optional": false,
+      "prerequisites": [
+        "BOOTH_3_TELEPORTATION"
+      ],
+      "aliases": [
+        "bedistor",
+        "storage",
+        "booth",
+        "elevator",
+        "lobby",
+        "corridor",
+        "junction",
+        "mech"
+      ],
+      "done": [
+        {
+          "path": "Item:GoodBedistor.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "There\u2019s only one useful thing here, and it\u2019s easy to overlook among the storage clutter.",
+        "Focus on the small item you can pick up; that\u2019s the step this visit is for.",
+        "Storage East, take bedistor, then W, S, S, SW"
+      ],
+      "commands": [
+        "take bedistor"
+      ],
+      "approach": [
+        "press 2",
+        "W",
+        "drop upper",
+        "drop lower",
+        "drop shuttle",
+        "W",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "id": "TOOL_ROOM_PLIERS",
+      "title": "Take the pliers",
+      "location": "Tool Room",
+      "optional": false,
+      "prerequisites": [
+        "STORAGE_EAST_BEDISTOR"
+      ],
+      "aliases": [
+        "pliers",
+        "tool",
+        "room",
+        "mech",
+        "corridor"
+      ],
+      "done": [
+        {
+          "path": "Item:Pliers.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the useful tool in the room and think about what you can pick up.",
+        "Simply take the pliers from the room.",
+        "Tool Room: take pliers"
+      ],
+      "commands": [
+        "take pliers"
+      ],
+      "approach": [
+        "W",
+        "S",
+        "S",
+        "SW"
+      ]
+    },
+    {
+      "id": "COURSE_CONTROL_FUSED",
+      "title": "Fix the course control",
+      "location": "Course Control",
+      "optional": true,
+      "prerequisites": [
+        "TOOL_ROOM_PLIERS"
+      ],
+      "aliases": [
+        "fused",
+        "pliers",
+        "good",
+        "cube",
+        "course",
+        "control",
+        "booth",
+        "library",
+        "lobby",
+        "systems",
+        "corridor"
+      ],
+      "done": [
+        {
+          "path": "Item:GoodBedistor.CurrentLocation",
+          "op": "eq",
+          "value": "LargeMetalCube"
+        },
+        {
+          "path": "Item:FusedBedistor.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Location:CourseControl.Fixed",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the warning lights and the fused part you can reach here. Something in the setup needs to be removed and then placed where it belongs to clear the problem.",
+        "Use the pliers to pull free the fused bedistor, then put the good one into the cube so the warning lights go out and another light comes on.",
+        "Course Control: take fused with pliers, put good in cube, then S, S, E"
+      ],
+      "commands": [
+        "take fused with pliers",
+        "put good in cube"
+      ],
+      "approach": [
+        "press 3",
+        "W",
+        "N",
+        "N"
+      ]
+    },
+    {
+      "id": "TOOL_ROOM_LASER",
+      "title": "Handle the laser battery",
+      "location": "Tool Room",
+      "optional": false,
+      "prerequisites": [
+        "TOOL_ROOM_PLIERS"
+      ],
+      "aliases": [
+        "laser",
+        "battery",
+        "tool",
+        "room",
+        "booth",
+        "elevator",
+        "lobby",
+        "corridor",
+        "junction",
+        "admin",
+        "systems",
+        "monitors",
+        "mech"
+      ],
+      "done": [
+        {
+          "path": "Item:OldBattery.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:Laser.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the laser and its battery as separate things in the room. One can be taken apart from the other, and the battery can be set down again.",
+        "Take the laser first, then remove its battery, then drop the battery if you want it out of the way.",
+        "Tool Room: take laser, remove battery, drop battery"
+      ],
+      "commands": [
+        "take laser",
+        "remove battery",
+        "drop battery"
+      ],
+      "approach": [
+        "press 2",
+        "W",
+        "W",
+        "N",
+        "N",
+        "W",
+        "E",
+        "S",
+        "S",
+        "S",
+        "S",
+        "S",
+        "SW"
+      ]
+    },
+    {
+      "id": "COMPUTER_ROOM_OUTPUT",
+      "title": "Read the printout",
+      "location": "Computer Room",
+      "optional": false,
+      "prerequisites": [
+        "TOOL_ROOM_LASER"
+      ],
+      "aliases": [
+        "output",
+        "computer",
+        "room",
+        "booth",
+        "library",
+        "lobby",
+        "project",
+        "corridor"
+      ],
+      "done": [
+        {
+          "path": "Item:ComputerOutput.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the printout is the only thing here that seems worth your attention, and the game already hints that the last page matters most.",
+        "Take the printout and read it, but only enough to get to the end of the last page rather than trying to absorb the whole thing.",
+        "Computer Room: read output, then N, E"
+      ],
+      "commands": [
+        "read output"
+      ],
+      "approach": [
+        "press 3",
+        "W",
+        "S",
+        "S"
+      ]
+    },
+    {
+      "id": "MAIN_LAB_BIOLOCK",
+      "title": "Open the door",
+      "location": "Main Lab",
+      "optional": false,
+      "prerequisites": [
+        "COMPUTER_ROOM_OUTPUT"
+      ],
+      "aliases": [
+        "biolock",
+        "door",
+        "main",
+        "lab",
+        "project",
+        "corridor"
+      ],
+      "done": [
+        {
+          "path": "Item:BioLockOuterDoor.HasEverBeenOpened",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the door in the room and think about whether it can be opened.",
+        "Try opening the door directly; once it opens, you can leave through it.",
+        "Main Lab: open biolock door, then SE, E"
+      ],
+      "commands": [
+        "open biolock door"
+      ],
+      "approach": [
+        "N",
+        "E"
+      ]
+    },
+    {
+      "id": "BIO_LOCK_EAST_WINDOW",
+      "title": "Take the card",
+      "location": "Bio Lock East",
+      "optional": false,
+      "prerequisites": [
+        "MAIN_LAB_BIOLOCK"
+      ],
+      "aliases": [
+        "window",
+        "door",
+        "miniaturization",
+        "card",
+        "bio",
+        "lock"
+      ],
+      "done": [
+        {
+          "path": "Item:BioLockInnerDoor.HasEverBeenOpened",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:MiniaturizationAccessCard.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice what appears on the floor just inside the door, and what happens when the door is opened and closed. The room is really about timing the danger outside so you can safely get what is left behind.",
+        "Let the creatures and Floyd occupy each other while you keep the door under control. After the struggle, pick up the card that ends up on the floor before leaving.",
+        "Bio Lock East: open door, close door, wait, open door, close door, take miniaturization card, then W"
+      ],
+      "commands": [
+        "look through window",
+        "open door",
+        "close door",
+        "wait",
+        "open door",
+        "close door",
+        "take miniaturization card"
+      ],
+      "approach": [
+        "SE",
+        "E"
+      ]
+    },
+    {
+      "id": "LAB_STORAGE_FRESH",
+      "title": "Power the laser",
+      "location": "Lab Storage",
+      "optional": false,
+      "prerequisites": [
+        "BIO_LOCK_EAST_WINDOW"
+      ],
+      "aliases": [
+        "fresh",
+        "battery",
+        "laser",
+        "lab",
+        "storage",
+        "main"
+      ],
+      "done": [
+        {
+          "path": "Item:FreshBattery.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the fresh battery and the laser in the room. Something here needs power before it can be useful.",
+        "Take the fresh battery and place it into the laser so it is attached there.",
+        "Lab Storage: take fresh battery, put battery in laser, then N, W, S, S"
+      ],
+      "commands": [
+        "take fresh battery",
+        "put battery in laser"
+      ],
+      "approach": [
+        "W",
+        "S"
+      ]
+    },
+    {
+      "id": "MINIATURIZATION_BOOTH_MINI",
+      "title": "Activate the booth",
+      "location": "Miniaturization Booth",
+      "optional": false,
+      "prerequisites": [
+        "LAB_STORAGE_FRESH"
+      ],
+      "aliases": [
+        "mini",
+        "card",
+        "slot",
+        "miniaturization",
+        "booth",
+        "main",
+        "lab",
+        "project",
+        "corridor",
+        "computer",
+        "room"
+      ],
+      "done": [
+        {
+          "path": "Location:StripNearStation.VisitCount",
+          "op": "gte",
+          "value": "1"
+        }
+      ],
+      "rungs": [
+        "Notice that the booth is waiting for a sector number after the card has been accepted. The next step is to provide the requested number so the booth can continue.",
+        "Use the booth itself and answer its prompt with the damaged sector number it asked for.",
+        "Miniaturization Booth: slide mini card through slot, 3"
+      ],
+      "commands": [
+        "slide mini card through slot"
+      ],
+      "approach": [
+        "N",
+        "W",
+        "S",
+        "S"
+      ]
+    },
+    {
+      "id": "STRIP_NEAR_RELAY_LASER",
+      "title": "Vaporize the speck",
+      "location": "Strip Near Relay",
+      "optional": false,
+      "prerequisites": [
+        "MINIATURIZATION_BOOTH_MINI"
+      ],
+      "aliases": [
+        "laser",
+        "1",
+        "speck",
+        "strip",
+        "near",
+        "relay",
+        "station",
+        "384",
+        "middle"
+      ],
+      "done": [
+        {
+          "path": "Item:Laser.HasBeenFired",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:Relay.SpeckHit",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:Relay.SpeckDestroyed",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:Speck.CurrentLocation",
+          "op": "eq",
+          "value": "null"
+        }
+      ],
+      "rungs": [
+        "Notice the tiny target and the beam you already have. The relay only starts to close after that speck is dealt with.",
+        "Use the laser on the speck until it is gone. Once it turns to ash, the relay begins to close and you can leave.",
+        "Strip Near Relay: set laser to 1, shoot speck with laser, shoot speck with laser, then S"
+      ],
+      "commands": [
+        "set laser to 1",
+        "shoot speck with laser",
+        "shoot speck with laser"
+      ],
+      "approach": [
+        "type 384",
+        "E",
+        "N",
+        "N"
+      ]
+    },
+    {
+      "id": "MIDDLE_OF_STRIP_LASER",
+      "title": "Lure the microbe away",
+      "location": "Middle of Strip",
+      "optional": false,
+      "prerequisites": [
+        "STRIP_NEAR_RELAY_LASER"
+      ],
+      "aliases": [
+        "laser",
+        "2",
+        "microbe",
+        "strip",
+        "middle"
+      ],
+      "done": [
+        {
+          "path": "Item:Laser.Setting",
+          "op": "gte",
+          "value": "2"
+        },
+        {
+          "path": "Item:Microbe.Dispatched",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice what the microbe keeps reacting to, and that the strip has an edge it can be led toward.",
+        "Use the laser as bait rather than trying to overpower the creature; keep provoking it until it follows the wrong thing off the strip.",
+        "Middle of Strip: set laser to 2, shoot microbe with laser, shoot microbe with laser, shoot microbe with laser, shoot microbe with laser, shoot microbe with laser, shoot microbe with laser, shoot microbe with laser, shoot microbe with laser, throw laser off strip, then S, W, N"
+      ],
+      "commands": [
+        "set laser to 2",
+        "shoot microbe with laser",
+        "shoot microbe with laser",
+        "shoot microbe with laser",
+        "shoot microbe with laser",
+        "shoot microbe with laser",
+        "shoot microbe with laser",
+        "shoot microbe with laser",
+        "shoot microbe with laser",
+        "throw laser off strip"
+      ],
+      "approach": [
+        "S"
+      ]
+    },
+    {
+      "id": "LAB_OFFICE_DESK",
+      "title": "Protect yourself from the mist",
+      "location": "Lab Office",
+      "optional": false,
+      "prerequisites": [
+        "MIDDLE_OF_STRIP_LASER"
+      ],
+      "aliases": [
+        "desk",
+        "memo",
+        "mask",
+        "gas",
+        "red",
+        "button",
+        "door",
+        "lab",
+        "office",
+        "strip",
+        "near",
+        "station",
+        "auxiliary",
+        "booth"
+      ],
+      "done": [
+        {
+          "path": "Item:OfficeDoor.IsOpen",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:OfficeDoor.HasEverBeenOpened",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:GasMask.BeingWorn",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:GasMask.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:LabDesk.HasEverBeenOpened",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:LabDesk.IsOpen",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Item:Memo.HasEverBeenPickedUp",
+          "op": "eq",
+          "value": "True"
+        },
+        {
+          "path": "Location:ProjConOffice.AnnouncmentHasBeenMade",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the memo and the desk. One of them points to something useful for the air in the room, and the announcement tells you a new access has opened.",
+        "Get the item from the desk and put it on before using the red button. That will let you deal with the door to the west and go through it.",
+        "Lab Office: examine desk, read memo, open desk, take mask, wear gas mask, press red button, open door, then w"
+      ],
+      "commands": [
+        "examine desk",
+        "read memo",
+        "open desk",
+        "take mask",
+        "wear gas mask",
+        "press red button",
+        "open door"
+      ],
+      "approach": [
+        "S",
+        "W",
+        "N"
+      ]
+    },
+    {
+      "id": "BIO_LAB_LAB",
+      "title": "Open the lab door",
+      "location": "Bio Lab",
+      "optional": false,
+      "prerequisites": [
+        "LAB_OFFICE_DESK"
+      ],
+      "aliases": [
+        "lab",
+        "door",
+        "bio"
+      ],
+      "done": [
+        {
+          "path": "Item:BioLockInnerDoor.IsOpen",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice the mist and the stunned mutants; the room itself is already telling you what has changed.",
+        "The important thing here is the lab door. Open it so the mist can spread into the room and affect the mutants before they recover.",
+        "Bio Lab: open lab door, then w, w"
+      ],
+      "commands": [
+        "open lab door"
+      ],
+      "approach": [
+        "w"
+      ]
+    },
+    {
+      "id": "BIO_LOCK_WEST_DOOR",
+      "title": "Open the door",
+      "location": "Bio Lock West",
+      "optional": false,
+      "prerequisites": [
+        "BIO_LAB_LAB"
+      ],
+      "aliases": [
+        "door",
+        "bio",
+        "lock"
+      ],
+      "done": [
+        {
+          "path": "Item:ChaseSceneManager.UsedBioLockWestFreeTurn",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "The danger is immediate, so focus on the way out rather than exploring the room. Something here can be opened to let you through.",
+        "Use the door itself; getting it open is the whole point, and you need to do it before the mutants catch up.",
+        "Bio Lock West: open door"
+      ],
+      "commands": [
+        "open door"
+      ],
+      "approach": [
+        "w",
+        "w"
+      ]
+    },
+    {
+      "id": "REACH_CRYO_ELEVATOR",
+      "title": "Reach the cryo-elevator",
+      "location": "Bio Lock West",
+      "optional": false,
+      "prerequisites": [
+        "BIO_LOCK_WEST_DOOR"
+      ],
+      "aliases": [
+        "main",
+        "lab",
+        "project",
+        "corridor",
+        "projcon",
+        "office",
+        "cryo",
+        "elevator"
+      ],
+      "done": [
+        {
+          "path": "Location:CryoElevatorLocation.VisitCount",
+          "op": "gte",
+          "value": "1"
+        }
+      ],
+      "rungs": [
+        "Head for the office area and keep moving while the mutants stay on your heels; the destination is just beyond the main lab corridor.",
+        "From the bio lock, go west into the main lab, then west again along the corridor, and once you reach the office doorway, go south into the office and continue south to the elevator.",
+        "Bio Lock West, w, w, s, s"
+      ],
+      "commands": [],
+      "approach": [
+        "w",
+        "w",
+        "w",
+        "s",
+        "s"
+      ]
+    },
+    {
+      "id": "CRYO_ELEVATOR_BUTTON",
+      "title": "Ride the elevator down",
+      "location": "Cryo-Elevator",
+      "optional": false,
+      "prerequisites": [
+        "REACH_CRYO_ELEVATOR"
+      ],
+      "aliases": [
+        "button",
+        "cryo-elevator",
+        "main",
+        "lab",
+        "project",
+        "corridor",
+        "projcon",
+        "office",
+        "cryo",
+        "elevator"
+      ],
+      "done": [
+        {
+          "path": "Item:CryoElevatorButton.AlreadyArrived",
+          "op": "eq",
+          "value": "True"
+        }
+      ],
+      "rungs": [
+        "Notice that the elevator is already moving and that time passing matters here. The goal is simply to let it finish its trip.",
+        "Stay in the elevator and wait until the door opens again; no other action is needed once it starts descending.",
+        "Cryo-Elevator: press button, wait \u00D72"
+      ],
+      "commands": [
+        "press button",
+        "z",
+        "z"
+      ],
+      "approach": [
+        "w",
+        "w",
+        "w",
+        "s",
+        "s"
+      ]
+    }
+  ]
+}

@@ -24,7 +24,7 @@ public class PlanetfallHintPlaytest : EngineTestsBase
     {
         var engine = GetTarget();
         var llm = new OpenAiHintLanguageModel();
-        var service = new HintService(new PlanetfallHintProvider(), llm);
+        var service = new HintService(PlanetfallHintProvider.HandWritten(), llm);
         var history = new List<HintExchange>();
         var log = new StringBuilder();
 

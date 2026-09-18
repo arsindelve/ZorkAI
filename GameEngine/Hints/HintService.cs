@@ -255,7 +255,7 @@ public sealed class HintService
 
     private IReadOnlyList<HintTopic> Topics()
     {
-        return _provider.PuzzleGraph.Nodes.Select(n => new HintTopic(n.Id, n.Title, n.Location)).ToList();
+        return _provider.PuzzleGraph.Nodes.Select(n => new HintTopic(n.Id, n.Title, n.Location, n.Aliases)).ToList();
     }
 
     private string? PickBlocker(ProgressState progress, IContext state)
