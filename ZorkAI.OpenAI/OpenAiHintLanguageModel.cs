@@ -192,7 +192,12 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
             $"Use the player's situation ({persona.StateGrounding}) as grounding/background — to " +
             "make the answer accurate, NEVER as an excuse to dodge the question. This output is internal reasoning " +
             "for a second stage (not shown to the player) — be specific and complete. Never invent facts beyond the " +
-            "knowledge base; if it isn't covered, say so.";
+            "knowledge base; if it isn't covered, say so.\n" +
+            "SEQUENCING: many steps only become possible after an event (a bulkhead opens, an explosion happens, a " +
+            "card is obtained). Present steps strictly in order with their preconditions, and END your answer with " +
+            "one line, exactly: 'NEXT ACTION NOW: <the single command the player can actually perform this turn, " +
+            "given their current state>'. If the correct move this turn is to wait for something, NEXT ACTION NOW " +
+            "is 'wait'.";
 
         var user =
             $"KNOWLEDGE BASE:\n{docs}\n\nPLAYER'S CURRENT SITUATION:\n{playerContext}\n\n" +
@@ -219,7 +224,13 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
                      "don't make them drag it out, and don't redirect them to a different task. When the question is " +
                      "about what to do, include a concrete next move — a real place, object, or action from the " +
                      "solution. When it is about why something is or isn't possible, answer that; a next move is " +
-                     "optional. Never promise an item, exit, or option the solution does not contain.";
+                     "optional. Never promise an item, exit, or option the solution does not contain.\n" +
+                     "SEQUENCING IS SACRED: the solution's step order and preconditions are exact game mechanics. Never " +
+                     "reorder, skip, or compress steps in a way that changes WHEN something can be done — if a step only " +
+                     "works after an event (a door opens, an explosion), your hint must keep that gate. The concrete move " +
+                     "you give MUST be the solution's 'NEXT ACTION NOW' (or a gentler pointer toward it) — never a later " +
+                     "step the player cannot perform yet. Do not invent urgency or time pressure the solution doesn't " +
+                     "state; if the right move is to wait, say to wait.";
 
         var user =
             $"PLAYER'S CURRENT SITUATION:\n{playerContext}\n\nCOMPLETE SOLUTION (do NOT reveal all of this):\n" +

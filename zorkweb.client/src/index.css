@@ -12,6 +12,34 @@
     --compass-btn-text: #f5e7c4;
     --compass-btn-idle: rgb(214, 211, 209);
 
+    /* Shared hint panel, ready for the feature flag to be enabled. */
+    --hint-accent: #c49a4c;
+    --hint-user-accent: #8aa6b8;
+    --hint-badge: #e3c179;
+    --hint-warning: #dc6b5f;
+    --hint-bg: #221d16;
+    --hint-bg-deep: #0c0a09;
+    --hint-bubble: #29231c;
+    --hint-text: #ede4d3;
+    --hint-muted: #a99f8d;
+
+    /* Shared command input and header */
+    --game-input-glow: linear-gradient(90deg, rgba(120, 53, 15, 0.3), #44403c);
+    --game-input-accent: #c49a4c;
+    --game-input-bg: #292524;
+    --game-input-text: #f5e7c4;
+    --game-input-border: #57534e;
+    --game-input-focus-border: rgba(161, 98, 7, 0.7);
+    --game-input-focus-shadow: 0 0 20px rgba(120, 53, 15, 0.3);
+    --game-input-muted: rgba(168, 162, 158, 0.7);
+    --game-header-bg: linear-gradient(135deg, #2b2723 0%, #161310 100%);
+    --game-header-border: rgba(196, 154, 76, 0.35);
+    --game-header-shadow: 0 6px 22px rgba(196, 154, 76, 0.16);
+    --game-header-chip-bg: rgba(12, 10, 9, 0.55);
+    --game-header-accent: #c49a4c;
+    --game-header-muted: #a8a29e;
+    --game-header-value: #e3c179;
+
     /* Preferences dialog palette (see PreferencesModal in the shared package). */
     --pref-surface: #17140f;
     --pref-surface-raised: #221d16;

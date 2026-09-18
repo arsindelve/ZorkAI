@@ -20,6 +20,8 @@ public record HintApiRequest(string SessionId, string Question, IReadOnlyList<Hi
 ///     construction is a Decline. <see cref="Kind" />, <see cref="Topic" /> and <see cref="Rung" /> must be
 ///     echoed back in the next request's history; <see cref="TotalRungs" /> lets a UI show "hint 2 of 3";
 ///     <see cref="SoftLock" /> (None, Warning, BestEndingOnly, Hard) says whether a caveat rides on the text.
+///     <see cref="IsHint" /> is false for a non-answer (refusal, unavailable): display it, but do NOT append
+///     it to the client-held conversation — replaying it would pollute the disclosure pacing.
 /// </summary>
 public record HintApiResponse(
     string Text,
@@ -27,4 +29,5 @@ public record HintApiResponse(
     string? Topic = null,
     int Rung = 0,
     int TotalRungs = 0,
-    string SoftLock = "None");
+    string SoftLock = "None",
+    bool IsHint = true);

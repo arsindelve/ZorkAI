@@ -16,14 +16,22 @@ per-game content we've already drafted (the `01`–`06` docs for [Planetfall](pl
 > departures, all in the direction of *less state and fewer seams*:
 >
 > - **Stateless.** There is no `IHintMemoryStore`. Each `HintExchange` the client replays carries the
->   `topic` and `rung` the engine returned for it; the next rung is one past the highest replayed for that
->   topic, and "closed" topics are simply those live state reports `Done`. Any Lambda container can answer
->   any request. (`HintMemory.TopicStartMove` has no stateless equivalent, so the frustration floor is
->   death-count only.)
+>   `kind`, `topic` and `rung` the engine returned for it; the next rung is one past the highest replayed
+>   for that topic, a continuation ("more") follows the kind of the last answer (lore stays lore, a
+>   fallback conversation continues as fallback), and "closed" topics are simply those live state reports
+>   `Done`. Any Lambda container can answer any request. (`HintMemory.TopicStartMove` has no stateless
+>   equivalent, so the frustration floor is death-count only — and capped below the solution rung.)
 > - **One LLM seam.** The router is `IHintLanguageModel.Route`, not a separate `IIntentRouter`; it returns
->   the intent, whether the message continues the thread, and — for progress questions about a specific
->   puzzle — which node from the catalog. A bare question (the Hint button) skips routing and continues
->   the thread or hints the active blocker; "more" after a lore answer stays lore.
+>   the intent, whether the message continues the thread, and — for progress questions — which node from
+>   the catalog, or that the question is about something specific the catalog has no puzzle for
+>   (`Unlisted`: a dead end, a red herring), which goes to the fallback solver rather than the active
+>   blocker's ladder. A bare question (the Hint button) skips routing and continues the thread or hints the
+>   active blocker. If the router is unavailable the engine declines; it never guesses "what do I do?".
+> - **Progress predicates are monotonic.** Completion is read from inventory, item flags, the systems
+>   monitors and `ILocation.VisitCount` (has the player ever entered the Tower Core, the platforms, the
+>   kitchen) — never from where they are standing now, which they can walk away from, and never from door
+>   flags the game only sets for an explicit `open`. A locked topic redirects to its nearest open
+>   prerequisite along its own chain, not the globally first open node.
 > - **`ILoreSource` returns text, the engine phrases it.** The provider decides what the player may know
 >   (the `05` digest by tier, the invisiclues by area reached) and hands back only that; `AnswerLore`
 >   answers from it and nothing else. Mechanic questions use the same source, which includes the live

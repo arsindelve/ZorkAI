@@ -192,4 +192,11 @@ public sealed record HintResponse(
     string? Topic = null,
     int Rung = 0,
     int TotalRungs = 0,
-    SoftLockKind SoftLock = SoftLockKind.None);
+    SoftLockKind SoftLock = SoftLockKind.None)
+{
+    /// <summary>
+    ///     False for a non-answer (out of scope, already done, unavailable...). Clients show those but do not
+    ///     record them in the conversation they replay — they are not part of the pacing.
+    /// </summary>
+    public bool IsHint => Kind != HintKind.Decline;
+}
