@@ -158,6 +158,38 @@ public class PlanetfallHintEvalTests : EngineTestsBase
     }
 
     [Test]
+    public async Task CubeOpened_CantPullTheFusedBedistor_PointsAtThePliers()
+    {
+        Repository.GetItem<Floyd>().HasEverBeenOn = true;
+        Repository.GetLocation<LawandaPlatform>().VisitCount = 1;
+        Repository.GetItem<Planetfall.Item.Lawanda.LargeMetalCube>().HasEverBeenOpened = true;
+
+        var result = await Ask("I can't pull the fused bedistor out of the cube",
+            new RoutedIntent(HintIntent.Progress, false, "COURSE_FIX"));
+
+        // COURSE_FIX is locked on the pliers (and the good bedistor); the cube stage is done, so the
+        // redirect lands on what they actually lack, not "look inside the cube".
+        result.Topic.Should().BeOneOf("PLIERS", "GOOD_BEDISTOR");
+        result.Text.Should().NotContain("look inside");
+    }
+
+    [Test]
+    public async Task TheShuttle_HasABoardingStageAndARidingStage()
+    {
+        Repository.GetItem<Floyd>().HasEverBeenOn = true;
+        Repository.GetLocation<WaitingArea>().VisitCount = 1; // rode the lower elevator down
+        Take<Planetfall.Item.Kalamontee.Admin.ShuttleAccessCard>();
+
+        var onThePlatform = await Ask("how do I get on the shuttle?", RoutedIntent.OpenEnded);
+        onThePlatform.Topic.Should().Be("SHUTTLE_START");
+
+        Repository.GetLocation<Planetfall.Location.Shuttle.AlfieControlEast>().Activated = true;
+        var moving = await Ask("the shuttle is moving! what do I do?", RoutedIntent.OpenEnded);
+        moving.Topic.Should().Be("SHUTTLE");
+        moving.Text.Should().Contain("stop");
+    }
+
+    [Test]
     public async Task FloydAwake_OpenEnded_BlocksOnTheMagnet()
     {
         Repository.GetItem<Floyd>().HasEverBeenOn = true;

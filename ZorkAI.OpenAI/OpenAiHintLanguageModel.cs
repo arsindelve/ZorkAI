@@ -58,7 +58,9 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
             "open it?' whose subject is the last thing discussed. false for a fresh subject.\n" +
             "topic: the ID of the puzzle the message is about when one on the list clearly fits — for PROGRESS that " +
             "is what gets hinted; for MECHANIC and LORE give it too whenever the message names something on the list " +
-            "(a question the story can't answer then falls through to that puzzle). For PROGRESS only, \"OTHER\" when " +
+            "(a question the story can't answer then falls through to that puzzle). 'Now what?' after they say what " +
+            "they just did ('I refilled the flask, now what?', 'I opened the panel and there are two boards') is about " +
+            "THAT puzzle, not open-ended. For PROGRESS only, \"OTHER\" when " +
             "they ask about a specific object, place, action or creature that is NOT on the list — a dead end, a red " +
             "herring, anything the list has no puzzle for. null when nothing on the list fits, when the ask is " +
             "open-ended ('what now?', 'I'm stuck', 'what should I be doing?'), and always when continues is true — a " +

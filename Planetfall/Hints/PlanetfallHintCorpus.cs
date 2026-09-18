@@ -159,11 +159,17 @@ internal sealed class PlanetfallHintCorpus : IHintCorpus
             "Take the lower elevator down with its card.",
             "Lower Elevator: slide lower access card through slot, press down button — down to the Kalamontee Platform."
         ],
-        ["SHUTTLE"] =
+        ["SHUTTLE_START"] =
         [
             "The other half of the game is across the mountains; a shuttle called Alfie runs there.",
-            "Board the shuttle, activate it with the shuttle card, and drive it with the lever — gently.",
-            "Aboard Alfie: slide shuttle access card through slot, push lever, pull lever to set it moving, wait through the trip, then pull lever to stop at Lawanda."
+            "Board the shuttle from the platform, activate it with the shuttle card, and use the lever to get it moving — gently.",
+            "Waiting Area, then into Alfie's control cabin: slide shuttle access card through slot, push lever, pull lever — it starts to move."
+        ],
+        ["SHUTTLE"] =
+        [
+            "The ride mostly does itself. Your job is to stop at the far station and step out onto the platform.",
+            "Wait it out and watch the signs count down; when the station comes into view, use the lever to stop. Then leave the cabin and go out to the platform.",
+            "wait through the trip; when you see the station, pull lever to stop, then W into the car and N onto the Lawanda Platform."
         ],
 
         // ---- Lawanda ---------------------------------------------------------------------------
@@ -241,7 +247,7 @@ internal sealed class PlanetfallHintCorpus : IHintCorpus
         ],
         ["SPECK"] =
         [
-            "The speck on the relay is the whole problem, and you brought the tool for it.",
+            "The speck on the relay is the whole problem, and you brought the tool for it — one shot won't be enough.",
             "Get to the relay and shoot the speck with the laser on its lowest setting; it takes more than one shot.",
             "E, N, N to Strip Near Relay: set laser to 1, shoot speck with laser (it sizzles), shoot speck with laser (it vaporizes)."
         ],

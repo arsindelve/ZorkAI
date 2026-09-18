@@ -72,11 +72,39 @@ public class PlanetfallHintPlaythroughEval : WalkthroughTestBase
         new(379, "Cryo-Anteroom, after the door closes (next: wait)", "did I win? what now?")
     };
 
+    /// <summary>A third set: mid-puzzle moments — holding the item, halfway through the sequence, in transit.</summary>
+    private static readonly Checkpoint[] MidPuzzleCheckpoints =
+    {
+        new(35, "Wandering the corridors, first exploration (next: keep going to the Tool Room)", "I'm wandering around corridors. what am I even looking for?"),
+        new(56, "Magnet in hand, heading north (next: put magnet on crevice)", "I have a magnet. what's it for?"),
+        new(62, "Steel key in hand (next: unlock padlock with key)", "I found a steel key. what does it open?"),
+        new(74, "Carrying the ladder (next: to Admin Corridor, drop, extend, place)", "where do I take this ladder?"),
+        new(88, "Large Office desk (next: open desk, take shuttle card)", "what's in this desk?"),
+        new(96, "Heading for the Mess Hall with the kitchen card (next: slide it through the slot)", "where do I use the kitchen card?"),
+        new(116, "Flask under the spout (next: press black button)", "which button do I press on this machine?"),
+        new(123, "Elevator Lobby (next: press blue button, press red button, wait)", "how do I open the elevator?"),
+        new(155, "Refilled with the gray fluid, heading back up (next: up the tower, pour again)", "I refilled the flask with the gray stuff. now what?"),
+        new(178, "Kalamontee Platform (next: E to the waiting area, S, E into Alfie)", "I'm on the platform. how do I get on the shuttle?"),
+        new(186, "Shuttle underway (next: wait ... then pull lever at the station)", "the shuttle is moving! what do I do?"),
+        new(207, "Station approaching (next: pull lever to stop)", "there's a station coming up, what do I do?"),
+        new(216, "Floyd through the little door (next: floyd, take board)", "Floyd went through the little door. now what?"),
+        new(221, "Defense panel open (next: take second, put shiny in panel)", "I opened the panel and there are two boards in it"),
+        new(233, "Library terminal on (next: key 4, press 0 ... a lore device)", "how do I use this terminal?"),
+        new(263, "Tool Room, fused bedistor won't come out (next: take pliers)", "I can't pull the fused bedistor out of the cube"),
+        new(322, "Floyd has just died (next: take miniaturization card)", "Floyd is dead. what do I do now?", "more"),
+        new(343, "Shot the speck once (next: shoot speck with laser again)", "I shot the speck but it's still there"),
+        new(355, "Microbe won't die (next: throw laser off strip)", "the microbe keeps coming and the laser isn't killing it"),
+        new(377, "In the cryo-elevator, mutants behind (next: press button)", "I'm in the cryo elevator and the mutants are right behind me!")
+    };
+
     [Test]
     public Task PlayThrough_AndAskAtEveryPuzzle() => Run(Checkpoints);
 
     [Test]
     public Task PlayThrough_AndAskAtTwentyMorePuzzles() => Run(MoreCheckpoints);
+
+    [Test]
+    public Task PlayThrough_AndAskMidPuzzle() => Run(MidPuzzleCheckpoints);
 
     private async Task Run(Checkpoint[] checkpoints)
     {

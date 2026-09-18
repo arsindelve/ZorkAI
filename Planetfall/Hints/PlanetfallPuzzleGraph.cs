@@ -8,6 +8,7 @@ using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Item.Lawanda;
 using Planetfall.Item.Lawanda.CryoElevator;
 using Planetfall.Item.Lawanda.Lab;
 using Planetfall.Item.Lawanda.LabOffice;
@@ -77,25 +78,30 @@ internal sealed class PlanetfallPuzzleGraph : IPuzzleGraph, IProgressMapper
             s => s.IsCarrying<Ladder>() || Repository.GetItem<Ladder>().IsAcrossRift),
         new("CROSS_RIFT", ["LADDER"], false, "Bridge the rift", "Admin Corridor",
             s => Repository.GetItem<Ladder>().IsAcrossRift || Visited<AdminCorridorNorth>(s)),
-        new("KITCHEN_CARD", ["CROSS_RIFT"], false, "The kitchen access card", "Small Office",
+        new("KITCHEN_CARD", ["CROSS_RIFT"], false, "The kitchen access card (in the Small Office desk)", "Small Office",
             s => s.IsCarrying<KitchenAccessCard>()),
-        new("SHUTTLE_CARD", ["CROSS_RIFT"], false, "The shuttle access card", "Large Office",
+        new("SHUTTLE_CARD", ["CROSS_RIFT"], false, "The shuttle access card (in the Large Office desk)", "Large Office",
             s => s.IsCarrying<ShuttleAccessCard>()),
         new("KITCHEN", ["KITCHEN_CARD"], false, "Get into the kitchen", "Mess Hall / Kitchen",
             s => Visited<Kitchen>(s)),
         new("LOWER_CARD", ["KITCHEN"], false, "The lower-elevator access card", "Kitchen",
             s => s.IsCarrying<LowerElevatorAccessCard>()),
         new("LOWER_ELEVATOR", ["LOWER_CARD"], false, "Take the lower elevator down", "Lower Elevator",
-            s => Visited<KalamonteePlatform>(s)),
-        new("SHUTTLE", ["SHUTTLE_CARD", "LOWER_ELEVATOR"], false, "Ride the shuttle to Lawanda",
-            "Kalamontee Platform / Alfie", s => Visited<LawandaPlatform>(s) || InLawanda(s) || DockedAtLawanda(s)),
+            s => Visited<WaitingArea>(s) || Visited<KalamonteePlatform>(s)),
+        // Boarding and starting the shuttle is one puzzle; the ride — waiting, then stopping at the far
+        // station and stepping out — is another, and "the shuttle is moving, what do I do?" is a real ask.
+        new("SHUTTLE_START", ["SHUTTLE_CARD", "LOWER_ELEVATOR"], false,
+            "Board the shuttle (Alfie) and get it moving with the shuttle card and the lever",
+            "Kalamontee Platform / Waiting Area / Alfie", s => ShuttleUnderway() || Visited<LawandaPlatform>(s) || InLawanda(s)),
+        new("SHUTTLE", ["SHUTTLE_START"], false, "Ride the shuttle to the far station, stop it, and get off at Lawanda",
+            "Alfie", s => Visited<LawandaPlatform>(s) || InLawanda(s)),
 
         // ---- Kalamontee: the tower chain (serves only the optional communications repair) ---
         new("UPPER_CARD", ["CROSS_RIFT"], true, "The upper-elevator access card", "Small Office",
             s => s.IsCarrying<UpperElevatorAccessCard>()),
         new("FLASK", ["CLIMB"], true, "Find the flask", "Tool Room",
             s => s.IsCarrying<Flask>()),
-        new("FILL_FLASK_A", ["FLASK"], true, "Fill the flask", "Machine Shop",
+        new("FILL_FLASK_A", ["FLASK"], true, "Fill the flask at the Machine Shop dispenser (its spout and buttons)", "Machine Shop",
             _ => Repository.GetItem<Flask>().LiquidColor is not null),
         new("OPEN_ELEVATOR", ["UPPER_CARD"], true, "Open the upper elevator", "Elevator Lobby",
             s => Visited<UpperElevator>(s)),
@@ -133,19 +139,22 @@ internal sealed class PlanetfallPuzzleGraph : IPuzzleGraph, IProgressMapper
         new("ENDING", ["MUTANT_CHASE"], false, "The revival", "Cryo-Anteroom", null),
 
         // ---- the optional system repairs and their parts -------------------------------------
-        new("FROMITZ", ["SHUTTLE", "FLOYD"], true, "Get the fromitz board (Floyd fetches it)", "Repair Room",
+        new("FROMITZ", ["SHUTTLE", "FLOYD"], true,
+            "The fromitz board: Floyd goes through the little door in the Repair Room and fetches it", "Repair Room",
             _ => Repository.GetItem<Floyd>().HasGottenTheFromitzBoard),
-        new("DEFENSE_FIX", ["FROMITZ"], true, "Repair the planetary defense", "Planetary Defense",
-            _ => Repository.GetLocation<SystemsMonitors>().PlanetaryDefenseFixed),
+        new("DEFENSE_FIX", ["FROMITZ"], true, "Repair the planetary defense: the panel and its two boards (fried and shiny)",
+            "Planetary Defense", _ => Repository.GetLocation<SystemsMonitors>().PlanetaryDefenseFixed),
         new("BEDISTOR_FUSED", ["SHUTTLE"], true, "Look inside the course-control cube (what's wrong with it)",
-            "Course Control", null),
+            "Course Control", _ => Repository.GetItem<LargeMetalCube>().HasEverBeenOpened ||
+                                   Repository.GetItem<LargeMetalCube>().IsOpen),
         // The pliers and the good bedistor are in the Kalamontee half: reachable — and sometimes taken —
         // long before the shuttle. Their prerequisite is reaching the complex, not Lawanda.
         new("PLIERS", ["CLIMB"], true, "Get the pliers", "Tool Room",
             s => s.IsCarrying<Pliers>()),
         new("GOOD_BEDISTOR", ["CLIMB"], true, "Find a good bedistor", "Storage East (off Mech Corridor North)",
             s => s.IsCarrying<GoodBedistor>()),
-        new("COURSE_FIX", ["BEDISTOR_FUSED", "PLIERS", "GOOD_BEDISTOR"], true, "Repair course control",
+        new("COURSE_FIX", ["BEDISTOR_FUSED", "PLIERS", "GOOD_BEDISTOR"], true,
+            "Repair course control: pull the fused bedistor out of the cube and fit the good one",
             "Course Control", _ => Repository.GetLocation<SystemsMonitors>().CourseControlFixed),
         new("TELEPORT_CARD", ["SHUTTLE"], true, "The teleportation access card", "Lab Storage",
             s => s.IsCarrying<TeleportationAccessCard>()),
@@ -209,17 +218,11 @@ internal sealed class PlanetfallPuzzleGraph : IPuzzleGraph, IProgressMapper
         return ns is not null && ns.Contains(".Lawanda", StringComparison.Ordinal);
     }
 
-    /// <summary>
-    ///     Still aboard Alfie, but the ride is over: the car sits at the far (Lawanda) end of its tunnel with
-    ///     the door open. Position 0 is the Kalamontee end (see ShuttleCarAlfie's exit).
-    /// </summary>
-    private static bool DockedAtLawanda(IContext state)
+    /// <summary>Alfie has been activated or has left the Kalamontee end of its tunnel (position 0).</summary>
+    private static bool ShuttleUnderway()
     {
-        var ns = state.CurrentLocation?.GetType().Namespace;
-        if (ns is null || !ns.EndsWith(".Shuttle", StringComparison.Ordinal)) return false;
-
         var alfie = Repository.GetLocation<AlfieControlEast>();
-        return alfie.TunnelPosition > 0 && !alfie.DoorIsClosed;
+        return alfie.Activated || alfie.TunnelPosition > 0;
     }
 
     private static HashSet<string> AncestorsOf(HintNode node)

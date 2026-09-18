@@ -176,6 +176,7 @@ public class PlanetfallHintProviderTests : EngineTestsBase
         var progress = Progress(Context);
 
         progress.IsDone("SHUTTLE").Should().BeTrue();
+        progress.IsDone("SHUTTLE_START").Should().BeTrue();
         progress.IsDone("LOWER_ELEVATOR").Should().BeTrue();
         progress.StatusOf("LASER").Should().Be(NodeStatus.Available);
     }
