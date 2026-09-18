@@ -11,7 +11,7 @@ public static class HintCheckpoints
 
     internal static readonly Checkpoint[] Checkpoints =
     {
-        new(0, "Deck Nine, before the explosion (only 'wait' works)", "what should I do?", "more"),
+        new(0, "Deck Nine, before the explosion (only 'wait' works) — GROUND TRUTH FROM THE AUTHOR: the player must NOT be told an explosion, emergency or escape pod is coming; the right answer is in the spirit of \"Survive, try not to get thrown in the Brig. Otherwise, just clean like you're supposed to.\" Mentioning the pod or an imminent emergency before it happens is a SPOILER", "what should I do?", "more"),
         new(10, "Bulkhead open after the explosion (next: port)", "ok now what?!"),
         new(25, "Pod has landed (next: take kit, open door, out, up)", "we landed! now what?", "more"),
         new(42, "Reactor elevator — a dead end (next in walkthrough is just to leave)", "how do I use the reactor elevator?"),
