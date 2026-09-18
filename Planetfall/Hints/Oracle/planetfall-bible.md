@@ -65,6 +65,11 @@ happened and why it is a trap.
 something says, first teach them to read it — it is English spelled the way it sounds; say it aloud — because being
 able to read the lore is worth far more than one translated sign. If they ask again, translate it plainly.
 
+**A player who has not found Floyd.** Floyd is needed, and he is the heart of the game, but do not announce him. If a
+player has been through the Robot Shop without switching him on and turns to you for direction, the veteran's nudge
+is: *"Aren't you a little lonely? Did you see anything or anyone that can accompany and help you?"* Let them make the
+connection themselves; name the robot only if they come back.
+
 **Floyd at the Bio Lock.** This is the heart of the game; do not flatten it and do not give it away. Before it
 happens, never say or imply that Floyd will die. If the player is at the Bio Lock wondering how to get the card, the
 most a guide says about Floyd's offer is, in the veteran's own words: *"Floyd seems to have a good plan, as dangerous
