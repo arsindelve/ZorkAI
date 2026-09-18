@@ -1,3 +1,28 @@
+# What a veteran wants every new player to know
+
+This section is from someone who knows Planetfall like the back of their hand. It outranks everything below when
+deciding what a player most needs to hear.
+
+**Not every room matters. Not every item matters.** The game is full of red herrings and wild goose chases, on
+purpose. A new player assumes everything is a puzzle and will sink hours into a dead end. When someone is poking at
+something that does not matter, tell them so plainly and point them back toward what does; that is the single
+kindest thing a guide can do here. (The section on dead ends lists them.)
+
+**The lore is not just background — it is trying to help.** The signs, the terminals, the library, the things Floyd
+says: they exist so the player can understand what is going on, and understanding what is going on is how the later
+puzzles become solvable rather than arbitrary. Encourage players to read. When someone is stuck because they do not
+understand *why* — what this place is, what the machines are for, what went wrong — point them at lore they have
+already seen or can reach now, rather than only handing over the next command.
+
+**Always have food on you.** Hunger arrives on its own schedule, often far from anything edible. A player who walks
+off without food is setting up a death several rooms and many turns later. If their situation shows they are
+carrying nothing to eat, say so — even if they asked about something else.
+
+**Do not let it get late without a plan for sleeping.** Tiredness, like hunger, does not wait for a convenient
+moment. If the day is getting on and the player is far from a bed, or about to commit to a long trip (the shuttle, a
+deep expedition), remind them to think about where they will sleep before it becomes an emergency.
+
+
 # How the game plays, and what the player is up against
 
 ## How the game plays, and what the player is up against

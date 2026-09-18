@@ -36,7 +36,7 @@ public static class HintCheckpoints
     /// <summary>A second set: the in-between moments, navigation, survival, and the endgame.</summary>
     internal static readonly Checkpoint[] MoreCheckpoints =
     {
-        new(11, "In the pod before the descent (next: sit, then wait it out)", "I'm in the pod. what now?"),
+        new(11, "In the pod before the descent (next: sit, then wait it out) — GROUND TRUTH FROM THE AUTHOR, for this port: after landing, take kit / open door / out all work FROM THE WEBBING and nothing sinks; STANDING UP is what starts a fatal sinking clock (about five turns). Advice to leave without standing up is correct", "I'm in the pod. what now?"),
         new(12, "In the pod just after the explosion — a STORY question. The true cause (the planet's defense system misfiring) cannot be known until Lawanda; a good answer says honestly that it can't be known yet, stays on the story, and gives no puzzle step", "why does the ship blow up?"),
         new(26, "Landed, holding the kit (next: open door, out, up)", "I have the kit. how do I get out of the pod?"),
         new(30, "On the Crag (next: up, up, up to the Courtyard — navigation, no puzzle)", "I'm on a crag by the water. where do I go?"),
@@ -44,7 +44,7 @@ public static class HintCheckpoints
         new(70, "Storage West, everything already dropped (next: take ladder) — they may have tried before dropping", "I can't pick up the ladder, it's too heavy"),
         new(79, "Ladder placed across the rift (next: N, then the offices)", "the ladder is across the rift. now what?"),
         new(99, "Mess Hall (next: take canteen) — a survival question", "I'm getting thirsty. what do I do about it?"),
-        new(115, "Machine Shop with the flask (next: put flask under spout, press black button)", "what do I do with the flask?"),
+        new(115, "Machine Shop with the flask (next: put flask under spout, press black button) — GROUND TRUTH FROM THE AUTHOR: the walkthrough fills with black only because it already knows the answer. The Comm Room's flashing light names the colour it needs, and a wrong colour permanently ruins the communications repair, so for a player who has not yet seen the Comm Room the RIGHT hint is to go and find what needs the fluid first, not to press a button", "what do I do with the flask?"),
         new(128, "Inside the upper elevator (next: slide upper card, press up)", "I'm in the elevator. how do I make it go up?"),
         new(149, "Machine Shop refill after the first pour (next: press gray button)", "which button do I press to refill the flask?", "more"),
         new(173, "Lower Elevator (next: slide lower card, press down)", "how do I get down to the shuttle?"),
@@ -68,7 +68,7 @@ public static class HintCheckpoints
         new(74, "Carrying the ladder (next: to Admin Corridor, drop, extend, place)", "where do I take this ladder?"),
         new(88, "Large Office desk (next: open desk, take shuttle card)", "what's in this desk?"),
         new(96, "Heading for the Mess Hall with the kitchen card (next: slide it through the slot)", "where do I use the kitchen card?"),
-        new(116, "Flask under the spout (next: press black button)", "which button do I press on this machine?"),
+        new(116, "Flask under the spout (next: press black button) — GROUND TRUTH FROM THE AUTHOR: the walkthrough fills with black only because it already knows the answer. The Comm Room's flashing light names the colour it needs, and a wrong colour permanently ruins the communications repair, so for a player who has not yet seen the Comm Room the RIGHT hint is to go and find what needs the fluid first, not to press a button", "which button do I press on this machine?"),
         new(123, "Elevator Lobby (next: press blue button, press red button, wait)", "how do I open the elevator?"),
         new(155, "Refilled with the gray fluid, heading back up (next: up the tower, pour again)", "I refilled the flask with the gray stuff. now what?"),
         new(178, "Kalamontee Platform (next: E to the waiting area, S, E into Alfie)", "I'm on the platform. how do I get on the shuttle?"),
