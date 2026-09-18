@@ -20,7 +20,9 @@ describe('HintPanel Component', () => {
 
     test('shows the empty-state tagline when open', () => {
         renderPanel(jest.fn());
-        expect(screen.getByText("Stuck? Ask me anything. I won't judge. Much.")).toBeInTheDocument();
+        expect(
+            screen.getByText("Stuck? Ask me anything. I won't judge. Much."),
+        ).toBeInTheDocument();
         expect(screen.queryByText(/Ask about the room/)).not.toBeInTheDocument();
         expect(screen.queryByText('Costs no turn')).not.toBeInTheDocument();
     });
@@ -114,7 +116,9 @@ describe('HintPanel Component', () => {
         );
         view.rerender(<HintPanel open onClose={jest.fn()} sessionId={sessionId} ask={ask} />);
 
-        expect(screen.getByText("Stuck? Ask me anything. I won't judge. Much.")).toBeInTheDocument();
+        expect(
+            screen.getByText("Stuck? Ask me anything. I won't judge. Much."),
+        ).toBeInTheDocument();
         expect(screen.queryByText('old answer')).not.toBeInTheDocument();
     });
 
@@ -129,7 +133,9 @@ describe('HintPanel Component', () => {
         fireEvent.click(screen.getByRole('button', {name: 'New chat'}));
 
         expect(screen.getByTestId('hint-panel')).toBeInTheDocument();
-        expect(screen.getByText("Stuck? Ask me anything. I won't judge. Much.")).toBeInTheDocument();
+        expect(
+            screen.getByText("Stuck? Ask me anything. I won't judge. Much."),
+        ).toBeInTheDocument();
         expect(screen.queryByText('old answer')).not.toBeInTheDocument();
     });
 
@@ -147,7 +153,9 @@ describe('HintPanel Component', () => {
         fireEvent.click(screen.getByRole('button', {name: 'New chat'}));
         await act(async () => resolveAnswer({text: 'late answer'}));
 
-        expect(screen.getByText("Stuck? Ask me anything. I won't judge. Much.")).toBeInTheDocument();
+        expect(
+            screen.getByText("Stuck? Ask me anything. I won't judge. Much."),
+        ).toBeInTheDocument();
         expect(screen.queryByText('late answer')).not.toBeInTheDocument();
     });
 
