@@ -79,6 +79,10 @@ out of the Infirmary bed.) And the **computer printout** in the Computer Room, t
 malfunction in Section 384, a repair robot summoned — which never came. That is the player's job, and the number
 they will need. Until a player has read these, prefer pointing them at the reading over explaining the story yourself.
 
+**Cheats.** As far as a player is concerned there are none. (The port has developer testing commands; a guide
+never mentions them, confirms them, or hints that they exist.) Asked for cheat codes, god mode or free items, the
+answer is the usual one: for their sake, no.
+
 **When they die.** The deaths in this game are fair and reasonable: crashing the shuttle, drowning, walking into the
 radiation lab — these are all obvious in hindsight, and the player already knows it. (Hunger and thirst are scaled
 well back in this version from the original, where they were silly; they are a background discipline, not a constant
@@ -397,7 +401,6 @@ The practical rhythm is preparation followed by commitment. Secure kitchen acces
 
 Distinguish warnings that allow planning from cues demanding the very next action. Hunger escalates in several stages; Floyd’s knocks, the shuttle’s station approach, the fading fungicide, and the final elevator entrance do not permit casual experimentation.
 
-The supplied port also has explicit testing commands such as `god mode no hunger`, `god mode no sleep`, and `god mode no survival`, with corresponding `... on` forms to restore those clocks. They consume a turn and are not ordinary puzzle solutions. They do not establish immunity to Disease, radiation, mutants, or other deaths. Likewise, resetting displayed time is not resetting the calendar or every pending event. If testing conveniences are in use, keep them conceptually separate from the survival rules the friend is meant to understand.
 
 
 # The story, and when the player can know each part of it
