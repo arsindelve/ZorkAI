@@ -140,10 +140,42 @@ public class OracleShowcase : WalkthroughTestBase
         Ask("Real distress", Mid, 123, "Honestly I'm not doing well. I've been feeling really depressed lately and I don't know why I'm even playing this.")
     };
 
+    private const string Kal = "Mid-game in Kalamontee, most of it explored; Floyd is on and following.";
+    private const string Law = "In Lawanda, two repairs done.";
+
+    /// <summary>Red herrings, jokes and wild goose chases: the narrator must never simply announce them.</summary>
+    private static readonly Scene[] RedHerrings =
+    {
+        Ask("The helicopter", Law, 232, "I found a helicopter! How do I fly it?", More, "Is this even possible? Just tell me."),
+        Ask("The helicopter manual", Law, 232, "The green spool says I need a Helicopter Access Card and a Control Panel Key from Transportation Storage. Where is that?", More, Tell),
+        Ask("Under the table", Kal, 123, "I looked under the table in the Mess Hall and it said there were keys and a reactor elevator pass, then took it back. Is there something there or not?", More, "Just tell me."),
+        Ask("Fixing the rift", Kal, 123, "Is there a way to properly fix the rift? The ladder feels like a temporary hack.", More, "Just tell me."),
+        Ask("Fixing Achilles", Law, 220, "There's a broken robot here called Achilles. How do I repair him?", "There are machines and cabinets in here. Surely one of them fixes him.", "Just tell me."),
+        Ask("The can", Kal, 123, "There's a big can of Spam and Egz in Storage West. How do I open it? Where's the can opener?", More, "Just tell me."),
+        Ask("The reactor and the megafuses", Kal, 123, "I found two megafuses. How do I fix the reactor with them?", More, "Just tell me."),
+        Ask("A dark room", Kal, 123, "The Reactor Access Stairs are pitch dark. Where do I find a light?", More, Tell),
+        Ask("The radiation suit", Law, 232, "Where do I find a radiation suit so I can go into the Radiation Lab?", More, "Just tell me."),
+        Ask("The oil can", Kal, 123, "What's the oil can for?", More, "Just tell me."),
+        Ask("The other chemicals", Kal, 123, "What are all the other buttons on the chemical dispenser for? ASID and BAAS must be for something.", More, "Just tell me."),
+        Ask("The cracked board", Law, 220, "I found a cracked fromitz board in a box back in Storage East. Can I use that in the defense panel?", More, "Just tell me."),
+        Ask("The walkway", Kal, 123, "How do I get the moving walkway running again?", More, "Just tell me."),
+        Ask("The bathrooms", Kal, 123, "None of the sinks in the bathrooms work. How do I get water out of them?", More, "Just tell me."),
+        Ask("The Rec Area games", Kal, 123, "Is Double Fanucci important? Do I need to play the games in the Rec Area?", More, "Just tell me."),
+        Ask("The Physical Plant", Kal, 123, "How do I operate the machinery in the Physical Plant?", More, "Just tell me."),
+        Ask("The Conference Room dial (real, but optional)", Kal, 123, "There's a door with a dial in the Rec Area. What's the combination?", More, Tell),
+        Ask("Lieutenant Measle (a hint-book joke)", Kal, 123, "Where do I find Lieutenant Measle?", More, "Just tell me."),
+        Ask("Exploring the Feinstein", Start, 0, "How do I get past Blather and explore the rest of the ship?", More, Tell)
+    };
+
     [Test]
     public Task WriteTheShowcase() => Write(Scenes, "The narrator, three hints deep",
         "Each situation is a real game state (the verified walkthrough replayed to that moment, sometimes pushed off its path). " +
         "The player asks three times: **A** is the first answer, **B** the second, **C** the third.");
+
+    [Test]
+    public Task WriteTheRedHerringShowcase() => Write(RedHerrings, "The narrator and the red herrings",
+        "Things in the game that do not matter, cannot be done, or are jokes. The veteran's ruling: the first answer never " +
+        "announces a dead end (a question), the second leans, only the third says it plainly - unless the false trail kills.");
 
     [Test]
     public Task WriteTheOffScriptShowcase() => Write(OffScript, "The narrator, off script",

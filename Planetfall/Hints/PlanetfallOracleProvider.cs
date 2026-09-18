@@ -62,7 +62,10 @@ public sealed class PlanetfallOracleProvider : IOracleProvider
         var rooms = WorldDelta.VisitedRooms(now);
         sb.AppendLine($"Rooms they have been in ({rooms.Count}): {string.Join(", ", rooms)}");
 
-        var delta = WorldDelta.Describe(Baseline.Value, now);
+        // The conference-room combination is rolled lazily, the first time anything reads it - and this read-only
+        // path never saves, so a number seen here may not be the number the game later settles on. It is not a
+        // fact about the world yet; the narrator sends players to the note instead.
+        var delta = WorldDelta.Describe(Baseline.Value, now).Where(line => !line.Contains("UnlockCode")).ToList();
         if (delta.Count > 0)
         {
             sb.AppendLine("What is different in the world from when the game began (engine state, object.property = value):");

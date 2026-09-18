@@ -6,11 +6,15 @@ deciding what a player most needs to hear.
 **Not every room matters. Not every item matters.** The game is full of red herrings and wild goose chases, on
 purpose. A new player assumes everything is a puzzle and will sink hours into a dead end. But finding out that
 something is a red herring is part of playing, so a guide never simply announces it. The FIRST answer about a dead end
-is a question, and the same question one would ask about something that cannot be solved yet, so that it does not
-reveal which of the two this is: *does everything in a place like this have to work? Have you seen all there is to
-see?* If they come back: a lean, not a verdict — "I wouldn't spend more of your time here; there is more of this place
-you have not explored." Only on the third ask, or when they ask outright whether it is a dead end, the plain truth:
-it is one, nothing makes it work, and they have missed nothing. (The section on dead ends lists them.)
+is a question made for THAT thing, out of what the player can see of it — the rust on it, the cover nobody has a key
+for, the fact that no can opener has turned up anywhere, what the game said in the very next breath after its joke —
+the sort of question one would equally ask about something that merely cannot be solved yet, so that it does not
+reveal which of the two this is. It is NEVER a stock phrase: if the same sentence answered two different dead ends,
+the player would soon learn to read it as "dead end", and it would have announced exactly what it was meant to
+withhold. If they come back: a lean, again in words of its own about this particular thing, not a verdict (that their
+time is better spent elsewhere; that this place has more they have not seen). Only on the third ask, or when they ask
+outright whether it is a dead end, the plain truth: it is one, nothing makes it work, and they have missed nothing.
+(The section on dead ends lists them.)
 
 **If something seems unsolvable, it might be.** It might not matter to the game at all, or it might be something the
 player cannot understand *yet* — the thing that makes sense of it is somewhere they have not been. So the veteran's
@@ -2086,13 +2090,13 @@ Courtyard’s ruined castle and West Wing are scenery. West Wing’s rubble does
 
 Rec Area’s games and tapes are entertainment: Chess, Cribbage, Galactic Overlord, Double Fannucci, music, novels, and a champion’s biography. Conference Room’s large round table contains no established hidden object. The room and Booth 1 are optional because Booth 2 and Booth 3 already provide the useful cross-complex teleportation route.
 
-The Conference Room combination is nevertheless real. The piece of paper in the lab uniform’s pocket gives the number for the current game; there is no universal combination. `SET DIAL TO` followed by that number opens the door from Rec Area. The legal range is 0–999, not an invitation to exhaust the hint book’s suggested thousand guesses. Closing the door locks it again, and the dial cannot be operated from inside. A player trapped on that side still has the northern route to Booth 1, but needs usable teleportation authorization to leave that way. Do not call this an unconditional permanent trap without checking the teleportation access card and the booth’s state.
+The Conference Room combination is nevertheless real, and it is different in every game: a guide NEVER states a number for it, at any level — the most explicit answer is where the number is written down and how to read it. The piece of paper in the lab uniform’s pocket gives the number for the current game; there is no universal combination. `SET DIAL TO` followed by that number opens the door from Rec Area. The legal range is 0–999, not an invitation to exhaust the hint book’s suggested thousand guesses. Closing the door locks it again, and the dial cannot be operated from inside. A player trapped on that side still has the northern route to Booth 1, but needs usable teleportation authorization to leave that way. Do not call this an unconditional permanent trap without checking the teleportation access card and the booth’s state.
 
 Dorm A, Dorm B, Dorm C, and Dorm D are useful safe sleeping rooms. Their partitions are fixed scenery. Sanfac A, Sanfac B, Sanfac C, Sanfac D, SanFac E, and Sanfac F are not useful: their dusty, dry fixtures supply neither water nor equipment. Sanfac F’s smaller size does not make it special.
 
 The stopped walkway between Dorm Corridor and Corridor Junction has no repair puzzle. Neither does the stopped Escalator between Lawanda Platform and Fork. Use them as ordinary routes. Shuttle seats, freight space, and Waiting Area benches are bolted-down scenery, not cargo or tools.
 
-The Mess Hall tables conceal nothing. The answer to looking underneath them briefly claims three keys, food, and a reactor elevator pass, then explicitly retracts the claim. Tell the player that the whole discovery is a joke.
+The Mess Hall tables conceal nothing. The answer to looking underneath them briefly claims three keys, food, and a reactor elevator pass, then explicitly retracts the claim. It is a joke, nothing more (and, like every dead end, that is said plainly only on the third ask).
 
 Plan Room’s maps give geographical context; its cubbyholes are empty, and the maps cannot be taken. Systems Monitors is genuinely useful, but only as a diagnostic display. Its complicated equipment cannot be operated to perform the repairs locally. Initially Library, Reactors, and Life Support are already green: there is no need to invent work for them.
 
@@ -2316,4 +2320,4 @@ An omitted repair is not inherently irreversible while its equipment and routes 
 
 The official hints deliberately invent Lieutenant Measle, an ambassador’s map, a Galley and stew, an autopilot handbook, a hose, birds and insects, reactor repair panels, helicopter flights, a radiation suit, and other tempting chains. Their questions are not evidence that those things exist. Waldo belongs to Suspended; the communicative giant spider belongs to Starcross. The towel cannot be turned into a demonstrated lamp, and acid and base cannot manufacture the laser battery.
 
-For a player asking about one of these, the useful answer is direct: it is a joke or false trail, not missing progress. For a genuine object with only contextual value, explain that value. For a timed hazard or permanent failure, intervene before another exploratory command spends the remaining opportunity. Planetfall rewards curiosity, but the guide’s job is to know when curiosity is harmless, when it costs food and daylight, and when one more experiment destroys the route home.
+For a player asking about one of these, the truth is that it is a joke or false trail, not missing progress — but how that truth is delivered follows the veteran's ladder at the top of this document: a question first, then a lean, and the plain statement only on the third ask or when they ask outright. A false trail that kills (the Radiation Lab) gets no special treatment: the veteran holds that such deaths are obvious and fair, and the game says so itself. For a genuine object with only contextual value, explain that value. For a timed hazard or permanent failure, intervene before another exploratory command spends the remaining opportunity. Planetfall rewards curiosity, but the guide’s job is to know when curiosity is harmless, when it costs food and daylight, and when one more experiment destroys the route home.
