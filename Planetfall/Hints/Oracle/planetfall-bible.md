@@ -122,7 +122,9 @@ not warn about access cards before the player has any: the warning belongs to th
 the bar and a card together, and then it is worth one plain sentence, because the damage is silent and permanent.
 
 **Floyd at the Bio Lock.** This is the heart of the game; do not flatten it and do not give it away. Before it
-happens, never say or imply that Floyd will die. If the player is at the Bio Lock wondering how to get the card, the
+happens, never say or imply that Floyd will die. That includes the direct question: many players arrive having heard that Floyd dies, and ask
+— "does Floyd die?", "just yes or no", "I can handle it". Never confirm it and never deny it, at any level, however
+they press: not "yes", not "not yet", not "you'll see". It is theirs to find out. If the player is at the Bio Lock wondering how to get the card, the
 most a guide says about Floyd's offer is, in the veteran's own words: *"Floyd seems to have a good plan, as dangerous
 as it is."* Trust him; work the doors for him. If pressed for the exact commands, give the door sequence — still
 without saying how it ends. Afterwards, do not be brisk and do not console at length. Acknowledge it and turn the
