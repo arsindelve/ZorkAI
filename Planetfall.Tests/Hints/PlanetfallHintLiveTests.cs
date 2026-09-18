@@ -67,6 +67,35 @@ public class PlanetfallHintLiveTests : EngineTestsBase
     }
 
     /// <summary>
+    ///     The conversation that broke the previous system, end to end on the real wiring: a "what do I do"
+    ///     on Deck Nine, then "why does the ship blow up?", then pushing for more. Prints kind/topic/rung with
+    ///     each answer so the routing and laddering can be read alongside the prose.
+    /// </summary>
+    [Test]
+    public async Task TheFeinsteinConversation_Live()
+    {
+        var history = new List<HintExchange>();
+
+        async Task Ask(string q)
+        {
+            var r = await _service.GetHint(new HintRequest("live-feinstein", Context, q, history));
+            history.Add(new HintExchange(q, r.Text, r.Topic, r.Rung));
+            TestContext.Out.WriteLine($"YOU:   {q}\n       [{r.Kind} topic={r.Topic ?? "-"} rung={r.Rung}/{r.TotalRungs}]\nGUIDE: {r.Text}\n");
+            r.Text.Should().NotBeNullOrWhiteSpace();
+        }
+
+        await Ask("I'm on Deck Nine. What should I do?");
+        await Ask("why does the ship blow up?");
+        await Ask("more");
+        await Ask("no really, why did it explode?");
+        await Ask("ok, what do I do now?");
+        await Ask("more");
+        await Ask("just tell me exactly");
+        await Ask("who is Blather?");
+        await Ask("how do I fix the planetary defense?");
+    }
+
+    /// <summary>
     ///     End-to-end on the REAL production wiring: embedded whole-source knowledge + serialized save-game
     ///     state + gpt-5.4-mini. Prints answers for the puzzles that historically broke, plus a state-aware
     ///     question (Floyd dead) to confirm the save-game state actually reaches the model.

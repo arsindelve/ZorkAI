@@ -223,6 +223,31 @@ OpenAI in the snarky-narrator voice. Zork and the web UI are deferred behind the
 ## 8. Status
 
 - [x] Stage 0 — pre-planning artifacts drafted (this folder)
-- [x] Build decisions locked (§7)
-- [ ] Stage 1 — eval harness (Planetfall; all three modes; frustration signals set per-fixture)
-- [ ] Stage 2 — engine + `PlanetfallHintProvider` + `/hint` API
+- [x] Build decisions locked (§7) — with two amendments, below
+- [x] Stage 1 — eval harness: `Planetfall.Tests/Hints/PlanetfallHintEvalTests.cs` (localization,
+      blocker, laddering, never-leak, the Feinstein grounding fixture, spoiler tiers, survival) and
+      `UnitTests/Hints/HintServiceTests.cs` (the engine over a fake provider). LLM stubbed throughout.
+- [x] Stage 2 — DAG as data + open-set / active-blocker query (`PlanetfallPuzzleGraph`)
+- [x] Stage 3 — localization from live state: per-node completion predicates over inventory, door and
+      item flags and the systems monitors, with back-fill from verified descendants
+- [x] Stage 4 — grounded retrieval + laddering: the `06` ladders as data (`PlanetfallHintCorpus`), one
+      rung to the phraser; lore/mechanic from the `05` digest + the invisiclues, tier-gated
+      (`PlanetfallLoreSource`); whole-source solve/reveal kept as the fallback when nothing authored fits
+- [ ] Stage 5 — unwinnable-state detection: only the Disease *warning* is wired; the hard traps in
+      [03](planetfall/03-softlock.md) still need their flags confirmed
+- [ ] Stage 6 — navigation hints
+- [ ] Stage 7 — Zork I provider; feedback loop
+- [ ] Web Hints panel (the API returns `kind`/`topic`/`rung`/`totalRungs` for it)
+
+**Amendments to §7, from the first live review of the two-tier build:**
+- **Voice (§7.2).** "Always the snarky narrator" produced jokes in place of answers ("a very
+  enthusiastic self-destruction"). The persona is now *dry, warm, a little wry, on the player's side*;
+  a joke may decorate an answer, never replace it.
+- **Disclosure (§7.3).** The engine is stateless — rung position rides in the client-replayed
+  history — so the frustration floor uses the death count only; "moves stuck on a topic" needs state
+  the history does not carry. Add it to the exchange if it proves worth having.
+- **The two-tier LLM design is the fallback, not the primary.** The 2026-04 rebuild collapsed the
+  DAG, corpus and router into "docs + two LLM calls"; the first review showed the failure this plan's
+  §1 predicted (a lore question answered with the walkthrough's next step, and a late-game spoiler two
+  "more"s away). The authored ladder and the tier-gated source are primary again; solve/reveal runs
+  only for questions no authored content covers.

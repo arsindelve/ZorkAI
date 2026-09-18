@@ -53,6 +53,12 @@
             <Link>StellarPatrol/%(RecursiveDir)%(Filename)%(Extension)</Link>
         </EmbeddedResource>
         <EmbeddedResource Include="../Planetfall.Tests/Walkthrough/WalkthroughTestOne.cs" />
+        <!-- The official invisiclues: the lore source and the fallback solver hand the model only the
+             sections for areas the player has reached (PlanetfallLoreSource), so this is embedded whole
+             and gated at runtime. Not a .cs file, so BuildKnowledge's source sweep leaves it alone. -->
+        <EmbeddedResource Include="../Docs/hints/planetfall/invisiclues.md">
+            <Link>Hints/invisiclues.md</Link>
+        </EmbeddedResource>
     </ItemGroup>
 
 </Project>

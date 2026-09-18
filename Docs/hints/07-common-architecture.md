@@ -10,6 +10,33 @@ per-game content we've already drafted (the `01`–`06` docs for [Planetfall](pl
 > engine change.** Both games reduce to the same abstraction: *node statuses over a DAG, plus
 > grounded rung-ladders and lore.*
 
+> ## As built
+>
+> The implementation (`GameEngine/Hints`, `Planetfall/Hints`) follows this document with these
+> departures, all in the direction of *less state and fewer seams*:
+>
+> - **Stateless.** There is no `IHintMemoryStore`. Each `HintExchange` the client replays carries the
+>   `topic` and `rung` the engine returned for it; the next rung is one past the highest replayed for that
+>   topic, and "closed" topics are simply those live state reports `Done`. Any Lambda container can answer
+>   any request. (`HintMemory.TopicStartMove` has no stateless equivalent, so the frustration floor is
+>   death-count only.)
+> - **One LLM seam.** The router is `IHintLanguageModel.Route`, not a separate `IIntentRouter`; it returns
+>   the intent, whether the message continues the thread, and — for progress questions about a specific
+>   puzzle — which node from the catalog. A bare question (the Hint button) skips routing and continues
+>   the thread or hints the active blocker; "more" after a lore answer stays lore.
+> - **`ILoreSource` returns text, the engine phrases it.** The provider decides what the player may know
+>   (the `05` digest by tier, the invisiclues by area reached) and hands back only that; `AnswerLore`
+>   answers from it and nothing else. Mechanic questions use the same source, which includes the live
+>   survival condition. There is no separate `IMechanicExplainer`.
+> - **LLM-1 is the whole-source solver, and it is the fallback.** `Solve`/`Reveal` over the embedded game
+>   source + walkthrough + the tier-gated invisiclues run only when the chosen topic has no authored
+>   ladder. Red herrings and dead ends are answered this way, from the invisiclues' own negative answers,
+>   rather than from a keyword table.
+> - **Fail closed.** A failed phrase call returns the authored rung; a failed lore, solve or reveal call
+>   returns empty and the engine declines. Nothing ever returns the complete solution on error.
+> - **Locked topics redirect.** Asking about a puzzle whose prerequisites aren't met gets "that's further
+>   down the road" plus the real blocker's rung — never the later puzzle's ladder.
+
 > **Provider note (locked build decision — [00 §7](00-master-plan.md#7-locked-build-decisions-v1)):**
 > the LLM bits (phrasing, intent router, lore answering) run on **OpenAI**, following the C#→OpenAI-
 > assistant pattern Floyd already uses — *not* the engine's Claude `IGenerationClient`. Read the

@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text;
 using GameEngine;
 using GameEngine.Hints;
@@ -11,51 +10,52 @@ using Planetfall.Location.Kalamontee.Admin;
 namespace Planetfall.Hints;
 
 /// <summary>
-///     Planetfall's plug-in for the two-tier hint engine. There is no hand-written knowledge base: the
-///     knowledge IS the game. LLM 1 (Solve) reasons over the complete C# source + the CI-verified
-///     walkthrough tests + an explicit pointer at the in-game lore; the player's situation is the actual
-///     serialized save game (complete by construction). The only thing left that isn't a real game
-///     artifact is the survival proactive rules.
+///     Planetfall's plug-in for the hint engine (Docs/hints/07). Supplies the puzzle DAG and its
+///     progress mapper, the authored rung ladders, the tier-gated lore source, the soft-lock and survival
+///     rules, the narrator persona — and, for the fallback solver, the complete game source plus the
+///     verified walkthrough, with the player's actual serialized save game as their situation.
 /// </summary>
 public sealed class PlanetfallHintProvider : IHintProvider
 {
+    private static readonly PlanetfallPuzzleGraph Graph = new();
     private static readonly Lazy<string> Knowledge = new(BuildKnowledge);
+    private static readonly PlanetfallGame Game = new();
 
-    public string Docs => Knowledge.Value;
+    public IPuzzleGraph PuzzleGraph => Graph;
+    public IProgressMapper ProgressMapper => Graph; // the graph owns the node definitions, so it maps too
+    public IHintCorpus PuzzleCorpus { get; } = new PlanetfallHintCorpus();
+    public ILoreSource LoreSource { get; } = new PlanetfallLoreSource();
+    public IReadOnlyList<ISoftLockRule> SoftLockRules => PlanetfallHintRules.SoftLocks;
+    public IReadOnlyList<IProactiveRule> ProactiveRules => PlanetfallHintRules.Proactive;
 
     // The game's identity and its decision-critical flags ride on the persona: the hint LLM implementation
-    // is shared by every game, so it can't know either of them (#484). GameName comes off the game itself
-    // rather than a second copy of the string here.
+    // is shared by every game, so it can't know either of them (#484).
     public HintPersona Persona => new(
-        "You are the invisible, incorporeal narrator of the Infocom game Planetfall — dry, lightly " +
-        "sarcastic, in character. Never mention being an AI; never break the fourth wall about 'hints'.",
+        "You are the invisible narrator of the Infocom game Planetfall: dry, warm, a little wry, and quietly on " +
+        "the player's side. Stay in character. Never mention being an AI, a system, or 'hints'. A joke may " +
+        "decorate an answer, but it never replaces one.",
         Game.GameName,
         "what's done, Floyd alive/dead, their health");
 
-    private static readonly PlanetfallGame Game = new();
-
-    public IReadOnlyList<IProactiveRule> ProactiveRules { get; } = new IProactiveRule[]
-    {
-        new TiredRule(), new HungerRule(), new DiseaseRule()
-    };
+    public string Docs => Knowledge.Value;
 
     /// <summary>
-    ///     The player's situation, fed to both tiers. The complete serialized save game is the ground
+    ///     The player's situation for the fallback solver. The complete serialized save game is the ground
     ///     truth — but a raw 100KB JSON buries decision-critical flags, and the model was observed to miss
-    ///     them (e.g. answering as if a dead Floyd were alive). So we lead with a small KEY-STATE highlight
-    ///     of the few flags that change the answer, computed live off the same game objects (not a hand
-    ///     summary that can drift), then attach the full JSON behind it for completeness.
+    ///     them (e.g. answering as if a dead Floyd were alive). So we lead with the KEY-STATE highlight, then
+    ///     attach the full JSON behind it for completeness.
     /// </summary>
-    public string DescribePlayerContext(IContext state) =>
-        DescribeKeyState(state) +
-        "\n\nFULL SERIALIZED SAVE GAME (complete state, authoritative for anything not above):\n" +
-        (state.Engine?.SaveGame() ?? "(unavailable)");
+    public string DescribePlayerContext(IContext state)
+    {
+        return DescribeKeyState(state) +
+               "\n\nFULL SERIALIZED SAVE GAME (complete state, authoritative for anything not above):\n" +
+               (state.Engine?.SaveGame() ?? "(unavailable)");
+    }
 
     public string DescribeKeyState(IContext state)
     {
         // Reads the global Repository singletons. This mirrors the engine's existing model of one game
-        // context per process; the hint path is read-only and adds no new concurrency assumption beyond
-        // what the rest of the engine already relies on.
+        // context per process; the hint path is read-only.
         var floyd = Repository.GetItem<Floyd>();
         var sys = Repository.GetLocation<SystemsMonitors>();
         var sb = new StringBuilder();
@@ -65,7 +65,8 @@ public sealed class PlanetfallHintProvider : IHintProvider
             ? "DEAD — he died at the bio lab. He is GONE and can no longer help with anything; never tell the player to use Floyd."
             : floyd.HasEverBeenOn ? "alive and accompanying the player"
             : "not yet activated")}");
-        sb.AppendLine($"- The Disease cure (laser the microbe): {(Repository.GetItem<Relay>().SpeckDestroyed ? "ALREADY DONE" : "not done")}");
+        sb.AppendLine(
+            $"- The Disease cure (laser the microbe): {(Repository.GetItem<Relay>().SpeckDestroyed ? "ALREADY DONE" : "not done")}");
         sb.AppendLine($"- Planetary systems: communications {(sys.CommunicationsFixed ? "FIXED" : "not fixed")}, " +
                       $"defense {(sys.PlanetaryDefenseFixed ? "FIXED" : "not fixed")}, course {(sys.CourseControlFixed ? "FIXED" : "not fixed")}");
         if (state is PlanetfallContext c)
@@ -73,7 +74,7 @@ public sealed class PlanetfallHintProvider : IHintProvider
         return sb.ToString();
     }
 
-    // -- knowledge bundle: framing preamble + the real source + the real walkthroughs ----------------
+    // -- knowledge bundle for the fallback solver: preamble + the real source + the real walkthrough ---
 
     private const string Preamble =
         "You are reading the COMPLETE C# source of the game Planetfall, plus its end-to-end WALKTHROUGH " +
@@ -122,31 +123,5 @@ public sealed class PlanetfallHintProvider : IHintProvider
         sb.AppendLine("\nPart 2 - THE COMPLETE VERIFIED WALKTHROUGH (the proven solution path, start to finish):\n");
         Append(sb, sources.Where(n => n.EndsWith(walkthrough, StringComparison.Ordinal)));
         return sb.ToString();
-    }
-
-    // -- survival proactive rules (push channel; higher priority = more urgent) ----------------------
-
-    private sealed class TiredRule : IProactiveRule
-    {
-        public ProactiveNudge? Evaluate(IContext s) =>
-            s is PlanetfallContext c && (int)c.Tired >= 1
-                ? new ProactiveNudge("sleep", "You're getting tired — find a safe place to sleep (a dorm bunk).", 3)
-                : null;
-    }
-
-    private sealed class HungerRule : IProactiveRule
-    {
-        public ProactiveNudge? Evaluate(IContext s) =>
-            s is PlanetfallContext c && (int)c.Hunger >= 1
-                ? new ProactiveNudge("hunger", "You're getting hungry and thirsty — find food and water.", 3)
-                : null;
-    }
-
-    private sealed class DiseaseRule : IProactiveRule
-    {
-        public ProactiveNudge? Evaluate(IContext s) =>
-            s is PlanetfallContext c && c.Day >= 4 && !Repository.GetItem<Relay>().SpeckDestroyed
-                ? new ProactiveNudge("disease", "You're getting sicker by the day — the cure is in the lab.", 5)
-                : null;
     }
 }

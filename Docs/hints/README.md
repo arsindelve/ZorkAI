@@ -3,9 +3,17 @@
 Design artifacts for the rebuilt in-engine hint system, covering **both Planetfall and Zork I**
 (GitHub issue #144).
 
-These are **pre-code planning documents**: analysis drafts and design specs produced before any
-implementation, so the build is driven by a verified plan rather than vibes. Nothing here ships in
-the engine yet.
+These began as **pre-code planning documents**: analysis drafts and design specs produced before any
+implementation, so the build is driven by a verified plan rather than vibes.
+
+**Status:** the Planetfall engine is built to this design — `GameEngine/Hints` (the shared engine)
+and `Planetfall/Hints` (the provider: puzzle DAG + progress mapper, the `06` ladders as data, the
+`05` lore digest and the invisiclues tier-gated by progress, soft-lock and survival rules), served by
+`POST /hint` in `Planetfall-Lambda`. The deterministic pipeline is covered by `UnitTests/Hints` and
+`Planetfall.Tests/Hints` (the `04` eval fixtures live in `PlanetfallHintEvalTests`); the live
+OpenAI path is exercised by the `[Explicit]` tests in `PlanetfallHintLiveTests`. See
+[07 § As built](07-common-architecture.md#as-built) for where the implementation departs from the
+sketch, and [00 § 8](00-master-plan.md#8-status) for what remains.
 
 ## Background
 
