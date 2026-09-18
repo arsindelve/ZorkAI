@@ -56,12 +56,13 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
             "continues: true when the message carries on the previous exchange rather than starting a new subject — " +
             "'more', 'another hint', 'I still don't get it', 'just tell me', or an elliptical follow-up like 'how do I " +
             "open it?' whose subject is the last thing discussed. false for a fresh subject.\n" +
-            "topic: for PROGRESS only. The ID of the puzzle the message is about when one on the list clearly fits. " +
-            "\"OTHER\" when they ask about a specific object, place, action or creature that is NOT on the list — a " +
-            "dead end, a red herring, a mechanic, anything the list has no puzzle for. null only when the ask is " +
-            "open-ended ('what now?', 'I'm stuck', 'what should I be doing?'), and always null when continues is " +
-            "true — a continuation names no new subject. Never set a topic for MECHANIC, LORE or OUTOFSCOPE. Never " +
-            "explain; output the JSON only.";
+            "topic: the ID of the puzzle the message is about when one on the list clearly fits — for PROGRESS that " +
+            "is what gets hinted; for MECHANIC and LORE give it too whenever the message names something on the list " +
+            "(a question the story can't answer then falls through to that puzzle). For PROGRESS only, \"OTHER\" when " +
+            "they ask about a specific object, place, action or creature that is NOT on the list — a dead end, a red " +
+            "herring, anything the list has no puzzle for. null when nothing on the list fits, when the ask is " +
+            "open-ended ('what now?', 'I'm stuck', 'what should I be doing?'), and always when continues is true — a " +
+            "continuation names no new subject. Never set a topic for OUTOFSCOPE. Never explain; output the JSON only.";
 
         var catalog = string.Join("\n", topics.Select(t => $"- {t.Id}: {t.Title} ({t.Location})"));
         var user =
@@ -102,15 +103,17 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
                              c.ValueKind == JsonValueKind.String &&
                              string.Equals(c.GetString(), "true", StringComparison.OrdinalIgnoreCase));
 
+            // The topic is kept for lore/mechanic questions too (the fall-through target); "unlisted" —
+            // specific but not on the list — only means something for progress questions.
             string? topic = null;
             var unlisted = false;
-            if (intent == HintIntent.Progress && root.TryGetProperty("topic", out var t) &&
+            if (intent != HintIntent.OutOfScope && root.TryGetProperty("topic", out var t) &&
                 t.ValueKind == JsonValueKind.String)
             {
                 var candidate = t.GetString()!.Trim();
                 topic = topics.FirstOrDefault(x => string.Equals(x.Id, candidate, StringComparison.OrdinalIgnoreCase))
                     ?.Id;
-                unlisted = topic is null && candidate.Length > 0;
+                unlisted = intent == HintIntent.Progress && topic is null && candidate.Length > 0;
             }
 
             return new RoutedIntent(intent, continues, topic, unlisted);
@@ -152,11 +155,12 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
 
         var system = persona.SystemPrompt +
                      " Answer the player's question from the source text and nothing else — but in your own words " +
-                     "and your own voice; never quote or parrot the source. If the source does not answer it, or " +
-                     "says the answer comes later in the story, tell them warmly that they can't know that yet, " +
-                     "and turn them back toward what is in front of them right now. Never invent. Never give puzzle " +
-                     "solutions here; this is about the world and what is happening, not what to type next. Two to " +
-                     "four sentences.";
+                     "and your own voice; never quote or parrot the source. If the source says the answer comes " +
+                     "later in the story, or that they can't know it yet, tell them so warmly and turn them back " +
+                     "toward what is in front of them right now. Never invent. Never give puzzle solutions here; " +
+                     "this is about the world and what is happening, not what to type next. Two to four sentences.\n" +
+                     $"If the source says NOTHING about what they asked — not 'later', simply nothing — reply with " +
+                     $"exactly the single word {HintSignals.NotInSource} and no other text.";
 
         var user =
             $"PLAYER'S SITUATION:\n{keyState}\n\nSOURCE:\n{groundedSource}\n\nCONVERSATION SO FAR:\n" +

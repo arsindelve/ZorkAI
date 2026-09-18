@@ -33,9 +33,12 @@ per-game content we've already drafted (the `01`–`06` docs for [Planetfall](pl
 >   flags the game only sets for an explicit `open`. A locked topic redirects to its nearest open
 >   prerequisite along its own chain, not the globally first open node.
 > - **`ILoreSource` returns text, the engine phrases it.** The provider decides what the player may know
->   (the `05` digest by tier, the invisiclues by area reached) and hands back only that; `AnswerLore`
->   answers from it and nothing else. Mechanic questions use the same source, which includes the live
->   survival condition. There is no separate `IMechanicExplainer`.
+>   (the `05` digest by tier, the invisiclues by area reached, orienting rungs only) and hands back only
+>   that; `AnswerLore` answers from it and nothing else. Mechanic questions use the same source. There is
+>   no separate `IMechanicExplainer`. When the source says *nothing* about the question (a device, a memo
+>   — a question the router misread as lore), `AnswerLore` returns the `NOT_IN_SOURCE` signal and the
+>   engine falls through to the puzzle the router saw in the question, or to the solver — it never
+>   improvises a story.
 > - **LLM-1 is the whole-source solver, and it is the fallback.** `Solve`/`Reveal` over the embedded game
 >   source + walkthrough + the tier-gated invisiclues run only when the chosen topic has no authored
 >   ladder. Red herrings and dead ends are answered this way, from the invisiclues' own negative answers,

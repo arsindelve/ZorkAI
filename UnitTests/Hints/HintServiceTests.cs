@@ -503,6 +503,48 @@ public class HintServiceTests
     }
 
     [Test]
+    public async Task LoreQuestion_TheSourceDoesNotCover_FallsThroughToThePuzzleTheRouterSaw()
+    {
+        // "What does this memo mean?" read as lore; the digest has no memo. The router also noticed which
+        // puzzle the memo belongs to, so that puzzle's rung answers instead of an improvised story.
+        var provider = new FakeProvider()
+            .Add("RIFT", NodeStatus.Available, "cross it")
+            .Add("MEMO", NodeStatus.Available, "the memo is a warning");
+        var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Lore, false, "MEMO"), ForceLore = HintSignals.NotInSource };
+
+        var result = await Service(provider, llm).GetHint(Ask("what does this memo mean?"));
+
+        result.Kind.Should().Be(HintKind.Progress);
+        result.Topic.Should().Be("MEMO");
+        result.Text.Should().Be("the memo is a warning");
+        llm.LastDocs.Should().BeNull();
+    }
+
+    [Test]
+    public async Task MechanicQuestion_TheSourceDoesNotCover_WithNoPuzzleNamed_GoesToTheSolver()
+    {
+        var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Mechanic, false, null), ForceLore = HintSignals.NotInSource, SolveResult = "the cube holds a fused part" };
+
+        var result = await Service(Rift(), llm).GetHint(Ask("what's wrong with the cube?"));
+
+        result.Kind.Should().Be(HintKind.Grounded);
+        result.Text.Should().Be("reveal#0:the cube holds a fused part");
+        llm.LastRung.Should().BeNull(); // not the active blocker's ladder
+    }
+
+    [Test]
+    public async Task LoreQuestion_AnsweredAsLater_IsStillLore_NotAFallThrough()
+    {
+        // "You can't know that yet" is an answer, not a miss.
+        var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Lore, false, "RIFT"), ForceLore = "You can't know that yet." };
+
+        var result = await Service(Rift(), llm).GetHint(Ask("why did the ship blow up?"));
+
+        result.Kind.Should().Be(HintKind.Lore);
+        llm.LastRung.Should().BeNull();
+    }
+
+    [Test]
     public async Task LoreQuestion_WhenTheModelIsSilent_Declines()
     {
         var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Lore, false, null), ForceLore = "" };

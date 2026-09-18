@@ -387,11 +387,16 @@ public class OpenAiHintLanguageModelBehaviorTests
     }
 
     [Test]
-    public void ParseRoute_TopicIsOnlyKeptForProgress()
+    public void ParseRoute_KeepsTheTopicForLoreAndMechanic_AsTheFallThroughTarget()
     {
         var topics = new List<HintTopic> { new("CROSS_RIFT", "Bridge the rift", "Admin") };
 
         OpenAiHintLanguageModel.ParseRoute("{\"intent\":\"MECHANIC\",\"continues\":false,\"topic\":\"CROSS_RIFT\"}", topics)
+            .Should().Be(new RoutedIntent(HintIntent.Mechanic, false, "CROSS_RIFT"));
+        // ...but "unlisted" is a progress-only notion: an unknown topic on a lore question is just no topic.
+        OpenAiHintLanguageModel.ParseRoute("{\"intent\":\"LORE\",\"continues\":false,\"topic\":\"MADE_UP\"}", topics)
+            .Should().Be(new RoutedIntent(HintIntent.Lore, false, null));
+        OpenAiHintLanguageModel.ParseRoute("{\"intent\":\"OUTOFSCOPE\",\"continues\":false,\"topic\":\"CROSS_RIFT\"}", topics)
             !.TopicId.Should().BeNull();
         OpenAiHintLanguageModel.ParseRoute("{\"intent\":\"PROGRESS\",\"continues\":false,\"topic\":\"cross_rift\"}", topics)
             !.TopicId.Should().Be("CROSS_RIFT"); // case-insensitive match, canonical id returned

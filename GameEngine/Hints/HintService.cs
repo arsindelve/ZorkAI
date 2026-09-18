@@ -74,8 +74,8 @@ public sealed class HintService
         return routed.Intent switch
         {
             HintIntent.OutOfScope => new HintResponse(HintKind.Decline, DeclineOutOfScope),
-            HintIntent.Lore => await AnswerFromLore(HintKind.Lore, question, state, progress, keyState, history),
-            HintIntent.Mechanic => await AnswerFromLore(HintKind.Mechanic, question, state, progress, keyState,
+            HintIntent.Lore => await AnswerFromLore(HintKind.Lore, routed, question, state, progress, keyState, history),
+            HintIntent.Mechanic => await AnswerFromLore(HintKind.Mechanic, routed, question, state, progress, keyState,
                 history),
             _ => await AnswerProgress(routed, question, state, progress, keyState, history)
         };
@@ -207,15 +207,25 @@ public sealed class HintService
 
     // ---- lore & mechanic ------------------------------------------------------------------
 
-    private async Task<HintResponse> AnswerFromLore(HintKind kind, string question, IContext state,
-        ProgressState progress, string keyState, IReadOnlyList<HintExchange> history)
+    private async Task<HintResponse> AnswerFromLore(HintKind kind, RoutedIntent routed, string question,
+        IContext state, ProgressState progress, string keyState, IReadOnlyList<HintExchange> history)
     {
         var source = _provider.LoreSource.GroundedText(state, progress);
         var text = await _llm.AnswerLore(question, source, keyState, history, _provider.Persona);
 
-        return string.IsNullOrWhiteSpace(text)
-            ? new HintResponse(HintKind.Decline, DeclineUnavailable)
-            : new HintResponse(kind, text);
+        if (string.IsNullOrWhiteSpace(text))
+            return new HintResponse(HintKind.Decline, DeclineUnavailable);
+
+        // The router read it as a question about the world, but the world has nothing to say: it was a
+        // question about a thing ("what's wrong with the cube?", "what does the memo mean?"). Hint the puzzle
+        // the router saw in it, or let the solver answer from the game itself — never improvise lore.
+        if (text.Trim() == HintSignals.NotInSource)
+        {
+            var asProgress = new RoutedIntent(HintIntent.Progress, false, routed.TopicId, Unlisted: routed.TopicId is null);
+            return await AnswerProgress(asProgress, question, state, progress, keyState, history);
+        }
+
+        return new HintResponse(kind, text);
     }
 
     // ---- fallback: solve over everything ---------------------------------------------------

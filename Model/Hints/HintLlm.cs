@@ -60,13 +60,26 @@ public enum HintIntent
 /// <summary>A puzzle the router may attach a question to (the catalog it chooses from).</summary>
 public sealed record HintTopic(string Id, string Title, string Location);
 
+/// <summary>Fixed replies the seam uses as signals rather than prose.</summary>
+public static class HintSignals
+{
+    /// <summary>
+    ///     <see cref="IHintLanguageModel.AnswerLore" /> returns exactly this when the grounded source says
+    ///     nothing about what was asked — not "that comes later in the story" (which is an answer), but
+    ///     nothing at all. The engine then falls through to the puzzle the question is about, or the solver.
+    /// </summary>
+    public const string NotInSource = "NOT_IN_SOURCE";
+}
+
 /// <summary>
 ///     The router's reading of a message: what kind of question it is, whether it carries on the previous
-///     exchange ("more", "I still don't get it", "how do I open it?"), and — for progress questions about a
-///     specific puzzle — which one. <see cref="TopicId" /> is null for open-ended asks ("what do I do?")
-///     and for <see cref="Unlisted" /> ones: a specific object, place or action the catalog has no puzzle
-///     for (a dead end, a red herring, something the authored ladders don't cover). Those are answered by
-///     the fallback solver over the full docs, never by the active blocker's ladder.
+///     exchange ("more", "I still don't get it", "how do I open it?"), and which puzzle it is about, if the
+///     message names one from the catalog — for progress questions that is the topic to hint; for lore and
+///     mechanic questions it is where to fall through to when the lore source turns out to say nothing.
+///     <see cref="TopicId" /> is null for open-ended asks ("what do I do?") and for <see cref="Unlisted" />
+///     ones: a specific object, place or action the catalog has no puzzle for (a dead end, a red herring,
+///     something the authored ladders don't cover). Those are answered by the fallback solver over the full
+///     docs, never by the active blocker's ladder.
 /// </summary>
 public sealed record RoutedIntent(HintIntent Intent, bool ContinuesThread, string? TopicId, bool Unlisted = false)
 {

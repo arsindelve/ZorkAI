@@ -362,6 +362,22 @@ public class PlanetfallHintEvalTests : EngineTestsBase
     }
 
     [Test]
+    public async Task ADeviceQuestionMisreadAsMechanic_FallsThroughToItsPuzzle()
+    {
+        // "What's wrong with the cube?" is about a device, but the router may call it mechanic. The lore
+        // source has nothing on the cube; the fall-through lands on the cube's own puzzle.
+        Repository.GetItem<Floyd>().HasEverBeenOn = true;
+        Repository.GetLocation<LawandaPlatform>().VisitCount = 1;
+        _llm.ForceLore = HintSignals.NotInSource;
+
+        var result = await Ask("what's wrong with the cube in here?", new RoutedIntent(HintIntent.Mechanic, false, "BEDISTOR_FUSED"));
+
+        result.Kind.Should().Be(HintKind.Progress);
+        result.Topic.Should().Be("BEDISTOR_FUSED");
+        result.Text.Should().Contain("cube");
+    }
+
+    [Test]
     public async Task LoreQuestion_NeverReachesThePuzzleLadderOrTheSolver()
     {
         await Ask("who is Blather?", Lore);
