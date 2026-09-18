@@ -63,9 +63,14 @@ public class OracleShowcase : WalkthroughTestBase
             new[] { "Anything I should do before I get on the shuttle?", More, Tell }),
         new("Crashed the shuttle", "Aboard Alfie, about to set off.", 182,
             new[] { "I crashed the shuttle and died. What did I do wrong?", More, Tell }),
-        new("The little door, without Floyd", "In the Repair Room at the little door — but Floyd was left behind in the Robot Shop, back in Kalamontee.", 215,
+        new("The little door, without Floyd", "In the Repair Room at the little door — but Floyd was switched off and left behind in the Robot Shop, back in Kalamontee.", 215,
             new[] { "There's a tiny door here and I can see something through it. How do I get in?", More, Tell },
-            Twist: () => Repository.GetLocation<RobotShop>().ItemPlacedHere(Repository.GetItem<Floyd>())),
+            Twist: () =>
+            {
+                var floyd = Repository.GetItem<Floyd>();
+                floyd.IsOn = false; // switched off and left: he will not come on his own
+                Repository.GetLocation<RobotShop>().ItemPlacedHere(floyd);
+            }),
         new("Where did everybody go?", "In the Library lobby at Lawanda. Two repairs done; has not yet read the red spool or the printout.", 232,
             new[] { "I don't understand what happened here. Where did everybody go?", More, "Just tell me the story." }),
         new("The infirmary bed", "In Lawanda, after a restart.", 240,

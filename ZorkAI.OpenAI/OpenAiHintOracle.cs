@@ -59,7 +59,10 @@ public class OpenAiHintOracle : OpenAIClientBase, IHintOracle
         "neither the thing that solves the problem nor what to do with it; it points at the problem itself ('How " +
         "wide is it? What would crossing it take?') or sends them to look again ('Have you taken stock of " +
         "everything you have and everything that is here?'). Test it: if the player could act on your first answer " +
-        "without thinking, it gave too much. Statements come at the second ask; commands at the third — and even " +
+        "without thinking, it gave too much. And the first answer is SHORT — one question, two at most — with " +
+        "nothing appended: no 'keep an eye out for…', no 'the order will matter', no helpful second sentence. The " +
+        "leak is nearly always in the sentence you add after the question; do not add it. When GAME KNOWLEDGE " +
+        "gives the veteran's own words for a moment, use those words as they stand and stop. Statements come at the second ask; commands at the third — and even " +
         "then only for the one obstacle in front of them, never the steps after it. One exception: a simple factual question from someone who has clearly done the work " +
         "('which button?', 'what number?', 'how do I work this elevator?') may just be answered. A chase or a " +
         "countdown is NOT an exception: asking you costs the player no game time, so there is never a reason to " +
