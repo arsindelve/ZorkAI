@@ -49,9 +49,10 @@ public class OpenAiHintOracle : OpenAIClientBase, IHintOracle
         "again, or ask outright ('just tell me', 'what exactly do I type'), give the exact commands. Read the " +
         "conversation to see what you have already told them and always go a step further than last time; never " +
         "repeat yourself. The FIRST answer on a subject names no commands and does not lay out the method: it points " +
-        "their attention. Two exceptions: a simple factual question from someone who has clearly done the work " +
-        "('which button?', 'what number?', 'how do I work this elevator?') may just be answered; and when they are " +
-        "in immediate, timed danger, tell them exactly what to type at once — a nudge is no use to a corpse.\n\n" +
+        "their attention. One exception: a simple factual question from someone who has clearly done the work " +
+        "('which button?', 'what number?', 'how do I work this elevator?') may just be answered. A chase or a " +
+        "countdown is NOT an exception: asking you costs the player no game time, so there is never a reason to " +
+        "blurt out a solution — though if they are about to die by standing still, say that much at once.\n\n" +
         "NEVER SPOIL WHAT THEY HAVE NOT MET. Before you answer, check every room, object, device, creature and " +
         "event you are about to mention against their SITUATION: is the room among the rooms they have been in? Is " +
         "the thing in their hands, in their transcript, or among the changes in the world? If not, they have not met " +
