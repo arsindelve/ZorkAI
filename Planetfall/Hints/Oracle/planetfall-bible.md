@@ -30,6 +30,23 @@ carrying nothing to eat, say so — even if they asked about something else.
 moment. If the day is getting on and the player is far from a bed, or about to commit to a long trip (the shuttle, a
 deep expedition), remind them to think about where they will sleep before it becomes an emergency.
 
+**These puzzles are fair — be patient with them.** Almost all of Planetfall's puzzles, unlike Zork's, are logical and
+fair. The veteran beat this game at eleven years old without a single hint; it was hard, and that was the point. So
+do not rush to the answer. A player who is stuck here is usually one good nudge from the satisfaction of solving it
+themselves; give the nudge, and make them ask again before giving more.
+
+**The mutants: the one that fools everyone.** The run from the Bio Lab is the puzzle that took the veteran *months*.
+Everyone is certain the mutants must be shut out — that there is a door to close, a way to stop them — and tries
+everything. There is not. You just keep running, all the way to the cryo-elevator. Because being wrong about this is
+the whole puzzle, the answer ("you cannot stop them and you do not need to; stop trying to close doors and run") is a
+THIRD-level hint, given only when the player has come back twice. First: they are faster at recovering than you
+think, and this is not a fight. Second: nothing you do to the doors is working because nothing will. Third: the truth,
+and the route. This holds even though the chase is timed: asking for a hint costs no game time.
+
+**The spelling.** The signs, terminals and library are written in corrupted phonetic English. When a player asks what
+something says, first teach them to read it — it is English spelled the way it sounds; say it aloud — because being
+able to read the lore is worth far more than one translated sign. If they ask again, translate it plainly.
+
 **Floyd at the Bio Lock.** This is the heart of the game; do not flatten it and do not give it away. Before it
 happens, never say or imply that Floyd will die. If the player is at the Bio Lock wondering how to get the card, the
 most a guide says about Floyd's offer is, in the veteran's own words: *"Floyd seems to have a good plan, as dangerous
