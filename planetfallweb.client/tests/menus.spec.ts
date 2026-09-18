@@ -60,16 +60,16 @@ test.describe('Game Menus', () => {
         await page.locator('[data-testid="about-button"]').click();
 
         // Verify that the About menu appears
-        const aboutMenu = page.locator('#basic-menu');
+        const aboutMenu = page.locator('#about-menu');
         await expect(aboutMenu).toBeVisible();
 
         // Verify that the menu contains expected items
-        const menuItems = page.locator('#basic-menu li');
+        const menuItems = page.locator('#about-menu li');
         await expect(menuItems).toHaveCount(8); // There are 8 menu items in the Planetfall AboutMenu component
 
         // Verify a specific menu item is present
         const whatIsThisGameItem = page.locator(
-            '#basic-menu li:has-text("What is Planetfall.AI?")',
+            '#about-menu li:has-text("What is Planetfall.AI?")',
         );
         await expect(whatIsThisGameItem).toBeVisible();
     });

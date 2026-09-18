@@ -77,8 +77,10 @@ public class HintServiceTests
 
         var result = await Service(new FakeProvider(), llm).GetHint(Req("I'm stuck"));
 
-        // The player gets a clear message, not a blank hint.
+        // The player gets a clear message, not a blank hint — flagged as a non-hint so clients
+        // display it without recording it into the replayed conversation.
         result.Text.Should().Contain("unavailable");
+        result.IsHint.Should().BeFalse();
     }
 
     [Test]

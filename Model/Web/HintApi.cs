@@ -12,4 +12,8 @@ namespace Model.Web;
 public record HintApiRequest(string SessionId, string Question, IReadOnlyList<HintExchange>? History = null);
 
 /// <summary>Response from the hint endpoint. Asking for a hint consumes no turn and mutates no game state.</summary>
-public record HintApiResponse(string Text);
+/// <summary>
+///     IsHint=false marks a non-hint reply (refusal / unavailable): display it, but do NOT append it to
+///     the client-held conversation history — replaying it would pollute the disclosure pacing.
+/// </summary>
+public record HintApiResponse(string Text, bool IsHint = true);
