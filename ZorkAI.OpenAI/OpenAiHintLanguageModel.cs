@@ -7,13 +7,16 @@ namespace ZorkAI.OpenAI;
 
 /// <summary>
 ///     OpenAI implementation of the hint seam (locked build decision §7.1: all-OpenAI). Plain chat
-///     completions. Every call fails safe in the direction that cannot spoil: the router falls back to an
-///     open-ended progress read, the phraser to the authored rung it was handed, and the lore answerer and
-///     the fallback solver/revealer to empty (the engine then declines). Nothing ever returns the raw
-///     solution to the player on error.
+///     completions. Every call fails safe in the direction that cannot spoil: the router returns null (the
+///     engine declines), the phraser falls back to the authored rung it was handed, and the lore answerer
+///     and the fallback solver/revealer return empty (the engine declines). Nothing ever returns the raw
+///     solution to the player on error, and nothing guesses an intent.
 /// </summary>
 public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageModel
 {
+    /// <summary>The router's topic value for "a specific thing that is not on the list".</summary>
+    public const string UnlistedTopic = "OTHER";
+
     // The default; the actual model is the constructor arg, passed to the base as modelOverride so the
     // base Client is built with it directly (no second, unused client).
     protected override string ModelName => "gpt-5.4-mini";
@@ -32,15 +35,15 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
 
     // ---- routing ------------------------------------------------------------------------------
 
-    public async Task<RoutedIntent> Route(string question, IReadOnlyList<HintExchange> history,
+    public async Task<RoutedIntent?> Route(string question, IReadOnlyList<HintExchange> history,
         IReadOnlyList<HintTopic> topics)
     {
-        if (!HasApiKey) return RoutedIntent.OpenEnded;
+        if (!HasApiKey) return null;
 
         const string system =
             "You route a player's message to a text-adventure hint system. Reply with ONLY a JSON object of the form " +
             "{\"intent\": \"PROGRESS\" | \"MECHANIC\" | \"LORE\" | \"OUTOFSCOPE\", \"continues\": true | false, " +
-            "\"topic\": \"<PUZZLE ID>\" | null}.\n" +
+            "\"topic\": \"<PUZZLE ID>\" | \"OTHER\" | null}.\n" +
             "intent: PROGRESS = they want help doing or solving something ('what do I do', 'how do I open the door', " +
             "'is the reactor useful', 'what about the tin can'). " +
             "MECHANIC = they ask why something is happening to THEM or how a rule works ('why am I sick', 'why do I keep " +
@@ -51,8 +54,10 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
             "continues: true when the message carries on the previous exchange rather than starting a new subject — " +
             "'more', 'another hint', 'I still don't get it', 'just tell me', or an elliptical follow-up like 'how do I " +
             "open it?' whose subject is the last thing discussed. false for a fresh subject.\n" +
-            "topic: for PROGRESS only, the ID of the puzzle the message is about, chosen from the list; null when the " +
-            "ask is open-ended ('what now?') or nothing on the list fits. Never set a topic for MECHANIC, LORE or " +
+            "topic: for PROGRESS only. The ID of the puzzle the message is about when one on the list clearly fits. " +
+            "\"OTHER\" when they ask about a specific object, place, action or creature that is NOT on the list — a " +
+            "dead end, a red herring, a mechanic, anything the list has no puzzle for. null only when the ask is " +
+            "open-ended ('what now?', 'I'm stuck', 'what should I be doing?'). Never set a topic for MECHANIC, LORE or " +
             "OUTOFSCOPE. Never explain; output the JSON only.";
 
         var catalog = string.Join("\n", topics.Select(t => $"- {t.Id}: {t.Title} ({t.Location})"));
@@ -60,24 +65,22 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
             $"PUZZLES:\n{catalog}\n\nCONVERSATION SO FAR:\n{HistoryText(history)}\n\nPLAYER NOW SAYS:\n{question}";
 
         var raw = await Complete(system, user, fallback: string.Empty, temperature: 0f);
-        return ParseRoute(raw, topics) ?? RoutedIntent.OpenEnded;
+        return ParseRoute(raw, topics);
     }
 
     /// <summary>
-    ///     Parses the router's JSON. Tolerates chatter around the object. An unknown topic id is dropped
-    ///     rather than trusted. Null when nothing usable came back.
+    ///     Parses the router's JSON (tolerating chatter and code fences around it). A topic that is
+    ///     <see cref="UnlistedTopic" /> or not in the catalog means "specific, but not a puzzle we have" and
+    ///     is reported as <see cref="RoutedIntent.Unlisted" />. Null when nothing usable came back.
     /// </summary>
     public static RoutedIntent? ParseRoute(string raw, IReadOnlyList<HintTopic> topics)
     {
-        if (string.IsNullOrWhiteSpace(raw)) return null;
-
-        var start = raw.IndexOf('{');
-        var end = raw.LastIndexOf('}');
-        if (start < 0 || end <= start) return null;
+        var json = LlmJson.ExtractJsonObject(raw);
+        if (json is null) return null;
 
         try
         {
-            using var doc = JsonDocument.Parse(raw.Substring(start, end - start + 1));
+            using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
             var intentText = root.TryGetProperty("intent", out var i) && i.ValueKind == JsonValueKind.String
@@ -97,15 +100,17 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
                              string.Equals(c.GetString(), "true", StringComparison.OrdinalIgnoreCase));
 
             string? topic = null;
+            var unlisted = false;
             if (intent == HintIntent.Progress && root.TryGetProperty("topic", out var t) &&
                 t.ValueKind == JsonValueKind.String)
             {
                 var candidate = t.GetString()!.Trim();
                 topic = topics.FirstOrDefault(x => string.Equals(x.Id, candidate, StringComparison.OrdinalIgnoreCase))
                     ?.Id;
+                unlisted = topic is null && candidate.Length > 0;
             }
 
-            return new RoutedIntent(intent, continues, topic);
+            return new RoutedIntent(intent, continues, topic, unlisted);
         }
         catch (JsonException)
         {
@@ -122,10 +127,12 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
 
         var system = persona.SystemPrompt +
                      " You are delivering ONE hint. Put it in your own words, in your voice — warmth, a wry aside, a " +
-                     "nod to what the player just said are all welcome — in one to three sentences. But add no new " +
-                     "information: no steps, objects, places, or explanations that the hint itself does not contain. " +
-                     "If the hint is vague, stay exactly as vague. Stay consistent with the player's situation. Never " +
-                     "mention hints, levels, or that you are holding anything back.";
+                     "nod to what the player just said are all welcome — in one to three sentences. Every concrete " +
+                     "thing the hint names (a place, an object, an action, a command) must survive in your version; " +
+                     "never blur a specific hint into a vague one. Add no new information: no steps, objects, places, " +
+                     "or explanations the hint itself does not contain. If the hint is vague, stay exactly as vague. " +
+                     "Stay consistent with the player's situation. Never mention hints, levels, or that you are " +
+                     "holding anything back.";
 
         var user =
             $"PLAYER'S SITUATION:\n{keyState}\n\nHINT CONVERSATION SO FAR:\n{HistoryText(history)}\n\n" +
@@ -189,7 +196,7 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
 
         var user =
             $"KNOWLEDGE BASE:\n{docs}\n\nPLAYER'S CURRENT SITUATION:\n{playerContext}\n\n" +
-            $"CONVERSATION SO FAR:\n{HistoryText(history, "We answered")}\n\nPLAYER NOW ASKS:\n{question}\n\n" +
+            $"CONVERSATION SO FAR:\n{HistoryText(history)}\n\nPLAYER NOW ASKS:\n{question}\n\n" +
             "Work out the complete answer.";
 
         // Low temperature: this is the grounding step, pinned to the provided knowledge.
@@ -225,11 +232,11 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
 
     // ---- plumbing -------------------------------------------------------------------------------
 
-    private static string HistoryText(IReadOnlyList<HintExchange> history, string weSaid = "You revealed")
+    private static string HistoryText(IReadOnlyList<HintExchange> history)
     {
         return history.Count == 0
             ? "(this is their first question)"
-            : string.Join("\n\n", history.Select(h => $"Player asked: {h.Question}\n{weSaid}: {h.Revealed}"));
+            : string.Join("\n\n", history.Select(h => $"Player asked: {h.Question}\nYou answered: {h.Revealed}"));
     }
 
     private async Task<string> Complete(string system, string user, string fallback, float temperature)

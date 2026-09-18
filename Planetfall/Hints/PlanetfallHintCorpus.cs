@@ -193,9 +193,9 @@ internal sealed class PlanetfallHintCorpus : IHintCorpus
         ],
         ["COMPUTER_FIX"] =
         [
-            "The real fault is microscopic — a single damaged microbe in the computer. You have to go in after it.",
-            "Use the miniaturization booth with the mini card, enter the damaged sector, set the laser low, and shoot the speck until it's destroyed; then leave via the auxiliary booth.",
-            "Miniaturization Booth: slide mini card through slot, type 384, set laser to 1, shoot speck with laser (it sizzles), shoot speck with laser (it vaporizes), then west to the Auxiliary Booth."
+            "The real fault is microscopic — a single damaged speck on a relay inside the computer. You have to go in after it, and something in there will not want you to leave.",
+            "Use the miniaturization booth with the mini card, enter sector 384, and destroy the speck on the relay with the laser on its lowest setting. Then a microbe blocks the way out: turn the laser up, keep firing until the microbe is drawn to it, and throw the laser off the strip to take the microbe with it. Leave by the auxiliary booth.",
+            "Miniaturization Booth: slide mini card through slot, type 384, then E, N, N to Strip Near Relay. set laser to 1, shoot speck with laser (it sizzles), shoot speck with laser (it vaporizes). S — a giant microbe lands on the strip: set laser to 2, shoot microbe with laser eight times, throw laser off strip (both plummet into the void), S, then W to the Auxiliary Booth."
         ],
         ["GAS_MASK"] =
         [

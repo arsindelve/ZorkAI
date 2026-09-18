@@ -6,6 +6,8 @@ using Planetfall.Hints;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Lawanda;
+using Planetfall.Location.Shuttle;
+using UnitTests.Hints;
 
 namespace Planetfall.Tests.Hints;
 
@@ -19,14 +21,14 @@ namespace Planetfall.Tests.Hints;
 [TestFixture]
 public class PlanetfallHintEvalTests : EngineTestsBase
 {
-    private RoutingStubLlm _llm = null!;
+    private StubLlm _llm = null!;
     private HintService _service = null!;
 
     [SetUp]
     public void SetUp()
     {
         GetTarget();
-        _llm = new RoutingStubLlm();
+        _llm = new StubLlm();
         _service = new HintService(new PlanetfallHintProvider(), _llm);
     }
 
@@ -34,6 +36,11 @@ public class PlanetfallHintEvalTests : EngineTestsBase
     {
         _llm.Routed = routed;
         return _service.GetHint(new HintRequest("eval", Context, question, history));
+    }
+
+    private static HintExchange Echo(string question, HintResponse response)
+    {
+        return new HintExchange(question, response.Text, response.Topic, response.Rung, response.Kind.ToString());
     }
 
     private static readonly RoutedIntent Lore = new(HintIntent.Lore, false, null);
@@ -80,11 +87,8 @@ public class PlanetfallHintEvalTests : EngineTestsBase
     public async Task More_ClimbsTheEscapePodLadder_ToTheExactCommands()
     {
         var first = await Ask("what do I do?", RoutedIntent.OpenEnded);
-        var second = await Ask("more", RoutedIntent.More,
-            new HintExchange("what do I do?", first.Text, first.Topic, first.Rung));
-        var third = await Ask("just tell me", RoutedIntent.More,
-            new HintExchange("what do I do?", first.Text, first.Topic, first.Rung),
-            new HintExchange("more", second.Text, second.Topic, second.Rung));
+        var second = await Ask("more", RoutedIntent.More, Echo("what do I do?", first));
+        var third = await Ask("just tell me", RoutedIntent.More, Echo("what do I do?", first), Echo("more", second));
 
         first.Rung.Should().Be(0);
         second.Rung.Should().Be(1);
@@ -94,13 +98,29 @@ public class PlanetfallHintEvalTests : EngineTestsBase
     }
 
     [Test]
-    public async Task AskingAboutALaterPuzzle_DoesNotLeakIt()
+    public async Task AskingAboutALaterPuzzle_DoesNotLeakIt_AndPointsAtWhatIsInTheWay()
     {
         var result = await Ask("how do I cure the disease?", new RoutedIntent(HintIntent.Progress, false, "COMPUTER_FIX"));
 
-        result.Topic.Should().Be("ESCAPE_POD");
+        result.Topic.Should().Be("ESCAPE_POD"); // the only open prerequisite from the very start
         result.Text.Should().StartWith(HintService.PrefaceNotYet);
         result.Text.Should().NotContain("microbe").And.NotContain("laser").And.NotContain("384");
+    }
+
+    [Test]
+    public async Task AskingAboutALaterPuzzle_RedirectsAlongItsOwnChain_NotToTheGloballyFirstNode()
+    {
+        // In Lawanda with the comms repair skipped: FLASK is the first open node overall, but the defense
+        // repair needs the fromitz board, and that's what stands in the way.
+        Repository.GetItem<Floyd>().HasEverBeenOn = true;
+        Repository.GetLocation<LawandaPlatform>().VisitCount = 1;
+
+        var result = await Ask("how do I fix the planetary defense?",
+            new RoutedIntent(HintIntent.Progress, false, "DEFENSE_FIX"));
+
+        result.Topic.Should().Be("FROMITZ");
+        result.Text.Should().StartWith(HintService.PrefaceNotYet).And.Contain("replacement part");
+        result.Text.Should().NotContain("fluid"); // not the tower chain
     }
 
     [Test]
@@ -118,6 +138,15 @@ public class PlanetfallHintEvalTests : EngineTestsBase
         }
     }
 
+    [Test]
+    public void TheCureRung_CoversTheWholeVerifiedSequence()
+    {
+        // The walkthrough doesn't end at the speck: a microbe blocks the exit and has to be lured off the strip.
+        new PlanetfallHintProvider().PuzzleCorpus.TryGetLadder("COMPUTER_FIX", out var ladder).Should().BeTrue();
+
+        ladder.Rungs[2].Should().Contain("set laser to 2").And.Contain("throw laser off strip").And.Contain("Auxiliary Booth");
+    }
+
     // ---- F. grounding: the Feinstein explosion ---------------------------------------------------------
 
     [Test]
@@ -132,22 +161,35 @@ public class PlanetfallHintEvalTests : EngineTestsBase
         result.Topic.Should().BeNull();
         var source = _llm.LastLoreSource!;
         source.Should().Contain("not something you can know yet");
-        source.Should().Contain("won't find out until later"); // the invisiclue rung
+        source.Should().Contain("Hyperspatial Jump Machinery"); // the invisiclue's orienting rung
         source.Should().NotContain("shot the Feinstein down");
         source.Should().NotContain("discrimination circuit");
         source.Should().NotContain("why the Feinstein was destroyed"); // the late invisiclue
     }
 
     [Test]
-    public async Task WhyDoesTheShipBlowUp_InLawanda_IsAllowedTheRealAnswer()
+    public async Task WhyDoesTheShipBlowUp_AtTheLibrary_IsAllowedTheRealAnswer()
     {
-        StartHere<Library>(); // the Lawanda half: the library is within reach
+        StartHere<Library>();
 
         await Ask("why does the ship blow up?", Lore);
 
-        var source = _llm.LastLoreSource!;
-        source.Should().Contain("shot the Feinstein down");
-        source.Should().Contain("why the Feinstein was destroyed");
+        _llm.LastLoreSource.Should().Contain("shot the Feinstein down");
+    }
+
+    [Test]
+    public async Task ADeadEndQuestion_GoesToTheSolver_NotTheActiveBlocker()
+    {
+        // "What about the tin can?" has no puzzle node. It must not be answered with the escape pod.
+        _llm.SolveResult = "The tin can can't be opened; there's no can opener in the game.";
+
+        var result = await Ask("what about the tin can?", new RoutedIntent(HintIntent.Progress, false, null, Unlisted: true));
+
+        result.Kind.Should().Be(HintKind.Grounded);
+        result.Text.Should().Contain("can opener");
+        _llm.LastRung.Should().BeNull();
+        _llm.LastDocs.Should().Contain("VERIFIED WALKTHROUGH");
+        _llm.LastSolveContext.Should().Contain("KEY STATE").And.Contain("OFFICIAL HINTS");
     }
 
     [Test]
@@ -156,6 +198,7 @@ public class PlanetfallHintEvalTests : EngineTestsBase
         await Ask("who is Blather?", Lore);
 
         _llm.LastRung.Should().BeNull();
+        _llm.LastDocs.Should().BeNull();
         _llm.LastLoreSource.Should().NotBeNull();
     }
 
@@ -170,6 +213,22 @@ public class PlanetfallHintEvalTests : EngineTestsBase
         _llm.LastLoreSource.Should().NotContain("[TestCase(");
     }
 
+    [Test]
+    public async Task TheLoreSource_WithholdsSolutionRungs()
+    {
+        // The Admin/Mech section is unlocked once landed; its "how do I cross the rift?" answer must arrive
+        // without rung D, which is the solution.
+        Repository.GetItem<Floyd>().HasEverBeenOn = true;
+
+        await Ask("what is this place?", Lore);
+
+        var source = _llm.LastLoreSource!;
+        source.Should().Contain("Jumping is a bad idea.");
+        source.Should().Contain("You'll need an item which you may not have seen yet.");
+        source.Should().NotContain("It's behind the padlocked door.");
+        source.Should().NotContain("Extend the ladder and put it across the rift.");
+    }
+
     // ---- spoiler tiers -------------------------------------------------------------------------------
 
     [Test]
@@ -182,7 +241,10 @@ public class PlanetfallHintEvalTests : EngineTestsBase
         Repository.GetItem<Floyd>().HasEverBeenOn = true; // landed
         PlanetfallLoreSource.TierOf(Context, provider.ProgressMapper.Map(Context)).Should().Be(1);
 
-        StartHere<Library>(); // Lawanda
+        Repository.GetLocation<LawandaPlatform>().VisitCount = 1; // in Lawanda, but not yet at the library
+        PlanetfallLoreSource.TierOf(Context, provider.ProgressMapper.Map(Context)).Should().Be(1);
+
+        StartHere<Library>();
         PlanetfallLoreSource.TierOf(Context, provider.ProgressMapper.Map(Context)).Should().Be(2);
 
         Repository.GetItem<Planetfall.Item.Computer.Relay>().SpeckDestroyed = true; // cured
@@ -206,7 +268,7 @@ public class PlanetfallHintEvalTests : EngineTestsBase
         landed.Should().Contain("## The Admin/Mech Area");
         landed.Should().NotContain("## The Systems and Library Area");
 
-        StartHere<Library>();
+        Repository.GetLocation<LawandaPlatform>().VisitCount = 1;
         var lawanda = provider.LoreSource.GroundedText(Context, provider.ProgressMapper.Map(Context));
         lawanda.Should().Contain("## The Systems and Library Area");
         lawanda.Should().NotContain("## For Your Amusement"); // endgame only
@@ -215,21 +277,22 @@ public class PlanetfallHintEvalTests : EngineTestsBase
     // ---- S. survival --------------------------------------------------------------------------------
 
     [Test]
-    public async Task SickPlayer_MechanicQuestion_SeesTheirCondition()
+    public async Task SickPlayer_MechanicQuestion_SeesTheirCondition_InTheKeyState()
     {
         Context.Day = 4;
+        Context.SicknessCounter = 4;
 
         var result = await Ask("why am I so sick?", new RoutedIntent(HintIntent.Mechanic, false, null));
 
         result.Kind.Should().Be(HintKind.Mechanic);
-        _llm.LastLoreSource.Should().Contain("day 4");
+        _llm.LastKeyState.Should().Contain("Day 4");
         _llm.LastLoreSource.Should().Contain("The Disease");
     }
 
     [Test]
-    public async Task DiseaseLate_ProgressHint_CarriesTheWarning()
+    public async Task DiseaseFarAdvanced_ProgressHint_CarriesTheWarning()
     {
-        Context.Day = 7;
+        Context.SicknessCounter = PlanetfallHintRules.DiseaseWarningLevel;
 
         var result = await Ask("what do I do?", RoutedIntent.OpenEnded);
 

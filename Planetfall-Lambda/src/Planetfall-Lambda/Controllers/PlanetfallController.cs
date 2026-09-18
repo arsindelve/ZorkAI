@@ -50,7 +50,8 @@ public class PlanetfallController(
             request.SessionId, engine.Context!, request.Question, request.History ?? []));
 
         // Deliberately no WriteSession(): hints are read-only and consume no turn.
-        return new HintApiResponse(result.Text, result.Kind.ToString(), result.Topic, result.Rung, result.TotalRungs);
+        return new HintApiResponse(result.Text, result.Kind.ToString(), result.Topic, result.Rung, result.TotalRungs,
+            result.SoftLock.ToString());
     }
 
     [HttpPost]

@@ -35,7 +35,8 @@ public class PlanetfallHintLiveTests : EngineTestsBase
         async Task<string> Ask(string q)
         {
             var r = await _service.GetHint(new HintRequest(session, Context, q, history));
-            history.Add(new HintExchange(q, r.Text));
+            // The client echoes topic/rung/kind: that is what makes the next ask the next rung.
+            history.Add(new HintExchange(q, r.Text, r.Topic, r.Rung, r.Kind.ToString()));
             return r.Text;
         }
 
@@ -79,7 +80,7 @@ public class PlanetfallHintLiveTests : EngineTestsBase
         async Task Ask(string q)
         {
             var r = await _service.GetHint(new HintRequest("live-feinstein", Context, q, history));
-            history.Add(new HintExchange(q, r.Text, r.Topic, r.Rung));
+            history.Add(new HintExchange(q, r.Text, r.Topic, r.Rung, r.Kind.ToString()));
             TestContext.Out.WriteLine($"YOU:   {q}\n       [{r.Kind} topic={r.Topic ?? "-"} rung={r.Rung}/{r.TotalRungs}]\nGUIDE: {r.Text}\n");
             r.Text.Should().NotBeNullOrWhiteSpace();
         }
@@ -93,6 +94,8 @@ public class PlanetfallHintLiveTests : EngineTestsBase
         await Ask("just tell me exactly");
         await Ask("who is Blather?");
         await Ask("how do I fix the planetary defense?");
+        await Ask("what about the tin can?");
+        await Ask("is the reactor important?");
     }
 
     /// <summary>

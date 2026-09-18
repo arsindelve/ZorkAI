@@ -9,13 +9,16 @@ namespace GameEngine.Hints;
 ///
 ///     Per request:
 ///       1. Map live state onto the puzzle DAG (deterministic).
-///       2. Route the message: progress / mechanic / lore / out of scope, plus which puzzle if any.
+///       2. Route the message: progress / mechanic / lore / out of scope, which puzzle if any, and whether
+///          it continues the previous exchange. A continuation is about whatever was last answered — the
+///          history carries each exchange's kind — so "more" after a lore answer stays lore.
 ///       3. Progress: soft-lock check -> pick the topic (asked-about, continued, or the active blocker)
 ///          -> the next rung of its authored ladder, phrased in voice. The model holds only that rung.
+///          A locked topic redirects to the nearest open prerequisite; an exhausted ladder says so.
 ///          Lore / mechanic: answered from the tier-gated source only.
-///          No authored content: fall back to solving over the full docs, paced by the conversation.
-///     Disclosure state rides in the client-replayed history (topic + rung per exchange); there is no
-///     server-side memory, so any container can answer any request.
+///          Anything specific the catalog doesn't cover: the fallback solver over the full docs.
+///     Disclosure state rides in the client-replayed history (kind, topic, rung per exchange); there is
+///     no server-side memory. Every failure declines rather than guessing.
 /// </summary>
 public sealed class HintService
 {
@@ -52,22 +55,27 @@ public sealed class HintService
         var progress = _provider.ProgressMapper.Map(state);
         var keyState = _provider.DescribeKeyState(state);
 
-        // A bare hint request (the Hint button) needs no routing: carry on the current thread if there is
-        // one, otherwise hint the active blocker.
-        var routed = question.Length == 0
-            ? RoutedIntent.More
-            : await _llm.Route(question, history, Topics()) ?? RoutedIntent.OpenEnded;
+        RoutedIntent routed;
+        if (question.Length == 0)
+        {
+            // The Hint button: always a puzzle hint — continue the thread if there is one, else the blocker.
+            routed = RoutedIntent.More;
+        }
+        else
+        {
+            // The model is unavailable or produced nothing usable: decline. Guessing "what do I do?" here
+            // would answer a lore question with the walkthrough's next step, which is the failure this
+            // engine exists to prevent.
+            var read = await _llm.Route(question, history, Topics());
+            if (read is null)
+                return new HintResponse(HintKind.Decline, DeclineUnavailable);
 
-        // "More" after a lore/mechanic answer means more of THAT, not a jump back to the puzzle ladder.
-        // Those answers carry no topic in the history, which is how we can tell — and a continuation
-        // refers to the last thing said whatever puzzle the router guessed from the catalog.
-        if (routed is { Intent: HintIntent.Progress, ContinuesThread: true } &&
-            history.Count > 0 && history[^1].Topic is null && question.Length > 0)
-            routed = new RoutedIntent(HintIntent.Lore, true, null);
+            routed = Continue(read, history);
+        }
 
         return routed.Intent switch
         {
-            HintIntent.OutOfScope => Decline(DeclineOutOfScope),
+            HintIntent.OutOfScope => new HintResponse(HintKind.Decline, DeclineOutOfScope),
             HintIntent.Lore => await AnswerFromLore(HintKind.Lore, question, state, progress, keyState, history),
             HintIntent.Mechanic => await AnswerFromLore(HintKind.Mechanic, question, state, progress, keyState,
                 history),
@@ -86,6 +94,25 @@ public sealed class HintService
             .ToList();
     }
 
+    /// <summary>
+    ///     A continuation ("more", "I still don't get it") is about the last answer, whatever puzzle the
+    ///     router guessed from the catalog. The history says what kind of answer that was.
+    /// </summary>
+    private static RoutedIntent Continue(RoutedIntent routed, IReadOnlyList<HintExchange> history)
+    {
+        if (!routed.ContinuesThread || history.Count == 0)
+            return routed;
+
+        return history[^1].Kind switch
+        {
+            nameof(HintKind.Lore) => new RoutedIntent(HintIntent.Lore, true, null),
+            nameof(HintKind.Mechanic) => new RoutedIntent(HintIntent.Mechanic, true, null),
+            // Carry on the fallback conversation, paced by the longer history.
+            nameof(HintKind.Grounded) => new RoutedIntent(HintIntent.Progress, true, null, Unlisted: true),
+            _ => routed
+        };
+    }
+
     // ---- progress -------------------------------------------------------------------------
 
     private async Task<HintResponse> AnswerProgress(RoutedIntent routed, string question, IContext state,
@@ -93,57 +120,55 @@ public sealed class HintService
     {
         // Soft-lock check. A Hard verdict short-circuits to a "restore" message; a softer verdict becomes
         // a caveat attached to whatever hint follows.
-        var caveat = SoftLockKind.None;
-        string? caveatMessage = null;
-        foreach (var rule in _provider.SoftLockRules)
+        var caveat = SoftLockVerdict.None;
+        foreach (var verdict in _provider.SoftLockRules.Select(r => r.Evaluate(state, progress)))
         {
-            var verdict = rule.Evaluate(state, progress);
             if (verdict.Kind == SoftLockKind.Hard)
-                return new HintResponse(HintKind.SoftLock, verdict.Message ?? string.Empty, null, 0, 0,
-                    SoftLockKind.Hard);
+                return new HintResponse(HintKind.SoftLock, verdict.Message ?? string.Empty, SoftLock: SoftLockKind.Hard);
 
-            if (verdict.Kind != SoftLockKind.None && caveat == SoftLockKind.None)
-            {
-                caveat = verdict.Kind;
-                caveatMessage = verdict.Message;
-            }
+            if (verdict.Kind != SoftLockKind.None && caveat.Kind == SoftLockKind.None)
+                caveat = verdict;
         }
 
-        // Topic: the puzzle they asked about, else the one under discussion, else the active blocker.
+        // Something specific the catalog has no puzzle for — a dead end, a red herring, a mechanic the
+        // ladders don't cover — or a router topic we don't recognise: reason over the full docs instead of
+        // hinting whatever happens to be the active blocker.
         var known = _provider.PuzzleGraph.Nodes.Select(n => n.Id).ToHashSet();
-        var topic = routed.TopicId is not null && known.Contains(routed.TopicId) ? routed.TopicId : null;
-        var askedAbout = topic is not null;
+        if (routed.Unlisted || routed.TopicId is not null && !known.Contains(routed.TopicId))
+            return await Fallback(question, state, progress, keyState, history, caveat);
 
+        // Topic: the puzzle they asked about, else the one under discussion, else the active blocker.
+        var topic = routed.TopicId;
+        var askedAbout = topic is not null;
         if (topic is null && routed.ContinuesThread)
             topic = LastTopic(history);
+
+        var preface = string.Empty;
+        if (topic is not null)
+            switch (progress.StatusOf(topic))
+            {
+                case NodeStatus.Done when askedAbout:
+                    return Decline(DeclineAlreadyDone, caveat);
+                case NodeStatus.Done:
+                    topic = null; // solved since it was last discussed — move on
+                    break;
+                case NodeStatus.Locked when askedAbout:
+                    // Hinting a puzzle they can't reach yet would leak it; say so, and hint what actually
+                    // stands between them and it.
+                    preface = PrefaceNotYet;
+                    topic = FirstOpenPrerequisite(topic, progress);
+                    break;
+                case NodeStatus.Locked:
+                    topic = null; // a continued thread that's no longer reachable (a restore, say)
+                    break;
+            }
 
         topic ??= PickBlocker(progress, state);
         if (topic is null)
             return Decline(DeclineNothingLeft, caveat);
 
-        // Live state is authoritative for "is this still open".
-        var preface = string.Empty;
-        switch (progress.StatusOf(topic))
-        {
-            case NodeStatus.Done when askedAbout:
-                return Decline(DeclineAlreadyDone, caveat);
-            case NodeStatus.Done:
-                topic = PickBlocker(progress, state);
-                if (topic is null)
-                    return Decline(DeclineNothingLeft, caveat);
-                break;
-            case NodeStatus.Locked when askedAbout:
-                // They're asking about something they can't reach yet. Hinting it would leak a future
-                // puzzle; say so and hint what's actually in their way.
-                preface = PrefaceNotYet;
-                topic = PickBlocker(progress, state);
-                if (topic is null)
-                    return Decline(DeclineNothingLeft, caveat);
-                break;
-        }
-
         if (!_provider.PuzzleCorpus.TryGetLadder(topic, out var ladder) || ladder.Rungs.Count == 0)
-            return await Fallback(question, state, progress, keyState, history, caveat, caveatMessage);
+            return await Fallback(question, state, progress, keyState, history, caveat);
 
         // Rung: one past the highest already revealed for this topic; a fresh topic starts at the
         // frustration floor. Clamped, so repeated asks at the end repeat the solution rather than run off.
@@ -152,8 +177,8 @@ public sealed class HintService
             .Select(h => h.Rung!.Value)
             .DefaultIfEmpty(-1)
             .Max();
-        var rung = previous >= 0 ? previous + 1 : FrustrationModel.RungFloor(state);
         var exhausted = previous >= ladder.Rungs.Count - 1;
+        var rung = previous >= 0 ? previous + 1 : FrustrationModel.RungFloor(state, ladder.Rungs.Count);
         rung = Math.Clamp(rung, 0, ladder.Rungs.Count - 1);
 
         var authored = ladder.Rungs[rung];
@@ -165,11 +190,7 @@ public sealed class HintService
         if (exhausted && preface.Length == 0)
             preface = PrefaceExhausted;
 
-        text = preface + text;
-        if (caveatMessage is not null)
-            text = caveatMessage + "\n\n" + text;
-
-        return new HintResponse(HintKind.Progress, text, topic, rung, ladder.Rungs.Count, caveat);
+        return WithCaveat(new HintResponse(HintKind.Progress, preface + text, topic, rung, ladder.Rungs.Count), caveat);
     }
 
     // ---- lore & mechanic ------------------------------------------------------------------
@@ -181,23 +202,23 @@ public sealed class HintService
         var text = await _llm.AnswerLore(question, source, keyState, history, _provider.Persona);
 
         return string.IsNullOrWhiteSpace(text)
-            ? Decline(DeclineUnavailable)
-            : new HintResponse(kind, text, null, 0, 0, SoftLockKind.None);
+            ? new HintResponse(HintKind.Decline, DeclineUnavailable)
+            : new HintResponse(kind, text);
     }
 
     // ---- fallback: solve over everything ---------------------------------------------------
 
     private async Task<HintResponse> Fallback(string question, IContext state, ProgressState progress,
-        string keyState, IReadOnlyList<HintExchange> history, SoftLockKind caveat, string? caveatMessage)
+        string keyState, IReadOnlyList<HintExchange> history, SoftLockVerdict caveat)
     {
-        // The solver gets the full docs plus the invisiclues the player could know, and the complete
-        // situation; the revealer gets only the key state, the solution and the conversation.
-        var docs = _provider.Docs +
-                   "\n\nPart 3 - OFFICIAL HINTS (only those the player could know at this point):\n\n" +
-                   _provider.LoreSource.GroundedText(state, progress);
-        var fullState = _provider.DescribePlayerContext(state);
+        // The solver gets the static docs (passed by reference — it is the whole game source) plus the
+        // player's complete situation with the official hints they could know appended; the revealer gets
+        // only the key state, the solution and the conversation.
+        var situation = _provider.DescribePlayerContext(state) +
+                        "\n\nOFFICIAL HINTS THE PLAYER COULD KNOW AT THIS POINT:\n\n" +
+                        _provider.LoreSource.GroundedText(state, progress);
 
-        var solution = await _llm.Solve(docs, fullState, history, question, _provider.Persona);
+        var solution = await _llm.Solve(_provider.Docs, situation, history, question, _provider.Persona);
         if (string.IsNullOrWhiteSpace(solution))
             return Decline(DeclineUnavailable, caveat);
 
@@ -205,10 +226,7 @@ public sealed class HintService
         if (string.IsNullOrWhiteSpace(revealed))
             return Decline(DeclineUnavailable, caveat);
 
-        if (caveatMessage is not null)
-            revealed = caveatMessage + "\n\n" + revealed;
-
-        return new HintResponse(HintKind.Grounded, revealed, null, 0, 0, caveat);
+        return WithCaveat(new HintResponse(HintKind.Grounded, revealed), caveat);
     }
 
     // ---- helpers ----------------------------------------------------------------------------
@@ -220,9 +238,36 @@ public sealed class HintService
 
     private string? PickBlocker(ProgressState progress, IContext state)
     {
-        return _provider.PuzzleGraph
-            .ActiveBlockers(progress, state)
-            .FirstOrDefault(id => !progress.IsDone(id));
+        return _provider.PuzzleGraph.ActiveBlockers(progress, state).FirstOrDefault();
+    }
+
+    /// <summary>
+    ///     The Available node nearest to a locked one along its prerequisite edges — what the player must
+    ///     actually do next to make the asked-about puzzle reachable. Null if the graph has no answer.
+    /// </summary>
+    private string? FirstOpenPrerequisite(string lockedTopic, ProgressState progress)
+    {
+        var byId = _provider.PuzzleGraph.Nodes.ToDictionary(n => n.Id);
+        var seen = new HashSet<string> { lockedTopic };
+        var queue = new Queue<string>(byId.TryGetValue(lockedTopic, out var start) ? start.Prerequisites : []);
+
+        while (queue.Count > 0)
+        {
+            var id = queue.Dequeue();
+            if (!seen.Add(id)) continue;
+
+            switch (progress.StatusOf(id))
+            {
+                case NodeStatus.Available:
+                    return id;
+                case NodeStatus.Locked when byId.TryGetValue(id, out var node):
+                    foreach (var prerequisite in node.Prerequisites)
+                        queue.Enqueue(prerequisite);
+                    break;
+            }
+        }
+
+        return null;
     }
 
     private static string? LastTopic(IReadOnlyList<HintExchange> history)
@@ -230,8 +275,15 @@ public sealed class HintService
         return history.LastOrDefault(h => h.Topic is not null)?.Topic;
     }
 
-    private static HintResponse Decline(string message, SoftLockKind caveat = SoftLockKind.None)
+    private static HintResponse Decline(string message, SoftLockVerdict caveat)
     {
-        return new HintResponse(HintKind.Decline, message, null, 0, 0, caveat);
+        return new HintResponse(HintKind.Decline, message, SoftLock: caveat.Kind);
+    }
+
+    private static HintResponse WithCaveat(HintResponse response, SoftLockVerdict caveat)
+    {
+        return caveat.Kind == SoftLockKind.None
+            ? response
+            : response with { Text = caveat.Message + "\n\n" + response.Text, SoftLock = caveat.Kind };
     }
 }

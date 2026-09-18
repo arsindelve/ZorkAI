@@ -26,20 +26,18 @@ public enum NodeStatus
     Done
 }
 
-/// <summary>
-///     The game-agnostic reduction of live state: a status per puzzle-DAG node, plus a bag of
-///     game-specific extras (e.g. survival-clock levels).
-/// </summary>
-public sealed record ProgressState(
-    IReadOnlyDictionary<string, NodeStatus> Nodes,
-    IReadOnlyDictionary<string, object> Extras)
+/// <summary>The game-agnostic reduction of live state: a status per puzzle-DAG node.</summary>
+public sealed record ProgressState(IReadOnlyDictionary<string, NodeStatus> Nodes)
 {
     public NodeStatus StatusOf(string nodeId) => Nodes.GetValueOrDefault(nodeId, NodeStatus.Locked);
 
     public bool IsDone(string nodeId) => StatusOf(nodeId) == NodeStatus.Done;
 }
 
-/// <summary>A node in the puzzle dependency graph (DAG).</summary>
+/// <summary>
+///     A node in the puzzle dependency graph (DAG). <see cref="Optional" /> marks a node that serves only an
+///     optional goal (Planetfall's three system repairs), so "what do I do?" prefers the mandatory spine.
+/// </summary>
 public sealed record PuzzleNode(
     string Id,
     string[] Prerequisites,
@@ -52,12 +50,9 @@ public interface IPuzzleGraph
 {
     IReadOnlyCollection<PuzzleNode> Nodes { get; }
 
-    /// <summary>Nodes that are Available (prereqs met) but not Done — the open set.</summary>
-    IReadOnlyCollection<string> OpenSet(ProgressState state);
-
     /// <summary>
-    ///     The node(s) most likely gating the player right now, best-first. May use the live state for
-    ///     location proximity / recent trajectory.
+    ///     The Available nodes most likely gating the player right now, best-first. May use the live
+    ///     state for location proximity / recent trajectory.
     /// </summary>
     IReadOnlyList<string> ActiveBlockers(ProgressState state, IContext liveState);
 }
@@ -137,7 +132,8 @@ public interface IHintProvider
 
     /// <summary>
     ///     Everything the fallback solver may need, as text — for Planetfall the complete game source plus
-    ///     the verified walkthrough. Used only when no authored ladder covers the question.
+    ///     the verified walkthrough. Used only when no authored ladder covers the question. Static: built
+    ///     once and passed by reference.
     /// </summary>
     string Docs { get; }
 
@@ -186,14 +182,14 @@ public sealed record HintRequest(
     string SessionId, IContext StateSnapshot, string Question, IReadOnlyList<HintExchange> History);
 
 /// <summary>
-///     The answer. For a <see cref="HintKind.Progress" /> rung, <see cref="Topic" /> and <see cref="Rung" />
-///     must be echoed back in the next request's history so the ladder resumes; <see cref="TotalRungs" />
-///     lets a UI show "hint 2 of 3".
+///     The answer. <see cref="Kind" />, <see cref="Topic" /> and <see cref="Rung" /> must be echoed back in
+///     the next request's history so the conversation resumes correctly; <see cref="TotalRungs" /> lets a
+///     UI show "hint 2 of 3".
 /// </summary>
 public sealed record HintResponse(
     HintKind Kind,
     string Text,
-    string? Topic,
-    int Rung,
-    int TotalRungs,
-    SoftLockKind SoftLock);
+    string? Topic = null,
+    int Rung = 0,
+    int TotalRungs = 0,
+    SoftLockKind SoftLock = SoftLockKind.None);

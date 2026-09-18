@@ -406,13 +406,28 @@ public class OpenAiHintLanguageModelBehaviorTests
     }
 
     [Test]
-    public async Task Route_WhenProviderFails_FallsBackToOpenEnded()
+    public void ParseRoute_OtherTopic_MeansSpecificButUnlisted()
     {
+        var topics = new List<HintTopic> { new("CROSS_RIFT", "Bridge the rift", "Admin") };
+
+        var other = OpenAiHintLanguageModel.ParseRoute("{\"intent\":\"PROGRESS\",\"continues\":false,\"topic\":\"OTHER\"}", topics);
+        var madeUp = OpenAiHintLanguageModel.ParseRoute("{\"intent\":\"PROGRESS\",\"continues\":false,\"topic\":\"TIN_CAN\"}", topics);
+        var open = OpenAiHintLanguageModel.ParseRoute("{\"intent\":\"PROGRESS\",\"continues\":false,\"topic\":null}", topics);
+
+        other.Should().Be(new RoutedIntent(HintIntent.Progress, false, null, Unlisted: true));
+        madeUp.Should().Be(new RoutedIntent(HintIntent.Progress, false, null, Unlisted: true));
+        open.Should().Be(RoutedIntent.OpenEnded);
+    }
+
+    [Test]
+    public async Task Route_WhenProviderFails_ReturnsNull_SoTheEngineDeclines()
+    {
+        // Guessing "what do I do?" here would answer a lore question with the walkthrough's next step.
         var target = new OpenAiHintLanguageModel(Mock.Of<ILogger>(), Failing().Object);
 
         var result = await target.Route("anything", [], []);
 
-        result.Should().Be(RoutedIntent.OpenEnded);
+        result.Should().BeNull();
     }
 
     private static Mock<IChatCompletionClient> Failing()

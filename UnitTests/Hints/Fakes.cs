@@ -5,13 +5,15 @@ using Model.Interface;
 namespace UnitTests.Hints;
 
 /// <summary>
-///     Deterministic stub LLM. Routes however the test says, and echoes what it is handed — the rung, the
-///     grounded source, the solution — so a test can assert exactly what reached the model and what came
-///     back. Records every input.
+///     Deterministic stub LLM, shared with Planetfall.Tests. Routes however the test says, and echoes what
+///     it is handed — the rung, the grounded source, the solution — so a test can assert exactly what
+///     reached the model and what came back. Records every input.
 /// </summary>
-internal sealed class StubLlm : IHintLanguageModel
+public sealed class StubLlm : IHintLanguageModel
 {
-    public RoutedIntent Routed { get; set; } = RoutedIntent.OpenEnded;
+    /// <summary>What Route returns; null simulates an unavailable router.</summary>
+    public RoutedIntent? Routed { get; set; } = RoutedIntent.OpenEnded;
+
     public string SolveResult { get; set; } = "THE COMPLETE SOLUTION";
 
     /// <summary>When set, returned instead of the echo — "" simulates a degraded/unavailable model.</summary>
@@ -26,7 +28,7 @@ internal sealed class StubLlm : IHintLanguageModel
     public string? LastRung, LastKeyState, LastLoreSource, LastDocs, LastSolveContext, LastRevealContext, LastSolution;
     public IReadOnlyList<HintExchange> LastHistory = new List<HintExchange>();
 
-    public Task<RoutedIntent> Route(string question, IReadOnlyList<HintExchange> history,
+    public Task<RoutedIntent?> Route(string question, IReadOnlyList<HintExchange> history,
         IReadOnlyList<HintTopic> topics)
     {
         RouteCalls++;
@@ -77,7 +79,7 @@ internal sealed class StubLlm : IHintLanguageModel
 /// <summary>A configurable in-memory provider for engine tests.</summary>
 internal sealed class FakeProvider : IHintProvider
 {
-    private readonly List<string> _order = new();
+    private readonly List<PuzzleNode> _nodes = new();
     private readonly Dictionary<string, NodeStatus> _statuses = new();
     private readonly Dictionary<string, RungLadder> _ladders = new();
 
@@ -88,7 +90,7 @@ internal sealed class FakeProvider : IHintProvider
     public string PlayerContext { get; set; } = "FULL CONTEXT";
     public string KeyState { get; set; } = "KEYSTATE";
 
-    public IPuzzleGraph PuzzleGraph => new FakeGraph(_order, _statuses);
+    public IPuzzleGraph PuzzleGraph => new FakeGraph(_nodes, _statuses);
     public IProgressMapper ProgressMapper => new FakeMapper(_statuses);
     public IHintCorpus PuzzleCorpus => new FakeCorpus(_ladders);
     public ILoreSource LoreSource => new FakeLore(LoreText);
@@ -101,7 +103,13 @@ internal sealed class FakeProvider : IHintProvider
 
     public FakeProvider Add(string id, NodeStatus status, params string[] rungs)
     {
-        _order.Add(id);
+        return AddWithPrerequisites(id, status, Array.Empty<string>(), rungs);
+    }
+
+    public FakeProvider AddWithPrerequisites(string id, NodeStatus status, string[] prerequisites,
+        params string[] rungs)
+    {
+        _nodes.Add(new PuzzleNode(id, prerequisites, false, "Puzzle " + id, "Somewhere"));
         _statuses[id] = status;
         if (rungs.Length > 0) _ladders[id] = new RungLadder(id, rungs);
         return this;
@@ -113,22 +121,17 @@ internal sealed class FakeProvider : IHintProvider
     }
 }
 
-internal sealed class FakeGraph(List<string> order, Dictionary<string, NodeStatus> statuses) : IPuzzleGraph
+internal sealed class FakeGraph(List<PuzzleNode> nodes, Dictionary<string, NodeStatus> statuses) : IPuzzleGraph
 {
-    public IReadOnlyCollection<PuzzleNode> Nodes =>
-        order.Select(id => new PuzzleNode(id, Array.Empty<string>(), false, "Puzzle " + id, "Somewhere")).ToList();
-
-    public IReadOnlyCollection<string> OpenSet(ProgressState state) =>
-        order.Where(id => state.StatusOf(id) == NodeStatus.Available).ToList();
+    public IReadOnlyCollection<PuzzleNode> Nodes => nodes;
 
     public IReadOnlyList<string> ActiveBlockers(ProgressState state, IContext liveState) =>
-        order.Where(id => state.StatusOf(id) == NodeStatus.Available).ToList();
+        nodes.Select(n => n.Id).Where(id => state.StatusOf(id) == NodeStatus.Available).ToList();
 }
 
 internal sealed class FakeMapper(Dictionary<string, NodeStatus> statuses) : IProgressMapper
 {
-    public ProgressState Map(IContext liveState) =>
-        new(new Dictionary<string, NodeStatus>(statuses), new Dictionary<string, object>());
+    public ProgressState Map(IContext liveState) => new(new Dictionary<string, NodeStatus>(statuses));
 }
 
 internal sealed class FakeCorpus(Dictionary<string, RungLadder> ladders) : IHintCorpus

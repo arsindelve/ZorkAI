@@ -43,8 +43,10 @@
       bundle, so excluding it would change the baseline in the other direction.
     -->
     <ItemGroup>
+        <!-- Hints/ is excluded too: it is the hint plumbing, not game knowledge — and it holds the tiered lore
+             digest and every solution rung, which would otherwise reach the fallback solver untiered. -->
         <EmbeddedResource Include="**/*.cs"
-                          Exclude="obj/**;bin/**;AI/**;Item/Feinstein/AmbassadorPrompts.cs;Item/Feinstein/BlatherPrompts.cs" />
+                          Exclude="obj/**;bin/**;AI/**;Hints/**;Item/Feinstein/AmbassadorPrompts.cs;Item/Feinstein/BlatherPrompts.cs" />
         <!-- Survival and time mechanics moved to the shared StellarPatrol library; the hint
              bundle still needs them, or it loses knowledge of hunger, fatigue and the clock. -->
         <EmbeddedResource Include="../StellarPatrol/**/*.cs" Exclude="../StellarPatrol/obj/**;../StellarPatrol/bin/**">

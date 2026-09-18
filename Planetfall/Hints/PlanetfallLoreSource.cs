@@ -1,18 +1,19 @@
-using System.Reflection;
 using System.Text;
 using GameEngine;
 using GameEngine.Hints;
 using Model.Interface;
-using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.Library.Computer;
+using Planetfall.Location.Lawanda;
 
 namespace Planetfall.Hints;
 
 /// <summary>
 ///     Planetfall's lore source: the backstory digest from Docs/hints/planetfall/05, tiered by what the
 ///     player has discovered, plus the official invisiclues — section by section, unlocked as the player
-///     reaches each area of the game. The model answering a lore question receives only this text, so a
-///     fact from a later tier or a later area is not in its hands to reveal.
+///     reaches each area of the game, and only the first two rungs of each answer (the orienting ones;
+///     the solutions belong to the authored ladders). The model answering a lore question receives only
+///     this text, so a fact from a later tier, a later area, or a solution rung is not in its hands to
+///     reveal. The player's live condition is not repeated here: the engine passes the key state alongside.
 /// </summary>
 internal sealed class PlanetfallLoreSource : ILoreSource
 {
@@ -65,6 +66,9 @@ internal sealed class PlanetfallLoreSource : ILoreSource
 
     private static readonly Lazy<IReadOnlyList<(string Header, string Body)>> Invisiclues = new(LoadInvisiclues);
 
+    /// <summary>The rungs of each invisiclue answer that lore may draw on. The rest are solutions.</summary>
+    private const int LoreRungsPerAnswer = 2;
+
     /// <summary>
     ///     Section header prefix -> the DAG node the player must have completed to see it. Null means always
     ///     available. Sections not listed ("Sample Question", "How to Get All 80 Points") are never shown.
@@ -98,7 +102,6 @@ internal sealed class PlanetfallLoreSource : ILoreSource
         sb.AppendLine();
         sb.AppendLine("HOW THE GAME TREATS THE PLAYER:");
         sb.AppendLine(Mechanics);
-        sb.AppendLine(Condition(liveState));
 
         var sections = Invisiclues.Value
             .Where(s => SectionGates.Any(g =>
@@ -109,58 +112,57 @@ internal sealed class PlanetfallLoreSource : ILoreSource
         if (sections.Count > 0)
         {
             sb.AppendLine();
-            sb.AppendLine("OFFICIAL HINTS FOR THE AREAS REACHED SO FAR (each answer's rungs go from vague to specific):");
+            sb.AppendLine("OFFICIAL HINTS FOR THE AREAS REACHED SO FAR (only the orienting answers; the solutions are withheld):");
             foreach (var (header, body) in sections)
             {
                 sb.AppendLine();
                 sb.AppendLine("## " + header);
-                sb.AppendLine(body.Trim());
+                sb.AppendLine(WithoutSolutionRungs(body));
             }
         }
 
         return sb.ToString().Trim();
     }
 
-    /// <summary>0 observable · 1 environmental (landed) · 2 investigated (the library) · 3 endgame (cured).</summary>
+    /// <summary>
+    ///     0 observable · 1 environmental (landed) · 2 investigated (reached the library) · 3 endgame (cured).
+    /// </summary>
     internal static int TierOf(IContext liveState, ProgressState progress)
     {
         if (progress.IsDone("COMPUTER_FIX")) return 3;
-        if (progress.IsDone("SHUTTLE") || LibraryUsed()) return 2;
+        if (LibraryReached(liveState)) return 2;
         if (progress.IsDone("LAND")) return 1;
         return 0;
     }
 
-    private static bool LibraryUsed()
+    private static bool LibraryReached(IContext state)
     {
-        try
-        {
-            return Repository.GetItem<ComputerTerminal>().IsOn;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
+        return state.CurrentLocation is Library ||
+               Repository.GetLocation<Library>().VisitCount > 0 ||
+               Repository.GetItem<ComputerTerminal>().IsOn;
     }
 
-    private static string Condition(IContext state)
+    /// <summary>Keeps the first <see cref="LoreRungsPerAnswer" /> rungs (A, B) of each answer; drops C onward.</summary>
+    internal static string WithoutSolutionRungs(string body)
     {
-        var sb = new StringBuilder();
-        if (state is PlanetfallContext c)
-            sb.Append($"Current condition: day {c.Day}; health: {c.SicknessDescription}; hunger: {c.Hunger}; tired: {c.Tired}. ");
-
-        try
+        var kept = new List<string>();
+        var rung = 0;
+        foreach (var line in body.Split('\n'))
         {
-            var floyd = Repository.GetItem<Floyd>();
-            sb.Append(floyd.HasDied ? "Floyd is dead."
-                : floyd.HasEverBeenOn ? "Floyd is awake and with the player."
-                : "Floyd has not been activated.");
-        }
-        catch (Exception)
-        {
-            // No Floyd in this harness — nothing to report.
+            var trimmed = line.TrimEnd('\r');
+            if (trimmed.StartsWith("**Q:", StringComparison.Ordinal))
+                rung = 0;
+
+            if (trimmed.StartsWith("- ", StringComparison.Ordinal) && trimmed.Length > 4 && trimmed[3] == ':')
+            {
+                rung++;
+                if (rung > LoreRungsPerAnswer) continue;
+            }
+
+            kept.Add(trimmed);
         }
 
-        return sb.ToString().Trim();
+        return string.Join("\n", kept).Trim();
     }
 
     private static IReadOnlyList<(string Header, string Body)> LoadInvisiclues()

@@ -40,10 +40,12 @@ public class PlanetfallHintDemo : EngineTestsBase
             var svc = Service();
             var sess = label;
             var i = 1;
+            var history = new List<HintExchange>();
             foreach (var q in asks)
             {
-                var r = await svc.GetHint(new HintRequest(sess, Context, q, []));
-                TestContext.Out.WriteLine($"[ask {i++}] Q: {q}\n        {r.Text}");
+                var r = await svc.GetHint(new HintRequest(sess, Context, q, history));
+                history.Add(new HintExchange(q, r.Text, r.Topic, r.Rung, r.Kind.ToString()));
+                TestContext.Out.WriteLine($"[ask {i++}] Q: {q}\n        [{r.Kind} {r.Topic} {r.Rung}/{r.TotalRungs}]\n        {r.Text}");
             }
         }
     }

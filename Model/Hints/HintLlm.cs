@@ -28,11 +28,18 @@ public sealed record HintPersona(
 
 /// <summary>
 ///     One turn of the hint conversation — what the player asked and what was revealed back. The client
-///     replays these on every request. <see cref="Topic" /> and <see cref="Rung" /> are what the engine
-///     returned for that turn; echoing them back is how a ladder resumes where it left off without any
-///     server-side memory. Both are null for answers that were not a rung of a ladder.
+///     replays these on every request, echoing the <see cref="Topic" />, <see cref="Rung" /> and
+///     <see cref="Kind" /> the engine returned for that turn. That is how a ladder resumes where it left
+///     off, and how "more" knows whether it is continuing a puzzle hint, a lore answer, or a fallback
+///     conversation — without any server-side memory. All three are null for exchanges recorded before
+///     they existed; the engine then trusts the router's reading of the message.
 /// </summary>
-public sealed record HintExchange(string Question, string Revealed, string? Topic = null, int? Rung = null);
+public sealed record HintExchange(
+    string Question,
+    string Revealed,
+    string? Topic = null,
+    int? Rung = null,
+    string? Kind = null);
 
 /// <summary>How a free-text player message is routed by the hint engine.</summary>
 public enum HintIntent
@@ -56,9 +63,12 @@ public sealed record HintTopic(string Id, string Title, string Location);
 /// <summary>
 ///     The router's reading of a message: what kind of question it is, whether it carries on the previous
 ///     exchange ("more", "I still don't get it", "how do I open it?"), and — for progress questions about a
-///     specific puzzle — which one. <see cref="TopicId" /> is null for open-ended asks ("what do I do?").
+///     specific puzzle — which one. <see cref="TopicId" /> is null for open-ended asks ("what do I do?")
+///     and for <see cref="Unlisted" /> ones: a specific object, place or action the catalog has no puzzle
+///     for (a dead end, a red herring, something the authored ladders don't cover). Those are answered by
+///     the fallback solver over the full docs, never by the active blocker's ladder.
 /// </summary>
-public sealed record RoutedIntent(HintIntent Intent, bool ContinuesThread, string? TopicId)
+public sealed record RoutedIntent(HintIntent Intent, bool ContinuesThread, string? TopicId, bool Unlisted = false)
 {
     /// <summary>"What do I do?" — progress, fresh, no particular puzzle.</summary>
     public static readonly RoutedIntent OpenEnded = new(HintIntent.Progress, false, null);
@@ -69,13 +79,18 @@ public sealed record RoutedIntent(HintIntent Intent, bool ContinuesThread, strin
 
 /// <summary>
 ///     The language-model seam. Every call is bounded by what it is handed: the phraser only ever holds
-///     one rung, the lore answerer only the tier-gated source. Implemented over OpenAI; stubbed
-///     deterministically in tests.
+///     one rung, the lore answerer only the tier-gated source. Every call fails in the direction that
+///     cannot spoil: the router and the lore/solve/reveal calls return null/empty when the model is
+///     unavailable (the engine declines); the phraser returns the authored rung it was handed.
+///     Implemented over OpenAI; stubbed deterministically in tests.
 /// </summary>
 public interface IHintLanguageModel
 {
-    /// <summary>Classify a player message and, for progress questions, pick the puzzle it is about.</summary>
-    Task<RoutedIntent> Route(string question, IReadOnlyList<HintExchange> history, IReadOnlyList<HintTopic> topics);
+    /// <summary>
+    ///     Classify a player message and, for progress questions, pick the puzzle it is about. Null when the
+    ///     model is unavailable or produced nothing usable — the engine must then decline rather than guess.
+    /// </summary>
+    Task<RoutedIntent?> Route(string question, IReadOnlyList<HintExchange> history, IReadOnlyList<HintTopic> topics);
 
     /// <summary>
     ///     Deliver a single authored hint rung in the persona's voice. The model holds nothing but this rung

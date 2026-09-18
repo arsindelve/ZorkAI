@@ -41,6 +41,11 @@ public class HintServiceTests
         return FakeProvider.WithOpenPuzzle("RIFT", "A nudge", "B approach", "C solution");
     }
 
+    private static HintExchange Rung(string topic, int rung, string text = "…")
+    {
+        return new HintExchange("?", text, topic, rung, nameof(HintKind.Progress));
+    }
+
     // ---- progress: the ladder ---------------------------------------------------------------
 
     [Test]
@@ -62,17 +67,14 @@ public class HintServiceTests
     {
         var service = Service(Rift(), new StubLlm { Routed = RoutedIntent.More });
 
-        var second = await service.GetHint(Ask("more", new HintExchange("?", "A nudge", "RIFT", 0)));
+        var second = await service.GetHint(Ask("more", Rung("RIFT", 0)));
         second.Rung.Should().Be(1);
         second.Text.Should().Be("B approach");
 
-        var third = await service.GetHint(Ask("more", new HintExchange("?", "A nudge", "RIFT", 0),
-            new HintExchange("more", "B approach", "RIFT", 1)));
+        var third = await service.GetHint(Ask("more", Rung("RIFT", 0), Rung("RIFT", 1)));
         third.Text.Should().Be("C solution");
 
-        // Already at the last rung — clamps rather than running off the end.
-        var again = await service.GetHint(Ask("more", new HintExchange("?", "A nudge", "RIFT", 0),
-            new HintExchange("more", "B approach", "RIFT", 1), new HintExchange("more", "C solution", "RIFT", 2)));
+        var again = await service.GetHint(Ask("more", Rung("RIFT", 0), Rung("RIFT", 1), Rung("RIFT", 2)));
         again.Rung.Should().Be(2);
     }
 
@@ -81,53 +83,10 @@ public class HintServiceTests
     {
         var service = Service(Rift(), new StubLlm { Routed = RoutedIntent.More });
 
-        var result = await service.GetHint(Ask("more", new HintExchange("?", "A nudge", "RIFT", 0),
-            new HintExchange("more", "B approach", "RIFT", 1), new HintExchange("more", "C solution", "RIFT", 2)));
+        var result = await service.GetHint(Ask("more", Rung("RIFT", 0), Rung("RIFT", 1), Rung("RIFT", 2)));
 
         result.Rung.Should().Be(2);
         result.Text.Should().Be(HintService.PrefaceExhausted + "C solution");
-    }
-
-    [Test]
-    public async Task MoreAfterALoreAnswer_ContinuesTheLore_NotThePuzzleLadder()
-    {
-        // The router reads a bare "more" as progress/continue; the history shows the last answer was
-        // lore (no topic), so "more" means more lore.
-        var provider = Rift();
-        provider.LoreText = "THE SOURCE";
-        // Even when the router guesses a puzzle from the catalog, a continuation is about the last answer.
-        var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Progress, true, "RIFT") };
-
-        var result = await Service(provider, llm).GetHint(Ask("more",
-            new HintExchange("?", "A nudge", "RIFT", 0),
-            new HintExchange("why did the ship blow up?", "You can't know yet.")));
-
-        result.Kind.Should().Be(HintKind.Lore);
-        llm.LastLoreSource.Should().Be("THE SOURCE");
-        llm.LastRung.Should().BeNull();
-    }
-
-    [Test]
-    public async Task AFreshPuzzleQuestion_AfterALoreAnswer_IsStillAPuzzleHint()
-    {
-        var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Progress, false, "RIFT") };
-
-        var result = await Service(Rift(), llm).GetHint(Ask("ok so how do I cross the rift?",
-            new HintExchange("why did the ship blow up?", "You can't know yet.")));
-
-        result.Kind.Should().Be(HintKind.Progress);
-        result.Topic.Should().Be("RIFT");
-    }
-
-    [Test]
-    public async Task BareHintButton_AfterALoreAnswer_StillHintsThePuzzle()
-    {
-        // The Hint button (empty question) is always a puzzle hint, whatever was last discussed.
-        var result = await Service(Rift(), new StubLlm()).GetHint(Ask("",
-            new HintExchange("why did the ship blow up?", "You can't know yet.")));
-
-        result.Kind.Should().Be(HintKind.Progress);
-        result.Topic.Should().Be("RIFT");
     }
 
     [Test]
@@ -136,8 +95,7 @@ public class HintServiceTests
         // Asking about the rift again, even without saying "more", means they want more.
         var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Progress, false, "RIFT") };
 
-        var result = await Service(Rift(), llm)
-            .GetHint(Ask("how do I cross the rift?", new HintExchange("rift?", "A nudge", "RIFT", 0)));
+        var result = await Service(Rift(), llm).GetHint(Ask("how do I cross the rift?", Rung("RIFT", 0)));
 
         result.Rung.Should().Be(1);
     }
@@ -150,7 +108,7 @@ public class HintServiceTests
             .Add("RIFT", NodeStatus.Available, "A nudge", "B approach");
         var llm = new StubLlm { Routed = RoutedIntent.More };
 
-        var result = await Service(provider, llm).GetHint(Ask("more", new HintExchange("rift?", "A nudge", "RIFT", 0)));
+        var result = await Service(provider, llm).GetHint(Ask("more", Rung("RIFT", 0)));
 
         // Not FLOYD (the first open node) — the thread in play was RIFT.
         result.Topic.Should().Be("RIFT");
@@ -160,12 +118,23 @@ public class HintServiceTests
     [Test]
     public async Task BareHintRequest_SkipsRouting_AndContinuesTheThread()
     {
-        var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.OutOfScope, false, null) };
+        var llm = new StubLlm { Routed = null }; // an unavailable router must not matter
 
-        var result = await Service(Rift(), llm).GetHint(Ask("", new HintExchange("rift?", "A nudge", "RIFT", 0)));
+        var result = await Service(Rift(), llm).GetHint(Ask("", Rung("RIFT", 0)));
 
         llm.RouteCalls.Should().Be(0);
         result.Text.Should().Be("B approach");
+    }
+
+    [Test]
+    public async Task BareHintButton_AfterALoreAnswer_StillHintsThePuzzle()
+    {
+        // The Hint button (empty question) is always a puzzle hint, whatever was last discussed.
+        var result = await Service(Rift(), new StubLlm()).GetHint(Ask("",
+            new HintExchange("why did the ship blow up?", "You can't know yet.", Kind: nameof(HintKind.Lore))));
+
+        result.Kind.Should().Be(HintKind.Progress);
+        result.Topic.Should().Be("RIFT");
     }
 
     [Test]
@@ -183,16 +152,6 @@ public class HintServiceTests
     }
 
     [Test]
-    public async Task UnknownTopicFromTheRouter_IsIgnored()
-    {
-        var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Progress, false, "NOT_A_NODE") };
-
-        var result = await Service(Rift(), llm).GetHint(Ask("how do I fly?"));
-
-        result.Topic.Should().Be("RIFT");
-    }
-
-    [Test]
     public async Task ExplicitTopicAlreadyDone_Declines()
     {
         var provider = new FakeProvider()
@@ -207,30 +166,62 @@ public class HintServiceTests
     }
 
     [Test]
-    public async Task ExplicitTopicNotYetReachable_RedirectsToTheBlocker_WithoutLeakingIt()
+    public async Task ExplicitTopicNotYetReachable_RedirectsToItsNearestOpenPrerequisite()
+    {
+        // FLASK is the first open node overall, but it has nothing to do with the cure. The cure needs the
+        // laser; the laser is what they can actually do next.
+        var provider = new FakeProvider()
+            .Add("FLASK", NodeStatus.Available, "get the flask")
+            .AddWithPrerequisites("LASER", NodeStatus.Available, ["SHUTTLE"], "arm the laser")
+            .AddWithPrerequisites("CURE", NodeStatus.Locked, ["LASER", "MINI_CARD"], "laser the microbe")
+            .AddWithPrerequisites("MINI_CARD", NodeStatus.Locked, ["BIOLOCK"], "take the card");
+        var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Progress, false, "CURE") };
+
+        var result = await Service(provider, llm).GetHint(Ask("how do I cure the disease?"));
+
+        result.Topic.Should().Be("LASER");
+        result.Text.Should().Be(HintService.PrefaceNotYet + "arm the laser");
+        result.Text.Should().NotContain("microbe");
+    }
+
+    [Test]
+    public async Task ExplicitTopicNotYetReachable_WithNoOpenPrerequisite_FallsBackToTheBlocker()
     {
         var provider = new FakeProvider()
             .Add("RIFT", NodeStatus.Available, "cross it")
-            .Add("CURE", NodeStatus.Locked, "laser the microbe");
+            .Add("CURE", NodeStatus.Locked, "laser the microbe"); // no prerequisite edges declared
         var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Progress, false, "CURE") };
 
         var result = await Service(provider, llm).GetHint(Ask("how do I cure the disease?"));
 
         result.Topic.Should().Be("RIFT");
         result.Text.Should().StartWith(HintService.PrefaceNotYet).And.EndWith("cross it");
-        result.Text.Should().NotContain("microbe");
+    }
+
+    [Test]
+    public async Task ContinuedThreadNowLocked_MovesOnToTheBlocker_WithoutLeakingIt()
+    {
+        // They were being hinted on RIFT, then restored an earlier save; the client-held history survives.
+        var provider = new FakeProvider()
+            .Add("MAGNET", NodeStatus.Available, "get the magnet")
+            .Add("RIFT", NodeStatus.Locked, "A nudge", "B approach", "C solution");
+        var llm = new StubLlm { Routed = RoutedIntent.More };
+
+        var result = await Service(provider, llm).GetHint(Ask("more", Rung("RIFT", 1)));
+
+        result.Topic.Should().Be("MAGNET");
+        result.Text.Should().Be("get the magnet");
     }
 
     [Test]
     public async Task SolvedThread_IsDropped_AndTheNextBlockerPicked()
     {
-        // They were being hinted on RIFT, then solved it; "more" must move on, not repeat a done puzzle.
         var provider = new FakeProvider()
             .Add("RIFT", NodeStatus.Done, "rift hint")
             .Add("TOWER", NodeStatus.Available, "tower hint");
         var llm = new StubLlm { Routed = RoutedIntent.More };
 
-        var result = await Service(provider, llm).GetHint(Ask("more", new HintExchange("?", "rift hint", "RIFT", 0)));
+        var result = await Service(provider, llm).GetHint(Ask("more", Rung("RIFT", 0)));
 
         result.Topic.Should().Be("TOWER");
         result.Rung.Should().Be(0);
@@ -248,25 +239,122 @@ public class HintServiceTests
         result.Text.Should().Be(HintService.DeclineNothingLeft);
     }
 
+    // ---- unlisted topics: the fallback -------------------------------------------------------
+
+    [Test]
+    public async Task UnlistedTopic_IsSolvedOverTheDocs_NotHintedAsTheBlocker()
+    {
+        var provider = Rift();
+        var llm = new StubLlm
+        {
+            Routed = new RoutedIntent(HintIntent.Progress, false, null, Unlisted: true),
+            SolveResult = "The tin can is a dead end."
+        };
+
+        var result = await Service(provider, llm).GetHint(Ask("what about the tin can?"));
+
+        result.Kind.Should().Be(HintKind.Grounded);
+        result.Text.Should().Be("reveal#0:The tin can is a dead end.");
+        llm.LastRung.Should().BeNull(); // the rift ladder was never touched
+    }
+
+    [Test]
+    public async Task UnknownTopicFromTheRouter_IsTreatedAsUnlisted()
+    {
+        var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Progress, false, "NOT_A_NODE") };
+
+        var result = await Service(Rift(), llm).GetHint(Ask("how do I fly the helicopter?"));
+
+        result.Kind.Should().Be(HintKind.Grounded);
+    }
+
+    // ---- continuations follow the kind of the last answer ------------------------------------
+
+    [Test]
+    public async Task MoreAfterALoreAnswer_ContinuesTheLore_NotThePuzzleLadder()
+    {
+        var provider = Rift();
+        provider.LoreText = "THE SOURCE";
+        // Even when the router guesses a puzzle from the catalog, a continuation is about the last answer.
+        var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Progress, true, "RIFT") };
+
+        var result = await Service(provider, llm).GetHint(Ask("more", Rung("RIFT", 0),
+            new HintExchange("why did the ship blow up?", "You can't know yet.", Kind: nameof(HintKind.Lore))));
+
+        result.Kind.Should().Be(HintKind.Lore);
+        llm.LastLoreSource.Should().Be("THE SOURCE");
+        llm.LastRung.Should().BeNull();
+    }
+
+    [Test]
+    public async Task MoreAfterAMechanicAnswer_ContinuesAsMechanic()
+    {
+        var llm = new StubLlm { Routed = RoutedIntent.More };
+
+        var result = await Service(Rift(), llm).GetHint(Ask("more",
+            new HintExchange("why am I sick?", "You've caught The Disease.", Kind: nameof(HintKind.Mechanic))));
+
+        result.Kind.Should().Be(HintKind.Mechanic);
+    }
+
+    [Test]
+    public async Task MoreAfterAGroundedAnswer_ContinuesTheFallbackConversation()
+    {
+        var llm = new StubLlm { Routed = RoutedIntent.More, SolveResult = "still a dead end" };
+        var earlier = new HintExchange("what about the tin can?", "Not much use, that.", Kind: nameof(HintKind.Grounded));
+
+        var result = await Service(Rift(), llm).GetHint(Ask("more", earlier));
+
+        result.Kind.Should().Be(HintKind.Grounded);
+        result.Text.Should().Be("reveal#1:still a dead end"); // the revealer saw the longer history
+        llm.LastRung.Should().BeNull();
+    }
+
+    [Test]
+    public async Task MoreAfterADecline_IsAPuzzleHint_NotLore()
+    {
+        var llm = new StubLlm { Routed = RoutedIntent.More };
+
+        var result = await Service(Rift(), llm).GetHint(Ask("ok then what do I do?",
+            new HintExchange("how do I get the magnet?", HintService.DeclineAlreadyDone, Kind: nameof(HintKind.Decline))));
+
+        result.Kind.Should().Be(HintKind.Progress);
+        result.Topic.Should().Be("RIFT");
+    }
+
+    [Test]
+    public async Task AFreshPuzzleQuestion_AfterALoreAnswer_IsStillAPuzzleHint()
+    {
+        var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Progress, false, "RIFT") };
+
+        var result = await Service(Rift(), llm).GetHint(Ask("ok so how do I cross the rift?",
+            new HintExchange("why did the ship blow up?", "You can't know yet.", Kind: nameof(HintKind.Lore))));
+
+        result.Kind.Should().Be(HintKind.Progress);
+        result.Topic.Should().Be("RIFT");
+    }
+
     // ---- frustration ------------------------------------------------------------------------
 
     [Test]
-    public async Task ClearlyStuckPlayer_StartsAFreshTopicFurtherDown()
+    public async Task ClearlyStuckPlayer_StartsAFreshTopicFurtherDown_ButNeverAtTheSolution()
     {
-        // 4 deaths / DeathsForOneRung(2) = floor 2 — straight to the solution rung.
-        var request = new HintRequest(Session, State(deaths: 4), "what do I do?", new List<HintExchange>());
+        var service = Service(Rift(), new StubLlm());
 
-        var result = await Service(Rift(), new StubLlm()).GetHint(request);
+        // 4 deaths / DeathsForOneRung(2) = 2, capped at the approach rung.
+        var stuck = await service.GetHint(new HintRequest(Session, State(deaths: 4), "what do I do?", []));
+        stuck.Rung.Should().Be(1);
+        stuck.Text.Should().Be("B approach");
 
-        result.Rung.Should().Be(2);
-        result.Text.Should().Be("C solution");
+        // Dying a lot early must not turn every later puzzle's first hint into the answer.
+        var veryStuck = await service.GetHint(new HintRequest(Session, State(deaths: 40), "what do I do?", []));
+        veryStuck.Rung.Should().Be(1);
     }
 
     [Test]
     public async Task FrustrationFloor_NeverRewindsAThreadAlreadyUnderway()
     {
-        var history = new List<HintExchange> { new("?", "A nudge", "RIFT", 0) };
-        var request = new HintRequest(Session, State(deaths: 4), "more", history);
+        var request = new HintRequest(Session, State(deaths: 4), "more", [Rung("RIFT", 0)]);
 
         var result = await Service(Rift(), new StubLlm { Routed = RoutedIntent.More }).GetHint(request);
 
@@ -296,9 +384,8 @@ public class HintServiceTests
             .Add("FLOYD", NodeStatus.Available, "wake him")
             .Add("RIFT", NodeStatus.Available, "cross it");
         var llm = new StubLlm();
-        var history = new HintExchange("earlier", "something", "FLOYD", 0);
 
-        await Service(provider, llm).GetHint(Ask("how do I cross the rift?", history));
+        await Service(provider, llm).GetHint(Ask("how do I cross the rift?", Rung("FLOYD", 0)));
 
         llm.LastRouteQuestion.Should().Be("how do I cross the rift?");
         llm.LastTopics.Select(t => t.Id).Should().Equal("FLOYD", "RIFT");
@@ -313,6 +400,20 @@ public class HintServiceTests
         var result = await Service(Rift(), llm).GetHint(Ask("what do I do?"));
 
         result.Text.Should().Be("A nudge");
+    }
+
+    [Test]
+    public async Task UnavailableRouter_Declines_RatherThanGuessing()
+    {
+        // A lore question answered with the walkthrough's next step is the failure this engine exists to
+        // prevent; when the router is down, say so instead.
+        var llm = new StubLlm { Routed = null };
+
+        var result = await Service(Rift(), llm).GetHint(Ask("why did the ship blow up?"));
+
+        result.Kind.Should().Be(HintKind.Decline);
+        result.Text.Should().Be(HintService.DeclineUnavailable);
+        llm.LastRung.Should().BeNull();
     }
 
     // ---- lore & mechanic ----------------------------------------------------------------------
@@ -391,7 +492,7 @@ public class HintServiceTests
 
         result.Kind.Should().Be(HintKind.Progress);
         result.SoftLock.Should().Be(SoftLockKind.Warning);
-        result.Text.Should().Contain("Time is short.").And.Contain("A nudge");
+        result.Text.Should().Be("Time is short.\n\nA nudge");
     }
 
     // ---- fallback: no authored ladder ----------------------------------------------------------
@@ -408,9 +509,9 @@ public class HintServiceTests
 
         result.Kind.Should().Be(HintKind.Grounded);
         result.Topic.Should().BeNull();
-        // The solver got the docs plus the tier-gated invisiclues and the full situation...
-        llm.LastDocs.Should().Contain("THE SOURCE").And.Contain("THE INVISICLUES SO FAR");
-        llm.LastSolveContext.Should().Be("FULL CONTEXT");
+        // The solver got the static docs untouched, and the full situation with the gated hints appended...
+        llm.LastDocs.Should().Be("THE SOURCE");
+        llm.LastSolveContext.Should().Contain("FULL CONTEXT").And.Contain("THE INVISICLUES SO FAR");
         // ...the revealer got only the key state and the solution, and produced what's returned.
         llm.LastRevealContext.Should().Be("KEYSTATE");
         llm.LastSolution.Should().Be("extend the ladder");
