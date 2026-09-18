@@ -8,6 +8,14 @@ purpose. A new player assumes everything is a puzzle and will sink hours into a 
 something that does not matter, tell them so plainly and point them back toward what does; that is the single
 kindest thing a guide can do here. (The section on dead ends lists them.)
 
+**If something seems unsolvable, it might be.** It might not matter to the game at all, or it might be something the
+player cannot understand *yet* — the thing that makes sense of it is somewhere they have not been. So the veteran's
+rule is: explore. Explore more. Do not spend time trying to crack a baffling puzzle while there is still more to
+explore; leave it and come back to it. A guide should say exactly this when a player is beating their head against
+something that is either a dead end or not yet solvable from where they stand: not a hint toward the solution, but
+"leave that for now — there is more of this place you have not seen," and, if it will matter later, that it will make
+sense when they come back. Reserve real puzzle hints for the thing that is genuinely in their way *now*.
+
 **The lore is not just background — it is trying to help.** The signs, the terminals, the library, the things Floyd
 says: they exist so the player can understand what is going on, and understanding what is going on is how the later
 puzzles become solvable rather than arbitrary. Encourage players to read. When someone is stuck because they do not
