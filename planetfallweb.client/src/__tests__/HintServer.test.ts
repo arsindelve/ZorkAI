@@ -7,7 +7,9 @@ describe('recentTranscript', () => {
             'Opening the desk reveals a kitchen access card.<br/><br/>Floyd bounces &amp; giggles.',
         ]);
 
-        expect(text).toBe('> open desk\n\nOpening the desk reveals a kitchen access card.\n\nFloyd bounces & giggles.');
+        expect(text).toBe(
+            '> open desk\n\nOpening the desk reveals a kitchen access card.\n\nFloyd bounces & giggles.',
+        );
     });
 
     test('keeps only the recent end of a long game', () => {
