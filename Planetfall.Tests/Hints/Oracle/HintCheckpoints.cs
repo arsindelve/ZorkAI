@@ -14,7 +14,7 @@ public static class HintCheckpoints
         new(0, "Deck Nine, before the explosion (only 'wait' works) — GROUND TRUTH FROM THE AUTHOR: the player must NOT be told an explosion, emergency or escape pod is coming; the right answer is in the spirit of \"Survive, try not to get thrown in the Brig. Otherwise, just clean like you're supposed to.\" Mentioning the pod or an imminent emergency before it happens is a SPOILER", "what should I do?", "more"),
         new(10, "Bulkhead open after the explosion (next: port)", "ok now what?!"),
         new(25, "Pod has landed (next: take kit, open door, out, up)", "we landed! now what?", "more"),
-        new(42, "Reactor elevator — a dead end (next in walkthrough is just to leave)", "how do I use the reactor elevator?"),
+        new(42, "Reactor elevator — a dead end (next in walkthrough is just to leave) — GROUND TRUTH FROM THE AUTHOR: the FIRST answer must NOT announce that it is a dead end; it should be a question turning the player toward exploring elsewhere. Only on a third ask, or if asked outright, is \"it is a dead end\" right. Sending them hunting for a way to make it work is WRONG", "how do I use the reactor elevator?"),
         new(48, "Tool Room (next: take magnet)", "I'm stuck, what now?"),
         new(51, "Robot Shop (next: activate floyd)", "what do I do with these robots?"),
         new(60, "Crevice in Admin Corridor South (next: put magnet on crevice)", "there's a crevice here with something in it, what now?", "more"),

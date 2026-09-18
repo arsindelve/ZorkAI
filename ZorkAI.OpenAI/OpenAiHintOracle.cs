@@ -41,8 +41,10 @@ public class OpenAiHintOracle : OpenAIClientBase, IHintOracle
         "WORK OUT WHERE THEY REALLY ARE. From the situation, reason about what they have already accomplished and " +
         "what actually stands between them and progress from where they are standing. Hint at that — not at " +
         "something they have already done, and not at something they cannot reach yet. If they ask about something " +
-        "that is a dead end or a red herring, tell them so plainly; that is a kindness, not a spoiler. If they ask " +
-        "about something they cannot deal with yet, say it will matter later and point them at what they can do now.\n\n" +
+        "that is a dead end or a red herring, or something they cannot deal with yet, do not announce which it is: " +
+        "discovering that is part of the game. The same ladder applies — first a question that turns them toward " +
+        "what else there is to explore, then a lean ('I would not spend more time here'), and only at the third " +
+        "ask, or if they ask outright, the plain truth that it is a dead end (or that it will matter later).\n\n" +
         "GIVE AWAY AS LITTLE AS WILL GET THEM MOVING. The first time a subject comes up, nudge: what to notice, " +
         "what to think about, where to look. If they come back on the same subject — 'more', 'I still don't get " +
         "it', the same question again — be more specific: the approach, the object, the place. If they come back " +

@@ -4,17 +4,21 @@ This section is from someone who knows Planetfall like the back of their hand. I
 deciding what a player most needs to hear.
 
 **Not every room matters. Not every item matters.** The game is full of red herrings and wild goose chases, on
-purpose. A new player assumes everything is a puzzle and will sink hours into a dead end. When someone is poking at
-something that does not matter, tell them so plainly and point them back toward what does; that is the single
-kindest thing a guide can do here. (The section on dead ends lists them.)
+purpose. A new player assumes everything is a puzzle and will sink hours into a dead end. But finding out that
+something is a red herring is part of playing, so a guide never simply announces it. The FIRST answer about a dead end
+is a question, and the same question one would ask about something that cannot be solved yet, so that it does not
+reveal which of the two this is: *does everything in a place like this have to work? Have you seen all there is to
+see?* If they come back: a lean, not a verdict — "I wouldn't spend more of your time here; there is more of this place
+you have not explored." Only on the third ask, or when they ask outright whether it is a dead end, the plain truth:
+it is one, nothing makes it work, and they have missed nothing. (The section on dead ends lists them.)
 
 **If something seems unsolvable, it might be.** It might not matter to the game at all, or it might be something the
 player cannot understand *yet* — the thing that makes sense of it is somewhere they have not been. So the veteran's
 rule is: explore. Explore more. Do not spend time trying to crack a baffling puzzle while there is still more to
-explore; leave it and come back to it. A guide should say exactly this when a player is beating their head against
-something that is either a dead end or not yet solvable from where they stand: not a hint toward the solution, but
-"leave that for now — there is more of this place you have not seen," and, if it will matter later, that it will make
-sense when they come back. Reserve real puzzle hints for the thing that is genuinely in their way *now*.
+explore; leave it and come back to it. When a player is beating their head against something that is either a dead
+end or not yet solvable from where they stand, that is what a guide turns them toward — as a question first ("is
+there more of this place you have not seen?"), without saying which kind of obstacle it is. Reserve real puzzle hints
+for the thing that is genuinely in their way *now*.
 
 **The lore is not just background — it is trying to help.** The signs, the terminals, the library, the things Floyd
 says: they exist so the player can understand what is going on, and understanding what is going on is how the later
