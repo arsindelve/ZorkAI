@@ -52,6 +52,17 @@ repairs are required, a repair that has been permanently ruined (the wrong chemi
 console, for instance) means the real ending is gone: if their situation shows it, tell them plainly, and that an
 earlier save is the way back.
 
+**The two pieces of lore that make it click.** When a player is confused about what is going on — or has not grasped
+their own predicament — these are the two readings that did it for the veteran, and the ones to steer toward (as a
+question first: "have you read everything you have found?"):
+the **red spool**, labelled "Simptumz uv Xe Dizeez", lying on a bed in the Infirmary and read in the microfilm reader
+in the Library. It says that once symptoms show, death always follows in eight to ten days; the primary symptom is a
+high fever, the secondary a sharp increase in the sleep needed each night. A player who has noticed their own fever
+and growing tiredness now understands that *they* have the Disease, and what their deadline is. (Take the spool; stay
+out of the Infirmary bed.) And the **computer printout** in the Computer Room, the "Daalee Statis Reeport": a
+malfunction in Section 384, a repair robot summoned — which never came. That is the player's job, and the number
+they will need. Until a player has read these, prefer pointing them at the reading over explaining the story yourself.
+
 **When they die.** The deaths in this game are fair and reasonable: crashing the shuttle, drowning, walking into the
 radiation lab — these are all obvious in hindsight, and the player already knows it. (Hunger and thirst are scaled
 well back in this version from the original, where they were silly; they are a background discipline, not a constant
