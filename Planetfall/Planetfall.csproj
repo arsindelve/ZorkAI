@@ -21,48 +21,11 @@
         <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
     </ItemGroup>
 
-    <!--
-      Hint knowledge base. The hint system's "knowledge" IS the game source, so we embed the game's own
-      .cs files plus the single complete walkthrough as resources (the deployed Lambda has no source on
-      disk). PlanetfallHintProvider reads these resources and assembles the bundle at runtime — the
-      concatenation logic lives in C#, not here. An explicit include means a missing/renamed walkthrough
-      fails the build loudly rather than silently degrading the hints.
-
-      AI/ is excluded: it holds the companion-chat backends (the ChatWithFloyd/Blather/Ambassador
-      Lambda clients, the self-hosted LocalCompanionChat, and the factory that picks between them),
-      which are plumbing, not game knowledge. They all previously lived in the ChatLambda project and
-      were never part of the hint bundle, so excluding them keeps the bundle byte-identical after the
-      move.
-
-      AmbassadorPrompts.cs and BlatherPrompts.cs are excluded for the same reason, and explicitly
-      because they do NOT sit under AI/. They are new files holding LLM persona text — plumbing, not
-      game facts — and the glob would otherwise sweep them into the bundle that the *deployed*
-      Planetfall hint endpoint sends to the model on every request. That is a production behavior
-      change (and a per-hint token cost) that a self-hosted-play change has no business making.
-      FloydPrompts.cs is deliberately NOT excluded: it predates this work and is already in the
-      bundle, so excluding it would change the baseline in the other direction.
-    -->
+    <!-- The hint oracle's knowledge: the game bible and the first-seen state baseline
+         (Planetfall.Tests/Hints/Oracle/GameBibleGenerator writes both; review, then check in). -->
     <ItemGroup>
-        <!-- Hints/ is excluded too: it is the hint plumbing, not game knowledge — and it holds the tiered lore
-             digest and every solution rung, which would otherwise reach the fallback solver untiered. -->
-        <EmbeddedResource Include="**/*.cs"
-                          Exclude="obj/**;bin/**;AI/**;Hints/**;Item/Feinstein/AmbassadorPrompts.cs;Item/Feinstein/BlatherPrompts.cs" />
-        <!-- Survival and time mechanics moved to the shared StellarPatrol library; the hint
-             bundle still needs them, or it loses knowledge of hunger, fatigue and the clock. -->
-        <EmbeddedResource Include="../StellarPatrol/**/*.cs" Exclude="../StellarPatrol/obj/**;../StellarPatrol/bin/**">
-            <!-- Link is required, not cosmetic: without it these flatten onto the same resource
-                 identifiers as Planetfall's own files and the build fails on the collision. -->
-            <Link>StellarPatrol/%(RecursiveDir)%(Filename)%(Extension)</Link>
-        </EmbeddedResource>
-        <EmbeddedResource Include="../Planetfall.Tests/Walkthrough/WalkthroughTestOne.cs" />
-        <!-- The official invisiclues: the lore source and the fallback solver hand the model only the
-             sections for areas the player has reached (PlanetfallLoreSource), so this is embedded whole
-             and gated at runtime. Not a .cs file, so BuildKnowledge's source sweep leaves it alone. -->
-        <EmbeddedResource Include="../Docs/hints/planetfall/invisiclues.md">
-            <Link>Hints/invisiclues.md</Link>
-        </EmbeddedResource>
-        <!-- The generated hint corpus (Planetfall.Tests/Hints/Generator writes it; review, then check in). -->
-        <EmbeddedResource Include="Hints/Generated/planetfall-hints.json" Condition="Exists('Hints/Generated/planetfall-hints.json')" />
+        <EmbeddedResource Include="Hints/Oracle/planetfall-bible.md" />
+        <EmbeddedResource Include="Hints/Oracle/planetfall-initial-state.json" />
     </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Planetfall.Tests.Hints.Generator;
+namespace Planetfall.Tests.Hints.Oracle;
 
 /// <summary>One [TestCase] row of a walkthrough: the command, its optional god-mode setup, and what the engine must say.</summary>
 public sealed record WalkthroughStep(string Command, string? Setup, IReadOnlyList<string> Expected);

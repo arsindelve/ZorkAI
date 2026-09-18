@@ -23,10 +23,10 @@ public class Startup
 
         ServicesHelper.ConfigureGameEngine<StationfallGame, StationfallContext>(services);
 
-        // NOTE: no IHintLanguageModel registration here, unlike Planetfall_Lambda. The hint subsystem
-        // needs a game-specific IHintProvider, and Stationfall doesn't have one yet (Planetfall's is
-        // Planetfall/Hints/PlanetfallHintProvider.cs). Register it here, and add the /Stationfall/hint
-        // endpoint to StationfallController, once a StationfallHintProvider exists.
+        // NOTE: no IHintOracle registration here, unlike Planetfall_Lambda. The hint subsystem
+        // needs a game-specific IOracleProvider (a game bible), and Stationfall doesn't have one yet (Planetfall's is
+        // Planetfall/Hints/PlanetfallOracleProvider.cs). Register it here, and add the /Stationfall/hint
+        // endpoint to StationfallController, once a StationfallOracleProvider exists.
 
         // Register the hosted service that will initialize GameEngine asynchronously
         services.AddHostedService<GameEngineInitializer>();

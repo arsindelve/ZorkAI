@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using GameEngine.Hints;
+using GameEngine.Hints.Oracle;
 using Microsoft.AspNetCore.Mvc;
 using Model.AIGeneration.Requests;
 using Model.Hints;
@@ -16,7 +16,7 @@ public class PlanetfallController(
     IGameEngine engine,
     ISessionRepository sessionRepository,
     ISavedGameRepository savedGameRepository,
-    IHintLanguageModel hintLlm
+    IHintOracle hintOracle
 )
     : ControllerBase
 {
@@ -52,13 +52,12 @@ public class PlanetfallController(
         else
             RestoreSession(savedSession);
 
-        var service = new HintService(new PlanetfallHintProvider(), hintLlm);
-        var result = await service.GetHint(new HintRequest(
-            request.SessionId, engine.Context!, request.Question, request.History ?? []));
+        var service = new HintOracleService(new PlanetfallOracleProvider(), hintOracle);
+        var (text, isHint) = await service.GetHint(new OracleHintRequest(
+            engine.Context!, request.Question, request.History ?? [], request.Transcript));
 
         // Deliberately no WriteSession() here: hints are read-only and consume no turn.
-        return new HintApiResponse(result.Text, result.Kind.ToString(), result.Topic, result.Rung, result.TotalRungs,
-            result.SoftLock.ToString(), result.IsHint);
+        return new HintApiResponse(text, isHint);
     }
 
     [HttpPost]

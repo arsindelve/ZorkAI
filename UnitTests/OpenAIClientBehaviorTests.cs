@@ -245,211 +245,65 @@ public class OpenAIParsingBehaviorTests
 }
 
 [TestFixture]
-public class OpenAiHintLanguageModelBehaviorTests
+public class OpenAiHintOracleBehaviorTests
 {
+    private static readonly HintPersona Persona = new("Be dry.", "Testfall");
+
     [Test]
-    public async Task Solve_IncludesKnowledgeContextHistoryAndQuestion()
+    public async Task Answer_PutsTheStaticKnowledgeFirst_AndThePlayerLast()
     {
         IReadOnlyList<ChatMessage>? messages = null;
         var completion = new Mock<IChatCompletionClient>();
         completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
                 It.IsAny<ChatCompletionOptions>()))
             .Callback<IReadOnlyList<ChatMessage>, ChatCompletionOptions>((m, _) => messages = m)
-            .ReturnsAsync("Use the ladder.");
-        var target = new OpenAiHintLanguageModel(null, completion.Object);
+            .ReturnsAsync("  Look at the ladder.  ");
+        var target = new OpenAiHintOracle(null, completion.Object);
 
-        var result = await target.Solve("ladder docs", "at the rift",
-            [new HintExchange("Where next?", "Look around.")], "How do I cross?", new HintPersona("Be dry."));
+        var result = await target.Answer("THE BIBLE", Persona, "Location: the rift",
+            [new HintExchange("Where next?", "Look around.")], "How do I cross?");
 
-        result.Should().Be("Use the ladder.");
-        messages![1].Content[0].Text.Should().Contain("ladder docs").And.Contain("at the rift")
-            .And.Contain("Where next?").And.Contain("How do I cross?");
-    }
-
-    [Test]
-    public async Task Solve_SystemPrompt_NamesThePersonasGame_NotAHardcodedOne()
-    {
-        // ZorkAI.OpenAI is shared by every game. The solver prompt must take the game's identity and its
-        // state-grounding language from the persona, or every non-Planetfall game gets a system prompt
-        // asserting it IS Planetfall and talking about Floyd (issue #484).
-        IReadOnlyList<ChatMessage>? messages = null;
-        var completion = new Mock<IChatCompletionClient>();
-        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
-                It.IsAny<ChatCompletionOptions>()))
-            .Callback<IReadOnlyList<ChatMessage>, ChatCompletionOptions>((m, _) => messages = m)
-            .ReturnsAsync("Open it with the key.");
-        var target = new OpenAiHintLanguageModel(null, completion.Object);
-
-        await target.Solve("zork docs", "west of house", [], "How do I open the door?",
-            new HintPersona("Be dry.", "Zork I", "which treasures are in the trophy case, whether the thief lives"));
-
+        result.Should().Be("Look at the ladder.");
         var system = messages![0].Content[0].Text;
-        system.Should().Contain("Zork I");
-        system.Should().Contain("trophy case");
-        system.Should().NotContain("Planetfall");
-        system.Should().NotContain("Floyd");
+        system.Should().StartWith("Be dry.");
+        system.Should().Contain(OpenAiHintOracle.Brief);
+        system.Should().Contain("GAME KNOWLEDGE: Testfall");
+        system.Should().EndWith("THE BIBLE"); // the cacheable prefix holds nothing about this player
+        system.Should().NotContain("the rift");
+
+        var user = messages[1].Content[0].Text;
+        user.Should().Contain("Location: the rift");
+        user.Should().Contain("PLAYER: Where next?").And.Contain("YOU: Look around.");
+        user.Should().Contain("How do I cross?");
+        user.IndexOf("SITUATION", StringComparison.Ordinal).Should().BeLessThan(user.IndexOf("How do I cross?", StringComparison.Ordinal));
     }
 
     [Test]
-    public async Task Solve_SystemPrompt_WithDefaultPersona_NamesNoGameAtAll()
+    public async Task Answer_AnEmptyQuestion_IsTheHintButton()
     {
         IReadOnlyList<ChatMessage>? messages = null;
         var completion = new Mock<IChatCompletionClient>();
-        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
-                It.IsAny<ChatCompletionOptions>()))
+        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()))
             .Callback<IReadOnlyList<ChatMessage>, ChatCompletionOptions>((m, _) => messages = m)
-            .ReturnsAsync("Something.");
-        var target = new OpenAiHintLanguageModel(null, completion.Object);
+            .ReturnsAsync("A nudge.");
 
-        await target.Solve("docs", "somewhere", [], "What now?", new HintPersona("Be dry."));
+        await new OpenAiHintOracle(null, completion.Object).Answer("B", Persona, "S", [], "");
 
-        var system = messages![0].Content[0].Text;
-        system.Should().NotContain("Planetfall");
-        system.Should().NotContain("Floyd");
-        // ...and the sentence must still read as English: no game identity means the naming clause is
-        // dropped entirely, not filled with a placeholder ("the text-adventure game this text adventure").
-        system.Should().StartWith("You are the SOLVER stage of a hint system for a text adventure.");
+        messages![1].Content[0].Text.Should().Contain("pressed the hint button");
+        messages[1].Content[0].Text.Should().Contain("first thing they have asked");
     }
 
     [Test]
-    public async Task Reveal_WhenProviderFails_ReturnsEmpty_NeverTheSolution()
+    public async Task Answer_FailsClosed()
     {
-        // Fail closed: the engine turns an empty reveal into a decline. Returning the solution here would
-        // hand the player the whole answer whenever OpenAI hiccups.
-        var target = new OpenAiHintLanguageModel(Mock.Of<ILogger>(), Failing().Object);
+        var failing = new Mock<IChatCompletionClient>();
+        failing.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()))
+            .ThrowsAsync(new InvalidOperationException("boom"));
+        (await new OpenAiHintOracle(Mock.Of<ILogger>(), failing.Object).Answer("B", Persona, "S", [], "q")).Should().BeNull();
 
-        var result = await target.Reveal("at the rift", "Use the ladder", [], "More?", new HintPersona("Be dry."));
-
-        result.Should().BeEmpty();
-    }
-
-    [Test]
-    public async Task PhraseRung_WhenProviderFails_ReturnsTheAuthoredRung()
-    {
-        // The rung is already a safe, complete hint — the only thing that must never leak is the prompt.
-        var target = new OpenAiHintLanguageModel(Mock.Of<ILogger>(), Failing().Object);
-
-        var result = await target.PhraseRung("Look for something to bridge the gap.", "at the rift", [], "help",
-            new HintPersona("Be dry."));
-
-        result.Should().Be("Look for something to bridge the gap.");
-    }
-
-    [Test]
-    public async Task AnswerLore_WhenProviderFails_ReturnsEmpty()
-    {
-        var target = new OpenAiHintLanguageModel(Mock.Of<ILogger>(), Failing().Object);
-
-        var result = await target.AnswerLore("why?", "SOURCE", "state", [], new HintPersona("Be dry."));
-
-        result.Should().BeEmpty();
-    }
-
-    [Test]
-    public async Task PhraseRung_HandsTheModelOnlyTheRungAndKeyState()
-    {
-        IReadOnlyList<ChatMessage>? messages = null;
-        var completion = new Mock<IChatCompletionClient>();
-        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
-                It.IsAny<ChatCompletionOptions>()))
-            .Callback<IReadOnlyList<ChatMessage>, ChatCompletionOptions>((m, _) => messages = m)
-            .ReturnsAsync("Something is amiss with that rift.");
-        var target = new OpenAiHintLanguageModel(null, completion.Object);
-
-        await target.PhraseRung("A rift blocks the way.", "Floyd: alive", [], "help", new HintPersona("Be dry."));
-
-        var user = messages![1].Content[0].Text;
-        user.Should().Contain("A rift blocks the way.").And.Contain("Floyd: alive");
-        user.Should().NotContain("ladder"); // nothing beyond the rung exists in its context
-    }
-
-    [Test]
-    public async Task Route_ParsesTheRoutersJson()
-    {
-        var topics = new List<HintTopic> { new("CROSS_RIFT", "Bridge the rift", "Admin"), new("FLOYD", "Wake Floyd", "Robot Shop") };
-        var target = new OpenAiHintLanguageModel(null,
-            CompletionReturning("{\"intent\": \"PROGRESS\", \"continues\": false, \"topic\": \"CROSS_RIFT\"}").Object);
-
-        var result = await target.Route("how do I cross the rift?", [], topics);
-
-        result.Should().Be(new RoutedIntent(HintIntent.Progress, false, "CROSS_RIFT"));
-    }
-
-    [Test]
-    public void ParseRoute_ToleratesChatter_AndDropsUnknownTopics()
-    {
-        var topics = new List<HintTopic> { new("CROSS_RIFT", "Bridge the rift", "Admin") };
-
-        var routed = OpenAiHintLanguageModel.ParseRoute(
-            "Sure! Here you go:\n```json\n{\"intent\":\"lore\",\"continues\":\"true\",\"topic\":\"MADE_UP\"}\n```", topics);
-
-        routed.Should().Be(new RoutedIntent(HintIntent.Lore, true, null));
-    }
-
-    [Test]
-    public void ParseRoute_KeepsTheTopicForLoreAndMechanic_AsTheFallThroughTarget()
-    {
-        var topics = new List<HintTopic> { new("CROSS_RIFT", "Bridge the rift", "Admin") };
-
-        OpenAiHintLanguageModel.ParseRoute("{\"intent\":\"MECHANIC\",\"continues\":false,\"topic\":\"CROSS_RIFT\"}", topics)
-            .Should().Be(new RoutedIntent(HintIntent.Mechanic, false, "CROSS_RIFT"));
-        // ...but "unlisted" is a progress-only notion: an unknown topic on a lore question is just no topic.
-        OpenAiHintLanguageModel.ParseRoute("{\"intent\":\"LORE\",\"continues\":false,\"topic\":\"MADE_UP\"}", topics)
-            .Should().Be(new RoutedIntent(HintIntent.Lore, false, null));
-        OpenAiHintLanguageModel.ParseRoute("{\"intent\":\"OUTOFSCOPE\",\"continues\":false,\"topic\":\"CROSS_RIFT\"}", topics)
-            !.TopicId.Should().BeNull();
-        OpenAiHintLanguageModel.ParseRoute("{\"intent\":\"PROGRESS\",\"continues\":false,\"topic\":\"cross_rift\"}", topics)
-            !.TopicId.Should().Be("CROSS_RIFT"); // case-insensitive match, canonical id returned
-    }
-
-    [Test]
-    public void ParseRoute_Garbage_IsNull()
-    {
-        OpenAiHintLanguageModel.ParseRoute("no json here", []).Should().BeNull();
-        OpenAiHintLanguageModel.ParseRoute("{not json}", []).Should().BeNull();
-        OpenAiHintLanguageModel.ParseRoute("", []).Should().BeNull();
-    }
-
-    [Test]
-    public void ParseRoute_OtherTopic_MeansSpecificButUnlisted()
-    {
-        var topics = new List<HintTopic> { new("CROSS_RIFT", "Bridge the rift", "Admin") };
-
-        var other = OpenAiHintLanguageModel.ParseRoute("{\"intent\":\"PROGRESS\",\"continues\":false,\"topic\":\"OTHER\"}", topics);
-        var madeUp = OpenAiHintLanguageModel.ParseRoute("{\"intent\":\"PROGRESS\",\"continues\":false,\"topic\":\"TIN_CAN\"}", topics);
-        var open = OpenAiHintLanguageModel.ParseRoute("{\"intent\":\"PROGRESS\",\"continues\":false,\"topic\":null}", topics);
-
-        other.Should().Be(new RoutedIntent(HintIntent.Progress, false, null, Unlisted: true));
-        madeUp.Should().Be(new RoutedIntent(HintIntent.Progress, false, null, Unlisted: true));
-        open.Should().Be(RoutedIntent.OpenEnded);
-    }
-
-    [Test]
-    public async Task Route_WhenProviderFails_ReturnsNull_SoTheEngineDeclines()
-    {
-        // Guessing "what do I do?" here would answer a lore question with the walkthrough's next step.
-        var target = new OpenAiHintLanguageModel(Mock.Of<ILogger>(), Failing().Object);
-
-        var result = await target.Route("anything", [], []);
-
-        result.Should().BeNull();
-    }
-
-    private static Mock<IChatCompletionClient> Failing()
-    {
-        var completion = new Mock<IChatCompletionClient>();
-        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
-                It.IsAny<ChatCompletionOptions>()))
-            .ThrowsAsync(new InvalidOperationException("offline"));
-        return completion;
-    }
-
-    private static Mock<IChatCompletionClient> CompletionReturning(string response)
-    {
-        var completion = new Mock<IChatCompletionClient>();
-        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
-                It.IsAny<ChatCompletionOptions>()))
-            .ReturnsAsync(response);
-        return completion;
+        var empty = new Mock<IChatCompletionClient>();
+        empty.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()))
+            .ReturnsAsync("   ");
+        (await new OpenAiHintOracle(null, empty.Object).Answer("B", Persona, "S", [], "q")).Should().BeNull();
     }
 }

@@ -10,6 +10,7 @@ import {
     LocationButton,
     DialogType,
     HintPanel,
+    recentTranscript,
     HintsButton,
     isFeatureEnabled,
     transcriptFontSizePx,
@@ -587,7 +588,9 @@ function Game() {
                         open={hintsOpen}
                         onClose={() => setHintsOpen(false)}
                         sessionId={activeSessionId}
-                        ask={server.hint}
+                        ask={(question, history) =>
+                            server.hint(question, history, recentTranscript(gameText))
+                        }
                         className="absolute inset-0 z-30 md:relative md:inset-auto md:z-auto md:w-[340px] md:flex-none md:h-full"
                     />
                 )}

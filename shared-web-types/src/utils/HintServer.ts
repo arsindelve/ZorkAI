@@ -8,36 +8,46 @@ import {Mixpanel} from './Mixpanel';
  * conversation is supplied BY THE CLIENT (that is what makes the endpoint stateless), so pass the
  * running history and, on success, append the new exchange yourself (HintPanel does this for you).
  *
- * Only the most recent exchanges are sent: disclosure pacing needs the recent thread, not the
- * whole transcript, and this bounds the token cost of long hint sessions. The window is wide enough
- * that a puzzle's earlier rungs survive a detour through other questions; drop below it and a
- * ladder restarts from its first rung.
+ * Only the most recent exchanges are sent: pacing needs the recent thread, and this bounds the
+ * token cost of long hint sessions.
  */
 const HISTORY_WINDOW = 20;
 
 /**
  * A reply from the hint endpoint. `isHint === false` marks a refusal/system message: show it, never
- * record it. `kind`, `topic` and `rung` must be echoed back on the recorded exchange (see
- * HintExchange); `totalRungs` lets the panel show "hint 2 of 3"; `softLock` (None, Warning,
- * BestEndingOnly, Hard) says whether a caveat rides on the text.
+ * record it.
  */
 export interface HintAnswer {
     text: string;
     isHint?: boolean;
-    kind?: string;
-    topic?: string | null;
-    rung?: number;
-    totalRungs?: number;
-    softLock?: string;
 }
 
-/** Records an answer the way the endpoint wants it replayed: with the kind/topic/rung it returned. */
+/** Records an answer the way the endpoint wants it replayed. */
 export function toExchange(question: string, answer: HintAnswer): HintExchange {
-    const exchange: HintExchange = {question, revealed: answer.text};
-    if (answer.kind !== undefined) exchange.kind = answer.kind;
-    if (answer.topic !== undefined && answer.topic !== null) exchange.topic = answer.topic;
-    if (answer.rung !== undefined) exchange.rung = answer.rung;
-    return exchange;
+    return {question, revealed: answer.text};
+}
+
+/** How much of the recent game the narrator gets to read over the player's shoulder. */
+const TRANSCRIPT_CHARS = 9000;
+
+/**
+ * The recent stretch of the game as plain text, from the transcript the page is showing (HTML
+ * chunks). This is how the narrator knows what the player has actually seen — and so what would be
+ * a spoiler.
+ */
+export function recentTranscript(gameText: string[]): string {
+    const text = gameText
+        .join('\n')
+        .replace(/<br\s*\/?>(\s*)/gi, '\n')
+        .replace(/<\/p>/gi, '\n')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&gt;/g, '>')
+        .replace(/&lt;/g, '<')
+        .replace(/&amp;/g, '&')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+    return text.length > TRANSCRIPT_CHARS ? text.slice(-TRANSCRIPT_CHARS) : text;
 }
 
 export async function askForHint(
@@ -45,6 +55,7 @@ export async function askForHint(
     sessionId: string,
     question: string,
     history: HintExchange[],
+    transcript?: string,
 ): Promise<HintAnswer> {
     const started = Date.now();
 
@@ -58,6 +69,7 @@ export async function askForHint(
             sessionId,
             question,
             history: history.slice(-HISTORY_WINDOW),
+            transcript,
         }),
     });
 
@@ -70,9 +82,6 @@ export async function askForHint(
         historyLength: history.length,
         latencyMs: Date.now() - started,
         isHint: data.isHint !== false,
-        kind: data.kind,
-        topic: data.topic,
-        rung: data.rung,
     });
 
     return data;

@@ -17,8 +17,18 @@ export default class Server {
     baseUrl = config.base_url;
     sessionId = new SessionHandler();
 
-    hint = async (question: string, history: HintExchange[]): Promise<HintAnswer> => {
-        return askForHint(this.baseUrl, this.sessionId.getSessionId()[0], question, history);
+    hint = async (
+        question: string,
+        history: HintExchange[],
+        transcript?: string,
+    ): Promise<HintAnswer> => {
+        return askForHint(
+            this.baseUrl,
+            this.sessionId.getSessionId()[0],
+            question,
+            history,
+            transcript,
+        );
     };
 
     gameInput = async (input: GameRequest): Promise<GameResponse> => {

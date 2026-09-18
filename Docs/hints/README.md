@@ -6,14 +6,13 @@ Design artifacts for the rebuilt in-engine hint system, covering **both Planetfa
 These began as **pre-code planning documents**: analysis drafts and design specs produced before any
 implementation, so the build is driven by a verified plan rather than vibes.
 
-**Status:** the Planetfall engine is built to this design — `GameEngine/Hints` (the shared engine)
-and `Planetfall/Hints` (the provider: puzzle DAG + progress mapper, the `06` ladders as data, the
-`05` lore digest and the invisiclues tier-gated by progress, soft-lock and survival rules), served by
-`POST /hint` in `Planetfall-Lambda`. The deterministic pipeline is covered by `UnitTests/Hints` and
-`Planetfall.Tests/Hints` (the `04` eval fixtures live in `PlanetfallHintEvalTests`); the live
-OpenAI path is exercised by the `[Explicit]` tests in `PlanetfallHintLiveTests`. See
-[07 § As built](07-common-architecture.md#as-built) for where the implementation departs from the
-sketch, and [00 § 8](00-master-plan.md#8-status) for what remains.
+**Status: superseded by the hint oracle — read [08 — The Hint Oracle](08-oracle.md) first.** The running
+system is one strong model that understands the whole game (an embedded game bible), sees the player's actual
+situation and transcript, and answers with judgment: `GameEngine/Hints/Oracle`, `Planetfall/Hints`, served by
+`POST /hint` in `Planetfall-Lambda`. The puzzle-DAG / hint-ladder / router engine these documents designed was
+built, measured against the oracle on sixty graded checkpoints (41 GOOD vs the oracle's 55), and removed. The
+documents below are kept as the design record and as source material (the invisiclues and the lore notes feed
+the bible).
 
 ## Background
 
@@ -46,16 +45,6 @@ eval fixtures differ). So:
   and Zork's famous unwinnable states make soft-lock detection central.
 
 Both reuse the same engine pipeline; only the per-game data differs.
-
-## The per-game content is generated
-
-The `01`/`02`/`06` documents were the hand-written first cut. Three live evaluation passes showed that
-maintaining them meant hand-crafting an answer per scenario, so the puzzle graph, the completion
-predicates and the ladders are now **generated from the game** — the verified walkthroughs replayed
-through the engine, with the live state diffed after every command — by
-`Planetfall.Tests/Hints/Generator/HintCorpusGenerator.cs`, into `Planetfall/Hints/Generated/planetfall-hints.json`.
-The docs remain the design and the vocabulary; the JSON is the content. Details in
-[07 § As built](07-common-architecture.md).
 
 ## Who does what next
 

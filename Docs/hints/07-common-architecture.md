@@ -1,5 +1,8 @@
 # Common Hint Architecture (shared engine + per-game plug-ins)
 
+> **Superseded.** The engine this document designs was built, measured, and replaced by the hint oracle —
+> see [08 — The Hint Oracle](08-oracle.md). Kept as the design record.
+
 **Shared doc** (lives alongside [00 master plan](00-master-plan.md)). Defines the *one* game-agnostic
 hint engine and the small set of interfaces each game implements to plug in its unique solution. The
 per-game content we've already drafted (the `01`–`06` docs for [Planetfall](planetfall/) and

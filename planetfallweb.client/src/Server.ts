@@ -21,8 +21,18 @@ export default class Server {
      * Ask the narrator for a hint. Read-only — consumes no game turn. The hint conversation is
      * client-owned (the endpoint is stateless), so the running history is passed with every ask.
      */
-    hint = async (question: string, history: HintExchange[]): Promise<HintAnswer> => {
-        return askForHint(this.baseUrl, this.sessionId.getSessionId()[0], question, history);
+    hint = async (
+        question: string,
+        history: HintExchange[],
+        transcript?: string,
+    ): Promise<HintAnswer> => {
+        return askForHint(
+            this.baseUrl,
+            this.sessionId.getSessionId()[0],
+            question,
+            history,
+            transcript,
+        );
     };
 
     gameInput = async (input: GameRequest): Promise<GameResponse> => {

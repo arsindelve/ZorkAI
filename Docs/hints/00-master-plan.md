@@ -1,5 +1,8 @@
 # Master Plan — AI-Generated Hints
 
+> **Superseded.** The engine this document designs was built, measured, and replaced by the hint oracle —
+> see [08 — The Hint Oracle](08-oracle.md). Kept as the design record.
+
 Tracks GitHub issue #144. This is the design of record for the rebuilt hint system, covering
 **both Planetfall and Zork I**. The architecture below is shared; per-game content lives in
 [`planetfall/`](planetfall/) and [`zorkone/`](zorkone/).

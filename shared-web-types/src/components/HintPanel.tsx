@@ -112,7 +112,6 @@ export default function HintPanel({open, onClose, sessionId, ask, className}: Hi
                 setError(answer.text);
                 setQuestion(q);
             } else {
-                // Recorded with the kind/topic/rung the endpoint returned: the next "more" climbs from here.
                 setHistory((prev) => [...prev, toExchange(q, answer)]);
             }
         } catch {

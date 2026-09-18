@@ -30,7 +30,7 @@ public class PlanetfallControllerTests
             _mockEngine.Object,
             _mockSessionRepository.Object,
             _mockSavedGameRepository.Object,
-            new Mock<Model.Hints.IHintLanguageModel>().Object);
+            new Mock<Model.Hints.IHintOracle>().Object);
     }
 
     private Mock<ILogger<PlanetfallController>> _mockLogger;
