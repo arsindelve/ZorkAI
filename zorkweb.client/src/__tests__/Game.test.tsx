@@ -119,7 +119,7 @@ describe('Game', () => {
         fireEvent.click(hintsButton);
 
         expect(screen.getByTestId('hint-panel')).toBeInTheDocument();
-        expect(screen.getByText('Ask the narrator')).toBeInTheDocument();
+        expect(screen.getByRole('button', {name: 'New chat'})).toBeInTheDocument();
     });
 
     test('submits trimmed input with the active session and records successful output', async () => {

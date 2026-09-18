@@ -1,7 +1,8 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlined';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
+import AddCommentOutlinedIcon from '@mui/icons-material/AddCommentOutlined';
 import {HintExchange} from '../HintExchange';
 import {HintAnswer} from '../utils/HintServer';
 
@@ -9,9 +10,8 @@ import {HintAnswer} from '../utils/HintServer';
  * The hint side panel: a chat-style conversation with the game's snarky, incorporeal narrator.
  *
  * All behavior lives here so every game client gets it for free:
- *  - the conversation history (owned by the client — the /hint endpoint is stateless) is kept in
- *    state and persisted to localStorage per session, so it survives a refresh and resets
- *    naturally when the session id changes (restart);
+ *  - the conversation history (owned by the client — the /hint endpoint is stateless) lives only
+ *    for the current panel opening; closing the panel or choosing New chat discards it;
  *  - failed asks are shown but NOT appended to the history, so they can't poison the pacing;
  *  - Enter-to-send, auto-scroll, and a pending indicator.
  *
@@ -35,17 +35,7 @@ type HintPanelProps = {
     className?: string;
 };
 
-const storageKey = (sessionId: string) => `HintHistory-${sessionId}`;
 const UI_FONT_STACK = "Roboto, system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif";
-
-function loadHistory(sessionId: string): HintExchange[] {
-    try {
-        const raw = localStorage.getItem(storageKey(sessionId));
-        return raw ? (JSON.parse(raw) as HintExchange[]) : [];
-    } catch {
-        return [];
-    }
-}
 
 function renderHintText(value: string): React.ReactNode[] {
     return value.split(/(\*\*[^*]+\*\*)/g).map((part, index) =>
@@ -60,7 +50,7 @@ function renderHintText(value: string): React.ReactNode[] {
 }
 
 export default function HintPanel({open, onClose, sessionId, ask, className}: HintPanelProps) {
-    const [history, setHistory] = useState<HintExchange[]>(() => loadHistory(sessionId));
+    const [history, setHistory] = useState<HintExchange[]>([]);
     const [question, setQuestion] = useState<string>('');
     const [pending, setPending] = useState<boolean>(false);
     const [pendingQuestion, setPendingQuestion] = useState<string>('');
@@ -68,20 +58,29 @@ export default function HintPanel({open, onClose, sessionId, ask, className}: Hi
 
     const scrollRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const conversationGeneration = useRef(0);
+    const wasOpen = useRef(open);
 
-    // A restart regenerates the session id — pick up that session's (empty) history.
-    useEffect(() => {
-        setHistory(loadHistory(sessionId));
+    const resetConversation = useCallback(() => {
+        conversationGeneration.current += 1;
+        setHistory([]);
+        setQuestion('');
+        setPending(false);
+        setPendingQuestion('');
         setError(null);
-    }, [sessionId]);
+    }, []);
+
+    // Restarting the game or closing the panel always ends the current hint conversation.
+    useEffect(() => {
+        resetConversation();
+    }, [sessionId, resetConversation]);
 
     useEffect(() => {
-        try {
-            localStorage.setItem(storageKey(sessionId), JSON.stringify(history));
-        } catch {
-            /* storage full/unavailable — the conversation still works for this page load */
+        if (wasOpen.current && !open) {
+            resetConversation();
         }
-    }, [history, sessionId]);
+        wasOpen.current = open;
+    }, [open, resetConversation]);
 
     useEffect(() => {
         scrollRef.current?.scrollTo?.({
@@ -102,9 +101,11 @@ export default function HintPanel({open, onClose, sessionId, ask, className}: Hi
         setError(null);
         setPending(true);
         setPendingQuestion(q);
+        const generation = conversationGeneration.current;
 
         try {
             const answer = await ask(q, history);
+            if (generation !== conversationGeneration.current) return;
             if (answer.isHint === false) {
                 // A refusal/system message: show it, but keep it OUT of the recorded conversation —
                 // replaying it to the narrator would pollute the disclosure pacing.
@@ -114,12 +115,15 @@ export default function HintPanel({open, onClose, sessionId, ask, className}: Hi
                 setHistory((prev) => [...prev, {question: q, revealed: answer.text}]);
             }
         } catch {
+            if (generation !== conversationGeneration.current) return;
             // Show the failure in-voice, keep it OUT of the history, and let the player resend.
             setError('The hint system appears to be off sulking somewhere. Try again in a moment.');
             setQuestion(q);
         } finally {
-            setPending(false);
-            setPendingQuestion('');
+            if (generation === conversationGeneration.current) {
+                setPending(false);
+                setPendingQuestion('');
+            }
         }
     };
 
@@ -203,24 +207,34 @@ export default function HintPanel({open, onClose, sessionId, ask, className}: Hi
                 >
                     <TipsAndUpdatesOutlinedIcon style={{fontSize: '20px'}} />
                 </div>
-                <div style={{flex: 1, minWidth: 0}}>
-                    <div
-                        style={{
-                            color: accent,
-                            fontSize: '15px',
-                            fontWeight: 700,
-                            lineHeight: 1.1,
-                            letterSpacing: '0.01em',
-                        }}
-                    >
-                        Ask the narrator
-                    </div>
-                    <div style={{color: muted, fontSize: '11px', marginTop: '3px'}}>
-                        A gentle nudge when you need one
-                    </div>
-                </div>
+                <div style={{flex: 1}} />
                 <button
-                    onClick={onClose}
+                    onClick={resetConversation}
+                    aria-label="New chat"
+                    data-testid="hint-new-chat"
+                    style={{
+                        height: '30px',
+                        borderRadius: '8px',
+                        background: 'rgba(255, 255, 255, 0.035)',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                        cursor: 'pointer',
+                        padding: '0 9px',
+                        display: 'flex',
+                        gap: '5px',
+                        alignItems: 'center',
+                        color: muted,
+                        fontFamily: UI_FONT_STACK,
+                        fontSize: '11px',
+                    }}
+                >
+                    <AddCommentOutlinedIcon style={{fontSize: '16px'}} />
+                    New chat
+                </button>
+                <button
+                    onClick={() => {
+                        resetConversation();
+                        onClose();
+                    }}
                     aria-label="Close hints"
                     data-testid="hint-close"
                     style={{
@@ -274,10 +288,7 @@ export default function HintPanel({open, onClose, sessionId, ask, className}: Hi
                             }}
                         />
                         <div style={{color: text, fontSize: '14px', fontWeight: 600}}>
-                            Where are you stuck?
-                        </div>
-                        <div style={{fontSize: '12px', marginTop: '5px'}}>
-                            Ask about the room, an object, or your next move.
+                            Stuck? Ask me anything. I won't judge. Much.
                         </div>
                     </div>
                 )}

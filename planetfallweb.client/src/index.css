@@ -34,6 +34,32 @@
     --hint-bubble: #10243a;
     --hint-text: var(--planetfall-text);
     --hint-muted: #7fb3d4;
+
+    /* Shared command input and header */
+    --game-input-glow: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--planetfall-primary) 8%, transparent),
+        color-mix(in srgb, var(--planetfall-bg-dark) 80%, transparent)
+    );
+    --game-input-accent: var(--planetfall-primary);
+    --game-input-bg: var(--planetfall-bg-dark);
+    --game-input-text: var(--planetfall-text);
+    --game-input-border: color-mix(in srgb, var(--planetfall-primary) 15%, transparent);
+    --game-input-focus-border: color-mix(in srgb, var(--planetfall-accent) 35%, transparent);
+    --game-input-focus-shadow: 0 0 20px
+        color-mix(in srgb, var(--planetfall-primary) 20%, transparent);
+    --game-input-muted: color-mix(in srgb, var(--planetfall-text) 45%, transparent);
+    --game-header-bg: linear-gradient(
+        135deg,
+        var(--planetfall-bg-medium),
+        var(--planetfall-bg-dark)
+    );
+    --game-header-border: color-mix(in srgb, var(--planetfall-primary) 30%, transparent);
+    --game-header-shadow: 0 4px 20px color-mix(in srgb, var(--planetfall-primary) 20%, transparent);
+    --game-header-chip-bg: color-mix(in srgb, var(--planetfall-bg-dark) 60%, transparent);
+    --game-header-accent: var(--planetfall-accent);
+    --game-header-muted: var(--planetfall-text);
+    --game-header-value: var(--planetfall-primary);
     /* Preferences dialog palette (see PreferencesModal in the shared package). */
     --pref-surface: #0a1929;
     --pref-surface-raised: #1e293b;

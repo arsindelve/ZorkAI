@@ -35,7 +35,7 @@ test.describe('Hint Panel', () => {
         await hintsButton.click();
 
         await expect(page.getByTestId('hint-panel')).toBeVisible();
-        await expect(page.getByText('Ask the narrator')).toBeVisible();
+        await expect(page.getByRole('button', {name: 'New chat'})).toBeVisible();
         // The compass floats where the panel docks — it must yield while hints are open.
         await expect(page.locator('.compass-ring')).toHaveCount(0);
 

@@ -1,11 +1,9 @@
 import React from 'react';
-import {render, screen, fireEvent, waitFor} from '@testing-library/react';
+import {act, render, screen, fireEvent, waitFor} from '@testing-library/react';
 import {HintPanel} from '@zork-ai/shared-types';
 
 describe('HintPanel Component', () => {
     const sessionId = 'test-session';
-    const storageKey = `HintHistory-${sessionId}`;
-
     beforeEach(() => {
         localStorage.clear();
         // jsdom doesn't implement scrollTo on elements.
@@ -22,8 +20,8 @@ describe('HintPanel Component', () => {
 
     test('shows the empty-state tagline when open', () => {
         renderPanel(jest.fn());
-        expect(screen.getByText('Where are you stuck?')).toBeInTheDocument();
-        expect(screen.getByText(/Ask about the room/)).toBeInTheDocument();
+        expect(screen.getByText("Stuck? Ask me anything. I won't judge. Much.")).toBeInTheDocument();
+        expect(screen.queryByText(/Ask about the room/)).not.toBeInTheDocument();
         expect(screen.queryByText('Costs no turn')).not.toBeInTheDocument();
     });
 
@@ -42,7 +40,6 @@ describe('HintPanel Component', () => {
         fireEvent.click(screen.getByTestId('hint-send'));
         await waitFor(() => expect(screen.getByTestId('hint-answer')).toBeInTheDocument());
 
-        expect(screen.getByText('Ask the narrator').style.fontFamily).toBe('');
         expect(screen.getByTestId('hint-answer').style.fontFamily).toBe('');
     });
 
@@ -70,23 +67,23 @@ describe('HintPanel Component', () => {
         expect(screen.getByTestId('hint-answer')).toHaveTextContent(
             'Try waiting. The ship has plans.',
         );
-
-        // The exchange is persisted per session — this is the client-owned stateless history.
-        const stored = JSON.parse(localStorage.getItem(storageKey)!);
-        expect(stored).toEqual([
-            {question: 'what do I do?', revealed: 'Try waiting. The ship has plans.'},
-        ]);
     });
 
     test('a follow-up passes the prior history to ask', async () => {
-        localStorage.setItem(storageKey, JSON.stringify([{question: 'q1', revealed: 'a1'}]));
-        const ask = jest.fn().mockResolvedValue({text: 'a2'});
+        const ask = jest
+            .fn()
+            .mockResolvedValueOnce({text: 'a1'})
+            .mockResolvedValueOnce({text: 'a2'});
         renderPanel(ask);
+
+        fireEvent.change(screen.getByTestId('hint-input'), {target: {value: 'q1'}});
+        fireEvent.click(screen.getByTestId('hint-send'));
+        await waitFor(() => expect(screen.getByTestId('hint-answer')).toHaveTextContent('a1'));
 
         fireEvent.change(screen.getByTestId('hint-input'), {target: {value: 'more'}});
         fireEvent.keyDown(screen.getByTestId('hint-input'), {key: 'Enter'});
 
-        await waitFor(() => expect(ask).toHaveBeenCalled());
+        await waitFor(() => expect(ask).toHaveBeenCalledTimes(2));
         expect(ask).toHaveBeenCalledWith('more', [{question: 'q1', revealed: 'a1'}]);
     });
 
@@ -100,16 +97,58 @@ describe('HintPanel Component', () => {
         await waitFor(() => expect(screen.getByTestId('hint-error')).toBeInTheDocument());
         // Question restored so the player can just hit send again...
         expect(screen.getByTestId('hint-input')).toHaveValue('help');
-        // ...and the failure never entered the persisted conversation.
-        expect(JSON.parse(localStorage.getItem(storageKey) ?? '[]')).toEqual([]);
+        // ...and the failure never entered the conversation.
         expect(screen.queryByTestId('hint-answer')).not.toBeInTheDocument();
     });
 
-    test('loads the existing conversation for the session', () => {
-        localStorage.setItem(storageKey, JSON.stringify([{question: 'old q', revealed: 'old a'}]));
-        renderPanel(jest.fn());
-        expect(screen.getByTestId('hint-question')).toHaveTextContent('old q');
-        expect(screen.getByTestId('hint-answer')).toHaveTextContent('old a');
+    test('closing and reopening always starts a new chat', async () => {
+        const ask = jest.fn().mockResolvedValue({text: 'old answer'});
+        const view = render(<HintPanel open onClose={jest.fn()} sessionId={sessionId} ask={ask} />);
+
+        fireEvent.change(screen.getByTestId('hint-input'), {target: {value: 'old question'}});
+        fireEvent.click(screen.getByTestId('hint-send'));
+        await screen.findByText('old answer');
+
+        view.rerender(
+            <HintPanel open={false} onClose={jest.fn()} sessionId={sessionId} ask={ask} />,
+        );
+        view.rerender(<HintPanel open onClose={jest.fn()} sessionId={sessionId} ask={ask} />);
+
+        expect(screen.getByText("Stuck? Ask me anything. I won't judge. Much.")).toBeInTheDocument();
+        expect(screen.queryByText('old answer')).not.toBeInTheDocument();
+    });
+
+    test('New chat resets the conversation without closing the panel', async () => {
+        const ask = jest.fn().mockResolvedValue({text: 'old answer'});
+        renderPanel(ask);
+
+        fireEvent.change(screen.getByTestId('hint-input'), {target: {value: 'old question'}});
+        fireEvent.click(screen.getByTestId('hint-send'));
+        await screen.findByText('old answer');
+
+        fireEvent.click(screen.getByRole('button', {name: 'New chat'}));
+
+        expect(screen.getByTestId('hint-panel')).toBeInTheDocument();
+        expect(screen.getByText("Stuck? Ask me anything. I won't judge. Much.")).toBeInTheDocument();
+        expect(screen.queryByText('old answer')).not.toBeInTheDocument();
+    });
+
+    test('an answer already in flight cannot repopulate a new chat', async () => {
+        let resolveAnswer!: (answer: {text: string}) => void;
+        const ask = jest.fn(
+            () => new Promise<{text: string}>((resolve) => (resolveAnswer = resolve)),
+        );
+        renderPanel(ask);
+
+        fireEvent.change(screen.getByTestId('hint-input'), {target: {value: 'old question'}});
+        fireEvent.click(screen.getByTestId('hint-send'));
+        expect(screen.getByTestId('hint-pending')).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole('button', {name: 'New chat'}));
+        await act(async () => resolveAnswer({text: 'late answer'}));
+
+        expect(screen.getByText("Stuck? Ask me anything. I won't judge. Much.")).toBeInTheDocument();
+        expect(screen.queryByText('late answer')).not.toBeInTheDocument();
     });
 
     test('a refusal (isHint: false) is shown but never recorded', async () => {
@@ -124,9 +163,7 @@ describe('HintPanel Component', () => {
 
         await waitFor(() => expect(screen.getByTestId('hint-error')).toBeInTheDocument());
         expect(screen.getByTestId('hint-error')).toHaveTextContent("can't find a game");
-        // Never persisted — replaying a refusal to the narrator would pollute the pacing...
-        expect(JSON.parse(localStorage.getItem(storageKey) ?? '[]')).toEqual([]);
-        // ...and the question is restored for a clean retry.
+        // The question is restored for a clean retry.
         expect(screen.getByTestId('hint-input')).toHaveValue('help');
     });
 });
