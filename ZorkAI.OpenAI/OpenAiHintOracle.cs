@@ -6,14 +6,14 @@ using OpenAI.Chat;
 namespace ZorkAI.OpenAI;
 
 /// <summary>
-///     The hint oracle on OpenAI. One call per hint, to the strongest model available: hints are rare events
-///     and their whole value is judgment, so this is not the place to economise on the model (override with
-///     HINT_ORACLE_MODEL). The static part of the prompt — the brief and the game bible — comes first so the
+///     The hint oracle on OpenAI. One call per hint. The default model is the cheapest that held the graded
+///     evaluation (gpt-5.6-terra: 57/61 GOOD, no spoilers, at about a fifth of gpt-6-astra's price, which scored
+///     56); override with HINT_ORACLE_MODEL. The static part of the prompt — the brief and the game bible — comes first so the
 ///     provider's prompt cache absorbs it; only the player's situation and conversation vary per request.
 /// </summary>
 public class OpenAiHintOracle : OpenAIClientBase, IHintOracle
 {
-    public const string DefaultModel = "gpt-6-astra";
+    public const string DefaultModel = "gpt-5.6-terra";
 
     public OpenAiHintOracle(ILogger? logger = null, IChatCompletionClient? clientOverride = null)
         : base(logger, requireApiKey: false, modelOverride: ResolveModel(), clientOverride)
@@ -52,11 +52,17 @@ public class OpenAiHintOracle : OpenAIClientBase, IHintOracle
         "their attention. Two exceptions: a simple factual question from someone who has clearly done the work " +
         "('which button?', 'what number?', 'how do I work this elevator?') may just be answered; and when they are " +
         "in immediate, timed danger, tell them exactly what to type at once — a nudge is no use to a corpse.\n\n" +
-        "NEVER SPOIL WHAT THEY HAVE NOT MET. Do not name or describe rooms, objects, characters' fates, dangers or " +
-        "story revelations the player has not yet encountered, as far as their situation shows. For story questions, " +
-        "tell them only what they could know by this point; if the real answer lies ahead, say honestly that it " +
-        "cannot be known yet, and — if it is true — that the game will answer it in time. Hint forward by one step, " +
-        "not five.\n\n" +
+        "NEVER SPOIL WHAT THEY HAVE NOT MET. Before you answer, check every room, object, device, creature and " +
+        "event you are about to mention against their SITUATION: is the room among the rooms they have been in? Is " +
+        "the thing in their hands, in their transcript, or among the changes in the world? If not, they have not met " +
+        "it — do not name it, do not describe it, do not say what it is for. Point in a direction instead ('there is " +
+        "more to find north of the junction'). When they ask what something is for and its use lies somewhere they " +
+        "have not been, tell them the KIND of problem it solves ('for reaching a small metal thing your fingers " +
+        "cannot'), not the place or the object it is used on, and that they will know it when they see it. Answer " +
+        "only what was asked: 'where do I use this card?' gets the door, not what lies behind the door. Do not " +
+        "announce events that have not happened yet. For story questions, tell them only what they could know by " +
+        "this point; if the real answer lies ahead, say honestly that it cannot be known yet, and — if it is true — " +
+        "that the game will answer it in time. One step ahead of the player, never two.\n\n" +
         "LOOK OUT FOR THEM. If their situation shows they are in real danger — about to die of hunger, exhaustion or " +
         "illness, or about to do something that makes the game unwinnable, or already have — tell them, briefly, " +
         "even if they did not ask.\n\n" +

@@ -36,7 +36,7 @@ IHintOracle.Answer( game bible , persona , situation , conversation , question )
 | **The transcript** | sent by the client (`recentTranscript`) | The recent stretch of the game as the player saw it. It is how the oracle knows what they have actually encountered — and so what would be a spoiler. |
 | **The conversation** | sent by the client (`history`) | What was asked and answered so far. Progressive disclosure is the model reading this and going one step further; there are no rung counters. |
 | **The brief** | `OpenAiHintOracle.Brief` | How to be a good hint-giver: answer what was asked; work out where they really are; give away as little as will get them moving, more each time they come back; never spoil what they have not met; look out for them; be truthful; the narrator's voice. One page. It contains no game knowledge. |
-| **The model** | `OpenAiHintOracle` | The strongest available (`gpt-6-astra`; `HINT_ORACLE_MODEL` overrides). Hints are rare and their whole value is judgment. Fails closed: an unavailable model is a decline, never a guess. |
+| **The model** | `OpenAiHintOracle` | `gpt-5.6-terra` by default — the cheapest model that held the graded evaluation (see below); `HINT_ORACLE_MODEL` overrides. Fails closed: an unavailable model is a decline, never a guess. |
 
 The endpoint stays stateless and read-only; asking costs no turn.
 
@@ -69,9 +69,15 @@ First results, same sixty moments, same grader:
 | system | GOOD | WEAK | WRONG | SPOILER |
 |---|---|---|---|---|
 | index engine (DAG + generated ladders + router, `gpt-5.4-mini`) | 41 | 8 | 11 | 0 |
-| **oracle** | **55** | 3 | 2 | 0 |
+| oracle, `gpt-6-astra` (~82¢/hint uncached) | 56 | 4 | 1 | 0 |
+| oracle, `gpt-5.6-terra`, first brief (~17¢/hint) | 50 | 5 | 2 | 4 |
+| **oracle, `gpt-5.6-terra`, tightened spoiler brief** | **57** | 1 | 3 | **0** |
 
-Both of the oracle's "WRONG"s were the grader's error on inspection (the defense panel does hold four boards; sleeping
+The smaller model's gap was spoiler discipline (naming the next room or object a step early); one paragraph of the
+brief — *check everything you are about to name against the situation* — closed it. Input tokens are ~93% of the cost
+of a hint, so condensing the bible is the next saving.
+
+Both of astra's "WRONG"s were the grader's error on inspection (the defense panel does hold four boards; sleeping
 until morning is the cure for the shuttle curfew). The oracle also caught a real rule the walkthrough script cheats
 past — the shuttle refuses to start after 6000 — which no index had an entry for.
 
@@ -83,4 +89,5 @@ game's source, walkthrough and hint book, register `IHintOracle` and the `/hint`
 ## To do
 
 - Cost gating (per-session/day limits) — deliberately deferred.
+- Condense the bible (~73K → ~20K tokens): roughly 3× cheaper per hint on any model.
 - The Zork I provider.
