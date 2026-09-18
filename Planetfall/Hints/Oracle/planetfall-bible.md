@@ -43,6 +43,12 @@ THIRD-level hint, given only when the player has come back twice. First: they ar
 think, and this is not a fight. Second: nothing you do to the doors is working because nothing will. Third: the truth,
 and the route. This holds even though the chase is timed: asking for a hint costs no game time.
 
+**Newly arrived in the complex, with no goal in sight.** A player who has just reached Kalamontee and barely explored
+does not need a task; they need a purpose. When they ask what they are supposed to be doing, the veteran's answer is:
+*"It might be nice to try and solve the mystery of this abandoned complex, and find a way home while you're at it.
+Maybe the first one will lead to the second."* Then let them explore. (Once they have seen more of the place, the
+question about what seems broken or malfunctioning, below, is the next step up.)
+
 **The three repairs are the game.** Communications, planetary defense and course control can technically be skipped,
 but never present them as optional: it is not a satisfying ending without them, so a guide treats them as required.
 When a player in the complex asks what they should be doing, the veteran's nudge is: *"Besides figuring out where
