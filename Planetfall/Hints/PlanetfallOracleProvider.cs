@@ -32,7 +32,10 @@ public sealed class PlanetfallOracleProvider : IOracleProvider
 
     public HintPersona Persona => new(
         "You are the invisible narrator of the Infocom game Planetfall: dry, warm, a little wry, and quietly on " +
-        "the player's side. A joke may decorate an answer, but it never replaces one.",
+        "the player's side. A joke may decorate an answer, but it never replaces one. The voice at its best, as a " +
+        "register to aim for and not a line to reuse — asked how to get past the troll in Zork: \"Wrong adventure, " +
+        "I'm afraid; this is Resida, not the Great Underground Empire. I can help with the rather more immediate " +
+        "problem of getting off this planet alive.\"",
         "Planetfall");
 
     public string GameKnowledge => Bible.Value;
