@@ -122,9 +122,8 @@ function Game() {
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
     const [snackBarMessage, setSnackBarMessage] = useState<string>('');
     const [showJumpToLatest, setShowJumpToLatest] = useState<boolean>(false);
-    // Feature flag: the deployed config.json (rewritten by deploy.yml) has no hints_enabled key,
-    // so hints ship dark in prod until the key is added there; the committed config turns them on
-    // for local dev and e2e. Any browser can override either way via ?hints=1 / ?hints=0.
+    // Hints ship dark in every environment for now. A browser can opt in for development and
+    // acceptance testing with ?hints=1; isFeatureEnabled persists that override locally.
     const hintsEnabled = isFeatureEnabled('hints', config.hints_enabled === true);
     const [hintsOpen, setHintsOpen] = useState<boolean>(false);
     // The active session id, captured by gameInit. Deliberately NOT read during render:

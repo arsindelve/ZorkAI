@@ -1,5 +1,5 @@
 {
-  "base_url": "http://localhost:5000/Planetfall",
-  "version": "0.2.12",
-  "hints_enabled": true
+    "base_url": "http://localhost:5000/Planetfall",
+    "version": "0.2.12",
+    "hints_enabled": false
 }

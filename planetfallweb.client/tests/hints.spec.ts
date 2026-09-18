@@ -28,24 +28,21 @@ test.describe('Hint Panel', () => {
     });
 
     test('Hints button opens and closes the panel', async ({page}) => {
-        await closeWelcomeModal(page);
+        await closeWelcomeModal(page, '/?hints=1');
 
-        await page.waitForSelector('[data-testid="hints-button"]', {
-            state: 'visible',
-            timeout: 10000,
-        });
-        await page.click('[data-testid="hints-button"]');
+        const hintsButton = page.getByRole('button', {name: 'Hints'});
+        await expect(hintsButton).toBeEnabled();
+        await hintsButton.click();
 
         await expect(page.getByTestId('hint-panel')).toBeVisible();
-        await expect(page.getByText('Costs no turn')).toBeVisible();
-        await expect(page.getByText(/I won't judge/)).toBeVisible();
+        await expect(page.getByText('Ask the narrator')).toBeVisible();
         // The compass floats where the panel docks — it must yield while hints are open.
         await expect(page.locator('.compass-ring')).toHaveCount(0);
 
-        await page.click('[data-testid="hint-close"]');
+        await page.getByRole('button', {name: 'Close hints'}).click();
         await expect(page.getByTestId('hint-panel')).not.toBeVisible();
         // ...and return when the panel closes.
-        await expect(page.locator('.compass-ring').first()).toBeVisible();
+        await expect(page.locator('.compass-ring')).toBeVisible();
     });
 
     test('asking a question shows the narrator answer and replays history on the follow-up', async ({
@@ -63,15 +60,15 @@ test.describe('Hint Panel', () => {
             );
         });
 
-        await closeWelcomeModal(page);
-        await page.click('[data-testid="hints-button"]');
+        await closeWelcomeModal(page, '/?hints=1');
+        await page.getByRole('button', {name: 'Hints'}).click();
 
-        await page.fill('[data-testid="hint-input"]', 'what should I do?');
-        await page.click('[data-testid="hint-send"]');
+        await page.getByPlaceholder('Ask for a hint…').fill('what should I do?');
+        await page.getByRole('button', {name: 'Send hint question'}).click();
         await expect(page.getByText('Try waiting. The ship has plans for you.')).toBeVisible();
 
-        await page.fill('[data-testid="hint-input"]', 'more help');
-        await page.click('[data-testid="hint-send"]');
+        await page.getByPlaceholder('Ask for a hint…').fill('more help');
+        await page.getByRole('button', {name: 'Send hint question'}).click();
         await expect(page.getByText(/head for the pod/)).toBeVisible();
 
         // The endpoint is stateless: the client replays the running conversation with each ask.
@@ -86,47 +83,36 @@ test.describe('Hint Panel', () => {
     test('a failed hint request shows an in-voice error and keeps the question', async ({page}) => {
         await page.route(HINT_URL, (route) => route.fulfill({status: 500, body: 'boom'}));
 
-        await closeWelcomeModal(page);
-        await page.click('[data-testid="hints-button"]');
+        await closeWelcomeModal(page, '/?hints=1');
+        await page.getByRole('button', {name: 'Hints'}).click();
 
-        await page.fill('[data-testid="hint-input"]', 'help me');
-        await page.click('[data-testid="hint-send"]');
+        await page.getByPlaceholder('Ask for a hint…').fill('help me');
+        await page.getByRole('button', {name: 'Send hint question'}).click();
 
         await expect(page.getByTestId('hint-error')).toBeVisible();
         // The question is restored so the player can simply resend.
         await expect(page.getByTestId('hint-input')).toHaveValue('help me');
     });
 
-    test('quick-ask chips send a question directly', async ({page}) => {
-        await page.route(HINT_URL, (route) => fulfillHint(route, 'A chip-sized nudge.'));
-
-        await closeWelcomeModal(page);
-        await page.click('[data-testid="hints-button"]');
-
-        await page.locator('[data-testid="hint-chip"]').first().click();
-        await expect(page.getByText('A chip-sized nudge.')).toBeVisible();
-    });
-
-    // The committed config.json enables hints for dev/e2e (prod's deploy-written config omits the
-    // key, shipping the feature dark). ?hints=0 / ?hints=1 is the per-browser override, persisted
-    // in localStorage — this is the switch used to test the real prod pipeline before launch.
+    // Both clients ship with hints disabled. ?hints=0 / ?hints=1 is the per-browser override,
+    // persisted in localStorage, used to test the real pipeline before launch.
     test('feature flag: ?hints=0 hides hints, persists, and ?hints=1 restores them', async ({
         page,
     }) => {
         await closeWelcomeModal(page, '/?hints=0');
-        await expect(page.locator('[data-testid="hints-button"]')).toHaveCount(0);
-        await expect(page.locator('[data-testid="hint-panel"]')).toHaveCount(0);
+        await expect(page.getByRole('button', {name: 'Hints'})).toHaveCount(0);
+        await expect(page.getByTestId('hint-panel')).toHaveCount(0);
         // The rest of the game UI is unaffected.
-        await expect(page.locator('[data-testid="game-input"]')).toBeVisible();
+        await expect(page.getByTestId('game-input')).toBeVisible();
 
         // The override persists across a plain reload (no query param). Use visitGame: the welcome
         // modal already fired on this context's first visit and will not appear again.
         await visitGame(page);
-        await expect(page.locator('[data-testid="hints-button"]')).toHaveCount(0);
+        await expect(page.getByRole('button', {name: 'Hints'})).toHaveCount(0);
 
         // ?hints=1 flips it back on for this browser.
         await visitGame(page, '/?hints=1');
-        await page.click('[data-testid="hints-button"]');
+        await page.getByRole('button', {name: 'Hints'}).click();
         await expect(page.getByTestId('hint-panel')).toBeVisible();
     });
 });

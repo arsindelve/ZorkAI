@@ -8,8 +8,8 @@
  *      until explicitly flipped back).
  *   2. Otherwise the build default supplied by the caller. For the web clients that is a
  *      `<name>_enabled` key in `config.json` — which the deploy workflow rewrites per environment,
- *      so a key absent from the deployed config means OFF in production while the committed
- *      config keeps it ON for local dev and the e2e suite.
+ *      so a key absent from the deployed config means OFF. Dark-launched features can remain
+ *      OFF in committed config while local and e2e sessions opt in explicitly.
  *
  * The URL override is what lets us ship a feature dark and still exercise the real production
  * pipeline: visit prod once with `?hints=1` and the panel is live for that browser only.

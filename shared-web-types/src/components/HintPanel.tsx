@@ -84,7 +84,10 @@ export default function HintPanel({open, onClose, sessionId, ask, className}: Hi
     }, [history, sessionId]);
 
     useEffect(() => {
-        scrollRef.current?.scrollTo({top: scrollRef.current.scrollHeight, behavior: 'smooth'});
+        scrollRef.current?.scrollTo?.({
+            top: scrollRef.current.scrollHeight,
+            behavior: 'smooth',
+        });
     }, [history, pending, error, open]);
 
     useEffect(() => {

@@ -78,6 +78,7 @@ describe('Game', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        localStorage.removeItem('ff_hints');
         Object.assign(context, {
             restartGame: false,
             saveGameRequest: undefined,
@@ -109,6 +110,7 @@ describe('Game', () => {
             '<span class="room-header">Escape Pod (A)</span>Safety webbing fills the pod.',
         );
         expect(screen.getByTestId('inventory-button')).toBeInTheDocument();
+        expect(screen.queryByTestId('hints-button')).not.toBeInTheDocument();
     });
 
     test('submits trimmed input with the active session and records successful output', async () => {
@@ -138,7 +140,7 @@ describe('Game', () => {
         await waitFor(() => expect(context.setDialogToOpen).toHaveBeenCalledWith(dialog));
     });
 
-    test('opens the welcome dialog on a first visit even though the hint panel is mounted', async () => {
+    test('opens the welcome dialog on a first visit without consuming the session id', async () => {
         // SessionHandler.getSessionId() has a SIDE EFFECT: it creates the session id and reports
         // firstTime=true ONLY on the call that created it. This mock mimics that faithfully (the
         // default mock above is stateless and cannot). A render-time caller — e.g. passing the

@@ -12,6 +12,17 @@
     --compass-btn-text: #f5e7c4;
     --compass-btn-idle: rgb(214, 211, 209);
 
+    /* Shared hint panel, ready for the feature flag to be enabled. */
+    --hint-accent: #c49a4c;
+    --hint-user-accent: #8aa6b8;
+    --hint-badge: #e3c179;
+    --hint-warning: #dc6b5f;
+    --hint-bg: #221d16;
+    --hint-bg-deep: #0c0a09;
+    --hint-bubble: #29231c;
+    --hint-text: #ede4d3;
+    --hint-muted: #a99f8d;
+
     /* Preferences dialog palette (see PreferencesModal in the shared package). */
     --pref-surface: #17140f;
     --pref-surface-raised: #221d16;
