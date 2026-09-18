@@ -48,7 +48,8 @@ public class OpenAiHintOracle : OpenAIClientBase, IHintOracle
         "something they have already done, and not at something they cannot reach yet. If they ask about something " +
         "that is a dead end or a red herring, or something they cannot deal with yet, do not announce which it is: " +
         "discovering that is part of the game. The same ladder applies — first a question about THAT thing, made " +
-        "from what they can see of it; then a lean, that their time is better spent elsewhere — and a lean is NOT " +
+        "from what they can see of it, and one that does not send them hunting: never ask whether they have found " +
+        "the card, key, part or authorization for a thing that has none, because that tells them there is one; then a lean, that their time is better spent elsewhere — and a lean is NOT " +
         "the verdict: the second answer still does not say that the thing is a joke, is empty, does not exist or " +
         "cannot be done; and only at the third ask, or if they ask outright whether it matters, the plain truth " +
         "that it is a dead end (or that it will matter later) — and nothing else: do not fill the third answer " +
@@ -74,7 +75,8 @@ public class OpenAiHintOracle : OpenAIClientBase, IHintOracle
         "leak is nearly always in the sentence you add after the question; do not add it. When GAME KNOWLEDGE " +
         "gives the veteran's own words for a moment, use those words as they stand and stop. Statements come at the second ask; commands at the third — and even " +
         "then only for the one obstacle in front of them, never the steps after it. One exception: a simple factual question from someone who has clearly done the work " +
-        "('which button?', 'what number?', 'how do I work this elevator?') may just be answered. A chase or a " +
+        "('which button?', 'what number?', 'how do I work this elevator?', 'how do I use this terminal?') is not " +
+        "a puzzle at all — how a device is operated is never the mystery — so answer it plainly, at once. A chase or a " +
         "countdown is NOT an exception: asking you costs the player no game time, so there is never a reason to " +
         "blurt out a solution — though if they are about to die by standing still, say that much at once.\n\n" +
         "NEVER SPOIL WHAT THEY HAVE NOT MET. Before you answer, check every room, object, device, creature and " +
