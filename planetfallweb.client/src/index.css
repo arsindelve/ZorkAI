@@ -34,8 +34,6 @@
     --hint-bubble: #10243a;
     --hint-text: var(--planetfall-text);
     --hint-muted: #7fb3d4;
-    --hint-narrator-font: 'Roboto Mono', monospace;
-    --hint-heading-font: 'Platypi', serif;
     /* Preferences dialog palette (see PreferencesModal in the shared package). */
     --pref-surface: #0a1929;
     --pref-surface-raised: #1e293b;

@@ -36,8 +36,8 @@ public class PlanetfallController(
         // Sessions are only persisted after the FIRST PLAYED TURN, so "no saved session" is ambiguous:
         // it's either a brand-new player at turn zero (the game intro is on their screen right now) or a
         // genuinely stale/lost session mid-game. The client-supplied hint history disambiguates:
-        //  - no session + no hint conversation  -> new player; hint the fresh opening state (which is
-        //    exactly what engine.Context holds after InitializeEngine).
+        //  - no session + no hint conversation  -> new player; persist the initialized opening state
+        //    before hinting it, so their next hint is not mistaken for a stale session.
         //  - no session + an existing conversation -> stale (they were clearly mid-game); refuse honestly
         //    rather than silently giving opening-scene hints for a late-game situation.
         var savedSession = await GetSavedSession(request.SessionId);
@@ -46,7 +46,10 @@ public class PlanetfallController(
                 "I can't find a game in progress for this session, so there's nothing to hint about yet. " +
                 "Start or restore a game first.", IsHint: false);
 
-        if (!string.IsNullOrEmpty(savedSession))
+        if (string.IsNullOrEmpty(savedSession))
+            // This initializes session storage but does not advance the game or consume a turn.
+            await WriteSession(request.SessionId);
+        else
             RestoreSession(savedSession);
 
         var service = new HintService(new PlanetfallHintProvider(), hintLlm);

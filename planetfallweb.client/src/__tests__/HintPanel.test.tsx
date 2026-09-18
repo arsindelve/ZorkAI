@@ -20,10 +20,41 @@ describe('HintPanel Component', () => {
         expect(screen.queryByTestId('hint-panel')).not.toBeInTheDocument();
     });
 
-    test('shows the empty-state tagline and the no-turn badge when open', () => {
+    test('shows the empty-state tagline when open', () => {
         renderPanel(jest.fn());
-        expect(screen.getByText(/I won't judge/)).toBeInTheDocument();
-        expect(screen.getByText('Costs no turn')).toBeInTheDocument();
+        expect(screen.getByText('Where are you stuck?')).toBeInTheDocument();
+        expect(screen.getByText(/Ask about the room/)).toBeInTheDocument();
+        expect(screen.queryByText('Costs no turn')).not.toBeInTheDocument();
+    });
+
+    test('uses one consistent UI font throughout the hint panel', async () => {
+        const ask = jest.fn().mockResolvedValue({text: 'Try waiting.'});
+        renderPanel(ask);
+
+        const uiFont = "Roboto, system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif";
+
+        expect(screen.getByTestId('hint-panel')).toHaveStyle({
+            fontFamily: uiFont,
+        });
+        expect(screen.getByTestId('hint-input')).toHaveStyle({fontFamily: uiFont});
+
+        fireEvent.change(screen.getByTestId('hint-input'), {target: {value: 'what now?'}});
+        fireEvent.click(screen.getByTestId('hint-send'));
+        await waitFor(() => expect(screen.getByTestId('hint-answer')).toBeInTheDocument());
+
+        expect(screen.getByText('Ask the narrator').style.fontFamily).toBe('');
+        expect(screen.getByTestId('hint-answer').style.fontFamily).toBe('');
+    });
+
+    test('renders narrator emphasis instead of exposing markdown markers', async () => {
+        const ask = jest.fn().mockResolvedValue({text: 'Try **waiting** by the door.'});
+        renderPanel(ask);
+
+        fireEvent.change(screen.getByTestId('hint-input'), {target: {value: 'what now?'}});
+        fireEvent.click(screen.getByTestId('hint-send'));
+
+        await waitFor(() => expect(screen.getByText('waiting').tagName).toBe('STRONG'));
+        expect(screen.getByTestId('hint-answer')).not.toHaveTextContent('**');
     });
 
     test('sending a question calls ask and renders the exchange', async () => {
@@ -97,15 +128,5 @@ describe('HintPanel Component', () => {
         expect(JSON.parse(localStorage.getItem(storageKey) ?? '[]')).toEqual([]);
         // ...and the question is restored for a clean retry.
         expect(screen.getByTestId('hint-input')).toHaveValue('help');
-    });
-
-    test('quick-ask chips send immediately', async () => {
-        const ask = jest.fn().mockResolvedValue({text: 'an answer'});
-        renderPanel(ask);
-
-        fireEvent.click(screen.getAllByTestId('hint-chip')[0]);
-
-        await waitFor(() => expect(ask).toHaveBeenCalled());
-        expect(ask.mock.calls[0][0].length).toBeGreaterThan(0);
     });
 });
