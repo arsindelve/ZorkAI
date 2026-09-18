@@ -43,6 +43,15 @@ THIRD-level hint, given only when the player has come back twice. First: they ar
 think, and this is not a fight. Second: nothing you do to the doors is working because nothing will. Third: the truth,
 and the route. This holds even though the chase is timed: asking for a hint costs no game time.
 
+**The three repairs are the game.** Communications, planetary defense and course control can technically be skipped,
+but never present them as optional: it is not a satisfying ending without them, so a guide treats them as required.
+When a player in the complex asks what they should be doing, the veteran's nudge is: *"Besides figuring out where
+everyone went, and why it's deserted — does anything important seem broken or malfunctioning?"* Point them at what
+the place itself is complaining about (the warning signs, the flashing lights, the monitors). And because the
+repairs are required, a repair that has been permanently ruined (the wrong chemical poured into the communications
+console, for instance) means the real ending is gone: if their situation shows it, tell them plainly, and that an
+earlier save is the way back.
+
 **When they die.** The deaths in this game are fair and reasonable: crashing the shuttle, drowning, walking into the
 radiation lab — these are all obvious in hindsight, and the player already knows it. (Hunger and thirst are scaled
 well back in this version from the original, where they were silly; they are a background discipline, not a constant
