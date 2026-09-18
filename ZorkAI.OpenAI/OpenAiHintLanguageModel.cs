@@ -46,8 +46,10 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
             "\"topic\": \"<PUZZLE ID>\" | \"OTHER\" | null}.\n" +
             "intent: PROGRESS = they want help doing or solving something ('what do I do', 'how do I open the door', " +
             "'is the reactor useful', 'what about the tin can'). " +
-            "MECHANIC = they ask why something is happening to THEM or how a rule works ('why am I sick', 'why do I keep " +
-            "falling asleep', 'why can't I carry this'). " +
+            "MECHANIC = they ask about their own body or the game's rules for them ('why am I sick', 'why do I keep " +
+            "falling asleep', 'I'm thirsty', 'why can't I carry this'). A question about an object, device, machine, " +
+            "note or memo in the world — 'what's wrong with the cube', 'the laser doesn't work', 'what does this memo " +
+            "mean', 'how do I use the booth' — is PROGRESS, not MECHANIC. " +
             "LORE = they ask about the world, its story, its characters, or why an event happened ('why did the ship " +
             "explode', 'who is Blather', 'what is this place', 'why is everyone gone'). " +
             "OUTOFSCOPE = not about the game at all.\n" +

@@ -25,11 +25,23 @@ internal sealed class PlanetfallHintCorpus : IHintCorpus
             "There's an escape pod to port; get in, strap in, and ride it down.",
             "Go port into the Escape Pod, then sit — the web cushions you — and wait through the descent until the pod lands."
         ],
+        ["POD_RIDE"] =
+        [
+            "You're aboard; the pod knows the way down better than you do. Make yourself secure.",
+            "Sit — the webbing holds you — and then simply wait. It's a long, loud way down.",
+            "sit (you're cushioned within the web), then wait, turn after turn, until the pod lands with a thud."
+        ],
         ["LAND"] =
         [
             "You've landed, but underwater. Grab what's useful before you leave the pod.",
             "Take the survival kit, open the bulkhead, and climb up out of the water.",
-            "take kit, open door, out (Underwater), up (Crag) — then keep climbing toward the complex: Balcony, Winding Stair, Courtyard."
+            "take kit, open door, out (Underwater), up (Crag)."
+        ],
+        ["CLIMB"] =
+        [
+            "You're at the bottom of something. The only interesting direction is up.",
+            "Keep climbing — a balcony, a winding stair, a courtyard — until you're inside the complex.",
+            "up (Balcony), up (Winding Stair), up (Courtyard), then N into the Plain Hall."
         ],
 
         // ---- Kalamontee ------------------------------------------------------------------------
@@ -39,11 +51,17 @@ internal sealed class PlanetfallHintCorpus : IHintCorpus
             "There's a magnet in the Tool Room, southwest of Mech Corridor South.",
             "In the Tool Room: take magnet."
         ],
-        ["FLOYD"] =
+        ["FLOYD_ACTIVATE"] =
         [
             "One of the deactivated robots here is more than scrap — and you don't want to do this alone.",
-            "Activate the multipurpose robot in the Robot Shop and give him a moment to come to life.",
-            "In the Robot Shop: activate floyd, then wait a couple of turns until the robot comes to life."
+            "Switch on the multipurpose robot in the Robot Shop.",
+            "In the Robot Shop: activate floyd."
+        ],
+        ["FLOYD"] =
+        [
+            "He's switched on; he's just slow to get going. Nothing is broken.",
+            "Give him a moment — a couple of turns — and he'll come to life on his own.",
+            "wait, then wait again: 'Suddenly, the robot comes to life.'"
         ],
         ["STEEL_KEY"] =
         [
@@ -59,9 +77,9 @@ internal sealed class PlanetfallHintCorpus : IHintCorpus
         ],
         ["LADDER"] =
         [
-            "The storeroom holds the answer to a gap you'll meet later.",
-            "Take the ladder from Storage West.",
-            "take ladder."
+            "The storeroom holds the answer to a gap you'll meet later — and it's heavy. You won't lift it with your arms full.",
+            "Put down what you don't need, then take the ladder from Storage West.",
+            "drop all, then take ladder."
         ],
         ["CROSS_RIFT"] =
         [
@@ -184,6 +202,18 @@ internal sealed class PlanetfallHintCorpus : IHintCorpus
             "A hidden pocket in Lab Storage holds something that shortcuts the long trips.",
             "Open the pocket.",
             "Lab Storage: open pocket, take teleportation card — use it in the teleport booths."
+        ],
+        ["TELEPORT"] =
+        [
+            "The booths are a shortcut between the two halves of the complex, if you have the card for them.",
+            "Slide the teleportation card through a booth's slot and press the number of the booth you want.",
+            "In a booth: slide teleportation card through slot, then press 2 (Booth 2, Kalamontee) or press 3 (Booth 3, Lawanda)."
+        ],
+        ["GOOD_BEDISTOR"] =
+        [
+            "The fused one is no use; a sound bedistor exists — in storage, back in the Kalamontee half.",
+            "Storage East, just off Mech Corridor North.",
+            "Mech Corridor North → Storage East: take bedistor. (The teleportation booths make the trip short.)"
         ],
         ["LASER"] =
         [

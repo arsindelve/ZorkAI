@@ -53,13 +53,21 @@ internal sealed class PlanetfallPuzzleGraph : IPuzzleGraph, IProgressMapper
             s => Repository.GetItem<BulkheadDoor>().IsOpen || Visited<EscapePod>(s)),
         new("ESCAPE_POD", ["EXPLOSION"], false, "Get into the escape pod", "Deck Nine / Escape Pod",
             s => Visited<EscapePod>(s)),
-        new("LAND", ["ESCAPE_POD"], false, "Get out of the pod", "Escape Pod / Crag",
+        new("POD_RIDE", ["ESCAPE_POD"], false, "Ride the pod down (strap in and wait)", "Escape Pod",
+            s => Repository.GetLocation<EscapePod>().LandedSafely || Visited<Underwater>(s) || Visited<Crag>(s)),
+        new("LAND", ["POD_RIDE"], false, "Get out of the landed pod", "Escape Pod / Underwater / Crag",
             s => Visited<Underwater>(s) || Visited<Crag>(s)),
+        new("CLIMB", ["LAND"], false, "Climb up from the crag into the complex", "Crag / Balcony / Winding Stair",
+            s => Visited<Courtyard>(s) || Visited<PlainHall>(s)),
 
         // ---- Kalamontee: the mandatory spine to the shuttle -------------------------------
-        new("MAGNET", ["LAND"], false, "Pick up the magnet", "Tool Room",
+        new("MAGNET", ["CLIMB"], false, "Pick up the magnet", "Tool Room",
             s => s.IsCarrying<Magnet>()),
-        new("FLOYD", ["LAND"], false, "Wake the robot", "Robot Shop",
+        new("FLOYD_ACTIVATE", ["CLIMB"], false, "Activate Floyd, the multipurpose robot", "Robot Shop",
+            _ => Repository.GetItem<Floyd>().IsOn || Repository.GetItem<Floyd>().HasEverBeenOn ||
+                 Repository.GetItem<Floyd>().TurnOnCountdown < 3),
+        // Activation takes a few turns to take: "I activated it and nothing happened" is its own stuck point.
+        new("FLOYD", ["FLOYD_ACTIVATE"], false, "Wait for Floyd to come to life", "Robot Shop",
             _ => Repository.GetItem<Floyd>().HasEverBeenOn),
         new("STEEL_KEY", ["MAGNET"], false, "The magnet and the crevice", "Admin Corridor South",
             s => s.IsCarrying<Key>()),
@@ -80,12 +88,12 @@ internal sealed class PlanetfallPuzzleGraph : IPuzzleGraph, IProgressMapper
         new("LOWER_ELEVATOR", ["LOWER_CARD"], false, "Take the lower elevator down", "Lower Elevator",
             s => Visited<KalamonteePlatform>(s)),
         new("SHUTTLE", ["SHUTTLE_CARD", "LOWER_ELEVATOR"], false, "Ride the shuttle to Lawanda",
-            "Kalamontee Platform / Alfie", s => Visited<LawandaPlatform>(s) || InLawanda(s)),
+            "Kalamontee Platform / Alfie", s => Visited<LawandaPlatform>(s) || InLawanda(s) || DockedAtLawanda(s)),
 
         // ---- Kalamontee: the tower chain (serves only the optional communications repair) ---
         new("UPPER_CARD", ["CROSS_RIFT"], true, "The upper-elevator access card", "Small Office",
             s => s.IsCarrying<UpperElevatorAccessCard>()),
-        new("FLASK", ["LAND"], true, "Find the flask", "Tool Room",
+        new("FLASK", ["CLIMB"], true, "Find the flask", "Tool Room",
             s => s.IsCarrying<Flask>()),
         new("FILL_FLASK_A", ["FLASK"], true, "Fill the flask", "Machine Shop",
             _ => Repository.GetItem<Flask>().LiquidColor is not null),
@@ -97,12 +105,13 @@ internal sealed class PlanetfallPuzzleGraph : IPuzzleGraph, IProgressMapper
             _ => Repository.GetLocation<CommRoom>().CurrentColor == "gray" ||
                  Repository.GetLocation<CommRoom>().IsFixed ||
                  Repository.GetLocation<SystemsMonitors>().CommunicationsFixed),
-        new("COMM_FIX", ["COMM_POUR_1"], true, "Repair communications (the second pour)", "Comm Room",
+        new("COMM_FIX", ["COMM_POUR_1"], true, "Refill the flask with the other fluid (gray button) and pour again",
+            "Machine Shop / Comm Room",
             _ => Repository.GetLocation<SystemsMonitors>().CommunicationsFixed ||
                  Repository.GetLocation<CommRoom>().IsFixed),
 
         // ---- Lawanda: the mandatory spine to the cure ---------------------------------------
-        new("LASER", ["SHUTTLE"], false, "Arm the laser with a fresh battery", "Tool Room / Lab Storage",
+        new("LASER", ["SHUTTLE"], false, "Arm the laser (its battery is dead; fit the fresh one)", "Tool Room / Lab Storage",
             s => s.IsCarrying<Laser>() && Repository.GetItem<Laser>().HasItem<FreshBattery>()),
         new("BIOLOCK", ["SHUTTLE", "FLOYD"], false, "Floyd and the bio lab", "Bio Lock",
             _ => Repository.GetItem<Floyd>().HasDied),
@@ -115,10 +124,12 @@ internal sealed class PlanetfallPuzzleGraph : IPuzzleGraph, IProgressMapper
             _ => Repository.GetItem<Relay>().SpeckDestroyed),
         new("MICROBE", ["SPECK"], false, "Get past the microbe and out of the computer", "Middle of Strip",
             s => Repository.GetItem<Microbe>().Dispatched || Visited<AuxiliaryBooth>(s)),
-        new("GAS_MASK", ["MICROBE"], false, "Clear the lab office", "Lab Office",
+        new("GAS_MASK", ["MICROBE"], false, "The memo in the Lab Office and the gas mask", "Lab Office",
             _ => Repository.GetItem<GasMask>().BeingWorn),
+        // Sealing the elevator door starts the descent; the chase is over from that moment.
         new("MUTANT_CHASE", ["GAS_MASK"], false, "Escape the mutants to the cryo-elevator", "Cryo-Elevator",
-            _ => Repository.GetItem<CryoElevatorButton>().AlreadyArrived),
+            _ => Repository.GetItem<CryoElevatorButton>().CountdownActive ||
+                 Repository.GetItem<CryoElevatorButton>().AlreadyArrived),
         new("ENDING", ["MUTANT_CHASE"], false, "The revival", "Cryo-Anteroom", null),
 
         // ---- the optional system repairs and their parts -------------------------------------
@@ -126,15 +137,20 @@ internal sealed class PlanetfallPuzzleGraph : IPuzzleGraph, IProgressMapper
             _ => Repository.GetItem<Floyd>().HasGottenTheFromitzBoard),
         new("DEFENSE_FIX", ["FROMITZ"], true, "Repair the planetary defense", "Planetary Defense",
             _ => Repository.GetLocation<SystemsMonitors>().PlanetaryDefenseFixed),
-        new("BEDISTOR_FUSED", ["SHUTTLE"], true, "Find the fused bedistor", "Course Control", null),
-        // The pliers sit in the Kalamontee Tool Room beside the magnet: reachable — and often taken — long
-        // before the shuttle. Their prerequisite is landing, not Lawanda.
-        new("PLIERS", ["LAND"], true, "Get the pliers", "Tool Room",
+        new("BEDISTOR_FUSED", ["SHUTTLE"], true, "Look inside the course-control cube (what's wrong with it)",
+            "Course Control", null),
+        // The pliers and the good bedistor are in the Kalamontee half: reachable — and sometimes taken —
+        // long before the shuttle. Their prerequisite is reaching the complex, not Lawanda.
+        new("PLIERS", ["CLIMB"], true, "Get the pliers", "Tool Room",
             s => s.IsCarrying<Pliers>()),
-        new("COURSE_FIX", ["BEDISTOR_FUSED", "PLIERS"], true, "Repair course control", "Course Control",
-            _ => Repository.GetLocation<SystemsMonitors>().CourseControlFixed),
+        new("GOOD_BEDISTOR", ["CLIMB"], true, "Find a good bedistor", "Storage East (off Mech Corridor North)",
+            s => s.IsCarrying<GoodBedistor>()),
+        new("COURSE_FIX", ["BEDISTOR_FUSED", "PLIERS", "GOOD_BEDISTOR"], true, "Repair course control",
+            "Course Control", _ => Repository.GetLocation<SystemsMonitors>().CourseControlFixed),
         new("TELEPORT_CARD", ["SHUTTLE"], true, "The teleportation access card", "Lab Storage",
-            s => s.IsCarrying<TeleportationAccessCard>())
+            s => s.IsCarrying<TeleportationAccessCard>()),
+        new("TELEPORT", ["TELEPORT_CARD"], true, "Use the teleportation booths", "Booth 1 / Booth 2 / Booth 3",
+            s => Visited<BoothOne>(s) || Visited<BoothTwo>(s))
     };
 
     private static readonly Dictionary<string, HintNode> ById = Defs.ToDictionary(n => n.Id);
@@ -191,6 +207,19 @@ internal sealed class PlanetfallPuzzleGraph : IPuzzleGraph, IProgressMapper
     {
         var ns = state.CurrentLocation?.GetType().Namespace;
         return ns is not null && ns.Contains(".Lawanda", StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    ///     Still aboard Alfie, but the ride is over: the car sits at the far (Lawanda) end of its tunnel with
+    ///     the door open. Position 0 is the Kalamontee end (see ShuttleCarAlfie's exit).
+    /// </summary>
+    private static bool DockedAtLawanda(IContext state)
+    {
+        var ns = state.CurrentLocation?.GetType().Namespace;
+        if (ns is null || !ns.EndsWith(".Shuttle", StringComparison.Ordinal)) return false;
+
+        var alfie = Repository.GetLocation<AlfieControlEast>();
+        return alfie.TunnelPosition > 0 && !alfie.DoorIsClosed;
     }
 
     private static HashSet<string> AncestorsOf(HintNode node)

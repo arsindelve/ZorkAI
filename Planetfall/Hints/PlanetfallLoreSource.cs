@@ -64,7 +64,9 @@ internal sealed class PlanetfallLoreSource : ILoreSource
     private const string Mechanics =
         "Survival: you must eat and drink (rations from the kitchen and dispensers; water in the canteen), you " +
         "must sleep (safely — a dorm bunk, never the infirmary bed), and The Disease worsens each day; the " +
-        "experimental medicine slows it, and the real cure is the work of the Lawanda lab.";
+        "experimental medicine slows it, and the real cure is the work of the Lawanda lab. You can carry only " +
+        "so much, and less as the Disease weakens you: if something is too heavy to lift, put down what you " +
+        "don't need first. Floyd takes a couple of turns to come to life after being activated.";
 
     // ---- the invisiclues, by section -----------------------------------------------------------
 

@@ -62,6 +62,12 @@ sub-step the table above doesn't distinguish:
 | `EXPLOSION` → `ESCAPE_POD` | `ESCAPE_POD` | Before the explosion the bulkhead is shut and `port` fails; the only move is `wait`. Done when the pod bulkhead has opened (or the pod was entered). |
 | `COMM_POUR_1` → `COMM_FIX` | `COMM_FIX` | The first pour turns the light gray (`CommRoom.CurrentColor`); the second needs the other fluid. |
 | `MINIATURIZE` → `SPECK` → `MICROBE` | `COMPUTER_FIX` | Being inside, destroying the speck (`Relay.SpeckDestroyed`, the cure) and escaping the microbe (`Microbe.Dispatched`) are three different stuck points. `GAS_MASK` follows `MICROBE`. |
+| `POD_RIDE` → `LAND` → `CLIMB` | `LAND` | Falling in the pod (`EscapePod.LandedSafely`), getting out of it, and the climb from the Crag into the complex (`Courtyard` visited) are each somewhere a player asks "now what?". `MAGNET`/`FLOYD`/`FLASK`/`PLIERS` hang off `CLIMB`. |
+| `FLOYD_ACTIVATE` → `FLOYD` | `FLOYD` | "I activated it and nothing happened" is its own stuck point: activation (`IsOn` / countdown started) vs. awake (`HasEverBeenOn`). |
+| `GOOD_BEDISTOR` | — | The good bedistor (Storage East, Kalamontee) had no node, so "where do I find a good bedistor?" had no answer. Prerequisite of `COURSE_FIX`. |
+| `TELEPORT` | — | Using the booths, after `TELEPORT_CARD`; done once another booth has been reached. |
+| `SHUTTLE` (docked) | `SHUTTLE` | Also done while still aboard Alfie at the Lawanda end (`AlfieControlEast.TunnelPosition > 0`, door open), not only once on the platform. |
+| `MUTANT_CHASE` (sealed) | `MUTANT_CHASE` | Done when the cryo-elevator descent starts (`CryoElevatorButton.CountdownActive`), not only on arrival: the chase is over once the door is shut. |
 
 Completion is read from monotonic signals only (inventory, item flags, the systems monitors,
 `ILocation.VisitCount`), never from the player's current room. Nodes serving only the three optional

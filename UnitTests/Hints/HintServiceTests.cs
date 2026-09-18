@@ -152,17 +152,19 @@ public class HintServiceTests
     }
 
     [Test]
-    public async Task ExplicitTopicAlreadyDone_Declines()
+    public async Task ExplicitTopicAlreadyDone_WithNothingAfterIt_GoesToTheSolver()
     {
+        // They hold the card and ask how to use the booth: no ladder models that, so the game itself answers.
         var provider = new FakeProvider()
             .Add("RIFT", NodeStatus.Done, "cross it")
             .Add("TOWER", NodeStatus.Available, "go up");
-        var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Progress, false, "RIFT") };
+        var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Progress, false, "RIFT"), SolveResult = "you're across" };
 
         var result = await Service(provider, llm).GetHint(Ask("how do I cross the rift?"));
 
-        result.Kind.Should().Be(HintKind.Decline);
-        result.Text.Should().Be(HintService.DeclineAlreadyDone);
+        result.Kind.Should().Be(HintKind.Grounded);
+        result.Text.Should().Be("reveal#0:you're across");
+        llm.LastRung.Should().BeNull(); // and never the unrelated open puzzle
     }
 
     [Test]
@@ -198,8 +200,24 @@ public class HintServiceTests
         var result = await Service(provider, llm).GetHint(Ask("how do I cure the disease?"));
 
         result.Topic.Should().Be("LASER");
-        result.Text.Should().Be(HintService.PrefaceNotYet + "arm the laser");
+        // One step away: just the prerequisite's hint, no "further down the road" lecture.
+        result.Text.Should().Be("arm the laser");
         result.Text.Should().NotContain("microbe");
+    }
+
+    [Test]
+    public async Task ExplicitTopicFarAhead_SaysSo_BeforeRedirecting()
+    {
+        var provider = new FakeProvider()
+            .Add("MAGNET", NodeStatus.Available, "get the magnet")
+            .AddWithPrerequisites("KEY", NodeStatus.Locked, ["MAGNET"], "use the magnet")
+            .AddWithPrerequisites("LADDER", NodeStatus.Locked, ["KEY"], "take the ladder");
+        var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Progress, false, "LADDER") };
+
+        var result = await Service(provider, llm).GetHint(Ask("how do I get the ladder?"));
+
+        result.Topic.Should().Be("MAGNET");
+        result.Text.Should().Be(HintService.PrefaceNotYet + "get the magnet");
     }
 
     [Test]
@@ -355,7 +373,7 @@ public class HintServiceTests
         var llm = new StubLlm { Routed = RoutedIntent.More };
 
         var result = await Service(Rift(), llm).GetHint(Ask("ok then what do I do?",
-            new HintExchange("how do I get the magnet?", HintService.DeclineAlreadyDone, Kind: nameof(HintKind.Decline))));
+            new HintExchange("how do I get the magnet?", HintService.DeclineOutOfScope, Kind: nameof(HintKind.Decline))));
 
         result.Kind.Should().Be(HintKind.Progress);
         result.Topic.Should().Be("RIFT");

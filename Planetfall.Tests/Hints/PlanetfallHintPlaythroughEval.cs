@@ -47,8 +47,38 @@ public class PlanetfallHintPlaythroughEval : WalkthroughTestBase
         new(367, "Lab Office after the red button (next: run for the cryo-elevator)", "the door's open and the mutants are coming, what do I do?")
     };
 
+    /// <summary>A second set: the in-between moments, navigation, survival, and the endgame.</summary>
+    private static readonly Checkpoint[] MoreCheckpoints =
+    {
+        new(11, "In the pod before the descent (next: sit, then wait it out)", "I'm in the pod. what now?"),
+        new(26, "Landed, holding the kit (next: open door, out, up)", "I have the kit. how do I get out of the pod?"),
+        new(30, "On the Crag (next: up, up, up to the Courtyard — navigation, no puzzle)", "I'm on a crag by the water. where do I go?"),
+        new(53, "Floyd activated but not yet awake (next: wait)", "I activated the robot but nothing happened. is it broken?"),
+        new(70, "Storage West, too laden to lift the ladder (next: drop all, take ladder)", "I can't pick up the ladder, it's too heavy"),
+        new(79, "Ladder placed across the rift (next: N, then the offices)", "the ladder is across the rift. now what?"),
+        new(99, "Mess Hall (next: take canteen) — a survival question", "I'm getting thirsty. what do I do about it?"),
+        new(115, "Machine Shop with the flask (next: put flask under spout, press black button)", "what do I do with the flask?"),
+        new(128, "Inside the upper elevator (next: slide upper card, press up)", "I'm in the elevator. how do I make it go up?"),
+        new(149, "Machine Shop refill after the first pour (next: press gray button)", "which button do I press to refill the flask?", "more"),
+        new(173, "Lower Elevator (next: slide lower card, press down)", "how do I get down to the shuttle?"),
+        new(209, "Just arrived at Lawanda (next: the lab half)", "I'm at Lawanda. what should I do first?"),
+        new(228, "Course Control (next: open cube)", "what's wrong with the cube in here?"),
+        new(249, "Teleport booth with the card (next: slide teleportation card, press 2)", "how do I use the teleportation booth?"),
+        new(258, "Fetching the good bedistor (next: take bedistor)", "where do I find a good bedistor?", "more"),
+        new(295, "Tool Room, laser (next: take laser, remove battery)", "the laser doesn't work", "more"),
+        new(316, "Bio Lock East with Floyd (next: open door, close door, wait ...)", "I'm at the bio lock and Floyd is with me. what exactly do I do?", "more", "just tell me"),
+        new(334, "Miniaturization Booth (next: slide mini card, type 384)", "I'm in the booth. what number do I type?"),
+        new(361, "Lab Office, memo (next: read memo, take mask, wear mask, press red button)", "what does this memo mean?"),
+        new(379, "Cryo-Anteroom, after the door closes (next: wait)", "did I win? what now?")
+    };
+
     [Test]
-    public async Task PlayThrough_AndAskAtEveryPuzzle()
+    public Task PlayThrough_AndAskAtEveryPuzzle() => Run(Checkpoints);
+
+    [Test]
+    public Task PlayThrough_AndAskAtTwentyMorePuzzles() => Run(MoreCheckpoints);
+
+    private async Task Run(Checkpoint[] checkpoints)
     {
         var steps = LoadWalkthrough();
         var service = new HintService(new PlanetfallHintProvider(), new OpenAiHintLanguageModel());
@@ -58,7 +88,7 @@ public class PlanetfallHintPlaythroughEval : WalkthroughTestBase
 
         var played = 0;
         var n = 0;
-        foreach (var checkpoint in Checkpoints)
+        foreach (var checkpoint in checkpoints)
         {
             // Advance the game to just before this puzzle.
             for (; played < checkpoint.Step; played++)

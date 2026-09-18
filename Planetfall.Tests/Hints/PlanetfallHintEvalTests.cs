@@ -8,6 +8,8 @@ using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Computer;
+using Planetfall.Location.Feinstein;
+using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Tower;
 using Planetfall.Location.Lawanda;
 using Planetfall.Location.Shuttle;
@@ -76,6 +78,86 @@ public class PlanetfallHintEvalTests : EngineTestsBase
     }
 
     [Test]
+    public async Task InThePodBeforeLanding_TheHintIsToRideItOut_ThenToGetOut()
+    {
+        StartHere<EscapePod>();
+
+        var falling = await Ask("I'm in the pod. what now?", RoutedIntent.OpenEnded);
+        falling.Topic.Should().Be("POD_RIDE");
+        falling.Text.Should().NotContain("landed");
+
+        Repository.GetLocation<EscapePod>().LandedSafely = true;
+        var landed = await Ask("we landed! now what?", RoutedIntent.OpenEnded);
+        landed.Topic.Should().Be("LAND");
+    }
+
+    [Test]
+    public async Task OnTheCrag_TheHintIsToClimb()
+    {
+        StartHere<Crag>();
+
+        var result = await Ask("I'm on a crag by the water. where do I go?", RoutedIntent.OpenEnded);
+
+        result.Topic.Should().Be("CLIMB");
+        result.Text.Should().Contain("up");
+    }
+
+    [Test]
+    public async Task WithTheTeleportCardInHand_AskingAboutTheBooth_HintsUsingIt()
+    {
+        Repository.GetItem<Floyd>().HasEverBeenOn = true;
+        Repository.GetLocation<LawandaPlatform>().VisitCount = 1;
+        Take<Planetfall.Item.Kalamontee.Admin.TeleportationAccessCard>();
+
+        var result = await Ask("how do I use the teleportation booth?", new RoutedIntent(HintIntent.Progress, false, "TELEPORT_CARD"));
+
+        result.Kind.Should().Be(HintKind.Progress);
+        result.Topic.Should().Be("TELEPORT");
+    }
+
+    [Test]
+    public async Task WhereIsAGoodBedistor_PointsAtStorage()
+    {
+        Repository.GetItem<Floyd>().HasEverBeenOn = true;
+        Repository.GetLocation<LawandaPlatform>().VisitCount = 1;
+
+        var result = await Ask("where do I find a good bedistor?", new RoutedIntent(HintIntent.Progress, false, "GOOD_BEDISTOR"));
+
+        result.Topic.Should().Be("GOOD_BEDISTOR");
+        result.Text.Should().Contain("storage");
+    }
+
+    [Test]
+    public async Task OnceTheCryoElevatorIsSealed_TheChaseIsOver()
+    {
+        Repository.GetItem<Floyd>().HasEverBeenOn = true;
+        Repository.GetItem<Floyd>().HasDied = true;
+        Repository.GetLocation<LawandaPlatform>().VisitCount = 1;
+        Repository.GetItem<Relay>().SpeckDestroyed = true;
+        Repository.GetItem<Microbe>().Dispatched = true;
+        Repository.GetItem<Planetfall.Item.Lawanda.LabOffice.GasMask>().BeingWorn = true;
+        Repository.GetItem<Planetfall.Item.Lawanda.CryoElevator.CryoElevatorButton>().CountdownActive = true;
+
+        var result = await Ask("did I win? what now?", RoutedIntent.OpenEnded);
+
+        result.Topic.Should().Be("ENDING");
+        result.Text.Should().NotContain("chasing");
+    }
+
+    [Test]
+    public async Task FloydActivatedButNotAwake_TheHintIsToWait()
+    {
+        Repository.GetLocation<Courtyard>().VisitCount = 1;
+        Repository.GetItem<Floyd>().TurnOnCountdown = 2; // activated a turn ago
+
+        var result = await Ask("I activated the robot but nothing happened. is it broken?",
+            new RoutedIntent(HintIntent.Progress, false, "FLOYD"));
+
+        result.Topic.Should().Be("FLOYD");
+        result.Text.Should().Contain("Nothing is broken");
+    }
+
+    [Test]
     public async Task FloydAwake_OpenEnded_BlocksOnTheMagnet()
     {
         Repository.GetItem<Floyd>().HasEverBeenOn = true;
@@ -135,7 +217,7 @@ public class PlanetfallHintEvalTests : EngineTestsBase
             new RoutedIntent(HintIntent.Progress, false, "DEFENSE_FIX"));
 
         result.Topic.Should().Be("FROMITZ");
-        result.Text.Should().StartWith(HintService.PrefaceNotYet).And.Contain("replacement part");
+        result.Text.Should().Contain("replacement part");
         result.Text.Should().NotContain("fluid"); // not the tower chain
     }
 
@@ -145,7 +227,7 @@ public class PlanetfallHintEvalTests : EngineTestsBase
         var corpus = new PlanetfallHintProvider().PuzzleCorpus;
         string[] lateNouns = ["microbe", "laser", "bedistor", "fromitz", "miniaturiz", "mutant", "Veldina", "cryo"];
 
-        foreach (var node in new[] { "EXPLOSION", "ESCAPE_POD", "LAND", "MAGNET", "FLOYD", "STEEL_KEY", "CROSS_RIFT" })
+        foreach (var node in new[] { "EXPLOSION", "ESCAPE_POD", "POD_RIDE", "LAND", "CLIMB", "MAGNET", "FLOYD", "STEEL_KEY", "CROSS_RIFT" })
         {
             corpus.TryGetLadder(node, out var ladder).Should().BeTrue();
             foreach (var rung in ladder.Rungs)
@@ -190,8 +272,8 @@ public class PlanetfallHintEvalTests : EngineTestsBase
         Repository.GetLocation<TowerCore>().VisitCount = 1;
 
         var first = await Ask("what do I do in the tower?", new RoutedIntent(HintIntent.Progress, false, "COMM_FIX"));
-        first.Topic.Should().Be("COMM_POUR_1"); // COMM_FIX is locked behind the first pour
-        first.Text.Should().StartWith(HintService.PrefaceNotYet).And.NotContain("gray button");
+        first.Topic.Should().Be("COMM_POUR_1"); // COMM_FIX is locked behind the first pour, one step away
+        first.Text.Should().Contain("colored lights").And.NotContain("gray button");
 
         // The router may just as well pick the tower itself, which is done: the answer is still the pour.
         var viaTower = await Ask("what do I do in the tower?", new RoutedIntent(HintIntent.Progress, false, "TOWER_UP"));

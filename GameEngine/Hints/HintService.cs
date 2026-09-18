@@ -28,8 +28,6 @@ public sealed class HintService
     internal const string DeclineNothingLeft =
         "You appear to have done everything there is to do. The narrator is, frankly, impressed.";
 
-    internal const string DeclineAlreadyDone = "You've already taken care of that one.";
-
     internal const string DeclineUnavailable =
         "The hint system is unavailable right now. Try again in a moment.";
 
@@ -153,19 +151,24 @@ public sealed class HintService
                 case NodeStatus.Done when askedAbout:
                     // A finished stage of a multi-stage puzzle ("the light went gray, now what?"), or the
                     // room a puzzle lives in ("what do I do in the tower?"): the answer is the next open
-                    // stage, not "already done". No preface — the next rung stands on its own.
+                    // stage. No preface — the next rung stands on its own. If nothing follows it, the
+                    // player wants something the ladders don't model ("how do I use the booth?" with the
+                    // card in hand): let the solver answer from the game itself.
                     topic = FirstOpenDependent(topic, progress);
                     if (topic is null)
-                        return Decline(DeclineAlreadyDone, caveat);
+                        return await Fallback(question, state, progress, keyState, history, caveat);
                     break;
                 case NodeStatus.Done:
                     topic = null; // solved since it was last discussed — move on
                     break;
                 case NodeStatus.Locked when askedAbout:
-                    // Hinting a puzzle they can't reach yet would leak it; say so, and hint what actually
-                    // stands between them and it.
-                    preface = PrefaceNotYet;
-                    topic = FirstOpenPrerequisite(topic, progress);
+                    // Hinting a puzzle they can't reach yet would leak it; hint what actually stands between
+                    // them and it instead. Say so only when that is more than one step away — "how do I get
+                    // to the shuttle?" from the lower elevator wants the elevator hint, not a lecture.
+                    var asked = topic;
+                    topic = FirstOpenPrerequisite(asked, progress);
+                    if (topic is null || !IsDirectPrerequisite(topic, asked))
+                        preface = PrefaceNotYet;
                     break;
                 case NodeStatus.Locked:
                     topic = null; // a continued thread that's no longer reachable (a restore, say)
@@ -308,6 +311,11 @@ public sealed class HintService
         }
 
         return null;
+    }
+
+    private bool IsDirectPrerequisite(string prerequisite, string of)
+    {
+        return _provider.PuzzleGraph.Nodes.Any(n => n.Id == of && n.Prerequisites.Contains(prerequisite));
     }
 
     private static string? LastTopic(IReadOnlyList<HintExchange> history)

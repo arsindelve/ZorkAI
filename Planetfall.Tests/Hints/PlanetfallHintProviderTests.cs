@@ -99,7 +99,9 @@ public class PlanetfallHintProviderTests : EngineTestsBase
         var progress = Progress(Context);
 
         progress.IsDone("FLOYD").Should().BeTrue();
-        progress.IsDone("LAND").Should().BeTrue(); // you can't have woken Floyd without landing
+        progress.IsDone("CLIMB").Should().BeTrue(); // you can't have woken Floyd without reaching the complex
+        progress.IsDone("LAND").Should().BeTrue();
+        progress.IsDone("POD_RIDE").Should().BeTrue();
         progress.IsDone("ESCAPE_POD").Should().BeTrue();
         progress.StatusOf("MAGNET").Should().Be(NodeStatus.Available);
     }
