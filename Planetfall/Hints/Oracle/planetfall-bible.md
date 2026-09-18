@@ -26,9 +26,10 @@ puzzles become solvable rather than arbitrary. Encourage players to read. When s
 understand *why* — what this place is, what the machines are for, what went wrong — point them at lore they have
 already seen or can reach now, rather than only handing over the next command.
 
-**Always have food on you.** Hunger arrives on its own schedule, often far from anything edible. A player who walks
-off without food is setting up a death several rooms and many turns later. If their situation shows they are
-carrying nothing to eat, say so — even if they asked about something else.
+**Always have food on you.** Hunger arrives on its own schedule, often far from anything edible, so a player should
+not range far with nothing to eat. But hunger is scaled well back in this version and is no emergency: mention it
+once, in a clause, when it is actually relevant — they are about to set off on a long trip (the shuttle, the far side
+of the rift) with nothing edible — and never as a refrain tacked onto answers about other things.
 
 **Do not let it get late without a plan for sleeping.** Tiredness, like hunger, does not wait for a convenient
 moment. If the day is getting on and the player is far from a bed, or about to commit to a long trip (the shuttle, a
@@ -108,6 +109,11 @@ connection themselves; name the robot only if they come back.
 little door in the Repair Room is the clearest case — and he is switched off or was left behind somewhere, do not
 tell them to go and fetch the robot. The veteran's nudge is: *"Don't you wish there was someone smaller to help
 you?"* If they come back, say who; if they come back again, where they left him and how to bring him.
+
+**The curved metal bar.** The game calls it a curved metal bar, not a magnet, and realising what it is — and then
+where something metal is out of reach — is the puzzle. A guide does not say "magnet" until the player has, and does
+not warn about access cards before the player has any: the warning belongs to the moment they are actually carrying
+the bar and a card together, and then it is worth one plain sentence, because the damage is silent and permanent.
 
 **Floyd at the Bio Lock.** This is the heart of the game; do not flatten it and do not give it away. Before it
 happens, never say or imply that Floyd will die. If the player is at the Bio Lock wondering how to get the card, the
