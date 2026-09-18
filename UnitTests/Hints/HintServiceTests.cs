@@ -166,6 +166,24 @@ public class HintServiceTests
     }
 
     [Test]
+    public async Task ExplicitTopicAlreadyDone_WithAnOpenNextStage_HintsThatStage()
+    {
+        // "The light went gray, now what?" — the first pour is done; the second is what they need.
+        var provider = new FakeProvider()
+            .Add("POUR_1", NodeStatus.Done, "pour once")
+            .AddWithPrerequisites("POUR_2", NodeStatus.Available, ["POUR_1"], "pour the other fluid")
+            .Add("ELSEWHERE", NodeStatus.Available, "something unrelated");
+        var llm = new StubLlm { Routed = new RoutedIntent(HintIntent.Progress, false, "POUR_1") };
+
+        var result = await Service(provider, llm).GetHint(Ask("the light went gray, now what?"));
+
+        result.Kind.Should().Be(HintKind.Progress);
+        result.Topic.Should().Be("POUR_2");
+        result.Rung.Should().Be(0);
+        result.Text.Should().Be("pour the other fluid");
+    }
+
+    [Test]
     public async Task ExplicitTopicNotYetReachable_RedirectsToItsNearestOpenPrerequisite()
     {
         // FLASK is the first open node overall, but it has nothing to do with the cure. The cure needs the
@@ -284,6 +302,27 @@ public class HintServiceTests
         result.Kind.Should().Be(HintKind.Lore);
         llm.LastLoreSource.Should().Be("THE SOURCE");
         llm.LastRung.Should().BeNull();
+    }
+
+    [Test]
+    public async Task MoreAfterAProgressRung_ClimbsTheLadder_WhateverTheRouterGuessed()
+    {
+        // A bare "more" after a rung is the next rung — even if the router called it unlisted or
+        // attached some other puzzle from the catalog.
+        var provider = new FakeProvider()
+            .Add("FLOYD", NodeStatus.Available, "wake him")
+            .Add("RIFT", NodeStatus.Available, "A nudge", "B approach", "C solution");
+        var service = Service(provider, new StubLlm { Routed = new RoutedIntent(HintIntent.Progress, true, null, Unlisted: true) });
+
+        var unlisted = await service.GetHint(Ask("just tell me", Rung("RIFT", 1)));
+        unlisted.Kind.Should().Be(HintKind.Progress);
+        unlisted.Topic.Should().Be("RIFT");
+        unlisted.Text.Should().Be("C solution");
+
+        service = Service(provider, new StubLlm { Routed = new RoutedIntent(HintIntent.Progress, true, "FLOYD") });
+        var guessed = await service.GetHint(Ask("more", Rung("RIFT", 0)));
+        guessed.Topic.Should().Be("RIFT");
+        guessed.Text.Should().Be("B approach");
     }
 
     [Test]

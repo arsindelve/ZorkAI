@@ -57,8 +57,9 @@ public sealed class OpenAiHintLanguageModel : OpenAIClientBase, IHintLanguageMod
             "topic: for PROGRESS only. The ID of the puzzle the message is about when one on the list clearly fits. " +
             "\"OTHER\" when they ask about a specific object, place, action or creature that is NOT on the list — a " +
             "dead end, a red herring, a mechanic, anything the list has no puzzle for. null only when the ask is " +
-            "open-ended ('what now?', 'I'm stuck', 'what should I be doing?'). Never set a topic for MECHANIC, LORE or " +
-            "OUTOFSCOPE. Never explain; output the JSON only.";
+            "open-ended ('what now?', 'I'm stuck', 'what should I be doing?'), and always null when continues is " +
+            "true — a continuation names no new subject. Never set a topic for MECHANIC, LORE or OUTOFSCOPE. Never " +
+            "explain; output the JSON only.";
 
         var catalog = string.Join("\n", topics.Select(t => $"- {t.Id}: {t.Title} ({t.Location})"));
         var user =

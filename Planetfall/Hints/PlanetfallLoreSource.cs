@@ -27,7 +27,11 @@ internal sealed class PlanetfallLoreSource : ILoreSource
         "and utterly deserted: machines run, doors open, but there are no people anywhere. Floyd is a childlike, " +
         "enthusiastic multipurpose B-19-series robot who can be reactivated in the Robot Shop and becomes your " +
         "loyal companion. The alien Ambassador aboard the Feinstein was there to liven up the opening and nothing " +
-        "more. Why the ship exploded is not something you can know yet; that comes much later.";
+        "more.";
+
+    /// <summary>Until the library explains it, the explosion is explicitly unexplained — never a guess.</summary>
+    private const string ExplosionUnexplained =
+        "Why the ship exploded is not something you can know yet; that comes much later.";
 
     private const string Environmental =
         "Your family has served the Patrol for five generations (your great-great-grandfather was a High " +
@@ -86,7 +90,7 @@ internal sealed class PlanetfallLoreSource : ILoreSource
         ("The Systems and Library Area", "SHUTTLE"),
         ("The ProjCon and Lab Area", "SHUTTLE"),
         ("The Computer", "MINI_CARD"),
-        ("For Your Amusement", "COMPUTER_FIX")
+        ("For Your Amusement", "SPECK")
     };
 
     public string GroundedText(IContext liveState, ProgressState progress)
@@ -96,6 +100,7 @@ internal sealed class PlanetfallLoreSource : ILoreSource
         var sb = new StringBuilder();
         sb.AppendLine("WHAT THE PLAYER COULD KNOW SO FAR:");
         sb.AppendLine(Observable);
+        if (tier < 2) sb.AppendLine(ExplosionUnexplained);
         if (tier >= 1) sb.AppendLine(Environmental);
         if (tier >= 2) sb.AppendLine(Investigated);
         if (tier >= 3) sb.AppendLine(Endgame);
@@ -129,16 +134,18 @@ internal sealed class PlanetfallLoreSource : ILoreSource
     /// </summary>
     internal static int TierOf(IContext liveState, ProgressState progress)
     {
-        if (progress.IsDone("COMPUTER_FIX")) return 3;
+        if (progress.IsDone("SPECK")) return 3;
         if (LibraryReached(liveState)) return 2;
         if (progress.IsDone("LAND")) return 1;
         return 0;
     }
 
+    /// <summary>The library terminal is in the Library Lobby; reaching either room is reaching the library.</summary>
     private static bool LibraryReached(IContext state)
     {
-        return state.CurrentLocation is Library ||
+        return state.CurrentLocation is Library or LibraryLobby ||
                Repository.GetLocation<Library>().VisitCount > 0 ||
+               Repository.GetLocation<LibraryLobby>().VisitCount > 0 ||
                Repository.GetItem<ComputerTerminal>().IsOn;
     }
 

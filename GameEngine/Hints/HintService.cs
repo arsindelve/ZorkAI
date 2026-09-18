@@ -109,6 +109,9 @@ public sealed class HintService
             nameof(HintKind.Mechanic) => new RoutedIntent(HintIntent.Mechanic, true, null),
             // Carry on the fallback conversation, paced by the longer history.
             nameof(HintKind.Grounded) => new RoutedIntent(HintIntent.Progress, true, null, Unlisted: true),
+            // Climb the ladder in play — whatever puzzle the router guessed, and even if it called the
+            // bare "more" unlisted.
+            nameof(HintKind.Progress) => RoutedIntent.More,
             _ => routed
         };
     }
@@ -148,7 +151,13 @@ public sealed class HintService
             switch (progress.StatusOf(topic))
             {
                 case NodeStatus.Done when askedAbout:
-                    return Decline(DeclineAlreadyDone, caveat);
+                    // A finished stage of a multi-stage puzzle ("the light went gray, now what?"), or the
+                    // room a puzzle lives in ("what do I do in the tower?"): the answer is the next open
+                    // stage, not "already done". No preface — the next rung stands on its own.
+                    topic = FirstOpenDependent(topic, progress);
+                    if (topic is null)
+                        return Decline(DeclineAlreadyDone, caveat);
+                    break;
                 case NodeStatus.Done:
                     topic = null; // solved since it was last discussed — move on
                     break;
@@ -264,6 +273,37 @@ public sealed class HintService
                     foreach (var prerequisite in node.Prerequisites)
                         queue.Enqueue(prerequisite);
                     break;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     The Available node nearest downstream of a finished one — the next stage of the same puzzle.
+    ///     Walks through finished stages; null if nothing open depends on it.
+    /// </summary>
+    private string? FirstOpenDependent(string doneTopic, ProgressState progress)
+    {
+        var nodes = _provider.PuzzleGraph.Nodes;
+        var seen = new HashSet<string> { doneTopic };
+        var queue = new Queue<string>();
+        queue.Enqueue(doneTopic);
+
+        while (queue.Count > 0)
+        {
+            var id = queue.Dequeue();
+            foreach (var dependent in nodes.Where(n => n.Prerequisites.Contains(id)))
+            {
+                if (!seen.Add(dependent.Id)) continue;
+                switch (progress.StatusOf(dependent.Id))
+                {
+                    case NodeStatus.Available:
+                        return dependent.Id;
+                    case NodeStatus.Done:
+                        queue.Enqueue(dependent.Id);
+                        break;
+                }
             }
         }
 

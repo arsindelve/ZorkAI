@@ -52,6 +52,21 @@ checkpoint asserted in the walkthrough at/after that node.
 
 ★ = optional planetary system (Comm / Defense / Course Control). ◆ = mandatory spine.
 
+## Refinements as built (`Planetfall/Hints/PlanetfallPuzzleGraph.cs`)
+
+The live hint evaluation along the walkthrough split three nodes where a player can be stuck at a
+sub-step the table above doesn't distinguish:
+
+| As built | Replaces | Why |
+|---|---|---|
+| `EXPLOSION` → `ESCAPE_POD` | `ESCAPE_POD` | Before the explosion the bulkhead is shut and `port` fails; the only move is `wait`. Done when the pod bulkhead has opened (or the pod was entered). |
+| `COMM_POUR_1` → `COMM_FIX` | `COMM_FIX` | The first pour turns the light gray (`CommRoom.CurrentColor`); the second needs the other fluid. |
+| `MINIATURIZE` → `SPECK` → `MICROBE` | `COMPUTER_FIX` | Being inside, destroying the speck (`Relay.SpeckDestroyed`, the cure) and escaping the microbe (`Microbe.Dispatched`) are three different stuck points. `GAS_MASK` follows `MICROBE`. |
+
+Completion is read from monotonic signals only (inventory, item flags, the systems monitors,
+`ILocation.VisitCount`), never from the player's current room. Nodes serving only the three optional
+repairs are marked optional, so an open-ended ask prefers the mandatory spine.
+
 ## Branch structure (the "not a line" part)
 
 The endings table in `PlanetfallContext.cs` confirms: **`COMPUTER_FIX` → `ENDING` is the

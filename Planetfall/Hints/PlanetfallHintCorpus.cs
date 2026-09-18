@@ -13,6 +13,12 @@ internal sealed class PlanetfallHintCorpus : IHintCorpus
     private static readonly Dictionary<string, string[]> Ladders = new()
     {
         // ---- Crash & escape --------------------------------------------------------------------
+        ["EXPLOSION"] =
+        [
+            "Nothing on this deck needs doing — not the mop, not Blather, not the sealed door. Something is about to happen; let it.",
+            "Keep waiting. A few turns from now the ship will tell you, very loudly, what to do next, and a door that is shut now will open.",
+            "wait — after about ten turns a massive explosion rocks the ship, and the escape-pod bulkhead to port opens."
+        ],
         ["ESCAPE_POD"] =
         [
             "The ship is coming apart. Standing on the deck won't save you — find a way off.",
@@ -117,11 +123,17 @@ internal sealed class PlanetfallHintCorpus : IHintCorpus
             "In the upper elevator, slide the upper card and press up.",
             "Upper Elevator: slide upper access card through slot, press up button, wait, then south into the Tower Core."
         ],
+        ["COMM_POUR_1"] =
+        [
+            "The room off the tower has holes lit by colored lights; the right fluid poured into the right hole does something.",
+            "Pour your milky fluid into the black-lit hole.",
+            "Tower Core, NE into the Comm Room: pour fluid into hole — the light turns gray."
+        ],
         ["COMM_FIX"] =
         [
-            "The tower has holes lit by colored lights; pouring the right fluid in does something — but it takes two tries with two different fluids.",
-            "Pour your milky fluid into the black-lit hole (the light turns gray). Refill the flask using the gray button this time, come back, and pour into the now gray-lit hole.",
-            "Tower Core, NE: pour fluid into hole (the light turns gray). Refill at the Machine Shop with press gray button. Back up, NE: pour fluid into hole — 'message is now being sent.'"
+            "The gray light is asking for the other fluid — the machine that filled your flask has more than one button.",
+            "Refill the flask with the gray button in the Machine Shop and pour that into the gray-lit hole.",
+            "Machine Shop: put flask under spout, press gray button, take flask. Back up the tower, NE: pour fluid into hole — 'message is now being sent.'"
         ],
         ["LOWER_ELEVATOR"] =
         [
@@ -191,11 +203,23 @@ internal sealed class PlanetfallHintCorpus : IHintCorpus
             "Take the miniaturization card he recovered.",
             "take miniaturization card."
         ],
-        ["COMPUTER_FIX"] =
+        ["MINIATURIZE"] =
         [
-            "The real fault is microscopic — a single damaged speck on a relay inside the computer. You have to go in after it, and something in there will not want you to leave.",
-            "Use the miniaturization booth with the mini card, enter sector 384, and destroy the speck on the relay with the laser on its lowest setting. Then a microbe blocks the way out: turn the laser up, keep firing until the microbe is drawn to it, and throw the laser off the strip to take the microbe with it. Leave by the auxiliary booth.",
-            "Miniaturization Booth: slide mini card through slot, type 384, then E, N, N to Strip Near Relay. set laser to 1, shoot speck with laser (it sizzles), shoot speck with laser (it vaporizes). S — a giant microbe lands on the strip: set laser to 2, shoot microbe with laser eight times, throw laser off strip (both plummet into the void), S, then W to the Auxiliary Booth."
+            "The real fault is microscopic — a single damaged speck on a relay inside the computer. You have to go in after it.",
+            "Use the miniaturization booth with the mini card and enter sector 384 — and take the armed laser with you.",
+            "Miniaturization Booth: slide mini card through slot, type 384 (a moment of queasiness, then Station 384)."
+        ],
+        ["SPECK"] =
+        [
+            "The speck on the relay is the whole problem, and you brought the tool for it.",
+            "Get to the relay and shoot the speck with the laser on its lowest setting; it takes more than one shot.",
+            "E, N, N to Strip Near Relay: set laser to 1, shoot speck with laser (it sizzles), shoot speck with laser (it vaporizes)."
+        ],
+        ["MICROBE"] =
+        [
+            "Something enormous has landed between you and the way out. It cannot be killed — but it can be tempted.",
+            "Turn the laser up and keep firing until the microbe is drawn to its heat, then throw the laser off the strip and let the microbe follow it down.",
+            "S to Middle of Strip: set laser to 2, shoot microbe with laser eight times, throw laser off strip (both plummet into the void), then S, and W to the Auxiliary Booth."
         ],
         ["GAS_MASK"] =
         [

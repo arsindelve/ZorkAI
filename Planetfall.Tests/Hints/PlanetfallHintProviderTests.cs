@@ -83,7 +83,8 @@ public class PlanetfallHintProviderTests : EngineTestsBase
     {
         var progress = Progress(Context);
 
-        progress.StatusOf("ESCAPE_POD").Should().Be(NodeStatus.Available);
+        progress.StatusOf("EXPLOSION").Should().Be(NodeStatus.Available);
+        progress.StatusOf("ESCAPE_POD").Should().Be(NodeStatus.Locked);
         progress.StatusOf("LAND").Should().Be(NodeStatus.Locked);
         progress.StatusOf("MAGNET").Should().Be(NodeStatus.Locked);
         progress.StatusOf("PLIERS").Should().Be(NodeStatus.Locked);
@@ -160,7 +161,8 @@ public class PlanetfallHintProviderTests : EngineTestsBase
         progress.IsDone("UPPER_CARD").Should().BeTrue();
         progress.IsDone("FILL_FLASK_A").Should().BeTrue();
         progress.IsDone("CROSS_RIFT").Should().BeTrue();
-        progress.StatusOf("COMM_FIX").Should().Be(NodeStatus.Available);
+        progress.StatusOf("COMM_POUR_1").Should().Be(NodeStatus.Available);
+        progress.StatusOf("COMM_FIX").Should().Be(NodeStatus.Locked); // not until the first pour
     }
 
     [Test]

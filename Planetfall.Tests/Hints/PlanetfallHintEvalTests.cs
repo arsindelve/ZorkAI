@@ -3,8 +3,12 @@ using GameEngine;
 using GameEngine.Hints;
 using Model.Hints;
 using Planetfall.Hints;
+using Planetfall.Item.Computer;
+using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
+using Planetfall.Location.Computer;
+using Planetfall.Location.Kalamontee.Tower;
 using Planetfall.Location.Lawanda;
 using Planetfall.Location.Shuttle;
 using UnitTests.Hints;
@@ -48,15 +52,27 @@ public class PlanetfallHintEvalTests : EngineTestsBase
     // ---- A. localization / B. blocker ----------------------------------------------------------------
 
     [Test]
-    public async Task FreshGame_OpenEnded_HintsTheEscapePod_Vaguely()
+    public async Task FreshGame_OpenEnded_SaysToWait_NotToBoardAPodThatIsShut()
     {
+        // Before the explosion the pod bulkhead is closed and 'port' fails; the only move is to wait.
         var result = await Ask("what do I do?", RoutedIntent.OpenEnded);
 
         result.Kind.Should().Be(HintKind.Progress);
-        result.Topic.Should().Be("ESCAPE_POD");
+        result.Topic.Should().Be("EXPLOSION");
         result.Rung.Should().Be(0);
+        result.Text.Should().Contain("about to happen");
+        result.Text.Should().NotContain("port").And.NotContain("pod");
+    }
+
+    [Test]
+    public async Task AfterTheExplosion_TheBlockerIsThePod()
+    {
+        Repository.GetItem<BulkheadDoor>().IsOpen = true; // the explosion opens it
+
+        var result = await Ask("ok now what?!", RoutedIntent.OpenEnded);
+
+        result.Topic.Should().Be("ESCAPE_POD");
         result.Text.Should().Contain("coming apart");
-        result.Text.Should().NotContain("port"); // the exact move is rung C, not rung A
     }
 
     [Test]
@@ -92,17 +108,17 @@ public class PlanetfallHintEvalTests : EngineTestsBase
 
         first.Rung.Should().Be(0);
         second.Rung.Should().Be(1);
-        second.Text.Should().Contain("escape pod");
+        second.Text.Should().Contain("waiting");
         third.Rung.Should().Be(2);
-        third.Text.Should().Contain("port").And.Contain("sit");
+        third.Text.Should().Contain("wait").And.Contain("explosion");
     }
 
     [Test]
     public async Task AskingAboutALaterPuzzle_DoesNotLeakIt_AndPointsAtWhatIsInTheWay()
     {
-        var result = await Ask("how do I cure the disease?", new RoutedIntent(HintIntent.Progress, false, "COMPUTER_FIX"));
+        var result = await Ask("how do I cure the disease?", new RoutedIntent(HintIntent.Progress, false, "SPECK"));
 
-        result.Topic.Should().Be("ESCAPE_POD"); // the only open prerequisite from the very start
+        result.Topic.Should().Be("EXPLOSION"); // the only open prerequisite from the very start
         result.Text.Should().StartWith(HintService.PrefaceNotYet);
         result.Text.Should().NotContain("microbe").And.NotContain("laser").And.NotContain("384");
     }
@@ -129,7 +145,7 @@ public class PlanetfallHintEvalTests : EngineTestsBase
         var corpus = new PlanetfallHintProvider().PuzzleCorpus;
         string[] lateNouns = ["microbe", "laser", "bedistor", "fromitz", "miniaturiz", "mutant", "Veldina", "cryo"];
 
-        foreach (var node in new[] { "ESCAPE_POD", "LAND", "MAGNET", "FLOYD", "STEEL_KEY", "CROSS_RIFT" })
+        foreach (var node in new[] { "EXPLOSION", "ESCAPE_POD", "LAND", "MAGNET", "FLOYD", "STEEL_KEY", "CROSS_RIFT" })
         {
             corpus.TryGetLadder(node, out var ladder).Should().BeTrue();
             foreach (var rung in ladder.Rungs)
@@ -139,12 +155,83 @@ public class PlanetfallHintEvalTests : EngineTestsBase
     }
 
     [Test]
-    public void TheCureRung_CoversTheWholeVerifiedSequence()
+    public void TheMicrobeRung_CoversTheWholeVerifiedEscape()
     {
         // The walkthrough doesn't end at the speck: a microbe blocks the exit and has to be lured off the strip.
-        new PlanetfallHintProvider().PuzzleCorpus.TryGetLadder("COMPUTER_FIX", out var ladder).Should().BeTrue();
+        new PlanetfallHintProvider().PuzzleCorpus.TryGetLadder("MICROBE", out var ladder).Should().BeTrue();
 
         ladder.Rungs[2].Should().Contain("set laser to 2").And.Contain("throw laser off strip").And.Contain("Auxiliary Booth");
+    }
+
+    [Test]
+    public async Task InsideTheComputer_EachStageIsItsOwnPuzzle()
+    {
+        // Miniaturized, speck destroyed, microbe on the strip: the hint is about the microbe, not "already done".
+        Repository.GetItem<Floyd>().HasEverBeenOn = true;
+        Repository.GetLocation<LawandaPlatform>().VisitCount = 1;
+        Repository.GetLocation<StripNearStation>().VisitCount = 1;
+        Repository.GetItem<Relay>().SpeckDestroyed = true;
+
+        var result = await Ask("a giant microbe landed on the strip! help!", new RoutedIntent(HintIntent.Progress, false, "MICROBE"));
+
+        result.Kind.Should().Be(HintKind.Progress);
+        result.Topic.Should().Be("MICROBE");
+        result.Text.Should().Contain("tempted");
+
+        Repository.GetItem<Microbe>().Dispatched = true;
+        var after = await Ask("what now?", RoutedIntent.OpenEnded);
+        after.Topic.Should().Be("GAS_MASK");
+    }
+
+    [Test]
+    public async Task TheCommRoom_FirstAndSecondPour_AreDifferentHints()
+    {
+        Repository.GetItem<Floyd>().HasEverBeenOn = true;
+        Repository.GetLocation<TowerCore>().VisitCount = 1;
+
+        var first = await Ask("what do I do in the tower?", new RoutedIntent(HintIntent.Progress, false, "COMM_FIX"));
+        first.Topic.Should().Be("COMM_POUR_1"); // COMM_FIX is locked behind the first pour
+        first.Text.Should().StartWith(HintService.PrefaceNotYet).And.NotContain("gray button");
+
+        // The router may just as well pick the tower itself, which is done: the answer is still the pour.
+        var viaTower = await Ask("what do I do in the tower?", new RoutedIntent(HintIntent.Progress, false, "TOWER_UP"));
+        viaTower.Topic.Should().Be("COMM_POUR_1");
+        viaTower.Text.Should().Contain("colored lights"); // the pour's own first rung, unprefaced
+
+        Repository.GetLocation<CommRoom>().CurrentColor = "gray";
+        var second = await Ask("the light went gray, now what?", new RoutedIntent(HintIntent.Progress, false, "COMM_FIX"));
+        second.Topic.Should().Be("COMM_FIX");
+        second.Text.Should().Contain("other fluid");
+
+        // ...and asking about the pour they just finished lands on the same next stage.
+        var viaFirstPour = await Ask("the light went gray, now what?", new RoutedIntent(HintIntent.Progress, false, "COMM_POUR_1"));
+        viaFirstPour.Topic.Should().Be("COMM_FIX");
+    }
+
+    [Test]
+    public async Task StandingAtAnOptionalPuzzle_OpenEnded_HintsThatPuzzle_NotTheSpine()
+    {
+        // In the Comm Room with the lower card in hand: the spine says "take the lower elevator", but they
+        // climbed the tower to do the comm repair, so that is what they want.
+        Repository.GetItem<Floyd>().HasEverBeenOn = true;
+        Repository.GetLocation<TowerCore>().VisitCount = 1;
+        Take<Planetfall.Item.Kalamontee.Admin.LowerElevatorAccessCard>();
+        StartHere<CommRoom>();
+
+        var result = await Ask("what do I do?", RoutedIntent.OpenEnded);
+
+        result.Topic.Should().Be("COMM_POUR_1");
+    }
+
+    [Test]
+    public async Task AtTheLibrary_TheExplosionIsNoLongerUnexplained()
+    {
+        StartHere<LibraryLobby>();
+
+        await Ask("why did the ship blow up?", Lore);
+
+        _llm.LastLoreSource.Should().Contain("shot the Feinstein down");
+        _llm.LastLoreSource.Should().NotContain("not something you can know yet");
     }
 
     // ---- F. grounding: the Feinstein explosion ---------------------------------------------------------
@@ -244,7 +331,7 @@ public class PlanetfallHintEvalTests : EngineTestsBase
         Repository.GetLocation<LawandaPlatform>().VisitCount = 1; // in Lawanda, but not yet at the library
         PlanetfallLoreSource.TierOf(Context, provider.ProgressMapper.Map(Context)).Should().Be(1);
 
-        StartHere<Library>();
+        StartHere<LibraryLobby>(); // where the terminal is
         PlanetfallLoreSource.TierOf(Context, provider.ProgressMapper.Map(Context)).Should().Be(2);
 
         Repository.GetItem<Planetfall.Item.Computer.Relay>().SpeckDestroyed = true; // cured

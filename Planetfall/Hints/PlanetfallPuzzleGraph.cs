@@ -3,6 +3,7 @@ using GameEngine.Hints;
 using Model.Interface;
 using Model.Location;
 using Planetfall.Item.Computer;
+using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech;
@@ -10,10 +11,12 @@ using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.CryoElevator;
 using Planetfall.Item.Lawanda.Lab;
 using Planetfall.Item.Lawanda.LabOffice;
+using Planetfall.Location.Computer;
 using Planetfall.Location.Feinstein;
 using Planetfall.Location.Kalamontee;
 using Planetfall.Location.Kalamontee.Admin;
 using Planetfall.Location.Kalamontee.Tower;
+using Planetfall.Location.Lawanda;
 using Planetfall.Location.Shuttle;
 
 namespace Planetfall.Hints;
@@ -44,7 +47,11 @@ internal sealed class PlanetfallPuzzleGraph : IPuzzleGraph, IProgressMapper
     private static readonly HintNode[] Defs =
     {
         // ---- crash & escape ----------------------------------------------------------------
-        new("ESCAPE_POD", [], false, "Survive the explosion", "Deck Nine / Escape Pod",
+        // Before the explosion nothing on Deck Nine can be done; the pod bulkhead is shut. The one
+        // correct move is to wait, so it gets its own node rather than a pod hint that can't be followed.
+        new("EXPLOSION", [], false, "Wait for the explosion", "Deck Nine",
+            s => Repository.GetItem<BulkheadDoor>().IsOpen || Visited<EscapePod>(s)),
+        new("ESCAPE_POD", ["EXPLOSION"], false, "Get into the escape pod", "Deck Nine / Escape Pod",
             s => Visited<EscapePod>(s)),
         new("LAND", ["ESCAPE_POD"], false, "Get out of the pod", "Escape Pod / Crag",
             s => Visited<Underwater>(s) || Visited<Crag>(s)),
@@ -86,8 +93,13 @@ internal sealed class PlanetfallPuzzleGraph : IPuzzleGraph, IProgressMapper
             s => Visited<UpperElevator>(s)),
         new("TOWER_UP", ["OPEN_ELEVATOR", "FILL_FLASK_A"], true, "Reach the tower", "Upper Elevator / Tower Core",
             s => Visited<TowerCore>(s)),
-        new("COMM_FIX", ["TOWER_UP"], true, "Repair communications (the tower fluid puzzle)", "Tower Core",
-            _ => Repository.GetLocation<SystemsMonitors>().CommunicationsFixed),
+        new("COMM_POUR_1", ["TOWER_UP"], true, "The first pour in the comm room", "Comm Room",
+            _ => Repository.GetLocation<CommRoom>().CurrentColor == "gray" ||
+                 Repository.GetLocation<CommRoom>().IsFixed ||
+                 Repository.GetLocation<SystemsMonitors>().CommunicationsFixed),
+        new("COMM_FIX", ["COMM_POUR_1"], true, "Repair communications (the second pour)", "Comm Room",
+            _ => Repository.GetLocation<SystemsMonitors>().CommunicationsFixed ||
+                 Repository.GetLocation<CommRoom>().IsFixed),
 
         // ---- Lawanda: the mandatory spine to the cure ---------------------------------------
         new("LASER", ["SHUTTLE"], false, "Arm the laser with a fresh battery", "Tool Room / Lab Storage",
@@ -96,9 +108,14 @@ internal sealed class PlanetfallPuzzleGraph : IPuzzleGraph, IProgressMapper
             _ => Repository.GetItem<Floyd>().HasDied),
         new("MINI_CARD", ["BIOLOCK"], false, "The miniaturization card", "Bio Lock East",
             s => s.IsCarrying<MiniaturizationAccessCard>()),
-        new("COMPUTER_FIX", ["MINI_CARD", "LASER"], false, "Cure The Disease (destroy the microbe)",
-            "Miniaturization Booth", _ => Repository.GetItem<Relay>().SpeckDestroyed),
-        new("GAS_MASK", ["COMPUTER_FIX"], false, "Clear the lab office", "Lab Office",
+        // The cure is three puzzles once you're inside the computer, and a player can be stuck at any of them.
+        new("MINIATURIZE", ["MINI_CARD", "LASER"], false, "Miniaturize into the computer",
+            "Miniaturization Booth", s => Visited<Station384>(s) || Visited<StripNearStation>(s)),
+        new("SPECK", ["MINIATURIZE"], false, "Destroy the speck on the relay (the cure)", "Strip Near Relay",
+            _ => Repository.GetItem<Relay>().SpeckDestroyed),
+        new("MICROBE", ["SPECK"], false, "Get past the microbe and out of the computer", "Middle of Strip",
+            s => Repository.GetItem<Microbe>().Dispatched || Visited<AuxiliaryBooth>(s)),
+        new("GAS_MASK", ["MICROBE"], false, "Clear the lab office", "Lab Office",
             _ => Repository.GetItem<GasMask>().BeingWorn),
         new("MUTANT_CHASE", ["GAS_MASK"], false, "Escape the mutants to the cryo-elevator", "Cryo-Elevator",
             _ => Repository.GetItem<CryoElevatorButton>().AlreadyArrived),
@@ -150,11 +167,14 @@ internal sealed class PlanetfallPuzzleGraph : IPuzzleGraph, IProgressMapper
 
     public IReadOnlyList<string> ActiveBlockers(ProgressState state, IContext liveState)
     {
-        // Mandatory spine first — a stuck player wants the required next step, not an optional
-        // side-repair — then in authored (walkthrough) order.
+        // The puzzle in the room the player is standing in first (they went there for a reason), then the
+        // mandatory spine — a stuck player wants the required next step, not an optional side-repair —
+        // then authored (walkthrough) order.
+        var here = liveState.CurrentLocation?.Name ?? string.Empty;
         return Defs
             .Where(n => state.StatusOf(n.Id) == NodeStatus.Available)
-            .OrderBy(n => n.Optional ? 1 : 0)
+            .OrderBy(n => here.Length > 0 && n.Location.Contains(here, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+            .ThenBy(n => n.Optional ? 1 : 0)
             .Select(n => n.Id)
             .ToList();
     }
