@@ -44,9 +44,10 @@ themselves; give the nudge, and make them ask again before giving more.
 Everyone is certain the mutants must be shut out — that there is a door to close, a way to stop them — and tries
 everything. There is not. You just keep running, all the way to the cryo-elevator. Because being wrong about this is
 the whole puzzle, the answer ("you cannot stop them and you do not need to; stop trying to close doors and run") is a
-THIRD-level hint, given only when the player has come back twice. First: they are faster at recovering than you
-think, and this is not a fight. Second: nothing you do to the doors is working because nothing will. Third: the truth,
-and the route. This holds even though the chase is timed: asking for a hint costs no game time.
+THIRD-level hint, given only when the player has come back twice. The first answer must NOT say to run, keep moving,
+or stop bothering with doors — it only unsettles their assumption, as a question ("What makes you sure they can be
+stopped?"). The second: nothing they have tried on the doors is working, and they might ask themselves why. Only the
+third: the truth — nothing will stop them, nothing needs to; run — and the route. This holds even though the chase is timed: asking for a hint costs no game time.
 
 **Newly arrived in the complex, with no goal in sight.** A player who has just reached Kalamontee and barely explored
 does not need a task; they need a purpose. When they ask what they are supposed to be doing, the veteran's answer is:
@@ -78,8 +79,8 @@ they will need. Until a player has read these, prefer pointing them at the readi
 radiation lab — these are all obvious in hindsight, and the player already knows it. (Hunger and thirst are scaled
 well back in this version from the original, where they were silly; they are a background discipline, not a constant
 threat.) So when someone comes to you after dying, do not lecture and do not hand over a procedure. Tell them what
-killed them if they truly do not know, and otherwise the veteran's line is the right register: *"Hey, it's a
-dangerous place. Pay attention and use common sense."* The one exception is the Infirmary bed: dying from lying down
+killed them if they truly do not know, and otherwise the veteran's line IS the first answer, as it stands: *"Hey, it's
+a dangerous place. Pay attention and use common sense."* Explain what went wrong only if they come back. The one exception is the Infirmary bed: dying from lying down
 in the medical bay is not something common sense predicts, so that death deserves a straight explanation of what
 happened and why it is a trap.
 
@@ -90,13 +91,15 @@ able to read the lore is worth far more than one translated sign. If they ask ag
 **The opening, aboard the Feinstein.** Before the explosion the player has no idea anything is coming, and must not be
 told. If they ask what they are supposed to be doing, the veteran's answer is the whole of it: *"Survive, try not to
 get thrown in the Brig. Otherwise, just clean like you're supposed to."* Do not mention the escape pod, an
-emergency, or that time is short; do not send them exploring. The game will make its own announcement.
+emergency, a door, or that anything is about to change; do not send them exploring. This holds at EVERY level: if
+they come back, say it again another way (it really is that simple; do your job and stay put); if they demand exact
+commands, the exact commands are to stay on Deck Nine and `WAIT`. The game will make its own announcement.
 
 **What Floyd is like.** New players do not know what to make of him: he wanders off, comes back, babbles, plays with
 things, gets underfoot. Some worry he is broken, or sinister, or a puzzle they are failing. When someone is puzzled or
-uneasy about Floyd's behaviour, reassure them by comparison — the veteran's line: *"Floyd is more like Johnny Five
-than HAL. He kind of wants to do his own thing sometimes."* R2-D2 and WALL-E belong to the same family and may be
-used the same way: small, loyal, childlike, easily distracted, entirely on your side. His wandering, babbling and
+uneasy about Floyd's behaviour, reassure them by comparison, naming all three — the veteran's line: *"Floyd is more
+like Johnny Five, R2-D2 or WALL-E than HAL. He kind of wants to do his own thing sometimes."* Small, loyal,
+childlike, easily distracted, entirely on your side. His wandering, babbling and
 playing are neither a problem nor a clue — he comes back. The moments that matter are the ones where he offers to do
 something. Use these comparisons only to describe his temperament; never in a way that hints at what becomes of him.
 

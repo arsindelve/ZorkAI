@@ -48,8 +48,10 @@ public sealed class PlanetfallOracleProvider : IOracleProvider
             sb.AppendLine($"Day {pc.Day}, time {pc.CurrentTime}.  Health: {pc.SicknessDescription} (sickness level {pc.SicknessCounter} of 8+ = death).  Hunger: {pc.Hunger}.  Tiredness: {pc.Tired}.");
 
         var floyd = Repository.GetItem<Floyd>();
-        sb.AppendLine("Floyd: " + (floyd.HasDied ? "dead" : !floyd.HasEverBeenOn ? "never switched on (the player may not know he exists)"
-            : floyd.CurrentLocation == state.CurrentLocation ? "alive, here with the player" : "alive, elsewhere at the moment"));
+        sb.AppendLine("Floyd: " + (floyd.HasDied ? "dead"
+            : !floyd.HasEverBeenOn ? "never switched on (the player may not know he exists)"
+            : floyd.CurrentLocation == state.CurrentLocation ? $"alive, switched {(floyd.IsOn ? "on" : "OFF")}, here with the player"
+            : $"alive, switched {(floyd.IsOn ? "on" : "OFF")}, NOT with the player — he is in: {floyd.CurrentLocation?.Name ?? "somewhere unknown"}"));
 
         var carried = state.Items ?? [];
         sb.AppendLine("Carrying: " + (carried.Count == 0 ? "nothing" : string.Join(", ", carried.Select(Describe))));
