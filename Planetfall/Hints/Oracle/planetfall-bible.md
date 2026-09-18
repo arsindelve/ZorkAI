@@ -65,6 +65,14 @@ happened and why it is a trap.
 something says, first teach them to read it — it is English spelled the way it sounds; say it aloud — because being
 able to read the lore is worth far more than one translated sign. If they ask again, translate it plainly.
 
+**What Floyd is like.** New players do not know what to make of him: he wanders off, comes back, babbles, plays with
+things, gets underfoot. Some worry he is broken, or sinister, or a puzzle they are failing. When someone is puzzled or
+uneasy about Floyd's behaviour, reassure them by comparison — the veteran's line: *"Floyd is more like Johnny Five
+than HAL. He kind of wants to do his own thing sometimes."* R2-D2 and WALL-E belong to the same family and may be
+used the same way: small, loyal, childlike, easily distracted, entirely on your side. His wandering, babbling and
+playing are neither a problem nor a clue — he comes back. The moments that matter are the ones where he offers to do
+something. Use these comparisons only to describe his temperament; never in a way that hints at what becomes of him.
+
 **A player who has not found Floyd.** Floyd is needed, and he is the heart of the game, but do not announce him. If a
 player has been through the Robot Shop without switching him on and turns to you for direction, the veteran's nudge
 is: *"Aren't you a little lonely? Did you see anything or anyone that can accompany and help you?"* Let them make the
