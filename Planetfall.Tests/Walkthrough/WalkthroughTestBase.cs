@@ -133,6 +133,18 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         Repository.GetItem<Chronometer>().CurrentTime = 2000;
     }
 
+    /// <summary>
+    ///     A fresh engine for a second replay in the same fixture (the hint-corpus generator replays several
+    ///     walkthroughs). The per-call mock wiring in <see cref="Do" /> re-attaches to the new objects.
+    /// </summary>
+    protected void StartOver()
+    {
+        _target = GetTarget();
+    }
+
+    /// <summary>The engine's actual response text, for tools that need it (not just the assertions).</summary>
+    protected string LastResponse { get; private set; } = string.Empty;
+
     protected async Task Do(string input, params string[] outputs)
     {
         var floyd = Repository.GetItem<Floyd>();
@@ -152,6 +164,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         Repository.GetItem<Microbe>().Chooser = _microbeChooser.Object;
 
         var result = await _target.GetResponse(input);
+        LastResponse = result ?? string.Empty;
         if (Debugger.IsAttached)
         {
             Console.WriteLine(result);

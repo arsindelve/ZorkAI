@@ -9,6 +9,9 @@ import {
     InventoryButton,
     LocationButton,
     DialogType,
+    HintPanel,
+    HintsButton,
+    isFeatureEnabled,
     transcriptFontSizePx,
     transcriptFontStack,
     transcriptLineHeight,
@@ -16,6 +19,7 @@ import {
     compassScale,
     LocationImage,
 } from '@zork-ai/shared-types';
+import config from '../config.json';
 import React, {useEffect, useState} from 'react';
 import {Alert, Button, CircularProgress, Snackbar} from '@mui/material';
 import '@fontsource/roboto';
@@ -126,6 +130,10 @@ function Game() {
 
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
     const [snackBarMessage, setSnackBarMessage] = useState<string>('');
+    // Shared with Planetfall; both clients ship dark until the feature is ready.
+    const hintsEnabled = isFeatureEnabled('hints', config.hints_enabled === true);
+    const [hintsOpen, setHintsOpen] = useState<boolean>(false);
+    const [activeSessionId, setActiveSessionId] = useState<string>('');
 
     const sessionId = new SessionHandler();
     const server = new Server();
@@ -412,6 +420,7 @@ function Game() {
     async function gameInit(): Promise<GameResponse> {
         const [id, firstTime] = sessionId.getSessionId();
         if (firstTime) setDialogToOpen(DialogType.Welcome);
+        setActiveSessionId(id);
         return await server.gameInit(id);
     }
 
@@ -460,7 +469,7 @@ function Game() {
 
             <Header locationName={locationName} moves={moves} score={score} />
 
-            {showCompass && (
+            {showCompass && !hintsOpen && (
                 <Compass
                     onCompassClick={handleCommandClick}
                     exits={exits}
@@ -493,82 +502,94 @@ function Game() {
                 />
             )}
 
-            <div className="relative flex-1 min-h-0 mt-2">
-                <ClickableText
-                    ref={gameContentElement}
-                    exits={exits}
-                    onWordClick={(word: string) => handleWordClicked(word)}
-                    onMouseMove={highlightWordAtPointer}
-                    onMouseLeave={clearWordHighlight}
-                    onScroll={handleTranscriptScroll}
-                    className={
-                        'relative flex flex-col p-6 sm:p-12 bg-opacity-80 h-full overflow-auto ' +
-                        'bg-stone-900 rounded-t-lg border-t-2 border-x-2 ' +
-                        'border-stone-700/50 shadow-lg clickable z-10'
-                    }
-                    // Set here rather than as Tailwind classes so the whole transcript
-                    // inherits one size and family the preferences can drive at runtime.
-                    // The font-mono class was removed for the same reason: two sources
-                    // of truth for the family is one too many.
-                    style={{
-                        fontSize: `${transcriptFontSizePx(
-                            TRANSCRIPT_BASE_FONT_SIZE_PX,
-                            transcriptFontSize,
-                        )}px`,
-                        fontFamily: transcriptFontStack(transcriptFont),
-                        lineHeight: transcriptLineHeight(transcriptLineSpacing),
-                    }}
-                    data-testid="game-responses-container"
-                >
-                    <div className="relative z-0">
-                        {/* Background styling elements */}
-                        <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMjEyMTIxIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=')] opacity-5 pointer-events-none"></div>
-                        <div className="absolute top-2 left-2 w-20 h-20 rounded-full bg-[#c49a4c]/10 blur-3xl pointer-events-none"></div>
-                        <div className="absolute bottom-10 right-5 w-32 h-32 rounded-full bg-[#c49a4c]/5 blur-3xl pointer-events-none"></div>
-                    </div>
-
-                    {/* mt-auto pins the transcript to the bottom of the panel (terminal feel)
-                    while still scrolling normally once the content overflows. */}
-                    <div className="mt-auto relative z-10 w-full">
-                        {gameText.map((item: string, index: number) => (
-                            <p
-                                dangerouslySetInnerHTML={{__html: item}}
-                                className={`mb-4 relative z-10 ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
-                                key={index}
-                                data-testid="game-response"
-                            ></p>
-                        ))}
-                    </div>
-                </ClickableText>
-
-                {/* Sits inside the transcript's relative box, so the plate covers the
-                    panel the room description just landed in and dissolves back into it. */}
-                <LocationImage
-                    locationKey={locationKey}
-                    locationName={locationName}
-                    images={ZORK_LOCATION_IMAGES}
-                    isDark={itIsDarkHere}
-                    resetOn={playthrough}
-                    enabled={showLocationImages}
-                    animate={animations}
-                />
-
-                {showJumpToLatest && (
-                    <button
-                        type="button"
-                        onClick={jumpToLatest}
-                        data-testid="jump-to-latest"
-                        className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-mono pointer-events-auto transition-transform hover:scale-105 animate-fadeIn"
+            <div className="relative flex-1 min-h-0 mt-2 flex flex-row gap-3">
+                <div className="relative flex-1 min-w-0 h-full">
+                    <ClickableText
+                        ref={gameContentElement}
+                        exits={exits}
+                        onWordClick={(word: string) => handleWordClicked(word)}
+                        onMouseMove={highlightWordAtPointer}
+                        onMouseLeave={clearWordHighlight}
+                        onScroll={handleTranscriptScroll}
+                        className={
+                            'relative flex flex-col p-6 sm:p-12 bg-opacity-80 h-full overflow-auto ' +
+                            'bg-stone-900 rounded-t-lg border-t-2 border-x-2 ' +
+                            'border-stone-700/50 shadow-lg clickable z-10'
+                        }
+                        // Set here rather than as Tailwind classes so the whole transcript
+                        // inherits one size and family the preferences can drive at runtime.
+                        // The font-mono class was removed for the same reason: two sources
+                        // of truth for the family is one too many.
                         style={{
-                            background: 'rgba(28, 25, 23, 0.92)',
-                            border: '1px solid rgba(196, 154, 76, 0.45)',
-                            color: '#e3c179',
-                            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.5)',
-                            backdropFilter: 'blur(4px)',
+                            fontSize: `${transcriptFontSizePx(
+                                TRANSCRIPT_BASE_FONT_SIZE_PX,
+                                transcriptFontSize,
+                            )}px`,
+                            fontFamily: transcriptFontStack(transcriptFont),
+                            lineHeight: transcriptLineHeight(transcriptLineSpacing),
                         }}
+                        data-testid="game-responses-container"
                     >
-                        &darr;&nbsp;New messages
-                    </button>
+                        <div className="relative z-0">
+                            {/* Background styling elements */}
+                            <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMjEyMTIxIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=')] opacity-5 pointer-events-none"></div>
+                            <div className="absolute top-2 left-2 w-20 h-20 rounded-full bg-[#c49a4c]/10 blur-3xl pointer-events-none"></div>
+                            <div className="absolute bottom-10 right-5 w-32 h-32 rounded-full bg-[#c49a4c]/5 blur-3xl pointer-events-none"></div>
+                        </div>
+
+                        {/* mt-auto pins the transcript to the bottom of the panel (terminal feel)
+                    while still scrolling normally once the content overflows. */}
+                        <div className="mt-auto relative z-10 w-full">
+                            {gameText.map((item: string, index: number) => (
+                                <p
+                                    dangerouslySetInnerHTML={{__html: item}}
+                                    className={`mb-4 relative z-10 ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
+                                    key={index}
+                                    data-testid="game-response"
+                                ></p>
+                            ))}
+                        </div>
+                    </ClickableText>
+
+                    {/* Sits inside the transcript's relative box, so the plate covers the
+                    panel the room description just landed in and dissolves back into it. */}
+                    <LocationImage
+                        locationKey={locationKey}
+                        locationName={locationName}
+                        images={ZORK_LOCATION_IMAGES}
+                        isDark={itIsDarkHere}
+                        resetOn={playthrough}
+                        enabled={showLocationImages}
+                        animate={animations}
+                    />
+
+                    {showJumpToLatest && (
+                        <button
+                            type="button"
+                            onClick={jumpToLatest}
+                            data-testid="jump-to-latest"
+                            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-mono pointer-events-auto transition-transform hover:scale-105 animate-fadeIn"
+                            style={{
+                                background: 'rgba(28, 25, 23, 0.92)',
+                                border: '1px solid rgba(196, 154, 76, 0.45)',
+                                color: '#e3c179',
+                                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.5)',
+                                backdropFilter: 'blur(4px)',
+                            }}
+                        >
+                            &darr;&nbsp;New messages
+                        </button>
+                    )}
+                </div>
+
+                {hintsEnabled && activeSessionId && (
+                    <HintPanel
+                        open={hintsOpen}
+                        onClose={() => setHintsOpen(false)}
+                        sessionId={activeSessionId}
+                        ask={server.hint}
+                        className="absolute inset-0 z-30 md:relative md:inset-auto md:z-auto md:w-[340px] md:flex-none md:h-full"
+                    />
                 )}
             </div>
 
@@ -628,6 +649,12 @@ function Game() {
                                 />
                             )}
                         {showCommandsMenu && <CommandsButton onCommandClick={handleCommandClick} />}
+                        {hintsEnabled && (
+                            <HintsButton
+                                open={hintsOpen}
+                                onToggle={() => setHintsOpen((previous) => !previous)}
+                            />
+                        )}
 
                         <Button
                             variant="contained"

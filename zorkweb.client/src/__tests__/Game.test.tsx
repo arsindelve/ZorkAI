@@ -48,6 +48,7 @@ describe('Game', () => {
         saveGame: jest.fn(),
         gameRestore: jest.fn(),
         deleteSavedGame: jest.fn(),
+        hint: jest.fn(),
     };
     const context = {
         setDialogToOpen: jest.fn(),
@@ -77,6 +78,7 @@ describe('Game', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        localStorage.removeItem('ff_hints');
         Object.assign(context, {
             restartGame: false,
             saveGameRequest: undefined,
@@ -106,6 +108,18 @@ describe('Game', () => {
             '<span class="room-header">Hall (North)</span>A brass lamp is here.',
         );
         expect(screen.getByTestId('inventory-button')).toBeInTheDocument();
+        expect(screen.queryByTestId('hints-button')).not.toBeInTheDocument();
+    });
+
+    test('uses the shared hint panel when the dark-launch flag is enabled', async () => {
+        localStorage.setItem('ff_hints', '1');
+        render(<Game />);
+
+        const hintsButton = await screen.findByTestId('hints-button');
+        fireEvent.click(hintsButton);
+
+        expect(screen.getByTestId('hint-panel')).toBeInTheDocument();
+        expect(screen.getByRole('button', {name: 'New chat'})).toBeInTheDocument();
     });
 
     test('submits trimmed input with the active session and records successful output', async () => {

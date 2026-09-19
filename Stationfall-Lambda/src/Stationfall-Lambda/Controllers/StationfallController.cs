@@ -22,7 +22,7 @@ public class StationfallController(
     private const string SessionTableName = "stationfall_session";
 
     // NOTE: Planetfall's controller also exposes a POST /hint endpoint. It is deliberately absent here:
-    // HintService needs a game-specific IHintProvider and Stationfall doesn't have one yet. See the
+    // the hint oracle needs a game-specific IOracleProvider (a game bible) and Stationfall doesn't have one yet. See the
     // matching note in Startup.ConfigureServices.
 
     [HttpPost]

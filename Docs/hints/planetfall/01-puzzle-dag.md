@@ -52,6 +52,27 @@ checkpoint asserted in the walkthrough at/after that node.
 
 ★ = optional planetary system (Comm / Defense / Course Control). ◆ = mandatory spine.
 
+## Refinements as built (`Planetfall/Hints/PlanetfallPuzzleGraph.cs`)
+
+The live hint evaluation along the walkthrough split three nodes where a player can be stuck at a
+sub-step the table above doesn't distinguish:
+
+| As built | Replaces | Why |
+|---|---|---|
+| `EXPLOSION` → `ESCAPE_POD` | `ESCAPE_POD` | Before the explosion the bulkhead is shut and `port` fails; the only move is `wait`. Done when the pod bulkhead has opened (or the pod was entered). |
+| `COMM_POUR_1` → `COMM_FIX` | `COMM_FIX` | The first pour turns the light gray (`CommRoom.CurrentColor`); the second needs the other fluid. |
+| `MINIATURIZE` → `SPECK` → `MICROBE` | `COMPUTER_FIX` | Being inside, destroying the speck (`Relay.SpeckDestroyed`, the cure) and escaping the microbe (`Microbe.Dispatched`) are three different stuck points. `GAS_MASK` follows `MICROBE`. |
+| `POD_RIDE` → `LAND` → `CLIMB` | `LAND` | Falling in the pod (`EscapePod.LandedSafely`), getting out of it, and the climb from the Crag into the complex (`Courtyard` visited) are each somewhere a player asks "now what?". `MAGNET`/`FLOYD`/`FLASK`/`PLIERS` hang off `CLIMB`. |
+| `FLOYD_ACTIVATE` → `FLOYD` | `FLOYD` | "I activated it and nothing happened" is its own stuck point: activation (`IsOn` / countdown started) vs. awake (`HasEverBeenOn`). |
+| `GOOD_BEDISTOR` | — | The good bedistor (Storage East, Kalamontee) had no node, so "where do I find a good bedistor?" had no answer. Prerequisite of `COURSE_FIX`. |
+| `TELEPORT` | — | Using the booths, after `TELEPORT_CARD`; done once another booth has been reached. |
+| `SHUTTLE` (docked) | `SHUTTLE` | Also done while still aboard Alfie at the Lawanda end (`AlfieControlEast.TunnelPosition > 0`, door open), not only once on the platform. |
+| `MUTANT_CHASE` (sealed) | `MUTANT_CHASE` | Done when the cryo-elevator descent starts (`CryoElevatorButton.CountdownActive`), not only on arrival: the chase is over once the door is shut. |
+
+Completion is read from monotonic signals only (inventory, item flags, the systems monitors,
+`ILocation.VisitCount`), never from the player's current room. Nodes serving only the three optional
+repairs are marked optional, so an open-ended ask prefers the mandatory spine.
+
 ## Branch structure (the "not a line" part)
 
 The endings table in `PlanetfallContext.cs` confirms: **`COMPUTER_FIX` → `ENDING` is the

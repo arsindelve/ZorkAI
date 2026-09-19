@@ -245,83 +245,75 @@ public class OpenAIParsingBehaviorTests
 }
 
 [TestFixture]
-public class OpenAiHintLanguageModelBehaviorTests
+public class OpenAiHintOracleBehaviorTests
 {
+    private static readonly HintPersona Persona = new("Be dry.", "Testfall");
+
     [Test]
-    public async Task Solve_IncludesKnowledgeContextHistoryAndQuestion()
+    public async Task Answer_PutsTheStaticKnowledgeFirst_AndThePlayerLast()
     {
         IReadOnlyList<ChatMessage>? messages = null;
         var completion = new Mock<IChatCompletionClient>();
         completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
                 It.IsAny<ChatCompletionOptions>()))
             .Callback<IReadOnlyList<ChatMessage>, ChatCompletionOptions>((m, _) => messages = m)
-            .ReturnsAsync("Use the ladder.");
-        var target = new OpenAiHintLanguageModel(null, completion.Object);
+            .ReturnsAsync("  Look at the ladder.  ");
+        var target = new OpenAiHintOracle(null, completion.Object);
 
-        var result = await target.Solve("ladder docs", "at the rift",
-            [new HintExchange("Where next?", "Look around.")], "How do I cross?", new HintPersona("Be dry."));
+        var result = await target.Answer("THE BIBLE", Persona, "Location: the rift",
+            [new HintExchange("Where next?", "Look around.")], "How do I cross?");
 
-        result.Should().Be("Use the ladder.");
-        messages![1].Content[0].Text.Should().Contain("ladder docs").And.Contain("at the rift")
-            .And.Contain("Where next?").And.Contain("How do I cross?");
-    }
-
-    [Test]
-    public async Task Solve_SystemPrompt_NamesThePersonasGame_NotAHardcodedOne()
-    {
-        // ZorkAI.OpenAI is shared by every game. The solver prompt must take the game's identity and its
-        // state-grounding language from the persona, or every non-Planetfall game gets a system prompt
-        // asserting it IS Planetfall and talking about Floyd (issue #484).
-        IReadOnlyList<ChatMessage>? messages = null;
-        var completion = new Mock<IChatCompletionClient>();
-        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
-                It.IsAny<ChatCompletionOptions>()))
-            .Callback<IReadOnlyList<ChatMessage>, ChatCompletionOptions>((m, _) => messages = m)
-            .ReturnsAsync("Open it with the key.");
-        var target = new OpenAiHintLanguageModel(null, completion.Object);
-
-        await target.Solve("zork docs", "west of house", [], "How do I open the door?",
-            new HintPersona("Be dry.", "Zork I", "which treasures are in the trophy case, whether the thief lives"));
-
+        result.Should().Be("Look at the ladder.");
         var system = messages![0].Content[0].Text;
-        system.Should().Contain("Zork I");
-        system.Should().Contain("trophy case");
-        system.Should().NotContain("Planetfall");
-        system.Should().NotContain("Floyd");
+        system.Should().StartWith("Be dry.");
+        system.Should().Contain(OpenAiHintOracle.Brief);
+        system.Should().Contain("GAME KNOWLEDGE: Testfall");
+        system.Should().EndWith("THE BIBLE"); // the cacheable prefix holds nothing about this player
+        system.Should().NotContain("the rift");
+
+        var user = messages[1].Content[0].Text;
+        user.Should().Contain("Location: the rift");
+        user.Should().Contain("PLAYER: Where next?").And.Contain("YOU: Look around.");
+        user.Should().Contain("How do I cross?");
+        user.IndexOf("SITUATION", StringComparison.Ordinal).Should().BeLessThan(user.IndexOf("How do I cross?", StringComparison.Ordinal));
     }
 
     [Test]
-    public async Task Solve_SystemPrompt_WithDefaultPersona_NamesNoGameAtAll()
+    public async Task Answer_AnEmptyQuestion_IsTheHintButton()
     {
         IReadOnlyList<ChatMessage>? messages = null;
         var completion = new Mock<IChatCompletionClient>();
-        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
-                It.IsAny<ChatCompletionOptions>()))
+        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()))
             .Callback<IReadOnlyList<ChatMessage>, ChatCompletionOptions>((m, _) => messages = m)
-            .ReturnsAsync("Something.");
-        var target = new OpenAiHintLanguageModel(null, completion.Object);
+            .ReturnsAsync("A nudge.");
 
-        await target.Solve("docs", "somewhere", [], "What now?", new HintPersona("Be dry."));
+        await new OpenAiHintOracle(null, completion.Object).Answer("B", Persona, "S", [], "");
 
-        var system = messages![0].Content[0].Text;
-        system.Should().NotContain("Planetfall");
-        system.Should().NotContain("Floyd");
-        // ...and the sentence must still read as English: no game identity means the naming clause is
-        // dropped entirely, not filled with a placeholder ("the text-adventure game this text adventure").
-        system.Should().StartWith("You are the SOLVER stage of a hint system for a text adventure.");
+        messages![1].Content[0].Text.Should().Contain("pressed the hint button");
+        messages[1].Content[0].Text.Should().Contain("first thing they have asked");
     }
 
     [Test]
-    public async Task Reveal_WhenProviderFails_ReturnsCompleteSolution()
+    public async Task Answer_FailsClosed()
     {
-        var completion = new Mock<IChatCompletionClient>();
-        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
-                It.IsAny<ChatCompletionOptions>()))
-            .ThrowsAsync(new InvalidOperationException("offline"));
-        var target = new OpenAiHintLanguageModel(Mock.Of<ILogger>(), completion.Object);
+        var failing = new Mock<IChatCompletionClient>();
+        failing.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()))
+            .ThrowsAsync(new InvalidOperationException("boom"));
+        (await new OpenAiHintOracle(Mock.Of<ILogger>(), failing.Object) { RetryDelay = TimeSpan.Zero }
+            .Answer("B", Persona, "S", [], "q")).Should().BeNull();
+        failing.Verify(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()),
+            Times.Exactly(2)); // one retry, then decline
 
-        var result = await target.Reveal("at the rift", "Use the ladder", [], "More?", new HintPersona("Be dry."));
+        var flaky = new Mock<IChatCompletionClient>();
+        flaky.SetupSequence(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()))
+            .ThrowsAsync(new InvalidOperationException("429"))
+            .ReturnsAsync("A nudge.");
+        (await new OpenAiHintOracle(Mock.Of<ILogger>(), flaky.Object) { RetryDelay = TimeSpan.Zero }
+            .Answer("B", Persona, "S", [], "q")).Should().Be("A nudge."); // the retry can succeed
 
-        result.Should().Be("Use the ladder");
+        var empty = new Mock<IChatCompletionClient>();
+        empty.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()))
+            .ReturnsAsync("   ");
+        (await new OpenAiHintOracle(null, empty.Object).Answer("B", Persona, "S", [], "q")).Should().BeNull();
     }
 }
