@@ -30,7 +30,7 @@ public class PlanetfallControllerTests
             _mockEngine.Object,
             _mockSessionRepository.Object,
             _mockSavedGameRepository.Object,
-            new Mock<Model.Hints.IHintLanguageModel>().Object);
+            new Mock<Model.Hints.IHintOracle>().Object);
     }
 
     private Mock<ILogger<PlanetfallController>> _mockLogger;
@@ -394,19 +394,48 @@ public class PlanetfallControllerTests
     public class HintPostMethod : PlanetfallControllerTests
     {
         [Test]
-        public async Task Should_ReturnNoGameMessage_When_SessionMissing()
+        public async Task Should_ReturnNoGameMessage_When_SessionMissing_ButHintConversationExists()
         {
-            // A stale/typo/never-played session id has no saved state.
+            // No saved session, yet the client replays a hint conversation — the player was clearly
+            // mid-game, so the session is stale/lost. Refuse honestly instead of giving opening hints.
             _mockSessionRepository.Setup(r => r.GetSessionState("ghost-session", "planetfall_session"))
                 .ReturnsAsync((string?)null);
 
-            var result = await _controller.Hint(new HintApiRequest("ghost-session", "what do I do?"));
+            var result = await _controller.Hint(new HintApiRequest("ghost-session", "what do I do?",
+                new List<Model.Hints.HintExchange> {new("earlier q", "earlier a")}));
 
-            // Not an opening-scene hint and not a 500 — a clear "no game yet" message...
+            // Not an opening-scene hint and not a 500 — a clear "no game yet" message, flagged as a
+            // non-hint so the client shows it without recording it into the conversation...
             result.Text.Should().Contain("can't find a game");
+            result.IsHint.Should().BeFalse();
             // ...and nothing was persisted.
             _mockSessionRepository.Verify(
                 r => r.WriteSessionState(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        public async Task Should_InitializeSessionAndHintFreshOpening_When_SessionMissing_AndNoHintConversation()
+        {
+            // Sessions persist only after the first PLAYED turn — a brand-new player at turn zero has
+            // no saved session but IS looking at the game intro. With no prior hint conversation this is
+            // unambiguous: proceed against the fresh engine state rather than saying "start a game".
+            _mockSessionRepository.Setup(r => r.GetSessionState("new-session", "planetfall_session"))
+                .ReturnsAsync((string?)null);
+            _mockEngine.Setup(e => e.Context).Returns(new Mock<IContext>().Object);
+            _mockEngine.Setup(e => e.SaveGame()).Returns("fresh opening state");
+
+            var result = await _controller.Hint(new HintApiRequest("new-session", "what should I do first?"));
+
+            // It went into the hint flow (the unconfigured mock LLM degrades to the "unavailable"
+            // fallback) — the point is it did NOT refuse with the no-game message...
+            result.Text.Should().NotContain("can't find a game");
+            // ...never tried to restore a nonexistent session. It does persist the initialized
+            // turn-zero state, though, so a follow-up hint with conversation history is not mistaken
+            // for a stale session.
+            _mockEngine.Verify(e => e.RestoreGame(It.IsAny<string>()), Times.Never);
+            _mockSessionRepository.Verify(
+                r => r.WriteSessionState("new-session", "ZnJlc2ggb3BlbmluZyBzdGF0ZQ==",
+                    "planetfall_session"), Times.Once);
         }
 
         [Test]

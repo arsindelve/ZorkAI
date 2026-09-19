@@ -332,6 +332,12 @@ public static class Repository
         return _allItems.Values;
     }
 
+    /// <summary>All locations currently in the repository (the hint engine reads their state; read-only use).</summary>
+    public static IEnumerable<ILocation> GetAllLocations()
+    {
+        return _allLocations.Values;
+    }
+
     public static ILocation GetStartingLocation<T>() where T : IInfocomGame, new()
     {
         Reset();

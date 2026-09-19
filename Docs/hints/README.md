@@ -3,9 +3,16 @@
 Design artifacts for the rebuilt in-engine hint system, covering **both Planetfall and Zork I**
 (GitHub issue #144).
 
-These are **pre-code planning documents**: analysis drafts and design specs produced before any
-implementation, so the build is driven by a verified plan rather than vibes. Nothing here ships in
-the engine yet.
+These began as **pre-code planning documents**: analysis drafts and design specs produced before any
+implementation, so the build is driven by a verified plan rather than vibes.
+
+**Status: superseded by the hint oracle — read [08 — The Hint Oracle](08-oracle.md) first.** The running
+system is one strong model that understands the whole game (an embedded game bible), sees the player's actual
+situation and transcript, and answers with judgment: `GameEngine/Hints/Oracle`, `Planetfall/Hints`, served by
+`POST /hint` in `Planetfall-Lambda`. The puzzle-DAG / hint-ladder / router engine these documents designed was
+built, measured against the oracle on sixty graded checkpoints (41 GOOD vs the oracle's 55), and removed. The
+documents below are kept as the design record and as source material (the invisiclues and the lore notes feed
+the bible).
 
 ## Background
 
