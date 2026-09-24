@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using OpenAI.Chat;
 
 namespace ZorkAI.OpenAI;
@@ -102,5 +103,54 @@ public abstract class OpenAIClientBase
         return _canCreateAdditionalClient && _settings is not null
             ? new OpenAIChatCompletionClient(_settings.CreateClient(modelName))
             : null;
+    }
+
+    /// <summary>
+    ///     Shared plumbing for JSON-mode parser calls: send a single system prompt, ask for a JSON
+    ///     object reply, and deserialize it to <typeparamref name="T" />. Tolerant of self-hosted
+    ///     OpenAI-compatible servers (issue #383) the same way <see cref="OpenAITakeAndDropListParser" />
+    ///     is: if the endpoint rejects the JSON response format it retries once without it, and the
+    ///     reply is run through <see cref="LlmJson.ExtractJsonObject" /> to strip code fences/chatter
+    ///     before parsing. Returns null when there is no usable object - callers treat that as "no
+    ///     answer" and fall back.
+    /// </summary>
+    protected async Task<T?> CompleteJsonChatAsync<T>(string prompt, float temperature = 0f) where T : class
+    {
+        var messages = new List<ChatMessage>
+        {
+            new SystemChatMessage(prompt)
+        };
+
+        var options = new ChatCompletionOptions
+        {
+            Temperature = temperature,
+            ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat()
+        };
+
+        string response;
+        try
+        {
+            response = await Client!.CompleteChatAsync(messages, options);
+        }
+        catch (Exception ex)
+        {
+            // Some self-hosted OpenAI-compatible servers (issue #383) reject the JSON response
+            // format. Retry once without it; ExtractJsonObject below tolerates the free-form output.
+            Logger?.LogDebug(ex, "JSON response format rejected; retrying without it.");
+            response = await Client!.CompleteChatAsync(messages, new ChatCompletionOptions { Temperature = temperature });
+        }
+
+        var json = LlmJson.ExtractJsonObject(response);
+        if (json is null)
+            return null;
+
+        try
+        {
+            return JsonConvert.DeserializeObject<T>(json);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 }

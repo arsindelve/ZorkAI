@@ -116,7 +116,8 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
         GenerationClient.OnGenerate += () => _lastResponseWasGenerated = true;
 
         _openAITakeAndDropListParser = new OpenAITakeAndDropListParser(logger);
-        _itemProcessorFactory = new ItemProcessorFactory(_openAITakeAndDropListParser);
+        _itemProcessorFactory = new ItemProcessorFactory(_openAITakeAndDropListParser,
+            new OpenAIAgenticActionParser(logger));
         _parser = new IntentParser(_gameInstance.GetGlobalCommandFactory(), _logger);
         _conversationHandler = new ConversationHandler(_logger, parseConversation, GenerationClient,
             _gameInstance.TalkableCharacterTypes);
@@ -992,7 +993,9 @@ public class GameEngine<TInfocomGame, TContext> : IGameEngine
     private async Task<(InteractionResult? resultObject, string ResultMessage)> ProcessMultiNounIntent(
         MultiNounIntent multiInteraction)
     {
-        var engine = new MultiNounEngine();
+        // Pass the factory so the issue #136 agentic fall-through seam (Hook B) is reachable; the
+        // engine still records its own TerminalPath for the turn log (issue #578).
+        var engine = new MultiNounEngine(_itemProcessorFactory);
         var result = await engine.Process(multiInteraction, Context, GenerationClient);
         _terminalPath = engine.TerminalPath;
         return result;
