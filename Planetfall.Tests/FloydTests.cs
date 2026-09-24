@@ -3192,4 +3192,277 @@ public class FloydTests : EngineTestsBase
     }
 
     #endregion
+
+    #region Handing Back And Dropping What Floyd Holds (issue #521)
+
+    /// <summary>
+    /// Floyd holding the diary, with his chat backend stubbed to a sentinel no test should ever see.
+    /// Asking him for something he holds is a real mechanic in the original, so these requests must
+    /// never reach the conversation service - which is instructed to decline them in character and so
+    /// answers with a refusal the direct "take diary" command immediately contradicts (issue #521).
+    /// </summary>
+    private Mock<IChatWithFloyd> FloydHoldingTheDiary()
+    {
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+
+        var chat = new Mock<IChatWithFloyd>();
+        chat.Setup(s => s.AskFloydAsync(It.IsAny<string>()))
+            .ReturnsAsync(new CompanionResponse("CHAT-SHOULD-NOT-HAPPEN", null));
+        floyd.ChatWithFloyd = chat.Object;
+
+        return chat;
+    }
+
+    [TestCase("floyd, give me the diary")]
+    [TestCase("floyd, give the diary to me")]
+    [TestCase("floyd, hand me the diary")]
+    [TestCase("floyd, give it back")]
+    [TestCase("floyd, can i have the diary")]
+    [TestCase("floyd, give me the diary, please")]
+    public async Task AskFloydForWhatHeHolds_HandsItOver(string request)
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        var chat = FloydHoldingTheDiary();
+        await target.GetResponse("give the diary to floyd");
+
+        var response = await target.GetResponse(request);
+
+        response.Should().Contain("handing you the diary");
+        response.Should().NotContain("CHAT-SHOULD-NOT-HAPPEN");
+        target.Context.HasItem<Diary>().Should().BeTrue();
+        GetItem<Floyd>().ItemBeingHeld.Should().BeNull();
+        chat.Verify(s => s.AskFloydAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestCase("floyd, drop the diary")]
+    [TestCase("floyd, put down the diary")]
+    [TestCase("floyd, drop it")]
+    public async Task TellFloydToDropWhatHeHolds_HeDropsIt(string request)
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        var chat = FloydHoldingTheDiary();
+        await target.GetResponse("give the diary to floyd");
+
+        var response = await target.GetResponse(request);
+
+        response.Should().Contain("shrugs and drops the diary");
+        response.Should().NotContain("CHAT-SHOULD-NOT-HAPPEN");
+        target.Context.HasItem<Diary>().Should().BeFalse();
+        GetItem<Floyd>().ItemBeingHeld.Should().BeNull();
+        GetItem<Diary>().CurrentLocation.Should().Be(GetLocation<RobotShop>());
+        chat.Verify(s => s.AskFloydAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    /// <summary>
+    /// The original answers a request for something Floyd hasn't got with FLOYD-NOT-HAVE
+    /// (compone.zil:2059-2060, 1922-1923), not with an improvised decline.
+    /// </summary>
+    [Test]
+    public async Task AskFloydForSomethingHeDoesNotHold_HeSaysHeDoesNotHaveIt()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        FloydHoldingTheDiary();
+
+        var response = await target.GetResponse("floyd, give me the diary");
+
+        response.Should().Contain("Floyd does not one of those have!");
+        target.Context.HasItem<Diary>().Should().BeTrue();
+    }
+
+    /// <summary>
+    /// Only what is in Floyd's HAND is his to hand over. The lower elevator access card sits in his
+    /// compartments until he reveals it (or the player searches the switched-off robot); in the
+    /// original it is not inside him at all until then - FLOYD-REVEAL-CARD-F moves it to him when the
+    /// daemon fires (globals.zil:1459) - so ASK-FOR could never produce it early. Reaching into his
+    /// compartments here would skip that puzzle entirely.
+    /// </summary>
+    [Test]
+    public async Task AskFloydForTheCardBeforeHeRevealsIt_DoesNotHandItOver()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        FloydHoldingTheDiary();
+
+        var response = await target.GetResponse("floyd, give me the lower elevator card");
+
+        target.Context.HasItem<LowerElevatorAccessCard>().Should().BeFalse();
+        response.Should().NotContain("handing you");
+    }
+
+    /// <summary>
+    /// The original's give branch requires the recipient to be the player
+    /// (&lt;EQUAL? ,PRSI ,ME&gt;, compone.zil:1855-1859). Handing his toy to a third party is not that
+    /// mechanic, so it stays Floyd's own business - and his conversational voice.
+    /// </summary>
+    [Test]
+    public async Task TellFloydToGiveWhatHeHoldsToSomeoneElse_StaysConversational()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        var chat = FloydHoldingTheDiary();
+        chat.Setup(s => s.AskFloydAsync(It.IsAny<string>()))
+            .ReturnsAsync(new CompanionResponse("Floyd hugs the diary.", null));
+        await target.GetResponse("give the diary to floyd");
+
+        var response = await target.GetResponse("floyd, give the diary to the ambassador");
+
+        response.Should().Contain("Floyd hugs the diary");
+        GetItem<Floyd>().ItemBeingHeld.Should().Be(GetItem<Diary>());
+    }
+
+    /// <summary>
+    /// A request that names nothing Floyd could be holding is not this mechanic. It must keep reaching
+    /// the conversation service, or the bridge would eat Floyd's jokes.
+    /// </summary>
+    [Test]
+    public async Task AskFloydForSomethingThatIsNotAnObject_StaysConversational()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        var chat = FloydHoldingTheDiary();
+        chat.Setup(s => s.AskFloydAsync(It.IsAny<string>()))
+            .ReturnsAsync(new CompanionResponse("Floyd gives you an enormous hug.", null));
+        await target.GetResponse("give the diary to floyd");
+
+        var response = await target.GetResponse("floyd, give me a hug");
+
+        response.Should().Contain("enormous hug");
+        GetItem<Floyd>().ItemBeingHeld.Should().Be(GetItem<Diary>());
+    }
+
+    /// <summary>
+    /// The original's own grammar for this is TELL/ASK &lt;actor&gt; FOR &lt;object&gt;
+    /// (syntax.zil:341-342 - V-ASK-FOR), which reaches Floyd as an ordinary multi-noun command rather
+    /// than as speech, so it needs the same bridge on that side too.
+    /// </summary>
+    [Test]
+    public async Task AskFloydForTheDiaryAsACommand_HandsItOver()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        FloydHoldingTheDiary();
+        await target.GetResponse("give the diary to floyd");
+
+        var response = await target.GetResponse("ask floyd for the diary");
+
+        response.Should().Contain("handing you the diary");
+        target.Context.HasItem<Diary>().Should().BeTrue();
+        GetItem<Floyd>().ItemBeingHeld.Should().BeNull();
+    }
+
+    /// <summary>
+    /// "it"/"that" point at the thing in his hand only when they are the OBJECT of the request. The same
+    /// words in front of a real noun are determiners, and "give me that joke" asks for a joke - handing
+    /// over the diary there would be a worse bug than the one #521 reports.
+    /// </summary>
+    [TestCase("floyd, give it to me", true)]
+    [TestCase("floyd, drop it now", true)]
+    [TestCase("floyd, give me that joke", false)]
+    [TestCase("floyd, tell me this story", false)]
+    public async Task APronounOnlyMeansTheHeldItemWhenItIsTheObject(string request, bool handsItOver)
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        var chat = FloydHoldingTheDiary();
+        chat.Setup(s => s.AskFloydAsync(It.IsAny<string>()))
+            .ReturnsAsync(new CompanionResponse("Floyd tells a joke about a squeaky wheel.", null));
+        await target.GetResponse("give the diary to floyd");
+
+        var response = await target.GetResponse(request);
+
+        if (handsItOver)
+        {
+            GetItem<Floyd>().ItemBeingHeld.Should().BeNull();
+            response.Should().NotContain("squeaky wheel");
+        }
+        else
+        {
+            GetItem<Floyd>().ItemBeingHeld.Should().Be(GetItem<Diary>());
+            response.Should().Contain("squeaky wheel");
+        }
+    }
+
+    /// <summary>
+    /// The command form answers for a real object he hasn't got with the original's flat refusal, but a
+    /// noun that is no object at all ("ask floyd for help") is not this mechanic - it must reach the
+    /// engine's ordinary handling of an unresolvable noun instead of a canned denial about a non-thing.
+    /// </summary>
+    [Test]
+    public async Task AskFloydForARealThingHeDoesNotHold_RefusesButForANonObject_FallsThrough()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        FloydHoldingTheDiary();
+
+        var refusal = await target.GetResponse("ask floyd for the diary");
+        refusal.Should().Contain("Floyd does not one of those have!");
+
+        var fallThrough = await target.GetResponse("ask floyd for help");
+        fallThrough.Should().NotContain("Floyd does not one of those have!");
+    }
+
+    /// <summary>
+    /// A forbidding request is the opposite of an action. The companion service's own prompt is careful
+    /// about this ("don't go north" is never movement); a deterministic bridge has to be just as
+    /// careful, or telling Floyd to hang on to something would make him put it down.
+    /// </summary>
+    [TestCase("floyd, don't drop the diary")]
+    [TestCase("floyd, never give me the diary")]
+    public async Task ForbiddingFloydToDropOrHandOver_DoesNeitherAndStaysConversational(string request)
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        var chat = FloydHoldingTheDiary();
+        chat.Setup(s => s.AskFloydAsync(It.IsAny<string>()))
+            .ReturnsAsync(new CompanionResponse("Floyd holds the diary tighter and nods seriously.", null));
+        await target.GetResponse("give the diary to floyd");
+
+        var response = await target.GetResponse(request);
+
+        response.Should().Contain("holds the diary tighter");
+        GetItem<Floyd>().ItemBeingHeld.Should().Be(GetItem<Diary>());
+        target.Context.HasItem<Diary>().Should().BeFalse();
+    }
+
+    /// <summary>
+    /// Floyd dropping an item must not leave the take-callback stamped on it. That callback nulls
+    /// ItemBeingHeld whoever takes the item and whenever - so a brush left carrying it, picked up off
+    /// the floor later while Floyd holds something else, would silently strip Floyd of THAT item and
+    /// orphan it (CurrentLocation still Floyd, in neither his Items nor his hand: out of scope for
+    /// good).
+    /// </summary>
+    [Test]
+    public async Task AfterFloydDropsIt_TakingItLaterDoesNotStripHimOfSomethingElse()
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        Take<Brush>();
+        FloydHoldingTheDiary();
+        await target.GetResponse("give the diary to floyd");
+        await target.GetResponse("floyd, drop the diary");
+
+        // He is now holding the brush instead; picking the dropped diary back up must not disturb it.
+        await target.GetResponse("give the brush to floyd");
+        await target.GetResponse("take diary");
+
+        GetItem<Floyd>().ItemBeingHeld.Should().Be(GetItem<Brush>());
+    }
+
+    #endregion
+
 }

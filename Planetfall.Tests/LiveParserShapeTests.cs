@@ -4,12 +4,15 @@ using Model.Interface;
 using Moq;
 using OpenAI.Chat;
 using Planetfall.GlobalCommand;
+using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech;
+using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda;
 using Planetfall.Location.Computer;
 using Planetfall.Location.Kalamontee;
+using Planetfall.Location.Kalamontee.Mech;
 using Planetfall.Location.Lawanda;
 using ZorkAI.OpenAI;
 
@@ -401,5 +404,39 @@ public class LiveParserShapeTests : EngineTestsBase
         response.Should().Contain("The warning lights go out");
         GetItem<LargeMetalCube>().HasItem<GoodBedistor>().Should().BeTrue();
         GetLocation<CourseControl>().Fixed.Should().BeTrue();
+    }
+
+    /// <summary>
+    ///     Issue #521. "ask floyd for the diary" is the original's own grammar for being handed
+    ///     something back (<c>TELL/ASK &lt;actor&gt; FOR &lt;object&gt;</c> -> <c>V-ASK-FOR</c>,
+    ///     planetfall-source/syntax.zil:341-342). It is the one phrasing of this mechanic that does NOT
+    ///     reach Floyd as speech - it leads with the verb rather than his name, so direct-address
+    ///     detection never fires - which makes the real parser's shape for it load-bearing rather than
+    ///     incidental. <c>base-mappings.json</c> stubs the same command for the handler tests; this pins
+    ///     the parser that has to produce it in production.
+    /// </summary>
+    [Test]
+    public async Task AskFloydForTheDiary_WithTheRealParser_StillGetsItBack()
+    {
+        var target = GetTarget(ParserReturning("""
+                                               <intent>act</intent>
+                                               <verb>ask</verb>
+                                               <noun>floyd</noun>
+                                               <noun>diary</noun>
+                                               <preposition>for</preposition>
+                                               """));
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.IsOn = true;
+        floyd.HasEverBeenOn = true;
+        floyd.ItemBeingHeld = Take<Diary>();
+        Context.RemoveItem(GetItem<Diary>());
+        GetItem<Diary>().CurrentLocation = floyd;
+
+        var response = await target.GetResponse("ask floyd for the diary");
+
+        response.Should().Contain("handing you the diary");
+        Context.HasItem<Diary>().Should().BeTrue();
+        floyd.ItemBeingHeld.Should().BeNull();
     }
 }
