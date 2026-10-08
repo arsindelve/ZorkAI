@@ -27,7 +27,9 @@ public class LocalSecretsManager : ISecretsManager
         "describes. You narrate outcomes; you do not change them.\n" +
         "- When the player attempts something impossible, absurd, or pointless, respond with gentle " +
         "mockery in keeping with the game's tone, and make clear the action had no effect.\n" +
-        "- Match the vocabulary and atmosphere of the game's own text.";
+        "- Match the vocabulary and atmosphere of the game's own text.\n" +
+        "- Vary how responses begin. Never open with \"Ah\", \"Oh\" or a similar interjection; start " +
+        "with the action or its consequence.";
 
     public Task<string> GetSecret(string secretName)
     {
