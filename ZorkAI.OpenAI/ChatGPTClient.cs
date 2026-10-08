@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.RegularExpressions;
 using CloudWatch;
 using CloudWatch.Model;
 using Microsoft.Extensions.Logging;
@@ -76,6 +77,8 @@ public class ChatGPTClient : OpenAIClientBase, IGenerationClient
 
         foreach (var tuple in reverse) lastInputs.AppendLine($"Input: {tuple.Item1}. Output: {tuple.Item2}");
 
+        lastInputs.AppendLine(OpenerGuidance);
+
         messages.Add(new SystemChatMessage(lastInputs.ToString()));
 
         // Add the most recent request
@@ -92,6 +95,8 @@ public class ChatGPTClient : OpenAIClientBase, IGenerationClient
 
         if (string.IsNullOrEmpty(responseContent))
             return "The narrator is silent. ";
+
+        responseContent = StripInterjectionOpener(responseContent);
 
         OnGenerate?.Invoke();
         Log(request, responseContent, SystemPrompt + systemPromptAddendum);
@@ -158,6 +163,35 @@ public class ChatGPTClient : OpenAIClientBase, IGenerationClient
     ///     Some models occasionally emit typographic (curly) quotes; normalize to straight quotes so
     ///     downstream rendering and any quote-based handling stay consistent. Pure function, unit-tested.
     /// </summary>
+    /// <summary>
+    ///     Issue #594: left alone, the model opens about half its replies with "Ah," or "Ah, yes,", which
+    ///     reads as a verbal tic across a session. The narrator prompt itself lives in Secrets Manager, so
+    ///     this rule is sent from code on every narration to cover every game regardless of that secret.
+    /// </summary>
+    public const string OpenerGuidance =
+        "Vary how your responses begin. Never open with \"Ah\", \"Ah, yes\", \"Oh\" or a similar " +
+        "interjection; start with the action or its consequence, and do not reuse the opening words of " +
+        "the replies above.";
+
+    // "Ah," / "Ahh," / "Ah yes," / "Ah, yes," / "Ah!" / "Oh," at the very start of a reply. Requires the
+    // punctuation right after the interjection so "Aha!", "Ahead", "Oh no" and "Oh well" are untouched.
+    private static readonly Regex InterjectionOpener =
+        new(@"^\s*(?:Ah+|Oh)(?:,?\s+yes)?\s*[,!]\s*(?=\S)", RegexOptions.Compiled);
+
+    /// <summary>
+    ///     Safety net for <see cref="OpenerGuidance" />: if the model opens with the tic anyway, drop the
+    ///     interjection and capitalize what follows. Pure function, unit-tested.
+    /// </summary>
+    public static string StripInterjectionOpener(string text)
+    {
+        var match = InterjectionOpener.Match(text);
+        if (!match.Success)
+            return text;
+
+        var rest = text[match.Length..];
+        return char.ToUpperInvariant(rest[0]) + rest[1..];
+    }
+
     public static string NormalizeQuotes(string text) =>
         text.Replace('“', '"').Replace('”', '"').Replace('‘', '\'').Replace('’', '\'');
 }
