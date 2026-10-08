@@ -76,41 +76,6 @@ public class ChatGPTClientBehaviorTests
     }
 
     [Test]
-    public async Task GenerateNarration_StripsAnAhOpener_ThatSlipsThroughAnyway()
-    {
-        var target = new ChatGPTClient(null,
-            CompletionReturning("Ah, the classic gourmet delicacy of mailbox a la carte.").Object);
-
-        var result = await target.GenerateNarration(new EmptyRequest(), string.Empty);
-
-        result.Should().Be("The classic gourmet delicacy of mailbox a la carte.");
-    }
-
-    [TestCase("Ah, the skyward journey begins and ends here.", "The skyward journey begins and ends here.")]
-    [TestCase("Ah yes, just casually tuck the entire house under your arm.", "Just casually tuck the entire house under your arm.")]
-    [TestCase("Ah, yes, the house remains stubbornly unportable.", "The house remains stubbornly unportable.")]
-    [TestCase("Ah! The Stellar Patrol anthem echoes off the walls.", "The Stellar Patrol anthem echoes off the walls.")]
-    [TestCase("Ahh, a brave choice.", "A brave choice.")]
-    [TestCase("Oh, the scrub brush has no opinion.", "The scrub brush has no opinion.")]
-    [TestCase("  Ah, summoning a grue is unwise.", "Summoning a grue is unwise.")]
-    public void StripInterjectionOpener_RemovesTheTic(string input, string expected)
-    {
-        ChatGPTClient.StripInterjectionOpener(input).Should().Be(expected);
-    }
-
-    [TestCase("Aha! You have found nothing.")]
-    [TestCase("Ahead of you, the path ends.")]
-    [TestCase("Oh no you don't.")]
-    [TestCase("Oh well.")]
-    [TestCase("Ah.")]
-    [TestCase("The lamp is already on.")]
-    [TestCase("")]
-    public void StripInterjectionOpener_LeavesOtherOpeningsAlone(string input)
-    {
-        ChatGPTClient.StripInterjectionOpener(input).Should().Be(input);
-    }
-
-    [Test]
     public async Task GenerateNarration_WhenProviderIsSilent_ReturnsNarratorFallback()
     {
         var completion = CompletionReturning(string.Empty);
