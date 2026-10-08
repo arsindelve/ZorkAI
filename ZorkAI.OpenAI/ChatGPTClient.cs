@@ -76,8 +76,6 @@ public class ChatGPTClient : OpenAIClientBase, IGenerationClient
 
         foreach (var tuple in reverse) lastInputs.AppendLine($"Input: {tuple.Item1}. Output: {tuple.Item2}");
 
-        lastInputs.AppendLine(OpenerGuidance);
-
         messages.Add(new SystemChatMessage(lastInputs.ToString()));
 
         // Add the most recent request
@@ -155,16 +153,6 @@ public class ChatGPTClient : OpenAIClientBase, IGenerationClient
 
         return responseContent;
     }
-
-    /// <summary>
-    ///     Issue #594: left alone, the model opens about half its replies with "Ah," or "Ah, yes,", which
-    ///     reads as a verbal tic across a session. The narrator prompt itself lives in Secrets Manager, so
-    ///     this rule is sent from code on every narration to cover every game regardless of that secret.
-    /// </summary>
-    public const string OpenerGuidance =
-        "Vary how your responses begin. Never open with \"Ah\", \"Ah, yes\", \"Oh\" or a similar " +
-        "interjection; start with the action or its consequence, and do not reuse the opening words of " +
-        "the replies above.";
 
     /// <summary>
     ///     Some models occasionally emit typographic (curly) quotes; normalize to straight quotes so

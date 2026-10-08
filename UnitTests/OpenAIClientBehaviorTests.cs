@@ -56,25 +56,6 @@ public class ChatGPTClientBehaviorTests
         options!.Temperature.Should().Be(0.4f);
     }
 
-    // Issue #594: the narrator opened roughly half its replies with "Ah," / "Ah, yes,". The prompt
-    // that names the tic lives in code (not only in the Secrets Manager prompt) so every game gets it.
-    [Test]
-    public async Task GenerateNarration_TellsTheModelNotToOpenWithAnInterjection()
-    {
-        IReadOnlyList<ChatMessage>? messages = null;
-        var completion = new Mock<IChatCompletionClient>();
-        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
-                It.IsAny<ChatCompletionOptions>()))
-            .Callback<IReadOnlyList<ChatMessage>, ChatCompletionOptions>((m, _) => messages = m)
-            .ReturnsAsync("The mailbox declines to be eaten.");
-        var target = new ChatGPTClient(null, completion.Object) { SystemPrompt = "Narrate." };
-
-        await target.GenerateNarration(new EmptyRequest(), string.Empty);
-
-        MessageText(messages![1]).Should().Contain(ChatGPTClient.OpenerGuidance);
-        ChatGPTClient.OpenerGuidance.Should().Contain("\"Ah\"");
-    }
-
     [Test]
     public async Task GenerateNarration_WhenProviderIsSilent_ReturnsNarratorFallback()
     {
