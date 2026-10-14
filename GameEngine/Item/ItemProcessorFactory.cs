@@ -5,8 +5,12 @@ using Model.Item;
 
 namespace GameEngine.Item;
 
-public class ItemProcessorFactory(IAITakeAndAndDropParser aiTakeAndAndDropParser) : IItemProcessorFactory
+public class ItemProcessorFactory(
+    IAITakeAndAndDropParser aiTakeAndAndDropParser,
+    IAgenticActionParser? agenticActionParser = null) : IItemProcessorFactory
 {
+    public IAgenticActionParser? AgenticActionParser { get; } = agenticActionParser;
+
     public List<IVerbProcessor> GetProcessors(object item)
     {
         List<IVerbProcessor> result =
