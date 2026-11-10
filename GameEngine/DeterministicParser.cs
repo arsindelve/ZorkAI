@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using Model;
 using Model.Intent;
+using Model.Movement;
 
 namespace GameEngine;
 
@@ -125,9 +126,13 @@ public class DeterministicParser
                 continue;
 
             var destination = input[prefix.Length..].Trim();
-            return string.IsNullOrWhiteSpace(destination)
-                ? null
-                : new GoToDestinationIntent { Destination = destination, Message = original };
+            if (string.IsNullOrWhiteSpace(destination)) return null;
+            var dir = DirectionParser.ParseDirection(destination);
+            if (dir != Direction.Unknown)
+                return new MoveIntent { Direction = dir, Message = original };
+            return _vocab.Nouns.Contains(destination)
+                ? new GoToDestinationIntent { Destination = destination, Message = original }
+                : null;
         }
 
         var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -182,9 +187,11 @@ public class DeterministicParser
         // 5. Single noun: the whole post-verb phrase must be an exact known noun (so a hidden second noun,
         //    or trailing words we don't understand, defers to the AI rather than being guessed).
         var single = string.Join(' ', rest);
-        return _vocab.Nouns.Contains(single)
-            ? new SimpleIntent { Verb = verb, Noun = single, OriginalInput = original, Message = original }
-            : null;
+        if (!_vocab.Nouns.Contains(single))
+            return null;
+        if (verb is "enter" or "board")
+            return new EnterSubLocationIntent { Noun = single, Message = original };
+        return new SimpleIntent { Verb = verb, Noun = single, OriginalInput = original, Message = original };
     }
 
     /// <summary>Lowercases, trims trailing sentence punctuation, and strips articles.</summary>

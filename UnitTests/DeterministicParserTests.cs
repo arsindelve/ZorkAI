@@ -1,6 +1,7 @@
 using GameEngine;
 using Model.AIParsing;
 using Model.Intent;
+using Model.Movement;
 using ZorkOne.GlobalCommand;
 
 namespace UnitTests;
@@ -83,6 +84,26 @@ public class DeterministicParserTests
 
             result.Should().BeOfType<GoToDestinationIntent>();
             ((GoToDestinationIntent)result!).Destination.Should().Be(expectedDestination);
+        }
+
+        [TestCase("walk to the north", Direction.N)]
+        [TestCase("go to the south", Direction.S)]
+        public void TravelPrefixWithDirection_BecomesMoveIntent(string input, Direction expectedDirection)
+        {
+            var result = _parser.Parse(input);
+
+            result.Should().BeOfType<MoveIntent>();
+            ((MoveIntent)result!).Direction.Should().Be(expectedDirection);
+        }
+
+        [TestCase("enter boat")]
+        [TestCase("board boat")]
+        public void EnterOrBoardKnownNoun_BecomesEnterSubLocationIntent(string input)
+        {
+            var result = _parser.Parse(input);
+
+            result.Should().BeOfType<EnterSubLocationIntent>();
+            ((EnterSubLocationIntent)result!).Noun.Should().Be("boat");
         }
 
         [TestCase("put the sword into the trophy case")]
@@ -198,6 +219,12 @@ public class DeterministicParserTests
         public void UnknownNoun_FallsBackToAi()
         {
             _parser.Parse("examine flux capacitor").Should().BeNull();
+        }
+
+        [Test]
+        public void TravelPrefixWithUnknownDestination_FallsBackToAi()
+        {
+            _parser.Parse("walk to the flux capacitor").Should().BeNull();
         }
 
         [Test]
