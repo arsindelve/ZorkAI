@@ -94,6 +94,13 @@ public class FloydItemRequests(Floyd floyd)
         var said = $" {Regex.Replace(text.ToLowerInvariant(), "[.,!?;:\"]+", " ").Trim()} ";
         said = Regex.Replace(said, @"\s+", " ");
 
+        // A question or first-person report can mention a request without asking Floyd to act on it.
+        var isQuestion = text.TrimEnd().EndsWith('?') ||
+                         new[] { " should ", " why ", " did ", " do you ", " does " }
+                             .Any(q => said.StartsWith(q) || said.Contains($" i{q}"));
+        if (isQuestion || said.StartsWith(" i ") && !HandBackIdioms.Any(i => said.StartsWith($" {i} ")))
+            return null;
+
         if (Negations.Any(n => said.Contains($" {n} ")))
             return null;
 
@@ -101,7 +108,8 @@ public class FloydItemRequests(Floyd floyd)
                            RecipientIsThePlayer.Any(r => said.Contains($" {r} "))) ||
                           HandBackIdioms.Any(i => said.Contains($" {i} "));
 
-        var wantsItDropped = DropVerbs.Any(v => said.Contains($" {v} "));
+        var wantsItDropped = DropVerbs.Any(v =>
+            Regex.IsMatch(said, $@"^ (please |can you |could you |would you )?{Regex.Escape(v)} "));
 
         if (!wantsItBack && !wantsItDropped)
             return null;

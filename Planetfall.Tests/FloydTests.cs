@@ -3438,6 +3438,28 @@ public class FloydTests : EngineTestsBase
         target.Context.HasItem<Diary>().Should().BeFalse();
     }
 
+    [TestCase("floyd, the manual says drop the diary")]
+    [TestCase("floyd, why did you drop the diary?")]
+    [TestCase("floyd, should I give the diary back")]
+    [TestCase("floyd, i know you want to give me the diary")]
+    public async Task StatementsAndQuestionsMentioningRequests_StayConversational(string utterance)
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        Take<Diary>();
+        var chat = FloydHoldingTheDiary();
+        chat.Setup(s => s.AskFloydAsync(It.IsAny<string>()))
+            .ReturnsAsync(new CompanionResponse("Floyd considers the diary.", null));
+        await target.GetResponse("give the diary to floyd");
+
+        var response = await target.GetResponse(utterance);
+
+        response.Should().Contain("Floyd considers the diary");
+        GetItem<Floyd>().ItemBeingHeld.Should().Be(GetItem<Diary>());
+        target.Context.HasItem<Diary>().Should().BeFalse();
+        chat.Verify(s => s.AskFloydAsync(It.IsAny<string>()), Times.Once);
+    }
+
     /// <summary>
     /// Floyd dropping an item must not leave the take-callback stamped on it. That callback nulls
     /// ItemBeingHeld whoever takes the item and whenever - so a brush left carrying it, picked up off
