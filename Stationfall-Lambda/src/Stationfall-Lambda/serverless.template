@@ -15,7 +15,10 @@
         "Timeout": 30,
         "Role": null,
         "Policies": [
-          "AWSLambda_FullAccess"
+          "AWSLambda_FullAccess",
+          "AmazonDynamoDBFullAccess",
+          "SecretsManagerReadWrite",
+          "AmazonBedrockFullAccess"
         ],
         "Events": {
           "ProxyResource": {

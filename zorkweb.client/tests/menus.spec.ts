@@ -60,15 +60,15 @@ test.describe('Game Menus', () => {
         await page.locator('[data-testid="about-button"]').click();
 
         // Verify that the About menu appears
-        const aboutMenu = page.locator('#basic-menu');
+        const aboutMenu = page.locator('#about-menu');
         await expect(aboutMenu).toBeVisible();
 
         // Verify that the menu contains expected items
-        const menuItems = page.locator('#basic-menu li');
+        const menuItems = page.locator('#about-menu li');
         await expect(menuItems).toHaveCount(10); // There are 10 menu items in the AboutMenu component
 
         // Verify a specific menu item is present
-        const whatIsThisGameItem = page.locator('#basic-menu li:has-text("What is this game?")');
+        const whatIsThisGameItem = page.locator('#about-menu li:has-text("What is this game?")');
         await expect(whatIsThisGameItem).toBeVisible();
     });
 
@@ -88,7 +88,8 @@ test.describe('Game Menus', () => {
 
         // Verify that the menu contains expected items
         const menuItems = page.locator('#game-menu li');
-        await expect(menuItems).toHaveCount(4); // There are 4 menu items in the FunctionsMenu component
+        // Restart, Restore, Save, Copy Transcript, Preferences
+        await expect(menuItems).toHaveCount(5);
 
         // Verify a specific menu item is present
         const restartGameItem = page.locator('#game-menu li:has-text("Restart Your Game")');

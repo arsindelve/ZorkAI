@@ -28,8 +28,7 @@ public class Startup
 
         // Hint subsystem (v1: Planetfall, all-OpenAI). Stateless: the hint conversation is supplied by
         // the client on each request, so there's no server-side memory to register.
-        services.AddScoped<IHintLanguageModel>(sp =>
-            new OpenAiHintLanguageModel(sp.GetService<ILogger<OpenAiHintLanguageModel>>()));
+        services.AddScoped<IHintOracle>(sp => new OpenAiHintOracle(sp.GetService<ILogger<OpenAiHintOracle>>()));
 
         // Register the hosted service that will initialize GameEngine asynchronously
         services.AddHostedService<GameEngineInitializer>();

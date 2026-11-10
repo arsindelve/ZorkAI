@@ -28,6 +28,23 @@ public abstract class GooBase : ItemBase, ICanBeExamined, ICanBeEaten
 
         // Both refusals end by naming the only thing that does work, so the player is never left
         // holding a food item they cannot figure out how to eat.
+        // Eating it where it sits is the ONLY thing that works, so it has to work even though the kit
+        // is on the deck rather than in your hands (ship.zil GOO-F gates on being in the kit, not on
+        // the player holding it).
+        if (action.MatchVerb(["eat", "drink", "swallow"]))
+        {
+            var (message, consumed) = OnEating(context);
+
+            if (consumed)
+            {
+                CurrentLocation?.RemoveItem(this);
+                context.RemoveItem(this);
+                CurrentLocation = null;
+            }
+
+            return new PositiveInteractionResult(message);
+        }
+
         if (action.MatchVerb(["take", "get", "pick up", "remove", "grab"]))
             return new PositiveInteractionResult(
                 "It would ooze through your fingers. You'll have to eat it right out of the survival " +

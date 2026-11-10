@@ -11,6 +11,7 @@
 
 import {test, expect} from '@playwright/test';
 import {
+    blockLocationArtwork,
     closeWelcomeModal,
     handleZorkOneRoute,
     handleSaveGameRoute,
@@ -51,6 +52,10 @@ test.describe('Game Dialogs', () => {
     test('Welcome dialog - welcome dialog appears on first visit and can be closed', async ({
         page,
     }) => {
+        // This is the one test in the file that navigates directly rather than through
+        // closeWelcomeModal, which is where the artwork is normally blocked.
+        await blockLocationArtwork(page);
+
         // Navigate to the application
         await page.goto('/');
 
@@ -58,14 +63,14 @@ test.describe('Game Dialogs', () => {
         await page.waitForSelector('[data-testid="welcome-modal"]', {state: 'visible'});
 
         // Verify that the welcome modal contains the expected title
-        const modalTitle = page.locator('[data-testid="welcome-modal"] #alert-dialog-title');
+        const modalTitle = page.locator('[data-testid="welcome-modal"] #welcome-dialog-title');
         await expect(modalTitle).toContainText(
             'Welcome to Zork AI - A Modern Reimagining of the 1980s Classic!',
         );
 
         // Verify that the welcome modal contains some expected content
         const modalContent = page.locator(
-            '[data-testid="welcome-modal"] #alert-dialog-description',
+            '[data-testid="welcome-modal"] #welcome-dialog-description',
         );
         await expect(modalContent).toContainText(
             'This is a modern re-imagining of the iconic text adventure game Zork I.',
@@ -90,10 +95,10 @@ test.describe('Game Dialogs', () => {
         await page.locator('[data-testid="about-button"]').click();
 
         // Wait for the About menu to appear
-        await page.waitForSelector('#basic-menu', {state: 'visible'});
+        await page.waitForSelector('#about-menu', {state: 'visible'});
 
         // Click the "Watch intro video" menu item
-        await page.locator('#basic-menu li:has-text("Watch intro video")').click();
+        await page.locator('#about-menu li:has-text("Watch intro video")').click();
 
         // Wait for the video dialog to appear
         await page.waitForSelector('div[role="dialog"]', {state: 'visible'});
@@ -126,10 +131,10 @@ test.describe('Game Dialogs', () => {
         await page.locator('[data-testid="about-button"]').click();
 
         // Wait for the About menu to appear
-        await page.waitForSelector('#basic-menu', {state: 'visible'});
+        await page.waitForSelector('#about-menu', {state: 'visible'});
 
         // Click the "Version" menu item (last item in the menu)
-        await page.locator('#basic-menu li').last().click();
+        await page.locator('#about-menu li').last().click();
 
         // Wait for the release notes dialog to appear
         await page.waitForSelector('div[role="dialog"]', {state: 'visible'});

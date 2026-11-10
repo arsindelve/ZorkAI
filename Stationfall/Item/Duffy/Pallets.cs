@@ -43,6 +43,16 @@ public class Pallets : ItemBase, ICanBeExamined, ICanBeRead
                 "You work a box open. Inside are forms" + string.Concat(Enumerable.Repeat(" and forms", 50)) +
                 ". Horrified, you reseal the box. ");
 
+        if (action.MatchVerb(["count"]))
+            return new PositiveInteractionResult(
+                "You get as far as the fourth row before losing your place, and the thought of " +
+                "starting again is more than you can bear. ");
+
+        if (action.MatchVerb(["destroy", "tear", "rip", "shred", "burn", "break", "crumple"]))
+            return new PositiveInteractionResult(
+                "Destroying Patrol forms on this scale would be a violation of the Uniform Code of " +
+                "Paperwork so comprehensive that it probably has its own form. ");
+
         if (action.MatchVerb(["close", "shut", "seal"]))
             return new PositiveInteractionResult("The boxes are already sealed. ");
 

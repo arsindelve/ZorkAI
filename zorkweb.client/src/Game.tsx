@@ -9,7 +9,17 @@ import {
     InventoryButton,
     LocationButton,
     DialogType,
+    HintPanel,
+    HintsButton,
+    isFeatureEnabled,
+    transcriptFontSizePx,
+    transcriptFontStack,
+    transcriptLineHeight,
+    formatTranscriptMarker,
+    compassScale,
+    LocationImage,
 } from '@zork-ai/shared-types';
+import config from '../config.json';
 import React, {useEffect, useState} from 'react';
 import {Alert, Button, CircularProgress, Snackbar} from '@mui/material';
 import '@fontsource/roboto';
@@ -21,6 +31,8 @@ import {Compass, parseMoveDirection} from '@zork-ai/shared-types';
 
 import {useGameContext} from '@zork-ai/shared-types';
 import GameInput from './components/GameInput.tsx';
+import {TRANSCRIPT_BASE_FONT_SIZE_PX} from './transcriptFontSize.ts';
+import {ZORK_LOCATION_IMAGES} from './locationImages.ts';
 
 // --- Per-word hover highlight (CSS Custom Highlight API) ---------------------
 // Lives in the client (passed to ClickableText as onMouseMove/onMouseLeave) rather
@@ -107,15 +119,29 @@ function Game() {
     const [locationActions, setLocationActions] = useState<Record<string, string[]>>({});
     const [exits, setExits] = useState<string[]>([]);
     const [locationName, setLocationName] = useState<string>('');
+    const [itIsDarkHere, setItIsDarkHere] = useState<boolean>(false);
+    const [locationKey, setLocationKey] = useState<string | undefined>(undefined);
+    // Bumped whenever the player starts over, so the room artwork plays again for a fresh
+    // run rather than staying spent from the previous one.
+    const [playthrough, setPlaythrough] = useState<number>(0);
     const [pingMove, setPingMove] = useState<{id: string; nonce: number}>({id: '', nonce: 0});
     const [showJumpToLatest, setShowJumpToLatest] = useState<boolean>(false);
     const atBottomRef = React.useRef<boolean>(true);
 
     const [snackBarOpen, setSnackBarOpen] = useState<boolean>(false);
     const [snackBarMessage, setSnackBarMessage] = useState<string>('');
+    // Shared with Planetfall; both clients ship dark until the feature is ready.
+    const hintsEnabled = isFeatureEnabled('hints', config.hints_enabled === true);
+    const [hintsOpen, setHintsOpen] = useState<boolean>(false);
+    const [activeSessionId, setActiveSessionId] = useState<string>('');
 
     const sessionId = new SessionHandler();
     const server = new Server();
+
+    // Counts the commands the player has typed, for the optional transcript marker.
+    // A ref, not state: it is read inside the response handler, where a state value
+    // captured at render time would be stale.
+    const commandCount = React.useRef<number>(0);
 
     const gameContentElement = React.useRef<HTMLDivElement & ClickableTextHandle>(null);
     const playerInputElement = React.useRef<HTMLInputElement>(null);
@@ -131,6 +157,18 @@ function Game() {
         deleteGameRequest,
         setDeleteGameRequest,
         setCopyGameTranscript,
+        transcriptFontSize,
+        transcriptFont,
+        transcriptLineSpacing,
+        transcriptMarker,
+        showCompass,
+        compassSize,
+        showVerbsMenu,
+        showCommandsMenu,
+        showLocationButton,
+        showInventoryButton,
+        showLocationImages,
+        animations,
     } = useGameContext();
 
     function focusOnPlayerInput() {
@@ -160,6 +198,11 @@ function Game() {
         if (!restoreGameRequest) return;
         setGameText([]);
         gameRestore(restoreGameRequest.id!).then((data) => {
+            // Bumped here and not when the request went out: React batches it with the
+            // location the response carries, so the artwork sees the new room and the new
+            // playthrough together. Bumping early re-ran it against the room the player was
+            // standing in when they hit Restore, and replayed that room's picture.
+            setPlaythrough((previous) => previous + 1);
             handleResponse(data);
             setRestoreGameRequest(undefined);
             focusOnPlayerInput();
@@ -216,6 +259,8 @@ function Game() {
         sessionId.regenerate();
         setGameText(['']);
         gameInit().then((data) => {
+            // See the restore effect above: bumped with the response, not ahead of it.
+            setPlaythrough((previous) => previous + 1);
             handleResponse(data);
             setRestartGame(false);
             setSnackBarMessage('Game Restarted Successfully.');
@@ -287,14 +332,24 @@ function Game() {
 
         // Only render the command-echo paragraph when there's actually a command —
         // an empty <p> still carries margins and threw off the spacing above room names.
+        let marker = '';
+        if (playerInput) {
+            commandCount.current += 1;
+            const label = formatTranscriptMarker(transcriptMarker, commandCount.current);
+            marker = label
+                ? `<span data-testid="command-marker" class="opacity-50 font-normal mr-2">${label}</span>`
+                : '';
+        }
         const echo = playerInput
-            ? `<p data-testid="command-echo" class="text-[#c49a4c] font-extrabold mt-3 mb-1">> ${playerInput}</p>`
+            ? `<p data-testid="command-echo" class="text-[#c49a4c] font-extrabold mt-3 mb-1">${marker}> ${playerInput}</p>`
             : '';
         const textToAppend = echo + data.response;
 
         setGameText((prevGameText) => [...prevGameText, textToAppend]);
         setInput('');
         setLocationName(data.locationName);
+        setItIsDarkHere(data.itIsDarkHere ?? false);
+        setLocationKey(data.locationKey);
         setScore(data.score.toString());
         setMoves(data.moves.toString());
         setInventory(data.inventory);
@@ -365,6 +420,7 @@ function Game() {
     async function gameInit(): Promise<GameResponse> {
         const [id, firstTime] = sessionId.getSessionId();
         if (firstTime) setDialogToOpen(DialogType.Welcome);
+        setActiveSessionId(id);
         return await server.gameInit(id);
     }
 
@@ -413,11 +469,12 @@ function Game() {
 
             <Header locationName={locationName} moves={moves} score={score} />
 
-            <Compass
-                onCompassClick={handleCommandClick}
-                exits={exits}
-                pingMove={pingMove}
-                className="
+            {showCompass && !hintsOpen && (
+                <Compass
+                    onCompassClick={handleCommandClick}
+                    exits={exits}
+                    pingMove={pingMove}
+                    className="
             hidden
             md:block
             absolute
@@ -428,80 +485,111 @@ function Game() {
             rounded-xl
             p-7
             "
-                style={{
-                    background:
-                        'linear-gradient(135deg, rgba(41, 37, 36, 0.14) 0%, rgba(12, 10, 9, 0.14) 100%)',
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(196, 154, 76, 0.3)',
-                    boxShadow: '0 4px 20px rgba(196, 154, 76, 0.18), 0 2px 10px rgba(0, 0, 0, 0.5)',
-                }}
-            />
-
-            <div className="relative flex-1 min-h-0 mt-2">
-                <ClickableText
-                    ref={gameContentElement}
-                    exits={exits}
-                    onWordClick={(word: string) => handleWordClicked(word)}
-                    onMouseMove={highlightWordAtPointer}
-                    onMouseLeave={clearWordHighlight}
-                    onScroll={handleTranscriptScroll}
-                    className={
-                        'relative flex flex-col p-6 sm:p-12 bg-opacity-80 h-full overflow-auto ' +
-                        'bg-stone-900 font-mono rounded-t-lg border-t-2 border-x-2 ' +
-                        'border-stone-700/50 shadow-lg clickable z-10'
-                    }
-                    data-testid="game-responses-container"
-                >
-                    <div className="relative z-0">
-                        {/* Background styling elements */}
-                        <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMjEyMTIxIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=')] opacity-5 pointer-events-none"></div>
-                        <div className="absolute top-2 left-2 w-20 h-20 rounded-full bg-[#c49a4c]/10 blur-3xl pointer-events-none"></div>
-                        <div className="absolute bottom-10 right-5 w-32 h-32 rounded-full bg-[#c49a4c]/5 blur-3xl pointer-events-none"></div>
-                    </div>
-
-                    {/* mt-auto pins the transcript to the bottom of the panel (terminal feel)
-                    while still scrolling normally once the content overflows. */}
-                    <div className="mt-auto relative z-10 w-full">
-                        {gameText.map((item: string, index: number) => (
-                            <p
-                                dangerouslySetInnerHTML={{__html: item}}
-                                className={`mb-4 relative z-10 ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
-                                key={index}
-                                data-testid="game-response"
-                            ></p>
-                        ))}
-                    </div>
-                </ClickableText>
-
-                {/* The scanline sweep gets its own clipping layer rather than riding on
-                    the transcript or on a wrapper around it. On the transcript, its
-                    transform inflated the scrollable overflow and auto-scroll aimed at a
-                    phantom bottom; on the wrapper, the overflow-hidden needed to clip the
-                    sweep also clipped the panel's shadow and left the transcript's parent
-                    silently scrollable. z-[15] sits over the text (z-10) but under the
-                    compass (z-20) and the "New messages" pill (z-30). */}
-                <div
-                    aria-hidden="true"
-                    className="absolute inset-0 z-[15] overflow-hidden rounded-t-lg pointer-events-none scanline-effect"
+                    style={{
+                        background:
+                            'linear-gradient(135deg, rgba(41, 37, 36, 0.14) 0%, rgba(12, 10, 9, 0.14) 100%)',
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
+                        border: '1px solid rgba(196, 154, 76, 0.3)',
+                        boxShadow:
+                            '0 4px 20px rgba(196, 154, 76, 0.18), 0 2px 10px rgba(0, 0, 0, 0.5)',
+                        // Scale the whole container so the rose, its up/down controls and
+                        // its padding resize together. Anchored top-right because that is
+                        // the corner it is positioned from, so it grows inward.
+                        transform: `scale(${compassScale(compassSize)})`,
+                        transformOrigin: 'top right',
+                    }}
                 />
+            )}
 
-                {showJumpToLatest && (
-                    <button
-                        type="button"
-                        onClick={jumpToLatest}
-                        data-testid="jump-to-latest"
-                        className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-mono pointer-events-auto transition-transform hover:scale-105 animate-fadeIn"
+            <div className="relative flex-1 min-h-0 mt-2 flex flex-row gap-3">
+                <div className="relative flex-1 min-w-0 h-full">
+                    <ClickableText
+                        ref={gameContentElement}
+                        exits={exits}
+                        onWordClick={(word: string) => handleWordClicked(word)}
+                        onMouseMove={highlightWordAtPointer}
+                        onMouseLeave={clearWordHighlight}
+                        onScroll={handleTranscriptScroll}
+                        className={
+                            'relative flex flex-col p-6 sm:p-12 bg-opacity-80 h-full overflow-auto ' +
+                            'bg-stone-900 rounded-t-lg border-t-2 border-x-2 ' +
+                            'border-stone-700/50 shadow-lg clickable z-10'
+                        }
+                        // Set here rather than as Tailwind classes so the whole transcript
+                        // inherits one size and family the preferences can drive at runtime.
+                        // The font-mono class was removed for the same reason: two sources
+                        // of truth for the family is one too many.
                         style={{
-                            background: 'rgba(28, 25, 23, 0.92)',
-                            border: '1px solid rgba(196, 154, 76, 0.45)',
-                            color: '#e3c179',
-                            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.5)',
-                            backdropFilter: 'blur(4px)',
+                            fontSize: `${transcriptFontSizePx(
+                                TRANSCRIPT_BASE_FONT_SIZE_PX,
+                                transcriptFontSize,
+                            )}px`,
+                            fontFamily: transcriptFontStack(transcriptFont),
+                            lineHeight: transcriptLineHeight(transcriptLineSpacing),
                         }}
+                        data-testid="game-responses-container"
                     >
-                        &darr;&nbsp;New messages
-                    </button>
+                        <div className="relative z-0">
+                            {/* Background styling elements */}
+                            <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMjEyMTIxIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMxYTFhMWEiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=')] opacity-5 pointer-events-none"></div>
+                            <div className="absolute top-2 left-2 w-20 h-20 rounded-full bg-[#c49a4c]/10 blur-3xl pointer-events-none"></div>
+                            <div className="absolute bottom-10 right-5 w-32 h-32 rounded-full bg-[#c49a4c]/5 blur-3xl pointer-events-none"></div>
+                        </div>
+
+                        {/* mt-auto pins the transcript to the bottom of the panel (terminal feel)
+                    while still scrolling normally once the content overflows. */}
+                        <div className="mt-auto relative z-10 w-full">
+                            {gameText.map((item: string, index: number) => (
+                                <p
+                                    dangerouslySetInnerHTML={{__html: item}}
+                                    className={`mb-4 relative z-10 ${index === gameText.length - 1 ? 'animate-fadeIn' : ''}`}
+                                    key={index}
+                                    data-testid="game-response"
+                                ></p>
+                            ))}
+                        </div>
+                    </ClickableText>
+
+                    {/* Sits inside the transcript's relative box, so the plate covers the
+                    panel the room description just landed in and dissolves back into it. */}
+                    <LocationImage
+                        locationKey={locationKey}
+                        locationName={locationName}
+                        images={ZORK_LOCATION_IMAGES}
+                        isDark={itIsDarkHere}
+                        resetOn={playthrough}
+                        enabled={showLocationImages}
+                        animate={animations}
+                    />
+
+                    {showJumpToLatest && (
+                        <button
+                            type="button"
+                            onClick={jumpToLatest}
+                            data-testid="jump-to-latest"
+                            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-mono pointer-events-auto transition-transform hover:scale-105 animate-fadeIn"
+                            style={{
+                                background: 'rgba(28, 25, 23, 0.92)',
+                                border: '1px solid rgba(196, 154, 76, 0.45)',
+                                color: '#e3c179',
+                                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.5)',
+                                backdropFilter: 'blur(4px)',
+                            }}
+                        >
+                            &darr;&nbsp;New messages
+                        </button>
+                    )}
+                </div>
+
+                {hintsEnabled && activeSessionId && (
+                    <HintPanel
+                        open={hintsOpen}
+                        onClose={() => setHintsOpen(false)}
+                        sessionId={activeSessionId}
+                        ask={server.hint}
+                        className="absolute inset-0 z-30 md:relative md:inset-auto md:z-auto md:w-[340px] md:flex-none md:h-full"
+                    />
                 )}
             </div>
 
@@ -541,8 +629,8 @@ function Game() {
                         min-h-[44px]
                         "
                     >
-                        <VerbsButton onVerbClick={handleVerbClick} />
-                        {inventory.length > 0 && (
+                        {showVerbsMenu && <VerbsButton onVerbClick={handleVerbClick} />}
+                        {showInventoryButton && inventory.length > 0 && (
                             <InventoryButton
                                 onInventoryClick={handleInventoryClick}
                                 onActionClick={handleCommandClick}
@@ -550,14 +638,23 @@ function Game() {
                                 inventoryActions={inventoryActions}
                             />
                         )}
-                        {Object.values(locationActions).some((actions) => actions.length > 0) && (
-                            <LocationButton
-                                onItemClick={handleInventoryClick}
-                                onActionClick={handleCommandClick}
-                                locationActions={locationActions}
+                        {showLocationButton &&
+                            Object.values(locationActions).some(
+                                (actions) => actions.length > 0,
+                            ) && (
+                                <LocationButton
+                                    onItemClick={handleInventoryClick}
+                                    onActionClick={handleCommandClick}
+                                    locationActions={locationActions}
+                                />
+                            )}
+                        {showCommandsMenu && <CommandsButton onCommandClick={handleCommandClick} />}
+                        {hintsEnabled && (
+                            <HintsButton
+                                open={hintsOpen}
+                                onToggle={() => setHintsOpen((previous) => !previous)}
                             />
                         )}
-                        <CommandsButton onCommandClick={handleCommandClick} />
 
                         <Button
                             variant="contained"

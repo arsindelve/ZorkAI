@@ -8,11 +8,31 @@ import {Page, Route} from '@playwright/test';
 import {mockResponses} from './mockResponses';
 
 /**
+ * Stop the room artwork from loading.
+ *
+ * The first arrival in a room with art drops an establishing shot over the transcript
+ * for a few seconds. Left alone the suite would fetch those files from S3 - real
+ * network, in every test - and spend that time with the transcript covered, so clicks
+ * aimed at a word or a button would land on the plate instead. Aborting the request
+ * makes the component skip the plate, exactly as it does for a room with no art.
+ *
+ * `locationImage.spec.ts` fulfils this route instead of aborting it, and is where the
+ * feature itself is covered.
+ */
+export async function blockLocationArtwork(page: Page) {
+    await page.route('https://zorkai-assets.s3.amazonaws.com/locations/*', (route) =>
+        route.abort(),
+    );
+}
+
+/**
  * Helper function to close the welcome modal
  * This function navigates to the application, waits for the welcome modal to be visible,
  * and then closes it by clicking the close button.
  */
 export async function closeWelcomeModal(page: Page) {
+    await blockLocationArtwork(page);
+
     // Navigate to the application
     await page.goto('/');
 

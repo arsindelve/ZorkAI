@@ -108,6 +108,33 @@ public class VerbSweepTests : EngineTestsBase
     }
 
     /// <summary>
+    ///     The gate. Every verb the original authors an answer for, in the opening, is answered here
+    ///     too. A new object that declares verbs it does not handle - or a room description that puts a
+    ///     new noun in front of the player - fails this, so content and its coverage land together.
+    /// </summary>
+    [Test]
+    public async Task EveryVerbTheOriginalAnswersFor_IsAnsweredHere()
+    {
+        var gaps = new List<string>();
+
+        foreach (var (travel, noun, verbs) in Targets)
+        foreach (var verb in verbs)
+        {
+            var target = GetTarget();
+            foreach (var step in Route(travel, noun))
+                await target.GetResponse(step);
+
+            LeakRecorder.Clear();
+            await target.GetResponse(Command(verb, noun));
+
+            if (LeakRecorder.CompletenessLeaks.Count > 0)
+                gaps.Add(Command(verb, noun));
+        }
+
+        gaps.Should().BeEmpty("the original authors an answer for each of these, so the port must too");
+    }
+
+    /// <summary>
     ///     The full route from the start of the game to where this noun is in scope. Cumulative,
     ///     because each target starts from a fresh game.
     /// </summary>

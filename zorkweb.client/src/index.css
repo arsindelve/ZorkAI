@@ -11,6 +11,45 @@
     --compass-label-color: rgba(214, 211, 209, 0.7);
     --compass-btn-text: #f5e7c4;
     --compass-btn-idle: rgb(214, 211, 209);
+
+    /* Shared hint panel, ready for the feature flag to be enabled. */
+    --hint-accent: #c49a4c;
+    --hint-user-accent: #8aa6b8;
+    --hint-badge: #e3c179;
+    --hint-warning: #dc6b5f;
+    --hint-bg: #221d16;
+    --hint-bg-deep: #0c0a09;
+    --hint-bubble: #29231c;
+    --hint-text: #ede4d3;
+    --hint-muted: #a99f8d;
+
+    /* Shared command input and header */
+    --game-input-glow: linear-gradient(90deg, rgba(120, 53, 15, 0.3), #44403c);
+    --game-input-accent: #c49a4c;
+    --game-input-bg: #292524;
+    --game-input-text: #f5e7c4;
+    --game-input-border: #57534e;
+    --game-input-focus-border: rgba(161, 98, 7, 0.7);
+    --game-input-focus-shadow: 0 0 20px rgba(120, 53, 15, 0.3);
+    --game-input-muted: rgba(168, 162, 158, 0.7);
+    --game-header-bg: linear-gradient(135deg, #2b2723 0%, #161310 100%);
+    --game-header-border: rgba(196, 154, 76, 0.35);
+    --game-header-shadow: 0 6px 22px rgba(196, 154, 76, 0.16);
+    --game-header-chip-bg: rgba(12, 10, 9, 0.55);
+    --game-header-accent: #c49a4c;
+    --game-header-muted: #a8a29e;
+    --game-header-value: #e3c179;
+
+    /* Preferences dialog palette (see PreferencesModal in the shared package). */
+    --pref-surface: #17140f;
+    --pref-surface-raised: #221d16;
+    --pref-specimen-bg: #0c0a09;
+    --pref-accent: #c49a4c;
+    --pref-accent-bright: #e3c179;
+    --pref-text-color: #ede4d3;
+    --pref-text-muted: #bdb3a1;
+    --pref-text-dim: #9c9384;
+    --pref-border: rgba(196, 154, 76, 0.22);
 }
 
 /* ── Great Underground Empire masthead ─────────────────────────────────────
@@ -99,43 +138,6 @@
     }
 }
 
-/* Subtle CRT scanline texture over the transcript */
-@keyframes scanline {
-    0% {
-        transform: translateY(0);
-    }
-    100% {
-        transform: translateY(100%);
-    }
-}
-/* TRAP: apply this only to a dedicated overlay layer that clips itself — never
-   to the scrolling transcript, and never to an ancestor of it either. The sweep
-   is a translateY animation, and a transformed descendant contributes its
-   *transformed* bounds to its scroll container's scrollable overflow. On the
-   transcript, scrollHeight therefore crept up by the panel's height every 8s and
-   snapped back on each loop: auto-scroll aimed at a phantom bottom (dead space
-   under the newest line), the view lurched, and the inflated
-   scrollHeight-scrollTop-clientHeight gap falsely tripped the "New messages"
-   pill. Moving it to a wrapper *around* the transcript is not a fix either —
-   that wrapper then needs overflow:hidden to clip the sweep, which also clips
-   the panel's shadow and leaves the transcript's parent silently scrollable, so
-   any reveal-scroll displaces the whole panel. The overlay owns its own stacking
-   order; don't set z-index here. */
-.scanline-effect::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(196, 154, 76, 0.03) 2px,
-        rgba(196, 154, 76, 0.03) 4px
-    );
-    pointer-events: none;
-    animation: scanline 8s linear infinite;
-}
-
 .animate-fadeIn {
     animation: fadeIn 0.4s ease-out forwards;
 }
@@ -195,4 +197,18 @@
     background-color: rgba(196, 154, 76, 0.3);
     color: #f5e7c4;
     text-shadow: 0 0 2px rgba(227, 193, 121, 0.6);
+}
+
+/* Reduce motion (Preferences > Animations off).
+   Set as data-reduce-motion on <html> by GameProvider, so it also covers MUI dialogs
+   and menus that render through a portal. Near-zero durations rather than `none` so
+   animations still *complete* and fire their end events - killing them outright can
+   leave an element stuck at its starting opacity. */
+:root[data-reduce-motion='true'] *,
+:root[data-reduce-motion='true'] *::before,
+:root[data-reduce-motion='true'] *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
 }

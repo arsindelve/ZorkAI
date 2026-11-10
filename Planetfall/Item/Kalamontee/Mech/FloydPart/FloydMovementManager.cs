@@ -75,9 +75,19 @@ public class FloydMovementManager(Floyd floyd)
         if (specialLocation.InteractionHasHappened)
             return string.Empty;
 
+        // This one is an embellishment on "Floyd follows you. ", so it has no canned stand-in - it
+        // just drops. What it must never do is take the follow announcement down with it (issue #549),
+        // nor burn the location's one-shot flag on a beat the player never saw: the flag is spent only
+        // once a line actually exists, so a failed call leaves the moment available to fire later.
+        var comment = await GenerateOrFallBack(
+            () => floyd.GenerateCompanionSpeech(context, client, specialLocation.FloydPrompt),
+            () => string.Empty);
+
+        if (string.IsNullOrWhiteSpace(comment))
+            return string.Empty;
+
         specialLocation.InteractionHasHappened = true;
-        return Environment.NewLine + Environment.NewLine +
-               await floyd.GenerateCompanionSpeech(context, client, specialLocation.FloydPrompt);
+        return Environment.NewLine + Environment.NewLine + comment;
     }
 
     /// <summary>
@@ -123,11 +133,46 @@ public class FloydMovementManager(Floyd floyd)
 
     private async Task<string> GenerateDepartureMessage(IContext context, IGenerationClient client)
     {
-        return await floyd.GenerateCompanionSpeech(context, client, FloydPrompts.LeavingToExplore);
+        return await GenerateOrFallBack(
+            () => floyd.GenerateCompanionSpeech(context, client, FloydPrompts.LeavingToExplore),
+            () => FloydConstants.GoingExploring);
     }
 
     private async Task<string> GenerateReturnMessage(IContext context, IGenerationClient client)
     {
-        return await floyd.GenerateCompanionSpeech(context, client, FloydPrompts.ReturningFromExploring);
+        return await GenerateOrFallBack(
+            () => floyd.GenerateCompanionSpeech(context, client, FloydPrompts.ReturningFromExploring),
+            () => floyd.Chooser.Choose(FloydConstants.ReturnMessages.ToList()));
+    }
+
+    /// <summary>
+    /// Runs a generated line, falling back to a canned one if the generation throws or comes back
+    /// empty.
+    /// </summary>
+    /// <remarks>
+    /// Every one of Floyd's comings and goings commits its state change - him being placed back in
+    /// the room, or pulled out of it - BEFORE the line announcing it is generated. So when the
+    /// generation call failed, the move still happened and the player was never told: Floyd simply
+    /// rematerialized beside a player who sat through ten more "wait" turns believing he was still
+    /// gone (issue #549). A thrown call was worse still, since the engine's top-level guard replaced
+    /// the entire turn's output with its generic "something goes wrong" line.
+    /// <para>
+    /// A companion's movements are load-bearing state changes, so the announcement must never depend
+    /// on a live LLM call succeeding - the same reasoning behind the canned fallback in
+    /// <see cref="Floyd.OnBeingTalkedTo" />. The fallback is lazy so the chooser is only consulted on
+    /// the path that actually needs it.
+    /// </para>
+    /// </remarks>
+    private static async Task<string> GenerateOrFallBack(Func<Task<string>> generate, Func<string> fallback)
+    {
+        try
+        {
+            var message = await generate();
+            return string.IsNullOrWhiteSpace(message) ? fallback() : message;
+        }
+        catch (Exception)
+        {
+            return fallback();
+        }
     }
 }

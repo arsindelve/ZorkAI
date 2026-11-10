@@ -2,6 +2,7 @@ using Model.Interface;
 using Model.Item;
 using Model.Movement;
 using Model.Web;
+using ZorkOne.Location;
 using Planetfall.Item.Lawanda.Lab;
 
 namespace UnitTests.Models;
@@ -269,6 +270,86 @@ public class GameResponseTests
         // ...but inventory-derived fields remain (the player can still feel what they carry).
         gameResponse.Inventory.Should().BeEquivalentTo(inventory);
         gameResponse.ActionsAvailableFromInventory.Should().BeEquivalentTo(inventoryActions);
+    }
+
+    [Test]
+    public void GameResponse_GameEngineConstructor_WithNoContext_ShouldWithholdRatherThanClaimLight()
+    {
+        // The two fields above use `is { ItIsDarkHere: false }`, which a null Context fails,
+        // so a null already withholds the exits and the chips. Darkness has to fail the same
+        // way round or the client is told the room is lit while its payload has been stripped
+        // as though it were dark.
+        var mockGameEngine = new Mock<IGameEngine>();
+        mockGameEngine.Setup(ge => ge.LocationName).Returns("Cellar");
+        mockGameEngine.Setup(ge => ge.Inventory).Returns(new List<string>());
+        mockGameEngine.Setup(ge => ge.Exits).Returns(new List<Direction> { Direction.N });
+        mockGameEngine.Setup(ge => ge.Context).Returns((IContext?)null);
+
+        var gameResponse = new GameResponse("You are in the cellar.", mockGameEngine.Object);
+
+        gameResponse.Exits.Should().BeEmpty();
+        gameResponse.ActionsAvailableFromLocation.Should().BeEmpty();
+        gameResponse.ItIsDarkHere.Should().BeTrue();
+        gameResponse.LocationKey.Should().BeNull();
+    }
+
+    [Test]
+    public void GameResponse_GameEngineConstructor_ShouldReportTheLocationClassAsItsKey()
+    {
+        // The display name is not an identity: Zork I has two rooms called "Clearing", and
+        // only one of them has the grating under the leaves. A client picking artwork by
+        // name alone cannot tell them apart, so the room's own type name goes on the wire.
+        var mockGameEngine = new Mock<IGameEngine>();
+        mockGameEngine.Setup(ge => ge.LocationName).Returns("Clearing");
+        mockGameEngine.Setup(ge => ge.Inventory).Returns(new List<string>());
+        mockGameEngine.Setup(ge => ge.Exits).Returns(new List<Direction>());
+        mockGameEngine.Setup(ge => ge.Context!.ItIsDarkHere).Returns(true);
+        // Constructed directly rather than fetched from the Repository: the Repository is a
+        // process-wide singleton, and this fixture has no Reset to undo what it would leave
+        // behind for every test that runs after it.
+        mockGameEngine.Setup(ge => ge.Context!.CurrentLocation).Returns(new ClearingBehindHouse());
+
+        var gameResponse = new GameResponse("You are in a small clearing.", mockGameEngine.Object);
+
+        gameResponse.LocationName.Should().Be("Clearing");
+        gameResponse.LocationKey.Should().Be(nameof(ClearingBehindHouse));
+    }
+
+    [Test]
+    public void GameResponse_GameEngineConstructor_WhenDark_ShouldReportDarkness()
+    {
+        // The client has location-derived things of its own to withhold in the dark - the room
+        // artwork most of all - so the darkness the server already acts on has to reach it.
+        var mockGameEngine = new Mock<IGameEngine>();
+        mockGameEngine.Setup(ge => ge.LocationName).Returns("Cellar");
+        mockGameEngine.Setup(ge => ge.Inventory).Returns(new List<string>());
+        mockGameEngine.Setup(ge => ge.Exits).Returns(new List<Direction>());
+        mockGameEngine.Setup(ge => ge.Context!.ItIsDarkHere).Returns(true);
+
+        var gameResponse = new GameResponse(
+            "It is pitch black. You are likely to be eaten by a grue.", mockGameEngine.Object);
+
+        gameResponse.ItIsDarkHere.Should().BeTrue();
+    }
+
+    [Test]
+    public void GameResponse_GameEngineConstructor_WhenLit_ShouldNotReportDarkness()
+    {
+        var mockGameEngine = new Mock<IGameEngine>();
+        mockGameEngine.Setup(ge => ge.LocationName).Returns("Cellar");
+        mockGameEngine.Setup(ge => ge.Inventory).Returns(new List<string>());
+        mockGameEngine.Setup(ge => ge.Exits).Returns(new List<Direction>());
+        mockGameEngine.Setup(ge => ge.Context!.ItIsDarkHere).Returns(false);
+        // The lit branch reaches into the location for its action chips, which the dark
+        // branch skips entirely - so only this test needs them stubbed.
+        mockGameEngine.Setup(ge => ge.Context!.GetAvailableActionsForInventory())
+            .Returns(new Dictionary<string, List<string>>());
+        mockGameEngine.Setup(ge => ge.Context!.CurrentLocation.GetAvailableActionsInLocation())
+            .Returns(new Dictionary<string, List<string>>());
+
+        var gameResponse = new GameResponse("You are in the cellar.", mockGameEngine.Object);
+
+        gameResponse.ItIsDarkHere.Should().BeFalse();
     }
 
     [Test]

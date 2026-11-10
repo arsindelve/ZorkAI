@@ -40,6 +40,8 @@
     { "inputs": ["examine blue soup"], "verb": "examine", "noun": "blue soup" },
     { "inputs": ["take gray goo", "take the gray goo"], "verb": "take", "noun": "gray goo" },
     { "inputs": ["drop gray goo"], "verb": "drop", "noun": "gray goo" },
+    { "inputs": ["eat gray goo", "eat the gray goo"], "verb": "eat", "noun": "gray goo" },
+    { "inputs": ["remove gray goo"], "verb": "remove", "noun": "gray goo" },
     { "inputs": ["pick floyd", "choose floyd"], "verb": "pick", "noun": "floyd" },
     { "inputs": ["pick rex", "choose rex"], "verb": "pick", "noun": "rex" },
     { "inputs": ["examine floyd", "look at floyd"], "verb": "examine", "noun": "floyd" },
